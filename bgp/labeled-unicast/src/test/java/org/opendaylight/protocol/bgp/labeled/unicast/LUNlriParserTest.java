@@ -30,7 +30,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labe
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.labeled.unicast.LabelStackBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.labeled.unicast.destination.CLabeledUnicastDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.labeled.unicast.destination.CLabeledUnicastDestinationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv6LabeledUnicastCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLabeledUnicastCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.ipv6.labeled.unicast._case.DestinationIpv6LabeledUnicastBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.labeled.unicast._case.DestinationLabeledUnicastBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
@@ -62,7 +64,7 @@ public class LUNlriParserTest {
      * 1        <- bottomBit 1
      * 22 01 16 <- prefixType IPV4=34.1.22.0/24
      */
-    private static final byte[] LU_NLRI_IPv4 = new byte[] {
+    private static final byte[] LU_NLRI_IPv4 = new byte[]{
         (byte) 0x60,
         (byte) 0x00, (byte) 0x16, (byte) 0x30,
         (byte) 0x00, (byte) 0x16, (byte) 0x40,
@@ -83,7 +85,7 @@ public class LUNlriParserTest {
     * 1        <- bottomBit 1
     * 22 01 16 <- prefixType IPV4=34.1.22.0/24
     */
-    private static final byte[] LU_NLRI_IPv4_ADD_PATH = new byte[] {
+    private static final byte[] LU_NLRI_IPv4_ADD_PATH = new byte[]{
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01,
         (byte) 0x60,
         (byte) 0x00, (byte) 0x16, (byte) 0x30,
@@ -104,7 +106,7 @@ public class LUNlriParserTest {
      * 1        <- bottomBit 1
      * 20 01 D B8 0 1 0 2 0 0 0 0 0 0 0 0 80  <- prefixType IPV6=2001:db8:1:2::/128
      */
-    private static final byte[] LU_NLRI_IPv6 = new byte[] {
+    private static final byte[] LU_NLRI_IPv6 = new byte[]{
         (byte) 0xC8,
         (byte) 0x00, (byte) 0x16, (byte) 0x30,
         (byte) 0x00, (byte) 0x16, (byte) 0x40,
@@ -127,7 +129,7 @@ public class LUNlriParserTest {
      * 1        <- bottomBit 1
      * 20 01 D B8 0 1 0 2 0 0 0 0 0 0 0 0 80  <- prefixType IPV6=2001:db8:1:2::/128
      */
-    private static final byte[] LU_NLRI_IPv6_ADD_PATH = new byte[] {
+    private static final byte[] LU_NLRI_IPv6_ADD_PATH = new byte[]{
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01,
         (byte) 0xC8,
         (byte) 0x00, (byte) 0x16, (byte) 0x30,
@@ -139,9 +141,9 @@ public class LUNlriParserTest {
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
     };
     private static final List<LabelStack> LABEL_STACK = Lists.newArrayList(
-            new LabelStackBuilder().setLabelValue(new MplsLabel(355L)).build(),
-            new LabelStackBuilder().setLabelValue(new MplsLabel(356L)).build(),
-            new LabelStackBuilder().setLabelValue(new MplsLabel(357L)).build());
+        new LabelStackBuilder().setLabelValue(new MplsLabel(355L)).build(),
+        new LabelStackBuilder().setLabelValue(new MplsLabel(356L)).build(),
+        new LabelStackBuilder().setLabelValue(new MplsLabel(357L)).build());
 
     private static final IpPrefix IPv4_PREFIX = new IpPrefix(new Ipv4Prefix("34.1.22.0/24"));
     private static final IpPrefix IPv6_PREFIX = new IpPrefix(new Ipv6Prefix("2001:db8:1:2::/128"));
@@ -168,8 +170,8 @@ public class LUNlriParserTest {
         mpBuilder.setSafi(LabeledUnicastSubsequentAddressFamily.class);
         final CLabeledUnicastDestination lu = new CLabeledUnicastDestinationBuilder().setPrefix(IPv4_PREFIX).setLabelStack(LABEL_STACK).build();
         mpBuilder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
-                new DestinationLabeledUnicastCaseBuilder().setDestinationLabeledUnicast(
-                        new DestinationLabeledUnicastBuilder().setCLabeledUnicastDestination(Lists.newArrayList(lu)).build()).build()).build());
+            new DestinationLabeledUnicastCaseBuilder().setDestinationLabeledUnicast(
+                new DestinationLabeledUnicastBuilder().setCLabeledUnicastDestination(Lists.newArrayList(lu)).build()).build()).build());
         final MpReachNlri mpReachExpected = mpBuilder.build();
 
         //test parser
@@ -182,7 +184,7 @@ public class LUNlriParserTest {
         //test serializer
         final ByteBuf output = Unpooled.buffer();
         parser.serializeAttribute(new AttributesBuilder().addAugmentation(Attributes1.class,
-                new Attributes1Builder().setMpReachNlri(mpReachExpected).build()).build(), output);
+            new Attributes1Builder().setMpReachNlri(mpReachExpected).build()).build(), output);
         Assert.assertArrayEquals(LU_NLRI_IPv4, ByteArray.readAllBytes(output));
     }
 
@@ -221,9 +223,9 @@ public class LUNlriParserTest {
         mpBuilder.setSafi(LabeledUnicastSubsequentAddressFamily.class);
         final CLabeledUnicastDestination lu = new CLabeledUnicastDestinationBuilder().setPrefix(IPv4_PREFIX).setLabelStack(LABEL_STACK).build();
         mpBuilder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLabeledUnicastCaseBuilder().setDestinationLabeledUnicast(
-                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.labeled.unicast._case.DestinationLabeledUnicastBuilder().setCLabeledUnicastDestination(Lists.newArrayList(lu)).build())
-                        .build()).build());
+            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLabeledUnicastCaseBuilder().setDestinationLabeledUnicast(
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.labeled.unicast._case.DestinationLabeledUnicastBuilder().setCLabeledUnicastDestination(Lists.newArrayList(lu)).build())
+                .build()).build());
         final MpUnreachNlri mpUnreachExpected = mpBuilder.build();
 
         //test parser
@@ -236,7 +238,7 @@ public class LUNlriParserTest {
         //test serializer
         final ByteBuf output = Unpooled.buffer();
         parser.serializeAttribute(new AttributesBuilder().addAugmentation(Attributes2.class,
-                new Attributes2Builder().setMpUnreachNlri(mpUnreachExpected).build()).build(), output);
+            new Attributes2Builder().setMpUnreachNlri(mpUnreachExpected).build()).build(), output);
         Assert.assertArrayEquals(LU_NLRI_IPv4, ByteArray.readAllBytes(output));
     }
 
@@ -274,8 +276,9 @@ public class LUNlriParserTest {
         mpBuilder.setAfi(Ipv6AddressFamily.class);
         mpBuilder.setSafi(LabeledUnicastSubsequentAddressFamily.class);
         final CLabeledUnicastDestination lu = new CLabeledUnicastDestinationBuilder().setPrefix(IPv6_PREFIX).setLabelStack(LABEL_STACK).build();
-        mpBuilder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(new DestinationLabeledUnicastCaseBuilder()
-            .setDestinationLabeledUnicast(new DestinationLabeledUnicastBuilder().setCLabeledUnicastDestination(Lists.newArrayList(lu)).build()).build()).build());
+        mpBuilder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(new DestinationIpv6LabeledUnicastCaseBuilder()
+            .setDestinationIpv6LabeledUnicast(new DestinationIpv6LabeledUnicastBuilder().setCLabeledUnicastDestination(Lists.newArrayList(lu)).build())
+            .build()).build());
         final MpReachNlri mpReachExpected = mpBuilder.build();
 
         //test parser
@@ -288,7 +291,7 @@ public class LUNlriParserTest {
         //test serializer
         final ByteBuf output = Unpooled.buffer();
         parser.serializeAttribute(new AttributesBuilder().addAugmentation(Attributes1.class,
-                new Attributes1Builder().setMpReachNlri(mpReachExpected).build()).build(), output);
+            new Attributes1Builder().setMpReachNlri(mpReachExpected).build()).build(), output);
         Assert.assertArrayEquals(LU_NLRI_IPv6, ByteArray.readAllBytes(output));
     }
 
@@ -300,8 +303,8 @@ public class LUNlriParserTest {
         mpBuilder.setSafi(LabeledUnicastSubsequentAddressFamily.class);
         final CLabeledUnicastDestination lu = new CLabeledUnicastDestinationBuilder().setPathId(PATH_ID).setPrefix(IPv6_PREFIX).setLabelStack(LABEL_STACK).build();
         mpBuilder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
-            new DestinationLabeledUnicastCaseBuilder().setDestinationLabeledUnicast(
-                new DestinationLabeledUnicastBuilder().setCLabeledUnicastDestination(Lists.newArrayList(lu)).build())
+            new DestinationIpv6LabeledUnicastCaseBuilder().setDestinationIpv6LabeledUnicast(
+                new DestinationIpv6LabeledUnicastBuilder().setCLabeledUnicastDestination(Lists.newArrayList(lu)).build())
                 .build())
             .build());
         final MpReachNlri mpReachExpected = mpBuilder.build();
@@ -328,10 +331,11 @@ public class LUNlriParserTest {
         mpBuilder.setSafi(LabeledUnicastSubsequentAddressFamily.class);
         final CLabeledUnicastDestination lu = new CLabeledUnicastDestinationBuilder().setPrefix(IPv6_PREFIX).setLabelStack(LABEL_STACK).build();
         mpBuilder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLabeledUnicastCaseBuilder().setDestinationLabeledUnicast(
-                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.labeled.unicast._case.DestinationLabeledUnicastBuilder().setCLabeledUnicastDestination(Lists.newArrayList(lu)).build())
-                        .build())
-                        .build());
+            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.unreach
+                .nlri.withdrawn.routes.destination.type.DestinationIpv6LabeledUnicastCaseBuilder().setDestinationIpv6LabeledUnicast(
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp
+                    .unreach.nlri.withdrawn.routes.destination.type.destination.ipv6.labeled.unicast._case.DestinationIpv6LabeledUnicastBuilder()
+                    .setCLabeledUnicastDestination(Lists.newArrayList(lu)).build()).build()).build());
         final MpUnreachNlri mpUnreachExpected = mpBuilder.build();
 
         //test parser
@@ -344,7 +348,7 @@ public class LUNlriParserTest {
         //test serializer
         final ByteBuf output = Unpooled.buffer();
         parser.serializeAttribute(new AttributesBuilder().addAugmentation(Attributes2.class,
-                new Attributes2Builder().setMpUnreachNlri(mpUnreachExpected).build()).build(), output);
+            new Attributes2Builder().setMpUnreachNlri(mpUnreachExpected).build()).build(), output);
         Assert.assertArrayEquals(LU_NLRI_IPv6, ByteArray.readAllBytes(output));
     }
 
@@ -357,10 +361,11 @@ public class LUNlriParserTest {
         final CLabeledUnicastDestination lu = new CLabeledUnicastDestinationBuilder().setPathId(PATH_ID).setPrefix(IPv6_PREFIX).setLabelStack
             (LABEL_STACK).build();
         mpBuilder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
-            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLabeledUnicastCaseBuilder().setDestinationLabeledUnicast(
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.labeled.unicast._case.DestinationLabeledUnicastBuilder().setCLabeledUnicastDestination(Lists.newArrayList(lu)).build())
-                .build())
-            .build());
+            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.unreach
+                .nlri.withdrawn.routes.destination.type.DestinationIpv6LabeledUnicastCaseBuilder().setDestinationIpv6LabeledUnicast(
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp
+                    .unreach.nlri.withdrawn.routes.destination.type.destination.ipv6.labeled.unicast._case.DestinationIpv6LabeledUnicastBuilder()
+                    .setCLabeledUnicastDestination(Lists.newArrayList(lu)).build()).build()).build());
         final MpUnreachNlri mpUnreachExpected = mpBuilder.build();
 
         //test parser
