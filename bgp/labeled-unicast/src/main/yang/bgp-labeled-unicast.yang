@@ -75,31 +75,46 @@ module bgp-labeled-unicast {
         }
     }
 
-    grouping labeled-unicast-routes {
-        container labeled-unicast-routes {
-            list labeled-unicast-route {
-                leaf route-key {
-                    type binary;
-                }
-                key "route-key path-id";
-                uses labeled-unicast;
-                uses bgp-rib:route {
-                    augment "attributes/bgp-prefix-sid/bgp-prefix-sid-tlvs/bgp-prefix-sid-tlv" {
-                        case lu-label-index-tlv {
-                            uses label-index-tlv;
-                        }
-                        case lu-originator-srgb-tlv {
-                            uses originator-srgb-tlv;
-                        }
+    grouping labeled-unicast-routes-list {
+        list labeled-unicast-route {
+            leaf route-key {
+                type binary;
+            }
+            key "route-key path-id";
+            uses labeled-unicast;
+            uses bgp-rib:route {
+                augment "attributes/bgp-prefix-sid/bgp-prefix-sid-tlvs/bgp-prefix-sid-tlv" {
+                    case lu-label-index-tlv {
+                        uses label-index-tlv;
+                    }
+                    case lu-originator-srgb-tlv {
+                        uses originator-srgb-tlv;
                     }
                 }
             }
         }
     }
 
+    grouping labeled-unicast-routes {
+        container labeled-unicast-routes {
+            uses labeled-unicast-routes-list;
+        }
+    }
+
+    grouping labeled-unicast-ipv6-routes {
+        container labeled-unicast-ipv6-routes {
+            uses labeled-unicast-routes-list;
+        }
+    }
+
     augment "/bgp-msg:update/bgp-msg:attributes/bgp-mp:mp-reach-nlri/bgp-mp:advertized-routes/bgp-mp:destination-type" {
         case destination-labeled-unicast-case {
             container destination-labeled-unicast {
+                uses labeled-unicast-destination;
+            }
+        }
+        case destination-ipv6-labeled-unicast-case {
+            container destination-ipv6-labeled-unicast {
                 uses labeled-unicast-destination;
             }
         }
@@ -111,11 +126,19 @@ module bgp-labeled-unicast {
                 uses labeled-unicast-destination;
             }
         }
+        case destination-ipv6-labeled-unicast-case {
+            container destination-ipv6-labeled-unicast {
+                uses labeled-unicast-destination;
+            }
+        }
     }
 
     augment "/bgp-rib:application-rib/bgp-rib:tables/bgp-rib:routes" {
         case labeled-unicast-routes-case {
             uses labeled-unicast-routes;
+        }
+        case labeled-unicast-ipv6-routes-case {
+            uses labeled-unicast-ipv6-routes;
         }
     }
 
@@ -123,11 +146,17 @@ module bgp-labeled-unicast {
         case labeled-unicast-routes-case {
             uses labeled-unicast-routes;
         }
+        case labeled-unicast-ipv6-routes-case {
+            uses labeled-unicast-ipv6-routes;
+        }
     }
 
     augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:peer/bgp-rib:adj-rib-in/bgp-rib:tables/bgp-rib:routes" {
         case labeled-unicast-routes-case {
             uses labeled-unicast-routes;
+        }
+        case labeled-unicast-ipv6-routes-case {
+            uses labeled-unicast-ipv6-routes;
         }
     }
 
@@ -135,11 +164,17 @@ module bgp-labeled-unicast {
         case labeled-unicast-routes-case {
             uses labeled-unicast-routes;
         }
+        case labeled-unicast-ipv6-routes-case {
+            uses labeled-unicast-ipv6-routes;
+        }
     }
 
     augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:peer/bgp-rib:adj-rib-out/bgp-rib:tables/bgp-rib:routes" {
         case labeled-unicast-routes-case {
             uses labeled-unicast-routes;
+        }
+        case labeled-unicast-ipv6-routes-case {
+            uses labeled-unicast-ipv6-routes;
         }
     }
 
@@ -147,11 +182,17 @@ module bgp-labeled-unicast {
         case labeled-unicast-routes-case {
             uses labeled-unicast-routes;
         }
+        case labeled-unicast-ipv6-routes-case {
+            uses labeled-unicast-ipv6-routes;
+        }
     }
 
     augment "/bmp-mon:bmp-monitor/bmp-mon:monitor/bmp-mon:router/bmp-mon:peer/bmp-mon:post-policy-rib/bmp-mon:tables/bmp-mon:routes" {
         case labeled-unicast-routes-case {
             uses labeled-unicast-routes;
+        }
+        case labeled-unicast-ipv6-routes-case {
+            uses labeled-unicast-ipv6-routes;
         }
     }
 
