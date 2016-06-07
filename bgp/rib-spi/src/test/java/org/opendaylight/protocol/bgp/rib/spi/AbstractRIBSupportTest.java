@@ -1,106 +1,180 @@
 /*
- * Copyright (c) 2015 Cisco Systems, Inc. and others.  All rights reserved.
+ * Copyright (c) 2016 Cisco Systems, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.opendaylight.protocol.bgp.rib.spi;
 
-/**
- * TODO: Remove, instead use Common Rib Support test
- */
-public class AbstractRIBSupportTest {
-   /* private final ContainerNode ipv4p = ImmutableContainerNodeBuilder.create().withNodeIdentifier(new NodeIdentifier(Ipv4Prefixes.QNAME)).build();
-    private final ContainerNode destination = ImmutableContainerNodeBuilder.create().withNodeIdentifier(new NodeIdentifier(DestinationIpv4.QNAME)).addChild(this.ipv4p).build();
-    private final ChoiceNode choiceNode = ImmutableChoiceNodeBuilder.create().withNodeIdentifier(new NodeIdentifier(DestinationType.QNAME)).addChild(this.destination).build();
-    static ContainerNode dest;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import javassist.ClassPool;
+import org.junit.After;
+import org.junit.Before;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.DestinationType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.RibKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.LocRib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
+import org.opendaylight.yangtools.binding.data.codec.gen.impl.StreamWriterGenerator;
+import org.opendaylight.yangtools.binding.data.codec.impl.BindingNormalizedNodeCodecRegistry;
+import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
+import org.opendaylight.yangtools.sal.binding.generator.impl.ModuleInfoBackedContext;
+import org.opendaylight.yangtools.sal.binding.generator.util.JavassistUtils;
+import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
+import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
+import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
-    private final RIBSupport testSupport = new AbstractRIBSupport(Ipv4RoutesCase.class, Ipv4Routes.class, Ipv4Route.class,
-        Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, DestinationIpv4.QNAME) {
-        @Override
-        public ImmutableCollection<Class<? extends DataObject>> cacheableAttributeObjects() {
-            return null;
-        }
-
-        @Override
-        public ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects() {
-            return null;
-        }
-
-        @Nonnull
-        @Override
-        protected DestinationType buildDestination(@Nonnull final Collection<MapEntryNode> routes) {
-            return null;
-        }
-
-        @Nonnull
-        @Override
-        protected DestinationType buildWithdrawnDestination(@Nonnull final Collection<MapEntryNode> routes) {
-            return null;
-        }
-
-        @Override
-        protected void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath, final ContainerNode destination, final ContainerNode attributes, final ApplyRoute applyFunction) {
-
-        }
-
-        @Override
-        public boolean isComplexRoute() {
-            return false;
-        }
-    };
+public abstract class AbstractRIBSupportTest {
+    protected final static long PATH_ID = 1;
+    protected static final Attributes ATTRIBUTES = new AttributesBuilder().build();
+    private static final InstanceIdentifier<LocRib> RIB = InstanceIdentifier.builder(BgpRib.class).child(Rib.class, new RibKey(new RibId("rib"))).child(LocRib.class).build();
+    private static final InstanceIdentifier<Attributes> ATTRIBUTES_IID = InstanceIdentifier.create(Update.class).child(Attributes.class);
+    private static final InstanceIdentifier<MpUnreachNlri> MP_UNREACH_IID = ATTRIBUTES_IID.augmentation(Attributes2.class).child(MpUnreachNlri.class);
+    private static final InstanceIdentifier<MpReachNlri> MP_REACH_IID = ATTRIBUTES_IID.augmentation(Attributes1.class).child(MpReachNlri.class);
 
     @Mock
-    private DOMDataWriteTransaction tx;
+    protected DOMDataWriteTransaction tx;
+    protected List<InstanceIdentifier<?>> deletedRoutes;
+    protected List<Map.Entry<InstanceIdentifier<?>, DataObject>> insertedRoutes;
 
-    @Test
-    public void testRouteAttributesIdentifier() {
-        assertEquals(new NodeIdentifier(QName.create(Ipv4Routes.QNAME, Attributes.QNAME.getLocalName())), this.testSupport.routeAttributesIdentifier());
+    private BindingToNormalizedNodeCodec mappingService;
+    private AbstractRIBSupport abstractRIBSupport;
+    private ModuleInfoBackedContext moduleInfoBackedContext;
+
+    protected final void setUpTestCustomizer(final AbstractRIBSupport ribSupport) throws Exception {
+        this.abstractRIBSupport = ribSupport;
+        this.moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(this.abstractRIBSupport.routesContainerClass()));
+        this.mappingService.onGlobalContextUpdated(this.moduleInfoBackedContext.tryToCreateSchemaContext().get());
     }
 
-    @Test
-    public void testChangedRoutes() {
-        final QName TEST_QNAME = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet:test", "2015-03-05", "test");
-        final YangInstanceIdentifier writePath = YangInstanceIdentifier.of(TEST_QNAME);
+    @Before
+    public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
+        Mockito.doAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(final InvocationOnMock invocation) throws Throwable {
+                final Object[] args = invocation.getArguments();
+                AbstractRIBSupportTest.this.insertedRoutes.add(mappingService.fromNormalizedNode((YangInstanceIdentifier) args[1], (NormalizedNode<?, ?>) args[2]));
+                return args[1];
+            }
+        }).when(this.tx).put(Mockito.any(LogicalDatastoreType.class), Mockito.any(YangInstanceIdentifier.class), Mockito.any(NormalizedNode.class));
 
-        final YangInstanceIdentifier.NodeWithValue nodeIdentifier = new YangInstanceIdentifier.NodeWithValue(Ipv4Route.QNAME, "route");
-        final LeafSetEntryNode<Object> routeEntry = ImmutableLeafSetEntryNodeBuilder.create().withNodeIdentifier(nodeIdentifier).withValue("route").build();
-        final LeafSetNode<Object> route = ImmutableLeafSetNodeBuilder.create().withNodeIdentifier(new NodeIdentifier(Ipv4Route.QNAME)).withChild(routeEntry).build();
-        ContainerNode routes = ImmutableContainerNodeBuilder.create().withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(Ipv4Routes.QNAME))
-            .withChild(route).build();
+        Mockito.doAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(final InvocationOnMock invocation) throws Throwable {
+                final Object[] args = invocation.getArguments();
+                AbstractRIBSupportTest.this.deletedRoutes.add(mappingService.fromYangInstanceIdentifier((YangInstanceIdentifier) args[1]));
+                return args[1];
+            }
+        }).when(this.tx).delete(Mockito.any(LogicalDatastoreType.class), Mockito.any(YangInstanceIdentifier.class));
+        this.deletedRoutes = new ArrayList<>();
+        this.insertedRoutes = new ArrayList<>();
 
-        final ContainerNode routesContainer = ImmutableContainerNodeBuilder.create().addChild(routes).
-            withNodeIdentifier(new NodeIdentifier(TEST_QNAME)).build();
-        final DataTreeCandidate candidate = DataTreeCandidates.fromNormalizedNode(writePath, routesContainer);
-        final Collection<DataTreeCandidateNode> output = this.testSupport.changedRoutes(candidate.getRootNode());
-
-        Assert.assertFalse(output.isEmpty());
-        assertEquals(nodeIdentifier.toString(), output.iterator().next().getIdentifier().toString());
+        this.mappingService = new BindingToNormalizedNodeCodec(GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(),
+            new BindingNormalizedNodeCodecRegistry(StreamWriterGenerator.create(JavassistUtils.forClassPool(ClassPool.getDefault()))));
+        this.moduleInfoBackedContext = ModuleInfoBackedContext.create();
     }
 
-
-    @Test
-    public void testRoutePath() {
-        final YangInstanceIdentifier routePath = YangInstanceIdentifier.of(Routes.QNAME);
-        final NodeIdentifier routeId = new NodeIdentifier(Ipv4Route.QNAME);
-        final String result = "/(urn:opendaylight:params:xml:ns:yang:bgp-rib?revision=2013-09-25)routes/(urn:opendaylight:params:xml:ns:yang:bgp-inet?revision=2015-03-05)ipv4-routes/ipv4-route/ipv4-route";
-        assertEquals(result, this.testSupport.routePath(routePath, routeId).toString());
+    protected final ContainerNode createNlriWithDrawnRoute(final DestinationType destUnreach) {
+        final MpUnreachNlri mpReach = new MpUnreachNlriBuilder().setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(destUnreach).build()).build();
+        final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> result = this.mappingService.toNormalizedNode(MP_UNREACH_IID, mpReach);
+        return (ContainerNode) result.getValue();
     }
 
-    @Test
-    public void testDeleteRoutes() {
-        final ContainerNode advertised = ImmutableContainerNodeBuilder.create().addChild(this.choiceNode).withNodeIdentifier(new NodeIdentifier(WithdrawnRoutes.QNAME)).build();
-        final ContainerNode nlri = ImmutableContainerNodeBuilder.create().addChild(advertised).withNodeIdentifier(new NodeIdentifier(Nlri.QNAME)).build();
-        this.testSupport.deleteRoutes(null, null, nlri);
-        assertEquals(dest, this.destination);
+    protected final ContainerNode createNlriAdvertiseRoute(final DestinationType destReach) {
+        final MpReachNlri mpReach = new MpReachNlriBuilder().setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(destReach).build()).build();
+        final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> result = this.mappingService.toNormalizedNode(MP_REACH_IID, mpReach);
+        return (ContainerNode) result.getValue();
     }
 
-    @Test
-    public void testPutRoutes() {
-        final ContainerNode advertised = ImmutableContainerNodeBuilder.create().addChild(this.choiceNode).withNodeIdentifier(new NodeIdentifier(AdvertizedRoutes.QNAME)).build();
-        final ContainerNode nlri = ImmutableContainerNodeBuilder.create().addChild(advertised).withNodeIdentifier(new NodeIdentifier(Nlri.QNAME)).build();
-        this.testSupport.putRoutes(null, null, nlri, null);
-        assertEquals(dest, this.destination);
-    }*/
+    protected final ContainerNode createAttributes() {
+        return (ContainerNode) this.mappingService.toNormalizedNode(ATTRIBUTES_IID, ATTRIBUTES).getValue();
+    }
+
+    protected final ChoiceNode createRoutes(final Routes routes) {
+        final Tables tables = new TablesBuilder().setKey(getTablesKey()).setRoutes(routes).build();
+        return (ChoiceNode) ((MapEntryNode) this.mappingService.toNormalizedNode(tablesIId(), tables).getValue())
+            .getChild(new NodeIdentifier(BindingReflections.findQName(Routes.class))).get();
+    }
+
+    private TablesKey getTablesKey() {
+        return new TablesKey(this.abstractRIBSupport.getAfi(), this.abstractRIBSupport.getSafi());
+    }
+
+    private InstanceIdentifier<Tables> tablesIId() {
+        return RIB.child(Tables.class, getTablesKey());
+    }
+
+    private InstanceIdentifier<DataObject> routesIId() {
+        final InstanceIdentifier<Tables> tables = tablesIId();
+        return tables.child((Class) this.abstractRIBSupport.routesContainerClass());
+    }
+
+    protected final YangInstanceIdentifier getTablePath() {
+        final InstanceIdentifier<Tables> tables = tablesIId();
+        return this.mappingService.toYangInstanceIdentifier(tables);
+    }
+
+    protected final YangInstanceIdentifier getRoutePath() {
+        final InstanceIdentifier<DataObject> routesIId = routesIId();
+        return this.mappingService.toYangInstanceIdentifier(routesIId).node(BindingReflections.findQName(this.abstractRIBSupport.routesListClass()));
+    }
+
+    protected final Collection<MapEntryNode> createRoutes(final DataObject routes) {
+        Preconditions.checkArgument(routes.getImplementedInterface().equals(this.abstractRIBSupport.routesContainerClass()));
+        final InstanceIdentifier<DataObject> routesIId = routesIId();
+        final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> normalizedNode = this.mappingService.toNormalizedNode(routesIId, routes);
+        return ((MapNode) ((ContainerNode) normalizedNode.getValue())
+            .getChild(new NodeIdentifier(BindingReflections.findQName(this.abstractRIBSupport.routesListClass()))).get()).getValue();
+    }
+
+    protected final NodeIdentifierWithPredicates createRouteNIWP(final DataObject routes) {
+        final Collection<MapEntryNode> map = createRoutes(routes);
+        return (Iterables.getOnlyElement(map)).getIdentifier();
+    }
+
+    @After
+    public final void tearDown() throws InterruptedException, ExecutionException {
+        this.mappingService.close();
+    }
 }

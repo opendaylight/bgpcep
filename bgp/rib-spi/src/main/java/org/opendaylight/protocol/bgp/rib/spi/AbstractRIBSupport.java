@@ -133,12 +133,20 @@ public abstract class AbstractRIBSupport implements RIBSupport {
         return this.emptyRoutes;
     }
 
-    protected final QName routeQName() {
+    public final QName routeQName() {
         return this.routeQname;
     }
 
     protected final NodeIdentifier routeNid() {
         return this.routesListIdentifier;
+    }
+
+    public final Class<? extends AddressFamily> getAfi() {
+        return afiClass;
+    }
+
+    public final Class<? extends SubsequentAddressFamily> getSafi() {
+        return safiClass;
     }
 
     /**
@@ -150,8 +158,8 @@ public abstract class AbstractRIBSupport implements RIBSupport {
      */
     private MpReachNlri buildReach(final Collection<MapEntryNode> routes, final CNextHop hop) {
         final MpReachNlriBuilder mb = new MpReachNlriBuilder();
-        mb.setAfi(this.afiClass);
-        mb.setSafi(this.safiClass);
+        mb.setAfi(this.getAfi());
+        mb.setSafi(this.getSafi());
         mb.setCNextHop(hop);
         mb.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(buildDestination(routes)).build());
         return mb.build();
@@ -165,8 +173,8 @@ public abstract class AbstractRIBSupport implements RIBSupport {
      */
     private MpUnreachNlri buildUnreach(final Collection<MapEntryNode> routes) {
         final MpUnreachNlriBuilder mb = new MpUnreachNlriBuilder();
-        mb.setAfi(this.afiClass);
-        mb.setSafi(this.safiClass);
+        mb.setAfi(this.getAfi());
+        mb.setSafi(this.getSafi());
         mb.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(buildWithdrawnDestination(routes)).build());
         return mb.build();
     }
@@ -352,9 +360,9 @@ public abstract class AbstractRIBSupport implements RIBSupport {
         }
     }
 
-    private static class DeleteRoute implements ApplyRoute {
+    private static final class DeleteRoute implements ApplyRoute {
         @Override
-        public void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base, final NodeIdentifierWithPredicates routeKey,
+        public final void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base, final NodeIdentifierWithPredicates routeKey,
             final DataContainerNode<?> route, final ContainerNode attributes) {
             tx.delete(LogicalDatastoreType.OPERATIONAL, base.node(routeKey));
         }
