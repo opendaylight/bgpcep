@@ -90,7 +90,7 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
             messageBody.writeZero(TOTAL_PATH_ATTR_LENGTH_SIZE);
         }
         final Nlri nlri = update.getNlri();
-        if (nlri != null) {
+        if (nlri != null && nlri.getNlri() != null) {
             for (final Ipv4Prefix prefix : nlri.getNlri()) {
                 ByteBufWriteUtil.writeMinimalPrefix(prefix, messageBody);
             }
