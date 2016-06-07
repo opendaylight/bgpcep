@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da5c1566_09a5f552",
+        "filename": "bgp/rib-impl/src/main/yang/bgp-stats-rib-impl.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-07T06:28:23Z",
+      "side": 1,
+      "message": "Great! Can we move peer\u0027s stats here too?",
+      "revId": "0f7288819f43e383896726fd1a5e218203dcc3ab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_4986cdba",
+        "filename": "bgp/rib-impl/src/main/yang/bgp-stats-rib-impl.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-07T06:28:23Z",
+      "side": 1,
+      "message": "Can be extracted to grouping and used in both stats and configuration.",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 54,
+        "endChar": 13
+      },
+      "revId": "0f7288819f43e383896726fd1a5e218203dcc3ab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
