@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da5c1566_de88d524",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/ipv4/FlowspecIpv4NlriParserHelper.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-07T08:11:53Z",
+      "side": 1,
+      "message": "Should be final class with private constructor.",
+      "revId": "894c7beb3ac46818d872e75767e7b27055f74fbf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_4909ad30",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/l3vpn/AbstractFlowspecL3vpnNlriParser.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-07T08:11:53Z",
+      "side": 1,
+      "message": "You can enhance existing abstract methods decalration with RD parameter and pass null in a case the RD using is not actual.",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 5
+      },
+      "revId": "894c7beb3ac46818d872e75767e7b27055f74fbf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_84c56c5d",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/l3vpn/AbstractFlowspecL3vpnNlriParser.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-07T08:11:53Z",
+      "side": 1,
+      "message": "You can override exiting method -\u003e call super method and append the RD",
+      "range": {
+        "startLine": 66,
+        "startChar": 0,
+        "endLine": 75,
+        "endChar": 5
+      },
+      "revId": "894c7beb3ac46818d872e75767e7b27055f74fbf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
