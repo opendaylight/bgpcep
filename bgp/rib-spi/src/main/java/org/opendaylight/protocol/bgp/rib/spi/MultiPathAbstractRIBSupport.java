@@ -53,15 +53,15 @@ public abstract class MultiPathAbstractRIBSupport extends AbstractRIBSupport {
         this.pathIdNid = new NodeIdentifier(this.pathIdQname);
     }
 
-    protected final NodeIdentifier routePathIdNid() {
+    public final NodeIdentifier routePathIdNid() {
         return this.pathIdNid;
     }
 
-    protected QName pathIdQName() {
+    protected final QName pathIdQName() {
         return this.pathIdQname;
     }
 
-    protected QName routeKeyQName() {
+    public final QName routeKeyQName() {
         return this.routeKeyQname;
     }
 
@@ -81,7 +81,7 @@ public abstract class MultiPathAbstractRIBSupport extends AbstractRIBSupport {
     }
 
     @Override
-    public PathArgument createRouteKeyPathArgument(PathArgument routeKey) {
+    public final PathArgument createRouteKeyPathArgument(final PathArgument routeKey) {
         final ImmutableMap<QName, Object> keyValues = ImmutableMap.of(routeKeyQName(), PathIdUtil.getObjectKey(routeKey, routeKeyQName()));
         return new NodeIdentifierWithPredicates(routeQName(), keyValues);
     }
