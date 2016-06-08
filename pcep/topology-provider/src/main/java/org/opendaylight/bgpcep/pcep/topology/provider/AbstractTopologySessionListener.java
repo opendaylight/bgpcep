@@ -121,7 +121,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     private InstanceIdentifier<PathComputationClient> pccIdentifier;
     private TopologyNodeState nodeState;
     private boolean synced = false;
-    private PCEPSession session;
+    protected PCEPSession session;
     private SyncOptimization syncOptimization;
     private boolean triggeredResyncInProcess;
 

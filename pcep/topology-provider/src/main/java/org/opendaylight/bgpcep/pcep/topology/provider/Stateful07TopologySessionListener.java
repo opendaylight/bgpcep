@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PeerCapabilities;
 import org.opendaylight.protocol.pcep.PCEPSession;
+import org.opendaylight.protocol.pcep.impl.spi.Util;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.PSTUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.PathComputationClient1;
@@ -416,6 +417,9 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         if (!(message instanceof PcrptMessage)) {
             return true;
         }
+        if (!checkStatefulCapability()) {
+            return true;
+        }
         getSessionListenerState().updateLastReceivedRptMsg();
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcrpt.message.PcrptMessage rpt = ((PcrptMessage) message).getPcrptMessage();
         for (final Reports report : rpt.getReports()) {
@@ -424,6 +428,29 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             }
         }
         return false;
+    }
+
+    /**
+     * Checks if Stateful PCE Capability was advertised. If it was not,
+     * sends appropriate error message and closes the session.
+     *
+     * @return boolean false if Stateful PCE Capability was not advertised, true otherwise.
+     */
+    private boolean checkStatefulCapability() {
+        final Tlvs tlvs = this.session.getLocalTlvs();
+        final Stateful stateful;
+        if (tlvs != null && tlvs.getAugmentation(Tlvs1.class) != null) {
+            stateful = tlvs.getAugmentation(Tlvs1.class).getStateful();
+        } else {
+            stateful = null;
+        }
+        if (stateful == null) {
+            LOG.error("Stateful PCE Capability not advertised, but PCRpt message was received");
+            this.session.sendMessage(Util.createErrorMessage(PCEPErrors.STATE_REPORT_FOR_NO_STATEFUL, null));
+            close();
+            return false;
+        }
+        return true;
     }
 
     private SrpIdNumber nextRequest() {
