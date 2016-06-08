@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da5c1566_b2d54d45",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/AbstractFlowspecNlriParser.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 630,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-08T10:45:20Z",
+      "side": 1,
+      "message": "add some generic parser function (i.e. return a list of objects) here and the pass the result in the createWithdrawnDestinationType. Specific subclass can override/implement this functions (for example parsing RD).\n\nOr instead of using raw objects, you can pass ByteBuf and specific createWithdrawnDestinationType implementation interprets the ByteBuf",
+      "revId": "3227549b158267740dc7f00e6b66160595f54098",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
