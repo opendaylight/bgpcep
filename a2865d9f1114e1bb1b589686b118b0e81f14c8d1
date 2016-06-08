@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da5c1566_d21281b3",
+        "filename": "pcep/ietf-stateful07/src/main/java/org/opendaylight/protocol/pcep/ietf/stateful07/PathBindingTlvParser.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-06-08T12:14:26Z",
+      "side": 1,
+      "message": "make the class final instead",
+      "range": {
+        "startLine": 74,
+        "startChar": 11,
+        "endLine": 74,
+        "endChar": 16
+      },
+      "revId": "a2865d9f1114e1bb1b589686b118b0e81f14c8d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_b2cc2d37",
+        "filename": "pcep/ietf-stateful07/src/main/java/org/opendaylight/protocol/pcep/ietf/stateful07/PathBindingTlvParser.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-06-08T12:14:26Z",
+      "side": 1,
+      "message": "((entry \u003e\u003e S_SHIFT) \u0026 S_MASK) \u003d\u003d 1 ? Boolean.TRUE : Boolean.FALSE is equal to ((entry \u003e\u003e S_SHIFT) \u0026 S_MASK) \u003d\u003d 1)",
+      "range": {
+        "startLine": 162,
+        "startChar": 37,
+        "endLine": 162,
+        "endChar": 102
+      },
+      "revId": "a2865d9f1114e1bb1b589686b118b0e81f14c8d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
