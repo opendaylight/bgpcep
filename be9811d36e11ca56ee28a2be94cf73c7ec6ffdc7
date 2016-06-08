@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da5c1566_e3d6d5c4",
+        "filename": "bgp/testtool/src/main/java/org/opendaylight/protocol/bgp/testtool/Arguments.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-08T20:54:00Z",
+      "side": 1,
+      "message": "AS_PARAMETER",
+      "range": {
+        "startLine": 117,
+        "startChar": 34,
+        "endLine": 117,
+        "endChar": 38
+      },
+      "revId": "be9811d36e11ca56ee28a2be94cf73c7ec6ffdc7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
