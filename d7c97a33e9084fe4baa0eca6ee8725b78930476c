@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da5c1566_d7a43359",
+        "filename": "bgp/rib-impl/src/main/yang/odl-bgp-rib-impl-cfg.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-08T09:37:08Z",
+      "side": 1,
+      "message": "we can move all these peer configuration preferences to grouping and reuse here and within the peer stats too (something very similar like you did for rib-impl)",
+      "range": {
+        "startLine": 346,
+        "startChar": 1,
+        "endLine": 350,
+        "endChar": 13
+      },
+      "revId": "d7c97a33e9084fe4baa0eca6ee8725b78930476c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
