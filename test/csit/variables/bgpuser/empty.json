@@ -3,7 +3,7 @@
   {
    "server-provided": true,
    "topology-id": "example-ipv4-topology",
-   "topology-types": {}
+   "topology-types": $TOPOLOGY_TYPES
   }
  ]
 }

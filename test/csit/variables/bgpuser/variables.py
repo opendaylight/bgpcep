@@ -21,7 +21,20 @@ __license__ = "Eclipse Public License v1.0"
 __email__ = "jbehran@cisco.com"
 
 
-def get_variables(mininet_ip):
+def _get_stream_specific_dict(mininet_ip, stream):
+    """Returns the dict which will be used for the data substitution."""
+    def _get_topology_types(stream):
+        if stream in ['stable-lithium', 'beryllium']:
+            return '{}'
+        else:
+            return '{"odl-bgp-topology-types:bgp-ipv4-reachability-topology": {}}'
+
+    subs_dict = {"IP": mininet_ip}
+    subs_dict["TOPOLOGY_TYPES"] = _get_topology_types(stream)
+    return subs_dict
+
+
+def get_variables(mininet_ip, stream):
     """Return dict of variables keyed by the (dot-less) names of files.
 
     Directory where data files are located is the same as where this file is located.
@@ -29,6 +42,7 @@ def get_variables(mininet_ip):
     name of the variable is not interpreted as attribute access.
     Replacements may create collisions, so detect them."""
     variables = {}
+    subs_dict = _get_stream_specific_dict(mininet_ip, stream)
     this_dir = os.path.dirname(os.path.abspath(__file__))
     filename_list = ["empty.json", "filled.json"]
     for file_basename in filename_list:
@@ -37,5 +51,5 @@ def get_variables(mininet_ip):
             raise KeyError("Variable " + variable_name + " already exists.")
         file_fullname = this_dir + "/" + file_basename
         data_template = string.Template(open(file_fullname).read())
-        variables[variable_name] = data_template.substitute({"IP": mininet_ip})
+        variables[variable_name] = data_template.substitute(subs_dict)
     return variables
