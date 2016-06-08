@@ -382,6 +382,21 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         assertEquals(rpcResult.getResult().getFailure(), FailureType.Unsent);
     }
 
+    @Test
+    public void testNoStatefulCapabilityAdvertisedPCRptReceived() {
+        final Open localPref = new OpenBuilder(super.getLocalPref()).setTlvs(new TlvsBuilder().addAugmentation(Tlvs1.class, new Tlvs1Builder().build()).build()).build();
+        PCEPSession localSession = getPCEPSession(localPref, getRemotePref());
+        this.listener.onSessionUp(localSession);
+        assertEquals(0, this.listener.getStatefulMessages().getReceivedRptMsgCount().intValue());
+        assertEquals(0, localSession.getMessages().getErrorMessages().getSentErrorMsgCount().intValue());
+        final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder().setSync(false).build(), Optional.of(MsgBuilderUtil.createSrp(0L)), null);
+        this.listener.onMessage(this.session, pcRpt);
+        assertEquals(0, this.listener.getStatefulMessages().getReceivedRptMsgCount().intValue());
+        assertEquals(1, localSession.getMessages().getErrorMessages().getSentErrorMsgCount().intValue());
+        assertEquals(PCEPErrors.STATE_REPORT_FOR_NO_STATEFUL.getErrorType(), localSession.getMessages().getErrorMessages().getLastSentError().getErrorType().intValue());
+        assertEquals(PCEPErrors.STATE_REPORT_FOR_NO_STATEFUL.getErrorValue(), localSession.getMessages().getErrorMessages().getLastSentError().getErrorValue().intValue());
+    }
+
     @Override
     protected Open getLocalPref() {
         return new OpenBuilder(super.getLocalPref()).setTlvs(new TlvsBuilder().addAugmentation(Tlvs1.class, new Tlvs1Builder().setStateful(new StatefulBuilder()

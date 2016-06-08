@@ -33,6 +33,8 @@ public interface PCEPSession extends AutoCloseable, PcepSessionState {
 
     void close(TerminationReason reason);
 
+    Tlvs getLocalTlvs();
+
     Tlvs getRemoteTlvs();
 
     InetAddress getRemoteAddress();

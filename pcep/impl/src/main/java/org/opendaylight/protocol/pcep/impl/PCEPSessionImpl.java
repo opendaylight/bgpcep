@@ -244,6 +244,11 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
     }
 
     @Override
+    public Tlvs getLocalTlvs() {
+        return this.localOpen.getTlvs();
+    }
+
+    @Override
     public Tlvs getRemoteTlvs() {
         return this.remoteOpen.getTlvs();
     }

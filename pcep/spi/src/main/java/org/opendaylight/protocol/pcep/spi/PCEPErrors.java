@@ -216,6 +216,10 @@ public enum PCEPErrors {
      */
     RESOURCE_LIMIT_EXCEEDED(19, 4),
     /**
+     * Attempted LSP State Report if active stateful PCE capability was not advertised.
+     */
+    STATE_REPORT_FOR_NO_STATEFUL(19, 5),
+    /**
      * PCE-initiated LSP limit reached
      */
     LSP_LIMIT_EXCEEDED(19, 6),
