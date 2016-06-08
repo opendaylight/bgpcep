@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "da5c1566_e36254d7",
+        "filename": "pcep/api/src/main/java/org/opendaylight/protocol/pcep/PCEPSession.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2016-06-08T22:24:30Z",
+      "side": 1,
+      "message": "Good catch. Fixed thx",
+      "parentUuid": "da5c1566_d7171350",
+      "range": {
+        "startLine": 36,
+        "startChar": 4,
+        "endLine": 36,
+        "endChar": 24
+      },
+      "revId": "90c6f12c05fcdeb929e94bed92d44fe62c663010",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da5c1566_7231f5eb",
         "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful07TopologySessionListener.java",
         "patchSetId": 1
@@ -36,6 +60,24 @@
       "writtenOn": "2016-06-08T10:05:05Z",
       "side": 1,
       "message": "If stateful capabilities are not configured, it does not make sense to start pcep-topology-provider with the configured stateful session listener.\nIf this listener is not allowed to handle PCRpt message, it is completely useless.\n\nThe validation should be done at configuration level to avoid this situation.",
+      "revId": "90c6f12c05fcdeb929e94bed92d44fe62c663010",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_a3685cbb",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful07TopologySessionListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2016-06-08T22:24:30Z",
+      "side": 1,
+      "message": "Ok I see. Since stateful-capability and pcep-topology-provider are separate modules, it may not be possible to do this check during CSS validation phase. But it can be done during instance creation (PCEPTopologyProviderModule#createInstance). The check being: if stateful capability is not defined in stateful-capability module but stateful-plugin dependency is defined, throw exception. Is that what you had in mind?",
+      "parentUuid": "da5c1566_7231f5eb",
       "revId": "90c6f12c05fcdeb929e94bed92d44fe62c663010",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
