@@ -1,0 +1,228 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da5c1566_4154e153",
+        "filename": "bgp/rib-spi/src/test/java/org/opendaylight/protocol/bgp/rib/spi/AbstractRIBSupportTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-08T08:08:43Z",
+      "side": 1,
+      "message": "-remove some unused imports\n-all methods visible in extending class should be marked as final",
+      "revId": "fe4cabc7b317c86e0e1c2ec54b0fa983f1d41d0f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_972bdb81",
+        "filename": "bgp/rib-spi/src/test/java/org/opendaylight/protocol/bgp/rib/spi/AbstractRIBSupportTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-08T08:08:43Z",
+      "side": 1,
+      "message": "Used somewhere?",
+      "range": {
+        "startLine": 116,
+        "startChar": 4,
+        "endLine": 116,
+        "endChar": 42
+      },
+      "revId": "fe4cabc7b317c86e0e1c2ec54b0fa983f1d41d0f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_1737cbe4",
+        "filename": "bgp/rib-spi/src/test/java/org/opendaylight/protocol/bgp/rib/spi/AbstractRIBSupportTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-08T08:08:43Z",
+      "side": 1,
+      "message": "Can be this initiation done in before/before class methods? So user do not need to create an instance.",
+      "range": {
+        "startLine": 123,
+        "startChar": 0,
+        "endLine": 140,
+        "endChar": 47
+      },
+      "revId": "fe4cabc7b317c86e0e1c2ec54b0fa983f1d41d0f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_34f80d7c",
+        "filename": "bgp/rib-spi/src/test/java/org/opendaylight/protocol/bgp/rib/spi/AbstractRIBSupportTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-08T08:08:43Z",
+      "side": 1,
+      "message": "Is it used somewhere?",
+      "range": {
+        "startLine": 156,
+        "startChar": 0,
+        "endLine": 156,
+        "endChar": 41
+      },
+      "revId": "fe4cabc7b317c86e0e1c2ec54b0fa983f1d41d0f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_74dba51b",
+        "filename": "bgp/rib-spi/src/test/java/org/opendaylight/protocol/bgp/rib/spi/AbstractRIBSupportTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-08T08:08:43Z",
+      "side": 1,
+      "message": "pass as a method argument where needed",
+      "range": {
+        "startLine": 159,
+        "startChar": 0,
+        "endLine": 166,
+        "endChar": 59
+      },
+      "revId": "fe4cabc7b317c86e0e1c2ec54b0fa983f1d41d0f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_a1ccdd36",
+        "filename": "bgp/rib-spi/src/test/java/org/opendaylight/protocol/bgp/rib/spi/AbstractRIBSupportTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-08T08:08:43Z",
+      "side": 1,
+      "message": "do not conform local variable naming convention",
+      "range": {
+        "startLine": 223,
+        "startChar": 33,
+        "endLine": 223,
+        "endChar": 43
+      },
+      "revId": "fe4cabc7b317c86e0e1c2ec54b0fa983f1d41d0f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_614be5b0",
+        "filename": "bgp/rib-spi/src/test/java/org/opendaylight/protocol/bgp/rib/spi/AbstractRIBSupportTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-08T08:08:43Z",
+      "side": 1,
+      "message": "Missing type",
+      "range": {
+        "startLine": 261,
+        "startChar": 14,
+        "endLine": 261,
+        "endChar": 32
+      },
+      "revId": "fe4cabc7b317c86e0e1c2ec54b0fa983f1d41d0f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_c1c75111",
+        "filename": "bgp/rib-spi/src/test/java/org/opendaylight/protocol/bgp/rib/spi/AbstractRIBSupportTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-08T08:08:43Z",
+      "side": 1,
+      "message": "final",
+      "range": {
+        "startLine": 261,
+        "startChar": 4,
+        "endLine": 261,
+        "endChar": 13
+      },
+      "revId": "fe4cabc7b317c86e0e1c2ec54b0fa983f1d41d0f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_814ef9bf",
+        "filename": "bgp/rib-spi/src/test/java/org/opendaylight/protocol/bgp/rib/spi/AbstractRIBSupportTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-08T08:08:43Z",
+      "side": 1,
+      "message": "missing type",
+      "range": {
+        "startLine": 268,
+        "startChar": 14,
+        "endLine": 268,
+        "endChar": 23
+      },
+      "revId": "fe4cabc7b317c86e0e1c2ec54b0fa983f1d41d0f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_2151ed62",
+        "filename": "bgp/rib-spi/src/test/java/org/opendaylight/protocol/bgp/rib/spi/AbstractRIBSupportTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-08T08:08:43Z",
+      "side": 1,
+      "message": "missing type",
+      "range": {
+        "startLine": 270,
+        "startChar": 14,
+        "endLine": 270,
+        "endChar": 26
+      },
+      "revId": "fe4cabc7b317c86e0e1c2ec54b0fa983f1d41d0f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
