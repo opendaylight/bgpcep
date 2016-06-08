@@ -14,6 +14,7 @@ module odl-bgp-rib-impl-cfg {
     import ietf-yang-types { prefix yang; revision-date 2013-07-15; }
     import opendaylight-md-sal-binding {prefix mdsb; revision-date 2013-10-28; }
     import opendaylight-md-sal-dom {prefix sal; revision-date 2013-10-28; }
+    import opendaylight-md-sal-binding-v1-codec { prefix mdsb1; revision-date 2016-07-14; }
     import netty { prefix netty; revision-date 2013-11-19; }
     import config { prefix config; revision-date 2013-04-05; }
     import rpc-context { prefix rpcx; revision-date 2013-06-17; }
@@ -434,7 +435,7 @@ module odl-bgp-rib-impl-cfg {
                 uses config:service-ref {
                     refine type {
                         mandatory true;
-                        config:required-identity mdsb:binding-codec-tree-factory;
+                        config:required-identity mdsb1:binding-v1-codec-tree-factory;
                     }
                 }
             }
