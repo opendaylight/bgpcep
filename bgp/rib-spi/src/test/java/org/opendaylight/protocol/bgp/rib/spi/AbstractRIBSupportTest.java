@@ -55,6 +55,7 @@ import org.opendaylight.yangtools.sal.binding.generator.util.JavassistUtils;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
+import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -157,15 +158,21 @@ public abstract class AbstractRIBSupportTest {
 
     protected final YangInstanceIdentifier getRoutePath() {
         final InstanceIdentifier<DataObject> routesIId = routesIId();
-        return this.mappingService.toYangInstanceIdentifier(routesIId).node(BindingReflections.findQName(this.abstractRIBSupport.routesListClass()));
+        return this.mappingService.toYangInstanceIdentifier(routesIId).node(getRouteListQname());
     }
 
     protected final Collection<MapEntryNode> createRoutes(final DataObject routes) {
         Preconditions.checkArgument(routes.getImplementedInterface().equals(this.abstractRIBSupport.routesContainerClass()));
         final InstanceIdentifier<DataObject> routesIId = routesIId();
         final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> normalizedNode = this.mappingService.toNormalizedNode(routesIId, routes);
-        return ((MapNode) ((ContainerNode) normalizedNode.getValue())
-            .getChild(new NodeIdentifier(BindingReflections.findQName(this.abstractRIBSupport.routesListClass()))).get()).getValue();
+        final ContainerNode container = ((ContainerNode) normalizedNode.getValue());
+        final NodeIdentifier routeNid = new NodeIdentifier(getRouteListQname());
+        return ((MapNode) container.getChild(routeNid).get()).getValue();
+    }
+
+    private QName getRouteListQname() {
+       return QName.create(BindingReflections.findQName(this.abstractRIBSupport.routesContainerClass()),
+           BindingReflections.findQName(this.abstractRIBSupport.routesListClass()).intern().getLocalName());
     }
 
     protected final NodeIdentifierWithPredicates createRouteNIWP(final DataObject routes) {

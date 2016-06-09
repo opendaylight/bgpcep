@@ -48,11 +48,11 @@ public class VpnIpv4NlriParserTest {
         0, 1, 1, 2, 3, 4, 1, 2,
         (byte) 0x22, (byte) 0x01, (byte) 0x16,
     };
-    private static final IpPrefix IPv4_PREFIX = new IpPrefix(new Ipv4Prefix("34.1.22.0/24"));
-    private static final List<LabelStack> LABEL_STACK = Lists.newArrayList(
+    static final IpPrefix IPv4_PREFIX = new IpPrefix(new Ipv4Prefix("34.1.22.0/24"));
+    static final List<LabelStack> LABEL_STACK = Lists.newArrayList(
         new LabelStackBuilder().setLabelValue(new MplsLabel(355L)).build());
-    private static final RouteDistinguisher DISTINGUISHER = RouteDistinguisherBuilder.getDefaultInstance("1.2.3.4:258");
-    private static final VpnDestination VPN = new VpnDestinationBuilder().setRouteDistinguisher(DISTINGUISHER).setPrefix(IPv4_PREFIX).setLabelStack(LABEL_STACK).build();
+    static final RouteDistinguisher DISTINGUISHER = RouteDistinguisherBuilder.getDefaultInstance("1.2.3.4:258");
+    static final VpnDestination IPV4_VPN = new VpnDestinationBuilder().setRouteDistinguisher(DISTINGUISHER).setPrefix(IPv4_PREFIX).setLabelStack(LABEL_STACK).build();
 
     @Test
     public void testMpReachNlri() throws BGPParsingException {
@@ -61,7 +61,7 @@ public class VpnIpv4NlriParserTest {
         mpBuilder.setAdvertizedRoutes(
             new AdvertizedRoutesBuilder().setDestinationType(
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev160210.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationVpnIpv4CaseBuilder().setVpnIpv4Destination(
-                    new VpnIpv4DestinationBuilder().setVpnDestination(Lists.newArrayList(VPN)).build()
+                    new VpnIpv4DestinationBuilder().setVpnDestination(Lists.newArrayList(IPV4_VPN)).build()
                 ).build()
             ).build()
         ).build();
@@ -89,7 +89,7 @@ public class VpnIpv4NlriParserTest {
         mpBuilder.setWithdrawnRoutes(
             new WithdrawnRoutesBuilder().setDestinationType(
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev160210.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationVpnIpv4CaseBuilder().setVpnIpv4Destination(
-                    new VpnIpv4DestinationBuilder().setVpnDestination(Lists.newArrayList(VPN)).build()
+                    new VpnIpv4DestinationBuilder().setVpnDestination(Lists.newArrayList(IPV4_VPN)).build()
                 ).build()
             ).build()
         ).build();

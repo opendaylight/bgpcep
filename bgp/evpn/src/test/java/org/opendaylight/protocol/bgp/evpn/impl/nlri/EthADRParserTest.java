@@ -51,7 +51,8 @@ public class EthADRParserTest {
         (byte) 0x00, (byte) 0x01, (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, (byte) 0x01, (byte) 0x02
     };
     static final EthernetTagId ETI = new EthernetTagIdBuilder().setVlanId(VLAN).build();
-    private static final EthernetADRouteCase ETHERNET_AD_ROUTE_CASE_KEY = new EthernetADRouteCaseBuilder().setEthernetADRoute(new EthernetADRouteBuilder().setEsi(LAN_AUT_GEN_CASE).setEthernetTagId(ETI).build()).build();
+    public static final EthernetADRouteCase ETHERNET_AD_ROUTE_CASE_KEY = new EthernetADRouteCaseBuilder()
+        .setEthernetADRoute(new EthernetADRouteBuilder().setEsi(LAN_AUT_GEN_CASE).setEthernetTagId(ETI).build()).build();
     public static final EthernetADRouteCase ETHERNET_AD_ROUTE_CASE = new EthernetADRouteCaseBuilder().setEthernetADRoute(new EthernetADRouteBuilder()
         .setEsi(LAN_AUT_GEN_CASE).setEthernetTagId(ETI).setMplsLabel(MPLS_LABEL).build()).build();
     static final byte[] WRONG_VALUE = {(byte) 0x00};
