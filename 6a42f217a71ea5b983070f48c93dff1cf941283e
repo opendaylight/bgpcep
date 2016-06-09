@@ -1,0 +1,267 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da5c1566_a6950a42",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/controller/config/yang/bgp/rib/impl/BGPPeerModule.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-09T08:58:34Z",
+      "side": 1,
+      "message": "getOptionalPassword(..).isPresent",
+      "range": {
+        "startLine": 97,
+        "startChar": 11,
+        "endLine": 97,
+        "endChar": 74
+      },
+      "revId": "6a42f217a71ea5b983070f48c93dff1cf941283e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_6683f204",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/controller/config/yang/bgp/rib/impl/BGPPeerModule.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-09T08:58:34Z",
+      "side": 1,
+      "message": "You can consider adding new factory method where the password type is Rfc2385Key.",
+      "range": {
+        "startLine": 229,
+        "startChar": 17,
+        "endLine": 229,
+        "endChar": 41
+      },
+      "revId": "6a42f217a71ea5b983070f48c93dff1cf941283e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_e69f025e",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/controller/config/yang/bgp/rib/impl/BGPPeerModule.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-09T08:58:34Z",
+      "side": 1,
+      "message": "Missing spaces.",
+      "range": {
+        "startLine": 229,
+        "startChar": 16,
+        "endLine": 229,
+        "endChar": 17
+      },
+      "revId": "6a42f217a71ea5b983070f48c93dff1cf941283e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_669ad264",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPDispatcherImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-09T08:58:34Z",
+      "side": 1,
+      "message": "missing space",
+      "range": {
+        "startLine": 61,
+        "startChar": 27,
+        "endLine": 61,
+        "endChar": 28
+      },
+      "revId": "6a42f217a71ea5b983070f48c93dff1cf941283e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_469fce52",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPDispatcherImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-09T08:58:34Z",
+      "side": 1,
+      "message": "missing space",
+      "revId": "6a42f217a71ea5b983070f48c93dff1cf941283e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_a6a34a9d",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPDispatcherImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-09T08:58:34Z",
+      "side": 1,
+      "message": "missing space",
+      "revId": "6a42f217a71ea5b983070f48c93dff1cf941283e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_e6ad428a",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPDispatcherImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-09T08:58:34Z",
+      "side": 1,
+      "message": "add cause the exception",
+      "revId": "6a42f217a71ea5b983070f48c93dff1cf941283e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_26b73ada",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPDispatcherImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-09T08:58:34Z",
+      "side": 1,
+      "message": "no space here",
+      "range": {
+        "startLine": 94,
+        "startChar": 55,
+        "endLine": 94,
+        "endChar": 56
+      },
+      "revId": "6a42f217a71ea5b983070f48c93dff1cf941283e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_06bcb6ba",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPDispatcherImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-09T08:58:34Z",
+      "side": 1,
+      "message": "missing space",
+      "revId": "6a42f217a71ea5b983070f48c93dff1cf941283e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_66b132e1",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPDispatcherImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-09T08:58:34Z",
+      "side": 1,
+      "message": "missing space",
+      "revId": "6a42f217a71ea5b983070f48c93dff1cf941283e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_86c72645",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/controller/config/yang/bgp/rib/impl/BGPPeerModuleTest.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-09T08:58:34Z",
+      "side": 1,
+      "message": "missing space...\"if (..) {\"",
+      "revId": "6a42f217a71ea5b983070f48c93dff1cf941283e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_66e812b5",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/BGPDispatcherImplTest.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-09T08:58:34Z",
+      "side": 1,
+      "message": "formatting",
+      "range": {
+        "startLine": 72,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 9
+      },
+      "revId": "6a42f217a71ea5b983070f48c93dff1cf941283e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_46ed0ec3",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/TestClientDispatcher.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-09T08:58:34Z",
+      "side": 1,
+      "message": "formatting",
+      "range": {
+        "startLine": 37,
+        "startChar": 16,
+        "endLine": 37,
+        "endChar": 40
+      },
+      "revId": "6a42f217a71ea5b983070f48c93dff1cf941283e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
