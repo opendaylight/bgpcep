@@ -7,102 +7,186 @@
  */
 package org.opendaylight.protocol.bgp.evpn.impl;
 
-/**
- * TODO: Remove, instead use Common Rib Support test
- */
-public class EvpnRibSupportTest {
-/*
-    private static final NodeIdentifier RD_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME, "route-distinguisher").intern());
-    private static final NodeIdentifier ROUTES_NODE_ID = new NodeIdentifier(Routes.QNAME);
-    private static final Ipv4Address ipv4 = new Ipv4Address("42.42.42.42");
-    private static final NodeIdentifier DESTINATION_NID = NodeIdentifier.create(EvpnDestination.QNAME);
-    private final EvpnRibSupport evpnRibSupport = EvpnRibSupport.getInstance();
-    private final List<MapEntryNode> evpnList = new ArrayList<>();
-    private List<YangInstanceIdentifier> routes;
-    @Mock
-    private DOMDataWriteTransaction tx;
 
-    @Before
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-        routes = new ArrayList<>();
-        Mockito.doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(final InvocationOnMock invocation) throws Throwable {
-                final Object[] args = invocation.getArguments();
-                EvpnRibSupportTest.this.routes.add((YangInstanceIdentifier) args[1]);
-                return args[1];
-            }
-        }).when(this.tx).put(Mockito.any(LogicalDatastoreType.class), Mockito.any(YangInstanceIdentifier.class), Mockito.any(NormalizedNode.class));
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.RD;
+import static org.opendaylight.protocol.bgp.evpn.impl.nlri.EthADRParserTest.ETHERNET_AD_ROUTE_CASE;
+import static org.opendaylight.protocol.bgp.evpn.impl.nlri.EthADRParserTest.ETHERNET_AD_ROUTE_CASE_KEY;
+import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
 
-        Mockito.doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(final InvocationOnMock invocation) throws Throwable {
-                final Object[] args = invocation.getArguments();
-                EvpnRibSupportTest.this.routes.remove(args[1]);
-                return args[1];
-            }
-        }).when(this.tx).delete(Mockito.any(LogicalDatastoreType.class), Mockito.any(YangInstanceIdentifier.class));
+import com.google.common.collect.ImmutableSet;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import java.util.Collection;
+import java.util.Collections;
+import org.junit.Assert;
+import org.junit.Test;
+import org.opendaylight.protocol.bgp.evpn.impl.nlri.EvpnNlriParser;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
+import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
+import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupportTest;
+import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.EvpnSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.L2vpnAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.bgp.rib.rib.loc.rib.tables.routes.EvpnRoutesCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.bgp.rib.rib.loc.rib.tables.routes.EvpnRoutesCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.evpn.destination.EvpnDestination;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.evpn.destination.EvpnDestinationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.evpn.routes.EvpnRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.evpn.routes.EvpnRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.evpn.routes.evpn.routes.EvpnRoute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.evpn.routes.evpn.routes.EvpnRouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.evpn.routes.evpn.routes.EvpnRouteKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationEvpnCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationEvpnCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.evpn._case.DestinationEvpnBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
+import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidates;
+
+public final class EvpnRibSupportTest extends AbstractRIBSupportTest {
+    private static final EvpnRibSupport RIB_SUPPORT = EvpnRibSupport.getInstance();
+    private static final EvpnRoute ROUTE;
+    private static final EvpnRouteKey ROUTE_KEY;
+    private static final EvpnDestination EVPN_DESTINATION = new EvpnDestinationBuilder().setRouteDistinguisher(RD).setEvpnChoice(ETHERNET_AD_ROUTE_CASE).build();
+    private static final DestinationEvpnCase REACH_NLRI = new DestinationEvpnCaseBuilder().setDestinationEvpn(new DestinationEvpnBuilder()
+        .setEvpnDestination(Collections.singletonList(EVPN_DESTINATION)).build()).build();
+    private static final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationEvpnCase UNREACH_NLRI =
+        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.
+            DestinationEvpnCaseBuilder().setDestinationEvpn(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.evpn._case.
+            DestinationEvpnBuilder().setEvpnDestination(Collections.singletonList(EVPN_DESTINATION)).build()).build();
+
+    private static final EvpnRoutes EVPN_ROUTES;
+    static {
+        final BGPActivator act = new BGPActivator();
+        final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
+        act.start(context);
+        final ByteBuf buffer = Unpooled.buffer();
+        EvpnNlriParser.serializeNlri(Collections.singletonList(new EvpnDestinationBuilder().setRouteDistinguisher(RD).setEvpnChoice(ETHERNET_AD_ROUTE_CASE_KEY).build()), buffer);
+        final byte[] arrayKey = ByteArray.readAllBytes(buffer);
+        ROUTE_KEY = new EvpnRouteKey(arrayKey);
+        ROUTE = new EvpnRouteBuilder().setRouteKey(arrayKey).setAttributes(ATTRIBUTES).setRouteDistinguisher(RD).setEvpnChoice(ETHERNET_AD_ROUTE_CASE).build();
+        EVPN_ROUTES = new EvpnRoutesBuilder().setEvpnRoute(Collections.singletonList(ROUTE)).build();
+    }
+
+
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        setUpTestCustomizer(RIB_SUPPORT);
+    }
+
+    @Test
+    public void testDeleteRoutes() {
+        RIB_SUPPORT.deleteRoutes(this.tx, getTablePath(), createNlriWithDrawnRoute(UNREACH_NLRI));
+        final InstanceIdentifier<EvpnRoute> instanceIdentifier = (InstanceIdentifier<EvpnRoute>) this.deletedRoutes.get(0);
+        assertEquals(ROUTE_KEY, instanceIdentifier.firstKeyOf(EvpnRoute.class));
+    }
+
+    @Test
+    public void testPutRoutes() {
+        RIB_SUPPORT.putRoutes(this.tx, getTablePath(), createNlriAdvertiseRoute(REACH_NLRI), createAttributes());
+        final EvpnRoute route = (EvpnRoute) this.insertedRoutes.get(0).getValue();
+        assertEquals(ROUTE, route);
     }
 
 
     @Test
-    public void testbuildReach() throws BGPParsingException {
-        final CNextHop hop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(ipv4).build()).build();
-        final MpReachNlri result = evpnRibSupport.buildReach(evpnList, hop);
-        assertEquals(L2vpnAddressFamily.class, result.getAfi());
-        assertEquals(EvpnSubsequentAddressFamily.class, result.getSafi());
-        assertEquals(new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("42.42.42.42")).build()).build(), result.getCNextHop());
+    public void testEmptyRoute() throws Exception {
+        final Routes empty = new EvpnRoutesCaseBuilder().setEvpnRoutes(new EvpnRoutesBuilder().setEvpnRoute(Collections.emptyList()).build()).build();
+        final ChoiceNode emptyRoutes = RIB_SUPPORT.emptyRoutes();
+        assertEquals(createRoutes(empty), emptyRoutes);
     }
 
     @Test
-    public void testBuildUnreach() {
-        final MpUnreachNlri result = evpnRibSupport.buildUnreach(evpnList);
-        assertEquals(L2vpnAddressFamily.class, result.getAfi());
-        assertEquals(EvpnSubsequentAddressFamily.class, result.getSafi());
+    public void testBuildMpUnreachNlriUpdate() {
+        final Update update = RIB_SUPPORT.buildUpdate(Collections.emptyList(), createRoutes(EVPN_ROUTES), ATTRIBUTES);
+        assertEquals(UNREACH_NLRI, update.getAttributes().getAugmentation(Attributes2.class).getMpUnreachNlri().getWithdrawnRoutes().getDestinationType());
+        assertNull(update.getAttributes().getAugmentation(Attributes1.class));
     }
 
     @Test
-    public void testDestRoutesEthADRModel() {
-        ESIActivator.registerEsiTypeParsers(new ArrayList<>());
-        NlriActivator.registerNlriParsers(new ArrayList<>());
-
-        final DataContainerNodeAttrBuilder<NodeIdentifier, UnkeyedListEntryNode> evpnBI = ImmutableUnkeyedListEntryNodeBuilder.create();
-        evpnBI.withNodeIdentifier(EVPN_NID);
-        evpnBI.withChild(EthADRParserTest.createEthADRModel());
-        evpnBI.withChild(createValueBuilder(RD_MODEL, RD_NID).build());
-
-        final UnkeyedListNode routes = ImmutableUnkeyedListNodeBuilder.create().withNodeIdentifier(DESTINATION_NID).addChild(evpnBI.build()).build();
-        final ContainerNode destination = ImmutableContainerNodeBuilder.create().addChild(routes).withNodeIdentifier(DESTINATION_NID).build();
-        final ContainerNode attributes = ImmutableContainerNodeBuilder.create().withNodeIdentifier(new NodeIdentifier(Attributes.QNAME)).build();
-
-        final YangInstanceIdentifier yangIdentifier = YangInstanceIdentifier.of(Routes.QNAME);
-        evpnRibSupport.putDestinationRoutes(tx, yangIdentifier, destination, attributes, ROUTES_NODE_ID);
-        Assert.assertEquals(1, this.routes.size());
-
-        evpnRibSupport.deleteDestinationRoutes(tx, yangIdentifier, destination, ROUTES_NODE_ID);
-        Assert.assertEquals(0, this.routes.size());
+    public void testBuildMpReachNlriUpdate() {
+        final Update update = RIB_SUPPORT.buildUpdate(createRoutes(EVPN_ROUTES), Collections.emptyList(), ATTRIBUTES);
+        assertEquals(REACH_NLRI, update.getAttributes().getAugmentation(Attributes1.class).getMpReachNlri().getAdvertizedRoutes().getDestinationType());
+        assertNull(update.getAttributes().getAugmentation(Attributes2.class));
     }
 
     @Test
-    public void testDestRoutesMacIp() {
-        ESIActivator.registerEsiTypeParsers(new ArrayList<>());
-        NlriActivator.registerNlriParsers(new ArrayList<>());
+    public void testIsComplexRoute() {
+        Assert.assertTrue(RIB_SUPPORT.isComplexRoute());
+    }
 
-        final DataContainerNodeAttrBuilder<NodeIdentifier, UnkeyedListEntryNode> evpnBI = ImmutableUnkeyedListEntryNodeBuilder.create();
-        evpnBI.withNodeIdentifier(EVPN_NID);
-        evpnBI.withChild(createMACIpAdvChoice());
-        evpnBI.withChild(createValueBuilder(RD_MODEL, RD_NID).build());
+    @Test
+    public void testCacheableNlriObjects() {
+        Assert.assertEquals(ImmutableSet.of(), RIB_SUPPORT.cacheableNlriObjects());
+    }
 
-        final UnkeyedListNode routes = ImmutableUnkeyedListNodeBuilder.create().withNodeIdentifier(DESTINATION_NID).addChild(evpnBI.build()).build();
-        final ContainerNode destination = ImmutableContainerNodeBuilder.create().addChild(routes).withNodeIdentifier(DESTINATION_NID).build();
-        final ContainerNode attributes = ImmutableContainerNodeBuilder.create().withNodeIdentifier(new NodeIdentifier(Attributes.QNAME)).build();
+    @Test
+    public void testCacheableAttributeObjects() {
+        Assert.assertEquals(ImmutableSet.of(), RIB_SUPPORT.cacheableAttributeObjects());
+    }
 
-        final YangInstanceIdentifier yangIdentifier = YangInstanceIdentifier.of(Routes.QNAME);
-        evpnRibSupport.putDestinationRoutes(tx, yangIdentifier, destination, attributes, ROUTES_NODE_ID);
-        Assert.assertEquals(1, this.routes.size());
+    @Test
+    public void testRouteIdAddPath() {
+        Assert.assertNull(RIB_SUPPORT.getRouteIdAddPath(AbstractRIBSupportTest.PATH_ID, null));
+    }
 
-        evpnRibSupport.deleteDestinationRoutes(tx, yangIdentifier, destination, ROUTES_NODE_ID);
-        Assert.assertEquals(0, this.routes.size());
-    }*/
+    @Test
+    public void testRoutePath() {
+        final NodeIdentifierWithPredicates prefixNii = createRouteNIWP(EVPN_ROUTES);
+        Assert.assertEquals(getRoutePath().node(prefixNii), RIB_SUPPORT.routePath(getTablePath().node(Routes.QNAME), prefixNii));
+    }
+
+    @Test
+    public void testExtractPathId() {
+        Assert.assertEquals((Long) NON_PATH_ID, RIB_SUPPORT.extractPathId(null));
+    }
+
+    @Test
+    public void testRouteAttributesIdentifier() {
+        Assert.assertEquals(new NodeIdentifier(QName.create(EvpnRoutes.QNAME, Attributes.QNAME.getLocalName().intern())), RIB_SUPPORT
+            .routeAttributesIdentifier());
+    }
+
+    @Test
+    public void testRoutesCaseClass() {
+        Assert.assertEquals(EvpnRoutesCase.class, RIB_SUPPORT.routesCaseClass());
+    }
+
+    @Test
+    public void testRoutesContainerClass() {
+        Assert.assertEquals(EvpnRoutes.class, RIB_SUPPORT.routesContainerClass());
+    }
+
+    @Test
+    public void testRoutesListClass() {
+        Assert.assertEquals(EvpnRoute.class, RIB_SUPPORT.routesListClass());
+    }
+
+    @Test
+    public void testChangedRoutes() {
+        final Routes emptyCase = new EvpnRoutesCaseBuilder().build();
+        DataTreeCandidateNode tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(emptyCase)).getRootNode();
+        Assert.assertTrue(RIB_SUPPORT.changedRoutes(tree).isEmpty());
+
+        final Routes emptyRoutes = new EvpnRoutesCaseBuilder().setEvpnRoutes(new EvpnRoutesBuilder().build()).build();
+        tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(emptyRoutes)).getRootNode();
+        Assert.assertTrue(RIB_SUPPORT.changedRoutes(tree).isEmpty());
+
+        final Routes routes = new EvpnRoutesCaseBuilder().setEvpnRoutes(EVPN_ROUTES).build();
+        tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(routes)).getRootNode();
+        final Collection<DataTreeCandidateNode> result = RIB_SUPPORT.changedRoutes(tree);
+        Assert.assertFalse(result.isEmpty());
+    }
 }

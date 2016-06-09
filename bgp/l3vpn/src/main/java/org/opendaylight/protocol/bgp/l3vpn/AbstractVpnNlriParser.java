@@ -48,7 +48,7 @@ public abstract class AbstractVpnNlriParser implements NlriParser, NlriSerialize
 
     protected abstract AdvertizedRoutes getAdvertizedRoutesByDestination(List<VpnDestination> dst);
 
-    static void serializeNlri(final List<VpnDestination> dests, final ByteBuf buffer) {
+    public static void serializeNlri(final List<VpnDestination> dests, final ByteBuf buffer) {
         final ByteBuf nlriByteBuf = Unpooled.buffer();
         for (final VpnDestination dest : dests) {
             final List<LabelStack> labelStack = dest.getLabelStack();

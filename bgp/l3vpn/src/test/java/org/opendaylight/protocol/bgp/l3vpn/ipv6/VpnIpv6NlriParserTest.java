@@ -51,11 +51,11 @@ public class VpnIpv6NlriParserTest {
         0, 1, 1, 2, 3, 4, 1, 2, // route distinguisher
         (byte) 0x20, (byte) 0x01, (byte) 0x23, (byte) 0x45, (byte) 0x56, (byte) 0x89    // specify the IPv6 prefix here
     };
-    private static final IpPrefix IPv6_PREFIX = new IpPrefix(new Ipv6Prefix("2001:2345:5689::/48"));
-    private static final List<LabelStack> LABEL_STACK = Lists.newArrayList(
+    static final IpPrefix IPv6_PREFIX = new IpPrefix(new Ipv6Prefix("2001:2345:5689::/48"));
+    static final List<LabelStack> LABEL_STACK = Lists.newArrayList(
         new LabelStackBuilder().setLabelValue(new MplsLabel(355L)).build());
-    private static final RouteDistinguisher DISTINGUISHER = RouteDistinguisherBuilder.getDefaultInstance("1.2.3.4:258");
-    private static final VpnDestination VPN = new VpnDestinationBuilder().setRouteDistinguisher(DISTINGUISHER).setPrefix(IPv6_PREFIX).setLabelStack(LABEL_STACK).build();
+    static final RouteDistinguisher DISTINGUISHER = RouteDistinguisherBuilder.getDefaultInstance("1.2.3.4:258");
+    static final VpnDestination IPV6_VPN = new VpnDestinationBuilder().setRouteDistinguisher(DISTINGUISHER).setPrefix(IPv6_PREFIX).setLabelStack(LABEL_STACK).build();
 
     @Test
     public void testMpReachNlri() throws BGPParsingException {
@@ -63,7 +63,7 @@ public class VpnIpv6NlriParserTest {
         mpBuilder.setAfi(Ipv6AddressFamily.class);
         mpBuilder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv6.rev160331.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationVpnIpv6CaseBuilder().setVpnIpv6Destination(
-                new VpnIpv6DestinationBuilder().setVpnDestination(Lists.newArrayList(VPN)).build()
+                new VpnIpv6DestinationBuilder().setVpnDestination(Lists.newArrayList(IPV6_VPN)).build()
             ).build()
             ).build()
         ).build();
@@ -91,7 +91,7 @@ public class VpnIpv6NlriParserTest {
         mpBuilder.setWithdrawnRoutes(
             new WithdrawnRoutesBuilder().setDestinationType(
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv6.rev160331.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationVpnIpv6CaseBuilder().setVpnIpv6Destination(
-                    new VpnIpv6DestinationBuilder().setVpnDestination(Lists.newArrayList(VPN)).build()
+                    new VpnIpv6DestinationBuilder().setVpnDestination(Lists.newArrayList(IPV6_VPN)).build()
                 ).build()
             ).build()
         ).build();
