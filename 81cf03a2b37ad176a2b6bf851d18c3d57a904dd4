@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da5c1566_86e4460e",
+        "filename": "bgp/rib-impl/src/main/yang/bgp-peer.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-09T08:39:34Z",
+      "side": 1,
+      "message": "Should be IPv4 address rather.",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 23
+      },
+      "revId": "81cf03a2b37ad176a2b6bf851d18c3d57a904dd4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_a6e7ca11",
+        "filename": "bgp/rib-impl/src/main/yang/bgp-peer.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-09T08:39:34Z",
+      "side": 1,
+      "message": "Can be removed as the node with the same name is used in grouping.",
+      "range": {
+        "startLine": 68,
+        "startChar": 0,
+        "endLine": 72,
+        "endChar": 9
+      },
+      "revId": "81cf03a2b37ad176a2b6bf851d18c3d57a904dd4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_46e34e07",
+        "filename": "bgp/rib-impl/src/main/yang/bgp-stats-peer.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-09T08:39:34Z",
+      "side": 1,
+      "message": "oh, this was so badly/ambiguously named - should be rather remote/local-preferences",
+      "range": {
+        "startLine": 89,
+        "startChar": 0,
+        "endLine": 97,
+        "endChar": 13
+      },
+      "revId": "81cf03a2b37ad176a2b6bf851d18c3d57a904dd4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_462cee47",
+        "filename": "bgp/rib-impl/src/main/yang/odl-bgp-rib-impl-cfg.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-09T08:39:34Z",
+      "side": 1,
+      "message": "Can we move all the configuration leafs to this grouping?",
+      "range": {
+        "startLine": 336,
+        "startChar": 12,
+        "endLine": 336,
+        "endChar": 37
+      },
+      "revId": "81cf03a2b37ad176a2b6bf851d18c3d57a904dd4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
