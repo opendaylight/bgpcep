@@ -9,10 +9,12 @@ package org.opendaylight.protocol.rsvp.parser.spi.subobjects;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Before;
 import org.junit.Test;
+import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.PceId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.subobject.type.path.key._case.PathKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.subobject.type.path.key._case.PathKeyBuilder;
@@ -49,7 +51,7 @@ public class CommonPathKeyParserTest {
     @Test
     public void testSerialization() {
         final ByteBuf output = this.parser.serializePathKey(this.key3);
-        assertArrayEquals(this.bytes, output.readBytes(output.readableBytes()).array());
+        assertArrayEquals(this.bytes, ByteArray.readAllBytes(output));
     }
 
     @Test
