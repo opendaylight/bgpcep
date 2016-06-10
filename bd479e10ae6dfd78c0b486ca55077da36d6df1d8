@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da5c1566_bd1d15c0",
+        "filename": "bgp/rib-spi/src/test/java/org/opendaylight/protocol/bgp/rib/spi/AbstractRIBSupportTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-10T09:13:39Z",
+      "side": 1,
+      "message": "augmentation",
+      "range": {
+        "startLine": 72,
+        "startChar": 91,
+        "endLine": 72,
+        "endChar": 104
+      },
+      "revId": "bd479e10ae6dfd78c0b486ca55077da36d6df1d8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_7d6a5d1b",
+        "filename": "bgp/rib-spi/src/test/java/org/opendaylight/protocol/bgp/rib/spi/AbstractRIBSupportTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-10T09:13:39Z",
+      "side": 1,
+      "message": "augmentation",
+      "range": {
+        "startLine": 73,
+        "startChar": 87,
+        "endLine": 73,
+        "endChar": 100
+      },
+      "revId": "bd479e10ae6dfd78c0b486ca55077da36d6df1d8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_5d84b9d3",
+        "filename": "bgp/rib-spi/src/test/java/org/opendaylight/protocol/bgp/rib/spi/AbstractRIBSupportTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-10T09:13:39Z",
+      "side": 1,
+      "message": "too many parentheses?",
+      "range": {
+        "startLine": 173,
+        "startChar": 40,
+        "endLine": 173,
+        "endChar": 48
+      },
+      "revId": "bd479e10ae6dfd78c0b486ca55077da36d6df1d8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
