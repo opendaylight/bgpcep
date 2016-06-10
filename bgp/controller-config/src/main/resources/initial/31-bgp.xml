@@ -305,28 +305,55 @@
                 </module>
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:add-path-impl</type>
-                    <name>labeled-unicast-receive</name>
+                    <name>ipv4-labeled-unicast-receive</name>
                     <address-family>
                         <type xmlns:ribimpl="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">ribimpl:bgp-table-type</type>
-                        <name>labeled-unicast</name>
+                        <name>ipv4-labeled-unicast</name>
                     </address-family>
                     <send-receive>receive</send-receive>
                 </module>
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:add-path-impl</type>
-                    <name>labeled-unicast-send</name>
+                    <name>ipv4-labeled-unicast-send</name>
                     <address-family>
                         <type xmlns:ribimpl="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">ribimpl:bgp-table-type</type>
-                        <name>labeled-unicast</name>
+                        <name>ipv4-labeled-unicast</name>
                     </address-family>
                     <send-receive>send</send-receive>
                 </module>
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:add-path-impl</type>
-                    <name>labeled-unicast-both</name>
+                    <name>ipv4-labeled-unicast-both</name>
                     <address-family>
                         <type xmlns:ribimpl="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">ribimpl:bgp-table-type</type>
-                        <name>labeled-unicast</name>
+                        <name>ipv4-labeled-unicast</name>
+                    </address-family>
+                    <send-receive>both</send-receive>
+                </module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:add-path-impl</type>
+                    <name>ipv6-labeled-unicast-receive</name>
+                    <address-family>
+                        <type xmlns:ribimpl="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">ribimpl:bgp-table-type</type>
+                        <name>ipv6-labeled-unicast</name>
+                    </address-family>
+                    <send-receive>receive</send-receive>
+                </module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:add-path-impl</type>
+                    <name>ipv6-labeled-unicast-send</name>
+                    <address-family>
+                        <type xmlns:ribimpl="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">ribimpl:bgp-table-type</type>
+                        <name>ipv6-labeled-unicast</name>
+                    </address-family>
+                    <send-receive>send</send-receive>
+                </module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:add-path-impl</type>
+                    <name>ipv6-labeled-unicast-both</name>
+                    <address-family>
+                        <type xmlns:ribimpl="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">ribimpl:bgp-table-type</type>
+                        <name>ipv6-labeled-unicast</name>
                     </address-family>
                     <send-receive>both</send-receive>
                 </module>
@@ -363,8 +390,14 @@
                 </module>
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type-impl</type>
-                    <name>labeled-unicast</name>
+                    <name>ipv4-labeled-unicast</name>
                     <afi xmlns:bgp="urn:opendaylight:params:xml:ns:yang:bgp-types">bgp:ipv4-address-family</afi>
+                    <safi xmlns:labeled-unicast="urn:opendaylight:params:xml:ns:yang:bgp-labeled-unicast">labeled-unicast:labeled-unicast-subsequent-address-family</safi>
+                </module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type-impl</type>
+                    <name>ipv6-labeled-unicast</name>
+                    <afi xmlns:bgp="urn:opendaylight:params:xml:ns:yang:bgp-types">bgp:ipv6-address-family</afi>
                     <safi xmlns:labeled-unicast="urn:opendaylight:params:xml:ns:yang:bgp-labeled-unicast">labeled-unicast:labeled-unicast-subsequent-address-family</safi>
                 </module>
                 <module>
@@ -456,8 +489,12 @@
                         <provider>/modules/module[type='bgp-table-type-impl'][name='ipv6-flowspec']</provider>
                     </instance>
                     <instance>
-                        <name>labeled-unicast</name>
-                        <provider>/modules/module[type='bgp-table-type-impl'][name='labeled-unicast']</provider>
+                        <name>ipv4-labeled-unicast</name>
+                        <provider>/modules/module[type='bgp-table-type-impl'][name='ipv4-labeled-unicast']</provider>
+                    </instance>
+                    <instance>
+                        <name>ipv6-labeled-unicast</name>
+                        <provider>/modules/module[type='bgp-table-type-impl'][name='ipv6-labeled-unicast']</provider>
                     </instance>
                     <instance>
                         <name>ipv4-l3vpn</name>
@@ -495,8 +532,12 @@
                         <provider>/modules/module[type='add-path-impl'][name='ipv6-flowspec-receive']</provider>
                     </instance>
                     <instance>
-                        <name>labeled-unicast-receive</name>
-                        <provider>/modules/module[type='add-path-impl'][name='labeled-unicast-receive']</provider>
+                        <name>ipv4-labeled-unicast-receive</name>
+                        <provider>/modules/module[type='add-path-impl'][name='ipv4-labeled-unicast-receive']</provider>
+                    </instance>
+                    <instance>
+                        <name>ipv6-labeled-unicast-receive</name>
+                        <provider>/modules/module[type='add-path-impl'][name='ipv--labeled-unicast-receive']</provider>
                     </instance>
                     <instance>
                         <name>ipv4-unicast-send</name>
@@ -519,8 +560,12 @@
                         <provider>/modules/module[type='add-path-impl'][name='ipv6-flowspec-send']</provider>
                     </instance>
                     <instance>
-                        <name>labeled-unicast-send</name>
-                        <provider>/modules/module[type='add-path-impl'][name='labeled-unicast-send']</provider>
+                        <name>ipv4-labeled-unicast-send</name>
+                        <provider>/modules/module[type='add-path-impl'][name='ipv4-labeled-unicast-send']</provider>
+                    </instance>
+                    <instance>
+                        <name>ipv6-labeled-unicast-send</name>
+                        <provider>/modules/module[type='add-path-impl'][name='ipv6-labeled-unicast-send']</provider>
                     </instance>
                     <instance>
                         <name>ipv4-unicast-both</name>
@@ -543,8 +588,12 @@
                         <provider>/modules/module[type='add-path-impl'][name='ipv6-flowspec-both']</provider>
                     </instance>
                     <instance>
-                        <name>labeled-unicast-both</name>
-                        <provider>/modules/module[type='add-path-impl'][name='labeled-unicast-both']</provider>
+                        <name>ipv4-labeled-unicast-both</name>
+                        <provider>/modules/module[type='add-path-impl'][name='ipv4-labeled-unicast-both']</provider>
+                    </instance>
+                    <instance>
+                        <name>ipv6-labeled-unicast-both</name>
+                        <provider>/modules/module[type='add-path-impl'][name='ipv6-labeled-unicast-both']</provider>
                     </instance>
                 </service>
                 <service>

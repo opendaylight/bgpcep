@@ -117,7 +117,11 @@
                     </advertized-table>
                     <advertized-table>
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
-                        <name>labeled-unicast</name>
+                        <name>ipv4-labeled-unicast</name>
+                    </advertized-table>
+                    <advertized-table>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
+                        <name>ipv6-labeled-unicast</name>
                     </advertized-table>
                     <advertized-table>
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
@@ -172,7 +176,11 @@
                     </local-table>
                     <local-table>
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
-                        <name>labeled-unicast</name>
+                        <name>ipv4-labeled-unicast</name>
+                    </local-table>
+                    <local-table>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
+                        <name>ipv6-labeled-unicast</name>
                     </local-table>
                     <local-table>
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
