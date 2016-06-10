@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da5c1566_5df4b9f1",
+        "filename": "bgp/rib-impl/src/main/yang/bgp-peer.yang",
+        "patchSetId": 8
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-10T07:46:51Z",
+      "side": 1,
+      "message": "Add capabilities too.",
+      "range": {
+        "startLine": 31,
+        "startChar": 4,
+        "endLine": 31,
+        "endChar": 39
+      },
+      "revId": "9e44bf7123941bb98bacbf051b4d32eb28b2c0c7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_1dea410f",
+        "filename": "bgp/rib-impl/src/main/yang/bgp-peer.yang",
+        "patchSetId": 8
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-10T07:46:51Z",
+      "side": 1,
+      "message": "Should stay in config yang model",
+      "range": {
+        "startLine": 92,
+        "startChar": 0,
+        "endLine": 138,
+        "endChar": 9
+      },
+      "revId": "9e44bf7123941bb98bacbf051b4d32eb28b2c0c7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_dde7293f",
+        "filename": "bgp/rib-impl/src/main/yang/bgp-rib-impl-spi.yang",
+        "patchSetId": 8
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-10T07:46:51Z",
+      "side": 1,
+      "message": "This change is not really related to this task scope.",
+      "revId": "9e44bf7123941bb98bacbf051b4d32eb28b2c0c7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_9dddb173",
+        "filename": "bgp/rib-impl/src/main/yang/bgp-rib-impl.yang",
+        "patchSetId": 8
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-10T07:46:51Z",
+      "side": 1,
+      "message": "Keep in config yang.",
+      "range": {
+        "startLine": 62,
+        "startChar": 0,
+        "endLine": 131,
+        "endChar": 9
+      },
+      "revId": "9e44bf7123941bb98bacbf051b4d32eb28b2c0c7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
