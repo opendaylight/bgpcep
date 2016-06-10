@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da5c1566_9d72d17a",
+        "filename": "bgp/rib-spi/src/test/java/org/opendaylight/protocol/bgp/rib/spi/AbstractRIBSupportTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-10T08:14:00Z",
+      "side": 1,
+      "message": "ATTRIBUTES_IID",
+      "range": {
+        "startLine": 117,
+        "startChar": 8,
+        "endLine": 117,
+        "endChar": 109
+      },
+      "revId": "e21762d899fccdfd9869c39f59bc206f917b578f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_fd0aedd0",
+        "filename": "bgp/rib-spi/src/test/java/org/opendaylight/protocol/bgp/rib/spi/AbstractRIBSupportTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-10T08:14:00Z",
+      "side": 1,
+      "message": "to constant",
+      "range": {
+        "startLine": 118,
+        "startChar": 8,
+        "endLine": 118,
+        "endChar": 122
+      },
+      "revId": "e21762d899fccdfd9869c39f59bc206f917b578f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_dd6c499f",
+        "filename": "bgp/rib-spi/src/test/java/org/opendaylight/protocol/bgp/rib/spi/AbstractRIBSupportTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-10T08:14:00Z",
+      "side": 1,
+      "message": "ATTRIBUTES_IID",
+      "range": {
+        "startLine": 126,
+        "startChar": 8,
+        "endLine": 126,
+        "endChar": 110
+      },
+      "revId": "e21762d899fccdfd9869c39f59bc206f917b578f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_5d103901",
+        "filename": "bgp/rib-spi/src/test/java/org/opendaylight/protocol/bgp/rib/spi/AbstractRIBSupportTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-10T08:14:00Z",
+      "side": 1,
+      "message": "to constant",
+      "range": {
+        "startLine": 127,
+        "startChar": 8,
+        "endLine": 127,
+        "endChar": 119
+      },
+      "revId": "e21762d899fccdfd9869c39f59bc206f917b578f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_dd03a9b6",
+        "filename": "bgp/rib-spi/src/test/java/org/opendaylight/protocol/bgp/rib/spi/AbstractRIBSupportTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-10T08:14:00Z",
+      "side": 1,
+      "message": "to function",
+      "range": {
+        "startLine": 159,
+        "startChar": 8,
+        "endLine": 159,
+        "endChar": 126
+      },
+      "revId": "e21762d899fccdfd9869c39f59bc206f917b578f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_bd0075ab",
+        "filename": "bgp/rib-spi/src/test/java/org/opendaylight/protocol/bgp/rib/spi/AbstractRIBSupportTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-10T08:14:00Z",
+      "side": 1,
+      "message": "use function created above",
+      "range": {
+        "startLine": 166,
+        "startChar": 8,
+        "endLine": 166,
+        "endChar": 126
+      },
+      "revId": "e21762d899fccdfd9869c39f59bc206f917b578f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_5dde7940",
+        "filename": "bgp/rib-spi/src/test/java/org/opendaylight/protocol/bgp/rib/spi/AbstractRIBSupportTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-10T08:14:00Z",
+      "side": 1,
+      "message": "Why do we need to cast a collection to a set?",
+      "range": {
+        "startLine": 174,
+        "startChar": 56,
+        "endLine": 174,
+        "endChar": 68
+      },
+      "revId": "e21762d899fccdfd9869c39f59bc206f917b578f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
