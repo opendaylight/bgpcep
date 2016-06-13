@@ -33,6 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.link.state.attribute.PrefixAttributesCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.link.state.attribute.prefix.attributes._case.PrefixAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.link.state.attribute.prefix.attributes._case.PrefixAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.IgpBits;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.IgpBitsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.SrBindingSidLabels;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.SrPrefix;
@@ -55,6 +56,9 @@ public final class PrefixAttributesParser {
 
     private static final int FLAGS_SIZE = 8;
     private static final int UP_DOWN_BIT = 0;
+    private static final int OSPF_NO_UNICAST = 1;
+    private static final int OSPF_LOCAL_ADDRESS = 2;
+    private static final int OSPF_PROPAGATE_ADDRESS = 3;
 
     /* Prefix Attribute TLVs */
     private static final int IGP_FLAGS = 1152;
@@ -97,7 +101,15 @@ public final class PrefixAttributesParser {
         case IGP_FLAGS:
             final BitArray flags = BitArray.valueOf(value, FLAGS_SIZE);
             final boolean upDownBit = flags.get(UP_DOWN_BIT);
-            builder.setIgpBits(new IgpBitsBuilder().setUpDown(new UpDown(upDownBit)).build());
+            final boolean ospfNoUnicast = flags.get(OSPF_NO_UNICAST);
+            final boolean ospfLocalAddress = flags.get(OSPF_LOCAL_ADDRESS);
+            final boolean ospfPropagateAddress = flags.get(OSPF_PROPAGATE_ADDRESS);
+            builder.setIgpBits(new IgpBitsBuilder().setUpDown(new UpDown(upDownBit))
+                .setIsIsUpDown(upDownBit)
+                .setOspfNoUnicast(ospfNoUnicast)
+                .setOspfLocalAddress(ospfLocalAddress)
+                .setOspfPropagateNssa(ospfPropagateAddress)
+                .build());
             LOG.debug("Parsed IGP flag (up/down bit) : {}", upDownBit);
             break;
         case ROUTE_TAG:
@@ -182,7 +194,11 @@ public final class PrefixAttributesParser {
         final PrefixAttributes prefixAtrributes = prefixAttributesCase.getPrefixAttributes();
         if (prefixAtrributes.getIgpBits() != null) {
             final BitArray igpBit = new BitArray(FLAGS_SIZE);
-            igpBit.set(UP_DOWN_BIT, prefixAtrributes.getIgpBits().getUpDown().isUpDown());
+            final IgpBits igpBits = prefixAtrributes.getIgpBits();
+            igpBit.set(UP_DOWN_BIT, igpBits.getUpDown().isUpDown() || igpBits.isIsIsUpDown());
+            igpBit.set(OSPF_NO_UNICAST, igpBits.isOspfNoUnicast());
+            igpBit.set(OSPF_LOCAL_ADDRESS, igpBits.isOspfLocalAddress());
+            igpBit.set(OSPF_PROPAGATE_ADDRESS, igpBits.isOspfPropagateNssa());
             TlvUtil.writeTLV(IGP_FLAGS, Unpooled.wrappedBuffer(igpBit.array()), byteAggregator);
         }
         serializeRouteTags(prefixAtrributes.getRouteTags(), byteAggregator);
