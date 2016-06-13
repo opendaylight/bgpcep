@@ -21,7 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 final class ArbitraryParser extends AbstractEsiType {
-    private static final int ARBITRARY_LENGTH = 9;
+    static final int ARBITRARY_LENGTH = 9;
 
     @Override
     public void serializeBody(final Esi esiCase, final ByteBuf body) {
