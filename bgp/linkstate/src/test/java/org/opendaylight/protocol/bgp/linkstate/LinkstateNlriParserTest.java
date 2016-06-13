@@ -132,7 +132,7 @@ public class LinkstateNlriParserTest {
 
     private final byte[] teLspNlri = new byte[] { (byte) 0x00, (byte) 0x05, //NLRI Type Te-IPV4
         (byte) 0x00, (byte) 0x12, // length
-        (byte) 0x06,    //Protocol-ID
+        (byte) 0x08,    //Protocol-ID
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01, // Identifier
         (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, //IPv4 Tunnel Sender Address
         (byte) 0x00, (byte) 0x01, //Tunnel ID

@@ -46,19 +46,19 @@ module bgp-linkstate {
     }
 
     identity linkstate-address-family {
-        reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2";
+        reference "https://tools.ietf.org/html/rfc7752#section-3.2";
 
         base bgp-t:address-family;
     }
 
     identity linkstate-subsequent-address-family {
-        reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2";
+        reference "https://tools.ietf.org/html/rfc7752#section-3.2";
 
         base bgp-t:subsequent-address-family;
     }
 
     typedef nlri-type {
-        reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2";
+        reference "https://tools.ietf.org/html/rfc7752#section-3.2";
         type enumeration {
             enum node {
                 value 1;
@@ -73,10 +73,12 @@ module bgp-linkstate {
                 value 4;
             }
             enum ipv4-te-lsp {
+                status deprecated;
                 reference "http://tools.ietf.org/html/draft-ietf-idr-te-lsp-distribution-03#section-4.1";
                 value 5;
             }
             enum ipv6-te-lsp {
+                status deprecated;
                 reference "http://tools.ietf.org/html/draft-ietf-idr-te-lsp-distribution-03#section-4.1";
                 value 6;
             }
@@ -84,11 +86,8 @@ module bgp-linkstate {
     }
 
     typedef protocol-id {
-        reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2";
+        reference "https://tools.ietf.org/html/rfc7752#section-3.2";
         type enumeration {
-            enum unknown {
-                value 0;
-            }
             enum isis-level1 {
                 value 1;
             }
@@ -104,23 +103,28 @@ module bgp-linkstate {
             enum static {
                 value 5;
             }
-            enum rsvp-te {
-                reference "http://tools.ietf.org/html/draft-ietf-idr-te-lsp-distribution-03#section-2.1";
+            enum ospf-v3 {
                 value 6;
             }
             enum bgp-epe {
-                reference "https://tools.ietf.org/html/draft-ietf-idr-bgpls-segment-routing-epe-00#section-4";
+                reference "https://tools.ietf.org/html/draft-ietf-idr-bgpls-segment-routing-epe-05#section-4";
                 value 7;
             }
-            enum segment-routing {
+            enum rsvp-te {
+                status deprecated;
                 reference "http://tools.ietf.org/html/draft-ietf-idr-te-lsp-distribution-03#section-2.1";
-                value 8; // segment-routing protocol-id TBD by IANA
+                value 8; // rsvp-te protocol-id TBD by IANA
+            }
+            enum segment-routing {
+                status deprecated;
+                reference "http://tools.ietf.org/html/draft-ietf-idr-te-lsp-distribution-03#section-2.1";
+                value 9; // segment-routing protocol-id TBD by IANA
             }
         }
     }
 
     typedef ospf-route-type {
-        reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.3.1";
+        reference "https://tools.ietf.org/html/rfc7752#section-3.2.3.1";
         type enumeration {
             enum intra-area {
                 value 1;
@@ -152,12 +156,12 @@ module bgp-linkstate {
     }
 
     typedef domain-identifier {
-        reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
+        reference "https://tools.ietf.org/html/rfc7752#section-3.2.1.4";
         type uint32;
     }
 
     typedef area-identifier {
-        reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
+        reference "https://tools.ietf.org/html/rfc7752#section-3.2.1.4";
         type uint32;
     }
 
@@ -172,12 +176,12 @@ module bgp-linkstate {
     }
 
     typedef ospf-interface-identifier {
-        reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
+        reference "https://tools.ietf.org/html/rfc7752#section-3.2.1.4";
         type uint32;
     }
 
     typedef topology-identifier {
-        reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.5";
+        reference "https://tools.ietf.org/html/rfc7752#section-3.2.1.5";
         type uint16 {
             range "0..4095";
         }
@@ -185,7 +189,7 @@ module bgp-linkstate {
 
 
     grouping isis-router-identifier {
-        reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
+        reference "https://tools.ietf.org/html/rfc7752#section-3.2.1.4";
         leaf iso-system-id {
             type netc:iso-system-identifier;
             mandatory true;
@@ -193,7 +197,7 @@ module bgp-linkstate {
     }
 
     grouping isis-lan-identifier {
-        reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
+        reference "https://tools.ietf.org/html/rfc7752#section-3.2.1.4";
         container is-is-router-identifier {
             uses isis-router-identifier;
         }
@@ -206,7 +210,7 @@ module bgp-linkstate {
     }
 
     grouping ospf-router-identifier {
-        reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
+        reference "https://tools.ietf.org/html/rfc7752#section-3.2.1.4";
         leaf ospf-router-id {
             type uint32;
             mandatory true;
@@ -214,7 +218,7 @@ module bgp-linkstate {
     }
 
     grouping ospf-v2-lan-identifier {
-        reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
+        reference "https://tools.ietf.org/html/rfc7752#section-3.2.1.4";
         uses ospf-router-identifier;
         leaf ipv4-address {
             type ipv4-interface-identifier;
@@ -223,7 +227,7 @@ module bgp-linkstate {
     }
 
     grouping ospf-v3-lan-identifier {
-        reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
+        reference "https://tools.ietf.org/html/rfc7752#section-3.2.1.4";
         uses ospf-router-identifier;
         leaf lan-interface {
             type ospf-interface-identifier;
@@ -280,7 +284,7 @@ module bgp-linkstate {
             type topology-identifier;
         }
         leaf ospf-route-type {
-            when "../../protocol-id = 'ospf'";
+            when "../../protocol-id[ .='ospf' or .='ospf-v3' ]";
             type ospf-route-type;
         }
         leaf ip-reachability-information {
@@ -402,7 +406,7 @@ module bgp-linkstate {
     }
 
     typedef node-flag-bits {
-        reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.1.1";
+        reference "https://tools.ietf.org/html/rfc7752#section-3.3.1.1";
         type bits {
             bit overload {
                 position 0;
@@ -426,24 +430,24 @@ module bgp-linkstate {
     }
 
     typedef isis-area-identifier {
-        reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.1.2";
+        reference "https://tools.ietf.org/html/rfc7752#section-3.3.1.2";
         type binary {
             length "1..20";
         }
     }
 
     typedef ipv4-router-identifier {
-        reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.1.4";
+        reference "https://tools.ietf.org/html/rfc7752#section-3.3.1.4";
         type inet:ipv4-address;
     }
 
     typedef ipv6-router-identifier {
-        reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.1.4";
+        reference "https://tools.ietf.org/html/rfc7752#section-3.3.1.4";
         type inet:ipv6-address;
     }
 
     grouping node-state {
-        reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.1";
+        reference "https://tools.ietf.org/html/rfc7752#section-3.3.1";
         leaf-list topology-identifier {
             type topology-identifier;
         }
@@ -591,27 +595,42 @@ module bgp-linkstate {
     }
 
     typedef route-tag {
-        reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.3.2";
+        reference "https://tools.ietf.org/html/rfc7752#section-3.3.3.2";
+        description "Carries original IGP TAGs of the prefix.";
         type binary {
             length "4";
         }
     }
 
     typedef extended-route-tag {
-        reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.3.3";
+        reference "https://tools.ietf.org/html/rfc7752#section-3.3.3.3";
+        description "Carries IS-IS Extended Route Tags of the prefix.";
         type binary {
             length "8";
         }
     }
 
     grouping igp-bits {
-        reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.3.1";
+        reference "https://tools.ietf.org/html/rfc7752#section-3.3.3.1";
         leaf up-down {
+            status deprecated;
             type bits {
                 bit up-down {
                     position 0;
                 }
             }
+        }
+        leaf is-is-up-down {
+            type boolean;
+        }
+        leaf ospf-no-unicast {
+            type boolean;
+        }
+        leaf ospf-local-address {
+            type boolean;
+        }
+        leaf ospf-propagate-nssa {
+            type boolean;
         }
     }
 
@@ -663,6 +682,7 @@ module bgp-linkstate {
                 }
             }
             case te-lsp-attributes-case {
+                status deprecated;
                 description "LSP Object";
                 reference "http://tools.ietf.org/html/draft-ietf-idr-te-lsp-distribution-03#section-2.2";
                 container te-lsp-attributes {

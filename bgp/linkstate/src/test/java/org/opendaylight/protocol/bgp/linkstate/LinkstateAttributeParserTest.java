@@ -57,6 +57,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.link.state.attribute.node.attributes._case.NodeAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.link.state.attribute.prefix.attributes._case.PrefixAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.link.state.attribute.te.lsp.attributes._case.TeLspAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.IgpBits;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
@@ -124,7 +125,7 @@ public class LinkstateAttributeParserTest {
         4, 0x0b, 0, 2, 0, 1 // sr-algorythms
         };
 
-    private static final byte[] P4_ATTR = { 0x04, (byte) 0x80, 0, 0x01, (byte) 0x80, 0x04, (byte) 0x81, 0, 0x08, 0x12, 0x34, 0x56, 0x78,
+    private static final byte[] P4_ATTR = { 0x04, (byte) 0x80, 0, 0x01, (byte) 0xF0, 0x04, (byte) 0x81, 0, 0x08, 0x12, 0x34, 0x56, 0x78,
         0x10, 0x30, 0x50, 0x70, 0x04, (byte) 0x82, 0, 0x08, 0x12, 0x34, 0x56, 0x78, 0x10, 0x30, 0x50, 0x70,
         0x04, (byte) 0x83, 0, 0x04, 0, 0, 0, 0x0a, 0x04, (byte) 0x84, 0, 0x04, 0x0a, 0x19, 0x02, 0x1b,
         4, (byte)0x86, 0,8, (byte)0xf0, 0, 0,0, 1,2,3,4, // prefix-sid tlv
@@ -292,7 +293,12 @@ public class LinkstateAttributeParserTest {
         assertFalse(ls.getSrRange().isInterArea());
         assertEquals(1, ls.getSrRange().getSubTlvs().size());
         assertNotNull(ls.getSrBindingSidLabels());
-        assertTrue(ls.getIgpBits().getUpDown().isUpDown());
+        final IgpBits ispBits = ls.getIgpBits();
+        assertTrue(ispBits.getUpDown().isUpDown());
+        assertTrue(ispBits.isIsIsUpDown());
+        assertTrue(ispBits.isOspfNoUnicast());
+        assertTrue(ispBits.isOspfLocalAddress());
+        assertTrue(ispBits.isOspfPropagateNssa());
         assertEquals(2, ls.getRouteTags().size());
         assertArrayEquals(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 }, ls.getRouteTags().get(0).getValue());
         assertEquals(1, ls.getExtendedTags().size());

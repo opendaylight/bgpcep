@@ -231,8 +231,6 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
     // FIXME : use codec
     private static int domProtocolIdValue(final String protocolId) {
         switch (protocolId) {
-        case "unknown":
-            return ProtocolId.Unknown.getIntValue();
         case "isis-level1":
             return ProtocolId.IsisLevel1.getIntValue();
         case "isis-level2":
@@ -243,6 +241,8 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
             return ProtocolId.Direct.getIntValue();
         case "static":
             return ProtocolId.Static.getIntValue();
+        case "ospf-v3":
+            return ProtocolId.OspfV3.getIntValue();
         case "rsvp-te":
             return ProtocolId.RsvpTe.getIntValue();
         case "bgp-epe":

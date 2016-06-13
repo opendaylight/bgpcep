@@ -493,14 +493,13 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
         switch (value.getProtocolId()) {
         case Direct:
         case Static:
-        case Unknown:
-            break;
         case IsisLevel1:
         case IsisLevel2:
             ilab.addAugmentation(
                 org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.IgpLinkAttributes1.class,
                 isisLinkAttributes(ld.getMultiTopologyId(), la));
             break;
+        case OspfV3:
         case Ospf:
             ilab.addAugmentation(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.IgpLinkAttributes1.class,
                 ospfLinkAttributes(ld.getMultiTopologyId(), la));
@@ -695,8 +694,6 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
         switch (value.getProtocolId()) {
         case Direct:
         case Static:
-        case Unknown:
-            break;
         case IsisLevel1:
         case IsisLevel2:
             inab.addAugmentation(
@@ -779,8 +776,6 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
         case IsisLevel1:
         case IsisLevel2:
         case Static:
-        case Unknown:
-            break;
         case Ospf:
             if (pa != null && pa.getOspfForwardingAddress() != null) {
                 pb.addAugmentation(

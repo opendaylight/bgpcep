@@ -11,7 +11,7 @@ module bgp-segment-routing {
 
     description
         "This module contains the base data concepts contained
-        in draft-gredler-idr-bgp-ls-segment-routing-ext-00.
+        in draft-gredler-idr-bgp-ls-segment-routing-ext-02.
 
         Copyright (c)2015 Cisco Systems, Inc. All rights reserved.
 
@@ -26,7 +26,7 @@ module bgp-segment-routing {
     }
 
     typedef algorithm {
-        reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-00#section-2.1.2";
+        reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-02#section-2.1.2";
         type enumeration {
             enum shortest-path-first {
                 value 0;
@@ -38,12 +38,12 @@ module bgp-segment-routing {
     }
 
     typedef weight {
-        reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-00#section-2.2";
+        reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-02#section-2.2";
         type uint8;
     }
 
     grouping sid-label-index {
-        reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-00#section-2.3.4.2";
+        reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-02#section-2.3.4";
         choice sid-label-index {
             case local-label-case {
                 leaf local-label {
@@ -64,7 +64,7 @@ module bgp-segment-routing {
     }
 
     grouping sr-capabilities-tlv {
-        reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-00#section-2.1.1";
+        reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-02#section-2.1.1";
         leaf mpls-ipv4 {
             type boolean;
         }
@@ -89,7 +89,7 @@ module bgp-segment-routing {
     }
 
     grouping ospf-adj-flags {
-        reference "https://tools.ietf.org/html/draft-ietf-ospf-segment-routing-extensions-05#section-7.1";
+        reference "https://tools.ietf.org/html/draft-ietf-ospf-segment-routing-extensions-08#section-7.1";
         leaf backup {
             type boolean;
         }
@@ -104,7 +104,7 @@ module bgp-segment-routing {
                 uses ospf-adj-flags;
             }
             case isis-adj-flags-case {
-                reference "https://tools.ietf.org/html/draft-ietf-isis-segment-routing-extensions-05#section-2.2.1";
+                reference "https://tools.ietf.org/html/draft-ietf-isis-segment-routing-extensions-06#section-2.2.1";
                 uses ospf-adj-flags;
                 leaf address-family {
                     type boolean;
@@ -114,7 +114,7 @@ module bgp-segment-routing {
     }
 
     grouping adj-sid-tlv {
-        reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-00#section-2.2.1";
+        reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-02#section-2.2.1";
         uses adj-flags;
         leaf weight {
             type weight;
@@ -123,7 +123,7 @@ module bgp-segment-routing {
     }
 
     grouping lan-adj-sid-tlv {
-        reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-00#section-2.2.2";
+        reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-02#section-2.2.2";
         uses adj-flags;
         leaf weight {
             type weight;
@@ -147,10 +147,10 @@ module bgp-segment-routing {
     }
 
     grouping prefix-sid-tlv {
-        reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-00#section-2.3.1";
+        reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-02#section-2.3.1";
         choice flags {
             case isis-prefix-flags-case {
-                reference "https://tools.ietf.org/html/draft-ietf-ospf-segment-routing-extensions-05#section-5";
+                reference "https://tools.ietf.org/html/draft-ietf-ospf-segment-routing-extensions-08#section-5";
                 uses prefix-flags;
                 leaf readvertisement {
                     type boolean;
@@ -213,7 +213,7 @@ module bgp-segment-routing {
     }
 
     grouping binding-sub-tlvs {
-        reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-00#section-2.3.4";
+        reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-02#section-2.3.4";
         choice binding-sub-tlv {
             case prefix-sid-case {
                 uses prefix-sid-tlv;
@@ -251,7 +251,7 @@ module bgp-segment-routing {
     }
 
     grouping isis-binding-flags {
-        reference "https://tools.ietf.org/html/draft-ietf-isis-segment-routing-extensions-05#section-2.4";
+        reference "https://tools.ietf.org/html/draft-ietf-isis-segment-routing-extensions-06#section-2.4";
         leaf address-family {
             type boolean;
         }
@@ -270,14 +270,14 @@ module bgp-segment-routing {
     }
 
     grouping ospf-binding-flags {
-        reference "https://tools.ietf.org/html/draft-ietf-ospf-segment-routing-extensions-05#section-6";
+        reference "https://tools.ietf.org/html/draft-ietf-ospf-segment-routing-extensions-08#section-6";
         leaf mirroring {
             type boolean;
         }
     }
 
     grouping binding-sid-tlv {
-        reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-00#section-2.3.3";
+        reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-02#section-2.3.3";
         leaf weight {
             type weight;
         }
@@ -312,7 +312,7 @@ module bgp-segment-routing {
     }
 
     grouping range-tlv {
-        reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-00#section-2.3.2";
+        reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-02#section-2.3.2";
         leaf inter-area {
             type boolean;
         }
