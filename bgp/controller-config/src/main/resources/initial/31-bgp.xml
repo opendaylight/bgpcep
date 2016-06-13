@@ -537,7 +537,7 @@
                     </instance>
                     <instance>
                         <name>ipv6-labeled-unicast-receive</name>
-                        <provider>/modules/module[type='add-path-impl'][name='ipv--labeled-unicast-receive']</provider>
+                        <provider>/modules/module[type='add-path-impl'][name='ipv6-labeled-unicast-receive']</provider>
                     </instance>
                     <instance>
                         <name>ipv4-unicast-send</name>
