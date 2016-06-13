@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba51214e_dba9277d",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/controller/config/yang/bgp/rib/impl/BGPPeerModule.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-13T07:28:54Z",
+      "side": 1,
+      "message": "Please, fix typo.",
+      "range": {
+        "startLine": 97,
+        "startChar": 12,
+        "endLine": 97,
+        "endChar": 30
+      },
+      "revId": "e6335978f79bbcb01e40545fdea5d5dbd80f75c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_3bb663dd",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPDispatcherImpl.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-13T07:28:54Z",
+      "side": 1,
+      "message": "Should be closed in blocking way.",
+      "range": {
+        "startLine": 128,
+        "startChar": 0,
+        "endLine": 129,
+        "endChar": 50
+      },
+      "revId": "e6335978f79bbcb01e40545fdea5d5dbd80f75c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_9b9faf50",
+        "filename": "concepts/src/main/java/org/opendaylight/protocol/concepts/KeyMapping.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-13T07:28:54Z",
+      "side": 1,
+      "message": "why nullable? The motivation for using Optional is to avoid passing/returning null objects.",
+      "range": {
+        "startLine": 54,
+        "startChar": 84,
+        "endLine": 54,
+        "endChar": 92
+      },
+      "revId": "e6335978f79bbcb01e40545fdea5d5dbd80f75c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_fbaceb8e",
+        "filename": "concepts/src/main/java/org/opendaylight/protocol/concepts/KeyMapping.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-13T07:28:54Z",
+      "side": 1,
+      "message": "Duplicates the code of getKeyMapping(InetAddress, String)",
+      "range": {
+        "startLine": 56,
+        "startChar": 0,
+        "endLine": 58,
+        "endChar": 30
+      },
+      "revId": "e6335978f79bbcb01e40545fdea5d5dbd80f75c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
