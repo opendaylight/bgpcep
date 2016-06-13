@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.evpn.impl.esi.types;
 
+import com.google.common.base.Preconditions;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
@@ -37,9 +38,11 @@ final class EsiModelUtil {
         return (Long) cont.getChild(LD_NID).get().getValue();
     }
 
-
     static Arbitrary extractArbitrary(final ContainerNode esi) {
-        return new ArbitraryBuilder().setArbitrary((byte[]) esi.getChild(ARB_NID).get().getValue()).build();
+        final byte[] arbitrary = (byte[]) esi.getChild(ARB_NID).get().getValue();
+        Preconditions.checkArgument(arbitrary.length == ArbitraryParser.ARBITRARY_LENGTH, "Wrong length of array of bytes. Expected: %s Passed: %s " +
+            ";", ArbitraryParser.ARBITRARY_LENGTH, arbitrary.length);
+        return new ArbitraryBuilder().setArbitrary(arbitrary).build();
     }
 
 
