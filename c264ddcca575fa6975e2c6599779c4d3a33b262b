@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba51214e_fbf18b96",
+        "filename": "bgp/rib-impl/src/main/yang/bgp-peer.yang",
+        "patchSetId": 9
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-13T08:28:28Z",
+      "side": 1,
+      "message": "The add-path capabilities are rendered in \"advertised-add-path-table-types\".",
+      "range": {
+        "startLine": 125,
+        "startChar": 0,
+        "endLine": 128,
+        "endChar": 9
+      },
+      "revId": "c264ddcca575fa6975e2c6599779c4d3a33b262b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_bb6c3338",
+        "filename": "bgp/rib-impl/src/main/yang/bgp-rib-impl.yang",
+        "patchSetId": 9
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-13T08:28:28Z",
+      "side": 1,
+      "message": "How is this useful?",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 60,
+        "endChar": 5
+      },
+      "revId": "c264ddcca575fa6975e2c6599779c4d3a33b262b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_9b696f28",
+        "filename": "bgp/rib-impl/src/main/yang/bgp-stats-peer.yang",
+        "patchSetId": 9
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-13T08:28:28Z",
+      "side": 1,
+      "message": "Pleas preserve these RPCs definition in rib-impl-cfg, so RESTCONF input will not change because of a namespace change.",
+      "range": {
+        "startLine": 138,
+        "startChar": 0,
+        "endLine": 167,
+        "endChar": 5
+      },
+      "revId": "c264ddcca575fa6975e2c6599779c4d3a33b262b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_1b7effe4",
+        "filename": "bgp/rib-impl/src/main/yang/bgp-stats.yang",
+        "patchSetId": 9
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-13T08:28:28Z",
+      "side": 1,
+      "message": "I believe ietf-yang-types offers some type definition for time-stamps.",
+      "range": {
+        "startLine": 32,
+        "startChar": 17,
+        "endLine": 32,
+        "endChar": 43
+      },
+      "revId": "c264ddcca575fa6975e2c6599779c4d3a33b262b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_9b220f00",
+        "filename": "bgp/rib-impl/src/main/yang/bgp-stats.yang",
+        "patchSetId": 9
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-13T08:28:28Z",
+      "side": 1,
+      "message": "We already have something similar in bgp-message yang data model.",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 60,
+        "endChar": 5
+      },
+      "revId": "c264ddcca575fa6975e2c6599779c4d3a33b262b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
