@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da5c1566_dd4e09c1",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/IPv4RIBSupportTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-13T07:17:49Z",
+      "side": 1,
+      "message": "assertFalse",
+      "range": {
+        "startLine": 116,
+        "startChar": 15,
+        "endLine": 116,
+        "endChar": 27
+      },
+      "revId": "624d8333c567bfbafab3ffa4bde7969173448935",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_7bdd7b42",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/IPv4RIBSupportTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-13T07:17:49Z",
+      "side": 1,
+      "message": "Build BA DTO and use some function from abstract class to convert to normalized nodes.",
+      "range": {
+        "startLine": 145,
+        "startChar": 0,
+        "endLine": 146,
+        "endChar": 150
+      },
+      "revId": "624d8333c567bfbafab3ffa4bde7969173448935",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
