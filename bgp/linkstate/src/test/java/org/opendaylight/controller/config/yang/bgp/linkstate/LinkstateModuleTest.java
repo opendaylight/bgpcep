@@ -9,12 +9,21 @@
 package org.opendaylight.controller.config.yang.bgp.linkstate;
 
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.contains;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.ObjectName;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
 import org.opendaylight.controller.config.manager.impl.AbstractConfigTest;
 import org.opendaylight.controller.config.manager.impl.factoriesresolver.HardcodedModuleFactoriesResolver;
@@ -25,6 +34,11 @@ import org.opendaylight.controller.config.yang.bgp.rib.spi.RIBExtensionsImplModu
 import org.opendaylight.controller.config.yang.bgp.rib.spi.RIBExtensionsImplModuleTest;
 import org.opendaylight.controller.config.yang.rsvp.spi.SimpleRSVPExtensionProviderContextModuleFactory;
 import org.opendaylight.controller.config.yang.rsvp.spi.SimpleRSVPExtensionProviderContextModuleMXBean;
+import org.opendaylight.protocol.rsvp.parser.spi.RSVPExtensionProviderContext;
+import org.opendaylight.protocol.rsvp.parser.spi.pojo.SimpleRSVPExtensionProviderContext;
+import org.osgi.framework.Filter;
+import org.osgi.framework.ServiceListener;
+import org.osgi.framework.ServiceReference;
 
 public class LinkstateModuleTest extends AbstractConfigTest {
 
@@ -34,10 +48,34 @@ public class LinkstateModuleTest extends AbstractConfigTest {
     private ObjectName rspvInstance;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, new
             LinkstateModuleFactory(), new SimpleBGPExtensionProviderContextModuleFactory(), new
             RIBExtensionsImplModuleFactory(), new SimpleRSVPExtensionProviderContextModuleFactory()));
+
+        doAnswer(new Answer<Filter>() {
+            @Override
+            public Filter answer(final InvocationOnMock invocation) {
+                final String str = invocation.getArgumentAt(0, String.class);
+                final Filter mockFilter = mock(Filter.class);
+                doReturn(str).when(mockFilter).toString();
+                return mockFilter;
+            }
+        }).when(mockedContext).createFilter(anyString());
+
+        Mockito.doNothing().when(this.mockedContext).addServiceListener(any(ServiceListener.class), Mockito.anyString());
+        Mockito.doNothing().when(this.mockedContext).removeServiceListener(any(ServiceListener.class));
+
+        setupMockService(RSVPExtensionProviderContext.class, new SimpleRSVPExtensionProviderContext());
+    }
+
+    private void setupMockService(final Class<?> serviceInterface, final Object instance) throws Exception {
+        final ServiceReference<?> mockServiceRef = mock(ServiceReference.class);
+        doReturn(new ServiceReference[]{mockServiceRef}).when(mockedContext).
+                getServiceReferences(anyString(), contains(serviceInterface.getName()));
+        doReturn(new ServiceReference[]{mockServiceRef}).when(mockedContext).
+                getServiceReferences(serviceInterface.getName(), null);
+        doReturn(instance).when(mockedContext).getService(mockServiceRef);
     }
 
     @Test

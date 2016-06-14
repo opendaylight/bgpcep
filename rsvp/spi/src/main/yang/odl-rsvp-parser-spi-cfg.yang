@@ -44,14 +44,6 @@ module odl-rsvp-parser-spi-cfg {
         config:java-class "org.opendaylight.protocol.rsvp.parser.spi.RSVPExtensionProviderContext";
     }
 
-    identity rsvp-extension {
-        description
-            "Service representing a RSVP parser extension.";
-
-        base "config:service-type";
-        config:java-class "org.opendaylight.protocol.rsvp.parser.spi.RSVPExtensionProviderActivator";
-    }
-
     identity rsvp-extensions-impl {
         base config:module-type;
         config:provided-service rsvp-extensions;
@@ -61,15 +53,6 @@ module odl-rsvp-parser-spi-cfg {
     augment "/config:modules/config:module/config:configuration" {
         case rsvp-extensions-impl {
             when "/config:modules/config:module/config:type = 'rsvp-extensions-impl'";
-
-            list rsvp-extension {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity rsvp-extension;
-                    }
-                }
-            }
         }
     }
 }

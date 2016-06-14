@@ -7,10 +7,20 @@
  */
 package org.opendaylight.controller.config.yang.rsvp.spi;
 
-import org.opendaylight.protocol.rsvp.parser.spi.RSVPExtensionProviderActivator;
-import org.opendaylight.protocol.rsvp.parser.spi.pojo.SimpleRSVPExtensionProviderContext;
+import com.google.common.reflect.AbstractInvocationHandler;
+import com.google.common.reflect.Reflection;
+import java.lang.reflect.Method;
+import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
+import org.opendaylight.protocol.rsvp.parser.spi.RSVPExtensionProviderContext;
+import org.osgi.framework.BundleContext;
 
+/**
+ * @deprecated Replaced by blueprint wiring
+ */
+@Deprecated
 public class SimpleRSVPExtensionProviderContextModule extends org.opendaylight.controller.config.yang.rsvp.spi.AbstractSimpleRSVPExtensionProviderContextModule {
+    private BundleContext bundleContext;
+
     public SimpleRSVPExtensionProviderContextModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
@@ -26,20 +36,27 @@ public class SimpleRSVPExtensionProviderContextModule extends org.opendaylight.c
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        final class SimpleRSVPExtensionProviderContextAutoCloseable extends SimpleRSVPExtensionProviderContext implements AutoCloseable {
+        final WaitingServiceTracker<RSVPExtensionProviderContext> tracker =
+                WaitingServiceTracker.create(RSVPExtensionProviderContext.class, bundleContext);
+        final RSVPExtensionProviderContext service = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
+
+        return Reflection.newProxy(AutoCloseableRSVPExtensionProviderContext.class, new AbstractInvocationHandler() {
             @Override
-            public void close() {
-                for (final RSVPExtensionProviderActivator e : getRsvpExtensionDependency()) {
-                    e.stop();
+            protected Object handleInvocation(Object proxy, Method method, Object[] args) throws Throwable {
+                if (method.getName().equals("close")) {
+                    tracker.close();
+                    return null;
+                } else {
+                    return method.invoke(service, args);
                 }
             }
-        }
-
-        final SimpleRSVPExtensionProviderContextAutoCloseable ret = new SimpleRSVPExtensionProviderContextAutoCloseable();
-        for (final RSVPExtensionProviderActivator e : getRsvpExtensionDependency()) {
-            e.start(ret);
-        }
-        return ret;
+        });
     }
 
+    void setBundleContext(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
+    }
+
+    private static interface AutoCloseableRSVPExtensionProviderContext extends RSVPExtensionProviderContext, AutoCloseable {
+    }
 }
