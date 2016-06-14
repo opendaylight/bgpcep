@@ -6,6 +6,29 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 package org.opendaylight.controller.config.yang.rsvp.spi;
-public class SimpleRSVPExtensionProviderContextModuleFactory extends org.opendaylight.controller.config.yang.rsvp.spi.AbstractSimpleRSVPExtensionProviderContextModuleFactory {
 
+import org.opendaylight.controller.config.api.DependencyResolver;
+import org.osgi.framework.BundleContext;
+
+/**
+ * @deprecated Replaced by blueprint wiring
+ */
+@Deprecated
+public class SimpleRSVPExtensionProviderContextModuleFactory extends AbstractSimpleRSVPExtensionProviderContextModuleFactory {
+    @Override
+    public SimpleRSVPExtensionProviderContextModule instantiateModule(String instanceName, DependencyResolver dependencyResolver,
+            SimpleRSVPExtensionProviderContextModule oldModule, AutoCloseable oldInstance, BundleContext bundleContext) {
+        SimpleRSVPExtensionProviderContextModule module = super.instantiateModule(instanceName, dependencyResolver, oldModule,
+                oldInstance, bundleContext);
+        module.setBundleContext(bundleContext);
+        return module;
+    }
+
+    @Override
+    public SimpleRSVPExtensionProviderContextModule instantiateModule(String instanceName, DependencyResolver dependencyResolver,
+            BundleContext bundleContext) {
+        SimpleRSVPExtensionProviderContextModule module = super.instantiateModule(instanceName, dependencyResolver, bundleContext);
+        module.setBundleContext(bundleContext);
+        return module;
+    }
 }
