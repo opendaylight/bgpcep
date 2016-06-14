@@ -10,8 +10,10 @@ package org.opendaylight.protocol.bmp.spi.parser;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
+import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.util.BitArray;
+import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
@@ -19,6 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.Timestamp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.AdjRibInType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.Peer.PeerDistinguisher;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.PeerType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.header.PeerHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.header.PeerHeaderBuilder;
@@ -61,7 +64,10 @@ public abstract class AbstractBmpPerPeerMessageParser<T  extends Builder<?>> ext
         phBuilder.setAdjRibInType(AdjRibInType.forValue(flags.get(L_FLAG_POS) ? 1 : 0));
         phBuilder.setIpv4(!flags.get(V_FLAG_POS));
         if (phBuilder.getType().equals(PeerType.L3vpn)) {
-            phBuilder.setDistinguisher(PeerDistinguisherUtil.parsePeerDistingisher(bytes));
+            phBuilder.setDistinguisher(PeerDistinguisherUtil.parsePeerDistingisher(bytes.slice()));
+            phBuilder.setPeerDistinguisher(new PeerDistinguisher(RouteDistinguisherUtil.parseRouteDistinguisher(bytes)));
+        } else if (phBuilder.getType().equals(PeerType.Local)) {
+            phBuilder.setPeerDistinguisher(new PeerDistinguisher(ByteArray.readBytes(bytes, PEER_DISTINGUISHER_SIZE)));
         } else {
             bytes.skipBytes(PEER_DISTINGUISHER_SIZE);
         }
@@ -86,7 +92,13 @@ public abstract class AbstractBmpPerPeerMessageParser<T  extends Builder<?>> ext
         flags.set(V_FLAG_POS, !peerHeader.isIpv4());
         flags.toByteBuf(output);
         if (peerHeader.getType().equals(PeerType.L3vpn)) {
-            PeerDistinguisherUtil.serializePeerDistinguisher(peerHeader.getDistinguisher(), output);
+            if (peerHeader.getPeerDistinguisher().getRouteDistinguisher() != null) {
+                RouteDistinguisherUtil.serializeRouteDistinquisher(peerHeader.getPeerDistinguisher().getRouteDistinguisher(), output);
+            } else {
+                PeerDistinguisherUtil.serializePeerDistinguisher(peerHeader.getDistinguisher(), output);
+            }
+        } else if (peerHeader.getType().equals(PeerType.Local)) {
+            output.writeBytes(peerHeader.getPeerDistinguisher().getBinary());
         } else {
             output.writeZero(PEER_DISTINGUISHER_SIZE);
         }

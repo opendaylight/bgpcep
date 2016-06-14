@@ -24,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.mess
  * @see <a href="https://tools.ietf.org/html/rfc4364#section-4.2">https://tools.ietf.org/html/rfc4364#section-4.2</a>
  *
  */
+@Deprecated
 public final class PeerDistinguisherUtil {
 
     private static final class PeerDistinguisher {

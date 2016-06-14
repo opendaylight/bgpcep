@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bmp.spi.parser;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Before;
@@ -23,8 +24,11 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.Timestamp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.RdTwoOctetAs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.RouteDistinguisher;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.AdjRibInType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.DistinguisherType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.Peer.PeerDistinguisher;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.PeerType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.PeerUpNotification;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.PeerUpNotificationBuilder;
@@ -39,6 +43,7 @@ import org.opendaylight.yangtools.yang.binding.Notification;
  * Created by cgasparini on 18.5.2015.
  */
 public class AbstractBmpPerPeerMessageParserTest {
+    private static final String RD = "5:3";
     protected BGPExtensionProviderContext ctx;
     private AbstractBmpPerPeerMessageParser<?> parser;
     final byte[] ipv6MsgWithDistinguishergBytes = {
@@ -105,8 +110,9 @@ public class AbstractBmpPerPeerMessageParserTest {
 
         final PeerHeaderBuilder phBuilder = new PeerHeaderBuilder();
         phBuilder.setType(PeerType.L3vpn);
-        final Distinguisher dist = new DistinguisherBuilder().setDistinguisher("5:3").setDistinguisherType(DistinguisherType.Type0).build();
+        final Distinguisher dist = new DistinguisherBuilder().setDistinguisher(RD).setDistinguisherType(DistinguisherType.Type0).build();
         phBuilder.setDistinguisher(dist);
+        phBuilder.setPeerDistinguisher(new PeerDistinguisher(new RouteDistinguisher(new RdTwoOctetAs("0:" + RD))));
         phBuilder.setAdjRibInType(AdjRibInType.forValue(1));
         phBuilder.setIpv4(false);
         phBuilder.setAddress(new IpAddress(new Ipv6Address("2001::1")));
@@ -115,7 +121,7 @@ public class AbstractBmpPerPeerMessageParserTest {
         phBuilder.setTimestampSec(new Timestamp(0L));
         phBuilder.setTimestampMicro(new Timestamp(0L));
 
-        assertEquals(perHeader, phBuilder.build());
+        assertEquals(phBuilder.build(), perHeader);
 
         final ByteBuf aggregator = Unpooled.buffer();
         phBuilder.setTimestampSec(null);
