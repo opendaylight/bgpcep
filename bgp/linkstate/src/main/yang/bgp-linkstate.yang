@@ -634,6 +634,9 @@ module bgp-linkstate {
         container sr-prefix {
             uses bgp-sr:prefix-sid-tlv;
         }
+        container ipv6-sr-prefix {
+            uses bgp-sr:ipv6-prefix-sid-tlv;
+        }
         container sr-range {
             uses bgp-sr:range-tlv;
         }

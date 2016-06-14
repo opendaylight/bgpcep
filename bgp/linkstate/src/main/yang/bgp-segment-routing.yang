@@ -173,6 +173,13 @@ module bgp-segment-routing {
         uses sid-label-index;
     }
 
+    grouping ipv6-prefix-sid-tlv {
+        reference "https://tools.ietf.org/html/draft-previdi-isis-ipv6-prefix-sid-02#page-2";
+        leaf algorithm {
+            type algorithm;
+        }
+    }
+
     grouping ero-flags {
         leaf loose {
             type boolean;
@@ -210,6 +217,9 @@ module bgp-segment-routing {
         choice binding-sub-tlv {
             case prefix-sid-case {
                 uses prefix-sid-tlv;
+            }
+            case ipv6-prefix-sid-case {
+                uses ipv6-prefix-sid-tlv;
             }
             case sid-label-case {
                 uses sid-label-index;
@@ -291,6 +301,9 @@ module bgp-segment-routing {
             }
             case prefix-sid-tlv-case {
                 uses prefix-sid-tlv;
+            }
+            case ipv6-prefix-sid-tlv-case {
+                uses ipv6-prefix-sid-tlv;
             }
             case sid-label-tlv-case {
                 uses sid-label-index;
