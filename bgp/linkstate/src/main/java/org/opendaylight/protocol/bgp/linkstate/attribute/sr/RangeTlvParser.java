@@ -21,6 +21,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.range.sub.tlvs.RangeSubTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.range.sub.tlvs.range.sub.tlv.BindingSidTlvCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.range.sub.tlvs.range.sub.tlv.BindingSidTlvCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.range.sub.tlvs.range.sub.tlv.Ipv6PrefixSidTlvCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.range.sub.tlvs.range.sub.tlv.Ipv6PrefixSidTlvCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.range.sub.tlvs.range.sub.tlv.PrefixSidTlvCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.range.sub.tlvs.range.sub.tlv.PrefixSidTlvCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.range.sub.tlvs.range.sub.tlv.SidLabelTlvCase;
@@ -69,6 +71,9 @@ public final class RangeTlvParser {
             case PrefixAttributesParser.PREFIX_SID:
                 subTlvCase = new PrefixSidTlvCaseBuilder(SrPrefixAttributesParser.parseSrPrefix(buffer.readSlice(length), protocolId)).build();
                 break;
+            case PrefixAttributesParser.IPV6_PREFIX_SID:
+                subTlvCase = new Ipv6PrefixSidTlvCaseBuilder(Ipv6SrPrefixAttributesParser.parseSrIpv6Prefix(buffer.readSlice(length))).build();
+                break;
             case PrefixAttributesParser.BINDING_SID:
                 subTlvCase = new BindingSidTlvCaseBuilder(BindingSidLabelParser.parseBindingSidLabel(buffer.readSlice(length), protocolId)).build();
                 break;
@@ -106,6 +111,10 @@ public final class RangeTlvParser {
                     prefixSidTlv.getSidLabelIndex(),
                     buffer);
                 TlvUtil.writeTLV(PrefixAttributesParser.PREFIX_SID, buffer, aggregator);
+            } else if (rangeSubTlv instanceof Ipv6PrefixSidTlvCase) {
+                final Ipv6PrefixSidTlvCase prefixSidTlv = (Ipv6PrefixSidTlvCase) rangeSubTlv;
+                Ipv6SrPrefixAttributesParser.serializePrefixAttributes(prefixSidTlv.getAlgorithm(), buffer);
+                TlvUtil.writeTLV(PrefixAttributesParser.IPV6_PREFIX_SID, buffer, aggregator);
             } else if (rangeSubTlv instanceof BindingSidTlvCase) {
                 final BindingSidTlvCase rangeTlv = (BindingSidTlvCase) rangeSubTlv;
                 BindingSidLabelParser.serializeBindingSidAttributes(
