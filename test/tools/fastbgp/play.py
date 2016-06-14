@@ -936,6 +936,12 @@ class MessageGenerator(object):
             path_attributes_hex += (
                 next_hop_hex  # IP address of the next hop (4 bytes)
             )
+            path_attributes_hex += (
+                "\x40"  # Flags ("Well-Known")
+                "\x05"  # Type (LOCAL_PREF)
+                "\x04"  # Length (4)
+                "\x00\x00\x00\x64"  # (100)
+            )
             if originator_id is not None:
                 path_attributes_hex += (
                     "\x80"  # Flags ("Optional, non-transitive")
