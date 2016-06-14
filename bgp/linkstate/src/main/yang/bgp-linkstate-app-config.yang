@@ -1,0 +1,22 @@
+module bgp-linkstate-app-config {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:controller:bgp:linkstate-app-config";
+    prefix "bgp-linkstate-app-config";
+
+    description
+      "Configuration for the BGP linkstate application.";
+
+    revision "2016-06-14" {
+        description
+            "Initial revision.";
+    }
+
+    container bgp-linkstate-app-config {
+        leaf iana-linkstate-attribute-type {
+            description "If true (default) linkstate attribute type (=29) allocated by IANA is used,
+                         else type (=99) is used for parsing/serialization";
+            type boolean;
+            default true;
+        }
+    }
+}
