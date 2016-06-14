@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
+
+  <reference id="rsvpExtensionContext" interface="org.opendaylight.protocol.rsvp.parser.spi.RSVPExtensionConsumerContext"/>
+
+  <odl:clustered-app-config id="linkStateAppConfig"
+      binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.linkstate.app.config.rev160614.BgpLinkstateAppConfig"/>
+
+  <bean id="BGPActivator" class="org.opendaylight.protocol.bgp.linkstate.BGPActivator">
+    <argument>
+      <bean factory-ref="linkStateAppConfig" factory-method="isIanaLinkstateAttributeType"/>
+    </argument>
+    <argument>
+      <bean factory-ref="rsvpExtensionContext" factory-method="getRsvpRegistry"/>
+    </argument>
+  </bean>
+
+  <bean id="RIBActivator" class="org.opendaylight.protocol.bgp.linkstate.RIBActivator"/>
+
+  <service ref="BGPActivator" interface="org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator"
+          odl:type="org.opendaylight.protocol.bgp.linkstate.BGPActivator"/>
+
+  <service ref="RIBActivator" interface="org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator"
+          odl:type="org.opendaylight.protocol.bgp.linkstate.RIBActivator"/>
+</blueprint>
