@@ -10,8 +10,10 @@ package org.opendaylight.protocol.bmp.spi.parser;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
+import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.util.BitArray;
+import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
@@ -19,6 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.Timestamp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.AdjRibInType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.Peer.PeerDistinguisher;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.PeerType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.header.PeerHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.header.PeerHeaderBuilder;
@@ -56,14 +59,23 @@ public abstract class AbstractBmpPerPeerMessageParser<T  extends Builder<?>> ext
     protected final PeerHeader parsePerPeerHeader(final ByteBuf bytes) {
         Preconditions.checkArgument(bytes.readableBytes() >= PER_PEER_HEADER_SIZE);
         final PeerHeaderBuilder phBuilder = new PeerHeaderBuilder();
-        phBuilder.setType(PeerType.forValue(bytes.readByte()));
+        final PeerType peerType = PeerType.forValue(bytes.readByte());
+        phBuilder.setType(peerType);
         final BitArray flags = BitArray.valueOf(bytes, FLAGS_SIZE);
         phBuilder.setAdjRibInType(AdjRibInType.forValue(flags.get(L_FLAG_POS) ? 1 : 0));
         phBuilder.setIpv4(!flags.get(V_FLAG_POS));
-        if (phBuilder.getType().equals(PeerType.L3vpn)) {
-            phBuilder.setDistinguisher(PeerDistinguisherUtil.parsePeerDistingisher(bytes));
-        } else {
+        switch (peerType) {
+        case L3vpn:
+            phBuilder.setDistinguisher(PeerDistinguisherUtil.parsePeerDistingisher(bytes.slice()));
+            phBuilder.setPeerDistinguisher(new PeerDistinguisher(RouteDistinguisherUtil.parseRouteDistinguisher(bytes)));
+            break;
+        case Local:
+            phBuilder.setPeerDistinguisher(new PeerDistinguisher(ByteArray.readBytes(bytes, PEER_DISTINGUISHER_SIZE)));
+            break;
+        case Global:
+        default:
             bytes.skipBytes(PEER_DISTINGUISHER_SIZE);
+            break;
         }
         if (phBuilder.isIpv4()) {
             bytes.skipBytes(Ipv6Util.IPV6_LENGTH - Ipv4Util.IP4_LENGTH);
@@ -80,15 +92,28 @@ public abstract class AbstractBmpPerPeerMessageParser<T  extends Builder<?>> ext
 
     protected void serializePerPeerHeader(final PeerHeader peerHeader, final ByteBuf output) {
         Preconditions.checkArgument(peerHeader != null, "Per-peer header cannot be null.");
-        output.writeByte(peerHeader.getType().getIntValue());
+        final PeerType peerType = peerHeader.getType();
+        output.writeByte(peerType.getIntValue());
         final BitArray flags = new BitArray(FLAGS_SIZE);
         flags.set(L_FLAG_POS, peerHeader.getAdjRibInType().getIntValue() == 0 ? false : true);
         flags.set(V_FLAG_POS, !peerHeader.isIpv4());
         flags.toByteBuf(output);
-        if (peerHeader.getType().equals(PeerType.L3vpn)) {
-            PeerDistinguisherUtil.serializePeerDistinguisher(peerHeader.getDistinguisher(), output);
-        } else {
+        final PeerDistinguisher peerDistinguisher = peerHeader.getPeerDistinguisher();
+        switch (peerType) {
+        case L3vpn:
+            if (peerDistinguisher.getRouteDistinguisher() != null) {
+                RouteDistinguisherUtil.serializeRouteDistinquisher(peerDistinguisher.getRouteDistinguisher(), output);
+            } else {
+                PeerDistinguisherUtil.serializePeerDistinguisher(peerHeader.getDistinguisher(), output);
+            }
+            break;
+        case Local:
+            output.writeBytes(peerDistinguisher.getBinary());
+            break;
+        case Global:
+        default:
             output.writeZero(PEER_DISTINGUISHER_SIZE);
+            break;
         }
         if (peerHeader.isIpv4()) {
             output.writeZero(Ipv6Util.IPV6_LENGTH - Ipv4Util.IP4_LENGTH);

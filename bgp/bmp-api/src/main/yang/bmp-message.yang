@@ -7,13 +7,14 @@ module bmp-message {
     import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-19; }
     import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
     import ietf-yang-types { prefix yang; revision-date 2010-09-24; }
+    import bgp-types { prefix bgp-t; revision-date 2013-09-19; }
 
     organization "Cisco Systems, Inc.";
     contact "Milos Fabian <milfabia@cisco.com>";
 
     description
         "This module contains the base data model of a BMP messages.
-        It rolls up the definitions contained in draft-ietf-grow-bmp-07.
+        It rolls up the definitions contained in RFC7854.
 
         Copyright (c)2015 Cisco Systems, Inc. All rights reserved.
 
@@ -23,7 +24,7 @@ module bmp-message {
         http://www.eclipse.org/legal/epl-v10.html";
 
    reference
-        "https://tools.ietf.org/html/draft-ietf-grow-bmp-07";
+        "https://tools.ietf.org/html/rfc7854";
 
     revision "2015-05-12" {
         description
@@ -54,6 +55,14 @@ module bmp-message {
                     "Redundant connection. The router has determined
                      that this connection is redundant with another one.";
             }
+            enum permanently-closed {
+                value 4;
+                description
+                    "Session permanently administratively closed,
+                     will not be re-initiated.  Monitoring station should reduce
+                     (potentially to 0) the rate at which it attempts
+                     reconnection to the monitored router.";
+            }
         }
     }
 
@@ -81,7 +90,11 @@ module bmp-message {
             }
             enum l3vpn {
                 value 1;
-                description "L3 VPN Instance Peer.";
+                description "RD Instance Peer.";
+            }
+            enum local {
+                value 2;
+                description "Local Instance Peer";
             }
         }
     }
@@ -98,6 +111,7 @@ module bmp-message {
                 value 2;
             }
         }
+        status deprecated;
     }
 
     typedef mirror-information-code {
@@ -387,6 +401,18 @@ module bmp-message {
                  If the peer is a L3VPN Instance Peer, it is set to the
                  route distinguisher of the particular L3VPN instance that the peer
                  belongs to.";
+            status deprecated;
+        }
+        leaf peer-distinguisher {
+            type union {
+                type bgp-t:route-distinguisher;
+                type binary {
+                    length 8;
+                }
+            }
+            description
+                "This field is present to distinguish peers that
+                 belong to one address domain from the other.";
         }
         leaf address {
             type inet:ip-address;
@@ -436,7 +462,7 @@ module bmp-message {
               The rest of the data in a BMP message is dependent on the Message
               Type field in the common header.";
         reference
-            "https://tools.ietf.org/html/draft-ietf-grow-bmp-07#section-4.2";
+            "https://tools.ietf.org/html/rfc7854#section-4.2";
     }
 
     grouping stat {
@@ -537,7 +563,7 @@ module bmp-message {
             "The initiation message provides a means for the monitored router to
              inform the monitoring station of its vendor, software version, and so on.";
         reference
-            "https://tools.ietf.org/html/draft-ietf-grow-bmp-07#section-4.3";
+            "https://tools.ietf.org/html/rfc7854#section-4.3";
     }
 
     notification termination-message {
@@ -546,7 +572,7 @@ module bmp-message {
             "The termination message provides a way for a monitored router to
              indicate why it is terminating a session.";
         reference
-            "https://tools.ietf.org/html/draft-ietf-grow-bmp-07#section-4.4";
+            "https://tools.ietf.org/html/rfc7854#section-4.5";
     }
 
     notification route-monitoring-message {
@@ -559,7 +585,7 @@ module bmp-message {
              ADJ-RIBs-In.  They are also used for ongoing monitoring of received
              advertisements and withdraws.";
         reference
-            "https://tools.ietf.org/html/draft-ietf-grow-bmp-07#section-4.5";
+            "https://tools.ietf.org/html/rfc7854#section-4.6";
     }
 
     notification route-mirroring-message {
@@ -569,7 +595,7 @@ module bmp-message {
             "Route Mirroring messages are used for verbatim duplication of
              messages as received.";
         reference
-            "https://tools.ietf.org/html/draft-ietf-grow-bmp-15#section-4.7";
+            "https://tools.ietf.org/html/rfc7854#section-4.7";
     }
 
     notification stats-reports-message {
@@ -580,7 +606,7 @@ module bmp-message {
              monitoring station to observe interesting events that occur on the
              router.";
         reference
-            "https://tools.ietf.org/html/draft-ietf-grow-bmp-07#section-4.6";
+            "https://tools.ietf.org/html/rfc7854#section-4.8";
     }
 
     notification peer-down-notification {
@@ -590,7 +616,7 @@ module bmp-message {
             "This message is used to indicate that a peering session was
              terminated.";
         reference
-            "https://tools.ietf.org/html/draft-ietf-grow-bmp-07#section-4.7";
+            "https://tools.ietf.org/html/rfc7854#section-4.9";
     }
 
     notification peer-up-notification {
@@ -600,6 +626,6 @@ module bmp-message {
             "The Peer Up message is used to indicate that a peering session has
              come up (i.e., has transitioned into ESTABLISHED state).";
         reference
-            "https://tools.ietf.org/html/draft-ietf-grow-bmp-07#section-4.8";
+            "https://tools.ietf.org/html/rfc7854#section-4.10";
     }
 }
