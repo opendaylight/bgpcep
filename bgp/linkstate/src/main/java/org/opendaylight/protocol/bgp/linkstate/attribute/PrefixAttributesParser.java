@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import org.opendaylight.protocol.bgp.linkstate.attribute.sr.BindingSidLabelParser;
+import org.opendaylight.protocol.bgp.linkstate.attribute.sr.Ipv6SrPrefixAttributesParser;
 import org.opendaylight.protocol.bgp.linkstate.attribute.sr.RangeTlvParser;
 import org.opendaylight.protocol.bgp.linkstate.attribute.sr.SrPrefixAttributesParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
@@ -35,6 +36,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.link.state.attribute.prefix.attributes._case.PrefixAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.IgpBits;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.IgpBitsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.Ipv6SrPrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.SrBindingSidLabels;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.SrPrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.SrRange;
@@ -70,6 +72,7 @@ public final class PrefixAttributesParser {
 
     /* Segment routing TLV */
     public static final int PREFIX_SID = 1158;
+    public static final int IPV6_PREFIX_SID = 1169;
     public static final int RANGE = 1159;
     public static final int BINDING_SID = 1160;
 
@@ -137,6 +140,11 @@ public final class PrefixAttributesParser {
             final SrPrefix prefix = SrPrefixAttributesParser.parseSrPrefix(value, protocolId);
             builder.setSrPrefix(prefix);
             LOG.debug("Parsed SR Prefix: {}", prefix);
+            break;
+        case IPV6_PREFIX_SID:
+            final Ipv6SrPrefix ipv6Prefix = Ipv6SrPrefixAttributesParser.parseSrIpv6Prefix(value);
+            builder.setIpv6SrPrefix(ipv6Prefix);
+            LOG.debug("Parsed Ipv6 SR Prefix: {}", ipv6Prefix);
             break;
         case RANGE:
             final SrRange range = RangeTlvParser.parseSrRange(value, protocolId);
@@ -211,6 +219,11 @@ public final class PrefixAttributesParser {
             final ByteBuf buffer = Unpooled.buffer();
             SrPrefixAttributesParser.serializeSrPrefix(prefixAtrributes.getSrPrefix(), buffer);
             TlvUtil.writeTLV(PREFIX_SID, buffer, byteAggregator);
+        }
+        if (prefixAtrributes.getIpv6SrPrefix() != null) {
+            final ByteBuf buffer = Unpooled.buffer();
+            Ipv6SrPrefixAttributesParser.serializeIpv6SrPrefix(prefixAtrributes.getIpv6SrPrefix(), buffer);
+            TlvUtil.writeTLV(IPV6_PREFIX_SID, buffer, byteAggregator);
         }
         if (prefixAtrributes.getSrRange() != null) {
             final ByteBuf sidBuffer = Unpooled.buffer();

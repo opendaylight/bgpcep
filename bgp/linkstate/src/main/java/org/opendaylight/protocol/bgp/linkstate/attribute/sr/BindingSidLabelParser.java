@@ -20,6 +20,7 @@ import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.ProtocolId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.Ipv6SrPrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.SrBindingSidLabels;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.SrBindingSidLabelsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.SrPrefix;
@@ -42,6 +43,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.Ipv6EroBackupCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.Ipv6EroCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.Ipv6EroCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.Ipv6PrefixSidCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.Ipv6PrefixSidCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.PrefixSidCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.PrefixSidCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.SidLabelCase;
@@ -96,18 +99,17 @@ public final class BindingSidLabelParser {
     }
 
     private static Flags parseBindingSidFlags(final BitArray flags, final ProtocolId protocol) {
-        if (protocol.equals(ProtocolId.IsisLevel1) || protocol.equals(ProtocolId.IsisLevel2)) {
-            return new IsisBindingFlagsCaseBuilder()
-                .setAddressFamily(flags.get(AFI))
-                .setMirrorContext(flags.get(MIRROR_CONTEXT))
-                .setSpreadTlv(flags.get(SPREAD_TLV))
-                .setLeakedFromLevel2(flags.get(LEAKED))
-                .setAttachedFlag(flags.get(ATTACHED)).build();
-        } else if (protocol.equals(ProtocolId.Ospf)) {
-            return new OspfBindingFlagsCaseBuilder()
-            .setMirroring(flags.get(MIRROR_CONTEXT_OSPF)).build();
+        switch (protocol) {
+        case IsisLevel1:
+        case IsisLevel2:
+            return new IsisBindingFlagsCaseBuilder().setAddressFamily(flags.get(AFI)).setMirrorContext(flags.get(MIRROR_CONTEXT))
+                .setSpreadTlv(flags.get(SPREAD_TLV)).setLeakedFromLevel2(flags.get(LEAKED)).setAttachedFlag(flags.get(ATTACHED)).build();
+        case Ospf:
+        case OspfV3:
+            return new OspfBindingFlagsCaseBuilder().setMirroring(flags.get(MIRROR_CONTEXT_OSPF)).build();
+        default:
+            return null;
         }
-        return null;
     }
 
     private static List<BindingSubTlvs> parseBindingSubTlvs(final ByteBuf buffer, final ProtocolId protocolId) {
@@ -136,6 +138,10 @@ public final class BindingSidLabelParser {
                 .setAlgorithm(prefix.getAlgorithm())
                 .setFlags(prefix.getFlags())
                 .setSidLabelIndex(prefix.getSidLabelIndex()).build());
+            break;
+        case PrefixAttributesParser.IPV6_PREFIX_SID:
+            final Ipv6SrPrefix ipv6Prefix = Ipv6SrPrefixAttributesParser.parseSrIpv6Prefix(slice);
+            builder.setBindingSubTlv(new Ipv6PrefixSidCaseBuilder().setAlgorithm(ipv6Prefix.getAlgorithm()).build());
             break;
         case ERO_METRIC:
             builder.setBindingSubTlv(new EroMetricCaseBuilder()
@@ -221,7 +227,7 @@ public final class BindingSidLabelParser {
         }
     }
 
-    public static void serializeBindingSidAttributes(final Weight weight, final Flags flags, final List<BindingSubTlvs> bindingSubTlvs, final ByteBuf aggregator) {
+    static void serializeBindingSidAttributes(final Weight weight, final Flags flags, final List<BindingSubTlvs> bindingSubTlvs, final ByteBuf aggregator) {
         aggregator.writeByte(weight.getValue());
         final BitArray bitFlags = serializeBindingSidFlags(flags);
         bitFlags.toByteBuf(aggregator);
@@ -256,6 +262,10 @@ public final class BindingSidLabelParser {
                 final PrefixSidCase prefix = (PrefixSidCase) bindingSubTlv;
                 SrPrefixAttributesParser.serializePrefixAttributes(prefix.getFlags(), prefix.getAlgorithm(), prefix.getSidLabelIndex(), buffer);
                 TlvUtil.writeTLV(PrefixAttributesParser.PREFIX_SID, buffer, aggregator);
+            } else if (bindingSubTlv instanceof Ipv6PrefixSidCase) {
+                final Ipv6PrefixSidCase prefix = (Ipv6PrefixSidCase) bindingSubTlv;
+                Ipv6SrPrefixAttributesParser.serializePrefixAttributes(prefix.getAlgorithm(), buffer);
+                TlvUtil.writeTLV(PrefixAttributesParser.IPV6_PREFIX_SID, buffer, aggregator);
             } else if (bindingSubTlv instanceof EroMetricCase) {
                 buffer.writeInt(((EroMetricCase) bindingSubTlv).getEroMetric().getValue().intValue());
                 TlvUtil.writeTLV(ERO_METRIC, buffer, aggregator);

@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.linkstate.attribute.sr.BindingSidLabelParser;
+import org.opendaylight.protocol.bgp.linkstate.attribute.sr.Ipv6SrPrefixAttributesParser;
 import org.opendaylight.protocol.bgp.linkstate.attribute.sr.RangeTlvParser;
 import org.opendaylight.protocol.bgp.linkstate.attribute.sr.SidLabelIndexParser;
 import org.opendaylight.protocol.bgp.linkstate.attribute.sr.SrLinkAttributesParser;
@@ -38,6 +39,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.state.SrAlgorithmBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.state.SrCapabilities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.state.SrCapabilitiesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.Ipv6SrPrefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.Ipv6SrPrefixBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.SrPrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.SrPrefixBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.SrRange;
@@ -156,6 +159,17 @@ public class SrAttributeParserTest {
         SrPrefixAttributesParser.serializeSrPrefix(prefixOspf, serializedPrefixOspf);
         assertArrayEquals(bytes, ByteArray.readAllBytes(serializedPrefix));
         assertArrayEquals(bytesOspf, ByteArray.readAllBytes(serializedPrefixOspf));
+    }
+
+    // https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-02#section-2.3.2
+    @Test
+    public void testIpv6SrPrefix() {
+        final byte[] bytes = { 0, 0, 0};
+        final Ipv6SrPrefix prefix = new Ipv6SrPrefixBuilder().setAlgorithm(Algorithm.ShortestPathFirst).build();
+        assertEquals(prefix, Ipv6SrPrefixAttributesParser.parseSrIpv6Prefix(Unpooled.wrappedBuffer(bytes)));
+        final ByteBuf serializedPrefix = Unpooled.buffer();
+        Ipv6SrPrefixAttributesParser.serializeIpv6SrPrefix(prefix, serializedPrefix);
+        assertArrayEquals(bytes, ByteArray.readAllBytes(serializedPrefix));
     }
 
     // tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-00#section-2.3.2
@@ -335,6 +349,17 @@ public class SrAttributeParserTest {
     @Test(expected=UnsupportedOperationException.class)
     public void testSrPrefixAttributesPrivateConstructor() throws Throwable {
         final Constructor<SrPrefixAttributesParser> c = SrPrefixAttributesParser.class.getDeclaredConstructor();
+        c.setAccessible(true);
+        try {
+            c.newInstance();
+        } catch (final InvocationTargetException e) {
+            throw e.getCause();
+        }
+    }
+
+    @Test(expected=UnsupportedOperationException.class)
+    public void testIpv6SrPrefixAttributesPrivateConstructor() throws Throwable {
+        final Constructor<Ipv6SrPrefixAttributesParser> c = Ipv6SrPrefixAttributesParser.class.getDeclaredConstructor();
         c.setAccessible(true);
         try {
             c.newInstance();

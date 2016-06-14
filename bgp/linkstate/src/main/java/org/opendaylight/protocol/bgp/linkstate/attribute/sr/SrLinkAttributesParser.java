@@ -7,6 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.linkstate.attribute.sr;
 
+import static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.ProtocolId.Ospf;
+import static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.ProtocolId.OspfV3;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
@@ -109,10 +112,15 @@ public final class SrLinkAttributesParser {
         srLanAdjIdBuilder.setFlags(parseFlags(flags, protocolId));
         srLanAdjIdBuilder.setWeight(new Weight(buffer.readUnsignedByte()));
         buffer.skipBytes(RESERVED);
-        if (protocolId.equals(ProtocolId.IsisLevel1) || protocolId.equals(ProtocolId.IsisLevel2)) {
+        switch (protocolId) {
+        case IsisLevel1:
+        case IsisLevel2:
             srLanAdjIdBuilder.setIsoSystemId(new IsoSystemIdentifier(ByteArray.readBytes(buffer, ISO_SYSTEM_ID_SIZE)));
-        } else if (protocolId.equals(ProtocolId.Ospf)) {
+            break;
+        case Ospf:
+        case OspfV3:
             srLanAdjIdBuilder.setNeighborId(Ipv4Util.addressForByteBuf(buffer));
+            break;
         }
         // length determines a type of next field, which is used for parsing
         srLanAdjIdBuilder.setSidLabelIndex(SidLabelIndexParser.parseSidLabelIndex(Size.forValue(buffer.readableBytes()), buffer));
@@ -123,17 +131,17 @@ public final class SrLinkAttributesParser {
         if (protocol == null) {
             return null;
         }
-        if (protocol.equals(ProtocolId.IsisLevel1) || protocol.equals(ProtocolId.IsisLevel2)) {
-            return new IsisAdjFlagsCaseBuilder()
-                .setAddressFamily(flags.get(ADDRESS_FAMILY_FLAG))
-                .setBackup(flags.get(BACKUP_ISIS))
+        switch (protocol) {
+        case IsisLevel1:
+        case IsisLevel2:
+            return new IsisAdjFlagsCaseBuilder().setAddressFamily(flags.get(ADDRESS_FAMILY_FLAG)).setBackup(flags.get(BACKUP_ISIS))
                 .setSet(flags.get(SET_ISIS)).build();
-        } else if (protocol.equals(ProtocolId.Ospf)) {
-            return new OspfAdjFlagsCaseBuilder()
-                .setBackup(flags.get(BACKUP_OSPF))
-                .setSet(flags.get(SET_OSPF)).build();
+        case Ospf:
+        case OspfV3:
+            return new OspfAdjFlagsCaseBuilder().setBackup(flags.get(BACKUP_OSPF)).setSet(flags.get(SET_OSPF)).build();
+        default:
+            return null;
         }
-        return null;
     }
 
     public static <T extends AdjSidTlv> void serializeAdjacencySegmentIdentifiers(final List<T> adjSids, final int type, final ByteBuf byteAggregator) {
