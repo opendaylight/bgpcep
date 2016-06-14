@@ -36,7 +36,7 @@ public final class SrPrefixAttributesParser {
     private static final int EXPLICIT_NULL = 3;
     private static final int VALUE = 4;
     private static final int LOCAL = 5;
-    private static final int FLAGS_SIZE = 8;
+    static final int FLAGS_SIZE = 8;
 
     private static final int RESERVED_PREFIX = 2;
 
