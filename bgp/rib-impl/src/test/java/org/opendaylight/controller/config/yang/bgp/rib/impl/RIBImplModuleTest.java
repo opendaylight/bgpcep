@@ -9,13 +9,13 @@ package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
 import org.junit.Test;
 import org.opendaylight.controller.config.api.ValidationException;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
 
 public class RIBImplModuleTest extends AbstractRIBImplModuleTest {
+    private static final int EXP_INSTANCES = 7;
     private static final String INSTANCE_NAME = "rib-impl";
     private static final String FACTORY_NAME = RIBImplModuleFactory.NAME;
 
@@ -53,7 +53,7 @@ public class RIBImplModuleTest extends AbstractRIBImplModuleTest {
     public void testCreateBean() throws Exception {
         final CommitStatus status = createInstance();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 10, 0, 0);
+        assertStatus(status, EXP_INSTANCES, 0, 0);
     }
 
     @Test
@@ -63,7 +63,7 @@ public class RIBImplModuleTest extends AbstractRIBImplModuleTest {
         assertBeanCount(1, FACTORY_NAME);
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 0, 10);
+        assertStatus(status, 0, 0, EXP_INSTANCES);
     }
 
     @Test
@@ -76,6 +76,6 @@ public class RIBImplModuleTest extends AbstractRIBImplModuleTest {
         mxBean.setLocalAs(100L);
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 1, 9);
+        assertStatus(status, 0, 1, EXP_INSTANCES - 1);
     }
 }

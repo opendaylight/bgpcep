@@ -8,12 +8,12 @@
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
@@ -21,9 +21,12 @@ import com.google.common.io.Resources;
 import com.google.common.util.concurrent.CheckedFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.concurrent.EventExecutor;
+import io.netty.util.concurrent.ImmediateEventExecutor;
+import io.netty.util.concurrent.SucceededFuture;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.net.InetSocketAddress;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -80,6 +83,10 @@ import org.opendaylight.controller.md.sal.dom.api.DOMNotificationService;
 import org.opendaylight.controller.md.sal.dom.api.DOMRpcProviderService;
 import org.opendaylight.controller.md.sal.dom.api.DOMRpcService;
 import org.opendaylight.controller.sal.dom.broker.GlobalBundleScanningSchemaServiceImpl;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
+import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
+import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
@@ -132,6 +139,9 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
 
     @Mock
     private RpcResult<TransactionStatus> mockedResult;
+
+    @Mock
+    protected BGPDispatcher mockedBGPDispatcher;
 
     @SuppressWarnings("unchecked")
     @Before
@@ -214,6 +224,13 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         setupMockService(DOMRpcService.class, mock(DOMRpcService.class));
         setupMockService(DOMRpcProviderService.class, mock(DOMRpcProviderService.class));
         setupMockService(DOMMountPointService.class, mock(DOMMountPointService.class));
+
+        setupMockService(BGPDispatcher.class, mockedBGPDispatcher);
+        doReturn(false).when(mockedBGPDispatcher).isMd5Supported();
+        doReturn(new SucceededFuture<>(ImmediateEventExecutor.INSTANCE, null)).when(mockedBGPDispatcher).createReconnectingClient(
+                any(InetSocketAddress.class), any(BGPPeerRegistry.class), anyInt(), any(Optional.class));
+
+        setupMockService(RIBExtensionProviderContext.class, new SimpleRIBExtensionProviderContext());
     }
 
     private void setupMockService(final Class<?> serviceInterface, final Object instance) throws Exception {
@@ -288,12 +305,18 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         mxBean.setDataProvider(dataBroker);
         mxBean.setDomDataProvider(lookupDomAsyncDataBroker(transaction));
         mxBean.setCodecTreeFactory(lookupMappingServiceInstance(transaction));
-        mxBean.setBgpDispatcher(BGPDispatcherImplModuleTest.createInstance(transaction));
+        mxBean.setBgpDispatcher(createBGPDispatcherImplInstance(transaction));
         mxBean.setExtensions(createRibExtensionsInstance(transaction));
         mxBean.setRibId(ribId);
         mxBean.setLocalAs(localAs);
         mxBean.setBgpRibId(bgpId != null ? new BgpId(bgpId) : null);
         mxBean.setClusterId(clusterId != null ? new ClusterIdentifier(clusterId) : null);
+        return nameCreated;
+    }
+
+    public static ObjectName createBGPDispatcherImplInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
+        final ObjectName nameCreated = transaction.createModule(BGPDispatcherImplModuleFactory.NAME, "bgp-message-fct");
+        final BGPDispatcherImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, BGPDispatcherImplModuleMXBean.class);
         return nameCreated;
     }
 
