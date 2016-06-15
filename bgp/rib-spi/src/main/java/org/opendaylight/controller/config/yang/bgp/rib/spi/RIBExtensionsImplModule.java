@@ -16,13 +16,20 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.spi;
 
-import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator;
-import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
+import com.google.common.reflect.AbstractInvocationHandler;
+import com.google.common.reflect.Reflection;
+import java.lang.reflect.Method;
+import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
+import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
+import org.osgi.framework.BundleContext;
 
 /**
- *
+ * @deprecated Replaced by blueprint wiring but remains for backwards compatibility until downstream users
+ *             of the provided config system service are converted to blueprint.
  */
+@Deprecated
 public final class RIBExtensionsImplModule extends org.opendaylight.controller.config.yang.bgp.rib.spi.AbstractRIBExtensionsImplModule {
+    private BundleContext bundleContext;
 
     public RIBExtensionsImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
             final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
@@ -41,21 +48,32 @@ public final class RIBExtensionsImplModule extends org.opendaylight.controller.c
     }
 
     @Override
-    public java.lang.AutoCloseable createInstance() {
-        final class RIBExtensionProviderContextImplCloseable extends SimpleRIBExtensionProviderContext implements AutoCloseable {
+    public AutoCloseable createInstance() {
+        // The RIBExtensionProviderContext instance is created and advertised as an OSGi service via blueprint
+        // so obtain it here (waiting if necessary).
+        final WaitingServiceTracker<RIBExtensionProviderContext> tracker =
+                WaitingServiceTracker.create(RIBExtensionProviderContext.class, bundleContext);
+        final RIBExtensionProviderContext service = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
+
+        // Create a proxy to override close to close the ServiceTracker. The actual RIBExtensionProviderContext
+        // instance will be closed via blueprint.
+        return Reflection.newProxy(AutoCloseableRIBExtensionProviderContext.class, new AbstractInvocationHandler() {
             @Override
-            public void close() {
-                for (final RIBExtensionProviderActivator e : getExtensionDependency()) {
-                    e.stopRIBExtensionProvider();
+            protected Object handleInvocation(Object proxy, Method method, Object[] args) throws Throwable {
+                if (method.getName().equals("close")) {
+                    tracker.close();
+                    return null;
+                } else {
+                    return method.invoke(service, args);
                 }
             }
-        }
+        });
+    }
 
-        final RIBExtensionProviderContextImplCloseable ret = new RIBExtensionProviderContextImplCloseable();
-        for (final RIBExtensionProviderActivator e : getExtensionDependency()) {
-            e.startRIBExtensionProvider(ret);
-        }
+    void setBundleContext(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
+    }
 
-        return ret;
+    private static interface AutoCloseableRIBExtensionProviderContext extends RIBExtensionProviderContext, AutoCloseable {
     }
 }

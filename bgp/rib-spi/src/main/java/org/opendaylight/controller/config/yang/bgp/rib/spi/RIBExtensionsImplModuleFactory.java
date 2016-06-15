@@ -16,10 +16,29 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.spi;
 
-/**
-*
-*/
-public class RIBExtensionsImplModuleFactory extends
-        org.opendaylight.controller.config.yang.bgp.rib.spi.AbstractRIBExtensionsImplModuleFactory {
+import org.opendaylight.controller.config.api.DependencyResolver;
+import org.osgi.framework.BundleContext;
 
+/**
+ * @deprecated Replaced by blueprint wiring but remains for backwards compatibility until downstream users
+ *             of the provided config system service are converted to blueprint.
+ */
+@Deprecated
+public class RIBExtensionsImplModuleFactory extends AbstractRIBExtensionsImplModuleFactory {
+    @Override
+    public RIBExtensionsImplModule instantiateModule(String instanceName, DependencyResolver dependencyResolver,
+            RIBExtensionsImplModule oldModule, AutoCloseable oldInstance, BundleContext bundleContext) {
+        RIBExtensionsImplModule module = super.instantiateModule(instanceName, dependencyResolver, oldModule,
+                oldInstance, bundleContext);
+        module.setBundleContext(bundleContext);
+        return module;
+    }
+
+    @Override
+    public RIBExtensionsImplModule instantiateModule(String instanceName, DependencyResolver dependencyResolver,
+            BundleContext bundleContext) {
+        RIBExtensionsImplModule module = super.instantiateModule(instanceName, dependencyResolver, bundleContext);
+        module.setBundleContext(bundleContext);
+        return module;
+    }
 }
