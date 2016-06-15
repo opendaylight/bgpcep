@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba51214e_b0e27e01",
+        "filename": "bgp/bmp-spi/src/main/java/org/opendaylight/protocol/bmp/spi/parser/AbstractBmpPerPeerMessageParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-06-15T12:06:59Z",
+      "side": 1,
+      "message": "put in a variable",
+      "range": {
+        "startLine": 95,
+        "startChar": 16,
+        "endLine": 95,
+        "endChar": 49
+      },
+      "revId": "a66e399cc8faf76f8522a01e8cc3134510b1a856",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
