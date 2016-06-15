@@ -50,6 +50,7 @@ module odl-bgp-rib-spi-cfg {
 
         base "config:service-type";
         config:java-class "org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator";
+        config:disable-osgi-service-registration;
     }
 
     identity bgp-rib-extensions-impl {

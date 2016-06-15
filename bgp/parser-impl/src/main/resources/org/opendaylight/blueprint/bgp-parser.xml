@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
+
+  <bean id="BGPActivator" class="org.opendaylight.protocol.bgp.parser.impl.BGPActivator"/>
+
+  <service ref="BGPActivator" interface="org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator"
+          odl:type="org.opendaylight.protocol.bgp.parser.impl.BGPActivator"/>
+</blueprint>
