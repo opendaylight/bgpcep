@@ -16,14 +16,20 @@
  */
 package org.opendaylight.controller.config.yang.bgp.parser.spi;
 
-import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator;
-import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
+import com.google.common.reflect.AbstractInvocationHandler;
+import com.google.common.reflect.Reflection;
+import java.lang.reflect.Method;
+import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
+import org.osgi.framework.BundleContext;
 
 /**
- *
+ * @deprecated Replaced by blueprint wiring
  */
+@Deprecated
 public final class SimpleBGPExtensionProviderContextModule extends
         org.opendaylight.controller.config.yang.bgp.parser.spi.AbstractSimpleBGPExtensionProviderContextModule {
+    private BundleContext bundleContext;
 
     public SimpleBGPExtensionProviderContextModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
             final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
@@ -42,20 +48,28 @@ public final class SimpleBGPExtensionProviderContextModule extends
     }
 
     @Override
-    public java.lang.AutoCloseable createInstance() {
-        final class SimpleBGPExtensionProviderContextAutoCloseable extends SimpleBGPExtensionProviderContext implements AutoCloseable {
+    public AutoCloseable createInstance() {
+        final WaitingServiceTracker<BGPExtensionProviderContext> tracker =
+                WaitingServiceTracker.create(BGPExtensionProviderContext.class, bundleContext);
+        final BGPExtensionProviderContext service = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
+
+        return Reflection.newProxy(AutoCloseableBGPExtensionProviderContext.class, new AbstractInvocationHandler() {
             @Override
-            public void close() {
-                for (final BGPExtensionProviderActivator e : getExtensionDependency()) {
-                    e.stop();
+            protected Object handleInvocation(Object proxy, Method method, Object[] args) throws Throwable {
+                if (method.getName().equals("close")) {
+                    tracker.close();
+                    return null;
+                } else {
+                    return method.invoke(service, args);
                 }
             }
-        }
+        });
+    }
 
-        final SimpleBGPExtensionProviderContextAutoCloseable ret = new SimpleBGPExtensionProviderContextAutoCloseable();
-        for (final BGPExtensionProviderActivator e : getExtensionDependency()) {
-            e.start(ret);
-        }
-        return ret;
+    void setBundleContext(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
+    }
+
+    private static interface AutoCloseableBGPExtensionProviderContext extends BGPExtensionProviderContext, AutoCloseable {
     }
 }

@@ -31,39 +31,8 @@
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:parser:spi">prefix:bgp-extensions-impl</type>
                     <name>global-bgp-extensions</name>
-                    <extension>
-                        <type xmlns:bgpspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:parser:spi">bgpspi:extension</type>
-                        <name>base-bgp-parser</name>
-                    </extension>
-                    <extension>
-                        <type xmlns:bgpspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:parser:spi">bgpspi:extension</type>
-                        <name>bgp-linkstate</name>
-                    </extension>
-                    <extension>
-                        <type xmlns:bgpspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:parser:spi">bgpspi:extension</type>
-                        <name>bgp-flowspec</name>
-                    </extension>
-                    <extension>
-                        <type xmlns:bgpspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:parser:spi">bgpspi:extension</type>
-                        <name>bgp-labeled-unicast</name>
-                    </extension>
-                    <extension>
-                        <type xmlns:bgpspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:parser:spi">bgpspi:extension</type>
-                        <name>bgp-vpn-ipv4</name>
-                    </extension>
-                    <extension>
-                        <type xmlns:bgpspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:parser:spi">bgpspi:extension</type>
-                        <name>bgp-vpn-ipv6</name>
-                    </extension>
-                    <extension>
-                        <type xmlns:bgpspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:parser:spi">bgpspi:extension</type>
-                        <name>bgp-evpn</name>
-                    </extension>
                 </module>
-                <module>
-                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:base-bgp-parser</type>
-                    <name>base-bgp-parser</name>
-                </module>
+
                 <!-- Global bgp peer registry that should contain all configured bgp peers -->
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:strict-bgp-peer-registry</type>
@@ -449,10 +418,6 @@
                 </service>
                 <service>
                     <type xmlns:bgpspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:parser:spi">bgpspi:extension</type>
-                    <instance>
-                        <name>base-bgp-parser</name>
-                        <provider>/modules/module[type='base-bgp-parser'][name='base-bgp-parser']</provider>
-                    </instance>
                     <instance>
                         <name>bgp-linkstate</name>
                         <provider>/modules/module[type='bgp-linkstate'][name='bgp-linkstate']</provider>
