@@ -16,13 +16,20 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
-import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
-import org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImpl;
+import com.google.common.reflect.AbstractInvocationHandler;
+import com.google.common.reflect.Reflection;
+import java.lang.reflect.Method;
+import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
+import org.osgi.framework.BundleContext;
 
 /**
- *
+ * @deprecated Replaced by blueprint wiring but remains for backwards compatibility until downstream users
+ *             of the provided config system service are converted to blueprint.
  */
+@Deprecated
 public final class BGPDispatcherImplModule extends org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractBGPDispatcherImplModule {
+    private BundleContext bundleContext;
 
     public BGPDispatcherImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier name,
             final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
@@ -36,8 +43,32 @@ public final class BGPDispatcherImplModule extends org.opendaylight.controller.c
     }
 
     @Override
-    public java.lang.AutoCloseable createInstance() {
-        final BGPExtensionConsumerContext bgpExtensions = getBgpExtensionsDependency();
-        return new BGPDispatcherImpl(bgpExtensions.getMessageRegistry(), getBossGroupDependency(), getWorkerGroupDependency(), getMd5ChannelFactoryDependency(), getMd5ServerChannelFactoryDependency());
+    public AutoCloseable createInstance() {
+        // The BGPDispatcher instance is created and advertised as an OSGi service via blueprint
+        // so obtain it here (waiting if necessary).
+        final WaitingServiceTracker<BGPDispatcher> tracker =
+                WaitingServiceTracker.create(BGPDispatcher.class, bundleContext);
+        final BGPDispatcher service = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
+
+        // Create a proxy to override close to close the ServiceTracker. The actual BGPDispatcher
+        // instance will be closed via blueprint.
+        return Reflection.newProxy(AutoCloseableBGPDispatcher.class, new AbstractInvocationHandler() {
+            @Override
+            protected Object handleInvocation(Object proxy, Method method, Object[] args) throws Throwable {
+                if (method.getName().equals("close")) {
+                    tracker.close();
+                    return null;
+                } else {
+                    return method.invoke(service, args);
+                }
+            }
+        });
+    }
+
+    void setBundleContext(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
+    }
+
+    private static interface AutoCloseableBGPDispatcher extends BGPDispatcher, AutoCloseable {
     }
 }

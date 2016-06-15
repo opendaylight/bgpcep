@@ -6,4 +6,20 @@
 
   <service ref="RIBActivator" interface="org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator"
           odl:type="org.opendaylight.protocol.bgp.rib.impl.RIBActivator"/>
+
+  <reference id="BGPExtensionContext" interface="org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext"/>
+  <reference id="globalBossGroup" interface="io.netty.channel.EventLoopGroup" odl:type="global-boss-group"/>
+  <reference id="globalWorkerGroup" interface="io.netty.channel.EventLoopGroup" odl:type="global-worker-group"/>
+
+  <bean id="BGPDispatcher" class="org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImpl">
+    <argument>
+      <bean factory-ref="BGPExtensionContext" factory-method="getMessageRegistry"/>
+    </argument>
+    <argument ref="globalBossGroup"/>
+    <argument ref="globalWorkerGroup"/>
+    <argument><null/></argument>
+    <argument><null/></argument>
+  </bean>
+
+  <service ref="BGPDispatcher" interface="org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher"/>
 </blueprint>

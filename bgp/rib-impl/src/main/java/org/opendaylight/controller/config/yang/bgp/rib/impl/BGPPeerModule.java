@@ -88,26 +88,6 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
 
         JmxAttributeValidationException.checkNotNull(getPort(), "value is not set.", portJmxAttribute);
 
-        if (getOptionalPassword(getPassword()).isPresent()) {
-            /*
-             *  This is a nasty hack, but we don't have another clean solution. We cannot allow
-             *  password being set if the injected dispatcher does not have the optional
-             *  md5-server-channel-factory set.
-             *
-             *  FIXME: this is a use case for Module interfaces, e.g. RibImplModule
-             *         should something like isMd5ServerSupported()
-             */
-
-            final RIBImplModuleMXBean ribProxy = this.dependencyResolver.newMXBeanProxy(getRib(), RIBImplModuleMXBean.class);
-            final BGPDispatcherImplModuleMXBean bgpDispatcherProxy = this.dependencyResolver.newMXBeanProxy(
-                ribProxy.getBgpDispatcher(), BGPDispatcherImplModuleMXBean.class);
-            final boolean isMd5Supported = bgpDispatcherProxy.getMd5ChannelFactory() != null;
-
-            JmxAttributeValidationException.checkCondition(isMd5Supported,
-                "Underlying dispatcher does not support MD5 clients", passwordJmxAttribute);
-
-        }
-
         if (getPeerRole() != null) {
             final boolean isNotPeerRoleInternal= getPeerRole() != PeerRole.Internal;
             JmxAttributeValidationException.checkCondition(isNotPeerRoleInternal,
@@ -127,6 +107,15 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
     @Override
     public java.lang.AutoCloseable createInstance() {
         final RIB r = getRibDependency();
+
+        if (getOptionalPassword(getPassword()).isPresent()) {
+            /*
+             *  We cannot allow password being set if the injected dispatcher does not have the optional
+             *  md5-server-channel-factory set.
+             */
+            Preconditions.checkArgument(r.getDispatcher().isMd5Supported(),
+                    "Underlying dispatcher does not support MD5 clients");
+        }
 
         final List<BgpParameters> tlvs = getTlvs(r);
         final AsNumber remoteAs = getAsOrDefault(r);
