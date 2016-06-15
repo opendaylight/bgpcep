@@ -20,8 +20,6 @@
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:parser:spi?module=odl-bgp-parser-spi-cfg&amp;revision=2013-11-15</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi?module=odl-bgp-rib-spi-cfg&amp;revision=2013-11-15</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl?module=odl-bgp-rib-impl-cfg&amp;revision=2016-03-30</capability>
-        <capability>urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding?module=opendaylight-md-sal-binding&amp;revision=2013-10-28</capability>
-        <capability>urn:opendaylight:params:xml:ns:yang:controller:netty?module=netty&amp;revision=2013-11-19</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:rsvp:spi?module=odl-rsvp-parser-spi-cfg&amp;revision=2015-08-26</capability>
     </required-capabilities>
     <configuration>
@@ -77,32 +75,6 @@
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-dispatcher-impl</type>
                     <name>global-bgp-dispatcher</name>
-                    <bgp-extensions>
-                        <type xmlns:bgpspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:parser:spi">bgpspi:extensions</type>
-                        <name>global-bgp-extensions</name>
-                    </bgp-extensions>
-                    <boss-group>
-                        <type xmlns:netty="urn:opendaylight:params:xml:ns:yang:controller:netty">netty:netty-threadgroup</type>
-                        <name>global-boss-group</name>
-                    </boss-group>
-                    <worker-group>
-                        <type xmlns:netty="urn:opendaylight:params:xml:ns:yang:controller:netty">netty:netty-threadgroup</type>
-                        <name>global-worker-group</name>
-                    </worker-group>
-
-                    <!--
-                         Uncomment this block to enable TCP MD5 Signature support
-
-                    <md5-channel-factory>
-                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:tcpmd5:netty:cfg">prefix:md5-channel-factory</type>
-                        <name>md5-client-channel-factory</name>
-                    </md5-channel-factory>
-
-                    <md5-server-channel-factory>
-                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:tcpmd5:netty:cfg">prefix:md5-server-channel-factory</type>
-                        <name>md5-server-channel-factory</name>
-                    </md5-server-channel-factory>
-                    -->
                 </module>
 
                 <module>
