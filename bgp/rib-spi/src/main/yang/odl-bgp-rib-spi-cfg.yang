@@ -62,15 +62,6 @@ module odl-bgp-rib-spi-cfg {
     augment "/config:modules/config:module/config:configuration" {
         case bgp-rib-extensions-impl {
             when "/config:modules/config:module/config:type = 'bgp-rib-extensions-impl'";
-
-            list extension {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity extension;
-                    }
-                }
-            }
         }
     }
 

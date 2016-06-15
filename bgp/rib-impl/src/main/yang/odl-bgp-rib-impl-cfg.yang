@@ -115,18 +115,6 @@ module odl-bgp-rib-impl-cfg {
         }
     }
 
-    identity base-bgp-rib {
-        base config:module-type;
-        config:provided-service ribspi:extension;
-        config:java-name-prefix BaseBGPRIB;
-    }
-
-    augment "/config:modules/config:module/config:configuration" {
-        case base-bgp-rib {
-            when "/config:modules/config:module/config:type = 'base-bgp-rib'";
-        }
-    }
-
     identity rib-instance {
         description
             "Service representing a RIB instance";

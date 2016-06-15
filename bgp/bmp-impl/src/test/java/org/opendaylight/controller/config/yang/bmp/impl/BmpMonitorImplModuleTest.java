@@ -30,7 +30,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -117,8 +116,6 @@ public class BmpMonitorImplModuleTest extends AbstractBmpModuleTest {
         Mockito.doNothing().when(this.mockedContext).removeBundleListener(any(BundleListener.class));
 
         Mockito.doReturn(new Bundle[] {}).when(this.mockedContext).getBundles();
-
-        Mockito.doReturn(new ServiceReference[] {}).when(this.mockedContext).getServiceReferences(Matchers.anyString(), Matchers.anyString());
 
         Mockito.doReturn("Empty reference").when(emptyServiceReference).toString();
         Mockito.doReturn("Data Provider Service Reference").when(dataProviderServiceReference).toString();
