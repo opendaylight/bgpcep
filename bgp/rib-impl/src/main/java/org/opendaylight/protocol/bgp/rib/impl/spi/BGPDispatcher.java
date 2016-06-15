@@ -50,4 +50,9 @@ public interface BGPDispatcher{
      * @return ChannelFuture promising a client session
      */
     ChannelFuture createServer(BGPPeerRegistry peerRegistry, InetSocketAddress localAddress);
+
+    /**
+     * @return true if MD5 is supported, otherwise false.
+     */
+    boolean isMd5Supported();
 }

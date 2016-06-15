@@ -71,6 +71,11 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     }
 
     @Override
+    public boolean isMd5Supported() {
+        return channelFactory != null;
+    }
+
+    @Override
     public synchronized Future<BGPSessionImpl> createClient(final InetSocketAddress remoteAddress, final BGPPeerRegistry listener, final int retryTimer) {
         return createClient(remoteAddress, listener, retryTimer, createClientBootStrap());
     }
