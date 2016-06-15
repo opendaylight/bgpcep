@@ -41,38 +41,6 @@
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi">prefix:bgp-rib-extensions-impl</type>
                     <name>global-rib-extensions</name>
-                    <extension>
-                        <type xmlns:ribspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi">ribspi:extension</type>
-                        <name>base-bgp-rib</name>
-                    </extension>
-                    <extension>
-                        <type xmlns:ribspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi">ribspi:extension</type>
-                        <name>bgp-linkstate</name>
-                    </extension>
-                    <extension>
-                        <type xmlns:ribspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi">ribspi:extension</type>
-                        <name>bgp-flowspec</name>
-                    </extension>
-                    <extension>
-                        <type xmlns:ribspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi">ribspi:extension</type>
-                        <name>bgp-labeled-unicast</name>
-                    </extension>
-                    <extension>
-                        <type xmlns:ribspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi">ribspi:extension</type>
-                        <name>bgp-vpn-ipv4</name>
-                    </extension>
-                    <extension>
-                        <type xmlns:ribspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi">ribspi:extension</type>
-                        <name>bgp-vpn-ipv6</name>
-                    </extension>
-                    <extension>
-                        <type xmlns:ribspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi">ribspi:extension</type>
-                        <name>bgp-evpn</name>
-                    </extension>
-                </module>
-                <module>
-                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:base-bgp-rib</type>
-                    <name>base-bgp-rib</name>
                 </module>
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:linkstate">prefix:bgp-linkstate</type>
@@ -583,10 +551,6 @@
                 </service>
                 <service>
                     <type xmlns:ribspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi">ribspi:extension</type>
-                    <instance>
-                        <name>base-bgp-rib</name>
-                        <provider>/modules/module[type='base-bgp-rib'][name='base-bgp-rib']</provider>
-                    </instance>
                     <instance>
                         <name>bgp-linkstate</name>
                         <provider>/modules/module[type='bgp-linkstate'][name='bgp-linkstate']</provider>
