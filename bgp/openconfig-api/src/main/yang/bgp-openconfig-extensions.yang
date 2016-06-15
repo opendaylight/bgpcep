@@ -39,6 +39,20 @@ module bgp-openconfig-extensions {
         reference "https://tools.ietf.org/html/draft-ietf-idr-flow-spec-v6-06";
     }
 
+    identity ipv4-flow-l3vpn {
+        base bgp-types:afi-safi-type;
+        description
+          "IPv4 Flow specification - VPNv4 (AFI,SAFI = 1,134)";
+        reference "https://tools.ietf.org/html/rfc5575";
+    }
+
+    identity ipv6-flow-l3vpn {
+        base bgp-types:afi-safi-type;
+        description
+          "IPv6 Flow specification - VPNv6 (AFI,SAFI = 2,134)";
+        reference "https://tools.ietf.org/html/draft-ietf-idr-flow-spec-v6-06";
+    }
+
     identity linkstate {
         base bgp-types:afi-safi-type;
         description
