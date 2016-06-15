@@ -80,6 +80,8 @@ import org.opendaylight.controller.sal.core.api.model.SchemaService;
 import org.opendaylight.controller.sal.core.api.model.YangTextSourceProvider;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
+import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
+import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
@@ -220,6 +222,8 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         setupMockService(DOMRpcService.class, mock(DOMRpcService.class));
         setupMockService(DOMRpcProviderService.class, mock(DOMRpcProviderService.class));
         setupMockService(DOMMountPointService.class, mock(DOMMountPointService.class));
+
+        setupMockService(RIBExtensionProviderContext.class, new SimpleRIBExtensionProviderContext());
     }
 
     protected void setupMockService(final Class<?> serviceInterface, final Object instance) throws Exception {
