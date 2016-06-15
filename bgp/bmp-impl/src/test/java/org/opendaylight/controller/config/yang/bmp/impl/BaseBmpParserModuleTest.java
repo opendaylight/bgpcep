@@ -12,19 +12,20 @@ import javax.management.ObjectName;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
-import org.opendaylight.controller.config.manager.impl.AbstractConfigTest;
 import org.opendaylight.controller.config.manager.impl.factoriesresolver.HardcodedModuleFactoriesResolver;
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
 import org.opendaylight.controller.config.yang.bgp.parser.spi.SimpleBGPExtensionProviderContextModuleFactory;
 import org.opendaylight.controller.config.yang.bgp.parser.spi.SimpleBGPExtensionProviderContextModuleMXBean;
 
-public class BaseBmpParserModuleTest extends AbstractConfigTest {
+public class BaseBmpParserModuleTest extends AbstractBmpModuleTest {
     private static final String INSTANCE_NAME = "parser-instance-bmp";
     private static final String FACTORY_NAME = BaseBmpParserModuleFactory.NAME;
     private static final String BGP_EXTENSION_INSTANCE_NAME = "extension-impl-bgp";
 
+    @Override
     @Before
     public void setUp() throws Exception {
+        super.setUp();
         super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(this.mockedContext, new BaseBmpParserModuleFactory(), new SimpleBGPExtensionProviderContextModuleFactory()));
     }
 
