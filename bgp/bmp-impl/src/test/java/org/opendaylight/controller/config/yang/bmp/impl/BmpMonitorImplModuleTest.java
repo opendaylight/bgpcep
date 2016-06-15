@@ -8,8 +8,6 @@
 package org.opendaylight.controller.config.yang.bmp.impl;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -39,7 +37,6 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
-import org.opendaylight.controller.config.manager.impl.AbstractConfigTest;
 import org.opendaylight.controller.config.manager.impl.factoriesresolver.HardcodedModuleFactoriesResolver;
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
 import org.opendaylight.controller.config.yang.bgp.rib.spi.RIBExtensionsImplModuleFactory;
@@ -77,11 +74,9 @@ import org.opendaylight.yangtools.yang.parser.stmt.reactor.CrossSourceStatementR
 import org.opendaylight.yangtools.yang.parser.stmt.rfc6020.YangInferencePipeline;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleListener;
-import org.osgi.framework.Filter;
-import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 
-public class BmpMonitorImplModuleTest extends AbstractConfigTest {
+public class BmpMonitorImplModuleTest extends AbstractBmpModuleTest {
 
     private static final String FACTORY_NAME = BmpMonitorImplModuleFactory.NAME;
     private static final String INSTANCE_NAME = "bmp-monitor-impl-instance";
@@ -95,11 +90,13 @@ public class BmpMonitorImplModuleTest extends AbstractConfigTest {
     @Mock private CheckedFuture<Void, TransactionCommitFailedException> mockedFuture;
     @Mock private RpcResult<TransactionStatus> mockedResult;
 
+    @Override
     @SuppressWarnings("unchecked")
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
+        super.setUp();
         super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(this.mockedContext,
             new BmpMonitorImplModuleFactory(),
             new RIBExtensionsImplModuleFactory(),
@@ -111,23 +108,10 @@ public class BmpMonitorImplModuleTest extends AbstractConfigTest {
             new GlobalEventExecutorModuleFactory(),
             new SchemaServiceImplSingletonModuleFactory()));
 
-        doAnswer(new Answer<Filter>() {
-            @Override
-            public Filter answer(final InvocationOnMock invocation) {
-                final String str = invocation.getArgumentAt(0, String.class);
-                final Filter mockFilter = mock(Filter.class);
-                doReturn(str).when(mockFilter).toString();
-                return mockFilter;
-            }
-        }).when(mockedContext).createFilter(anyString());
-
         final ServiceReference<?> emptyServiceReference = mock(ServiceReference.class, "Empty");
         final ServiceReference<?> classLoadingStrategySR = mock(ServiceReference.class, "ClassLoadingStrategy");
         final ServiceReference<?> dataProviderServiceReference = mock(ServiceReference.class, "Data Provider");
         final ServiceReference<?> schemaServiceReference = mock(ServiceReference.class, "schemaServiceReference");
-
-        Mockito.doNothing().when(this.mockedContext).addServiceListener(any(ServiceListener.class), Mockito.anyString());
-        Mockito.doNothing().when(this.mockedContext).removeServiceListener(any(ServiceListener.class));
 
         Mockito.doNothing().when(this.mockedContext).addBundleListener(any(BundleListener.class));
         Mockito.doNothing().when(this.mockedContext).removeBundleListener(any(BundleListener.class));
@@ -184,15 +168,6 @@ public class BmpMonitorImplModuleTest extends AbstractConfigTest {
 
         setupMockService(EventLoopGroup.class, NioEventLoopGroupCloseable.newInstance(0));
         setupMockService(EventExecutor.class, AutoCloseableEventExecutor.CloseableEventExecutorMixin.globalEventExecutor());
-    }
-
-    private void setupMockService(final Class<?> serviceInterface, final Object instance) throws Exception {
-        final ServiceReference<?> mockServiceRef = mock(ServiceReference.class);
-        doReturn(new ServiceReference[]{mockServiceRef}).when(mockedContext).
-                getServiceReferences(anyString(), contains(serviceInterface.getName()));
-        doReturn(new ServiceReference[]{mockServiceRef}).when(mockedContext).
-                getServiceReferences(serviceInterface.getName(), null);
-        doReturn(instance).when(mockedContext).getService(mockServiceRef);
     }
 
     private static SchemaContext parseYangStreams(final Collection<ByteSource> streams) {

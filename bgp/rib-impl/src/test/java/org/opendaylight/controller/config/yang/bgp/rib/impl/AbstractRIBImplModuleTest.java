@@ -78,6 +78,8 @@ import org.opendaylight.controller.md.sal.dom.api.DOMRpcProviderService;
 import org.opendaylight.controller.md.sal.dom.api.DOMRpcService;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
 import org.opendaylight.controller.sal.core.api.model.YangTextSourceProvider;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
+import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
@@ -206,6 +208,10 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         BindingToNormalizedNodeCodecFactory.getOrCreateInstance(
                 GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), mockedSchemaService);
 
+        BGPExtensionProviderContext mockContext = mock(BGPExtensionProviderContext.class);
+        doReturn(mock(MessageRegistry.class)).when(mockContext).getMessageRegistry();
+        setupMockService(BGPExtensionProviderContext.class, mockContext);
+
         setupMockService(EventLoopGroup.class, NioEventLoopGroupCloseable.newInstance(0));
         setupMockService(EventExecutor.class, AutoCloseableEventExecutor.CloseableEventExecutorMixin.globalEventExecutor());
 
@@ -216,7 +222,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         setupMockService(DOMMountPointService.class, mock(DOMMountPointService.class));
     }
 
-    private void setupMockService(final Class<?> serviceInterface, final Object instance) throws Exception {
+    protected void setupMockService(final Class<?> serviceInterface, final Object instance) throws Exception {
         final ServiceReference<?> mockServiceRef = mock(ServiceReference.class);
         doReturn(new ServiceReference[]{mockServiceRef}).when(mockedContext).
                 getServiceReferences(anyString(), contains(serviceInterface.getName()));

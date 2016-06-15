@@ -50,18 +50,6 @@ module odl-bgp-rib-impl-cfg {
             "Initial revision";
     }
 
-    identity base-bgp-parser {
-        base config:module-type;
-        config:java-name-prefix BaseBGPParser;
-        config:provided-service bgpspi:extension;
-    }
-
-    augment "/config:modules/config:module/config:configuration" {
-        case base-bgp-parser {
-            when "/config:modules/config:module/config:type = 'base-bgp-parser'";
-        }
-    }
-
     identity bgp-dispatcher {
         description
             "Service representing a BGP Dispatcher.";
