@@ -9,7 +9,6 @@ package org.opendaylight.controller.config.yang.bgp.topology.provider;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
 import java.util.List;
 import javax.management.ObjectName;
 import org.junit.Test;
@@ -63,7 +62,7 @@ public class LinkstateTopologyBuilderModuleTest extends AbstractRIBImplModuleTes
     public void testCreateBean() throws Exception {
         final CommitStatus status = createLinkstateTopologyBuilderModuleInstance();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 11, 0, 0);
+        assertStatus(status, 8, 0, 0);
     }
 
     @Test
@@ -73,7 +72,7 @@ public class LinkstateTopologyBuilderModuleTest extends AbstractRIBImplModuleTes
         assertBeanCount(1, FACTORY_NAME);
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 0, 11);
+        assertStatus(status, 0, 0, 8);
     }
 
     @Test
@@ -86,7 +85,7 @@ public class LinkstateTopologyBuilderModuleTest extends AbstractRIBImplModuleTes
         mxBean.setTopologyId(new TopologyId("new-bgp-topology"));
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 1, 10);
+        assertStatus(status, 0, 1, 7);
     }
 
     private CommitStatus createLinkstateTopologyBuilderModuleInstance() throws Exception {

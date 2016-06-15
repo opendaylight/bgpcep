@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.ObjectName;
+import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.controller.config.api.IdentityAttributeRef;
 import org.opendaylight.controller.config.api.ValidationException;
@@ -35,6 +36,7 @@ import org.opendaylight.yangtools.sal.binding.generator.util.BindingRuntimeConte
 
 public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
 
+    private static final int EXP_INSTANCES = 18;
     private static final String INSTANCE_NAME = "bgp-peer-module-impl";
     private static final String FACTORY_NAME = BGPPeerModuleFactory.NAME;
 
@@ -93,7 +95,7 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
     public void testCreateBean() throws Exception {
         final CommitStatus status = createBgpPeerInstance();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 21, 0, 0);
+        assertStatus(status, EXP_INSTANCES, 0, 0);
     }
 
     @Test
@@ -103,7 +105,7 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
         assertBeanCount(1, FACTORY_NAME);
         status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 0, 21);
+        assertStatus(status, 0, 0, EXP_INSTANCES);
     }
 
     @Test
@@ -116,7 +118,7 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
         mxBean.setPort(new PortNumber(10));
         status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 1, 20);
+        assertStatus(status, 0, 1, EXP_INSTANCES - 1);
     }
 
     private ObjectName createBgpPeerInstance(final ConfigTransactionJMXClient transaction, final IpAddress host,
