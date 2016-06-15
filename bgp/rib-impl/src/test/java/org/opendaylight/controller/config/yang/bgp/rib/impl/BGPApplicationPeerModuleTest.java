@@ -12,12 +12,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
 import java.util.List;
-
 import javax.management.InstanceNotFoundException;
 import javax.management.ObjectName;
-
 import org.junit.Test;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
 import org.opendaylight.controller.config.spi.ModuleFactory;
@@ -27,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 
 public class BGPApplicationPeerModuleTest extends AbstractRIBImplModuleTest {
 
+    private static final int EXP_INSTANCES = 8;
     private static final String INSTANCE_NAME = "application-peer-instance";
     private static final String INSTANCE_NAME2 = "application-peer-instance-2";
     private static final String FACTORY_NAME = BGPApplicationPeerModuleFactory.NAME;
@@ -47,7 +45,7 @@ public class BGPApplicationPeerModuleTest extends AbstractRIBImplModuleTest {
     public void testCreateInstance() throws Exception {
         final CommitStatus status = createApplicationPeerInstance();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 11, 0, 0);
+        assertStatus(status, EXP_INSTANCES, 0, 0);
     }
 
     @Test
@@ -57,7 +55,7 @@ public class BGPApplicationPeerModuleTest extends AbstractRIBImplModuleTest {
         assertBeanCount(1, FACTORY_NAME);
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 0, 11);
+        assertStatus(status, 0, 0, EXP_INSTANCES);
     }
 
     @Test
@@ -70,7 +68,7 @@ public class BGPApplicationPeerModuleTest extends AbstractRIBImplModuleTest {
         mxBean.setApplicationRibId(new ApplicationRibId(NEW_APP_RIB_ID));
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 1, 10);
+        assertStatus(status, 0, 1, EXP_INSTANCES - 1);
         assertEquals(NEW_APP_RIB_ID, getApplicationRibId());
     }
 
