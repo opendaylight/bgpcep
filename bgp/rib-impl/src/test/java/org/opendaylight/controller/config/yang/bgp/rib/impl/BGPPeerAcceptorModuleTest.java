@@ -147,23 +147,5 @@ public class BGPPeerAcceptorModuleTest extends AbstractConfigTest {
 
         @Override
         protected AutoCloseable prepareMockedInstance() throws Exception {return dispatcher;}
-
-        @Override
-        public ObjectName getWorkerGroup() {return null;}
-
-        @Override
-        public void setWorkerGroup(final ObjectName workerGroup) {}
-
-        @Override
-        public ObjectName getBgpExtensions() {return null;}
-
-        @Override
-        public void setBgpExtensions(final ObjectName bgpExtensions) {}
-
-        @Override
-        public ObjectName getBossGroup() {return null;}
-
-        @Override
-        public void setBossGroup(final ObjectName bossGroup) {}
     }
 }

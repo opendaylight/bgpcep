@@ -54,6 +54,7 @@ module odl-bgp-rib-impl-cfg {
 
         base "config:service-type";
         config:java-class "org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher";
+        config:disable-osgi-service-registration;
     }
 
     identity bgp-dispatcher-impl {
@@ -65,33 +66,6 @@ module odl-bgp-rib-impl-cfg {
     augment "/config:modules/config:module/config:configuration" {
         case bgp-dispatcher-impl {
             when "/config:modules/config:module/config:type = 'bgp-dispatcher-impl'";
-
-            container bgp-extensions {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity bgpspi:consumer-extensions;
-                    }
-                }
-            }
-
-            container boss-group {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity netty:netty-threadgroup;
-                    }
-                }
-            }
-
-            container worker-group {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity netty:netty-threadgroup;
-                    }
-                }
-            }
         }
     }
 

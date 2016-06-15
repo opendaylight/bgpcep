@@ -16,10 +16,29 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
-/**
-*
-*/
-public class BGPDispatcherImplModuleFactory extends
-        org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractBGPDispatcherImplModuleFactory {
+import org.opendaylight.controller.config.api.DependencyResolver;
+import org.osgi.framework.BundleContext;
 
+/**
+ * @deprecated Replaced by blueprint wiring but remains for backwards compatibility until downstream users
+ *             of the provided config system service are converted to blueprint.
+ */
+@Deprecated
+public class BGPDispatcherImplModuleFactory extends AbstractBGPDispatcherImplModuleFactory {
+    @Override
+    public BGPDispatcherImplModule instantiateModule(String instanceName, DependencyResolver dependencyResolver,
+            BGPDispatcherImplModule oldModule, AutoCloseable oldInstance, BundleContext bundleContext) {
+        BGPDispatcherImplModule module = super.instantiateModule(instanceName, dependencyResolver, oldModule,
+                oldInstance, bundleContext);
+        module.setBundleContext(bundleContext);
+        return module;
+    }
+
+    @Override
+    public BGPDispatcherImplModule instantiateModule(String instanceName, DependencyResolver dependencyResolver,
+            BundleContext bundleContext) {
+        BGPDispatcherImplModule module = super.instantiateModule(instanceName, dependencyResolver, bundleContext);
+        module.setBundleContext(bundleContext);
+        return module;
+    }
 }
