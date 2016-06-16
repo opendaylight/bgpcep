@@ -1,0 +1,159 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba51214e_80872161",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPDispatcherImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-16T21:02:15Z",
+      "side": 1,
+      "message": "formatting - missing spaces",
+      "range": {
+        "startLine": 63,
+        "startChar": 0,
+        "endLine": 69,
+        "endChar": 9
+      },
+      "revId": "bfca9810ec82176ed4ff09acb58ee2d8d2938a8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_40b6a93e",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPDispatcherImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-16T21:02:15Z",
+      "side": 1,
+      "message": "This bug was not present here. Set keys when they are present.",
+      "range": {
+        "startLine": 105,
+        "startChar": 10,
+        "endLine": 105,
+        "endChar": 26
+      },
+      "revId": "bfca9810ec82176ed4ff09acb58ee2d8d2938a8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_e0f37d08",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPDispatcherImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-16T21:02:15Z",
+      "side": 1,
+      "message": "spaces",
+      "range": {
+        "startLine": 123,
+        "startChar": 8,
+        "endLine": 123,
+        "endChar": 32
+      },
+      "revId": "bfca9810ec82176ed4ff09acb58ee2d8d2938a8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_c0f8f9e7",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPDispatcherImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-16T21:02:15Z",
+      "side": 1,
+      "message": "thread blocking-way closing",
+      "range": {
+        "startLine": 124,
+        "startChar": 0,
+        "endLine": 125,
+        "endChar": 50
+      },
+      "revId": "bfca9810ec82176ed4ff09acb58ee2d8d2938a8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_20dd7571",
+        "filename": "pcep/impl/src/test/java/org/opendaylight/protocol/pcep/impl/PCEPDispatcherImplTest.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-16T21:02:15Z",
+      "side": 1,
+      "message": "missing spaces",
+      "range": {
+        "startLine": 72,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 9
+      },
+      "revId": "bfca9810ec82176ed4ff09acb58ee2d8d2938a8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_00daf177",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/PCEPTopologyProvider.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-16T21:02:15Z",
+      "side": 1,
+      "message": "inject keys",
+      "revId": "bfca9810ec82176ed4ff09acb58ee2d8d2938a8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_60e76d41",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/controller/config/yang/pcep/topology/provider/PCEPTopologyProviderModule.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-16T21:02:15Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 104,
+        "startChar": 0,
+        "endLine": 114,
+        "endChar": 58
+      },
+      "revId": "bfca9810ec82176ed4ff09acb58ee2d8d2938a8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
