@@ -34,27 +34,6 @@ module odl-bmp-impl-cfg {
             "Initial revision";
     }
 
-    identity bmp-parser-base {
-        base config:module-type;
-        config:provided-service spi:extension;
-        config:java-name-prefix BaseBmpParser;
-    }
-
-    augment "/config:modules/config:module/config:configuration" {
-        case bmp-parser-base {
-            when "/config:modules/config:module/config:type = 'bmp-parser-base'";
-
-            container bgp-extensions {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity bgp-spi:consumer-extensions;
-                    }
-                }
-            }
-        }
-    }
-
     identity bmp-dispatcher {
         description
             "Service representing a BMP dispatcher service. The service
