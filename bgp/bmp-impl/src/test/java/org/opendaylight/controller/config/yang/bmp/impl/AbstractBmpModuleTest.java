@@ -24,6 +24,8 @@ import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
+import org.opendaylight.protocol.bmp.spi.registry.BmpExtensionProviderContext;
+import org.opendaylight.protocol.bmp.spi.registry.SimpleBmpExtensionProviderContext;
 import org.osgi.framework.Filter;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
@@ -54,6 +56,8 @@ public class AbstractBmpModuleTest extends AbstractConfigTest {
         doReturn(mock(MessageRegistry.class)).when(mockContext).getMessageRegistry();
         doReturn(mock(SubsequentAddressFamilyRegistry.class)).when(mockContext).getSubsequentAddressFamilyRegistry();
         setupMockService(BGPExtensionProviderContext.class, mockContext);
+
+        setupMockService(BmpExtensionProviderContext.class, new SimpleBmpExtensionProviderContext());
 
         setupMockService(RIBExtensionProviderContext.class, new SimpleRIBExtensionProviderContext());
     }
