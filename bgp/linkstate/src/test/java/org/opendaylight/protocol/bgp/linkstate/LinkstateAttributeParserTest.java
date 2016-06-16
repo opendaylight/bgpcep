@@ -11,7 +11,6 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
@@ -40,8 +39,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.ProtocolId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.PeerSetSids;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.PeerSetSidsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.ObjectType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.destination.CLinkstateDestinationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.LinkCaseBuilder;
@@ -223,9 +220,6 @@ public class LinkstateAttributeParserTest {
         final IsisAdjFlagsCase flags = new IsisAdjFlagsCaseBuilder().setAddressFamily(Boolean.TRUE).setBackup(Boolean.FALSE).setSet(Boolean.FALSE).build();
         assertEquals(flags, ls.getSrAdjIds().get(0).getFlags());
         assertEquals(flags, ls.getSrAdjIds().get(1).getFlags());
-        assertNull(ls.getPeerNodeSid().getFlags());
-        assertNull(ls.getPeerSetSids().get(0).getFlags());
-        assertNull(ls.getPeerAdjSid().getFlags());
         assertEquals(new Long(1048575L), ((LocalLabelCase)ls.getSrAdjIds().get(0).getSidLabelIndex()).getLocalLabel().getValue());
         assertEquals(new Long(1048559L), ((LocalLabelCase)ls.getSrAdjIds().get(1).getSidLabelIndex()).getLocalLabel().getValue());
         assertEquals(new Long(168496141L), ((SidCase) ls.getPeerNodeSid().getSidLabelIndex()).getSid());
@@ -242,13 +236,6 @@ public class LinkstateAttributeParserTest {
         // there is unresolved TLV at the end, that needs to be cut off
 
         assertArrayEquals(ByteArray.subByte(LINK_ATTR, 0, LINK_ATTR.length -5), ByteArray.getAllBytes(buff));
-    }
-
-    private PeerSetSids buildPeerSetSid(final Flags flags, final long sid, final short weight) {
-        return new PeerSetSidsBuilder()
-            .setFlags(flags)
-            .setWeight(new Weight(new Short(weight)))
-            .setSidLabelIndex(new SidCaseBuilder().setSid(new Long(sid)).build()).build();
     }
 
     @Test
