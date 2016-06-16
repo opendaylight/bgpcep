@@ -41,8 +41,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.FlowspecSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev150930.Ipv4Flow;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev150930.Ipv6Flow;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.IPV4FLOW;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.IPV6FLOW;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
@@ -87,7 +87,7 @@ public class BGPNeighborProviderImplTest {
             IP, PORT, TIMER, role, active,
             Lists.<BgpTableType>newArrayList(new BgpTableTypeImpl(Ipv6AddressFamily.class, FlowspecSubsequentAddressFamily.class)),
             AS, Optional.<Rfc2385Key>absent()));
-        final Neighbor expectedNeighbor = createNeighbor(Lists.<AfiSafi>newArrayList(new AfiSafiBuilder().setAfiSafiName(Ipv6Flow.class).build()),
+        final Neighbor expectedNeighbor = createNeighbor(Lists.<AfiSafi>newArrayList(new AfiSafiBuilder().setAfiSafiName(IPV6FLOW.class).build()),
             IP, null, AS, PeerType.INTERNAL, role, TIMER, !active);
         assertEquals(expectedNeighbor, neighbor);
     }
@@ -100,7 +100,7 @@ public class BGPNeighborProviderImplTest {
             IP, PORT, TIMER, role, active,
             Lists.<BgpTableType>newArrayList(new BgpTableTypeImpl(Ipv6AddressFamily.class, FlowspecSubsequentAddressFamily.class)),
             AS, Optional.of(new Rfc2385Key(PASSWORD)) ));
-        final Neighbor expectedNeighbor = createNeighbor(Lists.<AfiSafi>newArrayList(new AfiSafiBuilder().setAfiSafiName(Ipv6Flow.class).build()),
+        final Neighbor expectedNeighbor = createNeighbor(Lists.<AfiSafi>newArrayList(new AfiSafiBuilder().setAfiSafiName(IPV6FLOW.class).build()),
             IP, PASSWORD, AS, PeerType.EXTERNAL, role, TIMER, !active);
         assertEquals(expectedNeighbor, neighbor);
     }
@@ -113,7 +113,7 @@ public class BGPNeighborProviderImplTest {
             IP, PORT, TIMER, role, active,
             Lists.<BgpTableType>newArrayList(new BgpTableTypeImpl(Ipv4AddressFamily.class, FlowspecSubsequentAddressFamily.class)),
             AS, Optional.of(new Rfc2385Key(PASSWORD)) ));
-        final Neighbor expectedNeighbor = createNeighbor(Lists.<AfiSafi>newArrayList(new AfiSafiBuilder().setAfiSafiName(Ipv4Flow.class).build()),
+        final Neighbor expectedNeighbor = createNeighbor(Lists.<AfiSafi>newArrayList(new AfiSafiBuilder().setAfiSafiName(IPV4FLOW.class).build()),
             IP, PASSWORD, AS, null, role, TIMER, !active);
         assertEquals(expectedNeighbor, neighbor);
     }
