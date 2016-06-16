@@ -46,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
+import org.slf4j.LoggerFactory;
 
 public class BGPDispatcherImplTest {
 
@@ -77,6 +78,7 @@ public class BGPDispatcherImplTest {
     private Channel createServer(final InetSocketAddress serverAddress) throws InterruptedException {
         this.serverListener = new SimpleSessionListener();
         this.registry.addPeer(new IpAddress(new Ipv4Address(serverAddress.getAddress().getHostAddress())), this.serverListener, createPreferences(serverAddress));
+        LoggerFactory.getLogger(BGPDispatcherImplTest.class).info("createServer");
         final ChannelFuture future = this.serverDispatcher.createServer(this.registry, serverAddress);
         future.addListener(new GenericFutureListener<Future<Void>>() {
             @Override
@@ -99,7 +101,6 @@ public class BGPDispatcherImplTest {
         final Channel serverChannel = createServer(serverAddress);
         Thread.sleep(1000);
         final BGPSessionImpl session = this.clientDispatcher.createClient(serverAddress, this.registry, 0, Optional.absent()).get();
-        Thread.sleep(3000);
         Assert.assertEquals(BGPSessionImpl.State.UP, this.clientListener.getState());
         Assert.assertEquals(BGPSessionImpl.State.UP, this.serverListener.getState());
         Assert.assertEquals(AS_NUMBER, session.getAsNumber());
@@ -118,7 +119,6 @@ public class BGPDispatcherImplTest {
         final Channel serverChannel = createServer(serverAddress);
         Thread.sleep(1000);
         final Future<Void> future = this.clientDispatcher.createReconnectingClient(serverAddress, this.registry, RETRY_TIMER, Optional.absent());
-        Thread.sleep(3000);
         Assert.assertEquals(BGPSessionImpl.State.UP, this.serverListener.getState());
         Assert.assertTrue(serverChannel.isWritable());
         future.cancel(true);

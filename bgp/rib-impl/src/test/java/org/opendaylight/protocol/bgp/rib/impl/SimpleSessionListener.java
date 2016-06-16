@@ -8,7 +8,11 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.Uninterruptibles;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import org.junit.Assert;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
@@ -25,6 +29,7 @@ public final class SimpleSessionListener implements BGPSessionListener {
     private static final Logger LOG = LoggerFactory.getLogger(SimpleSessionListener.class);
     private final List<Notification> listMsg = Lists.newArrayList();
     private BGPSession session;
+    private final CountDownLatch sessionLatch = new CountDownLatch(1);
 
     SimpleSessionListener() {
     }
@@ -35,7 +40,7 @@ public final class SimpleSessionListener implements BGPSessionListener {
 
     @Override
     public boolean isSessionActive() {
-        return ((BGPSessionImpl) this.session).isWritable();
+        return getSession().isWritable();
     }
 
     @Override
@@ -45,8 +50,9 @@ public final class SimpleSessionListener implements BGPSessionListener {
 
     @Override
     public void onSessionUp(final BGPSession session) {
-        LOG.debug("Session Up");
+        LOG.info("Session Up");
         this.session = session;
+        sessionLatch.countDown();
     }
 
     @Override
@@ -78,6 +84,11 @@ public final class SimpleSessionListener implements BGPSessionListener {
     }
 
     BGPSessionImpl.State getState() {
-        return ((BGPSessionImpl) this.session).getState();
+        return getSession().getState();
+    }
+
+    BGPSessionImpl getSession() {
+        Assert.assertEquals("Session up", true, Uninterruptibles.awaitUninterruptibly(sessionLatch, 10, TimeUnit.SECONDS));
+        return (BGPSessionImpl) this.session;
     }
 }
