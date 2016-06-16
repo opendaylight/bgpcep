@@ -7,6 +7,29 @@
  */
 
 package org.opendaylight.controller.config.yang.bmp.spi;
-public class SimpleBmpExtensionProviderContextModuleFactory extends org.opendaylight.controller.config.yang.bmp.spi.AbstractSimpleBmpExtensionProviderContextModuleFactory {
 
+import org.opendaylight.controller.config.api.DependencyResolver;
+import org.osgi.framework.BundleContext;
+
+/**
+ * @deprecated Replaced by blueprint wiring
+ */
+@Deprecated
+public class SimpleBmpExtensionProviderContextModuleFactory extends AbstractSimpleBmpExtensionProviderContextModuleFactory {
+    @Override
+    public SimpleBmpExtensionProviderContextModule instantiateModule(String instanceName, DependencyResolver dependencyResolver,
+            SimpleBmpExtensionProviderContextModule oldModule, AutoCloseable oldInstance, BundleContext bundleContext) {
+        SimpleBmpExtensionProviderContextModule module = super.instantiateModule(instanceName, dependencyResolver, oldModule,
+                oldInstance, bundleContext);
+        module.setBundleContext(bundleContext);
+        return module;
+    }
+
+    @Override
+    public SimpleBmpExtensionProviderContextModule instantiateModule(String instanceName, DependencyResolver dependencyResolver,
+            BundleContext bundleContext) {
+        SimpleBmpExtensionProviderContextModule module = super.instantiateModule(instanceName, dependencyResolver, bundleContext);
+        module.setBundleContext(bundleContext);
+        return module;
+    }
 }
