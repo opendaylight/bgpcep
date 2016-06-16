@@ -11,10 +11,9 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
 import com.google.common.io.Resources;
@@ -22,8 +21,6 @@ import com.google.common.util.concurrent.CheckedFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.concurrent.EventExecutor;
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -65,15 +62,16 @@ import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
-import org.opendaylight.controller.sal.dom.broker.GlobalBundleScanningSchemaServiceImpl;
+import org.opendaylight.controller.sal.core.api.model.YangTextSourceProvider;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.PortNumber;
+import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.sal.binding.generator.api.ClassLoadingStrategy;
 import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
-import org.opendaylight.yangtools.yang.parser.repo.URLSchemaContextResolver;
+import org.opendaylight.yangtools.yang.model.api.SchemaContextListener;
 import org.opendaylight.yangtools.yang.parser.spi.meta.ReactorException;
 import org.opendaylight.yangtools.yang.parser.stmt.reactor.CrossSourceStatementReactor;
 import org.opendaylight.yangtools.yang.parser.stmt.rfc6020.YangInferencePipeline;
@@ -152,8 +150,6 @@ public class BmpMonitorImplModuleTest extends AbstractConfigTest {
         Mockito.doReturn(this.mockedDataProvider).when(this.mockedContext).getService(dataProviderServiceReference);
         Mockito.doReturn(GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy()).when(this.mockedContext).getService(classLoadingStrategySR);
         Mockito.doReturn(null).when(this.mockedContext).getService(emptyServiceReference);
-        final GlobalBundleScanningSchemaServiceImpl schemaService = GlobalBundleScanningSchemaServiceImpl.createInstance(this.mockedContext);
-        Mockito.doReturn(schemaService).when(this.mockedContext).getService(schemaServiceReference);
 
         Mockito.doReturn(this.mockedTransaction).when(this.mockedDataProvider).newReadWriteTransaction();
 
@@ -167,20 +163,24 @@ public class BmpMonitorImplModuleTest extends AbstractConfigTest {
         Mockito.doReturn(null).when(this.mockedFuture).get();
 
         final SchemaContext context = parseYangStreams(getFilesAsByteSources(getYangModelsPaths()));
-        final URLSchemaContextResolver mockedContextResolver = Mockito.mock(URLSchemaContextResolver.class);
-        Mockito.doReturn(Optional.of(context)).when(mockedContextResolver).getSchemaContext();
+        final SchemaService mockedSchemaService = mock(SchemaService.class);
+        doReturn(context).when(mockedSchemaService).getGlobalContext();
+        doAnswer(new Answer<ListenerRegistration<SchemaContextListener>>() {
+            @Override
+            public ListenerRegistration<SchemaContextListener> answer(InvocationOnMock invocation) {
+                invocation.getArgumentAt(0, SchemaContextListener.class).onGlobalContextUpdated(context);
+                ListenerRegistration<SchemaContextListener> reg = mock(ListenerRegistration.class);
+                doNothing().when(reg).close();
+                return reg;
+            }
+        }).when(mockedSchemaService).registerSchemaContextListener(any(SchemaContextListener.class));
 
-        final Field contextResolverField = schemaService.getClass().getDeclaredField("contextResolver");
-        contextResolverField.setAccessible(true);
-
-        final Field modifiersField = Field.class.getDeclaredField("modifiers");
-        modifiersField.setAccessible(true);
-        modifiersField.setInt(contextResolverField, contextResolverField.getModifiers() & ~Modifier.FINAL);
-
-        contextResolverField.set(schemaService, mockedContextResolver);
+        setupMockService(SchemaService.class, mockedSchemaService);
+        setupMockService(YangTextSourceProvider.class, mock(YangTextSourceProvider.class));
+        Mockito.doReturn(mockedSchemaService).when(this.mockedContext).getService(schemaServiceReference);
 
         BindingToNormalizedNodeCodecFactory.getOrCreateInstance(
-                GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), schemaService);
+                GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), mockedSchemaService);
 
         setupMockService(EventLoopGroup.class, NioEventLoopGroupCloseable.newInstance(0));
         setupMockService(EventExecutor.class, AutoCloseableEventExecutor.CloseableEventExecutorMixin.globalEventExecutor());
@@ -190,6 +190,8 @@ public class BmpMonitorImplModuleTest extends AbstractConfigTest {
         final ServiceReference<?> mockServiceRef = mock(ServiceReference.class);
         doReturn(new ServiceReference[]{mockServiceRef}).when(mockedContext).
                 getServiceReferences(anyString(), contains(serviceInterface.getName()));
+        doReturn(new ServiceReference[]{mockServiceRef}).when(mockedContext).
+                getServiceReferences(serviceInterface.getName(), null);
         doReturn(instance).when(mockedContext).getService(mockServiceRef);
     }
 
@@ -229,7 +231,6 @@ public class BmpMonitorImplModuleTest extends AbstractConfigTest {
     @After
     public void closeAllModules() throws Exception {
         super.destroyAllConfigBeans();
-        GlobalBundleScanningSchemaServiceImpl.destroyInstance();
     }
 
     @Test
