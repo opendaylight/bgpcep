@@ -11,9 +11,9 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
 import com.google.common.io.Resources;
@@ -21,8 +21,6 @@ import com.google.common.util.concurrent.CheckedFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.concurrent.EventExecutor;
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -78,11 +76,13 @@ import org.opendaylight.controller.md.sal.dom.api.DOMNotificationPublishService;
 import org.opendaylight.controller.md.sal.dom.api.DOMNotificationService;
 import org.opendaylight.controller.md.sal.dom.api.DOMRpcProviderService;
 import org.opendaylight.controller.md.sal.dom.api.DOMRpcService;
-import org.opendaylight.controller.sal.dom.broker.GlobalBundleScanningSchemaServiceImpl;
+import org.opendaylight.controller.sal.core.api.model.SchemaService;
+import org.opendaylight.controller.sal.core.api.model.YangTextSourceProvider;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
+import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.sal.binding.generator.api.ClassLoadingStrategy;
 import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -90,9 +90,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.opendaylight.yangtools.yang.model.api.SchemaContextListener;
-import org.opendaylight.yangtools.yang.model.parser.api.YangSyntaxErrorException;
-import org.opendaylight.yangtools.yang.model.repo.api.SchemaSourceException;
-import org.opendaylight.yangtools.yang.parser.repo.YangTextSchemaContextResolver;
 import org.opendaylight.yangtools.yang.parser.spi.meta.ReactorException;
 import org.opendaylight.yangtools.yang.parser.stmt.reactor.CrossSourceStatementReactor;
 import org.opendaylight.yangtools.yang.parser.stmt.rfc6020.YangInferencePipeline;
@@ -190,20 +187,24 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
 
         Mockito.doReturn(null).when(this.mockedFuture).get();
 
-        final GlobalBundleScanningSchemaServiceImpl schemaService = GlobalBundleScanningSchemaServiceImpl.createInstance(this.mockedContext);
-        final YangTextSchemaContextResolver mockedContextResolver = newSchemaContextResolver(getYangModelsPaths());
+        final SchemaContext context = parseYangStreams(getFilesAsByteSources(getYangModelsPaths()));
+        final SchemaService mockedSchemaService = mock(SchemaService.class);
+        doReturn(context).when(mockedSchemaService).getGlobalContext();
+        doAnswer(new Answer<ListenerRegistration<SchemaContextListener>>() {
+            @Override
+            public ListenerRegistration<SchemaContextListener> answer(InvocationOnMock invocation) {
+                invocation.getArgumentAt(0, SchemaContextListener.class).onGlobalContextUpdated(context);
+                ListenerRegistration<SchemaContextListener> reg = mock(ListenerRegistration.class);
+                doNothing().when(reg).close();
+                return reg;
+            }
+        }).when(mockedSchemaService).registerSchemaContextListener(any(SchemaContextListener.class));
 
-        final Field contextResolverField = schemaService.getClass().getDeclaredField("contextResolver");
-        contextResolverField.setAccessible(true);
-
-        final Field modifiersField = Field.class.getDeclaredField("modifiers");
-        modifiersField.setAccessible(true);
-        modifiersField.setInt(contextResolverField, contextResolverField.getModifiers() & ~Modifier.FINAL);
-
-        contextResolverField.set(schemaService, mockedContextResolver);
+        setupMockService(SchemaService.class, mockedSchemaService);
+        setupMockService(YangTextSourceProvider.class, mock(YangTextSourceProvider.class));
 
         BindingToNormalizedNodeCodecFactory.getOrCreateInstance(
-                GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), schemaService);
+                GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), mockedSchemaService);
 
         setupMockService(EventLoopGroup.class, NioEventLoopGroupCloseable.newInstance(0));
         setupMockService(EventExecutor.class, AutoCloseableEventExecutor.CloseableEventExecutorMixin.globalEventExecutor());
@@ -264,7 +265,6 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     @After
     public void closeAllModules() throws Exception {
         super.destroyAllConfigBeans();
-        GlobalBundleScanningSchemaServiceImpl.destroyInstance();
 
     }
 
@@ -382,25 +382,6 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         Assert.assertEquals("Some files were not found", Collections.<String> emptyList(), failedToFind);
 
         return resources;
-    }
-
-    private static YangTextSchemaContextResolver newSchemaContextResolver(final List<String> paths) {
-        YangTextSchemaContextResolver resolver = YangTextSchemaContextResolver.create("test");
-        final List<String> failedToFind = new ArrayList<>();
-        for (final String path : paths) {
-            final URL url = AbstractRIBImplModuleTest.class.getResource(path);
-            if (url == null) {
-                failedToFind.add(path);
-            } else {
-                try {
-                    resolver.registerSource(url);
-                } catch(SchemaSourceException | IOException | YangSyntaxErrorException e) {
-                    Throwables.propagate(e);
-                }
-            }
-        }
-        Assert.assertEquals("Some files were not found", Collections.<String> emptyList(), failedToFind);
-        return resolver;
     }
 
     public ObjectName createBindingBrokerImpl(final ConfigTransactionJMXClient transaction, final ObjectName dataBrokerON,
