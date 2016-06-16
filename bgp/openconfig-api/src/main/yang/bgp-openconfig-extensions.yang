@@ -3,7 +3,7 @@ module bgp-openconfig-extensions {
     namespace "urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions";
     prefix "odl-oc-ext";
 
-    import openconfig-bgp-types { prefix bgp-types; revision-date 2015-10-09; }
+    import openconfig-bgp-types { prefix bgp-types; }
     import openconfig-network-instance { prefix netinst; }
     import openconfig-bgp { prefix openconfig-bgp; }
 
@@ -21,33 +21,59 @@ module bgp-openconfig-extensions {
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
 
+    revision 2016-06-14 {
+        description
+            "Update to follow naming conventions.";
+    }
+
     revision 2015-09-30 {
         description "Initial revision";
     }
 
-    identity ipv4-flow {
+    identity IPV4-FLOW {
         base bgp-types:afi-safi-type;
         description
           "IPv4 Flow specification (AFI,SAFI = 1,133)";
         reference "https://tools.ietf.org/html/rfc5575";
     }
 
-    identity ipv6-flow {
+    identity IPV6-FLOW {
         base bgp-types:afi-safi-type;
         description
           "IPv6 Flow specification (AFI,SAFI = 2,133)";
         reference "https://tools.ietf.org/html/draft-ietf-idr-flow-spec-v6-06";
     }
 
-    identity linkstate {
+    identity IPV6-L3VPN-FLOW {
+        base bgp-types:afi-safi-type;
+        description
+          "IPv6 Flow specification (AFI,SAFI = 2,133)";
+        reference "https://tools.ietf.org/html/draft-ietf-idr-flow-spec-v6-06";
+    }
+
+    identity IPV4-L3VPN-FLOW {
+        base bgp-types:afi-safi-type;
+        description
+          "IPv6 Flow specification (AFI,SAFI = 2,133)";
+        reference "https://tools.ietf.org/html/rfc5575";
+    }
+
+    identity LINKSTATE {
         base bgp-types:afi-safi-type;
         description
           "Link-State (AFI,SAFI = 16388,71)";
-        reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03";
+        reference "https://tools.ietf.org/html/rfc7752";
     }
 
     augment /netinst:network-instances/netinst:network-instance/netinst:protocols/netinst:protocol {
-        uses openconfig-bgp:bgp-top;
+        uses openconfig-bgp:bgp-top {
+            augment bgp/neighbors/neighbor/afi-safis/afi-safi {
+                uses openconfig-bgp:bgp-neighbor-add-paths_config;
+            }
+            augment bgp/global/afi-safis/afi-safi {
+                uses openconfig-bgp:bgp-neighbor-add-paths_config;
+            }
+        }
     }
 
 }

@@ -37,7 +37,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev150930.Linkstate;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.LINKSTATE;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.RibImpl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.modules.ModuleKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -72,7 +72,7 @@ public class BGPGlobalProviderImplTest {
                 Collections.singletonList(new PeerGroupBuilder().setPeerGroupName("application-peers").build())).build());
         final Global global = new GlobalBuilder()
             .setAfiSafis(
-                    new AfiSafisBuilder().setAfiSafi(Collections.singletonList(new AfiSafiBuilder().setAfiSafiName(Linkstate.class).build())).build())
+                    new AfiSafisBuilder().setAfiSafi(Collections.singletonList(new AfiSafiBuilder().setAfiSafiName(LINKSTATE.class).build())).build())
             .setConfig(new ConfigBuilder().setRouterId(new Ipv4Address("1.2.3.4")).setAs(new AsNumber(1L)).build())
             .build();
         bgpBuilder.setGlobal(global);
