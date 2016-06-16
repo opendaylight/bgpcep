@@ -7,9 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.linkstate.attribute.sr;
 
-import static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.ProtocolId.Ospf;
-import static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.ProtocolId.OspfV3;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
@@ -19,9 +16,11 @@ import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.ProtocolId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.SrAdjIds;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.SrAdjIdsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.SrLanAdjIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.SrLanAdjIdsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.AdjSidTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.EpeAdjSidTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.Weight;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.adj.flags.Flags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.adj.flags.flags.IsisAdjFlagsCase;
@@ -49,7 +48,8 @@ public final class SrLinkAttributesParser {
     private static final int LOCAL_EPE = 1;
     private static final int SET_ISIS = 4;
     private static final int SET_OSPF = 3;
-    private static final int FLAGS_SIZE = 8;
+    private static final int FLAGS_BITS_SIZE = 8;
+    private static final int FLAGS_BYTE_SIZE = 1;
 
     /** OSPF flags
        0 1 2 3 4 5 6 7
@@ -68,12 +68,12 @@ public final class SrLinkAttributesParser {
         throw new UnsupportedOperationException();
     }
 
-    public static AdjSidTlv parseAdjacencySegmentIdentifier(final ByteBuf buffer, final ProtocolId protocolId) {
+    public static SrAdjIds parseAdjacencySegmentIdentifier(final ByteBuf buffer, final ProtocolId protocolId) {
         final Flags adjFlags;
         final Weight weight;
         final SidLabelIndex sidValue;
         if (buffer.isReadable()) {
-            final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
+            final BitArray flags = BitArray.valueOf(buffer, FLAGS_BITS_SIZE);
             adjFlags = parseFlags(flags, protocolId);
             weight = new Weight(buffer.readUnsignedByte());
             buffer.skipBytes(RESERVED);
@@ -83,10 +83,25 @@ public final class SrLinkAttributesParser {
             weight = null;
             sidValue = null;
         }
-        return new AdjSidTlv() {
+        return new SrAdjIdsBuilder().setFlags(adjFlags).setSidLabelIndex(sidValue).setWeight(weight).build();
+    }
+
+    public static EpeAdjSidTlv parseEpeAdjacencySegmentIdentifier(final ByteBuf buffer) {
+        final Weight weight;
+        final SidLabelIndex sidValue;
+        if (buffer.isReadable()) {
+            buffer.skipBytes(FLAGS_BYTE_SIZE);
+            weight = new Weight(buffer.readUnsignedByte());
+            buffer.skipBytes(RESERVED);
+            sidValue = SidLabelIndexParser.parseSidLabelIndex(Size.forValue(buffer.readableBytes()), buffer);
+        } else {
+            weight = null;
+            sidValue = null;
+        }
+        return new EpeAdjSidTlv() {
             @Override
             public Class<? extends DataContainer> getImplementedInterface() {
-                return AdjSidTlv.class;
+                return EpeAdjSidTlv.class;
             }
             @Override
             public Weight getWeight() {
@@ -96,10 +111,6 @@ public final class SrLinkAttributesParser {
             public SidLabelIndex getSidLabelIndex() {
                 return sidValue;
             }
-            @Override
-            public Flags getFlags() {
-                return adjFlags;
-            }
         };
     }
 
@@ -108,7 +119,7 @@ public final class SrLinkAttributesParser {
             return new SrLanAdjIdsBuilder().build();
         }
         final SrLanAdjIdsBuilder srLanAdjIdBuilder = new SrLanAdjIdsBuilder();
-        final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
+        final BitArray flags = BitArray.valueOf(buffer, FLAGS_BITS_SIZE);
         srLanAdjIdBuilder.setFlags(parseFlags(flags, protocolId));
         srLanAdjIdBuilder.setWeight(new Weight(buffer.readUnsignedByte()));
         buffer.skipBytes(RESERVED);
@@ -144,16 +155,18 @@ public final class SrLinkAttributesParser {
         }
     }
 
-    public static <T extends AdjSidTlv> void serializeAdjacencySegmentIdentifiers(final List<T> adjSids, final int type, final ByteBuf byteAggregator) {
-        for (final T id : adjSids) {
-            TlvUtil.writeTLV(type, serializeAdjacencySegmentIdentifier(id), byteAggregator);
-        }
+    public static <T extends EpeAdjSidTlv> void serializeAdjacencySegmentIdentifiers(final List<T> adjSids, final int type, final ByteBuf byteAggregator) {
+        adjSids.forEach(id -> TlvUtil.writeTLV(type, serializeAdjacencySegmentIdentifier(id), byteAggregator));
     }
 
-    public static ByteBuf serializeAdjacencySegmentIdentifier(final AdjSidTlv adjSid) {
+    public static <T extends EpeAdjSidTlv> ByteBuf serializeAdjacencySegmentIdentifier(final T adjSid) {
         final ByteBuf value = Unpooled.buffer();
-        final BitArray flags = serializeAdjFlags(adjSid.getFlags(), adjSid.getSidLabelIndex());
-        flags.toByteBuf(value);
+        if(adjSid instanceof SrAdjIds) {
+            final BitArray flags = serializeAdjFlags(((SrAdjIds) adjSid).getFlags(), adjSid.getSidLabelIndex());
+            flags.toByteBuf(value);
+        }else {
+            value.writeZero(FLAGS_BYTE_SIZE);
+        }
         value.writeByte(adjSid.getWeight().getValue());
         value.writeZero(RESERVED);
         value.writeBytes(SidLabelIndexParser.serializeSidValue(adjSid.getSidLabelIndex()));
@@ -182,7 +195,7 @@ public final class SrLinkAttributesParser {
     }
 
     private static BitArray serializeAdjFlags(final Flags flags, final SidLabelIndex sidLabelIndex) {
-        final BitArray bitFlags = new BitArray(FLAGS_SIZE);
+        final BitArray bitFlags = new BitArray(FLAGS_BITS_SIZE);
         if (flags instanceof OspfAdjFlagsCase) {
             final OspfAdjFlagsCase ospfFlags = (OspfAdjFlagsCase) flags;
             bitFlags.set(BACKUP_OSPF, ospfFlags.isBackup());

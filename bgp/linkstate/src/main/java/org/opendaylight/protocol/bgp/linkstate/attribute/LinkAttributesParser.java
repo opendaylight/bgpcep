@@ -33,7 +33,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.PeerSetSids;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.PeerSetSidsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.SrAdjIds;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.SrAdjIdsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.SrLanAdjIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.UnreservedBandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.UnreservedBandwidthBuilder;
@@ -165,7 +164,7 @@ public final class LinkAttributesParser {
                 LOG.debug("Parsed Link Name : {}", builder.getLinkName());
                 break;
             case SR_ADJ_ID:
-                srAdjIds.add(new SrAdjIdsBuilder(SrLinkAttributesParser.parseAdjacencySegmentIdentifier(value, protocolId)).build());
+                srAdjIds.add(SrLinkAttributesParser.parseAdjacencySegmentIdentifier(value, protocolId));
                 LOG.debug("Parsed Adjacency Segment Identifier :{}", srAdjIds.get(srAdjIds.size()-1));
                 break;
             case SR_LAN_ADJ_ID:
@@ -173,15 +172,15 @@ public final class LinkAttributesParser {
                 LOG.debug("Parsed Adjacency Segment Identifier :{}", srLanAdjIds.get(srLanAdjIds.size()-1));
                 break;
             case PEER_NODE_SID_CODE:
-                builder.setPeerNodeSid(new PeerNodeSidBuilder(SrLinkAttributesParser.parseAdjacencySegmentIdentifier(value, null)).build());
+                builder.setPeerNodeSid(new PeerNodeSidBuilder(SrLinkAttributesParser.parseEpeAdjacencySegmentIdentifier(value)).build());
                 LOG.debug("Parsed Peer Segment Identifier :{}", builder.getPeerNodeSid());
                 break;
             case PEER_ADJ_SID_CODE:
-                builder.setPeerAdjSid(new PeerAdjSidBuilder(SrLinkAttributesParser.parseAdjacencySegmentIdentifier(value, null)).build());
+                builder.setPeerAdjSid(new PeerAdjSidBuilder(SrLinkAttributesParser.parseEpeAdjacencySegmentIdentifier(value)).build());
                 LOG.debug("Parsed Peer Segment Identifier :{}", builder.getPeerAdjSid());
                 break;
             case PEER_SET_SID_CODE:
-                peerSetSids.add(new PeerSetSidsBuilder(SrLinkAttributesParser.parseAdjacencySegmentIdentifier(value, null)).build());
+                peerSetSids.add(new PeerSetSidsBuilder(SrLinkAttributesParser.parseEpeAdjacencySegmentIdentifier(value)).build());
                 LOG.debug("Parsed Peer Set Sid :{}", peerSetSids.get(peerSetSids.size()-1));
                 break;
             default:
