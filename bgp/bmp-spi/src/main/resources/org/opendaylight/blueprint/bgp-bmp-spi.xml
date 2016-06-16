@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
+
+  <!-- Obtains the specific list of BmpExtensionProviderActivator OSGi services announced via
+       META-INF/services/org.opendaylight.protocol.bmp.spi.registry.BmpExtensionProviderActivator resources.
+  -->
+  <odl:specific-reference-list id="extensionActivators" interface="org.opendaylight.protocol.bmp.spi.registry.BmpExtensionProviderActivator"/>
+
+  <bean id="extensionProviderContext" class="org.opendaylight.protocol.bmp.spi.registry.SimpleBmpExtensionProviderContext"/>
+
+  <bean id="extensionProviderContextActivator" class="org.opendaylight.protocol.bmp.spi.registry.SimpleBmpExtensionProviderContextActivator"
+      init-method="start" destroy-method="close">
+    <argument ref="extensionProviderContext"/>
+    <argument ref="extensionActivators"/>
+  </bean>
+
+  <service ref="extensionProviderContext">
+    <interfaces>
+      <value>org.opendaylight.protocol.bmp.spi.registry.BmpExtensionProviderContext</value>
+      <value>org.opendaylight.protocol.bmp.spi.registry.BmpExtensionConsumerContext</value>
+    </interfaces>
+  </service>
+</blueprint>

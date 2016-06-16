@@ -8,10 +8,20 @@
 
 package org.opendaylight.controller.config.yang.bmp.spi;
 
-import org.opendaylight.protocol.bmp.spi.registry.BmpExtensionProviderActivator;
-import org.opendaylight.protocol.bmp.spi.registry.SimpleBmpExtensionProviderContext;
+import com.google.common.reflect.AbstractInvocationHandler;
+import com.google.common.reflect.Reflection;
+import java.lang.reflect.Method;
+import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
+import org.opendaylight.protocol.bmp.spi.registry.BmpExtensionProviderContext;
+import org.osgi.framework.BundleContext;
 
+/**
+ * @deprecated Replaced by blueprint wiring
+ */
+@Deprecated
 public class SimpleBmpExtensionProviderContextModule extends org.opendaylight.controller.config.yang.bmp.spi.AbstractSimpleBmpExtensionProviderContextModule {
+    private BundleContext bundleContext;
+
     public SimpleBmpExtensionProviderContextModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
@@ -26,21 +36,28 @@ public class SimpleBmpExtensionProviderContextModule extends org.opendaylight.co
     }
 
     @Override
-    public java.lang.AutoCloseable createInstance() {
-        final class SimpleBmpExtensionProviderContextAutoCloseable extends SimpleBmpExtensionProviderContext implements AutoCloseable {
+    public AutoCloseable createInstance() {
+        final WaitingServiceTracker<BmpExtensionProviderContext> tracker =
+                WaitingServiceTracker.create(BmpExtensionProviderContext.class, bundleContext);
+        final BmpExtensionProviderContext service = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
+
+        return Reflection.newProxy(AutoCloseableBmpExtensionProviderContext.class, new AbstractInvocationHandler() {
             @Override
-            public void close() {
-                for (final BmpExtensionProviderActivator e : getExtensionDependency()) {
-                    e.stop();
+            protected Object handleInvocation(Object proxy, Method method, Object[] args) throws Throwable {
+                if (method.getName().equals("close")) {
+                    tracker.close();
+                    return null;
+                } else {
+                    return method.invoke(service, args);
                 }
             }
-        }
-
-        final SimpleBmpExtensionProviderContextAutoCloseable ret = new SimpleBmpExtensionProviderContextAutoCloseable();
-        for (final BmpExtensionProviderActivator e : getExtensionDependency()) {
-            e.start(ret);
-        }
-        return ret;
+        });
     }
 
+    void setBundleContext(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
+    }
+
+    private static interface AutoCloseableBmpExtensionProviderContext extends BmpExtensionProviderContext, AutoCloseable {
+    }
 }

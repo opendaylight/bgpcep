@@ -21,18 +21,6 @@
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bmp:spi">prefix:bmp-extensions-impl</type>
                     <name>global-bmp-extensions</name>
-                    <extension>
-                        <type xmlns:bmp-spi="urn:opendaylight:params:xml:ns:yang:controller:bmp:spi">bmp-spi:extension</type>
-                        <name>bmp-parser-base</name>
-                    </extension>
-                </module>
-                <module>
-                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bmp:impl">prefix:bmp-parser-base</type>
-                    <name>bmp-parser-base</name>
-                    <bgp-extensions>
-                        <type xmlns:bgpspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:parser:spi">bgpspi:extensions</type>
-                        <name>global-bgp-extensions</name>
-                    </bgp-extensions>
                 </module>
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bmp:impl">prefix:bmp-dispatcher-impl</type>
@@ -73,13 +61,6 @@
                     <instance>
                         <name>global-bmp-extensions</name>
                         <provider>/modules/module[type='bmp-extensions-impl'][name='global-bmp-extensions']</provider>
-                    </instance>
-                </service>
-                <service>
-                    <type xmlns:bmp-spi="urn:opendaylight:params:xml:ns:yang:controller:bmp:spi">bmp-spi:extension</type>
-                    <instance>
-                        <name>bmp-parser-base</name>
-                        <provider>/modules/module[type='bmp-parser-base'][name='bmp-parser-base']</provider>
                     </instance>
                 </service>
                 <service>
