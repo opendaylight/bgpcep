@@ -116,6 +116,10 @@ module bgp-segment-routing {
     grouping adj-sid-tlv {
         reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-02#section-2.2.1";
         uses adj-flags;
+        uses epe-adj-sid-tlv;
+    }
+
+    grouping epe-adj-sid-tlv {
         leaf weight {
             type weight;
         }
