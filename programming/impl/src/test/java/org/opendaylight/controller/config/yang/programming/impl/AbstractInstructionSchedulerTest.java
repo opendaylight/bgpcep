@@ -11,6 +11,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import com.google.common.base.Throwables;
@@ -21,8 +22,6 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.Timer;
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -69,7 +68,9 @@ import org.opendaylight.controller.md.sal.dom.api.DOMRpcImplementation;
 import org.opendaylight.controller.md.sal.dom.api.DOMRpcImplementationRegistration;
 import org.opendaylight.controller.md.sal.dom.api.DOMRpcProviderService;
 import org.opendaylight.controller.md.sal.dom.api.DOMRpcService;
-import org.opendaylight.controller.sal.dom.broker.GlobalBundleScanningSchemaServiceImpl;
+import org.opendaylight.controller.sal.core.api.model.SchemaService;
+import org.opendaylight.controller.sal.core.api.model.YangTextSourceProvider;
+import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.sal.binding.generator.api.ClassLoadingStrategy;
 import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -146,20 +147,24 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
         Mockito.doReturn(GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy()).when(mockedContext).getService(classLoadingStrategySR);
         Mockito.doReturn(null).when(mockedContext).getService(emptyServiceReference);
 
-        final GlobalBundleScanningSchemaServiceImpl schemaService = GlobalBundleScanningSchemaServiceImpl.createInstance(this.mockedContext);
-        final YangTextSchemaContextResolver mockedContextResolver = newSchemaContextResolver(getYangModelsPaths());
+        final SchemaContext context = parseYangStreams(getFilesAsByteSources(getYangModelsPaths()));
+        final SchemaService mockedSchemaService = mock(SchemaService.class);
+        doReturn(context).when(mockedSchemaService).getGlobalContext();
+        doAnswer(new Answer<ListenerRegistration<SchemaContextListener>>() {
+            @Override
+            public ListenerRegistration<SchemaContextListener> answer(InvocationOnMock invocation) {
+                invocation.getArgumentAt(0, SchemaContextListener.class).onGlobalContextUpdated(context);
+                ListenerRegistration<SchemaContextListener> reg = mock(ListenerRegistration.class);
+                doNothing().when(reg).close();
+                return reg;
+            }
+        }).when(mockedSchemaService).registerSchemaContextListener(any(SchemaContextListener.class));
 
-        final Field contextResolverField = schemaService.getClass().getDeclaredField("contextResolver");
-        contextResolverField.setAccessible(true);
-
-        final Field modifiersField = Field.class.getDeclaredField("modifiers");
-        modifiersField.setAccessible(true);
-        modifiersField.setInt(contextResolverField, contextResolverField.getModifiers() & ~Modifier.FINAL);
-
-        contextResolverField.set(schemaService, mockedContextResolver);
+        setupMockService(SchemaService.class, mockedSchemaService);
+        setupMockService(YangTextSourceProvider.class, mock(YangTextSourceProvider.class));
 
         BindingToNormalizedNodeCodecFactory.getOrCreateInstance(
-                GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), schemaService);
+                GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), mockedSchemaService);
 
         setupMockService(Timer.class, mock(Timer.class));
         setupMockService(EventLoopGroup.class, new NioEventLoopGroup());
@@ -185,7 +190,6 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
 
     @After
     public void tearDownGlobalBundleScanningSchemaServiceImpl() throws Exception{
-        GlobalBundleScanningSchemaServiceImpl.destroyInstance();
     }
 
     public ObjectName createInstructionSchedulerModuleInstance(final ConfigTransactionJMXClient transaction, final ObjectName dataBrokerON,
