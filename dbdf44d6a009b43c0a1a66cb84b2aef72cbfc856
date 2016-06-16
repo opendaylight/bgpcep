@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba51214e_20c45591",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/BmpDispatcherImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-16T21:10:39Z",
+      "side": 1,
+      "message": "*Bug-5566 not in this case\n*adjust formatting - missing spaces in all classes did changes",
+      "revId": "dbdf44d6a009b43c0a1a66cb84b2aef72cbfc856",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_803c4195",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/app/BmpMonitoringStationImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-16T21:10:39Z",
+      "side": 1,
+      "message": "This check is already done in KeyMapping#getKeyMapping, right?",
+      "range": {
+        "startLine": 88,
+        "startChar": 51,
+        "endLine": 88,
+        "endChar": 94
+      },
+      "revId": "dbdf44d6a009b43c0a1a66cb84b2aef72cbfc856",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_a05ea5e7",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/spi/BGPServerDispatcher.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-16T21:10:39Z",
+      "side": 1,
+      "message": "Unrelated change.",
+      "revId": "dbdf44d6a009b43c0a1a66cb84b2aef72cbfc856",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
