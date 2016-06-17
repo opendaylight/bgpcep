@@ -171,6 +171,10 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>bgp-path-selection-mode</artifactId>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-openconfig-api</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.osgi</groupId>
