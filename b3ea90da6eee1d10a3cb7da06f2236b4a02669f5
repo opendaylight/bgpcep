@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba51214e_9762c2d6",
+        "filename": "rsvp/controller-config/src/main/resources/initial/27-rsvp.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-06-17T16:39:01Z",
+      "side": 0,
+      "message": "The rsvp-parser CSS module is not used by anything else so it was removed. We no longer need it injected into global-rsvp-extensions.",
+      "revId": "b3ea90da6eee1d10a3cb7da06f2236b4a02669f5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}

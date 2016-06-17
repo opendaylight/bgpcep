@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba51214e_3765b6e1",
+        "filename": "bgp/linkstate/src/test/java/org/opendaylight/controller/config/yang/bgp/linkstate/LinkstateModuleTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-06-17T16:39:01Z",
+      "side": 1,
+      "message": "The RSVPExtensionProviderContext CSS Module class was changed to obtain the RSVPExtensionProviderContext via OSGi so we need to mock the OSGi service.",
+      "revId": "853999f5ae0fc1e7e05e35509aa4b0bcacb74fd6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_775f2e0f",
+        "filename": "rsvp/impl/src/main/resources/org/opendaylight/blueprint/rsvp-impl.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-06-17T16:39:01Z",
+      "side": 1,
+      "message": "This replaces the rsvp-parser CSS module. The odl:type adds the \"type\" service property that the \"specific-reference-list\" extension look for. It matches the value specified in the corresponding file resource under META-INF/services that the \"specific-reference-list\" extension look for",
+      "revId": "853999f5ae0fc1e7e05e35509aa4b0bcacb74fd6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
