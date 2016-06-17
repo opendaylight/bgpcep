@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -230,10 +229,14 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     }
 
     @Override
-    public synchronized void close() throws InterruptedException, ExecutionException {
-        final DOMDataWriteTransaction t = this.domChain.newWriteOnlyTransaction();
-        t.delete(LogicalDatastoreType.OPERATIONAL, getYangRibId());
-        t.submit().get();
+    public synchronized void close() {
+        try {
+            final DOMDataWriteTransaction t = this.domChain.newWriteOnlyTransaction();
+            t.delete(LogicalDatastoreType.OPERATIONAL, getYangRibId());
+            t.submit().checkedGet();
+        } catch (final TransactionCommitFailedException e) {
+            LOG.warn("Failed to remove RIB instance {} from DS.", getYangRibId(), e);
+        }
         this.domChain.close();
         for (final LocRibWriter locRib : this.locRibs) {
             try {
