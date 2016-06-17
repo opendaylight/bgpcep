@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba51214e_57966a95",
+        "filename": "bgp/linkstate/src/main/resources/org/opendaylight/blueprint/bgp-linkstate.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-06-17T16:45:15Z",
+      "side": 1,
+      "message": "This uses the data store to obtain the isIanaLinkstateAttributeType setting. It can only be set dynamically via restconf. I could add the ability to get the initial value from an XML file so a user can edit the file to set it. The other option is to use a cfg file instead of the data store but then it can\u0027t be set via restconf/netconf and wouldn\u0027t be clustered.",
+      "revId": "f8122b3c38aeab4ba64062c788a8cb41cd38e84a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
