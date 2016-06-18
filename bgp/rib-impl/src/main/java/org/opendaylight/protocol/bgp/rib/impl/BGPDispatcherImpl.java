@@ -17,6 +17,11 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.epoll.Epoll;
+import io.netty.channel.epoll.EpollChannelOption;
+import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollServerSocketChannel;
+import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -33,10 +38,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ChannelPipelineInitializer;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionNegotiatorFactory;
-import org.opendaylight.tcpmd5.api.KeyMapping;
-import org.opendaylight.tcpmd5.netty.MD5ChannelFactory;
-import org.opendaylight.tcpmd5.netty.MD5ChannelOption;
-import org.opendaylight.tcpmd5.netty.MD5ServerChannelFactory;
+import org.opendaylight.protocol.concepts.KeyMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,30 +51,24 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     private static final int HIGH_WATER_MARK = 256 * 1024;
     private static final int LOW_WATER_MARK = 128 * 1024;
 
-    private final MD5ServerChannelFactory<?> serverChannelFactory;
-    private final MD5ChannelFactory<?> channelFactory;
     private final BGPHandlerFactory handlerFactory;
     private final EventLoopGroup bossGroup;
     private final EventLoopGroup workerGroup;
-    private Optional<KeyMapping> keys;
 
     public BGPDispatcherImpl(final MessageRegistry messageRegistry, final EventLoopGroup bossGroup, final EventLoopGroup workerGroup) {
-        this(messageRegistry, bossGroup, workerGroup, null, null);
-    }
-
-    public BGPDispatcherImpl(final MessageRegistry messageRegistry, final EventLoopGroup bossGroup, final EventLoopGroup workerGroup,
-        final MD5ChannelFactory<?> cf, final MD5ServerChannelFactory<?> scf) {
-        this.bossGroup = Preconditions.checkNotNull(bossGroup);
-        this.workerGroup = Preconditions.checkNotNull(workerGroup);
+        if (Epoll.isAvailable()) {
+            this.bossGroup = new EpollEventLoopGroup();
+            this.workerGroup = new EpollEventLoopGroup();
+        } else {
+            this.bossGroup = Preconditions.checkNotNull(bossGroup);
+            this.workerGroup = Preconditions.checkNotNull(workerGroup);
+        }
         this.handlerFactory = new BGPHandlerFactory(messageRegistry);
-        this.channelFactory = cf;
-        this.serverChannelFactory = scf;
-        this.keys = Optional.absent();
     }
 
     @Override
     public synchronized Future<BGPSessionImpl> createClient(final InetSocketAddress remoteAddress, final BGPPeerRegistry listener, final int retryTimer) {
-        return createClient(remoteAddress, listener, retryTimer, createClientBootStrap());
+        return createClient(remoteAddress, listener, retryTimer, createClientBootStrap(Optional.<KeyMapping>absent(), this.workerGroup));
     }
 
     private Future<BGPSessionImpl> createClient(final InetSocketAddress remoteAddress, final BGPPeerRegistry listener, final int retryTimer,
@@ -89,26 +85,24 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
 
     public Future<BGPSessionImpl> createClient(final InetSocketAddress localAddress, final InetSocketAddress remoteAddress,
         final StrictBGPPeerRegistry strictBGPPeerRegistry, final int retryTimer) {
-        final Bootstrap clientBootStrap = createClientBootStrap();
+        final Bootstrap clientBootStrap = createClientBootStrap(Optional.<KeyMapping>absent(), this.workerGroup);
         clientBootStrap.localAddress(localAddress);
         return createClient(remoteAddress, strictBGPPeerRegistry, retryTimer, clientBootStrap);
     }
 
-    protected Bootstrap createClientBootStrap() {
-        return createClientBootStrap(this.keys, this.channelFactory, this.workerGroup);
-    }
-
-    private static Bootstrap createClientBootStrap(final Optional<KeyMapping> keys, final MD5ChannelFactory<?> channelFactory, final EventLoopGroup
-        workerGroup) {
+    protected Bootstrap createClientBootStrap(final Optional<KeyMapping> keys, final EventLoopGroup workerGroup) {
         final Bootstrap bootstrap = new Bootstrap();
-        if (keys.isPresent()) {
-            if (channelFactory == null) {
-                throw new UnsupportedOperationException("No key access instance available, cannot use key mapping");
-            }
-            bootstrap.channelFactory(channelFactory);
-            bootstrap.option(MD5ChannelOption.TCP_MD5SIG, keys.get());
+        if (Epoll.isAvailable()) {
+            bootstrap.channel(EpollSocketChannel.class);
         } else {
             bootstrap.channel(NioSocketChannel.class);
+        }
+        if (keys.isPresent()) {
+            if (Epoll.isAvailable()) {
+                bootstrap.option(EpollChannelOption.TCP_MD5SIG, keys.get());
+            } else {
+                throw new UnsupportedOperationException(Epoll.unavailabilityCause().getCause());
+            }
         }
 
         // Make sure we are doing round-robin processing
@@ -126,18 +120,20 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
 
     @Override
     public void close() {
+        if (Epoll.isAvailable()) {
+            this.workerGroup.shutdownGracefully().awaitUninterruptibly();
+            this.bossGroup.shutdownGracefully().awaitUninterruptibly();
+        }
     }
 
     @Override
     public synchronized Future<Void> createReconnectingClient(final InetSocketAddress remoteAddress, final BGPPeerRegistry peerRegistry,
             final int retryTimer, final Optional<KeyMapping> keys) {
         final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(peerRegistry);
-        this.keys = keys;
-        final Bootstrap bootstrap = createClientBootStrap();
+        final Bootstrap bootstrap = createClientBootStrap(keys, this.workerGroup);
         final BGPReconnectPromise reconnectPromise = new BGPReconnectPromise(GlobalEventExecutor.INSTANCE, remoteAddress,
             retryTimer, bootstrap, BGPChannel.createChannelPipelineInitializer(BGPDispatcherImpl.this.handlerFactory, snf));
         reconnectPromise.connect();
-        this.keys = Optional.absent();
         return reconnectPromise;
     }
 
@@ -145,15 +141,21 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     public ChannelFuture createServer(final BGPPeerRegistry registry, final InetSocketAddress localAddress) {
         final BGPServerSessionNegotiatorFactory snf = new BGPServerSessionNegotiatorFactory(registry);
         final ChannelPipelineInitializer initializer = BGPChannel.createChannelPipelineInitializer(BGPDispatcherImpl.this.handlerFactory, snf);
-        final ServerBootstrap serverBootstrap = createServerBootstrap(initializer, this.keys, serverChannelFactory, this.bossGroup, this.workerGroup);
+        final ServerBootstrap serverBootstrap = createServerBootstrap(initializer, Optional.<KeyMapping>absent(), this.bossGroup, this.workerGroup);
         final ChannelFuture channelFuture = serverBootstrap.bind(localAddress);
         LOG.debug("Initiated server {} at {}.", channelFuture, localAddress);
         return channelFuture;
     }
 
     public static ServerBootstrap createServerBootstrap(final ChannelPipelineInitializer initializer, final Optional<KeyMapping> keys,
-        final MD5ServerChannelFactory<?> serverChannelFactory, final EventLoopGroup bossGroup, final EventLoopGroup workerGroup) {
+        final EventLoopGroup bossGroup, final EventLoopGroup workerGroup) {
         final ServerBootstrap serverBootstrap = new ServerBootstrap();
+        if (Epoll.isAvailable()) {
+            //FIXME Bug-5566
+            serverBootstrap.channel(EpollServerSocketChannel.class);
+        } else {
+            serverBootstrap.channel(NioServerSocketChannel.class);
+        }
         final ChannelHandler serverChannelHandler = BGPChannel.createServerChannelHandler(initializer);
         serverBootstrap.childHandler(serverChannelHandler);
 
@@ -162,13 +164,11 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         serverBootstrap.childOption(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, HIGH_WATER_MARK);
         serverBootstrap.childOption(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, LOW_WATER_MARK);
         if (keys.isPresent()) {
-            if (serverChannelFactory == null) {
-                throw new UnsupportedOperationException("No key access instance available, cannot use key mapping");
+            if (Epoll.isAvailable()) {
+                serverBootstrap.option(EpollChannelOption.TCP_MD5SIG, keys.get());
+            } else {
+                throw new UnsupportedOperationException(Epoll.unavailabilityCause().getCause());
             }
-            serverBootstrap.channelFactory(serverChannelFactory);
-            serverBootstrap.option(MD5ChannelOption.TCP_MD5SIG, keys.get());
-        } else {
-            serverBootstrap.channel(NioServerSocketChannel.class);
         }
 
         // Make sure we are doing round-robin processing
