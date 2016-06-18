@@ -9,7 +9,7 @@ package org.opendaylight.protocol.bgp.rib.impl.spi;
 
 import io.netty.channel.ChannelFuture;
 import java.net.InetSocketAddress;
-import org.opendaylight.tcpmd5.api.KeyMapping;
+import org.opendaylight.protocol.concepts.KeyMapping;
 
 /**
  * Dispatcher class for creating BGP server.

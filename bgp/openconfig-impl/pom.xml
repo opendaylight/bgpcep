@@ -114,10 +114,6 @@
             <artifactId>ietf-topology</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.tcpmd5</groupId>
-            <artifactId>tcpmd5-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
         </dependency>
