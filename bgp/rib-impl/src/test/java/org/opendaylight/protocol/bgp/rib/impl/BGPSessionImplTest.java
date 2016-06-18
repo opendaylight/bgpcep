@@ -154,7 +154,8 @@ public class BGPSessionImplTest {
         assertEquals(AS_NUMBER, this.bgpSession.getAsNumber());
         assertEquals(BGP_ID, this.bgpSession.getBgpId());
         assertEquals(1, this.bgpSession.getAdvertisedTableTypes().size());
-        assertTrue(this.listener.up);
+        Assert.assertEquals(BGPSessionImpl.State.UP, this.listener.getState());
+
         //test stats
         final BgpSessionState state = this.bgpSession.getBgpSessionState();
         assertEquals(HOLD_TIMER, state.getHoldtimeCurrent().intValue());
@@ -234,9 +235,9 @@ public class BGPSessionImplTest {
     @Test
     public void testEndOfInput() {
         this.bgpSession.sessionUp();
-        Assert.assertFalse(this.listener.down);
+        Assert.assertEquals(BGPSessionImpl.State.UP, this.listener.getState());
         this.bgpSession.endOfInput();
-        Assert.assertTrue(this.listener.down);
+        Assert.assertEquals(BGPSessionImpl.State.IDLE, this.listener.getState());
     }
 
     @Test
