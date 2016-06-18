@@ -65,6 +65,10 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     @GuardedBy("this")
     private final Map<IpAddress, BGPSessionPreferences> peerPreferences = Maps.newHashMap();
 
+    public static BGPPeerRegistry instance() {
+        return GLOBAL;
+    }
+
     @Override
     public synchronized void addPeer(final IpAddress ip, final BGPSessionListener peer, final BGPSessionPreferences preferences) {
         Preconditions.checkNotNull(ip);
