@@ -21,6 +21,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.SimpleChannelInboundHandler;
 import java.io.IOException;
+import java.nio.channels.NonWritableChannelException;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -207,9 +208,8 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
 
     @Override
     public synchronized void close() {
-        if (this.state != State.IDLE && this.channel.isActive()) {
-            this.writeAndFlush(new NotifyBuilder().setErrorCode(BGPError.CEASE.getCode()).setErrorSubcode(
-                    BGPError.CEASE.getSubcode()).build());
+        if (this.state != State.IDLE) {
+            this.writeAndFlush(new NotifyBuilder().setErrorCode(BGPError.CEASE.getCode()).setErrorSubcode(BGPError.CEASE.getSubcode()).build());
         }
         this.closeWithoutMessage();
     }
@@ -219,7 +219,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
      *
      * @param msg incoming message
      */
-    public synchronized void handleMessage(final Notification msg) throws BGPDocumentedException {
+    synchronized void handleMessage(final Notification msg) throws BGPDocumentedException {
         // Update last reception time
         this.lastMessageReceivedAt = System.nanoTime();
         this.sessionStats.updateReceivedMsgTotal();
@@ -255,7 +255,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         }
     }
 
-    public synchronized void endOfInput() {
+    synchronized void endOfInput() {
         if (this.state == State.UP) {
             LOG.info(END_OF_INPUT);
             this.listener.onSessionDown(this, new IOException(END_OF_INPUT));
@@ -265,16 +265,16 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     @GuardedBy("this")
     private ChannelFuture writeEpilogue(final ChannelFuture future, final Notification msg) {
         future.addListener(
-                new ChannelFutureListener() {
-                    @Override
-                    public void operationComplete(final ChannelFuture f) {
-                        if (!f.isSuccess()) {
-                            LOG.warn("Failed to send message {} to socket {}", msg, BGPSessionImpl.this.channel, f.cause());
-                        } else {
-                            LOG.trace("Message {} sent to socket {}", msg, BGPSessionImpl.this.channel);
-                        }
+            new ChannelFutureListener() {
+                @Override
+                public void operationComplete(final ChannelFuture f) {
+                    if (!f.isSuccess()) {
+                        LOG.warn("Failed to send message {} to socket {}", msg, BGPSessionImpl.this.channel, f.cause());
+                    } else {
+                        LOG.trace("Message {} sent to socket {}", msg, BGPSessionImpl.this.channel);
                     }
-                });
+                }
+            });
         this.lastMessageSentAt = System.nanoTime();
         this.sessionStats.updateSentMsgTotal();
         if (msg instanceof Update) {
@@ -298,13 +298,21 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     }
 
     synchronized ChannelFuture writeAndFlush(final Notification msg) {
-        return writeEpilogue(this.channel.writeAndFlush(msg), msg);
+        if(isWritable()) {
+            return writeEpilogue(this.channel.writeAndFlush(msg), msg);
+        }
+        return this.channel.newFailedFuture(new NonWritableChannelException());
     }
 
     private synchronized void closeWithoutMessage() {
         LOG.info("Closing session: {}", this);
         removePeerSession();
-        this.channel.close();
+        this.channel.close().addListener(new ChannelFutureListener() {
+            @Override
+            public void operationComplete(final ChannelFuture future) throws Exception {
+                Preconditions.checkArgument(future.isSuccess(), "Channel failed to close: %s", future.cause());
+            }
+        });
         this.state = State.IDLE;
     }
 
