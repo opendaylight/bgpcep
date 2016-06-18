@@ -32,9 +32,7 @@ import org.opendaylight.protocol.bmp.impl.BmpActivator;
 import org.opendaylight.protocol.bmp.impl.BmpDispatcherImpl;
 import org.opendaylight.protocol.bmp.spi.registry.BmpMessageRegistry;
 import org.opendaylight.protocol.bmp.spi.registry.SimpleBmpExtensionProviderContext;
-import org.opendaylight.tcpmd5.api.KeyMapping;
-import org.opendaylight.tcpmd5.netty.MD5ChannelFactory;
-import org.opendaylight.tcpmd5.netty.MD5ServerChannelFactory;
+import org.opendaylight.protocol.concepts.KeyMapping;
 
 public class BmpDispatcherImplTest {
 
@@ -78,7 +76,7 @@ public class BmpDispatcherImplTest {
                     final BmpSessionListenerFactory sessionListenerFactory) {
                 return BmpDispatcherImplTest.this.mockedSession;
             }
-        }, Optional.<MD5ChannelFactory<?>>absent(), Optional.<MD5ServerChannelFactory<?>>absent());
+        });
     }
 
     @After
