@@ -11,7 +11,6 @@
     <required-capabilities>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bmp:spi?module=odl-bmp-spi-cfg&amp;revision=2015-05-13</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bmp:impl?module=odl-bmp-impl-cfg&amp;revision=2015-05-18</capability>
-        <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:parser:spi?module=odl-bgp-parser-spi-cfg&amp;revision=2013-11-15</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:netty?module=netty&amp;revision=2013-11-19</capability>
     </required-capabilities>
     <configuration>
