@@ -14,6 +14,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.epoll.Epoll;
+import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
@@ -50,20 +53,29 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 public class BGPDispatcherImplTest {
 
     private static final AsNumber AS_NUMBER = new AsNumber(30L);
-    private static final int RETRY_TIMER = 10;
+    private static final int RETRY_TIMER = 1;
     private static final BgpTableType IPV_4_TT = new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
     private BGPDispatcherImpl serverDispatcher;
     private TestClientDispatcher clientDispatcher;
     private BGPPeerRegistry registry;
     private SimpleSessionListener clientListener;
     private SimpleSessionListener serverListener;
+    private EventLoopGroup boss;
+    private EventLoopGroup worker;
 
     @Before
     public void setUp() throws BGPDocumentedException {
+        if (Epoll.isAvailable()) {
+            this.boss = new EpollEventLoopGroup();
+            this.worker = new EpollEventLoopGroup();
+        } else {
+            this.boss = new NioEventLoopGroup();
+            this.worker = new NioEventLoopGroup();
+        }
         this.registry = new StrictBGPPeerRegistry();
         this.clientListener = new SimpleSessionListener();
         final BGPExtensionProviderContext ctx = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance();
-        this.serverDispatcher = new BGPDispatcherImpl(ctx.getMessageRegistry(), new NioEventLoopGroup(), new NioEventLoopGroup());
+        this.serverDispatcher = new BGPDispatcherImpl(ctx.getMessageRegistry(), this.boss, this.worker);
         configureClient(ctx);
     }
 
@@ -71,7 +83,7 @@ public class BGPDispatcherImplTest {
         final InetSocketAddress clientAddress = new InetSocketAddress("127.0.11.0", 1791);
         final IpAddress clientPeerIp = new IpAddress(new Ipv4Address(clientAddress.getAddress().getHostAddress()));
         this.registry.addPeer(clientPeerIp, this.clientListener, createPreferences(clientAddress));
-        this.clientDispatcher = new TestClientDispatcher(new NioEventLoopGroup(), new NioEventLoopGroup(), ctx.getMessageRegistry(), clientAddress);
+        this.clientDispatcher = new TestClientDispatcher(this.boss, this.worker, ctx.getMessageRegistry(), clientAddress);
     }
 
     private Channel createServer(final InetSocketAddress serverAddress) throws InterruptedException {
@@ -91,6 +103,8 @@ public class BGPDispatcherImplTest {
     public void tearDown() throws Exception {
         this.serverDispatcher.close();
         this.registry.close();
+        this.worker.shutdownGracefully().awaitUninterruptibly();
+        this.boss.shutdownGracefully().awaitUninterruptibly();
     }
 
     @Test
@@ -115,9 +129,8 @@ public class BGPDispatcherImplTest {
     @Test
     public void testCreateReconnectingClient() throws Exception {
         final InetSocketAddress serverAddress = new InetSocketAddress("127.0.20.0", 1792);
-        final Channel serverChannel = createServer(serverAddress);
-        Thread.sleep(1000);
         final Future<Void> future = this.clientDispatcher.createReconnectingClient(serverAddress, this.registry, RETRY_TIMER, Optional.absent());
+        final Channel serverChannel = createServer(serverAddress);
         Thread.sleep(3000);
         Assert.assertEquals(BGPSessionImpl.State.UP, this.serverListener.getState());
         Assert.assertTrue(serverChannel.isWritable());
