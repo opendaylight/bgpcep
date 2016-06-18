@@ -15,7 +15,6 @@
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl?module=odl-bgp-rib-impl-cfg&amp;revision=2016-03-30</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding?module=opendaylight-md-sal-binding&amp;revision=2013-10-28</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:netty?module=netty&amp;revision=2013-11-19</capability>
-        <capability>urn:opendaylight:params:xml:ns:yang:controller:rsvp:spi?module=odl-rsvp-parser-spi-cfg&amp;revision=2015-08-26</capability>
     </required-capabilities>
     <configuration>
 
