@@ -34,9 +34,7 @@ import org.opendaylight.controller.config.api.DynamicMBeanWithInstance;
 import org.opendaylight.controller.config.api.ModuleIdentifier;
 import org.opendaylight.controller.config.api.ValidationException;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
-import org.opendaylight.controller.config.manager.impl.AbstractConfigTest;
 import org.opendaylight.controller.config.manager.impl.AbstractMockedModule;
-import org.opendaylight.controller.config.manager.impl.factoriesresolver.HardcodedModuleFactoriesResolver;
 import org.opendaylight.controller.config.spi.ModuleFactory;
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
 import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgroupModuleFactory;
@@ -46,18 +44,13 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.PortNumber;
 
-public class BGPPeerAcceptorModuleTest extends AbstractConfigTest {
+public class BGPPeerAcceptorModuleTest extends AbstractRIBImplModuleTest {
 
     private static final String INSTANCE_NAME = "bgp-peer-acceptor";
     private static final String FACTORY_NAME = BGPPeerAcceptorModuleFactory.NAME;
 
-    @Before
-    public void setUp() throws Exception {
-        final List<ModuleFactory> moduleFactories = getModuleFactories();
-        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(this.mockedContext, moduleFactories.toArray(new ModuleFactory[moduleFactories.size()])));
-    }
-
-    private List<ModuleFactory> getModuleFactories() {
+    @Override
+    protected List<ModuleFactory> getModuleFactories() {
         final List<ModuleFactory> moduleFactories = Lists.newArrayList();
         moduleFactories.add(new StrictBgpPeerRegistryModuleFactory());
         moduleFactories.add(new BGPPeerAcceptorModuleFactory());
