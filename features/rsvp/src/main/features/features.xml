@@ -19,7 +19,6 @@
         <bundle>mvn:org.opendaylight.bgpcep/rsvp-api/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/rsvp-spi/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/rsvp-impl/{{VERSION}}</bundle>
-        <configfile finalname="etc/opendaylight/karaf/27-rsvp.xml">mvn:org.opendaylight.bgpcep/rsvp-controller-config/{{VERSION}}/xml/config</configfile>
     </feature>
 
     <feature name='odl-bgpcep-rsvp-dependencies' version='${project.version}'>
