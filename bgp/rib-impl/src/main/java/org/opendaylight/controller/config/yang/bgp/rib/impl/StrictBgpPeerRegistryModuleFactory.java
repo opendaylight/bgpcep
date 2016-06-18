@@ -7,6 +7,28 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
-public class StrictBgpPeerRegistryModuleFactory extends org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractStrictBgpPeerRegistryModuleFactory {
+import org.opendaylight.controller.config.api.DependencyResolver;
+import org.osgi.framework.BundleContext;
 
+/**
+ * @deprecated Replaced by blueprint wiring
+ */
+@Deprecated
+public class StrictBgpPeerRegistryModuleFactory extends AbstractStrictBgpPeerRegistryModuleFactory {
+    @Override
+    public StrictBgpPeerRegistryModule instantiateModule(String instanceName, DependencyResolver dependencyResolver,
+            StrictBgpPeerRegistryModule oldModule, AutoCloseable oldInstance, BundleContext bundleContext) {
+        StrictBgpPeerRegistryModule module = super.instantiateModule(instanceName, dependencyResolver, oldModule,
+                oldInstance, bundleContext);
+        module.setBundleContext(bundleContext);
+        return module;
+    }
+
+    @Override
+    public StrictBgpPeerRegistryModule instantiateModule(String instanceName, DependencyResolver dependencyResolver,
+            BundleContext bundleContext) {
+        StrictBgpPeerRegistryModule module = super.instantiateModule(instanceName, dependencyResolver, bundleContext);
+        module.setBundleContext(bundleContext);
+        return module;
+    }
 }
