@@ -136,13 +136,16 @@ public class BGPSessionImplTest {
             }
         }).when(this.eventLoop).schedule(Mockito.any(Runnable.class), Mockito.any(long.class), Mockito.any(TimeUnit.class));
         doReturn("TestingChannel").when(this.speakerListener).toString();
+        doReturn(true).when(this.speakerListener).isWritable();
         doReturn(new InetSocketAddress(InetAddress.getByName(BGP_ID.getValue()), 179)).when(this.speakerListener).remoteAddress();
         doReturn(new InetSocketAddress(InetAddress.getByName(LOCAL_IP), LOCAL_PORT)).when(this.speakerListener).localAddress();
         doReturn(this.pipeline).when(this.speakerListener).pipeline();
         doReturn(this.pipeline).when(this.pipeline).replace(Mockito.any(ChannelHandler.class), Mockito.any(String.class), Mockito.any(ChannelHandler.class));
         doReturn(null).when(this.pipeline).replace(Matchers.<Class<ChannelHandler>>any(), Mockito.any(String.class), Mockito.any(ChannelHandler.class));
         doReturn(this.pipeline).when(this.pipeline).addLast(Mockito.any(ChannelHandler.class));
-        doReturn(mock(ChannelFuture.class)).when(this.speakerListener).close();
+        final ChannelFuture futureChannel = mock(ChannelFuture.class);
+        doReturn(null).when(futureChannel).addListener(Mockito.<GenericFutureListener<? extends Future<? super Void>>>any());
+        doReturn(futureChannel).when(this.speakerListener).close();
         this.listener = new SimpleSessionListener();
         this.bgpSession = new BGPSessionImpl(this.listener, this.speakerListener, this.classicOpen, this.classicOpen.getHoldTimer(), null);
     }
@@ -154,7 +157,8 @@ public class BGPSessionImplTest {
         assertEquals(AS_NUMBER, this.bgpSession.getAsNumber());
         assertEquals(BGP_ID, this.bgpSession.getBgpId());
         assertEquals(1, this.bgpSession.getAdvertisedTableTypes().size());
-        assertTrue(this.listener.up);
+        Assert.assertEquals(BGPSessionImpl.State.UP, this.listener.getState());
+
         //test stats
         final BgpSessionState state = this.bgpSession.getBgpSessionState();
         assertEquals(HOLD_TIMER, state.getHoldtimeCurrent().intValue());
@@ -232,11 +236,12 @@ public class BGPSessionImplTest {
     }
 
     @Test
-    public void testEndOfInput() {
+    public void testEndOfInput() throws InterruptedException {
         this.bgpSession.sessionUp();
-        Assert.assertFalse(this.listener.down);
+        Assert.assertEquals(BGPSessionImpl.State.UP, this.listener.getState());
         this.bgpSession.endOfInput();
-        Assert.assertTrue(this.listener.down);
+        Thread.sleep(3000);
+        Assert.assertEquals(BGPSessionImpl.State.IDLE, this.listener.getState());
     }
 
     @Test
