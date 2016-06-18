@@ -8,13 +8,14 @@
 
 package org.opendaylight.protocol.pcep.impl;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.epoll.Epoll;
+import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -35,6 +36,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
@@ -43,10 +45,6 @@ import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.spi.MessageRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
-import org.opendaylight.tcpmd5.api.KeyAccess;
-import org.opendaylight.tcpmd5.api.KeyAccessFactory;
-import org.opendaylight.tcpmd5.api.KeyMapping;
-import org.opendaylight.tcpmd5.netty.MD5NioServerSocketChannelFactory;
 
 public class PCEPDispatcherImplTest {
 
@@ -61,9 +59,7 @@ public class PCEPDispatcherImplTest {
     private PCEPDispatcherImpl dispatcher;
     private PCEPDispatcherImpl disp2Spy;
 
-    @Mock private KeyAccessFactory kaf;
     @Mock private Channel mockChannel;
-    @Mock private KeyAccess mockKeyAccess;
 
     private PCCMock pccMock;
 
@@ -72,16 +68,19 @@ public class PCEPDispatcherImplTest {
         MockitoAnnotations.initMocks(this);
         final List<PCEPCapability> capList = new ArrayList<>();
         final PCEPSessionProposalFactory sessionProposal = new BasePCEPSessionProposalFactory(DEAD_TIMER, KEEP_ALIVE, capList);
-        final EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
+        final EventLoopGroup eventLoopGroup;
+        if (Epoll.isAvailable()) {
+            eventLoopGroup = new EpollEventLoopGroup();
+        } else {
+            eventLoopGroup = new NioEventLoopGroup();
+        }
         final MessageRegistry msgReg = ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance()
                 .getMessageHandlerRegistry();
         this.dispatcher = new PCEPDispatcherImpl(msgReg, new DefaultPCEPSessionNegotiatorFactory(sessionProposal, 0),
                 eventLoopGroup, eventLoopGroup);
 
         Mockito.doReturn("mockChannel").when(this.mockChannel).toString();
-        Mockito.doReturn(this.mockKeyAccess).when(this.kaf).getKeyAccess(Mockito.any(Channel.class));
-        final MD5NioServerSocketChannelFactory scf = new MD5NioServerSocketChannelFactory(this.kaf);
-        final PCEPDispatcherImpl dispatcher2 = new PCEPDispatcherImpl(msgReg, new DefaultPCEPSessionNegotiatorFactory(sessionProposal, 0), eventLoopGroup, eventLoopGroup, scf);
+        final PCEPDispatcherImpl dispatcher2 = new PCEPDispatcherImpl(msgReg, new DefaultPCEPSessionNegotiatorFactory(sessionProposal, 0), eventLoopGroup, eventLoopGroup);
         this.disp2Spy = Mockito.spy(dispatcher2);
 
         this.pccMock = new PCCMock(new DefaultPCEPSessionNegotiatorFactory(sessionProposal, 0),
@@ -205,11 +204,10 @@ public class PCEPDispatcherImplTest {
 
     @Test
     public void testCustomizeBootstrap() {
-        final KeyMapping keys = new KeyMapping();
-        keys.put(CLIENT1_ADDRESS.getAddress(), new String("CLIENT1_ADDRESS").getBytes() );
+        final KeyMapping keys = KeyMapping.getKeyMapping(CLIENT1_ADDRESS.getAddress(), new String("CLIENT1_ADDRESS"));
         keys.put(CLIENT2_ADDRESS.getAddress(), new String("CLIENT2_ADDRESS").getBytes() );
 
-        final ChannelFuture futureChannel = this.disp2Spy.createServer(new InetSocketAddress("0.0.0.0", PORT), Optional.fromNullable(keys),
+        final ChannelFuture futureChannel = this.disp2Spy.createServer(new InetSocketAddress("0.0.0.0", PORT),
             new PCEPSessionListenerFactory() {
                 @Override
                 public PCEPSessionListener getSessionListener() {
