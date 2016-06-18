@@ -39,7 +39,6 @@ import org.opendaylight.controller.config.manager.impl.AbstractMockedModule;
 import org.opendaylight.controller.config.manager.impl.factoriesresolver.HardcodedModuleFactoriesResolver;
 import org.opendaylight.controller.config.spi.ModuleFactory;
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
-import org.opendaylight.controller.config.yang.bgp.parser.spi.SimpleBGPExtensionProviderContextModuleFactory;
 import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgroupModuleFactory;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
@@ -63,7 +62,6 @@ public class BGPPeerAcceptorModuleTest extends AbstractConfigTest {
         moduleFactories.add(new StrictBgpPeerRegistryModuleFactory());
         moduleFactories.add(new BGPPeerAcceptorModuleFactory());
         moduleFactories.add(new NettyThreadgroupModuleFactory());
-        moduleFactories.add(new SimpleBGPExtensionProviderContextModuleFactory());
         moduleFactories.add(createClassBasedCBF(MockedDispatcherModule.class, "dispatch"));
         return moduleFactories;
     }
