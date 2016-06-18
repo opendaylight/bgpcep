@@ -84,6 +84,7 @@ import org.opendaylight.controller.sal.core.api.model.SchemaService;
 import org.opendaylight.controller.sal.core.api.model.YangTextSourceProvider;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
+import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
@@ -238,6 +239,8 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
                 any(InetSocketAddress.class), any(BGPPeerRegistry.class), anyInt(), any(Optional.class));
 
         setupMockService(RIBExtensionProviderContext.class, new SimpleRIBExtensionProviderContext());
+
+        setupMockService(BGPPeerRegistry.class, StrictBGPPeerRegistry.GLOBAL);
     }
 
     protected void setupMockService(final Class<?> serviceInterface, final Object instance) throws Exception {
