@@ -20,6 +20,7 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
+import io.netty.channel.epoll.Epoll;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -29,9 +30,9 @@ import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.controller.config.yang.pcep.impl.PCEPDispatcherImplModuleMXBean;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.tcpmd5.api.KeyMapping;
+import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.tcpmd5.cfg.rev140427.Rfc2385Key;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.rfc2385.cfg.rev160324.Rfc2385Key;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
@@ -64,7 +65,7 @@ public final class PCEPTopologyProviderModule extends
         final List<Client> clients = getClient();
 
         if (clients != null && !clients.isEmpty()) {
-            ret = new KeyMapping();
+            ret = KeyMapping.getKeyMapping();
             for (final Client c : clients) {
                 if (c.getAddress() == null) {
                     LOG.warn("Client {} does not have an address skipping it", c);
@@ -100,21 +101,8 @@ public final class PCEPTopologyProviderModule extends
 
         final Optional<KeyMapping> keys = contructKeys();
         if (keys.isPresent()) {
-            /*
-             *  This is a nasty hack, but we don't have another clean solution. We cannot allow
-             *  password being set if the injected dispatcher does not have the optional
-             *  md5-server-channel-factory set.
-             *
-             *  FIXME: this is a use case for Module interfaces, e.g. PCEPDispatcherImplModule
-             *         should something like isMd5ServerSupported()
-             */
-
-            final PCEPDispatcherImplModuleMXBean dispatcherProxy = this.dependencyResolver.newMXBeanProxy(getDispatcher(),
-                    PCEPDispatcherImplModuleMXBean.class);
-            final boolean md5ServerSupported = dispatcherProxy.getMd5ServerChannelFactory() != null;
-            JmxAttributeValidationException.checkCondition(md5ServerSupported,
-                    "password is not compatible with selected dispatcher", clientJmxAttribute);
-
+            JmxAttributeValidationException.checkCondition(Epoll.isAvailable(),
+                    "client is configured with password but native transport is not available", clientJmxAttribute);
         }
     }
 

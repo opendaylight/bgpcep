@@ -13,7 +13,6 @@ import static org.opendaylight.controller.config.yang.pcep.impl.PCEPDispatcherIm
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-import javax.management.InstanceAlreadyExistsException;
 import javax.management.ObjectName;
 import org.junit.Test;
 import org.opendaylight.controller.config.api.ValidationException;
@@ -22,18 +21,13 @@ import org.opendaylight.controller.config.spi.ModuleFactory;
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
 import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgroupModuleFactory;
 import org.opendaylight.controller.config.yang.pcep.impl.PCEPDispatcherImplModuleFactory;
-import org.opendaylight.controller.config.yang.pcep.impl.PCEPDispatcherImplModuleMXBean;
 import org.opendaylight.controller.config.yang.pcep.impl.PCEPSessionProposalFactoryImplModuleFactory;
 import org.opendaylight.controller.config.yang.pcep.spi.SimplePCEPExtensionProviderContextModuleFactory;
 import org.opendaylight.controller.config.yang.pcep.stateful07.cfg.PCEPStatefulCapabilityModuleFactory;
 import org.opendaylight.controller.config.yang.programming.impl.AbstractInstructionSchedulerTest;
-import org.opendaylight.controller.config.yang.tcpmd5.jni.cfg.NativeKeyAccessFactoryModuleFactory;
-import org.opendaylight.controller.config.yang.tcpmd5.netty.cfg.MD5ServerChannelFactoryModuleFactory;
-import org.opendaylight.controller.config.yang.tcpmd5.netty.cfg.MD5ServerChannelFactoryModuleMXBean;
-import org.opendaylight.tcpmd5.jni.NativeTestSupport;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.PortNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.tcpmd5.cfg.rev140427.Rfc2385Key;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.rfc2385.cfg.rev160324.Rfc2385Key;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 
 public class PCEPTopologyProviderModuleTest extends AbstractInstructionSchedulerTest {
@@ -106,34 +100,6 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
         assertStatus(status, 0, 1, 16);
     }
 
-    @Test
-    public void testCreateBeanWithMD5() throws Exception {
-        NativeTestSupport.assumeSupportedPlatform();
-        final CommitStatus status = createInstance(true);
-        assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 19, 0, 0);
-    }
-
-    @Test
-    public void testMD5ValidationFailure() throws Exception {
-        NativeTestSupport.assumeSupportedPlatform();
-        createInstance(true);
-        // remove dispatcher's Md5ServerChannelFactory
-        final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
-        assertBeanCount(1, FACTORY_NAME);
-        final PCEPTopologyProviderModuleMXBean mxBean = transaction.newMXBeanProxy(
-                transaction.lookupConfigBean(FACTORY_NAME, INSTANCE_NAME), PCEPTopologyProviderModuleMXBean.class);
-        final ObjectName dispatcherON = mxBean.getDispatcher();
-        final PCEPDispatcherImplModuleMXBean dispatcher = transaction.newMXBeanProxy(dispatcherON, PCEPDispatcherImplModuleMXBean.class);
-        dispatcher.setMd5ServerChannelFactory(null);
-        try {
-            transaction.validateConfig();
-            fail();
-        }catch(final ValidationException e){
-            assertTrue(e.getMessage(), e.getMessage().contains("Client password is not compatible with selected dispatcher"));
-        }
-    }
-
     private CommitStatus createInstance(final String listenAddress, final PortNumber listenPort,
                                         final TopologyId topologyId, final boolean addMD5)
             throws Exception {
@@ -163,18 +129,6 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
         return objectName;
     }
 
-    private static void addMd5(final ConfigTransactionJMXClient transaction, final PCEPTopologyProviderModuleMXBean mxBean) throws InstanceAlreadyExistsException {
-        final ObjectName jniON = transaction.createModule(NativeKeyAccessFactoryModuleFactory.NAME, NativeKeyAccessFactoryModuleFactory.NAME);
-        final ObjectName md5ServerChannelFactoryON = transaction.createModule(MD5ServerChannelFactoryModuleFactory.NAME, MD5ServerChannelFactoryModuleFactory.NAME);
-        final MD5ServerChannelFactoryModuleMXBean md5Factory = transaction.newMXBeanProxy(md5ServerChannelFactoryON, MD5ServerChannelFactoryModuleMXBean.class);
-        md5Factory.setServerKeyAccessFactory(jniON);
-
-
-        final ObjectName dispatcherON = mxBean.getDispatcher();
-        final PCEPDispatcherImplModuleMXBean dispatcher = transaction.newMXBeanProxy(dispatcherON, PCEPDispatcherImplModuleMXBean.class);
-        dispatcher.setMd5ServerChannelFactory(md5ServerChannelFactoryON);
-    }
-
     private ObjectName createPCEPTopologyProviderModuleInstance(final ConfigTransactionJMXClient transaction, final String listenAddress,
             final PortNumber listenPort, final TopologyId topologyId, final boolean addMD5) throws Exception {
         final ObjectName objectName = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
@@ -187,7 +141,6 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
         mxBean.setDispatcher(createDispatcherInstance(transaction, 5));
 
         if (addMD5) {
-            addMd5(transaction, mxBean);
             // create 1 client
             final Client client = new Client();
             client.setPassword(Rfc2385Key.getDefaultInstance("foo"));
@@ -216,8 +169,6 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
         moduleFactories.add(new SimplePCEPExtensionProviderContextModuleFactory());
         moduleFactories.add(new Stateful07TopologySessionListenerModuleFactory());
         moduleFactories.add(new PCEPStatefulCapabilityModuleFactory());
-        moduleFactories.add(new NativeKeyAccessFactoryModuleFactory());
-        moduleFactories.add(new MD5ServerChannelFactoryModuleFactory());
         return moduleFactories;
     }
 
