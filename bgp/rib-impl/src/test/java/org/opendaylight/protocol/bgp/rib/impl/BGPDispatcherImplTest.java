@@ -14,6 +14,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.epoll.Epoll;
+import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
@@ -57,13 +60,22 @@ public class BGPDispatcherImplTest {
     private BGPPeerRegistry registry;
     private SimpleSessionListener clientListener;
     private SimpleSessionListener serverListener;
+    private EventLoopGroup boss;
+    private EventLoopGroup worker;
 
     @Before
     public void setUp() throws BGPDocumentedException {
+        if (Epoll.isAvailable()) {
+            this.boss = new EpollEventLoopGroup();
+            this.worker = new EpollEventLoopGroup();
+        } else {
+            this.boss = new NioEventLoopGroup();
+            this.worker = new NioEventLoopGroup();
+        }
         this.registry = new StrictBGPPeerRegistry();
         this.clientListener = new SimpleSessionListener();
         final BGPExtensionProviderContext ctx = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance();
-        this.serverDispatcher = new BGPDispatcherImpl(ctx.getMessageRegistry(), new NioEventLoopGroup(), new NioEventLoopGroup());
+        this.serverDispatcher = new BGPDispatcherImpl(ctx.getMessageRegistry(), this.boss, this.worker);
         configureClient(ctx);
     }
 
@@ -71,7 +83,7 @@ public class BGPDispatcherImplTest {
         final InetSocketAddress clientAddress = new InetSocketAddress("127.0.11.0", 1791);
         final IpAddress clientPeerIp = new IpAddress(new Ipv4Address(clientAddress.getAddress().getHostAddress()));
         this.registry.addPeer(clientPeerIp, this.clientListener, createPreferences(clientAddress));
-        this.clientDispatcher = new TestClientDispatcher(new NioEventLoopGroup(), new NioEventLoopGroup(), ctx.getMessageRegistry(), clientAddress);
+        this.clientDispatcher = new TestClientDispatcher(this.boss, this.worker, ctx.getMessageRegistry(), clientAddress);
     }
 
     private Channel createServer(final InetSocketAddress serverAddress) throws InterruptedException {
@@ -91,6 +103,8 @@ public class BGPDispatcherImplTest {
     public void tearDown() throws Exception {
         this.serverDispatcher.close();
         this.registry.close();
+        this.worker.shutdownGracefully().awaitUninterruptibly();
+        this.boss.shutdownGracefully().awaitUninterruptibly();
     }
 
     @Test
