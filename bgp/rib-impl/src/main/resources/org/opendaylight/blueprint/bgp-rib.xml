@@ -20,4 +20,10 @@
   </bean>
 
   <service ref="BGPDispatcher" interface="org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher"/>
+
+  <bean id="BGPPeerRegistry" class="org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry"
+          factory-method="instance"/>
+
+  <service ref="BGPPeerRegistry" interface="org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry"
+          odl:type="default"/>
 </blueprint>
