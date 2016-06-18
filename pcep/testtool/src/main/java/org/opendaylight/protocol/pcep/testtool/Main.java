@@ -30,9 +30,9 @@ public final class Main {
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
     public static final String USAGE = "DESCRIPTION:\n"
-        + "\tCreates a server with given parameters. As long as it runs, it accepts connections " + "from PCCs.\n" + "USAGE:\n"
-        + "\t-a, --address\n" + "\t\tthe ip address to which is this server bound.\n"
-        + "\t\tFormat: x.x.x.x:y where y is port number.\n\n" +
+            + "\tCreates a server with given parameters. As long as it runs, it accepts connections " + "from PCCs.\n" + "USAGE:\n"
+            + "\t-a, --address\n" + "\t\tthe ip address to which is this server bound.\n"
+            + "\t\tFormat: x.x.x.x:y where y is port number.\n\n" +
 
             "\t-d, --deadtimer\n" + "\t\tin seconds, value of the desired deadtimer\n"
             + "\t\tAccording to RFC5440, recommended value for deadtimer is 4 times the value\n"
@@ -127,9 +127,8 @@ public final class Main {
         try (final StatefulActivator activator07 = new StatefulActivator()) {
             activator07.start(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance());
 
-            try (final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry(), new DefaultPCEPSessionNegotiatorFactory(spf, MAX_UNKNOWN_MESSAGES), new NioEventLoopGroup(), new NioEventLoopGroup())) {
-                dispatcher.createServer(address, new TestingSessionListenerFactory(), null).get();
-            }
+            final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry(), new DefaultPCEPSessionNegotiatorFactory(spf, MAX_UNKNOWN_MESSAGES), new NioEventLoopGroup(), new NioEventLoopGroup());
+            dispatcher.createServer(address, new TestingSessionListenerFactory(), null).get();
         }
     }
 }
