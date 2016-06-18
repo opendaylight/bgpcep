@@ -17,11 +17,11 @@ import java.security.AccessControlException;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
 import org.opendaylight.protocol.bmp.impl.app.BmpMonitoringStationImpl;
+import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.util.Ipv4Util;
-import org.opendaylight.tcpmd5.api.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev150512.MonitorId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.tcpmd5.cfg.rev140427.Rfc2385Key;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.rfc2385.cfg.rev160324.Rfc2385Key;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.opendaylight.yangtools.yang.model.api.SchemaContextProvider;
 import org.osgi.framework.BundleContext;
@@ -54,7 +54,7 @@ public class BmpMonitorImplModule extends org.opendaylight.controller.config.yan
     }
 
     private Optional<KeyMapping> constructKeys() {
-        final KeyMapping ret = new KeyMapping();
+        final KeyMapping ret = KeyMapping.getKeyMapping();
         if (getMonitoredRouter() != null) {
             for (final MonitoredRouter mr : getMonitoredRouter()) {
                 if (mr.getAddress() == null) {

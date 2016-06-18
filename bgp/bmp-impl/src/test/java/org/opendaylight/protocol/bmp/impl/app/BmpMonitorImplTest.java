@@ -15,7 +15,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.common.net.InetAddresses;
 import io.netty.bootstrap.Bootstrap;
@@ -23,8 +22,13 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.epoll.Epoll;
+import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioSocketChannel;
 import java.net.InetSocketAddress;
 import java.util.List;
 import javassist.ClassPool;
@@ -32,8 +36,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.config.yang.bmp.impl.MonitoredRouter;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -56,13 +58,7 @@ import org.opendaylight.protocol.bmp.impl.spi.BmpMonitoringStation;
 import org.opendaylight.protocol.bmp.impl.test.TestUtil;
 import org.opendaylight.protocol.bmp.spi.registry.BmpMessageRegistry;
 import org.opendaylight.protocol.bmp.spi.registry.SimpleBmpExtensionProviderContext;
-import org.opendaylight.tcpmd5.api.KeyAccess;
-import org.opendaylight.tcpmd5.api.KeyAccessFactory;
-import org.opendaylight.tcpmd5.api.KeyMapping;
-import org.opendaylight.tcpmd5.netty.MD5ChannelFactory;
-import org.opendaylight.tcpmd5.netty.MD5NioServerSocketChannelFactory;
-import org.opendaylight.tcpmd5.netty.MD5NioSocketChannelFactory;
-import org.opendaylight.tcpmd5.netty.MD5ServerChannelFactory;
+import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.bmp.monitor.monitor.router.peer.pre.policy.rib.tables.routes.Ipv4RoutesCase;
@@ -129,13 +125,9 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
     private BmpDispatcher dispatcher;
     private BmpMonitoringStation bmpApp;
     private BmpMessageRegistry msgRegistry;
-    private MD5NioServerSocketChannelFactory scfServerMd5;
-    private MD5NioSocketChannelFactory scfMd5;
     private List<MonitoredRouter> mrs;
     private ModuleInfoBackedContext moduleInfoBackedContext;
 
-    @Mock private KeyAccess mockKeyAccess;
-    @Mock private KeyAccessFactory kaf;
 
     @Before
     public void setUp() throws Exception {
@@ -153,16 +145,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
         this.moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(ReceivedOpen.class));
         this.mappingService.onGlobalContextUpdated(this.moduleInfoBackedContext.tryToCreateSchemaContext().get());
 
-        final KeyMapping keys = new KeyMapping();
-        keys.put(InetAddresses.forString(MONITOR_LOCAL_ADDRESS), MD5_PASSWORD.getBytes(Charsets.US_ASCII));
-
-        Mockito.doReturn(this.mockKeyAccess).when(this.kaf).getKeyAccess(Mockito.any(java.nio.channels.Channel.class));
-        Mockito.doReturn(keys).when(this.mockKeyAccess).getKeys();
-        Mockito.doNothing().when(this.mockKeyAccess).setKeys(Mockito.any(KeyMapping.class));
-
-        this.scfServerMd5 = new MD5NioServerSocketChannelFactory(this.kaf);
-        this.scfMd5 = new MD5NioSocketChannelFactory(this.kaf);
-
+        final KeyMapping keys = KeyMapping.getKeyMapping(InetAddresses.forString(MONITOR_LOCAL_ADDRESS), MD5_PASSWORD);
         this.ribActivator = new RIBActivator();
         final RIBExtensionProviderContext ribExtension = new SimpleRIBExtensionProviderContext();
         this.ribActivator.startRIBExtensionProvider(ribExtension);
@@ -176,8 +159,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
         this.msgRegistry = ctx.getBmpMessageRegistry();
 
         this.dispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(),
-                ctx.getBmpMessageRegistry(), new DefaultBmpSessionFactory(), Optional.<MD5ChannelFactory<?>>of(this.scfMd5),
-                Optional.<MD5ServerChannelFactory<?>>of(this.scfServerMd5));
+                ctx.getBmpMessageRegistry(), new DefaultBmpSessionFactory());
 
         this.bmpApp = BmpMonitoringStationImpl.createBmpMonitorInstance(ribExtension, this.dispatcher, getDomBroker(),
                 MONITOR_ID, new InetSocketAddress(InetAddresses.forString(MONITOR_LOCAL_ADDRESS), MONITOR_LOCAL_PORT), Optional.of(keys),
@@ -375,7 +357,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
     @Test
     public void deploySecondInstance() throws Exception {
         final BmpMonitoringStation monitoringStation2 = BmpMonitoringStationImpl.createBmpMonitorInstance(new SimpleRIBExtensionProviderContext(), this.dispatcher, getDomBroker(),
-                new MonitorId("monitor2"), new InetSocketAddress(InetAddresses.forString(MONITOR_LOCAL_ADDRESS_2), MONITOR_LOCAL_PORT), Optional.of(new KeyMapping()),
+                new MonitorId("monitor2"), new InetSocketAddress(InetAddresses.forString(MONITOR_LOCAL_ADDRESS_2), MONITOR_LOCAL_PORT), Optional.of(KeyMapping.getKeyMapping()),
                 this.mappingService.getCodecFactory(), this.moduleInfoBackedContext.getSchemaContext(), this.mrs);
         final BmpMonitor monitor = getBmpData(InstanceIdentifier.create(BmpMonitor.class)).get();
         Assert.assertEquals(2, monitor.getMonitor().size());
@@ -385,9 +367,16 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
     private ChannelFuture connectTestClient(final String routerIp, final BmpMessageRegistry msgRegistry) throws InterruptedException {
         final BmpHandlerFactory hf = new BmpHandlerFactory(msgRegistry);
         final Bootstrap b = new Bootstrap();
-        b.group(new NioEventLoopGroup());
+        final EventLoopGroup workerGroup;
+        if(Epoll.isAvailable()){
+            b.channel(EpollSocketChannel.class);
+            workerGroup =new EpollEventLoopGroup();
+        } else {
+            b.channel(NioSocketChannel.class);
+            workerGroup = new NioEventLoopGroup();
+        }
+        b.group(workerGroup);
         b.option(ChannelOption.SO_KEEPALIVE, true);
-        b.channelFactory(this.scfMd5);
         b.handler(new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(final SocketChannel ch) throws Exception {

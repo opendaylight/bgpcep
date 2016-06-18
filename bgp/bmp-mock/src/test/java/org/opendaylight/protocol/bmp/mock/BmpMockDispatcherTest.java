@@ -21,7 +21,7 @@ import org.opendaylight.protocol.bmp.api.BmpSessionFactory;
 import org.opendaylight.protocol.bmp.api.BmpSessionListenerFactory;
 import org.opendaylight.protocol.bmp.impl.BmpDispatcherImpl;
 import org.opendaylight.protocol.bmp.spi.registry.BmpMessageRegistry;
-import org.opendaylight.tcpmd5.api.KeyMapping;
+import org.opendaylight.protocol.concepts.KeyMapping;
 
 public class BmpMockDispatcherTest {
 

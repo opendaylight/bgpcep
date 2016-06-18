@@ -13,6 +13,7 @@ import com.google.common.base.Preconditions;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.channel.AbstractChannel;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -20,20 +21,21 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoop;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.epoll.Epoll;
+import io.netty.channel.epoll.EpollChannelOption;
+import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollServerSocketChannel;
+import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 import org.opendaylight.protocol.bmp.api.BmpDispatcher;
 import org.opendaylight.protocol.bmp.api.BmpSessionFactory;
 import org.opendaylight.protocol.bmp.api.BmpSessionListenerFactory;
 import org.opendaylight.protocol.bmp.spi.registry.BmpMessageRegistry;
-import org.opendaylight.tcpmd5.api.KeyMapping;
-import org.opendaylight.tcpmd5.netty.MD5ChannelFactory;
-import org.opendaylight.tcpmd5.netty.MD5ChannelOption;
-import org.opendaylight.tcpmd5.netty.MD5NioSocketChannel;
-import org.opendaylight.tcpmd5.netty.MD5ServerChannelFactory;
+import org.opendaylight.protocol.concepts.KeyMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,47 +53,46 @@ public class BmpDispatcherImpl implements BmpDispatcher {
     private final EventLoopGroup bossGroup;
     private final EventLoopGroup workerGroup;
     private final BmpSessionFactory sessionFactory;
-    private final Optional<MD5ServerChannelFactory<?>> md5ServerChFactory;
-    private final Optional<MD5ChannelFactory<?>> md5ChannelFactory;
 
     public BmpDispatcherImpl(final EventLoopGroup bossGroup, final EventLoopGroup workerGroup,
             final BmpMessageRegistry registry, final BmpSessionFactory sessionFactory) {
-        this(bossGroup, workerGroup, registry, sessionFactory, Optional.<MD5ChannelFactory<?>>absent(), Optional.<MD5ServerChannelFactory<?>>absent());
-    }
-
-    public BmpDispatcherImpl(final EventLoopGroup bossGroup, final EventLoopGroup workerGroup,
-            final BmpMessageRegistry registry, final BmpSessionFactory sessionFactory,
-            final Optional<MD5ChannelFactory<?>> cf, final Optional<MD5ServerChannelFactory<?>> scf) {
-        this.bossGroup = Preconditions.checkNotNull(bossGroup);
-        this.workerGroup = Preconditions.checkNotNull(workerGroup);
+        if (Epoll.isAvailable()) {
+            this.bossGroup = new EpollEventLoopGroup();
+            this.workerGroup = new EpollEventLoopGroup();
+        } else {
+            this.bossGroup = Preconditions.checkNotNull(bossGroup);
+            this.workerGroup = Preconditions.checkNotNull(workerGroup);
+        }
         this.hf = new BmpHandlerFactory(Preconditions.checkNotNull(registry));
         this.sessionFactory = Preconditions.checkNotNull(sessionFactory);
-        this.md5ServerChFactory = Preconditions.checkNotNull(scf);
-        this.md5ChannelFactory  = Preconditions.checkNotNull(cf);
     }
 
     @Override
     public ChannelFuture createClient(final InetSocketAddress address, final BmpSessionListenerFactory slf, final Optional<KeyMapping> keys) {
 
-        final NioEventLoopGroup workergroup = new NioEventLoopGroup();
         final Bootstrap b = new Bootstrap();
 
         Preconditions.checkNotNull(address);
 
-        if ( keys.isPresent() ) {
-            b.channel(MD5NioSocketChannel.class);
-            b.option(MD5ChannelOption.TCP_MD5SIG, keys.get());
+        if (Epoll.isAvailable()) {
+            b.channel(EpollSocketChannel.class);
         } else {
-            LOG.info("no md5 key is not found. continue with bootstrap setup.");
             b.channel(NioSocketChannel.class);
+        }
+        if (keys.isPresent()) {
+            if (Epoll.isAvailable()) {
+                b.option(EpollChannelOption.TCP_MD5SIG, keys.get());
+            } else {
+                throw new UnsupportedOperationException (Epoll.unavailabilityCause().getCause());
+            }
         }
         b.option(ChannelOption.SO_KEEPALIVE, true);
         b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, CONNECT_TIMEOUT);
-        b.group(workergroup);
+        b.group(this.workerGroup);
 
-        b.handler(new ChannelInitializer<NioSocketChannel>() {
+        b.handler(new ChannelInitializer<AbstractChannel>() {
             @Override
-            protected void initChannel(final NioSocketChannel ch) throws Exception {
+            protected void initChannel(final AbstractChannel ch) throws Exception {
                 ch.pipeline().addLast(BmpDispatcherImpl.this.hf.getDecoders());
                 ch.pipeline().addLast(BmpDispatcherImpl.this.sessionFactory.getSession(ch, slf));
             }
@@ -120,14 +121,18 @@ public class BmpDispatcherImpl implements BmpDispatcher {
         b.option(ChannelOption.SO_BACKLOG, MAX_CONNECTIONS_COUNT);
         b.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
 
-        if (keys.isPresent()) {
-            Preconditions.checkState(this.md5ServerChFactory.isPresent(), "No server channel factory instance available,  cannot use key mapping.");
-            b.channelFactory(this.md5ServerChFactory.get());
-            final KeyMapping key = keys.get();
-            b.option(MD5ChannelOption.TCP_MD5SIG, key);
-            LOG.debug("Adding MD5 keys {} to boostrap {}", key, b);
+        if (Epoll.isAvailable()) {
+            b.channel(EpollServerSocketChannel.class);
         } else {
             b.channel(NioServerSocketChannel.class);
+        }
+
+        if (keys.isPresent()) {
+            if (Epoll.isAvailable()) {
+                b.option(EpollChannelOption.TCP_MD5SIG, keys.get());
+            } else {
+                throw new UnsupportedOperationException (Epoll.unavailabilityCause().getCause());
+            }
         }
         b.group(this.bossGroup, this.workerGroup);
         final ChannelFuture f = b.bind(address);
@@ -138,6 +143,18 @@ public class BmpDispatcherImpl implements BmpDispatcher {
 
     @Override
     public void close() {
+        if (Epoll.isAvailable()) {
+            final Future futureBossGrp = this.bossGroup.shutdownGracefully();
+            futureBossGrp.awaitUninterruptibly();
+            if (!futureBossGrp.isSuccess()) {
+                throw new RuntimeException(futureBossGrp.cause());
+            }
+            final Future futureWorkGrp=this.workerGroup.shutdownGracefully();
+            futureWorkGrp.awaitUninterruptibly();
+            if (!futureWorkGrp.isSuccess()) {
+                throw new RuntimeException(futureWorkGrp.cause());
+            }
+        }
     }
 
     private class BootstrapListener implements ChannelFutureListener {

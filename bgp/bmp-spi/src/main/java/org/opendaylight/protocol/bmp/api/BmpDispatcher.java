@@ -11,7 +11,7 @@ package org.opendaylight.protocol.bmp.api;
 import com.google.common.base.Optional;
 import io.netty.channel.ChannelFuture;
 import java.net.InetSocketAddress;
-import org.opendaylight.tcpmd5.api.KeyMapping;
+import org.opendaylight.protocol.concepts.KeyMapping;
 
 /**
  * Dispatcher class for creating servers and clients.
