@@ -46,15 +46,6 @@ module odl-bgp-rib-spi-cfg {
         config:disable-osgi-service-registration;
     }
 
-    identity extension {
-        description
-            "Service representing a BGP RIB extension.";
-
-        base "config:service-type";
-        config:java-class "org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator";
-        config:disable-osgi-service-registration;
-    }
-
     identity bgp-rib-extensions-impl {
         base config:module-type;
         config:provided-service extensions;
