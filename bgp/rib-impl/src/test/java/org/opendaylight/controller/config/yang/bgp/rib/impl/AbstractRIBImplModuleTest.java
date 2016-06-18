@@ -49,7 +49,6 @@ import org.opendaylight.controller.config.manager.impl.AbstractConfigTest;
 import org.opendaylight.controller.config.manager.impl.factoriesresolver.HardcodedModuleFactoriesResolver;
 import org.opendaylight.controller.config.spi.ModuleFactory;
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
-import org.opendaylight.controller.config.yang.bgp.parser.spi.SimpleBGPExtensionProviderContextModuleFactory;
 import org.opendaylight.controller.config.yang.bgp.rib.spi.RIBExtensionsImplModuleFactory;
 import org.opendaylight.controller.config.yang.bgp.rib.spi.RIBExtensionsImplModuleMXBean;
 import org.opendaylight.controller.config.yang.md.sal.binding.impl.BindingAsyncDataBrokerImplModuleFactory;
@@ -263,7 +262,6 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     protected List<ModuleFactory> getModuleFactories() {
         return Lists.newArrayList(new RIBImplModuleFactory(), new GlobalEventExecutorModuleFactory(),
                 new BGPDispatcherImplModuleFactory(), new NettyThreadgroupModuleFactory(),
-                new SimpleBGPExtensionProviderContextModuleFactory(),
                 new RIBExtensionsImplModuleFactory(), new DomBrokerImplModuleFactory(), new RuntimeMappingModuleFactory(),
                 new HashedWheelTimerModuleFactory(), new BindingAsyncDataBrokerImplModuleFactory(),
                 new DomInmemoryDataBrokerModuleFactory(), new SchemaServiceImplSingletonModuleFactory(),
