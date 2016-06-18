@@ -8,7 +8,6 @@
 
 package org.opendaylight.protocol.bmp.impl.app;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
@@ -26,13 +25,13 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bmp.api.BmpDispatcher;
 import org.opendaylight.protocol.bmp.impl.spi.BmpMonitoringStation;
+import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.util.Ipv4Util;
-import org.opendaylight.tcpmd5.api.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev150512.BmpMonitor;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev150512.MonitorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev150512.bmp.monitor.Monitor;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev150512.routers.Router;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.tcpmd5.cfg.rev140427.Rfc2385Key;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.rfc2385.cfg.rev160324.Rfc2385Key;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingCodecTree;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.yangtools.sal.binding.generator.util.BindingRuntimeContext;
@@ -86,10 +85,7 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation {
                     final InetAddress addr = InetAddresses.forString(s);
                     KeyMapping ret = null;
                     final Rfc2385Key rfc2385KeyPassword = mr.getPassword();
-                    if (rfc2385KeyPassword != null && !rfc2385KeyPassword.getValue().isEmpty()) {
-                        ret = new KeyMapping();
-                        ret.put(addr, rfc2385KeyPassword.getValue().getBytes(Charsets.US_ASCII));
-                    }
+                    ret = KeyMapping.getKeyMapping(addr, rfc2385KeyPassword.getValue());
                     dispatcher.createClient(
                         Ipv4Util.toInetSocketAddress(mr.getAddress(), mr.getPort()),
                         this.sessionManager, Optional.<KeyMapping>fromNullable(ret));
