@@ -11,9 +11,9 @@ module odl-pcep-topology-provider-cfg {
     import network-topology { prefix nt; revision-date 2013-10-21; }
     import odl-pcep-api-cfg { prefix pcep; revision-date 2013-04-09; }
     import opendaylight-md-sal-binding { prefix mdsal; revision-date 2013-10-28; }
-    import odl-tcpmd5-cfg { prefix tcpmd5; revision-date 2014-04-27; }
     import rpc-context { prefix rpcx; revision-date 2013-06-17; }
     import pcep-session-stats { prefix pcep-stats; revision-date 2014-10-06; }
+    import rfc2385 { prefix rfc2385; revision-date 2016-03-24; }
 
     organization "Cisco Systems, Inc.";
 
@@ -142,7 +142,7 @@ module odl-pcep-topology-provider-cfg {
                 key "address";
 
                 leaf password {
-                    type tcpmd5:rfc2385-key;
+                    type rfc2385:rfc2385-key;
                     description "RFC2385 shared secret";
                 }
             }
