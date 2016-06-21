@@ -1,0 +1,68 @@
+{
+    "bmp-monitor": {
+        "monitor": [
+            {
+                "monitor-id": "example-bmp-monitor",
+                "router": [
+                    {
+                        "router-id": "$TOOL_IP",
+                        "peer": [
+                            {
+                                "peer-id": "1.1.1.1",
+                                "as": 65431,
+                                "address": "1.1.1.1",
+                                "bgp-id": "1.1.1.1",
+                                "pre-policy-rib": {
+                                    "tables": [
+                                        {
+                                            "afi": "bgp-types:ipv4-address-family",
+                                            "safi": "bgp-types:unicast-subsequent-address-family",
+                                            "bgp-inet:ipv4-routes": {},
+                                            "attributes": {
+                                                "uptodate": false
+                                            }
+                                        }
+                                    ]
+                                },
+                                "peer-session": {
+                                    "received-open": {
+                                        "hold-timer": 180,
+                                        "bgp-identifier": "1.1.1.1",
+                                        "my-as-number": 65431
+                                    },
+                                    "remote-port": 179,
+                                    "status": "up",
+                                    "local-address": "$TOOL_IP",
+                                    "timestamp-sec": 0,
+                                    "sent-open": {
+                                        "hold-timer": 180,
+                                        "bgp-identifier": "$TOOL_IP",
+                                        "my-as-number": 65431
+                                    },
+                                    "local-port": 179
+                                },
+                                "post-policy-rib": {
+                                    "tables": [
+                                        {
+                                            "afi": "bgp-types:ipv4-address-family",
+                                            "safi": "bgp-types:unicast-subsequent-address-family",
+                                            "bgp-inet:ipv4-routes": {},
+                                            "attributes": {
+                                                "uptodate": false
+                                            }
+                                        }
+                                    ]
+                                },
+                                "type": "global"
+                            }
+                        ],
+                        "status": "up",
+                        "info": "",
+                        "description": "OpenDaylight",
+                        "name": "BMP mock"
+                    }
+                ]
+            }
+        ]
+    }
+}
