@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba51214e_bbdd2c17",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AbstractBGPSessionNegotiator.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-21T08:51:42Z",
+      "side": 1,
+      "message": "You can move this if-statement before the try-catch block and you can reverse the test and call return when conditions are not met to get rid long long block.\nAlso try to minimize try-catch block size.",
+      "range": {
+        "startLine": 94,
+        "startChar": 12,
+        "endLine": 94,
+        "endChar": 79
+      },
+      "revId": "bda2a42b02ea1d993bdb1f6ea163de7f9a32be7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_3bd11cfc",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-21T08:51:42Z",
+      "side": 1,
+      "message": "missing space",
+      "revId": "bda2a42b02ea1d993bdb1f6ea163de7f9a32be7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
