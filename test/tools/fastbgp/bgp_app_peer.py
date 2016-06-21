@@ -314,14 +314,15 @@ def delete_prefixes(odl_ip, port, uri, auth, prefix_base, prefix_len, count,
     """
     logger.info("Delete %s prefix(es) (starting from %s/%s) from %s:%s/restconf/%s",
                 count, prefix_base, prefix_len, odl_ip, port, uri)
+    partkey = "" if args.stream in ["stable-lithium", "beryllium"] else "/0"
     uri_del_prefix = uri + _uri_suffix_ipv4_routes + _uri_suffix_ipv4_route
     prefix_gap = 2 ** (32 - prefix_len)
     for prefix_index in range(count):
         prefix = prefix_base + prefix_index * prefix_gap
-        logger.info("Deleting prefix %s/%s from %s:%s/restconf/%s",
-                    prefix, prefix_len, odl_ip, port, uri)
+        logger.info("Deleting prefix %s/%s/%s from %s:%s/restconf/%s",
+                    prefix, prefix_len, partkey, odl_ip, port, uri)
         send_request("DELETE", odl_ip, port,
-                     uri_del_prefix + str(prefix) + "%2F" + str(prefix_len), auth)
+                     uri_del_prefix + str(prefix) + "%2F" + str(prefix_len) + partkey, auth)
 
 
 def delete_all_prefixes(odl_ip, port, uri, auth, prefix_base=None,
@@ -393,6 +394,7 @@ if __name__ == "__main__":
                         const=logging.DEBUG, default=logging.INFO,
                         help="Set log level to debug (default is info)")
     parser.add_argument("--logfile", default="bgp_app_peer.log", help="Log file name")
+    parser.add_argument("--stream", default="", help="Stream - beryllium, boron ...")
 
     args = parser.parse_args()
 
@@ -416,7 +418,7 @@ if __name__ == "__main__":
     count = args.count
     auth = (args.user, args.password)
     uri = args.uri
-    xml_template = args.xml
+    xml_template = "{}.{}".format(args.xml, args.stream) if args.stream in ["stable-lithium", "beryllium"] else args.xml
 
     test_start_time = time.time()
     total_build_data_time_counter = 0
