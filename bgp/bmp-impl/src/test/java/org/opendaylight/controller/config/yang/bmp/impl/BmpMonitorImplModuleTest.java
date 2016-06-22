@@ -47,6 +47,7 @@ import org.opendaylight.controller.config.yang.md.sal.dom.impl.SchemaServiceImpl
 import org.opendaylight.controller.config.yang.md.sal.dom.impl.SchemaServiceImplSingletonModuleMXBean;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
+import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodecFactory;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -155,8 +156,10 @@ public class BmpMonitorImplModuleTest extends AbstractBmpModuleTest {
         setupMockService(YangTextSourceProvider.class, mock(YangTextSourceProvider.class));
         Mockito.doReturn(mockedSchemaService).when(this.mockedContext).getService(schemaServiceReference);
 
-        BindingToNormalizedNodeCodecFactory.getOrCreateInstance(
-                GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), mockedSchemaService);
+        BindingToNormalizedNodeCodec bindingCodec = BindingToNormalizedNodeCodecFactory.newInstance(
+                GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
+        BindingToNormalizedNodeCodecFactory.registerInstance(bindingCodec, mockedSchemaService);
+        setupMockService(BindingToNormalizedNodeCodec.class, bindingCodec);
 
         BmpDispatcher bmpDispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(),
                 new SimpleBmpMessageRegistry(), new DefaultBmpSessionFactory());
