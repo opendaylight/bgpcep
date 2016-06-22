@@ -13,8 +13,7 @@ import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-
-import com.google.common.base.Optional;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
 import com.google.common.io.Resources;
@@ -91,7 +90,9 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.opendaylight.yangtools.yang.model.api.SchemaContextListener;
-import org.opendaylight.yangtools.yang.parser.repo.URLSchemaContextResolver;
+import org.opendaylight.yangtools.yang.model.parser.api.YangSyntaxErrorException;
+import org.opendaylight.yangtools.yang.model.repo.api.SchemaSourceException;
+import org.opendaylight.yangtools.yang.parser.repo.YangTextSchemaContextResolver;
 import org.opendaylight.yangtools.yang.parser.spi.meta.ReactorException;
 import org.opendaylight.yangtools.yang.parser.stmt.reactor.CrossSourceStatementReactor;
 import org.opendaylight.yangtools.yang.parser.stmt.rfc6020.YangInferencePipeline;
@@ -190,9 +191,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         Mockito.doReturn(null).when(this.mockedFuture).get();
 
         final GlobalBundleScanningSchemaServiceImpl schemaService = GlobalBundleScanningSchemaServiceImpl.createInstance(this.mockedContext);
-        final SchemaContext context = parseYangStreams(getFilesAsByteSources(getYangModelsPaths()));
-        final URLSchemaContextResolver mockedContextResolver = Mockito.mock(URLSchemaContextResolver.class);
-        Mockito.doReturn(Optional.of(context)).when(mockedContextResolver).getSchemaContext();
+        final YangTextSchemaContextResolver mockedContextResolver = newSchemaContextResolver(getYangModelsPaths());
 
         final Field contextResolverField = schemaService.getClass().getDeclaredField("contextResolver");
         contextResolverField.setAccessible(true);
@@ -383,6 +382,25 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         Assert.assertEquals("Some files were not found", Collections.<String> emptyList(), failedToFind);
 
         return resources;
+    }
+
+    private static YangTextSchemaContextResolver newSchemaContextResolver(final List<String> paths) {
+        YangTextSchemaContextResolver resolver = YangTextSchemaContextResolver.create("test");
+        final List<String> failedToFind = new ArrayList<>();
+        for (final String path : paths) {
+            final URL url = AbstractRIBImplModuleTest.class.getResource(path);
+            if (url == null) {
+                failedToFind.add(path);
+            } else {
+                try {
+                    resolver.registerSource(url);
+                } catch(SchemaSourceException | IOException | YangSyntaxErrorException e) {
+                    Throwables.propagate(e);
+                }
+            }
+        }
+        Assert.assertEquals("Some files were not found", Collections.<String> emptyList(), failedToFind);
+        return resolver;
     }
 
     public ObjectName createBindingBrokerImpl(final ConfigTransactionJMXClient transaction, final ObjectName dataBrokerON,
