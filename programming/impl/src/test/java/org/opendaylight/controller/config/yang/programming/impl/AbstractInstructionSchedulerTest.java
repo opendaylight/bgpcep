@@ -14,7 +14,6 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
@@ -60,6 +59,7 @@ import org.opendaylight.controller.config.yang.md.sal.dom.impl.DomInmemoryDataBr
 import org.opendaylight.controller.config.yang.md.sal.dom.impl.DomInmemoryDataBrokerModuleMXBean;
 import org.opendaylight.controller.config.yang.md.sal.dom.impl.SchemaServiceImplSingletonModuleFactory;
 import org.opendaylight.controller.config.yang.netty.timer.HashedWheelTimerModuleFactory;
+import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodecFactory;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.md.sal.dom.api.DOMMountPointService;
@@ -164,8 +164,10 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
         setupMockService(SchemaService.class, mockedSchemaService);
         setupMockService(YangTextSourceProvider.class, mock(YangTextSourceProvider.class));
 
-        BindingToNormalizedNodeCodecFactory.getOrCreateInstance(
-                GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), mockedSchemaService);
+        BindingToNormalizedNodeCodec bindingCodec = BindingToNormalizedNodeCodecFactory.newInstance(
+                GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
+        BindingToNormalizedNodeCodecFactory.registerInstance(bindingCodec, mockedSchemaService);
+        setupMockService(BindingToNormalizedNodeCodec.class, bindingCodec);
 
         setupMockService(Timer.class, mock(Timer.class));
         setupMockService(EventLoopGroup.class, new NioEventLoopGroup());
