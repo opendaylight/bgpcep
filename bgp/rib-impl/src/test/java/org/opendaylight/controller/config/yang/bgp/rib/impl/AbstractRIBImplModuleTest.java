@@ -91,7 +91,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.opendaylight.yangtools.yang.model.api.SchemaContextListener;
-import org.opendaylight.yangtools.yang.parser.repo.URLSchemaContextResolver;
+import org.opendaylight.yangtools.yang.parser.repo.YangTextSchemaContextResolver;
 import org.opendaylight.yangtools.yang.parser.spi.meta.ReactorException;
 import org.opendaylight.yangtools.yang.parser.stmt.reactor.CrossSourceStatementReactor;
 import org.opendaylight.yangtools.yang.parser.stmt.rfc6020.YangInferencePipeline;
@@ -191,7 +191,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
 
         final GlobalBundleScanningSchemaServiceImpl schemaService = GlobalBundleScanningSchemaServiceImpl.createInstance(this.mockedContext);
         final SchemaContext context = parseYangStreams(getFilesAsByteSources(getYangModelsPaths()));
-        final URLSchemaContextResolver mockedContextResolver = Mockito.mock(URLSchemaContextResolver.class);
+        final YangTextSchemaContextResolver mockedContextResolver = Mockito.mock(YangTextSchemaContextResolver.class);
         Mockito.doReturn(Optional.of(context)).when(mockedContextResolver).getSchemaContext();
 
         final Field contextResolverField = schemaService.getClass().getDeclaredField("contextResolver");
