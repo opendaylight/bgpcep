@@ -71,6 +71,7 @@ import org.opendaylight.controller.config.yang.netty.threadgroup.NioEventLoopGro
 import org.opendaylight.controller.config.yang.netty.timer.HashedWheelTimerModuleFactory;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
+import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodecFactory;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -219,8 +220,10 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         setupMockService(SchemaService.class, mockedSchemaService);
         setupMockService(YangTextSourceProvider.class, mock(YangTextSourceProvider.class));
 
-        BindingToNormalizedNodeCodecFactory.getOrCreateInstance(
-                GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), mockedSchemaService);
+        BindingToNormalizedNodeCodec bindingCodec = BindingToNormalizedNodeCodecFactory.newInstance(
+                GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
+        BindingToNormalizedNodeCodecFactory.registerInstance(bindingCodec, mockedSchemaService);
+        setupMockService(BindingToNormalizedNodeCodec.class, bindingCodec);
 
         BGPExtensionProviderContext mockContext = mock(BGPExtensionProviderContext.class);
         doReturn(mock(MessageRegistry.class)).when(mockContext).getMessageRegistry();
