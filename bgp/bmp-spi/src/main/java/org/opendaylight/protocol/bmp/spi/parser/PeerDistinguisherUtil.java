@@ -13,7 +13,7 @@ import com.google.common.primitives.Ints;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.DistinguisherType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.Distinguisher;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.DistinguisherBuilder;

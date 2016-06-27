@@ -6,7 +6,7 @@ module bgp-rib-impl {
     import bgp-rib { prefix rib; revision-date 2013-09-25; }
     import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-19; }
     import config { prefix config; revision-date 2013-04-05; }
-    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+    import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import ietf-yang-types { prefix yang; revision-date 2013-07-15; }
     import opendaylight-md-sal-binding {prefix mdsb; revision-date 2013-10-28; }
     import rpc-context { prefix rpcx; revision-date 2013-06-17; }
