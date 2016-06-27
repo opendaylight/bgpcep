@@ -3,7 +3,7 @@ module bgp-epe {
     namespace "urn:opendaylight:params:xml:ns:yang:bgp-epe";
     prefix "bgp-epe";
 
-    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+    import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
 
     organization "Cisco Systems, Inc.";
     contact "Milos Fabian <milfabia@cisco.com>";
