@@ -13,6 +13,7 @@ import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
@@ -79,7 +80,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMNotificationService;
 import org.opendaylight.controller.md.sal.dom.api.DOMRpcProviderService;
 import org.opendaylight.controller.md.sal.dom.api.DOMRpcService;
 import org.opendaylight.controller.sal.dom.broker.GlobalBundleScanningSchemaServiceImpl;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
@@ -361,7 +362,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     }
 
     public List<String> getYangModelsPaths() {
-        final List<String> paths = Lists.newArrayList("/META-INF/yang/bgp-rib.yang", "/META-INF/yang/ietf-inet-types.yang",
+        final List<String> paths = Lists.newArrayList("/META-INF/yang/bgp-rib.yang", "/META-INF/yang/ietf-inet-types@2013-07-15.yang",
                 "/META-INF/yang/bgp-message.yang", "/META-INF/yang/bgp-multiprotocol.yang", "/META-INF/yang/bgp-types.yang",
                 "/META-INF/yang/network-concepts.yang", "/META-INF/yang/ieee754.yang", "/META-INF/yang/yang-ext.yang");
         return paths;
@@ -385,7 +386,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     }
 
     private static YangTextSchemaContextResolver newSchemaContextResolver(final List<String> paths) {
-        YangTextSchemaContextResolver resolver = YangTextSchemaContextResolver.create("test");
+        final YangTextSchemaContextResolver resolver = YangTextSchemaContextResolver.create("test");
         final List<String> failedToFind = new ArrayList<>();
         for (final String path : paths) {
             final URL url = AbstractRIBImplModuleTest.class.getResource(path);

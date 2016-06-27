@@ -211,15 +211,7 @@ final class BGPPeerProvider {
         bgpPeerBuilder.setAdvertizedTable(tableTypes);
         bgpPeerBuilder.setAddPath(addPathCapabilities);
         bgpPeerBuilder.setRib(rib);
-        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress ipAdress = null;
-        if (neighbor.getNeighborAddress().getIpv4Address() != null) {
-            ipAdress = new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress(new org.opendaylight.yang
-                .gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address(neighbor.getNeighborAddress().getIpv4Address().getValue()));
-        } else {
-            ipAdress = new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress(new org.opendaylight.yang
-                .gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address(neighbor.getNeighborAddress().getIpv6Address().getValue()));
-        }
-        bgpPeerBuilder.setHost(ipAdress);
+        bgpPeerBuilder.setHost(neighbor.getNeighborAddress());
         final Timers timers = neighbor.getTimers();
         if (timers != null && timers.getConfig() != null && timers.getConfig().getHoldTime() != null) {
             bgpPeerBuilder.setHoldtimer(neighbor.getTimers().getConfig().getHoldTime().intValue());

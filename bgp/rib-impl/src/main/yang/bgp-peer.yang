@@ -6,7 +6,7 @@ module bgp-peer {
     import bgp-types { prefix bgp-t; revision-date 2013-09-19; }
     import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-19; }
     import config { prefix config; revision-date 2013-04-05; }
-    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+    import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import odl-tcpmd5-cfg { prefix tcpmd5; revision-date 2014-04-27; }
     import opendaylight-md-sal-binding {prefix mdsb; revision-date 2013-10-28; }
 
