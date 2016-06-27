@@ -18,7 +18,7 @@ public  final class Rev130715Util {
         throw new UnsupportedOperationException();
     }
 
-    public static Ipv4Address getIpv4Address(final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address ipv4) {
+    public static Ipv4Address getIpv4Address(final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address ipv4) {
         if(ipv4 == null) {
             return null;
         }
@@ -33,7 +33,7 @@ public  final class Rev130715Util {
         return new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber(port);
     }
 
-    public static IpAddress getIpvAddress(final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress hostWithoutValue) {
+    public static IpAddress getIpvAddress(final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress hostWithoutValue) {
         if(hostWithoutValue.getIpv4Address() != null) {
             return new IpAddress(new Ipv4Address(hostWithoutValue.getIpv4Address().getValue()));
         }

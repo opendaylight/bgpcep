@@ -14,6 +14,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
@@ -326,7 +327,7 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
     }
 
     public List<String> getYangModelsPaths() {
-        final List<String> paths = Lists.newArrayList("/META-INF/yang/ietf-inet-types.yang", "/META-INF/yang/programming.yang");
+        final List<String> paths = Lists.newArrayList("/META-INF/yang/ietf-inet-types@2013-07-15.yang", "/META-INF/yang/programming.yang");
         return paths;
     }
 
@@ -356,7 +357,7 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
     }
 
     private static YangTextSchemaContextResolver newSchemaContextResolver(final List<String> paths) {
-        YangTextSchemaContextResolver resolver = YangTextSchemaContextResolver.create("test");
+        final YangTextSchemaContextResolver resolver = YangTextSchemaContextResolver.create("test");
         final List<String> failedToFind = new ArrayList<>();
         for (final String path : paths) {
             final URL url = AbstractInstructionSchedulerTest.class.getResource(path);
