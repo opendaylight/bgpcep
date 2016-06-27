@@ -14,6 +14,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
 import com.google.common.io.Resources;
@@ -25,7 +26,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Dictionary;
 import java.util.List;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
@@ -37,8 +37,6 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
 import org.opendaylight.controller.config.manager.impl.AbstractConfigTest;
 import org.opendaylight.controller.config.manager.impl.factoriesresolver.HardcodedModuleFactoriesResolver;
@@ -82,7 +80,7 @@ import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
@@ -143,15 +141,12 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         final List<ModuleFactory> moduleFactories = getModuleFactories();
         super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(this.mockedContext, moduleFactories.toArray(new ModuleFactory[moduleFactories.size()])));
 
-        doAnswer(new Answer<Filter>() {
-            @Override
-            public Filter answer(final InvocationOnMock invocation) {
-                final String str = invocation.getArgumentAt(0, String.class);
-                final Filter mockFilter = mock(Filter.class);
-                doReturn(str).when(mockFilter).toString();
-                return mockFilter;
-            }
-        }).when(mockedContext).createFilter(anyString());
+        doAnswer(invocation -> {
+            final String str = invocation.getArgumentAt(0, String.class);
+            final Filter mockFilter = mock(Filter.class);
+            doReturn(str).when(mockFilter).toString();
+            return mockFilter;
+        }).when(this.mockedContext).createFilter(anyString());
 
         final ServiceReference<?> emptyServiceReference = mock(ServiceReference.class, "Empty");
         final ServiceReference<?> classLoadingStrategySR = mock(ServiceReference.class, "ClassLoadingStrategy");
@@ -194,14 +189,11 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         final SchemaContext context = parseYangStreams(getFilesAsByteSources(getYangModelsPaths()));
         final SchemaService mockedSchemaService = mock(SchemaService.class);
         doReturn(context).when(mockedSchemaService).getGlobalContext();
-        doAnswer(new Answer<ListenerRegistration<SchemaContextListener>>() {
-            @Override
-            public ListenerRegistration<SchemaContextListener> answer(InvocationOnMock invocation) {
-                invocation.getArgumentAt(0, SchemaContextListener.class).onGlobalContextUpdated(context);
-                ListenerRegistration<SchemaContextListener> reg = mock(ListenerRegistration.class);
-                doNothing().when(reg).close();
-                return reg;
-            }
+        doAnswer(invocation -> {
+            invocation.getArgumentAt(0, SchemaContextListener.class).onGlobalContextUpdated(context);
+            final ListenerRegistration<SchemaContextListener> reg = mock(ListenerRegistration.class);
+            doNothing().when(reg).close();
+            return reg;
         }).when(mockedSchemaService).registerSchemaContextListener(any(SchemaContextListener.class));
 
         setupMockService(SchemaService.class, mockedSchemaService);
@@ -210,7 +202,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         BindingToNormalizedNodeCodecFactory.getOrCreateInstance(
                 GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), mockedSchemaService);
 
-        BGPExtensionProviderContext mockContext = mock(BGPExtensionProviderContext.class);
+        final BGPExtensionProviderContext mockContext = mock(BGPExtensionProviderContext.class);
         doReturn(mock(MessageRegistry.class)).when(mockContext).getMessageRegistry();
         setupMockService(BGPExtensionProviderContext.class, mockContext);
 
@@ -228,11 +220,11 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
 
     protected void setupMockService(final Class<?> serviceInterface, final Object instance) throws Exception {
         final ServiceReference<?> mockServiceRef = mock(ServiceReference.class);
-        doReturn(new ServiceReference[]{mockServiceRef}).when(mockedContext).
-                getServiceReferences(anyString(), contains(serviceInterface.getName()));
-        doReturn(new ServiceReference[]{mockServiceRef}).when(mockedContext).
-                getServiceReferences(serviceInterface.getName(), null);
-        doReturn(instance).when(mockedContext).getService(mockServiceRef);
+        doReturn(new ServiceReference[]{mockServiceRef}).when(this.mockedContext).
+        getServiceReferences(anyString(), contains(serviceInterface.getName()));
+        doReturn(new ServiceReference[]{mockServiceRef}).when(this.mockedContext).
+        getServiceReferences(serviceInterface.getName(), null);
+        doReturn(instance).when(this.mockedContext).getService(mockServiceRef);
     }
 
     private static SchemaContext parseYangStreams(final Collection<ByteSource> streams) {
@@ -259,13 +251,10 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     @Override
     protected BundleContextServiceRegistrationHandler getBundleContextServiceRegistrationHandler(final Class<?> serviceType) {
         if (serviceType.equals(SchemaContextListener.class)) {
-            return new BundleContextServiceRegistrationHandler() {
-                @Override
-                public void handleServiceRegistration(final Class<?> clazz, final Object serviceInstance, final Dictionary<String, ?> props) {
-                    final SchemaContextListener listener = (SchemaContextListener) serviceInstance;
-                    final SchemaContext context = parseYangStreams(getFilesAsByteSources(getYangModelsPaths()));
-                    listener.onGlobalContextUpdated(context);
-                }
+            return (clazz, serviceInstance, props) -> {
+                final SchemaContextListener listener = (SchemaContextListener) serviceInstance;
+                final SchemaContext context = parseYangStreams(getFilesAsByteSources(getYangModelsPaths()));
+                listener.onGlobalContextUpdated(context);
             };
         }
 
@@ -371,7 +360,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     }
 
     public List<String> getYangModelsPaths() {
-        final List<String> paths = Lists.newArrayList("/META-INF/yang/bgp-rib.yang", "/META-INF/yang/ietf-inet-types.yang",
+        final List<String> paths = Lists.newArrayList("/META-INF/yang/bgp-rib.yang", "/META-INF/yang/ietf-inet-types@2013-07-15.yang",
                 "/META-INF/yang/bgp-message.yang", "/META-INF/yang/bgp-multiprotocol.yang", "/META-INF/yang/bgp-types.yang",
                 "/META-INF/yang/network-concepts.yang", "/META-INF/yang/ieee754.yang", "/META-INF/yang/yang-ext.yang");
         return paths;
@@ -395,7 +384,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     }
 
     public ObjectName createBindingBrokerImpl(final ConfigTransactionJMXClient transaction, final ObjectName dataBrokerON,
-        final ObjectName notificationBrokerON) throws Exception {
+            final ObjectName notificationBrokerON) throws Exception {
         final ObjectName objectName = transaction.createModule(BindingBrokerImplModuleFactory.NAME, BINDING_BROKER_INSTANCE_NAME);
         final BindingBrokerImplModuleMXBean mxBean = transaction.newMXBeanProxy(objectName, BindingBrokerImplModuleMXBean.class);
         mxBean.setDataBroker(dataBrokerON);
@@ -421,7 +410,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     }
 
     public ObjectName createCompatibleDataBrokerInstance(final ConfigTransactionJMXClient transaction)
-        throws InstanceAlreadyExistsException, InstanceNotFoundException {
+            throws InstanceAlreadyExistsException, InstanceNotFoundException {
         final ObjectName nameCreated = transaction.createModule(ForwardedCompatibleDataBrokerImplModuleFactory.NAME, COMPATIBLE_DATA_BROKER_INSTANCE_NAME);
         final ForwardedCompatibleDataBrokerImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, ForwardedCompatibleDataBrokerImplModuleMXBean.class);
         mxBean.setDataBroker(lookupDataBrokerInstance(transaction));

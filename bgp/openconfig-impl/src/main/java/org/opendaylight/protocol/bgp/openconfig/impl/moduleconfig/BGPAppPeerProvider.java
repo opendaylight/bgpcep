@@ -152,7 +152,7 @@ final class BGPAppPeerProvider {
         final BgpApplicationPeerBuilder bgpAppPeerBuilder = new BgpApplicationPeerBuilder();
         bgpAppPeerBuilder.setTargetRib(rib);
         final Ipv4Address address = neighbor.getNeighborAddress().getIpv4Address();
-        bgpAppPeerBuilder.setBgpPeerId(new BgpId(new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.
+        bgpAppPeerBuilder.setBgpPeerId(new BgpId(new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.
             Ipv4Address(address.getValue())));
         bgpAppPeerBuilder.setApplicationRibId(new ApplicationRibId(createAppRibName(address)));
         return bgpAppPeerBuilder;
