@@ -42,7 +42,7 @@ public class Ipv6ReachabilityTopologyBuilderModuleTest extends AbstractRIBImplMo
         paths.add("/META-INF/yang/bgp-inet.yang");
         paths.add("/META-INF/yang/bmp-monitor.yang");
         paths.add("/META-INF/yang/bmp-message.yang");
-        paths.add("/META-INF/yang/ietf-yang-types.yang");
+        paths.add("/META-INF/yang/ietf-yang-types@2013-07-15.yang");
         paths.add("/META-INF/yang/odl-bgp-topology-types.yang");
         return paths;
     }
