@@ -31,6 +31,7 @@ import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionPr
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.framework.NeverReconnectStrategy;
+import org.opendaylight.protocol.framework.ReconnectImmediatelyStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -124,7 +125,7 @@ public class BGPDispatcherImplTest {
     private static final class ReconnectStrategyFctImpl implements ReconnectStrategyFactory {
         @Override
         public ReconnectStrategy createReconnectStrategy() {
-            return new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, TIMEOUT);
+            return new ReconnectImmediatelyStrategy(GlobalEventExecutor.INSTANCE, TIMEOUT);
         }
 
     }
