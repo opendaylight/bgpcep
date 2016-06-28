@@ -13,7 +13,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
@@ -68,14 +67,14 @@ public class BGPDispatcherImplTest {
 
     @Before
     public void setUp() throws BGPDocumentedException {
-        final EventLoopGroup group = new NioEventLoopGroup();
         this.registry = new StrictBGPPeerRegistry();
         this.registry.addPeer(new IpAddress(new Ipv4Address(CLIENT_ADDRESS.getAddress().getHostAddress())),
                 new SimpleSessionListener(), createPreferences(CLIENT_ADDRESS));
         this.registry.addPeer(new IpAddress(new Ipv4Address(ADDRESS.getAddress().getHostAddress())),
                 new SimpleSessionListener(), createPreferences(ADDRESS));
-        this.dispatcher = new BGPDispatcherImpl(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry(), group, group);
-        this.clientDispatcher = new TestClientDispatcher(group, group, ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry(),
+        this.dispatcher = new BGPDispatcherImpl(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry(),
+                new NioEventLoopGroup(), new NioEventLoopGroup());
+        this.clientDispatcher = new TestClientDispatcher(new NioEventLoopGroup(), new NioEventLoopGroup(), ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry(),
                 CLIENT_ADDRESS);
 
         final ChannelFuture future = this.dispatcher.createServer(this.registry, ADDRESS);
