@@ -20,6 +20,7 @@ import org.opendaylight.protocol.bgp.rib.impl.ApplicationPeer;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
+import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 
@@ -47,7 +48,23 @@ public class BGPApplicationPeerModule extends org.opendaylight.controller.config
     public java.lang.AutoCloseable createInstance() {
         final YangInstanceIdentifier id = YangInstanceIdentifier.builder().node(ApplicationRib.QNAME).nodeWithKey(ApplicationRib.QNAME, APP_ID_QNAME, getApplicationRibId().getValue()).node(Tables.QNAME).node(Tables.QNAME).build();
         final DOMDataTreeChangeService service = (DOMDataTreeChangeService) getDataBrokerDependency().getSupportedExtensions().get(DOMDataTreeChangeService.class);
-        return service.registerDataTreeChangeListener(new DOMDataTreeIdentifier(LogicalDatastoreType.CONFIGURATION, id), new ApplicationPeer(getApplicationRibId(), getBgpPeerId(), (RIBImpl) getTargetRibDependency(), new AppPeerModuleTracker(getTargetRibDependency().getOpenConfigProvider())));
+        final ApplicationPeer appPeer = new ApplicationPeer(getApplicationRibId(), getBgpPeerId(), (RIBImpl) getTargetRibDependency(),
+            new AppPeerModuleTracker(getTargetRibDependency().getOpenConfigProvider()));
+
+        final ListenerRegistration<ApplicationPeer> listenerRegistration = service.registerDataTreeChangeListener(new DOMDataTreeIdentifier(LogicalDatastoreType.CONFIGURATION, id), appPeer);
+
+        return new CloseableNoEx() {
+            @Override
+            public void close() {
+                listenerRegistration.close();
+                appPeer.close();
+            }
+        };
+    }
+
+    private interface CloseableNoEx extends AutoCloseable {
+        @Override
+        void close();
     }
 
     private final class AppPeerModuleTracker implements BGPConfigModuleTracker {
@@ -55,7 +72,7 @@ public class BGPApplicationPeerModule extends org.opendaylight.controller.config
         private final BGPOpenconfigMapper<BGPAppPeerInstanceConfiguration> appProvider;
         private final BGPAppPeerInstanceConfiguration bgpAppPeerInstanceConfiguration;
 
-        public AppPeerModuleTracker(final Optional<BGPOpenConfigProvider> openConfigProvider) {
+        AppPeerModuleTracker(final Optional<BGPOpenConfigProvider> openConfigProvider) {
             if (openConfigProvider.isPresent()) {
                 appProvider = openConfigProvider.get().getOpenConfigMapper(BGPAppPeerInstanceConfiguration.class);
             } else {
