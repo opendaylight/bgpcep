@@ -8,7 +8,6 @@
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
 import com.google.common.base.Optional;
-import java.util.Collections;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
@@ -32,6 +31,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+
+import java.util.Collections;
 
 /**
  * Application peer handler which handles translation from custom RIB into local RIB
@@ -60,12 +61,16 @@ public class BGPApplicationPeerModule extends org.opendaylight.controller.config
 
         final YangInstanceIdentifier id = YangInstanceIdentifier.builder().node(ApplicationRib.QNAME).nodeWithKey(ApplicationRib.QNAME, APP_ID_QNAME, getApplicationRibId().getValue()).node(Tables.QNAME).node(Tables.QNAME).build();
         final DOMDataTreeChangeService service = (DOMDataTreeChangeService) getDataBrokerDependency().getSupportedExtensions().get(DOMDataTreeChangeService.class);
-        final ListenerRegistration<ApplicationPeer> listenerRegistration = service.registerDataTreeChangeListener(new DOMDataTreeIdentifier(LogicalDatastoreType.CONFIGURATION, id), new ApplicationPeer(getApplicationRibId(), getBgpPeerId(), (RIBImpl) getTargetRibDependency(), new AppPeerModuleTracker(getTargetRibDependency().getOpenConfigProvider())));
+        final AppPeerModuleTracker appPeerMT = new AppPeerModuleTracker(getTargetRibDependency().getOpenConfigProvider());
+        final ApplicationPeer appPeer = new ApplicationPeer(getApplicationRibId(), getBgpPeerId(), (RIBImpl) getTargetRibDependency(), appPeerMT);
+        final ListenerRegistration<ApplicationPeer> listenerRegistration = service.registerDataTreeChangeListener(
+            new DOMDataTreeIdentifier(LogicalDatastoreType.CONFIGURATION, id), appPeer);
 
         return new CloseableNoEx() {
             @Override
             public void close() {
                 listenerRegistration.close();
+                appPeer.close();
                 removeFromPeerRegistry();
             }
         };
@@ -104,7 +109,7 @@ public class BGPApplicationPeerModule extends org.opendaylight.controller.config
         private final BGPOpenconfigMapper<BGPAppPeerInstanceConfiguration> appProvider;
         private final BGPAppPeerInstanceConfiguration bgpAppPeerInstanceConfiguration;
 
-        public AppPeerModuleTracker(final Optional<BGPOpenConfigProvider> openConfigProvider) {
+        AppPeerModuleTracker(final Optional<BGPOpenConfigProvider> openConfigProvider) {
             if (openConfigProvider.isPresent()) {
                 this.appProvider = openConfigProvider.get().getOpenConfigMapper(BGPAppPeerInstanceConfiguration.class);
             } else {
