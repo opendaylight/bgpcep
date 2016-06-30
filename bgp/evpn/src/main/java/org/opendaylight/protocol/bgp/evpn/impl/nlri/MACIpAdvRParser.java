@@ -125,12 +125,16 @@ final class MACIpAdvRParser extends AbstractEvpnNlri {
 
     private static ByteBuf serializeIp(final IpAddress ipAddress) {
         final ByteBuf body = Unpooled.buffer();
-        if (ipAddress.getIpv4Address() != null) {
-            body.writeByte(Ipv4Util.IP4_BITS_LENGTH);
-            body.writeBytes(Ipv4Util.bytesForAddress(ipAddress.getIpv4Address()));
-        } else if (ipAddress.getIpv6Address() != null) {
-            body.writeByte(Ipv6Util.IPV6_BITS_LENGTH);
-            body.writeBytes(Ipv6Util.bytesForAddress(ipAddress.getIpv6Address()));
+        if (ipAddress != null) {
+            if (ipAddress.getIpv4Address() != null) {
+                body.writeByte(Ipv4Util.IP4_BITS_LENGTH);
+                body.writeBytes(Ipv4Util.bytesForAddress(ipAddress.getIpv4Address()));
+            } else if (ipAddress.getIpv6Address() != null) {
+                body.writeByte(Ipv6Util.IPV6_BITS_LENGTH);
+                body.writeBytes(Ipv6Util.bytesForAddress(ipAddress.getIpv6Address()));
+            } else {
+                body.writeZero(ZERO_BYTE);
+            }
         } else {
             body.writeZero(ZERO_BYTE);
         }
