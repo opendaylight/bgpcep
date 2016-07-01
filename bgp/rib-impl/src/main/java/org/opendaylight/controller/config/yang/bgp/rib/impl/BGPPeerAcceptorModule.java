@@ -18,11 +18,14 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.security.AccessControlException;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
 * BGP peer acceptor that handles incoming bgp connections.
 */
 public class BGPPeerAcceptorModule extends org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractBGPPeerAcceptorModule {
+    private static final Logger LOG = LoggerFactory.getLogger(BGPPeerAcceptorModule.class);
 
     private static final int PRIVILEGED_PORTS = 1024;
 
@@ -50,6 +53,7 @@ public class BGPPeerAcceptorModule extends org.opendaylight.controller.config.ya
 
     @Override
     public java.lang.AutoCloseable createInstance() {
+        LOG.trace("Creating Peer Acceptor Instance");
         final ChannelFuture future = getAcceptingBgpDispatcherDependency().createServer(getAcceptingPeerRegistryDependency(), getAddress());
 
         // Validate future success
@@ -63,6 +67,8 @@ public class BGPPeerAcceptorModule extends org.opendaylight.controller.config.ya
         return new AutoCloseable() {
             @Override
             public void close() {
+                LOG.trace("Closing Peer Acceptor Instance");
+
                 // This closes the acceptor and no new bgp connections will be accepted
                 // Connections already established will be preserved
                 future.cancel(true);
