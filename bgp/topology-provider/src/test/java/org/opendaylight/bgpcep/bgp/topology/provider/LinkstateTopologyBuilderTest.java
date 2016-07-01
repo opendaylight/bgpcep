@@ -162,8 +162,8 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
         wTx.delete(LogicalDatastoreType.OPERATIONAL, this.linkstateRouteIID);
         wTx.submit();
         final Topology topology4 = getTopology(this.linkstateTopoBuilder.getInstanceIdentifier()).get();
-        assertEquals(0, topology4.getNode().size());
-        assertEquals(0, topology4.getLink().size());
+        assertNull(topology4.getNode());
+        assertNull(topology4.getLink());
     }
 
     @Test

@@ -191,8 +191,8 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
         this.bmpApp.close();
         this.mappingService.close();
 
-        readData(InstanceIdentifier.create(BmpMonitor.class), monitor -> {
-            assertTrue(monitor.getMonitor().isEmpty());
+        readNonPresentData(InstanceIdentifier.create(BmpMonitor.class), monitor -> {
+            assertNull(monitor);
             return monitor;
         });
     }
@@ -245,7 +245,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
         waitFutureSuccess(channel4.close());
 
         readData(MONITOR_IID, monitor -> {
-            assertEquals(0, monitor.getRouter().size());
+            assertNull( monitor.getRouter());
             return monitor;
         });
     }
@@ -400,8 +400,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
             waitWriteAndFlushSuccess(channel.writeAndFlush(TestUtil.createPeerDownNotification(PEER1)));
 
             readData(routerIId, router -> {
-                final List<Peer> peersAfterDown = router.getPeer();
-                assertTrue(peersAfterDown.isEmpty());
+                assertNull(router.getPeer());
                 return router;
             });
         } catch (final Exception e) {
@@ -456,16 +455,16 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
         return future.channel();
     }
 
-    private <R, T extends DataObject> R readData(final InstanceIdentifier<T> iid, final Function<T, R> function)
+    private <R, T extends DataObject> R readData(final InstanceIdentifier<T> iid, final Function<T, R> function, final boolean isPresenceExpected)
             throws ReadFailedException {
         AssertionError lastError = null;
         final Stopwatch sw = Stopwatch.createStarted();
         while(sw.elapsed(TimeUnit.SECONDS) <= 10) {
             try (final ReadOnlyTransaction tx = getDataBroker().newReadOnlyTransaction()) {
                 final Optional<T> data = tx.read(LogicalDatastoreType.OPERATIONAL, iid).checkedGet();
-                if(data.isPresent()) {
+                if(isPresenceExpected ? data.isPresent() : !data.isPresent()) {
                     try {
-                        return function.apply(data.get());
+                        return function.apply(data.orNull());
                     } catch (final AssertionError e) {
                         lastError = e;
                         Uninterruptibles.sleepUninterruptibly(50, TimeUnit.MILLISECONDS);
@@ -475,6 +474,16 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
         }
 
         throw lastError;
+    }
+
+    private <R, T extends DataObject> R readData(final InstanceIdentifier<T> iid, final Function<T, R> function)
+            throws ReadFailedException {
+        return readData(iid, function, true);
+    }
+
+    private <R, T extends DataObject> R readNonPresentData(final InstanceIdentifier<T> iid, final Function<T, R> function)
+            throws ReadFailedException {
+        return readData(iid, function, false);
     }
 
     private RouterId getRouterId(final String routerIp) {
