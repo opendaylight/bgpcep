@@ -38,11 +38,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
 import org.opendaylight.yangtools.yang.model.api.SchemaContextListener;
 import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  */
 public final class RIBImplModule extends org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractRIBImplModule {
+    private static final Logger LOG = LoggerFactory.getLogger(RIBImplModule.class);
 
     private static final String IS_NOT_SET = "is not set.";
     private BundleContext bundleContext;
@@ -69,6 +72,7 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
 
     @Override
     public java.lang.AutoCloseable createInstance() {
+        LOG.trace("Creating RIBImpl Instance");
         final AsNumber asNumber = new AsNumber(getLocalAs());
         final Map<TablesKey, PathSelectionMode> pathSelectionStrategies = mapBestPathSelectionStrategyByFamily(getRibPathSelectionModeDependency());
         final RIBImpl rib = new RIBImpl(getRibId(), asNumber, getBgpRibId(), getClusterId(), getExtensionsDependency(),

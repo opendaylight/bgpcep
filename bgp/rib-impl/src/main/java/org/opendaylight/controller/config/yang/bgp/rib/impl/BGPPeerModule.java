@@ -126,6 +126,8 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
 
     @Override
     public java.lang.AutoCloseable createInstance() {
+        LOG.trace("Create BGPPeer Instance");
+
         final RIB r = getRibDependency();
 
         final List<BgpParameters> tlvs = getTlvs(r);
@@ -149,6 +151,7 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         final CloseableNoEx peerCloseable = new CloseableNoEx() {
             @Override
             public void close() {
+                LOG.trace("Close BGPPeer Instance");
                 bgpClientPeer.close();
                 getPeerRegistryBackwards().removePeer(host);
                 moduleTracker.onInstanceClose();

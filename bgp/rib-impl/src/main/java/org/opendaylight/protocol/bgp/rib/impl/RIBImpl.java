@@ -231,6 +231,8 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
     @Override
     public synchronized void close() throws InterruptedException, ExecutionException {
+        LOG.trace("Closing RIBImpl Instance");
+
         final DOMDataWriteTransaction t = this.domChain.newWriteOnlyTransaction();
         t.delete(LogicalDatastoreType.OPERATIONAL, getYangRibId());
         t.submit().get();
