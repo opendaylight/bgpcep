@@ -21,6 +21,9 @@ import java.net.UnknownHostException;
 import java.security.AccessControlException;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.PeerRegistryListener;
 import org.opendaylight.protocol.concepts.KeyMapping;
@@ -31,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
  * BGP peer acceptor that handles incoming bgp connections.
  */
 public class BGPPeerAcceptorModule extends org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractBGPPeerAcceptorModule {
+    private static final Logger LOG = LoggerFactory.getLogger(BGPPeerAcceptorModule.class);
 
     private static final int PRIVILEGED_PORTS = 1024;
 
@@ -60,6 +64,7 @@ public class BGPPeerAcceptorModule extends org.opendaylight.controller.config.ya
 
     @Override
     public java.lang.AutoCloseable createInstance() {
+        LOG.trace("Creating Peer Acceptor Instance");
         final BGPPeerRegistry peerRegistry = getAcceptingPeerRegistryDependency();
         final ChannelFuture futureChannel = getAcceptingBgpDispatcherDependency().createServer(peerRegistry, getAddress());
 
@@ -73,6 +78,7 @@ public class BGPPeerAcceptorModule extends org.opendaylight.controller.config.ya
         });
 
         return () -> {
+            LOG.trace("Closing Peer Acceptor Instance");
             // This closes the acceptor and no new bgp connections will be accepted
             // Connections already established will be preserved
             futureChannel.cancel(true);

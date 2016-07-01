@@ -16,13 +16,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class BGPPSMImplModule extends AbstractBGPPSMImplModule {
-    public BGPPSMImplModule(final ModuleIdentifier identifier, final DependencyResolver dependencyResolver) {
+    private static final Logger LOG = LoggerFactory.getLogger(BGPPSMImplModule.class);
+
+    public BGPPSMImplModule(ModuleIdentifier identifier, DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
 
-    public BGPPSMImplModule(final ModuleIdentifier identifier, final DependencyResolver dependencyResolver, final BGPPSMImplModule oldModule, final AutoCloseable oldInstance) {
+    public BGPPSMImplModule(ModuleIdentifier identifier, DependencyResolver dependencyResolver, BGPPSMImplModule oldModule, AutoCloseable oldInstance) {
         super(identifier, dependencyResolver, oldModule, oldInstance);
     }
 
@@ -31,14 +35,17 @@ public final class BGPPSMImplModule extends AbstractBGPPSMImplModule {
         private final BgpTableType pathFamilyDependency;
         private final PathSelectionMode strategyFactory;
 
-        public AutoCloseableBestPathSelectionStrategy(final BgpTableType pathFamilyDependency, final PathSelectionMode strategyFactory) {
+        AutoCloseableBestPathSelectionStrategy(final BgpTableType pathFamilyDependency, final PathSelectionMode strategyFactory) {
+            LOG.trace("Creating PSMImpl Instance");
+
             this.pathFamilyDependency = Preconditions.checkNotNull(pathFamilyDependency);
             this.strategyFactory = Preconditions.checkNotNull(strategyFactory);
         }
 
         @Override
         public void close() throws Exception {
-            //no op
+            LOG.trace("Closing PSMImpl Instance");
+            this.strategyFactory.close();
         }
 
         @Override

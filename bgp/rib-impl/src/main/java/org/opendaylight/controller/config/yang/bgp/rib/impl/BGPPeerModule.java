@@ -113,6 +113,8 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
 
     @Override
     public java.lang.AutoCloseable createInstance() {
+        LOG.trace("Create BGPPeer Instance");
+
         final RIB r = getRibDependency();
 
         final List<BgpParameters> tlvs = getTlvs(r);
@@ -135,6 +137,7 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         moduleTracker.onInstanceCreate();
 
         final CloseableNoEx peerCloseable = () -> {
+            LOG.trace("Close BGPPeer Instance");
             bgpClientPeer.close();
             getPeerRegistryBackwards().removePeer(host);
             moduleTracker.onInstanceClose();
@@ -246,7 +249,7 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         private final BGPOpenconfigMapper<BGPPeerInstanceConfiguration> neighborProvider;
         private final BGPPeerInstanceConfiguration bgpPeerInstanceConfiguration;
 
-        public BGPPeerModuleTracker(final Optional<BGPOpenConfigProvider> openconfigProvider) {
+        BGPPeerModuleTracker(final Optional<BGPOpenConfigProvider> openconfigProvider) {
             if (openconfigProvider.isPresent()) {
                 this.neighborProvider = openconfigProvider.get().getOpenConfigMapper(BGPPeerInstanceConfiguration.class);
             } else {
@@ -262,6 +265,7 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         @Override
         public void onInstanceCreate() {
             if (this.neighborProvider != null) {
+                LOG.trace("Creating Peer Module Tracker Instance");
                 this.neighborProvider.writeConfiguration(this.bgpPeerInstanceConfiguration);
             }
         }
@@ -269,6 +273,7 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         @Override
         public void onInstanceClose() {
             if (this.neighborProvider != null) {
+                LOG.trace("Closing Application Peer Module Tracker Instance");
                 this.neighborProvider.removeConfiguration(this.bgpPeerInstanceConfiguration);
             }
         }

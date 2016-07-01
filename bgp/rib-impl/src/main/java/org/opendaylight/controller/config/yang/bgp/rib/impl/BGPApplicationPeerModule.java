@@ -33,10 +33,14 @@ import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Application peer handler which handles translation from custom RIB into local RIB
  */
 public class BGPApplicationPeerModule extends org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractBGPApplicationPeerModule {
+    private static final Logger LOG = LoggerFactory.getLogger(BGPApplicationPeerModule.class);
 
     private static final QName APP_ID_QNAME = QName.create(ApplicationRib.QNAME, "id").intern();
 
@@ -55,6 +59,8 @@ public class BGPApplicationPeerModule extends org.opendaylight.controller.config
 
     @Override
     public java.lang.AutoCloseable createInstance() {
+        LOG.trace("Creating Application Peer Instance");
+
         // add to peer-registry to catch any conflicting peer addresses
         addToPeerRegistry();
 
@@ -66,6 +72,7 @@ public class BGPApplicationPeerModule extends org.opendaylight.controller.config
                 new DOMDataTreeIdentifier(LogicalDatastoreType.CONFIGURATION, id), appPeer);
 
         return () -> {
+            LOG.trace("Closing Application Peer Instance");
             listenerRegistration.close();
             appPeer.close();
             removeFromPeerRegistry();
@@ -119,6 +126,7 @@ public class BGPApplicationPeerModule extends org.opendaylight.controller.config
         @Override
         public void onInstanceCreate() {
             if (this.appProvider != null) {
+                LOG.trace("Creating Application Peer Module Tracker Instance");
                 this.appProvider.writeConfiguration(this.bgpAppPeerInstanceConfiguration);
             }
         }
@@ -126,6 +134,7 @@ public class BGPApplicationPeerModule extends org.opendaylight.controller.config
         @Override
         public void onInstanceClose() {
             if (this.appProvider != null) {
+                LOG.trace("Closing Application Peer Module Tracker Instance");
                 this.appProvider.removeConfiguration(this.bgpAppPeerInstanceConfiguration);
             }
         }

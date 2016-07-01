@@ -36,11 +36,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
 import org.opendaylight.yangtools.yang.model.api.SchemaContextListener;
 import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  */
 public final class RIBImplModule extends org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractRIBImplModule {
+    private static final Logger LOG = LoggerFactory.getLogger(RIBImplModule.class);
 
     private static final String IS_NOT_SET = "is not set.";
     private BundleContext bundleContext;
@@ -67,6 +70,7 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
 
     @Override
     public java.lang.AutoCloseable createInstance() {
+        LOG.trace("Creating RIBImpl Instance");
         final Map<TablesKey, PathSelectionMode> pathSelectionStrategies = mapBestPathSelectionStrategyByFamily(getRibPathSelectionModeDependency());
         final RIBImpl rib = new RIBImpl(getRibId(), getLocalAs(), getBgpRibId(), getClusterId(), getExtensionsDependency(),
             getBgpDispatcherDependency(), getCodecTreeFactoryDependency(), getDomDataProviderDependency(), getLocalTableDependency(), pathSelectionStrategies, classLoadingStrategy(),
@@ -113,7 +117,7 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
         private final BGPOpenconfigMapper<BGPRibInstanceConfiguration> globalWriter;
         private final BGPRibInstanceConfiguration bgpRibConfig;
 
-        public RIBImplModuleTracker(final BGPOpenconfigMapper<BGPRibInstanceConfiguration> globalWriter) {
+        RIBImplModuleTracker(final BGPOpenconfigMapper<BGPRibInstanceConfiguration> globalWriter) {
             this.globalWriter = globalWriter;
             final InstanceConfigurationIdentifier identifier = new InstanceConfigurationIdentifier(getIdentifier().getInstanceName());
             final List<BgpTableType> tableDependency = getLocalTableDependency();
@@ -124,6 +128,7 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
         @Override
         public void onInstanceCreate() {
             if (globalWriter != null) {
+                LOG.trace("Creating Rib Impl Module Tracker Instance");
                 globalWriter.writeConfiguration(this.bgpRibConfig);
             }
         }
@@ -131,6 +136,7 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
         @Override
         public void onInstanceClose() {
             if (globalWriter != null) {
+                LOG.trace("Closing Rib Impl Module Tracker Instance");
                 globalWriter.removeConfiguration(this.bgpRibConfig);
             }
         }
