@@ -75,8 +75,8 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
         // update route
         updateIpv6Route(createIpv6Route(NEW_NEXT_HOP));
         final Topology topologyUpdated = getTopology(this.ipv6TopoBuilder.getInstanceIdentifier()).get();
-        assertEquals(1, topologyUpdated.getNode().size());
-        final Node nodeUpdated = topologyUpdated.getNode().get(0);
+        assertEquals(2, topologyUpdated.getNode().size());
+        final Node nodeUpdated = topologyUpdated.getNode().get(1);
         assertEquals(NEW_NEXT_HOP, nodeUpdated.getNodeId().getValue());
         assertEquals(ROUTE_IP6PREFIX, nodeUpdated.getAugmentation(Node1.class).getIgpNodeAttributes().getPrefix().get(0).getPrefix().getIpv6Prefix().getValue());
 
@@ -85,7 +85,7 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
         wTx.delete(LogicalDatastoreType.OPERATIONAL, this.ipv6RouteIID);
         wTx.submit();
         final Topology topologyDeleted = getTopology(this.ipv6TopoBuilder.getInstanceIdentifier()).get();
-        assertEquals(0, topologyDeleted.getNode().size());
+        assertEquals(2, topologyDeleted.getNode().size());
 
         this.ipv6TopoBuilder.close();
         assertFalse(getTopology(this.ipv6TopoBuilder.getInstanceIdentifier()).isPresent());

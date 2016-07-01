@@ -169,8 +169,8 @@ public class NodeChangedListenerTest extends AbstractDataBrokerTest {
         removeNode(NODE1_ID);
         removeNode(NODE2_ID);
         final Topology removedNodeTopo = readTunnelTopology().get();
-        Assert.assertEquals(0, removedNodeTopo.getNode().size());
-        Assert.assertEquals(0, removedNodeTopo.getLink().size());
+        Assert.assertEquals(2, removedNodeTopo.getNode().size());
+        Assert.assertEquals(1, removedNodeTopo.getLink().size());
     }
 
     @After
