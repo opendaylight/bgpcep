@@ -198,8 +198,8 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
         this.dispatcher.close();
         this.bmpApp.close();
         this.mappingService.close();
-        final BmpMonitor monitor = getBmpData(InstanceIdentifier.create(BmpMonitor.class)).get();
-        assertTrue(monitor.getMonitor().isEmpty());
+        final BmpMonitor monitor = getBmpData(InstanceIdentifier.create(BmpMonitor.class)).orNull();
+        assertNull(monitor);
     }
 
     @Test
@@ -236,7 +236,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
         channel4.close().await();
 
         Thread.sleep(500);
-        assertEquals(0, getBmpData(MONITOR_IID).get().getRouter().size());
+        assertNull(getBmpData(MONITOR_IID).get().getRouter());
     }
 
     private Channel testMonitoringStation(String remoteRouterIpAddr) throws InterruptedException {
@@ -360,7 +360,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
             channel.writeAndFlush(TestUtil.createPeerDownNotification(PEER1));
             Thread.sleep(500);
             final List<Peer> peersAfterDown = getBmpData(routerIId).get().getPeer();
-            assertTrue(peersAfterDown.isEmpty());
+            assertNull(peersAfterDown);
         } catch (final Exception e) {
             final StringBuffer ex = new StringBuffer();
             ex.append(e.getMessage() + "\n");

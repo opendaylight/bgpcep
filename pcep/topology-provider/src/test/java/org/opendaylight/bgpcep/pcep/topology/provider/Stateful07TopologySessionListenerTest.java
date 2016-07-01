@@ -232,7 +232,7 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         // check if lsp was removed
         topology = getTopology().get();
         pcc = topology.getNode().get(0).getAugmentation(Node1.class).getPathComputationClient();
-        assertEquals(0, pcc.getReportedLsp().size());
+        assertNull(pcc.getReportedLsp());
         // check stats
         assertEquals(0, this.listener.getDelegatedLspsCount().intValue());
         assertTrue(this.listener.getSynchronized());
@@ -300,7 +300,7 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
 
         // node should be removed after termination
         this.listener.onSessionTerminated(this.session, new PCEPCloseTermination(TerminationReason.UNKNOWN));
-        assertEquals(0, getTopology().get().getNode().size());
+        assertNull(getTopology().get().getNode());
     }
 
     @Test

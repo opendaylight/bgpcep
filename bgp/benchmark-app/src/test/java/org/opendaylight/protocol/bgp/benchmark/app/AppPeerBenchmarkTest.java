@@ -92,7 +92,7 @@ public class AppPeerBenchmarkTest extends AbstractDataBrokerTest {
         Assert.assertEquals(1, deleteResult.getCount().intValue());
         Assert.assertEquals(1, deleteResult.getRate().intValue());
         final Ipv4Routes routesAfterDelete = getRoutes();
-        Assert.assertTrue(routesAfterDelete.getIpv4Route().isEmpty());
+        Assert.assertNull(routesAfterDelete);
     }
 
     @After
@@ -102,7 +102,7 @@ public class AppPeerBenchmarkTest extends AbstractDataBrokerTest {
 
     private Ipv4Routes getRoutes() throws ReadFailedException {
         final ReadOnlyTransaction rTx = getDataBroker().newReadOnlyTransaction();
-        return rTx.read(LogicalDatastoreType.CONFIGURATION, ROUTES).checkedGet().get();
+        return rTx.read(LogicalDatastoreType.CONFIGURATION, ROUTES).checkedGet().orNull();
     }
 
 }

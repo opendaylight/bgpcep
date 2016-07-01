@@ -131,7 +131,7 @@ public class StateSynchronizationAvoidanceProcedureTest extends AbstractPCEPSess
         //check node - synchronized
         Assert.assertEquals(PccSyncState.Synchronized, pcc3.getStateSync());
         //check reported LSP is empty, LSP state from previous session was purged
-        Assert.assertTrue(pcc3.getReportedLsp().isEmpty());
+        Assert.assertNull(pcc3.getReportedLsp());
     }
 
     protected Open getOpen(final LspDbVersion dbVersion) {
