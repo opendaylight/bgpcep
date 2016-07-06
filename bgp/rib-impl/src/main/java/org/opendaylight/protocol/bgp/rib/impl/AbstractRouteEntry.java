@@ -35,6 +35,7 @@ abstract class AbstractRouteEntry {
     private OffsetMap offsets = OffsetMap.EMPTY;
     private ContainerNode[] values = EMPTY_ATTRIBUTES;
     private BestPath bestPath;
+    private BestPath removedBestPath = null;
 
     private int addRoute(final UnsignedInteger routerId, final ContainerNode attributes) {
         int offset = this.offsets.offsetOf(routerId);
@@ -91,10 +92,13 @@ abstract class AbstractRouteEntry {
 
         // Get the newly-selected best path.
         final BestPath newBestPath = selector.result();
-        final boolean ret = !newBestPath.equals(this.bestPath);
-        LOG.trace("Previous best {}, current best {}, result {}", this.bestPath, newBestPath, ret);
-        this.bestPath = newBestPath;
-        return ret;
+        final boolean modified = !newBestPath.equals(this.bestPath);
+        if (modified) {
+            this.removedBestPath = this.bestPath;
+            LOG.trace("Previous best {}, current best {}", this.bestPath, newBestPath);
+            this.bestPath = newBestPath;
+        }
+        return modified;
     }
 
     final ContainerNode attributes() {
@@ -107,6 +111,18 @@ abstract class AbstractRouteEntry {
 
     protected final UnsignedInteger getBestRouterId() {
         return this.bestPath.getRouterId();
+    }
+
+    protected final BestPath getRemovedBestPath() {
+        return this.removedBestPath;
+    }
+
+    protected void clearRemovedBestPath() {
+        this.removedBestPath = null;
+    }
+
+    protected final UnsignedInteger getRemovedBestRouterId() {
+        return this.removedBestPath != null ? this.removedBestPath.getRouterId() : null;
     }
 
     abstract boolean removeRoute(final UnsignedInteger routerId);
