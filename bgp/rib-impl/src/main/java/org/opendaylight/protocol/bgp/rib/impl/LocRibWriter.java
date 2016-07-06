@@ -272,8 +272,15 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
             if (entry != null) {
                 if (!entry.selectBest(this.ourAs)) {
                     // Best path has not changed, no need to do anything else. Proceed to next route.
-                    LOG.trace("Continuing");
+                    LOG.trace("Best path has not changed, continuing");
                     continue;
+                }
+                final UnsignedInteger removedBestPathId = entry.getRemovedBestRouterId();
+                if (removedBestPathId != null) {
+                    routePeerId = RouterIds.createPeerId(removedBestPathId);
+                    fillLocRib(tx, null, null, routeId);
+                    fillAdjRibsOut(tx, null, null, routeId, routePeerId);
+                    entry.clearRemovedBestPath();
                 }
                 routePeerId = RouterIds.createPeerId(entry.getBestRouterId());
                 value = entry.createValue(routeId);
