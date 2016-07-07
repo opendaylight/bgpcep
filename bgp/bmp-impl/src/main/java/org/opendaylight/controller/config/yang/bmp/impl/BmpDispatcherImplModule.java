@@ -8,10 +8,21 @@
 
 package org.opendaylight.controller.config.yang.bmp.impl;
 
-import org.opendaylight.protocol.bmp.impl.BmpDispatcherImpl;
-import org.opendaylight.protocol.bmp.impl.session.DefaultBmpSessionFactory;
+import com.google.common.reflect.AbstractInvocationHandler;
+import com.google.common.reflect.Reflection;
+import java.lang.reflect.Method;
+import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
+import org.opendaylight.protocol.bmp.api.BmpDispatcher;
+import org.osgi.framework.BundleContext;
 
-public class BmpDispatcherImplModule extends org.opendaylight.controller.config.yang.bmp.impl.AbstractBmpDispatcherImplModule {
+/**
+ * @deprecated Replaced by blueprint wiring but remains for backwards compatibility until downstream users
+ *             of the provided config system service are converted to blueprint.
+ */
+@Deprecated
+public class BmpDispatcherImplModule extends AbstractBmpDispatcherImplModule {
+    private BundleContext bundleContext;
+
     public BmpDispatcherImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
@@ -26,9 +37,29 @@ public class BmpDispatcherImplModule extends org.opendaylight.controller.config.
     }
 
     @Override
-    public java.lang.AutoCloseable createInstance() {
-        return new BmpDispatcherImpl(getBossGroupDependency(), getWorkerGroupDependency(),
-                getBmpExtensionsDependency().getBmpMessageRegistry(), new DefaultBmpSessionFactory());
+    public AutoCloseable createInstance() {
+        // The BmpDispatcher instance is created and advertised as an OSGi service via blueprint
+        // so obtain it here (waiting if necessary).
+        final WaitingServiceTracker<BmpDispatcher> tracker =
+                WaitingServiceTracker.create(BmpDispatcher.class, bundleContext);
+        final BmpDispatcher service = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
+
+        // Create a proxy to override close to close the ServiceTracker. The actual BmpDispatcher
+        // instance will be closed via blueprint.
+        return Reflection.newProxy(BmpDispatcher.class, new AbstractInvocationHandler() {
+            @Override
+            protected Object handleInvocation(Object proxy, Method method, Object[] args) throws Throwable {
+                if (method.getName().equals("close")) {
+                    tracker.close();
+                    return null;
+                } else {
+                    return method.invoke(service, args);
+                }
+            }
+        });
     }
 
+    void setBundleContext(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
+    }
 }
