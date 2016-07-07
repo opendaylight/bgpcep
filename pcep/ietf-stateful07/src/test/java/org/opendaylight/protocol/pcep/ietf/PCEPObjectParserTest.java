@@ -19,7 +19,7 @@ import org.opendaylight.protocol.pcep.ietf.initiated00.CInitiated00SrpObjectPars
 import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07LspObjectParser;
 import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07LspaObjectParser;
 import org.opendaylight.protocol.pcep.ietf.stateful07.StatefulActivator;
-import org.opendaylight.protocol.pcep.impl.Activator;
+import org.opendaylight.protocol.pcep.parser.BaseParserExtensionActivator;
 import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
@@ -79,7 +79,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 public class PCEPObjectParserTest {
 
     private SimplePCEPExtensionProviderContext ctx;
-    private Activator act;
+    private BaseParserExtensionActivator act;
 
     private TlvRegistry tlvRegistry;
     private VendorInformationTlvRegistry viTlvRegistry;
@@ -90,7 +90,7 @@ public class PCEPObjectParserTest {
     @Before
     public void setUp() throws Exception {
         this.ctx = new SimplePCEPExtensionProviderContext();
-        this.act = new Activator();
+        this.act = new BaseParserExtensionActivator();
         this.act.start(this.ctx);
         this.tlvRegistry = ServiceLoaderPCEPExtensionProviderContext.create().getTlvHandlerRegistry();
         this.viTlvRegistry = ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getVendorInformationTlvRegistry();

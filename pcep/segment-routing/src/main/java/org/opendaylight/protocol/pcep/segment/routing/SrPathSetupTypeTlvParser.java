@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.segment.routing;
 
-import org.opendaylight.protocol.pcep.impl.tlv.PathSetupTypeTlvParser;
+import org.opendaylight.protocol.pcep.parser.tlv.PathSetupTypeTlvParser;
 
 public class SrPathSetupTypeTlvParser extends PathSetupTypeTlvParser {
 
