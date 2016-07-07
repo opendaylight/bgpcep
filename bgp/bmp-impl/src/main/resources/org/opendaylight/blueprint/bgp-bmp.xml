@@ -2,12 +2,29 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
 
-  <reference id="BGPExtensionConsumerContext" interface="org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext"/>
+  <reference id="bmpExtensionContext" interface="org.opendaylight.protocol.bmp.spi.registry.BmpExtensionConsumerContext"/>
+  <reference id="globalBossGroup" interface="io.netty.channel.EventLoopGroup" odl:type="global-boss-group"/>
+  <reference id="globalWorkerGroup" interface="io.netty.channel.EventLoopGroup" odl:type="global-worker-group"/>
 
-  <bean id="bmpActivator" class="org.opendaylight.protocol.bmp.impl.BmpActivator">
-    <argument ref="BGPExtensionConsumerContext"/>
+  <bean id="bmpSessionFactory" class="org.opendaylight.protocol.bmp.impl.session.DefaultBmpSessionFactory"/>
+
+  <bean id="bmpDispatcher" class="org.opendaylight.protocol.bmp.impl.BmpDispatcherImpl">
+    <argument ref="globalBossGroup"/>
+    <argument ref="globalWorkerGroup"/>
+    <argument>
+      <bean factory-ref="bmpExtensionContext" factory-method="getBmpMessageRegistry"/>
+    </argument>
+    <argument ref="bmpSessionFactory"/>
   </bean>
 
-  <service ref="bmpActivator" interface="org.opendaylight.protocol.bmp.spi.registry.BmpExtensionProviderActivator"
-          odl:type="org.opendaylight.protocol.bmp.impl.BmpActivator"/>
+  <service ref="bmpDispatcher" interface="org.opendaylight.protocol.bmp.api.BmpDispatcher">
+    <!-- The following service properties specify the config system module and instance that correspond to
+         this OSGi service which enables the config system module to be restarted when this blueprint
+         container is restarted. -->
+    <service-properties>
+      <entry key="config-module-namespace" value="urn:opendaylight:params:xml:ns:yang:controller:bmp:impl"/>
+      <entry key="config-module-name" value="bmp-dispatcher-impl"/>
+      <entry key="config-instance-name" value="global-bmp-dispatcher"/>
+    </service-properties>
+  </service>
 </blueprint>

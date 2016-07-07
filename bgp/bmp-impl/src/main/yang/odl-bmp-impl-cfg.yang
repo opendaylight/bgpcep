@@ -4,7 +4,6 @@ module odl-bmp-impl-cfg {
     prefix "bmp-impl";
 
     import config { prefix config; revision-date 2013-04-05; }
-    import odl-bmp-spi-cfg { prefix spi; revision-date 2015-05-13; }
     import odl-bgp-rib-spi-cfg { prefix ribspi; revision-date 2013-11-15; }
     import odl-tcpmd5-netty-cfg { prefix tcpmd5-netty; revision-date 2014-04-27; }
     import odl-tcpmd5-cfg { prefix tcpmd5; revision-date 2014-04-27; }
@@ -40,6 +39,7 @@ module odl-bmp-impl-cfg {
 
         base "config:service-type";
         config:java-class "org.opendaylight.protocol.bmp.api.BmpDispatcher";
+        config:disable-osgi-service-registration;
     }
 
     identity bmp-dispatcher-impl {
@@ -51,51 +51,6 @@ module odl-bmp-impl-cfg {
     augment "/config:modules/config:module/config:configuration" {
         case bmp-dispatcher-impl {
             when "/config:modules/config:module/config:type = 'bmp-dispatcher-impl'";
-
-            container bmp-extensions {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity spi:consumer-extensions;
-                    }
-                }
-            }
-
-            container boss-group {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity netty:netty-threadgroup;
-                    }
-                }
-            }
-
-            container worker-group {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity netty:netty-threadgroup;
-                    }
-                }
-            }
-
-            container md5-channel-factory {
-                uses config:service-ref {
-                    refine type {
-                        mandatory false;
-                        config:required-identity tcpmd5-netty:md5-channel-factory;
-                    }
-                }
-            }
-
-            container md5-server-channel-factory {
-                uses config:service-ref {
-                    refine type {
-                        mandatory false;
-                        config:required-identity tcpmd5-netty:md5-server-channel-factory;
-                    }
-                }
-            }
         }
     }
 

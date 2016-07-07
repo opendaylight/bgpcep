@@ -32,6 +32,7 @@
         <feature version='${project.version}'>odl-bgpcep-bgp-labeled-unicast</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-bmp-api/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-bmp-spi/{{VERSION}}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-bmp-parser-ext/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-bmp-impl/{{VERSION}}</bundle>
         <configfile finalname="etc/opendaylight/karaf/31-bgp.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/{{VERSION}}/xml/config</configfile>
         <configfile finalname="etc/opendaylight/karaf/32-bmp.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/{{VERSION}}/xml/bmp-config</configfile>

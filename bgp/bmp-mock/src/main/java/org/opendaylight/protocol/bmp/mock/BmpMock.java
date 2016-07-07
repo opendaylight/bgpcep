@@ -16,7 +16,7 @@ import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionPr
 import org.opendaylight.protocol.bmp.api.BmpSession;
 import org.opendaylight.protocol.bmp.api.BmpSessionFactory;
 import org.opendaylight.protocol.bmp.api.BmpSessionListenerFactory;
-import org.opendaylight.protocol.bmp.impl.BmpActivator;
+import org.opendaylight.protocol.bmp.parser.BmpActivator;
 import org.opendaylight.protocol.bmp.spi.registry.BmpExtensionProviderActivator;
 import org.opendaylight.protocol.bmp.spi.registry.BmpExtensionProviderContext;
 import org.opendaylight.protocol.bmp.spi.registry.SimpleBmpExtensionProviderContext;

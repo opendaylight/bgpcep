@@ -14,7 +14,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
 import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.common.net.InetAddresses;
@@ -27,7 +26,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import java.net.InetSocketAddress;
 import java.util.List;
-import javassist.ClassPool;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -48,12 +46,12 @@ import org.opendaylight.protocol.bgp.rib.impl.RIBActivator;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.protocol.bmp.api.BmpDispatcher;
-import org.opendaylight.protocol.bmp.impl.BmpActivator;
 import org.opendaylight.protocol.bmp.impl.BmpDispatcherImpl;
 import org.opendaylight.protocol.bmp.impl.BmpHandlerFactory;
 import org.opendaylight.protocol.bmp.impl.session.DefaultBmpSessionFactory;
 import org.opendaylight.protocol.bmp.impl.spi.BmpMonitoringStation;
-import org.opendaylight.protocol.bmp.impl.test.TestUtil;
+import org.opendaylight.protocol.bmp.parser.BmpActivator;
+import org.opendaylight.protocol.bmp.parser.message.TestUtil;
 import org.opendaylight.protocol.bmp.spi.registry.BmpMessageRegistry;
 import org.opendaylight.protocol.bmp.spi.registry.SimpleBmpExtensionProviderContext;
 import org.opendaylight.tcpmd5.api.KeyAccess;
@@ -107,6 +105,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
+import javassist.ClassPool;
 
 public class BmpMonitorImplTest extends AbstractDataBrokerTest {
     // the local port and address where the monitor (ODL) will listen for incoming BMP request

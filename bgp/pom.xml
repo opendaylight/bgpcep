@@ -51,6 +51,7 @@
         <module>bmp-spi</module>
         <module>bmp-impl</module>
         <module>bmp-mock</module>
+        <module>bmp-parser-ext</module>
         <module>controller-config</module>
         <module>openconfig-api</module>
         <module>openconfig-spi</module>
