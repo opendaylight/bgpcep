@@ -10,21 +10,6 @@
         <data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
             <modules xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
                 <module>
-                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:spi">prefix:pcep-extensions-impl</type>
-                    <name>global-pcep-extensions</name>
-                    <extension>
-                        <type xmlns:pcepspi="urn:opendaylight:params:xml:ns:yang:controller:pcep:spi">pcepspi:extension</type>
-                        <name>pcep-parser-segment-routing</name>
-                    </extension>
-                </module>
-                <module>
-                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:sr:cfg">prefix:pcep-parser-segment-routing</type>
-                    <name>pcep-parser-segment-routing</name>
-                    <!-- Proposed code point for SR-ERO/RRO subobject by draft (=36) https://tools.ietf.org/html/draft-ietf-pce-segment-routing-06.
-                     to preserve (TYPE = 5/6) assigned type set the value to false or remove (false by default) or set true to use proposed ones
-                    <iana-sr-subobjects-type>true</iana-sr-subobjects-type>-->
-                </module>
-                <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:sr:cfg">prefix:pcep-segment-routing-capability</type>
                     <name>pcep-segment-routing-capability</name>
                 </module>
@@ -38,13 +23,6 @@
                 </module>
             </modules>
             <services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
-                <service>
-                    <type xmlns:pcepspi="urn:opendaylight:params:xml:ns:yang:controller:pcep:spi">pcepspi:extension</type>
-                    <instance>
-                        <name>pcep-parser-segment-routing</name>
-                        <provider>/config/modules/module[name='pcep-parser-segment-routing']/instance[name='pcep-parser-segment-routing']</provider>
-                    </instance>
-                </service>
                 <service>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep">prefix:pcep-capability</type>
                     <instance>

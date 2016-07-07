@@ -29,24 +29,6 @@ module odl-pcep-segment-routing-cfg {
             "Initial revision.";
     }
 
-    identity pcep-parser-segment-routing {
-        base config:module-type;
-        config:provided-service spi:extension;
-        config:java-name-prefix SegmentRoutingPCEPParser;
-    }
-
-    augment "/config:modules/config:module/config:configuration" {
-        case pcep-parser-segment-routing {
-            when "/config:modules/config:module/config:type = 'pcep-parser-segment-routing'";
-            leaf iana-sr-subobjects-type {
-                description "If false (default) SR-ERO type (=5) and SR-RRO type (=6) is used,
-                    else proposed type (36) is used for parsing/serialization";
-                type boolean;
-                default false;
-            }
-        }
-    }
-
     identity pcep-segment-routing-capability {
         base config:module-type;
         config:java-name-prefix "PCEPSegmentRoutingCapability";

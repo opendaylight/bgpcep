@@ -92,41 +92,5 @@ module odl-pcep-ietf-stateful07-cfg {
             uses stateful-capabilities;
         }
     }
-
-    identity pcep-parser-ietf-stateful07 {
-        base config:module-type;
-        config:provided-service spi:extension;
-        config:java-name-prefix IetfStateful07PCEPParser;
-    }
-
-    augment "/config:modules/config:module/config:configuration" {
-        case pcep-parser-ietf-stateful07 {
-            when "/config:modules/config:module/config:type = 'pcep-parser-ietf-stateful07'";
-        }
-    }
-
-    identity pcep-parser-ietf-initiated00 {
-        base config:module-type;
-        config:provided-service spi:extension;
-        config:java-name-prefix IetfInitiated00PCEPParser;
-    }
-
-    augment "/config:modules/config:module/config:configuration" {
-        case pcep-parser-ietf-initiated00 {
-            when "/config:modules/config:module/config:type = 'pcep-parser-ietf-initiated00'";
-        }
-    }
-
-    identity pcep-parser-sync-optimizations {
-        base config:module-type;
-        config:provided-service spi:extension;
-        config:java-name-prefix SyncOptimizationsPCEPParser;
-    }
-
-    augment "/config:modules/config:module/config:configuration" {
-        case pcep-parser-sync-optimizations {
-            when "/config:modules/config:module/config:type = 'pcep-parser-sync-optimizations'";
-        }
-    }
 }
 
