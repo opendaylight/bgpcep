@@ -99,6 +99,24 @@
       "revId": "90c6f12c05fcdeb929e94bed92d44fe62c663010",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_74cb9872",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful07TopologySessionListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2016-07-07T05:28:32Z",
+      "side": 1,
+      "message": "Ok uploaded new patch set following this approach",
+      "parentUuid": "da5c1566_e65542c7",
+      "revId": "90c6f12c05fcdeb929e94bed92d44fe62c663010",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
