@@ -16,12 +16,19 @@
  */
 package org.opendaylight.controller.config.yang.pcep.spi;
 
+import com.google.common.reflect.AbstractInvocationHandler;
+import com.google.common.reflect.Reflection;
+import java.lang.reflect.Method;
+import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
+import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
+import org.osgi.framework.BundleContext;
 
 /**
- *
+ * @deprecated Replaced by blueprint wiring
  */
-public final class SimplePCEPExtensionProviderContextModule extends
-        org.opendaylight.controller.config.yang.pcep.spi.AbstractSimplePCEPExtensionProviderContextModule {
+@Deprecated
+public final class SimplePCEPExtensionProviderContextModule extends AbstractSimplePCEPExtensionProviderContextModule {
+    private BundleContext bundleContext;
 
     public SimplePCEPExtensionProviderContextModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
             final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
@@ -35,21 +42,28 @@ public final class SimplePCEPExtensionProviderContextModule extends
     }
 
     @Override
-    public boolean canReuseInstance(final AbstractSimplePCEPExtensionProviderContextModule oldModule) {
-        return oldModule.getInstance().getClass().equals(ReusablePCEPExtensionProviderContext.class);
+    public AutoCloseable createInstance() {
+        final WaitingServiceTracker<PCEPExtensionProviderContext> tracker =
+                WaitingServiceTracker.create(PCEPExtensionProviderContext.class, bundleContext);
+        final PCEPExtensionProviderContext service = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
+
+        return Reflection.newProxy(AutoCloseablePCEPExtensionProviderContext.class, new AbstractInvocationHandler() {
+            @Override
+            protected Object handleInvocation(Object proxy, Method method, Object[] args) throws Throwable {
+                if (method.getName().equals("close")) {
+                    tracker.close();
+                    return null;
+                } else {
+                    return method.invoke(service, args);
+                }
+            }
+        });
     }
 
-    @Override
-    public java.lang.AutoCloseable reuseInstance(final java.lang.AutoCloseable oldInstance) {
-        final ReusablePCEPExtensionProviderContext ctx = (ReusablePCEPExtensionProviderContext) oldInstance;
-        ctx.reconfigure(getExtensionDependency());
-        return ctx;
+    void setBundleContext(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
     }
 
-    @Override
-    public java.lang.AutoCloseable createInstance() {
-        final ReusablePCEPExtensionProviderContext ctx = new ReusablePCEPExtensionProviderContext();
-        ctx.start(getExtensionDependency());
-        return ctx;
+    private static interface AutoCloseablePCEPExtensionProviderContext extends PCEPExtensionProviderContext, AutoCloseable {
     }
 }

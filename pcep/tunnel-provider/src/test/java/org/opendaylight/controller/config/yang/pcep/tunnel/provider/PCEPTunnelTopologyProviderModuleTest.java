@@ -11,6 +11,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import java.util.List;
 import javax.management.ObjectName;
+import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.controller.config.api.ValidationException;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
@@ -26,6 +27,8 @@ import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopolo
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderModuleTest;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.Stateful07TopologySessionListenerModuleFactory;
 import org.opendaylight.controller.config.yang.programming.impl.AbstractInstructionSchedulerTest;
+import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
+import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 
 public class PCEPTunnelTopologyProviderModuleTest extends AbstractInstructionSchedulerTest {
@@ -34,6 +37,14 @@ public class PCEPTunnelTopologyProviderModuleTest extends AbstractInstructionSch
     private static final String INSTANCE_NAME = "pcep-tunnel-topology-provider-instance";
 
     private static final TopologyId TOPOLOGY_ID = new TopologyId("pcep-topology");
+
+    @Override
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
+
+        setupMockService(PCEPExtensionProviderContext.class, new SimplePCEPExtensionProviderContext());
+    }
 
     @Test
     public void testValidationExceptionTopologyIdNotSet() throws Exception {

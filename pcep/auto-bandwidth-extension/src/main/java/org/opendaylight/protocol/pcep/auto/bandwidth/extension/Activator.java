@@ -8,6 +8,7 @@
 
 package org.opendaylight.protocol.pcep.auto.bandwidth.extension;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
@@ -18,6 +19,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 public class Activator extends AbstractPCEPExtensionProviderActivator {
 
     private final int bandwidthUsageObjectType;
+
+    @VisibleForTesting
+    public Activator() {
+        this(1);
+    }
 
     public Activator(final int bandwidthUsageObjectType) {
         this.bandwidthUsageObjectType = bandwidthUsageObjectType;

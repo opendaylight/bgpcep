@@ -180,7 +180,7 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
         setupMockService(DOMRpcProviderService.class, mockRpcProvider);
     }
 
-    private void setupMockService(final Class<?> serviceInterface, final Object instance) throws Exception {
+    protected void setupMockService(final Class<?> serviceInterface, final Object instance) throws Exception {
         final ServiceReference<?> mockServiceRef = mock(ServiceReference.class);
         doReturn(new ServiceReference[]{mockServiceRef}).when(mockedContext).
                 getServiceReferences(anyString(), contains(serviceInterface.getName()));
