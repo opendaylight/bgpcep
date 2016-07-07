@@ -65,11 +65,6 @@
                                     <classifier>config-segment</classifier>
                                 </artifact>
                                 <artifact>
-                                    <file>${project.build.directory}/classes/initial/34-pcep-auto-bandwidth.xml</file>
-                                    <type>xml</type>
-                                    <classifier>config-auto-bw</classifier>
-                                </artifact>
-                                <artifact>
                                     <file>${project.build.directory}/classes/initial/39-pcep-provider.xml</file>
                                     <type>xml</type>
                                     <classifier>config-provider</classifier>

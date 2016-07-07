@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
+
+  <odl:clustered-app-config id="segmentRoutingAppConfig"
+      binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.segment.routing.app.config.rev160707.PcepSegmentRoutingAppConfig"/>
+
+  <bean id="segmentRoutingActivator" class="org.opendaylight.protocol.pcep.segment.routing.SegmentRoutingActivator">
+    <argument>
+      <bean factory-ref="segmentRoutingAppConfig" factory-method="isIanaSrSubobjectsType"/>
+    </argument>
+  </bean>
+
+  <service ref="segmentRoutingActivator" interface="org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator"
+          odl:type="org.opendaylight.protocol.pcep.segment.routing.SegmentRoutingActivator"/>
+</blueprint>
