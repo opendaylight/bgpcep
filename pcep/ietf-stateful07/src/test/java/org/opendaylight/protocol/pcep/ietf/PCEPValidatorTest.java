@@ -10,7 +10,6 @@ package org.opendaylight.protocol.pcep.ietf;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -26,8 +25,8 @@ import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07ErrorMessagePars
 import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07PCReportMessageParser;
 import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07PCUpdateRequestMessageParser;
 import org.opendaylight.protocol.pcep.ietf.stateful07.StatefulActivator;
-import org.opendaylight.protocol.pcep.impl.Activator;
-import org.opendaylight.protocol.pcep.impl.message.PCEPOpenMessageParser;
+import org.opendaylight.protocol.pcep.parser.BaseParserExtensionActivator;
+import org.opendaylight.protocol.pcep.parser.message.PCEPOpenMessageParser;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsActivator;
@@ -126,7 +125,7 @@ public class PCEPValidatorTest {
     private UnnumberedCase rroUnnumberedSub;
 
     private SimplePCEPExtensionProviderContext ctx;
-    private Activator act;
+    private BaseParserExtensionActivator act;
 
     private static final byte[] PCRT1 = {
         (byte) 0x20, (byte) 0x0A, (byte) 0x00, (byte) 0x20,
@@ -163,7 +162,7 @@ public class PCEPValidatorTest {
     @Before
     public void setUp() throws Exception {
         this.ctx = new SimplePCEPExtensionProviderContext();
-        this.act = new Activator();
+        this.act = new BaseParserExtensionActivator();
         this.act.start(this.ctx);
 
         final LspaBuilder lspaBuilder = new LspaBuilder();

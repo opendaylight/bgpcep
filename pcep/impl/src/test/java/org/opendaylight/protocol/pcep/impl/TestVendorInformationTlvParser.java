@@ -9,8 +9,7 @@
 package org.opendaylight.protocol.pcep.impl;
 
 import io.netty.buffer.ByteBuf;
-
-import org.opendaylight.protocol.pcep.impl.tlv.AbstractVendorInformationTlvParser;
+import org.opendaylight.protocol.pcep.parser.tlv.AbstractVendorInformationTlvParser;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.EnterpriseSpecificInformation;

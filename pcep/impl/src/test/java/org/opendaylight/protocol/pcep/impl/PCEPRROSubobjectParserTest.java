@@ -14,12 +14,13 @@ import static org.junit.Assert.fail;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Test;
-import org.opendaylight.protocol.pcep.impl.subobject.RROIpv4PrefixSubobjectParser;
-import org.opendaylight.protocol.pcep.impl.subobject.RROIpv6PrefixSubobjectParser;
-import org.opendaylight.protocol.pcep.impl.subobject.RROLabelSubobjectParser;
-import org.opendaylight.protocol.pcep.impl.subobject.RROPathKey128SubobjectParser;
-import org.opendaylight.protocol.pcep.impl.subobject.RROPathKey32SubobjectParser;
-import org.opendaylight.protocol.pcep.impl.subobject.RROUnnumberedInterfaceSubobjectParser;
+import org.opendaylight.protocol.pcep.parser.BaseParserExtensionActivator;
+import org.opendaylight.protocol.pcep.parser.subobject.RROIpv4PrefixSubobjectParser;
+import org.opendaylight.protocol.pcep.parser.subobject.RROIpv6PrefixSubobjectParser;
+import org.opendaylight.protocol.pcep.parser.subobject.RROLabelSubobjectParser;
+import org.opendaylight.protocol.pcep.parser.subobject.RROPathKey128SubobjectParser;
+import org.opendaylight.protocol.pcep.parser.subobject.RROPathKey32SubobjectParser;
+import org.opendaylight.protocol.pcep.parser.subobject.RROUnnumberedInterfaceSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
@@ -198,7 +199,7 @@ public class PCEPRROSubobjectParserTest {
     @Test
     public void testRROLabelSubobject() throws Exception {
         final SimplePCEPExtensionProviderContext ctx = new SimplePCEPExtensionProviderContext();
-        try (Activator a = new Activator()) {
+        try (BaseParserExtensionActivator a = new BaseParserExtensionActivator()) {
             a.start(ctx);
             final RROLabelSubobjectParser parser = new RROLabelSubobjectParser(ctx.getLabelHandlerRegistry());
             final SubobjectBuilder subs = new SubobjectBuilder();
