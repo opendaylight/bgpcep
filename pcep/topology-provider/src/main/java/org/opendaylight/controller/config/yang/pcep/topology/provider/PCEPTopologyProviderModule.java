@@ -29,6 +29,7 @@ import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.controller.config.yang.pcep.impl.PCEPDispatcherImplModuleMXBean;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.tcpmd5.api.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.tcpmd5.cfg.rev140427.Rfc2385Key;
@@ -129,6 +130,18 @@ public final class PCEPTopologyProviderModule extends
 
     @Override
     public java.lang.AutoCloseable createInstance() {
+        List<PCEPCapability> capabilities = getDispatcherDependency().getPCEPSessionNegotiatorFactory().getPCEPSessionProposalFactory().getCapabilities();
+        boolean statefulCapability = false;
+        for (final PCEPCapability capability : capabilities) {
+            if (capability.isStateful()) {
+                statefulCapability = true;
+                break;
+            }
+        }
+        if (!statefulCapability && getStatefulPluginDependency() != null) {
+            throw new IllegalStateException("Stateful capability not defined, aborting PCEP Topology Provider instantiation");
+        }
+
         final InstanceIdentifier<Topology> topology = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
                 new TopologyKey(getTopologyId())).build();
         final InetSocketAddress address = new InetSocketAddress(listenAddress(), getListenPort().getValue());
