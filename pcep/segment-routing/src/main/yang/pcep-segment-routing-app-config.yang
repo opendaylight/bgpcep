@@ -1,0 +1,22 @@
+module pcep-segment-routing-app-config {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:controller:pcep:segment-routing-app-config";
+    prefix "pcep-segment-routing-app-config";
+
+    description
+      "Configuration for the PCEP segment routing extension.";
+
+    revision "2016-07-07" {
+        description
+            "Initial revision.";
+    }
+
+    container pcep-segment-routing-app-config {
+        leaf iana-sr-subobjects-type {
+            description "If false (default) SR-ERO type (=5) and SR-RRO type (=6) is used,
+                    else proposed type (36) is used for parsing/serialization";
+            type boolean;
+            default false;
+        }
+    }
+}

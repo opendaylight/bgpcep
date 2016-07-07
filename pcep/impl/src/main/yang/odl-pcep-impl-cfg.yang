@@ -48,18 +48,6 @@ module odl-pcep-impl-cfg {
         }
     }
 
-    identity pcep-parser-base {
-        base config:module-type;
-        config:provided-service spi:extension;
-        config:java-name-prefix BasePCEPParser;
-    }
-
-    augment "/config:modules/config:module/config:configuration" {
-        case pcep-parser-base {
-            when "/config:modules/config:module/config:type = 'pcep-parser-base'";
-        }
-    }
-
     identity pcep-dispatcher-impl {
         base config:module-type;
         config:provided-service pcep:pcep-dispatcher;

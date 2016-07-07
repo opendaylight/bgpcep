@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import javax.management.ObjectName;
+import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.controller.config.api.ValidationException;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
@@ -25,6 +26,8 @@ import org.opendaylight.controller.config.yang.pcep.impl.PCEPSessionProposalFact
 import org.opendaylight.controller.config.yang.pcep.spi.SimplePCEPExtensionProviderContextModuleFactory;
 import org.opendaylight.controller.config.yang.pcep.stateful07.cfg.PCEPStatefulCapabilityModuleFactory;
 import org.opendaylight.controller.config.yang.programming.impl.AbstractInstructionSchedulerTest;
+import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
+import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.rfc2385.cfg.rev160324.Rfc2385Key;
@@ -39,6 +42,14 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
     private static final String LISTEN_ADDRESS = "0.0.0.0";
     private static final PortNumber LISTEN_PORT = new PortNumber(4189);
     private static final TopologyId TOPOLOGY_ID = new TopologyId("pcep-topology");
+
+    @Override
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
+
+        setupMockService(PCEPExtensionProviderContext.class, new SimplePCEPExtensionProviderContext());
+    }
 
     @Test
     public void testValidationExceptionListenAddressNotSet() throws Exception {
