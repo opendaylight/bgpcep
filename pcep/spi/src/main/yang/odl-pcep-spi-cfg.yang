@@ -50,6 +50,7 @@ module odl-pcep-spi-cfg {
 
         base "config:service-type";
         config:java-class "org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator";
+        config:disable-osgi-service-registration;
     }
 
     identity pcep-extensions-impl {
@@ -61,15 +62,6 @@ module odl-pcep-spi-cfg {
     augment "/config:modules/config:module/config:configuration" {
         case pcep-extensions-impl {
             when "/config:modules/config:module/config:type = 'pcep-extensions-impl'";
-
-            list extension {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity extension;
-                    }
-                }
-            }
         }
     }
 }

@@ -23,40 +23,6 @@
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:spi">prefix:pcep-extensions-impl</type>
                     <name>global-pcep-extensions</name>
-                    <extension>
-                        <type xmlns:pcepspi="urn:opendaylight:params:xml:ns:yang:controller:pcep:spi">pcepspi:extension</type>
-                        <name>pcep-parser-base</name>
-                    </extension>
-
-                    <!-- This block is draft-ietf-pce-stateful-pce-07 + draft-ietf-pce-inititated-pce-00 -->
-                    <extension>
-                        <type xmlns:pcepspi="urn:opendaylight:params:xml:ns:yang:controller:pcep:spi">pcepspi:extension</type>
-                        <name>pcep-parser-ietf-stateful07</name>
-                    </extension>
-                    <extension>
-                        <type xmlns:pcepspi="urn:opendaylight:params:xml:ns:yang:controller:pcep:spi">pcepspi:extension</type>
-                        <name>pcep-parser-ietf-initiated00</name>
-                    </extension>
-                    <extension>
-                        <type xmlns:pcepspi="urn:opendaylight:params:xml:ns:yang:controller:pcep:spi">pcepspi:extension</type>
-                        <name>pcep-parser-sync-optimizations</name>
-                    </extension>
-                </module>
-                <module>
-                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:impl">prefix:pcep-parser-base</type>
-                    <name>pcep-parser-base</name>
-                </module>
-                <module>
-                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful07:cfg">prefix:pcep-parser-ietf-stateful07</type>
-                    <name>pcep-parser-ietf-stateful07</name>
-                </module>
-                <module>
-                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful07:cfg">prefix:pcep-parser-ietf-initiated00</type>
-                    <name>pcep-parser-ietf-initiated00</name>
-                </module>
-                <module>
-                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful07:cfg">prefix:pcep-parser-sync-optimizations</type>
-                    <name>pcep-parser-sync-optimizations</name>
                 </module>
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful07:cfg">prefix:stateful-capability</type>
@@ -112,25 +78,6 @@
                     <instance>
                         <name>global-pcep-extensions</name>
                         <provider>/config/modules/module[name='pcep-extensions-impl']/instance[name='global-pcep-extensions']</provider>
-                    </instance>
-                </service>
-                <service>
-                    <type xmlns:pcepspi="urn:opendaylight:params:xml:ns:yang:controller:pcep:spi">pcepspi:extension</type>
-                    <instance>
-                        <name>pcep-parser-base</name>
-                        <provider>/config/modules/module[name='pcep-parser-base']/instance[name='pcep-parser-base']</provider>
-                    </instance>
-                    <instance>
-                        <name>pcep-parser-ietf-initiated00</name>
-                        <provider>/config/modules/module[name='pcep-parser-ietf-initiated00']/instance[name='pcep-parser-ietf-initiated00']</provider>
-                    </instance>
-                    <instance>
-                        <name>pcep-parser-ietf-stateful07</name>
-                        <provider>/config/modules/module[name='pcep-parser-ietf-stateful07']/instance[name='pcep-parser-ietf-stateful07']</provider>
-                    </instance>
-                    <instance>
-                        <name>pcep-parser-sync-optimizations</name>
-                        <provider>/config/modules/module[name='pcep-parser-sync-optimizations']/instance[name='pcep-parser-sync-optimizations']</provider>
                     </instance>
                 </service>
                 <service>

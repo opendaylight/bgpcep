@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
+
+  <bean id="ietfStateful07Activator" class="org.opendaylight.protocol.pcep.ietf.stateful07.StatefulActivator"/>
+  <service ref="ietfStateful07Activator" interface="org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator"
+          odl:type="org.opendaylight.protocol.pcep.ietf.stateful07.StatefulActivator"/>
+
+  <bean id="ietfInitiated00Activator" class="org.opendaylight.protocol.pcep.ietf.initiated00.CrabbeInitiatedActivator"/>
+  <service ref="ietfInitiated00Activator" interface="org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator"
+          odl:type="org.opendaylight.protocol.pcep.ietf.initiated00.CrabbeInitiatedActivator"/>
+
+  <bean id="syncOptimizationsActivator" class="org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsActivator"/>
+  <service ref="syncOptimizationsActivator" interface="org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator"
+          odl:type="org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsActivator"/>
+</blueprint>
