@@ -242,6 +242,11 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-base-parser</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>pcep-ietf-stateful07</artifactId>
                 <version>${project.version}</version>
             </dependency>

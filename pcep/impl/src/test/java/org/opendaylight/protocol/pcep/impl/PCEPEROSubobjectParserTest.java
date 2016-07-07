@@ -17,14 +17,15 @@ import io.netty.buffer.Unpooled;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.protocol.pcep.impl.subobject.EROAsNumberSubobjectParser;
-import org.opendaylight.protocol.pcep.impl.subobject.EROExplicitExclusionRouteSubobjectParser;
-import org.opendaylight.protocol.pcep.impl.subobject.EROIpv4PrefixSubobjectParser;
-import org.opendaylight.protocol.pcep.impl.subobject.EROIpv6PrefixSubobjectParser;
-import org.opendaylight.protocol.pcep.impl.subobject.EROLabelSubobjectParser;
-import org.opendaylight.protocol.pcep.impl.subobject.EROPathKey128SubobjectParser;
-import org.opendaylight.protocol.pcep.impl.subobject.EROPathKey32SubobjectParser;
-import org.opendaylight.protocol.pcep.impl.subobject.EROUnnumberedInterfaceSubobjectParser;
+import org.opendaylight.protocol.pcep.parser.BaseParserExtensionActivator;
+import org.opendaylight.protocol.pcep.parser.subobject.EROAsNumberSubobjectParser;
+import org.opendaylight.protocol.pcep.parser.subobject.EROExplicitExclusionRouteSubobjectParser;
+import org.opendaylight.protocol.pcep.parser.subobject.EROIpv4PrefixSubobjectParser;
+import org.opendaylight.protocol.pcep.parser.subobject.EROIpv6PrefixSubobjectParser;
+import org.opendaylight.protocol.pcep.parser.subobject.EROLabelSubobjectParser;
+import org.opendaylight.protocol.pcep.parser.subobject.EROPathKey128SubobjectParser;
+import org.opendaylight.protocol.pcep.parser.subobject.EROPathKey32SubobjectParser;
+import org.opendaylight.protocol.pcep.parser.subobject.EROUnnumberedInterfaceSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
@@ -69,12 +70,12 @@ public class PCEPEROSubobjectParserTest {
     private static final byte[] exrsBytes = { (byte) 0xa1, (byte) 0x06, (byte) 0xa0, (byte) 0x04, (byte) 0x00, (byte) 0x64 };
 
     private SimplePCEPExtensionProviderContext ctx;
-    private Activator act;
+    private BaseParserExtensionActivator act;
 
     @Before
     public void setUp() {
         this.ctx = new SimplePCEPExtensionProviderContext();
-        this.act = new Activator();
+        this.act = new BaseParserExtensionActivator();
         this.act.start(this.ctx);
     }
 

@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.protocol.pcep.impl.object.PCEPOpenObjectParser;
+import org.opendaylight.protocol.pcep.parser.object.PCEPOpenObjectParser;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs1;

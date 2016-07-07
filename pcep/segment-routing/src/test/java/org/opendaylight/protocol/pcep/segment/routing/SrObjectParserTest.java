@@ -17,7 +17,7 @@ import io.netty.buffer.Unpooled;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.protocol.pcep.impl.object.PCEPExplicitRouteObjectParser;
+import org.opendaylight.protocol.pcep.parser.object.PCEPExplicitRouteObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;

@@ -60,6 +60,7 @@
     <feature name='odl-bgpcep-pcep-impl' version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-pcep-dependencies</feature>
         <feature version='${project.version}'>odl-bgpcep-pcep-api</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/pcep-base-parser/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/pcep-impl/{{VERSION}}</bundle>
     </feature>
 

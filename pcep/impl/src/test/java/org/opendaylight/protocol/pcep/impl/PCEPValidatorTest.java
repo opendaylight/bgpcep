@@ -21,16 +21,17 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.impl.TestVendorInformationTlvParser.TestEnterpriseSpecificInformation;
-import org.opendaylight.protocol.pcep.impl.message.PCEPCloseMessageParser;
-import org.opendaylight.protocol.pcep.impl.message.PCEPErrorMessageParser;
-import org.opendaylight.protocol.pcep.impl.message.PCEPKeepAliveMessageParser;
-import org.opendaylight.protocol.pcep.impl.message.PCEPMonitoringReplyMessageParser;
-import org.opendaylight.protocol.pcep.impl.message.PCEPMonitoringRequestMessageParser;
-import org.opendaylight.protocol.pcep.impl.message.PCEPNotificationMessageParser;
-import org.opendaylight.protocol.pcep.impl.message.PCEPOpenMessageParser;
-import org.opendaylight.protocol.pcep.impl.message.PCEPReplyMessageParser;
-import org.opendaylight.protocol.pcep.impl.message.PCEPRequestMessageParser;
-import org.opendaylight.protocol.pcep.impl.message.PCEPStartTLSMessageParser;
+import org.opendaylight.protocol.pcep.parser.BaseParserExtensionActivator;
+import org.opendaylight.protocol.pcep.parser.message.PCEPCloseMessageParser;
+import org.opendaylight.protocol.pcep.parser.message.PCEPErrorMessageParser;
+import org.opendaylight.protocol.pcep.parser.message.PCEPKeepAliveMessageParser;
+import org.opendaylight.protocol.pcep.parser.message.PCEPMonitoringReplyMessageParser;
+import org.opendaylight.protocol.pcep.parser.message.PCEPMonitoringRequestMessageParser;
+import org.opendaylight.protocol.pcep.parser.message.PCEPNotificationMessageParser;
+import org.opendaylight.protocol.pcep.parser.message.PCEPOpenMessageParser;
+import org.opendaylight.protocol.pcep.parser.message.PCEPReplyMessageParser;
+import org.opendaylight.protocol.pcep.parser.message.PCEPRequestMessageParser;
+import org.opendaylight.protocol.pcep.parser.message.PCEPStartTLSMessageParser;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.VendorInformationObjectRegistry;
@@ -165,13 +166,13 @@ public class PCEPValidatorTest {
     private AsNumberCase eroASSubobject;
 
     private SimplePCEPExtensionProviderContext ctx;
-    private Activator act;
+    private BaseParserExtensionActivator act;
     private TestVendorInformationActivator viObjAct;
 
     @Before
     public void setUp() throws Exception {
         this.ctx = new SimplePCEPExtensionProviderContext();
-        this.act = new Activator();
+        this.act = new BaseParserExtensionActivator();
         this.viObjAct = new TestVendorInformationActivator();
         this.act.start(this.ctx);
         this.viObjAct.start(this.ctx);
