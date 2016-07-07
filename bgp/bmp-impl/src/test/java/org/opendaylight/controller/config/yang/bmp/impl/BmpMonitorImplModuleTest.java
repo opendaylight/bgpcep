@@ -16,8 +16,7 @@ import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
 import com.google.common.io.Resources;
 import com.google.common.util.concurrent.CheckedFuture;
-import io.netty.channel.EventLoopGroup;
-import io.netty.util.concurrent.EventExecutor;
+import io.netty.channel.nio.NioEventLoopGroup;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -40,17 +39,12 @@ import org.opendaylight.controller.config.manager.impl.factoriesresolver.Hardcod
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
 import org.opendaylight.controller.config.yang.bgp.rib.spi.RIBExtensionsImplModuleFactory;
 import org.opendaylight.controller.config.yang.bgp.rib.spi.RIBExtensionsImplModuleMXBean;
-import org.opendaylight.controller.config.yang.bmp.spi.SimpleBmpExtensionProviderContextModuleFactory;
 import org.opendaylight.controller.config.yang.md.sal.binding.impl.RuntimeMappingModuleFactory;
 import org.opendaylight.controller.config.yang.md.sal.binding.impl.RuntimeMappingModuleMXBean;
 import org.opendaylight.controller.config.yang.md.sal.dom.impl.DomInmemoryDataBrokerModuleFactory;
 import org.opendaylight.controller.config.yang.md.sal.dom.impl.DomInmemoryDataBrokerModuleMXBean;
 import org.opendaylight.controller.config.yang.md.sal.dom.impl.SchemaServiceImplSingletonModuleFactory;
 import org.opendaylight.controller.config.yang.md.sal.dom.impl.SchemaServiceImplSingletonModuleMXBean;
-import org.opendaylight.controller.config.yang.netty.eventexecutor.AutoCloseableEventExecutor;
-import org.opendaylight.controller.config.yang.netty.eventexecutor.GlobalEventExecutorModuleFactory;
-import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgroupModuleFactory;
-import org.opendaylight.controller.config.yang.netty.threadgroup.NioEventLoopGroupCloseable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodecFactory;
@@ -59,6 +53,10 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
 import org.opendaylight.controller.sal.core.api.model.YangTextSourceProvider;
+import org.opendaylight.protocol.bmp.api.BmpDispatcher;
+import org.opendaylight.protocol.bmp.impl.BmpDispatcherImpl;
+import org.opendaylight.protocol.bmp.impl.session.DefaultBmpSessionFactory;
+import org.opendaylight.protocol.bmp.spi.registry.SimpleBmpMessageRegistry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.sal.binding.generator.api.ClassLoadingStrategy;
@@ -102,9 +100,6 @@ public class BmpMonitorImplModuleTest extends AbstractBmpModuleTest {
             new RuntimeMappingModuleFactory(),
             new DomInmemoryDataBrokerModuleFactory(),
             new BmpDispatcherImplModuleFactory(),
-            new NettyThreadgroupModuleFactory(),
-            new SimpleBmpExtensionProviderContextModuleFactory(),
-            new GlobalEventExecutorModuleFactory(),
             new SchemaServiceImplSingletonModuleFactory()));
 
         final ServiceReference<?> emptyServiceReference = mock(ServiceReference.class, "Empty");
@@ -163,8 +158,9 @@ public class BmpMonitorImplModuleTest extends AbstractBmpModuleTest {
         BindingToNormalizedNodeCodecFactory.getOrCreateInstance(
                 GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), mockedSchemaService);
 
-        setupMockService(EventLoopGroup.class, NioEventLoopGroupCloseable.newInstance(0));
-        setupMockService(EventExecutor.class, AutoCloseableEventExecutor.CloseableEventExecutorMixin.globalEventExecutor());
+        BmpDispatcher bmpDispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(),
+                new SimpleBmpMessageRegistry(), new DefaultBmpSessionFactory());
+        setupMockService(BmpDispatcher.class, bmpDispatcher);
     }
 
     private static SchemaContext parseYangStreams(final Collection<ByteSource> streams) {
@@ -208,7 +204,7 @@ public class BmpMonitorImplModuleTest extends AbstractBmpModuleTest {
     public void testCreateBean() throws Exception {
         final CommitStatus status = createInstance();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 9, 0, 0);
+        assertStatus(status, 6, 0, 0);
     }
 
     @Test
@@ -218,7 +214,7 @@ public class BmpMonitorImplModuleTest extends AbstractBmpModuleTest {
         assertBeanCount(1, FACTORY_NAME);
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 0, 9);
+        assertStatus(status, 0, 0, 6);
     }
 
     private CommitStatus createInstance() throws Exception {
@@ -259,6 +255,8 @@ public class BmpMonitorImplModuleTest extends AbstractBmpModuleTest {
     }
 
     private static ObjectName createDispatcher(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
-        return BmpDispatcherImplModuleTest.createInstance(transaction);
+        final ObjectName nameCreated = transaction.createModule(BmpDispatcherImplModuleFactory.NAME, "bmp-message-fct");
+        transaction.newMXBeanProxy(nameCreated, BmpDispatcherImplModuleMXBean.class);
+        return nameCreated;
     }
 }
