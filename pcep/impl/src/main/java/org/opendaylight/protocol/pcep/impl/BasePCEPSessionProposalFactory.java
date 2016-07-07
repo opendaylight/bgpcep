@@ -67,4 +67,7 @@ public final class BasePCEPSessionProposalFactory implements PCEPSessionProposal
         return this.deadTimer;
     }
 
+    public List<PCEPCapability> getCapabilities() {
+        return this.capabilities;
+    }
 }
