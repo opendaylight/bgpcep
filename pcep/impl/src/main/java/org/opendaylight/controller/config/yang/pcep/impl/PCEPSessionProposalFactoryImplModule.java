@@ -17,7 +17,9 @@
 package org.opendaylight.controller.config.yang.pcep.impl;
 
 import java.net.InetSocketAddress;
+import java.util.List;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
+import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
@@ -87,6 +89,11 @@ public final class PCEPSessionProposalFactoryImplModule extends
         public Open getSessionProposal(final InetSocketAddress address,
                 final int sessionId, final PCEPPeerProposal peerProposal) {
             return this.inner.getSessionProposal(address, sessionId, peerProposal);
+        }
+
+        @Override
+        public List<PCEPCapability> getCapabilities() {
+            return this.inner.getCapabilities();
         }
     }
 }

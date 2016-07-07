@@ -35,4 +35,9 @@ public class PCEPSegmentRoutingCapability implements PCEPCapability {
     public boolean isSegmentRoutingCapable() {
         return this.isSegmentRoutingCapable;
     }
+
+    @Override
+    public boolean isStateful() {
+        return false;
+    }
 }

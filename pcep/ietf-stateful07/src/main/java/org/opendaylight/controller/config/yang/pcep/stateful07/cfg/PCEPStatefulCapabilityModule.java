@@ -56,5 +56,9 @@ public class PCEPStatefulCapabilityModule extends org.opendaylight.controller.co
         public void setCapabilityProposal(final InetSocketAddress address, final TlvsBuilder builder) {
             this.innerCapabilityImpl.setCapabilityProposal(address, builder);
         }
+        @Override
+        public boolean isStateful() {
+            return this.innerCapabilityImpl.isStateful();
+        }
     }
 }
