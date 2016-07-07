@@ -11,7 +11,6 @@ package org.opendaylight.protocol.pcep.auto.bandwidth.extension;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -24,7 +23,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.ietf.stateful07.StatefulActivator;
-import org.opendaylight.protocol.pcep.impl.Activator;
+import org.opendaylight.protocol.pcep.parser.BaseParserExtensionActivator;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
@@ -56,14 +55,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 public class PcRptMessageCodecTest {
 
     private SimplePCEPExtensionProviderContext ctx;
-    private Activator act;
+    private BaseParserExtensionActivator act;
     private StatefulActivator statefulAct;
     private org.opendaylight.protocol.pcep.auto.bandwidth.extension.Activator autoBwActivator;
 
     @Before
     public void setUp() {
         this.ctx = new SimplePCEPExtensionProviderContext();
-        this.act = new Activator();
+        this.act = new BaseParserExtensionActivator();
         this.act.start(this.ctx);
         this.statefulAct = new StatefulActivator();
         this.statefulAct.start(this.ctx);
