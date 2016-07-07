@@ -145,4 +145,8 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     protected interface ChannelPipelineInitializer {
         void initializeChannel(SocketChannel socketChannel, Promise<PCEPSessionImpl> promise);
     }
+
+    public PCEPSessionNegotiatorFactory getPCEPSessionNegotiatorFactory() {
+        return this.snf;
+    }
 }

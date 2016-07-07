@@ -46,6 +46,11 @@ public class PCEPSegmentRoutingCapabilityModule extends org.opendaylight.control
             this.inner.setCapabilityProposal(address, builder);
         }
 
+        @Override
+        public boolean isStateful() {
+            return this.inner.isStateful();
+        }
+
     }
 
 }
