@@ -1,2 +1,3 @@
 org.opendaylight.protocol.pcep.ietf.stateful07.StatefulActivator
 org.opendaylight.protocol.pcep.ietf.initiated00.CrabbeInitiatedActivator
+org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsActivator

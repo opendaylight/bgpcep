@@ -32,6 +32,8 @@ import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgrou
 import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgroupModuleMXBean;
 import org.opendaylight.controller.config.yang.pcep.spi.SimplePCEPExtensionProviderContextModuleFactory;
 import org.opendaylight.controller.config.yang.pcep.spi.SimplePCEPExtensionProviderContextModuleMXBean;
+import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
+import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.impl.rev130627.PathType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.impl.rev130627.StoreType;
 import org.osgi.framework.Filter;
@@ -69,14 +71,17 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
         }).when(mockedContext).createFilter(anyString());
         doNothing().when(mockedContext).addServiceListener(any(ServiceListener.class), anyString());
 
-        setupMockService(EventLoopGroup.class);
+        setupMockService(EventLoopGroup.class, mock(EventLoopGroup.class));
+        setupMockService(PCEPExtensionProviderContext.class, new SimplePCEPExtensionProviderContext());
     }
 
-    private void setupMockService(Class<?> serviceInterface) throws Exception {
-        ServiceReference<?> mockServiceRef = mock(ServiceReference.class);
+    private void setupMockService(final Class<?> serviceInterface, final Object instance) throws Exception {
+        final ServiceReference<?> mockServiceRef = mock(ServiceReference.class);
         doReturn(new ServiceReference[]{mockServiceRef}).when(mockedContext).
                 getServiceReferences(anyString(), contains(serviceInterface.getName()));
-        doReturn(mock(serviceInterface)).when(mockedContext).getService(mockServiceRef);
+        doReturn(new ServiceReference[]{mockServiceRef}).when(mockedContext).
+                getServiceReferences(serviceInterface.getName(), null);
+        doReturn(instance).when(mockedContext).getService(mockServiceRef);
     }
 
     @Test
