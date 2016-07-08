@@ -11,12 +11,17 @@ module pcep-segment-routing-app-config {
             "Initial revision.";
     }
 
-    container pcep-segment-routing-app-config {
+    container pcep-segment-routing-config {
         leaf iana-sr-subobjects-type {
             description "If false (default) SR-ERO type (=5) and SR-RRO type (=6) is used,
                     else proposed type (36) is used for parsing/serialization";
             type boolean;
             default false;
+        }
+
+        leaf sr-capable {
+            type boolean;
+            default true;
         }
     }
 }

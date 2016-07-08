@@ -1,0 +1,25 @@
+module pcep-app-config {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:controller:pcep:app-config";
+    prefix "pcep-app-config";
+
+    description
+      "Configuration for the PCEP implementation.";
+
+    revision "2016-07-07" {
+        description
+            "Initial revision.";
+    }
+
+    container pcep-session-config {
+        leaf dead-timer-value {
+            type uint16;
+            default 120;
+        }
+
+        leaf keep-alive-timer-value {
+            type uint16;
+            default 30;
+        }
+    }
+}

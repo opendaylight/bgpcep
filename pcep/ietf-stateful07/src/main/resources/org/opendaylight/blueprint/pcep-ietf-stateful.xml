@@ -2,6 +2,8 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
 
+  <!-- Protocal extension providers -->
+  
   <bean id="ietfStateful07Activator" class="org.opendaylight.protocol.pcep.ietf.stateful07.StatefulActivator"/>
   <service ref="ietfStateful07Activator" interface="org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator"
           odl:type="org.opendaylight.protocol.pcep.ietf.stateful07.StatefulActivator"/>
@@ -13,4 +15,17 @@
   <bean id="syncOptimizationsActivator" class="org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsActivator"/>
   <service ref="syncOptimizationsActivator" interface="org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator"
           odl:type="org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsActivator"/>
+
+  <!-- Capabilities -->
+
+  <odl:clustered-app-config id="statefulCapabilityConfig"
+      binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.ietf.stateful07.app.config.rev160707.PcepIetfStateful07Config"/>
+
+  <bean id="statefulCapability" class="org.opendaylight.protocol.pcep.ietf.stateful07.PCEPStatefulCapability">
+    <argument ref="statefulCapabilityConfig"/>
+  </bean>
+
+  <service ref="statefulCapability" interface="org.opendaylight.protocol.pcep.PCEPCapability"
+          odl:type="org.opendaylight.protocol.pcep.ietf.stateful07.PCEPStatefulCapability"/>
+          
 </blueprint>
