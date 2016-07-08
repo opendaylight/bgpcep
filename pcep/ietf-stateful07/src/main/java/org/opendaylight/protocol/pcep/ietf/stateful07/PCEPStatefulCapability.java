@@ -9,6 +9,7 @@ package org.opendaylight.protocol.pcep.ietf.stateful07;
 
 import java.net.InetSocketAddress;
 import org.opendaylight.protocol.pcep.PCEPCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.ietf.stateful07.app.config.rev160707.PcepIetfStateful07Config;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Stateful1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Stateful1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs1;
@@ -22,13 +23,18 @@ public class PCEPStatefulCapability implements PCEPCapability {
 
     public PCEPStatefulCapability(final boolean stateful, final boolean active, final boolean instant,
         final boolean triggeredSync, final boolean triggeredResync, final boolean deltaLspSync, final boolean includeDbVersion){
-        this.stateful = stateful;
+        this.stateful = stateful || active || triggeredSync || triggeredResync || deltaLspSync || includeDbVersion;
         this.active = active;
         this.instant = instant;
         this.triggeredSync = triggeredSync;
         this.triggeredResync = triggeredResync;
         this.deltaLspSync = deltaLspSync;
-        this.includeDbVersion = includeDbVersion;
+        this.includeDbVersion = includeDbVersion || triggeredSync || deltaLspSync;
+    }
+
+    public PCEPStatefulCapability(PcepIetfStateful07Config config) {
+        this(config.isStateful(), config.isActive(), config.isInitiated(), config.isTriggeredInitialSync(),
+                config.isTriggeredResync(), config.isDeltaLspSyncCapability(), config.isIncludeDbVersion());
     }
 
     @Override

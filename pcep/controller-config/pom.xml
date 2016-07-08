@@ -60,11 +60,6 @@
                                     <classifier>config</classifier>
                                 </artifact>
                                 <artifact>
-                                    <file>${project.build.directory}/classes/initial/33-pcep-segment-routing.xml</file>
-                                    <type>xml</type>
-                                    <classifier>config-segment</classifier>
-                                </artifact>
-                                <artifact>
                                     <file>${project.build.directory}/classes/initial/39-pcep-provider.xml</file>
                                     <type>xml</type>
                                     <classifier>config-provider</classifier>

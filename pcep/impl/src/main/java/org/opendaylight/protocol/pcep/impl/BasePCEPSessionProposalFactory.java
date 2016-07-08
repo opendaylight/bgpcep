@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
+import com.google.common.base.Preconditions;
 import java.net.InetSocketAddress;
 import java.util.List;
 import org.opendaylight.protocol.pcep.PCEPCapability;
@@ -15,13 +16,24 @@ import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class BasePCEPSessionProposalFactory implements PCEPSessionProposalFactory {
+    private static final Logger LOG = LoggerFactory.getLogger(BasePCEPSessionProposalFactory.class);
+    private static final int KA_TO_DEADTIMER_RATIO = 4;
 
     private final int keepAlive, deadTimer;
     private final List<PCEPCapability> capabilities;
 
     public BasePCEPSessionProposalFactory(final int deadTimer, final int keepAlive, final List<PCEPCapability> capabilities) {
+        if(keepAlive != 0) {
+            Preconditions.checkArgument(keepAlive >= 1, "Minimum value for keep-alive-timer-value is 1");
+            if(deadTimer != 0 && (deadTimer / keepAlive != KA_TO_DEADTIMER_RATIO)) {
+                LOG.warn("dead-timer-value should be {} times greater than keep-alive-timer-value", KA_TO_DEADTIMER_RATIO);
+            }
+        }
+
         this.deadTimer = deadTimer;
         this.keepAlive = keepAlive;
         this.capabilities = capabilities;

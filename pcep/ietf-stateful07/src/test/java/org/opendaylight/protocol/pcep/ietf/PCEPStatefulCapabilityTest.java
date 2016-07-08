@@ -29,7 +29,7 @@ public class PCEPStatefulCapabilityTest {
                         .setTriggeredInitialSync(true)
                         .setTriggeredResync(false)
                         .setDeltaLspSyncCapability(true)
-                        .setIncludeDbVersion(false)
+                        .setIncludeDbVersion(true)
                         .build())
                     .build())
                 .build())
@@ -44,7 +44,7 @@ public class PCEPStatefulCapabilityTest {
         Assert.assertFalse(sspf.isTriggeredResync());
         Assert.assertTrue(sspf.isTriggeredSync());
         Assert.assertTrue(sspf.isDeltaLspSync());
-        Assert.assertFalse(sspf.isIncludeDbVersion());
+        Assert.assertTrue(sspf.isIncludeDbVersion());
         final TlvsBuilder builder = new TlvsBuilder();
         sspf.setCapabilityProposal(null, builder);
         Assert.assertEquals(EXPECTED_TLVS, builder.build());
