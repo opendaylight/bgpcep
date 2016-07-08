@@ -9,6 +9,7 @@ package org.opendaylight.controller.config.yang.pcep.tunnel.provider;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import java.util.Collections;
 import java.util.List;
 import javax.management.ObjectName;
 import org.junit.Before;
@@ -21,12 +22,13 @@ import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgrou
 import org.opendaylight.controller.config.yang.pcep.impl.PCEPDispatcherImplModuleFactory;
 import org.opendaylight.controller.config.yang.pcep.impl.PCEPSessionProposalFactoryImplModuleFactory;
 import org.opendaylight.controller.config.yang.pcep.spi.SimplePCEPExtensionProviderContextModuleFactory;
-import org.opendaylight.controller.config.yang.pcep.stateful07.cfg.PCEPStatefulCapabilityModuleFactory;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderModuleFactory;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderModuleMXBean;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderModuleTest;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.Stateful07TopologySessionListenerModuleFactory;
 import org.opendaylight.controller.config.yang.programming.impl.AbstractInstructionSchedulerTest;
+import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
+import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
@@ -44,6 +46,8 @@ public class PCEPTunnelTopologyProviderModuleTest extends AbstractInstructionSch
         super.setUp();
 
         setupMockService(PCEPExtensionProviderContext.class, new SimplePCEPExtensionProviderContext());
+        setupMockService(PCEPSessionProposalFactory.class, new BasePCEPSessionProposalFactory(120, 30,
+                Collections.emptyList()));
     }
 
     @Test
@@ -128,7 +132,6 @@ public class PCEPTunnelTopologyProviderModuleTest extends AbstractInstructionSch
         moduleFactories.add(new NettyThreadgroupModuleFactory());
         moduleFactories.add(new SimplePCEPExtensionProviderContextModuleFactory());
         moduleFactories.add(new Stateful07TopologySessionListenerModuleFactory());
-        moduleFactories.add(new PCEPStatefulCapabilityModuleFactory());
         return moduleFactories;
     }
 

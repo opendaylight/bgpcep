@@ -160,12 +160,6 @@
           <groupId>${project.groupId}</groupId>
           <artifactId>pcep-controller-config</artifactId>
           <type>xml</type>
-          <classifier>config-segment</classifier>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>pcep-controller-config</artifactId>
-          <type>xml</type>
           <classifier>config-provider</classifier>
       </dependency>
       <dependency>

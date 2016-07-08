@@ -17,6 +17,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import io.netty.channel.EventLoopGroup;
+import java.util.Collections;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.ObjectName;
 import org.junit.Before;
@@ -32,6 +33,8 @@ import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgrou
 import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgroupModuleMXBean;
 import org.opendaylight.controller.config.yang.pcep.spi.SimplePCEPExtensionProviderContextModuleFactory;
 import org.opendaylight.controller.config.yang.pcep.spi.SimplePCEPExtensionProviderContextModuleMXBean;
+import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
+import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.impl.rev130627.PathType;
@@ -73,6 +76,8 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
 
         setupMockService(EventLoopGroup.class, mock(EventLoopGroup.class));
         setupMockService(PCEPExtensionProviderContext.class, new SimplePCEPExtensionProviderContext());
+        setupMockService(PCEPSessionProposalFactory.class, new BasePCEPSessionProposalFactory(120, 30,
+                Collections.emptyList()));
     }
 
     private void setupMockService(final Class<?> serviceInterface, final Object instance) throws Exception {
@@ -257,11 +262,19 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
             throws Exception {
         final ObjectName nameCreated = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
         final PCEPDispatcherImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, PCEPDispatcherImplModuleMXBean.class);
-        mxBean.setPcepSessionProposalFactory(PCEPSessionProposalFactoryImplModuleTest.createSessionInstance(transaction));
+        mxBean.setPcepSessionProposalFactory(createSessionProposalFactoryInstance(transaction));
         mxBean.setMaxUnknownMessages(maxUnknownMessages);
         mxBean.setBossGroup(createThreadGroupInstance(transaction, 10, BOSS_TG_INSTANCE_NAME));
         mxBean.setWorkerGroup(createThreadGroupInstance(transaction, 10, WORKER_TG_INSTANCE_NAME));
         mxBean.setPcepExtensions(createExtensionsInstance(transaction));
+        return nameCreated;
+    }
+
+    private static ObjectName createSessionProposalFactoryInstance(final ConfigTransactionJMXClient transaction)
+            throws InstanceAlreadyExistsException {
+        final ObjectName nameCreated = transaction.createModule(PCEPSessionProposalFactoryImplModuleFactory.NAME,
+                "pcep-session-proposal-factory-impl");
+        transaction.newMXBeanProxy(nameCreated, PCEPSessionProposalFactoryImplModuleMXBean.class);
         return nameCreated;
     }
 

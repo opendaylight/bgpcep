@@ -177,25 +177,6 @@ module odl-pcep-impl-cfg {
     augment "/config:modules/config:module/config:configuration" {
         case pcep-session-proposal-factory-impl {
             when "/config:modules/config:module/config:type = 'pcep-session-proposal-factory-impl'";
-
-            leaf dead-timer-value {
-                type uint8;
-                default 120;
-            }
-
-            leaf keep-alive-timer-value {
-                type uint8;
-                default 30;
-            }
-
-            list capability {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity pcep:pcep-capability;
-                    }
-                }
-            }
         }
     }
 }

@@ -16,10 +16,28 @@
  */
 package org.opendaylight.controller.config.yang.pcep.impl;
 
-/**
-*
-*/
-public class PCEPSessionProposalFactoryImplModuleFactory extends
-        org.opendaylight.controller.config.yang.pcep.impl.AbstractPCEPSessionProposalFactoryImplModuleFactory {
+import org.opendaylight.controller.config.api.DependencyResolver;
+import org.osgi.framework.BundleContext;
 
+/**
+ * @deprecated Replaced by blueprint wiring
+ */
+@Deprecated
+public class PCEPSessionProposalFactoryImplModuleFactory extends AbstractPCEPSessionProposalFactoryImplModuleFactory {
+    @Override
+    public PCEPSessionProposalFactoryImplModule instantiateModule(String instanceName, DependencyResolver dependencyResolver,
+            PCEPSessionProposalFactoryImplModule oldModule, AutoCloseable oldInstance, BundleContext bundleContext) {
+        PCEPSessionProposalFactoryImplModule module = super.instantiateModule(instanceName, dependencyResolver, oldModule,
+                oldInstance, bundleContext);
+        module.setBundleContext(bundleContext);
+        return module;
+    }
+
+    @Override
+    public PCEPSessionProposalFactoryImplModule instantiateModule(String instanceName, DependencyResolver dependencyResolver,
+            BundleContext bundleContext) {
+        PCEPSessionProposalFactoryImplModule module = super.instantiateModule(instanceName, dependencyResolver, bundleContext);
+        module.setBundleContext(bundleContext);
+        return module;
+    }
 }

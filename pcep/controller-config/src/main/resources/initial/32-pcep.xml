@@ -14,7 +14,6 @@
         <capability>urn:opendaylight:params:xml:ns:yang:controller:pcep:impl?module=odl-pcep-impl-cfg&amp;revision=2013-06-27</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:pcep:spi?module=odl-pcep-spi-cfg&amp;revision=2013-11-15</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:programming:spi?module=odl-programming-spi-cfg&amp;revision=2013-11-15</capability>
-        <capability>urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful07:cfg?module=odl-pcep-ietf-stateful07-cfg&amp;revision=2015-07-14</capability>
     </required-capabilities>
     <configuration>
 
@@ -25,16 +24,8 @@
                     <name>global-pcep-extensions</name>
                 </module>
                 <module>
-                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful07:cfg">prefix:stateful-capability</type>
-                    <name>stateful-capability</name>
-                </module>
-                <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:impl">prefix:pcep-session-proposal-factory-impl</type>
                     <name>global-pcep-session-proposal-factory</name>
-                    <capability>
-                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep">prefix:pcep-capability</type>
-                        <name>stateful-capability</name>
-                    </capability>
                 </module>
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:impl">prefix:pcep-dispatcher-impl</type>
@@ -95,14 +86,6 @@
                         <provider>/config/modules/module[name='pcep-extensions-impl']/instance[name='global-pcep-extensions']</provider>
                     </instance>
                 </service>
-                <service>
-                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep">prefix:pcep-capability</type>
-                    <instance>
-                        <name>stateful-capability</name>
-                        <provider>/config/modules/module[name='stateful-capability']/instance[name='stateful-capability']</provider>
-                    </instance>
-                </service>
-
                 <service>
                     <type xmlns:pcep="urn:opendaylight:params:xml:ns:yang:controller:pcep">pcep:pcep-dispatcher</type>
                     <instance>
