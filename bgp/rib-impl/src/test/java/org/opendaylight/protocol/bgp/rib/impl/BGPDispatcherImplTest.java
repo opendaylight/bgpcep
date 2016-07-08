@@ -12,18 +12,20 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.Uninterruptibles;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
@@ -49,9 +51,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.slf4j.LoggerFactory;
 
-// Disabling this test for now as it's failing frequently on jenkins, seems due to infrastructure issues. The
-// tests succeed when run locally.
-@Ignore
 public class BGPDispatcherImplTest {
 
     private static final AsNumber AS_NUMBER = new AsNumber(30L);
@@ -84,13 +83,20 @@ public class BGPDispatcherImplTest {
         this.registry.addPeer(new IpAddress(new Ipv4Address(serverAddress.getAddress().getHostAddress())), this.serverListener, createPreferences(serverAddress));
         LoggerFactory.getLogger(BGPDispatcherImplTest.class).info("createServer");
         final ChannelFuture future = this.serverDispatcher.createServer(this.registry, serverAddress);
-        future.addListener(new GenericFutureListener<Future<Void>>() {
+        waitFutureSuccess(future);
+        return future.channel();
+    }
+
+    private void waitFutureSuccess(final ChannelFuture future) {
+        final CountDownLatch latch = new CountDownLatch(1);
+        future.addListener(new ChannelFutureListener() {
             @Override
-            public void operationComplete(final Future<Void> future) {
+            public void operationComplete(final ChannelFuture future) throws Exception {
                 Preconditions.checkArgument(future.isSuccess(), "Unable to start bgp server on %s", future.cause());
+                latch.countDown();
             }
         });
-        return future.channel();
+        Uninterruptibles.awaitUninterruptibly(latch, 10, TimeUnit.SECONDS);
     }
 
     @After

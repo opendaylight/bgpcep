@@ -134,7 +134,6 @@
             <groupId>org.opendaylight.mdsal.model</groupId>
             <artifactId>ietf-inet-types</artifactId>
         </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>bgp-parser-impl</artifactId>
@@ -171,13 +170,11 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>bgp-path-selection-mode</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
             <scope>provided</scope>
         </dependency>
-
         <!-- Testing dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -223,12 +220,10 @@
             <artifactId>slf4j-simple</artifactId>
             <scope>test</scope>
         </dependency>
-        
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>config-manager</artifactId>

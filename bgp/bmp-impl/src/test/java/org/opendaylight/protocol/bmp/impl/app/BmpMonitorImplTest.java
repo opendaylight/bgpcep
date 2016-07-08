@@ -291,7 +291,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
             assertEquals(TestUtil.PEER_AS, peer.getAs());
             assertNull(peer.getDistinguisher());
             assertNull(peer.getStats());
-
+            Thread.sleep(500);
             assertNotNull(peer.getPrePolicyRib());
             assertEquals(1, peer.getPrePolicyRib().getTables().size());
             final Tables prePolicyTable = peer.getPrePolicyRib().getTables().get(0);
