@@ -18,15 +18,20 @@ import static org.junit.Assert.fail;
 import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.common.net.InetAddresses;
+import com.google.common.util.concurrent.Uninterruptibles;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import java.net.InetSocketAddress;
 import java.util.List;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import javassist.ClassPool;
 import org.junit.After;
 import org.junit.Assert;
@@ -284,27 +289,25 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
 
             // route mirror message test
             final RouteMirroringMessage routeMirrorMsg = TestUtil.createRouteMirrorMsg(PEER1);
-            channel.writeAndFlush(routeMirrorMsg);
-            Thread.sleep(500);
+            waitFutureSuccess(channel.writeAndFlush(routeMirrorMsg));
+
             final Mirrors routeMirrors = getBmpData(peerIId.child(Mirrors.class)).get();
             assertNotNull(routeMirrors.getTimestampSec());
 
-            channel.writeAndFlush(TestUtil.createRouteMonitMsg(false, PEER1, AdjRibInType.PrePolicy));
-            channel.writeAndFlush(TestUtil.createRouteMonMsgWithEndOfRibMarker(PEER1, AdjRibInType.PrePolicy));
-            Thread.sleep(500);
+            waitFutureSuccess(channel.writeAndFlush(TestUtil.createRouteMonitMsg(false, PEER1, AdjRibInType.PrePolicy)));
+            waitFutureSuccess(channel.writeAndFlush(TestUtil.createRouteMonMsgWithEndOfRibMarker(PEER1, AdjRibInType.PrePolicy)));
+
             final Tables prePolicyRib = getBmpData(peerIId.child(PrePolicyRib.class)).get().getTables().get(0);
             assertTrue(prePolicyRib.getAttributes().isUptodate());
             assertEquals(3, ((Ipv4RoutesCase) prePolicyRib.getRoutes()).getIpv4Routes().getIpv4Route().size());
 
-            channel.writeAndFlush(TestUtil.createRouteMonitMsg(false, PEER1, AdjRibInType.PostPolicy));
-            channel.writeAndFlush(TestUtil.createRouteMonMsgWithEndOfRibMarker(PEER1, AdjRibInType.PostPolicy));
-            Thread.sleep(500);
+            waitFutureSuccess(channel.writeAndFlush(TestUtil.createRouteMonitMsg(false, PEER1, AdjRibInType.PostPolicy)));
+            waitFutureSuccess(channel.writeAndFlush(TestUtil.createRouteMonMsgWithEndOfRibMarker(PEER1, AdjRibInType.PostPolicy)));
             final Tables postPolicyRib = getBmpData(peerIId.child(PostPolicyRib.class)).get().getTables().get(0);
             assertTrue(postPolicyRib.getAttributes().isUptodate());
             assertEquals(3, ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.bmp.monitor.monitor.router.peer.post.policy.rib.tables.routes.Ipv4RoutesCase) postPolicyRib.getRoutes()).getIpv4Routes().getIpv4Route().size());
 
-            channel.writeAndFlush(TestUtil.createPeerDownNotification(PEER1));
-            Thread.sleep(500);
+            waitFutureSuccess(channel.writeAndFlush(TestUtil.createPeerDownNotification(PEER1)));
             final List<Peer> peersAfterDown = getBmpData(routerIId).get().getPeer();
             assertTrue(peersAfterDown.isEmpty());
 
@@ -320,6 +323,17 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
             };
             fail(ex.toString());
         }
+    }
+
+    private void waitFutureSuccess(final ChannelFuture future) {
+        final CountDownLatch latch = new CountDownLatch(1);
+        future.addListener(new ChannelFutureListener() {
+            @Override
+            public void operationComplete(final ChannelFuture future) throws Exception {
+                latch.countDown();
+            }
+        });
+        Uninterruptibles.awaitUninterruptibly(latch, 10, TimeUnit.SECONDS);
     }
 
     @Test
