@@ -18,15 +18,19 @@ import static org.junit.Assert.fail;
 import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.common.net.InetAddresses;
+import com.google.common.util.concurrent.Uninterruptibles;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import javassist.ClassPool;
 import org.junit.After;
 import org.junit.Assert;
@@ -132,14 +136,16 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
     private List<MonitoredRouter> mrs;
     private ModuleInfoBackedContext moduleInfoBackedContext;
 
-    @Mock private KeyAccess mockKeyAccess;
-    @Mock private KeyAccessFactory kaf;
+    @Mock
+    private KeyAccess mockKeyAccess;
+    @Mock
+    private KeyAccessFactory kaf;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         this.mappingService = new BindingToNormalizedNodeCodec(GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(),
-                new BindingNormalizedNodeCodecRegistry(StreamWriterGenerator.create(JavassistUtils.forClassPool(ClassPool.getDefault()))));
+            new BindingNormalizedNodeCodecRegistry(StreamWriterGenerator.create(JavassistUtils.forClassPool(ClassPool.getDefault()))));
         this.moduleInfoBackedContext = ModuleInfoBackedContext.create();
         this.moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(InitiationMessage.class));
         this.moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(CParameters1.class));
@@ -174,12 +180,12 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
         this.msgRegistry = ctx.getBmpMessageRegistry();
 
         this.dispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(),
-                ctx.getBmpMessageRegistry(), new DefaultBmpSessionFactory(), Optional.<MD5ChannelFactory<?>>of(this.scfMd5),
-                Optional.<MD5ServerChannelFactory<?>>of(this.scfServerMd5));
+            ctx.getBmpMessageRegistry(), new DefaultBmpSessionFactory(), Optional.<MD5ChannelFactory<?>>of(this.scfMd5),
+            Optional.<MD5ServerChannelFactory<?>>of(this.scfServerMd5));
 
         this.bmpApp = BmpMonitoringStationImpl.createBmpMonitorInstance(ribExtension, this.dispatcher, getDomBroker(),
-                MONITOR_ID, new InetSocketAddress(InetAddresses.forString("127.0.0.10"), PORT), Optional.of(keys),
-                this.mappingService.getCodecFactory(), moduleInfoBackedContext.getSchemaContext(), this.mrs);
+            MONITOR_ID, new InetSocketAddress(InetAddresses.forString("127.0.0.10"), PORT), Optional.of(keys),
+            this.mappingService.getCodecFactory(), moduleInfoBackedContext.getSchemaContext(), this.mrs);
 
         final BmpMonitor monitor = getBmpData(InstanceIdentifier.create(BmpMonitor.class)).get();
         Assert.assertEquals(1, monitor.getMonitor().size());
@@ -202,9 +208,10 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
 
     @Test
     public void testMonitoringStation() throws InterruptedException {
-        final Channel channel = connectTestClient(this.msgRegistry).channel();
+        final ChannelFuture future = connectTestClient(this.msgRegistry);
+        waitFutureSuccess(future);
+        final Channel channel = future.channel();
         try {
-            Thread.sleep(500);
             final KeyedInstanceIdentifier<Monitor, MonitorKey> monitorIId = InstanceIdentifier.create(BmpMonitor.class).child(Monitor.class, new MonitorKey(MONITOR_ID));
 
             final Monitor monitor = getBmpData(monitorIId).get();
@@ -214,8 +221,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
             assertEquals(Status.Down, router.getStatus());
             assertTrue(router.getPeer().isEmpty());
 
-            channel.writeAndFlush(TestUtil.createInitMsg("description", "name", "some info"));
-            Thread.sleep(500);
+            waitFutureSuccess(channel.writeAndFlush(TestUtil.createInitMsg("description", "name", "some info")));
             final Monitor monitorInit = getBmpData(monitorIId).get();
             assertEquals(1, monitorInit.getRouter().size());
             final Router routerInit = monitorInit.getRouter().get(0);
@@ -226,8 +232,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
             assertTrue(routerInit.getPeer().isEmpty());
             assertEquals(Status.Up, routerInit.getStatus());
 
-            channel.writeAndFlush(TestUtil.createPeerUpNotification(PEER1, true));
-            Thread.sleep(500);
+            waitFutureSuccess(channel.writeAndFlush(TestUtil.createPeerUpNotification(PEER1, true)));
             final KeyedInstanceIdentifier<Router, RouterKey> routerIId = monitorIId.child(Router.class, new RouterKey(ROUTER_ID));
             final List<Peer> peers = getBmpData(routerIId).get().getPeer();
             assertEquals(1, peers.size());
@@ -264,7 +269,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
             assertEquals(Status.Up, peerSession.getStatus());
 
             final StatsReportsMessage statsMsg = TestUtil.createStatsReportMsg(PEER1);
-            channel.writeAndFlush(statsMsg);
+            waitFutureSuccess(channel.writeAndFlush(statsMsg));
             Thread.sleep(500);
             final KeyedInstanceIdentifier<Peer, PeerKey> peerIId = routerIId.child(Peer.class, new PeerKey(PEER_ID));
             final Stats peerStats = getBmpData(peerIId.child(Stats.class)).get();
@@ -284,49 +289,59 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
 
             // route mirror message test
             final RouteMirroringMessage routeMirrorMsg = TestUtil.createRouteMirrorMsg(PEER1);
-            channel.writeAndFlush(routeMirrorMsg);
-            Thread.sleep(500);
+            waitFutureSuccess(channel.writeAndFlush(routeMirrorMsg));
+
             final Mirrors routeMirrors = getBmpData(peerIId.child(Mirrors.class)).get();
             assertNotNull(routeMirrors.getTimestampSec());
 
-            channel.writeAndFlush(TestUtil.createRouteMonitMsg(false, PEER1, AdjRibInType.PrePolicy));
-            channel.writeAndFlush(TestUtil.createRouteMonMsgWithEndOfRibMarker(PEER1, AdjRibInType.PrePolicy));
-            Thread.sleep(500);
+            waitFutureSuccess(channel.writeAndFlush(TestUtil.createRouteMonitMsg(false, PEER1, AdjRibInType.PrePolicy)));
+            waitFutureSuccess(channel.writeAndFlush(TestUtil.createRouteMonMsgWithEndOfRibMarker(PEER1, AdjRibInType.PrePolicy)));
+
             final Tables prePolicyRib = getBmpData(peerIId.child(PrePolicyRib.class)).get().getTables().get(0);
             assertTrue(prePolicyRib.getAttributes().isUptodate());
             assertEquals(3, ((Ipv4RoutesCase) prePolicyRib.getRoutes()).getIpv4Routes().getIpv4Route().size());
 
-            channel.writeAndFlush(TestUtil.createRouteMonitMsg(false, PEER1, AdjRibInType.PostPolicy));
-            channel.writeAndFlush(TestUtil.createRouteMonMsgWithEndOfRibMarker(PEER1, AdjRibInType.PostPolicy));
-            Thread.sleep(500);
+            waitFutureSuccess(channel.writeAndFlush(TestUtil.createRouteMonitMsg(false, PEER1, AdjRibInType.PostPolicy)));
+            waitFutureSuccess(channel.writeAndFlush(TestUtil.createRouteMonMsgWithEndOfRibMarker(PEER1, AdjRibInType.PostPolicy)));
             final Tables postPolicyRib = getBmpData(peerIId.child(PostPolicyRib.class)).get().getTables().get(0);
             assertTrue(postPolicyRib.getAttributes().isUptodate());
             assertEquals(3, ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.bmp.monitor.monitor.router.peer.post.policy.rib.tables.routes.Ipv4RoutesCase) postPolicyRib.getRoutes()).getIpv4Routes().getIpv4Route().size());
 
-            channel.writeAndFlush(TestUtil.createPeerDownNotification(PEER1));
-            Thread.sleep(500);
+            waitFutureSuccess(channel.writeAndFlush(TestUtil.createPeerDownNotification(PEER1)));
             final List<Peer> peersAfterDown = getBmpData(routerIId).get().getPeer();
             assertTrue(peersAfterDown.isEmpty());
 
-            channel.close().await();
-            Thread.sleep(500);
+            final ChannelFuture futureClose = channel.close();
+            waitFutureSuccess(futureClose);
             final Monitor monitorAfterClose = getBmpData(monitorIId).get();
             assertTrue(monitorAfterClose.getRouter().isEmpty());
         } catch (final Exception e) {
             final StringBuffer ex = new StringBuffer();
             ex.append(e.getMessage() + "\n");
-            for (final StackTraceElement element: e.getStackTrace()) {
+            for (final StackTraceElement element : e.getStackTrace()) {
                 ex.append(element.toString() + "\n");
-            };
+            }
+            ;
             fail(ex.toString());
         }
+    }
+
+    private void waitFutureSuccess(final ChannelFuture future) {
+        final CountDownLatch latch = new CountDownLatch(1);
+        future.addListener(new ChannelFutureListener() {
+            @Override
+            public void operationComplete(final ChannelFuture future) throws Exception {
+                latch.countDown();
+            }
+        });
+        Uninterruptibles.awaitUninterruptibly(latch, 10, TimeUnit.SECONDS);
     }
 
     @Test
     public void deploySecondInstance() throws Exception {
         final BmpMonitoringStation monitoringStation2 = BmpMonitoringStationImpl.createBmpMonitorInstance(new SimpleRIBExtensionProviderContext(), this.dispatcher, getDomBroker(),
-                new MonitorId("monitor2"), new InetSocketAddress(InetAddresses.forString("127.0.0.11"), PORT), Optional.of(new KeyMapping()),
-                this.mappingService.getCodecFactory(), this.moduleInfoBackedContext.getSchemaContext(), this.mrs);
+            new MonitorId("monitor2"), new InetSocketAddress(InetAddresses.forString("127.0.0.11"), PORT), Optional.of(new KeyMapping()),
+            this.mappingService.getCodecFactory(), this.moduleInfoBackedContext.getSchemaContext(), this.mrs);
         final BmpMonitor monitor = getBmpData(InstanceIdentifier.create(BmpMonitor.class)).get();
         Assert.assertEquals(2, monitor.getMonitor().size());
         monitoringStation2.close();
