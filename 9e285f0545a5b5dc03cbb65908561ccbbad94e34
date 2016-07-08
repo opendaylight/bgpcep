@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_1d187880",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/controller/config/yang/pcep/topology/provider/PCEPTopologyProviderModule.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-07-08T15:41:16Z",
+      "side": 1,
+      "message": "I am in the process of converting the wiring from CSS to blueprint. Could you move this checking into PCEPTopologyProvider.create? That would make my conversion easier.",
+      "revId": "9e285f0545a5b5dc03cbb65908561ccbbad94e34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
