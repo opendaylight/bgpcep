@@ -9,8 +9,12 @@ package org.opendaylight.protocol.pcep.impl;
 
 import com.google.common.collect.Lists;
 
+import com.google.common.util.concurrent.Uninterruptibles;
 import java.util.List;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import org.junit.Assert;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPTerminationReason;
@@ -21,15 +25,16 @@ import org.slf4j.LoggerFactory;
 /**
  * Simple Session Listener that is notified about messages and changes in the session.
  */
-public class SimpleSessionListener implements PCEPSessionListener {
+class SimpleSessionListener implements PCEPSessionListener {
 
-    public List<Message> messages = Lists.newArrayList();
-
+    List<Message> messages = Lists.newArrayList();
+    private final CountDownLatch sessionLatch = new CountDownLatch(1);
     public boolean up = false;
 
     private static final Logger LOG = LoggerFactory.getLogger(SimpleSessionListener.class);
+    private PCEPSession session;
 
-    public SimpleSessionListener() {
+    SimpleSessionListener() {
     }
 
     @Override
@@ -42,7 +47,9 @@ public class SimpleSessionListener implements PCEPSessionListener {
     public synchronized void onSessionUp(final PCEPSession session) {
         LOG.debug("Session up.");
         this.up = true;
+        this.session = session;
         this.notifyAll();
+        sessionLatch.countDown();
     }
 
     @Override
@@ -55,5 +62,10 @@ public class SimpleSessionListener implements PCEPSessionListener {
     @Override
     public void onSessionTerminated(final PCEPSession session, final PCEPTerminationReason cause) {
         LOG.debug("Session terminated. Cause : {}", cause.toString());
+    }
+
+    PCEPSession getSession() {
+        Assert.assertEquals("Session up", true, Uninterruptibles.awaitUninterruptibly(sessionLatch, 10, TimeUnit.SECONDS));
+        return (PCEPSessionImpl) this.session;
     }
 }
