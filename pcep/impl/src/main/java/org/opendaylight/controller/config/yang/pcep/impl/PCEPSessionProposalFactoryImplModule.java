@@ -16,24 +16,19 @@
  */
 package org.opendaylight.controller.config.yang.pcep.impl;
 
-import java.net.InetSocketAddress;
-import org.opendaylight.controller.config.api.JmxAttributeValidationException;
-import org.opendaylight.protocol.pcep.PCEPPeerProposal;
+import com.google.common.reflect.AbstractInvocationHandler;
+import com.google.common.reflect.Reflection;
+import java.lang.reflect.Method;
+import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
-import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.osgi.framework.BundleContext;
 
 /**
- *
+ * @deprecated Replaced by blueprint wiring
  */
-public final class PCEPSessionProposalFactoryImplModule extends
-        org.opendaylight.controller.config.yang.pcep.impl.AbstractPCEPSessionProposalFactoryImplModule {
-
-    private static final Logger LOG = LoggerFactory.getLogger(PCEPSessionProposalFactoryImplModule.class);
-
-    private static final int KA_TO_DEADTIMER_RATIO = 4;
+@Deprecated
+public final class PCEPSessionProposalFactoryImplModule extends AbstractPCEPSessionProposalFactoryImplModule {
+    private BundleContext bundleContext;
 
     public PCEPSessionProposalFactoryImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier name,
             final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
@@ -47,46 +42,28 @@ public final class PCEPSessionProposalFactoryImplModule extends
     }
 
     @Override
-    public void customValidation() {
-        JmxAttributeValidationException.checkNotNull(getDeadTimerValue(), "value is not set.", deadTimerValueJmxAttribute);
-        JmxAttributeValidationException.checkNotNull(getKeepAliveTimerValue(), "value is not set.", keepAliveTimerValueJmxAttribute);
-        if (getKeepAliveTimerValue() != 0) {
-            JmxAttributeValidationException.checkCondition(getKeepAliveTimerValue() >= 1, "minimum value is 1.",
-                    keepAliveTimerValueJmxAttribute);
-            if (getDeadTimerValue() != 0 && (getDeadTimerValue() / getKeepAliveTimerValue() != KA_TO_DEADTIMER_RATIO)) {
-                LOG.warn("DeadTimerValue should be 4 times greater than KeepAliveTimerValue");
-            }
-        }
-    }
-
-    @Override
     public java.lang.AutoCloseable createInstance() {
-        final BasePCEPSessionProposalFactory inner = new BasePCEPSessionProposalFactory(getDeadTimerValue(), getKeepAliveTimerValue(), getCapabilityDependency());
-        return new PCEPSessionProposalFactoryCloseable(inner);
+        final WaitingServiceTracker<PCEPSessionProposalFactory> tracker =
+                WaitingServiceTracker.create(PCEPSessionProposalFactory.class, bundleContext);
+        final PCEPSessionProposalFactory service = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
+
+        return Reflection.newProxy(AutoCloseablePCEPSessionProposalFactory.class, new AbstractInvocationHandler() {
+            @Override
+            protected Object handleInvocation(Object proxy, Method method, Object[] args) throws Throwable {
+                if (method.getName().equals("close")) {
+                    tracker.close();
+                    return null;
+                } else {
+                    return method.invoke(service, args);
+                }
+            }
+        });
     }
 
-    private static final class PCEPSessionProposalFactoryCloseable implements PCEPSessionProposalFactory, AutoCloseable {
+    void setBundleContext(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
+    }
 
-        private final BasePCEPSessionProposalFactory inner;
-
-        public PCEPSessionProposalFactoryCloseable(final BasePCEPSessionProposalFactory inner) {
-            this.inner = inner;
-        }
-
-        @Override
-        public void close() {
-            // Nothing to do
-        }
-
-        @Override
-        public Open getSessionProposal(final InetSocketAddress inetSocketAddress, final int i) {
-            return this.inner.getSessionProposal(inetSocketAddress, i);
-        }
-
-        @Override
-        public Open getSessionProposal(final InetSocketAddress address,
-                final int sessionId, final PCEPPeerProposal peerProposal) {
-            return this.inner.getSessionProposal(address, sessionId, peerProposal);
-        }
+    private static interface AutoCloseablePCEPSessionProposalFactory extends PCEPSessionProposalFactory, AutoCloseable {
     }
 }
