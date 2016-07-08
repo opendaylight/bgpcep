@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_7841c238",
+        "filename": "bgp/rib-impl/src/main/resources/org/opendaylight/blueprint/bgp-rib-impl.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-07-08T15:57:25Z",
+      "side": 1,
+      "message": "With one of my patches I\u0027ve added the blueprint XML to instantiate/advertise the RIBActivator and the BGPDispatcher. So we\u0027ll have a little conflict.",
+      "revId": "db66b18115d7d7c5a879ebccdb4459025d6fe953",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
