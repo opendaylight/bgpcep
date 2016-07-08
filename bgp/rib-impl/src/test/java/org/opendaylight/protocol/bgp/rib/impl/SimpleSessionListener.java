@@ -8,7 +8,11 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.Uninterruptibles;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import org.junit.Assert;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
@@ -20,22 +24,22 @@ import org.slf4j.LoggerFactory;
 /**
  * Listener for the client.
  */
-public class SimpleSessionListener implements BGPSessionListener {
+class SimpleSessionListener implements BGPSessionListener {
 
     private final List<Notification> listMsg = Lists.newArrayList();
-
-    public boolean up = false;
+    private final CountDownLatch sessionLatch = new CountDownLatch(1);
+    boolean up = false;
 
     private static final Logger LOG = LoggerFactory.getLogger(SimpleSessionListener.class);
 
-    public boolean down = false;
+    boolean down = false;
 
     private BGPSession session;
 
-    public SimpleSessionListener() {
+    SimpleSessionListener() {
     }
 
-    public List<Notification> getListMsg() {
+    List<Notification> getListMsg() {
         return this.listMsg;
     }
 
@@ -50,6 +54,7 @@ public class SimpleSessionListener implements BGPSessionListener {
         LOG.debug("Session Up");
         this.session = session;
         this.up = true;
+        sessionLatch.countDown();
     }
 
     @Override
@@ -78,11 +83,16 @@ public class SimpleSessionListener implements BGPSessionListener {
 
     @Override
     public boolean isSessionActive() {
-        return true;
+        return getSession().isWritable();
     }
 
     @Override
     public void markUptodate(final TablesKey tablesKey) {
         LOG.debug("Table marked as up-to-date {}", tablesKey);
+    }
+
+    BGPSessionImpl getSession() {
+        Assert.assertEquals("Session up", true, Uninterruptibles.awaitUninterruptibly(sessionLatch, 10, TimeUnit.SECONDS));
+        return (BGPSessionImpl) this.session;
     }
 }
