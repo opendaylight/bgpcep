@@ -21,7 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractEROWithSubobjectsParser implements ObjectParser, ObjectSerializer {
+abstract class AbstractEROWithSubobjectsParser implements ObjectParser, ObjectSerializer {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractEROWithSubobjectsParser.class);
 

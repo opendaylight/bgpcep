@@ -206,8 +206,7 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
     }
 
     private ObjectName createTimerInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
-        final ObjectName nameCreated = transaction.createModule(HashedWheelTimerModuleFactory.NAME, TIMER_INSTANCE_NAME);
-        return nameCreated;
+        return transaction.createModule(HashedWheelTimerModuleFactory.NAME, TIMER_INSTANCE_NAME);
 
     }
 
@@ -222,12 +221,11 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
         return objectName;
     }
 
-    public ObjectName createNotificationBrokerInstance(final ConfigTransactionJMXClient transaction) throws Exception {
-        final ObjectName objectName = transaction.createModule(NotificationBrokerImplModuleFactory.NAME, NOTIFICATION_BROKER_INSTANCE_NAME);
-        return objectName;
+    protected ObjectName createNotificationBrokerInstance(final ConfigTransactionJMXClient transaction) throws Exception {
+        return transaction.createModule(NotificationBrokerImplModuleFactory.NAME, NOTIFICATION_BROKER_INSTANCE_NAME);
     }
 
-    public ObjectName createCompatibleDataBrokerInstance(final ConfigTransactionJMXClient transaction)
+    protected ObjectName createCompatibleDataBrokerInstance(final ConfigTransactionJMXClient transaction)
             throws InstanceAlreadyExistsException, InstanceNotFoundException {
         final ObjectName nameCreated = transaction.createModule(ForwardedCompatibleDataBrokerImplModuleFactory.NAME, COMPATIBLE_DATA_BROKER_INSTANCE_NAME);
         final ForwardedCompatibleDataBrokerImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, ForwardedCompatibleDataBrokerImplModuleMXBean.class);
@@ -327,8 +325,7 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
     }
 
     public List<String> getYangModelsPaths() {
-        final List<String> paths = Lists.newArrayList("/META-INF/yang/ietf-inet-types@2013-07-15.yang", "/META-INF/yang/programming.yang");
-        return paths;
+        return Lists.newArrayList("/META-INF/yang/ietf-inet-types@2013-07-15.yang", "/META-INF/yang/programming.yang");
     }
 
     public List<ModuleFactory> getModuleFactories() {

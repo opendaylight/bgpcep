@@ -99,7 +99,7 @@ public class BmpDispatcherImpl implements BmpDispatcher {
 
         b.remoteAddress(address);
         final ChannelFuture channelPromise = b.connect();
-        channelPromise.addListener(new BmpDispatcherImpl.BootstrapListener(b, address));
+        channelPromise.addListener(new BootstrapListener(b, address));
         return channelPromise;
     }
 
@@ -148,7 +148,7 @@ public class BmpDispatcherImpl implements BmpDispatcher {
         }
     }
 
-    private class BootstrapListener implements ChannelFutureListener {
+    private static class BootstrapListener implements ChannelFutureListener {
 
         private final Bootstrap bootstrap;
 
@@ -156,7 +156,7 @@ public class BmpDispatcherImpl implements BmpDispatcher {
 
         private final InetSocketAddress address;
 
-        public BootstrapListener(final Bootstrap bootstrap, final InetSocketAddress address) {
+        BootstrapListener(final Bootstrap bootstrap, final InetSocketAddress address) {
             this.bootstrap = bootstrap;
             this.address = address;
             this.delay = INITIAL_BACKOFF;

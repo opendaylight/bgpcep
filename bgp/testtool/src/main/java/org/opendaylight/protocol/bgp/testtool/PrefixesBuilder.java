@@ -41,7 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
 
 final class PrefixesBuilder {
-    private final static Ipv4NextHopCase NEXT_HOP;
+    private static final Ipv4NextHopCase NEXT_HOP;
 
     static {
         NEXT_HOP = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("127.1.1.1")).build()).build();
@@ -51,7 +51,7 @@ final class PrefixesBuilder {
         throw new UnsupportedOperationException();
     }
 
-    static void AdvertiseIpv4Prefixes(final ChannelOutputLimiter session, final int nPrefixes, final List<String> extCom, final boolean multipartSupport) {
+    static void advertiseIpv4Prefixes(final ChannelOutputLimiter session, final int nPrefixes, final List<String> extCom, final boolean multipartSupport) {
         Ipv4Prefix addressPrefix = new Ipv4Prefix("1.1.1.1/31");
         for (int i = 0; i < nPrefixes; i++) {
             buildAndSend(session, addressPrefix, extCom, multipartSupport);

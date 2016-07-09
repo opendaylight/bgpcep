@@ -71,9 +71,9 @@ public class BGPParserTest {
      */
     static final List<byte[]> inputBytes = new ArrayList<byte[]>();
 
-    private static int COUNTER = 7;
+    private static final int COUNTER = 7;
 
-    private static int MAX_SIZE = 300;
+    private static final int MAX_SIZE = 300;
 
     private static BGPUpdateMessageParser updateParser;
 

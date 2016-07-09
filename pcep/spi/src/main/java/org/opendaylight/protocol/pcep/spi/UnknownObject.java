@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.pcep.spi;
 
 import com.google.common.base.Preconditions;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObjectBuilder;
@@ -39,7 +39,7 @@ public final class UnknownObject implements Object {
     }
 
     public List<Errors> getErrors() {
-        return Arrays.asList(this.error);
+        return Collections.singletonList(this.error);
     }
 
     public PCEPErrors getError() {

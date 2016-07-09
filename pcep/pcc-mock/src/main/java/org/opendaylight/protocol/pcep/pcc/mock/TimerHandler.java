@@ -18,7 +18,7 @@ import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCDispatcherImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TimerHandler {
+class TimerHandler {
     private static final Logger LOG = LoggerFactory.getLogger(TimerHandler.class);
     private final int disconnectAfter;
     private final Timer timer = new HashedWheelTimer();
@@ -35,7 +35,7 @@ public class TimerHandler {
         this.reconnectAfter = reconnectAfter;
     }
 
-    final class DisconnectTask implements TimerTask {
+    private final class DisconnectTask implements TimerTask {
         @Override
         public void run(final Timeout timeout) throws Exception {
             LOG.debug("Disconnects PCCs, reconnect after {} seconds", reconnectAfter);
@@ -46,7 +46,7 @@ public class TimerHandler {
         }
     }
 
-    final class ReconnectTask implements TimerTask {
+    private final class ReconnectTask implements TimerTask {
         @Override
         public void run(final Timeout timeout) throws Exception {
             LOG.debug("Reconnecting PCCs}");

@@ -122,12 +122,9 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     protected static final ClusterIdentifier CLUSTER_ID = new ClusterIdentifier("192.168.1.2");
 
     private static final AsNumber AS_NUMBER = new AsNumber(5000L);
-    private static final String SESSION_RS_INSTANCE_NAME = "session-reconnect-strategy-factory";
-    private static final String TCP_RS_INSTANCE_NAME = "tcp-reconnect-strategy-factory";
     private static final String RIB_EXTENSIONS_INSTANCE_NAME = "rib-extensions-impl";
     private static final String DOM_BROKER_INSTANCE_NAME = "dom-broker-impl";
     private static final String BINDING_ASYNC_BROKER_INSTANCE_NAME = "binding-async-broker-instance";
-    private static final String DOM_ASYNC_DATA_BROKER_INSTANCE = "dom-inmemory-data-broker";
     private static final String BINDING_BROKER_INSTANCE_NAME = "binding-broker-impl";
     private static final String COMPATIBLE_DATA_BROKER_INSTANCE_NAME = "binding-data-compatible-broker-instance";
     private static final String NOTIFICATION_BROKER_INSTANCE_NAME = "notification-broker-impl";

@@ -204,7 +204,7 @@ public class ProgrammingServiceImplTest extends AbstractDataBrokerTest {
 
     @Test(timeout = 30 * 1000)
     public void testTimeoutWhileScheduledTransaction() throws Exception {
-        final BigInteger deadlineOffset = BigInteger.valueOf(1000l * 1000 * 1000 * INSTRUCTION_DEADLINE_OFFSET_IN_SECONDS /* seconds */);
+        final BigInteger deadlineOffset = BigInteger.valueOf(1000L * 1000 * 1000 * INSTRUCTION_DEADLINE_OFFSET_IN_SECONDS /* seconds */);
         final Nanotime current = NanotimeUtil.currentTime();
         final Nanotime deadlineNano = new Nanotime(current.getValue().add(deadlineOffset));
 
@@ -224,7 +224,7 @@ public class ProgrammingServiceImplTest extends AbstractDataBrokerTest {
 
     @Test(timeout = 30 * 1000)
     public void testTimeoutWhileSuccessfulTransaction() throws Exception {
-        final BigInteger deadlineOffset = BigInteger.valueOf(1000l * 1000 * 1000 * INSTRUCTION_DEADLINE_OFFSET_IN_SECONDS /* seconds */);
+        final BigInteger deadlineOffset = BigInteger.valueOf(1000L * 1000 * 1000 * INSTRUCTION_DEADLINE_OFFSET_IN_SECONDS /* seconds */);
         final Nanotime current = NanotimeUtil.currentTime();
         final Nanotime deadlineNano = new Nanotime(current.getValue().add(deadlineOffset));
 
@@ -248,7 +248,7 @@ public class ProgrammingServiceImplTest extends AbstractDataBrokerTest {
 
     @Test(timeout = 30 * 1000)
     public void testTimeoutWhileExecutingWithDependenciesTransaction() throws Exception {
-        final BigInteger deadlineOffset = BigInteger.valueOf(1000l * 1000 * 1000 * INSTRUCTION_DEADLINE_OFFSET_IN_SECONDS /* seconds */);
+        final BigInteger deadlineOffset = BigInteger.valueOf(1000L * 1000 * 1000 * INSTRUCTION_DEADLINE_OFFSET_IN_SECONDS /* seconds */);
         final Nanotime current = NanotimeUtil.currentTime();
         final Nanotime deadlineNano = new Nanotime(current.getValue().add(deadlineOffset));
 

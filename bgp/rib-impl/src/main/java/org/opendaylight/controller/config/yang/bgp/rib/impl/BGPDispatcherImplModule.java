@@ -69,6 +69,6 @@ public final class BGPDispatcherImplModule extends org.opendaylight.controller.c
         this.bundleContext = bundleContext;
     }
 
-    private static interface AutoCloseableBGPDispatcher extends BGPDispatcher, AutoCloseable {
+    private interface AutoCloseableBGPDispatcher extends BGPDispatcher, AutoCloseable {
     }
 }

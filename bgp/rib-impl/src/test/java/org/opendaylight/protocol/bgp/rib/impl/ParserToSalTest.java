@@ -81,14 +81,14 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
     @Mock
     BGPDispatcher dispatcher;
 
-    BindingCodecTreeFactory codecFactory;
+    private BindingCodecTreeFactory codecFactory;
 
     private SchemaService schemaService;
 
     @Override
     protected java.lang.Iterable<org.opendaylight.yangtools.yang.binding.YangModuleInfo> getModuleInfos() throws Exception {
         return ImmutableList.of(BindingReflections.getModuleInfo(Ipv4Route.class), BindingReflections.getModuleInfo(Ipv6Route.class), BindingReflections.getModuleInfo(LinkstateRoute.class));
-    };
+    }
 
     @Override
     protected DataBrokerTestCustomizer createDataBrokerTestCustomizer() {

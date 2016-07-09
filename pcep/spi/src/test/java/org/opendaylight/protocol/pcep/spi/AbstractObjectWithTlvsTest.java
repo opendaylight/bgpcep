@@ -46,7 +46,7 @@ public class AbstractObjectWithTlvsTest {
 
     private class Abs extends AbstractObjectWithTlvsParser<TlvsBuilder> {
 
-        protected Abs(TlvRegistry tlvReg, VendorInformationTlvRegistry viTlvReg) {
+        Abs(TlvRegistry tlvReg, VendorInformationTlvRegistry viTlvReg) {
             super(tlvReg, viTlvReg);
         }
 
@@ -68,7 +68,7 @@ public class AbstractObjectWithTlvsTest {
         protected void addVendorInformationTlvs(TlvsBuilder builder, List<VendorInformationTlv> tlvs) {
             builder.setVendorInformationTlv(tlvs);
         }
-    };
+    }
 
     @Before
     public void setUp() throws PCEPDeserializerException {

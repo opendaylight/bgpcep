@@ -64,6 +64,6 @@ public final class Util {
     }
 
     private enum State {
-        START, PROC_TIME, OVERLOAD, END;
+        START, PROC_TIME, OVERLOAD, END
     }
 }
