@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.impl.spi;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
@@ -42,11 +42,11 @@ public final class Util {
         final ErrorObject err = new ErrorObjectBuilder().setType(e.getErrorType()).setValue(e.getErrorValue()).build();
         if (t == null) {
             return errMessageBuilder.setPcerrMessage(
-                    new PcerrMessageBuilder().setErrors(Arrays.asList(new ErrorsBuilder().setErrorObject(err).build())).build()).build();
+                    new PcerrMessageBuilder().setErrors(Collections.singletonList(new ErrorsBuilder().setErrorObject(err).build())).build()).build();
         } else {
             final ErrorType type = new SessionCaseBuilder().setSession(new SessionBuilder().setOpen(t).build()).build();
             return errMessageBuilder.setPcerrMessage(
-                    new PcerrMessageBuilder().setErrors(Arrays.asList(new ErrorsBuilder().setErrorObject(err).build())).setErrorType(type).build()).build();
+                    new PcerrMessageBuilder().setErrors(Collections.singletonList(new ErrorsBuilder().setErrorObject(err).build())).setErrorType(type).build()).build();
         }
     }
 
@@ -89,6 +89,6 @@ public final class Util {
     }
 
     private enum State {
-        START, PROC_TIME, OVERLOAD, END;
+        START, PROC_TIME, OVERLOAD, END
     }
 }

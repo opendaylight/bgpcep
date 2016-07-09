@@ -61,7 +61,7 @@ public class Stateful07PCUpdateRequestMessageParser extends AbstractMessageParse
         MessageUtil.formatMessage(TYPE, buffer, out);
     }
 
-    protected void serializeUpdate(final Updates update, final ByteBuf buffer) {
+    private void serializeUpdate(final Updates update, final ByteBuf buffer) {
         serializeObject(update.getSrp(), buffer);
         serializeObject(update.getLsp(), buffer);
         final Path p = update.getPath();
@@ -99,7 +99,7 @@ public class Stateful07PCUpdateRequestMessageParser extends AbstractMessageParse
         return new PcupdBuilder().setPcupdMessage(new PcupdMessageBuilder().setUpdates(updateRequests).build()).build();
     }
 
-    protected Updates getValidUpdates(final List<Object> objects, final List<Message> errors) {
+    private Updates getValidUpdates(final List<Object> objects, final List<Message> errors) {
         boolean isValid = true;
         final UpdatesBuilder builder = new UpdatesBuilder();
         if (objects.get(0) instanceof Srp) {

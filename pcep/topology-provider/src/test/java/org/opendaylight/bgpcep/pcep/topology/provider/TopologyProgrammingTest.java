@@ -83,8 +83,6 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest<MockedTopol
 
     private TopologyProgramming topologyProgramming;
 
-    private PCEPSession session;
-
     @Override
     @Before
     public void setUp() throws Exception {
@@ -179,8 +177,8 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest<MockedTopol
         Mockito.doNothing().when(this.instruction).executionCompleted(Mockito.any(InstructionStatus.class), Mockito.any(Details.class));
         Mockito.doReturn(this.instructionFuture).when(this.scheduler).scheduleInstruction(Mockito.any(SubmitInstructionInput.class));
         this.topologyProgramming = new TopologyProgramming(this.scheduler, this.manager);
-        this.session = getPCEPSession(getLocalPref(), getRemotePref());
-        listener.onSessionUp(this.session);
+        final PCEPSession session = getPCEPSession(getLocalPref(), getRemotePref());
+        listener.onSessionUp(session);
     }
 
     @Test

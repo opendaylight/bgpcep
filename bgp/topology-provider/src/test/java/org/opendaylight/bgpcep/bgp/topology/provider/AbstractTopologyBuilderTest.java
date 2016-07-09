@@ -33,12 +33,12 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public abstract class AbstractTopologyBuilderTest extends AbstractDataBrokerTest {
+abstract class AbstractTopologyBuilderTest extends AbstractDataBrokerTest {
 
     protected static final TopologyId TEST_TOPOLOGY_ID = new TopologyId("test-topo");
     protected static final RibReference LOC_RIB_REF = new DefaultRibReference(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(Preconditions.checkNotNull(new RibId("test-rib")))));
 
-    protected ListenerRegistration<DataTreeChangeListener<?>> reg;
+    private ListenerRegistration<DataTreeChangeListener<?>> reg;
 
     @Override
     protected void setupWithDataBroker(final DataBroker dataBroker) {

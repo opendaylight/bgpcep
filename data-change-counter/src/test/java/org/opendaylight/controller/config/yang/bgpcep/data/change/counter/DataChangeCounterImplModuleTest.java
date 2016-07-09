@@ -174,7 +174,6 @@ public class DataChangeCounterImplModuleTest extends AbstractConfigTest {
 
         @Override
         public void setBindingMappingService(final ObjectName bindingMappingService) {
-            return;
         }
 
         @Override
@@ -184,12 +183,10 @@ public class DataChangeCounterImplModuleTest extends AbstractConfigTest {
 
         @Override
         public void setDomAsyncBroker(final ObjectName domAsyncBroker) {
-            return;
         }
 
         @Override
         public void validate() {
-            return;
         }
 
         @Override
@@ -204,7 +201,6 @@ public class DataChangeCounterImplModuleTest extends AbstractConfigTest {
 
         @Override
         public void setSchemaService(final ObjectName schemaService) {
-            return;
         }
 
         @Override

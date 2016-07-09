@@ -57,6 +57,6 @@ public class SimpleRSVPExtensionProviderContextModule extends org.opendaylight.c
         this.bundleContext = bundleContext;
     }
 
-    private static interface AutoCloseableRSVPExtensionProviderContext extends RSVPExtensionProviderContext, AutoCloseable {
+    private interface AutoCloseableRSVPExtensionProviderContext extends RSVPExtensionProviderContext, AutoCloseable {
     }
 }

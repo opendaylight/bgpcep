@@ -110,10 +110,7 @@ final class PCEPPeerRegistry {
             if (this == obj) {
                 return true;
             }
-            if (!(obj instanceof ByteArrayWrapper)) {
-                return false;
-            }
-            return Arrays.equals(this.byteArray, ((ByteArrayWrapper) obj).byteArray);
+            return (obj instanceof ByteArrayWrapper) && Arrays.equals(this.byteArray, ((ByteArrayWrapper) obj).byteArray);
         }
     }
 }

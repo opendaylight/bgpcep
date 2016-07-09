@@ -90,9 +90,9 @@ public class RegistryTest {
     @Mock
     VendorInformationTlv viTlv;
 
-    public final List<AutoCloseable> regs = new ArrayList<>();
+    private final List<AutoCloseable> regs = new ArrayList<>();
 
-    AbstractPCEPExtensionProviderActivator activator = new AbstractPCEPExtensionProviderActivator() {
+    private final AbstractPCEPExtensionProviderActivator activator = new AbstractPCEPExtensionProviderActivator() {
 
         @Override
         protected List<AutoCloseable> startImpl(final PCEPExtensionProviderContext context) {
@@ -100,7 +100,7 @@ public class RegistryTest {
         }
     };
 
-    PCEPExtensionProviderContext ctx = ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance();
+    private final PCEPExtensionProviderContext ctx = ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance();
 
     @Before
     public void setUp() throws PCEPDeserializerException {

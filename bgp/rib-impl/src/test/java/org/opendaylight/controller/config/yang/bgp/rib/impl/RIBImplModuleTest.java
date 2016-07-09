@@ -22,7 +22,7 @@ public class RIBImplModuleTest extends AbstractRIBImplModuleTest {
     @Test
     public void testValidationExceptionRibIdNotSet() throws Exception {
         try {
-            createRIBImplModuleInstance(null, 500L, BGP_ID, CLUSTER_ID);
+            createRIBImplModuleInstance(null, 500L, BGP_ID);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("RibId is not set."));
@@ -32,7 +32,7 @@ public class RIBImplModuleTest extends AbstractRIBImplModuleTest {
     @Test
     public void testValidationExceptionLocalAsNotSet() throws Exception {
         try {
-            createRIBImplModuleInstance(RIB_ID, null, BGP_ID, CLUSTER_ID);
+            createRIBImplModuleInstance(RIB_ID, null, BGP_ID);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("LocalAs is not set."));
@@ -42,7 +42,7 @@ public class RIBImplModuleTest extends AbstractRIBImplModuleTest {
     @Test
     public void testValidationExceptionBgpIdNotSet() throws Exception {
         try {
-            createRIBImplModuleInstance(RIB_ID, 500L, null, CLUSTER_ID);
+            createRIBImplModuleInstance(RIB_ID, 500L, null);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("BgpRibId is not set."));

@@ -24,7 +24,7 @@ import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCServerPeerProposal;
 
 public class PCCIncrementalSyncTest extends PCCMockCommon {
 
-    private BigInteger lsp = BigInteger.valueOf(8);
+    private final BigInteger lsp = BigInteger.valueOf(8);
     /**
      * Test Incremental Synchronization
      * Create 8 lsp, then it disconnects after 5 sec and then after 5 sec reconnects with Pcc DBVersion 10

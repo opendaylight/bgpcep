@@ -73,7 +73,6 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
     private static final int LENGTH_SIZE = 2;
 
     private static final int LOCAL_NODE_DESCRIPTORS_TYPE = 256;
-    private static final int REMOTE_NODE_DESCRIPTORS_TYPE = 257;
 
     @VisibleForTesting
     public static final NodeIdentifier OBJECT_TYPE_NID = new NodeIdentifier(ObjectType.QNAME);

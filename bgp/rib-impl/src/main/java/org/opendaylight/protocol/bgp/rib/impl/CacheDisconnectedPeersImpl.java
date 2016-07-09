@@ -16,26 +16,23 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 
 public final class CacheDisconnectedPeersImpl implements CacheDisconnectedPeers {
-    private static Cache<PeerId, Boolean> cache = CacheBuilder.newBuilder().expireAfterAccess(30, TimeUnit.SECONDS).build();
+    private static final Cache<PeerId, Boolean> CACHE = CacheBuilder.newBuilder().expireAfterAccess(30, TimeUnit.SECONDS).build();
 
     CacheDisconnectedPeersImpl() {
     }
 
     @Override
     public boolean isPeerDisconnected(final PeerId peerId) {
-        if (this.cache.getIfPresent(peerId) != null) {
-            return true;
-        }
-        return false;
+        return CACHE.getIfPresent(peerId) != null;
     }
 
     @Override
     public void reconnected(final PeerId peerId) {
-        this.cache.asMap().remove(peerId);
+        CACHE.asMap().remove(peerId);
     }
 
     @Override
     public void insertDesconectedPeer(final Ipv4Address peerId) {
-        this.cache.put(RouterIds.createPeerId(peerId), true);
+        CACHE.put(RouterIds.createPeerId(peerId), true);
     }
 }

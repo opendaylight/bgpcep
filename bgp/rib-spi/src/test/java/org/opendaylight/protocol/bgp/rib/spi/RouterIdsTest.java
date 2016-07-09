@@ -17,8 +17,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 
 public class RouterIdsTest {
 
-    UnsignedInteger unsignedRouterId = UnsignedInteger.valueOf(707406378);
-    PeerId peerID = new PeerId("bgp://42.42.42.42");
+    private final UnsignedInteger unsignedRouterId = UnsignedInteger.valueOf(707406378);
+    private final PeerId peerID = new PeerId("bgp://42.42.42.42");
 
     @Test
     public void testRouterIdForAddress() throws Exception {

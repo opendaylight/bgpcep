@@ -32,7 +32,7 @@ public class SimpleRIBExtensionTest {
         ctx.close();
     }
 
-    private final class TestActivator extends AbstractRIBExtensionProviderActivator {
+    private static final class TestActivator extends AbstractRIBExtensionProviderActivator {
         @Override
         protected List<AutoCloseable> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context) {
             RIBSupport support = Mockito.mock(RIBSupport.class);

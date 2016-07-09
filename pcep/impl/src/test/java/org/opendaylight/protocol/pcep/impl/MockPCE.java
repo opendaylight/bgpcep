@@ -25,16 +25,12 @@ public class MockPCE implements PCEPSessionListener {
 
     private PCEPSessionImpl session = null;
 
-    public boolean up = false;
-
     private static final Logger LOG = LoggerFactory.getLogger(MockPCE.class);
 
-    public boolean down = false;
-
-    public MockPCE() {
+    private MockPCE() {
     }
 
-    public void sendMessage(final Message msg) {
+    private void sendMessage(final Message msg) {
         this.session.handleMessage(msg);
     }
 
@@ -59,14 +55,12 @@ public class MockPCE implements PCEPSessionListener {
     @Override
     public void onSessionUp(final PCEPSession session) {
         LOG.debug("Session Up");
-        this.up = true;
         this.notifyAll();
     }
 
     @Override
     public void onSessionDown(final PCEPSession session, final Exception e) {
         LOG.debug("Session Down.", e);
-        this.down = true;
         // this.notifyAll();
     }
 
