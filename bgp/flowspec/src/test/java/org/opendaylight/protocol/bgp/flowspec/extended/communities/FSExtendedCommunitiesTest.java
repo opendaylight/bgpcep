@@ -83,9 +83,7 @@ public class FSExtendedCommunitiesTest {
     @Before
     public void setUp() throws Exception {
         final SimpleFlowspecExtensionProviderContext fs_context = new SimpleFlowspecExtensionProviderContext();
-        final FlowspecActivator activator = new FlowspecActivator(fs_context);
-
-        this.act= new BGPActivator(fs_context, activator);
+        this.act= new BGPActivator(fs_context);
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         act.start(context);
         registry = context.getExtendedCommunityReistry();

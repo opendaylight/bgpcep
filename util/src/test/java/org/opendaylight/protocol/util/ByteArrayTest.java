@@ -28,7 +28,7 @@ import org.junit.Test;
 
 public class ByteArrayTest {
 
-    byte[] before = new byte[] { 15, 28, 4, 6, 9, 10 };
+    final byte[] before = new byte[] { 15, 28, 4, 6, 9, 10 };
 
     @Test
     public void testReadBytes() {
@@ -132,7 +132,7 @@ public class ByteArrayTest {
     }
 
     private final byte[] inBytes = { (byte) 0x03, (byte) 0xFF, (byte) 0x01, (byte) 0x80 };
-    BitSet inBitSet = new BitSet();
+    final BitSet inBitSet = new BitSet();
 
     @Before
     public void generateBitSet() {

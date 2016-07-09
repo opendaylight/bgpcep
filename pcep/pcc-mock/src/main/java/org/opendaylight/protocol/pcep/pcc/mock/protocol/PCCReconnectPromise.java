@@ -24,7 +24,7 @@ import org.opendaylight.protocol.pcep.PCEPSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PCCReconnectPromise extends DefaultPromise<PCEPSession> {
+class PCCReconnectPromise extends DefaultPromise<PCEPSession> {
 
     private static final Logger LOG = LoggerFactory.getLogger(PCCReconnectPromise.class);
 

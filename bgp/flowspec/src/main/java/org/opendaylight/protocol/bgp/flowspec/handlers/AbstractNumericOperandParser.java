@@ -29,9 +29,9 @@ public abstract class AbstractNumericOperandParser<N> extends AbstractOperandPar
     @VisibleForTesting
     public static final String LESS_THAN_VALUE = "less-than";
 
-    protected static final int LESS_THAN = 5;
-    protected static final int GREATER_THAN = 6;
-    protected static final int EQUAL = 7;
+    private static final int LESS_THAN = 5;
+    private static final int GREATER_THAN = 6;
+    private static final int EQUAL = 7;
 
     /**
      * Serializes specific numeric operand type depending on the length field value.

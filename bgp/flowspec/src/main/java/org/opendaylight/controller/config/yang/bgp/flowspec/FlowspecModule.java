@@ -35,7 +35,7 @@ public class FlowspecModule extends org.opendaylight.controller.config.yang.bgp.
         final class FlowspecExtension implements AutoCloseable, BGPExtensionProviderActivator, RIBExtensionProviderActivator {
             private final SimpleFlowspecExtensionProviderContext flowspecContext = new SimpleFlowspecExtensionProviderContext();
             private final FlowspecActivator fsActivator = new FlowspecActivator(flowspecContext);
-            private final BGPActivator bgpact = new BGPActivator(flowspecContext, fsActivator);
+            private final BGPActivator bgpact = new BGPActivator(flowspecContext);
             private final RIBExtensionProviderActivator ribact = new RIBActivator(flowspecContext);
 
             @Override

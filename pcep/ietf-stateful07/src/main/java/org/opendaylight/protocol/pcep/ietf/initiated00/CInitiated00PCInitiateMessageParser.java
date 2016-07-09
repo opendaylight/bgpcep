@@ -56,7 +56,7 @@ public class CInitiated00PCInitiateMessageParser extends AbstractMessageParser {
         MessageUtil.formatMessage(TYPE, buffer, out);
     }
 
-    protected void serializeRequest(final Requests req, final ByteBuf buffer) {
+    private void serializeRequest(final Requests req, final ByteBuf buffer) {
         serializeObject(req.getSrp(), buffer);
         serializeObject(req.getLsp(), buffer);
         serializeObject(req.getEndpointsObj(), buffer);
@@ -83,7 +83,7 @@ public class CInitiated00PCInitiateMessageParser extends AbstractMessageParser {
         return new PcinitiateBuilder().setPcinitiateMessage(builder.build()).build();
     }
 
-    protected Requests getValidRequest(final List<Object> objects) {
+    private Requests getValidRequest(final List<Object> objects) {
         final RequestsBuilder builder = new RequestsBuilder();
         builder.setSrp((Srp) objects.get(0));
         objects.remove(0);

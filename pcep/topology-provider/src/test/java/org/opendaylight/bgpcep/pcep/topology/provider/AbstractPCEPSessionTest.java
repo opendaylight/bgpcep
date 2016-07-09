@@ -65,13 +65,12 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 
 public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerFactory> extends AbstractDataBrokerTest {
 
-    protected static final String TEST_TOPOLOGY_NAME = "testtopo";
+    private static final String TEST_TOPOLOGY_NAME = "testtopo";
     protected static final InstanceIdentifier<Topology> TOPO_IID = InstanceIdentifier.builder(NetworkTopology.class).child(
             Topology.class, new TopologyKey(new TopologyId(TEST_TOPOLOGY_NAME))).build();
     protected static final String TEST_ADDRESS = "127.0.0.1";
     protected static final NodeId NODE_ID = new NodeId("pcc://" + TEST_ADDRESS);
-    protected static final String TEST_LSP_NAME = "tunnel0";
-    protected static final String IPV4_MASK = "/32";
+    private static final String IPV4_MASK = "/32";
     protected static final String ERO_IP_PREFIX = TEST_ADDRESS + IPV4_MASK;
     protected static final String NEW_DESTINATION_ADDRESS = "127.0.1.0";
     protected static final String DST_IP_PREFIX = NEW_DESTINATION_ADDRESS + IPV4_MASK;
@@ -92,8 +91,6 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
 
     @Mock
     private ChannelFuture channelFuture;
-
-    private T listenerFactory;
 
     private final Open localPrefs = new OpenBuilder().setDeadTimer((short) 30).setKeepalive((short) 10).setSessionId((short) 0).build();
 
@@ -131,8 +128,8 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
 
         doReturn(mock(ChannelFuture.class)).when(this.clientListener).close();
 
-        this.listenerFactory = (T) ((Class)((ParameterizedType)this.getClass().getGenericSuperclass()).getActualTypeArguments()[0]).newInstance();
-        this.manager = new ServerSessionManager(getDataBroker(), TOPO_IID, this.listenerFactory, RPC_TIMEOUT);
+        final T listenerFactory = (T) ((Class) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[0]).newInstance();
+        this.manager = new ServerSessionManager(getDataBroker(), TOPO_IID, listenerFactory, RPC_TIMEOUT);
 
         this.neg = new DefaultPCEPSessionNegotiator(mock(Promise.class), this.clientListener, this.manager.getSessionListener(), (short) 1, 5, this.localPrefs);
         this.topologyRpcs = new TopologyRPCs(this.manager);

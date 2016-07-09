@@ -10,7 +10,8 @@ package org.opendaylight.controller.config.yang.pcep.topology.provider;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.opendaylight.controller.config.yang.pcep.impl.PCEPDispatcherImplModuleTest.createDispatcherInstance;
-import java.util.Arrays;
+
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import javax.management.InstanceAlreadyExistsException;
@@ -192,7 +193,7 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
             final Client client = new Client();
             client.setPassword(Rfc2385Key.getDefaultInstance("foo"));
             client.setAddress(new IpAddress("127.0.0.1".toCharArray()));
-            mxBean.setClient(Arrays.asList(client));
+            mxBean.setClient(Collections.singletonList(client));
         }
 
         mxBean.setListenAddress(listenAddress == null ? null : new IpAddress(listenAddress.toCharArray()));

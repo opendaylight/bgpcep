@@ -41,7 +41,7 @@ public final class FSTcpFlagsHandler implements FlowspecTypeParser, FlowspecType
         return new TcpFlagsCaseBuilder().setTcpFlags(parseTcpFlags(buffer)).build();
     }
 
-    private static final void serializeTcpFlags(final List<TcpFlags> flags, final ByteBuf nlriByteBuf) {
+    private static void serializeTcpFlags(final List<TcpFlags> flags, final ByteBuf nlriByteBuf) {
         for (final TcpFlags flag : flags) {
             final ByteBuf flagsBuf = Unpooled.buffer();
             Util.writeShortest(flag.getValue(), flagsBuf);

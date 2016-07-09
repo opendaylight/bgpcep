@@ -77,7 +77,7 @@ public class AbstractMessageParserTest {
             }
             return null;
         }
-    };
+    }
 
     @Before
     public void setUp() throws PCEPDeserializerException {

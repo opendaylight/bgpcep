@@ -230,11 +230,9 @@ public class PCEPDispatcherImplTest {
         private final PCEPHandlerFactory factory;
         private final EventExecutor executor;
         private final EventLoopGroup workerGroup;
-        private final EventLoopGroup bossGroup;
 
         public PCCMock(final PCEPSessionNegotiatorFactory negotiatorFactory, final PCEPHandlerFactory factory,
                        final DefaultPromise<PCEPSessionImpl> defaultPromise) {
-            this.bossGroup = Preconditions.checkNotNull(new NioEventLoopGroup());
             this.workerGroup = Preconditions.checkNotNull(new NioEventLoopGroup());
             this.negotiatorFactory = Preconditions.checkNotNull(negotiatorFactory);
             this.factory = Preconditions.checkNotNull(factory);

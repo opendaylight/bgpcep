@@ -54,7 +54,7 @@ public class Stateful07LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
     protected static final int ADMINISTRATIVE = 8;
     protected static final int OPERATIONAL = 5;
 
-    protected static final int FOUR_BITS_SHIFT = 4;
+    private static final int FOUR_BITS_SHIFT = 4;
     protected static final int FLAGS_SIZE = 12;
 
     public Stateful07LspObjectParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
@@ -90,7 +90,7 @@ public class Stateful07LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
     }
 
     @Override
-    public void addTlv(final TlvsBuilder builder, final Tlv tlv) {
+    protected void addTlv(final TlvsBuilder builder, final Tlv tlv) {
         if (tlv instanceof LspErrorCode) {
             builder.setLspErrorCode((LspErrorCode) tlv);
         } else if (tlv instanceof LspIdentifiers) {
@@ -135,7 +135,7 @@ public class Stateful07LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
         return flags;
     }
 
-    public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
+    protected void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
         if (tlvs == null) {
             return;
         }

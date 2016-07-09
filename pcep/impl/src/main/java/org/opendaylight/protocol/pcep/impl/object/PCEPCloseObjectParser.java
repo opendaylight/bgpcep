@@ -72,7 +72,7 @@ public class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<TlvsBuil
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 
-    public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
+    private void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
         if (tlvs == null) {
             return;
         }

@@ -62,7 +62,7 @@ public class FlowspecIpv4RIBSupportTest extends AbstractRIBSupportTest {
 
     private static final DestinationPrefixCase DEST_PREFIX = new DestinationPrefixCaseBuilder().setDestinationPrefix(new Ipv4Prefix("10.0.1.0/32")).build();
     private static final List<Flowspec> FLOW_LIST = Collections.singletonList(new FlowspecBuilder().setFlowspecType(DEST_PREFIX).build());
-    private final static DestinationFlowspec DEST_FLOW = new DestinationFlowspecBuilder().setFlowspec(FLOW_LIST).setPathId(PATH_ID).build();
+    private static final DestinationFlowspec DEST_FLOW = new DestinationFlowspecBuilder().setFlowspec(FLOW_LIST).setPathId(PATH_ID).build();
     private static final DestinationFlowspecCase REACH_NLRI = new DestinationFlowspecCaseBuilder().setDestinationFlowspec(DEST_FLOW).build();
     private static final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update
         .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecCase UNREACH_NLRI = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update
@@ -70,8 +70,7 @@ public class FlowspecIpv4RIBSupportTest extends AbstractRIBSupportTest {
 
     static {
         final SimpleFlowspecExtensionProviderContext fs_context = new SimpleFlowspecExtensionProviderContext();
-        final FlowspecActivator activator = new FlowspecActivator(fs_context);
-        final BGPActivator act = new BGPActivator(fs_context, activator);
+        final BGPActivator act = new BGPActivator(fs_context);
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         act.start(context);
         RIB_SUPPORT = FlowspecIpv4RIBSupport.getInstance(fs_context);

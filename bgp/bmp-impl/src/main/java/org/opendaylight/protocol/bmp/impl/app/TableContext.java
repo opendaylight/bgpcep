@@ -41,9 +41,6 @@ import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableChoiceNodeBuilder;
 
-/**
- * Created by cgasparini on 22.5.2015.
- */
 @NotThreadSafe
 final class TableContext {
 

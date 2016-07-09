@@ -17,13 +17,13 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class InetSocketAddressUtilTest {
-    private static String ADDRESS1 = "1.1.1.1";
-    private static String ADDRESS2 = "2.2.2.2";
-    private static int PORT1 = 123;
-    private static int PORT2 = 321;
-    private static String ADDRESSES_WO_PORT = ADDRESS1 + "," + ADDRESS2;
-    private static String ADDRESSES = ADDRESS1 + ":" + PORT1 + "," + ADDRESS2 + ":" + PORT2;
-    private static int DEFAULT_PORT = 179;
+    private static final String ADDRESS1 = "1.1.1.1";
+    private static final String ADDRESS2 = "2.2.2.2";
+    private static final int PORT1 = 123;
+    private static final int PORT2 = 321;
+    private static final String ADDRESSES_WO_PORT = ADDRESS1 + "," + ADDRESS2;
+    private static final String ADDRESSES = ADDRESS1 + ":" + PORT1 + "," + ADDRESS2 + ":" + PORT2;
+    private static final int DEFAULT_PORT = 179;
 
     @Test
     public void parseAddresses() throws Exception {
