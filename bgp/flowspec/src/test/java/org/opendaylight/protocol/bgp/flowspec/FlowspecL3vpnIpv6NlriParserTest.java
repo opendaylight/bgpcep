@@ -92,7 +92,7 @@ public class FlowspecL3vpnIpv6NlriParserTest {
         0, 1, 1, 2, 3, 4, 0, 10,    // route distinguisher: 1.2.3.4:10
         1, 0x28, 0, 1, 2, 3, 4, 5,
         2, 0x28, 0, 1, 2, 3, 4, 6,
-        03, (byte) 0x81, 06};
+        3, (byte) 0x81, 6};
 
     private static final byte[] REACHED_NLRI_ADD_PATH = new byte[]{
         0x0, 0x0, 0x0, 0x1,
@@ -100,7 +100,7 @@ public class FlowspecL3vpnIpv6NlriParserTest {
         0, 1, 1, 2, 3, 4, 0, 10,    // route distinguisher: 1.2.3.4:10
         1, 0x28, 0, 1, 2, 3, 4, 5,
         2, 0x28, 0, 1, 2, 3, 4, 6,
-        03, (byte) 0x81, 06};
+        3, (byte) 0x81, 6};
 
     private static final byte[] UNREACHED_NLRI = new byte[]{
         0x14,   // NLRI length: 12+8=20

@@ -132,9 +132,6 @@ public final class BGPOpenConfigListener implements DataTreeChangeListener<Bgp>,
 
     private static boolean isAppNeighbor(final Neighbor neighbor) {
         final Config1 config1 = neighbor.getConfig().getAugmentation(Config1.class);
-        if (config1 != null) {
-            return config1.getPeerGroup() != null && config1.getPeerGroup().equals(OpenConfigUtil.APPLICATION_PEER_GROUP_NAME);
-        }
-        return false;
+        return config1 != null && config1.getPeerGroup() != null && config1.getPeerGroup().equals(OpenConfigUtil.APPLICATION_PEER_GROUP_NAME);
     }
 }

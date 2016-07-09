@@ -17,10 +17,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 
 public class SyncOptimizationsCapabilityTlvParser extends CInitiated00StatefulCapabilityTlvParser {
 
-    protected static final int S_FLAG_OFFSET = 30;
-    protected static final int T_FLAG_OFFSET = 28;
-    protected static final int D_FLAG_OFFSET = 27;
-    protected static final int F_FLAG_OFFSET = 26;
+    private static final int S_FLAG_OFFSET = 30;
+    private static final int T_FLAG_OFFSET = 28;
+    private static final int D_FLAG_OFFSET = 27;
+    private static final int F_FLAG_OFFSET = 26;
 
     @Override
     protected void parseFlags(final StatefulBuilder sb, final ByteBuf buffer) {

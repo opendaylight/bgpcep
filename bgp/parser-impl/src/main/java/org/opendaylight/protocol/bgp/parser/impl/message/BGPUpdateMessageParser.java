@@ -158,25 +158,20 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
 
         final Attributes attrs = message.getAttributes();
 
-        if (message.getNlri() != null) {
-            if (attrs == null || attrs.getCNextHop() == null) {
-                throw new BGPDocumentedException(BGPError.MANDATORY_ATTR_MISSING_MSG + "NEXT_HOP",
-                        BGPError.WELL_KNOWN_ATTR_MISSING,
-                        new byte[] { NextHopAttributeParser.TYPE });
-            }
+        if (message.getNlri() != null && (attrs == null || attrs.getCNextHop() == null)) {
+            throw new BGPDocumentedException(BGPError.MANDATORY_ATTR_MISSING_MSG + "NEXT_HOP",
+                BGPError.WELL_KNOWN_ATTR_MISSING, new byte[] { NextHopAttributeParser.TYPE });
         }
 
         if (MessageUtil.isAnyNlriPresent(message)) {
             if (attrs == null || attrs.getOrigin() == null) {
                 throw new BGPDocumentedException(BGPError.MANDATORY_ATTR_MISSING_MSG + "ORIGIN",
-                        BGPError.WELL_KNOWN_ATTR_MISSING,
-                        new byte[] { OriginAttributeParser.TYPE });
+                    BGPError.WELL_KNOWN_ATTR_MISSING, new byte[] { OriginAttributeParser.TYPE });
             }
 
-            if (attrs == null || attrs.getAsPath() == null) {
+            if (attrs.getAsPath() == null) {
                 throw new BGPDocumentedException(BGPError.MANDATORY_ATTR_MISSING_MSG + "AS_PATH",
-                        BGPError.WELL_KNOWN_ATTR_MISSING,
-                        new byte[] { AsPathAttributeParser.TYPE });
+                    BGPError.WELL_KNOWN_ATTR_MISSING, new byte[] { AsPathAttributeParser.TYPE });
             }
         }
     }

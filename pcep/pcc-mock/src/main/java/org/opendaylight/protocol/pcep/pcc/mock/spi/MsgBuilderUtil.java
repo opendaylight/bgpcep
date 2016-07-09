@@ -12,7 +12,7 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import java.math.BigInteger;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
@@ -85,10 +85,6 @@ public final class MsgBuilderUtil {
         lspBuilder.setSync(sync);
         lspBuilder.setTlvs(tlvs.orNull());
         return lspBuilder.build();
-    }
-
-    public static Lsp createLsp(final long plspId, final boolean sync, final Optional<Tlvs> tlvs, final boolean isDelegatedLspe) {
-        return createLsp(plspId, sync, tlvs, isDelegatedLspe, false);
     }
 
     public static Path createPath(final List<Subobject> subobjects) {
@@ -174,9 +170,9 @@ public final class MsgBuilderUtil {
                                                                 .setOperationId(new SrpIdNumber(srpId)).build())
                                                         .build())).build()).build())
                         .setErrors(
-                                Arrays.asList(new ErrorsBuilder().setErrorObject(
-                                        new ErrorObjectBuilder().setType(e.getErrorType()).setValue(e.getErrorValue())
-                                                .build()).build())).build()).build();
+                            Collections.singletonList(new ErrorsBuilder().setErrorObject(
+                                new ErrorObjectBuilder().setType(e.getErrorType()).setValue(e.getErrorValue())
+                                    .build()).build())).build()).build();
     }
 
     public static byte[] getDefaultPathName(final String address, final long lspId) {

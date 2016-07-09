@@ -62,13 +62,12 @@ public class SrObjectParserTest {
     private VendorInformationTlvRegistry viTlvRegistry;
 
     private SimplePCEPExtensionProviderContext ctx;
-    private SegmentRoutingActivator act;
 
     @Before
     public void setUp() {
         this.ctx = new SimplePCEPExtensionProviderContext();
-        this.act = new SegmentRoutingActivator();
-        this.act.start(this.ctx);
+        final SegmentRoutingActivator act = new SegmentRoutingActivator();
+        act.start(this.ctx);
         this.tlvRegistry = this.ctx.getTlvHandlerRegistry();
         this.viTlvRegistry = this.ctx.getVendorInformationTlvRegistry();
     }

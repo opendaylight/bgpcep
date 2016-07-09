@@ -18,9 +18,6 @@ import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Counter32;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Gauge64;
 
-/**
- * Created by cgasparini on 13.5.2015.
- */
 public final class TlvUtil {
 
     private TlvUtil() {

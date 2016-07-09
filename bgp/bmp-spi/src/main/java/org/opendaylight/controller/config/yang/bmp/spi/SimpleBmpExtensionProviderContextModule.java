@@ -58,6 +58,6 @@ public class SimpleBmpExtensionProviderContextModule extends org.opendaylight.co
         this.bundleContext = bundleContext;
     }
 
-    private static interface AutoCloseableBmpExtensionProviderContext extends BmpExtensionProviderContext, AutoCloseable {
+    private interface AutoCloseableBmpExtensionProviderContext extends BmpExtensionProviderContext, AutoCloseable {
     }
 }

@@ -128,7 +128,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     protected static final int NLRI_LENGTH = 1;
     protected static final int NLRI_LENGTH_EXTENDED = 2;
 
-    protected SimpleFlowspecTypeRegistry flowspecTypeRegistry;
+    protected final SimpleFlowspecTypeRegistry flowspecTypeRegistry;
 
     /**
      * Add this constant to length value to achieve all ones in the leftmost nibble.
@@ -590,7 +590,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
      *
      * @param nlri
      */
-    private static final void verifyNlriLength(@Nonnull final ByteBuf nlri) {
+    private static void verifyNlriLength(@Nonnull final ByteBuf nlri) {
         // length field can be one or two bytes (if needed)
         // check the length of nlri to see how many bytes we can skip
         int readableLength = nlri.readableBytes();

@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public final class ServiceLoaderRIBExtensionConsumerContext extends SimpleRIBExtensionProviderContext implements AutoCloseable {
+final class ServiceLoaderRIBExtensionConsumerContext extends SimpleRIBExtensionProviderContext implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(ServiceLoaderRIBExtensionConsumerContext.class);
     private final ServiceLoader<RIBExtensionProviderActivator> loader;
 
@@ -29,7 +29,7 @@ public final class ServiceLoaderRIBExtensionConsumerContext extends SimpleRIBExt
         }
     }
 
-    public static ServiceLoaderRIBExtensionConsumerContext createConsumerContext() {
+    static ServiceLoaderRIBExtensionConsumerContext createConsumerContext() {
         final ServiceLoader<RIBExtensionProviderActivator> loader = ServiceLoader.load(RIBExtensionProviderActivator.class);
         final ServiceLoaderRIBExtensionConsumerContext ctx = new ServiceLoaderRIBExtensionConsumerContext(loader);
 
