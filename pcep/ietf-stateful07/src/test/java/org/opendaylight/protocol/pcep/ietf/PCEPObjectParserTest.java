@@ -79,7 +79,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 public class PCEPObjectParserTest {
 
     private SimplePCEPExtensionProviderContext ctx;
-    private Activator act;
 
     private TlvRegistry tlvRegistry;
     private VendorInformationTlvRegistry viTlvRegistry;
@@ -90,8 +89,8 @@ public class PCEPObjectParserTest {
     @Before
     public void setUp() throws Exception {
         this.ctx = new SimplePCEPExtensionProviderContext();
-        this.act = new Activator();
-        this.act.start(this.ctx);
+        final Activator act = new Activator();
+        act.start(this.ctx);
         this.tlvRegistry = ServiceLoaderPCEPExtensionProviderContext.create().getTlvHandlerRegistry();
         this.viTlvRegistry = ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getVendorInformationTlvRegistry();
     }

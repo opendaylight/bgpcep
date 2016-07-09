@@ -15,9 +15,6 @@ import javax.annotation.concurrent.GuardedBy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Created by cgasparini on 15.5.2015.
- */
 public abstract class AbstractBmpExtensionProviderActivator implements AutoCloseable, BmpExtensionProviderActivator {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractBmpExtensionProviderActivator.class);
 

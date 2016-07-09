@@ -34,15 +34,15 @@ public final class IdentifierUtils {
         return (NodeIdentifierWithPredicates) ret;
     }
 
-    private static YangInstanceIdentifier firstIdentifierOf(final YangInstanceIdentifier id, final Predicate<PathArgument> match) {
-        final int idx = Iterables.indexOf(id.getPathArguments(), match);
-        Preconditions.checkArgument(idx != -1, "Failed to find %s in %s", match, id);
+    private static YangInstanceIdentifier firstIdentifierOf(final YangInstanceIdentifier id) {
+        final int idx = Iterables.indexOf(id.getPathArguments(), IdentifierUtils.IS_PEER);
+        Preconditions.checkArgument(idx != -1, "Failed to find %s in %s", IdentifierUtils.IS_PEER, id);
         // we want the element at index idx to be included in the list
         return YangInstanceIdentifier.create(Iterables.limit(id.getPathArguments(), idx + 1));
     }
 
     public static YangInstanceIdentifier peerPath(final YangInstanceIdentifier id) {
-        return firstIdentifierOf(id, IS_PEER);
+        return firstIdentifierOf(id);
     }
 
     public static NodeIdentifierWithPredicates peerKey(final YangInstanceIdentifier id) {
@@ -58,10 +58,6 @@ public final class IdentifierUtils {
         return peerId(peerKey(id));
     }
 
-
-    static NodeIdentifierWithPredicates tableKey(final YangInstanceIdentifier id) {
-        return firstKeyOf(id, IS_TABLES);
-    }
 
     public static NodeIdentifierWithPredicates domPeerId(final PeerId peer) {
         return new NodeIdentifierWithPredicates(Peer.QNAME, PEER_ID, peer.getValue());

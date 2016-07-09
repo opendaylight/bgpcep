@@ -50,7 +50,7 @@ final class PCCsBuilder {
     private final int stateTimeout;
     private final PCEPCapability pcepCapabilities;
     private PCCDispatcherImpl pccDispatcher;
-    private Timer timer = new HashedWheelTimer();
+    private final Timer timer = new HashedWheelTimer();
 
     public PCCsBuilder(final int lsps, final boolean pcError, final int pccCount, @Nonnull final InetSocketAddress localAddress,
                        @Nonnull final List<InetSocketAddress> remoteAddress, final short keepAlive, final short deadTimer, @Nonnull final String password,

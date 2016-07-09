@@ -49,7 +49,7 @@ public class PCEPStatefulPeerProposalTest {
             .child(Topology.class, new TopologyKey(new TopologyId("topology")));
     private static final NodeId NODE_ID = new NodeId("node");
     private static final LspDbVersion LSP_DB_VERSION = new LspDbVersionBuilder().setLspDbVersionValue(
-            BigInteger.valueOf(1l)).build();
+            BigInteger.valueOf(1L)).build();
 
     @Mock
     private DataBroker dataBroker;

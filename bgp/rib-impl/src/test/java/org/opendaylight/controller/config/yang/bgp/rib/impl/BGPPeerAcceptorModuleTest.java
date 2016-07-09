@@ -121,7 +121,7 @@ public class BGPPeerAcceptorModuleTest extends AbstractConfigTest {
         return transaction.createModule("dispatch", "mock");
     }
 
-    private static interface MockDispatcher extends BGPDispatcher, AutoCloseable {}
+    private interface MockDispatcher extends BGPDispatcher, AutoCloseable {}
 
     @Mock
     static MockDispatcher dispatcher;
@@ -139,7 +139,7 @@ public class BGPPeerAcceptorModuleTest extends AbstractConfigTest {
         doNothing().when(dispatcher).close();
     }
 
-    public final static class MockedDispatcherModule extends AbstractMockedModule implements BGPDispatcherImplModuleMXBean, BGPDispatcherServiceInterface {
+    public static final class MockedDispatcherModule extends AbstractMockedModule implements BGPDispatcherImplModuleMXBean, BGPDispatcherServiceInterface {
 
         public MockedDispatcherModule(final DynamicMBeanWithInstance old, final ModuleIdentifier id) {
             super(old, id);

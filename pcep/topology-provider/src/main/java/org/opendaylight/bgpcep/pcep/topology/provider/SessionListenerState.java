@@ -27,7 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.cra
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Pcupd;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
-final class SessionListenerState {
+final class   SessionListenerState {
     private long lastReceivedRptMsgTimestamp = 0;
     private long receivedRptMsgCount = 0;
     private long sentUpdMsgCount = 0;

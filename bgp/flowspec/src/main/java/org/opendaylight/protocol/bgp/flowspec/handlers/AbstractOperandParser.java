@@ -33,7 +33,7 @@ public abstract class AbstractOperandParser<T> {
     private static final int LENGTH_BITMASK = 48;
 
     @VisibleForTesting
-    public static final short parseLength(final byte op) {
+    public static short parseLength(final byte op) {
         return (short) (1 << ((op & LENGTH_BITMASK) >> LENGTH_SHIFT));
     }
 

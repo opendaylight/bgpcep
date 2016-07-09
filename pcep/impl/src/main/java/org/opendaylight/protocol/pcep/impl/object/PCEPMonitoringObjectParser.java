@@ -93,7 +93,7 @@ public class PCEPMonitoringObjectParser extends AbstractObjectWithTlvsParser<Tlv
         }
     }
 
-    public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
+    private void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
         if (tlvs == null) {
             return;
         }

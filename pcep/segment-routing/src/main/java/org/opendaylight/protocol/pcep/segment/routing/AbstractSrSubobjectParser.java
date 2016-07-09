@@ -35,13 +35,13 @@ import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 public abstract class AbstractSrSubobjectParser   {
 
-    protected static final int MINIMAL_LENGTH = 4;
-    protected static final int BITSET_LENGTH = 8;
-    protected static final int M_FLAG_POSITION = 7;
-    protected static final int C_FLAG_POSITION = 6;
-    protected static final int S_FLAG_POSITION = 5;
-    protected static final int F_FLAG_POSITION = 4;
-    protected static final int MPLS_LABEL_OFFSET = 12;
+    private static final int MINIMAL_LENGTH = 4;
+    private static final int BITSET_LENGTH = 8;
+    private static final int M_FLAG_POSITION = 7;
+    private static final int C_FLAG_POSITION = 6;
+    private static final int S_FLAG_POSITION = 5;
+    private static final int F_FLAG_POSITION = 4;
+    private static final int MPLS_LABEL_OFFSET = 12;
 
     private static final int SID_TYPE_BITS_OFFSET = 4;
 
@@ -93,7 +93,7 @@ public abstract class AbstractSrSubobjectParser   {
         }
     }
 
-    public ByteBuf serializeSubobject(final SrSubobject srSubobject) {
+    ByteBuf serializeSubobject(final SrSubobject srSubobject) {
         final ByteBuf buffer = Unpooled.buffer(MINIMAL_LENGTH);
         // sid type
         writeUnsignedByte((short)(srSubobject.getSidType().getIntValue() << SID_TYPE_BITS_OFFSET), buffer);
