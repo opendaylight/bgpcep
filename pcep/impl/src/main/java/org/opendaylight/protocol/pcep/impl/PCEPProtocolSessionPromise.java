@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ThreadSafe
-public final class PCEPProtocolSessionPromise<S extends PCEPSession> extends DefaultPromise<S> {
+final class PCEPProtocolSessionPromise<S extends PCEPSession> extends DefaultPromise<S> {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPProtocolSessionPromise.class);
     private InetSocketAddress address;
     private final int retryTimer;

@@ -26,9 +26,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.termination.TlvsBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
-/**
- * Created by cgasparini on 13.5.2015.
- */
 public class TerminationHandler extends AbstractBmpMessageWithTlvParser<TlvsBuilder> {
 
     public TerminationHandler(final BmpTlvRegistry tlvRegistry) {

@@ -60,12 +60,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.IpPrefixCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.LabelCase;
 
-/**
- * Created by cgasparini on 17.6.2015.
- */
 public class ReusablePCEPExtensionProviderContextTest {
 
-    List<PCEPExtensionProviderContext> AuxList = new ArrayList<>();
+    private final List<PCEPExtensionProviderContext> AuxList = new ArrayList<>();
 
     @Mock
     XROSubobjectParser xroParser;

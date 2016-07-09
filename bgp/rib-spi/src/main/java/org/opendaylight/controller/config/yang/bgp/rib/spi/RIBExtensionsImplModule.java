@@ -74,6 +74,6 @@ public final class RIBExtensionsImplModule extends org.opendaylight.controller.c
         this.bundleContext = bundleContext;
     }
 
-    private static interface AutoCloseableRIBExtensionProviderContext extends RIBExtensionProviderContext, AutoCloseable {
+    private interface AutoCloseableRIBExtensionProviderContext extends RIBExtensionProviderContext, AutoCloseable {
     }
 }

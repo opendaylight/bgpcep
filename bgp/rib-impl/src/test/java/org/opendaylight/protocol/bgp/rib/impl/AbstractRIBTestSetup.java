@@ -84,7 +84,7 @@ import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 
-public class AbstractRIBTestSetup {
+class AbstractRIBTestSetup {
 
     private RIBImpl rib;
     private static final ClusterIdentifier CLUSTER_ID = new ClusterIdentifier("128.0.0.1");
@@ -142,8 +142,8 @@ public class AbstractRIBTestSetup {
         this.a1 = new RIBActivator();
         this.a1.startRIBExtensionProvider(context);
         mockedMethods();
-        this.rib = new RIBImpl(new RibId("test"), new AsNumber(5L), this.RIB_ID,
-            this.CLUSTER_ID, context, this.dispatcher, this.codecFactory, this.dom,
+        this.rib = new RIBImpl(new RibId("test"), new AsNumber(5L), RIB_ID,
+            CLUSTER_ID, context, this.dispatcher, this.codecFactory, this.dom,
             localTables, Collections.singletonMap(new TablesKey(AFI, SAFI), BasePathSelectionModeFactory.createBestPathSelectionStrategy()),
             GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
         this.rib.onGlobalContextUpdated(schemaContext);
@@ -196,7 +196,7 @@ public class AbstractRIBTestSetup {
         Mockito.doReturn(this.future).when(this.transWrite).submit();
     }
 
-    public Collection<DataTreeCandidate> ipv4Input(final YangInstanceIdentifier target, final ModificationType type, final Ipv4Prefix... prefix) {
+    Collection<DataTreeCandidate> ipv4Input(final YangInstanceIdentifier target, final ModificationType type, final Ipv4Prefix... prefix) {
         final Collection<DataTreeCandidate> col = new HashSet<>();
         final DataTreeCandidate candidate = Mockito.mock(DataTreeCandidate.class);
         final DataTreeCandidateNode rootNode = Mockito.mock(DataTreeCandidateNode.class);
@@ -213,7 +213,7 @@ public class AbstractRIBTestSetup {
             b.addChild(Builders.leafBuilder().withNodeIdentifier(new NodeIdentifier(PREFIX_QNAME)).withValue(p).build());
 
             final DataTreeCandidateNode child = Mockito.mock(DataTreeCandidateNode.class);
-            Mockito.doReturn(createIdentifier(target, p)).when(child).getIdentifier();
+            Mockito.doReturn(createIdentifier(p)).when(child).getIdentifier();
             Mockito.doReturn(Optional.of(b.build())).when(child).getDataAfter();
             Mockito.doReturn(type).when(child).getModificationType();
             children.add(child);
@@ -223,17 +223,13 @@ public class AbstractRIBTestSetup {
         return col;
     }
 
-    public PathArgument createIdentifier(final YangInstanceIdentifier base, final Ipv4Prefix prefix) {
+    private PathArgument createIdentifier(final Ipv4Prefix prefix) {
         final NodeIdentifierWithPredicates routekey = new NodeIdentifierWithPredicates(Ipv4Route.QNAME, PREFIX_QNAME, prefix);
         return YangInstanceIdentifier.of(PREFIX_QNAME).node(routekey).getLastPathArgument();
     }
 
     public RIBImpl getRib() {
         return this.rib;
-    }
-
-    public DOMDataBroker getDOMBroker() {
-        return this.dom;
     }
 
     public DOMDataWriteTransaction getTransaction() {
@@ -245,7 +241,7 @@ public class AbstractRIBTestSetup {
         this.a1.close();
     }
 
-    private class listenerRegistration implements ListenerRegistration {
+    private static class listenerRegistration implements ListenerRegistration {
         @Override
         public Object getInstance() {
             return null;

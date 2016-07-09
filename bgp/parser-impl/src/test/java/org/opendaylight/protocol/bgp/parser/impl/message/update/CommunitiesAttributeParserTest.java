@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
+import static org.junit.Assert.assertEquals;
+
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -22,7 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.Communities;
 
-public class CommunitiesAttributeParserTest extends TestCase {
+public class CommunitiesAttributeParserTest {
 
     private static final byte[] CommunitiesBytes = {(byte) 0xC0, (byte) 0x08, (byte) 0x10,
         (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x1,

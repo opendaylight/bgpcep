@@ -21,13 +21,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 
 public final class MultiprotocolCapabilitiesUtil {
-
     public static final CParameters RR_CAPABILITY = new CParametersBuilder().addAugmentation(CParameters1.class,
         new CParameters1Builder().setRouteRefreshCapability(new RouteRefreshCapabilityBuilder().build()).build()).build();
-
     private static final int RESERVED = 1;
 
-    private MultiprotocolCapabilitiesUtil() { throw new UnsupportedOperationException(); }
+    private MultiprotocolCapabilitiesUtil() {
+        throw new UnsupportedOperationException();
+    }
 
     public static void serializeMPAfiSafi(final AddressFamilyRegistry afiReg, final SubsequentAddressFamilyRegistry safiReg,
         final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi, final ByteBuf capBuffer) {

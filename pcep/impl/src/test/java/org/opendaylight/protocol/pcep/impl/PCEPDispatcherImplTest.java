@@ -178,18 +178,16 @@ public class PCEPDispatcherImplTest {
         private final PCEPHandlerFactory factory;
         private final EventExecutor executor;
         private final EventLoopGroup workerGroup;
-        private final EventLoopGroup bossGroup;
 
-        public PCCMock(final PCEPSessionNegotiatorFactory negotiatorFactory, final PCEPHandlerFactory factory,
-                final DefaultPromise<PCEPSessionImpl> defaultPromise) {
-            this.bossGroup = Preconditions.checkNotNull(new NioEventLoopGroup());
+        PCCMock(final PCEPSessionNegotiatorFactory negotiatorFactory, final PCEPHandlerFactory factory,
+                       final DefaultPromise<PCEPSessionImpl> defaultPromise) {
             this.workerGroup = Preconditions.checkNotNull(new NioEventLoopGroup());
             this.negotiatorFactory = Preconditions.checkNotNull(negotiatorFactory);
             this.factory = Preconditions.checkNotNull(factory);
             this.executor = Preconditions.checkNotNull(GlobalEventExecutor.INSTANCE);
         }
 
-        public Future<PCEPSession> createClient(final InetSocketAddress address, final int retryTimer,
+        Future<PCEPSession> createClient(final InetSocketAddress address, final int retryTimer,
                 final int connectTimeout, final PCEPSessionListenerFactory listenerFactory) {
             return createClient(address, retryTimer, connectTimeout, (ChannelPipelineInitializer) (ch, promise) -> {
                 ch.pipeline().addLast(PCCMock.this.factory.getDecoders());

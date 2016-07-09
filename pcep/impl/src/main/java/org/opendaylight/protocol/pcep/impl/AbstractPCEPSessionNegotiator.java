@@ -48,7 +48,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
     /**
      * Unified KeepWait and OpenWait timer expiration, in seconds.
      */
-    public static final int FAIL_TIMER_VALUE = 60;
+    private static final int FAIL_TIMER_VALUE = 60;
 
     /**
      * PCEP session negotiation state transitions are described in RFC5440. Simplification the two timers (KeepWait and
@@ -364,13 +364,13 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
         return this.state;
     }
 
-    public void setTlsConfiguration(final Tls tlsConfiguration) {
+    void setTlsConfiguration(final Tls tlsConfiguration) {
         this.tlsConfiguration = tlsConfiguration;
     }
 
     @Override
     protected void negotiationFailed(final Throwable cause) {
-        this.LOG.debug("Negotiation on channel {} failed", this.channel, cause);
+        LOG.debug("Negotiation on channel {} failed", this.channel, cause);
         this.channel.close();
         this.promise.setFailure(cause);
     }

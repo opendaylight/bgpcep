@@ -75,10 +75,7 @@ final class SyncOptimization {
     }
 
     private static boolean compareLspDbVersion(final LspDbVersion local, final LspDbVersion remote) {
-        if (local != null && remote != null) {
-            return local.equals(remote);
-        }
-        return false;
+        return local != null && remote != null && local.equals(remote);
     }
 
     private static Stateful1 getStateful1(final Tlvs openTlvs) {

@@ -101,33 +101,38 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
                     String.format("BGP peer with ip: %s not configured, check configured peers in : %s", remoteIp, this.registry), BGPError.CONNECTION_REJECTED);
                 negotiationFailed(cause);
                 return;
+            } else {
+                negotiate(remoteIp);
             }
 
-            final BGPSessionPreferences preferences = this.registry.getPeerPreferences(remoteIp);
-
-            int as = preferences.getMyAs().getValue().intValue();
-            // Set as AS_TRANS if the value is bigger than 2B
-            if (as > Values.UNSIGNED_SHORT_MAX_VALUE) {
-                as = AS_TRANS;
-            }
-            sendMessage(new OpenBuilder().setMyAsNumber(as).setHoldTimer(preferences.getHoldTime()).setBgpIdentifier(
-                preferences.getBgpId()).setBgpParameters(preferences.getParams()).build());
-            if (this.state != State.FINISHED) {
-                this.state = State.OPEN_SENT;
-                this.channel.eventLoop().schedule(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (AbstractBGPSessionNegotiator.this.state != State.FINISHED) {
-                            AbstractBGPSessionNegotiator.this.sendMessage(buildErrorNotify(BGPError.HOLD_TIMER_EXPIRED));
-                            negotiationFailed(new BGPDocumentedException("HoldTimer expired", BGPError.FSM_ERROR));
-                            AbstractBGPSessionNegotiator.this.state = State.FINISHED;
-                        }
-                    }
-                }, INITIAL_HOLDTIMER, TimeUnit.MINUTES);
-            }
         } catch (final Exception e) {
             LOG.warn("Unexpected negotiation failure", e);
             negotiationFailedCloseChannel(e);
+        }
+    }
+
+    private synchronized void negotiate(final IpAddress remoteIp) {
+        final BGPSessionPreferences preferences = this.registry.getPeerPreferences(remoteIp);
+
+        int as = preferences.getMyAs().getValue().intValue();
+        // Set as AS_TRANS if the value is bigger than 2B
+        if (as > Values.UNSIGNED_SHORT_MAX_VALUE) {
+            as = AS_TRANS;
+        }
+        sendMessage(new OpenBuilder().setMyAsNumber(as).setHoldTimer(preferences.getHoldTime()).setBgpIdentifier(
+            preferences.getBgpId()).setBgpParameters(preferences.getParams()).build());
+        if (this.state != State.FINISHED) {
+            this.state = State.OPEN_SENT;
+            this.channel.eventLoop().schedule(new Runnable() {
+                @Override
+                public void run() {
+                    if (AbstractBGPSessionNegotiator.this.state != State.FINISHED) {
+                        AbstractBGPSessionNegotiator.this.sendMessage(buildErrorNotify(BGPError.HOLD_TIMER_EXPIRED));
+                        negotiationFailed(new BGPDocumentedException("HoldTimer expired", BGPError.FSM_ERROR));
+                        AbstractBGPSessionNegotiator.this.state = State.FINISHED;
+                    }
+                }
+            }, INITIAL_HOLDTIMER, TimeUnit.MINUTES);
         }
     }
 

@@ -95,15 +95,13 @@ public class SrEroSubobjectParserTest {
         0x4A,0x7D,0x2b,0x63,
     };
 
-    private SimplePCEPExtensionProviderContext ctx;
-    private SegmentRoutingActivator act;
     private SrEroSubobjectParser parser;
 
     @Before
     public void setUp() {
-        this.ctx = new SimplePCEPExtensionProviderContext();
-        this.act = new SegmentRoutingActivator();
-        this.act.start(this.ctx);
+        final SimplePCEPExtensionProviderContext ctx = new SimplePCEPExtensionProviderContext();
+        final SegmentRoutingActivator act = new SegmentRoutingActivator();
+        act.start(ctx);
         final boolean isIanaAssignedType = false;
         parser = new SrEroSubobjectParser(isIanaAssignedType);
     }

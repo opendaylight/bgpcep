@@ -49,7 +49,7 @@ public final class RibSupportUtils {
      * @param safi Class representing SAFI
      * @return NodeIdentifierWithPredicates of 'id' for specified AFI, SAFI combination.
      */
-    public static NodeIdentifierWithPredicates toYangKey(final QName id, final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi) {
+    private static NodeIdentifierWithPredicates toYangKey(final QName id, final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi) {
         final ImmutableMap<QName, Object> keyValues = ImmutableMap.<QName, Object>of(
                         AFI_QNAME, BindingReflections.findQName(afi),
                         SAFI_QNAME, BindingReflections.findQName(safi));
@@ -65,7 +65,7 @@ public final class RibSupportUtils {
      * @param safi Class representing SAFI
      * @return NodeIdentifierWithPredicates of 'id' for specified AFI, SAFI combination.
      */
-    public static NodeIdentifierWithPredicates toYangPathKey(final QName id, final Class<? extends AddressFamily> afi,
+    private static NodeIdentifierWithPredicates toYangPathKey(final QName id, final Class<? extends AddressFamily> afi,
         final Class<? extends SubsequentAddressFamily> safi) {
         final ImmutableMap<QName, Object> keyValues = ImmutableMap.<QName, Object>of(
             ADD_PATH_AFI_QNAME, BindingReflections.findQName(afi),
