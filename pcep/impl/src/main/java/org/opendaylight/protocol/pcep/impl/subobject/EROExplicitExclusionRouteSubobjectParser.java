@@ -28,7 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 
 public class EROExplicitExclusionRouteSubobjectParser implements EROSubobjectParser, EROSubobjectSerializer {
 
-    public static final int TYPE = 33;
+    private static final int TYPE = 33;
 
     private static final int HEADER_LENGTH = 2;
 

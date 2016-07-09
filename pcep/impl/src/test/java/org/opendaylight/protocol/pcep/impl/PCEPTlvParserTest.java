@@ -78,7 +78,7 @@ public class PCEPTlvParserTest {
         }
 
         @Override
-        protected VendorPayload parseVendorPayload(final ByteBuf payloadBytes) throws PCEPDeserializerException {
+        protected VendorPayload parseVendorPayload(final ByteBuf payloadBytes) {
             return PCEPTlvParserTest.this.vp;
         }
 

@@ -95,7 +95,7 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
     }
 
     @Override
-    public void addTlv(final TlvsBuilder tbuilder, final Tlv tlv) {
+    protected void addTlv(final TlvsBuilder tbuilder, final Tlv tlv) {
         if (tlv instanceof OfList) {
             tbuilder.setOfList((OfList) tlv);
         }
@@ -115,7 +115,7 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 
-    public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
+    protected void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
         if (tlvs == null) {
             return;
         }

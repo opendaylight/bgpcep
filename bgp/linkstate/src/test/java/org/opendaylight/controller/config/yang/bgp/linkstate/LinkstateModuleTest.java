@@ -128,7 +128,7 @@ public class LinkstateModuleTest extends AbstractConfigTest {
         rspvInstance = createRsvpExtensionsInstance(transaction);
         mxBean.setRsvpExtensions(rspvInstance);
         SimpleBGPExtensionProviderContextModuleTest.createBGPExtensionsModuleInstance(transaction, Lists.newArrayList(linkstateON));
-        RIBExtensionsImplModuleTest.createRIBExtensionsModuleInstance(transaction, Lists.newArrayList(linkstateON));
+        RIBExtensionsImplModuleTest.createRIBExtModuleInstance(transaction, Lists.newArrayList(linkstateON));
         return transaction.commit();
     }
 

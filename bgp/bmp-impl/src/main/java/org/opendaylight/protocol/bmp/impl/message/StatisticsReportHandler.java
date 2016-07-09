@@ -39,9 +39,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.UpdatesTreatedAsWithdrawTlv;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
-/**
- * Created by cgasparini on 13.5.2015.
- */
 public class StatisticsReportHandler extends AbstractBmpPerPeerMessageParser<TlvsBuilder> {
 
     private static final int MESSAGE_TYPE = 1;

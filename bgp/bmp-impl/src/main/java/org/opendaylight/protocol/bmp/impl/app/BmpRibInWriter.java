@@ -48,9 +48,6 @@ import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Created by cgasparini on 21.5.2015.
- */
 final class BmpRibInWriter {
 
     private static final Logger LOG = LoggerFactory.getLogger(BmpRibInWriter.class);

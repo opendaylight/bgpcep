@@ -31,12 +31,8 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgum
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class AbstractFlowspecRIBSupport<T extends AbstractFlowspecNlriParser> extends MultiPathAbstractRIBSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractFlowspecRIBSupport.class);
-
     protected final T nlriParser;
 
     protected AbstractFlowspecRIBSupport(

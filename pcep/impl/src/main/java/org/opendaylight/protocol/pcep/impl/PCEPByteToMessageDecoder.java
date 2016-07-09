@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 /**
  * A PCEP message parser which also does validation.
  */
-public final class PCEPByteToMessageDecoder extends ByteToMessageDecoder {
+final class PCEPByteToMessageDecoder extends ByteToMessageDecoder {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPByteToMessageDecoder.class);
 
     private final MessageRegistry registry;

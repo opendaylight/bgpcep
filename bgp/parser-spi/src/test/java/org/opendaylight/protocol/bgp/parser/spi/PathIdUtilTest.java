@@ -38,13 +38,13 @@ public class PathIdUtilTest {
 
     @Test
     public void testWritePathIdZero() {
-        PathIdUtil.writePathId(new PathId(0l), this.buffer);
+        PathIdUtil.writePathId(new PathId(0L), this.buffer);
         Assert.assertEquals(0, this.buffer.readableBytes());
     }
 
     @Test
     public void testWritePathId() {
-        PathIdUtil.writePathId(new PathId(10l), this.buffer);
+        PathIdUtil.writePathId(new PathId(10L), this.buffer);
         Assert.assertEquals(Integer.BYTES, this.buffer.readableBytes());
     }
 

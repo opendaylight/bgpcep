@@ -64,7 +64,7 @@ public abstract class AbstractInstructionExecutor implements FutureCallback<Inst
         this.input = Preconditions.checkNotNull(input);
     }
 
-    public final SubmitInstructionInput getInput() {
+    private SubmitInstructionInput getInput() {
         return this.input;
     }
 

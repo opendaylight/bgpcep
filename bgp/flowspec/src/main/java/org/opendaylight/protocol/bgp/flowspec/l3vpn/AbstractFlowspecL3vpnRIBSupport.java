@@ -29,16 +29,12 @@ import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Kevin Wang
  */
 public abstract class AbstractFlowspecL3vpnRIBSupport<T extends AbstractFlowspecL3vpnNlriParser> extends AbstractFlowspecRIBSupport<T> {
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractFlowspecL3vpnRIBSupport.class);
-
-    private final NodeIdentifier RD_NID;
+    private final NodeIdentifier nodeIdentifier;
 
     protected AbstractFlowspecL3vpnRIBSupport(
         final Class<? extends Routes> cazeClass,
@@ -49,13 +45,13 @@ public abstract class AbstractFlowspecL3vpnRIBSupport<T extends AbstractFlowspec
         final T flowspecNlriParser
     ) {
         super(cazeClass, containerClass, listClass, afiClass, FlowspecL3vpnSubsequentAddressFamily.class, dstContainerClassQName, flowspecNlriParser);
-        final QName RD_QNAME = QName.create(routeQName(), "route-distinguisher").intern();
-        RD_NID = new NodeIdentifier(RD_QNAME);
+        final QName rdQname = QName.create(routeQName(), "route-distinguisher").intern();
+        nodeIdentifier = new NodeIdentifier(rdQname);
     }
 
     @Nullable
     private RouteDistinguisher buildRouteDistinguisher(final DataContainerNode<? extends PathArgument> data) {
-        final NormalizedNode<?, ?> rdNode = NormalizedNodes.findNode(data, RD_NID).orNull();
+        final NormalizedNode<?, ?> rdNode = NormalizedNodes.findNode(data, nodeIdentifier).orNull();
         RouteDistinguisher rd = null;
         if (rdNode != null) {
             rd = RouteDistinguisherUtil.parseRouteDistinguisher(rdNode.getValue());

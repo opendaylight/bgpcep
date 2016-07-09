@@ -69,11 +69,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.UpdatesTreatedAsWithdrawTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.string.tlv.StringTlv;
 
-
-
-/**
- * Created by cgasparini on 15.5.2015.
- */
 public final class BmpActivator extends AbstractBmpExtensionProviderActivator {
 
     private final MessageRegistry messageRegistry;

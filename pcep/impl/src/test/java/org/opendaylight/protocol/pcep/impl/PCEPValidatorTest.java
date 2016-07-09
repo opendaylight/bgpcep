@@ -162,19 +162,15 @@ public class PCEPValidatorTest {
     private ProcTime procTime;
     private Overload overload;
 
-    private AsNumberCase eroASSubobject;
-
     private SimplePCEPExtensionProviderContext ctx;
-    private Activator act;
-    private TestVendorInformationActivator viObjAct;
 
     @Before
     public void setUp() throws Exception {
         this.ctx = new SimplePCEPExtensionProviderContext();
-        this.act = new Activator();
-        this.viObjAct = new TestVendorInformationActivator();
-        this.act.start(this.ctx);
-        this.viObjAct.start(this.ctx);
+        final Activator act = new Activator();
+        final TestVendorInformationActivator viObjAct = new TestVendorInformationActivator();
+        act.start(this.ctx);
+        viObjAct.start(this.ctx);
         this.objectRegistry = this.ctx.getObjectHandlerRegistry();
         this.viObjRegistry = this.ctx.getVendorInformationObjectRegistry();
         final RpBuilder rpBuilder = new RpBuilder();
@@ -236,7 +232,7 @@ public class PCEPValidatorTest {
         mBuilder.setValue(new Float32(new byte[4]));
         this.metrics = new MetricsBuilder().setMetric(mBuilder.build()).build();
 
-        this.eroASSubobject = new AsNumberCaseBuilder().setAsNumber(
+        final AsNumberCase eroASSubobject = new AsNumberCaseBuilder().setAsNumber(
             new AsNumberBuilder().setAsNumber(
                 new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber(0xFFFFL)).build()).build();
 
@@ -244,7 +240,7 @@ public class PCEPValidatorTest {
         iroBuilder.setIgnore(false);
         iroBuilder.setProcessingRule(false);
         final List<Subobject> iroSubs = Lists.newArrayList();
-        iroSubs.add(new SubobjectBuilder().setSubobjectType(this.eroASSubobject).setLoose(false).build());
+        iroSubs.add(new SubobjectBuilder().setSubobjectType(eroASSubobject).setLoose(false).build());
         iroBuilder.setSubobject(iroSubs);
         this.iro = iroBuilder.build();
 
@@ -253,7 +249,7 @@ public class PCEPValidatorTest {
         eroBuilder.setProcessingRule(false);
         final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject> eroSubs = Lists.newArrayList();
         eroSubs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.SubobjectBuilder().setSubobjectType(
-            this.eroASSubobject).setLoose(false).build());
+            eroASSubobject).setLoose(false).build());
         eroBuilder.setSubobject(eroSubs);
         this.ero = eroBuilder.build();
 

@@ -98,8 +98,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSerializer {
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractFlowspecNlriParser.class);
-
     @VisibleForTesting
     static final NodeIdentifier FLOWSPEC_NID = new NodeIdentifier(Flowspec.QNAME);
     @VisibleForTesting
@@ -132,7 +130,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     protected static final int NLRI_LENGTH = 1;
     protected static final int NLRI_LENGTH_EXTENDED = 2;
 
-    protected SimpleFlowspecTypeRegistry flowspecTypeRegistry;
+    protected final SimpleFlowspecTypeRegistry flowspecTypeRegistry;
 
     /**
      * Add this constant to length value to achieve all ones in the leftmost nibble.
@@ -594,17 +592,17 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
      *
      * @param nlri
      */
-    private static final void verifyNlriLength(@Nonnull final ByteBuf nlri) {
+    private static void verifyNlriLength(@Nonnull final ByteBuf nlri) {
         // length field can be one or two bytes (if needed)
         // check the length of nlri to see how many bytes we can skip
         int readableLength = nlri.readableBytes();
-        final int expectedLength;    // read the length from field
+        final int expectedLength;
         if (readableLength > MAX_NLRI_LENGTH_ONE_BYTE) {
             expectedLength = nlri.readUnsignedShort();
-            readableLength -= NLRI_LENGTH_EXTENDED;    // deduct the two bytes of the NLRI length field
+            readableLength -= NLRI_LENGTH_EXTENDED;
         } else {
             expectedLength = nlri.readUnsignedByte();
-            readableLength -= NLRI_LENGTH;    // deduct the one byte of the NLRI length field
+            readableLength -= NLRI_LENGTH;
         }
         Preconditions.checkState(readableLength == expectedLength, "NLRI length read from message doesn't match. Length expected (read from NLRI) is %s, length readable is %s", expectedLength, readableLength);
     }

@@ -21,6 +21,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 
 public final class MultiprotocolCapabilitiesUtil {
+    private MultiprotocolCapabilitiesUtil() {
+        throw new UnsupportedOperationException();
+    }
 
     public static final CParameters RR_CAPABILITY = new CParametersBuilder().addAugmentation(CParameters1.class,
         new CParameters1Builder().setRouteRefreshCapability(new RouteRefreshCapabilityBuilder().build()).build()).build();

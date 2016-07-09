@@ -20,9 +20,6 @@ import org.opendaylight.controller.config.yang.bgp.parser.spi.SimpleBGPExtension
 import org.opendaylight.controller.config.yang.bgp.rib.spi.RIBExtensionsImplModuleFactory;
 import org.opendaylight.controller.config.yang.bgp.rib.spi.RIBExtensionsImplModuleTest;
 
-/**
- * Created by cgasparini on 18.6.2015.
- */
 public class FlowspecModuleTest extends AbstractConfigTest {
 
     private static final String FACTORY_NAME = FlowspecModuleFactory.NAME;
@@ -73,7 +70,7 @@ public class FlowspecModuleTest extends AbstractConfigTest {
         final ObjectName flowspecON = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
 
         SimpleBGPExtensionProviderContextModuleTest.createBGPExtensionsModuleInstance(transaction, Lists.newArrayList(flowspecON));
-        RIBExtensionsImplModuleTest.createRIBExtensionsModuleInstance(transaction, Lists.newArrayList(flowspecON));
+        RIBExtensionsImplModuleTest.createRIBExtModuleInstance(transaction, Lists.newArrayList(flowspecON));
         return transaction.commit();
     }
 
