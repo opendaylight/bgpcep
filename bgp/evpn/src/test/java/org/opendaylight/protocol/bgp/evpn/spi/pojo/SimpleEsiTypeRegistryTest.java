@@ -32,7 +32,7 @@ import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContaine
 public class SimpleEsiTypeRegistryTest {
     private static final int ESI_TYPE_LENGTH = 10;
 
-    private class notRegistered implements Esi {
+    private static class notRegistered implements Esi {
         @Override
         public Class<? extends DataContainer> getImplementedInterface() {
             return notRegistered.class;

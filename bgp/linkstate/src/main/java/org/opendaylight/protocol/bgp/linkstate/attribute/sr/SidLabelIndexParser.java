@@ -35,7 +35,7 @@ public final class SidLabelIndexParser {
 
     enum Size {
         LABEL(3), SID(4), IPV6_ADD(16);
-        private int size;
+        private final int size;
         private static final Map<Integer, Size> VALUE_MAP;
         static {
             final ImmutableMap.Builder<java.lang.Integer, Size> b = ImmutableMap.builder();

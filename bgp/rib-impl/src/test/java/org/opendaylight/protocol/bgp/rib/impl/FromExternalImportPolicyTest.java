@@ -44,7 +44,7 @@ public class FromExternalImportPolicyTest {
 
     @Test
     public void testEffectiveAttributes() {
-        DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder = createContBuilder(this.DATA_QNAME);
+        DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder = createContBuilder(DATA_QNAME);
         // local pref
         dataContBuilder.addChild(createContBuilder(LOCALPREF).addChild(createValueBuilder(100L, LOCALPREF, "pref").build()).build());
 
@@ -83,7 +83,7 @@ public class FromExternalImportPolicyTest {
         FromExternalImportPolicy importPol = new FromExternalImportPolicy();
         final ContainerNode result = importPol.effectiveAttributes(dataContBuilder.build());
 
-        DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContExpected = createContBuilder(this.DATA_QNAME);
+        DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContExpected = createContBuilder(DATA_QNAME);
 
         dataContExpected.addChild(asPath);
         dataContExpected.addChild(resultNextHop);

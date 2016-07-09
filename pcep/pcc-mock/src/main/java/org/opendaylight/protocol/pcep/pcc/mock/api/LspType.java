@@ -9,5 +9,5 @@
 package org.opendaylight.protocol.pcep.pcc.mock.api;
 
 public enum LspType {
-    PCE_LSP, PCC_LSP;
+    PCE_LSP, PCC_LSP
 }

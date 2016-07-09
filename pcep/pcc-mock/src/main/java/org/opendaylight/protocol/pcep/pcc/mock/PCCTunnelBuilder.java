@@ -23,11 +23,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.IpPrefixCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.ip.prefix._case.IpPrefixBuilder;
 
-public class PCCTunnelBuilder {
+class PCCTunnelBuilder {
     private static final Subobject DEFAULT_ENDPOINT_HOP = getDefaultEROEndpointHop();
     private static final String ENDPOINT_ADDRESS = "1.1.1.1";
     private static final String ENDPOINT_PREFIX = ENDPOINT_ADDRESS + "/32";
-    public static final int PCC_DELEGATION = -1;
+    static final int PCC_DELEGATION = -1;
 
     private PCCTunnelBuilder() {
         throw new UnsupportedOperationException();

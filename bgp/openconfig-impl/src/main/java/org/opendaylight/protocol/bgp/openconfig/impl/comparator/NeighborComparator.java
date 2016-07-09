@@ -43,8 +43,7 @@ final class NeighborComparator implements OpenConfigComparator<Neighbor> {
         if (config1 != null && config2 != null) {
             if (!Objects.equals(config1.getPeerAs(), config2.getPeerAs())) {
                 return false;
-            }
-            if (!Objects.equals(config1.getPeerType(), config2.getPeerType())) {
+            } else if (!Objects.equals(config1.getPeerType(), config2.getPeerType())) {
                 return false;
             }
         }
@@ -59,19 +58,14 @@ final class NeighborComparator implements OpenConfigComparator<Neighbor> {
         }
         final Timers timers1 = neighbor1.getTimers();
         final Timers timers2 = neighbor2.getTimers();
-        if (timers1 != null && timers2 != null) {
-            if (!Objects.equals(timers1.getConfig().getHoldTime(), timers2.getConfig().getHoldTime())) {
-                return false;
-            }
+        if (timers1 != null && timers2 != null && !Objects.equals(timers1.getConfig().getHoldTime(), timers2.getConfig().getHoldTime())) {
+            return false;
         }
         final Transport transport1 = neighbor1.getTransport();
         final Transport transport2 = neighbor2.getTransport();
-        if (transport1 != null && transport2 != null) {
-            if (!Objects.equals(transport1.getConfig().isPassiveMode(), transport2.getConfig().isPassiveMode())) {
-                return false;
-            }
-        }
-        if (!Objects.equals(neighbor1.getAugmentation(Neighbor1.class), neighbor2.getAugmentation(Neighbor1.class))) {
+        if (transport1 != null && transport2 != null && !Objects.equals(transport1.getConfig().isPassiveMode(), transport2.getConfig().isPassiveMode())) {
+            return false;
+        } else if (!Objects.equals(neighbor1.getAugmentation(Neighbor1.class), neighbor2.getAugmentation(Neighbor1.class))) {
             return false;
         }
         return true;

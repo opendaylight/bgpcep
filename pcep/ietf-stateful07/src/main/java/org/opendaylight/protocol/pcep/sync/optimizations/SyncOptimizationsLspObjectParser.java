@@ -39,8 +39,7 @@ public class SyncOptimizationsLspObjectParser extends CInitiated00LspObjectParse
             return;
         }
         Preconditions.checkArgument(tlv instanceof LspDbVersionTlv, "TLV object is not instance of LspDbVersionTlv.");
-        final LspDbVersionTlv dbVersion = tlv;
-        serializeTlv(dbVersion.getLspDbVersion(), body);
+        serializeTlv(tlv.getLspDbVersion(), body);
     }
 
     @Override
