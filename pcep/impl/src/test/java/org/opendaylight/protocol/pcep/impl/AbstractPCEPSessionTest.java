@@ -44,9 +44,9 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 
 public class AbstractPCEPSessionTest {
 
-    protected static final String IP_ADDRESS = "127.0.0.1";
-    protected static final short KEEP_ALIVE = 15;
-    protected static final short DEADTIMER = 40;
+    static final String IP_ADDRESS = "127.0.0.1";
+    static final short KEEP_ALIVE = 15;
+    static final short DEADTIMER = 40;
 
     @Mock
     protected Channel channel;
@@ -66,15 +66,15 @@ public class AbstractPCEPSessionTest {
     @Mock
     private SocketAddress address;
 
-    protected final List<Notification> msgsSend = Lists.newArrayList();
+    final List<Notification> msgsSend = Lists.newArrayList();
 
-    protected Open openMsg;
+    Open openMsg;
 
-    protected Starttls startTlsMsg;
+    Starttls startTlsMsg;
 
-    protected Keepalive kaMsg;
+    Keepalive kaMsg;
 
-    protected SimpleSessionListener listener;
+    SimpleSessionListener listener;
 
     @Before
     public final void setUp() {

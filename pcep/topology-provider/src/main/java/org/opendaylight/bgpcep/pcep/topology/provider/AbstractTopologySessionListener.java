@@ -41,9 +41,7 @@ import org.opendaylight.protocol.pcep.TerminationReason;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.MessageHeader;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ProtocolVersion;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.Node1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.Node1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.OperationResult;
@@ -90,7 +88,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         }
     }
 
-    protected static final MessageHeader MESSAGE_HEADER = new MessageHeader() {
+    static final MessageHeader MESSAGE_HEADER = new MessageHeader() {
         private final ProtocolVersion version = new ProtocolVersion((short) 1);
 
         @Override
@@ -106,7 +104,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractTopologySessionListener.class);
 
-    protected static final String MISSING_XML_TAG = "Mandatory XML tags are missing.";
+    static final String MISSING_XML_TAG = "Mandatory XML tags are missing.";
 
     @GuardedBy("this")
     private final Map<S, PCEPRequest> requests = new HashMap<>();
@@ -115,7 +113,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     private final Map<String, ReportedLsp> lspData = new HashMap<>();
 
     @GuardedBy("this")
-    protected final Map<L, String> lsps = new HashMap<>();
+    final Map<L, String> lsps = new HashMap<>();
 
     private final ServerSessionManager serverSessionManager;
     private InstanceIdentifier<PathComputationClient> pccIdentifier;
@@ -128,7 +126,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     private ListenerStateRuntimeRegistration registration;
     private final SessionListenerState listenerState;
 
-    protected AbstractTopologySessionListener(final ServerSessionManager serverSessionManager) {
+    AbstractTopologySessionListener(final ServerSessionManager serverSessionManager) {
         this.serverSessionManager = Preconditions.checkNotNull(serverSessionManager);
         this.listenerState = new SessionListenerState();
     }
@@ -198,7 +196,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         });
     }
 
-    protected void updatePccState(final PccSyncState pccSyncState) {
+    void updatePccState(final PccSyncState pccSyncState) {
         final MessageContext ctx = new MessageContext(this.nodeState.beginTransaction());
         updatePccNode(ctx, new PathComputationClientBuilder().setStateSync(pccSyncState).build());
         if (pccSyncState != PccSyncState.Synchronized) {
@@ -220,7 +218,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         });
     }
 
-    protected boolean isTriggeredSyncInProcess() {
+    boolean isTriggeredSyncInProcess() {
         return this.triggeredResyncInProcess;
     }
 
@@ -310,7 +308,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         }
     }
 
-    protected final synchronized PCEPRequest removeRequest(final S id) {
+    final synchronized PCEPRequest removeRequest(final S id) {
         final PCEPRequest ret = this.requests.remove(id);
         if (ret != null) {
             this.listenerState.processRequestStats(ret.getElapsedMillis());
@@ -319,7 +317,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         return ret;
     }
 
-    protected final synchronized ListenableFuture<OperationResult> sendMessage(final Message message, final S requestId,
+    final synchronized ListenableFuture<OperationResult> sendMessage(final Message message, final S requestId,
         final Metadata metadata) {
         final io.netty.util.concurrent.Future<Void> f = this.session.sendMessage(message);
         this.listenerState.updateStatefulSentMsg(message);
@@ -375,7 +373,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
      * @param solicited True if the update was solicited
      * @param remove True if this is an LSP path removal
      */
-    protected final synchronized void updateLsp(final MessageContext ctx, final L id, final String lspName,
+    final synchronized void updateLsp(final MessageContext ctx, final L id, final String lspName,
         final ReportedLspBuilder rlb, final boolean solicited, final boolean remove) {
 
         final String name;
@@ -472,7 +470,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
      *
      * @param ctx Message context
      */
-    protected final synchronized void stateSynchronizationAchieved(final MessageContext ctx) {
+    final synchronized void stateSynchronizationAchieved(final MessageContext ctx) {
         if (this.synced) {
             LOG.debug("State synchronization achieved while synchronized, not updating state");
             return;
@@ -490,16 +488,12 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         LOG.debug("Session {} achieved synchronized state", this.session);
     }
 
-    protected final synchronized void updatePccNode(final MessageContext ctx, final PathComputationClient pcc) {
+    final synchronized void updatePccNode(final MessageContext ctx, final PathComputationClient pcc) {
         ctx.trans.merge(LogicalDatastoreType.OPERATIONAL, this.pccIdentifier, pcc);
     }
 
-    protected final InstanceIdentifier<ReportedLsp> lspIdentifier(final String name) {
+    final InstanceIdentifier<ReportedLsp> lspIdentifier(final String name) {
         return this.pccIdentifier.child(ReportedLsp.class, new ReportedLspKey(name));
-    }
-
-    protected final InstanceIdentifier<PathComputationClient> getPccIdentifier() {
-        return this.pccIdentifier;
     }
 
     /**
@@ -508,7 +502,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
      * @param ctx Message Context
      * @param id Revision-specific LSP identifier
      */
-    protected final synchronized void removeLsp(final MessageContext ctx, final L id) {
+    final synchronized void removeLsp(final MessageContext ctx, final L id) {
         final String name = this.lsps.remove(id);
         LOG.debug("LSP {} removed", name);
         ctx.trans.delete(LogicalDatastoreType.OPERATIONAL, lspIdentifier(name));
@@ -526,7 +520,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
      */
     protected abstract boolean onMessage(MessageContext ctx, Message message);
 
-    protected final String lookupLspName(final L id) {
+    final String lookupLspName(final L id) {
         Preconditions.checkNotNull(id, "ID parameter null.");
         return this.lsps.get(id);
     }
@@ -538,29 +532,21 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
      * @param id InstanceIdentifier of the node
      * @return null if the node does not exists, or operational data
      */
-    protected final synchronized <T extends DataObject> ListenableFuture<Optional<T>> readOperationalData(final InstanceIdentifier<T> id) {
+    final synchronized <T extends DataObject> ListenableFuture<Optional<T>> readOperationalData(final InstanceIdentifier<T> id) {
         if (this.nodeState == null) {
             return null;
         }
         return this.nodeState.readOperationalData(id);
     }
 
-    protected abstract Object validateReportedLsp(final Optional<ReportedLsp> rep, final LspId input);
-
     protected abstract void loadLspData(final Node node, final Map<String, ReportedLsp> lspData, final Map<L, String> lsps, final boolean incrementalSynchro);
 
-    protected final boolean isLspDbPersisted() {
-        if (syncOptimization != null) {
-            return syncOptimization.isSyncAvoidanceEnabled();
-        }
-        return false;
+    private boolean isLspDbPersisted() {
+        return syncOptimization != null && syncOptimization.isSyncAvoidanceEnabled();
     }
 
-    protected final boolean isLspDbRetreived() {
-        if (syncOptimization != null) {
-            return syncOptimization.isDbVersionPresent();
-        }
-        return false;
+    private boolean isLspDbRetreived() {
+        return syncOptimization != null && syncOptimization.isDbVersionPresent();
     }
 
     /**
@@ -568,35 +554,23 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
      * LSP-DB-VERSION TLV values doesnt match, and  LSP-SYNC-CAPABILITY is enabled
      * @return
      */
-    protected final boolean isIncrementalSynchro() {
-        if (syncOptimization != null) {
-            return syncOptimization.isSyncAvoidanceEnabled() && syncOptimization.isDeltaSyncEnabled();
-        }
-        return false;
+    final boolean isIncrementalSynchro() {
+        return syncOptimization != null && syncOptimization.isSyncAvoidanceEnabled() && syncOptimization.isDeltaSyncEnabled();
     }
 
-    protected final boolean isTriggeredInitialSynchro() {
-        if (syncOptimization != null) {
-            return syncOptimization.isTriggeredInitSyncEnabled();
-        }
-        return false;
+    final boolean isTriggeredInitialSynchro() {
+        return syncOptimization != null && syncOptimization.isTriggeredInitSyncEnabled();
     }
 
-    protected final boolean isTriggeredReSyncEnabled() {
-        if (syncOptimization != null) {
-            return syncOptimization.isTriggeredReSyncEnabled();
-        }
-        return false;
+    final boolean isTriggeredReSyncEnabled() {
+        return syncOptimization != null && syncOptimization.isTriggeredReSyncEnabled();
     }
 
-    protected final boolean isSynchronized() {
-        if (syncOptimization != null) {
-            return syncOptimization.doesLspDbMatch();
-        }
-        return false;
+    final boolean isSynchronized() {
+        return syncOptimization != null && syncOptimization.doesLspDbMatch();
     }
 
-    protected SessionListenerState getSessionListenerState() {
+    SessionListenerState getSessionListenerState() {
         return this.listenerState;
     }
 

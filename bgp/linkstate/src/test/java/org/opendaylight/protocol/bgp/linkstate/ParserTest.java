@@ -100,9 +100,9 @@ public class ParserTest {
      */
     static final List<byte[]> inputBytes = new ArrayList<byte[]>();
 
-    private static int COUNTER = 4;
+    private static final int COUNTER = 4;
 
-    private static int MAX_SIZE = 300;
+    private static final int MAX_SIZE = 300;
 
     private static BGPUpdateMessageParser updateParser;
 

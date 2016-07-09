@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 @Sharable
-public final class PCEPMessageToByteEncoder extends MessageToByteEncoder<Message> {
+final class PCEPMessageToByteEncoder extends MessageToByteEncoder<Message> {
 
     private static final Logger LOG = LoggerFactory.getLogger(PCEPMessageToByteEncoder.class);
 

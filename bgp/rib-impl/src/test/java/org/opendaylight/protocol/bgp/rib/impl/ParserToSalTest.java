@@ -88,7 +88,7 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
     @Override
     protected java.lang.Iterable<org.opendaylight.yangtools.yang.binding.YangModuleInfo> getModuleInfos() throws Exception {
         return ImmutableList.of(BindingReflections.getModuleInfo(Ipv4Route.class), BindingReflections.getModuleInfo(Ipv6Route.class), BindingReflections.getModuleInfo(LinkstateRoute.class));
-    };
+    }
 
     @Override
     protected DataBrokerTestCustomizer createDataBrokerTestCustomizer() {
@@ -167,9 +167,7 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
                 final byte[] ret = new byte[input.length + 1];
                 // ff
                 ret[0] = -1;
-                for (int i = 0; i < input.length; i++) {
-                    ret[i + 1] = input[i];
-                }
+                System.arraycopy(input, 0, ret, 1, input.length);
                 return ret;
             }
         });

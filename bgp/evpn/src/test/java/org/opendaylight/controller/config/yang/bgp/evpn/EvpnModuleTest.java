@@ -69,7 +69,7 @@ public final class EvpnModuleTest extends AbstractConfigTest {
         final ObjectName evpnON = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
 
         SimpleBGPExtensionProviderContextModuleTest.createBGPExtensionsModuleInstance(transaction, Lists.newArrayList(evpnON));
-        RIBExtensionsImplModuleTest.createRIBExtensionsModuleInstance(transaction, Lists.newArrayList(evpnON));
+        RIBExtensionsImplModuleTest.createRIBExtModuleInstance(transaction, Lists.newArrayList(evpnON));
         return transaction.commit();
     }
 

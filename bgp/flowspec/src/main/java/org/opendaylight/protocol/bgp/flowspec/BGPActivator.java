@@ -48,11 +48,10 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
     private static final int FLOWSPEC_L3VPN_SAFI = 134;
 
     private final SimpleFlowspecExtensionProviderContext flowspecContext;
-    private final FlowspecActivator fsActivator;
 
     public BGPActivator(final SimpleFlowspecExtensionProviderContext fsc, FlowspecActivator fsa) {
         this.flowspecContext = fsc;
-        this.fsActivator = fsa;
+        final FlowspecActivator fsActivator = fsa;
     }
 
     @Override

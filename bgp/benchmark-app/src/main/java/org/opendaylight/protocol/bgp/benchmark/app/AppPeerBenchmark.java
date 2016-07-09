@@ -86,14 +86,14 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
 
     private final BindingTransactionChain txChain;
     private final RpcRegistration<OdlBgpAppPeerBenchmarkService> rpcRegistration;
-    private final InstanceIdentifier<ApplicationRib> iid;
+    private final InstanceIdentifier<ApplicationRib> ribInstanceIdentifier;
     private final InstanceIdentifier<Ipv4Routes> routesIId;
 
     public AppPeerBenchmark(final DataBroker bindingDataBroker, final RpcProviderRegistry rpcProviderRegistry,
             final String appRibId) {
         this.txChain = bindingDataBroker.createTransactionChain(this);
-        this.iid = initTable(appRibId);
-        final InstanceIdentifier tablesIId = this.iid
+        this.ribInstanceIdentifier = initTable(appRibId);
+        final InstanceIdentifier tablesIId = this.ribInstanceIdentifier
                 .child(Tables.class, new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
         this.routesIId = tablesIId.child(Ipv4Routes.class);
         this.rpcRegistration = rpcProviderRegistry.addRpcImplementation(OdlBgpAppPeerBenchmarkService.class, this);
@@ -160,7 +160,7 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
     public void close() {
         this.rpcRegistration.close();
         final WriteTransaction dTx = this.txChain.newWriteOnlyTransaction();
-        dTx.delete(LogicalDatastoreType.CONFIGURATION, this.iid);
+        dTx.delete(LogicalDatastoreType.CONFIGURATION, this.ribInstanceIdentifier);
         try {
             dTx.submit().checkedGet();
         } catch (final TransactionCommitFailedException e) {

@@ -47,12 +47,12 @@ final class PCEPPeerRegistry {
     @GuardedBy("this")
     private final Map<ByteArrayWrapper, SessionReference> sessions = new HashMap<>();
 
-    protected interface SessionReference extends AutoCloseable {
+    interface SessionReference extends AutoCloseable {
         Short getSessionId();
     }
 
 
-    protected synchronized Optional<SessionReference> getSessionReference(final byte[] clientAddress) {
+    synchronized Optional<SessionReference> getSessionReference(final byte[] clientAddress) {
         final SessionReference sessionReference = this.sessions.get(new ByteArrayWrapper(clientAddress));
         if (sessionReference != null) {
             return Optional.of(sessionReference);
@@ -60,7 +60,7 @@ final class PCEPPeerRegistry {
         return Optional.absent();
     }
 
-    protected synchronized Optional<SessionReference> removeSessionReference(final byte[] clientAddress) {
+    synchronized Optional<SessionReference> removeSessionReference(final byte[] clientAddress) {
         final SessionReference sessionReference = this.sessions.remove(new ByteArrayWrapper(clientAddress));
         if (sessionReference != null) {
             return Optional.of(sessionReference);
@@ -68,11 +68,11 @@ final class PCEPPeerRegistry {
         return Optional.absent();
     }
 
-    protected synchronized void putSessionReference(final byte[] clientAddress, final SessionReference sessionReference) {
+    synchronized void putSessionReference(final byte[] clientAddress, final SessionReference sessionReference) {
         this.sessions.put(new ByteArrayWrapper(clientAddress), sessionReference);
     }
 
-    protected synchronized Short nextSession(final byte[] clientAddress) throws ExecutionException {
+    synchronized Short nextSession(final byte[] clientAddress) throws ExecutionException {
         final PeerRecord peer = this.formerClients.get(new ByteArrayWrapper(clientAddress), new Callable<PeerRecord>() {
             @Override
             public PeerRecord call() {
@@ -83,7 +83,7 @@ final class PCEPPeerRegistry {
         return peer.allocId();
     }
 
-    protected synchronized void releaseSession(final byte[] clientAddress, final short sessionId) throws ExecutionException {
+    synchronized void releaseSession(final byte[] clientAddress, final short sessionId) throws ExecutionException {
         this.formerClients.get(new ByteArrayWrapper(clientAddress), new Callable<PeerRecord>() {
             @Override
             public PeerRecord call() {
@@ -110,10 +110,7 @@ final class PCEPPeerRegistry {
             if (this == obj) {
                 return true;
             }
-            if (!(obj instanceof ByteArrayWrapper)) {
-                return false;
-            }
-            return Arrays.equals(this.byteArray, ((ByteArrayWrapper) obj).byteArray);
+            return obj instanceof ByteArrayWrapper && Arrays.equals(this.byteArray, ((ByteArrayWrapper) obj).byteArray);
         }
     }
 }

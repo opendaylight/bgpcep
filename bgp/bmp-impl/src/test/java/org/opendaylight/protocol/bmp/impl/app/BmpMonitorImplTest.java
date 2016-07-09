@@ -363,9 +363,9 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
             assertTrue(peersAfterDown.isEmpty());
         } catch (final Exception e) {
             final StringBuffer ex = new StringBuffer();
-            ex.append(e.getMessage() + "\n");
+            ex.append(e.getMessage()).append("\n");
             for (final StackTraceElement element : e.getStackTrace()) {
-                ex.append(element.toString() + "\n");
+                ex.append(element.toString()).append("\n");
             }
             fail(ex.toString());
         }

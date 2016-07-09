@@ -30,9 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 @Deprecated
 public abstract class AbstractVendorSpecificTlvParser implements TlvParser, TlvSerializer {
 
-    public static final int TYPE = 27;
-
-    protected static final int ENTERPRISE_NUM_LENGTH = 4;
+    private static final int TYPE = 27;
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
@@ -72,5 +70,5 @@ public abstract class AbstractVendorSpecificTlvParser implements TlvParser, TlvS
 
     protected abstract long getEnterpriseNumber();
 
-    protected abstract VendorPayload parseVendorPayload(final ByteBuf payloadBytes) throws PCEPDeserializerException;
+    protected abstract VendorPayload parseVendorPayload(final ByteBuf payloadBytes);
 }

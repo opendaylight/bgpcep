@@ -69,13 +69,12 @@ public class PCEPEROSubobjectParserTest {
     private static final byte[] exrsBytes = { (byte) 0xa1, (byte) 0x06, (byte) 0xa0, (byte) 0x04, (byte) 0x00, (byte) 0x64 };
 
     private SimplePCEPExtensionProviderContext ctx;
-    private Activator act;
 
     @Before
     public void setUp() {
         this.ctx = new SimplePCEPExtensionProviderContext();
-        this.act = new Activator();
-        this.act.start(this.ctx);
+        final Activator act = new Activator();
+        act.start(this.ctx);
     }
 
     @Test

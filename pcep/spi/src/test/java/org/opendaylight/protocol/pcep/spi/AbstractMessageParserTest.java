@@ -50,11 +50,11 @@ public class AbstractMessageParserTest {
 
     private class Abs extends AbstractMessageParser {
 
-        protected Abs(final ObjectRegistry registry) {
+        Abs(final ObjectRegistry registry) {
             super(registry);
         }
 
-        protected Abs(final ObjectRegistry registry, final VendorInformationObjectRegistry viRegistry) {
+        Abs(final ObjectRegistry registry, final VendorInformationObjectRegistry viRegistry) {
             super(registry, viRegistry);
         }
 
@@ -77,7 +77,7 @@ public class AbstractMessageParserTest {
             }
             return null;
         }
-    };
+    }
 
     @Before
     public void setUp() throws PCEPDeserializerException {

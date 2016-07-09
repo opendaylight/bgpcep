@@ -20,7 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractRROWithSubobjectsParser implements ObjectParser, ObjectSerializer {
+abstract class AbstractRROWithSubobjectsParser implements ObjectParser, ObjectSerializer {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractRROWithSubobjectsParser.class);
 
@@ -28,11 +28,11 @@ public abstract class AbstractRROWithSubobjectsParser implements ObjectParser, O
 
     private static final int HEADER_LENGTH = 2;
 
-    protected AbstractRROWithSubobjectsParser(final RROSubobjectRegistry subobjReg) {
+    AbstractRROWithSubobjectsParser(final RROSubobjectRegistry subobjReg) {
         this.subobjReg = Preconditions.checkNotNull(subobjReg);
     }
 
-    protected List<Subobject> parseSubobjects(final ByteBuf buffer) throws PCEPDeserializerException {
+    List<Subobject> parseSubobjects(final ByteBuf buffer) throws PCEPDeserializerException {
         Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         final List<Subobject> subs = new ArrayList<>();
         while (buffer.isReadable()) {
@@ -54,7 +54,7 @@ public abstract class AbstractRROWithSubobjectsParser implements ObjectParser, O
         return subs;
     }
 
-    protected final void serializeSubobject(final List<Subobject> subobjects, final ByteBuf buffer) {
+    final void serializeSubobject(final List<Subobject> subobjects, final ByteBuf buffer) {
         Preconditions.checkArgument(subobjects != null && !subobjects.isEmpty(), "RRO must contain at least one subobject.");
         for (final Subobject subobject : subobjects) {
             this.subobjReg.serializeSubobject(subobject, buffer);

@@ -70,7 +70,7 @@ final class Arguments implements ArgumentsInput {
             return convert(input);
         }
 
-        T convert(String input) throws ArgumentParserException;
+        T convert(String input);
     }
 
     static Arguments parseArguments(final String[] args) {

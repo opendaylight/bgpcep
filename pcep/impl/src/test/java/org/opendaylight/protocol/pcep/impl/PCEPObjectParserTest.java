@@ -142,16 +142,14 @@ public class PCEPObjectParserTest {
     private VendorInformationTlvRegistry viTlvRegistry;
 
     private SimplePCEPExtensionProviderContext ctx;
-    private Activator act;
-    private TestVendorInformationActivator viAct;
 
     @Before
     public void setUp() {
         this.ctx = new SimplePCEPExtensionProviderContext();
-        this.act = new Activator();
-        this.viAct = new TestVendorInformationActivator();
-        this.act.start(this.ctx);
-        this.viAct.start(this.ctx);
+        final Activator act = new Activator();
+        final TestVendorInformationActivator viAct = new TestVendorInformationActivator();
+        act.start(this.ctx);
+        viAct.start(this.ctx);
         this.tlvRegistry = this.ctx.getTlvHandlerRegistry();
         this.viTlvRegistry = this.ctx.getVendorInformationTlvRegistry();
     }
@@ -488,7 +486,7 @@ public class PCEPObjectParserTest {
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result.slice(4, result.readableBytes() - 4)));
         final ByteBuf buf = Unpooled.buffer();
-        parser.serializeObject(builder.build(), buf);
+        PCEPEndPointsIpv6ObjectParser.serializeObject(builder.build(), buf);
         assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
 
         try {

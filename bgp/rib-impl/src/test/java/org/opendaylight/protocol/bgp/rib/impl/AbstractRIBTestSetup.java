@@ -84,7 +84,7 @@ import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 
-public class AbstractRIBTestSetup {
+class AbstractRIBTestSetup {
 
     private RIBImpl rib;
     private final Ipv4Address clusterId = new Ipv4Address("128.0.0.1");
@@ -92,9 +92,7 @@ public class AbstractRIBTestSetup {
     static final Class<? extends AddressFamily> AFI = Ipv4AddressFamily.class;
     static final Class<? extends SubsequentAddressFamily> SAFI = UnicastSubsequentAddressFamily.class;
     static final TablesKey KEY = new TablesKey(AFI, SAFI);
-    private BindingCodecTreeFactory codecFactory;
     private RIBActivator a1;
-    RIBSupport ribSupport;
     static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, "prefix").intern();
 
     @Mock
@@ -136,7 +134,7 @@ public class AbstractRIBTestSetup {
         final RIBExtensionProviderContext context = new SimpleRIBExtensionProviderContext();
         final ModuleInfoBackedContext strategy = createClassLoadingStrategy();
         final SchemaContext schemaContext = strategy.tryToCreateSchemaContext().get();
-        this.codecFactory = createCodecFactory(strategy,schemaContext);
+        final BindingCodecTreeFactory codecFactory = createCodecFactory(strategy, schemaContext);
         final List<BgpTableType> localTables = new ArrayList<>();
         localTables.add(new BgpTableTypeImpl(AFI, SAFI));
 
@@ -144,11 +142,11 @@ public class AbstractRIBTestSetup {
         this.a1.startRIBExtensionProvider(context);
         mockedMethods();
         this.rib = new RIBImpl(new RibId("test"), new AsNumber(5L), this.ribId,
-            this.clusterId, context , this.dispatcher, this.codecFactory, this.dps, this.dom,
+            this.clusterId, context , this.dispatcher, codecFactory, this.dps, this.dom,
             localTables, Collections.singletonMap(new TablesKey(AFI, SAFI), BasePathSelectionModeFactory.createBestPathSelectionStrategy()),
             GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
         this.rib.onGlobalContextUpdated(schemaContext);
-        this.ribSupport = getRib().getRibSupportContext().getRIBSupportContext(KEY).getRibSupport();
+        final RIBSupport ribSupport = getRib().getRibSupportContext().getRIBSupportContext(KEY).getRibSupport();
     }
 
     private static ModuleInfoBackedContext createClassLoadingStrategy() {
@@ -216,7 +214,7 @@ public class AbstractRIBTestSetup {
             b.addChild(Builders.leafBuilder().withNodeIdentifier(new NodeIdentifier(PREFIX_QNAME)).withValue(p).build());
 
             final DataTreeCandidateNode child = Mockito.mock(DataTreeCandidateNode.class);
-            Mockito.doReturn(createIdentifier(target, p)).when(child).getIdentifier();
+            Mockito.doReturn(createIdentifier(p)).when(child).getIdentifier();
             Mockito.doReturn(Optional.of(b.build())).when(child).getDataAfter();
             Mockito.doReturn(type).when(child).getModificationType();
             children.add(child);
@@ -226,17 +224,13 @@ public class AbstractRIBTestSetup {
         return col;
     }
 
-    public PathArgument createIdentifier(final YangInstanceIdentifier base, final Ipv4Prefix prefix) {
+    private PathArgument createIdentifier(final Ipv4Prefix prefix) {
         final NodeIdentifierWithPredicates routekey = new NodeIdentifierWithPredicates(Ipv4Route.QNAME, PREFIX_QNAME, prefix);
         return YangInstanceIdentifier.of(PREFIX_QNAME).node(routekey).getLastPathArgument();
     }
 
     public RIBImpl getRib() {
         return this.rib;
-    }
-
-    public DOMDataBroker getDOMBroker() {
-        return this.dom;
     }
 
     public DOMDataWriteTransaction getTransaction() {
@@ -248,7 +242,7 @@ public class AbstractRIBTestSetup {
         this.a1.close();
     }
 
-    private class listenerRegistration implements ListenerRegistration {
+    private static class listenerRegistration implements ListenerRegistration {
         @Override
         public Object getInstance() {
             return null;

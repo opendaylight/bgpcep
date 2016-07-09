@@ -113,7 +113,7 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
         return f;
     }
 
-    protected ServerBootstrap createServerBootstrap(final ChannelPipelineInitializer initializer) {
+    ServerBootstrap createServerBootstrap(final ChannelPipelineInitializer initializer) {
         final ServerBootstrap b = new ServerBootstrap();
         b.childHandler(new ChannelInitializer<SocketChannel>() {
             @Override
@@ -151,7 +151,7 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     public void close() {
     }
 
-    protected interface ChannelPipelineInitializer {
+    interface ChannelPipelineInitializer {
         void initializeChannel(SocketChannel socketChannel, Promise<PCEPSessionImpl> promise);
     }
 }

@@ -235,7 +235,7 @@ public class PCEPXROSubobjectParserTest {
         subs.setSubobjectType(new PathKeyCaseBuilder().setPathKey(pBuilder.build()).build());
         assertEquals(subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(pathKey128Bytes, 2)), true));
         final ByteBuf buff = Unpooled.buffer();
-        parser.serializeSubobject(subs.build(), buff);
+        XROPathKey128SubobjectParser.serializeSubobject(subs.build(), buff);
         assertArrayEquals(pathKey128Bytes, ByteArray.getAllBytes(buff));
 
         try {
