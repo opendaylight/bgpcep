@@ -34,7 +34,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 public class PCCTriggeredLspResyncTest extends PCCMockCommon {
-    private Channel channel;
 
     @Test
     public void testSessionTriggeredLspReSync() throws Exception {
@@ -42,7 +41,7 @@ public class PCCTriggeredLspResyncTest extends PCCMockCommon {
         final int lspQuantity = 3;
         final BigInteger numberOflspAndDBv = BigInteger.valueOf(lspQuantity);
 
-        this.channel = createServer(factory, socket, new PCCPeerProposal());
+        final Channel channel = createServer(factory, socket, new PCCPeerProposal());
         Thread.sleep(200);
         PCEPSession session = createPCCSession(numberOflspAndDBv).get();
         assertNotNull(session);

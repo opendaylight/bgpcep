@@ -113,12 +113,9 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     protected static final Ipv4Address BGP_ID = new Ipv4Address("192.168.1.1");
     protected static final Ipv4Address CLUSTER_ID = new Ipv4Address("192.168.1.2");
 
-    private static final String SESSION_RS_INSTANCE_NAME = "session-reconnect-strategy-factory";
-    private static final String TCP_RS_INSTANCE_NAME = "tcp-reconnect-strategy-factory";
     private static final String RIB_EXTENSIONS_INSTANCE_NAME = "rib-extensions-impl";
     private static final String DOM_BROKER_INSTANCE_NAME = "dom-broker-impl";
     private static final String BINDING_ASYNC_BROKER_INSTANCE_NAME = "binding-async-broker-instance";
-    private static final String DOM_ASYNC_DATA_BROKER_INSTANCE = "dom-inmemory-data-broker";
     private static final String BINDING_BROKER_INSTANCE_NAME = "binding-broker-impl";
     private static final String COMPATIBLE_DATA_BROKER_INSTANCE_NAME = "binding-data-compatible-broker-instance";
     private static final String NOTIFICATION_BROKER_INSTANCE_NAME = "notification-broker-impl";
@@ -284,9 +281,9 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         return transaction.commit();
     }
 
-    protected CommitStatus createRIBImplModuleInstance(final RibId ribId, final Long localAs, final Ipv4Address bgpId, final Ipv4Address clusterId) throws Exception {
+    protected CommitStatus createRIBImplModuleInstance(final RibId ribId, final Long localAs, final Ipv4Address bgpId) throws Exception {
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
-        createRIBImplModuleInstance(transaction, ribId, localAs, bgpId, clusterId, createAsyncDataBrokerInstance(transaction));
+        createRIBImplModuleInstance(transaction, ribId, localAs, bgpId, AbstractRIBImplModuleTest.CLUSTER_ID, createAsyncDataBrokerInstance(transaction));
         return transaction.commit();
     }
 

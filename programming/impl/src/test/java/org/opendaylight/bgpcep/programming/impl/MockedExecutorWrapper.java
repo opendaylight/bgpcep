@@ -25,7 +25,7 @@ import org.mockito.stubbing.Answer;
 
 final class MockedExecutorWrapper {
 
-    private List<Object> submittedTasksToExecutor;
+    private final List<Object> submittedTasksToExecutor;
 
     MockedExecutorWrapper() {
         submittedTasksToExecutor = Lists.newArrayList();

@@ -29,7 +29,7 @@ public class Type1LabelParser implements LabelParser, LabelSerializer {
 
     public static final int CTYPE = 1;
 
-    public static final int LABEL_LENGTH = 4;
+    private static final int LABEL_LENGTH = 4;
 
     @Override
     public LabelType parseLabel(final ByteBuf buffer) throws PCEPDeserializerException {

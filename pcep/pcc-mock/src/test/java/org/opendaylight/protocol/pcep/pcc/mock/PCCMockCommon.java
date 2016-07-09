@@ -57,7 +57,6 @@ public abstract class PCCMockCommon {
     private final static short DEAD_TIMER = 120;
     protected final InetSocketAddress socket = new InetSocketAddress(PCCMockCommon.REMOTE_ADDRESS, getPort());
     private PCEPDispatcher pceDispatcher;
-    private PCCDispatcherImpl pccDispatcher;
     protected PCCSessionListener pccSessionListener;
 
     protected abstract List<PCEPCapability> getCapabilities();
@@ -115,8 +114,8 @@ public abstract class PCCMockCommon {
         assertNull(session.localSessionCharacteristics().getAugmentation(Tlvs3.class).getLspDbVersion().getLspDbVersionValue());
     }
 
-    protected static void checkResyncSession(final Optional<Integer> startAtNumberLsp, final int expectedNumberOfLsp, final BigInteger startingDBVersion,
-                                             final BigInteger expectedDBVersion, final TestingSessionListener pceSessionListener) {
+    protected static void checkResyncSession(final Optional<Integer> startAtNumberLsp, final int expectedNumberOfLsp, final BigInteger
+        startingDBVersion, final BigInteger expectedDBVersion, final TestingSessionListener pceSessionListener) {
         assertTrue(pceSessionListener.isUp());
         List<Message> messages;
         if(startAtNumberLsp.isPresent()) {
@@ -135,7 +134,7 @@ public abstract class PCCMockCommon {
         assertEquals(startingDBVersion, pceDBVersion);
     }
 
-    protected static void checkSession(final PCEPSession session, final int expectedDeadTimer, final int expectedKeepAlive) {
+    static void checkSession(final PCEPSession session, final int expectedDeadTimer, final int expectedKeepAlive) {
         assertNotNull(session);
         assertEquals(expectedDeadTimer, session.getPeerPref().getDeadtimer().shortValue());
         assertEquals(expectedKeepAlive, session.getPeerPref().getKeepalive().shortValue());
@@ -143,7 +142,7 @@ public abstract class PCCMockCommon {
         assertTrue(stateful.isInitiation());
     }
 
-    protected static void checkSequequenceDBVersionSync(final List<Message> messages, final BigInteger expectedDbVersion) {
+    private static void checkSequequenceDBVersionSync(final List<Message> messages, final BigInteger expectedDbVersion) {
         for (Message msg : messages) {
             final List<Reports> pcrt = ((Pcrpt) msg).getPcrptMessage().getReports();
             for (Reports report : pcrt) {
@@ -160,8 +159,8 @@ public abstract class PCCMockCommon {
         }
     }
 
-    protected Future<PCEPSession> createPCCSession(BigInteger DBVersion) {
-        this.pccDispatcher = new PCCDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry());
+    Future<PCEPSession> createPCCSession(BigInteger DBVersion) {
+        final PCCDispatcherImpl pccDispatcher = new PCCDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry());
         final PCEPSessionNegotiatorFactory<PCEPSessionImpl> snf = getSessionNegotiatorFactory();
         final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(3, getLocalAdress().getAddress(), 0, -1, new HashedWheelTimer(),
             Optional.<TimerHandler>absent());

@@ -75,7 +75,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         MessageUtil.formatMessage(TYPE, buffer, out);
     }
 
-    protected void serializeReply(final Replies reply, final ByteBuf buffer) {
+    private void serializeReply(final Replies reply, final ByteBuf buffer) {
         serializeObject(reply.getRp(), buffer);
         serializeMonitoring(reply, buffer);
         serializeVendorInformationObjects(reply.getVendorInformationObject(), buffer);
@@ -139,7 +139,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         }
     }
 
-    protected void serializeMetricPce(final MetricPce metricPce, final ByteBuf buffer) {
+    private void serializeMetricPce(final MetricPce metricPce, final ByteBuf buffer) {
         Preconditions.checkArgument(metricPce.getPceId() != null, "PCE-ID must be present.");
         serializeObject(metricPce.getPceId(), buffer);
         serializeObject(metricPce.getProcTime(), buffer);
@@ -165,7 +165,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         return new PcrepBuilder().setPcrepMessage(new PcrepMessageBuilder().setReplies(replies).build()).build();
     }
 
-    protected Replies getValidReply(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
+    private Replies getValidReply(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
         if (!(objects.get(0) instanceof Rp)) {
             errors.add(createErrorMsg(PCEPErrors.RP_MISSING, Optional.<Rp>absent()));
             return null;
@@ -233,7 +233,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         return new SuccessCaseBuilder().setSuccess(builder.build()).build();
     }
 
-    protected void parseAttributes(final FailureCaseBuilder builder, final List<Object> objects) {
+    private void parseAttributes(final FailureCaseBuilder builder, final List<Object> objects) {
         final List<Metrics> pathMetrics = new ArrayList<>();
 
         Object obj;
@@ -280,7 +280,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         }
     }
 
-    protected void parsePath(final PathsBuilder builder, final List<Object> objects) {
+    private void parsePath(final PathsBuilder builder, final List<Object> objects) {
         final List<Metrics> pathMetrics = new ArrayList<>();
 
         Object obj;

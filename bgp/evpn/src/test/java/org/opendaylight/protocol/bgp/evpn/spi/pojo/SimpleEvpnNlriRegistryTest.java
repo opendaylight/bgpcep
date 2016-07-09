@@ -38,7 +38,7 @@ import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContaine
 public final class SimpleEvpnNlriRegistryTest {
     public static final YangInstanceIdentifier.NodeIdentifier EVPN_NID = new YangInstanceIdentifier.NodeIdentifier(EvpnChoice.QNAME);
 
-    private class notRegistered implements EvpnChoice {
+    private static class notRegistered implements EvpnChoice {
         @Override
         public Class<? extends DataContainer> getImplementedInterface() {
             return notRegistered.class;

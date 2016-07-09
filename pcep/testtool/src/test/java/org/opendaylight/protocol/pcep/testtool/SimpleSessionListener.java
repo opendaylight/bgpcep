@@ -21,11 +21,11 @@ import org.slf4j.LoggerFactory;
  */
 public class SimpleSessionListener implements PCEPSessionListener {
 
-    private List<Message> messages = Lists.newArrayList();
+    private final List<Message> messages = Lists.newArrayList();
 
     private static final Logger LOG = LoggerFactory.getLogger(SimpleSessionListener.class);
 
-    public SimpleSessionListener() {
+    SimpleSessionListener() {
     }
 
     @Override

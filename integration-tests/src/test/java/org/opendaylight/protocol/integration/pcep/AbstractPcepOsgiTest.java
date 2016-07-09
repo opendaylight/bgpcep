@@ -18,14 +18,14 @@ import org.ops4j.pax.exam.util.Filter;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
-public class AbstractPcepOsgiTest extends AbstractMdsalTestBase {
+class AbstractPcepOsgiTest extends AbstractMdsalTestBase {
 
     @Inject
     @Filter(timeout = 60 * 1000)
     BundleContext bundleContext;
     BindingAwareBroker broker = null;
 
-    public BindingAwareBroker getBroker() {
+    BindingAwareBroker getBroker() {
         if (broker == null) {
             ServiceReference<BindingAwareBroker> serviceReference = bundleContext.getServiceReference(BindingAwareBroker.class);
             if (serviceReference == null) {

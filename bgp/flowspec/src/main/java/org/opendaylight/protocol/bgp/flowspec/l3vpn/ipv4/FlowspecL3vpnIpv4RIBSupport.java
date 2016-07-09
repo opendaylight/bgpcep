@@ -31,7 +31,7 @@ public final class FlowspecL3vpnIpv4RIBSupport extends AbstractFlowspecL3vpnRIBS
         );
     }
 
-    public static final FlowspecL3vpnIpv4RIBSupport getInstance(SimpleFlowspecExtensionProviderContext context) {
+    public static FlowspecL3vpnIpv4RIBSupport getInstance(SimpleFlowspecExtensionProviderContext context) {
         return new FlowspecL3vpnIpv4RIBSupport(context);
     }
 }

@@ -109,7 +109,7 @@ public class PCEPStatefulCapabilityModuleTest extends AbstractConfigTest {
         return transaction.commit();
     }
 
-    public static ObjectName createPCEPCapabilityInstance(final ConfigTransactionJMXClient transaction) throws Exception {
+    private static ObjectName createPCEPCapabilityInstance(final ConfigTransactionJMXClient transaction) throws Exception {
         return createInstance(transaction, true, true, true, true, true, true, true);
     }
 
