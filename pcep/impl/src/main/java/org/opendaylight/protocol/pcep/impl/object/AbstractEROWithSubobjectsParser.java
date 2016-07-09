@@ -21,7 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractEROWithSubobjectsParser implements ObjectParser, ObjectSerializer {
+abstract class AbstractEROWithSubobjectsParser implements ObjectParser, ObjectSerializer {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractEROWithSubobjectsParser.class);
 
@@ -29,11 +29,11 @@ public abstract class AbstractEROWithSubobjectsParser implements ObjectParser, O
 
     private final EROSubobjectRegistry subobjReg;
 
-    protected AbstractEROWithSubobjectsParser(final EROSubobjectRegistry subobjReg) {
+    AbstractEROWithSubobjectsParser(final EROSubobjectRegistry subobjReg) {
         this.subobjReg = Preconditions.checkNotNull(subobjReg);
     }
 
-    protected List<Subobject> parseSubobjects(final ByteBuf buffer) throws PCEPDeserializerException {
+    List<Subobject> parseSubobjects(final ByteBuf buffer) throws PCEPDeserializerException {
         // Explicit approval of empty ERO
         Preconditions.checkArgument(buffer != null, "Array of bytes is mandatory. Can't be null.");
         final List<Subobject> subs = new ArrayList<>();
@@ -57,7 +57,7 @@ public abstract class AbstractEROWithSubobjectsParser implements ObjectParser, O
         return subs;
     }
 
-    protected final void serializeSubobject(final List<Subobject> subobjects, final ByteBuf buffer) {
+    final void serializeSubobject(final List<Subobject> subobjects, final ByteBuf buffer) {
         if(subobjects != null) {
             for (final Subobject subobject : subobjects) {
                 this.subobjReg.serializeSubobject(subobject, buffer);

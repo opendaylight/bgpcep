@@ -41,9 +41,9 @@ public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<Tlvs
 
     protected static final int FLAGS_SIZE = 32;
 
-    protected static final int SRP_ID_SIZE = 4;
+    private static final int SRP_ID_SIZE = 4;
 
-    protected static final int MIN_SIZE = FLAGS_SIZE / Byte.SIZE + SRP_ID_SIZE;
+    private static final int MIN_SIZE = FLAGS_SIZE / Byte.SIZE + SRP_ID_SIZE;
 
     protected Stateful07SrpObjectParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
         super(tlvReg, viTlvReg);
@@ -98,7 +98,7 @@ public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<Tlvs
         body.writeZero(FLAGS_SIZE / Byte.SIZE);
     }
 
-    public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
+    private void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
         if (tlvs == null) {
             return;
         }

@@ -39,7 +39,7 @@ public class TestVendorInformationTlvParser extends AbstractVendorInformationTlv
         return TEST_ENTERPRISE_NUMBER;
     }
 
-    protected static final class TestEnterpriseSpecificInformation implements EnterpriseSpecificInformation {
+    static final class TestEnterpriseSpecificInformation implements EnterpriseSpecificInformation {
 
         private final int value;
 

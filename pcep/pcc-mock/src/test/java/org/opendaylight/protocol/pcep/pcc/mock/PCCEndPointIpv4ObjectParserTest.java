@@ -38,12 +38,12 @@ public class PCCEndPointIpv4ObjectParserTest {
     public void testParseObject() throws PCEPDeserializerException {
         final ObjectHeader header = new ObjectHeaderImpl(false, false);
         final ByteBuf bytes = Unpooled.buffer();
-        bytes.writeBytes(Ipv4Util.bytesForAddress(new Ipv4Address(this.ip1)));
-        bytes.writeBytes(Ipv4Util.bytesForAddress(new Ipv4Address(this.ip2)));
+        bytes.writeBytes(Ipv4Util.bytesForAddress(new Ipv4Address(ip1)));
+        bytes.writeBytes(Ipv4Util.bytesForAddress(new Ipv4Address(ip2)));
         final EndpointsObj output = (EndpointsObj) new PCCEndPointIpv4ObjectParser().parseObject(header, bytes);
 
-        assertEquals(this.ip1, ((Ipv4Case) output.getAddressFamily()).getIpv4().getSourceIpv4Address().getValue());
-        assertEquals(this.ip2, ((Ipv4Case) output.getAddressFamily()).getIpv4().getDestinationIpv4Address().getValue());
+        assertEquals(ip1, ((Ipv4Case) output.getAddressFamily()).getIpv4().getSourceIpv4Address().getValue());
+        assertEquals(ip2, ((Ipv4Case) output.getAddressFamily()).getIpv4().getDestinationIpv4Address().getValue());
         assertFalse(output.isIgnore());
         assertFalse(output.isProcessingRule());
     }

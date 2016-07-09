@@ -13,7 +13,7 @@ import java.util.Map;
 public enum TerminationReason {
     UNKNOWN((short) 1), EXP_DEADTIMER((short) 2), MALFORMED_MSG((short) 3), TOO_MANY_UNKNWN_REQS((short) 4), TOO_MANY_UNKNOWN_MSGS((short) 5);
 
-    private short value;
+    private final short value;
     private static final Map<Short, TerminationReason> VALUE_MAP;
 
     static {
@@ -23,7 +23,7 @@ public enum TerminationReason {
         }
     }
 
-    private TerminationReason(final short value) {
+    TerminationReason(final short value) {
         this.value = value;
     }
 

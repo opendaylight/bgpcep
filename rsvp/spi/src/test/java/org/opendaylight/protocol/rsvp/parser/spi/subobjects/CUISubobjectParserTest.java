@@ -19,7 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 public class CUISubobjectParserTest {
     private final Long routerId = 3735928559L;
     private final Long interfaceId = 3736059631L;
-    CommonUnnumberedInterfaceSubobjectParser parser = new CommonUnnumberedInterfaceSubobjectParser();
+    final CommonUnnumberedInterfaceSubobjectParser parser = new CommonUnnumberedInterfaceSubobjectParser();
     final Unnumbered unnumbered1 = new UnnumberedBuilder().setRouterId(null).build();
     final Unnumbered unnumbered2 = new UnnumberedBuilder().setRouterId(1L).setInterfaceId(null).build();
 

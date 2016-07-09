@@ -348,7 +348,7 @@ public enum PCEPErrors {
      */
     INVALID_LSP_DB_VERSION(20, 7);
 
-    private PCEPErrorIdentifier errorId;
+    private final PCEPErrorIdentifier errorId;
     private static final Map<PCEPErrorIdentifier, PCEPErrors> VALUE_MAP;
 
     static {
@@ -362,7 +362,7 @@ public enum PCEPErrors {
         return VALUE_MAP.get(new PCEPErrorIdentifier(errorType, errorValue));
     }
 
-    private PCEPErrors(final int type, final int value) {
+    PCEPErrors(final int type, final int value) {
         this.errorId = new PCEPErrorIdentifier((short) type, (short) value);
     }
 

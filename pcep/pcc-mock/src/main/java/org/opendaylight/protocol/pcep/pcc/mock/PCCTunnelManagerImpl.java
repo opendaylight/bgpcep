@@ -87,7 +87,7 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
         this.lspsCount = lspsCount;
     }
 
-    protected void reportToAll(final Updates update, final PCCSession session) {
+    private void reportToAll(final Updates update, final PCCSession session) {
         final PlspId plspId = update.getLsp().getPlspId();
         final PCCTunnel tunnel = this.tunnels.get(plspId);
         final long srpId = update.getSrp().getOperationId().getValue();
@@ -137,7 +137,7 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
         }
     }
 
-    protected void takeDelegation(final Requests request, final PCCSession session) {
+    private void takeDelegation(final Requests request, final PCCSession session) {
         final PlspId plspId = request.getLsp().getPlspId();
         final PCCTunnel tunnel = this.tunnels.get(plspId);
         final long srpId = request.getSrp().getOperationId().getValue();
@@ -191,7 +191,7 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
         }
     }
 
-    protected void addTunnel(final Requests request, final PCCSession session) {
+    private void addTunnel(final Requests request, final PCCSession session) {
         final PlspId plspId = new PlspId(this.plspIDsCounter.incrementAndGet());
         final PCCTunnel tunnel = new PCCTunnel(request.getLsp().getTlvs().getSymbolicPathName().getPathName().getValue(),
             session.getId(), LspType.PCE_LSP, reqToRptPath(request));
@@ -200,7 +200,7 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
         this.tunnels.put(plspId, tunnel);
     }
 
-    protected void removeTunnel(final Requests request, final PCCSession session) {
+    private void removeTunnel(final Requests request, final PCCSession session) {
         final PlspId plspId = request.getLsp().getPlspId();
         final PCCTunnel tunnel = this.tunnels.get(plspId);
         final long srpId = request.getSrp().getOperationId().getValue();

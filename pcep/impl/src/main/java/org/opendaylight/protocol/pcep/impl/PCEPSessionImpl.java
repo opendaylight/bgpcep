@@ -59,7 +59,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
      * System.nanoTime value about when was sent the last message Protected to be updated also in tests.
      */
     @VisibleForTesting
-    protected volatile long lastMessageSentAt;
+    volatile long lastMessageSentAt;
 
     /**
      * System.nanoTime value about when was received the last message
@@ -358,7 +358,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
     }
 
     @VisibleForTesting
-    protected final Queue<Long> getUnknownMessagesTimes() {
+    final Queue<Long> getUnknownMessagesTimes() {
         return this.unknownMessagesTimes;
     }
 

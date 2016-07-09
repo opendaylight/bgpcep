@@ -70,7 +70,7 @@ public class LabeledUnicastModuleTest extends AbstractConfigTest {
         final ObjectName LabeledUnicastON = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
 
         SimpleBGPExtensionProviderContextModuleTest.createBGPExtensionsModuleInstance(transaction, Lists.newArrayList(LabeledUnicastON));
-        RIBExtensionsImplModuleTest.createRIBExtensionsModuleInstance(transaction, Lists.newArrayList(LabeledUnicastON));
+        RIBExtensionsImplModuleTest.createRIBExtModuleInstance(transaction, Lists.newArrayList(LabeledUnicastON));
         return transaction.commit();
     }
 

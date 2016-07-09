@@ -253,42 +253,47 @@ public final class BGPSessionStats {
             pref.setBgpId(new BgpId(localPref.getBgpId().getValue()));
             pref.setAs(localPref.getMyAs().getValue());
             pref.setHoldtimer(localPref.getHoldTime());
-            if (localPref.getParams() != null) {
-                for (final BgpParameters param : localPref.getParams()) {
-                    for (final OptionalCapabilities capa : param.getOptionalCapabilities()) {
-                        final CParameters cParam = capa.getCParameters();
-                        final CParameters1 capabilities = cParam.getAugmentation(CParameters1.class);
-                        if (capabilities != null) {
-                            final MultiprotocolCapability mc = capabilities.getMultiprotocolCapability();
-                            if (mc != null) {
-                                final AdvertizedTableTypes att = new AdvertizedTableTypes();
-                                att.setAfi(new IdentityAttributeRef(BindingReflections.findQName(mc.getAfi()).intern().toString()));
-                                att.setAfi(new IdentityAttributeRef(BindingReflections.findQName(mc.getSafi()).intern().toString()));
-                                tt.add(att);
-                            }
-                            if (capabilities.getGracefulRestartCapability() != null) {
-                                pref.setGrCapability(true);
-                            }
-                            // FIXME add path capability is deprecated
-                            if (capabilities.getAddPathCapability() != null) {
-                                pref.setAddPathCapability(true);
-                            }
-                            if (capabilities.getRouteRefreshCapability() != null) {
-                                pref.setRouteRefreshCapability(true);
-                            }
+            setParam(localPref, tt, pref);
+        }
+        pref.setAdvertizedTableTypes(tt);
+        return pref;
+    }
+
+    private static void setParam(final BGPSessionPreferences localPref, final List<AdvertizedTableTypes> tt, final RemotePeerPreferences pref) {
+        if (localPref.getParams() != null) {
+            for (final BgpParameters param : localPref.getParams()) {
+                for (final OptionalCapabilities capa : param.getOptionalCapabilities()) {
+                    final CParameters cParam = capa.getCParameters();
+                    final CParameters1 capabilities = cParam.getAugmentation(CParameters1.class);
+                    if (capabilities != null) {
+
+                        final MultiprotocolCapability mc = capabilities.getMultiprotocolCapability();
+                        if (mc != null) {
+                            final AdvertizedTableTypes att = new AdvertizedTableTypes();
+                            att.setAfi(new IdentityAttributeRef(BindingReflections.findQName(mc.getAfi()).intern().toString()));
+                            att.setAfi(new IdentityAttributeRef(BindingReflections.findQName(mc.getSafi()).intern().toString()));
+                            tt.add(att);
                         }
-                        if (cParam.getAs4BytesCapability() != null) {
-                            pref.setFourOctetAsCapability(true);
+                        if (capabilities.getGracefulRestartCapability() != null) {
+                            pref.setGrCapability(true);
                         }
-                        if (cParam.getBgpExtendedMessageCapability() != null) {
-                            pref.setBgpExtendedMessageCapability(true);
+                        // FIXME add path capability is deprecated
+                        if (capabilities.getAddPathCapability() != null) {
+                            pref.setAddPathCapability(true);
                         }
+                        if (capabilities.getRouteRefreshCapability() != null) {
+                            pref.setRouteRefreshCapability(true);
+                        }
+                    }
+                    if (cParam.getAs4BytesCapability() != null) {
+                        pref.setFourOctetAsCapability(true);
+                    }
+                    if (cParam.getBgpExtendedMessageCapability() != null) {
+                        pref.setBgpExtendedMessageCapability(true);
                     }
                 }
             }
         }
-        pref.setAdvertizedTableTypes(tt);
-        return pref;
     }
 
     private static LocalPeerPreferences setLocalPeerPref(final Open remoteOpen, final Channel channel, final Collection<BgpTableType> tableTypes,

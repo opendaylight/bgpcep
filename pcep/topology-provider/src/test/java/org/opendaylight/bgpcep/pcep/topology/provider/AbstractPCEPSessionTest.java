@@ -65,21 +65,20 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 
 public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerFactory> extends AbstractDataBrokerTest {
 
-    protected static final String TEST_TOPOLOGY_NAME = "testtopo";
-    protected static final InstanceIdentifier<Topology> TOPO_IID = InstanceIdentifier.builder(NetworkTopology.class).child(
+    private static final String TEST_TOPOLOGY_NAME = "testtopo";
+    static final InstanceIdentifier<Topology> TOPO_IID = InstanceIdentifier.builder(NetworkTopology.class).child(
             Topology.class, new TopologyKey(new TopologyId(TEST_TOPOLOGY_NAME))).build();
-    protected static final String TEST_ADDRESS = "127.0.0.1";
-    protected static final NodeId NODE_ID = new NodeId("pcc://" + TEST_ADDRESS);
-    protected static final String TEST_LSP_NAME = "tunnel0";
-    protected static final String IPV4_MASK = "/32";
-    protected static final String ERO_IP_PREFIX = TEST_ADDRESS + IPV4_MASK;
-    protected static final String NEW_DESTINATION_ADDRESS = "127.0.1.0";
-    protected static final String DST_IP_PREFIX = NEW_DESTINATION_ADDRESS + IPV4_MASK;
-    protected static final short DEAD_TIMER = 30;
-    protected static final short KEEP_ALIVE = 10;
-    protected static final int RPC_TIMEOUT = 4;
+    static final String TEST_ADDRESS = "127.0.0.1";
+    static final NodeId NODE_ID = new NodeId("pcc://" + TEST_ADDRESS);
+    private static final String IPV4_MASK = "/32";
+    static final String ERO_IP_PREFIX = TEST_ADDRESS + IPV4_MASK;
+    static final String NEW_DESTINATION_ADDRESS = "127.0.1.0";
+    static final String DST_IP_PREFIX = NEW_DESTINATION_ADDRESS + IPV4_MASK;
+    static final short DEAD_TIMER = 30;
+    static final short KEEP_ALIVE = 10;
+    static final int RPC_TIMEOUT = 4;
 
-    protected List<Notification> receivedMsgs;
+    List<Notification> receivedMsgs;
 
     @Mock
     private EventLoop eventLoop;
@@ -93,15 +92,13 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
     @Mock
     private ChannelFuture channelFuture;
 
-    private T listenerFactory;
-
     private final Open localPrefs = new OpenBuilder().setDeadTimer((short) 30).setKeepalive((short) 10).setSessionId((short) 0).build();
 
     private final Open remotePrefs = localPrefs;
 
-    protected ServerSessionManager manager;
+    ServerSessionManager manager;
 
-    protected NetworkTopologyPcepService topologyRpcs;
+    NetworkTopologyPcepService topologyRpcs;
 
     private DefaultPCEPSessionNegotiator neg;
 
@@ -131,8 +128,8 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
 
         doReturn(mock(ChannelFuture.class)).when(this.clientListener).close();
 
-        this.listenerFactory = (T) ((Class)((ParameterizedType)this.getClass().getGenericSuperclass()).getActualTypeArguments()[0]).newInstance();
-        this.manager = new ServerSessionManager(getDataBroker(), TOPO_IID, this.listenerFactory, RPC_TIMEOUT);
+        final T listenerFactory = (T) ((Class) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[0]).newInstance();
+        this.manager = new ServerSessionManager(getDataBroker(), TOPO_IID, listenerFactory, RPC_TIMEOUT);
 
         this.neg = new DefaultPCEPSessionNegotiator(mock(Promise.class), this.clientListener, this.manager.getSessionListener(), (short) 1, 5, this.localPrefs);
         this.topologyRpcs = new TopologyRPCs(this.manager);
@@ -149,7 +146,7 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
         }
     }
 
-    protected Ero createEroWithIpPrefixes(final List<String> ipPrefixes) {
+    Ero createEroWithIpPrefixes(final List<String> ipPrefixes) {
         final List<Subobject> subobjs = new ArrayList<Subobject>(ipPrefixes.size());
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder();
         for (final String ipPrefix : ipPrefixes) {
@@ -160,7 +157,7 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
         return new EroBuilder().setSubobject(subobjs).build();
     }
 
-    protected String getLastEroIpPrefix(final Ero ero) {
+    String getLastEroIpPrefix(final Ero ero) {
         return ((IpPrefixCase)ero.getSubobject().get(ero.getSubobject().size() - 1).getSubobjectType()).getIpPrefix().getIpPrefix().getIpv4Prefix().getValue();
     }
 

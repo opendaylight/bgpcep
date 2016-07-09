@@ -35,8 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractFlowspecRIBSupport<T extends AbstractFlowspecNlriParser> extends MultiPathAbstractRIBSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractFlowspecRIBSupport.class);
-
     protected final T nlriParser;
 
     protected AbstractFlowspecRIBSupport(

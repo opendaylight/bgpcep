@@ -12,7 +12,6 @@ import static org.junit.Assert.assertTrue;
 
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -242,7 +241,4 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
         assertTrue(!client.up);
     }
 
-    @After
-    public void tearDown() {
-    }
 }

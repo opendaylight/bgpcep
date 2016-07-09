@@ -11,6 +11,7 @@ import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -102,7 +103,7 @@ public class BGPOpenConfigListenerTest {
         Mockito.doReturn(children2).when(this.modif1).getModifiedChildren();
         Mockito.doReturn(null).when(dataBroker).newReadOnlyTransaction();
 
-        this.changes = Arrays.asList(modification);
+        this.changes = Collections.singletonList(modification);
     }
 
     @Test

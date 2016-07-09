@@ -20,29 +20,29 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractSessionNegotiator extends ChannelInboundHandlerAdapter implements SessionNegotiator {
+abstract class AbstractSessionNegotiator extends ChannelInboundHandlerAdapter implements SessionNegotiator {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractSessionNegotiator.class);
-    protected final Channel channel;
-    protected final Promise<PCEPSessionImpl> promise;
+    final Channel channel;
+    final Promise<PCEPSessionImpl> promise;
 
-    protected AbstractSessionNegotiator(final Promise<PCEPSessionImpl> promise, final Channel channel) {
+    AbstractSessionNegotiator(final Promise<PCEPSessionImpl> promise, final Channel channel) {
         this.promise = Preconditions.checkNotNull(promise);
         this.channel = Preconditions.checkNotNull(channel);
     }
 
-    protected final void negotiationSuccessful(final PCEPSessionImpl session) {
+    final void negotiationSuccessful(final PCEPSessionImpl session) {
         LOG.debug("Negotiation on channel {} successful with session {}", this.channel, session);
         this.channel.pipeline().replace(this, "session", session);
         this.promise.setSuccess(session);
     }
 
-    protected void negotiationFailed(final Throwable cause) {
+    void negotiationFailed(final Throwable cause) {
         LOG.debug("Negotiation on channel {} failed", this.channel, cause);
         this.channel.close();
         this.promise.setFailure(cause);
     }
 
-    protected final void sendMessage(final Message msg) {
+    final void sendMessage(final Message msg) {
         this.channel.writeAndFlush(msg).addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(final ChannelFuture f) {

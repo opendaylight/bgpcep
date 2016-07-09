@@ -39,7 +39,7 @@ final class PCEPRequest {
         this.timer = new Timer();
     }
 
-    protected ListenableFuture<OperationResult> getFuture() {
+    ListenableFuture<OperationResult> getFuture() {
         return future;
     }
 

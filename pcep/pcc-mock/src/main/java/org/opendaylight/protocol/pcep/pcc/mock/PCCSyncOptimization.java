@@ -78,13 +78,6 @@ final class PCCSyncOptimization {
         return this.remoteLspDbVersion.getLspDbVersionValue();
     }
 
-    public boolean isRemoteLspDbVersionNull() {
-        if (this.remoteLspDbVersion == null) {
-            return true;
-        }
-        return false;
-    }
-
     private static LspDbVersion getLspDbVersion(final Tlvs openTlvs) {
         if (openTlvs != null) {
             final Tlvs3 tlvs3 = openTlvs.getAugmentation(Tlvs3.class);
@@ -97,10 +90,7 @@ final class PCCSyncOptimization {
     }
 
     private static boolean compareLspDbVersion(final LspDbVersion local, final LspDbVersion remote) {
-        if (local != null && remote != null) {
-            return local.equals(remote);
-        }
-        return false;
+        return local != null && remote != null && local.equals(remote);
     }
 
     private static Stateful1 getStateful1(final Tlvs openTlvs) {
