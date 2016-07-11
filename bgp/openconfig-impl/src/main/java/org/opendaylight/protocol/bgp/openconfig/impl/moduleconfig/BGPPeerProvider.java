@@ -20,14 +20,12 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.protocol.bgp.openconfig.impl.spi.BGPConfigHolder;
 import org.opendaylight.protocol.bgp.openconfig.impl.spi.BGPConfigStateStore;
 import org.opendaylight.protocol.bgp.openconfig.impl.util.GlobalIdentifier;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.RouteReflector;
+import org.opendaylight.protocol.bgp.openconfig.impl.util.OpenConfigUtil;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Timers;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Transport;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.PeerType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.BgpPeer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.RibInstance;
@@ -228,7 +226,7 @@ final class BGPPeerProvider {
                 bgpPeerBuilder.setRemoteAs(neighbor.getConfig().getPeerAs().getValue());
             }
             if (neighbor.getConfig().getPeerType() != null) {
-                bgpPeerBuilder.setPeerRole(toPeerRole(neighbor));
+                bgpPeerBuilder.setPeerRole(OpenConfigUtil.toPeerRole(neighbor));
             }
         }
         return bgpPeerBuilder;
@@ -237,32 +235,6 @@ final class BGPPeerProvider {
     private static String createPeerName(final IpAddress ipAddress) {
         final String address = ipAddress.getIpv4Address() != null ? ipAddress.getIpv4Address().getValue() : ipAddress.getIpv6Address().getValue();
         return PEER + address;
-    }
-
-    private static PeerRole toPeerRole(final Neighbor neighbor) {
-        if (isRrClient(neighbor)) {
-            return PeerRole.RrClient;
-        }
-
-        if (neighbor.getConfig() != null) {
-            final PeerType peerType = neighbor.getConfig().getPeerType();
-            if (peerType == PeerType.INTERNAL) {
-                return PeerRole.Ibgp;
-            }
-            if (peerType == PeerType.EXTERNAL) {
-                return PeerRole.Ebgp;
-            }
-        }
-        LOG.info("Unknown peer role, setting peer {} role to iBGP", neighbor.getKey());
-        return PeerRole.Ibgp;
-    }
-
-    private static boolean isRrClient(final Neighbor neighbor) {
-        final RouteReflector routeReflector = neighbor.getRouteReflector();
-        if (routeReflector != null && routeReflector.getConfig() != null) {
-            return routeReflector.getConfig().isRouteReflectorClient();
-        }
-        return false;
     }
 
 }

@@ -2,7 +2,6 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
 
-
   <reference id="BGPExtensionContext" interface="org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext"/>
   <reference id="globalBossGroup" interface="io.netty.channel.EventLoopGroup" odl:type="global-boss-group"/>
   <reference id="globalWorkerGroup" interface="io.netty.channel.EventLoopGroup" odl:type="global-worker-group"/>
@@ -16,4 +15,28 @@
   </bean>
 
   <service ref="BGPDispatcher" interface="org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher"/>
+
+  <reference id="dataBroker" interface="org.opendaylight.controller.md.sal.binding.api.DataBroker" odl:type="pingpong"/>
+  <reference id="globalBgpExtensions" interface="org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext"/>
+  <reference id="codecTreeFactory" interface="org.opendaylight.yangtools.binding.data.codec.api.BindingCodecTreeFactory"/>
+  <reference id="domDataBroker" interface="org.opendaylight.controller.md.sal.dom.api.DOMDataBroker"/>
+  <reference id="bgpOpenConfigMappingService" interface="org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService"/>
+
+  <bean id="ribImpl" class="org.opendaylight.protocol.bgp.rib.impl.config.RibImpl" scope="prototype">
+    <argument ref="globalBgpExtensions"/>
+    <argument ref="BGPDispatcher"/>
+    <argument ref="codecTreeFactory"/>
+    <argument ref="dataBroker"/>
+    <argument ref="domDataBroker"/>
+    <argument ref="bgpOpenConfigMappingService"/>
+  </bean>
+
+  <bean id="bgpDeployer" class="org.opendaylight.protocol.bgp.rib.impl.config.BgpDeployerImpl" destroy-method="close">
+    <argument value="global-bgp"/>
+    <argument ref="blueprintContainer"/>
+    <argument ref="dataBroker"/>
+  </bean>
+
+  <service ref="bgpDeployer" interface="org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer"/>
+
 </blueprint>
