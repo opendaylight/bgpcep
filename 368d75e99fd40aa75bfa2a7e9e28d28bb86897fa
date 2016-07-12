@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_77e6e3b5",
+        "filename": "pcep/auto-bandwidth-extension/src/main/java/org/opendaylight/protocol/pcep/auto/bandwidth/extension/Activator.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-07-12T23:54:48Z",
+      "side": 1,
+      "message": "Java service loading requires a no-arg constructor. I think @VisibleForTesting conveys that it\u0027s for unit testing. In reality this isn\u0027t a public class and the singleton instance is created in one place so I don\u0027t think this is really significant. If you want I can add some comments but I\u0027d rather do it in another patch as I have a chain of patches behind this so I\u0027d rather get things moving unless there\u0027s a showstopper.",
+      "parentUuid": "9a561d44_d787efd5",
+      "revId": "368d75e99fd40aa75bfa2a7e9e28d28bb86897fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_f7e833b6",
         "filename": "pcep/auto-bandwidth-extension/src/main/yang/pcep-auto-bandwidth-app-config.yang",
         "patchSetId": 4
@@ -102,6 +120,24 @@
       "side": 1,
       "message": "I think it\u0027s probably fine here.  Where did the range 3-15 come from?  Why isn\u0027t this 1-15?",
       "parentUuid": "9a561d44_9708d792",
+      "revId": "368d75e99fd40aa75bfa2a7e9e28d28bb86897fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_57e11f99",
+        "filename": "pcep/auto-bandwidth-extension/src/main/yang/pcep-auto-bandwidth-app-config.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-07-12T23:54:48Z",
+      "side": 1,
+      "message": "The AutoBandwidthPCEPParserModule code restricted it to 3-15. I don\u0027t know why it wasn\u0027t restricted in yang to begin with - maybe b/c the CSS didn\u0027t support range validation at the time.",
+      "parentUuid": "9a561d44_f784b3d5",
       "revId": "368d75e99fd40aa75bfa2a7e9e28d28bb86897fa",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
