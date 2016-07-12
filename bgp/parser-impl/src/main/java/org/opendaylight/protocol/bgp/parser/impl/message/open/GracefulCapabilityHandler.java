@@ -129,7 +129,7 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
         final int flagBits = (buffer.getByte(0) >> RESTART_FLAGS_SIZE);
         cb.setRestartFlags(new RestartFlags((flagBits & Byte.SIZE) != 0));
 
-        final int timer = ((buffer.readUnsignedByte() & TIMER_TOPBITS_MASK) << RESTART_FLAGS_SIZE) + buffer.readUnsignedByte();
+        final int timer = ((buffer.readUnsignedByte() & TIMER_TOPBITS_MASK) << Byte.SIZE) + buffer.readUnsignedByte();
         cb.setRestartTime(timer);
 
         final List<Tables> tables = new ArrayList<>();
