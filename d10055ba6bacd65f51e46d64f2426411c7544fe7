@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_fc5bf884",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AbstractRouteEntry.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2016-07-12T19:03:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_54e9347f",
+      "range": {
+        "startLine": 38,
+        "startChar": 39,
+        "endLine": 38,
+        "endChar": 43
+      },
+      "revId": "d10055ba6bacd65f51e46d64f2426411c7544fe7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_5fb14de0",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AbstractRouteEntry.java",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2016-07-07T10:09:16Z",
       "side": 1,
       "message": "not required",
+      "range": {
+        "startLine": 116,
+        "startChar": 0,
+        "endLine": 118,
+        "endChar": 5
+      },
+      "revId": "d10055ba6bacd65f51e46d64f2426411c7544fe7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_dc5ef475",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AbstractRouteEntry.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2016-07-12T19:03:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_5fb14de0",
       "range": {
         "startLine": 116,
         "startChar": 0,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_3c557050",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AbstractRouteEntry.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2016-07-12T19:03:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_d4aa6418",
+      "range": {
+        "startLine": 121,
+        "startChar": 31,
+        "endLine": 121,
+        "endChar": 35
+      },
+      "revId": "d10055ba6bacd65f51e46d64f2426411c7544fe7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_7fc7f145",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AbstractRouteEntry.java",
         "patchSetId": 1
@@ -88,6 +160,24 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_1c506c5d",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AbstractRouteEntry.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2016-07-12T19:03:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_7fc7f145",
+      "revId": "d10055ba6bacd65f51e46d64f2426411c7544fe7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_1464dc20",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
         "patchSetId": 1
@@ -99,6 +189,30 @@
       "writtenOn": "2016-07-07T10:09:16Z",
       "side": 1,
       "message": "x \u003d entry.getRemovedBestRouterId();\nif(x !\u003d null) {...",
+      "range": {
+        "startLine": 278,
+        "startChar": 15,
+        "endLine": 278,
+        "endChar": 57
+      },
+      "revId": "d10055ba6bacd65f51e46d64f2426411c7544fe7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_5c730415",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2016-07-12T19:03:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_1464dc20",
       "range": {
         "startLine": 278,
         "startChar": 15,
@@ -134,6 +248,30 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_bc61803b",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2016-07-12T19:03:34Z",
+      "side": 1,
+      "message": "entry is used in log statement in the called function",
+      "parentUuid": "9a561d44_bfc18930",
+      "range": {
+        "startLine": 280,
+        "startChar": 35,
+        "endLine": 280,
+        "endChar": 40
+      },
+      "revId": "d10055ba6bacd65f51e46d64f2426411c7544fe7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_54b77486",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
         "patchSetId": 1
@@ -145,6 +283,30 @@
       "writtenOn": "2016-07-07T10:09:16Z",
       "side": 1,
       "message": "null",
+      "range": {
+        "startLine": 281,
+        "startChar": 39,
+        "endLine": 281,
+        "endChar": 44
+      },
+      "revId": "d10055ba6bacd65f51e46d64f2426411c7544fe7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_9c647c4a",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2016-07-12T19:03:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_54b77486",
       "range": {
         "startLine": 281,
         "startChar": 39,
