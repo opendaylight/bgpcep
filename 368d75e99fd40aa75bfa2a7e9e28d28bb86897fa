@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_77dc2313",
+        "filename": "pcep/auto-bandwidth-extension/src/main/java/org/opendaylight/protocol/pcep/auto/bandwidth/extension/Activator.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-07-12T22:25:59Z",
+      "side": 1,
+      "message": "This constructor is only used for unit testing so @VisibleForTesting also indicates that. It\u0027s actually called indirectly via reflection via Java service loading. The default value of 1 was taken from other unit tests that pass 1.",
+      "parentUuid": "9a561d44_57c0ff29",
+      "revId": "368d75e99fd40aa75bfa2a7e9e28d28bb86897fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_f7e833b6",
         "filename": "pcep/auto-bandwidth-extension/src/main/yang/pcep-auto-bandwidth-app-config.yang",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2016-07-12T21:53:45Z",
       "side": 1,
       "message": "why is this changed from uint8 to uint16?  according to RFC, object-type is a 4-bit value",
+      "revId": "368d75e99fd40aa75bfa2a7e9e28d28bb86897fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_9708d792",
+        "filename": "pcep/auto-bandwidth-extension/src/main/yang/pcep-auto-bandwidth-app-config.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-07-12T22:25:59Z",
+      "side": 1,
+      "message": "Didn\u0027t know this comes from an RFC. The code treats it as an int so I wasn\u0027t sure if blueprint would do the auto-conversion from Short to Integer when passing via reflection. To avoid any question I used uint16 here. Is it really significant either way, especially since we restrict from 3-15 anyway?",
+      "parentUuid": "9a561d44_f7e833b6",
       "revId": "368d75e99fd40aa75bfa2a7e9e28d28bb86897fa",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
