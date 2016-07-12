@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_57c0ff29",
+        "filename": "pcep/auto-bandwidth-extension/src/main/java/org/opendaylight/protocol/pcep/auto/bandwidth/extension/Activator.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2016-07-12T21:53:45Z",
+      "side": 1,
+      "message": "I don\u0027t think VisibleForTesting is needed here as this method is public.  Besides, why is the default value 1?",
+      "revId": "368d75e99fd40aa75bfa2a7e9e28d28bb86897fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_f7e833b6",
+        "filename": "pcep/auto-bandwidth-extension/src/main/yang/pcep-auto-bandwidth-app-config.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2016-07-12T21:53:45Z",
+      "side": 1,
+      "message": "why is this changed from uint8 to uint16?  according to RFC, object-type is a 4-bit value",
+      "revId": "368d75e99fd40aa75bfa2a7e9e28d28bb86897fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
