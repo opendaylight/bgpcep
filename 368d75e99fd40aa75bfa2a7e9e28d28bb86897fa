@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_d787efd5",
+        "filename": "pcep/auto-bandwidth-extension/src/main/java/org/opendaylight/protocol/pcep/auto/bandwidth/extension/Activator.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2016-07-12T23:15:57Z",
+      "side": 1,
+      "message": "Is that possible we can inject the value in the unit testing directly?  Or if that\u0027s not an option, could we make a comment in the code explaining this here?  We should not suggest others to use this default constructor if it is for test only.",
+      "parentUuid": "9a561d44_77dc2313",
+      "revId": "368d75e99fd40aa75bfa2a7e9e28d28bb86897fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_f7e833b6",
         "filename": "pcep/auto-bandwidth-extension/src/main/yang/pcep-auto-bandwidth-app-config.yang",
         "patchSetId": 4
@@ -66,6 +84,24 @@
       "side": 1,
       "message": "Didn\u0027t know this comes from an RFC. The code treats it as an int so I wasn\u0027t sure if blueprint would do the auto-conversion from Short to Integer when passing via reflection. To avoid any question I used uint16 here. Is it really significant either way, especially since we restrict from 3-15 anyway?",
       "parentUuid": "9a561d44_f7e833b6",
+      "revId": "368d75e99fd40aa75bfa2a7e9e28d28bb86897fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_f784b3d5",
+        "filename": "pcep/auto-bandwidth-extension/src/main/yang/pcep-auto-bandwidth-app-config.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2016-07-12T23:15:57Z",
+      "side": 1,
+      "message": "I think it\u0027s probably fine here.  Where did the range 3-15 come from?  Why isn\u0027t this 1-15?",
+      "parentUuid": "9a561d44_9708d792",
       "revId": "368d75e99fd40aa75bfa2a7e9e28d28bb86897fa",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
