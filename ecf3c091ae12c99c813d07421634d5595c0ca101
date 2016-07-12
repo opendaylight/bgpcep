@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_881c3e79",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/stats/UnsignedInt32Counter.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-07-12T07:36:23Z",
+      "side": 1,
+      "message": "If the counter can be modified by multiple threads, then consider using https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/atomic/AtomicLong.html",
+      "range": {
+        "startLine": 26,
+        "startChar": 4,
+        "endLine": 26,
+        "endChar": 28
+      },
+      "revId": "ecf3c091ae12c99c813d07421634d5595c0ca101",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
