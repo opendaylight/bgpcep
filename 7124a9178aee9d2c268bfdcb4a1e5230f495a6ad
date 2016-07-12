@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_a1b79dd7",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/spi/BGPDispatcher.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-07-12T13:51:15Z",
+      "side": 1,
+      "message": "As https://git.opendaylight.org/gerrit/#/c/39268/ is merged, this check is no longer needed. Please, rebase this patch.",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 57,
+        "endChar": 29
+      },
+      "revId": "7124a9178aee9d2c268bfdcb4a1e5230f495a6ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
