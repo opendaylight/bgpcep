@@ -1,0 +1,198 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_39b58731",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/subobject/RROPathKey128SubobjectParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-07-12T10:22:15Z",
+      "side": 1,
+      "message": "restore",
+      "revId": "c763d219f45b2463b7764964497b4e2b583893df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_59bafb23",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/subobject/XROPathKey128SubobjectParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-07-12T10:22:15Z",
+      "side": 1,
+      "message": "restore",
+      "revId": "c763d219f45b2463b7764964497b4e2b583893df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_594cbb70",
+        "filename": "pcep/impl/src/test/java/org/opendaylight/protocol/pcep/impl/PCEPObjectParserTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-07-12T10:22:15Z",
+      "side": 1,
+      "message": "restore",
+      "range": {
+        "startLine": 489,
+        "startChar": 8,
+        "endLine": 489,
+        "endChar": 37
+      },
+      "revId": "c763d219f45b2463b7764964497b4e2b583893df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_f93cafc1",
+        "filename": "pcep/impl/src/test/java/org/opendaylight/protocol/pcep/impl/PCEPRROSubobjectParserTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-07-12T10:22:15Z",
+      "side": 1,
+      "message": "restore",
+      "range": {
+        "startLine": 181,
+        "startChar": 8,
+        "endLine": 181,
+        "endChar": 36
+      },
+      "revId": "c763d219f45b2463b7764964497b4e2b583893df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_b95b572d",
+        "filename": "pcep/impl/src/test/java/org/opendaylight/protocol/pcep/impl/PCEPXROSubobjectParserTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-07-12T10:22:15Z",
+      "side": 1,
+      "message": "restore",
+      "range": {
+        "startLine": 238,
+        "startChar": 8,
+        "endLine": 238,
+        "endChar": 36
+      },
+      "revId": "c763d219f45b2463b7764964497b4e2b583893df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_994e536e",
+        "filename": "pcep/impl/src/test/java/org/opendaylight/protocol/pcep/impl/TestVendorInformationTlvParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-07-12T10:22:15Z",
+      "side": 1,
+      "message": "restore",
+      "revId": "c763d219f45b2463b7764964497b4e2b583893df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_193b63d2",
+        "filename": "pcep/pcc-mock/src/main/java/org/opendaylight/protocol/pcep/pcc/mock/protocol/PCCReconnectPromise.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-07-12T10:22:15Z",
+      "side": 1,
+      "message": "restore",
+      "revId": "c763d219f45b2463b7764964497b4e2b583893df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_3919077a",
+        "filename": "pcep/pcc-mock/src/test/java/org/opendaylight/protocol/pcep/pcc/mock/PCCEndPointIpv4ObjectParserTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-07-12T10:22:15Z",
+      "side": 1,
+      "message": "rename",
+      "range": {
+        "startLine": 26,
+        "startChar": 31,
+        "endLine": 27,
+        "endChar": 36
+      },
+      "revId": "c763d219f45b2463b7764964497b4e2b583893df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_8e960bef",
+        "filename": "pcep/segment-routing/src/main/java/org/opendaylight/protocol/pcep/segment/routing/AbstractSrSubobjectParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-07-12T10:22:15Z",
+      "side": 1,
+      "message": "restore",
+      "revId": "c763d219f45b2463b7764964497b4e2b583893df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_4ee6b3b5",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractTopologySessionListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-07-12T10:22:15Z",
+      "side": 1,
+      "message": "restore",
+      "revId": "c763d219f45b2463b7764964497b4e2b583893df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
