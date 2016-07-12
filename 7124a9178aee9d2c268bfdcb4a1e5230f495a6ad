@@ -22,6 +22,30 @@
       "revId": "7124a9178aee9d2c268bfdcb4a1e5230f495a6ad",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_41e16199",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/spi/BGPDispatcher.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-07-12T14:27:56Z",
+      "side": 1,
+      "message": "Right - I\u0027ll remove it",
+      "parentUuid": "9a561d44_a1b79dd7",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 57,
+        "endChar": 29
+      },
+      "revId": "7124a9178aee9d2c268bfdcb4a1e5230f495a6ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
