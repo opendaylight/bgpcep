@@ -48,13 +48,13 @@ public class GracefulCapabilityHandlerTest {
             this.ctx.getAddressFamilyRegistry(),this.ctx.getSubsequentAddressFamilyRegistry());
 
         final byte[] capaBytes = {
-            (byte) 0x40, (byte) 0x06, (byte) 0x80, (byte) 0x32,
+            (byte) 0x40, (byte) 0x06, (byte) 0x81, (byte) 0xf4,
             (byte) 0x00, (byte) 0x01, (byte) 0x01, (byte) 0x80
         };
 
         final GracefulRestartCapabilityBuilder capaBuilder = new GracefulRestartCapabilityBuilder();
         capaBuilder.setRestartFlags(new RestartFlags(true));
-        capaBuilder.setRestartTime(50);
+        capaBuilder.setRestartTime(500);
         final TablesBuilder tablesBuilder = new TablesBuilder();
         tablesBuilder.setAfiFlags(new AfiFlags(true));
         tablesBuilder.setAfi(Ipv4AddressFamily.class);
