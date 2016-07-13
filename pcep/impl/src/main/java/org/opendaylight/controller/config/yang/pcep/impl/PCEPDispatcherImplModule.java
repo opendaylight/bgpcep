@@ -16,22 +16,19 @@
  */
 package org.opendaylight.controller.config.yang.pcep.impl;
 
-import org.opendaylight.controller.config.api.JmxAttributeValidationException;
-import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
-import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
+import com.google.common.reflect.AbstractInvocationHandler;
+import com.google.common.reflect.Reflection;
+import java.lang.reflect.Method;
+import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
+import org.opendaylight.protocol.pcep.PCEPDispatcher;
+import org.osgi.framework.BundleContext;
 
 /**
- *
+ * @deprecated Replaced by blueprint wiring
  */
-public final class PCEPDispatcherImplModule extends org.opendaylight.controller.config.yang.pcep.impl.AbstractPCEPDispatcherImplModule {
-
-    private static final String VALUE_IS_NOT_SET = "value is not set.";
-    private static final String KEYSTORE = "keystore";
-    private static final String TRUSTSTORE = "truststore";
-    private static final String PASSWORD = " password ";
-    private static final String LOCATION = " location ";
-    private static final String TYPE = " type ";
-    private static final String PATH_TYPE = " path" + TYPE;
+@Deprecated
+public final class PCEPDispatcherImplModule extends AbstractPCEPDispatcherImplModule {
+    private BundleContext bundleContext;
 
     public PCEPDispatcherImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier name,
             final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
@@ -45,28 +42,28 @@ public final class PCEPDispatcherImplModule extends org.opendaylight.controller.
     }
 
     @Override
-    public void validate() {
-        super.validate();
-        JmxAttributeValidationException.checkNotNull(getMaxUnknownMessages(), VALUE_IS_NOT_SET, maxUnknownMessagesJmxAttribute);
-        JmxAttributeValidationException.checkCondition(getMaxUnknownMessages() > 0, "Parameter 'maxUnknownMessages' "
-                + "must be greater than 0", maxUnknownMessagesJmxAttribute);
-        if (getTls() != null) {
-            JmxAttributeValidationException.checkNotNull(getTls().getCertificatePassword(), "certificate" + PASSWORD + VALUE_IS_NOT_SET, tlsJmxAttribute);
-            JmxAttributeValidationException.checkNotNull(getTls().getKeystore(), KEYSTORE + LOCATION + VALUE_IS_NOT_SET, tlsJmxAttribute);
-            JmxAttributeValidationException.checkNotNull(getTls().getKeystorePassword(), KEYSTORE + PASSWORD + VALUE_IS_NOT_SET, tlsJmxAttribute);
-            JmxAttributeValidationException.checkNotNull(getTls().getKeystorePathType(), KEYSTORE + PATH_TYPE + VALUE_IS_NOT_SET, tlsJmxAttribute);
-            JmxAttributeValidationException.checkNotNull(getTls().getKeystoreType(), KEYSTORE + TYPE + VALUE_IS_NOT_SET, tlsJmxAttribute);
-            JmxAttributeValidationException.checkNotNull(getTls().getTruststore(), TRUSTSTORE + LOCATION + VALUE_IS_NOT_SET, tlsJmxAttribute);
-            JmxAttributeValidationException.checkNotNull(getTls().getTruststorePassword(), TRUSTSTORE + PASSWORD + VALUE_IS_NOT_SET, tlsJmxAttribute);
-            JmxAttributeValidationException.checkNotNull(getTls().getTruststorePathType(), TRUSTSTORE + PATH_TYPE + VALUE_IS_NOT_SET, tlsJmxAttribute);
-            JmxAttributeValidationException.checkNotNull(getTls().getTruststoreType(), TRUSTSTORE + TYPE + VALUE_IS_NOT_SET, tlsJmxAttribute);
-        }
+    public AutoCloseable createInstance() {
+        final WaitingServiceTracker<PCEPDispatcher> tracker =
+                WaitingServiceTracker.create(PCEPDispatcher.class, bundleContext);
+        final PCEPDispatcher service = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
+
+        return Reflection.newProxy(AutoCloseablePCEPDispatcher.class, new AbstractInvocationHandler() {
+            @Override
+            protected Object handleInvocation(Object proxy, Method method, Object[] args) throws Throwable {
+                if (method.getName().equals("close")) {
+                    tracker.close();
+                    return null;
+                } else {
+                    return method.invoke(service, args);
+                }
+            }
+        });
     }
 
-    @Override
-    public java.lang.AutoCloseable createInstance() {
-        final DefaultPCEPSessionNegotiatorFactory negFactory = new DefaultPCEPSessionNegotiatorFactory(getPcepSessionProposalFactoryDependency(), getMaxUnknownMessages(), getTls());
+    void setBundleContext(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
+    }
 
-        return new PCEPDispatcherImpl(getPcepExtensionsDependency().getMessageHandlerRegistry(), negFactory, getBossGroupDependency(), getWorkerGroupDependency());
+    private static interface AutoCloseablePCEPDispatcher extends PCEPDispatcher, AutoCloseable {
     }
 }

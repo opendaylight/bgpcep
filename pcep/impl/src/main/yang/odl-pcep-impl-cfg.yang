@@ -6,8 +6,6 @@ module odl-pcep-impl-cfg {
 
     import config { prefix config; revision-date 2013-04-05; }
     import odl-pcep-api-cfg { prefix pcep; revision-date 2013-04-09; }
-    import odl-pcep-spi-cfg { prefix spi; revision-date 2013-11-15; }
-    import netty { prefix netty; revision-date 2013-11-19; }
 
     organization "Cisco Systems, Inc.";
 
@@ -34,20 +32,6 @@ module odl-pcep-impl-cfg {
             "Initial revision";
     }
 
-    typedef path-type {
-        type enumeration {
-            enum "PATH";
-            enum "CLASSPATH";
-        }
-    }
-
-    typedef store-type {
-        type enumeration {
-            enum "JKS";
-            enum "PKCS12";
-        }
-    }
-
     identity pcep-dispatcher-impl {
         base config:module-type;
         config:provided-service pcep:pcep-dispatcher;
@@ -57,107 +41,6 @@ module odl-pcep-impl-cfg {
     augment "/config:modules/config:module/config:configuration" {
         case pcep-dispatcher-impl {
             when "/config:modules/config:module/config:type = 'pcep-dispatcher-impl'";
-
-            leaf max-unknown-messages {
-                type uint16;
-                default 5;
-            }
-
-            container pcep-extensions {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity spi:consumer-extensions;
-                    }
-                }
-            }
-
-            container pcep-session-proposal-factory {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity pcep:pcep-session-proposal-factory;
-                    }
-                }
-            }
-
-            container boss-group {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity netty:netty-threadgroup;
-                    }
-                }
-            }
-
-            container worker-group {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity netty:netty-threadgroup;
-                    }
-                }
-            }
-
-            container tls {
-                leaf keystore {
-                    description "keystore location";
-                    type string;
-                    mandatory true;
-                }
-                leaf keystore-type {
-                    description "keystore type (JKS or PKCS12)";
-                    type store-type;
-                    mandatory true;
-                }
-                leaf keystore-path-type {
-                    description "keystore path type (CLASSPATH or PATH)";
-                    type path-type;
-                    mandatory true;
-                }
-                leaf keystore-password {
-                    description "password protecting keystore";
-                    type string;
-                    mandatory true;
-                }
-                leaf certificate-password {
-                    description "password protecting certificate";
-                    type string;
-                    mandatory true;
-                }
-                leaf truststore {
-                    description "truststore location";
-                    type string;
-                    mandatory true;
-                }
-                leaf truststore-type {
-                    description "truststore type (JKS or PKCS12)";
-                    type store-type;
-                    mandatory true;
-                }
-                leaf truststore-path-type {
-                    description "truststore path type (CLASSPATH or PATH)";
-                    type path-type;
-                    mandatory true;
-                }
-                leaf truststore-password {
-                    description "password protecting truststore";
-                    type string;
-                    mandatory true;
-                }
-            }
-        }
-    }
-
-    identity pcep-session-proposal-factory-impl {
-        base config:module-type;
-        config:java-name-prefix "PCEPSessionProposalFactoryImpl";
-        config:provided-service pcep:pcep-session-proposal-factory;
-    }
-
-    augment "/config:modules/config:module/config:configuration" {
-        case pcep-session-proposal-factory-impl {
-            when "/config:modules/config:module/config:type = 'pcep-session-proposal-factory-impl'";
         }
     }
 }

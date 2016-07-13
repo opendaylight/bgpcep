@@ -33,23 +33,7 @@ module odl-pcep-api-cfg {
 
         base "config:service-type";
         config:java-class "org.opendaylight.protocol.pcep.PCEPDispatcher";
-    }
-
-    identity pcep-session-proposal-factory {
-        description
-            "Service representing a PCEP session proposal factory service. The service
-             provides initial session attributes given by the user.";
-
-        base "config:service-type";
-        config:java-class "org.opendaylight.protocol.pcep.PCEPSessionProposalFactory";
         config:disable-osgi-service-registration;
-    }
-
-    identity pcep-capability {
-        description "Service for storing usability of specific capabilities during
-            opened PCEP session.";
-        base "config:service-type";
-        config:java-class "org.opendaylight.protocol.pcep.PCEPCapability";
     }
 }
 
