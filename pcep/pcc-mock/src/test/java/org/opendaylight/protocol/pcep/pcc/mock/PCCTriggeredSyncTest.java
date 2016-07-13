@@ -40,7 +40,6 @@ public class PCCTriggeredSyncTest extends PCCMockCommon {
     public void testSessionTriggeredSync() throws Exception {
         final TestingSessionListenerFactory factory = new TestingSessionListenerFactory();
         this.channel = createServer(factory, socket, new PCCPeerProposal());
-        Thread.sleep(200);
         final BigInteger numberOflspAndDBv = BigInteger.valueOf(3);
         PCEPSession session = createPCCSession(numberOflspAndDBv).get();
         assertNotNull(session);
@@ -48,7 +47,6 @@ public class PCCTriggeredSyncTest extends PCCMockCommon {
         assertNotNull(pceSessionListener);
         checkSynchronizedSession(0, pceSessionListener, BigInteger.ZERO);
         pccSessionListener.onMessage(session, createTriggerMsg());
-        Thread.sleep(300);
         checkSynchronizedSession(3, pceSessionListener, numberOflspAndDBv);
         this.channel.close().get();
     }
