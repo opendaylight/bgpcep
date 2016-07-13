@@ -29,12 +29,11 @@ public class PCCSyncAvoidanceProcedureTest extends PCCMockCommon {
         final TestingSessionListenerFactory factory = new TestingSessionListenerFactory();
 
         final Channel channel = createServer(factory, socket, new PCCPeerProposal());
-        Thread.sleep(200);
         PCEPSession session = createPCCSession(BigInteger.TEN).get();
         assertNotNull(session);
         final TestingSessionListener pceSessionListener = getListener(factory);
         assertNotNull(pceSessionListener);
-        Thread.sleep(1000);
+        assertNotNull(pceSessionListener.getSession());
         checkResyncSession(Optional.<Integer>absent(), 11, null, BigInteger.valueOf(10), pceSessionListener);
         channel.close().get();
     }
