@@ -20,5 +20,28 @@
     <argument ref="pcepCapabilities"/>
   </bean>
 
-  <service ref="sessionProposalFactory" interface="org.opendaylight.protocol.pcep.PCEPSessionProposalFactory"/>
+  <!-- PCEPDispatcher -->
+
+  <reference id="pcepExtensionContext" interface="org.opendaylight.protocol.pcep.spi.PCEPExtensionConsumerContext"/>
+  <reference id="globalBossGroup" interface="io.netty.channel.EventLoopGroup" odl:type="global-boss-group"/>
+  <reference id="globalWorkerGroup" interface="io.netty.channel.EventLoopGroup" odl:type="global-worker-group"/>
+
+  <odl:clustered-app-config id="pcepDispatcherConfig"
+      binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.app.config.rev160707.PcepDispatcherConfig"/>
+
+  <bean id="pcepSessionNegotiatorFactory" class="org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory">
+    <argument ref="sessionProposalFactory"/>
+    <argument ref="pcepDispatcherConfig"/>
+  </bean>
+
+  <bean id="pcepDispatcher" class="org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl">
+    <argument>
+      <bean factory-ref="pcepExtensionContext" factory-method="getMessageHandlerRegistry"/>
+    </argument>
+    <argument ref="pcepSessionNegotiatorFactory"/>
+    <argument ref="globalBossGroup"/>
+    <argument ref="globalWorkerGroup"/>
+  </bean>
+
+  <service ref="pcepDispatcher" interface="org.opendaylight.protocol.pcep.PCEPDispatcher"/>
 </blueprint>
