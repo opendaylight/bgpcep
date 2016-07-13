@@ -12,10 +12,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.opendaylight.protocol.pcep.pcc.mock.WaitForFutureSucces.waitFutureSuccess;
 
 import com.google.common.base.Optional;
 import com.google.common.net.InetAddresses;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.Future;
@@ -82,18 +84,20 @@ public abstract class PCCMockCommon {
         return sessionListener;
     }
 
-    protected Channel createServer(final TestingSessionListenerFactory factory, final InetSocketAddress serverAddress2) {
+    protected Channel createServer(final TestingSessionListenerFactory factory, final InetSocketAddress serverAddress2) throws InterruptedException {
         return createServer(factory, serverAddress2, null);
     }
 
     protected Channel createServer(final TestingSessionListenerFactory factory, final InetSocketAddress
-        serverAddress2, final PCEPPeerProposal peerProposal) {
+        serverAddress2, final PCEPPeerProposal peerProposal) throws InterruptedException {
         final PCEPExtensionProviderContext ctx = ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance();
         final StatefulActivator activator07 = new StatefulActivator();
         final SyncOptimizationsActivator optimizationsActivator = new SyncOptimizationsActivator();
         activator07.start(ctx);
         optimizationsActivator.start(ctx);
-        return this.pceDispatcher.createServer(serverAddress2, factory, peerProposal).channel();
+        final ChannelFuture future = this.pceDispatcher.createServer(serverAddress2, factory, peerProposal);
+        waitFutureSuccess(future);
+        return future.channel();
     }
 
     protected static void checkSynchronizedSession(final int numberOfLsp, final TestingSessionListener pceSessionListener, final BigInteger expectedeInitialDb) throws InterruptedException {
@@ -103,7 +107,7 @@ public abstract class PCCMockCommon {
         final List<Message> messages = pceSessionListener.messages();
         int numberOfSyncMessage = 1;
         int numberOfLspExpected = numberOfLsp;
-        if(!expectedeInitialDb.equals(BigInteger.ZERO)) {
+        if (!expectedeInitialDb.equals(BigInteger.ZERO)) {
             checkSequequenceDBVersionSync(messages, expectedeInitialDb);
             numberOfLspExpected += numberOfSyncMessage;
         }
@@ -116,10 +120,10 @@ public abstract class PCCMockCommon {
     }
 
     protected static void checkResyncSession(final Optional<Integer> startAtNumberLsp, final int expectedNumberOfLsp, final BigInteger startingDBVersion,
-                                             final BigInteger expectedDBVersion, final TestingSessionListener pceSessionListener) {
+        final BigInteger expectedDBVersion, final TestingSessionListener pceSessionListener) {
         assertTrue(pceSessionListener.isUp());
         List<Message> messages;
-        if(startAtNumberLsp.isPresent()) {
+        if (startAtNumberLsp.isPresent()) {
             messages = pceSessionListener.messages().subList(startAtNumberLsp.get(), startAtNumberLsp.get() + expectedNumberOfLsp);
         } else {
             messages = pceSessionListener.messages();
