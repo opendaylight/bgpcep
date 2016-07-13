@@ -15,7 +15,7 @@ import java.security.cert.CertificateException;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
-import org.opendaylight.controller.config.yang.pcep.impl.Tls;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.app.config.rev160707.pcep.dispatcher.config.Tls;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

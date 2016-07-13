@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.bgpcep.pcep.topology.provider.PCEPTopologyProvider;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
-import org.opendaylight.controller.config.yang.pcep.impl.PCEPDispatcherImplModuleMXBean;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.tcpmd5.api.KeyMapping;
@@ -97,25 +96,6 @@ public final class PCEPTopologyProviderModule extends
         JmxAttributeValidationException.checkNotNull(getListenPort(), IS_NOT_SET, listenPortJmxAttribute);
         JmxAttributeValidationException.checkNotNull(getStatefulPlugin(), IS_NOT_SET, statefulPluginJmxAttribute);
         JmxAttributeValidationException.checkNotNull(getRpcTimeout(), IS_NOT_SET, rpcTimeoutJmxAttribute);
-
-        final Optional<KeyMapping> keys = contructKeys();
-        if (keys.isPresent()) {
-            /*
-             *  This is a nasty hack, but we don't have another clean solution. We cannot allow
-             *  password being set if the injected dispatcher does not have the optional
-             *  md5-server-channel-factory set.
-             *
-             *  FIXME: this is a use case for Module interfaces, e.g. PCEPDispatcherImplModule
-             *         should something like isMd5ServerSupported()
-             */
-
-            final PCEPDispatcherImplModuleMXBean dispatcherProxy = this.dependencyResolver.newMXBeanProxy(getDispatcher(),
-                    PCEPDispatcherImplModuleMXBean.class);
-            final boolean md5ServerSupported = dispatcherProxy.getMd5ServerChannelFactory() != null;
-            JmxAttributeValidationException.checkCondition(md5ServerSupported,
-                    "password is not compatible with selected dispatcher", clientJmxAttribute);
-
-        }
     }
 
     private InetAddress listenAddress() {
