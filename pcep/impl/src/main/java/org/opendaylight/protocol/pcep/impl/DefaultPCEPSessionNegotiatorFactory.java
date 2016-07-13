@@ -11,10 +11,11 @@ import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
-import org.opendaylight.controller.config.yang.pcep.impl.Tls;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.app.config.rev160707.PcepDispatcherConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.app.config.rev160707.pcep.dispatcher.config.Tls;
 
 public final class DefaultPCEPSessionNegotiatorFactory extends AbstractPCEPSessionNegotiatorFactory {
     private final PCEPSessionProposalFactory spf;
@@ -29,6 +30,10 @@ public final class DefaultPCEPSessionNegotiatorFactory extends AbstractPCEPSessi
         this.spf = Preconditions.checkNotNull(spf);
         this.maxUnknownMessages = maxUnknownMessages;
         this.tlsConfiguration = tlsConfiguration;
+    }
+
+    public DefaultPCEPSessionNegotiatorFactory(final PCEPSessionProposalFactory spf, final PcepDispatcherConfig config) {
+        this(spf, config.getMaxUnknownMessages(), config.getTls());
     }
 
     @Override

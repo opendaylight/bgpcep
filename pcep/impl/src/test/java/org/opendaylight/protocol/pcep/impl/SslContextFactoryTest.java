@@ -9,13 +9,13 @@
 package org.opendaylight.protocol.pcep.impl;
 
 import static org.junit.Assert.assertNotNull;
-
 import javax.net.ssl.SSLContext;
 import org.junit.Test;
-import org.opendaylight.controller.config.yang.pcep.impl.Tls;
 import org.opendaylight.protocol.pcep.impl.tls.SslContextFactory;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.impl.rev130627.PathType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.impl.rev130627.StoreType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.app.config.rev160707.PathType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.app.config.rev160707.StoreType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.app.config.rev160707.pcep.dispatcher.config.Tls;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.app.config.rev160707.pcep.dispatcher.config.TlsBuilder;
 
 public class SslContextFactoryTest {
 
@@ -27,17 +27,10 @@ public class SslContextFactoryTest {
     }
 
     public static Tls createTlsConfig() {
-        final Tls tlsConfig = new Tls();
-        tlsConfig.setCertificatePassword("opendaylight");
-        tlsConfig.setKeystore("/exemplary-ctlKeystore");
-        tlsConfig.setKeystorePassword("opendaylight");
-        tlsConfig.setKeystorePathType(PathType.CLASSPATH);
-        tlsConfig.setKeystoreType(StoreType.JKS);
-        tlsConfig.setTruststore("/exemplary-ctlTrustStore");
-        tlsConfig.setTruststorePassword("opendaylight");
-        tlsConfig.setTruststorePathType(PathType.CLASSPATH);
-        tlsConfig.setTruststoreType(StoreType.JKS);
-        return tlsConfig;
+        return new TlsBuilder().setCertificatePassword("opendaylight").setKeystore("/exemplary-ctlKeystore")
+                .setKeystorePassword("opendaylight").setKeystorePathType(PathType.CLASSPATH)
+                .setKeystoreType(StoreType.JKS).setTruststore("/exemplary-ctlTrustStore")
+                .setTruststorePassword("opendaylight").setTruststorePathType(PathType.CLASSPATH)
+                .setTruststoreType(StoreType.JKS).build();
     }
-
 }

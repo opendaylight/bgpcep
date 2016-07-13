@@ -9,6 +9,7 @@ package org.opendaylight.controller.config.yang.pcep.tunnel.provider;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import io.netty.channel.nio.NioEventLoopGroup;
 import java.util.Collections;
 import java.util.List;
 import javax.management.ObjectName;
@@ -20,15 +21,16 @@ import org.opendaylight.controller.config.spi.ModuleFactory;
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
 import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgroupModuleFactory;
 import org.opendaylight.controller.config.yang.pcep.impl.PCEPDispatcherImplModuleFactory;
-import org.opendaylight.controller.config.yang.pcep.impl.PCEPSessionProposalFactoryImplModuleFactory;
-import org.opendaylight.controller.config.yang.pcep.spi.SimplePCEPExtensionProviderContextModuleFactory;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderModuleFactory;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderModuleMXBean;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderModuleTest;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.Stateful07TopologySessionListenerModuleFactory;
 import org.opendaylight.controller.config.yang.programming.impl.AbstractInstructionSchedulerTest;
+import org.opendaylight.protocol.pcep.PCEPDispatcher;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
+import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
+import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
@@ -45,9 +47,14 @@ public class PCEPTunnelTopologyProviderModuleTest extends AbstractInstructionSch
     public void setUp() throws Exception {
         super.setUp();
 
-        setupMockService(PCEPExtensionProviderContext.class, new SimplePCEPExtensionProviderContext());
-        setupMockService(PCEPSessionProposalFactory.class, new BasePCEPSessionProposalFactory(120, 30,
-                Collections.emptyList()));
+        SimplePCEPExtensionProviderContext extContext = new SimplePCEPExtensionProviderContext();
+        setupMockService(PCEPExtensionProviderContext.class, extContext);
+        BasePCEPSessionProposalFactory proposalFactory = new BasePCEPSessionProposalFactory(120, 30,
+                Collections.emptyList());
+        setupMockService(PCEPSessionProposalFactory.class, proposalFactory);
+        NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup();
+        setupMockService(PCEPDispatcher.class, new PCEPDispatcherImpl(extContext.getMessageHandlerRegistry(),
+                new DefaultPCEPSessionNegotiatorFactory(proposalFactory, 5), eventLoopGroup, eventLoopGroup));
     }
 
     @Test
@@ -64,7 +71,7 @@ public class PCEPTunnelTopologyProviderModuleTest extends AbstractInstructionSch
     public void testCreateBean() throws Exception {
         final CommitStatus status = createInstance();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 18, 0, 0);
+        assertStatus(status, 14, 0, 0);
     }
 
     @Test
@@ -74,7 +81,7 @@ public class PCEPTunnelTopologyProviderModuleTest extends AbstractInstructionSch
         assertBeanCount(1, FACTORY_NAME);
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 0, 18);
+        assertStatus(status, 0, 0, 14);
     }
 
     @Test
@@ -87,7 +94,7 @@ public class PCEPTunnelTopologyProviderModuleTest extends AbstractInstructionSch
         mxBean.setTopologyId(new TopologyId("new-pcep-topology"));
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 1, 17);
+        assertStatus(status, 0, 1, 13);
     }
 
     private CommitStatus createInstance(final TopologyId topologyId) throws Exception {
@@ -128,9 +135,7 @@ public class PCEPTunnelTopologyProviderModuleTest extends AbstractInstructionSch
         moduleFactories.add(new PCEPTunnelTopologyProviderModuleFactory());
         moduleFactories.add(new PCEPTopologyProviderModuleFactory());
         moduleFactories.add(new PCEPDispatcherImplModuleFactory());
-        moduleFactories.add(new PCEPSessionProposalFactoryImplModuleFactory());
         moduleFactories.add(new NettyThreadgroupModuleFactory());
-        moduleFactories.add(new SimplePCEPExtensionProviderContextModuleFactory());
         moduleFactories.add(new Stateful07TopologySessionListenerModuleFactory());
         return moduleFactories;
     }
