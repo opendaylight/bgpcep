@@ -28,19 +28,19 @@ import org.opendaylight.protocol.bmp.spi.registry.BmpMessageRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class BmpMockDispatcher {
+final class BmpMockDispatcher {
 
     private static final Logger LOG = LoggerFactory.getLogger(BmpMockDispatcher.class);
     private static final int CONNECT_TIMEOUT = 2000;
     private static final int MAX_CONNECTIONS_COUNT = 128;
 
-    final BmpHandlerFactory hf;
+    private final BmpHandlerFactory hf;
     private final BmpSessionFactory sessionFactory;
 
     private final EventLoopGroup bossGroup = new NioEventLoopGroup();
     private final EventLoopGroup workerGroup = new NioEventLoopGroup();
 
-    public BmpMockDispatcher(final BmpMessageRegistry registry, final BmpSessionFactory sessionFactory) {
+    BmpMockDispatcher(final BmpMessageRegistry registry, final BmpSessionFactory sessionFactory) {
         this.sessionFactory = Preconditions.checkNotNull(sessionFactory);
         Preconditions.checkNotNull(registry);
         this.hf = new BmpHandlerFactory(registry);
@@ -48,38 +48,39 @@ public final class BmpMockDispatcher {
 
     private Bootstrap createClientInstance(final SocketAddress localAddress) {
         final NioEventLoopGroup workergroup = new NioEventLoopGroup();
-        final Bootstrap b = new Bootstrap();
+        final Bootstrap bootstrap = new Bootstrap();
 
-        b.channel(NioSocketChannel.class);
-        b.option(ChannelOption.SO_KEEPALIVE, true);
-        b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, CONNECT_TIMEOUT);
-        b.group(workergroup);
+        bootstrap.channel(NioSocketChannel.class);
+        bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
+        bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, CONNECT_TIMEOUT);
+        bootstrap.option(ChannelOption.SO_REUSEADDR, true);
+        bootstrap.group(workergroup);
 
-        b.handler(new ChannelInitializer<NioSocketChannel>() {
+        bootstrap.handler(new ChannelInitializer<NioSocketChannel>() {
             @Override
             protected void initChannel(final NioSocketChannel ch) throws Exception {
                 ch.pipeline().addLast(BmpMockDispatcher.this.sessionFactory.getSession(ch, null));
                 ch.pipeline().addLast(BmpMockDispatcher.this.hf.getEncoders());
             }
         });
-        b.localAddress(localAddress);
-        return b;
+        bootstrap.localAddress(localAddress);
+        return bootstrap;
     }
 
-    public ChannelFuture createClient(final SocketAddress localAddress, final SocketAddress remoteAddress) {
+    ChannelFuture createClient(final SocketAddress localAddress, final SocketAddress remoteAddress) {
         Preconditions.checkNotNull(localAddress);
         Preconditions.checkNotNull(remoteAddress);
 
         // ideally we should use Bootstrap clones here
-        Bootstrap b = createClientInstance(localAddress);
-        final ChannelFuture f = b.connect(remoteAddress);
+        final Bootstrap bootstrap = createClientInstance(localAddress);
+        final ChannelFuture channelFuture = bootstrap.connect(remoteAddress);
         LOG.info("BMP client {} <--> {} deployed", localAddress, remoteAddress);
-        return f;
+        return channelFuture;
     }
 
     private ServerBootstrap createServerInstance() {
-        final ServerBootstrap b = new ServerBootstrap();
-        b.childHandler(new ChannelInitializer<Channel>() {
+        final ServerBootstrap serverBootstrap = new ServerBootstrap();
+        serverBootstrap.childHandler(new ChannelInitializer<Channel>() {
             @Override
             protected void initChannel(final Channel ch) throws Exception {
                 ch.pipeline().addLast(BmpMockDispatcher.this.sessionFactory.getSession(ch, null));
@@ -87,19 +88,18 @@ public final class BmpMockDispatcher {
             }
         });
 
-        b.option(ChannelOption.SO_BACKLOG, MAX_CONNECTIONS_COUNT);
-        b.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
-        b.channel(NioServerSocketChannel.class);
-        b.group(bossGroup, workerGroup);
-        return b;
+        serverBootstrap.option(ChannelOption.SO_BACKLOG, MAX_CONNECTIONS_COUNT);
+        serverBootstrap.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
+        serverBootstrap.channel(NioServerSocketChannel.class);
+        serverBootstrap.group(bossGroup, workerGroup);
+        return serverBootstrap;
     }
 
-    public ChannelFuture createServer(final InetSocketAddress localAddress) {
+    ChannelFuture createServer(final InetSocketAddress localAddress) {
         Preconditions.checkNotNull(localAddress);
-
-        ServerBootstrap b = createServerInstance();
-        final ChannelFuture f = b.bind(localAddress);
+        final ServerBootstrap serverBootstrap = createServerInstance();
+        final ChannelFuture channelFuture = serverBootstrap.bind(localAddress);
         LOG.info("Initiated BMP server at {}.", localAddress);
-        return f;
+        return channelFuture;
     }
 }

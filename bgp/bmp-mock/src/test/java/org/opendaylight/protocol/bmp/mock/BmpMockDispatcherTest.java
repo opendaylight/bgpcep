@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.bmp.mock;
 
+import static org.opendaylight.protocol.bmp.mock.BmpMockTest.waitFutureSuccess;
+
 import com.google.common.base.Optional;
 import com.google.common.net.InetAddresses;
 import io.netty.channel.Channel;
@@ -34,11 +36,12 @@ public class BmpMockDispatcherTest {
         final BmpMockDispatcher dispatcher = new BmpMockDispatcher(this.registry, this.sessionFactory);
         final int port = getRandomPort();
         final BmpDispatcherImpl serverDispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(),
-                this.registry, this.sessionFactory);
-        serverDispatcher.createServer(new InetSocketAddress(InetAddresses.forString("0.0.0.0"), port), this.slf, Optional.<KeyMapping>absent());
-
+            this.registry, this.sessionFactory);
+        final ChannelFuture futureServer = serverDispatcher.createServer(new InetSocketAddress(InetAddresses.forString("0.0.0.0"), port), this.slf, Optional.<KeyMapping>absent());
+        waitFutureSuccess(futureServer);
         final ChannelFuture channelFuture = dispatcher.createClient(new InetSocketAddress(InetAddresses.forString("127.0.0.2"), 0),
-                new InetSocketAddress(InetAddresses.forString("127.0.0.3"), port));
+            new InetSocketAddress(InetAddresses.forString("127.0.0.3"), port));
+        waitFutureSuccess(channelFuture);
         final Channel channel = channelFuture.sync().channel();
 
         Assert.assertTrue(channel.isActive());
@@ -51,10 +54,11 @@ public class BmpMockDispatcherTest {
         final BmpMockDispatcher dispatcher = new BmpMockDispatcher(this.registry, this.sessionFactory);
         final int port = getRandomPort();
         final BmpDispatcherImpl serverDispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(),
-                this.registry, this.sessionFactory);
-        dispatcher.createServer(new InetSocketAddress(InetAddresses.forString("0.0.0.0"), port));
-
+            this.registry, this.sessionFactory);
+        final ChannelFuture futureServer = dispatcher.createServer(new InetSocketAddress(InetAddresses.forString("0.0.0.0"), port));
+        waitFutureSuccess(futureServer);
         final ChannelFuture channelFuture = serverDispatcher.createClient(new InetSocketAddress(InetAddresses.forString("127.0.0.3"), port), this.slf, Optional.<KeyMapping>absent());
+        waitFutureSuccess(channelFuture);
         final Channel channel = channelFuture.sync().channel();
 
         Assert.assertTrue(channel.isActive());
