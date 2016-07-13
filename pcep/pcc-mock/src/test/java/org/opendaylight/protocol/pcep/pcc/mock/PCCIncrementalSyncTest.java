@@ -45,12 +45,10 @@ public class PCCIncrementalSyncTest extends PCCMockCommon {
         checkSynchronizedSession(8, pceSessionListener, numberOflspAndDBv);
         Thread.sleep(4000);
         assertFalse(pceSessionListener.isUp());
-        Thread.sleep(6000);
-        Thread.sleep(1000);
         final int expetedNumberOfLspAndEndOfSync = 3;
         final BigInteger expectedFinalDBVersion = BigInteger.valueOf(10);
         final TestingSessionListener sessionListenerAfterReconnect = getListener(factory);
-        checkResyncSession(Optional.<Integer>absent(), expetedNumberOfLspAndEndOfSync, numberOflspAndDBv, expectedFinalDBVersion, sessionListenerAfterReconnect);
+        checkResyncSession(Optional.absent(), expetedNumberOfLspAndEndOfSync, numberOflspAndDBv, expectedFinalDBVersion, sessionListenerAfterReconnect);
         channel.close().get();
     }
 
