@@ -9,9 +9,13 @@
 package org.opendaylight.protocol.bmp.mock;
 
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.Uninterruptibles;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.nio.NioEventLoopGroup;
 import java.net.InetSocketAddress;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,9 +25,9 @@ import org.opendaylight.protocol.bmp.api.BmpDispatcher;
 import org.opendaylight.protocol.bmp.api.BmpSession;
 import org.opendaylight.protocol.bmp.api.BmpSessionListener;
 import org.opendaylight.protocol.bmp.api.BmpSessionListenerFactory;
-import org.opendaylight.protocol.bmp.parser.BmpActivator;
 import org.opendaylight.protocol.bmp.impl.BmpDispatcherImpl;
 import org.opendaylight.protocol.bmp.impl.session.DefaultBmpSessionFactory;
+import org.opendaylight.protocol.bmp.parser.BmpActivator;
 import org.opendaylight.protocol.bmp.spi.registry.BmpExtensionProviderActivator;
 import org.opendaylight.protocol.bmp.spi.registry.BmpExtensionProviderContext;
 import org.opendaylight.protocol.bmp.spi.registry.SimpleBmpExtensionProviderContext;
@@ -41,10 +45,10 @@ public class BmpMockTest {
     public void setUp() {
         final BmpExtensionProviderContext ctx = new SimpleBmpExtensionProviderContext();
         this.bmpActivator = new BmpActivator(
-                ServiceLoaderBGPExtensionProviderContext.getSingletonInstance());
+            ServiceLoaderBGPExtensionProviderContext.getSingletonInstance());
         this.bmpActivator.start(ctx);
         this.bmpDispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(), ctx.getBmpMessageRegistry(),
-                new DefaultBmpSessionFactory());
+            new DefaultBmpSessionFactory());
         this.serverPort = BmpMockDispatcherTest.getRandomPort();
     }
 
@@ -56,16 +60,13 @@ public class BmpMockTest {
 
     @Test
     public void testMain() throws Exception {
-        final BmpSessionListenerFactory bmpSessionListenerFactory = new BmpSessionListenerFactory() {
-            @Override
-            public BmpSessionListener getSessionListener() {
-                return BmpMockTest.this.sessionListener;
-            }
-        };
-        Channel serverChannel = bmpDispatcher.createServer(new InetSocketAddress("127.0.0.1", serverPort),
-                bmpSessionListenerFactory, Optional.<KeyMapping>absent()).channel();
+        final BmpSessionListenerFactory bmpSessionListenerFactory = () -> BmpMockTest.this.sessionListener;
+        final ChannelFuture futureServer = bmpDispatcher.createServer(new InetSocketAddress("127.0.0.1", serverPort),
+            bmpSessionListenerFactory, Optional.<KeyMapping>absent());
+        waitFutureSuccess(futureServer);
+        Channel serverChannel = futureServer.channel();
 
-        BmpMock.main(new String[] {"--remote_address", "127.0.0.1:" + serverPort, "--peers_count", "3", "--pre_policy_routes", "3"});
+        BmpMock.main(new String[]{"--remote_address", "127.0.0.1:" + serverPort, "--peers_count", "3", "--pre_policy_routes", "3"});
         Thread.sleep(1000);
         Mockito.verify(this.sessionListener).onSessionUp(Mockito.any(BmpSession.class));
         //1 * Initiate message + 3 * PeerUp Notification + 9 * Route Monitoring message
@@ -76,23 +77,25 @@ public class BmpMockTest {
 
     @Test
     public void testMainInPassiveMode() throws Exception {
-        final BmpSessionListenerFactory bmpSessionListenerFactory = new BmpSessionListenerFactory() {
-            @Override
-            public BmpSessionListener getSessionListener() {
-                return BmpMockTest.this.sessionListener;
-            }
-        };
+        final BmpSessionListenerFactory bmpSessionListenerFactory = () -> BmpMockTest.this.sessionListener;
 
         // create a local server in passive mode instead
         BmpMock.main(new String[]{"--local_address", "127.0.0.1:" + serverPort, "--peers_count", "3", "--pre_policy_routes", "3", "--passive"});
-        Channel serverChannel = bmpDispatcher.createClient(new InetSocketAddress("127.0.0.1", serverPort),
-                bmpSessionListenerFactory, Optional.<KeyMapping>absent()).channel();
-
+        final ChannelFuture futureServer = bmpDispatcher.createClient(new InetSocketAddress("127.0.0.1", serverPort),
+            bmpSessionListenerFactory, Optional.<KeyMapping>absent());
+        waitFutureSuccess(futureServer);
+        Channel serverChannel = futureServer.channel();
         Thread.sleep(1000);
         Mockito.verify(this.sessionListener).onSessionUp(Mockito.any(BmpSession.class));
         //1 * Initiate message + 3 * PeerUp Notification + 9 * Route Monitoring message
         Mockito.verify(this.sessionListener, Mockito.times(13)).onMessage(Mockito.any(Notification.class));
 
         serverChannel.close().sync();
+    }
+
+    static void waitFutureSuccess(final ChannelFuture future) throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(1);
+        future.addListener(future1 -> latch.countDown());
+        Uninterruptibles.awaitUninterruptibly(latch, 10, TimeUnit.SECONDS);
     }
 }
