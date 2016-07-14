@@ -7,8 +7,10 @@
  */
 package org.opendaylight.protocol.bgp.flowspec;
 
+import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nonnull;
 import org.opendaylight.protocol.bgp.flowspec.extended.communities.RedirectAsFourOctetEcHandler;
 import org.opendaylight.protocol.bgp.flowspec.extended.communities.RedirectAsTwoOctetEcHandler;
 import org.opendaylight.protocol.bgp.flowspec.extended.communities.RedirectIpNextHopEcHandler;
@@ -47,18 +49,16 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
     private static final int FLOWSPEC_SAFI = 133;
     private static final int FLOWSPEC_L3VPN_SAFI = 134;
 
-    private final SimpleFlowspecExtensionProviderContext flowspecContext;
-    private final FlowspecActivator fsActivator;
+    private final FlowspecActivator activator;
 
-    public BGPActivator(final SimpleFlowspecExtensionProviderContext fsc, FlowspecActivator fsa) {
-        this.flowspecContext = fsc;
-        this.fsActivator = fsa;
+    public BGPActivator(@Nonnull final FlowspecActivator activator) {
+        this.activator = Preconditions.checkNotNull(activator);
     }
 
     @Override
     protected List<AutoCloseable> startImpl(final BGPExtensionProviderContext context) {
-
         final List<AutoCloseable> regs = new ArrayList<>();
+        final SimpleFlowspecExtensionProviderContext flowspecContext = this.activator.getContext();
 
         regs.add(context.registerSubsequentAddressFamily(FlowspecSubsequentAddressFamily.class, FLOWSPEC_SAFI));
         regs.add(context.registerSubsequentAddressFamily(FlowspecL3vpnSubsequentAddressFamily.class, FLOWSPEC_L3VPN_SAFI));
@@ -66,8 +66,8 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         final Ipv4NextHopParserSerializer ipv4NextHopParser = new Ipv4NextHopParserSerializer();
         final Ipv6NextHopParserSerializer ipv6NextHopParser = new Ipv6NextHopParserSerializer();
 
-        final SimpleFlowspecIpv4NlriParser fsIpv4Handler = new SimpleFlowspecIpv4NlriParser(this.flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
-        final SimpleFlowspecIpv6NlriParser fsIpv6Handler = new SimpleFlowspecIpv6NlriParser(this.flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV6, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
+        final SimpleFlowspecIpv4NlriParser fsIpv4Handler = new SimpleFlowspecIpv4NlriParser(flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
+        final SimpleFlowspecIpv6NlriParser fsIpv6Handler = new SimpleFlowspecIpv6NlriParser(flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV6, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
         regs.add(
             context.registerNlriParser(
                 Ipv4AddressFamily.class, FlowspecSubsequentAddressFamily.class, fsIpv4Handler, ipv4NextHopParser, Ipv4NextHopCase.class
@@ -81,8 +81,8 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerNlriSerializer(FlowspecRoutes.class, fsIpv4Handler));
         regs.add(context.registerNlriSerializer(FlowspecIpv6Routes.class, fsIpv6Handler));
 
-        final FlowspecL3vpnIpv4NlriParser fsL3vpnIpv4Handler = new FlowspecL3vpnIpv4NlriParser(this.flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN));
-        final FlowspecL3vpnIpv6NlriParser fsL3vpnIpv6Handler = new FlowspecL3vpnIpv6NlriParser(this.flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV6, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN));
+        final FlowspecL3vpnIpv4NlriParser fsL3vpnIpv4Handler = new FlowspecL3vpnIpv4NlriParser(flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN));
+        final FlowspecL3vpnIpv6NlriParser fsL3vpnIpv6Handler = new FlowspecL3vpnIpv6NlriParser(flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV6, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN));
         regs.add(
             context.registerNlriParser(
                 Ipv4AddressFamily.class, FlowspecL3vpnSubsequentAddressFamily.class, fsL3vpnIpv4Handler, ipv4NextHopParser, Ipv4NextHopCase.class

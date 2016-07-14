@@ -61,6 +61,7 @@ import org.slf4j.LoggerFactory;
  * Parser and serializer for Linkstate NLRI.
  */
 public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
+    private static final Logger LOG = LoggerFactory.getLogger(LinkstateNlriParser.class);
 
     @VisibleForTesting
     public static final NodeIdentifier OBJECT_TYPE_NID = new NodeIdentifier(ObjectType.QNAME);
@@ -80,7 +81,6 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
     public static final NodeIdentifier PROTOCOL_ID_NID = new NodeIdentifier(QName.create(CLinkstateDestination.QNAME, "protocol-id").intern());
     @VisibleForTesting
     public static final NodeIdentifier IDENTIFIER_NID = new NodeIdentifier(QName.create(CLinkstateDestination.QNAME, "identifier").intern());
-    private static final Logger LOG = LoggerFactory.getLogger(LinkstateNlriParser.class);
     @VisibleForTesting
     private static final NodeIdentifier DISTINGUISHER_NID = new NodeIdentifier(QName.create(CLinkstateDestination.QNAME, "distinguisher").intern());
     private final SimpleNlriTypeRegistry nlriTypeReg = SimpleNlriTypeRegistry.getInstance();

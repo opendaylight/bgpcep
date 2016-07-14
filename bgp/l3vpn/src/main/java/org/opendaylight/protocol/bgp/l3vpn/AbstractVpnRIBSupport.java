@@ -149,9 +149,9 @@ public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport {
                     LOG.debug("{} routes are found", routeListNode.getSize());
                     final YangInstanceIdentifier base = routesPath.node(routesContainerIdentifier()).node(routeNid());
                     for (final UnkeyedListEntryNode e : routeListNode.getValue()) {
-                        final NodeIdentifierWithPredicates routeKey = createRouteKey(e);
-                        LOG.debug("Route {} is processed.", routeKey);
-                        function.apply(tx, base, routeKey, e, attributes);
+                        final NodeIdentifierWithPredicates key = createRouteKey(e);
+                        LOG.debug("Route {} is processed.", key);
+                        function.apply(tx, base, key, e, attributes);
                     }
                 } else {
                     LOG.warn("Routes {} are not a map", routes);
