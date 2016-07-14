@@ -26,7 +26,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeListener;
@@ -34,11 +33,14 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
+import org.opendaylight.protocol.bgp.inet.RIBActivator;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.stats.UnsignedInt32Counter;
+import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
+import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.ipv4.routes.Ipv4Route;
@@ -84,40 +86,39 @@ public class LocRibWriterTest {
     private final TablesKey tablesKey = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
     private final UnsignedInt32Counter routeCounter = new UnsignedInt32Counter("loc-rib");
 
+    private RIBActivator ribActivator;
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        Answer<Object> answer = new Answer<Object>() {
-            @Override
-            public Object answer(final InvocationOnMock invocation) throws Throwable {
-                final Object[] args = invocation.getArguments();
-                final NormalizedNode<?, ?> node = (NormalizedNode<?, ?>) args[2];
-                if (node.getNodeType().equals(Ipv4Route.QNAME) || node.getNodeType().equals(PREFIX_QNAME)) {
-                    LocRibWriterTest.this.routes.add((YangInstanceIdentifier) args[1]);
-                }
-                return args[1];
+        this.ribActivator = new RIBActivator();
+        final RIBExtensionProviderContext ribExtension = new SimpleRIBExtensionProviderContext();
+        this.ribActivator.startRIBExtensionProvider(ribExtension);
+
+        final Answer<Object> answer = invocation -> {
+            final Object[] args = invocation.getArguments();
+            final NormalizedNode<?, ?> node = (NormalizedNode<?, ?>) args[2];
+            if (node.getNodeType().equals(Ipv4Route.QNAME) || node.getNodeType().equals(PREFIX_QNAME)) {
+                LocRibWriterTest.this.routes.add((YangInstanceIdentifier) args[1]);
             }
+            return args[1];
         };
         doAnswer(answer).when(this.domTransWrite).put(eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         doAnswer(answer).when(this.domTransWrite).merge(eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class), any(NormalizedNode.class));
-        doAnswer(new Answer<Object>() {
-
-            @Override
-            public Object answer(final InvocationOnMock invocation) throws Throwable {
-                final Object[] args = invocation.getArguments();
-                LocRibWriterTest.this.routes.remove(args[1]);
-                return args[1];
-            }
+        doAnswer(invocation -> {
+            final Object[] args = invocation.getArguments();
+            LocRibWriterTest.this.routes.remove(args[1]);
+            return args[1];
         }).when(this.domTransWrite).delete(eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class));
         doReturn(this.context).when(this.registry).getRIBSupportContext(any(TablesKey.class));
-        doReturn(IPv4RIBSupport.getInstance()).when(this.context).getRibSupport();
+        doReturn(ribExtension.getRIBSupport(this.tablesKey)).when(this.context).getRibSupport();
         doReturn(this.domTransWrite).when(this.chain).newWriteOnlyTransaction();
         doReturn(this.future).when(this.domTransWrite).submit();
         doReturn(null).when(this.service).registerDataTreeChangeListener(any(DOMDataTreeIdentifier.class), any(DOMDataTreeChangeListener.class));
         this.locRibWriter = LocRibWriter.create(this.registry, this.tablesKey, this.chain, YangInstanceIdentifier.of(BgpRib.QNAME),
-            new AsNumber((long) 35), this.service, this.pd, new CacheDisconnectedPeersImpl(), BasePathSelectionModeFactory.createBestPathSelectionStrategy(),
-            routeCounter);
+                new AsNumber((long) 35), this.service, this.pd, new CacheDisconnectedPeersImpl(), BasePathSelectionModeFactory.createBestPathSelectionStrategy(),
+                this.routeCounter);
     }
 
     private DataTreeCandidate prepareUpdate() {

@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.rib.impl;
+package org.opendaylight.protocol.bgp.inet;
 
 import com.google.common.collect.Lists;
 import java.util.List;
@@ -20,7 +20,7 @@ public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
     @Override
     protected List<AutoCloseable> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context) {
         return Lists.newArrayList(
-            (AutoCloseable)context.registerRIBSupport(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, IPv4RIBSupport.getInstance()),
-            (AutoCloseable)context.registerRIBSupport(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, IPv6RIBSupport.getInstance()));
+                (AutoCloseable)context.registerRIBSupport(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, IPv4RIBSupport.getInstance()),
+                (AutoCloseable)context.registerRIBSupport(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, IPv6RIBSupport.getInstance()));
     }
 }

@@ -68,12 +68,8 @@
     </feature>
 
     <feature name='odl-bgpcep-bgp-inet' version='${project.version}'>
-        <feature version='${project.version}'>odl-bgpcep-bgp-dependencies</feature>
-        <feature version='${config.version}'>odl-config-api</feature>
-        <feature version='${yangtools.version}'>odl-yangtools-yang-data</feature>
-        <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-api/{{VERSION}}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-spi/{{VERSION}}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-api/{{VERSION}}</bundle>
+        <feature version='${project.version}'>odl-bgpcep-bgp-parser</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-rib-api</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-inet/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-bmp-api/{{VERSION}}</bundle>
     </feature>
