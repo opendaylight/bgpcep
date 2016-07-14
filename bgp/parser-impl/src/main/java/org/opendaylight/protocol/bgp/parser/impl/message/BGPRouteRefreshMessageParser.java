@@ -79,6 +79,7 @@ public final class BGPRouteRefreshMessageParser implements MessageParser, Messag
             final BgpTableType parsedAfiSafi = MultiprotocolCapabilitiesUtil.parseMPAfiSafi(body, this.afiReg, this.safiReg);
             return new RouteRefreshBuilder().setAfi(parsedAfiSafi.getAfi()).setSafi(parsedAfiSafi.getSafi()).build();
         } catch (final BGPParsingException e) {
+            LOG.warn("Fail to parse BGP RouteRefresh message.", e);
             throw new BGPDocumentedException("Unsupported afi/safi in Route Refresh message.", BGPError.WELL_KNOWN_ATTR_NOT_RECOGNIZED);
         }
     }
