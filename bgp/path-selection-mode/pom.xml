@@ -92,6 +92,11 @@
             <artifactId>config-util</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>bgp-inet</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
