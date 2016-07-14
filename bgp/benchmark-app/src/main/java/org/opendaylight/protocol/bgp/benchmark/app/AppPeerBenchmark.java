@@ -126,12 +126,12 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
                 .setId(new ApplicationRibId(new ApplicationRibId(appRibId)))
                 .setTables(Collections.singletonList(tables)).build();
 
-        final InstanceIdentifier<ApplicationRib> iid = KeyedInstanceIdentifier.builder(ApplicationRib.class,
+        final InstanceIdentifier<ApplicationRib> ribIID = KeyedInstanceIdentifier.builder(ApplicationRib.class,
                 new ApplicationRibKey(new ApplicationRibId(appRibId))).build();
         final WriteTransaction wTx = this.txChain.newWriteOnlyTransaction();
-        wTx.put(LogicalDatastoreType.CONFIGURATION, iid, appRib);
+        wTx.put(LogicalDatastoreType.CONFIGURATION, ribIID, appRib);
         wTx.submit();
-        return iid;
+        return ribIID;
     }
 
     @Override
@@ -164,7 +164,7 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
         try {
             dTx.submit().checkedGet();
         } catch (final TransactionCommitFailedException e) {
-            LOG.warn("Failed to clean-up BGP Application RIB.");
+            LOG.warn("Failed to clean-up BGP Application RIB.", e);
         }
         this.txChain.close();
         LOG.info("BGP Application Peer Benchmark Application closed.");

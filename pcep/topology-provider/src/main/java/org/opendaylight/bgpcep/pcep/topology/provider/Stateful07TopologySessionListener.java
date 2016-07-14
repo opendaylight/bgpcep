@@ -563,7 +563,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             final SrpBuilder srpBuilder = new SrpBuilder();
             srpBuilder.setOperationId(nextRequest());
             srpBuilder.setProcessingRule(Boolean.TRUE);
-            if (args != null && args.getPathSetupType() != null) {
+            if ((args != null && args.getPathSetupType() != null)) {
                 if (!PSTUtil.isDefaultPST(args.getPathSetupType())) {
                     srpBuilder.setTlvs(
                             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.TlvsBuilder()
@@ -579,10 +579,13 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             }
             final Srp srp = srpBuilder.build();
             final Lsp inputLsp = (args != null) ? args.getLsp() : null;
-            final Lsp lsp = (inputLsp != null) ?
-                new LspBuilder().setPlspId(reportedLsp.getPlspId()).setDelegate((inputLsp.isDelegate() != null) ? inputLsp.isDelegate() : false).setTlvs(inputLsp.getTlvs()).setAdministrative((inputLsp.isAdministrative() != null) ? inputLsp.isAdministrative() : false).build()
-                : new LspBuilder().setPlspId(reportedLsp.getPlspId()).build();
-            return redelegate(reportedLsp, srp, lsp, this.input);
+            final LspBuilder lspBuilder = new LspBuilder().setPlspId(reportedLsp.getPlspId());
+            if (inputLsp != null) {
+                lspBuilder.setDelegate(inputLsp.isDelegate() != null && inputLsp.isDelegate())
+                        .setTlvs(inputLsp.getTlvs())
+                        .setAdministrative(inputLsp.isAdministrative() != null && inputLsp.isAdministrative());
+            }
+            return redelegate(reportedLsp, srp, lspBuilder.build(), this.input);
         }
     }
 

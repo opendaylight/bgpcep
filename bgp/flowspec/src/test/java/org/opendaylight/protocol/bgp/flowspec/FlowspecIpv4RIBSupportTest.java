@@ -71,7 +71,7 @@ public class FlowspecIpv4RIBSupportTest extends AbstractRIBSupportTest {
     static {
         final SimpleFlowspecExtensionProviderContext fs_context = new SimpleFlowspecExtensionProviderContext();
         final FlowspecActivator activator = new FlowspecActivator(fs_context);
-        final BGPActivator act = new BGPActivator(fs_context, activator);
+        final BGPActivator act = new BGPActivator(activator);
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         act.start(context);
         RIB_SUPPORT = FlowspecIpv4RIBSupport.getInstance(fs_context);
