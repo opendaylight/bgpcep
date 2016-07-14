@@ -67,19 +67,14 @@
     </feature>
 
     <feature name='odl-bgpcep-bgp-inet' version='${project.version}'>
-        <feature version='${project.version}'>odl-bgpcep-bgp-dependencies</feature>
-        <feature version='${config.version}'>odl-config-api</feature>
-        <feature version='${yangtools.version}'>odl-yangtools-yang-data</feature>
-        <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-api/{{VERSION}}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-spi/{{VERSION}}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-api/{{VERSION}}</bundle>
+        <feature version='${project.version}'>odl-bgpcep-bgp-parser</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-rib-api</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-inet/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-bmp-api/{{VERSION}}</bundle>
     </feature>
 
     <feature name='odl-bgpcep-bgp-parser' version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-bgp-dependencies</feature>
-        <feature version='${project.version}'>odl-bgpcep-bgp-inet</feature>
         <feature version='${config.version}'>odl-config-api</feature>
         <feature version='${yangtools.version}'>odl-yangtools-yang-data</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-api/{{VERSION}}</bundle>
@@ -108,6 +103,7 @@
     <feature name='odl-bgpcep-bgp-flowspec' version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-bgp-parser</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-rib-api</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-inet</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-flowspec/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-bmp-api/{{VERSION}}</bundle>
     </feature>
@@ -115,6 +111,7 @@
     <feature name='odl-bgpcep-bgp-labeled-unicast' version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-bgp-parser</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-rib-api</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-inet</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-labeled-unicast/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-bmp-api/{{VERSION}}</bundle>
     </feature>
@@ -148,6 +145,7 @@
         <feature version='${project.version}'>odl-bgpcep-bgp-linkstate</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-rib-api</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-path-selection-mode</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-inet</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-openconfig-spi/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-impl/{{VERSION}}</bundle>
     </feature>

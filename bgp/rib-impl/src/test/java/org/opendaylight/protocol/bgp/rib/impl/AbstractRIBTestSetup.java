@@ -36,6 +36,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
+import org.opendaylight.protocol.bgp.inet.RIBActivator;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
@@ -144,8 +145,8 @@ public class AbstractRIBTestSetup {
         mockedMethods();
         this.rib = new RIBImpl(new RibId("test"), new AsNumber(5L), this.RIB_ID,
             this.CLUSTER_ID, context, this.dispatcher, this.codecFactory, this.dom,
-            localTables, Collections.singletonMap(new TablesKey(AFI, SAFI), BasePathSelectionModeFactory.createBestPathSelectionStrategy()),
-            GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
+                localTables, Collections.singletonMap(new TablesKey(AFI, SAFI), BasePathSelectionModeFactory.createBestPathSelectionStrategy()),
+                GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
         this.rib.onGlobalContextUpdated(schemaContext);
         this.ribSupport = getRib().getRibSupportContext().getRIBSupportContext(KEY).getRibSupport();
     }
@@ -251,6 +252,7 @@ public class AbstractRIBTestSetup {
             return null;
         }
 
+        @Override
         public void close() {
         }
     }

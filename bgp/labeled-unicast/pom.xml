@@ -50,7 +50,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-parser-impl</artifactId>
+            <artifactId>bgp-inet</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
