@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.rib.impl;
+package org.opendaylight.protocol.bgp.inet;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,7 +35,7 @@ final class IPv6RIBSupport extends AbstractIPRIBSupport {
 
     private IPv6RIBSupport() {
         super(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.Ipv6Prefix.class,
-            Ipv6AddressFamily.class, Ipv6RoutesCase.class, Ipv6Routes.class, Ipv6Route.class, DestinationIpv6.QNAME, Ipv6Prefixes.QNAME);
+                Ipv6AddressFamily.class, Ipv6RoutesCase.class, Ipv6Routes.class, Ipv6Route.class, DestinationIpv6.QNAME, Ipv6Prefixes.QNAME);
     }
 
     static IPv6RIBSupport getInstance() {
@@ -52,15 +52,15 @@ final class IPv6RIBSupport extends AbstractIPRIBSupport {
     @Override
     protected DestinationType buildWithdrawnDestination(@Nonnull final Collection<MapEntryNode> routes) {
         return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.update.attributes.mp.unreach.nlri.withdrawn.routes
-            .destination.type.DestinationIpv6CaseBuilder().setDestinationIpv6(
-            new DestinationIpv6Builder().setIpv6Prefixes(extractPrefixes(routes)).build()).build();
+                .destination.type.DestinationIpv6CaseBuilder().setDestinationIpv6(
+                        new DestinationIpv6Builder().setIpv6Prefixes(extractPrefixes(routes)).build()).build();
     }
 
     private List<Ipv6Prefixes> extractPrefixes(final Collection<MapEntryNode> routes) {
         final List<Ipv6Prefixes> prefs = new ArrayList<>(routes.size());
         for (final MapEntryNode route : routes) {
-            final String prefix = (String) NormalizedNodes.findNode(route, this.routePrefixIdentifier()).get().getValue();
-            prefs.add(new Ipv6PrefixesBuilder().setPathId(PathIdUtil.buildPathId(route, this.routePathIdNid())).setPrefix(new Ipv6Prefix(prefix)).build());
+            final String prefix = (String) NormalizedNodes.findNode(route, routePrefixIdentifier()).get().getValue();
+            prefs.add(new Ipv6PrefixesBuilder().setPathId(PathIdUtil.buildPathId(route, routePathIdNid())).setPrefix(new Ipv6Prefix(prefix)).build());
         }
         return prefs;
     }
