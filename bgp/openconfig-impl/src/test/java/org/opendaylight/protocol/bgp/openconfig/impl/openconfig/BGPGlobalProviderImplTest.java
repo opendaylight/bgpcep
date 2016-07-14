@@ -33,11 +33,11 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.t
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.NeighborsBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.PeerGroupsBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.LINKSTATE;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.RibImpl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.modules.ModuleKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -64,7 +64,7 @@ public class BGPGlobalProviderImplTest {
     @Test
     public void testApply() {
         final Bgp bgp = this.globalProvider.apply(new BGPRibInstanceConfiguration(new InstanceConfigurationIdentifier("instanceName"), new AsNumber(1L),
-                new Ipv4Address("1.2.3.4"), null,
+                new BgpId("1.2.3.4"), null,
                 Lists.<BgpTableType>newArrayList(new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class)), Collections.emptyMap()));
         final BgpBuilder bgpBuilder = new BgpBuilder();
         bgpBuilder.setNeighbors(new NeighborsBuilder().build());
@@ -73,7 +73,7 @@ public class BGPGlobalProviderImplTest {
         final Global global = new GlobalBuilder()
             .setAfiSafis(
                     new AfiSafisBuilder().setAfiSafi(Collections.singletonList(new AfiSafiBuilder().setAfiSafiName(LINKSTATE.class).build())).build())
-            .setConfig(new ConfigBuilder().setRouterId(new Ipv4Address("1.2.3.4")).setAs(new AsNumber(1L)).build())
+            .setConfig(new ConfigBuilder().setRouterId(new BgpId("1.2.3.4")).setAs(new AsNumber(1L)).build())
             .build();
         bgpBuilder.setGlobal(global);
         assertEquals(bgpBuilder.build(), bgp);

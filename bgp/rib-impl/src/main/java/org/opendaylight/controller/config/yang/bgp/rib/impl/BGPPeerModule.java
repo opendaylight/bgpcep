@@ -43,6 +43,7 @@ import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.OptionalCapabilities;
@@ -257,9 +258,9 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
                 this.neighborProvider = null;
             }
             final InstanceConfigurationIdentifier identifier = new InstanceConfigurationIdentifier(getIdentifier().getInstanceName());
-            this.bgpPeerInstanceConfiguration = new BGPPeerInstanceConfiguration(identifier, Rev130715Util.getIpvAddress(getNormalizedHost()),
-                    Rev130715Util.getPort(getPort().getValue()), getHoldtimer(), getPeerRole(), getInitiateConnection(),
-                        getAdvertizedTableDependency(), Rev130715Util.getASNumber(getAsOrDefault(getRibDependency()).getValue()),
+            this.bgpPeerInstanceConfiguration = new BGPPeerInstanceConfiguration(identifier, getNormalizedHost(),
+                        getPort(), getHoldtimer(), getPeerRole(), getInitiateConnection(),
+                        getAdvertizedTableDependency(), getAsOrDefault(getRibDependency()),
                         getOptionalPassword(getPassword()), getAddPathDependency());
         }
 
