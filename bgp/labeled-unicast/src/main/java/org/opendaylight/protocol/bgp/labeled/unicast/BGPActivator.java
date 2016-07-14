@@ -9,8 +9,8 @@ package org.opendaylight.protocol.bgp.labeled.unicast;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.opendaylight.protocol.bgp.parser.impl.message.update.next.hop.Ipv4NextHopParserSerializer;
-import org.opendaylight.protocol.bgp.parser.impl.message.update.next.hop.Ipv6NextHopParserSerializer;
+import org.opendaylight.protocol.bgp.inet.codec.nexthop.Ipv4NextHopParserSerializer;
+import org.opendaylight.protocol.bgp.inet.codec.nexthop.Ipv6NextHopParserSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.LabeledUnicastSubsequentAddressFamily;
@@ -36,9 +36,9 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         final Ipv4NextHopParserSerializer ipv4NextHopParser = new Ipv4NextHopParserSerializer();
         final Ipv6NextHopParserSerializer ipv6NextHopParser = new Ipv6NextHopParserSerializer();
         regs.add(context.registerNlriParser(Ipv4AddressFamily.class, LabeledUnicastSubsequentAddressFamily.class,
-            luNlriParser, ipv4NextHopParser, Ipv4NextHopCase.class));
+                luNlriParser, ipv4NextHopParser, Ipv4NextHopCase.class));
         regs.add(context.registerNlriParser(Ipv6AddressFamily.class, LabeledUnicastSubsequentAddressFamily.class,
-            luNlriParser, ipv6NextHopParser, Ipv6NextHopCase.class));
+                luNlriParser, ipv6NextHopParser, Ipv6NextHopCase.class));
 
         regs.add(context.registerNlriSerializer(LabeledUnicastRoutes.class, luNlriParser));
 

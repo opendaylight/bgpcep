@@ -12,11 +12,10 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.bgp.rib.rib.loc.rib.tables.routes.Ipv4RoutesCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.Ipv4Routes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.ipv4.routes.Ipv4Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public class SimpleRIBExtensionTest {
 
@@ -35,10 +34,10 @@ public class SimpleRIBExtensionTest {
     private final class TestActivator extends AbstractRIBExtensionProviderActivator {
         @Override
         protected List<AutoCloseable> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context) {
-            RIBSupport support = Mockito.mock(RIBSupport.class);
-            Mockito.doReturn(Ipv4Route.class).when(support).routesListClass();
-            Mockito.doReturn(Ipv4Routes.class).when(support).routesContainerClass();
-            Mockito.doReturn(Ipv4RoutesCase.class).when(support).routesCaseClass();
+            final RIBSupport support = Mockito.mock(RIBSupport.class);
+            Mockito.doReturn(Route.class).when(support).routesListClass();
+            Mockito.doReturn(DataObject.class).when(support).routesContainerClass();
+            Mockito.doReturn(DataObject.class).when(support).routesCaseClass();
             return Lists.newArrayList((AutoCloseable)context.registerRIBSupport(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, support));
         }
     }
