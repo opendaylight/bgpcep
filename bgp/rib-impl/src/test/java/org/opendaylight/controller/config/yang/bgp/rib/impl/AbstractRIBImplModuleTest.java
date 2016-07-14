@@ -89,6 +89,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
@@ -117,9 +118,10 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     private static final String TRANSACTION_NAME = "testTransaction";
 
     protected static final RibId RIB_ID = new RibId("test");
-    protected static final Ipv4Address BGP_ID = new Ipv4Address("192.168.1.1");
-    protected static final Ipv4Address CLUSTER_ID = new Ipv4Address("192.168.1.2");
+    protected static final BgpId BGP_ID = new BgpId("192.168.1.1");
+    protected static final ClusterIdentifier CLUSTER_ID = new ClusterIdentifier("192.168.1.2");
 
+    private static final AsNumber AS_NUMBER = new AsNumber(5000L);
     private static final String SESSION_RS_INSTANCE_NAME = "session-reconnect-strategy-factory";
     private static final String TCP_RS_INSTANCE_NAME = "tcp-reconnect-strategy-factory";
     private static final String RIB_EXTENSIONS_INSTANCE_NAME = "rib-extensions-impl";
@@ -298,14 +300,14 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         return transaction.commit();
     }
 
-    protected CommitStatus createRIBImplModuleInstance(final RibId ribId, final Long localAs, final Ipv4Address bgpId, final Ipv4Address clusterId) throws Exception {
+    protected CommitStatus createRIBImplModuleInstance(final RibId ribId, final AsNumber localAs, final BgpId bgpId, final ClusterIdentifier clusterId) throws Exception {
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         createRIBImplModuleInstance(transaction, ribId, localAs, bgpId, clusterId, createAsyncDataBrokerInstance(transaction));
         return transaction.commit();
     }
 
-    private ObjectName createRIBImplModuleInstance(final ConfigTransactionJMXClient transaction, final RibId ribId, final Long localAs,
-            final Ipv4Address bgpId, final Ipv4Address clusterId, final ObjectName dataBroker) throws Exception {
+    private ObjectName createRIBImplModuleInstance(final ConfigTransactionJMXClient transaction, final RibId ribId, final AsNumber localAs,
+            final BgpId bgpId, final ClusterIdentifier clusterId, final ObjectName dataBroker) throws Exception {
         final ObjectName nameCreated = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
         final RIBImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, RIBImplModuleMXBean.class);
         mxBean.setDataProvider(dataBroker);
@@ -327,13 +329,13 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     }
 
     protected ObjectName createRIBImplModuleInstance(final ConfigTransactionJMXClient transaction) throws Exception {
-        return createRIBImplModuleInstance(transaction, RIB_ID, 5000L, BGP_ID, CLUSTER_ID,
+        return createRIBImplModuleInstance(transaction, RIB_ID, AS_NUMBER, BGP_ID, CLUSTER_ID,
                 createAsyncDataBrokerInstance(transaction));
     }
 
     public ObjectName createRIBImplModuleInstance(final ConfigTransactionJMXClient transaction, final ObjectName dataBroker)
             throws Exception {
-        return createRIBImplModuleInstance(transaction, RIB_ID, 5000L, BGP_ID, CLUSTER_ID, dataBroker);
+        return createRIBImplModuleInstance(transaction, RIB_ID, AS_NUMBER, BGP_ID, CLUSTER_ID, dataBroker);
     }
 
     public ObjectName createAsyncDataBrokerInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException, InstanceNotFoundException {

@@ -39,6 +39,7 @@ import org.opendaylight.controller.config.yang.bgp.rib.impl.UpdateMsgs;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl.State;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.util.StatisticsUtil;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Timestamp;
@@ -251,7 +252,7 @@ public final class BGPSessionStats {
         if (localPreferences.isPresent()) {
             final BGPSessionPreferences localPref = localPreferences.get();
             pref.setBgpId(new BgpId(localPref.getBgpId().getValue()));
-            pref.setAs(localPref.getMyAs().getValue());
+            pref.setAs(localPref.getMyAs());
             pref.setHoldtimer(localPref.getHoldTime());
             if (localPref.getParams() != null) {
                 for (final BgpParameters param : localPref.getParams()) {
@@ -299,8 +300,8 @@ public final class BGPSessionStats {
         final InetSocketAddress isa = (InetSocketAddress) channel.remoteAddress();
         pref.setHost(IpAddressBuilder.getDefaultInstance(isa.getAddress().getHostAddress()));
         pref.setPort(new PortNumber(isa.getPort()));
-        pref.setBgpId(new BgpId(remoteOpen.getBgpIdentifier().getValue()));
-        pref.setAs(remoteOpen.getMyAsNumber().longValue());
+        pref.setBgpId(new BgpId(remoteOpen.getBgpIdentifier()));
+        pref.setAs(new AsNumber(remoteOpen.getMyAsNumber().longValue()));
         pref.setHoldtimer(remoteOpen.getHoldTimer());
 
         final List<AdvertizedTableTypes> tt = tableTypes.stream().map(BGPSessionStats::addTableType).collect(Collectors.toList());

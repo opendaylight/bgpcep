@@ -61,6 +61,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
@@ -92,7 +93,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private final BGPDispatcher dispatcher;
     private final DOMTransactionChain domChain;
     private final AsNumber localAs;
-    private final Ipv4Address bgpIdentifier;
+    private final BgpId bgpIdentifier;
     private final Set<BgpTableType> localTables;
     private final Set<TablesKey> localTablesKeys;
     private final DataBroker dataBroker;
@@ -109,7 +110,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies;
     private final ImportPolicyPeerTracker importPolicyPeerTracker;
 
-    public RIBImpl(final RibId ribId, final AsNumber localAs, final Ipv4Address localBgpId, final Ipv4Address clusterId, final RIBExtensionConsumerContext extensions,
+    public RIBImpl(final RibId ribId, final AsNumber localAs, final BgpId localBgpId, final ClusterIdentifier clusterId, final RIBExtensionConsumerContext extensions,
         final BGPDispatcher dispatcher, final BindingCodecTreeFactory codecFactory,
         final DataBroker dps, final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
         @Nonnull final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies, final GeneratedClassLoadingStrategy classStrategy,
@@ -178,7 +179,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         }
     }
 
-    public RIBImpl(final RibId ribId, final AsNumber localAs, final Ipv4Address localBgpId, final Ipv4Address clusterId, final RIBExtensionConsumerContext extensions,
+    public RIBImpl(final RibId ribId, final AsNumber localAs, final BgpId localBgpId, final ClusterIdentifier clusterId, final RIBExtensionConsumerContext extensions,
             final BGPDispatcher dispatcher, final BindingCodecTreeFactory codecFactory,
             final DataBroker dps, final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
             final Map<TablesKey, PathSelectionMode> bestPathSelectionstrategies, final GeneratedClassLoadingStrategy classStrategy) {
@@ -253,7 +254,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     }
 
     @Override
-    public Ipv4Address getBgpIdentifier() {
+    public BgpId getBgpIdentifier() {
         return this.bgpIdentifier;
     }
 
