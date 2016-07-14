@@ -46,10 +46,10 @@ import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCo
 import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.protocol.bgp.inet.RIBActivator;
 import org.opendaylight.protocol.bgp.parser.impl.BGPActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
-import org.opendaylight.protocol.bgp.rib.impl.RIBActivator;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.protocol.bmp.api.BmpDispatcher;
@@ -185,7 +185,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
 
         this.bmpApp = BmpMonitoringStationImpl.createBmpMonitorInstance(ribExtension, this.dispatcher, getDomBroker(),
                 MONITOR_ID, new InetSocketAddress(InetAddresses.forString(MONITOR_LOCAL_ADDRESS), MONITOR_LOCAL_PORT), Optional.of(keys),
-                this.mappingService.getCodecFactory(), moduleInfoBackedContext.getSchemaContext(), this.mrs);
+                this.mappingService.getCodecFactory(), this.moduleInfoBackedContext.getSchemaContext(), this.mrs);
 
         readData(InstanceIdentifier.create(BmpMonitor.class), monitor -> {
             Assert.assertEquals(1, monitor.getMonitor().size());
@@ -247,7 +247,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
             return monitor;
         });
 
-        Channel channel4 = testMonitoringStation(REMOTE_ROUTER_ADDRESS_1);
+        final Channel channel4 = testMonitoringStation(REMOTE_ROUTER_ADDRESS_1);
         readData(MONITOR_IID, monitor -> {
             assertEquals(2, monitor.getRouter().size());
             return monitor;
@@ -276,7 +276,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
         waitFutureSuccess(channelFuture);
     }
 
-    private Channel testMonitoringStation(String remoteRouterIpAddr) throws InterruptedException {
+    private Channel testMonitoringStation(final String remoteRouterIpAddr) throws InterruptedException {
         final Channel channel = connectTestClient(remoteRouterIpAddr, this.msgRegistry);
         final RouterId routerId = getRouterId(remoteRouterIpAddr);
         try {
@@ -486,7 +486,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
         throw lastError;
     }
 
-    private RouterId getRouterId(String routerIp) {
+    private RouterId getRouterId(final String routerIp) {
         return new RouterId(new IpAddress(new Ipv4Address(routerIp)));
     }
 }

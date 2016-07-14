@@ -2,10 +2,6 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
 
-  <bean id="RIBActivator" class="org.opendaylight.protocol.bgp.rib.impl.RIBActivator"/>
-
-  <service ref="RIBActivator" interface="org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator"
-          odl:type="org.opendaylight.protocol.bgp.rib.impl.RIBActivator"/>
 
   <reference id="BGPExtensionContext" interface="org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext"/>
   <reference id="globalBossGroup" interface="io.netty.channel.EventLoopGroup" odl:type="global-boss-group"/>

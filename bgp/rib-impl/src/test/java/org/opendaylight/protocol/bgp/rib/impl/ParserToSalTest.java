@@ -9,7 +9,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import com.google.common.base.Function;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Collections2;
@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import javax.annotation.Nullable;
 import org.junit.After;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -34,6 +33,7 @@ import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
 import org.opendaylight.controller.md.sal.binding.test.DataBrokerTestCustomizer;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
+import org.opendaylight.protocol.bgp.inet.RIBActivator;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
@@ -132,9 +132,9 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
         final List<BgpTableType> tables = ImmutableList.of(
                 (BgpTableType) new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class));
         final RIBImpl rib = new RIBImpl(new RibId(TEST_RIB_ID), new AsNumber(72L), new Ipv4Address("127.0.0.1"), null, this.ext2, this.dispatcher,
-            this.codecFactory, getDataBroker(), getDomBroker(), tables,
-            Collections.singletonMap(new TablesKey(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class),
-                BasePathSelectionModeFactory.createBestPathSelectionStrategy()), GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
+                this.codecFactory, getDataBroker(), getDomBroker(), tables,
+                Collections.singletonMap(new TablesKey(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class),
+                        BasePathSelectionModeFactory.createBestPathSelectionStrategy()), GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
         assertTablesExists(tables, true);
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
         final BGPPeer peer = new BGPPeer("peer-" + this.mock.toString(), rib, PeerRole.Ibgp, null);
@@ -147,9 +147,9 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
     public void testWithoutLinkstate() throws InterruptedException, ExecutionException {
         final List<BgpTableType> tables = ImmutableList.of((BgpTableType) new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
         final RIBImpl rib = new RIBImpl(new RibId(TEST_RIB_ID), new AsNumber(72L), new Ipv4Address("127.0.0.1"), null, this.ext1, this.dispatcher,
-            this.codecFactory, getDataBroker(), getDomBroker(), tables,
-            Collections.singletonMap(new TablesKey(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class),
-                BasePathSelectionModeFactory.createBestPathSelectionStrategy()), GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
+                this.codecFactory, getDataBroker(), getDomBroker(), tables,
+                Collections.singletonMap(new TablesKey(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class),
+                        BasePathSelectionModeFactory.createBestPathSelectionStrategy()), GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
         assertTablesExists(tables, true);
         final BGPPeer peer = new BGPPeer("peer-" + this.mock.toString(), rib, PeerRole.Ibgp, null);
@@ -159,19 +159,14 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
     }
 
     private static Collection<byte[]> fixMessages(final Collection<byte[]> bgpMessages) {
-        return Collections2.transform(bgpMessages, new Function<byte[], byte[]>() {
-
-            @Nullable
-            @Override
-            public byte[] apply(@Nullable final byte[] input) {
-                final byte[] ret = new byte[input.length + 1];
-                // ff
-                ret[0] = -1;
-                for (int i = 0; i < input.length; i++) {
-                    ret[i + 1] = input[i];
-                }
-                return ret;
+        return Collections2.transform(bgpMessages, input -> {
+            final byte[] ret = new byte[input.length + 1];
+            // ff
+            ret[0] = -1;
+            for (int i = 0; i < input.length; i++) {
+                ret[i + 1] = input[i];
             }
+            return ret;
         });
     }
 
