@@ -15,15 +15,14 @@ import java.util.Collections;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.openconfig.spi.InstanceConfigurationIdentifier;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-
-;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 
 public class BGPRibInstanceConfigurationTest {
 
     private static final InstanceConfigurationIdentifier INSTANCE_NAME = new InstanceConfigurationIdentifier("instanceName");
-    private static final Ipv4Address BGP_ID = new Ipv4Address("127.0.0.1");
-    private static final Ipv4Address CLUSTER_ID = new Ipv4Address("127.0.0.2");
+    private static final BgpId BGP_ID = new BgpId("127.0.0.1");
+    private static final ClusterIdentifier CLUSTER_ID = new ClusterIdentifier("127.0.0.2");
     private static final AsNumber AS_NUMBER = new AsNumber(72L);
 
     private final BGPRibInstanceConfiguration config = new BGPRibInstanceConfiguration(INSTANCE_NAME, AS_NUMBER, BGP_ID, CLUSTER_ID,

@@ -11,6 +11,7 @@ package org.opendaylight.protocol.bgp.openconfig.spi.pojo;
 import com.google.common.base.Preconditions;
 import org.opendaylight.protocol.bgp.openconfig.spi.InstanceConfigurationIdentifier;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 
 /**
  * POJO for holding BGP Application Peer module instance configuration
@@ -19,9 +20,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 public final class BGPAppPeerInstanceConfiguration extends AbstractInstanceConfiguration {
 
     private final String appRibId;
-    private final Ipv4Address bgpId;
+    private final BgpId bgpId;
 
-    public BGPAppPeerInstanceConfiguration(final InstanceConfigurationIdentifier instanceName, final String appRibId, final Ipv4Address bgpId) {
+    public BGPAppPeerInstanceConfiguration(final InstanceConfigurationIdentifier instanceName, final String appRibId, final BgpId bgpId) {
         super(instanceName);
         this.appRibId = Preconditions.checkNotNull(appRibId);
         this.bgpId = Preconditions.checkNotNull(bgpId);

@@ -117,7 +117,7 @@ public class BGPApplicationPeerModule extends org.opendaylight.controller.config
             }
             final InstanceConfigurationIdentifier identifier = new InstanceConfigurationIdentifier(getIdentifier().getInstanceName());
             this.bgpAppPeerInstanceConfiguration = new BGPAppPeerInstanceConfiguration(identifier, getApplicationRibId().getValue(),
-                    Rev130715Util.getIpv4Address(getBgpPeerId()));
+                    getBgpPeerId());
         }
 
         @Override

@@ -53,6 +53,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
@@ -87,8 +89,8 @@ import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 public class AbstractRIBTestSetup {
 
     private RIBImpl rib;
-    private final Ipv4Address clusterId = new Ipv4Address("128.0.0.1");
-    private final Ipv4Address ribId = new Ipv4Address("127.0.0.1");
+    private final ClusterIdentifier clusterId = new ClusterIdentifier("128.0.0.1");
+    private final BgpId ribId = new BgpId("127.0.0.1");
     static final Class<? extends AddressFamily> AFI = Ipv4AddressFamily.class;
     static final Class<? extends SubsequentAddressFamily> SAFI = UnicastSubsequentAddressFamily.class;
     static final TablesKey KEY = new TablesKey(AFI, SAFI);
