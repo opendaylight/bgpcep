@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.rib.impl;
+package org.opendaylight.protocol.bgp.inet;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,7 +35,7 @@ final class IPv4RIBSupport extends AbstractIPRIBSupport {
 
     private IPv4RIBSupport() {
         super(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.Ipv4Prefix.class, Ipv4AddressFamily.class,
-            Ipv4RoutesCase.class, Ipv4Routes.class, Ipv4Route.class, DestinationIpv4.QNAME, Ipv4Prefixes.QNAME);
+                Ipv4RoutesCase.class, Ipv4Routes.class, Ipv4Route.class, DestinationIpv4.QNAME, Ipv4Prefixes.QNAME);
     }
 
     static IPv4RIBSupport getInstance() {
@@ -45,9 +45,9 @@ final class IPv4RIBSupport extends AbstractIPRIBSupport {
     private List<Ipv4Prefixes> extractPrefixes(final Collection<MapEntryNode> routes) {
         final List<Ipv4Prefixes> prefs = new ArrayList<>(routes.size());
         for (final MapEntryNode route : routes) {
-            final String prefix = (String) NormalizedNodes.findNode(route, this.routePrefixIdentifier()).get().getValue();
+            final String prefix = (String) NormalizedNodes.findNode(route, routePrefixIdentifier()).get().getValue();
             final Ipv4PrefixesBuilder prefixBuilder = new Ipv4PrefixesBuilder().setPrefix(new Ipv4Prefix(prefix));
-            prefixBuilder.setPathId(PathIdUtil.buildPathId(route, this.routePathIdNid()));
+            prefixBuilder.setPathId(PathIdUtil.buildPathId(route, routePathIdNid()));
             prefs.add(prefixBuilder.build());
         }
         return prefs;
@@ -63,6 +63,6 @@ final class IPv4RIBSupport extends AbstractIPRIBSupport {
     @Override
     protected DestinationType buildWithdrawnDestination(@Nonnull final Collection<MapEntryNode> routes) {
         return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4CaseBuilder().setDestinationIpv4(
-            new DestinationIpv4Builder().setIpv4Prefixes(extractPrefixes(routes)).build()).build();
+                new DestinationIpv4Builder().setIpv4Prefixes(extractPrefixes(routes)).build()).build();
     }
 }
