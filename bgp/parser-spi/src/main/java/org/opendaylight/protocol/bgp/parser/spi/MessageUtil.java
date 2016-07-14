@@ -60,12 +60,8 @@ public final class MessageUtil {
             return false;
         }
         final Nlri nlri = message.getNlri();
-        if ((nlri != null && nlri.getNlri() != null && !nlri.getNlri().isEmpty())
-                || getMpReachNlri(message.getAttributes()) != null) {
-            return true;
-        } else {
-            return false;
-        }
+        return (nlri != null && nlri.getNlri() != null && !nlri.getNlri().isEmpty())
+            || (getMpReachNlri(message.getAttributes()) != null);
     }
 
     /**
