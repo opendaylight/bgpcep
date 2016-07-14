@@ -34,7 +34,7 @@ public final class OffsetMap<E extends Comparable<E>> {
     private static final Logger LOG = LoggerFactory.getLogger(OffsetMap.class);
     private static final String NEGATIVEOFFSET = "Invalid negative offset %s";
     private static final String INVALIDOFFSET = "Invalid offset %s for %s router IDs";
-    private final Comparator<E> IPV4_COMPARATOR = E::compareTo;
+    private final Comparator<E> ipv4Comparator = E::compareTo;
     private final E[] routeKeys;
     private final Class<E> clazz;
     private final LoadingCache<Set<E>, OffsetMap<E>> keyCache = CacheBuilder.newBuilder().weakValues().build(new CacheLoader<Set<E>, OffsetMap<E>>() {
@@ -52,7 +52,7 @@ public final class OffsetMap<E extends Comparable<E>> {
     private OffsetMap(final Set<E> keysSet, final Class<E> clazz) {
         this.clazz = clazz;
         final E[] array = keysSet.toArray((E[]) Array.newInstance(this.clazz, keysSet.size()));
-        Arrays.sort(array, IPV4_COMPARATOR);
+        Arrays.sort(array, ipv4Comparator);
         this.routeKeys = array;
     }
 
@@ -66,7 +66,7 @@ public final class OffsetMap<E extends Comparable<E>> {
     }
 
     public int offsetOf(final E key) {
-        return Arrays.binarySearch(this.routeKeys, key, IPV4_COMPARATOR);
+        return Arrays.binarySearch(this.routeKeys, key, ipv4Comparator);
     }
 
     public int size() {

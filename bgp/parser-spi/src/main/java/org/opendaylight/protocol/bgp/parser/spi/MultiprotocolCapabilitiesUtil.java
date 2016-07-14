@@ -27,6 +27,8 @@ public final class MultiprotocolCapabilitiesUtil {
 
     private static final int RESERVED = 1;
 
+    private MultiprotocolCapabilitiesUtil() { throw new UnsupportedOperationException(); }
+
     public static void serializeMPAfiSafi(final AddressFamilyRegistry afiReg, final SubsequentAddressFamilyRegistry safiReg,
         final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi, final ByteBuf capBuffer) {
         final Integer afival = afiReg.numberForClass(afi);
