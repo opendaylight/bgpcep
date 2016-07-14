@@ -12,11 +12,10 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.concurrent.GuardedBy;
-import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
-import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
+import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
 
-public class TestingSessionListenerFactory implements PCEPSessionListenerFactory {
+class TestingSessionListenerFactory implements TestListenerFactory {
 
     @GuardedBy("this")
     private final List<TestingSessionListener> sessionListeners = new ArrayList<>();
@@ -28,10 +27,11 @@ public class TestingSessionListenerFactory implements PCEPSessionListenerFactory
         return sessionListener;
     }
 
-    public TestingSessionListener getSessionListenerByRemoteAddress(final InetAddress ipAddress) {
+    @Override
+    public TestingSessionListener getSessionListenerByRemoteAddress(final InetAddress ipAddress) throws InterruptedException {
         for (final TestingSessionListener sessionListener : this.sessionListeners) {
             if (sessionListener.isUp()) {
-                final PCEPSession session = sessionListener.getSession();
+                final PCEPSessionImpl session = sessionListener.getSession();
                 if (session.getRemoteAddress().equals(ipAddress)) {
                     return sessionListener;
                 }
