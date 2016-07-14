@@ -11,16 +11,19 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.Uninterruptibles;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -80,15 +83,23 @@ public class BGPDispatcherImplTest {
                 CLIENT_ADDRESS);
 
         final ChannelFuture future = this.dispatcher.createServer(this.registry, ADDRESS);
-        future.addListener(new GenericFutureListener<Future<Void>>() {
+        waitFutureSuccess(future);
+        this.channel = future.channel();
+    }
+
+    private void waitFutureSuccess(final ChannelFuture future) {
+        final CountDownLatch latch = new CountDownLatch(1);
+        future.addListener(new ChannelFutureListener() {
             @Override
-            public void operationComplete(final Future<Void> future) {
+            public void operationComplete(final ChannelFuture future) throws Exception {
                 if(!future.isSuccess()) {
                     Assert.fail("Failed to create server.");
+                } else {
+                    latch.countDown();
                 }
             }
         });
-        this.channel = future.channel();
+        Uninterruptibles.awaitUninterruptibly(latch, 10, TimeUnit.SECONDS);
     }
 
     @Test
@@ -114,7 +125,9 @@ public class BGPDispatcherImplTest {
         this.registry.addPeer(new IpAddress(new Ipv4Address(CLIENT_ADDRESS2.getAddress().getHostAddress())), listener, createPreferences(CLIENT_ADDRESS2));
         final Future<Void> cf = this.clientDispatcher.createReconnectingClient(CLIENT_ADDRESS2, this.registry,
                 new ReconnectStrategyFctImpl(), Optional.<InetSocketAddress>absent());
-        final Channel channel2 = this.dispatcher.createServer(this.registry, CLIENT_ADDRESS2).channel();
+        final ChannelFuture future = this.dispatcher.createServer(this.registry, CLIENT_ADDRESS2);
+        waitFutureSuccess(future);
+        final Channel channel2 = future.channel();
         Thread.sleep(1000);
         Assert.assertTrue(listener.up);
         Assert.assertTrue(channel2.isActive());
