@@ -6,11 +6,10 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.protocol.bgp.rib.impl;
+package org.opendaylight.protocol.bgp.inet;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
@@ -54,14 +53,14 @@ public final class IPv4RIBSupportTest extends AbstractRIBSupportTest {
     private static final Ipv4Prefix PREFIX = new Ipv4Prefix("1.2.3.4/32");
     private static final Ipv4RouteKey ROUTE_KEY = new Ipv4RouteKey(PATH_ID, PREFIX);
     private static final Ipv4Prefixes IPV4_PREFIXES = new Ipv4PrefixesBuilder().setPathId(PATH_ID)
-        .setPrefix(PREFIX).build();
+            .setPrefix(PREFIX).build();
     private static final DestinationIpv4Case REACH_NLRI = new DestinationIpv4CaseBuilder().setDestinationIpv4(new DestinationIpv4Builder()
-        .setIpv4Prefixes(Lists.newArrayList(IPV4_PREFIXES)).build()).build();
+    .setIpv4Prefixes(Lists.newArrayList(IPV4_PREFIXES)).build()).build();
 
     private static final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.update
-        .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4Case UNREACH_NLRI =
-        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.update
-            .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4CaseBuilder().setDestinationIpv4(
+    .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4Case UNREACH_NLRI =
+    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.update
+    .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4CaseBuilder().setDestinationIpv4(
             new DestinationIpv4Builder().setIpv4Prefixes(Lists.newArrayList(IPV4_PREFIXES)).build()).build();
 
     private static final Ipv4Route ROUTE = new Ipv4RouteBuilder().setAttributes(ATTRIBUTES).setPathId(PATH_ID).setPrefix(PREFIX).build();
@@ -148,7 +147,7 @@ public final class IPv4RIBSupportTest extends AbstractRIBSupportTest {
     @Test
     public void testRouteAttributesIdentifier() {
         Assert.assertEquals(new NodeIdentifier(QName.create(Ipv4Routes.QNAME, Attributes.QNAME.getLocalName().intern())), RIB_SUPPORT
-            .routeAttributesIdentifier());
+                .routeAttributesIdentifier());
     }
 
     @Test

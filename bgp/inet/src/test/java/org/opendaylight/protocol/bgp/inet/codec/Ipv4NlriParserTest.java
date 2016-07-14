@@ -6,9 +6,8 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.protocol.bgp.parser.impl;
+package org.opendaylight.protocol.bgp.inet.codec;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -17,9 +16,7 @@ import static org.junit.Assert.assertTrue;
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Assert;
@@ -29,9 +26,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.protocol.bgp.parser.impl.message.update.AdvertizedRoutesSerializer;
-import org.opendaylight.protocol.bgp.parser.impl.message.update.Ipv4NlriParser;
-import org.opendaylight.protocol.bgp.parser.impl.message.update.WithdrawnRoutesSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupport;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.util.Ipv4Util;
@@ -44,8 +38,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.message.Nlri;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.message.NlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes2;
@@ -84,9 +76,6 @@ public class Ipv4NlriParserTest {
     private DestinationIpv4Case ip4caseAD;
     private DestinationIpv4Case ip4caseADWrong;
 
-    private Nlri nlri;
-    private Nlri nlriWrong;
-
     @Mock
     private PeerSpecificParserConstraint constraint;
 
@@ -103,26 +92,19 @@ public class Ipv4NlriParserTest {
         this.prefixes.add(new Ipv4PrefixesBuilder().setPrefix(prefix2).build());
 
         this.ip4caseWD = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4CaseBuilder().setDestinationIpv4(
-            new DestinationIpv4Builder().setIpv4Prefixes(this.prefixes).build()).build();
+                new DestinationIpv4Builder().setIpv4Prefixes(this.prefixes).build()).build();
         this.ip4caseAD = new DestinationIpv4CaseBuilder().setDestinationIpv4(new DestinationIpv4Builder().setIpv4Prefixes(this.prefixes).build()).build();
 
         final ArrayList<Ipv4Prefixes> fakePrefixes = new ArrayList<Ipv4Prefixes>(this.prefixes);
         fakePrefixes.add(new Ipv4PrefixesBuilder().setPrefix(wrongPrefix).build());
         this.ip4caseWDWrong = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4CaseBuilder().setDestinationIpv4(
-            new DestinationIpv4Builder().setIpv4Prefixes(fakePrefixes).build()).build();
+                new DestinationIpv4Builder().setIpv4Prefixes(fakePrefixes).build()).build();
         this.ip4caseADWrong = new DestinationIpv4CaseBuilder().setDestinationIpv4(new DestinationIpv4Builder().setIpv4Prefixes(fakePrefixes).build()).build();
 
         this.inputBytes.writeBytes(Ipv4Util.bytesForPrefixBegin(prefix1));
         this.inputBytes.writeBytes(Ipv4Util.bytesForPrefixBegin(prefix2));
 
-        final List<Ipv4Prefix> prefixList = new ArrayList<Ipv4Prefix>();
-        prefixList.add(prefix1);
-        prefixList.add(prefix2);
-        this.nlri = new NlriBuilder().setNlri(prefixList).build();
-        final List<Ipv4Prefix> prefixWrongList = Lists.newArrayList(prefixList.iterator());
-        prefixWrongList.add(wrongPrefix);
-        this.nlriWrong = new NlriBuilder().setNlri(prefixWrongList).build();
-        Mockito.doReturn(Optional.of(this.muliPathSupport)).when(constraint).getPeerConstraint(Mockito.any());
+        Mockito.doReturn(Optional.of(this.muliPathSupport)).when(this.constraint).getPeerConstraint(Mockito.any());
         Mockito.doReturn(true).when(this.muliPathSupport).isTableTypeSupported(Mockito.any());
     }
 
@@ -131,16 +113,6 @@ public class Ipv4NlriParserTest {
         assertEquals(this.ipPrefix1, this.prefixes.get(0).getPrefix().getValue());
         assertEquals(this.ipPrefix2, this.prefixes.get(1).getPrefix().getValue());
         assertEquals(2, this.prefixes.size());
-    }
-
-    @Test
-    public void serializeAttributeTest() throws UnsupportedEncodingException {
-        final ByteBuf outputBytes = Unpooled.buffer();
-
-        this.parser.serializeAttribute(this.nlri, outputBytes);
-        assertArrayEquals(this.inputBytes.array(), outputBytes.array());
-        this.parser.serializeAttribute(this.nlriWrong, outputBytes);
-        assertFalse(Arrays.equals(this.inputBytes.array(), outputBytes.array()));
     }
 
     @Test
@@ -184,7 +156,7 @@ public class Ipv4NlriParserTest {
         mpReachNlriBuilder.setAfi(null).setSafi(null);
         Assert.assertEquals(mpReachNlri, mpReachNlriBuilder.build());
 
-        final AdvertizedRoutesSerializer serializer = new AdvertizedRoutesSerializer();
+        final Ipv4NlriParser serializer = new Ipv4NlriParser();
         final ByteBuf output = Unpooled.buffer(MP_NLRI_BYTES.length);
         final Attributes attributes = new AttributesBuilder().addAugmentation(Attributes1.class,
                 new Attributes1Builder().setMpReachNlri(mpReachNlri).build()).build();
@@ -205,7 +177,7 @@ public class Ipv4NlriParserTest {
         mpUnreachNlriBuilder.setAfi(null).setSafi(null);
         Assert.assertEquals(mpUnreachNlri, mpUnreachNlriBuilder.build());
 
-        final WithdrawnRoutesSerializer serializer = new WithdrawnRoutesSerializer();
+        final Ipv4NlriParser serializer = new Ipv4NlriParser();
         final ByteBuf output = Unpooled.buffer(MP_NLRI_BYTES.length);
         final Attributes attributes = new AttributesBuilder().addAugmentation(Attributes2.class,
                 new Attributes2Builder().setMpUnreachNlri(mpUnreachNlri).build()).build();
