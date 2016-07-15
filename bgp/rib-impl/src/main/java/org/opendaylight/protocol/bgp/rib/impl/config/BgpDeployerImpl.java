@@ -11,6 +11,7 @@ package org.opendaylight.protocol.bgp.rib.impl.config;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Properties;
 import org.apache.aries.blueprint.services.ExtendedBlueprintContainer;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -99,6 +100,22 @@ public final class BgpDeployerImpl implements BgpDeployer {
         final Properties properties = new Properties();
         properties.setProperty(instanceType.getBeanName(), instanceName);
         return this.container.registerService(instanceType.getServices(), service, properties);
+    }
+
+    @Override
+    public <T extends DataObject> ListenableFuture<Void> writeConfiguration(final T data,
+            final InstanceIdentifier<T> identifier) {
+        final WriteTransaction wTx = this.dataBroker.newWriteOnlyTransaction();
+        wTx.put(LogicalDatastoreType.CONFIGURATION, identifier, data);
+        return wTx.submit();
+    }
+
+    @Override
+    public <T extends DataObject> ListenableFuture<Void> removeConfiguration(
+            final InstanceIdentifier<T> identifier) {
+        final WriteTransaction wTx = this.dataBroker.newWriteOnlyTransaction();
+        wTx.delete(LogicalDatastoreType.CONFIGURATION, identifier);
+        return wTx.submit();
     }
 
 }

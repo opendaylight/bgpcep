@@ -8,6 +8,7 @@
 
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstance;
@@ -37,5 +38,9 @@ public interface BgpDeployer {
     Object getComponentInstance(InstanceType instanceType);
 
     <T> ServiceRegistration<T> registerService(InstanceType instanceType, T service, String instanceName);
+
+    <T extends DataObject> ListenableFuture<Void> writeConfiguration(T data, InstanceIdentifier<T> identifier);
+
+    <T extends DataObject> ListenableFuture<Void> removeConfiguration(InstanceIdentifier<T> identifier);
 
 }
