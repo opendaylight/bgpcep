@@ -15,6 +15,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
@@ -30,7 +31,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Dictionary;
 import java.util.List;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
@@ -42,8 +42,6 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
 import org.opendaylight.controller.config.manager.impl.AbstractConfigTest;
 import org.opendaylight.controller.config.manager.impl.factoriesresolver.HardcodedModuleFactoriesResolver;
@@ -76,31 +74,49 @@ import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCo
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMMountPointService;
 import org.opendaylight.controller.md.sal.dom.api.DOMNotificationPublishService;
 import org.opendaylight.controller.md.sal.dom.api.DOMNotificationService;
 import org.opendaylight.controller.md.sal.dom.api.DOMRpcProviderService;
 import org.opendaylight.controller.md.sal.dom.api.DOMRpcService;
+import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
 import org.opendaylight.controller.sal.core.api.model.YangTextSourceProvider;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer;
+import org.opendaylight.protocol.bgp.rib.impl.spi.ImportPolicyPeerTracker;
+import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
+import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
+import org.opendaylight.protocol.bgp.rib.impl.stats.UnsignedInt32Counter;
+import org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl.BGPRenderStats;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.NetworkInstances;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstance;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstanceKey;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.ProtocolBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.ProtocolKey;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151009.BGP;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.RibKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.sal.binding.generator.api.ClassLoadingStrategy;
 import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.opendaylight.yangtools.yang.model.api.SchemaContextListener;
 import org.opendaylight.yangtools.yang.parser.spi.meta.ReactorException;
@@ -133,6 +149,9 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     private static final String COMPATIBLE_DATA_BROKER_INSTANCE_NAME = "binding-data-compatible-broker-instance";
     private static final String NOTIFICATION_BROKER_INSTANCE_NAME = "notification-broker-impl";
 
+    private static final InstanceIdentifier<NetworkInstance> OPENCONFIG_IID = InstanceIdentifier.create(NetworkInstances.class).child(NetworkInstance.class,
+            new NetworkInstanceKey("global-bgp"));
+
     @Mock
     private ReadWriteTransaction mockedTransaction;
 
@@ -148,6 +167,15 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     @Mock
     protected BGPDispatcher mockedBGPDispatcher;
 
+    @Mock
+    private RIB mockedRIB;
+
+    @Mock
+    private BgpDeployer bgpDeployer;
+
+    @Mock
+    private BGPOpenConfigMappingService bgpMappingService;
+
     @SuppressWarnings("unchecked")
     @Before
     public void setUp() throws Exception {
@@ -156,15 +184,12 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         final List<ModuleFactory> moduleFactories = getModuleFactories();
         super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(this.mockedContext, moduleFactories.toArray(new ModuleFactory[moduleFactories.size()])));
 
-        doAnswer(new Answer<Filter>() {
-            @Override
-            public Filter answer(final InvocationOnMock invocation) {
-                final String str = invocation.getArgumentAt(0, String.class);
-                final Filter mockFilter = mock(Filter.class);
-                doReturn(str).when(mockFilter).toString();
-                return mockFilter;
-            }
-        }).when(mockedContext).createFilter(anyString());
+        doAnswer(invocation -> {
+            final String str = invocation.getArgumentAt(0, String.class);
+            final Filter mockFilter = mock(Filter.class);
+            doReturn(str).when(mockFilter).toString();
+            return mockFilter;
+        }).when(this.mockedContext).createFilter(anyString());
 
         final ServiceReference<?> emptyServiceReference = mock(ServiceReference.class, "Empty");
         final ServiceReference<?> classLoadingStrategySR = mock(ServiceReference.class, "ClassLoadingStrategy");
@@ -184,7 +209,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         Mockito.doReturn("Data Provider Service Reference").when(dataProviderServiceReference).toString();
         Mockito.doReturn("Class loading stategy reference").when(classLoadingStrategySR).toString();
 
-        Mockito.doReturn(emptyServiceReference).when(this.mockedContext).getServiceReference(any(Class.class));
+        Mockito.doReturn(emptyServiceReference).when(this.mockedContext).getServiceReference(Mockito.anyString());
         Mockito.doReturn(dataProviderServiceReference).when(this.mockedContext).getServiceReference(DataBroker.class);
         Mockito.doReturn(classLoadingStrategySR).when(this.mockedContext).getServiceReference(GeneratedClassLoadingStrategy.class);
         Mockito.doReturn(classLoadingStrategySR).when(this.mockedContext).getServiceReference(ClassLoadingStrategy.class);
@@ -195,37 +220,35 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
 
         Mockito.doReturn(this.mockedTransaction).when(this.mockedDataProvider).newReadWriteTransaction();
 
-        Mockito.doReturn(null).when(this.mockedTransaction).read(Mockito.eq(LogicalDatastoreType.OPERATIONAL), any(InstanceIdentifier.class));
-        Mockito.doNothing().when(this.mockedTransaction).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), any(InstanceIdentifier.class), any(DataObject.class));
+        Mockito.doReturn(null).when(this.mockedTransaction).read(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any());
+        Mockito.doNothing().when(this.mockedTransaction).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(), Mockito.any());
         Mockito.doNothing().when(this.mockedTransaction).delete(Mockito.eq(LogicalDatastoreType.OPERATIONAL), any(InstanceIdentifier.class));
 
         Mockito.doReturn(this.mockedFuture).when(this.mockedTransaction).submit();
         Mockito.doReturn(TRANSACTION_NAME).when(this.mockedTransaction).getIdentifier();
 
         Mockito.doReturn(null).when(this.mockedFuture).get();
+        Mockito.doReturn(null).when(this.mockedFuture).checkedGet();
 
         final SchemaContext context = parseYangStreams(getFilesAsByteSources(getYangModelsPaths()));
         final SchemaService mockedSchemaService = mock(SchemaService.class);
         doReturn(context).when(mockedSchemaService).getGlobalContext();
-        doAnswer(new Answer<ListenerRegistration<SchemaContextListener>>() {
-            @Override
-            public ListenerRegistration<SchemaContextListener> answer(InvocationOnMock invocation) {
-                invocation.getArgumentAt(0, SchemaContextListener.class).onGlobalContextUpdated(context);
-                ListenerRegistration<SchemaContextListener> reg = mock(ListenerRegistration.class);
-                doNothing().when(reg).close();
-                return reg;
-            }
+        doAnswer(invocation -> {
+            invocation.getArgumentAt(0, SchemaContextListener.class).onGlobalContextUpdated(context);
+            final ListenerRegistration<SchemaContextListener> reg = mock(ListenerRegistration.class);
+            doNothing().when(reg).close();
+            return reg;
         }).when(mockedSchemaService).registerSchemaContextListener(any(SchemaContextListener.class));
 
         setupMockService(SchemaService.class, mockedSchemaService);
         setupMockService(YangTextSourceProvider.class, mock(YangTextSourceProvider.class));
 
-        BindingToNormalizedNodeCodec bindingCodec = BindingToNormalizedNodeCodecFactory.newInstance(
+        final BindingToNormalizedNodeCodec bindingCodec = BindingToNormalizedNodeCodecFactory.newInstance(
                 GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
         BindingToNormalizedNodeCodecFactory.registerInstance(bindingCodec, mockedSchemaService);
         setupMockService(BindingToNormalizedNodeCodec.class, bindingCodec);
 
-        BGPExtensionProviderContext mockContext = mock(BGPExtensionProviderContext.class);
+        final BGPExtensionProviderContext mockContext = mock(BGPExtensionProviderContext.class);
         doReturn(mock(MessageRegistry.class)).when(mockContext).getMessageRegistry();
         setupMockService(BGPExtensionProviderContext.class, mockContext);
 
@@ -238,9 +261,47 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         setupMockService(DOMRpcProviderService.class, mock(DOMRpcProviderService.class));
         setupMockService(DOMMountPointService.class, mock(DOMMountPointService.class));
 
-        setupMockService(BGPDispatcher.class, mockedBGPDispatcher);
-        doReturn(new SucceededFuture<>(ImmediateEventExecutor.INSTANCE, null)).when(mockedBGPDispatcher).createReconnectingClient(
+        setupMockService(BGPDispatcher.class, this.mockedBGPDispatcher);
+        doReturn(new SucceededFuture<>(ImmediateEventExecutor.INSTANCE, null)).when(this.mockedBGPDispatcher).createReconnectingClient(
                 any(InetSocketAddress.class), any(BGPPeerRegistry.class), anyInt(), any(Optional.class));
+
+        setupMockService(BgpDeployer.class, this.bgpDeployer);
+        doReturn(new ProtocolBuilder().setKey(new ProtocolKey(BGP.class, "bgp")).build()).when(this.bgpMappingService).fromRib(any(), any(), any(), any(), any(), any());
+        doReturn(this.mockedFuture).when(this.bgpDeployer).writeConfiguration(any(), any());
+        doReturn(this.mockedFuture).when(this.bgpDeployer).removeConfiguration(any());
+        doReturn(this.bgpMappingService).when(this.bgpDeployer).getMappingService();
+        doReturn(OPENCONFIG_IID).when(this.bgpDeployer).getInstanceIdentifier();
+        final DOMTransactionChain mockedChain = mock(DOMTransactionChain.class);
+        final DOMDataWriteTransaction mockedWTx = mock(DOMDataWriteTransaction.class);
+        doNothing().when(mockedWTx).put(any(), any(), any());
+        doNothing().when(mockedWTx).delete(any(), any());
+        doReturn(this.mockedFuture).when(mockedWTx).submit();
+        doReturn(mockedWTx).when(mockedChain).newWriteOnlyTransaction();
+        doReturn(mockedChain).when(this.mockedRIB).createPeerChain(any());
+        doNothing().when(mockedChain).close();
+        doReturn(YangInstanceIdentifier.of(BgpRib.QNAME)).when(this.mockedRIB).getYangRibId();
+        doReturn(new AsNumber(123456l)).when(this.mockedRIB).getLocalAs();
+        doReturn(BGP_ID).when(this.mockedRIB).getBgpIdentifier();
+        doReturn(Optional.absent()).when(this.mockedRIB).getOpenConfigProvider();
+        final BGPRenderStats mockedRenderStats = mock(BGPRenderStats.class);
+        doReturn(new UnsignedInt32Counter("counter")).when(mockedRenderStats).getConfiguredPeerCounter();
+        doReturn(mockedRenderStats).when(this.mockedRIB).getRenderStats();
+        final DOMDataTreeChangeService mockedTreeChangeService = mock(DOMDataTreeChangeService.class);
+        final ListenerRegistration mockedListenerReg = mock(ListenerRegistration.class);
+        doNothing().when(mockedListenerReg).close();
+        doReturn(mockedListenerReg).when(mockedTreeChangeService).registerDataTreeChangeListener(any(), any());
+        doReturn(mockedTreeChangeService).when(this.mockedRIB).getService();
+        final ImportPolicyPeerTracker mockedImportPolicy = mock(ImportPolicyPeerTracker.class);
+        doNothing().when(mockedImportPolicy).peerRoleChanged(any(), any());
+        doReturn(null).when(mockedImportPolicy).policyFor(any());
+        doReturn(mockedImportPolicy).when(this.mockedRIB).getImportPolicyPeerTracker();
+        doReturn(mock(RIBSupportContextRegistry.class)).when(this.mockedRIB).getRibSupportContext();
+        doReturn(Collections.emptySet()).when(this.mockedRIB).getLocalTablesKeys();
+        doReturn(Collections.emptySet()).when(this.mockedRIB).getLocalTables();
+        doReturn(this.mockedBGPDispatcher).when(this.mockedRIB).getDispatcher();
+        doReturn(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(RIB_ID))).when(this.mockedRIB).getInstanceIdentifier();
+
+        setupMockService(RIB.class, this.mockedRIB);
 
         setupMockService(RIBExtensionProviderContext.class, new SimpleRIBExtensionProviderContext());
 
@@ -249,11 +310,11 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
 
     protected void setupMockService(final Class<?> serviceInterface, final Object instance) throws Exception {
         final ServiceReference<?> mockServiceRef = mock(ServiceReference.class);
-        doReturn(new ServiceReference[]{mockServiceRef}).when(mockedContext).
-                getServiceReferences(anyString(), contains(serviceInterface.getName()));
-        doReturn(new ServiceReference[]{mockServiceRef}).when(mockedContext).
-                getServiceReferences(serviceInterface.getName(), null);
-        doReturn(instance).when(mockedContext).getService(mockServiceRef);
+        doReturn(new ServiceReference[]{mockServiceRef}).when(this.mockedContext).
+        getServiceReferences(anyString(), contains(serviceInterface.getName()));
+        doReturn(new ServiceReference[]{mockServiceRef}).when(this.mockedContext).
+        getServiceReferences(serviceInterface.getName(), null);
+        doReturn(instance).when(this.mockedContext).getService(mockServiceRef);
     }
 
     private static SchemaContext parseYangStreams(final Collection<ByteSource> streams) {
@@ -279,13 +340,10 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     @Override
     protected BundleContextServiceRegistrationHandler getBundleContextServiceRegistrationHandler(final Class<?> serviceType) {
         if (serviceType.equals(SchemaContextListener.class)) {
-            return new BundleContextServiceRegistrationHandler() {
-                @Override
-                public void handleServiceRegistration(final Class<?> clazz, final Object serviceInstance, final Dictionary<String, ?> props) {
-                    final SchemaContextListener listener = (SchemaContextListener) serviceInstance;
-                    final SchemaContext context = parseYangStreams(getFilesAsByteSources(getYangModelsPaths()));
-                    listener.onGlobalContextUpdated(context);
-                }
+            return (clazz, serviceInstance, props) -> {
+                final SchemaContextListener listener = (SchemaContextListener) serviceInstance;
+                final SchemaContext context = parseYangStreams(getFilesAsByteSources(getYangModelsPaths()));
+                listener.onGlobalContextUpdated(context);
             };
         }
 
@@ -421,7 +479,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     }
 
     public ObjectName createBindingBrokerImpl(final ConfigTransactionJMXClient transaction, final ObjectName dataBrokerON,
-        final ObjectName notificationBrokerON) throws Exception {
+            final ObjectName notificationBrokerON) throws Exception {
         final ObjectName objectName = transaction.createModule(BindingBrokerImplModuleFactory.NAME, BINDING_BROKER_INSTANCE_NAME);
         final BindingBrokerImplModuleMXBean mxBean = transaction.newMXBeanProxy(objectName, BindingBrokerImplModuleMXBean.class);
         mxBean.setDataBroker(dataBrokerON);
@@ -447,7 +505,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     }
 
     public ObjectName createCompatibleDataBrokerInstance(final ConfigTransactionJMXClient transaction)
-        throws InstanceAlreadyExistsException, InstanceNotFoundException {
+            throws InstanceAlreadyExistsException, InstanceNotFoundException {
         final ObjectName nameCreated = transaction.createModule(ForwardedCompatibleDataBrokerImplModuleFactory.NAME, COMPATIBLE_DATA_BROKER_INSTANCE_NAME);
         final ForwardedCompatibleDataBrokerImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, ForwardedCompatibleDataBrokerImplModuleMXBean.class);
         mxBean.setDataBroker(lookupDataBrokerInstance(transaction));
