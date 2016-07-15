@@ -13,6 +13,7 @@ import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUti
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -54,11 +55,13 @@ public final class BgpDeployerImpl implements BgpDeployer, DataTreeChangeListene
     private final ExtendedBlueprintContainer container;
     private final BGPOpenConfigMappingService mappingService;
     private final ListenerRegistration<BgpDeployerImpl>  registration;
+    private final DataBroker dataBroker;
     private final Map<InstanceIdentifier<Bgp>, RibImpl> ribs = new HashMap<>();
 
-    public BgpDeployerImpl(final String networkInstanceName, final ExtendedBlueprintContainer container, final DataBroker dataBroker,
-            final BGPOpenConfigMappingService mappingService) {
+    public BgpDeployerImpl(final String networkInstanceName, final ExtendedBlueprintContainer container,
+            final DataBroker dataBroker, final BGPOpenConfigMappingService mappingService) {
         this.container = container;
+        this.dataBroker = dataBroker;
         this.mappingService = mappingService;
         this.networkInstanceIId = InstanceIdentifier
                 .create(NetworkInstances.class)
@@ -170,6 +173,27 @@ public final class BgpDeployerImpl implements BgpDeployer, DataTreeChangeListene
         final String ribInstanceName = getRibInstanceName(rootIdentifier);
         ribImpl.start(global, ribInstanceName, this.mappingService);
         registerRibInstance(ribImpl, ribInstanceName);
+    }
+
+    @Override
+    public <T extends DataObject> ListenableFuture<Void> writeConfiguration(final T data,
+            final InstanceIdentifier<T> identifier) {
+        final WriteTransaction wTx = this.dataBroker.newWriteOnlyTransaction();
+        wTx.put(LogicalDatastoreType.CONFIGURATION, identifier, data);
+        return wTx.submit();
+    }
+
+    @Override
+    public <T extends DataObject> ListenableFuture<Void> removeConfiguration(
+            final InstanceIdentifier<T> identifier) {
+        final WriteTransaction wTx = this.dataBroker.newWriteOnlyTransaction();
+        wTx.delete(LogicalDatastoreType.CONFIGURATION, identifier);
+        return wTx.submit();
+    }
+
+    @Override
+    public BGPOpenConfigMappingService getMappingService() {
+        return this.mappingService;
     }
 
 }
