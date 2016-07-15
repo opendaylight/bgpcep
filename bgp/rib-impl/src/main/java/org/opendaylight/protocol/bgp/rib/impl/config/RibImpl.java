@@ -13,6 +13,7 @@ import com.google.common.base.Preconditions;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.opendaylight.controller.config.yang.bgp.rib.impl.RIBImplRuntimeRegistrator;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
@@ -184,6 +185,10 @@ public final class RibImpl implements RIB, AutoCloseable {
     @Override
     public String toString() {
         return this.ribImpl.toString();
+    }
+
+    public synchronized void registerRootRuntimeBean(final RIBImplRuntimeRegistrator registrator) {
+        this.ribImpl.registerRootRuntimeBean(registrator);
     }
 
     private RIBImpl createRib(final Global global, final String bgpInstanceName, final BGPOpenConfigMappingService mappingService) {

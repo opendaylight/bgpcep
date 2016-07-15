@@ -163,8 +163,8 @@ public final class OpenConfigUtil {
     }
 
     public static AfiSafi toGlobalAfiSafiAddPath(final AfiSafi afiSafi, final BgpTableType tableType,
-            final Map<BgpTableType, PathSelectionMode> multiPathTables) {
-        final PathSelectionMode pathSelection = multiPathTables.get(tableType);
+            final Map<TablesKey, PathSelectionMode> multiPathTables) {
+        final PathSelectionMode pathSelection = multiPathTables.get(new TablesKey(tableType.getAfi(), tableType.getSafi()));
         if (pathSelection == null) {
             return afiSafi;
         }
