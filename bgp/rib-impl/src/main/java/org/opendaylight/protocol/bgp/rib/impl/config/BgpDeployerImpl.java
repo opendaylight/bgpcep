@@ -10,10 +10,12 @@ package org.opendaylight.protocol.bgp.rib.impl.config;
 
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getRibInstanceName;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collection;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -25,8 +27,10 @@ import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer;
@@ -64,8 +68,11 @@ public final class BgpDeployerImpl implements BgpDeployer, DataTreeChangeListene
     @GuardedBy("this")
     private boolean closed;
 
+    private final DataBroker dataBroker;
+
     public BgpDeployerImpl(final String networkInstanceName, final BlueprintContainer container, final BundleContext bundleContext, final DataBroker dataBroker,
             final BGPOpenConfigMappingService mappingService) {
+        this.dataBroker = Preconditions.checkNotNull(dataBroker);
         this.container = Preconditions.checkNotNull(container);
         this.bundleContext = Preconditions.checkNotNull(bundleContext);
         this.mappingService = Preconditions.checkNotNull(mappingService);
@@ -188,6 +195,41 @@ public final class BgpDeployerImpl implements BgpDeployer, DataTreeChangeListene
         final String ribInstanceName = getRibInstanceName(rootIdentifier);
         ribImpl.start(global, ribInstanceName, this.mappingService);
         registerRibInstance(ribImpl, ribInstanceName);
+    }
+
+    @Override
+    public <T extends DataObject> ListenableFuture<Void> writeConfiguration(final T data,
+            final InstanceIdentifier<T> identifier) {
+        final ReadWriteTransaction wTx = this.dataBroker.newReadWriteTransaction();
+        final CheckedFuture<Optional<T>, ReadFailedException> readFuture = wTx.read(LogicalDatastoreType.CONFIGURATION, identifier);
+        Futures.addCallback(readFuture, new FutureCallback<Optional<T>>() {
+            @Override
+            public void onSuccess(final Optional<T> result) {
+                if (!result.isPresent()) {
+                    wTx.put(LogicalDatastoreType.CONFIGURATION, identifier, data);
+                }
+            }
+            @Override
+            public void onFailure(final Throwable t) {
+                LOG.debug("Failed to ensure presence of {}, try to write configuration.", identifier, t);
+                wTx.put(LogicalDatastoreType.CONFIGURATION, identifier, data);
+            }
+        });
+        return wTx.submit();
+
+    }
+
+    @Override
+    public <T extends DataObject> ListenableFuture<Void> removeConfiguration(
+            final InstanceIdentifier<T> identifier) {
+        final WriteTransaction wTx = this.dataBroker.newWriteOnlyTransaction();
+        wTx.delete(LogicalDatastoreType.CONFIGURATION, identifier);
+        return wTx.submit();
+    }
+
+    @Override
+    public BGPOpenConfigMappingService getMappingService() {
+        return this.mappingService;
     }
 
 }
