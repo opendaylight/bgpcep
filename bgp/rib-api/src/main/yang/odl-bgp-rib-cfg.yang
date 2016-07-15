@@ -33,6 +33,7 @@ module odl-bgp-rib-cfg {
 
         base "config:service-type";
         config:java-class "org.opendaylight.protocol.bgp.rib.RibReference";
+        config:disable-osgi-service-registration;
     }
 }
 
