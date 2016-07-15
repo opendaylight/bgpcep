@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpRenderState;
-import org.opendaylight.controller.config.yang.bgp.rib.impl.RIBImplRuntimeMXBean;
 import org.opendaylight.protocol.bgp.rib.impl.stats.UnsignedInt32Counter;
 import org.opendaylight.protocol.bgp.rib.impl.stats.peer.route.PerTableTypeRouteCounter;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
@@ -21,11 +20,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 /**
  * @author Kevin Wang
  */
-public class RIBImplRuntimeMXBeanImpl implements BGPRenderStats, RIBImplRuntimeMXBean {
+public class RIBImplRuntimeMXBeanImpl implements BGPRenderStats {
     private final BGPRenderStats renderStats;
 
     public RIBImplRuntimeMXBeanImpl(@Nonnull final BgpId bgpId, @Nonnull final RibId ribId, @Nonnull final AsNumber localAs, @Nullable final ClusterIdentifier clusterId) {
-        renderStats = new BGPRenderStatsImpl(bgpId, ribId, localAs, clusterId);
+        this.renderStats = new BGPRenderStatsImpl(bgpId, ribId, localAs, clusterId);
     }
 
     @Override

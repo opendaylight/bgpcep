@@ -22,23 +22,22 @@ import org.opendaylight.controller.config.spi.Module;
 import org.osgi.framework.BundleContext;
 
 /**
-*
-*/
+ *
+ */
+@Deprecated
 public class RIBImplModuleFactory extends org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractRIBImplModuleFactory {
 
-    // FIXME: Remove this once DataBroker exports schema context
     @Override
-    public Module createModule(String instanceName, DependencyResolver dependencyResolver, BundleContext bundleContext) {
-        RIBImplModule module = (RIBImplModule) super.createModule(instanceName, dependencyResolver, bundleContext);
+    public Module createModule(final String instanceName, final DependencyResolver dependencyResolver, final BundleContext bundleContext) {
+        final RIBImplModule module = (RIBImplModule) super.createModule(instanceName, dependencyResolver, bundleContext);
         module.setBundleContext(bundleContext);
         return module;
     }
 
-    // FIXME: Remove this once DataBroker exports schema context
     @Override
-    public Module createModule(String instanceName, DependencyResolver dependencyResolver,
-            DynamicMBeanWithInstance old, BundleContext bundleContext) throws Exception {
-        RIBImplModule module = (RIBImplModule)  super.createModule(instanceName, dependencyResolver, old, bundleContext);
+    public Module createModule(final String instanceName, final DependencyResolver dependencyResolver,
+            final DynamicMBeanWithInstance old, final BundleContext bundleContext) throws Exception {
+        final RIBImplModule module = (RIBImplModule)  super.createModule(instanceName, dependencyResolver, old, bundleContext);
         module.setBundleContext(bundleContext);
         return module;
     }

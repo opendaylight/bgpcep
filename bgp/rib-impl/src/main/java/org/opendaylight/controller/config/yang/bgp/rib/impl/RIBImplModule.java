@@ -16,30 +16,32 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
+import com.google.common.reflect.AbstractInvocationHandler;
+import com.google.common.reflect.Reflection;
+import java.lang.reflect.Method;
 import java.util.Collections;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
-import org.opendaylight.controller.sal.core.api.model.SchemaService;
+import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
-import org.opendaylight.protocol.bgp.openconfig.spi.BGPConfigModuleTracker;
-import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenconfigMapper;
-import org.opendaylight.protocol.bgp.openconfig.spi.InstanceConfigurationIdentifier;
-import org.opendaylight.protocol.bgp.openconfig.spi.pojo.BGPRibInstanceConfiguration;
-import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPBestPathSelection;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer;
+import org.opendaylight.protocol.bgp.rib.impl.spi.InstanceType;
+import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.Protocols;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.Protocol;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.ProtocolKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
-import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
-import org.opendaylight.yangtools.yang.model.api.SchemaContextListener;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.osgi.framework.BundleContext;
 
 /**
  *
  */
+@Deprecated
 public final class RIBImplModule extends org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractRIBImplModule {
 
     private static final String IS_NOT_SET = "is not set.";
@@ -67,74 +69,46 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        final Map<TablesKey, PathSelectionMode> pathSelectionStrategies = mapBestPathSelectionStrategyByFamily(getRibPathSelectionModeDependency());
-        final RIBImpl rib = new RIBImpl(getRibId(), getLocalAs(), getBgpRibId(), getClusterId(), getExtensionsDependency(),
-            getBgpDispatcherDependency(), getCodecTreeFactoryDependency(), getDomDataProviderDependency(), getLocalTableDependency(), pathSelectionStrategies, classLoadingStrategy(),
-            new RIBImplModuleTracker(getGlobalWriter()), getOpenconfigProviderDependency());
-        registerSchemaContextListener(rib);
-
-        rib.registerRootRuntimeBean(getRootRuntimeBeanRegistratorWrapper());
-        return rib;
-    }
-
-    private GeneratedClassLoadingStrategy classLoadingStrategy() {
-        return getExtensionsDependency().getClassLoadingStrategy();
-    }
-
-    private void registerSchemaContextListener(final RIBImpl rib) {
-        final DOMDataBroker domBroker = getDomDataProviderDependency();
-        if(domBroker instanceof SchemaService) {
-            ((SchemaService) domBroker).registerSchemaContextListener(rib);
-        } else {
-            // FIXME:Get bundle context and register global schema service from bundle
-            // context.
-            bundleContext.registerService(SchemaContextListener.class, rib, new Hashtable<String,String>());
-        }
-    }
-
-    private Map<TablesKey, PathSelectionMode> mapBestPathSelectionStrategyByFamily(final List<BGPBestPathSelection> bestPathSelectionDependency) {
-        return Collections.unmodifiableMap(bestPathSelectionDependency.stream().collect(
-            Collectors.toMap(st -> new TablesKey(st.getAfi(), st.getSafi()), st -> st.getStrategy())));
+        final WaitingServiceTracker<BgpDeployer> bgpDeployerTracker =
+                WaitingServiceTracker.create(BgpDeployer.class, this.bundleContext);
+        final BgpDeployer bgpDeployer = bgpDeployerTracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
+        //map configuration to OpenConfig BGP
+        final Protocol protocol = bgpDeployer.getMappingService().fromRib(getBgpRibId(), getClusterId(), getRibId(), new AsNumber(getLocalAs()), getLocalTableDependency(),
+                mapBestPathSelectionStrategyByFamily(getRibPathSelectionModeDependency()));
+        //write to configuration DS
+        final KeyedInstanceIdentifier<Protocol, ProtocolKey> protocolIId = bgpDeployer.getInstanceIdentifier().child(Protocols.class).child(Protocol.class,
+                protocol.getKey());
+        bgpDeployer.writeConfiguration(protocol, protocolIId);
+        //get rib instance service, use filter
+        final WaitingServiceTracker<RIB> ribTracker = WaitingServiceTracker.create(RIB.class,
+                this.bundleContext, "(" + InstanceType.RIB.getBeanName() + "=" + getRibId().getValue() + ")");
+        final RIB rib = ribTracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
+        final RIBImplRuntimeRegistration register = getRootRuntimeBeanRegistratorWrapper().register(rib.getRenderStats());
+        return Reflection.newProxy(AutoCloseableRIB.class, new AbstractInvocationHandler() {
+            @Override
+            protected Object handleInvocation(final Object proxy, final Method method, final Object[] args) throws Throwable {
+                if (method.getName().equals("close")) {
+                    register.close();
+                    bgpDeployerTracker.close();
+                    ribTracker.close();
+                    return null;
+                } else {
+                    return method.invoke(rib, args);
+                }
+            }
+        });
     }
 
     public void setBundleContext(final BundleContext bundleContext) {
         this.bundleContext = bundleContext;
     }
 
-    private BGPOpenconfigMapper<BGPRibInstanceConfiguration> getGlobalWriter() {
-        if (getOpenconfigProviderDependency() != null) {
-            return getOpenconfigProviderDependency().getOpenConfigMapper(BGPRibInstanceConfiguration.class);
-        }
-        return null;
+    private Map<TablesKey, PathSelectionMode> mapBestPathSelectionStrategyByFamily(final List<BGPBestPathSelection> bestPathSelectionDependency) {
+        return Collections.unmodifiableMap(bestPathSelectionDependency.stream().collect(
+                Collectors.<BGPBestPathSelection, TablesKey, PathSelectionMode>toMap(st -> new TablesKey(st.getAfi(), st.getSafi()), st -> st.getStrategy())));
     }
 
-    private final class RIBImplModuleTracker implements BGPConfigModuleTracker {
-
-        private final BGPOpenconfigMapper<BGPRibInstanceConfiguration> globalWriter;
-        private final BGPRibInstanceConfiguration bgpRibConfig;
-
-        public RIBImplModuleTracker(final BGPOpenconfigMapper<BGPRibInstanceConfiguration> globalWriter) {
-            this.globalWriter = globalWriter;
-            final InstanceConfigurationIdentifier identifier = new InstanceConfigurationIdentifier(getIdentifier().getInstanceName());
-            final List<BgpTableType> tableDependency = getLocalTableDependency();
-            this.bgpRibConfig = new BGPRibInstanceConfiguration(identifier, getLocalAs(), getBgpRibId(), getClusterId(), tableDependency,
-                    mapBestPathSelectionStrategyByFamily(getRibPathSelectionModeDependency()));
-        }
-
-        @Override
-        public void onInstanceCreate() {
-            if (globalWriter != null) {
-                globalWriter.writeConfiguration(this.bgpRibConfig);
-            }
-        }
-
-        @Override
-        public void onInstanceClose() {
-            if (globalWriter != null) {
-                globalWriter.removeConfiguration(this.bgpRibConfig);
-            }
-        }
-
+    private static interface AutoCloseableRIB extends RIB, AutoCloseable {
     }
 
 
