@@ -128,12 +128,12 @@ public final class OpenConfigUtil {
 
     public static AfiSafi toNeigborAfiSafiMultiPath(final AfiSafi afiSafi, final BgpTableType tableType, final Collection<AddressFamilies> addPathCapabilities) {
         final java.util.Optional<AddressFamilies> addPathMayBe = addPathCapabilities.stream().filter(
-            af -> af.getAfi() == tableType.getAfi() && af.getSafi() == tableType.getSafi()).findFirst();
+                af -> af.getAfi() == tableType.getAfi() && af.getSafi() == tableType.getSafi()).findFirst();
         if (addPathMayBe.isPresent()) {
             final AfiSafi2 afiSafi3 = new AfiSafi2Builder().setUseMultiplePaths(
-                new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.use.multiple.paths.neighbor.UseMultiplePathsBuilder().setConfig(
-                    new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.use.multiple.paths.neighbor.use.multiple.paths.ConfigBuilder()
-                        .setEnabled(true).build()).build()).build();
+                    new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.use.multiple.paths.neighbor.UseMultiplePathsBuilder().setConfig(
+                            new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.use.multiple.paths.neighbor.use.multiple.paths.ConfigBuilder()
+                            .setEnabled(true).build()).build()).build();
             return new AfiSafiBuilder(afiSafi).addAugmentation(AfiSafi2.class, afiSafi3).build();
         }
         return afiSafi;
@@ -151,20 +151,20 @@ public final class OpenConfigUtil {
             maxPaths = null;
         }
         final AfiSafi1 afiSafi1 = new AfiSafi1Builder().setUseMultiplePaths(
-            new UseMultiplePathsBuilder().setConfig(new ConfigBuilder().setEnabled(true).build())
+                new UseMultiplePathsBuilder().setConfig(new ConfigBuilder().setEnabled(true).build())
                 .setEbgp(maxPaths != null ? new EbgpBuilder().setConfig(
-                    new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.use.multiple.paths.use.multiple.paths.ebgp.ConfigBuilder()
+                        new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.use.multiple.paths.use.multiple.paths.ebgp.ConfigBuilder()
                         .setMaximumPaths(maxPaths)
                         .build()).build() : null)
-                .setIbgp(maxPaths != null ? new IbgpBuilder().setConfig(
-                    new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.use.multiple.paths.use.multiple.paths.ibgp.ConfigBuilder()
-                        .setMaximumPaths(maxPaths).build()).build() : null).build()).build();
+                        .setIbgp(maxPaths != null ? new IbgpBuilder().setConfig(
+                                new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.use.multiple.paths.use.multiple.paths.ibgp.ConfigBuilder()
+                                .setMaximumPaths(maxPaths).build()).build() : null).build()).build();
         return new AfiSafiBuilder(afiSafi).addAugmentation(AfiSafi1.class, afiSafi1).build();
     }
 
     public static AfiSafi toGlobalAfiSafiAddPath(final AfiSafi afiSafi, final BgpTableType tableType,
-            final Map<BgpTableType, PathSelectionMode> multiPathTables) {
-        final PathSelectionMode pathSelection = multiPathTables.get(tableType);
+            final Map<TablesKey, PathSelectionMode> multiPathTables) {
+        final PathSelectionMode pathSelection = multiPathTables.get(new TablesKey(tableType.getAfi(), tableType.getSafi()));
         if (pathSelection == null) {
             return afiSafi;
         }
@@ -175,12 +175,12 @@ public final class OpenConfigUtil {
             maxPaths = 0L;
         }
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi1 addPath = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi1Builder()
-            .setReceive(false)
-            .setSendMax(Shorts.checkedCast(maxPaths))
-            .build();
+        .setReceive(false)
+        .setSendMax(Shorts.checkedCast(maxPaths))
+        .build();
         return new AfiSafiBuilder(afiSafi)
-            .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi1.class,
-                    addPath).build();
+        .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi1.class,
+                addPath).build();
     }
 
     public static boolean isAppNeighbor(final Neighbor neighbor) {
