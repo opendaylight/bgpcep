@@ -68,6 +68,30 @@
       "revId": "2d603c7f6d3df57794300b53d95ac219927c3fe8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_7b0fdb2e",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful07TopologySessionListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 567,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2016-07-16T16:19:10Z",
+      "side": 1,
+      "message": "I thought about this.  If I join two ifs here, the condition of \"else\" will be changed.",
+      "parentUuid": "9a561d44_3f16f0a7",
+      "range": {
+        "startLine": 566,
+        "startChar": 0,
+        "endLine": 567,
+        "endChar": 69
+      },
+      "revId": "2d603c7f6d3df57794300b53d95ac219927c3fe8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
