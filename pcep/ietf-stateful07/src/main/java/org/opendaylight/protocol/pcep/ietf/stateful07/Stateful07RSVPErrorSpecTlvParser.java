@@ -13,10 +13,10 @@ import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.nio.charset.StandardCharsets;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
@@ -107,7 +107,7 @@ public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSer
     }
 
     private void serializerUserError(final UserError ue, final ByteBuf body) {
-        final byte[] desc = (ue.getDescription() == null) ? new byte[0] : ue.getDescription().getBytes(Charsets.UTF_8);
+        final byte[] desc = (ue.getDescription() == null) ? new byte[0] : ue.getDescription().getBytes(StandardCharsets.UTF_8);
         final ByteBuf userErrorBuf = Unpooled.buffer();
         Preconditions.checkArgument(ue.getEnterprise() != null, "EnterpriseNumber is mandatory");
         writeUnsignedInt(ue.getEnterprise().getValue(), userErrorBuf);

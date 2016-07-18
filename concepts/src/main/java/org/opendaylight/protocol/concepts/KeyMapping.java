@@ -9,9 +9,9 @@ package org.opendaylight.protocol.concepts;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -40,7 +40,7 @@ public final class KeyMapping extends HashMap<InetAddress, byte[]> {
     public static KeyMapping getKeyMapping(@Nonnull final InetAddress inetAddress, @Nullable final String password){
         if (!isNullOrEmpty(password)) {
             final KeyMapping keyMapping = new KeyMapping();
-            keyMapping.put(inetAddress, password.getBytes(Charsets.US_ASCII));
+            keyMapping.put(inetAddress, password.getBytes(StandardCharsets.US_ASCII));
             return keyMapping;
         }
         return null;

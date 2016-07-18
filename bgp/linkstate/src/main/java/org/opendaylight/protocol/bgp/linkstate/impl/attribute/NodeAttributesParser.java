@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.linkstate.impl.attribute;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Charsets;
 import com.google.common.collect.Multimap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
@@ -16,6 +15,7 @@ import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.nio.charset.StandardCharsets;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SrNodeAttributesParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.util.BitArray;
@@ -91,7 +91,7 @@ public final class NodeAttributesParser {
                 }
                 break;
             case DYNAMIC_HOSTNAME:
-                builder.setDynamicHostname(new String(ByteArray.readAllBytes(value), Charsets.US_ASCII));
+                builder.setDynamicHostname(new String(ByteArray.readAllBytes(value), StandardCharsets.US_ASCII));
                 LOG.debug("Parsed Node Name {}", builder.getDynamicHostname());
                 break;
             case ISIS_AREA_IDENTIFIER:
@@ -151,7 +151,7 @@ public final class NodeAttributesParser {
         serializeTopologyId(nodeAttributes.getTopologyIdentifier(), byteAggregator);
         serializeNodeFlagBits(nodeAttributes.getNodeFlags(), byteAggregator);
         if (nodeAttributes.getDynamicHostname() != null) {
-            TlvUtil.writeTLV(DYNAMIC_HOSTNAME, Unpooled.wrappedBuffer(Charsets.UTF_8.encode(nodeAttributes.getDynamicHostname())), byteAggregator);
+            TlvUtil.writeTLV(DYNAMIC_HOSTNAME, Unpooled.wrappedBuffer(StandardCharsets.UTF_8.encode(nodeAttributes.getDynamicHostname())), byteAggregator);
         }
         final List<IsisAreaIdentifier> isisList = nodeAttributes.getIsisAreaId();
         if (isisList != null) {
