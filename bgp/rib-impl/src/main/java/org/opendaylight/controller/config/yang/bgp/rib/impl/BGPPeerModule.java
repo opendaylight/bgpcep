@@ -16,7 +16,6 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
@@ -27,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.charset.StandardCharsets;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPConfigModuleTracker;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigProvider;
@@ -280,7 +280,7 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
     }
 
     private static Optional<byte[]> getMD5Password(final Rfc2385Key password) {
-        return getOptionalPassword(password).isPresent() ? Optional.of(password.getValue().getBytes(Charsets.US_ASCII)) : Optional.absent();
+        return getOptionalPassword(password).isPresent() ? Optional.of(password.getValue().getBytes(StandardCharsets.US_ASCII)) : Optional.absent();
     }
 
 }

@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.linkstate.impl.attribute;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Charsets;
 import com.google.common.collect.Multimap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
@@ -16,6 +15,7 @@ import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.charset.StandardCharsets;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SrLinkAttributesParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.util.BitArray;
@@ -168,7 +168,7 @@ public final class LinkAttributesParser {
                 LOG.debug("Parsed Opaque value : {}", ByteBufUtil.hexDump(value));
                 break;
             case LINK_NAME:
-                builder.setLinkName(new String(ByteArray.readAllBytes(value), Charsets.US_ASCII));
+                builder.setLinkName(new String(ByteArray.readAllBytes(value), StandardCharsets.US_ASCII));
                 LOG.debug("Parsed Link Name : {}", builder.getLinkName());
                 break;
             case SR_ADJ_ID:
@@ -250,7 +250,7 @@ public final class LinkAttributesParser {
         serializeMplsProtocolMask(linkAttributes.getMplsProtocol(), output);
         ifPresentApply(linkAttributes.getMetric(), value -> TlvUtil.writeTLV(METRIC, Unpooled.copyMedium(((Metric) value).getValue().intValue()), output));
         serializeSrlg(linkAttributes.getSharedRiskLinkGroups(), output);
-        ifPresentApply(linkAttributes.getLinkName(), value -> TlvUtil.writeTLV(LINK_NAME, Unpooled.wrappedBuffer(Charsets.UTF_8.encode((String) value)), output));
+        ifPresentApply(linkAttributes.getLinkName(), value -> TlvUtil.writeTLV(LINK_NAME, Unpooled.wrappedBuffer(StandardCharsets.UTF_8.encode((String) value)), output));
         ifPresentApply(linkAttributes.getSrAdjIds(), value -> SrLinkAttributesParser.serializeAdjacencySegmentIdentifiers((List<SrAdjIds>) value, SR_ADJ_ID, output));
         ifPresentApply(linkAttributes.getSrLanAdjIds(), value -> SrLinkAttributesParser.serializeLanAdjacencySegmentIdentifiers((List<SrLanAdjIds>) value, output));
         ifPresentApply(linkAttributes.getPeerNodeSid(), value -> TlvUtil.writeTLV(PEER_NODE_SID_CODE, SrLinkAttributesParser.serializeAdjacencySegmentIdentifier((PeerNodeSid) value), output));

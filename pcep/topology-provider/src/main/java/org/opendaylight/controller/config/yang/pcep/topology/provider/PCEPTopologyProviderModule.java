@@ -16,7 +16,6 @@
  */
 package org.opendaylight.controller.config.yang.pcep.topology.provider;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
@@ -24,6 +23,7 @@ import io.netty.channel.epoll.Epoll;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.charset.StandardCharsets;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.bgpcep.pcep.topology.provider.PCEPTopologyProvider;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
@@ -74,7 +74,7 @@ public final class PCEPTopologyProviderModule extends
                 final Rfc2385Key rfc2385KeyPassword = c.getPassword();
                 if (rfc2385KeyPassword != null && !rfc2385KeyPassword.getValue().isEmpty()) {
                     final String s = getAddressString(c.getAddress());
-                    ret.put(InetAddresses.forString(s), rfc2385KeyPassword.getValue().getBytes(Charsets.US_ASCII));
+                    ret.put(InetAddresses.forString(s), rfc2385KeyPassword.getValue().getBytes(StandardCharsets.US_ASCII));
                 }
             }
         }

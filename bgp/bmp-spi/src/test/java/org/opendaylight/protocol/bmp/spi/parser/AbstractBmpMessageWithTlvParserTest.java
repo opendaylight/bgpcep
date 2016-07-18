@@ -12,10 +12,10 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.charset.StandardCharsets;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.bmp.spi.registry.SimpleBmpTlvRegistry;
@@ -47,7 +47,7 @@ public class AbstractBmpMessageWithTlvParserTest {
             if (buffer == null) {
                 return null;
             }
-            return new DescriptionTlvBuilder().setDescription(buffer.toString(Charsets.US_ASCII)).build();
+            return new DescriptionTlvBuilder().setDescription(buffer.toString(StandardCharsets.US_ASCII)).build();
         }
     };
 

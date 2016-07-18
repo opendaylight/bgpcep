@@ -7,10 +7,10 @@
  */
 package org.opendaylight.protocol.rsvp.parser.impl.te;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.charset.StandardCharsets;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.protocol.rsvp.parser.spi.subobjects.AbstractRSVPObjectParser;
 import org.opendaylight.protocol.util.BitArray;
@@ -39,7 +39,7 @@ public final class SessionAttributeLspRaObjectParser extends AbstractRSVPObjectP
         builder.setSeStyleDesired(bs.get(SessionAttributeLspObjectParser.SE_STYLE));
         final short nameLenght = byteBuf.readUnsignedByte();
         final ByteBuf auxBuf = byteBuf.readSlice(nameLenght);
-        final String name = new String(ByteArray.readAllBytes(auxBuf), Charsets.US_ASCII);
+        final String name = new String(ByteArray.readAllBytes(auxBuf), StandardCharsets.US_ASCII);
         builder.setSessionName(name);
         return builder.build();
     }
@@ -49,7 +49,7 @@ public final class SessionAttributeLspRaObjectParser extends AbstractRSVPObjectP
         Preconditions.checkArgument(teLspObject instanceof SessionAttributeObjectWithResourcesAffinities, "SessionAttributeObject is mandatory.");
 
         final SessionAttributeObjectWithResourcesAffinities sessionObject = (SessionAttributeObjectWithResourcesAffinities) teLspObject;
-        final ByteBuf sessionName = Unpooled.wrappedBuffer(Charsets.US_ASCII.encode(sessionObject.getSessionName()));
+        final ByteBuf sessionName = Unpooled.wrappedBuffer(StandardCharsets.US_ASCII.encode(sessionObject.getSessionName()));
         final int pad = SessionAttributeLspObjectParser.getPadding(sessionName.readableBytes());
 
         serializeAttributeHeader(BODY_SIZE_C1 + pad + sessionName.readableBytes(), CLASS_NUM, CTYPE, output);
@@ -64,7 +64,7 @@ public final class SessionAttributeLspRaObjectParser extends AbstractRSVPObjectP
         bs.set(SessionAttributeLspObjectParser.SE_STYLE, sessionObject.isSeStyleDesired());
         bs.toByteBuf(output);
         output.writeByte(sessionName.readableBytes());
-        output.writeBytes(Unpooled.wrappedBuffer(Charsets.US_ASCII.encode(sessionObject.getSessionName())));
+        output.writeBytes(Unpooled.wrappedBuffer(StandardCharsets.US_ASCII.encode(sessionObject.getSessionName())));
         output.writeZero(pad);
     }
 }

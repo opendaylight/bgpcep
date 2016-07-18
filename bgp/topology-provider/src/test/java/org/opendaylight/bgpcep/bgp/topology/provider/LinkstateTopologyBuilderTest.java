@@ -14,12 +14,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import io.netty.buffer.Unpooled;
 import java.math.BigInteger;
 import java.util.Collections;
+import java.util.charset.StandardCharsets;
 import org.junit.Test;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -81,7 +81,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
 
-    private static final byte[] LINKSTATE_ROUTE_KEY = Unpooled.wrappedBuffer(Charsets.UTF_8.encode("linkstate-route")).array();
+    private static final byte[] LINKSTATE_ROUTE_KEY = Unpooled.wrappedBuffer(StandardCharsets.UTF_8.encode("linkstate-route")).array();
     private static final String ROUTER_1_ID = "127.0.0.1";
     private static final String ROUTER_2_ID = "127.0.0.2";
     private static final String NODE_1_PREFIX = "127.0.1.1/32";

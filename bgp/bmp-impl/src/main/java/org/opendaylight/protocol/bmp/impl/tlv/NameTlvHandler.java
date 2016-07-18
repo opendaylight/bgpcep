@@ -8,9 +8,9 @@
 
 package org.opendaylight.protocol.bmp.impl.tlv;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
+import java.util.charset.StandardCharsets;
 import org.opendaylight.protocol.bmp.spi.parser.BmpDeserializationException;
 import org.opendaylight.protocol.bmp.spi.parser.BmpTlvParser;
 import org.opendaylight.protocol.bmp.spi.parser.BmpTlvSerializer;
@@ -34,7 +34,7 @@ public class NameTlvHandler implements BmpTlvParser, BmpTlvSerializer {
         if (buffer == null) {
             return null;
         }
-        return new NameTlvBuilder().setName(buffer.toString(Charsets.US_ASCII)).build();
+        return new NameTlvBuilder().setName(buffer.toString(StandardCharsets.US_ASCII)).build();
     }
 
 }

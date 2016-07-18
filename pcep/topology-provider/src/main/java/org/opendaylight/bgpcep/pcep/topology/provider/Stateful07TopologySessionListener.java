@@ -7,7 +7,6 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -20,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PeerCapabilities;
@@ -357,7 +357,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
 
         String name = lookupLspName(plspid);
         if (lsp.getTlvs() != null && lsp.getTlvs().getSymbolicPathName() != null) {
-            name = Charsets.UTF_8.decode(ByteBuffer.wrap(lsp.getTlvs().getSymbolicPathName().getPathName().getValue())).toString();
+            name = StandardCharsets.UTF_8.decode(ByteBuffer.wrap(lsp.getTlvs().getSymbolicPathName().getPathName().getValue())).toString();
         }
         //get LspDB from LSP and write it to pcc's node
         final LspDbVersion lspDbVersion = geLspDbVersionTlv(lsp);
@@ -467,7 +467,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
                 tlvsBuilder = new TlvsBuilder();
             }
             tlvsBuilder.setSymbolicPathName(
-                new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(this.input.getName().getBytes(Charsets.UTF_8))).build());
+                new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(this.input.getName().getBytes(StandardCharsets.UTF_8))).build());
 
             final SrpBuilder srpBuilder = new SrpBuilder();
             srpBuilder.setOperationId(nextRequest());

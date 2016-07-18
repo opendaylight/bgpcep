@@ -8,12 +8,12 @@
 
 package org.opendaylight.protocol.pcep.pcc.mock.spi;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
+import java.util.charset.StandardCharsets;
 import javax.annotation.Nonnull;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -180,7 +180,7 @@ public final class MsgBuilderUtil {
     }
 
     public static byte[] getDefaultPathName(final String address, final long lspId) {
-        return ("pcc_" + address + "_tunnel_" + lspId).getBytes(Charsets.UTF_8);
+        return ("pcc_" + address + "_tunnel_" + lspId).getBytes(StandardCharsets.UTF_8);
     }
 
 }
