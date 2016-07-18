@@ -16,13 +16,13 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
 import io.netty.channel.epoll.Epoll;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -280,7 +280,7 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
     }
 
     private static Optional<byte[]> getMD5Password(final Rfc2385Key password) {
-        return getOptionalPassword(password).isPresent() ? Optional.of(password.getValue().getBytes(Charsets.US_ASCII)) : Optional.absent();
+        return getOptionalPassword(password).isPresent() ? Optional.of(password.getValue().getBytes(StandardCharsets.US_ASCII)) : Optional.absent();
     }
 
 }

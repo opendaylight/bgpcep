@@ -8,8 +8,8 @@
 
 package org.opendaylight.protocol.pcep.segment.routing;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import org.junit.Assert;
@@ -111,7 +111,7 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07Topo
         return new PcrptBuilder().setPcrptMessage(new PcrptMessageBuilder().setReports(Lists.newArrayList(new ReportsBuilder()
             .setLsp(new LspBuilder().setPlspId(new PlspId(plspId)).setRemove(false).setSync(true).setAdministrative(true).setDelegate(true)
                     .setTlvs(lspTlvBuilder
-                        .setSymbolicPathName(new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(pathName.getBytes(Charsets.UTF_8))).build()).build()).build())
+                        .setSymbolicPathName(new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(pathName.getBytes(StandardCharsets.UTF_8))).build()).build()).build())
             .setSrp(new SrpBuilder().setOperationId(new SrpIdNumber(0L)).setTlvs(
                     new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.TlvsBuilder()
                         .setPathSetupType(new PathSetupTypeBuilder().setPst((short) 1).build()).build()).build())

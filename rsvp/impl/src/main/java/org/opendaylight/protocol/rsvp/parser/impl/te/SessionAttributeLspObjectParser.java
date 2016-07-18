@@ -8,10 +8,10 @@
 
 package org.opendaylight.protocol.rsvp.parser.impl.te;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.nio.charset.StandardCharsets;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.protocol.rsvp.parser.spi.subobjects.AbstractRSVPObjectParser;
 import org.opendaylight.protocol.util.BitArray;
@@ -44,7 +44,7 @@ public final class SessionAttributeLspObjectParser extends AbstractRSVPObjectPar
         builder.setSeStyleDesired(bs.get(SE_STYLE));
         final short nameLenght = byteBuf.readUnsignedByte();
         final ByteBuf auxBuf = byteBuf.readSlice(nameLenght);
-        final String name = new String(ByteArray.readAllBytes(auxBuf), Charsets.US_ASCII);
+        final String name = new String(ByteArray.readAllBytes(auxBuf), StandardCharsets.US_ASCII);
         builder.setSessionName(name);
         return builder.build();
     }
@@ -54,7 +54,7 @@ public final class SessionAttributeLspObjectParser extends AbstractRSVPObjectPar
         Preconditions.checkArgument(teLspObject instanceof BasicSessionAttributeObject, "SessionAttributeObject is mandatory.");
 
         final BasicSessionAttributeObject sessionObject = (BasicSessionAttributeObject) teLspObject;
-        final ByteBuf sessionName = Unpooled.wrappedBuffer(Charsets.US_ASCII.encode(sessionObject.getSessionName()));
+        final ByteBuf sessionName = Unpooled.wrappedBuffer(StandardCharsets.US_ASCII.encode(sessionObject.getSessionName()));
         final int pad = getPadding(sessionName.readableBytes());
         serializeAttributeHeader(BODY_SIZE_C7 + pad + sessionName.readableBytes(), CLASS_NUM, CTYPE, output);
         output.writeByte(sessionObject.getSetupPriority());

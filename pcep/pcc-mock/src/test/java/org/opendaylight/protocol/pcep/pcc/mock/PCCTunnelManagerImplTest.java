@@ -10,13 +10,13 @@ package org.opendaylight.protocol.pcep.pcc.mock;
 
 import static org.junit.Assert.assertEquals;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.After;
@@ -59,7 +59,7 @@ public class PCCTunnelManagerImplTest {
 
     private static final InetAddress ADDRESS = InetAddresses.forString("1.2.4.5");
     private static final Timer TIMER = new HashedWheelTimer();
-    private static final byte[] SYMBOLIC_NAME = "tets".getBytes(Charsets.UTF_8);
+    private static final byte[] SYMBOLIC_NAME = "tets".getBytes(StandardCharsets.UTF_8);
     private static final Ero ERO = new EroBuilder()
         .setSubobject(Lists.newArrayList(new SubobjectBuilder().setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(
             new IpPrefixBuilder().setIpPrefix(new IpPrefix(new Ipv4Prefix("127.0.0.2/32"))).build()).build()).build())).build();

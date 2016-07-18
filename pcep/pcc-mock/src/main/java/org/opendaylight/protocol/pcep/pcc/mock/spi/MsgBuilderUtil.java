@@ -8,10 +8,10 @@
 
 package org.opendaylight.protocol.pcep.pcc.mock.spi;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -180,7 +180,7 @@ public final class MsgBuilderUtil {
     }
 
     public static byte[] getDefaultPathName(final String address, final long lspId) {
-        return ("pcc_" + address + "_tunnel_" + lspId).getBytes(Charsets.UTF_8);
+        return ("pcc_" + address + "_tunnel_" + lspId).getBytes(StandardCharsets.UTF_8);
     }
 
 }

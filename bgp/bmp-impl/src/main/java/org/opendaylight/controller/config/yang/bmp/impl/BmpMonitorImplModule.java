@@ -8,11 +8,11 @@
 
 package org.opendaylight.controller.config.yang.bmp.impl;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
 import io.netty.util.internal.PlatformDependent;
+import java.nio.charset.StandardCharsets;
 import java.security.AccessControlException;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
@@ -64,7 +64,7 @@ public class BmpMonitorImplModule extends org.opendaylight.controller.config.yan
                 final Rfc2385Key rfc2385KeyPassword = mr.getPassword();
                 if (rfc2385KeyPassword != null && !rfc2385KeyPassword.getValue().isEmpty()) {
                     final String s = getAddressString(mr.getAddress());
-                    ret.put(InetAddresses.forString(s), rfc2385KeyPassword.getValue().getBytes(Charsets.US_ASCII));
+                    ret.put(InetAddresses.forString(s), rfc2385KeyPassword.getValue().getBytes(StandardCharsets.US_ASCII));
                 }
             }
         }
