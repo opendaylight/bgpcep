@@ -10,6 +10,8 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import com.google.common.base.Preconditions;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.opendaylight.protocol.bgp.rib.impl.spi.AbstractImportPolicy;
+import org.opendaylight.protocol.bgp.rib.impl.spi.ImportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
@@ -18,27 +20,19 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Tracks import policy corresponding to a particular peer.
- */
-final class ImportPolicyPeerTracker {
-    private static final Logger LOG = LoggerFactory.getLogger(ImportPolicyPeerTracker.class);
+final class ImportPolicyPeerTrackerImpl implements ImportPolicyPeerTracker {
+    private static final Logger LOG = LoggerFactory.getLogger(ImportPolicyPeerTrackerImpl.class);
 
     private final Map<PeerId, AbstractImportPolicy> policies = new ConcurrentHashMap<>();
     private final PolicyDatabase policyDatabase;
 
-    protected ImportPolicyPeerTracker(final PolicyDatabase policyDatabase) {
+    protected ImportPolicyPeerTrackerImpl(final PolicyDatabase policyDatabase) {
         super();
         this.policyDatabase = Preconditions.checkNotNull(policyDatabase);
     }
 
-    /**
-     * Invoked whenever a peer role changes.
-     *
-     * @param peerPath Peer's path
-     * @param role Peer's new role, null indicates the peer has disappeared.
-     */
-    protected void peerRoleChanged(final YangInstanceIdentifier peerPath, final PeerRole role) {
+    @Override
+    public void peerRoleChanged(final YangInstanceIdentifier peerPath, final PeerRole role) {
         final PeerId peer = IdentifierUtils.peerId((NodeIdentifierWithPredicates) peerPath.getLastPathArgument());
 
         if (role != null) {
@@ -53,7 +47,8 @@ final class ImportPolicyPeerTracker {
         }
     }
 
-    AbstractImportPolicy policyFor(final PeerId peerId) {
+    @Override
+    public AbstractImportPolicy policyFor(final PeerId peerId) {
         LOG.trace("Peer ID : {}", peerId);
         return new CachingImportPolicy(this.policies.get(peerId));
     }
