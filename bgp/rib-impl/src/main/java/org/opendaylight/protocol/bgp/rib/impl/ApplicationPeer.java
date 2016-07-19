@@ -22,6 +22,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPConfigModuleTracker;
+import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -66,10 +67,10 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
     private final EffectiveRibInWriter effectiveRibInWriter;
     private AdjRibInWriter writer;
 
-    public ApplicationPeer(final ApplicationRibId applicationRibId, final Ipv4Address ipAddress, final RIBImpl rib, final BGPConfigModuleTracker
-        moduleTracker) {
+    public ApplicationPeer(final ApplicationRibId applicationRibId, final Ipv4Address ipAddress, final RIB rib, final BGPConfigModuleTracker
+            moduleTracker) {
         this.name = applicationRibId.getValue().toString();
-        final RIBImpl targetRib = Preconditions.checkNotNull(rib);
+        final RIB targetRib = Preconditions.checkNotNull(rib);
         this.rawIdentifier = InetAddresses.forString(ipAddress.getValue()).getAddress();
         final NodeIdentifierWithPredicates peerId = IdentifierUtils.domPeerId(RouterIds.createPeerId(ipAddress));
         final YangInstanceIdentifier peerIId = targetRib.getYangRibId().node(Peer.QNAME).node(peerId);
@@ -77,11 +78,11 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
         this.chain = targetRib.createPeerChain(this);
         //TODO need to create effective rib in writer with route counter here
         this.effectiveRibInWriter = EffectiveRibInWriter.create(targetRib.getService(), targetRib.createPeerChain(this), peerIId,
-            targetRib.getImportPolicyPeerTracker(), targetRib.getRibSupportContext(), PeerRole.Internal);
+                targetRib.getImportPolicyPeerTracker(), targetRib.getRibSupportContext(), PeerRole.Internal);
         this.writerChain = targetRib.createPeerChain(this);
         this.writer = AdjRibInWriter.create(targetRib.getYangRibId(), PeerRole.Internal, Optional.of(SimpleRoutingPolicy.AnnounceNone), this.writerChain);
         this.writer = this.writer.transform(RouterIds.createPeerId(ipAddress), targetRib.getRibSupportContext(), targetRib.getLocalTablesKeys(),
-            Collections.emptyList());
+                Collections.emptyList());
         this.moduleTracker = moduleTracker;
         if (moduleTracker != null) {
             moduleTracker.onInstanceCreate();
@@ -112,28 +113,28 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
                 final PathArgument childIdentifier = child.getIdentifier();
                 final YangInstanceIdentifier tableId = this.adjRibsInId.node(tableKey).node(childIdentifier);
                 switch (child.getModificationType()) {
-                case DELETE:
-                    LOG.trace("App peer -> AdjRibsIn path delete: {}", childIdentifier);
-                    tx.delete(LogicalDatastoreType.OPERATIONAL, tableId);
-                    break;
-                case UNMODIFIED:
-                    // No-op
-                    break;
-                case SUBTREE_MODIFIED:
-                    if (EffectiveRibInWriter.TABLE_ROUTES.equals(childIdentifier)) {
-                        processRoutesTable(child, tableId, tx, tableId);
+                    case DELETE:
+                        LOG.trace("App peer -> AdjRibsIn path delete: {}", childIdentifier);
+                        tx.delete(LogicalDatastoreType.OPERATIONAL, tableId);
                         break;
-                    }
-                case WRITE:
-                    if (child.getDataAfter().isPresent()) {
-                        final NormalizedNode<?,?> dataAfter = child.getDataAfter().get();
-                        LOG.trace("App peer -> AdjRibsIn path : {}", tableId);
-                        LOG.trace("App peer -> AdjRibsIn data : {}", dataAfter);
-                        tx.put(LogicalDatastoreType.OPERATIONAL, tableId, dataAfter);
-                    }
-                    break;
-                default:
-                    break;
+                    case UNMODIFIED:
+                        // No-op
+                        break;
+                    case SUBTREE_MODIFIED:
+                        if (EffectiveRibInWriter.TABLE_ROUTES.equals(childIdentifier)) {
+                            processRoutesTable(child, tableId, tx, tableId);
+                            break;
+                        }
+                    case WRITE:
+                        if (child.getDataAfter().isPresent()) {
+                            final NormalizedNode<?,?> dataAfter = child.getDataAfter().get();
+                            LOG.trace("App peer -> AdjRibsIn path : {}", tableId);
+                            LOG.trace("App peer -> AdjRibsIn data : {}", dataAfter);
+                            tx.put(LogicalDatastoreType.OPERATIONAL, tableId, dataAfter);
+                        }
+                        break;
+                    default:
+                        break;
                 }
             }
         }
@@ -148,34 +149,34 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
      * @param routeTableIdentifier
      */
     private void processRoutesTable(final DataTreeCandidateNode node, final YangInstanceIdentifier identifier,
-        final DOMDataWriteTransaction tx, final YangInstanceIdentifier routeTableIdentifier) {
+            final DOMDataWriteTransaction tx, final YangInstanceIdentifier routeTableIdentifier) {
         for (final DataTreeCandidateNode child : node.getChildNodes()) {
             final YangInstanceIdentifier childIdentifier = identifier.node(child.getIdentifier());
             switch (child.getModificationType()) {
-            case DELETE:
-                LOG.trace("App peer -> AdjRibsIn path delete: {}", childIdentifier);
-                tx.delete(LogicalDatastoreType.OPERATIONAL, childIdentifier);
-                break;
-            case UNMODIFIED:
-                // No-op
-                break;
-            case SUBTREE_MODIFIED:
-                //For be ables to use DELETE when we remove specific routes as we do when we remove the whole routes,
-                // we need to go deeper three levels
-                if (!routeTableIdentifier.equals(childIdentifier.getParent().getParent().getParent())) {
-                    processRoutesTable(child, childIdentifier, tx, routeTableIdentifier);
+                case DELETE:
+                    LOG.trace("App peer -> AdjRibsIn path delete: {}", childIdentifier);
+                    tx.delete(LogicalDatastoreType.OPERATIONAL, childIdentifier);
                     break;
-                }
-            case WRITE:
-                if (child.getDataAfter().isPresent()) {
-                    final NormalizedNode<?,?> dataAfter = child.getDataAfter().get();
-                    LOG.trace("App peer -> AdjRibsIn path : {}", childIdentifier);
-                    LOG.trace("App peer -> AdjRibsIn data : {}", dataAfter);
-                    tx.put(LogicalDatastoreType.OPERATIONAL, childIdentifier, dataAfter);
-                }
-                break;
-            default:
-                break;
+                case UNMODIFIED:
+                    // No-op
+                    break;
+                case SUBTREE_MODIFIED:
+                    //For be ables to use DELETE when we remove specific routes as we do when we remove the whole routes,
+                    // we need to go deeper three levels
+                    if (!routeTableIdentifier.equals(childIdentifier.getParent().getParent().getParent())) {
+                        processRoutesTable(child, childIdentifier, tx, routeTableIdentifier);
+                        break;
+                    }
+                case WRITE:
+                    if (child.getDataAfter().isPresent()) {
+                        final NormalizedNode<?,?> dataAfter = child.getDataAfter().get();
+                        LOG.trace("App peer -> AdjRibsIn path : {}", childIdentifier);
+                        LOG.trace("App peer -> AdjRibsIn data : {}", dataAfter);
+                        tx.put(LogicalDatastoreType.OPERATIONAL, childIdentifier, dataAfter);
+                    }
+                    break;
+                default:
+                    break;
             }
         }
     }
@@ -203,7 +204,7 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
 
     @Override
     public void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction,
-        final Throwable cause) {
+            final Throwable cause) {
         LOG.error("Transaction chain failed.", cause);
     }
 

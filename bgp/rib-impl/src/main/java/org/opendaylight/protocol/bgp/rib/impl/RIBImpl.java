@@ -42,6 +42,7 @@ import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigProvider;
 import org.opendaylight.protocol.bgp.rib.DefaultRibReference;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
+import org.opendaylight.protocol.bgp.rib.impl.spi.ImportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl.BGPRenderStats;
@@ -50,7 +51,6 @@ import org.opendaylight.protocol.bgp.rib.spi.CacheDisconnectedPeers;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
@@ -60,7 +60,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingCodecTreeFactory;
@@ -113,10 +112,10 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private RIBImplRuntimeRegistration runtimeReg = null;
 
     public RIBImpl(final RibId ribId, final AsNumber localAs, final BgpId localBgpId, final ClusterIdentifier clusterId, final RIBExtensionConsumerContext extensions,
-        final BGPDispatcher dispatcher, final BindingCodecTreeFactory codecFactory,
-        final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
-        @Nonnull final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies, final GeneratedClassLoadingStrategy classStrategy,
-        final BGPConfigModuleTracker moduleTracker, final BGPOpenConfigProvider openConfigProvider) {
+            final BGPDispatcher dispatcher, final BindingCodecTreeFactory codecFactory,
+            final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
+            @Nonnull final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies, final GeneratedClassLoadingStrategy classStrategy,
+            final BGPConfigModuleTracker moduleTracker, final BGPOpenConfigProvider openConfigProvider) {
         super(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(Preconditions.checkNotNull(ribId))));
         this.domChain = domDataBroker.createTransactionChain(this);
         this.localAs = Preconditions.checkNotNull(localAs);
@@ -140,16 +139,16 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         LOG.debug("Instantiating RIB table {} at {}", ribId, this.yangRibId);
 
         final ContainerNode bgpRib = Builders.containerBuilder()
-            .withNodeIdentifier(new NodeIdentifier(BgpRib.QNAME))
+                .withNodeIdentifier(new NodeIdentifier(BgpRib.QNAME))
                 .addChild(ImmutableNodes.mapNodeBuilder(Rib.QNAME).build()).build();
 
         final MapEntryNode ribInstance = Builders.mapEntryBuilder().withNodeIdentifier(
                 new NodeIdentifierWithPredicates(Rib.QNAME, RIB_ID_QNAME, ribId.getValue()))
-                    .addChild(ImmutableNodes.leafNode(RIB_ID_QNAME, ribId.getValue()))
-                    .addChild(ImmutableNodes.mapNodeBuilder(Peer.QNAME).build())
-                    .addChild(Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(LocRib.QNAME))
-                    .addChild(ImmutableNodes.mapNodeBuilder(Tables.QNAME).build())
-                    .build()).build();
+                .addChild(ImmutableNodes.leafNode(RIB_ID_QNAME, ribId.getValue()))
+                .addChild(ImmutableNodes.mapNodeBuilder(Peer.QNAME).build())
+                .addChild(Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(LocRib.QNAME))
+                        .addChild(ImmutableNodes.mapNodeBuilder(Tables.QNAME).build())
+                        .build()).build();
 
 
         final DOMDataWriteTransaction trans = this.domChain.newWriteOnlyTransaction();
@@ -164,7 +163,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
             LOG.error("Failed to initiate RIB {}", this.yangRibId, e);
         }
         final PolicyDatabase policyDatabase  = new PolicyDatabase(localAs.getValue(), localBgpId, cId);
-        this.importPolicyPeerTracker = new ImportPolicyPeerTracker(policyDatabase);
+        this.importPolicyPeerTracker = new ImportPolicyPeerTrackerImpl(policyDatabase);
 
         final DOMDataBrokerExtension domDatatreeChangeService = this.domDataBroker.getSupportedExtensions().get(DOMDataTreeChangeService.class);
         this.service = domDatatreeChangeService;
@@ -182,11 +181,11 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     }
 
     public RIBImpl(final RibId ribId, final AsNumber localAs, final BgpId localBgpId, @Nullable final ClusterIdentifier clusterId, final RIBExtensionConsumerContext extensions,
-                   final BGPDispatcher dispatcher, final BindingCodecTreeFactory codecFactory,
-                   final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
-                   final Map<TablesKey, PathSelectionMode> bestPathSelectionstrategies, final GeneratedClassLoadingStrategy classStrategy) {
+            final BGPDispatcher dispatcher, final BindingCodecTreeFactory codecFactory,
+            final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
+            final Map<TablesKey, PathSelectionMode> bestPathSelectionstrategies, final GeneratedClassLoadingStrategy classStrategy) {
         this(ribId, localAs, localBgpId, clusterId, extensions, dispatcher, codecFactory,
-            domDataBroker, localTables, bestPathSelectionstrategies, classStrategy, null, null);
+                domDataBroker, localTables, bestPathSelectionstrategies, classStrategy, null, null);
     }
 
     public synchronized void registerRootRuntimeBean(final RIBImplRuntimeRegistrator registrator) {
@@ -201,7 +200,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private void initStatsRuntimeBean() {
         if (this.registrator != null) {
             LOG.debug("Initializing Render Status runtime bean..");
-            this.runtimeReg = this.registrator.register(renderStats);
+            this.runtimeReg = this.registrator.register(this.renderStats);
         }
     }
 
@@ -212,7 +211,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
             this.runtimeReg = null;
         }
         // reset all the stats
-        renderStats.getLocRibRouteCounter().resetAll();
+        this.renderStats.getLocRibRouteCounter().resetAll();
     }
 
     private void startLocRib(final TablesKey key, final PolicyDatabase pd) {
@@ -247,7 +246,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         }
 
         this.locRibs.add(LocRibWriter.create(this.ribContextRegistry, key, createPeerChain(this), getYangRibId(), this.localAs, getService(), pd,
-            this.cacheDisconnectedPeers, pathSelectionStrategy, this.renderStats.getLocRibRouteCounter().init(key)));
+                this.cacheDisconnectedPeers, pathSelectionStrategy, this.renderStats.getLocRibRouteCounter().init(key)));
     }
 
     @Override
@@ -310,6 +309,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         LOG.info("RIB {} closed successfully", getInstanceIdentifier());
     }
 
+    @Override
     public Set<TablesKey> getLocalTablesKeys() {
         return this.localTablesKeys;
     }
@@ -364,6 +364,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         return this.cacheDisconnectedPeers;
     }
 
+    @Override
     public ImportPolicyPeerTracker getImportPolicyPeerTracker() {
         return this.importPolicyPeerTracker;
     }
