@@ -45,6 +45,10 @@
             <artifactId>bgp-path-selection-mode</artifactId>
         </dependency>
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-openconfig-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.opendaylight.mdsal.model</groupId>
             <artifactId>ietf-inet-types-2013-07-15</artifactId>
         </dependency>

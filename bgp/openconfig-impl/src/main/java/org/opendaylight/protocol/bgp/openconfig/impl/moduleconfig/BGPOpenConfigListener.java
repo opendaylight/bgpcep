@@ -20,7 +20,6 @@ import org.opendaylight.controller.md.sal.binding.api.MountPoint;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.openconfig.impl.spi.BGPConfigStateStore;
 import org.opendaylight.protocol.bgp.openconfig.impl.util.OpenConfigUtil;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.Config1;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
@@ -115,7 +114,7 @@ public final class BGPOpenConfigListener implements DataTreeChangeListener<Bgp>,
     }
 
     private void removeNeighbor(final Neighbor neighbor) {
-        if (isAppNeighbor(neighbor)) {
+        if (OpenConfigUtil.isAppNeighbor(neighbor)) {
             appPeerProvider.onNeighborRemoved(neighbor);
         } else {
             peerProvider.onNeighborRemoved(neighbor);
@@ -123,18 +122,10 @@ public final class BGPOpenConfigListener implements DataTreeChangeListener<Bgp>,
     }
 
     private void modifyNeighbor(final Neighbor neighbor) {
-        if (isAppNeighbor(neighbor)) {
+        if (OpenConfigUtil.isAppNeighbor(neighbor)) {
             appPeerProvider.onNeighborModified(neighbor);
         } else {
             peerProvider.onNeighborModified(neighbor);
         }
-    }
-
-    private static boolean isAppNeighbor(final Neighbor neighbor) {
-        final Config1 config1 = neighbor.getConfig().getAugmentation(Config1.class);
-        if (config1 != null) {
-            return config1.getPeerGroup() != null && config1.getPeerGroup().equals(OpenConfigUtil.APPLICATION_PEER_GROUP_NAME);
-        }
-        return false;
     }
 }
