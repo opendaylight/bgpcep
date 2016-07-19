@@ -9,7 +9,6 @@
   </bean>
 
   <bean id="BGPActivator" class="org.opendaylight.protocol.bgp.flowspec.BGPActivator">
-    <argument ref="flowSpecExtensionContext"/>
     <argument ref="flowSpecActivator"/>
   </bean>
 
