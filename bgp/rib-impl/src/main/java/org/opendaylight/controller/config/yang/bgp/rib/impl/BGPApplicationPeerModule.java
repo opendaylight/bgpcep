@@ -19,7 +19,6 @@ import org.opendaylight.protocol.bgp.openconfig.spi.InstanceConfigurationIdentif
 import org.opendaylight.protocol.bgp.openconfig.spi.pojo.BGPAppPeerInstanceConfiguration;
 import org.opendaylight.protocol.bgp.rib.impl.ApplicationPeer;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeer;
-import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
 import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
@@ -61,7 +60,7 @@ public class BGPApplicationPeerModule extends org.opendaylight.controller.config
         final YangInstanceIdentifier id = YangInstanceIdentifier.builder().node(ApplicationRib.QNAME).nodeWithKey(ApplicationRib.QNAME, APP_ID_QNAME, getApplicationRibId().getValue()).node(Tables.QNAME).node(Tables.QNAME).build();
         final DOMDataTreeChangeService service = (DOMDataTreeChangeService) getDataBrokerDependency().getSupportedExtensions().get(DOMDataTreeChangeService.class);
         final AppPeerModuleTracker appPeerMT = new AppPeerModuleTracker(getTargetRibDependency().getOpenConfigProvider());
-        final ApplicationPeer appPeer = new ApplicationPeer(getApplicationRibId(), getBgpPeerId(), (RIBImpl) getTargetRibDependency(), appPeerMT);
+        final ApplicationPeer appPeer = new ApplicationPeer(getApplicationRibId(), getBgpPeerId(), getTargetRibDependency(), appPeerMT);
         final ListenerRegistration<ApplicationPeer> listenerRegistration = service.registerDataTreeChangeListener(
                 new DOMDataTreeIdentifier(LogicalDatastoreType.CONFIGURATION, id), appPeer);
 
