@@ -11,6 +11,7 @@ import com.google.common.base.Preconditions;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import javax.annotation.concurrent.NotThreadSafe;
+import org.opendaylight.protocol.bgp.rib.impl.spi.AbstractImportPolicy;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 /**
@@ -28,7 +29,7 @@ final class CachingImportPolicy extends AbstractImportPolicy {
     }
 
     @Override
-    ContainerNode effectiveAttributes(final ContainerNode attributes) {
+    public ContainerNode effectiveAttributes(final ContainerNode attributes) {
         ContainerNode ret = this.cache.get(attributes);
         if (ret == null) {
             ret = this.delegate.effectiveAttributes(attributes);
