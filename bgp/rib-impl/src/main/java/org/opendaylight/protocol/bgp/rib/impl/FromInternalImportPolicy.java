@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.base.Preconditions;
+import org.opendaylight.protocol.bgp.rib.impl.spi.AbstractImportPolicy;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -30,7 +31,7 @@ class FromInternalImportPolicy extends AbstractImportPolicy {
     }
 
     @Override
-    ContainerNode effectiveAttributes(final ContainerNode attributes) {
+    public ContainerNode effectiveAttributes(final ContainerNode attributes) {
         final AttributeOperations oper = AttributeOperations.getInstance(attributes);
 
         /*
@@ -40,8 +41,8 @@ class FromInternalImportPolicy extends AbstractImportPolicy {
          * we filter the route.
          */
         final Object originatorId = oper.getOriginatorId(attributes);
-        if (bgpIdentifier.getValue().equals(originatorId)) {
-            LOG.debug("Filtering route with our ORIGINATOR_ID {}", bgpIdentifier);
+        if (this.bgpIdentifier.getValue().equals(originatorId)) {
+            LOG.debug("Filtering route with our ORIGINATOR_ID {}", this.bgpIdentifier);
             return null;
         }
 
@@ -51,9 +52,9 @@ class FromInternalImportPolicy extends AbstractImportPolicy {
          */
         final LeafSetNode<?> clusterList = oper.getClusterList(attributes);
         if (clusterList != null) {
-            for (LeafSetEntryNode<?> node : clusterList.getValue()) {
-                if (clusterIdentifier.getValue().equals(node.getValue())) {
-                    LOG.info("Received a route with our CLUSTER_ID {} in CLUSTER_LIST {}, filtering it", clusterIdentifier.getValue(), clusterList);
+            for (final LeafSetEntryNode<?> node : clusterList.getValue()) {
+                if (this.clusterIdentifier.getValue().equals(node.getValue())) {
+                    LOG.info("Received a route with our CLUSTER_ID {} in CLUSTER_LIST {}, filtering it", this.clusterIdentifier.getValue(), clusterList);
                     return null;
                 }
             }
