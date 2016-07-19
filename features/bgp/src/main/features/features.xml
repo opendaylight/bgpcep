@@ -51,7 +51,6 @@
         <feature version='${project.version}'>odl-bgpcep-bgp-evpn</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-topology</feature>
         <feature version='${netconf.version}'>odl-netconf-connector</feature>
-        <bundle>mvn:org.opendaylight.bgpcep/bgp-openconfig-api/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-openconfig-impl/{{VERSION}}</bundle>
     </feature>
 
@@ -147,6 +146,7 @@
         <feature version='${project.version}'>odl-bgpcep-bgp-rib-api</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-path-selection-mode</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-inet</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-openconfig-api/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-openconfig-spi/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-impl/{{VERSION}}</bundle>
     </feature>
