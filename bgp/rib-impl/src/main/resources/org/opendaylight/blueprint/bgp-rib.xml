@@ -46,6 +46,7 @@
   <reference id="domDataBroker" interface="org.opendaylight.controller.md.sal.dom.api.DOMDataBroker"/>
   <reference id="bgpOpenConfigMappingService" interface="org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService"/>
   <reference id="schemaService" interface="org.opendaylight.controller.sal.core.api.model.SchemaService"/>
+  <reference id="rpcRegistry" interface="org.opendaylight.controller.sal.binding.api.RpcProviderRegistry"/>
 
   <bean id="bgpDeployer" class="org.opendaylight.protocol.bgp.rib.impl.config.BgpDeployerImpl">
     <argument value="global-bgp"/>
@@ -62,6 +63,11 @@
     <argument ref="codecTreeFactory"/>
     <argument ref="domDataBroker"/>
     <argument ref="schemaService"/>
+  </bean>
+
+  <bean id="bgpPeer" class="org.opendaylight.protocol.bgp.rib.impl.config.BgpPeer" scope="prototype">
+    <argument ref="rpcRegistry"/>
+    <argument ref="BGPPeerRegistry"/>
   </bean>
 
 </blueprint>
