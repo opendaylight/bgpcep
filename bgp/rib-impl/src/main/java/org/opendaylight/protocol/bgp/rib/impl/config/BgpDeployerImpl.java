@@ -8,6 +8,7 @@
 
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
+import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getNeighborInstanceIdentifier;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getRibInstanceName;
 
 import com.google.common.util.concurrent.CheckedFuture;
@@ -30,8 +31,10 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.InstanceType;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Neighbors;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.NetworkInstances;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstance;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstanceBuilder;
@@ -56,7 +59,9 @@ public final class BgpDeployerImpl implements BgpDeployer, DataTreeChangeListene
     private final BGPOpenConfigMappingService mappingService;
     private final ListenerRegistration<BgpDeployerImpl>  registration;
     private final DataBroker dataBroker;
+
     private final Map<InstanceIdentifier<Bgp>, RibImpl> ribs = new HashMap<>();
+    private final Map<InstanceIdentifier<Neighbor>, BgpPeer> peers = new HashMap<>();
 
     public BgpDeployerImpl(final String networkInstanceName, final ExtendedBlueprintContainer container,
             final DataBroker dataBroker, final BGPOpenConfigMappingService mappingService) {
@@ -92,6 +97,8 @@ public final class BgpDeployerImpl implements BgpDeployer, DataTreeChangeListene
             for (final DataObjectModification<? extends DataObject> dataObjectModification : rootNode.getModifiedChildren()) {
                 if (dataObjectModification.getDataType().equals(Global.class)) {
                     onGlobalChanged((DataObjectModification<Global>) dataObjectModification, rootIdentifier);
+                } else if (dataObjectModification.getDataType().equals(Neighbors.class)) {
+                    onNeighborsChanged((DataObjectModification<Neighbors>) dataObjectModification, rootIdentifier);
                 }
             }
         }
@@ -105,6 +112,8 @@ public final class BgpDeployerImpl implements BgpDeployer, DataTreeChangeListene
     @Override
     public void close() throws Exception {
         this.registration.close();
+        this.peers.values().forEach(bgpPeer -> bgpPeer.close());
+        this.peers.clear();
         this.ribs.values().forEach(rib -> rib.close());
         this.ribs.clear();
     }
@@ -173,6 +182,51 @@ public final class BgpDeployerImpl implements BgpDeployer, DataTreeChangeListene
         final String ribInstanceName = getRibInstanceName(rootIdentifier);
         ribImpl.start(global, ribInstanceName, this.mappingService);
         registerRibInstance(ribImpl, ribInstanceName);
+    }
+
+    private void onNeighborsChanged(final DataObjectModification<Neighbors> dataObjectModification,
+            final InstanceIdentifier<Bgp> rootIdentifier) {
+        for (final DataObjectModification<? extends DataObject> neighborModification : dataObjectModification.getModifiedChildren()) {
+            switch (neighborModification.getModificationType()) {
+                case DELETE:
+                    onNeighborRemoved(rootIdentifier, (Neighbor) neighborModification.getDataBefore());
+                    break;
+                case SUBTREE_MODIFIED:
+                    onNeighborModified(rootIdentifier, (Neighbor) neighborModification.getDataAfter());
+                    break;
+                case WRITE:
+                    onNeighborCreated(rootIdentifier, (Neighbor) neighborModification.getDataAfter());
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    private void onNeighborModified(final InstanceIdentifier<Bgp> rootIdentifier, final Neighbor neighbor) {
+        //restart peer instance with a new configuration
+        LOG.debug("Modifing Peer instance with configuration: {}", neighbor);
+        final BgpPeer bgpPeer = this.peers.get(getNeighborInstanceIdentifier(rootIdentifier, neighbor.getKey()));
+        bgpPeer.close();
+        bgpPeer.start(this.ribs.get(rootIdentifier), neighbor, this.mappingService);
+        LOG.debug("Peer instance modified {}", bgpPeer);
+    }
+
+    private void onNeighborCreated(final InstanceIdentifier<Bgp> rootIdentifier, final Neighbor neighbor) {
+        //create, start and register peer instance
+        LOG.debug("Creating Peer instance with configuration: {}", neighbor);
+        final BgpPeer bgpPeer = (BgpPeer) this.container.getComponentInstance(InstanceType.PEER.getBeanName());
+        bgpPeer.start(this.ribs.get(rootIdentifier), neighbor, this.mappingService);
+        this.peers.put(getNeighborInstanceIdentifier(rootIdentifier, neighbor.getKey()), bgpPeer);
+        LOG.debug("Peer instance created {}", bgpPeer);
+    }
+
+    private void onNeighborRemoved(final InstanceIdentifier<Bgp> rootIdentifier, final Neighbor neighbor) {
+        //destroy peer instance
+        LOG.debug("Removing Peer instance: {}", rootIdentifier);
+        final BgpPeer bgpPeer = this.peers.remove(getNeighborInstanceIdentifier(rootIdentifier, neighbor.getKey()));
+        bgpPeer.close();
+        LOG.debug("Peer instance removed {}", bgpPeer);
     }
 
     @Override
