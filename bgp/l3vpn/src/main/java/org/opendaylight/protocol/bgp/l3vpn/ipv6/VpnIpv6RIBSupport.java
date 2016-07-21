@@ -22,9 +22,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 
-/**
- * @author Kevin Wang
- */
 final class VpnIpv6RIBSupport extends AbstractVpnRIBSupport {
 
     /**
@@ -47,13 +44,13 @@ final class VpnIpv6RIBSupport extends AbstractVpnRIBSupport {
     }
 
     @Override
-    protected DestinationType getAdvertisedDestinationType(List<VpnDestination> dests) {
+    protected DestinationType getAdvertisedDestinationType(final List<VpnDestination> dests) {
         return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv6.rev160331.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationVpnIpv6CaseBuilder().setVpnIpv6Destination(
             new VpnIpv6DestinationBuilder().setVpnDestination(dests).build()).build();
     }
 
     @Override
-    protected DestinationType getWithdrawnDestinationType(List<VpnDestination> dests) {
+    protected DestinationType getWithdrawnDestinationType(final List<VpnDestination> dests) {
         return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv6.rev160331.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationVpnIpv6CaseBuilder().setVpnIpv6Destination(
             new VpnIpv6DestinationBuilder().setVpnDestination(dests).build()).build();
     }

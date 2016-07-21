@@ -13,9 +13,6 @@ import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
 
-/**
- * @author Kevin Wang
- */
 public class BgpIpv6ActivatorTest {
 
     @Test

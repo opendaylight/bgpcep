@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
  * loss of user code.
  *
  */
-public class BgpStdCommunityTypeBuilder {
+public final class BgpStdCommunityTypeBuilder {
 
     private static final Pattern COMM_TYPE_PATTERN = Pattern.compile("^([0-9]+:[0-9]+)$");
 

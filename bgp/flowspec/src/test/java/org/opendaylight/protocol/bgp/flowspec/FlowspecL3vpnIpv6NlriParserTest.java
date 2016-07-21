@@ -83,16 +83,17 @@ public class FlowspecL3vpnIpv6NlriParserTest {
     private PeerSpecificParserConstraint constraint;
     @Mock
     private MultiPathSupport muliPathSupport;
-    private final SimpleFlowspecExtensionProviderContext flowspecContext = new SimpleFlowspecExtensionProviderContext();
-    private final FlowspecActivator fsa = new FlowspecActivator(flowspecContext);
-    private final FlowspecL3vpnIpv6NlriParser FS_PARSER = new FlowspecL3vpnIpv6NlriParser(flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV6, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
+    private static final SimpleFlowspecExtensionProviderContext FLOWSPEC_CONTEXT = new SimpleFlowspecExtensionProviderContext();
+    private final FlowspecActivator fsa = new FlowspecActivator(FLOWSPEC_CONTEXT);
+    private static final FlowspecL3vpnIpv6NlriParser FS_PARSER = new FlowspecL3vpnIpv6NlriParser(FLOWSPEC_CONTEXT.getFlowspecTypeRegistry
+        (SimpleFlowspecExtensionProviderContext.AFI.IPV6, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
 
     private static final byte[] REACHED_NLRI = new byte[]{
         0x1B,   // NLRI length: 19+8=27
         0, 1, 1, 2, 3, 4, 0, 10,    // route distinguisher: 1.2.3.4:10
         1, 0x28, 0, 1, 2, 3, 4, 5,
         2, 0x28, 0, 1, 2, 3, 4, 6,
-        03, (byte) 0x81, 06};
+        3, (byte) 0x81, 6};
 
     private static final byte[] REACHED_NLRI_ADD_PATH = new byte[]{
         0x0, 0x0, 0x0, 0x1,
@@ -100,7 +101,7 @@ public class FlowspecL3vpnIpv6NlriParserTest {
         0, 1, 1, 2, 3, 4, 0, 10,    // route distinguisher: 1.2.3.4:10
         1, 0x28, 0, 1, 2, 3, 4, 5,
         2, 0x28, 0, 1, 2, 3, 4, 6,
-        03, (byte) 0x81, 06};
+        3, (byte) 0x81, 6};
 
     private static final byte[] UNREACHED_NLRI = new byte[]{
         0x14,   // NLRI length: 12+8=20
@@ -148,7 +149,7 @@ public class FlowspecL3vpnIpv6NlriParserTest {
         result.setSafi(FlowspecL3vpnSubsequentAddressFamily.class);
         FS_PARSER.parseNlri(Unpooled.wrappedBuffer(REACHED_NLRI), result);
 
-        DestinationFlowspecL3vpnIpv6 flowspecDst = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecL3vpnIpv6Case) (result.getAdvertizedRoutes().getDestinationType()))
+        final DestinationFlowspecL3vpnIpv6 flowspecDst = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecL3vpnIpv6Case) (result.getAdvertizedRoutes().getDestinationType()))
             .getDestinationFlowspecL3vpnIpv6();
         final List<Flowspec> flows = flowspecDst.getFlowspec();
 

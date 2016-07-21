@@ -39,12 +39,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.mess
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
-/**
- * Created by cgasparini on 18.5.2015.
- */
 public class AbstractBmpPerPeerMessageParserTest {
     private static final String RD = "5:3";
-    protected BGPExtensionProviderContext ctx;
+    private BGPExtensionProviderContext ctx;
     private AbstractBmpPerPeerMessageParser<?> parser;
     final byte[] ipv6MsgWithDistinguishergBytes = {
         (byte) 0x01, (byte) 0xc0,

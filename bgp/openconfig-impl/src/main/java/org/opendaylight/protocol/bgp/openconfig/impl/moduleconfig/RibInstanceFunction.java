@@ -49,7 +49,7 @@ final class RibInstanceFunction {
                 }
             }
             return null;
-        } catch (ReadFailedException e) {
+        } catch (final ReadFailedException e) {
             throw new IllegalStateException("Failed to read service.", e);
         }
     }

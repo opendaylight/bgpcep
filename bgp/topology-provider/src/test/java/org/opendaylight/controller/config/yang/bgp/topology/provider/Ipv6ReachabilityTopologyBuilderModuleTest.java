@@ -24,7 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 public class Ipv6ReachabilityTopologyBuilderModuleTest extends AbstractRIBImplModuleTest {
 
     private static final String FACTORY_NAME = Ipv6ReachabilityTopologyBuilderModuleFactory.NAME;
-    private static final String INSTANCE_NAME = "bgp-reachability-ipv6-instance";
+    private static final String INSTANCE_NAME = "bgp-reachability-IPV6-instance";
 
     @Override
     protected List<ModuleFactory> getModuleFactories() {

@@ -15,12 +15,12 @@ import org.opendaylight.protocol.bmp.spi.parser.BmpDeserializationException;
 public class AbstractBmpExtensionProviderActivatorTest {
 
     private final SimpleAbstractBmpExtensionProviderActivator activator = new SimpleAbstractBmpExtensionProviderActivator();
-    private static final SimpleBmpExtensionProviderContext context = new SimpleBmpExtensionProviderContext();
+    private static final SimpleBmpExtensionProviderContext CONTEXT = new SimpleBmpExtensionProviderContext();
 
 
     @Test
     public void testStartActivator() throws BmpDeserializationException {
-        this.activator.start(context);
+        this.activator.start(CONTEXT);
         this.activator.close();
     }
 

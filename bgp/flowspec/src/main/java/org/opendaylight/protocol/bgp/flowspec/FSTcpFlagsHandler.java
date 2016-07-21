@@ -29,19 +29,19 @@ public final class FSTcpFlagsHandler implements FlowspecTypeParser, FlowspecType
     public static final int TCP_FLAGS_VALUE = 9;
 
     @Override
-    public void serializeType(FlowspecType fsType, ByteBuf output) {
+    public void serializeType(final FlowspecType fsType, final ByteBuf output) {
         Preconditions.checkArgument(fsType instanceof TcpFlagsCase, "TcpFlagsCase class is mandatory!");
         output.writeByte(TCP_FLAGS_VALUE);
         serializeTcpFlags(((TcpFlagsCase) fsType).getTcpFlags(), output);
     }
 
     @Override
-    public FlowspecType parseType(ByteBuf buffer) {
+    public FlowspecType parseType(final ByteBuf buffer) {
         Preconditions.checkNotNull(buffer, "input buffer is null, missing data to parse.");
         return new TcpFlagsCaseBuilder().setTcpFlags(parseTcpFlags(buffer)).build();
     }
 
-    private static final void serializeTcpFlags(final List<TcpFlags> flags, final ByteBuf nlriByteBuf) {
+    private static void serializeTcpFlags(final List<TcpFlags> flags, final ByteBuf nlriByteBuf) {
         for (final TcpFlags flag : flags) {
             final ByteBuf flagsBuf = Unpooled.buffer();
             Util.writeShortest(flag.getValue(), flagsBuf);

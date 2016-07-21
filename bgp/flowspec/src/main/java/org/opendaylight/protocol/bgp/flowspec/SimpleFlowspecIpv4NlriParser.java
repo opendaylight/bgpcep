@@ -23,7 +23,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 
 public final class SimpleFlowspecIpv4NlriParser extends AbstractFlowspecNlriParser {
 
-    public SimpleFlowspecIpv4NlriParser(SimpleFlowspecTypeRegistry flowspecTypeRegistry) {
+    public SimpleFlowspecIpv4NlriParser(final SimpleFlowspecTypeRegistry flowspecTypeRegistry) {
         super(flowspecTypeRegistry);
     }
 

@@ -53,7 +53,7 @@ final class MACIpAdvRParser extends AbstractEvpnNlri {
         final MacAddress mac = IetfYangUtil.INSTANCE.macAddressFor(ByteArray.readBytes(buffer, MAC_ADDRESS_LENGTH));
         final IpAddress ip = parseIp(buffer);
         final MplsLabel label1 = mplsLabelForByteBuf(buffer);
-        MplsLabel label2;
+        final MplsLabel label2;
         if (buffer.readableBytes() > 0) {
             label2 = mplsLabelForByteBuf(buffer);
         } else {

@@ -25,14 +25,14 @@ public final class FSIpProtocolHandler implements FlowspecTypeParser, FlowspecTy
     public static final int IP_PROTOCOL_VALUE = 3;
 
     @Override
-    public void serializeType(FlowspecType fsType, ByteBuf output) {
+    public void serializeType(final FlowspecType fsType, final ByteBuf output) {
         Preconditions.checkArgument(fsType instanceof ProtocolIpCase, "ProtocolIpCase class is mandatory!");
         output.writeByte(IP_PROTOCOL_VALUE);
         NumericOneByteOperandParser.INSTANCE.serialize(((ProtocolIpCase) fsType).getProtocolIps(), output);
     }
 
     @Override
-    public FlowspecType parseType(ByteBuf buffer) {
+    public FlowspecType parseType(final ByteBuf buffer) {
         Preconditions.checkNotNull(buffer, "input buffer is null, missing data to parse.");
         return new ProtocolIpCaseBuilder().setProtocolIps(parseProtocolIp(buffer)).build();
     }

@@ -78,7 +78,7 @@ public class BGPApplicationPeerModuleTest extends AbstractRIBImplModuleTest {
         try {
             createApplicationPeerInstance(INSTANCE_NAME2);
             fail();
-        } catch (IllegalStateException e) {
+        } catch (final IllegalStateException e) {
             assertTrue(e.getMessage().contains("getInstance() failed for ModuleIdentifier"));
             final Throwable ex = e.getCause();
             assertNotNull(ex);

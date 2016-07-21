@@ -44,13 +44,13 @@ public class FromExternalImportPolicyTest {
 
     @Test
     public void testEffectiveAttributes() {
-        DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder = createContBuilder(this.DATA_QNAME);
+        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder = createContBuilder(DATA_QNAME);
         // local pref
         dataContBuilder.addChild(createContBuilder(LOCALPREF).addChild(createValueBuilder(100L, LOCALPREF, "pref").build()).build());
 
         // cluster pref
-        String s = "404.40.40.40";
-        LeafSetEntryNode<Object> entry1 = ImmutableLeafSetEntryNodeBuilder.create().withNodeIdentifier(
+        final String s = "404.40.40.40";
+        final LeafSetEntryNode<Object> entry1 = ImmutableLeafSetEntryNodeBuilder.create().withNodeIdentifier(
             new NodeWithValue(CLUSTER, s)).withValue(s).build();
 
         dataContBuilder.addChild(createContBuilder(CLUSTERID).addChild(ImmutableLeafSetNodeBuilder.create().withNodeIdentifier(
@@ -80,10 +80,10 @@ public class FromExternalImportPolicyTest {
 
         // multi-exit-disc pref
         dataContBuilder.addChild(createContBuilder(MED).addChild(createValueBuilder("0", MED, "med").build()).build());
-        FromExternalImportPolicy importPol = new FromExternalImportPolicy();
+        final FromExternalImportPolicy importPol = new FromExternalImportPolicy();
         final ContainerNode result = importPol.effectiveAttributes(dataContBuilder.build());
 
-        DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContExpected = createContBuilder(this.DATA_QNAME);
+        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContExpected = createContBuilder(DATA_QNAME);
 
         dataContExpected.addChild(asPath);
         dataContExpected.addChild(resultNextHop);

@@ -47,9 +47,6 @@ import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * @author Kevin Wang
- */
 public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractVpnRIBSupport.class);
     private final NodeIdentifier nlriRoutesListNid;
@@ -69,8 +66,8 @@ public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport {
      * @param containerClass Binding class of the container in routes choice, must not be null.
      * @param listClass      Binding class of the route list, nust not be null;
      */
-    protected AbstractVpnRIBSupport(Class<? extends Routes> cazeClass, Class<? extends DataObject> containerClass, Class<? extends Route> listClass,
-        Class<? extends AddressFamily> afiClass, final QName vpnDstContainerClassQname) {
+    protected AbstractVpnRIBSupport(final Class<? extends Routes> cazeClass, final Class<? extends DataObject> containerClass, final Class<? extends Route> listClass,
+        final Class<? extends AddressFamily> afiClass, final QName vpnDstContainerClassQname) {
         super(cazeClass, containerClass, listClass, afiClass, MplsLabeledVpnSubsequentAddressFamily.class, vpnDstContainerClassQname);
         final QName classQname = BindingReflections.findQName(containerClass).intern();
         routeKey = QName.create(routeQName(), "route-key").intern();
@@ -82,7 +79,7 @@ public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport {
         rdNid = NodeIdentifier.create(QName.create(vpnDstClassQname, "route-distinguisher").intern());
     }
 
-    private VpnDestination extractVpnDestination(DataContainerNode<? extends PathArgument> route) {
+    private VpnDestination extractVpnDestination(final DataContainerNode<? extends PathArgument> route) {
         final VpnDestination dst = new VpnDestinationBuilder()
             .setPrefix(extractPrefix(route, prefixTypeNid))
             .setLabelStack(LabeledUnicastIpv4RIBSupport.extractLabel(route, labelStackNid, lvNid))
@@ -145,7 +142,7 @@ public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport {
             if (maybeRoutes.isPresent()) {
                 final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
                 if (routes instanceof UnkeyedListNode) {
-                    UnkeyedListNode routeListNode = (UnkeyedListNode) routes;
+                    final UnkeyedListNode routeListNode = (UnkeyedListNode) routes;
                     LOG.debug("{} routes are found", routeListNode.getSize());
                     final YangInstanceIdentifier base = routesPath.node(routesContainerIdentifier()).node(routeNid());
                     for (final UnkeyedListEntryNode e : routeListNode.getValue()) {

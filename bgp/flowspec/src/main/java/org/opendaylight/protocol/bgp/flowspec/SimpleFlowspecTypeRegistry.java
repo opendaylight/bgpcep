@@ -32,7 +32,7 @@ public class SimpleFlowspecTypeRegistry {
         serializer.serializeType(fsType, output);
     }
 
-    public FlowspecType parseFlowspecType(ByteBuf buffer) {
+    public FlowspecType parseFlowspecType(final ByteBuf buffer) {
         final short type = buffer.readUnsignedByte();
         final FlowspecTypeParser parser = getFlowspecTypeParser(type);
         Preconditions.checkNotNull(parser, "parser for flowspec type %s is not registered", type);

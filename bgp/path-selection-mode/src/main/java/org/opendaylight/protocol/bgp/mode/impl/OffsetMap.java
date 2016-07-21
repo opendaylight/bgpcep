@@ -87,7 +87,7 @@ public final class OffsetMap<E extends Comparable<E>> {
 
     public OffsetMap<E> without(final E key) {
         final Builder<E> b = ImmutableSet.builder();
-        int index = indexOfRouterId(key);
+        final int index = indexOfRouterId(key);
         if (index < 0) {
             LOG.trace("Router key not found", key);
         } else {

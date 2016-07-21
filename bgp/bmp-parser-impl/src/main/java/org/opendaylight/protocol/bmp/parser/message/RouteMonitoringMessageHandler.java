@@ -21,9 +21,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.RouteMonitoringMessageBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
-/**
- * Created by cgasparini on 13.5.2015.
- */
 public class RouteMonitoringMessageHandler extends AbstractBmpPerPeerMessageParser<RouteMonitoringMessageBuilder> {
 
     private static final int MESSAGE_TYPE = 0;

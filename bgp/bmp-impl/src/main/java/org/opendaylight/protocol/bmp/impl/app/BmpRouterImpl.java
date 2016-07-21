@@ -128,7 +128,7 @@ public class BmpRouterImpl implements BmpRouter, TransactionChainListener {
         if (this.session != null) {
             try {
                 this.session.close();
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 LOG.error("Fail to close session.", e);
             }
         }

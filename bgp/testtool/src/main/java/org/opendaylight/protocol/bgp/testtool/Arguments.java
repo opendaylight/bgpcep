@@ -66,11 +66,11 @@ final class Arguments implements ArgumentsInput {
     }
 
     private interface ArgumentTypeTool<T> extends ArgumentType<T> {
-        default T convert(ArgumentParser var1, Argument var2, String input) throws ArgumentParserException {
+        default T convert(final ArgumentParser var1, final Argument var2, final String input) throws ArgumentParserException {
             return convert(input);
         }
 
-        T convert(String input) throws ArgumentParserException;
+        T convert(String input);
     }
 
     static Arguments parseArguments(final String[] args) {

@@ -48,7 +48,7 @@ final class TestingListener implements BGPSessionListener {
     public void onSessionUp(final BGPSession session) {
         LOG.info("Client Listener: Session Up.");
         if (this.nPrefixes > 0) {
-            PrefixesBuilder.AdvertiseIpv4Prefixes(((BGPSessionImpl) session).getLimiter(), this.nPrefixes, this.extCom, this.multiPathSupport);
+            PrefixesBuilder.advertiseIpv4Prefixes(((BGPSessionImpl) session).getLimiter(), this.nPrefixes, this.extCom, this.multiPathSupport);
         }
     }
 
@@ -57,7 +57,7 @@ final class TestingListener implements BGPSessionListener {
         LOG.info("Client Listener: Connection lost.");
         try {
             session.close();
-        } catch (Exception ie) {
+        } catch (final Exception ie) {
             LOG.warn("Error closing session", ie);
         }
     }

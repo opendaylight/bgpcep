@@ -15,9 +15,6 @@ import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.NextHopParserSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 
-/**
- * @author Kevin Wang
- */
 public abstract class AbstractVpnNextHopParserSerializer implements NextHopParserSerializer {
     private final int ipAddrLength;
     private final Class<?> ipNextHopCaseClazz;

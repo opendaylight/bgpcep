@@ -144,9 +144,9 @@ public class BmpMonitorImplModuleTest extends AbstractBmpModuleTest {
         doReturn(context).when(mockedSchemaService).getGlobalContext();
         doAnswer(new Answer<ListenerRegistration<SchemaContextListener>>() {
             @Override
-            public ListenerRegistration<SchemaContextListener> answer(InvocationOnMock invocation) {
+            public ListenerRegistration<SchemaContextListener> answer(final InvocationOnMock invocation) {
                 invocation.getArgumentAt(0, SchemaContextListener.class).onGlobalContextUpdated(context);
-                ListenerRegistration<SchemaContextListener> reg = mock(ListenerRegistration.class);
+                final ListenerRegistration<SchemaContextListener> reg = mock(ListenerRegistration.class);
                 doNothing().when(reg).close();
                 return reg;
             }
@@ -176,11 +176,10 @@ public class BmpMonitorImplModuleTest extends AbstractBmpModuleTest {
     }
 
     private List<String> getYangModelsPaths() {
-        final List<String> paths = Lists.newArrayList("/META-INF/yang/bgp-rib.yang", "/META-INF/yang/ietf-inet-types@2013-07-15.yang",
+        return Lists.newArrayList("/META-INF/yang/bgp-rib.yang", "/META-INF/yang/ietf-inet-types@2013-07-15.yang",
                 "/META-INF/yang/bgp-message.yang", "/META-INF/yang/bgp-multiprotocol.yang", "/META-INF/yang/bgp-types.yang",
                 "/META-INF/yang/network-concepts.yang", "/META-INF/yang/ieee754.yang", "/META-INF/yang/yang-ext.yang",
                 "/META-INF/yang/bmp-monitor.yang", "/META-INF/yang/bmp-message.yang", "/META-INF/yang/ietf-yang-types@2013-07-15.yang");
-        return paths;
     }
 
     private Collection<ByteSource> getFilesAsByteSources(final List<String> paths) {

@@ -22,7 +22,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009
  * loss of user code.
  *
  */
-public class CommunitySetCommunityMemberBuilder {
+public final class CommunitySetCommunityMemberBuilder {
 
     public static CommunityMember getDefaultInstance(final java.lang.String defaultValue) {
         try {

@@ -64,12 +64,12 @@ public class BasePathSelectorTest {
     private static final QName MULTI_EXIT_DISC_Q_NAME = QName.create(ATTRS_EXTENSION_Q, "multi-exit-disc");
     private static final QName ORIGIN_Q_NAME = QName.create(ATTRS_EXTENSION_Q, "origin");
     private static final QName AS_PATH_Q_NAME = QName.create(ATTRS_EXTENSION_Q, "as-path");
-    private final UnsignedInteger ROUTER_ID = RouterIds.routerIdForAddress("127.0.0.1");
+    private static final UnsignedInteger ROUTER_ID = RouterIds.routerIdForAddress("127.0.0.1");
     static final UnsignedInteger ROUTER_ID2 = RouterIds.routerIdForPeerId(new PeerId("bgp://127.0.0.1"));
-    private final UnsignedInteger ROUTER_ID3 = RouterIds.routerIdForPeerId(new PeerId("bgp://127.0.0.2"));
+    private static final UnsignedInteger ROUTER_ID3 = RouterIds.routerIdForPeerId(new PeerId("bgp://127.0.0.2"));
     private final BasePathSelector selector = new BasePathSelector(20L);
     private final BestPathStateImpl state = new BestPathStateImpl(createStateFromPrefMedOriginASPath().build());
-    private final BaseBestPath originBestPath = new BaseBestPath(this.ROUTER_ID, this.state);
+    private final BaseBestPath originBestPath = new BaseBestPath(ROUTER_ID, this.state);
 
     @Test
     public void testBestPathForEquality() {
@@ -155,7 +155,7 @@ public class BasePathSelectorTest {
     }
 
     private ContainerNode createStateFromPrefMedOrigin() {
-        DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder = createContBuilder(ATTRS_EXTENSION_Q);
+        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder = createContBuilder(ATTRS_EXTENSION_Q);
         addLowerLocalRef(dataContBuilder);
         addLowerMultiExitDisc(dataContBuilder);
         addIgpOrigin(dataContBuilder);
@@ -163,7 +163,7 @@ public class BasePathSelectorTest {
     }
 
     static DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> createStateFromPrefMedOriginASPath() {
-        DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder = createContBuilder(ATTRS_EXTENSION_Q);
+        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder = createContBuilder(ATTRS_EXTENSION_Q);
         addHigherLocalRef(dataContBuilder);
         addHigherMultiExitDisc(dataContBuilder);
         addEgpOrigin(dataContBuilder);
@@ -243,7 +243,7 @@ public class BasePathSelectorTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testBgpOrigin() {
-        DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder = createContBuilder(ATTRS_EXTENSION_Q);
+        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder = createContBuilder(ATTRS_EXTENSION_Q);
         final ContainerNode containerIncom = dataContBuilder.addChild(createContBuilder(ORIGIN_Q_NAME).addChild(createValueBuilder("incomplete", ORIGIN_Q_NAME, "value").build()).build()).build();
         this.selector.processPath(this.ROUTER_ID3, containerIncom);
         final BaseBestPath processedPathIncom = this.selector.result();

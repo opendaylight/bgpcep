@@ -159,9 +159,10 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         0x0c, (byte) 0x81, (byte) 0x0e
     };
 
-    private final SimpleFlowspecExtensionProviderContext flowspecContext = new SimpleFlowspecExtensionProviderContext();
-    private final FlowspecActivator fsa = new FlowspecActivator(flowspecContext);
-    private final FlowspecL3vpnIpv4NlriParser FS_PARSER = new FlowspecL3vpnIpv4NlriParser(flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN));
+    private static final SimpleFlowspecExtensionProviderContext FLOWSPEC_CONTEXT = new SimpleFlowspecExtensionProviderContext();
+    private static final FlowspecActivator FLOWSPEC_ACTIVATOR = new FlowspecActivator(FLOWSPEC_CONTEXT);
+    private static final FlowspecL3vpnIpv4NlriParser FS_PARSER = new FlowspecL3vpnIpv4NlriParser(FLOWSPEC_CONTEXT.getFlowspecTypeRegistry
+        (SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN));
 
     @Before
     public void setUp() {
@@ -199,7 +200,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         builder.setFlowspecType(sps);
         fs.add(builder.build());
 
-        final FlowspecL3vpnIpv4NlriParser parser = new FlowspecL3vpnIpv4NlriParser(flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN));
+        final FlowspecL3vpnIpv4NlriParser parser = new FlowspecL3vpnIpv4NlriParser(FLOWSPEC_CONTEXT.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN));
 
         final MpReachNlriBuilder result = new MpReachNlriBuilder();
         result.setAfi(Ipv4AddressFamily.class);
@@ -297,7 +298,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         builder.setFlowspecType(sps);
         fs.add(builder.build());
 
-        final FlowspecL3vpnIpv4NlriParser parser = new FlowspecL3vpnIpv4NlriParser(flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN));
+        final FlowspecL3vpnIpv4NlriParser parser = new FlowspecL3vpnIpv4NlriParser(FLOWSPEC_CONTEXT.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN));
 
         final MpReachNlriBuilder result = new MpReachNlriBuilder();
         result.setAfi(Ipv4AddressFamily.class);
@@ -370,14 +371,14 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         builder.setFlowspecType(fragment);
         fs.add(builder.build());
 
-        final FlowspecL3vpnIpv4NlriParser parser = new FlowspecL3vpnIpv4NlriParser(flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN));
+        final FlowspecL3vpnIpv4NlriParser parser = new FlowspecL3vpnIpv4NlriParser(FLOWSPEC_CONTEXT.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN));
 
         final MpUnreachNlriBuilder result = new MpUnreachNlriBuilder();
         result.setAfi(Ipv4AddressFamily.class);
         result.setSafi(FlowspecL3vpnSubsequentAddressFamily.class);
         parser.parseNlri(Unpooled.wrappedBuffer(UNREACHED_NLRI), result);
 
-        DestinationFlowspecL3vpnIpv4 flowspecDst = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecL3vpnIpv4Case) (result.getWithdrawnRoutes().getDestinationType()))
+        final DestinationFlowspecL3vpnIpv4 flowspecDst = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecL3vpnIpv4Case) (result.getWithdrawnRoutes().getDestinationType()))
             .getDestinationFlowspecL3vpnIpv4();
         final List<Flowspec> flows = flowspecDst.getFlowspec();
         checkUnreachFlows(flows, icmpType, icmpCode, tcp, packet, dscp, fragment);
@@ -482,14 +483,14 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         builder.setFlowspecType(fragment);
         fs.add(builder.build());
 
-        final FlowspecL3vpnIpv4NlriParser parser = new FlowspecL3vpnIpv4NlriParser(flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN));
+        final FlowspecL3vpnIpv4NlriParser parser = new FlowspecL3vpnIpv4NlriParser(FLOWSPEC_CONTEXT.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN));
 
         final MpUnreachNlriBuilder result = new MpUnreachNlriBuilder();
         result.setAfi(Ipv4AddressFamily.class);
         result.setSafi(FlowspecL3vpnSubsequentAddressFamily.class);
         parser.parseNlri(Unpooled.wrappedBuffer(UNREACHED_NLRI_ADD_PATH), result, this.constraint);
 
-        DestinationFlowspecL3vpnIpv4 flowspecDst = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecL3vpnIpv4Case) (result.getWithdrawnRoutes().getDestinationType()))
+        final DestinationFlowspecL3vpnIpv4 flowspecDst = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecL3vpnIpv4Case) (result.getWithdrawnRoutes().getDestinationType()))
             .getDestinationFlowspecL3vpnIpv4();
         final List<Flowspec> flows = flowspecDst.getFlowspec();
         checkUnreachFlows(flows, icmpType, icmpCode, tcp, packet, dscp, fragment);
@@ -800,7 +801,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
                 ).build()
         );
 
-        RouteDistinguisher rd = RouteDistinguisherBuilder.getDefaultInstance(ROUTE_DISTINGUISHER);
+        final RouteDistinguisher rd = RouteDistinguisherBuilder.getDefaultInstance(ROUTE_DISTINGUISHER);
         assertEquals(rd, FS_PARSER.extractRouteDistinguisher(entry.build()));
     }
 }

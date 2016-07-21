@@ -98,7 +98,7 @@ final class EventBusRegistration extends AbstractListenerRegistration<BGPSession
         } else if (!(message instanceof Keepalive)) {
             try {
                 listener.onMessage(null, message);
-            } catch (BGPDocumentedException e) {
+            } catch (final BGPDocumentedException e) {
                 LOG.warn("Exception encountered while handling message", e);
             }
         }
