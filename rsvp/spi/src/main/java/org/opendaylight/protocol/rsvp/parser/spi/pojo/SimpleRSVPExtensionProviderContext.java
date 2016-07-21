@@ -68,7 +68,7 @@ public class SimpleRSVPExtensionProviderContext extends SimpleRSVPExtensionConsu
     public final synchronized void setMaximumCachedObjects(final int maximumCachedObjects) {
         Preconditions.checkArgument(maximumCachedObjects >= 0);
 
-        Cache<Object, Object> newCache = CacheBuilder.newBuilder().maximumSize(maximumCachedObjects).build();
+        final Cache<Object, Object> newCache = CacheBuilder.newBuilder().maximumSize(maximumCachedObjects).build();
         newCache.putAll(this.cacheRef.get().asMap());
         this.cacheRef.set(newCache);
     }

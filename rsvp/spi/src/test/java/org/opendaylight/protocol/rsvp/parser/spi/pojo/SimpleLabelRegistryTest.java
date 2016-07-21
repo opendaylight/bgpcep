@@ -67,12 +67,9 @@ public class SimpleLabelRegistryTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testParseWrongType() {
+    public void testParseWrongType() throws RSVPParsingException {
         final int wrongType = 65536;
-        try {
-            this.simpleLabelRegistry.parseLabel(wrongType, this.input);
-        } catch (RSVPParsingException e) {
-        }
+        this.simpleLabelRegistry.parseLabel(wrongType, this.input);
     }
 
     @Test(expected = IllegalArgumentException.class)
