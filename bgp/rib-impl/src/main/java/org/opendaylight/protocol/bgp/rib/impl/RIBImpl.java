@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.Futures;
@@ -21,7 +20,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -40,8 +38,6 @@ import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegist
 import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
-import org.opendaylight.protocol.bgp.openconfig.spi.BGPConfigModuleTracker;
-import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigProvider;
 import org.opendaylight.protocol.bgp.rib.DefaultRibReference;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer;
@@ -108,8 +104,6 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
     private ClusterSingletonServiceRegistration registration;
     private final DOMDataBrokerExtension service;
     private final List<LocRibWriter> locRibs = new ArrayList<>();
-    private final BGPConfigModuleTracker configModuleTracker;
-    private final BGPOpenConfigProvider openConfigProvider;
     private final CacheDisconnectedPeers cacheDisconnectedPeers;
     private final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies;
     private final ImportPolicyPeerTracker importPolicyPeerTracker;
@@ -120,7 +114,6 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
         final ClusterIdentifier clusterId, final RIBExtensionConsumerContext extensions, final BGPDispatcher dispatcher,
         final BindingCodecTreeFactory codecFactory, final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
         @Nonnull final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies, final GeneratedClassLoadingStrategy classStrategy,
-        final BGPConfigModuleTracker moduleTracker, final BGPOpenConfigProvider openConfigProvider,
         final BgpDeployer.WriteConfiguration configurationWriter) {
 
         super(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(Preconditions.checkNotNull(ribId))));
@@ -137,8 +130,6 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
         this.ribContextRegistry = RIBSupportContextRegistryImpl.create(extensions, this.codecsRegistry);
         final InstanceIdentifierBuilder yangRibIdBuilder = YangInstanceIdentifier.builder().node(BgpRib.QNAME).node(Rib.QNAME);
         this.yangRibId = yangRibIdBuilder.nodeWithKey(Rib.QNAME, RIB_ID_QNAME, ribId.getValue()).build();
-        this.configModuleTracker = moduleTracker;
-        this.openConfigProvider = openConfigProvider;
         this.cacheDisconnectedPeers = new CacheDisconnectedPeersImpl();
         this.bestPathSelectionStrategies = Preconditions.checkNotNull(bestPathSelectionStrategies);
         final ClusterIdentifier cId = (clusterId == null) ? new ClusterIdentifier(localBgpId) : clusterId;
@@ -150,17 +141,9 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
         Preconditions.checkNotNull(provider, "ClusterSingletonServiceProvider is null");
         this.provider = provider;
         this.configurationWriter = configurationWriter;
-        LOG.info("RIB Singleton Service {} registered", this.getIdentifier());
+        LOG.info("RIB Singleton Service {} registered", getIdentifier());
         //this need to be always the last step
         this.registration = registerClusterSingletonService(this);
-    }
-
-    public RIBImpl(final ClusterSingletonServiceProvider provider, final RibId ribId, final AsNumber localAs, final BgpId localBgpId, @Nullable final ClusterIdentifier clusterId,
-        final RIBExtensionConsumerContext extensions, final BGPDispatcher dispatcher, final BindingCodecTreeFactory codecFactory,
-        final DOMDataBroker domDataBroker, final List<BgpTableType> localTables, final Map<TablesKey, PathSelectionMode> bestPathSelectionstrategies,
-        final GeneratedClassLoadingStrategy classStrategy, final BgpDeployer.WriteConfiguration configurationWriter) {
-        this(provider, ribId, localAs, localBgpId, clusterId, extensions, dispatcher, codecFactory,
-                domDataBroker, localTables, bestPathSelectionstrategies, classStrategy, null, null, configurationWriter);
     }
 
     private void startLocRib(final TablesKey key, final PolicyDatabase pd) {
@@ -210,9 +193,9 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
     @Override
     public synchronized void close() throws Exception {
         this.domChain.close();
-        if (registration != null) {
-            registration.close();
-            registration = null;
+        if (this.registration != null) {
+            this.registration.close();
+            this.registration = null;
         }
     }
 
@@ -290,12 +273,6 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
     public CodecsRegistry getCodecsRegistry() {
         return this.codecsRegistry;
     }
-
-    @Override
-    public Optional<BGPOpenConfigProvider> getOpenConfigProvider() {
-        return Optional.fromNullable(this.openConfigProvider);
-    }
-
     @Override
     public CacheDisconnectedPeers getCacheDisconnectedPeers() {
         return this.cacheDisconnectedPeers;
@@ -311,7 +288,7 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
         if(this.configurationWriter != null) {
             this.configurationWriter.apply();
         }
-        LOG.info("RIB Singleton Service {} instantiated", this.getIdentifier());
+        LOG.info("RIB Singleton Service {} instantiated", getIdentifier());
         LOG.debug("Instantiating RIB table {} at {}", this.ribId , this.yangRibId);
 
         final ContainerNode bgpRib = Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(BgpRib.QNAME))
@@ -343,17 +320,13 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
         for (final BgpTableType t : this.localTables) {
             final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
             this.localTablesKeys.add(key);
-            startLocRib(key, policyDatabase);
-        }
-
-        if (this.configModuleTracker != null) {
-            this.configModuleTracker.onInstanceCreate();
+            startLocRib(key, this.policyDatabase);
         }
     }
 
     @Override
     public ListenableFuture<Void> closeServiceInstance() {
-        LOG.info("Close RIB Singleton Service {}", this.getIdentifier());
+        LOG.info("Close RIB Singleton Service {}", getIdentifier());
         for (final LocRibWriter locRib : this.locRibs) {
             try {
                 locRib.close();
@@ -370,9 +343,6 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
         }
         this.renderStats.getLocRibRouteCounter().resetAll();
 
-        if (this.configModuleTracker != null) {
-            this.configModuleTracker.onInstanceClose();
-        }
         return Futures.immediateFuture(null);
     }
 

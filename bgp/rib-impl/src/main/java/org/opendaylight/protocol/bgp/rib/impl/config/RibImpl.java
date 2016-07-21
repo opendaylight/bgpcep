@@ -8,7 +8,6 @@
 
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +25,6 @@ import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegist
 import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService;
-import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigProvider;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer;
@@ -147,11 +145,6 @@ public final class RibImpl implements RIB, AutoCloseable {
     @Override
     public CodecsRegistry getCodecsRegistry() {
         return this.ribImpl.getCodecsRegistry();
-    }
-
-    @Override
-    public Optional<BGPOpenConfigProvider> getOpenConfigProvider() {
-        return this.ribImpl.getOpenConfigProvider();
     }
 
     @Override
