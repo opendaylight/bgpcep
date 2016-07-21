@@ -54,9 +54,6 @@
         <controller.framework.version>0.8.0-SNAPSHOT</controller.framework.version>
         <controller.mdsal.version>1.4.0-SNAPSHOT</controller.mdsal.version>
 
-        <!-- Netconf artifacts -->
-        <netconf.version>1.1.0-SNAPSHOT</netconf.version>
-
         <!-- EPOLL artifacts -->
         <os.detected.classifier>linux-x86_64</os.detected.classifier>
 
@@ -110,15 +107,6 @@
                 <groupId>org.opendaylight.controller</groupId>
                 <artifactId>config-artifacts</artifactId>
                 <version>${controller.config.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
-
-            <!-- Netconf -->
-            <dependency>
-                <groupId>org.opendaylight.netconf</groupId>
-                <artifactId>netconf-artifacts</artifactId>
-                <version>${netconf.version}</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
