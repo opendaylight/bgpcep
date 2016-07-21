@@ -287,7 +287,6 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         doReturn(YangInstanceIdentifier.of(BgpRib.QNAME)).when(this.mockedRIB).getYangRibId();
         doReturn(new AsNumber(123456l)).when(this.mockedRIB).getLocalAs();
         doReturn(BGP_ID).when(this.mockedRIB).getBgpIdentifier();
-        doReturn(Optional.absent()).when(this.mockedRIB).getOpenConfigProvider();
         final BGPRenderStats mockedRenderStats = mock(BGPRenderStats.class);
         doReturn(new UnsignedInt32Counter("counter")).when(mockedRenderStats).getConfiguredPeerCounter();
         doReturn(mockedRenderStats).when(this.mockedRIB).getRenderStats();

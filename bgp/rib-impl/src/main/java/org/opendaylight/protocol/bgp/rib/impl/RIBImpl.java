@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
@@ -20,7 +19,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.RIBImplRuntimeRegistration;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.RIBImplRuntimeRegistrator;
@@ -36,8 +34,6 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
-import org.opendaylight.protocol.bgp.openconfig.spi.BGPConfigModuleTracker;
-import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigProvider;
 import org.opendaylight.protocol.bgp.rib.DefaultRibReference;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
@@ -101,8 +97,6 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private final CodecsRegistryImpl codecsRegistry;
     private final DOMDataBrokerExtension service;
     private final List<LocRibWriter> locRibs = new ArrayList<>();
-    private final BGPConfigModuleTracker configModuleTracker;
-    private final BGPOpenConfigProvider openConfigProvider;
     private final CacheDisconnectedPeers cacheDisconnectedPeers;
     private final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies;
     private final ImportPolicyPeerTracker importPolicyPeerTracker;
@@ -113,8 +107,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     public RIBImpl(final RibId ribId, final AsNumber localAs, final BgpId localBgpId, final ClusterIdentifier clusterId, final RIBExtensionConsumerContext extensions,
             final BGPDispatcher dispatcher, final BindingCodecTreeFactory codecFactory,
             final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
-            @Nonnull final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies, final GeneratedClassLoadingStrategy classStrategy,
-            final BGPConfigModuleTracker moduleTracker, final BGPOpenConfigProvider openConfigProvider) {
+            @Nonnull final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies, final GeneratedClassLoadingStrategy classStrategy) {
         super(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(Preconditions.checkNotNull(ribId))));
         this.domChain = domDataBroker.createTransactionChain(this);
         this.localAs = Preconditions.checkNotNull(localAs);
@@ -128,8 +121,6 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         this.ribContextRegistry = RIBSupportContextRegistryImpl.create(extensions, this.codecsRegistry);
         final InstanceIdentifierBuilder yangRibIdBuilder = YangInstanceIdentifier.builder().node(BgpRib.QNAME).node(Rib.QNAME);
         this.yangRibId = yangRibIdBuilder.nodeWithKey(Rib.QNAME, RIB_ID_QNAME, ribId.getValue()).build();
-        this.configModuleTracker = moduleTracker;
-        this.openConfigProvider = openConfigProvider;
         this.cacheDisconnectedPeers = new CacheDisconnectedPeersImpl();
         this.bestPathSelectionStrategies = Preconditions.checkNotNull(bestPathSelectionStrategies);
         final ClusterIdentifier cId = (clusterId == null) ? new ClusterIdentifier(localBgpId) : clusterId;
@@ -173,18 +164,6 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
             this.localTablesKeys.add(key);
             startLocRib(key, policyDatabase);
         }
-
-        if (this.configModuleTracker != null) {
-            this.configModuleTracker.onInstanceCreate();
-        }
-    }
-
-    public RIBImpl(final RibId ribId, final AsNumber localAs, final BgpId localBgpId, @Nullable final ClusterIdentifier clusterId, final RIBExtensionConsumerContext extensions,
-            final BGPDispatcher dispatcher, final BindingCodecTreeFactory codecFactory,
-            final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
-            final Map<TablesKey, PathSelectionMode> bestPathSelectionstrategies, final GeneratedClassLoadingStrategy classStrategy) {
-        this(ribId, localAs, localBgpId, clusterId, extensions, dispatcher, codecFactory,
-                domDataBroker, localTables, bestPathSelectionstrategies, classStrategy, null, null);
     }
 
     public synchronized void registerRootRuntimeBean(final RIBImplRuntimeRegistrator registrator) {
@@ -276,10 +255,6 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         }
 
         stopStatsRuntimeBean();
-
-        if (this.configModuleTracker != null) {
-            this.configModuleTracker.onInstanceClose();
-        }
     }
 
     @Override
@@ -356,12 +331,6 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     public CodecsRegistry getCodecsRegistry() {
         return this.codecsRegistry;
     }
-
-    @Override
-    public Optional<BGPOpenConfigProvider> getOpenConfigProvider() {
-        return Optional.fromNullable(this.openConfigProvider);
-    }
-
     @Override
     public CacheDisconnectedPeers getCacheDisconnectedPeers() {
         return this.cacheDisconnectedPeers;
