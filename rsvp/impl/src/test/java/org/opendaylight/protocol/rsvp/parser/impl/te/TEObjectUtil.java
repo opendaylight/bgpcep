@@ -8,7 +8,7 @@
 
 package org.opendaylight.protocol.rsvp.parser.impl.te;
 
-public class TEObjectUtil {
+final class TEObjectUtil {
 
     /**
      * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -17,7 +17,7 @@ public class TEObjectUtil {
      * |R|                        Reserved                       |T|A|D|
      * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      */
-    public static final byte[] TE_LSP_ADMIN_STATUS = {
+    static final byte[] TE_LSP_ADMIN_STATUS = {
         0x00, (byte) 0x04, (byte) 0xc4, 0x01,  // Lenght, Class, Ctype
         (byte) 0x80, // Reflect
         0x00, 0x00, // Reserved
@@ -40,7 +40,7 @@ public class TEObjectUtil {
      * |                                                               |
      * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      */
-    public static final byte[] TE_LSP_SESSION_C1 = {
+    static final byte[] TE_LSP_SESSION_C1 = {
         0x00, (byte) 0x14, (byte) 0xcf, 0x01,  // Lenght, Class, Ctype
         0x01, 0x01, 0x01, 0x01,
         0x02, 0x02, 0x02, 0x02,
@@ -59,7 +59,7 @@ public class TEObjectUtil {
      * |                                                               |
      * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      */
-    public static final byte[] TE_LSP_SESSION_C7 = {
+    static final byte[] TE_LSP_SESSION_C7 = {
         0x00, (byte) 0x08, (byte) 0xcf, 0x07,  // Lenght, Class, Ctype
         0x01, 0x02, 0x04, 0x04,
         (byte) 0x41, (byte) 0x41, (byte) 0x41, (byte) 0x41,};
@@ -70,7 +70,7 @@ public class TEObjectUtil {
      * |                        Bandwidth                              |
      * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      */
-    public static final byte[] TE_LSP_BANDWIDTH_1 = {
+    static final byte[] TE_LSP_BANDWIDTH_1 = {
         0x00, (byte) 0x04, (byte) 0x05, 0x01,  // Lenght, Class, Ctype
         0x01, 0x02, 0x03, 0x04,};
     /**
@@ -80,7 +80,7 @@ public class TEObjectUtil {
      * |                        Bandwidth                              |
      * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      */
-    public static final byte[] TE_LSP_BANDWIDTH_2 = {
+    static final byte[] TE_LSP_BANDWIDTH_2 = {
         0x00, (byte) 0x04, (byte) 0x05, 0x02,  // Lenght, Class, Ctype
         0x01, 0x02, 0x03, 0x04,};
 
@@ -93,7 +93,7 @@ public class TEObjectUtil {
      * |                  IPv4 Association Source                      |
      * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      */
-    public static final byte[] TE_LSP_ASSOCIATION_1 = {
+    static final byte[] TE_LSP_ASSOCIATION_1 = {
         0x00, (byte) 0x08, (byte) 0xc7, 0x01,  // Lenght, Class, Ctype
         0x00, 0x01, 0x00, 0x02,
         0x01, 0x02, 0x03, 0x04,};
@@ -112,7 +112,7 @@ public class TEObjectUtil {
      * |                                                               |
      * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      */
-    public static final byte[] TE_LSP_ASSOCIATION_2 = {
+    static final byte[] TE_LSP_ASSOCIATION_2 = {
         0x00, (byte) 0x14, (byte) 0xc7, 0x02,  // Lenght, Class, Ctype
         0x00, 0x01, 0x00, 0x02,
         0x01, 0x02, 0x03, 0x04,
@@ -135,7 +135,7 @@ public class TEObjectUtil {
      * |                  Include-all                          |
      * +-------------+-------------+-------------+-------------+
      */
-    public static final byte[] TE_LSP_FAST_REROUTE1 = {
+    static final byte[] TE_LSP_FAST_REROUTE1 = {
         0x00, (byte) 0x14, (byte) 0xcd, 0x01,  // Lenght, Class, Ctype
         (byte) 0x01, (byte) 0x02, (byte) 0x10, (byte) 0x02,
         0x01, 0x01, 0x01, 0x01,
@@ -156,7 +156,7 @@ public class TEObjectUtil {
      * |                  Exclude-any                          |
      * +-------------+-------------+-------------+-------------+
      */
-    public static final byte[] TE_LSP_FAST_REROUTE7 = {
+    static final byte[] TE_LSP_FAST_REROUTE7 = {
         0x00, (byte) 0x10, (byte) 0xcd, 0x07,  // Lenght, Class, Ctype
         (byte) 0x01, (byte) 0x02, (byte) 0x10, 0x00,
         0x01, 0x01, 0x01, 0x01,
@@ -173,7 +173,7 @@ public class TEObjectUtil {
      * |                          metric-value                         |
      * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      */
-    public static final byte[] TE_LSP_METRIC = {
+    static final byte[] TE_LSP_METRIC = {
         0x00, (byte) 0x08, (byte) 0x06, 0x01,  // Lenght, Class, Ctype
         0x00, 0x00, 0x03, 0x02,
         0x01, 0x02, 0x03, 0x04,};
@@ -185,7 +185,7 @@ public class TEObjectUtil {
      * |S|                  Reserved                       | Link Flags|
      * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      */
-    public static final byte[] TE_LSP_PROTECTION_C1 = {
+    static final byte[] TE_LSP_PROTECTION_C1 = {
         0x00, (byte) 0x04, (byte) 0x25, 0x01,  // Lenght, Class, Ctype
         (byte) 0x80, 0x00, 0x00, (byte) 0x0a,};
 
@@ -198,7 +198,7 @@ public class TEObjectUtil {
      * |I|R|   Reserved    | Seg.Flags |           Reserved            |
      * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      */
-    public static final byte[] TE_LSP_PROTECTION_C2 = {
+    static final byte[] TE_LSP_PROTECTION_C2 = {
         0x00, (byte) 0x08, (byte) 0x25, 0x02,  // Lenght, Class, Ctype
         (byte) 0xf0, 0x08, 0x00, (byte) 0x0a,
         (byte) 0xc0, 0x04, 0x00, (byte) 0x00,};
@@ -220,7 +220,7 @@ public class TEObjectUtil {
      * |                                                               |
      * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      */
-    public static final byte[] TE_LSP_ATTRIBUTES = {
+    static final byte[] TE_LSP_ATTRIBUTES = {
         0x00, (byte) 0x0c, (byte) 0xc5, 0x01,  // Lenght, Class, Ctype
         0x00, 0x01, 0x00, 0x08,
         (byte) 0x09, 0x07, 0x03, 0x01,
@@ -243,7 +243,7 @@ public class TEObjectUtil {
      * |                                                               |
      * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      */
-    public static final byte[] TE_LSP_REQUIRED_ATTRIBUTES = {
+    static final byte[] TE_LSP_REQUIRED_ATTRIBUTES = {
         0x00, (byte) 0x0c, 0x43, 0x01,  // Lenght, Class, Ctype
         0x00, 0x01, 0x00, 0x08,
         (byte) 0x09, 0x07, 0x03, 0x01,
@@ -266,7 +266,7 @@ public class TEObjectUtil {
      * |                    Avoid_Node_ID  n                   |
      * +-------------+-------------+-------------+-------------+
      */
-    public static final byte[] TE_LSP_DETOUR7 = {
+    static final byte[] TE_LSP_DETOUR7 = {
         0x00, (byte) 0x20, (byte) 0x3f, 0x07,  // Lenght, Class, Ctype
         0x00, 0x00, 0x00, 0x01,
         0x01, 0x02, 0x03, 0x01,
@@ -302,7 +302,7 @@ public class TEObjectUtil {
      * //                        ....                          //
      * +-------------+-------------+-------------+-------------+
      */
-    public static final byte[] TE_LSP_DETOUR8 = {
+    static final byte[] TE_LSP_DETOUR8 = {
         0x00, (byte) 0x40, (byte) 0x3f, 0x08,  // Lenght, Class, Ctype
         0x00, 0x00, 0x00, 0x01,
         0x00, 0x00, 0x00, 0x02,
@@ -342,7 +342,7 @@ public class TEObjectUtil {
      * |  Maximum Packet Size [M]  (32-bit integer)                |
      * -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      */
-    public static final byte[] TE_LSP_SENDER_TSPEC = {
+    static final byte[] TE_LSP_SENDER_TSPEC = {
         0x00, (byte) 0x20, (byte) 0x0c, 0x02,  // Lenght, Class, Ctype
         0x00, 0x00, 0x00, 0x07,
         0x01, 0x00, 0x00, 0x06,
@@ -374,7 +374,7 @@ public class TEObjectUtil {
      * |  Maximum Packet Size [M]  (32-bit integer)                 |
      * -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      */
-    public static final byte[] TE_LSP_FLOWSPEC_H5 = {
+    static final byte[] TE_LSP_FLOWSPEC_H5 = {
         0x00, (byte) 0x20, (byte) 0x09, 0x02,  // Lenght, Class, Ctype
         0x00, 0x00, 0x00, 0x07,
         0x05, 0x00, 0x00, 0x06,
@@ -412,7 +412,7 @@ public class TEObjectUtil {
      * |  Slack Term [S]  (32-bit integer)                          |
      * -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      */
-    public static final byte[] TE_LSP_FLOWSPEC_H2 = {
+    static final byte[] TE_LSP_FLOWSPEC_H2 = {
         0x00, (byte) 0x2c, (byte) 0x09, 0x02,  // Lenght, Class, Ctype
         0x00, 0x00, 0x00, 0x0a,
         0x02, 0x00, 0x00, 0x09,
@@ -470,7 +470,7 @@ public class TEObjectUtil {
      * |      SRLG Id (continued)      |           Reserved            |
      * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      */
-    public static final byte[] TE_LSP_EXCLUDE_ROUTE = {
+    static final byte[] TE_LSP_EXCLUDE_ROUTE = {
         0x00, (byte) 0x34, (byte) 0xe8, 0x01,  // Lenght, Class, Ctype
         (byte) 0x81, 0x08, 0x01, 0x02, 0x03, 0x04, (byte) 0x20, 0x01,
         (byte) 0x82, (byte) 0x14,
@@ -490,7 +490,7 @@ public class TEObjectUtil {
      * |                                                               |
      * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      */
-    public static final byte[] TE_LSP_PRIMARY_PATH_ROUTE = {
+    static final byte[] TE_LSP_PRIMARY_PATH_ROUTE = {
         0x00, (byte) 0x30, (byte) 0x26, 0x01,  // Lenght, Class, Ctype
         (byte) 0x01, 0x08, 0x01, 0x02, 0x03, 0x04, (byte) 0x20, 0x00,
         (byte) 0x02, (byte) 0x14,
@@ -509,7 +509,7 @@ public class TEObjectUtil {
      * |                                                               |
      * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      */
-    public static final byte[] TE_LSP_EXPLICIT = {
+    static final byte[] TE_LSP_EXPLICIT = {
         0x00, (byte) 0x20, (byte) 0x14, 0x01,  // Lenght, Class, Ctype
         (byte) 0x81, 0x08, 0x01, 0x02, 0x03, 0x04, (byte) 0x20, 0x00,
         (byte) 0x82, (byte) 0x14,
@@ -525,7 +525,7 @@ public class TEObjectUtil {
      * |                                                               |
      * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      */
-    public static final byte[] TE_LSP_SECONDARY_EXPLICIT = {
+    static final byte[] TE_LSP_SECONDARY_EXPLICIT = {
         0x00, (byte) 0x2c, (byte) 0xc8, 0x01,  // Lenght, Class, Ctype
         (byte) 0x81, 0x08, 0x01, 0x02, 0x03, 0x04, (byte) 0x20, 0x00,
         (byte) 0x82, (byte) 0x14,
@@ -544,7 +544,7 @@ public class TEObjectUtil {
      * |                                                               |
      * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      */
-    public static final byte[] TE_LSP_RECORD_ROUTE = {
+    static final byte[] TE_LSP_RECORD_ROUTE = {
         0x00, (byte) 0x24, (byte) 0x15, 0x01,  // Lenght, Class, Ctype
         (byte) 0x01, 0x08, 0x01, 0x02, 0x03, 0x04, (byte) 0x20, 0x01,
         (byte) 0x02, (byte) 0x14,
@@ -561,7 +561,7 @@ public class TEObjectUtil {
      * |                                                               |
      * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      */
-    public static final byte[] TE_LSP_SECONDARY_RECORD_ROUTE = {
+    static final byte[] TE_LSP_SECONDARY_RECORD_ROUTE = {
         0x00, (byte) 0x30, (byte) 0xc9, 0x01,  // Lenght, Class, Ctype
         (byte) 0x01, 0x08, 0x01, 0x02, 0x03, 0x04, (byte) 0x20, 0x01,
         (byte) 0x02, (byte) 0x14,
@@ -572,21 +572,21 @@ public class TEObjectUtil {
         (byte) 0xf0, 0x04, 0x00, 0x08,
         (byte) 0xc0, 0x04, 0x00, 0x00,
     };
-    public static final byte[] TE_LSP_DYNAMIC_SRRO_PROTECTION = {
+    static final byte[] TE_LSP_DYNAMIC_SRRO_PROTECTION = {
         (byte) 0x25, 0x0c, 0x00, 0x02,
         (byte) 0xf0, 0x04, 0x00, 0x08,
         (byte) 0xc0, 0x04, 0x00, 0x00,
     };
-    public static final byte[] TE_LSP_BASIC_SRRO_PROTECTION = {
+    static final byte[] TE_LSP_BASIC_SRRO_PROTECTION = {
         (byte) 0x25, 0x08, 0x00, 0x01,
         (byte) 0x00, 0x00, 0x00, 0x08,
     };
-    public static final byte[] TE_LSP_DYNAMIC_SERO_PROTECTION = {
+    static final byte[] TE_LSP_DYNAMIC_SERO_PROTECTION = {
         (byte) 0xa5, 0x0c, 0x00, 0x02,
         (byte) 0xf0, 0x04, 0x00, 0x08,
         (byte) 0xc0, 0x04, 0x00, 0x00,
     };
-    public static final byte[] TE_LSP_BASIC_SERO_PROTECTION = {
+    static final byte[] TE_LSP_BASIC_SERO_PROTECTION = {
         (byte) 0xa5, 0x08, 0x00, 0x01,
         (byte) 0x00, 0x00, 0x00, 0x08,
     };

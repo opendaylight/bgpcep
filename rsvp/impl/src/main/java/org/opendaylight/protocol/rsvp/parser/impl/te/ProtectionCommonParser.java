@@ -36,7 +36,7 @@ public class ProtectionCommonParser {
     private static final int FLAGS_SIZE = 8;
     private static final Logger LOG = LoggerFactory.getLogger(ProtectionCommonParser.class);
 
-    protected static final void serializeBodyType1(final ProtectionSubobject protObj, final ByteBuf output) {
+    protected static void serializeBodyType1(final ProtectionSubobject protObj, final ByteBuf output) {
         final BitArray flagBitArray = new BitArray(FLAGS_SIZE);
         flagBitArray.set(SECONDARY, protObj.isSecondary());
         flagBitArray.toByteBuf(output);
@@ -44,7 +44,7 @@ public class ProtectionCommonParser {
         output.writeByte(protObj.getLinkFlags().getIntValue());
     }
 
-    protected static final void serializeBodyType2(final ProtectionSubobject protObj, final ByteBuf output) {
+    protected static void serializeBodyType2(final ProtectionSubobject protObj, final ByteBuf output) {
         final BitArray flagBitArray = new BitArray(FLAGS_SIZE);
         flagBitArray.set(SECONDARY, protObj.isSecondary());
         flagBitArray.set(PROTECTING, protObj.isProtecting());
@@ -62,7 +62,7 @@ public class ProtectionCommonParser {
         output.writeZero(ByteBufWriteUtil.SHORT_BYTES_LENGTH);
     }
 
-    protected static final ProtectionSubobject parseCommonProtectionBodyType2(final ByteBuf byteBuf) throws RSVPParsingException {
+    protected static ProtectionSubobject parseCommonProtectionBodyType2(final ByteBuf byteBuf) throws RSVPParsingException {
         if (byteBuf.readableBytes() != CONTENT_LENGTH_C2) {
             throw new RSVPParsingException("Wrong length of array of bytes. Passed: " + byteBuf.readableBytes() + "; Expected: " + CONTENT_LENGTH_C2 + ".");
         }
@@ -90,13 +90,13 @@ public class ProtectionCommonParser {
         return sub.build();
     }
 
-    protected static final ProtectionSubobject parseCommonProtectionBodyType1(final ByteBuf byteBuf) {
-        BitArray bitArray = BitArray.valueOf(byteBuf.readByte());
-        ProtectionSubobjectBuilder sub = new ProtectionSubobjectBuilder();
+    protected static ProtectionSubobject parseCommonProtectionBodyType1(final ByteBuf byteBuf) {
+        final BitArray bitArray = BitArray.valueOf(byteBuf.readByte());
+        final ProtectionSubobjectBuilder sub = new ProtectionSubobjectBuilder();
         sub.setSecondary(bitArray.get(SECONDARY));
         //Skip Reserved
         byteBuf.skipBytes(ByteBufWriteUtil.SHORT_BYTES_LENGTH);
-        int linkFlags = byteBuf.readByte();
+        final int linkFlags = byteBuf.readByte();
         sub.setLinkFlags(LinkFlags.forValue(linkFlags));
         return sub.build();
     }

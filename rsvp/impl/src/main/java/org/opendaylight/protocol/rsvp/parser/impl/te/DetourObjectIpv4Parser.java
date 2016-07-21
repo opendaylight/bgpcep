@@ -46,7 +46,7 @@ public final class DetourObjectIpv4Parser extends AbstractRSVPObjectParser {
 
         final List<Plr> list = detourObject.getPlr();
         serializeAttributeHeader(list.size() * 2 * Ipv4Util.IP4_LENGTH, CLASS_NUM, CTYPE, byteAggregator);
-        for (Plr plr : list) {
+        for (final Plr plr : list) {
             ByteBufWriteUtil.writeIpv4Address(plr.getPlrId(), byteAggregator);
             ByteBufWriteUtil.writeIpv4Address(plr.getAvoidNode(), byteAggregator);
         }

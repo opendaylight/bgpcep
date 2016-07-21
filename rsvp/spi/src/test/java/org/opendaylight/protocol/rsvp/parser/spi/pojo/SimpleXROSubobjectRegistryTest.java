@@ -69,12 +69,9 @@ public class SimpleXROSubobjectRegistryTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testParseWrongType() {
+    public void testParseWrongType() throws RSVPParsingException {
         final int wrongType = 65536;
-        try {
-            this.simpleXROSubobjectRegistry.parseSubobject(wrongType, this.input, false);
-        } catch (final RSVPParsingException e) {
-        }
+        this.simpleXROSubobjectRegistry.parseSubobject(wrongType, this.input, false);
     }
 
     @Test(expected = IllegalArgumentException.class)

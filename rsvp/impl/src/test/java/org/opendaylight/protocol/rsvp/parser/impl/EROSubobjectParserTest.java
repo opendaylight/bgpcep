@@ -13,6 +13,7 @@ import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,22 +51,22 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.label.type.generalized.label._case.GeneralizedLabelBuilder;
 
 public class EROSubobjectParserTest {
-    private static final byte[] ip4PrefixBytes = {(byte) 0x81, (byte) 0x08, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+    private static final byte[] IP_4_PREFIX_BYTES = {(byte) 0x81, (byte) 0x08, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
         (byte) 0x16, (byte) 0x00};
-    private static final byte[] ip6PrefixBytes = {(byte) 0x02, (byte) 0x14, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+    private static final byte[] IP_6_PREFIX_BYTES = {(byte) 0x02, (byte) 0x14, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
         (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
         (byte) 0xFF, (byte) 0xFF, (byte) 0x16, (byte) 0x00};
-    private static final byte[] asNumberBytes = {(byte) 0xa0, (byte) 0x04, (byte) 0x00, (byte) 0x64};
-    private static final byte[] unnumberedBytes = {(byte) 0x84, (byte) 0x0c, (byte) 0x00, (byte) 0x00, (byte) 0x12, (byte) 0x34,
+    private static final byte[] AS_NUMBER_BYTES = {(byte) 0xa0, (byte) 0x04, (byte) 0x00, (byte) 0x64};
+    private static final byte[] UNNUMBERED_BYTES = {(byte) 0x84, (byte) 0x0c, (byte) 0x00, (byte) 0x00, (byte) 0x12, (byte) 0x34,
         (byte) 0x50, (byte) 0x00, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF};
-    private static final byte[] pathKey32Bytes = {(byte) 0xc0, (byte) 0x08, (byte) 0x12, (byte) 0x34, (byte) 0x12, (byte) 0x34,
+    private static final byte[] PATH_KEY_32_BYTES = {(byte) 0xc0, (byte) 0x08, (byte) 0x12, (byte) 0x34, (byte) 0x12, (byte) 0x34,
         (byte) 0x50, (byte) 0x00};
-    private static final byte[] pathKey128Bytes = {(byte) 0xc1, (byte) 0x14, (byte) 0x12, (byte) 0x34, (byte) 0x12, (byte) 0x34,
+    private static final byte[] PATH_KEY_128_BYTES = {(byte) 0xc1, (byte) 0x14, (byte) 0x12, (byte) 0x34, (byte) 0x12, (byte) 0x34,
         (byte) 0x56, (byte) 0x78, (byte) 0x9A, (byte) 0xBC, (byte) 0xDE, (byte) 0x12, (byte) 0x34, (byte) 0x54, (byte) 0x00, (byte) 0x00,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00};
-    private static final byte[] labelBytes = {(byte) 0x83, (byte) 0x08, (byte) 0x80, (byte) 0x02, (byte) 0x12, (byte) 0x00, (byte) 0x25,
+    private static final byte[] LABEL_BYTES = {(byte) 0x83, (byte) 0x08, (byte) 0x80, (byte) 0x02, (byte) 0x12, (byte) 0x00, (byte) 0x25,
         (byte) 0xFF};
-    private static final byte[] exrsBytes = {(byte) 0xa1, (byte) 0x06, (byte) 0xa0, (byte) 0x04, (byte) 0x00, (byte) 0x64};
+    private static final byte[] EXRS_BYTES = {(byte) 0xa1, (byte) 0x06, (byte) 0xa0, (byte) 0x04, (byte) 0x00, (byte) 0x64};
 
     private SimpleRSVPExtensionProviderContext ctx;
     private RSVPActivator act;
@@ -77,6 +78,11 @@ public class EROSubobjectParserTest {
         this.act.start(this.ctx);
     }
 
+    @After
+    public void tearDown() {
+        this.act.close();
+    }
+
     @Test
     public void testEROIp4PrefixSubobject() throws RSVPParsingException {
         final EROIpv4PrefixSubobjectParser parser = new EROIpv4PrefixSubobjectParser();
@@ -84,10 +90,10 @@ public class EROSubobjectParserTest {
         subs.setLoose(true);
         subs.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(
             new IpPrefixBuilder().setIpPrefix(new IpPrefix(new Ipv4Prefix("255.255.255.255/22"))).build()).build());
-        assertEquals(subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(ip4PrefixBytes, 2)), true));
+        assertEquals(subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(IP_4_PREFIX_BYTES, 2)), true));
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeSubobject(subs.build(), buff);
-        Assert.assertArrayEquals(ip4PrefixBytes, ByteArray.getAllBytes(buff));
+        Assert.assertArrayEquals(IP_4_PREFIX_BYTES, ByteArray.getAllBytes(buff));
 
         try {
             parser.parseSubobject(null, true);
@@ -113,10 +119,10 @@ public class EROSubobjectParserTest {
                     (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
                     (byte) 0xFF, (byte) 0xFF, (byte) 0xFF}, 22))).build()).build());
         subs.setLoose(false);
-        assertEquals(subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(ip6PrefixBytes, 2)), false));
+        assertEquals(subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(IP_6_PREFIX_BYTES, 2)), false));
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeSubobject(subs.build(), buff);
-        Assert.assertArrayEquals(ip6PrefixBytes, ByteArray.getAllBytes(buff));
+        Assert.assertArrayEquals(IP_6_PREFIX_BYTES, ByteArray.getAllBytes(buff));
 
         try {
             parser.parseSubobject(null, true);
@@ -138,10 +144,10 @@ public class EROSubobjectParserTest {
         final SubobjectContainerBuilder subs = new SubobjectContainerBuilder();
         subs.setLoose(true);
         subs.setSubobjectType(new AsNumberCaseBuilder().setAsNumber(new AsNumberBuilder().setAsNumber(new AsNumber(0x64L)).build()).build());
-        assertEquals(subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(asNumberBytes, 2)), true));
+        assertEquals(subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(AS_NUMBER_BYTES, 2)), true));
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeSubobject(subs.build(), buff);
-        Assert.assertArrayEquals(asNumberBytes, ByteArray.getAllBytes(buff));
+        Assert.assertArrayEquals(AS_NUMBER_BYTES, ByteArray.getAllBytes(buff));
 
         try {
             parser.parseSubobject(null, true);
@@ -164,10 +170,10 @@ public class EROSubobjectParserTest {
         subs.setLoose(true);
         subs.setSubobjectType(new UnnumberedCaseBuilder().setUnnumbered(
             new UnnumberedBuilder().setRouterId(0x12345000L).setInterfaceId(0xffffffffL).build()).build());
-        assertEquals(subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(unnumberedBytes, 2)), true));
+        assertEquals(subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(UNNUMBERED_BYTES, 2)), true));
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeSubobject(subs.build(), buff);
-        Assert.assertArrayEquals(unnumberedBytes, ByteArray.getAllBytes(buff));
+        Assert.assertArrayEquals(UNNUMBERED_BYTES, ByteArray.getAllBytes(buff));
 
         try {
             parser.parseSubobject(null, true);
@@ -192,10 +198,10 @@ public class EROSubobjectParserTest {
         pBuilder.setPceId(new PceId(new byte[]{(byte) 0x12, (byte) 0x34, (byte) 0x50, (byte) 0x00}));
         pBuilder.setPathKey(new PathKey(4660));
         subs.setSubobjectType(new PathKeyCaseBuilder().setPathKey(pBuilder.build()).build());
-        assertEquals(subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(pathKey32Bytes, 2)), true));
+        assertEquals(subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(PATH_KEY_32_BYTES, 2)), true));
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeSubobject(subs.build(), buff);
-        Assert.assertArrayEquals(pathKey32Bytes, ByteArray.getAllBytes(buff));
+        Assert.assertArrayEquals(PATH_KEY_32_BYTES, ByteArray.getAllBytes(buff));
 
         try {
             parser.parseSubobject(null, true);
@@ -222,10 +228,10 @@ public class EROSubobjectParserTest {
             (byte) 0x12, (byte) 0x34, (byte) 0x54, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00}));
         pBuilder.setPathKey(new PathKey(4660));
         subs.setSubobjectType(new PathKeyCaseBuilder().setPathKey(pBuilder.build()).build());
-        assertEquals(subs.build(), parser128.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(pathKey128Bytes, 2)), true));
+        assertEquals(subs.build(), parser128.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(PATH_KEY_128_BYTES, 2)), true));
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeSubobject(subs.build(), buff);
-        Assert.assertArrayEquals(pathKey128Bytes, ByteArray.getAllBytes(buff));
+        Assert.assertArrayEquals(PATH_KEY_128_BYTES, ByteArray.getAllBytes(buff));
 
         try {
             parser128.parseSubobject(null, true);
@@ -252,10 +258,10 @@ public class EROSubobjectParserTest {
                 new GeneralizedLabelCaseBuilder().setGeneralizedLabel(
                     new GeneralizedLabelBuilder().setGeneralizedLabel(
                         new byte[]{(byte) 0x12, (byte) 0x00, (byte) 0x25, (byte) 0xFF}).build()).build()).build()).build());
-        assertEquals(subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(labelBytes, 2)), true));
+        assertEquals(subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(LABEL_BYTES, 2)), true));
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeSubobject(subs.build(), buff);
-        Assert.assertArrayEquals(labelBytes, ByteArray.getAllBytes(buff));
+        Assert.assertArrayEquals(LABEL_BYTES, ByteArray.getAllBytes(buff));
 
         try {
             parser.parseSubobject(null, true);
@@ -284,10 +290,10 @@ public class EROSubobjectParserTest {
         builder.setSubobjectType(new AsNumberCaseBuilder().setAsNumber(new AsNumberBuilder().setAsNumber(new AsNumber(0x64L)).build()).build());
         list.add(builder.build());
         subs.setSubobjectType(new ExrsCaseBuilder().setExrs(new ExrsBuilder().setExrs(list).build()).build());
-        assertEquals(subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(exrsBytes, 2)), true));
+        assertEquals(subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(EXRS_BYTES, 2)), true));
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeSubobject(subs.build(), buff);
-        Assert.assertArrayEquals(exrsBytes, ByteArray.getAllBytes(buff));
+        Assert.assertArrayEquals(EXRS_BYTES, ByteArray.getAllBytes(buff));
 
         try {
             parser.parseSubobject(null, true);

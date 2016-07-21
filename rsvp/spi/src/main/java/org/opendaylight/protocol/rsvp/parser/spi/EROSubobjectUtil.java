@@ -19,7 +19,7 @@ public final class EROSubobjectUtil {
         throw new UnsupportedOperationException();
     }
 
-    public static void formatSubobject(int type, final Boolean loose, final ByteBuf body, final ByteBuf buffer) {
+    public static void formatSubobject(final int type, final Boolean loose, final ByteBuf body, final ByteBuf buffer) {
         if (loose == null) {
             buffer.writeByte(type);
         } else {
