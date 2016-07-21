@@ -66,7 +66,7 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
     @GuardedBy("this")
     private final Map<InstanceIdentifier<Bgp>, RibImpl> ribs = new HashMap<>();
     @GuardedBy("this")
-    private final Map<InstanceIdentifier<Neighbor>, BgpPeer> peers = new HashMap<>();
+    private final Map<InstanceIdentifier<Neighbor>, PeerBean> peers = new HashMap<>();
     private final DataBroker dataBroker;
     @GuardedBy("this")
     private boolean closed;
@@ -127,7 +127,7 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
     @Override
     public synchronized void close() throws Exception {
         this.registration.close();
-        this.peers.values().forEach(BgpPeer::close);
+        this.peers.values().forEach(PeerBean::close);
         this.peers.clear();
         this.ribs.values().forEach(RibImpl::close);
         this.ribs.clear();
@@ -225,7 +225,7 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
     private void onNeighborModified(final InstanceIdentifier<Bgp> rootIdentifier, final Neighbor neighbor) {
         LOG.debug("Modifing Peer instance with configuration: {}", neighbor);
         //restart peer instance with a new configuration
-        final BgpPeer bgpPeer = this.peers.get(getNeighborInstanceIdentifier(rootIdentifier, neighbor.getKey()));
+        final PeerBean bgpPeer = this.peers.get(getNeighborInstanceIdentifier(rootIdentifier, neighbor.getKey()));
         if (bgpPeer != null) {
             bgpPeer.close();
             final InstanceIdentifier<Neighbor> neighborInstanceIdentifier = getNeighborInstanceIdentifier(rootIdentifier, neighbor.getKey());
@@ -240,7 +240,12 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
     private void onNeighborCreated(final InstanceIdentifier<Bgp> rootIdentifier, final Neighbor neighbor) {
         //create, start and register peer instance
         LOG.debug("Creating Peer instance with configuration: {}", neighbor);
-        final BgpPeer bgpPeer = (BgpPeer) this.container.getComponentInstance(InstanceType.PEER.getBeanName());
+        final PeerBean bgpPeer;
+        if (this.mappingService.isApplicationPeer(neighbor)) {
+            bgpPeer = (PeerBean) this.container.getComponentInstance(InstanceType.APP_PEER.getBeanName());
+        } else {
+            bgpPeer = (PeerBean) this.container.getComponentInstance(InstanceType.PEER.getBeanName());
+        }
         final InstanceIdentifier<Neighbor> neighborInstanceIdentifier = getNeighborInstanceIdentifier(rootIdentifier, neighbor.getKey());
         initiatePeerInstance(rootIdentifier, neighborInstanceIdentifier, neighbor, bgpPeer);
         this.peers.put(neighborInstanceIdentifier, bgpPeer);
@@ -250,7 +255,7 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
     private void onNeighborRemoved(final InstanceIdentifier<Bgp> rootIdentifier, final Neighbor neighbor) {
         //destroy peer instance
         LOG.debug("Removing Peer instance: {}", rootIdentifier);
-        final BgpPeer bgpPeer = this.peers.remove(getNeighborInstanceIdentifier(rootIdentifier, neighbor.getKey()));
+        final PeerBean bgpPeer = this.peers.remove(getNeighborInstanceIdentifier(rootIdentifier, neighbor.getKey()));
         if (bgpPeer != null) {
             bgpPeer.close();
             LOG.debug("Peer instance removed {}", bgpPeer);
@@ -265,12 +270,14 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
     }
 
     private void initiatePeerInstance(final InstanceIdentifier<Bgp> rootIdentifier, final InstanceIdentifier<Neighbor> neighborIdentifier, final Neighbor neighbor,
-        final BgpPeer bgpPeer) {
+            final PeerBean bgpPeer) {
         final String peerInstanceName = getNeighborInstanceName(neighborIdentifier);
         final RibImpl rib = this.ribs.get(rootIdentifier);
         if (rib != null) {
             bgpPeer.start(rib, neighbor, this.mappingService);
-            registerPeerInstance(bgpPeer, peerInstanceName);
+            if (bgpPeer instanceof BgpPeer) {
+                registerPeerInstance((BgpPeer) bgpPeer, peerInstanceName);
+            }
         }
     }
 
