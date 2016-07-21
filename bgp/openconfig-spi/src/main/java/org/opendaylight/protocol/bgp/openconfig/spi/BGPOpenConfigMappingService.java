@@ -19,6 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.add.path.capability.AddressFamilies;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.SimpleRoutingPolicy;
@@ -45,4 +46,6 @@ public interface BGPOpenConfigMappingService {
     Neighbor fromBgpPeer(List<AddressFamilies> addPathCapabilities,
             List<BgpTableType> advertisedTables, Integer holdTimer, IpAddress ipAddress, Boolean isActive,
             Rfc2385Key password, PortNumber portNumber, Integer retryTimer, AsNumber remoteAs, PeerRole peerRole, SimpleRoutingPolicy simpleRoutingPolicy);
+
+    Neighbor fromApplicationPeer(ApplicationRibId applicationRibId, BgpId bgpId);
 }
