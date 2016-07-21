@@ -119,7 +119,6 @@ import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.sal.binding.generator.api.ClassLoadingStrategy;
 import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
@@ -275,6 +274,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         doReturn(new ProtocolBuilder().setKey(new ProtocolKey(BGP.class, "bgp")).build()).when(this.bgpMappingService).fromRib(any(), any(), any(), any(), any(), any());
         doReturn(NEIGHBOR).when(this.bgpMappingService).fromBgpPeer(any(), any(),
                 any(), any(), any(), any(), any(), any(), any(), any(), any());
+        doReturn(NEIGHBOR).when(this.bgpMappingService).fromApplicationPeer(any(), any());
         doReturn(this.mockedFuture).when(this.bgpDeployer).writeConfiguration(any(), any());
         doReturn(this.mockedFuture).when(this.bgpDeployer).removeConfiguration(any());
         doReturn(this.bgpMappingService).when(this.bgpDeployer).getMappingService();
