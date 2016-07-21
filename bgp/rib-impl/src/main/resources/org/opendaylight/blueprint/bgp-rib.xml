@@ -70,4 +70,6 @@
     <argument ref="BGPPeerRegistry"/>
   </bean>
 
+  <bean id="appPeer" class="org.opendaylight.protocol.bgp.rib.impl.config.AppPeer" scope="prototype"/>
+
 </blueprint>

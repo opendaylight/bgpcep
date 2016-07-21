@@ -61,7 +61,7 @@ public final class BgpDeployerImpl implements BgpDeployer, DataTreeChangeListene
     private final DataBroker dataBroker;
 
     private final Map<InstanceIdentifier<Bgp>, RibImpl> ribs = new HashMap<>();
-    private final Map<InstanceIdentifier<Neighbor>, BgpPeer> peers = new HashMap<>();
+    private final Map<InstanceIdentifier<Neighbor>, PeerBean> peers = new HashMap<>();
 
     public BgpDeployerImpl(final String networkInstanceName, final ExtendedBlueprintContainer container,
             final DataBroker dataBroker, final BGPOpenConfigMappingService mappingService) {
@@ -206,7 +206,7 @@ public final class BgpDeployerImpl implements BgpDeployer, DataTreeChangeListene
     private void onNeighborModified(final InstanceIdentifier<Bgp> rootIdentifier, final Neighbor neighbor) {
         //restart peer instance with a new configuration
         LOG.debug("Modifing Peer instance with configuration: {}", neighbor);
-        final BgpPeer bgpPeer = this.peers.get(getNeighborInstanceIdentifier(rootIdentifier, neighbor.getKey()));
+        final PeerBean bgpPeer = this.peers.get(getNeighborInstanceIdentifier(rootIdentifier, neighbor.getKey()));
         bgpPeer.close();
         bgpPeer.start(this.ribs.get(rootIdentifier), neighbor, this.mappingService);
         LOG.debug("Peer instance modified {}", bgpPeer);
@@ -215,7 +215,12 @@ public final class BgpDeployerImpl implements BgpDeployer, DataTreeChangeListene
     private void onNeighborCreated(final InstanceIdentifier<Bgp> rootIdentifier, final Neighbor neighbor) {
         //create, start and register peer instance
         LOG.debug("Creating Peer instance with configuration: {}", neighbor);
-        final BgpPeer bgpPeer = (BgpPeer) this.container.getComponentInstance(InstanceType.PEER.getBeanName());
+        final PeerBean bgpPeer;
+        if (this.mappingService.isApplicationPeer(neighbor)) {
+            bgpPeer = (PeerBean) this.container.getComponentInstance(InstanceType.APP_PEER.getBeanName());
+        } else {
+            bgpPeer = (PeerBean) this.container.getComponentInstance(InstanceType.PEER.getBeanName());
+        }
         bgpPeer.start(this.ribs.get(rootIdentifier), neighbor, this.mappingService);
         this.peers.put(getNeighborInstanceIdentifier(rootIdentifier, neighbor.getKey()), bgpPeer);
         LOG.debug("Peer instance created {}", bgpPeer);
@@ -224,7 +229,7 @@ public final class BgpDeployerImpl implements BgpDeployer, DataTreeChangeListene
     private void onNeighborRemoved(final InstanceIdentifier<Bgp> rootIdentifier, final Neighbor neighbor) {
         //destroy peer instance
         LOG.debug("Removing Peer instance: {}", rootIdentifier);
-        final BgpPeer bgpPeer = this.peers.remove(getNeighborInstanceIdentifier(rootIdentifier, neighbor.getKey()));
+        final PeerBean bgpPeer = this.peers.remove(getNeighborInstanceIdentifier(rootIdentifier, neighbor.getKey()));
         bgpPeer.close();
         LOG.debug("Peer instance removed {}", bgpPeer);
     }
