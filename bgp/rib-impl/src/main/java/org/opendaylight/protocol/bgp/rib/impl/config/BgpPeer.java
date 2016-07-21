@@ -50,7 +50,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class BgpPeer implements AutoCloseable, BGPPeerRuntimeMXBean {
+public class BgpPeer implements PeerBean, BGPPeerRuntimeMXBean {
 
     //FIXME make configurable
     private static final PortNumber PORT = new PortNumber(179);
@@ -72,6 +72,7 @@ public class BgpPeer implements AutoCloseable, BGPPeerRuntimeMXBean {
         this.peerRegistry = peerRegistry;
     }
 
+    @Override
     public void start(final RIB rib, final Neighbor neighbor, final BGPOpenConfigMappingService mappingService) {
         Preconditions.checkState(this.bgpPeer == null, "Previous peer instance {} was not closed.");
         this.neighborAddress = neighbor.getNeighborAddress();
