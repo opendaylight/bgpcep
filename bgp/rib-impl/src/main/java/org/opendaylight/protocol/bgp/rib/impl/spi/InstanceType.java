@@ -19,7 +19,9 @@ public enum InstanceType {
 
     RIB("ribImpl", Lists.newArrayList(RIB.class, RibReference.class)),
 
-    PEER("bgpPeer", Collections.singletonList(BGPPeerRuntimeMXBean.class));
+    PEER("bgpPeer", Collections.singletonList(BGPPeerRuntimeMXBean.class)),
+
+    APP_PEER("appPeer", Collections.emptyList());
 
     private final String beanName;
     private final String[] services;
