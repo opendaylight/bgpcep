@@ -12,13 +12,14 @@ import com.google.common.collect.Lists;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.opendaylight.controller.config.yang.bgp.rib.impl.BGPPeerRuntimeMXBean;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 
 public enum InstanceType {
 
     RIB("ribImpl", Lists.newArrayList(RIB.class, RibReference.class)),
 
-    PEER("bgpPeer", Collections.emptyList());
+    PEER("bgpPeer", Collections.singletonList(BGPPeerRuntimeMXBean.class));
 
     private final String beanName;
     private final String[] services;

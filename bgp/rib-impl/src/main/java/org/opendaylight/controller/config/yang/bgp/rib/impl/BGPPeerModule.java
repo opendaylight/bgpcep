@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Cisco Systems, Inc. and others.  All rights reserved.
+ * Copyright (c) 2013, 2016 Cisco Systems, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -16,57 +16,38 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.net.InetAddresses;
+import com.google.common.reflect.AbstractInvocationHandler;
+import com.google.common.reflect.Reflection;
 import io.netty.channel.epoll.Epoll;
-import io.netty.util.concurrent.Future;
-import java.net.InetSocketAddress;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Method;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
-import org.opendaylight.protocol.bgp.openconfig.spi.BGPConfigModuleTracker;
-import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigProvider;
-import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenconfigMapper;
-import org.opendaylight.protocol.bgp.openconfig.spi.InstanceConfigurationIdentifier;
-import org.opendaylight.protocol.bgp.openconfig.spi.pojo.BGPPeerInstanceConfiguration;
-import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
-import org.opendaylight.protocol.bgp.parser.spi.MultiprotocolCapabilitiesUtil;
-import org.opendaylight.protocol.bgp.rib.impl.BGPPeer;
-import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
+import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer;
+import org.opendaylight.protocol.bgp.rib.impl.spi.InstanceType;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
-import org.opendaylight.protocol.concepts.KeyMapping;
-import org.opendaylight.protocol.util.Ipv6Util;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
+import org.opendaylight.protocol.util.Ipv4Util;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborKey;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Neighbors;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.Protocols;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.Protocol;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.ProtocolKey;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151009.BGP;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParametersBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.OptionalCapabilities;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.OptionalCapabilitiesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.As4BytesCapabilityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.AddPathCapabilityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.GracefulRestartCapabilityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.MultiprotocolCapabilityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.add.path.capability.AddressFamilies;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Protocol1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.rfc2385.cfg.rev160324.Rfc2385Key;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.osgi.framework.BundleContext;
 
 /**
  *
  */
+@Deprecated
 public final class BGPPeerModule extends org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractBGPPeerModule {
-    private static final Logger LOG = LoggerFactory.getLogger(BGPPeerModule.class);
+
+    private BundleContext bundleContext;
 
     public BGPPeerModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
             final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
@@ -95,192 +76,56 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
                     "Internal Peer Role is reserved for Application Peer use.", peerRoleJmxAttribute);
         }
 
-        if (getOptionalPassword(getPassword()).isPresent()) {
+        if (isPasswordPresent(getPassword())) {
             JmxAttributeValidationException.checkCondition(Epoll.isAvailable(),
                     "BGP Peer is configured with password but native transport is not available", passwordJmxAttribute);
         }
 
     }
 
-    private InetSocketAddress createAddress() {
-        final IpAddress ip = getHost();
-        Preconditions.checkArgument(ip.getIpv4Address() != null || ip.getIpv6Address() != null, "Failed to handle host %s", ip);
-        if (ip.getIpv4Address() != null) {
-            return new InetSocketAddress(InetAddresses.forString(ip.getIpv4Address().getValue()), getPort().getValue());
-        }
-        return new InetSocketAddress(InetAddresses.forString(ip.getIpv6Address().getValue()), getPort().getValue());
-    }
-
     @Override
     public java.lang.AutoCloseable createInstance() {
         final RIB r = getRibDependency();
-
-        final List<BgpParameters> tlvs = getTlvs(r);
-        final AsNumber remoteAs = getAsOrDefault(r);
-        final BGPSessionPreferences prefs = new BGPSessionPreferences(r.getLocalAs(), getHoldtimer(), r.getBgpIdentifier(), remoteAs, tlvs,
-                getMD5Password(getPassword()));
-        final BGPPeer bgpClientPeer;
-        final IpAddress host = getNormalizedHost();
-        if (getPeerRole() != null) {
-            bgpClientPeer = new BGPPeer(peerName(host), r, getPeerRole(), getSimpleRoutingPolicy(), getRpcRegistryDependency());
-        } else {
-            bgpClientPeer = new BGPPeer(peerName(host), r, PeerRole.Ibgp, getSimpleRoutingPolicy(), getRpcRegistryDependency());
-        }
-
-        bgpClientPeer.registerRootRuntimeBean(getRootRuntimeBeanRegistratorWrapper());
-
-        getPeerRegistryBackwards().addPeer(host, bgpClientPeer, prefs);
-
-        final BGPPeerModuleTracker moduleTracker = new BGPPeerModuleTracker(r.getOpenConfigProvider());
-        moduleTracker.onInstanceCreate();
-
-        final CloseableNoEx peerCloseable = () -> {
-            bgpClientPeer.close();
-            getPeerRegistryBackwards().removePeer(host);
-            moduleTracker.onInstanceClose();
-        };
-
-        // Initiate connection
-        if(getInitiateConnection()) {
-            final Future<Void> cf = initiateConnection(createAddress(), getOptionalPassword(getPassword()), getPeerRegistryBackwards());
-            return () -> {
-                cf.cancel(true);
-                peerCloseable.close();
-            };
-        } else {
-            return peerCloseable;
-        }
-    }
-
-    private interface CloseableNoEx extends AutoCloseable {
-        @Override
-        void close();
-    }
-
-    private AsNumber getAsOrDefault(final RIB r) {
-        // Remote AS number defaults to our local AS
-        final AsNumber remoteAs;
-        if (getRemoteAs() != null) {
-            remoteAs = new AsNumber(getRemoteAs());
-        } else {
-            remoteAs = r.getLocalAs();
-        }
-        return remoteAs;
-    }
-
-    private List<BgpParameters> getTlvs(final RIB r) {
-        final List<BgpParameters> tlvs = new ArrayList<>();
-        final List<OptionalCapabilities> caps = new ArrayList<>();
-        caps.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().setAs4BytesCapability(
-                new As4BytesCapabilityBuilder().setAsNumber(r.getLocalAs()).build()).build()).build());
-        caps.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class,
-                new CParameters1Builder().setGracefulRestartCapability(new GracefulRestartCapabilityBuilder().build()).build()).build()).build());
-
-        if (getRouteRefresh()) {
-            caps.add(new OptionalCapabilitiesBuilder().setCParameters(MultiprotocolCapabilitiesUtil.RR_CAPABILITY).build());
-        }
-
-        if (!getAddPathDependency().isEmpty()) {
-            final List<AddressFamilies> addPathFamilies = filterAddPathDependency(getAddPathDependency());
-            caps.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class,
-                    new CParameters1Builder().setAddPathCapability(new AddPathCapabilityBuilder().setAddressFamilies(addPathFamilies).build()).build()).build()).build());
-        }
-
-        for (final BgpTableType t : getAdvertizedTableDependency()) {
-            if (!r.getLocalTables().contains(t)) {
-                LOG.info("RIB instance does not list {} in its local tables. Incoming data will be dropped.", t);
+        final WaitingServiceTracker<BgpDeployer> bgpDeployerTracker =
+                WaitingServiceTracker.create(BgpDeployer.class, this.bundleContext);
+        final BgpDeployer bgpDeployer = bgpDeployerTracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
+        //map configuration to OpenConfig BGP
+        final Neighbor neighbor = bgpDeployer.getMappingService().fromBgpPeer(getAddPathDependency(), getAdvertizedTableDependency(), getHoldtimer(),
+                getHost(), getInitiateConnection(), getPassword(), getPort(), getRetrytimer(), getRemoteAs(), getPeerRole(), getSimpleRoutingPolicy());
+        //write to configuration DS
+        final KeyedInstanceIdentifier<Neighbor, NeighborKey> neighborIId = bgpDeployer.getInstanceIdentifier().child(Protocols.class).child(Protocol.class,
+                new ProtocolKey(BGP.class, r.getInstanceIdentifier().getKey().getId().getValue()))
+                .augmentation(Protocol1.class).child(Bgp.class).child(Neighbors.class).child(Neighbor.class, neighbor.getKey());
+        bgpDeployer.writeConfiguration(neighbor, neighborIId);
+        //get rib instance service, use filter
+        final WaitingServiceTracker<BGPPeerRuntimeMXBean> peerTracker = WaitingServiceTracker.create(BGPPeerRuntimeMXBean.class,
+                this.bundleContext, "(" + InstanceType.PEER.getBeanName() + "=" + Ipv4Util.toStringIP(getHost()) + ")");
+        final BGPPeerRuntimeMXBean peer = peerTracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
+        final BGPPeerRuntimeRegistration runtimeRegistration = getRootRuntimeBeanRegistratorWrapper().register(peer);
+        return Reflection.newProxy(AutoCloseablePeer.class, new AbstractInvocationHandler() {
+            @Override
+            protected Object handleInvocation(final Object proxy, final Method method, final Object[] args) throws Throwable {
+                if (method.getName().equals("close")) {
+                    runtimeRegistration.close();
+                    bgpDeployerTracker.close();
+                    peerTracker.close();
+                    return null;
+                } else {
+                    return method.invoke(peer, args);
+                }
             }
-
-            caps.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class,
-                    new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder(t).build()).build()).build()).build());
-        }
-        tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(caps).build());
-        return tlvs;
+        });
     }
 
-    private List<AddressFamilies> filterAddPathDependency(final List<AddressFamilies> addPathDependency) {
-        final Map<BgpTableType, AddressFamilies> filteredFamilies = new HashMap<BgpTableType, AddressFamilies>();
-        for (final AddressFamilies family : addPathDependency) {
-            final BgpTableType key = new BgpTableTypeImpl(family.getAfi(), family.getSafi());
-            if (!filteredFamilies.containsKey(key)) {
-                filteredFamilies.put(key, family);
-            } else {
-                LOG.info("Ignoring Add-path dependency {}", family);
-            }
-        }
-        return new ArrayList<AddressFamilies>(filteredFamilies.values());
+    private static boolean isPasswordPresent(final Rfc2385Key password) {
+        return password != null && ! password.getValue().isEmpty();
     }
 
-    public IpAddress getNormalizedHost() {
-        final IpAddress host = getHost();
-        if(host.getIpv6Address() != null){
-            return new IpAddress(Ipv6Util.getFullForm(host.getIpv6Address()));
-        }
-        return host;
+    public void setBundleContext(final BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
     }
 
-    private io.netty.util.concurrent.Future<Void> initiateConnection(final InetSocketAddress address, final Optional<Rfc2385Key> password, final BGPPeerRegistry registry) {
-        final KeyMapping keys = KeyMapping.getKeyMapping(address.getAddress(), password);
-        final RIB rib = getRibDependency();
-        final Optional<KeyMapping> optionalKey = Optional.fromNullable(keys);
-        return rib.getDispatcher().createReconnectingClient(address, registry, getRetrytimer(), optionalKey);
-    }
-
-    private BGPPeerRegistry getPeerRegistryBackwards() {
-        return getPeerRegistry() == null ? StrictBGPPeerRegistry.GLOBAL : getPeerRegistryDependency();
-    }
-
-    private static String peerName(final IpAddress host) {
-        if (host.getIpv4Address() != null) {
-            return host.getIpv4Address().getValue();
-        }
-        if (host.getIpv6Address() != null) {
-            return host.getIpv6Address().getValue();
-        }
-
-        return null;
-    }
-
-    private final class BGPPeerModuleTracker implements BGPConfigModuleTracker {
-
-        private final BGPOpenconfigMapper<BGPPeerInstanceConfiguration> neighborProvider;
-        private final BGPPeerInstanceConfiguration bgpPeerInstanceConfiguration;
-
-        public BGPPeerModuleTracker(final Optional<BGPOpenConfigProvider> openconfigProvider) {
-            if (openconfigProvider.isPresent()) {
-                this.neighborProvider = openconfigProvider.get().getOpenConfigMapper(BGPPeerInstanceConfiguration.class);
-            } else {
-                this.neighborProvider = null;
-            }
-            final InstanceConfigurationIdentifier identifier = new InstanceConfigurationIdentifier(getIdentifier().getInstanceName());
-            this.bgpPeerInstanceConfiguration = new BGPPeerInstanceConfiguration(identifier, getNormalizedHost(),
-                    getPort(), getHoldtimer(), getPeerRole(), getInitiateConnection(),
-                    getAdvertizedTableDependency(), getAsOrDefault(getRibDependency()),
-                    getOptionalPassword(getPassword()), getAddPathDependency());
-        }
-
-        @Override
-        public void onInstanceCreate() {
-            if (this.neighborProvider != null) {
-                this.neighborProvider.writeConfiguration(this.bgpPeerInstanceConfiguration);
-            }
-        }
-
-        @Override
-        public void onInstanceClose() {
-            if (this.neighborProvider != null) {
-                this.neighborProvider.removeConfiguration(this.bgpPeerInstanceConfiguration);
-            }
-        }
-
-    }
-
-    private static Optional<Rfc2385Key> getOptionalPassword(final Rfc2385Key password) {
-        return password != null && ! password.getValue().isEmpty() ? Optional.of(password) : Optional.<Rfc2385Key>absent();
-    }
-
-    private static Optional<byte[]> getMD5Password(final Rfc2385Key password) {
-        return getOptionalPassword(password).isPresent() ? Optional.of(password.getValue().getBytes(StandardCharsets.US_ASCII)) : Optional.absent();
+    private static interface AutoCloseablePeer extends RIB, AutoCloseable {
     }
 
 }
