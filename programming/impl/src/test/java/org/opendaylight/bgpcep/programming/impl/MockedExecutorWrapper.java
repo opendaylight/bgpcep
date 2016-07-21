@@ -25,18 +25,18 @@ import org.mockito.stubbing.Answer;
 
 final class MockedExecutorWrapper {
 
-    private List<Object> submittedTasksToExecutor;
+    private final List<Object> submittedTasksToExecutor;
 
     MockedExecutorWrapper() {
         submittedTasksToExecutor = Lists.newArrayList();
     }
 
     ListeningExecutorService getMockedExecutor() {
-        ListeningExecutorService mockedExecutor = mock(ListeningExecutorService.class);
-        Answer<ListenableFuture<?>> submitAnswer = new Answer<ListenableFuture<?>>() {
+        final ListeningExecutorService mockedExecutor = mock(ListeningExecutorService.class);
+        final Answer<ListenableFuture<?>> submitAnswer = new Answer<ListenableFuture<?>>() {
             @Override
-            public ListenableFuture<?> answer(InvocationOnMock invocation) throws Throwable {
-                Object task = invocation.getArguments()[0];
+            public ListenableFuture<?> answer(final InvocationOnMock invocation) throws Throwable {
+                final Object task = invocation.getArguments()[0];
                 submittedTasksToExecutor.add(task);
 
                 Object result = null;
@@ -46,7 +46,7 @@ final class MockedExecutorWrapper {
                     result = ((Callable<?>) task).call();
                 }
 
-                ListenableFuture<?> mockedFuture = mock(ListenableFuture.class);
+                final ListenableFuture<?> mockedFuture = mock(ListenableFuture.class);
                 doReturn(result).when(mockedFuture).get();
                 return mockedFuture;
             }
@@ -56,7 +56,7 @@ final class MockedExecutorWrapper {
         return mockedExecutor;
     }
 
-    void assertSubmittedTasksSize(int taskCount) {
+    void assertSubmittedTasksSize(final int taskCount) {
         assertEquals(taskCount, submittedTasksToExecutor.size());
     }
 }

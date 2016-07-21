@@ -61,7 +61,7 @@ public class TopologyDataChangeCounter implements DataTreeChangeListener<Topolog
         wTx.delete(LogicalDatastoreType.OPERATIONAL, this.counterInstanceId);
         try {
             wTx.submit().checkedGet();
-        } catch (TransactionCommitFailedException except) {
+        } catch (final TransactionCommitFailedException except) {
             LOG.warn("Error on remove data change counter {}", this.counterId, except);
         }
         this.chain.close();
@@ -70,7 +70,7 @@ public class TopologyDataChangeCounter implements DataTreeChangeListener<Topolog
 
     private void putCount(final long count) {
         final WriteTransaction wTx = this.chain.newWriteOnlyTransaction();
-        Counter counter = new CounterBuilder().setId(this.counterId).setCount(count).build();
+        final Counter counter = new CounterBuilder().setId(this.counterId).setCount(count).build();
         wTx.put(LogicalDatastoreType.OPERATIONAL, this.counterInstanceId, counter);
         wTx.submit();
     }

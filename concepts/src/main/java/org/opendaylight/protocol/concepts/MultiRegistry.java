@@ -50,7 +50,7 @@ public final class MultiRegistry<K, V> {
         }
 
         V best = values.get(0);
-        for (V v : values) {
+        for (final V v : values) {
             final Class<?> vc = v.getClass();
             final Class<?> bc = best.getClass();
             if (bc.isAssignableFrom(vc)) {

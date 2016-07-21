@@ -78,7 +78,7 @@ public class TopologyDataChangeCounterTest extends AbstractDataBrokerTest {
         assertFalse(countAfterClose3.isPresent());
     }
 
-    private Optional<Long> getCount(String counterId) throws InterruptedException, ExecutionException {
+    private Optional<Long> getCount(final String counterId) throws InterruptedException, ExecutionException {
         final ReadTransaction rTx = getDataBroker().newReadOnlyTransaction();
         final InstanceIdentifier<Counter> counterInstanceId = InstanceIdentifier.builder(DataChangeCounter.class)
                 .child(Counter.class, new CounterKey(counterId)).build();
