@@ -59,7 +59,7 @@ public final class RIBExtensionsImplModule extends org.opendaylight.controller.c
         // instance will be closed via blueprint.
         return Reflection.newProxy(AutoCloseableRIBExtensionProviderContext.class, new AbstractInvocationHandler() {
             @Override
-            protected Object handleInvocation(Object proxy, Method method, Object[] args) throws Throwable {
+            protected Object handleInvocation(final Object proxy, final Method method, final Object[] args) throws Throwable {
                 if (method.getName().equals("close")) {
                     tracker.close();
                     return null;
@@ -70,7 +70,7 @@ public final class RIBExtensionsImplModule extends org.opendaylight.controller.c
         });
     }
 
-    void setBundleContext(BundleContext bundleContext) {
+    void setBundleContext(final BundleContext bundleContext) {
         this.bundleContext = bundleContext;
     }
 

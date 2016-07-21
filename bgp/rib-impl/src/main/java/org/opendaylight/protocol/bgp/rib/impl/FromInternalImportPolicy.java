@@ -51,7 +51,7 @@ class FromInternalImportPolicy extends AbstractImportPolicy {
          */
         final LeafSetNode<?> clusterList = oper.getClusterList(attributes);
         if (clusterList != null) {
-            for (LeafSetEntryNode<?> node : clusterList.getValue()) {
+            for (final LeafSetEntryNode<?> node : clusterList.getValue()) {
                 if (clusterIdentifier.getValue().equals(node.getValue())) {
                     LOG.info("Received a route with our CLUSTER_ID {} in CLUSTER_LIST {}, filtering it", clusterIdentifier.getValue(), clusterList);
                     return null;

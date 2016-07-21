@@ -173,7 +173,7 @@ public class AbstractRouteEntryTest {
         Mockito.doReturn(this.attributes).when(this.peg).effectiveAttributes(Mockito.any(PeerId.class), Mockito.any(ContainerNode.class));
         Mockito.doReturn(null).when(this.pegNot).effectiveAttributes(Mockito.any(PeerId.class), Mockito.any(ContainerNode.class));
 
-        Map<PeerId, PeerExportGroup.PeerExporTuple> peers = new HashMap<>();
+        final Map<PeerId, PeerExportGroup.PeerExporTuple> peers = new HashMap<>();
         Mockito.doReturn(ImmutableList.copyOf(peers.entrySet())).when(this.pegNot).getPeers();
 
         peers.put(PEER_ID, new PeerExportGroup.PeerExporTuple(PEER_YII, PeerRole.Ibgp));

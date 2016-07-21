@@ -26,18 +26,18 @@ import org.osgi.framework.BundleContext;
 @Deprecated
 public class BGPDispatcherImplModuleFactory extends AbstractBGPDispatcherImplModuleFactory {
     @Override
-    public BGPDispatcherImplModule instantiateModule(String instanceName, DependencyResolver dependencyResolver,
-            BGPDispatcherImplModule oldModule, AutoCloseable oldInstance, BundleContext bundleContext) {
-        BGPDispatcherImplModule module = super.instantiateModule(instanceName, dependencyResolver, oldModule,
+    public BGPDispatcherImplModule instantiateModule(final String instanceName, final DependencyResolver dependencyResolver,
+            final BGPDispatcherImplModule oldModule, final AutoCloseable oldInstance, final BundleContext bundleContext) {
+        final BGPDispatcherImplModule module = super.instantiateModule(instanceName, dependencyResolver, oldModule,
                 oldInstance, bundleContext);
         module.setBundleContext(bundleContext);
         return module;
     }
 
     @Override
-    public BGPDispatcherImplModule instantiateModule(String instanceName, DependencyResolver dependencyResolver,
-            BundleContext bundleContext) {
-        BGPDispatcherImplModule module = super.instantiateModule(instanceName, dependencyResolver, bundleContext);
+    public BGPDispatcherImplModule instantiateModule(final String instanceName, final DependencyResolver dependencyResolver,
+            final BundleContext bundleContext) {
+        final BGPDispatcherImplModule module = super.instantiateModule(instanceName, dependencyResolver, bundleContext);
         module.setBundleContext(bundleContext);
         return module;
     }

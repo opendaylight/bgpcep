@@ -78,14 +78,14 @@ public class SimpleBmpTlvRegistryTest {
         Mockito.verify(this.descriptionTlvSerializer).serializeTlv(output, aggregator);
     }
 
-    private final class MockDescriptionTlv implements Tlv {
+    private static final class MockDescriptionTlv implements Tlv {
         @Override
         public Class<? extends DataContainer> getImplementedInterface() {
             return MockDescriptionTlv.class;
         }
     }
 
-    private final class MockTlv implements Tlv {
+    private static final class MockTlv implements Tlv {
 
         @Override
         public Class<? extends DataContainer> getImplementedInterface() {

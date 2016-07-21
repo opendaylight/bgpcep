@@ -48,7 +48,7 @@ public final class EvpnTestUtil {
         return ImmutableContainerNodeSchemaAwareBuilder.create().withNodeIdentifier(nid);
     }
 
-    public static <T> ImmutableLeafNodeBuilder<T> createValueBuilder(final T value, YangInstanceIdentifier.NodeIdentifier nid) {
+    public static <T> ImmutableLeafNodeBuilder<T> createValueBuilder(final T value, final YangInstanceIdentifier.NodeIdentifier nid) {
         final ImmutableLeafNodeBuilder<T> valueBuilder = new ImmutableLeafNodeBuilder<>();
         valueBuilder.withNodeIdentifier(nid).withValue(value);
         return valueBuilder;

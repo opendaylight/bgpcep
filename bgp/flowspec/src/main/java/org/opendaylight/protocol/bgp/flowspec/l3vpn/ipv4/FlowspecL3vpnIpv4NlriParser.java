@@ -24,12 +24,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.RouteDistinguisher;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 
-/**
- * @author Kevin Wang
- */
 public final class FlowspecL3vpnIpv4NlriParser extends AbstractFlowspecL3vpnNlriParser {
 
-    public FlowspecL3vpnIpv4NlriParser(SimpleFlowspecTypeRegistry flowspecTypeRegistry) {
+    public FlowspecL3vpnIpv4NlriParser(final SimpleFlowspecTypeRegistry flowspecTypeRegistry) {
         super(flowspecTypeRegistry);
     }
 

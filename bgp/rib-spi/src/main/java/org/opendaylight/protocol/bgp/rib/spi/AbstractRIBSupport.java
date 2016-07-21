@@ -370,7 +370,7 @@ public abstract class AbstractRIBSupport implements RIBSupport {
 
     private static final class DeleteRoute implements ApplyRoute {
         @Override
-        public final void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base, final NodeIdentifierWithPredicates routeKey,
+        public void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base, final NodeIdentifierWithPredicates routeKey,
             final DataContainerNode<?> route, final ContainerNode attributes) {
             tx.delete(LogicalDatastoreType.OPERATIONAL, base.node(routeKey));
         }

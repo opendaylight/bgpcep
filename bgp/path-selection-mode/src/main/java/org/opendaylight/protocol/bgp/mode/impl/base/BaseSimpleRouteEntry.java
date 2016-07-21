@@ -15,7 +15,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 
 final class BaseSimpleRouteEntry extends BaseAbstractRouteEntry {
     @Override
-    public boolean removeRoute(UnsignedInteger routerId, final Long remotePathId) {
+    public boolean removeRoute(final UnsignedInteger routerId, final Long remotePathId) {
         return removeRoute(routerId, getOffsets().offsetOf(routerId));
     }
 

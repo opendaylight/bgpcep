@@ -21,7 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
  * loss of user code.
  *
  */
-public class BgpNeighborTransportConfigLocalAddressBuilder {
+public final class BgpNeighborTransportConfigLocalAddressBuilder {
 
     public static LocalAddress getDefaultInstance(final java.lang.String defaultValue) {
         try {

@@ -16,18 +16,18 @@ import org.osgi.framework.BundleContext;
 @Deprecated
 public class StrictBgpPeerRegistryModuleFactory extends AbstractStrictBgpPeerRegistryModuleFactory {
     @Override
-    public StrictBgpPeerRegistryModule instantiateModule(String instanceName, DependencyResolver dependencyResolver,
-            StrictBgpPeerRegistryModule oldModule, AutoCloseable oldInstance, BundleContext bundleContext) {
-        StrictBgpPeerRegistryModule module = super.instantiateModule(instanceName, dependencyResolver, oldModule,
+    public StrictBgpPeerRegistryModule instantiateModule(final String instanceName, final DependencyResolver dependencyResolver,
+            final StrictBgpPeerRegistryModule oldModule, final AutoCloseable oldInstance, final BundleContext bundleContext) {
+        final StrictBgpPeerRegistryModule module = super.instantiateModule(instanceName, dependencyResolver, oldModule,
                 oldInstance, bundleContext);
         module.setBundleContext(bundleContext);
         return module;
     }
 
     @Override
-    public StrictBgpPeerRegistryModule instantiateModule(String instanceName, DependencyResolver dependencyResolver,
-            BundleContext bundleContext) {
-        StrictBgpPeerRegistryModule module = super.instantiateModule(instanceName, dependencyResolver, bundleContext);
+    public StrictBgpPeerRegistryModule instantiateModule(final String instanceName, final DependencyResolver dependencyResolver,
+            final BundleContext bundleContext) {
+        final StrictBgpPeerRegistryModule module = super.instantiateModule(instanceName, dependencyResolver, bundleContext);
         module.setBundleContext(bundleContext);
         return module;
     }

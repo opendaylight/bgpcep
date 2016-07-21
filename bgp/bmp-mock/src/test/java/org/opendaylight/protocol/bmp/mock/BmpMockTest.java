@@ -62,7 +62,7 @@ public class BmpMockTest {
                 return BmpMockTest.this.sessionListener;
             }
         };
-        Channel serverChannel = bmpDispatcher.createServer(new InetSocketAddress("127.0.0.1", serverPort),
+        final Channel serverChannel = bmpDispatcher.createServer(new InetSocketAddress("127.0.0.1", serverPort),
                 bmpSessionListenerFactory, Optional.<KeyMapping>absent()).channel();
 
         BmpMock.main(new String[] {"--remote_address", "127.0.0.1:" + serverPort, "--peers_count", "3", "--pre_policy_routes", "3"});
@@ -85,7 +85,7 @@ public class BmpMockTest {
 
         // create a local server in passive mode instead
         BmpMock.main(new String[]{"--local_address", "127.0.0.1:" + serverPort, "--peers_count", "3", "--pre_policy_routes", "3", "--passive"});
-        Channel serverChannel = bmpDispatcher.createClient(new InetSocketAddress("127.0.0.1", serverPort),
+        final Channel serverChannel = bmpDispatcher.createClient(new InetSocketAddress("127.0.0.1", serverPort),
                 bmpSessionListenerFactory, Optional.<KeyMapping>absent()).channel();
 
         Thread.sleep(1000);

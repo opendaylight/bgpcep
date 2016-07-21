@@ -25,14 +25,14 @@ public final class FSIcmpCodeHandler implements FlowspecTypeParser, FlowspecType
     public static final int ICMP_CODE_VALUE = 8;
 
     @Override
-    public void serializeType(FlowspecType fsType, ByteBuf output) {
+    public void serializeType(final FlowspecType fsType, final ByteBuf output) {
         Preconditions.checkArgument(fsType instanceof IcmpCodeCase, "IcmpCodeCase class is mandatory!");
         output.writeByte(ICMP_CODE_VALUE);
         NumericOneByteOperandParser.INSTANCE.serialize(((IcmpCodeCase) fsType).getCodes(), output);
     }
 
     @Override
-    public FlowspecType parseType(ByteBuf buffer) {
+    public FlowspecType parseType(final ByteBuf buffer) {
         Preconditions.checkNotNull(buffer, "input buffer is null, missing data to parse.");
         return new IcmpCodeCaseBuilder().setCodes(parseIcmpCode(buffer)).build();
     }

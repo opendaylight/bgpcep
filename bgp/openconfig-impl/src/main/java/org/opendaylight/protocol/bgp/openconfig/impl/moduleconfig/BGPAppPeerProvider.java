@@ -110,10 +110,10 @@ final class BGPAppPeerProvider {
             if (ribImplKey != null) {
                 try {
                     final String ribImplName = ribImplKey.getName();
-                    final TargetRib rib = RibInstanceFunction.getRibInstance(this.configModuleOp, this.TO_RIB_FUNCTION, ribImplName, rTx);
+                    final TargetRib rib = RibInstanceFunction.getRibInstance(this.configModuleOp, TO_RIB_FUNCTION, ribImplName, rTx);
                     final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.
                         configuration.bgp.application.peer.DataBroker moduleDataBroker = DataBrokerFunction.getRibInstance(this.configModuleOp,
-                        this.TO_DATABROKER_FUNCTION, ribImplName, rTx);
+                        TO_DATABROKER_FUNCTION, ribImplName, rTx);
 
                     final Module peerConfigModule = toPeerConfigModule(modifiedAppNeighbor, rib, moduleDataBroker);
                     configModuleOp.putModuleConfiguration(peerConfigModule, dataBroker.newWriteOnlyTransaction());

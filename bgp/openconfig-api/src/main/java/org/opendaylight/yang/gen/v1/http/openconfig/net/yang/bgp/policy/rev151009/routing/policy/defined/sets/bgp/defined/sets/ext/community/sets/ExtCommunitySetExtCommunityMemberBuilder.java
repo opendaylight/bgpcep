@@ -23,7 +23,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009
  * loss of user code.
  *
  */
-public class ExtCommunitySetExtCommunityMemberBuilder {
+public final class ExtCommunitySetExtCommunityMemberBuilder {
 
     private static final Pattern EXT_COMM_PATTERN = Pattern.compile("^route\\-origin:(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]):(6[0-5][0-5][0-3][0-5]|[1-5][0-9]{4}|[1-9][0-9]{1,4}|[0-9])$");
 

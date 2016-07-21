@@ -79,11 +79,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.karaf.shell</groupId>
-            <artifactId>org.apache.karaf.shell.table</artifactId>
-            <version>${karaf.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.karaf.shell</groupId>
             <artifactId>org.apache.karaf.shell.commands</artifactId>
             <version>${karaf.version}</version>
         </dependency>

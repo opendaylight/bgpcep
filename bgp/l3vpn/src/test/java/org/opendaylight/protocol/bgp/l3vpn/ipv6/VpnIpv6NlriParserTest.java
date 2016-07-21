@@ -38,9 +38,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev160413.l3vpn.ip.destination.type.VpnDestinationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
 
-/**
- * @author Kevin Wang
- */
 public class VpnIpv6NlriParserTest {
 
     private static final VpnIpv6NlriParser PARSER = new VpnIpv6NlriParser();

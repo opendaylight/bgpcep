@@ -66,20 +66,17 @@ public final class AddPathBestPath extends AbstractBestPath {
         We don't check offset position since it will change as new path is added, and we want to be able to use List comparison between old
         bestpath list and new best path list.
         */
-        if (!this.state.equals(other.state)) {
-            return false;
-        }
+        return this.state.equals(other.state) && this.pathId == other.pathId;
 
-        return this.pathId == other.pathId;
     }
 
     @Override
-    public final UnsignedInteger getRouterId() {
+    public UnsignedInteger getRouterId() {
         return this.routeKey.getRouteId();
     }
 
     @Override
-    public final PeerId getPeerId() {
+    public PeerId getPeerId() {
         return RouterIds.createPeerId(this.routeKey.getRouteId());
     }
 

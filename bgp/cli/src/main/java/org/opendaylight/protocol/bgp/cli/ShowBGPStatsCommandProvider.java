@@ -20,8 +20,8 @@ import org.opendaylight.protocol.bgp.cli.utils.BgpCliUtils;
 public class ShowBGPStatsCommandProvider extends AbstractStatsCommandProvider {
 
     @Override
-    protected void onExecution(@Nonnull PrintStream out, @Nonnull BGPPeerRuntimeMXBean peerRuntimeMXBean,
-                               @Nonnull ObjectName objectName) {
+    protected void onExecution(@Nonnull final PrintStream out, @Nonnull final BGPPeerRuntimeMXBean peerRuntimeMXBean,
+                               @Nonnull final ObjectName objectName) {
         final BgpSessionState state = peerRuntimeMXBean.getBgpSessionState();
         BgpCliUtils.displayAll(objectName, state, out);
     }

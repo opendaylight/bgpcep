@@ -26,7 +26,7 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 
 public class AbstractMessageRegistryTest {
 
-    public static final byte[] keepAliveBMsg = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+    private static final byte[] KEEP_ALIVE_B_MSG = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
         (byte) 0xff, (byte) 0x00, (byte) 0x13, (byte) 0x04 };
 
@@ -34,7 +34,7 @@ public class AbstractMessageRegistryTest {
 
         @Override
         protected void serializeMessageImpl(final Notification message, final ByteBuf buffer) {
-            buffer.writeBytes(keepAliveBMsg);
+            buffer.writeBytes(KEEP_ALIVE_B_MSG);
         }
 
         @Override
@@ -49,9 +49,9 @@ public class AbstractMessageRegistryTest {
         final Notification keepAlive = new KeepaliveBuilder().build();
         final ByteBuf buffer = Unpooled.buffer();
         this.registry.serializeMessage(keepAlive, buffer);
-        assertArrayEquals(keepAliveBMsg, ByteArray.getAllBytes(buffer));
+        assertArrayEquals(KEEP_ALIVE_B_MSG, ByteArray.getAllBytes(buffer));
 
-        final Notification not = this.registry.parseMessage(Unpooled.copiedBuffer(keepAliveBMsg));
+        final Notification not = this.registry.parseMessage(Unpooled.copiedBuffer(KEEP_ALIVE_B_MSG));
         assertTrue(not instanceof Keepalive);
     }
 

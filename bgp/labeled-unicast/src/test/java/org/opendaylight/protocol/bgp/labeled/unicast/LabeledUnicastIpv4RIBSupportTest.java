@@ -59,7 +59,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidates;
 
 public class LabeledUnicastIpv4RIBSupportTest extends AbstractRIBSupportTest {
 
-    private static final IpPrefix IPv4_PREFIX = new IpPrefix(new Ipv4Prefix("34.1.22.0/24"));
+    private static final IpPrefix IPV4_PREFIX = new IpPrefix(new Ipv4Prefix("34.1.22.0/24"));
     private static final LabeledUnicastIpv4RIBSupport RIB_SUPPORT = LabeledUnicastIpv4RIBSupport.getInstance();
     private static final LabeledUnicastRoute ROUTE;
     private static final LabeledUnicastRoutes ROUTES;
@@ -68,7 +68,7 @@ public class LabeledUnicastIpv4RIBSupportTest extends AbstractRIBSupportTest {
     private static final PathId PATH_ID = new PathId(1L);
     private static final List<LabelStack> LABEL_STACK = Lists.newArrayList(new LabelStackBuilder().setLabelValue(new MplsLabel(355L)).build());
     private static final List<CLabeledUnicastDestination> LABELED_DESTINATION_LIST = Collections.singletonList(new CLabeledUnicastDestinationBuilder()
-        .setPathId(PATH_ID).setLabelStack(LABEL_STACK).setPrefix(IPv4_PREFIX).build());
+        .setPathId(PATH_ID).setLabelStack(LABEL_STACK).setPrefix(IPV4_PREFIX).build());
     private static final DestinationLabeledUnicastCase REACH_NLRI = new DestinationLabeledUnicastCaseBuilder().setDestinationLabeledUnicast(
         new DestinationLabeledUnicastBuilder().setCLabeledUnicastDestination(LABELED_DESTINATION_LIST).build()).build();
     private static final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.
@@ -84,7 +84,7 @@ public class LabeledUnicastIpv4RIBSupportTest extends AbstractRIBSupportTest {
         LUNlriParser.serializeNlri(LABELED_DESTINATION_LIST, buffer);
         LABEL_KEY = ByteArray.readAllBytes(buffer);
         ROUTE_KEY = new LabeledUnicastRouteKey(PATH_ID, LABEL_KEY);
-        ROUTE = new LabeledUnicastRouteBuilder().setKey(ROUTE_KEY).setPrefix(IPv4_PREFIX).setPathId(PATH_ID).setLabelStack(LABEL_STACK)
+        ROUTE = new LabeledUnicastRouteBuilder().setKey(ROUTE_KEY).setPrefix(IPV4_PREFIX).setPathId(PATH_ID).setLabelStack(LABEL_STACK)
             .setAttributes(new AttributesBuilder().build()).build();
         ROUTES = new LabeledUnicastRoutesBuilder().setLabeledUnicastRoute(Collections.singletonList(ROUTE)).build();
     }
