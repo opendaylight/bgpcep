@@ -57,7 +57,6 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
     private final String name;
     private final YangInstanceIdentifier adjRibsInId;
     private final DOMTransactionChain chain;
-    private final DOMTransactionChain writerChain;
     private final BGPConfigModuleTracker moduleTracker;
     private final EffectiveRibInWriter effectiveRibInWriter;
 
@@ -71,11 +70,10 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
         final YangInstanceIdentifier peerIId = this.targetRib.getYangRibId().node(Peer.QNAME).node(peerId);
         this.adjRibsInId = peerIId.node(AdjRibIn.QNAME).node(Tables.QNAME);
         this.chain = this.targetRib.createPeerChain(this);
-        this.effectiveRibInWriter = EffectiveRibInWriter.create(this.targetRib.getService(), this.targetRib.createPeerChain(this), peerIId, this.targetRib.getImportPolicyPeerTracker(),
-                this.targetRib.getRibSupportContext(), PeerRole.Internal);
-        this.writerChain = this.targetRib.createPeerChain(this);
-        this.writer = AdjRibInWriter.create(this.targetRib.getYangRibId(), PeerRole.Internal, this.writerChain);
+        this.writer = AdjRibInWriter.create(this.targetRib.getYangRibId(), PeerRole.Internal, this.chain);
         this.writer = this.writer.transform(RouterIds.createPeerId(ipAddress), this.targetRib.getRibSupportContext(), this.targetRib.getLocalTablesKeys(), true);
+        this.effectiveRibInWriter = EffectiveRibInWriter.create(this.targetRib.getService(), this.chain, peerIId, this.targetRib.getImportPolicyPeerTracker(),
+            this.targetRib.getRibSupportContext(), PeerRole.Internal);
         this.moduleTracker = moduleTracker;
         if (moduleTracker != null) {
             moduleTracker.onInstanceCreate();
@@ -184,7 +182,6 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
         this.effectiveRibInWriter.close();
         this.writer.removePeer();
         this.chain.close();
-        this.writerChain.close();
         if (this.moduleTracker != null) {
             this.moduleTracker.onInstanceClose();
         }
