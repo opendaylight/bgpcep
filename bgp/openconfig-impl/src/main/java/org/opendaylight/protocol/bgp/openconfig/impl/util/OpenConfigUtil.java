@@ -11,6 +11,7 @@ package org.opendaylight.protocol.bgp.openconfig.impl.util;
 import com.google.common.base.Optional;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.Iterables;
 import com.google.common.primitives.Shorts;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -51,6 +52,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labe
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.SendReceive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.add.path.capability.AddressFamilies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.IPV4FLOW;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.IPV4L3VPNFLOW;
@@ -181,6 +183,35 @@ public final class OpenConfigUtil {
         return new AfiSafiBuilder(afiSafi)
         .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi1.class,
                 addPath).build();
+    }
+
+    public static AfiSafi toNeighborAfiSafiAddPath(final AfiSafi afiSafi, final BgpTableType tableType, final List<AddressFamilies> capabilities) {
+        final Optional<AddressFamilies> capability = Iterables.tryFind(capabilities, af -> af.getAfi().equals(tableType.getAfi()) && af.getSafi().equals(tableType.getSafi()));
+        if (!capability.isPresent()) {
+            return afiSafi;
+        }
+        return new AfiSafiBuilder(afiSafi)
+        .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi2.class,
+                fromSendReceiveMode(capability.get().getSendReceive())).build();
+    }
+
+    private static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi2 fromSendReceiveMode(final SendReceive mode) {
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi2Builder builder =
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi2Builder();
+        switch (mode) {
+        case Both:
+            builder.setReceive(true).setSendMax((short) 0);
+            break;
+        case Receive:
+            builder.setReceive(true);
+            break;
+        case Send:
+            builder.setReceive(false).setSendMax((short) 0);
+            break;
+        default:
+            break;
+        }
+        return builder.build();
     }
 
     public static boolean isAppNeighbor(final Neighbor neighbor) {
