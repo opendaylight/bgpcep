@@ -21,7 +21,6 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListen
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
-import org.opendaylight.protocol.bgp.openconfig.spi.BGPConfigModuleTracker;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
@@ -62,12 +61,10 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
     private final String name;
     private final YangInstanceIdentifier adjRibsInId;
     private final DOMTransactionChain chain;
-    private final BGPConfigModuleTracker moduleTracker;
     private final EffectiveRibInWriter effectiveRibInWriter;
     private AdjRibInWriter writer;
 
-    public ApplicationPeer(final ApplicationRibId applicationRibId, final Ipv4Address ipAddress, final RIB rib,
-            final BGPConfigModuleTracker moduleTracker) {
+    public ApplicationPeer(final ApplicationRibId applicationRibId, final Ipv4Address ipAddress, final RIB rib) {
         this.name = applicationRibId.getValue().toString();
         final RIB targetRib = Preconditions.checkNotNull(rib);
         this.rawIdentifier = InetAddresses.forString(ipAddress.getValue()).getAddress();
@@ -81,14 +78,6 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
         //TODO need to create effective rib in writer with route counter here
         this.effectiveRibInWriter = EffectiveRibInWriter.create(targetRib.getService(), this.chain, peerIId,
             targetRib.getImportPolicyPeerTracker(), targetRib.getRibSupportContext(), PeerRole.Internal);
-        this.moduleTracker = moduleTracker;
-        if (moduleTracker != null) {
-            moduleTracker.onInstanceCreate();
-        }
-    }
-
-    public ApplicationPeer(final ApplicationRibId applicationRibId, final Ipv4Address bgpPeerId, final RIB targetRibDependency) {
-        this(applicationRibId, bgpPeerId, targetRibDependency, null);
     }
 
     /**
@@ -189,9 +178,6 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
         this.effectiveRibInWriter.close();
         this.writer.removePeer();
         this.chain.close();
-        if (this.moduleTracker != null) {
-            this.moduleTracker.onInstanceClose();
-        }
     }
 
     @Override
