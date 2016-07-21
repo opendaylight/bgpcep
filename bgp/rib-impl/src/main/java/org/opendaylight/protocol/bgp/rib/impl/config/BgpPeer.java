@@ -17,6 +17,9 @@ import com.google.common.collect.Iterables;
 import io.netty.util.concurrent.Future;
 import java.util.ArrayList;
 import java.util.List;
+import org.opendaylight.controller.config.yang.bgp.rib.impl.BGPPeerRuntimeMXBean;
+import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpPeerState;
+import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpSessionState;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
@@ -42,11 +45,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.AddPathCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.add.path.capability.AddressFamilies;
+import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class BgpPeer implements AutoCloseable {
+public class BgpPeer implements AutoCloseable, BGPPeerRuntimeMXBean {
 
     //FIXME make configurable
     private static final PortNumber PORT = new PortNumber(179);
@@ -60,6 +64,8 @@ public class BgpPeer implements AutoCloseable {
     private IpAddress neighborAddress;
 
     private Future<Void> connection;
+
+    private ServiceRegistration<?> serviceRegistration;
 
     public BgpPeer(final RpcProviderRegistry rpcRegistry, final BGPPeerRegistry peerRegistry) {
         this.rpcRegistry = rpcRegistry;
@@ -95,6 +101,10 @@ public class BgpPeer implements AutoCloseable {
             this.bgpPeer = null;
             this.peerRegistry.removePeer(this.neighborAddress);
             this.neighborAddress = null;
+            if (this.serviceRegistration != null) {
+                this.serviceRegistration.unregister();
+                this.serviceRegistration = null;
+            }
         }
     }
 
@@ -135,6 +145,32 @@ public class BgpPeer implements AutoCloseable {
             return Optional.of(Iterables.getOnlyElement(key.values()));
         }
         return Optional.absent();
+    }
+
+    @Override
+    public BgpPeerState getBgpPeerState() {
+        return this.bgpPeer.getBgpPeerState();
+    }
+
+    @Override
+    public BgpSessionState getBgpSessionState() {
+        return this.bgpPeer.getBgpSessionState();
+    }
+
+    @Override
+    public void resetStats() {
+        this.bgpPeer.resetStats();
+
+    }
+
+    @Override
+    public void resetSession() {
+        this.bgpPeer.resetSession();
+
+    }
+
+    public void setServiceRegistration(final ServiceRegistration<?> serviceRegistration) {
+        this.serviceRegistration = serviceRegistration;
     }
 
 }

@@ -9,6 +9,7 @@
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getNeighborInstanceIdentifier;
+import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getNeighborInstanceName;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getRibInstanceName;
 
 import com.google.common.base.Optional;
@@ -229,7 +230,8 @@ public final class BgpDeployerImpl implements BgpDeployer, DataTreeChangeListene
         final BgpPeer bgpPeer = this.peers.get(getNeighborInstanceIdentifier(rootIdentifier, neighbor.getKey()));
         if (bgpPeer != null) {
             bgpPeer.close();
-            bgpPeer.start(this.ribs.get(rootIdentifier), neighbor, this.mappingService);
+            final InstanceIdentifier<Neighbor> neighborInstanceIdentifier = getNeighborInstanceIdentifier(rootIdentifier, neighbor.getKey());
+            initiatePeerInstance(rootIdentifier, neighborInstanceIdentifier, neighbor, bgpPeer);
         } else {
             //create new instance, if none is present
             onNeighborModified(rootIdentifier, neighbor);
@@ -241,8 +243,9 @@ public final class BgpDeployerImpl implements BgpDeployer, DataTreeChangeListene
         //create, start and register peer instance
         LOG.debug("Creating Peer instance with configuration: {}", neighbor);
         final BgpPeer bgpPeer = (BgpPeer) this.container.getComponentInstance(InstanceType.PEER.getBeanName());
-        bgpPeer.start(this.ribs.get(rootIdentifier), neighbor, this.mappingService);
-        this.peers.put(getNeighborInstanceIdentifier(rootIdentifier, neighbor.getKey()), bgpPeer);
+        final InstanceIdentifier<Neighbor> neighborInstanceIdentifier = getNeighborInstanceIdentifier(rootIdentifier, neighbor.getKey());
+        initiatePeerInstance(rootIdentifier, neighborInstanceIdentifier, neighbor, bgpPeer);
+        this.peers.put(neighborInstanceIdentifier, bgpPeer);
         LOG.debug("Peer instance created {}", bgpPeer);
     }
 
@@ -253,6 +256,23 @@ public final class BgpDeployerImpl implements BgpDeployer, DataTreeChangeListene
         if (bgpPeer != null) {
             bgpPeer.close();
             LOG.debug("Peer instance removed {}", bgpPeer);
+        }
+    }
+
+    private void registerPeerInstance(final BgpPeer bgpPeer, final String peerInstanceName) {
+        final Dictionary<String, String> properties = new Hashtable<>();
+        properties.put(InstanceType.PEER.getBeanName(), peerInstanceName);
+        final ServiceRegistration<?> serviceRegistration = this.bundleContext.registerService(InstanceType.PEER.getServices(), bgpPeer, properties);
+        bgpPeer.setServiceRegistration(serviceRegistration);
+    }
+
+    private void initiatePeerInstance(final InstanceIdentifier<Bgp> rootIdentifier, final InstanceIdentifier<Neighbor> neighborIdentifier, final Neighbor neighbor,
+            final BgpPeer bgpPeer) {
+        final String peerInstanceName = getNeighborInstanceName(neighborIdentifier);
+        final RibImpl rib = this.ribs.get(rootIdentifier);
+        if (rib != null) {
+            bgpPeer.start(rib, neighbor, this.mappingService);
+            registerPeerInstance(bgpPeer, peerInstanceName);
         }
     }
 
