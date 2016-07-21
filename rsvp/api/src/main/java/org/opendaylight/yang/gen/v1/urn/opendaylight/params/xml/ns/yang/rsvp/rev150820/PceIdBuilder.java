@@ -12,7 +12,7 @@ import com.google.common.net.InetAddresses;
  * loss of user code.
  *
  */
-public class PceIdBuilder {
+public final class PceIdBuilder {
     private PceIdBuilder() {
         throw new UnsupportedOperationException();
     }

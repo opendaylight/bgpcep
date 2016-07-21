@@ -61,7 +61,7 @@ public final class RequiredAttributesObjectParser extends AbstractRSVPObjectPars
 
         final ByteBuf bufferAux = Unpooled.buffer();
         int lenght = 0;
-        for (SubobjectContainer subObject : lspAttributesObject.getLspAttributesObject().getSubobjectContainer()) {
+        for (final SubobjectContainer subObject : lspAttributesObject.getLspAttributesObject().getSubobjectContainer()) {
             final LspSubobject lspSubonject = subObject.getLspSubobject();
             if (lspSubonject instanceof FlagsTlv) {
                 final ByteBuf flagTLVValue = Unpooled.buffer();

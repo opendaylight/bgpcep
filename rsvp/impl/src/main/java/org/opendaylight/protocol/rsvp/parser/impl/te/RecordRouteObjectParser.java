@@ -22,7 +22,7 @@ public final class RecordRouteObjectParser extends RROSubobjectListParser {
     public static final short CLASS_NUM = 21;
     public static final short CTYPE = 1;
 
-    public RecordRouteObjectParser(RROSubobjectRegistry subobjReg) {
+    public RecordRouteObjectParser(final RROSubobjectRegistry subobjReg) {
         super(subobjReg);
     }
 
