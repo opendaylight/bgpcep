@@ -43,9 +43,9 @@ public class AdvertiseNPathsModuleTest extends AbstractConfigTest {
     @Test
     public void testReconfigureInstance() throws Exception {
         createInstance();
-        ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        final ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
         assertBeanCount(1, FACTORY_NAME);
-        CommitStatus status = transaction.commit();
+        final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
         assertStatus(status, 0, 0, 1);
     }

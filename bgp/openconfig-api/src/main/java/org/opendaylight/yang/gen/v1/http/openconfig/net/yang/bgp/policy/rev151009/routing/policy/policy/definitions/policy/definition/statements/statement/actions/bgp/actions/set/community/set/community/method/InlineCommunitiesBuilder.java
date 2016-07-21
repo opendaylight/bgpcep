@@ -21,7 +21,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009
  * loss of user code.
  *
  */
-public class InlineCommunitiesBuilder {
+public final class InlineCommunitiesBuilder {
 
     public static Communities getDefaultInstance(final java.lang.String defaultValue) {
         try {

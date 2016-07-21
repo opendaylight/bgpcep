@@ -100,7 +100,7 @@ final class BGPRibImplProvider {
     }
 
     private List<LocalTable> getAdvertizedTables(final Global modifiedGlobal, final ReadOnlyTransaction rTx) {
-        return TableTypesFunction.getLocalTables(rTx, this.configModuleWriter, this.LOCAL_TABLE_FUNCTION, modifiedGlobal.getAfiSafis().getAfiSafi());
+        return TableTypesFunction.getLocalTables(rTx, this.configModuleWriter, LOCAL_TABLE_FUNCTION, modifiedGlobal.getAfiSafis().getAfiSafi());
     }
 
     private List<RibPathSelectionMode> getPathSelectionModes(final Global modifiedGlobal, final ReadOnlyTransaction rTx) {

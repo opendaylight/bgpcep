@@ -38,7 +38,7 @@ final class IncMultEthTagRParser extends AbstractEvpnNlri {
             "Wrong length of array of bytes. Passed: %s ;", buffer);
 
         final EthernetTagId eti = new EthernetTagIdBuilder().setVlanId(buffer.readUnsignedInt()).build();
-        IpAddress ip = Preconditions.checkNotNull(EthSegRParser.parseOrigRouteIp(buffer));
+        final IpAddress ip = Preconditions.checkNotNull(EthSegRParser.parseOrigRouteIp(buffer));
         final IncMultiEthernetTagResBuilder builder = new IncMultiEthernetTagResBuilder().setEthernetTagId(eti).setOrigRouteIp(ip);
         return new IncMultiEthernetTagResCaseBuilder().setIncMultiEthernetTagRes(builder.build()).build();
     }

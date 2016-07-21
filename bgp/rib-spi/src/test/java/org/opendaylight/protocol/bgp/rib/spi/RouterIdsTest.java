@@ -17,12 +17,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 
 public class RouterIdsTest {
 
-    UnsignedInteger unsignedRouterId = UnsignedInteger.valueOf(707406378);
-    PeerId peerID = new PeerId("bgp://42.42.42.42");
+    private final static String ADDRESS = "42.42.42.42";
+    private final UnsignedInteger unsignedRouterId = UnsignedInteger.valueOf(707406378);
+    private final PeerId peerID = new PeerId("bgp://" + ADDRESS);
 
     @Test
     public void testRouterIdForAddress() throws Exception {
-        assertEquals(unsignedRouterId, RouterIds.routerIdForAddress("42.42.42.42"));
+        assertEquals(unsignedRouterId, RouterIds.routerIdForAddress(ADDRESS));
     }
 
     @Test
@@ -32,7 +33,7 @@ public class RouterIdsTest {
 
     @Test
     public void testCreatePeerId() throws Exception {
-        assertEquals(peerID, RouterIds.createPeerId(new Ipv4Address("42.42.42.42")));
+        assertEquals(peerID, RouterIds.createPeerId(new Ipv4Address(ADDRESS)));
     }
 
     @Test

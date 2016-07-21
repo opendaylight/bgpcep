@@ -33,21 +33,21 @@ public final class BgpCliUtilsTests{
     @Test
     public void testDisplayAll() throws IOException, JMException {
         //Arrange
-        ObjectName objectName = mock(ObjectName.class);
-        BgpSessionState bgpSessionState = mock(BgpSessionState.class);
-        PrintStream printStream = mock(PrintStream.class);
-        MessagesStats msgStats = mock(MessagesStats.class);
-        RemotePeerPreferences speakerPref = mock(RemotePeerPreferences.class);
-        LocalPeerPreferences peerPref = mock(LocalPeerPreferences.class);
-        ErrorMsgs errorMsgs = mock(ErrorMsgs.class);
-        ErrorReceived errorReceived = mock(ErrorReceived.class);
-        List<ErrorReceived> newlist = new ArrayList<>();
+        final ObjectName objectName = mock(ObjectName.class);
+        final BgpSessionState bgpSessionState = mock(BgpSessionState.class);
+        final PrintStream printStream = mock(PrintStream.class);
+        final MessagesStats msgStats = mock(MessagesStats.class);
+        final RemotePeerPreferences speakerPref = mock(RemotePeerPreferences.class);
+        final LocalPeerPreferences peerPref = mock(LocalPeerPreferences.class);
+        final ErrorMsgs errorMsgs = mock(ErrorMsgs.class);
+        final ErrorReceived errorReceived = mock(ErrorReceived.class);
+        final List<ErrorReceived> newlist = new ArrayList<>();
         newlist.add(errorReceived);
 
         when(bgpSessionState.getMessagesStats()).thenReturn(msgStats);
         when(speakerPref.getAddPathCapability()).thenReturn(true);
         when(peerPref.getAddPathCapability()).thenReturn(true);
-        when(errorReceived.getCount()).thenReturn(new ZeroBasedCounter32(5l));
+        when(errorReceived.getCount()).thenReturn(new ZeroBasedCounter32(5L));
 
         when(errorMsgs.getErrorReceived()).thenReturn(newlist);
         when(msgStats.getErrorMsgs()).thenReturn(errorMsgs);

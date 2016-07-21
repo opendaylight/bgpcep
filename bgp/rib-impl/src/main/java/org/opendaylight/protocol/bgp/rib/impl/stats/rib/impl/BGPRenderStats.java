@@ -11,9 +11,6 @@ import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpRenderState;
 import org.opendaylight.protocol.bgp.rib.impl.stats.UnsignedInt32Counter;
 import org.opendaylight.protocol.bgp.rib.impl.stats.peer.route.PerTableTypeRouteCounter;
 
-/**
- * @author Kevin Wang
- */
 public interface BGPRenderStats {
     BgpRenderState getBgpRenderState();
 

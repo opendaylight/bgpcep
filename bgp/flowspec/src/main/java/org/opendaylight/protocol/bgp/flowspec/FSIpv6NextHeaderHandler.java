@@ -25,14 +25,14 @@ public final class FSIpv6NextHeaderHandler implements FlowspecTypeParser, Flowsp
     public static final int NEXT_HEADER_VALUE = 3;
 
     @Override
-    public void serializeType(FlowspecType value, ByteBuf output) {
+    public void serializeType(final FlowspecType value, final ByteBuf output) {
         Preconditions.checkArgument(value instanceof NextHeaderCase, "NextHeaderCase class is mandatory!");
         output.writeByte(NEXT_HEADER_VALUE);
         NumericOneByteOperandParser.INSTANCE.serialize(((NextHeaderCase) value).getNextHeaders(), output);
     }
 
     @Override
-    public FlowspecType parseType(ByteBuf buffer) {
+    public FlowspecType parseType(final ByteBuf buffer) {
         if (buffer == null) {
             return null;
         }

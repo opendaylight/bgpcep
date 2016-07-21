@@ -51,9 +51,9 @@ public class AppPeerBenchmarkTest extends AbstractDataBrokerTest {
 
     private static final InstanceIdentifier<ApplicationRib> BASE_IID = KeyedInstanceIdentifier.builder(ApplicationRib.class,
             new ApplicationRibKey(new ApplicationRibId(PEER_RIB_ID))).build();
-    private static final InstanceIdentifier tablesIId = BASE_IID
+    private static final InstanceIdentifier TABLES_IID = BASE_IID
             .child(Tables.class, new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
-    private static final InstanceIdentifier<Ipv4Routes> ROUTES = tablesIId.child(Ipv4Routes.class);
+    private static final InstanceIdentifier<Ipv4Routes> ROUTES = TABLES_IID.child(Ipv4Routes.class);
 
     @Mock
     private RpcProviderRegistry rpcRegistry;

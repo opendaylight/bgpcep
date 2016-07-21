@@ -30,9 +30,6 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 
-/**
- * @author Kevin Wang
- */
 public abstract class AbstractFlowspecL3vpnRIBSupport<T extends AbstractFlowspecL3vpnNlriParser> extends AbstractFlowspecRIBSupport<T> {
     private final NodeIdentifier routeDistinguisherNID;
 
@@ -45,13 +42,13 @@ public abstract class AbstractFlowspecL3vpnRIBSupport<T extends AbstractFlowspec
         final T flowspecNlriParser
     ) {
         super(cazeClass, containerClass, listClass, afiClass, FlowspecL3vpnSubsequentAddressFamily.class, dstContainerClassQName, flowspecNlriParser);
-        final QName routeDistinguisherQName = QName.create(routeQName(), "route-distinguisher").intern();
-        routeDistinguisherNID = new NodeIdentifier(routeDistinguisherQName);
+        final QName rdQname = QName.create(routeQName(), "route-distinguisher").intern();
+        this.routeDistinguisherNID = new NodeIdentifier(rdQname);
     }
 
     @Nullable
     private RouteDistinguisher buildRouteDistinguisher(final DataContainerNode<? extends PathArgument> data) {
-        final NormalizedNode<?, ?> rdNode = NormalizedNodes.findNode(data, routeDistinguisherNID).orNull();
+        final NormalizedNode<?, ?> rdNode = NormalizedNodes.findNode(data, this.routeDistinguisherNID).orNull();
         RouteDistinguisher rd = null;
         if (rdNode != null) {
             rd = RouteDistinguisherUtil.parseRouteDistinguisher(rdNode.getValue());

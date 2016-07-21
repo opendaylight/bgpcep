@@ -17,16 +17,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * @author Kevin Wang
- */
 public final class PerTableTypeRouteCounter {
     private static final Logger LOG = LoggerFactory.getLogger(PerTableTypeRouteCounter.class);
 
     private final Map<TablesKey, UnsignedInt32Counter> counters = new ConcurrentHashMap<>();
     private final String counterName;
 
-    private final UnsignedInt32Counter createCounter(@Nonnull final TablesKey tablesKey) {
+    private UnsignedInt32Counter createCounter(@Nonnull final TablesKey tablesKey) {
         return new UnsignedInt32Counter(this.counterName + tablesKey.toString());
     }
 
@@ -39,11 +36,11 @@ public final class PerTableTypeRouteCounter {
         init(tablesKeySet);
     }
 
-    public final synchronized void init(@Nonnull Set<TablesKey> tablesKeySet) {
-        tablesKeySet.stream().forEach(tablesKey -> init(tablesKey));
+    private synchronized void init(@Nonnull final Set<TablesKey> tablesKeySet) {
+        tablesKeySet.stream().forEach(this::init);
     }
 
-    public final synchronized UnsignedInt32Counter init(@Nonnull final TablesKey tablesKey) {
+    public synchronized UnsignedInt32Counter init(@Nonnull final TablesKey tablesKey) {
         UnsignedInt32Counter counter = this.counters.get(Preconditions.checkNotNull(tablesKey));
         if (counter == null) {
             this.counters.put(tablesKey, counter = createCounter(tablesKey));
@@ -59,7 +56,7 @@ public final class PerTableTypeRouteCounter {
      * @param tablesKey
      * @return
      */
-    @Nonnull public final UnsignedInt32Counter getCounterOrDefault(@Nonnull final TablesKey tablesKey) {
+    @Nonnull public UnsignedInt32Counter getCounterOrDefault(@Nonnull final TablesKey tablesKey) {
         return this.counters.getOrDefault(Preconditions.checkNotNull(tablesKey), createCounter(tablesKey));
     }
 
@@ -68,7 +65,7 @@ public final class PerTableTypeRouteCounter {
      * @param tablesKey
      * @return
      */
-    public final UnsignedInt32Counter getCounter(@Nonnull final TablesKey tablesKey) {
+    public UnsignedInt32Counter getCounter(@Nonnull final TablesKey tablesKey) {
         return this.counters.get(Preconditions.checkNotNull(tablesKey));
     }
 
@@ -78,7 +75,7 @@ public final class PerTableTypeRouteCounter {
      * @param tablesKey
      * @return
      */
-    public final UnsignedInt32Counter getCounterOrSetDefault(@Nonnull final TablesKey tablesKey) {
+    public UnsignedInt32Counter getCounterOrSetDefault(@Nonnull final TablesKey tablesKey) {
         if (!this.counters.containsKey(tablesKey)) {
             return init(tablesKey);
         } else {
@@ -86,11 +83,11 @@ public final class PerTableTypeRouteCounter {
         }
     }
 
-    public final Map<TablesKey, UnsignedInt32Counter> getCounters() {
+    public Map<TablesKey, UnsignedInt32Counter> getCounters() {
         return this.counters;
     }
 
-    public final void resetAll() {
+    public void resetAll() {
         LOG.debug("Resetting all route counters..");
         this.counters.values().stream().forEach(v -> v.resetCount());
     }

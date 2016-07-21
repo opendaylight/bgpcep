@@ -60,15 +60,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 
 public class BGPParserTest {
 
-    private static int MAX_SIZE = 300;
+    private static final int MAX_SIZE = 300;
 
-    private static MessageRegistry messageRegistry;
+    private static final MessageRegistry MESSAGE_REGISTRY;
 
-    private static byte[] input;
+    private static byte[] INPUT;
+
+    static {
+        MESSAGE_REGISTRY = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry();
+    }
 
     @BeforeClass
     public static void setUp() throws Exception {
-        messageRegistry = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry();
 
         final String name = "/up2.bin";
         try (final InputStream is = BGPParserTest.class.getResourceAsStream(name)) {
@@ -83,7 +86,7 @@ public class BGPParserTest {
             }
             bis.flush();
 
-            input = bis.toByteArray();
+            INPUT = bis.toByteArray();
             is.close();
         }
     }
@@ -141,7 +144,7 @@ public class BGPParserTest {
      */
     @Test
     public void testIPv6Nlri() throws Exception {
-        final Update message = (Update) messageRegistry.parseMessage(Unpooled.wrappedBuffer(input), null);
+        final Update message = (Update) MESSAGE_REGISTRY.parseMessage(Unpooled.wrappedBuffer(INPUT), null);
 
         // check fields
         assertNull(message.getWithdrawnRoutes());
@@ -207,8 +210,8 @@ public class BGPParserTest {
         assertEquals(builder.build(), message);
 
         final ByteBuf buffer = Unpooled.buffer();
-        messageRegistry.serializeMessage(message, buffer);
-        assertArrayEquals(input, ByteArray.readAllBytes(buffer));
+        MESSAGE_REGISTRY.serializeMessage(message, buffer);
+        assertArrayEquals(INPUT, ByteArray.readAllBytes(buffer));
     }
 
 }

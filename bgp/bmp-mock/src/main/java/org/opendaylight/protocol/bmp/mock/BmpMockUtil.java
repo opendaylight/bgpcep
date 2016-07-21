@@ -78,7 +78,7 @@ final class BmpMockUtil {
         msgBuilder.setRemotePort(PEER_PORT);
         msgBuilder.setReceivedOpen(new ReceivedOpenBuilder(createOpen(peerIp)).build());
         msgBuilder.setSentOpen(new SentOpenBuilder(createOpen(new Ipv4Address(localAddress.getHostAddress()))).build());
-        msgBuilder.setPeerHeader(createPeerHeader(peerIp, AdjRibInType.PrePolicy));
+        msgBuilder.setPeerHeader(createPeerHeader(peerIp));
         return msgBuilder.build();
     }
 
@@ -91,7 +91,7 @@ final class BmpMockUtil {
         return msgBuilder.build();
     }
 
-    private static PeerHeader createPeerHeader(final Ipv4Address bgpId, final AdjRibInType ribType) {
+    private static PeerHeader createPeerHeader(final Ipv4Address bgpId) {
         return new PeerHeaderBuilder()
             .setAddress(new IpAddress(bgpId))
             .setAdjRibInType(AdjRibInType.PrePolicy)
@@ -104,7 +104,7 @@ final class BmpMockUtil {
 
     public static RouteMonitoringMessage createRouteMonitoring(final Ipv4Address bgpId, final AdjRibInType ribType, final Ipv4Prefix prefix) {
         final RouteMonitoringMessageBuilder routeMonitMsgBuilder = new RouteMonitoringMessageBuilder()
-            .setPeerHeader(createPeerHeader(bgpId, ribType))
+            .setPeerHeader(createPeerHeader(bgpId))
             .setUpdate(createUpdate(prefix));
         return routeMonitMsgBuilder.build();
     }

@@ -69,22 +69,25 @@ public class BGPParserTest {
     /**
      * Used by other tests as well
      */
-    static final List<byte[]> inputBytes = new ArrayList<byte[]>();
+    private static final List<byte[]> INPUT_BYTES = new ArrayList<byte[]>();
 
-    private static int COUNTER = 7;
+    private static final int COUNTER = 7;
 
-    private static int MAX_SIZE = 300;
+    private static final int MAX_SIZE = 300;
 
-    private static BGPUpdateMessageParser updateParser;
+    private static final BGPUpdateMessageParser UPDATE_PARSER;
 
     private static final int LENGTH_FIELD_LENGTH = 2;
 
+    static {
+        UPDATE_PARSER = new BGPUpdateMessageParser(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry());
+    }
+
     @BeforeClass
     public static void setUp() throws Exception {
-        updateParser = new BGPUpdateMessageParser(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry());
         for (int i = 1; i <= COUNTER; i++) {
             final String name = "/up" + i + ".bin";
-            try (final InputStream is = BGPParserTest.class.getResourceAsStream(name)){
+            try (final InputStream is = BGPParserTest.class.getResourceAsStream(name)) {
                 if (is == null) {
                     throw new IOException("Failed to get resource " + name);
                 }
@@ -96,7 +99,7 @@ public class BGPParserTest {
                 }
                 bis.flush();
 
-                inputBytes.add(bis.toByteArray());
+                INPUT_BYTES.add(bis.toByteArray());
                 is.close();
             }
         }
@@ -105,7 +108,7 @@ public class BGPParserTest {
 
     @Test
     public void testResource() {
-        assertNotNull(inputBytes);
+        assertNotNull(INPUT_BYTES);
     }
 
     /*
@@ -153,9 +156,9 @@ public class BGPParserTest {
     @Test
     public void testGetUpdateMessage1() throws Exception {
 
-        final byte[] body = ByteArray.cutBytes(inputBytes.get(0), MessageUtil.COMMON_HEADER_LENGTH);
-        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(0), MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
-        final Update message = BGPParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength);
+        final byte[] body = ByteArray.cutBytes(INPUT_BYTES.get(0), MessageUtil.COMMON_HEADER_LENGTH);
+        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(INPUT_BYTES.get(0), MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
+        final Update message = BGPParserTest.UPDATE_PARSER.parseMessageBody(Unpooled.copiedBuffer(body), messageLength);
 
         // check fields
 
@@ -168,7 +171,7 @@ public class BGPParserTest {
         asPath.add(new SegmentsBuilder().setAsSequence(asNumbers).build());
 
         final Ipv4NextHopCase nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(
-                new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("10.0.0.2")).build()).build();
+            new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("10.0.0.2")).build()).build();
 
         final List<Communities> comms = Lists.newArrayList();
         comms.add((Communities) CommunityUtil.NO_EXPORT);
@@ -215,15 +218,15 @@ public class BGPParserTest {
         paBuilder.setCommunities(comms);
         assertEquals(paBuilder.getCommunities(), attrs.getCommunities());
 
-        paBuilder.setUnrecognizedAttributes(Collections.<UnrecognizedAttributes> emptyList());
+        paBuilder.setUnrecognizedAttributes(Collections.<UnrecognizedAttributes>emptyList());
 
         builder.setAttributes(paBuilder.build());
 
         assertEquals(builder.build(), message);
 
         final ByteBuf buffer = Unpooled.buffer();
-        BGPParserTest.updateParser.serializeMessage(message, buffer);
-        assertArrayEquals(inputBytes.get(0), ByteArray.readAllBytes(buffer));
+        BGPParserTest.UPDATE_PARSER.serializeMessage(message, buffer);
+        assertArrayEquals(INPUT_BYTES.get(0), ByteArray.readAllBytes(buffer));
     }
 
     /*
@@ -267,9 +270,9 @@ public class BGPParserTest {
      */
     @Test
     public void testGetUpdateMessage3() throws Exception {
-        final byte[] body = ByteArray.cutBytes(inputBytes.get(2), MessageUtil.COMMON_HEADER_LENGTH);
-        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(2), MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
-        final Update message = BGPParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength);
+        final byte[] body = ByteArray.cutBytes(INPUT_BYTES.get(2), MessageUtil.COMMON_HEADER_LENGTH);
+        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(INPUT_BYTES.get(2), MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
+        final Update message = BGPParserTest.UPDATE_PARSER.parseMessageBody(Unpooled.copiedBuffer(body), messageLength);
 
         final UpdateBuilder builder = new UpdateBuilder();
 
@@ -292,9 +295,9 @@ public class BGPParserTest {
         asPath.add(new SegmentsBuilder().setAsSet(asSet).build());
 
         final Aggregator aggregator = new AggregatorBuilder().setAsNumber(new AsNumber((long) 30)).setNetworkAddress(
-                new Ipv4Address("10.0.0.9")).build();
+            new Ipv4Address("10.0.0.9")).build();
         final Ipv4NextHopCase nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(
-                new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("10.0.0.9")).build()).build();
+            new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("10.0.0.9")).build()).build();
 
         // check path attributes
         final Attributes attrs = message.getAttributes();
@@ -315,14 +318,14 @@ public class BGPParserTest {
 
         paBuilder.setAggregator(aggregator);
         assertEquals(paBuilder.getAggregator(), attrs.getAggregator());
-        paBuilder.setUnrecognizedAttributes(Collections.<UnrecognizedAttributes> emptyList());
+        paBuilder.setUnrecognizedAttributes(Collections.<UnrecognizedAttributes>emptyList());
         builder.setAttributes(paBuilder.build());
 
         assertEquals(builder.build(), message);
 
         final ByteBuf buffer = Unpooled.buffer();
-        BGPParserTest.updateParser.serializeMessage(message, buffer);
-        assertArrayEquals(inputBytes.get(2), ByteArray.readAllBytes(buffer));
+        BGPParserTest.UPDATE_PARSER.serializeMessage(message, buffer);
+        assertArrayEquals(INPUT_BYTES.get(2), ByteArray.readAllBytes(buffer));
     }
 
     /*
@@ -366,9 +369,9 @@ public class BGPParserTest {
      */
     @Test
     public void testGetUpdateMessage4() throws Exception {
-        final byte[] body = ByteArray.cutBytes(inputBytes.get(3), MessageUtil.COMMON_HEADER_LENGTH);
-        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(3), MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
-        final Update message = BGPParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength);
+        final byte[] body = ByteArray.cutBytes(INPUT_BYTES.get(3), MessageUtil.COMMON_HEADER_LENGTH);
+        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(INPUT_BYTES.get(3), MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
+        final Update message = BGPParserTest.UPDATE_PARSER.parseMessageBody(Unpooled.copiedBuffer(body), messageLength);
 
         final UpdateBuilder builder = new UpdateBuilder();
 
@@ -386,13 +389,13 @@ public class BGPParserTest {
 
         // attributes
         final Ipv4NextHopCase nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(
-                new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("3.3.3.3")).build()).build();
+            new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("3.3.3.3")).build()).build();
 
         final List<ExtendedCommunities> comms = Lists.newArrayList();
         comms.add(new ExtendedCommunitiesBuilder().setTransitive(true).setExtendedCommunity(
-                new RouteTargetIpv4CaseBuilder().setRouteTargetIpv4(
-                        new RouteTargetIpv4Builder().setGlobalAdministrator(
-                                new Ipv4Address("192.168.1.0")).setLocalAdministrator(4660).build()).build()).build());
+            new RouteTargetIpv4CaseBuilder().setRouteTargetIpv4(
+                new RouteTargetIpv4Builder().setGlobalAdministrator(
+                    new Ipv4Address("192.168.1.0")).setLocalAdministrator(4660).build()).build()).build());
 
         // check path attributes
         final Attributes attrs = message.getAttributes();
@@ -402,7 +405,7 @@ public class BGPParserTest {
         paBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Egp).build());
         assertEquals(paBuilder.getOrigin(), attrs.getOrigin());
 
-        paBuilder.setAsPath(new AsPathBuilder().setSegments(Collections.<Segments> emptyList()).build());
+        paBuilder.setAsPath(new AsPathBuilder().setSegments(Collections.<Segments>emptyList()).build());
         assertEquals(paBuilder.getAsPath(), attrs.getAsPath());
 
         paBuilder.setCNextHop(nextHop);
@@ -417,14 +420,14 @@ public class BGPParserTest {
         paBuilder.setExtendedCommunities(comms);
         assertEquals(paBuilder.getExtendedCommunities(), attrs.getExtendedCommunities());
 
-        paBuilder.setUnrecognizedAttributes(Collections.<UnrecognizedAttributes> emptyList());
+        paBuilder.setUnrecognizedAttributes(Collections.<UnrecognizedAttributes>emptyList());
         // check API message
         builder.setAttributes(paBuilder.build());
         assertEquals(builder.build(), message);
 
         final ByteBuf buffer = Unpooled.buffer();
-        BGPParserTest.updateParser.serializeMessage(message, buffer);
-        assertArrayEquals(inputBytes.get(3), ByteArray.readAllBytes(buffer));
+        BGPParserTest.UPDATE_PARSER.serializeMessage(message, buffer);
+        assertArrayEquals(INPUT_BYTES.get(3), ByteArray.readAllBytes(buffer));
     }
 
     /*
@@ -439,22 +442,22 @@ public class BGPParserTest {
      */
     @Test
     public void testGetUpdateMessage5() throws Exception {
-        final byte[] body = ByteArray.cutBytes(inputBytes.get(4), MessageUtil.COMMON_HEADER_LENGTH);
-        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(4), MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
-        final Update message = BGPParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength);
+        final byte[] body = ByteArray.cutBytes(INPUT_BYTES.get(4), MessageUtil.COMMON_HEADER_LENGTH);
+        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(INPUT_BYTES.get(4), MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
+        final Update message = BGPParserTest.UPDATE_PARSER.parseMessageBody(Unpooled.copiedBuffer(body), messageLength);
 
         // attributes
         final List<Ipv4Prefix> prefs = Lists.newArrayList(new Ipv4Prefix("172.16.0.4/30"));
 
         // check API message
         final Update expectedMessage = new UpdateBuilder().setWithdrawnRoutes(
-                new WithdrawnRoutesBuilder().setWithdrawnRoutes(prefs).build()).build();
+            new WithdrawnRoutesBuilder().setWithdrawnRoutes(prefs).build()).build();
 
         assertEquals(expectedMessage.getWithdrawnRoutes(), message.getWithdrawnRoutes());
 
         final ByteBuf buffer = Unpooled.buffer();
-        BGPParserTest.updateParser.serializeMessage(message, buffer);
-        assertArrayEquals(inputBytes.get(4), ByteArray.readAllBytes(buffer));
+        BGPParserTest.UPDATE_PARSER.serializeMessage(message, buffer);
+        assertArrayEquals(INPUT_BYTES.get(4), ByteArray.readAllBytes(buffer));
     }
 
     /*
@@ -468,15 +471,15 @@ public class BGPParserTest {
      */
     @Test
     public void testEORIpv4() throws Exception {
-        final byte[] body = ByteArray.cutBytes(inputBytes.get(5), MessageUtil.COMMON_HEADER_LENGTH);
-        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(5), MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
-        final Update message = BGPParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength);
+        final byte[] body = ByteArray.cutBytes(INPUT_BYTES.get(5), MessageUtil.COMMON_HEADER_LENGTH);
+        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(INPUT_BYTES.get(5), MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
+        final Update message = BGPParserTest.UPDATE_PARSER.parseMessageBody(Unpooled.copiedBuffer(body), messageLength);
 
         assertEquals(new UpdateBuilder().build(), message);
 
         final ByteBuf buffer = Unpooled.buffer();
-        BGPParserTest.updateParser.serializeMessage(message, buffer);
-        assertArrayEquals(inputBytes.get(5), ByteArray.readAllBytes(buffer));
+        BGPParserTest.UPDATE_PARSER.serializeMessage(message, buffer);
+        assertArrayEquals(INPUT_BYTES.get(5), ByteArray.readAllBytes(buffer));
     }
 
     /*
@@ -495,9 +498,9 @@ public class BGPParserTest {
      */
     @Test
     public void testEORIpv6() throws Exception {
-        final byte[] body = ByteArray.cutBytes(inputBytes.get(6), MessageUtil.COMMON_HEADER_LENGTH);
-        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(6), MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
-        final Update message = BGPParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength);
+        final byte[] body = ByteArray.cutBytes(INPUT_BYTES.get(6), MessageUtil.COMMON_HEADER_LENGTH);
+        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(INPUT_BYTES.get(6), MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
+        final Update message = BGPParserTest.UPDATE_PARSER.parseMessageBody(Unpooled.copiedBuffer(body), messageLength);
 
         final Class<? extends AddressFamily> afi = message.getAttributes().getAugmentation(Attributes2.class).getMpUnreachNlri().getAfi();
         final Class<? extends SubsequentAddressFamily> safi = message.getAttributes().getAugmentation(Attributes2.class).getMpUnreachNlri().getSafi();
@@ -506,8 +509,8 @@ public class BGPParserTest {
         assertEquals(UnicastSubsequentAddressFamily.class, safi);
 
         final ByteBuf buffer = Unpooled.buffer();
-        BGPParserTest.updateParser.serializeMessage(message, buffer);
-        assertArrayEquals(inputBytes.get(6), ByteArray.readAllBytes(buffer));
+        BGPParserTest.UPDATE_PARSER.serializeMessage(message, buffer);
+        assertArrayEquals(INPUT_BYTES.get(6), ByteArray.readAllBytes(buffer));
     }
 
     /*
@@ -526,9 +529,9 @@ public class BGPParserTest {
      */
     @Test
     public void testEORIpv6exLength() throws Exception {
-        final byte[] body = ByteArray.cutBytes(inputBytes.get(6), MessageUtil.COMMON_HEADER_LENGTH);
-        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(6), MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
-        final Update message = BGPParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength);
+        final byte[] body = ByteArray.cutBytes(INPUT_BYTES.get(6), MessageUtil.COMMON_HEADER_LENGTH);
+        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(INPUT_BYTES.get(6), MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
+        final Update message = BGPParserTest.UPDATE_PARSER.parseMessageBody(Unpooled.copiedBuffer(body), messageLength);
 
         final Class<? extends AddressFamily> afi = message.getAttributes().getAugmentation(Attributes2.class).getMpUnreachNlri().getAfi();
         final Class<? extends SubsequentAddressFamily> safi = message.getAttributes().getAugmentation(Attributes2.class).getMpUnreachNlri().getSafi();
@@ -537,7 +540,7 @@ public class BGPParserTest {
         assertEquals(UnicastSubsequentAddressFamily.class, safi);
 
         final ByteBuf buffer = Unpooled.buffer();
-        BGPParserTest.updateParser.serializeMessage(message, buffer);
-        assertArrayEquals(inputBytes.get(6), ByteArray.readAllBytes(buffer));
+        BGPParserTest.UPDATE_PARSER.serializeMessage(message, buffer);
+        assertArrayEquals(INPUT_BYTES.get(6), ByteArray.readAllBytes(buffer));
     }
 }

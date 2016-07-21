@@ -26,15 +26,12 @@ import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * @author Kevin Wang
- */
 public abstract class AbstractFlowspecL3vpnNlriParser extends AbstractFlowspecNlriParser {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractFlowspecL3vpnNlriParser.class);
 
     private static final NodeIdentifier RD_NID = new NodeIdentifier(QName.create(Flowspec.QNAME.getNamespace(), Flowspec.QNAME.getRevision(), "route-distinguisher"));
 
-    protected AbstractFlowspecL3vpnNlriParser(SimpleFlowspecTypeRegistry flowspecTypeRegistry) {
+    protected AbstractFlowspecL3vpnNlriParser(final SimpleFlowspecTypeRegistry flowspecTypeRegistry) {
         super(flowspecTypeRegistry);
     }
 
@@ -49,7 +46,7 @@ public abstract class AbstractFlowspecL3vpnNlriParser extends AbstractFlowspecNl
         return buffer.toString();
     }
 
-    public static final RouteDistinguisher extractRouteDistinguisher(final DataContainerNode<?> route) {
+    public static RouteDistinguisher extractRouteDistinguisher(final DataContainerNode<?> route) {
         final Optional<DataContainerChild<? extends PathArgument, ?>> rdNode = route.getChild(RD_NID);
         if (rdNode.isPresent()) {
             return RouteDistinguisherUtil.parseRouteDistinguisher(rdNode.get().getValue());
@@ -63,7 +60,7 @@ public abstract class AbstractFlowspecL3vpnNlriParser extends AbstractFlowspecNl
      * @param nlri
      * @return
      */
-    private static final RouteDistinguisher readRouteDistinguisher(final ByteBuf nlri) {
+    private static RouteDistinguisher readRouteDistinguisher(final ByteBuf nlri) {
         final RouteDistinguisher rd = RouteDistinguisherUtil.parseRouteDistinguisher(nlri);
         LOG.trace("Route Distinguisher read from NLRI: {}", rd);
         return rd;

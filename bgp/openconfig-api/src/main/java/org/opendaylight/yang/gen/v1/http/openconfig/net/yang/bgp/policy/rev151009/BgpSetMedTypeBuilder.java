@@ -22,7 +22,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev15100
  * loss of user code.
  *
  */
-public class BgpSetMedTypeBuilder {
+public final class BgpSetMedTypeBuilder {
 
     private static final Pattern MED_TYPE_STRING_PATTERN = Pattern.compile("^^[+-][0-9]+$");
 

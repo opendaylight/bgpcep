@@ -10,11 +10,11 @@ package org.opendaylight.controller.config.yang.bgp.path.selection.mode;
 import org.opendaylight.protocol.bgp.mode.impl.add.all.paths.AllPathSelection;
 
 public class AdvertiseAllPathsModule extends org.opendaylight.controller.config.yang.bgp.path.selection.mode.AbstractAdvertiseAllPathsModule {
-    public AdvertiseAllPathsModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+    public AdvertiseAllPathsModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
 
-    public AdvertiseAllPathsModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, org.opendaylight.controller.config.yang.bgp.path.selection.mode.AdvertiseAllPathsModule oldModule, java.lang.AutoCloseable oldInstance) {
+    public AdvertiseAllPathsModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, final org.opendaylight.controller.config.yang.bgp.path.selection.mode.AdvertiseAllPathsModule oldModule, final java.lang.AutoCloseable oldInstance) {
         super(identifier, dependencyResolver, oldModule, oldInstance);
     }
 

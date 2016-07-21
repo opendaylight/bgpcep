@@ -10,9 +10,9 @@ package org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev15100
  * loss of user code.
  *
  */
-public class BgpExtCommunityTypeBuilder {
+public final class BgpExtCommunityTypeBuilder {
 
-    public static BgpExtCommunityType getDefaultInstance(java.lang.String defaultValue) {
+    public static BgpExtCommunityType getDefaultInstance(final java.lang.String defaultValue) {
         throw new java.lang.UnsupportedOperationException("Not yet implemented");
     }
 

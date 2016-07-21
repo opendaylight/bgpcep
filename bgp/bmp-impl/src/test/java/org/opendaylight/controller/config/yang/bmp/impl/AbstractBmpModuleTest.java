@@ -51,7 +51,7 @@ public class AbstractBmpModuleTest extends AbstractConfigTest {
         Mockito.doNothing().when(this.mockedContext).addServiceListener(any(ServiceListener.class), Mockito.anyString());
         Mockito.doNothing().when(this.mockedContext).removeServiceListener(any(ServiceListener.class));
 
-        BGPExtensionProviderContext mockContext = mock(BGPExtensionProviderContext.class);
+        final BGPExtensionProviderContext mockContext = mock(BGPExtensionProviderContext.class);
         doReturn(mock(AddressFamilyRegistry.class)).when(mockContext).getAddressFamilyRegistry();
         doReturn(mock(MessageRegistry.class)).when(mockContext).getMessageRegistry();
         doReturn(mock(SubsequentAddressFamilyRegistry.class)).when(mockContext).getSubsequentAddressFamilyRegistry();
