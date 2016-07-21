@@ -16,9 +16,30 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
+import org.opendaylight.controller.config.api.DependencyResolver;
+import org.opendaylight.controller.config.api.DynamicMBeanWithInstance;
+import org.opendaylight.controller.config.spi.Module;
+import org.osgi.framework.BundleContext;
+
 /**
-*
-*/
+ *
+ */
+@Deprecated
 public class BGPPeerModuleFactory extends org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractBGPPeerModuleFactory {
+
+    @Override
+    public Module createModule(final String instanceName, final DependencyResolver dependencyResolver, final BundleContext bundleContext) {
+        final BGPPeerModule module = (BGPPeerModule) super.createModule(instanceName, dependencyResolver, bundleContext);
+        module.setBundleContext(bundleContext);
+        return module;
+    }
+
+    @Override
+    public Module createModule(final String instanceName, final DependencyResolver dependencyResolver,
+            final DynamicMBeanWithInstance old, final BundleContext bundleContext) throws Exception {
+        final BGPPeerModule module = (BGPPeerModule)  super.createModule(instanceName, dependencyResolver, old, bundleContext);
+        module.setBundleContext(bundleContext);
+        return module;
+    }
 
 }
