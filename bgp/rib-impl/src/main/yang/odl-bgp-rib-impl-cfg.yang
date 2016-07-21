@@ -17,7 +17,6 @@ module odl-bgp-rib-impl-cfg {
     import netty { prefix netty; revision-date 2013-11-19; }
     import config { prefix config; revision-date 2013-04-05; }
     import rpc-context { prefix rpcx; revision-date 2013-06-17; }
-    import odl-bgp-openconfig-spi-cfg { prefix bgp-oc-spi; revision-date 2015-09-25; }
     import odl-bgp-path-selection-mode { prefix bps; revision-date 2016-03-01;}
     import bgp-peer { prefix peer; revision-date 2016-06-06; }
     import bgp-stats-peer { prefix peer-stats; revision-date 2016-06-06; }
@@ -445,15 +444,6 @@ module odl-bgp-rib-impl-cfg {
                     refine type {
                         mandatory true;
                         config:required-identity sal:dom-async-data-broker;
-                    }
-                }
-            }
-
-            container openconfig-provider {
-                uses config:service-ref {
-                    refine type {
-                        mandatory false;
-                        config:required-identity bgp-oc-spi:bgp-openconfig-provider;
                     }
                 }
             }
