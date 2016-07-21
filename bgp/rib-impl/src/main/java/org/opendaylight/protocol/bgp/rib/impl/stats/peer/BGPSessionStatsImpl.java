@@ -301,7 +301,7 @@ public final class BGPSessionStatsImpl implements BGPSessionStats {
         Preconditions.checkNotNull(error);
         final List<ErrorReceived> errList = this.errMsgs.getErrorReceived();
         ErrorReceived received = null;
-        for (ErrorReceived err : errList) {
+        for (final ErrorReceived err : errList) {
             if (err.getErrorCode().equals(error.getErrorCode()) && err.getErrorSubcode().equals(error.getErrorSubcode())) {
                 received = err;
                 break;
@@ -325,7 +325,7 @@ public final class BGPSessionStatsImpl implements BGPSessionStats {
         Preconditions.checkNotNull(error);
         final List<ErrorSent> errList = this.errMsgs.getErrorSent();
         ErrorSent sent = null;
-        for (ErrorSent err : errList) {
+        for (final ErrorSent err : errList) {
             if (err.getErrorCode().equals(error.getErrorCode()) && err.getErrorSubcode().equals(error.getErrorSubcode())) {
                 sent = err;
                 break;
@@ -364,7 +364,7 @@ public final class BGPSessionStatsImpl implements BGPSessionStats {
         initMsgs();
     }
 
-    public void updateReceivedMsg(Notification msg) {
+    public void updateReceivedMsg(final Notification msg) {
         LOG.trace("Updating received BGP session message count..");
         this.updateReceivedMsgTotal();
         if (msg instanceof Notify) {
@@ -378,7 +378,7 @@ public final class BGPSessionStatsImpl implements BGPSessionStats {
         }
     }
 
-    public void updateSentMsg(Notification msg) {
+    public void updateSentMsg(final Notification msg) {
         LOG.trace("Updating sent BGP session message count..");
         this.updateSentMsgTotal();
         if (msg instanceof Update) {

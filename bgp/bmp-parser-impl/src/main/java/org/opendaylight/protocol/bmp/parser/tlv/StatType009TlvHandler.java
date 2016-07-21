@@ -31,7 +31,7 @@ public class StatType009TlvHandler implements BmpTlvParser, BmpTlvSerializer {
     private final AddressFamilyRegistry afiRegistry;
     private final SubsequentAddressFamilyRegistry safiRegistry;
 
-    public StatType009TlvHandler(final AddressFamilyRegistry afiReg, SubsequentAddressFamilyRegistry safiReg) {
+    public StatType009TlvHandler(final AddressFamilyRegistry afiReg, final SubsequentAddressFamilyRegistry safiReg) {
         this.afiRegistry = Preconditions.checkNotNull(afiReg, "AddressFamily cannot be null");
         this.safiRegistry = Preconditions.checkNotNull(safiReg, "SubsequentAddressFamily cannot be null");
     }

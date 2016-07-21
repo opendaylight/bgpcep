@@ -23,23 +23,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv6NextHopCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.ipv6.next.hop._case.Ipv6NextHopBuilder;
 
-/**
- * @author Kevin Wang
- */
 public class VpnIpv6NextHopTest {
 
     private static final VpnIpv6NextHopParserSerializer HANDLER = new VpnIpv6NextHopParserSerializer();
 
     @Test
     public void testSerializeIpv6NextHopCase() throws Exception {
-        final String TEST_IPV6_ADDRESS = "2001::1234:5678:90ab:cdef";   // put some random valid IPv6 address here
+        final String testIpv6Address = "2001::1234:5678:90ab:cdef";
 
         final ByteBuf buffer = Unpooled.buffer();
         final byte[] nextHop = new byte[Ipv6Util.IPV6_LENGTH + RouteDistinguisherUtil.RD_LENGTH];
         // now copy the IPv6 address to the byte array
-        System.arraycopy(Inet6Address.getByName(TEST_IPV6_ADDRESS).getAddress(), 0, nextHop, RouteDistinguisherUtil.RD_LENGTH, Ipv6Util.IPV6_LENGTH);
+        System.arraycopy(Inet6Address.getByName(testIpv6Address).getAddress(), 0, nextHop, RouteDistinguisherUtil.RD_LENGTH, Ipv6Util.IPV6_LENGTH);
         final CNextHop hop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder()
-                .setGlobal(new Ipv6Address(TEST_IPV6_ADDRESS)).build()).build();
+                .setGlobal(new Ipv6Address(testIpv6Address)).build()).build();
 
         HANDLER.serializeNextHop(hop, buffer);
         assertArrayEquals(nextHop, ByteArray.readAllBytes(buffer));

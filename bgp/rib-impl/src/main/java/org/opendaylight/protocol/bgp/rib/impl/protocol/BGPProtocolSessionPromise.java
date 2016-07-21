@@ -34,7 +34,7 @@ public class BGPProtocolSessionPromise<S extends BGPSession> extends DefaultProm
     @GuardedBy("this")
     private Future<?> pending;
 
-    public BGPProtocolSessionPromise(InetSocketAddress remoteAddress, int retryTimer, Bootstrap bootstrap) {
+    public BGPProtocolSessionPromise(final InetSocketAddress remoteAddress, final int retryTimer, final Bootstrap bootstrap) {
         super(GlobalEventExecutor.INSTANCE);
         this.address = Preconditions.checkNotNull(remoteAddress);
         this.retryTimer = retryTimer;
@@ -55,7 +55,7 @@ public class BGPProtocolSessionPromise<S extends BGPSession> extends DefaultProm
             final ChannelFuture connectFuture = this.bootstrap.connect();
             connectFuture.addListener(new BGPProtocolSessionPromise.BootstrapConnectListener(lock));
             this.pending = connectFuture;
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LOG.info("Failed to connect to {}", this.address, e);
             this.setFailure(e);
         }

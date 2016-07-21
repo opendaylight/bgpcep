@@ -32,14 +32,14 @@ public abstract class AbstractFSFragmentHandler implements FlowspecTypeParser, F
     protected abstract byte serializeFragment(final Fragment fragment);
 
     @Override
-    public void serializeType(FlowspecType fsType, ByteBuf output) {
+    public void serializeType(final FlowspecType fsType, final ByteBuf output) {
         Preconditions.checkArgument(fsType instanceof FragmentCase, "FragmentCase class is mandatory!");
         output.writeByte(FRAGMENT_VALUE);
         serializeFragments(((FragmentCase) fsType).getFragments(), output);
     }
 
     @Override
-    public FlowspecType parseType(ByteBuf buffer) {
+    public FlowspecType parseType(final ByteBuf buffer) {
         if (buffer == null) {
             return null;
         }

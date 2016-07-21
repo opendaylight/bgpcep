@@ -20,7 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
  * loss of user code.
  *
  */
-public class TagTypeBuilder {
+public final class TagTypeBuilder {
 
     public static TagType getDefaultInstance(final java.lang.String defaultValue) {
         try {

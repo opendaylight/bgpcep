@@ -35,12 +35,12 @@ public final class RouteDistinguisherUtil {
 
         public final int value;
 
-        RD_TYPE(int val) {
+        RD_TYPE(final int val) {
             value = val;
         }
 
         public static RD_TYPE valueOf(final int value) {
-            for (RD_TYPE type : values()) {
+            for (final RD_TYPE type : values()) {
                 if (type.value == value) {
                     return type;
                 }

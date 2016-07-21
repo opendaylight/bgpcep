@@ -16,7 +16,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 
 public final class FlowspecIpv4RIBSupport extends AbstractFlowspecRIBSupport<SimpleFlowspecIpv4NlriParser> {
 
-    public FlowspecIpv4RIBSupport(SimpleFlowspecExtensionProviderContext context) {
+    public FlowspecIpv4RIBSupport(final SimpleFlowspecExtensionProviderContext context) {
         super(
             FlowspecRoutesCase.class,
             FlowspecRoutes.class,
@@ -28,7 +28,7 @@ public final class FlowspecIpv4RIBSupport extends AbstractFlowspecRIBSupport<Sim
         );
     }
 
-    static FlowspecIpv4RIBSupport getInstance(SimpleFlowspecExtensionProviderContext context) {
+    static FlowspecIpv4RIBSupport getInstance(final SimpleFlowspecExtensionProviderContext context) {
         return new FlowspecIpv4RIBSupport(context);
     }
 }

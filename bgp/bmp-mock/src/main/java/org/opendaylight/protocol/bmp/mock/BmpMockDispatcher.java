@@ -71,7 +71,7 @@ public final class BmpMockDispatcher {
         Preconditions.checkNotNull(remoteAddress);
 
         // ideally we should use Bootstrap clones here
-        Bootstrap b = createClientInstance(localAddress);
+        final Bootstrap b = createClientInstance(localAddress);
         final ChannelFuture f = b.connect(remoteAddress);
         LOG.info("BMP client {} <--> {} deployed", localAddress, remoteAddress);
         return f;
@@ -97,7 +97,7 @@ public final class BmpMockDispatcher {
     public ChannelFuture createServer(final InetSocketAddress localAddress) {
         Preconditions.checkNotNull(localAddress);
 
-        ServerBootstrap b = createServerInstance();
+        final ServerBootstrap b = createServerInstance();
         final ChannelFuture f = b.bind(localAddress);
         LOG.info("Initiated BMP server at {}.", localAddress);
         return f;

@@ -26,7 +26,7 @@ public interface NextHopParserSerializer {
      * @return CNextHop
      * @throws BGPParsingException
      */
-    default CNextHop parseNextHop(@Nonnull ByteBuf buffer) throws BGPParsingException {
+    default CNextHop parseNextHop(@Nonnull final ByteBuf buffer) throws BGPParsingException {
         return NextHopUtil.parseNextHop(buffer);
     }
 
@@ -36,7 +36,7 @@ public interface NextHopParserSerializer {
      * @param cNextHop Next Hop container
      * @param byteAggregator return Encoded Next Hop in ByteBuf
      */
-    default void serializeNextHop(@Nonnull CNextHop cNextHop, @Nonnull final ByteBuf byteAggregator) {
+    default void serializeNextHop(@Nonnull final CNextHop cNextHop, @Nonnull final ByteBuf byteAggregator) {
         NextHopUtil.serializeNextHop(cNextHop, byteAggregator);
     }
 }

@@ -146,9 +146,10 @@ public class SimpleFlowspecIpv4NlriParserTest {
         0x0c, (byte) 0x81, (byte) 0x0e
     };
 
-    private final SimpleFlowspecExtensionProviderContext flowspecContext = new SimpleFlowspecExtensionProviderContext();
-    private final FlowspecActivator fsa = new FlowspecActivator(flowspecContext);
-    private final SimpleFlowspecIpv4NlriParser FS_PARSER = new SimpleFlowspecIpv4NlriParser(flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
+    private static final SimpleFlowspecExtensionProviderContext FLOWSPEC_CONTEXT = new SimpleFlowspecExtensionProviderContext();
+    private final FlowspecActivator fsa = new FlowspecActivator(FLOWSPEC_CONTEXT);
+    private static final SimpleFlowspecIpv4NlriParser FS_PARSER = new SimpleFlowspecIpv4NlriParser(FLOWSPEC_CONTEXT.getFlowspecTypeRegistry
+        (SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
 
     @Before
     public void setUp() {
@@ -197,7 +198,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
             ).build()
         );
 
-        final SimpleFlowspecIpv4NlriParser parser = new SimpleFlowspecIpv4NlriParser(flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
+        final SimpleFlowspecIpv4NlriParser parser = new SimpleFlowspecIpv4NlriParser(FLOWSPEC_CONTEXT.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
 
         final MpReachNlriBuilder result = new MpReachNlriBuilder();
         result.setAfi(Ipv4AddressFamily.class);
@@ -207,7 +208,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
         final List<Flowspec> flows = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecCase) (result.getAdvertizedRoutes().getDestinationType()))
             .getDestinationFlowspec()
             .getFlowspec();
-        testFlows(flows, destinationPrefix, sourcePrefix, prots, prots, ps, dps, sps);
+        testFlows(flows, destinationPrefix, sourcePrefix, prots, ps, dps, sps);
 
         final ByteBuf buffer = Unpooled.buffer();
         parser.serializeAttribute(new AttributesBuilder().addAugmentation(Attributes1.class, new Attributes1Builder().setMpReachNlri(mp.setAfi(Ipv4AddressFamily.class).build()).build()).build(), buffer);
@@ -216,7 +217,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
         assertEquals("all packets to 10.0.1.0/32 AND from 1.2.3.4/32 AND where IP protocol equals to 6 AND where port is greater than or equals to 137 and is less than or equals to 139 or equals to 8080 AND where destination port is greater than 4089 or equals to 179 AND where source port equals to 8080 ", FS_PARSER.stringNlri(flows));
     }
 
-    private void testFlows(final List<Flowspec> flows, final DestinationPrefixCase destinationPrefix, final SourcePrefixCase sourcePrefix, final FlowspecType prots, final FlowspecType flowspecType, final PortCase ps, final FlowspecType dps, final FlowspecType sps) {
+    private void testFlows(final List<Flowspec> flows, final DestinationPrefixCase destinationPrefix, final SourcePrefixCase sourcePrefix, final FlowspecType prots, final PortCase ps, final FlowspecType dps, final FlowspecType sps) {
         assertEquals(6, flows.size());
         assertEquals(destinationPrefix, flows.get(0).getFlowspecType());
         assertEquals(sourcePrefix, flows.get(1).getFlowspecType());
@@ -282,7 +283,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
             ).build()
         );
 
-        final SimpleFlowspecIpv4NlriParser parser = new SimpleFlowspecIpv4NlriParser(flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
+        final SimpleFlowspecIpv4NlriParser parser = new SimpleFlowspecIpv4NlriParser(FLOWSPEC_CONTEXT.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
 
         final MpReachNlriBuilder result = new MpReachNlriBuilder();
         result.setAfi(Ipv4AddressFamily.class);
@@ -292,7 +293,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
         final List<Flowspec> flows = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecCase) (result.getAdvertizedRoutes().getDestinationType()))
             .getDestinationFlowspec()
             .getFlowspec();
-        testFlows(flows, destinationPrefix, sourcePrefix, prots, prots, ps, dps, sps);
+        testFlows(flows, destinationPrefix, sourcePrefix, prots, ps, dps, sps);
 
         final ByteBuf buffer = Unpooled.buffer();
         parser.serializeAttribute(new AttributesBuilder().addAugmentation(Attributes1.class, new Attributes1Builder().setMpReachNlri(mp.setAfi(Ipv4AddressFamily.class).build()).build()).build(), buffer);
@@ -350,7 +351,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
             ).build()
         );
 
-        final SimpleFlowspecIpv4NlriParser parser = new SimpleFlowspecIpv4NlriParser(flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
+        final SimpleFlowspecIpv4NlriParser parser = new SimpleFlowspecIpv4NlriParser(FLOWSPEC_CONTEXT.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
 
         final MpUnreachNlriBuilder result = new MpUnreachNlriBuilder();
         result.setAfi(Ipv4AddressFamily.class);
@@ -460,7 +461,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
             ).build()
         );
 
-        final SimpleFlowspecIpv4NlriParser parser = new SimpleFlowspecIpv4NlriParser(flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
+        final SimpleFlowspecIpv4NlriParser parser = new SimpleFlowspecIpv4NlriParser(FLOWSPEC_CONTEXT.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
 
         final MpUnreachNlriBuilder result = new MpUnreachNlriBuilder();
         result.setAfi(Ipv4AddressFamily.class);

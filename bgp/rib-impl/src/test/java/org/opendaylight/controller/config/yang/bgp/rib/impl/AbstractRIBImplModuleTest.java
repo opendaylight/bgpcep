@@ -91,7 +91,6 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
@@ -123,12 +122,9 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     protected static final ClusterIdentifier CLUSTER_ID = new ClusterIdentifier("192.168.1.2");
 
     private static final AsNumber AS_NUMBER = new AsNumber(5000L);
-    private static final String SESSION_RS_INSTANCE_NAME = "session-reconnect-strategy-factory";
-    private static final String TCP_RS_INSTANCE_NAME = "tcp-reconnect-strategy-factory";
     private static final String RIB_EXTENSIONS_INSTANCE_NAME = "rib-extensions-impl";
     private static final String DOM_BROKER_INSTANCE_NAME = "dom-broker-impl";
     private static final String BINDING_ASYNC_BROKER_INSTANCE_NAME = "binding-async-broker-instance";
-    private static final String DOM_ASYNC_DATA_BROKER_INSTANCE = "dom-inmemory-data-broker";
     private static final String BINDING_BROKER_INSTANCE_NAME = "binding-broker-impl";
     private static final String COMPATIBLE_DATA_BROKER_INSTANCE_NAME = "binding-data-compatible-broker-instance";
     private static final String NOTIFICATION_BROKER_INSTANCE_NAME = "notification-broker-impl";
@@ -209,9 +205,9 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         doReturn(context).when(mockedSchemaService).getGlobalContext();
         doAnswer(new Answer<ListenerRegistration<SchemaContextListener>>() {
             @Override
-            public ListenerRegistration<SchemaContextListener> answer(InvocationOnMock invocation) {
+            public ListenerRegistration<SchemaContextListener> answer(final InvocationOnMock invocation) {
                 invocation.getArgumentAt(0, SchemaContextListener.class).onGlobalContextUpdated(context);
-                ListenerRegistration<SchemaContextListener> reg = mock(ListenerRegistration.class);
+                final ListenerRegistration<SchemaContextListener> reg = mock(ListenerRegistration.class);
                 doNothing().when(reg).close();
                 return reg;
             }
@@ -225,7 +221,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         BindingToNormalizedNodeCodecFactory.registerInstance(bindingCodec, mockedSchemaService);
         setupMockService(BindingToNormalizedNodeCodec.class, bindingCodec);
 
-        BGPExtensionProviderContext mockContext = mock(BGPExtensionProviderContext.class);
+        final BGPExtensionProviderContext mockContext = mock(BGPExtensionProviderContext.class);
         doReturn(mock(MessageRegistry.class)).when(mockContext).getMessageRegistry();
         setupMockService(BGPExtensionProviderContext.class, mockContext);
 

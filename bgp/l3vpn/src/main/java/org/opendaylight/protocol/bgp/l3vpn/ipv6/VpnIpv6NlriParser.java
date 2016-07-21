@@ -20,7 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.
 
 class VpnIpv6NlriParser extends AbstractVpnNlriParser {
 
-    private <T extends L3vpnIpv6Destination> List<VpnDestination> getVpnDestination(DestinationType dst, Class<T> dstTypeCaseClazz) {
+    private <T extends L3vpnIpv6Destination> List<VpnDestination> getVpnDestination(final DestinationType dst, final Class<T> dstTypeCaseClazz) {
         if (dstTypeCaseClazz.isInstance(dst)) {
             return dstTypeCaseClazz.cast(dst).getVpnIpv6Destination().getVpnDestination();
         } else {
@@ -29,14 +29,14 @@ class VpnIpv6NlriParser extends AbstractVpnNlriParser {
     }
 
     @Override
-    protected List<VpnDestination> getWithdrawnVpnDestination(DestinationType dstType) {
+    protected List<VpnDestination> getWithdrawnVpnDestination(final DestinationType dstType) {
         return getVpnDestination(
             dstType,
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv6.rev160331.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationVpnIpv6Case.class);
     }
 
     @Override
-    protected List<VpnDestination> getAdvertizedVpnDestination(DestinationType dstType) {
+    protected List<VpnDestination> getAdvertizedVpnDestination(final DestinationType dstType) {
         return getVpnDestination(
             dstType,
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv6.rev160331.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationVpnIpv6Case.class
@@ -44,7 +44,7 @@ class VpnIpv6NlriParser extends AbstractVpnNlriParser {
     }
 
     @Override
-    protected WithdrawnRoutes getWithdrawnRoutesByDestination(List<VpnDestination> dst) {
+    protected WithdrawnRoutes getWithdrawnRoutesByDestination(final List<VpnDestination> dst) {
         return new WithdrawnRoutesBuilder().setDestinationType(
             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv6.rev160331.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationVpnIpv6CaseBuilder().setVpnIpv6Destination(
                 new VpnIpv6DestinationBuilder().setVpnDestination(dst).build()
@@ -53,7 +53,7 @@ class VpnIpv6NlriParser extends AbstractVpnNlriParser {
     }
 
     @Override
-    protected AdvertizedRoutes getAdvertizedRoutesByDestination(List<VpnDestination> dst) {
+    protected AdvertizedRoutes getAdvertizedRoutesByDestination(final List<VpnDestination> dst) {
         return new AdvertizedRoutesBuilder().setDestinationType(
             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv6.rev160331.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationVpnIpv6CaseBuilder().setVpnIpv6Destination(
                 new VpnIpv6DestinationBuilder().setVpnDestination(dst).build()

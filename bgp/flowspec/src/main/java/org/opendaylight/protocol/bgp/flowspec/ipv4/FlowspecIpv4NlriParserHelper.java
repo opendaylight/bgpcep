@@ -31,16 +31,13 @@ import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 
-/**
- * @author Kevin Wang
- */
-public class FlowspecIpv4NlriParserHelper {
+public final class FlowspecIpv4NlriParserHelper {
 
     private static final NodeIdentifier PROTOCOL_IP_NID = new NodeIdentifier(ProtocolIps.QNAME);
 
     private FlowspecIpv4NlriParserHelper() {}
 
-    public static final void extractFlowspec(final ChoiceNode fsType, final FlowspecBuilder fsBuilder) {
+    public static void extractFlowspec(final ChoiceNode fsType, final FlowspecBuilder fsBuilder) {
         if (fsType.getChild(AbstractFlowspecNlriParser.DEST_PREFIX_NID).isPresent()) {
             fsBuilder.setFlowspecType(
                 new DestinationPrefixCaseBuilder()
@@ -60,7 +57,7 @@ public class FlowspecIpv4NlriParserHelper {
         }
     }
 
-    public static final void buildFlowspecString(final FlowspecType value, final StringBuilder buffer) {
+    public static void buildFlowspecString(final FlowspecType value, final StringBuilder buffer) {
         if (value instanceof DestinationPrefixCase) {
             buffer.append("to ");
             buffer.append(((DestinationPrefixCase) value).getDestinationPrefix().getValue());
@@ -73,7 +70,7 @@ public class FlowspecIpv4NlriParserHelper {
         }
     }
 
-    private static final List<ProtocolIps> createProtocolsIps(final UnkeyedListNode protocolIpsData) {
+    private static List<ProtocolIps> createProtocolsIps(final UnkeyedListNode protocolIpsData) {
         final List<ProtocolIps> protocolIps = new ArrayList<>();
 
         for (final UnkeyedListEntryNode node : protocolIpsData.getValue()) {

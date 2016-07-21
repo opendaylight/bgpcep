@@ -26,18 +26,18 @@ import org.osgi.framework.BundleContext;
 @Deprecated
 public class RIBExtensionsImplModuleFactory extends AbstractRIBExtensionsImplModuleFactory {
     @Override
-    public RIBExtensionsImplModule instantiateModule(String instanceName, DependencyResolver dependencyResolver,
-            RIBExtensionsImplModule oldModule, AutoCloseable oldInstance, BundleContext bundleContext) {
-        RIBExtensionsImplModule module = super.instantiateModule(instanceName, dependencyResolver, oldModule,
+    public RIBExtensionsImplModule instantiateModule(final String instanceName, final DependencyResolver dependencyResolver,
+            final RIBExtensionsImplModule oldModule, final AutoCloseable oldInstance, final BundleContext bundleContext) {
+        final RIBExtensionsImplModule module = super.instantiateModule(instanceName, dependencyResolver, oldModule,
                 oldInstance, bundleContext);
         module.setBundleContext(bundleContext);
         return module;
     }
 
     @Override
-    public RIBExtensionsImplModule instantiateModule(String instanceName, DependencyResolver dependencyResolver,
-            BundleContext bundleContext) {
-        RIBExtensionsImplModule module = super.instantiateModule(instanceName, dependencyResolver, bundleContext);
+    public RIBExtensionsImplModule instantiateModule(final String instanceName, final DependencyResolver dependencyResolver,
+            final BundleContext bundleContext) {
+        final RIBExtensionsImplModule module = super.instantiateModule(instanceName, dependencyResolver, bundleContext);
         module.setBundleContext(bundleContext);
         return module;
     }

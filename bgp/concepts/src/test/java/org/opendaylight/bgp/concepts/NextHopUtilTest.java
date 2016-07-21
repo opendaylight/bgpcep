@@ -114,7 +114,7 @@ public class NextHopUtilTest {
         c.setAccessible(true);
         try {
             c.newInstance();
-        } catch (InvocationTargetException e) {
+        } catch (final InvocationTargetException e) {
             throw e.getCause();
         }
     }

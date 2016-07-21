@@ -17,7 +17,6 @@ import java.util.Collections;
 import java.util.List;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.ObjectName;
-import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.controller.config.api.IdentityAttributeRef;
 import org.opendaylight.controller.config.api.ValidationException;
@@ -41,7 +40,7 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
     private static final String FACTORY_NAME = BGPPeerModuleFactory.NAME;
 
     private static final IpAddress HOST = new IpAddress(new Ipv4Address("127.0.0.1"));
-    private static final PortNumber portNumber = new PortNumber(1);
+    private static final PortNumber PORT_NUMBER = new PortNumber(1);
 
     @Override
     protected BindingRuntimeContext getBindingRuntimeContext() {
@@ -84,7 +83,7 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
     @Test
     public void testValidationExceptionHostNotSet() throws Exception {
         try {
-            createBgpPeerInstance(null, portNumber, false);
+            createBgpPeerInstance(null, PORT_NUMBER, false);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("Host value is not set."));
@@ -122,7 +121,7 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
     }
 
     private ObjectName createBgpPeerInstance(final ConfigTransactionJMXClient transaction, final IpAddress host,
-            final PortNumber port, final boolean md5, final boolean internalPeerRole) throws Exception {
+        final PortNumber port, final boolean internalPeerRole) throws Exception {
         final ObjectName nameCreated = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
         final BGPPeerModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, BGPPeerModuleMXBean.class);
 
@@ -186,19 +185,19 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
     }
 
     private CommitStatus createBgpPeerInstance(final boolean md5) throws Exception {
-        return createBgpPeerInstance(HOST, portNumber, md5);
+        return createBgpPeerInstance(HOST, PORT_NUMBER, md5);
     }
 
     private CommitStatus createBgpPeerInstance(final IpAddress host, final PortNumber port, final boolean md5) throws Exception {
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
-        createBgpPeerInstance(transaction, host, port, md5, false);
+        createBgpPeerInstance(transaction, host, port, false);
         return transaction.commit();
     }
 
     private CommitStatus createInternalBgpPeerInstance()
         throws Exception {
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
-        createBgpPeerInstance(transaction, HOST, portNumber, false, true);
+        createBgpPeerInstance(transaction, HOST, PORT_NUMBER, true);
         return transaction.commit();
     }
 }

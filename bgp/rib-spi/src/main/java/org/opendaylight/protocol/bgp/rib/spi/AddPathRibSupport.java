@@ -27,7 +27,7 @@ interface AddPathRibSupport {
      * @param normalizedNode Path Id Container
      * @return pathId  The path identifier value
      */
-    default Long extractPathId(NormalizedNode<?, ?> normalizedNode) {
+    default Long extractPathId(final NormalizedNode<?, ?> normalizedNode) {
         return NON_PATH_ID;
     }
 
@@ -38,7 +38,7 @@ interface AddPathRibSupport {
      * @param routeId PathArgument leaf path
      * @return routeId PathArgument + pathId or Null in case Add-path is not supported
      */
-    @Nullable default PathArgument getRouteIdAddPath(long pathId, PathArgument routeId) {
+    @Nullable default PathArgument getRouteIdAddPath(final long pathId, final PathArgument routeId) {
         return null;
     }
 
@@ -48,7 +48,7 @@ interface AddPathRibSupport {
      * @param routeKeyPathArgument  routeKey Path Argument
      * @return new route Key
      */
-    default PathArgument createRouteKeyPathArgument(PathArgument routeKeyPathArgument) {
+    default PathArgument createRouteKeyPathArgument(final PathArgument routeKeyPathArgument) {
         return routeKeyPathArgument;
     }
 }

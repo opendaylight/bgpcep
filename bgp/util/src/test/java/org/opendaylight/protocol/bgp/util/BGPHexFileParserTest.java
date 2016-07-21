@@ -20,9 +20,9 @@ import org.junit.Test;
 
 public class BGPHexFileParserTest {
 
-    public static final String hexDumpFileName = "bgp_hex.txt";
-    private static final String fileNameInvalid = "BgpMessage_Hex_InvalidLength.bin";
-    private static final int expectedSize = 25;
+    private static final String HEX_DUMP_FILE_NAME = "bgp_hex.txt";
+    private static final String FILE_NAME_INVALID = "BgpMessage_Hex_InvalidLength.bin";
+    private static final int EXPECTED_SIZE = 25;
 
     @Test
     public void testCleanWhiteSpace() {
@@ -33,14 +33,14 @@ public class BGPHexFileParserTest {
     @Test
     public void testParsing() throws Exception {
         final List<byte[]> result = HexDumpBGPFileParser.parseMessages(getClass().getClassLoader().getResourceAsStream(
-            BGPHexFileParserTest.hexDumpFileName));
-        assertEquals(expectedSize, result.size());
+            BGPHexFileParserTest.HEX_DUMP_FILE_NAME));
+        assertEquals(EXPECTED_SIZE, result.size());
     }
 
     @Test
     public void testParsingInvalidMessage() throws Exception {
         try {
-            HexDumpBGPFileParser.parseMessages(getClass().getClassLoader().getResourceAsStream(fileNameInvalid));
+            HexDumpBGPFileParser.parseMessages(getClass().getClassLoader().getResourceAsStream(FILE_NAME_INVALID));
             fail("Exception should have occured.");
         } catch (final IllegalArgumentException e) {
             assertThat(e.getMessage(), containsString("Invalid message at index 0, length atribute is lower than 19"));
@@ -63,7 +63,7 @@ public class BGPHexFileParserTest {
         c.setAccessible(true);
         try {
             c.newInstance();
-        } catch (InvocationTargetException e) {
+        } catch (final InvocationTargetException e) {
             throw e.getCause();
         }
     }

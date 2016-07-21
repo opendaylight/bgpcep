@@ -117,11 +117,11 @@ public final class TestUtil {
     }
 
     public static final Ipv4Address IPV4_ADDRESS_10 = new Ipv4Address("10.10.10.10");
-    public static final Ipv4Address IPV4_ADDRESS_20 = new Ipv4Address("20.20.20.20");
-    public static final Ipv4Address IPV4_ADDRESS_30 = new Ipv4Address("30.30.30.30");
-    public static final Ipv4Address IPV4_ADDRESS_40 = new Ipv4Address("40.40.40.40");
-    public static final Ipv4Address IPV4_ADDRESS_12 = new Ipv4Address("12.12.12.12");
-    public static final Ipv4Address IPV4_ADDRESS_100 = new Ipv4Address("100.100.100.100");
+    private static final Ipv4Address IPV4_ADDRESS_20 = new Ipv4Address("20.20.20.20");
+    private static final Ipv4Address IPV4_ADDRESS_30 = new Ipv4Address("30.30.30.30");
+    private static final Ipv4Address IPV4_ADDRESS_40 = new Ipv4Address("40.40.40.40");
+    private static final Ipv4Address IPV4_ADDRESS_12 = new Ipv4Address("12.12.12.12");
+    private static final Ipv4Address IPV4_ADDRESS_100 = new Ipv4Address("100.100.100.100");
     public static final AsNumber PEER_AS = new AsNumber(72L);
     public static final PortNumber PEER_LOCAL_PORT = new PortNumber(220);
     public static final PortNumber PEER_REMOTE_PORT = new PortNumber(5000);
@@ -135,7 +135,7 @@ public final class TestUtil {
         return initMsgBuilder.setTlvs(tlvsBuilder.build()).build();
     }
 
-    public static StringInformation createStringInfo(final String string) {
+    private static StringInformation createStringInfo(final String string) {
         return new StringInformationBuilder().setStringTlv(new StringTlvBuilder().setStringInfo(string).build()).build();
     }
 
@@ -148,7 +148,7 @@ public final class TestUtil {
         return terminatMsgBuilder.setTlvs(tlvsBuilder.build()).build();
     }
 
-    public static PeerHeader createPeerHeader(final Ipv4Address bgpId, final AdjRibInType ribType) {
+    private static PeerHeader createPeerHeader(final Ipv4Address bgpId, final AdjRibInType ribType) {
         final PeerHeaderBuilder peerHeaderBuilder = new PeerHeaderBuilder()
             .setAddress(new IpAddress(IPV4_ADDRESS_10))
             .setAs(PEER_AS)
@@ -161,11 +161,11 @@ public final class TestUtil {
         return peerHeaderBuilder.build();
     }
 
-    public static PeerHeader createPeerHeader(final Ipv4Address bgpId) {
+    private static PeerHeader createPeerHeader(final Ipv4Address bgpId) {
         return createPeerHeader(bgpId, AdjRibInType.PrePolicy);
     }
 
-    public static PeerHeader createPeerHeader() {
+    private static PeerHeader createPeerHeader() {
         return createPeerHeader(IPV4_ADDRESS_10);
     }
 
@@ -315,7 +315,7 @@ public final class TestUtil {
         return attribBuilder.build();
     }
 
-    private static final List<Communities> createCommunities() {
+    private static List<Communities> createCommunities() {
         final List<Communities> communities = Lists.newArrayList();
         final CommunitiesBuilder commBuilder = new CommunitiesBuilder()
             .setAsNumber(new AsNumber(65535L))

@@ -42,8 +42,8 @@ final class SimpleCapabilityRegistry implements CapabilityRegistry {
     }
 
     @Override
-    public void serializeCapability(final CParameters capability, ByteBuf bytes) {
-        for (CapabilitySerializer s : this.handlers.getAllSerializers()) {
+    public void serializeCapability(final CParameters capability, final ByteBuf bytes) {
+        for (final CapabilitySerializer s : this.handlers.getAllSerializers()) {
             s.serializeCapability(capability, bytes);
         }
     }

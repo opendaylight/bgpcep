@@ -15,12 +15,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.l3vpn.ipv6.routes.FlowspecL3vpnIpv6Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 
-/**
- * @author Kevin Wang
- */
 public final class FlowspecL3vpnIpv6RIBSupport extends AbstractFlowspecL3vpnRIBSupport<FlowspecL3vpnIpv6NlriParser> {
 
-    public FlowspecL3vpnIpv6RIBSupport(SimpleFlowspecExtensionProviderContext context) {
+    private FlowspecL3vpnIpv6RIBSupport(final SimpleFlowspecExtensionProviderContext context) {
         super(
             FlowspecL3vpnIpv6RoutesCase.class,
             FlowspecL3vpnIpv6Routes.class,
@@ -31,7 +28,7 @@ public final class FlowspecL3vpnIpv6RIBSupport extends AbstractFlowspecL3vpnRIBS
         );
     }
 
-    public static final FlowspecL3vpnIpv6RIBSupport getInstance(SimpleFlowspecExtensionProviderContext context) {
+    public static FlowspecL3vpnIpv6RIBSupport getInstance(final SimpleFlowspecExtensionProviderContext context) {
         return new FlowspecL3vpnIpv6RIBSupport(context);
     }
 }

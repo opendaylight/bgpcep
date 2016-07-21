@@ -49,7 +49,7 @@ public final class FlowspecActivator implements AutoCloseable {
     public FlowspecActivator(@Nonnull final SimpleFlowspecExtensionProviderContext context) {
         this.context = Preconditions.checkNotNull(context);
 
-        for (SimpleFlowspecExtensionProviderContext.SAFI safi : SimpleFlowspecExtensionProviderContext.SAFI.values()) {
+        for (final SimpleFlowspecExtensionProviderContext.SAFI safi : SimpleFlowspecExtensionProviderContext.SAFI.values()) {
             registerCommonFlowspecTypeHandlers(
                 SimpleFlowspecExtensionProviderContext.AFI.IPV4,
                 safi

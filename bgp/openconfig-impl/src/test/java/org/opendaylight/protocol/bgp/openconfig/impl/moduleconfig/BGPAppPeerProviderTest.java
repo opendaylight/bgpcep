@@ -83,7 +83,7 @@ public class BGPAppPeerProviderTest {
         Mockito.doReturn(module).when(moduleOpt).get();
         Mockito.doReturn("mkey").when(module).getName();
         Mockito.doReturn(mKey).when(module).getKey();
-        State state = Mockito.mock(State.class);
+        final State state = Mockito.mock(State.class);
         Mockito.doReturn(state).when(module).getState();
         final BgpApplicationPeer appPeer = Mockito.mock(BgpApplicationPeer.class);
         Mockito.doReturn(appPeer).when(module).getConfiguration();

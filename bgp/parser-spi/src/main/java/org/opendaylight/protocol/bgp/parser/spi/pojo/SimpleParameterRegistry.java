@@ -40,7 +40,7 @@ final class SimpleParameterRegistry implements ParameterRegistry {
         return parser.parseParameter(buffer);
     }
 
-    public void serializeParameter(final BgpParameters parameter, ByteBuf bytes) {
+    public void serializeParameter(final BgpParameters parameter, final ByteBuf bytes) {
         final ParameterSerializer serializer = this.handlers.getSerializer(parameter.getImplementedInterface());
         if (serializer == null) {
             return;

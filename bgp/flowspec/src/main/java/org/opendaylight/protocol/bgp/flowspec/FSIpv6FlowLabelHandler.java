@@ -29,14 +29,14 @@ public final class FSIpv6FlowLabelHandler implements FlowspecTypeParser, Flowspe
     public static final int FLOW_LABEL_VALUE = 13;
 
     @Override
-    public void serializeType(FlowspecType fsType, ByteBuf output) {
+    public void serializeType(final FlowspecType fsType, final ByteBuf output) {
         Preconditions.checkArgument(fsType instanceof FlowLabelCase, "FlowLabelCase class is mandatory!");
         output.writeByte(FLOW_LABEL_VALUE);
         serializeNumericFourByteValue(((FlowLabelCase) fsType).getFlowLabel(), output);
     }
 
     @Override
-    public FlowspecType parseType(ByteBuf buffer) {
+    public FlowspecType parseType(final ByteBuf buffer) {
         return new FlowLabelCaseBuilder().setFlowLabel(parseFlowLabel(buffer)).build();
     }
 

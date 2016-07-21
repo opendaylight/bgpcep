@@ -20,7 +20,7 @@ import org.opendaylight.protocol.bgp.mode.impl.AbstractRouteEntryTest;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 
 public final class SimpleRouteEntryTest extends AbstractRouteEntryTest {
-    private final static long N_PATHS = 2;
+    private static final long N_PATHS = 2;
     private SimpleRouteEntry testBARE;
 
     @Before
@@ -55,7 +55,7 @@ public final class SimpleRouteEntryTest extends AbstractRouteEntryTest {
         assertTrue(this.testBARE.selectBest(AS));
         /** Add AddPath Route **/
         this.testBARE.updateRoute(TABLES_KEY, this.peerPT, LOC_RIB_TARGET, this.ribSupport, this.discCache, this.tx, ROUTE_ID_PA_ADD_PATH);
-        Map<YangInstanceIdentifier, Long> yiiCount = this.yIIChanges.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        final Map<YangInstanceIdentifier, Long> yiiCount = this.yIIChanges.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
         assertEquals(3, yiiCount.size());
         assertEquals(1, (long) yiiCount.get(this.routePaAddPathYii));
         assertEquals(1, (long) yiiCount.get(this.routeAddRiboutYii));

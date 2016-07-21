@@ -408,7 +408,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
             final StringBuffer ex = new StringBuffer();
             ex.append(e.getMessage()).append("\n");
             for (final StackTraceElement element : e.getStackTrace()) {
-                ex.append(element.toString() + "\n");
+                ex.append(element.toString()).append("\n");
             }
             fail(ex.toString());
         }

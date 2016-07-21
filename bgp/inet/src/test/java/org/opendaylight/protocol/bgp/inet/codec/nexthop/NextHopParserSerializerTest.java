@@ -16,8 +16,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.inet.codec.nexthop.Ipv4NextHopParserSerializer;
-import org.opendaylight.protocol.bgp.inet.codec.nexthop.Ipv6NextHopParserSerializer;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -33,16 +31,16 @@ import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 public class NextHopParserSerializerTest {
 
-    public static final byte[] ipv6lB = {0x20, 1, 0x0d, (byte) 0xb8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    private static final byte[] IPV6_LB = {0x20, 1, 0x0d, (byte) 0xb8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         1, (byte) 0xfe, (byte) 0x80, 0, 0, 0, 0, 0, 0, (byte) 0xc0, 1, 0x0b, (byte) 0xff, (byte) 0xfe, 0x7e, 0, 0};
 
-    public static final Ipv6Address ipv6 = new Ipv6Address("2001:db8::1");
-    public static final Ipv6Address ipv6l = new Ipv6Address("fe80::c001:bff:fe7e:0");
+    public static final Ipv6Address IPV6 = new Ipv6Address("2001:db8::1");
+    private static final Ipv6Address IPV6_ADDRESS = new Ipv6Address("fe80::c001:bff:fe7e:0");
 
-    Ipv4NextHopParserSerializer ipv4NextHopParserSerializer;
-    Ipv6NextHopParserSerializer ipv6NextHopParserSerializer;
-    CNextHop hop;
-    ByteBuf buffer;
+    private Ipv4NextHopParserSerializer ipv4NextHopParserSerializer;
+    private Ipv6NextHopParserSerializer ipv6NextHopParserSerializer;
+    private CNextHop hop;
+    private ByteBuf buffer;
 
     @Before
     public final void setUp() {
@@ -67,12 +65,12 @@ public class NextHopParserSerializerTest {
 
     @Test
     public void testSerializeIpv6LinkNextHopCase() throws BGPParsingException {
-        hop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder().setGlobal(ipv6).setLinkLocal(ipv6l).build()).build();
+        hop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder().setGlobal(IPV6).setLinkLocal(IPV6_ADDRESS).build()).build();
         buffer.clear();
         ipv6NextHopParserSerializer.serializeNextHop(hop, buffer);
-        assertArrayEquals(ipv6lB, ByteArray.readAllBytes(buffer));
+        assertArrayEquals(IPV6_LB, ByteArray.readAllBytes(buffer));
 
-        final CNextHop parsedHop = ipv6NextHopParserSerializer.parseNextHop(Unpooled.wrappedBuffer(ipv6lB));
+        final CNextHop parsedHop = ipv6NextHopParserSerializer.parseNextHop(Unpooled.wrappedBuffer(IPV6_LB));
         assertTrue(parsedHop instanceof Ipv6NextHopCase);
         assertEquals(hop, parsedHop);
     }
