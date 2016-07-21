@@ -46,17 +46,17 @@ public class AbstractObjectWithTlvsTest {
 
     private class Abs extends AbstractObjectWithTlvsParser<TlvsBuilder> {
 
-        protected Abs(TlvRegistry tlvReg, VendorInformationTlvRegistry viTlvReg) {
+        Abs(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
             super(tlvReg, viTlvReg);
         }
 
         @Override
-        public Object parseObject(ObjectHeader header, ByteBuf buffer) throws PCEPDeserializerException {
+        public Object parseObject(final ObjectHeader header, final ByteBuf buffer) throws PCEPDeserializerException {
             return null;
         }
 
         @Override
-        public void serializeObject(Object object, ByteBuf buffer) {
+        public void serializeObject(final Object object, final ByteBuf buffer) {
         }
 
         @Override
@@ -65,10 +65,10 @@ public class AbstractObjectWithTlvsTest {
         }
 
         @Override
-        protected void addVendorInformationTlvs(TlvsBuilder builder, List<VendorInformationTlv> tlvs) {
+        protected void addVendorInformationTlvs(final TlvsBuilder builder, final List<VendorInformationTlv> tlvs) {
             builder.setVendorInformationTlv(tlvs);
         }
-    };
+    }
 
     @Before
     public void setUp() throws PCEPDeserializerException {
@@ -83,13 +83,13 @@ public class AbstractObjectWithTlvsTest {
 
     @Test
     public void testParseTlvs() throws PCEPDeserializerException {
-        Abs a = new Abs(this.tlvRegistry, this.viTlvRegistry);
-        ByteBuf buffer = Unpooled.buffer();
+        final Abs a = new Abs(this.tlvRegistry, this.viTlvRegistry);
+        final ByteBuf buffer = Unpooled.buffer();
         a.serializeTlv(this.tlv, buffer);
 
         Mockito.verify(this.tlvRegistry, Mockito.only()).serializeTlv(Mockito.any(Tlv.class), Mockito.any(ByteBuf.class));
 
-        TlvsBuilder b = new TlvsBuilder();
+        final TlvsBuilder b = new TlvsBuilder();
         a.parseTlvs(b, Unpooled.wrappedBuffer(new byte[] { 0, 4, 0, 2, 5, 6, 0, 0 }));
 
         assertEquals(this.tlv, b.getOfList());

@@ -30,7 +30,7 @@ final class PCCSyncOptimization {
     private BigInteger lspDBVersion = BigInteger.ONE;
     private Boolean resynchronizing = Boolean.FALSE;
 
-    public PCCSyncOptimization(@Nonnull final PCCSession session) {
+    PCCSyncOptimization(@Nonnull final PCCSession session) {
         Preconditions.checkNotNull(session);
         final Tlvs remote = session.getRemoteTlvs();
         final Tlvs local = session.localSessionCharacteristics();
@@ -44,45 +44,38 @@ final class PCCSyncOptimization {
         this.isTriggeredReSyncEnable = isTriggeredReSync(local) && isTriggeredReSync(remote);
     }
 
-    public boolean doesLspDbMatch() {
+    boolean doesLspDbMatch() {
         return dbVersionMatch;
     }
 
-    public boolean isSyncAvoidanceEnabled() {
+    boolean isSyncAvoidanceEnabled() {
         return isSyncAvoidanceEnabled;
     }
 
-    public boolean isDeltaSyncEnabled() {
+    boolean isDeltaSyncEnabled() {
         return isDeltaSyncEnabled;
     }
 
-    public boolean isTriggeredInitSyncEnabled() {
+    boolean isTriggeredInitSyncEnabled() {
         return isTriggeredInitialSynEnable;
     }
 
-    public boolean isTriggeredReSyncEnabled() {
+    boolean isTriggeredReSyncEnabled() {
         return isTriggeredReSyncEnable;
     }
 
-    public BigInteger getLocalLspDbVersionValue() {
+    BigInteger getLocalLspDbVersionValue() {
         if (this.localLspDbVersion == null) {
             return null;
         }
         return this.localLspDbVersion.getLspDbVersionValue();
     }
 
-    public BigInteger getRemoteLspDbVersionValue() {
+    BigInteger getRemoteLspDbVersionValue() {
         if (this.remoteLspDbVersion == null) {
             return BigInteger.ONE;
         }
         return this.remoteLspDbVersion.getLspDbVersionValue();
-    }
-
-    public boolean isRemoteLspDbVersionNull() {
-        if (this.remoteLspDbVersion == null) {
-            return true;
-        }
-        return false;
     }
 
     private static LspDbVersion getLspDbVersion(final Tlvs openTlvs) {
@@ -97,10 +90,7 @@ final class PCCSyncOptimization {
     }
 
     private static boolean compareLspDbVersion(final LspDbVersion local, final LspDbVersion remote) {
-        if (local != null && remote != null) {
-            return local.equals(remote);
-        }
-        return false;
+        return local != null && remote != null && local.equals(remote);
     }
 
     private static Stateful1 getStateful1(final Tlvs openTlvs) {
@@ -145,7 +135,7 @@ final class PCCSyncOptimization {
         return false;
     }
 
-    public Optional<BigInteger> incrementLspDBVersion() {
+    Optional<BigInteger> incrementLspDBVersion() {
         if (!isSyncAvoidanceEnabled()) {
             return Optional.absent();
         } else if (isSyncNeedIt() && getLocalLspDbVersionValue() != null && !this.resynchronizing) {
@@ -159,14 +149,11 @@ final class PCCSyncOptimization {
         return Optional.of(this.lspDBVersion);
     }
 
-    public boolean isSyncNeedIt() {
-        if (doesLspDbMatch() && !this.resynchronizing) {
-            return false;
-        }
-        return true;
+    boolean isSyncNeedIt() {
+        return !(doesLspDbMatch() && !this.resynchronizing);
     }
 
-    public void setResynchronizingState(final Boolean resync) {
+    void setResynchronizingState(final Boolean resync) {
         this.resynchronizing = resync;
     }
 }

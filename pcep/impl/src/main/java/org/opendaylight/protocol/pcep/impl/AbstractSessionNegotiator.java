@@ -20,7 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractSessionNegotiator extends ChannelInboundHandlerAdapter implements SessionNegotiator {
+abstract class AbstractSessionNegotiator extends ChannelInboundHandlerAdapter implements SessionNegotiator {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractSessionNegotiator.class);
     protected final Channel channel;
     protected final Promise<PCEPSessionImpl> promise;
@@ -76,7 +76,7 @@ public abstract class AbstractSessionNegotiator extends ChannelInboundHandlerAda
 
         try {
             this.handleMessage((Message) msg);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LOG.debug("Unexpected error while handling negotiation message {}", msg, e);
             this.negotiationFailed(e);
         }

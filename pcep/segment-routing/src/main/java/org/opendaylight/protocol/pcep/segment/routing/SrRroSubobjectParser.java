@@ -32,7 +32,7 @@ public class SrRroSubobjectParser extends AbstractSrSubobjectParser implements R
         this.type = (isIanaAssignedType) ? PROPOSED_TYPE : LEGACY_TYPE;
     }
     @Override
-    public void serializeSubobject(Subobject subobject, ByteBuf buffer) {
+    public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
         Preconditions.checkArgument(subobject.getSubobjectType() instanceof SrSubobject,
                 "Unknown subobject instance. Passed %s. Needed SrSubobject.", subobject.getSubobjectType()
                         .getClass());

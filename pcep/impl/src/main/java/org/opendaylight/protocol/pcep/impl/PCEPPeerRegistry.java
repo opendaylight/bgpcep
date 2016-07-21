@@ -107,13 +107,7 @@ final class PCEPPeerRegistry {
 
         @Override
         public boolean equals(final Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof ByteArrayWrapper)) {
-                return false;
-            }
-            return Arrays.equals(this.byteArray, ((ByteArrayWrapper) obj).byteArray);
+            return this == obj || (obj instanceof ByteArrayWrapper) && Arrays.equals(this.byteArray, ((ByteArrayWrapper) obj).byteArray);
         }
     }
 }

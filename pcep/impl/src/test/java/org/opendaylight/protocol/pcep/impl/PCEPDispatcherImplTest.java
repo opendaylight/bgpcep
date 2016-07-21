@@ -19,7 +19,6 @@ import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
@@ -83,8 +82,7 @@ public class PCEPDispatcherImplTest {
         this.disp2Spy = Mockito.spy(dispatcher2);
 
         this.pccMock = new PCCMock(new DefaultPCEPSessionNegotiatorFactory(sessionProposal, 0),
-                new PCEPHandlerFactory(msgReg), new DefaultPromise<PCEPSessionImpl>(
-                        GlobalEventExecutor.INSTANCE));
+                new PCEPHandlerFactory(msgReg));
     }
 
     @Test
@@ -158,8 +156,8 @@ public class PCEPDispatcherImplTest {
 
     @Test
     public void testCustomizeBootstrap() {
-        final KeyMapping keys = KeyMapping.getKeyMapping(CLIENT1_ADDRESS.getAddress(), new String("CLIENT1_ADDRESS"));
-        keys.put(CLIENT2_ADDRESS.getAddress(), new String("CLIENT2_ADDRESS").getBytes() );
+        final KeyMapping keys = KeyMapping.getKeyMapping(CLIENT1_ADDRESS.getAddress(), "CLIENT1_ADDRESS");
+        keys.put(CLIENT2_ADDRESS.getAddress(), "CLIENT2_ADDRESS".getBytes() );
 
         final ChannelFuture futureChannel = this.disp2Spy.createServer(new InetSocketAddress("0.0.0.0", PORT),
                 () -> new SimpleSessionListener(), null);
@@ -178,18 +176,15 @@ public class PCEPDispatcherImplTest {
         private final PCEPHandlerFactory factory;
         private final EventExecutor executor;
         private final EventLoopGroup workerGroup;
-        private final EventLoopGroup bossGroup;
 
-        public PCCMock(final PCEPSessionNegotiatorFactory negotiatorFactory, final PCEPHandlerFactory factory,
-                final DefaultPromise<PCEPSessionImpl> defaultPromise) {
-            this.bossGroup = Preconditions.checkNotNull(new NioEventLoopGroup());
+        PCCMock(final PCEPSessionNegotiatorFactory negotiatorFactory, final PCEPHandlerFactory factory) {
             this.workerGroup = Preconditions.checkNotNull(new NioEventLoopGroup());
             this.negotiatorFactory = Preconditions.checkNotNull(negotiatorFactory);
             this.factory = Preconditions.checkNotNull(factory);
             this.executor = Preconditions.checkNotNull(GlobalEventExecutor.INSTANCE);
         }
 
-        public Future<PCEPSession> createClient(final InetSocketAddress address, final int retryTimer,
+        Future<PCEPSession> createClient(final InetSocketAddress address, final int retryTimer,
                 final int connectTimeout, final PCEPSessionListenerFactory listenerFactory) {
             return createClient(address, retryTimer, connectTimeout, (ChannelPipelineInitializer) (ch, promise) -> {
                 ch.pipeline().addLast(PCCMock.this.factory.getDecoders());

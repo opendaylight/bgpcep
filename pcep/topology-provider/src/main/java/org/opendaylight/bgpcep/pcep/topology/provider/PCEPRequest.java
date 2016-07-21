@@ -65,7 +65,7 @@ final class PCEPRequest {
     }
 
     synchronized void done() {
-        OperationResult result;
+        final OperationResult result;
         switch (state) {
         case UNSENT:
             result = OperationResults.UNSENT;

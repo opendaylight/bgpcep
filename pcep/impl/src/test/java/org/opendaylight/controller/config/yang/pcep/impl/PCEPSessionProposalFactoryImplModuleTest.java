@@ -83,7 +83,7 @@ public class PCEPSessionProposalFactoryImplModuleTest extends AbstractConfigTest
         createInstance();
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         assertBeanCount(1, FACTORY_NAME);
-        PCEPSessionProposalFactoryImplModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(FACTORY_NAME,
+        final PCEPSessionProposalFactoryImplModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(FACTORY_NAME,
                 INSTANCE_NAME), PCEPSessionProposalFactoryImplModuleMXBean.class);
         mxBean.setKeepAliveTimerValue((short) 180);
         final CommitStatus status = transaction.commit();

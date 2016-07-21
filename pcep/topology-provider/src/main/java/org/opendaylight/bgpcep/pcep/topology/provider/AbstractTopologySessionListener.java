@@ -41,9 +41,7 @@ import org.opendaylight.protocol.pcep.TerminationReason;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.MessageHeader;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ProtocolVersion;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.Node1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.Node1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.OperationResult;
@@ -545,22 +543,14 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         return this.nodeState.readOperationalData(id);
     }
 
-    protected abstract Object validateReportedLsp(final Optional<ReportedLsp> rep, final LspId input);
-
     protected abstract void loadLspData(final Node node, final Map<String, ReportedLsp> lspData, final Map<L, String> lsps, final boolean incrementalSynchro);
 
-    protected final boolean isLspDbPersisted() {
-        if (syncOptimization != null) {
-            return syncOptimization.isSyncAvoidanceEnabled();
-        }
-        return false;
+    private boolean isLspDbPersisted() {
+        return syncOptimization != null && syncOptimization.isSyncAvoidanceEnabled();
     }
 
-    protected final boolean isLspDbRetreived() {
-        if (syncOptimization != null) {
-            return syncOptimization.isDbVersionPresent();
-        }
-        return false;
+    private boolean isLspDbRetreived() {
+        return syncOptimization != null && syncOptimization.isDbVersionPresent();
     }
 
     /**
@@ -569,31 +559,19 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
      * @return
      */
     protected final boolean isIncrementalSynchro() {
-        if (syncOptimization != null) {
-            return syncOptimization.isSyncAvoidanceEnabled() && syncOptimization.isDeltaSyncEnabled();
-        }
-        return false;
+        return syncOptimization != null && syncOptimization.isSyncAvoidanceEnabled() && syncOptimization.isDeltaSyncEnabled();
     }
 
     protected final boolean isTriggeredInitialSynchro() {
-        if (syncOptimization != null) {
-            return syncOptimization.isTriggeredInitSyncEnabled();
-        }
-        return false;
+        return syncOptimization != null && syncOptimization.isTriggeredInitSyncEnabled();
     }
 
     protected final boolean isTriggeredReSyncEnabled() {
-        if (syncOptimization != null) {
-            return syncOptimization.isTriggeredReSyncEnabled();
-        }
-        return false;
+        return syncOptimization != null && syncOptimization.isTriggeredReSyncEnabled();
     }
 
     protected final boolean isSynchronized() {
-        if (syncOptimization != null) {
-            return syncOptimization.doesLspDbMatch();
-        }
-        return false;
+        return syncOptimization != null && syncOptimization.doesLspDbMatch();
     }
 
     protected SessionListenerState getSessionListenerState() {

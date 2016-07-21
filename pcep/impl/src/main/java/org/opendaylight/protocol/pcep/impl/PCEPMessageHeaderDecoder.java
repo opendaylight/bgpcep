@@ -12,7 +12,7 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 /**
  * @see <a href="http://tools.ietf.org/html/rfc5440#section-6.1">Common Message Header</a>
  */
-public class PCEPMessageHeaderDecoder extends LengthFieldBasedFrameDecoder {
+class PCEPMessageHeaderDecoder extends LengthFieldBasedFrameDecoder {
 
     // min 4, max 65535
     private static final int MAX_FRAME_SIZE = 65535;

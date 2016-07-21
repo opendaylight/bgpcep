@@ -51,7 +51,7 @@ public final class SimpleMessageRegistry implements MessageRegistry {
     }
 
     @Override
-    public void serializeMessage(Message message, ByteBuf buffer) {
+    public void serializeMessage(final Message message, final ByteBuf buffer) {
         final MessageSerializer serializer = this.handlers.getSerializer(message.getImplementedInterface());
         if (serializer == null) {
             LOG.warn("PCEP serializer for message type {} is not registered.", message.getClass());

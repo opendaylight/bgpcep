@@ -21,7 +21,7 @@ import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCDispatcherImpl;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
 
-public class PCCMock {
+public final class PCCMock {
 
     public static void main(final String[] args) throws InterruptedException, ExecutionException {
         final List<PCEPCapability> caps = new ArrayList<>();

@@ -26,7 +26,7 @@ public class Stateful07TopologySessionListenerModuleTest extends AbstractConfigT
 
     @Test
     public void testCreateBean() throws Exception {
-        CommitStatus status = createInstance();
+        final CommitStatus status = createInstance();
         assertBeanCount(1, FACTORY_NAME);
         assertStatus(status, 1, 0, 0);
     }
@@ -34,15 +34,15 @@ public class Stateful07TopologySessionListenerModuleTest extends AbstractConfigT
     @Test
     public void testReusingOldInstance() throws Exception {
         createInstance();
-        ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        final ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
         assertBeanCount(1, FACTORY_NAME);
-        CommitStatus status = transaction.commit();
+        final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
         assertStatus(status, 0, 0, 1);
     }
 
     private CommitStatus createInstance() throws Exception {
-        ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        final ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
         transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
         return transaction.commit();
     }

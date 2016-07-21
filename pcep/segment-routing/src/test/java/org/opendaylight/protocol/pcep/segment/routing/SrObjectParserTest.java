@@ -15,6 +15,7 @@ import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.parser.object.PCEPExplicitRouteObjectParser;
@@ -68,9 +69,14 @@ public class SrObjectParserTest {
     public void setUp() {
         this.ctx = new SimplePCEPExtensionProviderContext();
         this.act = new SegmentRoutingActivator();
-        this.act.start(this.ctx);
+        act.start(this.ctx);
         this.tlvRegistry = this.ctx.getTlvHandlerRegistry();
         this.viTlvRegistry = this.ctx.getVendorInformationTlvRegistry();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        this.act.close();
     }
 
     @Test

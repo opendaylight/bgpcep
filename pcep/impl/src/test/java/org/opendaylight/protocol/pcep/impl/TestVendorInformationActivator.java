@@ -17,7 +17,7 @@ import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActi
 public class TestVendorInformationActivator extends AbstractPCEPExtensionProviderActivator {
 
     @Override
-    protected List<AutoCloseable> startImpl(PCEPExtensionProviderContext context) {
+    protected List<AutoCloseable> startImpl(final PCEPExtensionProviderContext context) {
         final List<AutoCloseable> regs = Lists.newArrayList();
         final TestVendorInformationTlvParser parser = new TestVendorInformationTlvParser();
         regs.add(context.registerVendorInformationTlvParser(parser.getEnterpriseNumber(), parser));

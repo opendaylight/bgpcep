@@ -21,11 +21,11 @@ import org.slf4j.LoggerFactory;
  */
 public class SimpleSessionListener implements PCEPSessionListener {
 
-    private List<Message> messages = Lists.newArrayList();
+    private final List<Message> messages = Lists.newArrayList();
 
     private static final Logger LOG = LoggerFactory.getLogger(SimpleSessionListener.class);
 
-    public SimpleSessionListener() {
+    SimpleSessionListener() {
     }
 
     @Override
@@ -44,7 +44,7 @@ public class SimpleSessionListener implements PCEPSessionListener {
         LOG.debug("Session down with cause : {} or exception: {}", e.getCause(), e, e);
         try {
             session.close();
-        } catch (Exception ie) {
+        } catch (final Exception ie) {
             LOG.warn("Error closing session", ie);
         }
     }

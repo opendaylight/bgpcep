@@ -94,7 +94,7 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 
-    public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
+    protected void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
         if (tlvs == null) {
             return;
         }

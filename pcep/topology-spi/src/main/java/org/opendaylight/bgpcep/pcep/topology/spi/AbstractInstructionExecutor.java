@@ -28,7 +28,7 @@ public abstract class AbstractInstructionExecutor implements FutureCallback<Inst
 
         private final Instruction insn;
 
-        public InstructionCallback(final Instruction insn) {
+        InstructionCallback(final Instruction insn) {
             this.insn = insn;
         }
 

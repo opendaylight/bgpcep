@@ -369,15 +369,15 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
     @Test
     public void testPccResponseTimeout() throws InterruptedException, ExecutionException {
         this.listener.onSessionUp(this.session);
-        Future<RpcResult<AddLspOutput>> addLspResult = this.topologyRpcs.addLsp(createAddLspInput());
+        final Future<RpcResult<AddLspOutput>> addLspResult = this.topologyRpcs.addLsp(createAddLspInput());
         try {
             addLspResult.get(2, TimeUnit.SECONDS);
             fail();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             assertTrue(e instanceof TimeoutException);
         }
         Thread.sleep(AbstractPCEPSessionTest.RPC_TIMEOUT);
-        RpcResult<AddLspOutput> rpcResult = addLspResult.get();
+        final RpcResult<AddLspOutput> rpcResult = addLspResult.get();
         assertNotNull(rpcResult);
         assertEquals(rpcResult.getResult().getFailure(), FailureType.Unsent);
     }

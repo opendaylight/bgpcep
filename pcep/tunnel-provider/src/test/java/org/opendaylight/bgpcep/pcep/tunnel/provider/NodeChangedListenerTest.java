@@ -99,8 +99,8 @@ public class NodeChangedListenerTest extends AbstractDataBrokerTest {
         final NodeId srcId = new NodeId("ip://" + new IpAddress(new Ipv4Address(NODE1_IPV4)));
         final NodeId dstId = new NodeId("ip://" + new IpAddress(new Ipv4Address(NODE2_IPV4)));
 
-        Node dst;
-        Node src;
+        final Node dst;
+        final Node src;
 
         if (tunnelTopo.getNode().get(0).getNodeId().equals(srcId)) {
             src = tunnelTopo.getNode().get(0);
@@ -139,7 +139,7 @@ public class NodeChangedListenerTest extends AbstractDataBrokerTest {
         final Topology updatedNodeTopo = readTunnelTopology().get();
         Assert.assertEquals(2, updatedNodeTopo.getNode().size());
 
-        Node updatedNode;
+        final Node updatedNode;
 
         if (updatedNodeTopo.getNode().get(0).getNodeId().equals(srcId)) {
             updatedNode = updatedNodeTopo.getNode().get(1);
@@ -153,7 +153,7 @@ public class NodeChangedListenerTest extends AbstractDataBrokerTest {
 
         Assert.assertEquals(2, updatedNodeTopo.getLink().size());
 
-        Link link2;
+        final Link link2;
         if (updatedNodeTopo.getLink().get(0).getSource().getSourceNode().equals(srcId)) {
             link2 = updatedNodeTopo.getLink().get(1);
         } else {

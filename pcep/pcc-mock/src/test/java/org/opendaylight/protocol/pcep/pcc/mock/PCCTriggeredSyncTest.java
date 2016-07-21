@@ -34,15 +34,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 
 public class PCCTriggeredSyncTest extends PCCMockCommon {
 
-    private Channel channel;
-
     @Test
     public void testSessionTriggeredSync() throws Exception {
         final TestingSessionListenerFactory factory = new TestingSessionListenerFactory();
-        this.channel = createServer(factory, socket, new PCCPeerProposal());
+        final Channel channel = createServer(factory, socket, new PCCPeerProposal());
         Thread.sleep(200);
         final BigInteger numberOflspAndDBv = BigInteger.valueOf(3);
-        PCEPSession session = createPCCSession(numberOflspAndDBv).get();
+        final PCEPSession session = createPCCSession(numberOflspAndDBv).get();
         assertNotNull(session);
         final TestingSessionListener pceSessionListener = getListener(factory);
         assertNotNull(pceSessionListener);
@@ -50,7 +48,7 @@ public class PCCTriggeredSyncTest extends PCCMockCommon {
         pccSessionListener.onMessage(session, createTriggerMsg());
         Thread.sleep(300);
         checkSynchronizedSession(3, pceSessionListener, numberOflspAndDBv);
-        this.channel.close().get();
+        channel.close().get();
     }
 
     private Message createTriggerMsg() {

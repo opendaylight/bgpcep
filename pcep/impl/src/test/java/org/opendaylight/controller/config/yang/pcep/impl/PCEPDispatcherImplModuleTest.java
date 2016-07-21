@@ -62,9 +62,9 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
 
         doAnswer(new Answer<Filter>() {
             @Override
-            public Filter answer(InvocationOnMock invocation) {
-                String str = invocation.getArgumentAt(0, String.class);
-                Filter mockFilter = mock(Filter.class);
+            public Filter answer(final InvocationOnMock invocation) {
+                final String str = invocation.getArgumentAt(0, String.class);
+                final Filter mockFilter = mock(Filter.class);
                 doReturn(str).when(mockFilter).toString();
                 return mockFilter;
             }

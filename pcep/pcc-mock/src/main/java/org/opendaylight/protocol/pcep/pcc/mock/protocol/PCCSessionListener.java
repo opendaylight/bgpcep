@@ -71,7 +71,7 @@ public final class PCCSessionListener implements PCEPSessionListener, PCCSession
         this.tunnelManager.onSessionDown(this);
         try {
             session.close();
-        } catch (Exception ie) {
+        } catch (final Exception ie) {
             LOG.warn("Error closing session", ie);
         }
     }

@@ -78,7 +78,7 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference impleme
         try {
             this.channel.close().sync();
             LOG.debug("Server channel {} closed", this.channel);
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             LOG.error("Failed to close channel {}", this.channel, e);
         }
 

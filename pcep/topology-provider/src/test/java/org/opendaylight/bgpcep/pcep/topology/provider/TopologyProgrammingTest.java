@@ -11,6 +11,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -181,6 +182,13 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest<MockedTopol
         this.topologyProgramming = new TopologyProgramming(this.scheduler, this.manager);
         this.session = getPCEPSession(getLocalPref(), getRemotePref());
         listener.onSessionUp(this.session);
+    }
+
+    @Override
+    @After
+    public void tearDown() throws Exception {
+        super.tearDown();
+        this.session.close();
     }
 
     @Test

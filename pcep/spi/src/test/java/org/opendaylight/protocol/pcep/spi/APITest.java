@@ -30,7 +30,7 @@ public class APITest {
 
     @Test
     public void testObjectHeader() {
-        ObjectHeaderImpl header = new ObjectHeaderImpl(null, true);
+        final ObjectHeaderImpl header = new ObjectHeaderImpl(null, true);
         assertEquals("ObjectHeader [objClass=, processed=null, ignored=true]", header.toString());
         assertTrue(header.isIgnore());
         assertNull(header.isProcessingRule());
@@ -41,14 +41,14 @@ public class APITest {
 
     @Test
     public void testUnknownObject() {
-        UnknownObject un = new UnknownObject(PCEPErrors.CT_AND_SETUP_PRIORITY_DO_NOT_FORM_TE_CLASS);
+        final UnknownObject un = new UnknownObject(PCEPErrors.CT_AND_SETUP_PRIORITY_DO_NOT_FORM_TE_CLASS);
         assertFalse(un.isIgnore());
         assertFalse(un.isProcessingRule());
         assertEquals(PCEPErrors.CT_AND_SETUP_PRIORITY_DO_NOT_FORM_TE_CLASS, un.getError());
         assertEquals(PCEPErrors.CT_AND_SETUP_PRIORITY_DO_NOT_FORM_TE_CLASS.getErrorType(), un.getErrors().get(0).getErrorObject().getType().shortValue());
 
         final Object o = new CCloseBuilder().build();
-        UnknownObject unknown = new UnknownObject(PCEPErrors.LSP_RSVP_ERROR, o);
+        final UnknownObject unknown = new UnknownObject(PCEPErrors.LSP_RSVP_ERROR, o);
         assertEquals(Object.class, unknown.getImplementedInterface());
         assertEquals(o, unknown.getInvalidObject());
     }

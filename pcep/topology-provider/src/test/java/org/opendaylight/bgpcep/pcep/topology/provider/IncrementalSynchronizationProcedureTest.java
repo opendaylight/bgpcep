@@ -16,6 +16,7 @@ import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.concurrent.ExecutionException;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,6 +61,13 @@ public class IncrementalSynchronizationProcedureTest extends AbstractPCEPSession
         this.listener = (Stateful07TopologySessionListener) getSessionListener();
     }
 
+    @Override
+    @After
+    public void tearDown() throws Exception {
+        super.tearDown();
+        this.session.close();
+    }
+
     @Test
     public void testStateSynchronizationPerformed() throws InterruptedException, ExecutionException {
         this.session = getPCEPSession(getOpen(null), getOpen(null));
@@ -74,8 +82,8 @@ public class IncrementalSynchronizationProcedureTest extends AbstractPCEPSession
         this.listener = (Stateful07TopologySessionListener) getSessionListener();
 
         //session up - expect sync (LSP-DBs do not match)
-        final LspDbVersion localDbVersion = new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.valueOf(2l)).build();
-        this.session = getPCEPSession(getOpen(localDbVersion), getOpen(null));
+        final LspDbVersion localDbVersion = new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.valueOf(2L)).build();
+        session = getPCEPSession(getOpen(localDbVersion), getOpen(null));
         this.listener.onSessionUp(session);
 
         final PathComputationClient pcc2 = getTopology().get().getNode().get(0).getAugmentation(Node1.class).getPathComputationClient();
@@ -124,7 +132,7 @@ public class IncrementalSynchronizationProcedureTest extends AbstractPCEPSession
             .build()).build()).addAugmentation(Tlvs3.class, new Tlvs3Builder().setLspDbVersion(dbVersion).build()).build()).build();
     }
 
-    private Pcrpt getPcrpt(Long val, String pathname) {
+    private Pcrpt getPcrpt(final Long val, final String pathname) {
         return MsgBuilderUtil.createPcRtpMessage(new LspBuilder().setPlspId(new PlspId(val)).setTlvs(
             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.
                 TlvsBuilder().setLspIdentifiers(new LspIdentifiersBuilder().setLspId(new LspId(val)).build())
@@ -138,7 +146,7 @@ public class IncrementalSynchronizationProcedureTest extends AbstractPCEPSession
         return MsgBuilderUtil.createPcRtpMessage(createLsp(0, false, Optional.of(
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.TlvsBuilder().addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs1.class,
                     new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync
-                        .optimizations.rev150714.Tlvs1Builder().setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.valueOf(3l)).build()).build()).build()), true, false), Optional.<Srp>absent(),
+                        .optimizations.rev150714.Tlvs1Builder().setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.valueOf(3L)).build()).build()).build()), true, false), Optional.<Srp>absent(),
             createPath(Collections.<Subobject>emptyList()));
     }
 }

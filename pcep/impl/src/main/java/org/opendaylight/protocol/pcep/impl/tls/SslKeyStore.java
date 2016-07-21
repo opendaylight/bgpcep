@@ -35,7 +35,7 @@ public final class SslKeyStore {
      * @return key as InputStream
      */
     public static InputStream asInputStream(final String filename, final PathType pathType) {
-        InputStream in;
+        final InputStream in;
         switch (pathType) {
         case CLASSPATH:
             in = SslKeyStore.class.getResourceAsStream(filename);

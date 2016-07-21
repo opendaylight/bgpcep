@@ -118,7 +118,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         }
     }
 
-    protected void serializeP2P(final ByteBuf buffer, final P2p p2p) {
+    private void serializeP2P(final ByteBuf buffer, final P2p p2p) {
         serializeObject(p2p.getEndpointsObj(), buffer);
         serializeVendorInformationObjects(p2p.getVendorInformationObject(), buffer);
         if (p2p.getReportedRoute() != null) {
@@ -161,7 +161,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         }
         final PcreqMessageBuilder mBuilder = new PcreqMessageBuilder();
         mBuilder.setMonitoringRequest(getMonitoring(objects));
-        final List<Svec> svecs = getSvecs(objects, errors);
+        final List<Svec> svecs = getSvecs(objects);
         if (!svecs.isEmpty()) {
             mBuilder.setSvec(svecs);
         }
@@ -177,7 +177,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         return new PcreqBuilder().setPcreqMessage(mBuilder.build()).build();
     }
 
-    protected List<Svec> getSvecs(final List<Object> objects, final List<Message> errors) {
+    protected List<Svec> getSvecs(final List<Object> objects) {
         final List<Svec> svecList = new ArrayList<>();
         while (!objects.isEmpty()) {
             final SvecBuilder sBuilder = new SvecBuilder();
@@ -242,8 +242,8 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         return requests;
     }
 
-    protected SegmentComputation getSegmentComputation(final P2pBuilder builder, final List<Object> objects, final List<Message> errors,
-            final Rp rp) {
+    private SegmentComputation getSegmentComputation(final P2pBuilder builder, final List<Object> objects, final List<Message> errors,
+        final Rp rp) {
         final List<Metrics> metrics = new ArrayList<>();
         final List<VendorInformationObject> viObjects = new ArrayList<>();
 

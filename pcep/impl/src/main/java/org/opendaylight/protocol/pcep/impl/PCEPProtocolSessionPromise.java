@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ThreadSafe
-public final class PCEPProtocolSessionPromise<S extends PCEPSession> extends DefaultPromise<S> {
+final class PCEPProtocolSessionPromise<S extends PCEPSession> extends DefaultPromise<S> {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPProtocolSessionPromise.class);
     private InetSocketAddress address;
     private final int retryTimer;
@@ -60,7 +60,7 @@ public final class PCEPProtocolSessionPromise<S extends PCEPSession> extends Def
             final ChannelFuture connectFuture = this.b.connect();
             connectFuture.addListener(new PCEPProtocolSessionPromise.BootstrapConnectListener(lock));
             this.pending = connectFuture;
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LOG.info("Failed to connect to {}", this.address, e);
             this.setFailure(e);
         }

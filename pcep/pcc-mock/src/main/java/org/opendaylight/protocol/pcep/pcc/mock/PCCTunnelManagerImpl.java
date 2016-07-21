@@ -59,7 +59,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.IpPrefixCase;
 
-public final class PCCTunnelManagerImpl implements PCCTunnelManager {
+final class PCCTunnelManagerImpl implements PCCTunnelManager {
 
     private static final Optional<Srp> NO_SRP = Optional.absent();
     @GuardedBy("this")
@@ -75,7 +75,7 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
     private final Map<PlspId, PCCTunnel> tunnels = new HashMap<>();
     private PCCSyncOptimization syncOptimization;
 
-    public PCCTunnelManagerImpl(final int lspsCount, final InetAddress address, final int redelegationTimeout,
+    PCCTunnelManagerImpl(final int lspsCount, final InetAddress address, final int redelegationTimeout,
                                 final int stateTimeout, final Timer timer, final Optional<TimerHandler> timerHandler) {
         Preconditions.checkArgument(lspsCount >= 0);
         this.redelegationTimeout = redelegationTimeout;
@@ -87,7 +87,7 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
         this.lspsCount = lspsCount;
     }
 
-    protected void reportToAll(final Updates update, final PCCSession session) {
+    private void reportToAll(final Updates update, final PCCSession session) {
         final PlspId plspId = update.getLsp().getPlspId();
         final PCCTunnel tunnel = this.tunnels.get(plspId);
         final long srpId = update.getSrp().getOperationId().getValue();
@@ -137,7 +137,7 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
         }
     }
 
-    protected void takeDelegation(final Requests request, final PCCSession session) {
+    private void takeDelegation(final Requests request, final PCCSession session) {
         final PlspId plspId = request.getLsp().getPlspId();
         final PCCTunnel tunnel = this.tunnels.get(plspId);
         final long srpId = request.getSrp().getOperationId().getValue();
@@ -191,7 +191,7 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
         }
     }
 
-    protected void addTunnel(final Requests request, final PCCSession session) {
+    private void addTunnel(final Requests request, final PCCSession session) {
         final PlspId plspId = new PlspId(this.plspIDsCounter.incrementAndGet());
         final PCCTunnel tunnel = new PCCTunnel(request.getLsp().getTlvs().getSymbolicPathName().getPathName().getValue(),
             session.getId(), LspType.PCE_LSP, reqToRptPath(request));
@@ -200,7 +200,7 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
         this.tunnels.put(plspId, tunnel);
     }
 
-    protected void removeTunnel(final Requests request, final PCCSession session) {
+    private void removeTunnel(final Requests request, final PCCSession session) {
         final PlspId plspId = request.getLsp().getPlspId();
         final PCCTunnel tunnel = this.tunnels.get(plspId);
         final long srpId = request.getSrp().getOperationId().getValue();

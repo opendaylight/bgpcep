@@ -25,18 +25,18 @@ import org.osgi.framework.BundleContext;
 @Deprecated
 public class SimplePCEPExtensionProviderContextModuleFactory extends AbstractSimplePCEPExtensionProviderContextModuleFactory {
     @Override
-    public SimplePCEPExtensionProviderContextModule instantiateModule(String instanceName, DependencyResolver dependencyResolver,
-            SimplePCEPExtensionProviderContextModule oldModule, AutoCloseable oldInstance, BundleContext bundleContext) {
-        SimplePCEPExtensionProviderContextModule module = super.instantiateModule(instanceName, dependencyResolver, oldModule,
+    public SimplePCEPExtensionProviderContextModule instantiateModule(final String instanceName, final DependencyResolver dependencyResolver,
+            final SimplePCEPExtensionProviderContextModule oldModule, final AutoCloseable oldInstance, final BundleContext bundleContext) {
+        final SimplePCEPExtensionProviderContextModule module = super.instantiateModule(instanceName, dependencyResolver, oldModule,
                 oldInstance, bundleContext);
         module.setBundleContext(bundleContext);
         return module;
     }
 
     @Override
-    public SimplePCEPExtensionProviderContextModule instantiateModule(String instanceName, DependencyResolver dependencyResolver,
-            BundleContext bundleContext) {
-        SimplePCEPExtensionProviderContextModule module = super.instantiateModule(instanceName, dependencyResolver, bundleContext);
+    public SimplePCEPExtensionProviderContextModule instantiateModule(final String instanceName, final DependencyResolver dependencyResolver,
+            final BundleContext bundleContext) {
+        final SimplePCEPExtensionProviderContextModule module = super.instantiateModule(instanceName, dependencyResolver, bundleContext);
         module.setBundleContext(bundleContext);
         return module;
     }

@@ -28,16 +28,16 @@ public class RROLabelSubobjectParser implements RROSubobjectParser, RROSubobject
 
     public static final int TYPE = 3;
 
-    public static final int FLAGS_SIZE = 8;
+    private static final int FLAGS_SIZE = 8;
 
-    public static final int C_TYPE_F_LENGTH = 1;
+    private static final int C_TYPE_F_LENGTH = 1;
 
-    public static final int C_TYPE_F_OFFSET = FLAGS_SIZE / Byte.SIZE;
+    private static final int C_TYPE_F_OFFSET = FLAGS_SIZE / Byte.SIZE;
 
-    public static final int HEADER_LENGTH = C_TYPE_F_OFFSET + C_TYPE_F_LENGTH;
+    private static final int HEADER_LENGTH = C_TYPE_F_OFFSET + C_TYPE_F_LENGTH;
 
-    public static final int U_FLAG_OFFSET = 0;
-    public static final int G_FLAG_OFFSET = 7;
+    private static final int U_FLAG_OFFSET = 0;
+    private static final int G_FLAG_OFFSET = 7;
 
     private final LabelRegistry registry;
 

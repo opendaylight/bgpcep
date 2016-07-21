@@ -31,27 +31,27 @@ public class PCEPParserTest {
 
     @Test
     public void testMessageToByteEncoding() {
-        PCEPMessageToByteEncoder encoder = new PCEPMessageToByteEncoder(this.registry);
-        ByteBuf out = Unpooled.buffer();
+        final PCEPMessageToByteEncoder encoder = new PCEPMessageToByteEncoder(this.registry);
+        final ByteBuf out = Unpooled.buffer();
         encoder.encode(null, new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build(), out);
         assertArrayEquals(new byte[] { 32, 2, 0, 4 }, ByteArray.readAllBytes(out));
     }
 
     @Test
     public void testByteToMessageEncoding() throws Exception {
-        PCEPByteToMessageDecoder decoder = new PCEPByteToMessageDecoder(this.registry);
-        List<Object> out = new ArrayList<>();
+        final PCEPByteToMessageDecoder decoder = new PCEPByteToMessageDecoder(this.registry);
+        final List<Object> out = new ArrayList<>();
         decoder.decode(null, Unpooled.wrappedBuffer(new byte[] { 32, 2, 0, 4 }), out);
         assertTrue(out.get(0) instanceof Keepalive);
         decoder.decode(null, Unpooled.wrappedBuffer(new byte[] { 0x20, 0x07, 0, 0x0C, 0x0F, 0x10, 0, 8, 0, 0, 0, 5 }), out);
         assertTrue(out.get(1) instanceof Close);
-        decoder.decode(null, Unpooled.wrappedBuffer(new byte[] { 0x20, 06, 00, 0x18, 0x21,0x10, 00,0x0c, 00,00,00,00,00,00,00,01,0x0d,0x10,00,0x08,00,00,0x18,02 }), out);
+        decoder.decode(null, Unpooled.wrappedBuffer(new byte[] { 0x20, 6, 0, 0x18, 0x21,0x10, 0,0x0c, 0, 0, 0, 0, 0, 0, 0, 1,0x0d,0x10, 0,0x08, 0, 0,0x18, 2}), out);
         assertTrue(out.get(2) instanceof Pcerr);
     }
 
     @Test
     public void testHandlerFactory() {
-        PCEPHandlerFactory handlers = new PCEPHandlerFactory(this.registry);
+        final PCEPHandlerFactory handlers = new PCEPHandlerFactory(this.registry);
         assertEquals(1, handlers.getEncoders().length);
         assertTrue(handlers.getEncoders()[0] instanceof PCEPMessageToByteEncoder);
         assertEquals(2, handlers.getDecoders().length);

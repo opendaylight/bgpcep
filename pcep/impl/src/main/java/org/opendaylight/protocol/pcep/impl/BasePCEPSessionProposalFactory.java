@@ -58,13 +58,4 @@ public final class BasePCEPSessionProposalFactory implements PCEPSessionProposal
         }
         return oBuilder.setTlvs(builder.build()).build();
     }
-
-    public int getKeepAlive() {
-        return this.keepAlive;
-    }
-
-    public int getDeadTimer() {
-        return this.deadTimer;
-    }
-
 }

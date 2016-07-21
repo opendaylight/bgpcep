@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.bgpcep.pcep.topology.provider.PCEPTopologyProvider;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
-import org.opendaylight.controller.config.yang.pcep.impl.PCEPDispatcherImplModuleMXBean;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.protocol.concepts.KeyMapping;

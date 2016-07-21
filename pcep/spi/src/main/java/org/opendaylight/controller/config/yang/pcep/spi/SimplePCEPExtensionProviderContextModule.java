@@ -49,7 +49,7 @@ public final class SimplePCEPExtensionProviderContextModule extends AbstractSimp
 
         return Reflection.newProxy(AutoCloseablePCEPExtensionProviderContext.class, new AbstractInvocationHandler() {
             @Override
-            protected Object handleInvocation(Object proxy, Method method, Object[] args) throws Throwable {
+            protected Object handleInvocation(final Object proxy, final Method method, final Object[] args) throws Throwable {
                 if (method.getName().equals("close")) {
                     tracker.close();
                     return null;
@@ -60,7 +60,7 @@ public final class SimplePCEPExtensionProviderContextModule extends AbstractSimp
         });
     }
 
-    void setBundleContext(BundleContext bundleContext) {
+    void setBundleContext(final BundleContext bundleContext) {
         this.bundleContext = bundleContext;
     }
 

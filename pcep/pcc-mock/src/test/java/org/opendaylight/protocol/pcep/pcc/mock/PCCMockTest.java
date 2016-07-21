@@ -57,7 +57,7 @@ public class PCCMockTest extends PCCMockCommon {
         Main.main(new String[]{"--local-address", PCCMockCommon.LOCAL_ADDRESS, "--remote-address", REMOTE_ADDRESS2 + "," + REMOTE_ADDRESS3 + "," + REMOTE_ADDRESS4, "--pcc", "2"});
         Thread.sleep(1000);
         //PCE1
-        int numMessages = 2;
+        final int numMessages = 2;
         checkSessionListener(numMessages, channel, factory, PCCMockCommon.LOCAL_ADDRESS);
         checkSessionListener(numMessages, channel, factory, LOCAL_ADDRESS2);
         //PCE2

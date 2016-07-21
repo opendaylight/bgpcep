@@ -441,9 +441,9 @@ public final class NodeChangedListener implements DataTreeChangeListener<Node> {
             throw new IllegalArgumentException("Unhandled modification type " + changedNode.getModificationType());
         }
 
-        for (DataObjectModification<? extends DataObject> child : changedNode.getModifiedChildren()) {
+        for (final DataObjectModification<? extends DataObject> child : changedNode.getModifiedChildren()) {
             final List<PathArgument> pathArguments = new ArrayList<>();
-            for (PathArgument pathArgument : iid.getPathArguments()) {
+            for (final PathArgument pathArgument : iid.getPathArguments()) {
                 pathArguments.add(pathArgument);
             }
             pathArguments.add(child.getIdentifier());

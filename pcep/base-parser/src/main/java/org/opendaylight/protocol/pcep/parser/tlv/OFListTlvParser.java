@@ -53,7 +53,7 @@ public class OFListTlvParser implements TlvParser, TlvSerializer {
         final OfList oft = (OfList) tlv;
         final ByteBuf body = Unpooled.buffer();
         final List<OfId> ofCodes = oft.getCodes();
-        for (OfId id : ofCodes) {
+        for (final OfId id : ofCodes) {
             writeUnsignedShort(id.getValue(), body);
         }
         TlvUtil.formatTlv(TYPE, body, buffer);

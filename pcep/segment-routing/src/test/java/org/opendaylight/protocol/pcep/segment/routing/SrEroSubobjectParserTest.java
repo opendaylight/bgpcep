@@ -13,6 +13,7 @@ import static org.junit.Assert.assertEquals;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -95,17 +96,21 @@ public class SrEroSubobjectParserTest {
         0x4A,0x7D,0x2b,0x63,
     };
 
-    private SimplePCEPExtensionProviderContext ctx;
-    private SegmentRoutingActivator act;
     private SrEroSubobjectParser parser;
+    private SegmentRoutingActivator act;
 
     @Before
     public void setUp() {
-        this.ctx = new SimplePCEPExtensionProviderContext();
+        final SimplePCEPExtensionProviderContext ctx = new SimplePCEPExtensionProviderContext();
         this.act = new SegmentRoutingActivator();
-        this.act.start(this.ctx);
+        act.start(ctx);
         final boolean isIanaAssignedType = false;
         parser = new SrEroSubobjectParser(isIanaAssignedType);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        this.act.close();
     }
 
     @Test

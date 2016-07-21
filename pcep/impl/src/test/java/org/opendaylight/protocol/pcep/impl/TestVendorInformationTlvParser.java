@@ -74,7 +74,7 @@ public class TestVendorInformationTlvParser extends AbstractVendorInformationTlv
             if (getClass() != obj.getClass()) {
                 return false;
             }
-            TestEnterpriseSpecificInformation other = (TestEnterpriseSpecificInformation) obj;
+            final TestEnterpriseSpecificInformation other = (TestEnterpriseSpecificInformation) obj;
             if (value != other.value) {
                 return false;
             }

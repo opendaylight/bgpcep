@@ -110,7 +110,7 @@ final class TopologyProgramming implements NetworkTopologyPcepProgrammingService
         b.setResult(AbstractInstructionExecutor.schedule(scheduler, new AbstractInstructionExecutor(input) {
             @Override
             protected ListenableFuture<OperationResult> invokeOperation() {
-                EnsureLspOperationalInputBuilder ensureLspOperationalInputBuilder = new EnsureLspOperationalInputBuilder();
+                final EnsureLspOperationalInputBuilder ensureLspOperationalInputBuilder = new EnsureLspOperationalInputBuilder();
                 ensureLspOperationalInputBuilder.fieldsFrom(input);
                 return TopologyProgramming.this.manager.ensureLspOperational(ensureLspOperationalInputBuilder.build());
             }
