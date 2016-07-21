@@ -288,6 +288,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         doNothing().when(this.bgpDeployer).onGlobalCreated(any(),any(),any());
         doReturn(NEIGHBOR).when(this.bgpMappingService).fromBgpPeer(any(), any(),
                 any(), any(), any(), any(), any(), any(), any(), any(), any());
+        doReturn(NEIGHBOR).when(this.bgpMappingService).fromApplicationPeer(any(), any());
         doReturn(this.mockedFuture).when(this.bgpDeployer).writeConfiguration(any(), any());
         doReturn(this.mockedFuture).when(this.bgpDeployer).removeConfiguration(any());
         doReturn(this.bgpMappingService).when(this.bgpDeployer).getMappingService();
