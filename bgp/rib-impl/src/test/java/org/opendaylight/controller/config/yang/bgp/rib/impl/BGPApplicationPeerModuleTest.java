@@ -9,9 +9,7 @@
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+
 import java.util.List;
 import javax.management.InstanceNotFoundException;
 import javax.management.ObjectName;
@@ -70,21 +68,6 @@ public class BGPApplicationPeerModuleTest extends AbstractRIBImplModuleTest {
         assertBeanCount(1, FACTORY_NAME);
         assertStatus(status, 0, 1, EXP_INSTANCES - 1);
         assertEquals(NEW_APP_RIB_ID, getApplicationRibId());
-    }
-
-    @Test
-    public void testConflictingPeerAddress() throws Exception {
-        createApplicationPeerInstance();
-        try {
-            createApplicationPeerInstance(INSTANCE_NAME2);
-            fail();
-        } catch (IllegalStateException e) {
-            assertTrue(e.getMessage().contains("getInstance() failed for ModuleIdentifier"));
-            final Throwable ex = e.getCause();
-            assertNotNull(ex);
-            assertTrue(ex.getMessage().contains("Peer for IpAddress"));
-            assertTrue(ex.getMessage().contains("already present"));
-        }
     }
 
     private CommitStatus createApplicationPeerInstance() throws Exception {
