@@ -98,6 +98,9 @@ import org.opendaylight.protocol.bgp.rib.impl.stats.UnsignedInt32Counter;
 import org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl.BGPRenderStats;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.NetworkInstances;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstance;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstanceKey;
@@ -105,6 +108,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.re
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.ProtocolKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151009.BGP;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib;
@@ -136,6 +140,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
 
     protected static final RibId RIB_ID = new RibId("test");
     protected static final BgpId BGP_ID = new BgpId("192.168.1.1");
+    private static final Neighbor NEIGHBOR = new NeighborBuilder().setKey(new NeighborKey(new IpAddress(BGP_ID))).build();
     protected static final ClusterIdentifier CLUSTER_ID = new ClusterIdentifier("192.168.1.2");
 
     private static final AsNumber AS_NUMBER = new AsNumber(5000L);
@@ -175,6 +180,9 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
 
     @Mock
     private BGPOpenConfigMappingService bgpMappingService;
+
+    @Mock
+    private BGPPeerRuntimeMXBean mockedPeer;
 
     @SuppressWarnings("unchecked")
     @Before
@@ -267,6 +275,8 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
 
         setupMockService(BgpDeployer.class, this.bgpDeployer);
         doReturn(new ProtocolBuilder().setKey(new ProtocolKey(BGP.class, "bgp")).build()).when(this.bgpMappingService).fromRib(any(), any(), any(), any(), any(), any());
+        doReturn(NEIGHBOR).when(this.bgpMappingService).fromBgpPeer(any(), any(),
+                any(), any(), any(), any(), any(), any(), any(), any(), any());
         doReturn(this.mockedFuture).when(this.bgpDeployer).writeConfiguration(any(), any());
         doReturn(this.mockedFuture).when(this.bgpDeployer).removeConfiguration(any());
         doReturn(this.bgpMappingService).when(this.bgpDeployer).getMappingService();
@@ -306,6 +316,8 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         setupMockService(RIBExtensionProviderContext.class, new SimpleRIBExtensionProviderContext());
 
         setupMockService(BGPPeerRegistry.class, StrictBGPPeerRegistry.GLOBAL);
+
+        setupMockService(BGPPeerRuntimeMXBean.class, this.mockedPeer);
     }
 
     protected void setupMockService(final Class<?> serviceInterface, final Object instance) throws Exception {

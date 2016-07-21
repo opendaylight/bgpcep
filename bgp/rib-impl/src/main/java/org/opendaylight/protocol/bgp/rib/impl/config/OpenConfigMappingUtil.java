@@ -12,6 +12,7 @@ import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet
 
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.concepts.KeyMapping;
+import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
@@ -61,6 +62,10 @@ final class OpenConfigMappingUtil {
     public static InstanceIdentifier<Neighbor> getNeighborInstanceIdentifier(final InstanceIdentifier<Bgp> rootIdentifier,
             final NeighborKey neighborKey) {
         return rootIdentifier.child(Neighbors.class).child(Neighbor.class, neighborKey);
+    }
+
+    public static String getNeighborInstanceName(final InstanceIdentifier<?> rootIdentifier) {
+        return Ipv4Util.toStringIP(rootIdentifier.firstKeyOf(Neighbor.class).getNeighborAddress());
     }
 
 }
