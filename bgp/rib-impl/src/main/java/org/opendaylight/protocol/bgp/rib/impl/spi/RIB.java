@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
-import com.google.common.base.Optional;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
@@ -15,7 +14,6 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
-import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigProvider;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl.BGPRenderStats;
 import org.opendaylight.protocol.bgp.rib.spi.CacheDisconnectedPeers;
@@ -76,14 +74,6 @@ public interface RIB  extends RibReference, ClusterSingletonServiceProvider {
     YangInstanceIdentifier getYangRibId();
 
     CodecsRegistry getCodecsRegistry();
-
-    /**
-     * Optionally returns OpenConfigProvider, which brings an access to
-     * BGP OpenConfig mappers.
-     * @return An Optional of BGPOpenConfigProvider or Absent if provider is
-     * not available.
-     */
-    Optional<BGPOpenConfigProvider> getOpenConfigProvider();
 
     /**
      * Return cache disconnected peers which allows us to avoid update
