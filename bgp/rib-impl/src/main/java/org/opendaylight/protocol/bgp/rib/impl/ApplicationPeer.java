@@ -21,7 +21,6 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListen
 import org.opendaylight.controller.md.sal.dom.api.ClusteredDOMDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
-import org.opendaylight.protocol.bgp.openconfig.spi.BGPConfigModuleTracker;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
@@ -62,7 +61,6 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
     private final String name;
     private final YangInstanceIdentifier adjRibsInId;
     private final Ipv4Address ipAddress;
-    private final BGPConfigModuleTracker moduleTracker;
     private final RIB rib;
     private final YangInstanceIdentifier peerIId;
     private DOMTransactionChain chain;
@@ -70,8 +68,7 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
     private EffectiveRibInWriter effectiveRibInWriter;
     private AdjRibInWriter writer;
 
-    public ApplicationPeer(final ApplicationRibId applicationRibId, final Ipv4Address ipAddress, final RIB rib,
-        final BGPConfigModuleTracker moduleTracker) {
+    public ApplicationPeer(final ApplicationRibId applicationRibId, final Ipv4Address ipAddress, final RIB rib) {
         this.name = applicationRibId.getValue();
         final RIB targetRib = Preconditions.checkNotNull(rib);
         this.rawIdentifier = InetAddresses.forString(ipAddress.getValue()).getAddress();
@@ -80,11 +77,6 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
         this.adjRibsInId = this.peerIId.node(AdjRibIn.QNAME).node(Tables.QNAME);
         this.rib = targetRib;
         this.ipAddress = ipAddress;
-        this.moduleTracker = moduleTracker;
-    }
-
-    public ApplicationPeer(final ApplicationRibId applicationRibId, final Ipv4Address bgpPeerId, final RIB targetRibDependency) {
-        this(applicationRibId, bgpPeerId, targetRibDependency, null);
     }
 
     public void instantiateServiceInstance() {
@@ -96,9 +88,6 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
         //TODO need to create effective rib in writer with route counter here
         this.effectiveRibInWriter = EffectiveRibInWriter.create(this.rib.getService(), this.rib.createPeerChain(this), this.peerIId,
             this.rib.getImportPolicyPeerTracker(), this.rib.getRibSupportContext(), PeerRole.Internal);
-        if (moduleTracker != null) {
-            moduleTracker.onInstanceCreate();
-        }
     }
 
     /**
@@ -200,9 +189,6 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
         this.writer.removePeer();
         this.chain.close();
         this.writerChain.close();
-        if (this.moduleTracker != null) {
-            this.moduleTracker.onInstanceClose();
-        }
     }
 
     @Override
