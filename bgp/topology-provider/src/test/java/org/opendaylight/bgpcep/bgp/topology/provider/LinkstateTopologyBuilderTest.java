@@ -20,6 +20,7 @@ import io.netty.buffer.Unpooled;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import org.junit.After;
 import org.junit.Test;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -96,14 +97,18 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
     private LinkstateTopologyBuilder linkstateTopoBuilder;
     private InstanceIdentifier<LinkstateRoute> linkstateRouteIID;
 
-
     @Override
     protected void setupWithDataBroker(final DataBroker dataBroker) {
         super.setupWithDataBroker(dataBroker);
         this.linkstateTopoBuilder = new LinkstateTopologyBuilder(dataBroker, LOC_RIB_REF, TEST_TOPOLOGY_ID);
-        this.linkstateTopoBuilder.start(dataBroker, LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
         final InstanceIdentifier<Tables> path = this.linkstateTopoBuilder.tableInstanceIdentifier(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
         this.linkstateRouteIID = path.builder().child((Class)LinkstateRoutes.class).child(LinkstateRoute.class, new LinkstateRouteKey(LINKSTATE_ROUTE_KEY)).build();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        this.linkstateTopoBuilder.close();
+        assertFalse(getTopology(this.linkstateTopoBuilder.getInstanceIdentifier()).isPresent());
     }
 
     @Test
@@ -207,9 +212,6 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
         assertNull(igpLink1.getAugmentation(IgpLinkAttributes1.class));
         assertEquals((short) 1, igpLink1.getAugmentation(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.IgpLinkAttributes1.class).getOspfLinkAttributes().getMultiTopologyId().shortValue());
         assertEquals(2, igpLink1.getAugmentation(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.IgpLinkAttributes1.class).getOspfLinkAttributes().getTed().getSrlg().getSrlgValues().size());
-
-        this.linkstateTopoBuilder.close();
-        assertFalse(getTopology(this.linkstateTopoBuilder.getInstanceIdentifier()).isPresent());
     }
 
     private void updateLinkstateRoute(final LinkstateRoute data) {
