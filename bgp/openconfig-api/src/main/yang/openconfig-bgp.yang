@@ -514,6 +514,7 @@ module openconfig-bgp {
       description
         "Configuration parameters relating to the global BGP router";
       uses bgp-global_config;
+      presence "";
     }
     container state {
       config false;
