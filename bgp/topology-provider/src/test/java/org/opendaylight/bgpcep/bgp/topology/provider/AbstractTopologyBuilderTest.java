@@ -14,6 +14,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import java.util.Collections;
 import java.util.concurrent.ExecutionException;
+import org.junit.After;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
@@ -38,8 +39,6 @@ public abstract class AbstractTopologyBuilderTest extends AbstractDataBrokerTest
     protected static final TopologyId TEST_TOPOLOGY_ID = new TopologyId("test-topo");
     protected static final RibReference LOC_RIB_REF = new DefaultRibReference(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(Preconditions.checkNotNull(new RibId("test-rib")))));
 
-    protected ListenerRegistration<DataTreeChangeListener<?>> reg;
-
     @Override
     protected void setupWithDataBroker(final DataBroker dataBroker) {
         super.setupWithDataBroker(dataBroker);
@@ -50,10 +49,6 @@ public abstract class AbstractTopologyBuilderTest extends AbstractDataBrokerTest
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.builder(NetworkTopology.class).build(), new NetworkTopologyBuilder().setTopology(Collections.<Topology>emptyList()).build());
         wTx.submit();
-    }
-
-    public void tearDown() {
-        this.reg.close();
     }
 
     protected Optional<Topology> getTopology(final InstanceIdentifier<Topology> topoIID) {
