@@ -7,18 +7,19 @@
  */
 package org.opendaylight.bgpcep.bgp.topology.provider;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.bgpcep.topology.TopologyReference;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeService;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
@@ -50,40 +51,56 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCloseable, ClusteredDataTreeChangeListener<T>, TopologyReference, TransactionChainListener {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractTopologyBuilder.class);
+    // we limit the listener reset interval to be 5 min at most
+    private static final long LISTENER_RESET_LIMIT_IN_MILLSEC = 5 * 60 * 1000;
+    private static final int LISTENER_RESET_ENFORCE_COUNTER = 3;
     private final InstanceIdentifier<Topology> topology;
-    private final BindingTransactionChain chain;
     private final RibReference locRibReference;
+    private final DataBroker dataProvider;
+    private final Class<? extends AddressFamily> afi;
+    private final Class<? extends SubsequentAddressFamily> safi;
+    private final TopologyKey topologyKey;
+    private final TopologyTypes topologyTypes;
+    private final long listenerResetLimitInMillsec;
+    private final int listenerResetEnforceCounter;
 
     @GuardedBy("this")
+    private ListenerRegistration<AbstractTopologyBuilder<T>> listenerRegistration = null;
+    @GuardedBy("this")
+    private BindingTransactionChain chain = null;
+    @GuardedBy("this")
     private boolean closed = false;
+    @GuardedBy("this")
+    @VisibleForTesting
+    protected long listenerScheduledRestartTime = 0;
+    @GuardedBy("this")
+    @VisibleForTesting
+    protected int listenerScheduledRestartEnforceCounter = 0;
 
     protected AbstractTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
-            final TopologyId topologyId, final TopologyTypes types) {
+            final TopologyId topologyId, final TopologyTypes types, final Class<? extends AddressFamily> afi,
+        final Class<? extends SubsequentAddressFamily> safi, final long listenerResetLimitInMillsec,
+        final int listenerResetEnforceCounter) {
+        this.dataProvider = dataProvider;
         this.locRibReference = Preconditions.checkNotNull(locRibReference);
-        this.chain = dataProvider.createTransactionChain(this);
+        this.topologyKey = new TopologyKey(Preconditions.checkNotNull(topologyId));
+        this.topologyTypes = types;
+        this.afi = afi;
+        this.safi = safi;
+        this.listenerResetLimitInMillsec = listenerResetLimitInMillsec;
+        this.listenerResetEnforceCounter = listenerResetEnforceCounter;
+        this.topology = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class, this.topologyKey).build();
 
-        final TopologyKey tk = new TopologyKey(Preconditions.checkNotNull(topologyId));
-        this.topology = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class, tk).build();
+        LOG.debug("Initiating topology builder from {} at {}. AFI={}, SAFI={}", locRibReference, this.topology, this.afi, this.safi);
+        initTransactionChain();
+        initOperationalTopology();
+        registerDataChangeListener();
+    }
 
-        LOG.debug("Initiating topology builder from {} at {}", locRibReference, this.topology);
-
-        final WriteTransaction t = this.chain.newWriteOnlyTransaction();
-
-        t.put(LogicalDatastoreType.OPERATIONAL, this.topology,
-                new TopologyBuilder().setKey(tk).setServerProvided(Boolean.TRUE).setTopologyTypes(types)
-                    .setLink(Collections.<Link>emptyList()).setNode(Collections.<Node>emptyList()).build(), true);
-        Futures.addCallback(t.submit(), new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(final Void result) {
-                LOG.trace("Transaction {} committed successfully", t.getIdentifier());
-            }
-
-            @Override
-            public void onFailure(final Throwable t) {
-                LOG.error("Failed to initiate topology {} by listener {}", AbstractTopologyBuilder.this.topology,
-                        AbstractTopologyBuilder.this, t);
-            }
-        });
+    protected AbstractTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
+        final TopologyId topologyId, final TopologyTypes types, final Class<? extends AddressFamily> afi,
+        final Class<? extends SubsequentAddressFamily> safi) {
+        this(dataProvider, locRibReference, topologyId, types, afi, safi, LISTENER_RESET_LIMIT_IN_MILLSEC, LISTENER_RESET_ENFORCE_COUNTER);
     }
 
     @Deprecated
@@ -92,12 +109,27 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
         return this.locRibReference.getInstanceIdentifier().builder().child(LocRib.class).child(Tables.class, new TablesKey(afi, safi)).build();
     }
 
-    public final ListenerRegistration<AbstractTopologyBuilder<T>> start(final DataTreeChangeService service, final Class<? extends AddressFamily> afi,
-            final Class<? extends SubsequentAddressFamily> safi) {
-        final InstanceIdentifier<Tables> tablesId = this.locRibReference.getInstanceIdentifier().child(LocRib.class).child(Tables.class, new TablesKey(afi, safi));
+    /**
+     * Register to data tree change listener
+     */
+    private synchronized void registerDataChangeListener() {
+        Preconditions.checkState(this.listenerRegistration == null, "Topology Listener on topology %s has been registered before.", this.getInstanceIdentifier());
+        final InstanceIdentifier<Tables> tablesId = this.locRibReference.getInstanceIdentifier().child(LocRib.class).child(Tables.class, new TablesKey(this.afi, this.safi));
         final DataTreeIdentifier<T> id = new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL, getRouteWildcard(tablesId));
 
-        return service.registerDataTreeChangeListener(id, this);
+        this.listenerRegistration = this.dataProvider.registerDataTreeChangeListener(id, this);
+        LOG.debug("Registered listener {} on topology {}. Timestamp={}", this, this.getInstanceIdentifier(), this.listenerScheduledRestartTime);
+    }
+
+    /**
+     * Unregister to data tree change listener
+     */
+    private final synchronized void unregisterDataChangeListener() {
+        if (this.listenerRegistration != null) {
+            LOG.debug("Unregistered listener {} on topology {}", this, this.getInstanceIdentifier());
+            this.listenerRegistration.close();
+            this.listenerRegistration = null;
+        }
     }
 
     protected abstract InstanceIdentifier<T> getRouteWildcard(InstanceIdentifier<Tables> tablesId);
@@ -113,12 +145,15 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
 
     @Override
     public final synchronized void close() throws TransactionCommitFailedException {
-        LOG.info("Shutting down builder for {}", getInstanceIdentifier());
-        final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
-        trans.delete(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier());
-        trans.submit().checkedGet();
-        this.chain.close();
+        if (this.closed) {
+            LOG.trace("Transaction chain was already closed.");
+            return;
+        }
         this.closed = true;
+        LOG.info("Shutting down builder for {}", getInstanceIdentifier());
+        unregisterDataChangeListener();
+        destroyOperationalTopology();
+        destroyTransactionChain();
     }
 
     @Override
@@ -127,31 +162,51 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
             LOG.trace("Transaction chain was already closed, skipping update.");
             return;
         }
+        // check if the transaction chain needed to be restarted due to a previous error
+        if (restartTransactionChainOnDemand()) {
+            LOG.debug("The data change {} is disregarded due to restart of listener {}", changes, this);
+            return;
+        }
         final ReadWriteTransaction trans = this.chain.newReadWriteTransaction();
         LOG.debug("Received data change {} event with transaction {}", changes, trans.getIdentifier());
+        final AtomicBoolean transactionInError = new AtomicBoolean(false);
         for (final DataTreeModification<T> change : changes) {
             try {
                 routeChanged(change, trans);
             } catch (final RuntimeException e) {
-                LOG.warn("Data change {} was not completely propagated to listener {}, aborting", change, this, e);
-                trans.cancel();
-                return;
+                LOG.warn("Data change {} (transaction {}) was not completely propagated to listener {}", change, trans.getIdentifier(), this, e);
+                // trans.cancel() is not supported by PingPongTransactionChain, so we just skip the problematic change
+                // trans.submit() must be called first to unlock the current transaction chain, to make the chain closable
+                // so we cannot exit the #onDataTreeChanged() yet
+                transactionInError.set(true);
+                break;
             }
         }
         Futures.addCallback(trans.submit(), new FutureCallback<Void>() {
             @Override
             public void onSuccess(final Void result) {
-                LOG.trace("Transaction {} committed successfully", trans.getIdentifier());
+                // as we are enforcing trans.submit(), in some cases the transaction execution actually could be successfully even when an
+                // exception is captured, thus #onTransactionChainFailed() never get invoked. Though the transaction chain remains usable,
+                // the data loss will not be able to be recovered. Thus we schedule a listener restart here
+                if (transactionInError.get()) {
+                    LOG.warn("Transaction {} committed successfully while exception captured. Rescheduling a restart of listener {}", trans
+                        .getIdentifier(), AbstractTopologyBuilder.this);
+                    scheduleListenerRestart();
+                } else {
+                    LOG.trace("Transaction {} committed successfully", trans.getIdentifier());
+                }
             }
 
             @Override
             public void onFailure(final Throwable t) {
-                LOG.error("Failed to propagate change by listener {}", AbstractTopologyBuilder.this, t);
+                // we do nothing but print out the log. Transaction chain restart will be done in #onTransactionChainFailed()
+                LOG.error("Failed to propagate change (transaction {}) by listener {}", trans.getIdentifier(), AbstractTopologyBuilder.this, t);
             }
         });
     }
 
-    private void routeChanged(final DataTreeModification<T> change, final ReadWriteTransaction trans) {
+    @VisibleForTesting
+    protected void routeChanged(final DataTreeModification<T> change, final ReadWriteTransaction trans) {
         final DataObjectModification<T> root = change.getRootNode();
         switch (root.getModificationType()) {
         case DELETE:
@@ -169,10 +224,143 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
         }
     }
 
+    private synchronized void initOperationalTopology() {
+        Preconditions.checkNotNull(this.chain, "A valid transaction chain must be provided.");
+        final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
+        trans.put(LogicalDatastoreType.OPERATIONAL, this.topology,
+            new TopologyBuilder().setKey(this.topologyKey).setServerProvided(Boolean.TRUE).setTopologyTypes(this.topologyTypes)
+                                 .setLink(Collections.<Link>emptyList()).setNode(Collections.<Node>emptyList()).build(), true);
+        Futures.addCallback(trans.submit(), new FutureCallback<Void>() {
+            @Override
+            public void onSuccess(final Void result) {
+                LOG.trace("Transaction {} committed successfully", trans.getIdentifier());
+            }
+
+            @Override
+            public void onFailure(final Throwable t) {
+                LOG.error("Failed to initialize topology {} (transaction {}) by listener {}", AbstractTopologyBuilder.this.topology,
+                    trans.getIdentifier(), AbstractTopologyBuilder.this, t);
+            }
+        });
+    }
+
+    /**
+     * Destroy the current operational topology data. Note a valid transaction must be provided
+     * @throws TransactionCommitFailedException
+     */
+    private synchronized void destroyOperationalTopology() {
+        Preconditions.checkNotNull(this.chain, "A valid transaction chain must be provided.");
+        final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
+        trans.delete(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier());
+        try {
+            trans.submit().checkedGet();
+        } catch (TransactionCommitFailedException e) {
+            LOG.error("Unable to reset operational topology {} (transaction {})", this.topology, trans.getIdentifier(), e);
+        }
+    }
+
+    /**
+     * Reset a transaction chain by closing the current chain and starting a new one
+     */
+    private synchronized void initTransactionChain() {
+        LOG.debug("Initializing transaction chain for topology {}", this);
+        Preconditions.checkState(this.chain == null, "Transaction chain has to be closed before being initialized");
+        this.chain = this.dataProvider.createTransactionChain(this);
+    }
+
+    /**
+     * Destroy the current transaction chain
+     */
+    private synchronized void destroyTransactionChain() {
+        if (this.chain != null) {
+            LOG.debug("Destroy transaction chain for topology {}", this);
+            // we cannot close the transaction chain, as it will close the AbstractDOMForwardedTransactionFactory
+            // and the transaction factory cannot be reopen even if we recreate the transaction chain
+            // so we abandon the chain directly
+            this.chain = null;
+        }
+    }
+
+    /**
+     * Reset the data change listener to its initial status
+     * By resetting the listener we will be able to recover all the data lost before
+     */
+    @VisibleForTesting
+    protected synchronized void resetListener() {
+        Preconditions.checkNotNull(this.listenerRegistration, "Listener on topology %s hasn't been initialized.", this);
+        LOG.debug("Resetting data change listener for topology builder {}", getInstanceIdentifier());
+        // unregister current listener to prevent incoming data tree change first
+        unregisterDataChangeListener();
+        // create new transaction chain to reset the chain status
+        resetTransactionChain();
+        // reset the operational topology data so that we can have clean status
+        destroyOperationalTopology();
+        initOperationalTopology();
+        // re-register the data change listener to reset the operational topology
+        // we are expecting to receive all the pre-exist route change on the next onDataTreeChanged() call
+        registerDataChangeListener();
+    }
+
+    /**
+     * Reset the transaction chain only so that the PingPong transaction chain will become usable again.
+     * However, there will be data loss if we do not apply the previous failed transaction again
+     */
+    @VisibleForTesting
+    protected synchronized void resetTransactionChain() {
+        destroyTransactionChain();
+        initTransactionChain();
+    }
+
+    /**
+     * There are a few reasons we want to schedule a listener restart in a delayed manner:
+     * 1. we should avoid restarting the listener as when the topology is big, there might be huge overhead
+     *    rebuilding the whole linkstate topology again and again
+     * 2. the #onTransactionChainFailed() normally get invoked after a delay. During that time gap, more
+     *    data changes might still be pushed to #onDataTreeChanged(). And because #onTransactionChainFailed()
+     *    is not invoked yet, listener restart/transaction chain restart is not done. Thus the new changes
+     *    will still cause error and another #onTransactionChainFailed() might be invoked later. The listener
+     *    will be restarted again in that case, which is unexpected. Restarting of transaction chain only introduce
+     *    little overhead and it's okay to be restarted within a small time window
+     *
+     * Note: when the listener is restarted, we can disregard all the incoming data changes before the restart is
+     * done, as after the listener unregister/reregister, the first #onDataTreeChanged() call will contain the a
+     * complete set of existing changes
+     *
+     * @return if the listener get restarted, return true; otherwise false
+     */
+    @VisibleForTesting
+    protected synchronized boolean restartTransactionChainOnDemand() {
+        if (this.listenerScheduledRestartTime > 0) {
+            // when the #this.listenerScheduledRestartTime timer timed out we can reset the listener, otherwise we should only reset the transaction chain
+            if (System.currentTimeMillis() > this.listenerScheduledRestartTime) {
+                // reset the the restart timer
+                this.listenerScheduledRestartTime = 0;
+                this.listenerScheduledRestartEnforceCounter = 0;
+                resetListener();
+                return true;
+            } else {
+                resetTransactionChain();
+            }
+        }
+        return false;
+    }
+
+    @VisibleForTesting
+    protected synchronized void scheduleListenerRestart() {
+        // if the transaction failure happens again, we will delay the listener restart up to #LISTENER_RESET_LIMIT_IN_MILLSEC times
+        if (0 == this.listenerScheduledRestartTime) {
+            this.listenerScheduledRestartTime = System.currentTimeMillis() + this.listenerResetLimitInMillsec;
+        } else if (this.listenerScheduledRestartTime < System.currentTimeMillis()
+            && ++this.listenerScheduledRestartEnforceCounter < this.listenerResetEnforceCounter) {
+            this.listenerScheduledRestartTime += this.listenerResetLimitInMillsec;
+        }
+    }
+
     @Override
-    public final void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction, final Throwable cause) {
-        // TODO: restart?
-        LOG.error("Topology builder for {} failed in transaction {}", getInstanceIdentifier(), transaction != null ? transaction.getIdentifier() : null, cause);
+    public final synchronized void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction, final Throwable cause) {
+        LOG.error("Topology builder for {} failed in transaction {}. Restarting listener", getInstanceIdentifier(), transaction != null ? transaction.getIdentifier() : null, cause);
+        scheduleListenerRestart();
+        restartTransactionChainOnDemand();
     }
 
     @Override

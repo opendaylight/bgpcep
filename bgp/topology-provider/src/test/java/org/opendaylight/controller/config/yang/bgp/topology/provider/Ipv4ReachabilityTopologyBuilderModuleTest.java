@@ -9,6 +9,7 @@ package org.opendaylight.controller.config.yang.bgp.topology.provider;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
 import java.util.List;
 import javax.management.ObjectName;
 import org.junit.Test;
