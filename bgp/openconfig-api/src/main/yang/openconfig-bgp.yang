@@ -68,7 +68,8 @@ module openconfig-bgp {
 
     leaf as {
       type inet:as-number;
-      mandatory "true";
+      default 64496;
+
       description
         "Local autonomous system number of the router.  Uses
         the 32-bit as-number type from the model in RFC 6991.";
