@@ -14,6 +14,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.ipv4.routes.Ipv4Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.TopologyTypes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.TopologyTypes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.bgp.ipv4.reachability.topology.type.BgpIpv4ReachabilityTopologyBuilder;
@@ -31,7 +33,7 @@ public final class Ipv4ReachabilityTopologyBuilder extends AbstractReachabilityT
 
     public Ipv4ReachabilityTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
             final TopologyId topologyId) {
-        super(dataProvider, locRibReference, topologyId, IPV4_TOPOLOGY_TYPE);
+        super(dataProvider, locRibReference, topologyId, IPV4_TOPOLOGY_TYPE, Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
     }
 
     @Override
