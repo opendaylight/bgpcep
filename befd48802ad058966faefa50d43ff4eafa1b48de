@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_ca5a7329",
+        "filename": "bgp/openconfig-impl/src/main/java/org/opendaylight/protocol/bgp/openconfig/impl/util/OpenConfigUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-07-22T06:10:06Z",
+      "side": 1,
+      "message": "not necessary",
+      "range": {
+        "startLine": 201,
+        "startChar": 0,
+        "endLine": 203,
+        "endChar": 13
+      },
+      "revId": "befd48802ad058966faefa50d43ff4eafa1b48de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
