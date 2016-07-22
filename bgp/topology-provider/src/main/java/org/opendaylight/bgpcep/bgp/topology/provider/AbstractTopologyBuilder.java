@@ -12,6 +12,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.bgpcep.topology.TopologyReference;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
@@ -50,9 +51,11 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCloseable, DataTreeChangeListener<T>, TopologyReference, TransactionChainListener {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractTopologyBuilder.class);
+    private static final int ROUTE_CHANGE_RETRY = 3;
     private final InstanceIdentifier<Topology> topology;
-    private final BindingTransactionChain chain;
     private final RibReference locRibReference;
+    private final DataBroker dataProvider;
+    private final AtomicReference<BindingTransactionChain> chain = new AtomicReference<>();
 
     @GuardedBy("this")
     private boolean closed = false;
@@ -60,18 +63,19 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
     protected AbstractTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
             final TopologyId topologyId, final TopologyTypes types) {
         this.locRibReference = Preconditions.checkNotNull(locRibReference);
-        this.chain = dataProvider.createTransactionChain(this);
+        this.dataProvider = dataProvider;
+        resetTransactionChain();
 
         final TopologyKey tk = new TopologyKey(Preconditions.checkNotNull(topologyId));
         this.topology = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class, tk).build();
 
         LOG.debug("Initiating topology builder from {} at {}", locRibReference, this.topology);
 
-        final WriteTransaction t = this.chain.newWriteOnlyTransaction();
+        final WriteTransaction t = this.chain.get().newWriteOnlyTransaction();
 
         t.put(LogicalDatastoreType.OPERATIONAL, this.topology,
-                new TopologyBuilder().setKey(tk).setServerProvided(Boolean.TRUE).setTopologyTypes(types)
-                    .setLink(Collections.<Link>emptyList()).setNode(Collections.<Node>emptyList()).build(), true);
+            new TopologyBuilder().setKey(tk).setServerProvided(Boolean.TRUE).setTopologyTypes(types)
+                                 .setLink(Collections.<Link>emptyList()).setNode(Collections.<Node>emptyList()).build(), true);
         Futures.addCallback(t.submit(), new FutureCallback<Void>() {
             @Override
             public void onSuccess(final Void result) {
@@ -81,7 +85,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
             @Override
             public void onFailure(final Throwable t) {
                 LOG.error("Failed to initiate topology {} by listener {}", AbstractTopologyBuilder.this.topology,
-                        AbstractTopologyBuilder.this, t);
+                    AbstractTopologyBuilder.this, t);
             }
         });
     }
@@ -113,28 +117,41 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
 
     @Override
     public final synchronized void close() throws TransactionCommitFailedException {
+        if (this.closed) {
+            LOG.trace("Transaction chain was already closed.");
+            return;
+        }
+        this.closed = true;
         LOG.info("Shutting down builder for {}", getInstanceIdentifier());
-        final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
+        final WriteTransaction trans = this.chain.get().newWriteOnlyTransaction();
         trans.delete(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier());
         trans.submit().checkedGet();
-        this.chain.close();
-        this.closed = true;
+        this.chain.get().close();
     }
 
     @Override
     public synchronized void onDataTreeChanged(final Collection<DataTreeModification<T>> changes) {
+        onDataTreeChanged(changes, ROUTE_CHANGE_RETRY);
+    }
+
+    public synchronized void onDataTreeChanged(final Collection<DataTreeModification<T>> changes, final int retryRemain) {
         if (this.closed) {
             LOG.trace("Transaction chain was already closed, skipping update.");
             return;
         }
-        final ReadWriteTransaction trans = this.chain.newReadWriteTransaction();
+        final ReadWriteTransaction trans = this.chain.get().newReadWriteTransaction();
         LOG.debug("Received data change {} event with transaction {}", changes, trans.getIdentifier());
         for (final DataTreeModification<T> change : changes) {
             try {
                 routeChanged(change, trans);
             } catch (final RuntimeException e) {
-                LOG.warn("Data change {} was not completely propagated to listener {}, aborting", change, this, e);
+                LOG.warn("Data change {} was not completely propagated to listener {}, resetting transaction chain", change, this, e);
                 trans.cancel();
+                resetTransactionChain();
+                if (retryRemain > 0) {
+                    LOG.debug("Retrying data change {} event with new transaction chain on listener {}, {} retry remain.", changes, this, retryRemain, e);
+                    onDataTreeChanged(changes, retryRemain - 1);
+                }
                 return;
             }
         }
@@ -166,6 +183,13 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
             break;
         default:
             throw new IllegalArgumentException("Unhandled modification type " + root.getModificationType());
+        }
+    }
+
+    private synchronized void resetTransactionChain() {
+        final BindingTransactionChain transChain = this.chain.getAndSet(this.dataProvider.createTransactionChain(this));
+        if (transChain != null) {
+            transChain.close();
         }
     }
 
