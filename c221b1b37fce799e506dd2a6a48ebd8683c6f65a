@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_8d7b758b",
+        "filename": "bgp/topology-provider/src/test/java/org/opendaylight/bgpcep/bgp/topology/provider/Ipv4ReachabilityTopologyBuilderTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 21
+      },
+      "writtenOn": "2016-07-22T09:37:47Z",
+      "side": 1,
+      "message": "Why updated count is increased to two? if original test expected change only of one Node?",
+      "range": {
+        "startLine": 78,
+        "startChar": 8,
+        "endLine": 78,
+        "endChar": 58
+      },
+      "revId": "c221b1b37fce799e506dd2a6a48ebd8683c6f65a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_0d6765ea",
+        "filename": "pcep/tunnel-provider/src/test/java/org/opendaylight/bgpcep/pcep/tunnel/provider/NodeChangedListenerTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 21
+      },
+      "writtenOn": "2016-07-22T09:37:47Z",
+      "side": 1,
+      "message": "This also changes expections of test, which should remove all nodes, this seems the behaviour change introduced by automatic structural nodes needs to be fixed somewhere else, or there is bug in automatic structural nodes code.",
+      "range": {
+        "startLine": 172,
+        "startChar": 0,
+        "endLine": 173,
+        "endChar": 65
+      },
+      "revId": "c221b1b37fce799e506dd2a6a48ebd8683c6f65a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
