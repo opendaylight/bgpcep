@@ -21,6 +21,8 @@ import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv6NextHopCase;
@@ -62,8 +64,9 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
     }
 
     protected AbstractReachabilityTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
-            final TopologyId topologyId, final TopologyTypes topologyTypes) {
-        super(dataProvider, locRibReference, topologyId, topologyTypes);
+            final TopologyId topologyId, final TopologyTypes topologyTypes, final Class<? extends AddressFamily> afi,
+            final Class<? extends SubsequentAddressFamily> safi) {
+        super(dataProvider, locRibReference, topologyId, topologyTypes, afi, safi);
     }
 
     private NodeId advertizingNode(final Attributes attrs) {

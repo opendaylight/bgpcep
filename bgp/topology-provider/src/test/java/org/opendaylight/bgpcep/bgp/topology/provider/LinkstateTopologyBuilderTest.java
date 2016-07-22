@@ -10,18 +10,33 @@ package org.opendaylight.bgpcep.bgp.topology.provider;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.RETURNS_SMART_NULLS;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import io.netty.buffer.Unpooled;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import org.junit.After;
 import org.junit.Test;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -92,18 +107,24 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
     private static final String NODE_1_OSPF_ID = "bgpls://Ospf:1/type=node&as=1&router=0000.0102.0304";
     private static final String NODE_2_OSPF_ID = "bgpls://Ospf:1/type=node&as=2";
     private static final Identifier IDENTIFIER = new Identifier(new BigInteger("1"));
+    private static final long LISTENER_RESTART_TIME = 20000;
+    private static final int LISTENER_ENFORCE_COUNTER = 2;
 
     private LinkstateTopologyBuilder linkstateTopoBuilder;
     private InstanceIdentifier<LinkstateRoute> linkstateRouteIID;
 
-
     @Override
     protected void setupWithDataBroker(final DataBroker dataBroker) {
         super.setupWithDataBroker(dataBroker);
-        this.linkstateTopoBuilder = new LinkstateTopologyBuilder(dataBroker, LOC_RIB_REF, TEST_TOPOLOGY_ID);
-        this.linkstateTopoBuilder.start(dataBroker, LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
+        this.linkstateTopoBuilder = new LinkstateTopologyBuilder(dataBroker, LOC_RIB_REF, TEST_TOPOLOGY_ID, LISTENER_RESTART_TIME, LISTENER_ENFORCE_COUNTER);
         final InstanceIdentifier<Tables> path = this.linkstateTopoBuilder.tableInstanceIdentifier(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
         this.linkstateRouteIID = path.builder().child((Class)LinkstateRoutes.class).child(LinkstateRoute.class, new LinkstateRouteKey(LINKSTATE_ROUTE_KEY)).build();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        this.linkstateTopoBuilder.close();
+        assertFalse(getTopology(this.linkstateTopoBuilder.getInstanceIdentifier()).isPresent());
     }
 
     @Test
@@ -207,9 +228,81 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
         assertNull(igpLink1.getAugmentation(IgpLinkAttributes1.class));
         assertEquals((short) 1, igpLink1.getAugmentation(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.IgpLinkAttributes1.class).getOspfLinkAttributes().getMultiTopologyId().shortValue());
         assertEquals(2, igpLink1.getAugmentation(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.IgpLinkAttributes1.class).getOspfLinkAttributes().getTed().getSrlg().getSrlgValues().size());
+    }
 
-        this.linkstateTopoBuilder.close();
-        assertFalse(getTopology(this.linkstateTopoBuilder.getInstanceIdentifier()).isPresent());
+    /**
+     * This test is to verify if the AbstractTopologyBuilder/LinkstateTopologyBuilder is handling exception correctly
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testRouteChangedError() throws Exception {
+        LinkstateTopologyBuilder spiedLinkstateTopologyBuilder = spy(this.linkstateTopoBuilder);
+        doThrow(RuntimeException.class).when(spiedLinkstateTopologyBuilder).routeChanged(any(), any());
+        try {
+            spiedLinkstateTopologyBuilder.routeChanged(null, null);
+            fail("Mockito failed to spy routeChanged() method");
+        } catch (Exception e) {
+            assertTrue(e instanceof RuntimeException);
+        }
+        assertEquals(0L, spiedLinkstateTopologyBuilder.listenerScheduledRestartTime);
+        assertEquals(0L, spiedLinkstateTopologyBuilder.listenerScheduledRestartEnforceCounter);
+        // first we examine if the chain is being reset when no exception is thrown
+        spiedLinkstateTopologyBuilder.onDataTreeChanged(new ArrayList<>());
+        verify(spiedLinkstateTopologyBuilder, times(1)).restartTransactionChainOnDemand();
+        verify(spiedLinkstateTopologyBuilder, never()).scheduleListenerRestart();
+        verify(spiedLinkstateTopologyBuilder, never()).resetTransactionChain();
+        assertEquals(0L, spiedLinkstateTopologyBuilder.listenerScheduledRestartTime);
+        assertEquals(0L, spiedLinkstateTopologyBuilder.listenerScheduledRestartEnforceCounter);
+        // now pass some invalid data to cause onDataTreeChanged fail
+        DataTreeModification<LinkstateRoute> modification = (DataTreeModification<LinkstateRoute>) mock(DataTreeModification.class, RETURNS_SMART_NULLS);
+        final List<DataTreeModification<LinkstateRoute>> changes = new ArrayList<>();
+        changes.add(modification);
+        spiedLinkstateTopologyBuilder.onDataTreeChanged(changes);
+        // one restart transaction chain check in onDataTreeChanged()
+        // we are introducing some timeout here as transaction may be executed in a delay manner
+        verify(spiedLinkstateTopologyBuilder, timeout(5000).times(1)).scheduleListenerRestart();
+        verify(spiedLinkstateTopologyBuilder, times(2)).restartTransactionChainOnDemand();
+        assertNotEquals(0L, spiedLinkstateTopologyBuilder.listenerScheduledRestartTime);
+        assertEquals(0, spiedLinkstateTopologyBuilder.listenerScheduledRestartEnforceCounter);
+        final long listenerScheduledRestartTime = spiedLinkstateTopologyBuilder.listenerScheduledRestartTime;
+        // call again with empty change to invoke restartTransactionChainOnDemand()
+        spiedLinkstateTopologyBuilder.onDataTreeChanged(new ArrayList<>());
+        verify(spiedLinkstateTopologyBuilder, times(3)).restartTransactionChainOnDemand();
+        // transaction chain should be reset while listener should not
+        verify(spiedLinkstateTopologyBuilder, times(1)).resetTransactionChain();
+        verify(spiedLinkstateTopologyBuilder, never()).resetListener();
+        // now apply a change with bad modification again
+        spiedLinkstateTopologyBuilder.onDataTreeChanged(changes);
+        verify(spiedLinkstateTopologyBuilder, times(4)).restartTransactionChainOnDemand();
+        // listener scheduled again
+        verify(spiedLinkstateTopologyBuilder, timeout(5000).times(2)).scheduleListenerRestart();
+        // listener timer shouldn't have changed
+        assertEquals(listenerScheduledRestartTime, spiedLinkstateTopologyBuilder.listenerScheduledRestartTime);
+        assertEquals(0, spiedLinkstateTopologyBuilder.listenerScheduledRestartEnforceCounter);
+        verify(spiedLinkstateTopologyBuilder, times(2)).resetTransactionChain();
+        verify(spiedLinkstateTopologyBuilder, never()).resetListener();
+        Thread.sleep(LISTENER_RESTART_TIME);
+        // manually invoke onTransactionChainFailed() to have the listener restart scheduled again
+        spiedLinkstateTopologyBuilder.onTransactionChainFailed(null, null, null);
+        assertTrue(spiedLinkstateTopologyBuilder.listenerScheduledRestartTime == listenerScheduledRestartTime + LISTENER_RESTART_TIME);
+        verify(spiedLinkstateTopologyBuilder, times(5)).restartTransactionChainOnDemand();
+        verify(spiedLinkstateTopologyBuilder, times(3)).scheduleListenerRestart();
+        // enforce counter get increased
+        assertEquals(1, spiedLinkstateTopologyBuilder.listenerScheduledRestartEnforceCounter);
+        verify(spiedLinkstateTopologyBuilder, times(3)).resetTransactionChain();
+        verify(spiedLinkstateTopologyBuilder, never()).resetListener();
+        // sleep to let the listener restart timer times out
+        Thread.sleep(LISTENER_RESTART_TIME);
+        // apply a good modification (empty change)
+        spiedLinkstateTopologyBuilder.onDataTreeChanged(new ArrayList<>());
+        assertEquals(0, spiedLinkstateTopologyBuilder.listenerScheduledRestartTime);
+        assertEquals(0, spiedLinkstateTopologyBuilder.listenerScheduledRestartEnforceCounter);
+        verify(spiedLinkstateTopologyBuilder, times(6)).restartTransactionChainOnDemand();
+        // listener restarted didn't get rescheduled again
+        verify(spiedLinkstateTopologyBuilder, times(3)).scheduleListenerRestart();
+        verify(spiedLinkstateTopologyBuilder, times(4)).resetTransactionChain();
+        verify(spiedLinkstateTopologyBuilder, times(1)).resetListener();
     }
 
     private void updateLinkstateRoute(final LinkstateRoute data) {

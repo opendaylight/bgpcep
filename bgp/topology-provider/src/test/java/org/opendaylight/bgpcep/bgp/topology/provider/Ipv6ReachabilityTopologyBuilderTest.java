@@ -52,7 +52,6 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
     protected void setupWithDataBroker(final DataBroker dataBroker) {
         super.setupWithDataBroker(dataBroker);
         this.ipv6TopoBuilder = new Ipv6ReachabilityTopologyBuilder(dataBroker, LOC_RIB_REF, TEST_TOPOLOGY_ID);
-        this.ipv6TopoBuilder.start(dataBroker, Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class);
         final InstanceIdentifier<Tables> path = this.ipv6TopoBuilder.tableInstanceIdentifier(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class);
         this.ipv6RouteIID = path.builder().child((Class) Ipv6Routes.class).child(Ipv6Route.class, new Ipv6RouteKey(new PathId(PATH_ID),
             new Ipv6Prefix(ROUTE_IP6PREFIX))).build();
