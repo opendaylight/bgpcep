@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.bmp.mock;
 
+import static org.opendaylight.protocol.bmp.mock.BmpMockTest.waitFutureSuccess;
+
 import com.google.common.base.Optional;
 import com.google.common.net.InetAddresses;
 import io.netty.channel.Channel;
@@ -39,6 +41,7 @@ public class BmpMockDispatcherTest {
 
         final ChannelFuture channelFuture = dispatcher.createClient(new InetSocketAddress(InetAddresses.forString("127.0.0.2"), 0),
                 new InetSocketAddress(InetAddresses.forString("127.0.0.3"), port));
+        waitFutureSuccess(channelFuture);
         final Channel channel = channelFuture.sync().channel();
 
         Assert.assertTrue(channel.isActive());

@@ -7,8 +7,13 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.Uninterruptibles;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import org.junit.Assert;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
@@ -38,6 +43,7 @@ public class SimpleSessionListener implements BGPSessionListener {
     public List<Notification> getListMsg() {
         return this.listMsg;
     }
+    private final CountDownLatch sessionLatch = new CountDownLatch(1);
 
     @Override
     public void onMessage(final BGPSession session, final Notification message) {
@@ -50,6 +56,7 @@ public class SimpleSessionListener implements BGPSessionListener {
         LOG.debug("Session Up");
         this.session = session;
         this.up = true;
+        sessionLatch.countDown();
     }
 
     @Override
@@ -84,5 +91,14 @@ public class SimpleSessionListener implements BGPSessionListener {
     @Override
     public void markUptodate(final TablesKey tablesKey) {
         LOG.debug("Table marked as up-to-date {}", tablesKey);
+    }
+
+    public boolean isUp() {
+        Preconditions.checkNotNull(getSession());
+        return up;
+    }
+    public BGPSessionImpl getSession() {
+        Assert.assertEquals("Session up", true, Uninterruptibles.awaitUninterruptibly(sessionLatch, 10, TimeUnit.SECONDS));
+        return (BGPSessionImpl) this.session;
     }
 }

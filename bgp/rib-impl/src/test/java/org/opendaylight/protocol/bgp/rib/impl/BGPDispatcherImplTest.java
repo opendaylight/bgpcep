@@ -11,16 +11,20 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.Uninterruptibles;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.FutureListener;
 import io.netty.util.concurrent.GenericFutureListener;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -68,7 +72,7 @@ public class BGPDispatcherImplTest {
     private Channel channel;
 
     @Before
-    public void setUp() throws BGPDocumentedException {
+    public void setUp() throws BGPDocumentedException, InterruptedException {
         final EventLoopGroup group = new NioEventLoopGroup();
         this.registry = new StrictBGPPeerRegistry();
         this.registry.addPeer(new IpAddress(new Ipv4Address(CLIENT_ADDRESS.getAddress().getHostAddress())),
@@ -80,6 +84,7 @@ public class BGPDispatcherImplTest {
                 CLIENT_ADDRESS);
 
         final ChannelFuture future = this.dispatcher.createServer(this.registry, ADDRESS);
+        waitFutureSuccess(future);
         future.addListener(new GenericFutureListener<Future<Void>>() {
             @Override
             public void operationComplete(final Future<Void> future) {
@@ -91,10 +96,23 @@ public class BGPDispatcherImplTest {
         this.channel = future.channel();
     }
 
+    private static <T extends Future> void waitFutureSuccess(final T future) throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(1);
+        future.addListener(new FutureListener<T>() {
+            @Override
+            public void operationComplete(final Future<T> future) throws Exception {
+                latch.countDown();
+            }
+        });
+        Uninterruptibles.awaitUninterruptibly(latch, 10, TimeUnit.SECONDS);
+    }
+
     @Test
     public void testCreateClient() throws InterruptedException, ExecutionException {
-        final BGPSessionImpl session = this.clientDispatcher.createClient(ADDRESS, this.registry,
-                new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, TIMEOUT), Optional.<InetSocketAddress>absent()).get();
+        final Future<BGPSessionImpl> futureClient = this.clientDispatcher.createClient(ADDRESS, this.registry,
+                new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, TIMEOUT), Optional.<InetSocketAddress>absent());
+        waitFutureSuccess(futureClient);
+        final BGPSessionImpl session =   futureClient.get();
         Assert.assertEquals(BGPSessionImpl.State.UP, session.getState());
         Assert.assertEquals(AS_NUMBER, session.getAsNumber());
         Assert.assertEquals(Sets.newHashSet(this.ipv4tt), session.getAdvertisedTableTypes());
@@ -114,9 +132,10 @@ public class BGPDispatcherImplTest {
         this.registry.addPeer(new IpAddress(new Ipv4Address(CLIENT_ADDRESS2.getAddress().getHostAddress())), listener, createPreferences(CLIENT_ADDRESS2));
         final Future<Void> cf = this.clientDispatcher.createReconnectingClient(CLIENT_ADDRESS2, this.registry,
                 new ReconnectStrategyFctImpl(), Optional.<InetSocketAddress>absent());
-        final Channel channel2 = this.dispatcher.createServer(this.registry, CLIENT_ADDRESS2).channel();
-        Thread.sleep(1000);
-        Assert.assertTrue(listener.up);
+        final ChannelFuture future = this.dispatcher.createServer(this.registry, CLIENT_ADDRESS2);
+        waitFutureSuccess(future);
+        final Channel channel2 = future.channel();
+        Assert.assertTrue(listener.isUp());
         Assert.assertTrue(channel2.isActive());
         cf.cancel(true);
         listener.releaseConnection();

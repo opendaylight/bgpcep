@@ -15,7 +15,9 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.Uninterruptibles;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
@@ -233,13 +235,24 @@ public class BGPSessionImplTest {
     @Test
     public void testHoldTimerExpire() throws InterruptedException {
         this.bgpSession.sessionUp();
-        Thread.sleep(3500);
-        Assert.assertEquals(BGPSessionImpl.State.IDLE, this.bgpSession.getState());
+        checkIdleState(this.bgpSession);
         Assert.assertEquals(3, this.receivedMsgs.size());
         Assert.assertTrue(this.receivedMsgs.get(2) instanceof Notify);
         final Notify error = (Notify) this.receivedMsgs.get(2);
         Assert.assertEquals(BGPError.HOLD_TIMER_EXPIRED.getCode(), error.getErrorCode().shortValue());
         Assert.assertEquals(BGPError.HOLD_TIMER_EXPIRED.getSubcode(), error.getErrorSubcode().shortValue());
         Mockito.verify(this.speakerListener).close();
+    }
+
+    static void checkIdleState (final BGPSessionImpl session){
+        final Stopwatch sw = Stopwatch.createStarted();
+        while(sw.elapsed(TimeUnit.SECONDS) <= 10) {
+            if (BGPSessionImpl.State.IDLE != session.getState()){
+                Uninterruptibles.sleepUninterruptibly(50, TimeUnit.MILLISECONDS);
+            } else {
+                return;
+            }
+        }
+        Assert.fail();
     }
 }
