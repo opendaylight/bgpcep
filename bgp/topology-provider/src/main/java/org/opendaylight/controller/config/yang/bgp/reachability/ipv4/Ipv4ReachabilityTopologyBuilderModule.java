@@ -20,12 +20,8 @@ import java.util.concurrent.ExecutionException;
 import org.opendaylight.bgpcep.bgp.topology.provider.Ipv4ReachabilityTopologyBuilder;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeService;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,8 +53,7 @@ public final class Ipv4ReachabilityTopologyBuilderModule extends
     @Override
     public java.lang.AutoCloseable createInstance() {
         final Ipv4ReachabilityTopologyBuilder b = new Ipv4ReachabilityTopologyBuilder(getDataProviderDependency(), getLocalRibDependency(), getTopologyId());
-        final ListenerRegistration<?> r = b.start((DataTreeChangeService) getDataProviderDependency(), Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
-        LOG.debug("Registered listener {} on topology {}", b, b.getInstanceIdentifier());
+        b.registerDataChangeListener();
 
         final class TopologyReferenceAutocloseable extends DefaultTopologyReference implements AutoCloseable {
             public TopologyReferenceAutocloseable(final InstanceIdentifier<Topology> instanceIdentifier) {
@@ -67,11 +62,7 @@ public final class Ipv4ReachabilityTopologyBuilderModule extends
 
             @Override
             public void close() throws InterruptedException, ExecutionException, TransactionCommitFailedException {
-                try {
-                    r.close();
-                } finally {
-                    b.close();
-                }
+                b.close();
             }
         }
 
