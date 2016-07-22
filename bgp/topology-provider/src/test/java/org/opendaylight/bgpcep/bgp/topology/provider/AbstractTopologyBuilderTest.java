@@ -15,7 +15,6 @@ import com.google.common.base.Preconditions;
 import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
@@ -30,15 +29,12 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopologyBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public abstract class AbstractTopologyBuilderTest extends AbstractDataBrokerTest {
 
     protected static final TopologyId TEST_TOPOLOGY_ID = new TopologyId("test-topo");
     protected static final RibReference LOC_RIB_REF = new DefaultRibReference(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(Preconditions.checkNotNull(new RibId("test-rib")))));
-
-    protected ListenerRegistration<DataTreeChangeListener<?>> reg;
 
     @Override
     protected void setupWithDataBroker(final DataBroker dataBroker) {
@@ -50,10 +46,6 @@ public abstract class AbstractTopologyBuilderTest extends AbstractDataBrokerTest
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.builder(NetworkTopology.class).build(), new NetworkTopologyBuilder().setTopology(Collections.<Topology>emptyList()).build());
         wTx.submit();
-    }
-
-    public void tearDown() {
-        this.reg.close();
     }
 
     protected Optional<Topology> getTopology(final InstanceIdentifier<Topology> topoIID) {
