@@ -52,7 +52,6 @@ public class Ipv4ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
     protected void setupWithDataBroker(final DataBroker dataBroker) {
         super.setupWithDataBroker(dataBroker);
         this.ipv4TopoBuilder = new Ipv4ReachabilityTopologyBuilder(dataBroker, LOC_RIB_REF, TEST_TOPOLOGY_ID);
-        this.ipv4TopoBuilder.start(dataBroker, Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
         final InstanceIdentifier<Tables> path = this.ipv4TopoBuilder.tableInstanceIdentifier(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
         this.ipv4RouteIID = path.builder().child((Class) Ipv4Routes.class).child(Ipv4Route.class, new Ipv4RouteKey(new PathId(PATH_ID),
             new Ipv4Prefix(ROUTE_IP4PREFIX))).build();
