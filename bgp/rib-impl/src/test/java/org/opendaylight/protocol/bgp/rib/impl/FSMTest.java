@@ -160,8 +160,6 @@ public class FSMTest {
         assertTrue(this.receivedMsgs.get(1) instanceof Keepalive);
         this.clientSession.handleMessage(new KeepaliveBuilder().build());
         assertEquals(this.clientSession.getState(), BGPClientSessionNegotiator.State.FINISHED);
-        Thread.sleep(1000);
-        Thread.sleep(100);
     }
 
     @Test

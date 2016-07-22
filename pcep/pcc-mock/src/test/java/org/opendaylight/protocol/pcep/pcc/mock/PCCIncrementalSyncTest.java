@@ -24,7 +24,7 @@ import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCServerPeerProposal;
 
 public class PCCIncrementalSyncTest extends PCCMockCommon {
 
-    private BigInteger lsp = BigInteger.valueOf(8);
+    private final BigInteger lsp = BigInteger.valueOf(8);
     /**
      * Test Incremental Synchronization
      * Create 8 lsp, then it disconnects after 5 sec and then after 5 sec reconnects with Pcc DBVersion 10
@@ -45,8 +45,6 @@ public class PCCIncrementalSyncTest extends PCCMockCommon {
         checkSynchronizedSession(8, pceSessionListener, numberOflspAndDBv);
         Thread.sleep(4000);
         assertFalse(pceSessionListener.isUp());
-        Thread.sleep(6000);
-        Thread.sleep(1000);
         final int expetedNumberOfLspAndEndOfSync = 3;
         final BigInteger expectedFinalDBVersion = BigInteger.valueOf(10);
         final TestingSessionListener sessionListenerAfterReconnect = getListener(factory);

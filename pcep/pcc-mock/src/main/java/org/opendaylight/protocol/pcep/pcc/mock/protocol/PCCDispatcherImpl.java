@@ -103,6 +103,7 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
         setChannelFactory(b, keys);
         b.option(ChannelOption.SO_KEEPALIVE, true);
         b.option(ChannelOption.MAX_MESSAGES_PER_READ, 1);
+        b.option(ChannelOption.SO_REUSEADDR, true);
         final ReconnectStrategyFactory reconnectStrategy = reconnectTime == -1 ? getNeverReconnectStrategyFactory() : getTimedReconnectStrategyFactory(reconnectTime);
         final PCCReconnectPromise promise = new PCCReconnectPromise(remoteAddress, reconnectStrategy, b);
         final ChannelInitializer<SocketChannel> channelInitializer = new ChannelInitializer<SocketChannel>() {

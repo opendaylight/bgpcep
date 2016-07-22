@@ -42,6 +42,7 @@ public final class BmpMockDispatcher {
         b.channel(NioSocketChannel.class);
         b.option(ChannelOption.SO_KEEPALIVE, true);
         b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 2000);
+        b.option(ChannelOption.SO_REUSEADDR, true);
         b.group(workergroup);
 
         b.handler(new ChannelInitializer<NioSocketChannel>() {
