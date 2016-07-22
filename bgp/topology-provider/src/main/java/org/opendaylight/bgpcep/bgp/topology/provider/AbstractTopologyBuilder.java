@@ -146,7 +146,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
 
             @Override
             public void onFailure(final Throwable t) {
-                LOG.error("Failed to propagate change by listener {}", AbstractTopologyBuilder.this);
+                LOG.error("Failed to propagate change by listener {}", AbstractTopologyBuilder.this, t);
             }
         });
     }
