@@ -45,6 +45,29 @@
       "revId": "0c66b648ad67e68e4dbe2c8a39a9ff11b6d4548a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_e65b2bf4",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/AbstractTopologyBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-07-25T07:00:28Z",
+      "side": 1,
+      "message": "I believe that a new chain creation is not sufficient, the data change listener should be restarted (unregister/register) too.",
+      "range": {
+        "startLine": 190,
+        "startChar": 0,
+        "endLine": 193,
+        "endChar": 9
+      },
+      "revId": "0c66b648ad67e68e4dbe2c8a39a9ff11b6d4548a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
