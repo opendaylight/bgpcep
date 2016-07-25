@@ -25,11 +25,11 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public final class Ipv6ReachabilityTopologyBuilder extends AbstractReachabilityTopologyBuilder<Ipv6Route> {
-    private static final TopologyTypes IPV6_TOPOLOGY_TYPE = new TopologyTypesBuilder()
-            .addAugmentation(TopologyTypes1.class,
-                    new TopologyTypes1Builder()
-                            .setBgpIpv6ReachabilityTopology(new BgpIpv6ReachabilityTopologyBuilder().build()).build())
-            .build();
+    public static final TopologyTypes IPV6_TOPOLOGY_TYPE = new TopologyTypesBuilder()
+    .addAugmentation(TopologyTypes1.class,
+            new TopologyTypes1Builder()
+    .setBgpIpv6ReachabilityTopology(new BgpIpv6ReachabilityTopologyBuilder().build()).build())
+    .build();
 
     public Ipv6ReachabilityTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
             final TopologyId topologyId) {
