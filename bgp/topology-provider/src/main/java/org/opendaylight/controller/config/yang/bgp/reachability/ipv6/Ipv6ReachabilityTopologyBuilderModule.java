@@ -16,30 +16,29 @@
  */
 package org.opendaylight.controller.config.yang.bgp.reachability.ipv6;
 
-import java.util.concurrent.ExecutionException;
+import org.opendaylight.bgpcep.bgp.topology.provider.BackwardsCssTopologyProvider;
 import org.opendaylight.bgpcep.bgp.topology.provider.Ipv6ReachabilityTopologyBuilder;
-import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
+import org.opendaylight.controller.config.api.DependencyResolver;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.controller.config.api.ModuleIdentifier;
+import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  *
  */
-public final class Ipv6ReachabilityTopologyBuilderModule extends
-        org.opendaylight.controller.config.yang.bgp.reachability.ipv6.AbstractIpv6ReachabilityTopologyBuilderModule {
+public final class Ipv6ReachabilityTopologyBuilderModule extends AbstractIpv6ReachabilityTopologyBuilderModule {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6ReachabilityTopologyBuilderModule.class);
 
-    public Ipv6ReachabilityTopologyBuilderModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-        final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+    private BundleContext bundleContext;
+
+    public Ipv6ReachabilityTopologyBuilderModule(final ModuleIdentifier identifier,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
 
-    public Ipv6ReachabilityTopologyBuilderModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
+    public Ipv6ReachabilityTopologyBuilderModule(final ModuleIdentifier identifier, final DependencyResolver dependencyResolver,
             final Ipv6ReachabilityTopologyBuilderModule oldModule, final AutoCloseable oldInstance) {
         super(identifier, dependencyResolver, oldModule, oldInstance);
     }
@@ -52,6 +51,11 @@ public final class Ipv6ReachabilityTopologyBuilderModule extends
 
     @Override
     public AutoCloseable createInstance() {
-        return new Ipv6ReachabilityTopologyBuilder(getDataProviderDependency(), getLocalRibDependency(), getTopologyId());
+        return BackwardsCssTopologyProvider.createBackwardsCssInstance(Ipv6ReachabilityTopologyBuilder.IPV6_TOPOLOGY_TYPE, getTopologyId(), getDataProviderDependency(), this.bundleContext,
+                getLocalRibDependency().getInstanceIdentifier());
+    }
+
+    public void setBundleContext(final BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
     }
 }

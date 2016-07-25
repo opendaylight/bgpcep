@@ -16,10 +16,29 @@
  */
 package org.opendaylight.controller.config.yang.bgp.reachability.ipv4;
 
+import org.opendaylight.controller.config.api.DependencyResolver;
+import org.opendaylight.controller.config.api.DynamicMBeanWithInstance;
+import org.opendaylight.controller.config.spi.Module;
+import org.osgi.framework.BundleContext;
+
 /**
  *
  */
-public class Ipv4ReachabilityTopologyBuilderModuleFactory extends
-        org.opendaylight.controller.config.yang.bgp.reachability.ipv4.AbstractIpv4ReachabilityTopologyBuilderModuleFactory {
+public class Ipv4ReachabilityTopologyBuilderModuleFactory extends AbstractIpv4ReachabilityTopologyBuilderModuleFactory {
+
+    @Override
+    public Module createModule(final String instanceName, final DependencyResolver dependencyResolver, final BundleContext bundleContext) {
+        final Ipv4ReachabilityTopologyBuilderModule module = (Ipv4ReachabilityTopologyBuilderModule) super.createModule(instanceName, dependencyResolver, bundleContext);
+        module.setBundleContext(bundleContext);
+        return module;
+    }
+
+    @Override
+    public Module createModule(final String instanceName, final DependencyResolver dependencyResolver,
+            final DynamicMBeanWithInstance old, final BundleContext bundleContext) throws Exception {
+        final Ipv4ReachabilityTopologyBuilderModule module = (Ipv4ReachabilityTopologyBuilderModule)  super.createModule(instanceName, dependencyResolver, old, bundleContext);
+        module.setBundleContext(bundleContext);
+        return module;
+    }
 
 }
