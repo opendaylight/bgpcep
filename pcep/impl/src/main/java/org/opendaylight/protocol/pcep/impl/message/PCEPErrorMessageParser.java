@@ -108,7 +108,7 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
             throw new PCEPDeserializerException("At least one PCEPErrorObject is mandatory.");
         }
         objects.remove(0);
-        while (!objects.isEmpty()) {
+        while (!objects.isEmpty() && !state.equals(State.END)) {
             obj = objects.get(0);
             if (obj instanceof UnknownObject) {
                 return new PcerrBuilder().setPcerrMessage(b.setErrors(((UnknownObject) obj).getErrors()).build()).build();

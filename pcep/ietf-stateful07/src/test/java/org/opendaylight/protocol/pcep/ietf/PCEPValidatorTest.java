@@ -34,6 +34,7 @@ import org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsActiva
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Lsp1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Lsp1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.PcinitiateBuilder;
@@ -121,6 +122,8 @@ public class PCEPValidatorTest {
     private Srp srp;
     private Lsp lsp;
     private Lsp lspSrp;
+    private org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.Bandwidth bandwidth;
+    private org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reoptimization.bandwidth.object.ReoptimizationBandwidth reoptimizationBandwidth;
 
     private AsNumberCase eroASSubobject;
     private UnnumberedCase rroUnnumberedSub;
@@ -158,6 +161,31 @@ public class PCEPValidatorTest {
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00
+    };
+
+    private static final byte[] PCRT3 = {
+        (byte) 0x20, (byte) 0x0A, (byte) 0x00, (byte) 0x4C,
+
+        (byte) 0x20, (byte) 0x10, (byte) 0x00, (byte) 0x1C, //(byte) 0x39,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, //Skip
+        (byte) 0x00, (byte) 0x12, (byte) 0x00, (byte) 0x10, //TLV Type + TLV Length
+        (byte) 0x7F, (byte) 0x00, (byte) 0x01, (byte) 0x01, //TLV 127.0.1.1
+        (byte) 0x00, (byte) 0x01, (byte) 0x00, (byte) 0x01, //TLV LSP Id + Tunnel id
+        (byte) 0x7F, (byte) 0x00, (byte) 0x01, (byte) 0x02, //TLV Ipv4ExtendedTunnelId 127.0.1.2
+        (byte) 0x7F, (byte) 0x00, (byte) 0x01, (byte) 0x03, //TLV TunnelEndpointAddress 127.0.1.3
+
+        (byte) 0x07, (byte) 0x10, (byte) 0x00, (byte) 0x08,
+        (byte) 0x20, (byte) 0x04, (byte) 0xFF, (byte) 0xFF,
+        (byte) 0x09, (byte) 0x10, (byte) 0x00, (byte) 0x14,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+
+        (byte) 0x05, (byte) 0x10, (byte) 0x00, (byte) 0x08,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+        (byte) 0x05, (byte) 0x20, (byte) 0x00, (byte) 0x08,
+        (byte) 0x47, (byte) 0x74, (byte) 0x24, (byte) 0x00
     };
 
     @Before
@@ -254,6 +282,18 @@ public class PCEPValidatorTest {
         final Ipv4Builder afi = new Ipv4Builder();
         afi.setSourceIpv4Address(new Ipv4Address("255.255.255.255"));
         afi.setDestinationIpv4Address(new Ipv4Address("255.255.255.255"));
+
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.BandwidthBuilder bandwidthBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.BandwidthBuilder();
+        bandwidthBuilder.setIgnore(false);
+        bandwidthBuilder.setProcessingRule(false);
+        bandwidthBuilder.setBandwidth(new Bandwidth(new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 }));
+        this.bandwidth = bandwidthBuilder.build();
+
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reoptimization.bandwidth.object.ReoptimizationBandwidthBuilder reoptimizationBandwidthBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reoptimization.bandwidth.object.ReoptimizationBandwidthBuilder();
+        reoptimizationBandwidthBuilder.setIgnore(false);
+        reoptimizationBandwidthBuilder.setProcessingRule(false);
+        reoptimizationBandwidthBuilder.setBandwidth(new Bandwidth(new byte[] { (byte) 0x47, (byte) 0x74, (byte) 0x24, (byte) 0x00 }));
+        this.reoptimizationBandwidth = reoptimizationBandwidthBuilder.build();
     }
 
     @Test
@@ -401,6 +441,20 @@ public class PCEPValidatorTest {
             buf = Unpooled.buffer(result.readableBytes());
             parser.serializeMessage(new PcrptBuilder().setPcrptMessage(builder.build()).build(), buf);
             assertArrayEquals(result.array(), buf.array());
+
+            result = Unpooled.wrappedBuffer(PCRT3);
+
+            final List<Reports> reports4 = Lists.newArrayList();
+            reports4.add(new ReportsBuilder().setLsp(this.lsp).setPath(
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcrpt.message.pcrpt.message.reports.PathBuilder().setEro(
+                    this.ero).setLspa(this.lspa).setBandwidth(this.bandwidth).setReoptimizationBandwidth(this.reoptimizationBandwidth).build()).build());
+            builder.setReports(reports4);
+
+            final ByteBuf input2 = result.slice(4, result.readableBytes() - 4);
+            assertEquals(new PcrptBuilder().setPcrptMessage(builder.build()).build(), parser.parseMessage(input2, Collections.<Message>emptyList()));
+            buf = Unpooled.buffer(result.readableBytes());
+            parser.serializeMessage(new PcrptBuilder().setPcrptMessage(builder.build()).build(), buf);
+            assertArrayEquals(result.array(), buf.array());
         }
     }
 
@@ -527,30 +581,84 @@ public class PCEPValidatorTest {
     @Test
     public void testMissingLspObjectErrorInPcRptMsg() throws PCEPDeserializerException {
         final byte[] statefulMsg= {
-            0x20,0x0B,0x00,0x1C,
+            (byte) 0x20, (byte) 0x0B, (byte) 0x00, (byte) 0x1C,
             /* srp-object */
-            0x21,0x10,0x00,0x0C,
-            0x00,0x00,0x00,0x001,
-            0x00,0x00,0x00,0x01,
+            (byte) 0x21, (byte) 0x10, (byte) 0x00, (byte) 0x0C,
+            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x001,
+            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01,
             /* lsp-object is missing*/
             /* sr-ero-object */
-            0x07,0x10,0x00,0x0C,
+            (byte) 0x07, (byte) 0x10, (byte) 0x00, (byte) 0x0C,
             /* ipv4 prefix subobject */
-            (byte) 0x81,0x08,(byte) 0xFF,(byte) 0xFF,
-            (byte) 0xFF,(byte) 0xFF,0x16,0x00};
+            (byte) 0x81, (byte) 0x08, (byte) 0xFF, (byte) 0xFF,
+            (byte) 0xFF, (byte) 0xFF, (byte) 0x16, (byte) 0x00
+        };
 
-        final Stateful07PCReportMessageParser parser = new Stateful07PCReportMessageParser(this.ctx.getObjectHandlerRegistry());
+        try (CrabbeInitiatedActivator a = new CrabbeInitiatedActivator();
+                StatefulActivator b = new StatefulActivator()) {
+            a.start(this.ctx);
+            b.start(this.ctx);
+            final Stateful07PCReportMessageParser parser = new Stateful07PCReportMessageParser(
+                    this.ctx.getObjectHandlerRegistry());
 
-        final PcerrMessageBuilder errMsgBuilder = new PcerrMessageBuilder();
-        errMsgBuilder.setErrors(Lists.newArrayList(new ErrorsBuilder().setErrorObject(
-            new ErrorObjectBuilder().setType((short) 6).setValue((short) 8).build()).build()));
-        final PcerrBuilder builder = new PcerrBuilder();
-        builder.setPcerrMessage(errMsgBuilder.build());
+            final PcerrMessageBuilder errMsgBuilder = new PcerrMessageBuilder();
+            errMsgBuilder.setErrors(Lists.newArrayList(new ErrorsBuilder()
+                    .setErrorObject(new ErrorObjectBuilder().setType((short) 6).setValue((short) 8).build()).build()));
+            final PcerrBuilder builder = new PcerrBuilder();
+            builder.setPcerrMessage(errMsgBuilder.build());
 
-        final ByteBuf buf = Unpooled.wrappedBuffer(statefulMsg);
-        final List<Message> errors = Lists.newArrayList();
-        parser.parseMessage(buf.slice(4, buf.readableBytes() - 4), errors);
-        assertFalse(errors.isEmpty());
-        assertEquals(builder.build(), errors.get(0));
+            final ByteBuf buf = Unpooled.wrappedBuffer(statefulMsg);
+            final List<Message> errors = Lists.newArrayList();
+            parser.parseMessage(buf.slice(4, buf.readableBytes() - 4), errors);
+            assertFalse(errors.isEmpty());
+            assertEquals(builder.build(), errors.get(0));
+        }
+    }
+
+    @Test
+    public void testUnexpectedRroObjectInPcUpdMsg() throws PCEPDeserializerException {
+        final byte[] badUpdateMsg = {
+            (byte) 0x20, (byte) 0x0b, (byte) 0x00, (byte) 0x50,
+            /* SRP, LSP and ERO objects */
+            (byte) 0x21, (byte) 0x12, (byte) 0x00, (byte) 0x0c,
+            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01,
+            (byte) 0x20, (byte) 0x10, (byte) 0x00, (byte) 0x08,
+            (byte) 0x00, (byte) 0x00, (byte) 0x10, (byte) 0x09,
+            (byte) 0x07, (byte) 0x10, (byte) 0x00, (byte) 0x14,
+            (byte) 0x01, (byte) 0x08, (byte) 0x05, (byte) 0x05,
+            (byte) 0x05, (byte) 0x03, (byte) 0x18, (byte) 0x00,
+            (byte) 0x01, (byte) 0x08, (byte) 0x08, (byte) 0x08,
+            (byte) 0x08, (byte) 0x04, (byte) 0x18, (byte) 0x00,
+            /* RRO object */
+            (byte) 0x08, (byte) 0x10, (byte) 0x00, (byte) 0x24,
+            (byte) 0x01, (byte) 0x08, (byte) 0x0a, (byte) 0x00,
+            (byte) 0x00, (byte) 0x83, (byte) 0x20, (byte) 0x20,
+            (byte) 0x03, (byte) 0x08, (byte) 0x01, (byte) 0x01,
+            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+            (byte) 0x01, (byte) 0x08, (byte) 0x0a, (byte) 0x00,
+            (byte) 0x09, (byte) 0xde, (byte) 0x20, (byte) 0x00,
+            (byte) 0x03, (byte) 0x08, (byte) 0x01, (byte) 0x01,
+            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00
+        };
+
+        try (CrabbeInitiatedActivator a = new CrabbeInitiatedActivator()) {
+            a.start(this.ctx);
+
+            final Stateful07PCUpdateRequestMessageParser parser = new Stateful07PCUpdateRequestMessageParser(
+                    this.ctx.getObjectHandlerRegistry());
+
+            final PcerrMessageBuilder errMsgBuilder = new PcerrMessageBuilder();
+            errMsgBuilder.setErrors(Lists.newArrayList(new ErrorsBuilder()
+                    .setErrorObject(new ErrorObjectBuilder().setType((short) 6).setValue((short) 10).build()).build()));
+            final PcerrBuilder builder = new PcerrBuilder();
+            builder.setPcerrMessage(errMsgBuilder.build());
+
+            final ByteBuf buf = Unpooled.wrappedBuffer(badUpdateMsg);
+            final List<Message> errors = Lists.newArrayList();
+            parser.parseMessage(buf.slice(4, buf.readableBytes() - 4), errors);
+            assertFalse(errors.isEmpty());
+            assertEquals(builder.build(), errors.get(0));
+        }
     }
 }

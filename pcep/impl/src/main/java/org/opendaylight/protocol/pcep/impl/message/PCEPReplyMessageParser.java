@@ -165,12 +165,12 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
     }
 
     protected Replies getValidReply(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
-        if (!(objects.get(0) instanceof Rp)) {
+        Object object = objects.remove(0);
+        if (!(object instanceof Rp)) {
             errors.add(createErrorMsg(PCEPErrors.RP_MISSING, Optional.<Rp>absent()));
             return null;
         }
-        final Rp rp = (Rp) objects.get(0);
-        objects.remove(0);
+        final Rp rp = (Rp) object;
         final RepliesBuilder repliesBuilder = new RepliesBuilder();
         if (!objects.isEmpty() && objects.get(0) instanceof Monitoring) {
             repliesBuilder.setMonitoring((Monitoring) objects.get(0));

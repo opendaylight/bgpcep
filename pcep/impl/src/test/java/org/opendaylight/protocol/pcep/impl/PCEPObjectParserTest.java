@@ -410,8 +410,8 @@ public class PCEPObjectParserTest {
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPBandwidthObject2UpperBounds.bin"));
 
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reoptimization
-            .bandwidth.object.BandwidthBuilder builder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml
-            .ns.yang.pcep.types.rev131005.reoptimization.bandwidth.object.BandwidthBuilder();
+            .bandwidth.object.ReoptimizationBandwidthBuilder builder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml
+            .ns.yang.pcep.types.rev131005.reoptimization.bandwidth.object.ReoptimizationBandwidthBuilder();
         builder.setProcessingRule(true);
         builder.setIgnore(true);
         builder.setBandwidth(new Bandwidth(new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF }));
