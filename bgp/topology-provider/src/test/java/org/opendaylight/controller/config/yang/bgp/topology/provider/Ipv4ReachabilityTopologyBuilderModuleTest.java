@@ -9,9 +9,11 @@ package org.opendaylight.controller.config.yang.bgp.topology.provider;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
 import java.util.List;
 import javax.management.ObjectName;
 import org.junit.Test;
+import org.opendaylight.bgpcep.topology.TopologyReference;
 import org.opendaylight.controller.config.api.ValidationException;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
 import org.opendaylight.controller.config.spi.ModuleFactory;
@@ -20,11 +22,24 @@ import org.opendaylight.controller.config.yang.bgp.reachability.ipv4.Ipv4Reachab
 import org.opendaylight.controller.config.yang.bgp.reachability.ipv4.Ipv4ReachabilityTopologyBuilderModuleMXBean;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractRIBImplModuleTest;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class Ipv4ReachabilityTopologyBuilderModuleTest extends AbstractRIBImplModuleTest {
 
     private static final String FACTORY_NAME = Ipv4ReachabilityTopologyBuilderModuleFactory.NAME;
     private static final String INSTANCE_NAME = "bgp-reachability-ipv4-instance";
+
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        setupMockService(TopologyReference.class, new TopologyReference() {
+            @Override
+            public InstanceIdentifier<Topology> getInstanceIdentifier() {
+                return null;
+            }
+        });
+    }
 
     @Override
     protected List<ModuleFactory> getModuleFactories() {
@@ -43,6 +58,7 @@ public class Ipv4ReachabilityTopologyBuilderModuleTest extends AbstractRIBImplMo
         paths.add("/META-INF/yang/bmp-message.yang");
         paths.add("/META-INF/yang/ietf-yang-types@2013-07-15.yang");
         paths.add("/META-INF/yang/odl-bgp-topology-types.yang");
+        paths.add("/META-INF/yang/odl-bgp-topology-config.yang");
         return paths;
     }
 
