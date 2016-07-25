@@ -427,7 +427,7 @@ module pcep-types {
     grouping reoptimization-bandwidth-object {
         description "BANDWIDTH Object";
         reference "https://tools.ietf.org/html/rfc5440#section-7.7";
-        container bandwidth {
+        container reoptimization-bandwidth {
             uses object;
             uses bandwidth;
         }
@@ -941,6 +941,7 @@ module pcep-types {
         uses lspa-object;
 
         uses bandwidth-object;
+        uses reoptimization-bandwidth-object;
 
         list metrics {
             uses metric-object;

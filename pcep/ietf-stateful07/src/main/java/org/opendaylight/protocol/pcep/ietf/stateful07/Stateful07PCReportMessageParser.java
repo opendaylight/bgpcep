@@ -74,6 +74,7 @@ public class Stateful07PCReportMessageParser extends AbstractMessageParser {
             serializeObject(p.getEro(), buffer);
             serializeObject(p.getLspa(), buffer);
             serializeObject(p.getBandwidth(), buffer);
+            serializeObject(p.getReoptimizationBandwidth(), buffer);
             if (p.getMetrics() != null) {
                 for (final Metrics m : p.getMetrics()) {
                     serializeObject(m.getMetric(), buffer);
@@ -114,46 +115,30 @@ public class Stateful07PCReportMessageParser extends AbstractMessageParser {
                 lspViaSR = PSTUtil.isDefaultPST(tlvs.getPathSetupType());
             }
             builder.setSrp(srp);
-            if(objects.isEmpty()) {
+            if (objects.isEmpty()) {
                 object = null;
             } else {
                 object = objects.remove(0);
             }
         }
 
-        if(validateLsp(object, lspViaSR, errors, builder)) {
-            if(!objects.isEmpty()) {
-                object = objects.remove(0);
-                if(!validateEmpty(object, objects, errors, builder)) {
+        if (validateLsp(object, lspViaSR, errors, builder)) {
+            if (!objects.isEmpty()) {
+                if (!validatePath(objects, errors, builder)) {
                     return null;
                 }
             }
 
             return builder.build();
-
         }
-
         return null;
-    }
-
-    private boolean validateEmpty(final Object object, final List<Object> objects, final List<Message> errors, final ReportsBuilder builder) {
-        final PathBuilder pBuilder = new PathBuilder();
-        if (object instanceof Ero) {
-            pBuilder.setEro((Ero) object);
-        } else {
-            errors.add(createErrorMsg(PCEPErrors.ERO_MISSING, Optional.<Rp>absent()));
-            return false;
-        }
-        parsePath(objects, pBuilder);
-        builder.setPath(pBuilder.build());
-        return true;
     }
 
     private boolean validateLsp(final Object object, final boolean lspViaSR, final List<Message> errors, final ReportsBuilder builder) {
         if (object instanceof Lsp) {
             final Lsp lsp = (Lsp) object;
             final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.Tlvs tlvs = lsp.getTlvs();
-            if(!lspViaSR && lsp.getPlspId().getValue() != 0 && (tlvs == null || tlvs.getLspIdentifiers() == null)) {
+            if (!lspViaSR && lsp.getPlspId().getValue() != 0 && (tlvs == null || tlvs.getLspIdentifiers() == null)) {
                 final Message errorMsg = createErrorMsg(PCEPErrors.LSP_IDENTIFIERS_TLV_MISSING, Optional.<Rp>absent());
                 errors.add(errorMsg);
                 return false;
@@ -164,6 +149,20 @@ public class Stateful07PCReportMessageParser extends AbstractMessageParser {
             errors.add(createErrorMsg(PCEPErrors.LSP_MISSING, Optional.<Rp>absent()));
             return false;
         }
+        return true;
+    }
+
+    private boolean validatePath(final List<Object> objects, final List<Message> errors, final ReportsBuilder builder) {
+        final PathBuilder pBuilder = new PathBuilder();
+        Object object = objects.remove(0);
+        if (object instanceof Ero) {
+            pBuilder.setEro((Ero) object);
+        } else {
+            errors.add(createErrorMsg(PCEPErrors.ERO_MISSING, Optional.<Rp>absent()));
+            return false;
+        }
+        parsePath(objects, pBuilder);
+        builder.setPath(pBuilder.build());
         return true;
     }
 
@@ -193,7 +192,11 @@ public class Stateful07PCReportMessageParser extends AbstractMessageParser {
         case LSPA_IN:
             if (obj instanceof Bandwidth) {
                 builder.setBandwidth((Bandwidth) obj);
-                return State.BANDWIDTH_IN;
+                return State.LSPA_IN;
+            }
+            if (obj instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reoptimization.bandwidth.object.ReoptimizationBandwidth) {
+                builder.setReoptimizationBandwidth((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reoptimization.bandwidth.object.ReoptimizationBandwidth) obj);
+                return State.LSPA_IN;
             }
         case BANDWIDTH_IN:
             if (obj instanceof Metric) {
