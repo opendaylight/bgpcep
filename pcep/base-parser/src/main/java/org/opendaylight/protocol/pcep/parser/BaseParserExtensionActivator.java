@@ -222,7 +222,7 @@ public final class BaseParserExtensionActivator extends AbstractPCEPExtensionPro
         regs.add(context.registerObjectParser(PCEPExistingBandwidthObjectParser.CLASS, PCEPExistingBandwidthObjectParser.TYPE, bwExistingParser));
         regs.add(context.registerObjectSerializer(Bandwidth.class, bwParser));
         regs.add(context.registerObjectSerializer(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
-            .pcep.types.rev131005.reoptimization.bandwidth.object.Bandwidth.class, bwExistingParser));
+            .pcep.types.rev131005.reoptimization.bandwidth.object.ReoptimizationBandwidth.class, bwExistingParser));
 
         final PCEPMetricObjectParser metricParser = new PCEPMetricObjectParser();
         regs.add(context.registerObjectParser(PCEPMetricObjectParser.CLASS, PCEPMetricObjectParser.TYPE, metricParser));

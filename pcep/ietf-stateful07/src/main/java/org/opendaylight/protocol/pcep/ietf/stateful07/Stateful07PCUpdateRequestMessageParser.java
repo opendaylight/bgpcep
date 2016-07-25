@@ -69,6 +69,7 @@ public class Stateful07PCUpdateRequestMessageParser extends AbstractMessageParse
             serializeObject(p.getEro(), buffer);
             serializeObject(p.getLspa(), buffer);
             serializeObject(p.getBandwidth(), buffer);
+            serializeObject(p.getReoptimizationBandwidth(), buffer);
             if (p.getMetrics() != null) {
                 for (final Metrics m : p.getMetrics()) {
                     serializeObject(m.getMetric(), buffer);
@@ -89,7 +90,7 @@ public class Stateful07PCUpdateRequestMessageParser extends AbstractMessageParse
 
         while (!objects.isEmpty()) {
             final Updates upd = getValidUpdates(objects, errors);
-            if(upd != null) {
+            if (upd != null) {
                 updateRequests.add(upd);
             }
         }
@@ -100,38 +101,54 @@ public class Stateful07PCUpdateRequestMessageParser extends AbstractMessageParse
     }
 
     protected Updates getValidUpdates(final List<Object> objects, final List<Message> errors) {
-        boolean isValid = true;
         final UpdatesBuilder builder = new UpdatesBuilder();
-        if (objects.get(0) instanceof Srp) {
-            builder.setSrp((Srp) objects.get(0));
-            objects.remove(0);
+
+        Object object = objects.remove(0);
+        if (object instanceof Srp) {
+            builder.setSrp((Srp) object);
+            if (objects.isEmpty()) {
+                object = null;
+            } else {
+                object = objects.remove(0);
+            }
         } else {
             errors.add(createErrorMsg(PCEPErrors.SRP_MISSING, Optional.<Rp>absent()));
-            isValid = false;
         }
-        if (objects.get(0) instanceof Lsp) {
-            builder.setLsp((Lsp) objects.get(0));
-            objects.remove(0);
-        } else {
-            errors.add(createErrorMsg(PCEPErrors.LSP_MISSING, Optional.<Rp>absent()));
-            isValid = false;
-        }
-        if (!objects.isEmpty()) {
-            final PathBuilder pBuilder = new PathBuilder();
-            if (objects.get(0) instanceof Ero) {
-                pBuilder.setEro((Ero) objects.get(0));
-                objects.remove(0);
-            } else {
-                errors.add(createErrorMsg(PCEPErrors.ERO_MISSING, Optional.<Rp>absent()));
-                isValid = false;
+
+        if (validateLsp(object, errors, builder)) {
+            if (!objects.isEmpty()) {
+                if (!validatePath(objects, errors, builder)) {
+                    return null;
+                }
             }
-            parsePath(objects, pBuilder);
-            builder.setPath(pBuilder.build());
-        }
-        if(isValid) {
+
             return builder.build();
         }
         return null;
+    }
+
+    private boolean validateLsp(final Object object, final List<Message> errors, final UpdatesBuilder builder) {
+        if (object instanceof Lsp) {
+            builder.setLsp((Lsp) object);
+        } else {
+            errors.add(createErrorMsg(PCEPErrors.LSP_MISSING, Optional.<Rp>absent()));
+            return false;
+        }
+        return true;
+    }
+
+    private boolean validatePath(final List<Object> objects, final List<Message> errors, final UpdatesBuilder builder) {
+        final PathBuilder pBuilder = new PathBuilder();
+        Object object = objects.remove(0);
+        if (object instanceof Ero) {
+            pBuilder.setEro((Ero) object);
+        } else {
+            errors.add(createErrorMsg(PCEPErrors.ERO_MISSING, Optional.<Rp>absent()));
+            return false;
+        }
+        parsePath(objects, pBuilder);
+        builder.setPath(pBuilder.build());
+        return true;
     }
 
     private void parsePath(final List<Object> objects, final PathBuilder pBuilder) {
@@ -160,7 +177,11 @@ public class Stateful07PCUpdateRequestMessageParser extends AbstractMessageParse
         case LSPA_IN:
             if (obj instanceof Bandwidth) {
                 pBuilder.setBandwidth((Bandwidth) obj);
-                return State.BANDWIDTH_IN;
+                return State.LSPA_IN;
+            }
+            if (obj instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reoptimization.bandwidth.object.ReoptimizationBandwidth) {
+                pBuilder.setReoptimizationBandwidth((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reoptimization.bandwidth.object.ReoptimizationBandwidth) obj);
+                return State.LSPA_IN;
             }
         case BANDWIDTH_IN:
             if (obj instanceof Metric) {
