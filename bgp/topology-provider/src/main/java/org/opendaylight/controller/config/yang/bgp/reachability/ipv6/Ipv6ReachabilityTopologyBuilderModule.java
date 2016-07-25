@@ -16,34 +16,29 @@
  */
 package org.opendaylight.controller.config.yang.bgp.reachability.ipv6;
 
-import java.util.concurrent.ExecutionException;
+import org.opendaylight.bgpcep.bgp.topology.provider.BackwardsCssTopologyProvider;
 import org.opendaylight.bgpcep.bgp.topology.provider.Ipv6ReachabilityTopologyBuilder;
-import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
+import org.opendaylight.controller.config.api.DependencyResolver;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeService;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.controller.config.api.ModuleIdentifier;
+import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  *
  */
-public final class Ipv6ReachabilityTopologyBuilderModule extends
-        org.opendaylight.controller.config.yang.bgp.reachability.ipv6.AbstractIpv6ReachabilityTopologyBuilderModule {
+public final class Ipv6ReachabilityTopologyBuilderModule extends AbstractIpv6ReachabilityTopologyBuilderModule {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6ReachabilityTopologyBuilderModule.class);
 
-    public Ipv6ReachabilityTopologyBuilderModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-        final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+    private BundleContext bundleContext;
+
+    public Ipv6ReachabilityTopologyBuilderModule(final ModuleIdentifier identifier,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
 
-    public Ipv6ReachabilityTopologyBuilderModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
+    public Ipv6ReachabilityTopologyBuilderModule(final ModuleIdentifier identifier, final DependencyResolver dependencyResolver,
             final Ipv6ReachabilityTopologyBuilderModule oldModule, final AutoCloseable oldInstance) {
         super(identifier, dependencyResolver, oldModule, oldInstance);
     }
@@ -56,25 +51,11 @@ public final class Ipv6ReachabilityTopologyBuilderModule extends
 
     @Override
     public AutoCloseable createInstance() {
-        final Ipv6ReachabilityTopologyBuilder b = new Ipv6ReachabilityTopologyBuilder(getDataProviderDependency(), getLocalRibDependency(), getTopologyId());
-        final ListenerRegistration<?> r = b.start((DataTreeChangeService) getDataProviderDependency(), Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class);
-        LOG.debug("Registered listener {} on topology {}", b, b.getInstanceIdentifier());
+        return BackwardsCssTopologyProvider.createBackwardsCssInstance(Ipv6ReachabilityTopologyBuilder.IPV6_TOPOLOGY_TYPE, getTopologyId(), getDataProviderDependency(), this.bundleContext,
+                getLocalRibDependency().getInstanceIdentifier());
+    }
 
-        final class TopologyReferenceAutocloseable extends DefaultTopologyReference implements AutoCloseable {
-            public TopologyReferenceAutocloseable(final InstanceIdentifier<Topology> instanceIdentifier) {
-                super(instanceIdentifier);
-            }
-
-            @Override
-            public void close() throws InterruptedException, ExecutionException, TransactionCommitFailedException {
-                try {
-                    r.close();
-                } finally {
-                    b.close();
-                }
-            }
-        }
-
-        return new TopologyReferenceAutocloseable(b.getInstanceIdentifier());
+    public void setBundleContext(final BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
     }
 }

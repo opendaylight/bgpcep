@@ -23,11 +23,11 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public final class Ipv4ReachabilityTopologyBuilder extends AbstractReachabilityTopologyBuilder<Ipv4Route> {
-    private static final TopologyTypes IPV4_TOPOLOGY_TYPE = new TopologyTypesBuilder()
-            .addAugmentation(TopologyTypes1.class,
-                    new TopologyTypes1Builder()
-                            .setBgpIpv4ReachabilityTopology(new BgpIpv4ReachabilityTopologyBuilder().build()).build())
-            .build();
+    public static final TopologyTypes IPV4_TOPOLOGY_TYPE = new TopologyTypesBuilder()
+    .addAugmentation(TopologyTypes1.class,
+            new TopologyTypes1Builder()
+    .setBgpIpv4ReachabilityTopology(new BgpIpv4ReachabilityTopologyBuilder().build()).build())
+    .build();
 
     public Ipv4ReachabilityTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
             final TopologyId topologyId) {

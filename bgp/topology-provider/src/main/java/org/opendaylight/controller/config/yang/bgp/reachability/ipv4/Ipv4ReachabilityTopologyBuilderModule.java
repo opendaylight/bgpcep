@@ -16,35 +16,26 @@
  */
 package org.opendaylight.controller.config.yang.bgp.reachability.ipv4;
 
-import java.util.concurrent.ExecutionException;
+import org.opendaylight.bgpcep.bgp.topology.provider.BackwardsCssTopologyProvider;
 import org.opendaylight.bgpcep.bgp.topology.provider.Ipv4ReachabilityTopologyBuilder;
-import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
+import org.opendaylight.controller.config.api.DependencyResolver;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeService;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.opendaylight.controller.config.api.ModuleIdentifier;
+import org.osgi.framework.BundleContext;
 
 /**
  *
  */
-public final class Ipv4ReachabilityTopologyBuilderModule extends
-        org.opendaylight.controller.config.yang.bgp.reachability.ipv4.AbstractIpv4ReachabilityTopologyBuilderModule {
-    private static final Logger LOG = LoggerFactory.getLogger(Ipv4ReachabilityTopologyBuilderModule.class);
+public final class Ipv4ReachabilityTopologyBuilderModule extends AbstractIpv4ReachabilityTopologyBuilderModule {
 
-    public Ipv4ReachabilityTopologyBuilderModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-        final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+    private BundleContext bundleContext;
+
+    public Ipv4ReachabilityTopologyBuilderModule(final ModuleIdentifier identifier, final DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
 
-    public Ipv4ReachabilityTopologyBuilderModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-        final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
-        final Ipv4ReachabilityTopologyBuilderModule oldModule, final java.lang.AutoCloseable oldInstance) {
+    public Ipv4ReachabilityTopologyBuilderModule(final ModuleIdentifier identifier, final DependencyResolver dependencyResolver, final Ipv4ReachabilityTopologyBuilderModule oldModule,
+            final AutoCloseable oldInstance) {
         super(identifier, dependencyResolver, oldModule, oldInstance);
     }
 
@@ -56,25 +47,11 @@ public final class Ipv4ReachabilityTopologyBuilderModule extends
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        final Ipv4ReachabilityTopologyBuilder b = new Ipv4ReachabilityTopologyBuilder(getDataProviderDependency(), getLocalRibDependency(), getTopologyId());
-        final ListenerRegistration<?> r = b.start((DataTreeChangeService) getDataProviderDependency(), Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
-        LOG.debug("Registered listener {} on topology {}", b, b.getInstanceIdentifier());
+        return BackwardsCssTopologyProvider.createBackwardsCssInstance(Ipv4ReachabilityTopologyBuilder.IPV4_TOPOLOGY_TYPE, getTopologyId(), getDataProviderDependency(), this.bundleContext,
+                getLocalRibDependency().getInstanceIdentifier());
+    }
 
-        final class TopologyReferenceAutocloseable extends DefaultTopologyReference implements AutoCloseable {
-            public TopologyReferenceAutocloseable(final InstanceIdentifier<Topology> instanceIdentifier) {
-                super(instanceIdentifier);
-            }
-
-            @Override
-            public void close() throws InterruptedException, ExecutionException, TransactionCommitFailedException {
-                try {
-                    r.close();
-                } finally {
-                    b.close();
-                }
-            }
-        }
-
-        return new TopologyReferenceAutocloseable(b.getInstanceIdentifier());
+    public void setBundleContext(final BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
     }
 }
