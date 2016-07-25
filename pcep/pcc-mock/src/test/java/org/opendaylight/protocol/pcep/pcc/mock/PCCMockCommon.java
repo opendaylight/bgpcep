@@ -152,7 +152,7 @@ public abstract class PCCMockCommon {
     }
 
     protected static void checkResyncSession(final Optional<Integer> startAtNumberLsp, final int expectedNumberOfLsp, final BigInteger startingDBVersion,
-                                             final BigInteger expectedDBVersion, final TestingSessionListener pceSessionListener) throws InterruptedException {
+                                             final BigInteger expectedDBVersion, final TestingSessionListener pceSessionListener) throws Exception {
         assertNotNull(pceSessionListener.getSession());
         assertTrue(pceSessionListener.isUp());
         Thread.sleep(50);
@@ -163,7 +163,7 @@ public abstract class PCCMockCommon {
             messages = pceSessionListener.messages();
         }
         checkSequequenceDBVersionSync(messages, expectedDBVersion);
-        assertEquals(expectedNumberOfLsp, messages.size());
+        checkNumberOfMessages(expectedNumberOfLsp, pceSessionListener);
         final PCEPSession session = pceSessionListener.getSession();
 
         checkSession(session, DEAD_TIMER, KEEP_ALIVE);
@@ -182,9 +182,9 @@ public abstract class PCCMockCommon {
     }
 
     protected static void checkSequequenceDBVersionSync(final List<Message> messages, final BigInteger expectedDbVersion) {
-        for (Message msg : messages) {
+        for (final Message msg : messages) {
             final List<Reports> pcrt = ((Pcrpt) msg).getPcrptMessage().getReports();
-            for (Reports report : pcrt) {
+            for (final Reports report : pcrt) {
                 final Lsp lsp = report.getLsp();
                 if (lsp.getPlspId().getValue() == 0) {
                     assertEquals(false, lsp.isSync().booleanValue());

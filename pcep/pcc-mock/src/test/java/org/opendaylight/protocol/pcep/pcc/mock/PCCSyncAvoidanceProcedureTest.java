@@ -25,7 +25,7 @@ import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCPeerProposal;
 
 public class PCCSyncAvoidanceProcedureTest extends PCCMockCommon {
     @Test
-    public void testSessionAvoidanceDesynchronizedEstablishment() throws UnknownHostException, InterruptedException, ExecutionException {
+    public void testSessionAvoidanceDesynchronizedEstablishment() throws Exception {
         final TestingSessionListenerFactory factory = new TestingSessionListenerFactory();
 
         final Channel channel = createServer(factory, socket, new PCCPeerProposal());

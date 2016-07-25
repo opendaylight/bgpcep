@@ -35,7 +35,7 @@ public class PCCIncrementalSyncTest extends PCCMockCommon {
         "--reconnect", "-1", "--redelegation-timeout", "0", "--state-timeout", "-1", "--incremental-sync-procedure", "10", "5", "5"};
 
     @Test
-    public void testSessionIncrementalSyncEstablishment() throws UnknownHostException, InterruptedException, ExecutionException {
+    public void testSessionIncrementalSyncEstablishment() throws Exception {
         final TestingSessionListenerFactory factory = new TestingSessionListenerFactory();
         final BigInteger numberOflspAndDBv = BigInteger.valueOf(8);
         final Channel channel = createServer(factory, socket, new PCCServerPeerProposal(numberOflspAndDBv));
