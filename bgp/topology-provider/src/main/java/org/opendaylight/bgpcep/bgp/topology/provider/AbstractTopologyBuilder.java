@@ -71,7 +71,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
 
         t.put(LogicalDatastoreType.OPERATIONAL, this.topology,
                 new TopologyBuilder().setKey(tk).setServerProvided(Boolean.TRUE).setTopologyTypes(types)
-                    .setLink(Collections.<Link>emptyList()).setNode(Collections.<Node>emptyList()).build(), true);
+                .setLink(Collections.<Link>emptyList()).setNode(Collections.<Node>emptyList()).build(), true);
         Futures.addCallback(t.submit(), new FutureCallback<Void>() {
             @Override
             public void onSuccess(final Void result) {
@@ -112,11 +112,15 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
     }
 
     @Override
-    public final synchronized void close() throws TransactionCommitFailedException {
+    public final synchronized void close() {
         LOG.info("Shutting down builder for {}", getInstanceIdentifier());
         final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
         trans.delete(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier());
-        trans.submit().checkedGet();
+        try {
+            trans.submit().checkedGet();
+        } catch (final TransactionCommitFailedException e) {
+            LOG.warn("Failed to remove BGP Topology instance {} from DS.", this.topology, e);
+        }
         this.chain.close();
         this.closed = true;
     }
