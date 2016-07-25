@@ -117,6 +117,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
     protected void setupWithDataBroker(final DataBroker dataBroker) {
         super.setupWithDataBroker(dataBroker);
         this.linkstateTopoBuilder = new LinkstateTopologyBuilder(dataBroker, LOC_RIB_REF, TEST_TOPOLOGY_ID, LISTENER_RESTART_TIME, LISTENER_ENFORCE_COUNTER);
+        this.linkstateTopoBuilder.start();
         final InstanceIdentifier<Tables> path = this.linkstateTopoBuilder.tableInstanceIdentifier(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
         this.linkstateRouteIID = path.builder().child((Class)LinkstateRoutes.class).child(LinkstateRoute.class, new LinkstateRouteKey(LINKSTATE_ROUTE_KEY)).build();
     }
@@ -237,12 +238,12 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
      */
     @Test
     public void testRouteChangedError() throws Exception {
-        LinkstateTopologyBuilder spiedLinkstateTopologyBuilder = spy(this.linkstateTopoBuilder);
+        final LinkstateTopologyBuilder spiedLinkstateTopologyBuilder = spy(this.linkstateTopoBuilder);
         doThrow(RuntimeException.class).when(spiedLinkstateTopologyBuilder).routeChanged(any(), any());
         try {
             spiedLinkstateTopologyBuilder.routeChanged(null, null);
             fail("Mockito failed to spy routeChanged() method");
-        } catch (Exception e) {
+        } catch (final Exception e) {
             assertTrue(e instanceof RuntimeException);
         }
         assertEquals(0L, spiedLinkstateTopologyBuilder.listenerScheduledRestartTime);
@@ -255,7 +256,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
         assertEquals(0L, spiedLinkstateTopologyBuilder.listenerScheduledRestartTime);
         assertEquals(0L, spiedLinkstateTopologyBuilder.listenerScheduledRestartEnforceCounter);
         // now pass some invalid data to cause onDataTreeChanged fail
-        DataTreeModification<LinkstateRoute> modification = (DataTreeModification<LinkstateRoute>) mock(DataTreeModification.class, RETURNS_SMART_NULLS);
+        final DataTreeModification<LinkstateRoute> modification = mock(DataTreeModification.class, RETURNS_SMART_NULLS);
         final List<DataTreeModification<LinkstateRoute>> changes = new ArrayList<>();
         changes.add(modification);
         spiedLinkstateTopologyBuilder.onDataTreeChanged(changes);
