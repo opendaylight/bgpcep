@@ -124,7 +124,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
             final ReportedRoute rr = p2p.getReportedRoute();
             if (rr != null) {
                 serializeObject(rr.getRro(), buffer);
-                serializeObject(rr.getBandwidth(), buffer);
+                serializeObject(rr.getReoptimizationBandwidth(), buffer);
             }
         }
         serializeObject(p2p.getLoadBalancing(), buffer);
@@ -262,7 +262,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
 
         if (rp.isReoptimization()
                 && builder.getBandwidth() != null
-                && !builder.getReportedRoute().getBandwidth().getBandwidth().equals(
+                && !builder.getReportedRoute().getReoptimizationBandwidth().getBandwidth().equals(
                         new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth(new byte[] { 0 }))
                 && builder.getReportedRoute().getRro() == null) {
             errors.add(createErrorMsg(PCEPErrors.RRO_MISSING, Optional.of(rp)));
@@ -280,8 +280,8 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                 rrBuilder.setRro((Rro) obj);
                 objects.remove(0);
                 final Object nextObj = objects.get(0);
-                if (nextObj instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reoptimization.bandwidth.object.Bandwidth) {
-                    rrBuilder.setBandwidth((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reoptimization.bandwidth.object.Bandwidth) nextObj);
+                if (nextObj instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reoptimization.bandwidth.object.ReoptimizationBandwidth) {
+                    rrBuilder.setReoptimizationBandwidth((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reoptimization.bandwidth.object.ReoptimizationBandwidth) nextObj);
                 }
                 return State.REPORTED_IN;
             }
