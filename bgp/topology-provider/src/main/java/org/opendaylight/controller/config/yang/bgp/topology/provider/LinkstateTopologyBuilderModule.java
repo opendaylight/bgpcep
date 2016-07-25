@@ -16,34 +16,26 @@
  */
 package org.opendaylight.controller.config.yang.bgp.topology.provider;
 
-import java.util.concurrent.ExecutionException;
+import org.opendaylight.bgpcep.bgp.topology.provider.BackwardsCssTopologyProvider;
 import org.opendaylight.bgpcep.bgp.topology.provider.LinkstateTopologyBuilder;
-import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
+import org.opendaylight.controller.config.api.DependencyResolver;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeService;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateSubsequentAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.opendaylight.controller.config.api.ModuleIdentifier;
+import org.osgi.framework.BundleContext;
 
 /**
  *
  */
-public final class LinkstateTopologyBuilderModule extends org.opendaylight.controller.config.yang.bgp.topology.provider.AbstractLinkstateTopologyBuilderModule {
-    private static final Logger LOG = LoggerFactory.getLogger(LinkstateTopologyBuilderModule.class);
+public final class LinkstateTopologyBuilderModule extends AbstractLinkstateTopologyBuilderModule {
 
-    public LinkstateTopologyBuilderModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-        final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+    private BundleContext bundleContext;
+
+    public LinkstateTopologyBuilderModule(final ModuleIdentifier identifier, final DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
 
-    public LinkstateTopologyBuilderModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-        final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
-        final LinkstateTopologyBuilderModule oldModule, final java.lang.AutoCloseable oldInstance) {
+    public LinkstateTopologyBuilderModule(final ModuleIdentifier identifier, final DependencyResolver dependencyResolver,
+            final LinkstateTopologyBuilderModule oldModule, final AutoCloseable oldInstance) {
         super(identifier, dependencyResolver, oldModule, oldInstance);
     }
 
@@ -55,25 +47,11 @@ public final class LinkstateTopologyBuilderModule extends org.opendaylight.contr
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        final LinkstateTopologyBuilder b = new LinkstateTopologyBuilder(getDataProviderDependency(), getLocalRibDependency(), getTopologyId());
-        final ListenerRegistration<?> r = b.start((DataTreeChangeService) getDataProviderDependency(), LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
-        LOG.debug("Registered listener {} on topology {}", b, b.getInstanceIdentifier());
+        return BackwardsCssTopologyProvider.createBackwardsCssInstance(LinkstateTopologyBuilder.LINKSTATE_TOPOLOGY_TYPE, getTopologyId(), getDataProviderDependency(), this.bundleContext,
+                getLocalRibDependency().getInstanceIdentifier());
+    }
 
-        final class TopologyReferenceAutocloseable extends DefaultTopologyReference implements AutoCloseable {
-            public TopologyReferenceAutocloseable(final InstanceIdentifier<Topology> instanceIdentifier) {
-                super(instanceIdentifier);
-            }
-
-            @Override
-            public void close() throws InterruptedException, ExecutionException, TransactionCommitFailedException {
-                try {
-                    r.close();
-                } finally {
-                    b.close();
-                }
-            }
-        }
-
-        return new TopologyReferenceAutocloseable(b.getInstanceIdentifier());
+    public void setBundleContext(final BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
     }
 }
