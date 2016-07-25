@@ -16,10 +16,29 @@
  */
 package org.opendaylight.controller.config.yang.bgp.topology.provider;
 
+import org.opendaylight.controller.config.api.DependencyResolver;
+import org.opendaylight.controller.config.api.DynamicMBeanWithInstance;
+import org.opendaylight.controller.config.spi.Module;
+import org.osgi.framework.BundleContext;
+
 /**
  *
  */
-public class LinkstateTopologyBuilderModuleFactory extends
-        org.opendaylight.controller.config.yang.bgp.topology.provider.AbstractLinkstateTopologyBuilderModuleFactory {
+public class LinkstateTopologyBuilderModuleFactory extends AbstractLinkstateTopologyBuilderModuleFactory {
+
+    @Override
+    public Module createModule(final String instanceName, final DependencyResolver dependencyResolver, final BundleContext bundleContext) {
+        final LinkstateTopologyBuilderModule module = (LinkstateTopologyBuilderModule) super.createModule(instanceName, dependencyResolver, bundleContext);
+        module.setBundleContext(bundleContext);
+        return module;
+    }
+
+    @Override
+    public Module createModule(final String instanceName, final DependencyResolver dependencyResolver,
+            final DynamicMBeanWithInstance old, final BundleContext bundleContext) throws Exception {
+        final LinkstateTopologyBuilderModule module = (LinkstateTopologyBuilderModule)  super.createModule(instanceName, dependencyResolver, old, bundleContext);
+        module.setBundleContext(bundleContext);
+        return module;
+    }
 
 }

@@ -144,10 +144,13 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
     }
 
     @Override
-    public final synchronized void close() throws TransactionCommitFailedException {
+    public final synchronized void close() {
         if (this.closed) {
             LOG.trace("Transaction chain was already closed.");
             return;
+        }
+        } catch (final TransactionCommitFailedException e) {
+            LOG.warn("Failed to remove BGP Topology instance {} from DS.", this.topology, e);
         }
         this.closed = true;
         LOG.info("Shutting down builder for {}", getInstanceIdentifier());
