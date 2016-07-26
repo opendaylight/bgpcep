@@ -24,7 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 
 public class BGPApplicationPeerModuleTest extends AbstractRIBImplModuleTest {
 
-    private static final int EXP_INSTANCES = 8;
+    private static final int EXP_INSTANCES = 9;
     private static final String INSTANCE_NAME = "application-peer-instance";
     private static final String INSTANCE_NAME2 = "application-peer-instance-2";
     private static final String FACTORY_NAME = BGPApplicationPeerModuleFactory.NAME;
@@ -75,6 +75,8 @@ public class BGPApplicationPeerModuleTest extends AbstractRIBImplModuleTest {
     @Test
     public void testConflictingPeerAddress() throws Exception {
         createApplicationPeerInstance();
+        this.ribService.instantiateServiceInstance();
+        this.bgpAppService.instantiateServiceInstance();
         try {
             createApplicationPeerInstance(INSTANCE_NAME2);
             fail();

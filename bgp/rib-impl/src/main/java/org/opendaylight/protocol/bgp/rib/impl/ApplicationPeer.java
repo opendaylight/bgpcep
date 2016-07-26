@@ -23,10 +23,12 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPConfigModuleTracker;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
+import org.opendaylight.protocol.bgp.rib.impl.stats.peer.BGPPeerStatsImpl;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRibId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.SimpleRoutingPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer;
@@ -61,36 +63,37 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
     private final byte[] rawIdentifier;
     private final String name;
     private final YangInstanceIdentifier adjRibsInId;
-    private final DOMTransactionChain chain;
+    private DOMTransactionChain chain;
     private final BGPConfigModuleTracker moduleTracker;
-    private final EffectiveRibInWriter effectiveRibInWriter;
+    private final BGPPeerStatsImpl peerStats;
+    private EffectiveRibInWriter effectiveRibInWriter;
+    private final RIB rib;
+    private final PeerId ipAddress;
+    private final YangInstanceIdentifier peerIId;
     private AdjRibInWriter writer;
 
-    public ApplicationPeer(final ApplicationRibId applicationRibId, final Ipv4Address ipAddress, final RIB rib,
-            final BGPConfigModuleTracker moduleTracker) {
-        this.name = applicationRibId.getValue().toString();
-        final RIB targetRib = Preconditions.checkNotNull(rib);
+    public ApplicationPeer(final ApplicationRibId applicationRibId, final Ipv4Address ipAddress, final RIB rib, final BGPConfigModuleTracker moduleTracker) {
+        this.name = applicationRibId.getValue();
+        this.rib = Preconditions.checkNotNull(rib);
         this.rawIdentifier = InetAddresses.forString(ipAddress.getValue()).getAddress();
-        final NodeIdentifierWithPredicates peerId = IdentifierUtils.domPeerId(RouterIds.createPeerId(ipAddress));
-        final YangInstanceIdentifier peerIId = targetRib.getYangRibId().node(Peer.QNAME).node(peerId);
-        this.adjRibsInId = peerIId.node(AdjRibIn.QNAME).node(Tables.QNAME);
-        this.chain = targetRib.createPeerChain(this);
-        this.writer = AdjRibInWriter.create(targetRib.getYangRibId(), PeerRole.Internal, Optional.of(SimpleRoutingPolicy.AnnounceNone), this.chain);
-        this.writer = this.writer.transform(RouterIds.createPeerId(ipAddress), targetRib.getRibSupportContext(), targetRib.getLocalTablesKeys(),
-                Collections.emptyList());
-        //TODO need to create effective rib in writer with route counter here
-        this.effectiveRibInWriter = EffectiveRibInWriter.create(targetRib.getService(), this.chain, peerIId,
-            targetRib.getImportPolicyPeerTracker(), targetRib.getRibSupportContext(), PeerRole.Internal);
+        this.ipAddress = RouterIds.createPeerId(ipAddress);
+        this.peerIId = this.rib.getYangRibId().node(Peer.QNAME).node(IdentifierUtils.domPeerId(this.ipAddress));
+        this.adjRibsInId = this.peerIId.node(AdjRibIn.QNAME).node(Tables.QNAME);
         this.moduleTracker = moduleTracker;
+        this.peerStats = new BGPPeerStatsImpl(applicationRibId.getValue(), this.rib.getLocalTablesKeys());
+    }
+
+    void instantiateServiceInstance() {
+        this.chain = this.rib.createPeerChain(this);
+        this.writer = AdjRibInWriter.create(this.rib.getYangRibId(), PeerRole.Internal, Optional.of(SimpleRoutingPolicy.AnnounceNone), this.chain);
+        this.writer = this.writer.transform(this.ipAddress, this.rib.getRibSupportContext(), this.rib.getLocalTablesKeys(), Collections.emptyList());
+        this.effectiveRibInWriter = EffectiveRibInWriter.create(this.rib.getService(), this.chain, this.peerIId,
+            this.rib.getImportPolicyPeerTracker(), this.rib.getRibSupportContext(), PeerRole.Internal,
+            this.peerStats.getEffectiveRibInRouteCounters(), this.peerStats.getAdjRibInRouteCounters());
         if (moduleTracker != null) {
             moduleTracker.onInstanceCreate();
         }
     }
-
-    public ApplicationPeer(final ApplicationRibId applicationRibId, final Ipv4Address bgpPeerId, final RIB targetRibDependency) {
-        this(applicationRibId, bgpPeerId, targetRibDependency, null);
-    }
-
     /**
      * Routes come from application RIB that is identified by (configurable) name.
      * Each route is pushed into AdjRibsInWriter with it's whole context. In this
