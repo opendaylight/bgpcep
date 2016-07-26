@@ -17,11 +17,14 @@ import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -162,6 +165,8 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
         //restart existing rib instance with a new configuration
         final RibImpl ribImpl = this.ribs.get(rootIdentifier);
         if(ribImpl == null ) {
+            final List<PeerBean> closedPeers = closeAllBindedPeers(rootIdentifier);
+            closedPeers.forEach(peer -> peer.restart(ribImpl, this.mappingService));
             //if not exists, create a new instance
             onGlobalCreated(rootIdentifier, global, null);
         } else if (!ribImpl.isGlobalEqual(global)) {
@@ -169,6 +174,18 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
             initiateRibInstance(rootIdentifier, global, ribImpl, null);
         }
         LOG.debug("RIB instance modified {}", ribImpl);
+    }
+
+    private List<PeerBean> closeAllBindedPeers(final InstanceIdentifier<Bgp> rooIdentifier) {
+        final List<PeerBean> filtered = new ArrayList<>();
+        for (final Entry<InstanceIdentifier<Neighbor>, PeerBean> entry : this.peers.entrySet()) {
+            if (entry.getKey().contains(rooIdentifier)) {
+                final PeerBean peer = entry.getValue();
+                peer.close();
+                filtered.add(peer);
+            }
+        }
+        return filtered;
     }
 
     @Override
