@@ -8,6 +8,7 @@
 
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
@@ -29,15 +30,23 @@ public class AppPeer implements PeerBean {
 
     private ApplicationPeer applicationPeer;
     private ListenerRegistration<ApplicationPeer> registration;
+    private Neighbor currentConfiguration;
 
     @Override
     public void start(final RIB rib, final Neighbor neighbor, final BGPOpenConfigMappingService mappingService) {
+        this.currentConfiguration = neighbor;
         final ApplicationRibId appRibId = createAppRibId(neighbor);
         this.applicationPeer = new ApplicationPeer(appRibId, neighbor.getNeighborAddress().getIpv4Address(), rib);
         final YangInstanceIdentifier yangIId = YangInstanceIdentifier.builder().node(ApplicationRib.QNAME)
                 .nodeWithKey(ApplicationRib.QNAME, APP_ID_QNAME, appRibId.getValue()).node(Tables.QNAME).node(Tables.QNAME).build();
         this.registration = rib.getService().registerDataTreeChangeListener(new DOMDataTreeIdentifier(LogicalDatastoreType.CONFIGURATION, yangIId),
                 this.applicationPeer);
+    }
+
+    @Override
+    public void restart(final RIB rib, final BGPOpenConfigMappingService mappingService) {
+        Preconditions.checkNotNull(this.currentConfiguration);
+        start(rib, this.currentConfiguration, mappingService);
     }
 
     @Override
