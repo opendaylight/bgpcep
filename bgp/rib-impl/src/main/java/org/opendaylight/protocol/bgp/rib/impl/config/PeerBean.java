@@ -20,6 +20,8 @@ public interface PeerBean extends AutoCloseable {
 
     void start(RIB rib, Neighbor neighbor, BGPOpenConfigMappingService mappingService);
 
+    void restart(RIB rib, BGPOpenConfigMappingService mappingService);
+
     @Override
     void close();
 
