@@ -22,6 +22,30 @@
       "revId": "4661eeee9aa4f5b5c0bd02c4e8297074fa170387",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_e865ad1e",
+        "filename": "pcep/api/src/main/yang/pcep-types.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2016-07-26T16:38:49Z",
+      "side": 1,
+      "message": "This container is used to model the PCEP messages and should ideally be transparent and not causing any \"API\" change.\n\nHowever lsp-attributes is changed which is used by path-definition and that is used in add-lsp, update-lsp etc. so that way the API could change though it should not be backward incompatible.\n\nIf this is a problem, I can park the model change for now and just keep the change to fix handling of unexpected object. Is that fine?",
+      "parentUuid": "9a561d44_8d536338",
+      "range": {
+        "startLine": 430,
+        "startChar": 18,
+        "endLine": 430,
+        "endChar": 42
+      },
+      "revId": "4661eeee9aa4f5b5c0bd02c4e8297074fa170387",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
