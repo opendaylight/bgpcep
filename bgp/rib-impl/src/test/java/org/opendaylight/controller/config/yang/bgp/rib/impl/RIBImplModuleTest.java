@@ -16,7 +16,7 @@ import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 
 public class RIBImplModuleTest extends AbstractRIBImplModuleTest {
-    private static final int EXP_INSTANCES = 7;
+    private static final int EXP_INSTANCES = 8;
     private static final AsNumber AS_NUMBER = new AsNumber(500L);
     private static final String INSTANCE_NAME = "rib-impl";
     private static final String FACTORY_NAME = RIBImplModuleFactory.NAME;

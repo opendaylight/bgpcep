@@ -22,6 +22,7 @@ module odl-bgp-rib-impl-cfg {
     import bgp-peer { prefix peer; revision-date 2016-06-06; }
     import bgp-stats-peer { prefix peer-stats; revision-date 2016-06-06; }
     import bgp-stats-rib-impl { prefix rib-impl-stats; revision-date 2016-06-06; }
+    import cluster-singleton-service-spi { prefix cluster-singleton; revision-date 2016-07-18; }
 
     organization "Cisco Systems, Inc.";
 
@@ -470,6 +471,15 @@ module odl-bgp-rib-impl-cfg {
                 uses config:service-ref {
                     refine type {
                         config:required-identity bgp-path-selection-mode;
+                    }
+                }
+            }
+
+            container cluster-singleton-service-provider {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity cluster-singleton:cluster-singleton-service;
                     }
                 }
             }

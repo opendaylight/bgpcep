@@ -25,6 +25,7 @@ public class Ipv6ReachabilityTopologyBuilderModuleTest extends AbstractRIBImplMo
 
     private static final String FACTORY_NAME = Ipv6ReachabilityTopologyBuilderModuleFactory.NAME;
     private static final String INSTANCE_NAME = "bgp-reachability-ipv6-instance";
+    private static final int EXPECTED = 9;
 
     @Override
     protected List<ModuleFactory> getModuleFactories() {
@@ -60,7 +61,7 @@ public class Ipv6ReachabilityTopologyBuilderModuleTest extends AbstractRIBImplMo
     public void testCreateBean() throws Exception {
         final CommitStatus status = createIpv6ReachabilityTopoBuilderModuleInstance();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 8, 0, 0);
+        assertStatus(status, EXPECTED, 0, 0);
     }
 
     @Test
@@ -70,7 +71,7 @@ public class Ipv6ReachabilityTopologyBuilderModuleTest extends AbstractRIBImplMo
         assertBeanCount(1, FACTORY_NAME);
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 0, 8);
+        assertStatus(status, 0, 0, EXPECTED);
     }
 
     @Test
@@ -83,7 +84,7 @@ public class Ipv6ReachabilityTopologyBuilderModuleTest extends AbstractRIBImplMo
         mxBean.setTopologyId(new TopologyId("new-bgp-topology"));
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 1, 7);
+        assertStatus(status, 0, 1, EXPECTED-1);
     }
 
     private CommitStatus createIpv6ReachabilityTopoBuilderModuleInstance() throws Exception {

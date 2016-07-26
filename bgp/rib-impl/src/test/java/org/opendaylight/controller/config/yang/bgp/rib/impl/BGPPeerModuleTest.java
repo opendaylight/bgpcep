@@ -36,7 +36,7 @@ import org.opendaylight.yangtools.sal.binding.generator.util.BindingRuntimeConte
 
 public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
 
-    private static final int EXP_INSTANCES = 18;
+    private static final int EXP_INSTANCES = 19;
     private static final String INSTANCE_NAME = "bgp-peer-module-impl";
     private static final String FACTORY_NAME = BGPPeerModuleFactory.NAME;
 

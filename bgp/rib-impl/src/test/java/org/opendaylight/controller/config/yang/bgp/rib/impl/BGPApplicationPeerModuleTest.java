@@ -15,24 +15,27 @@ import static org.junit.Assert.fail;
 import java.util.List;
 import javax.management.InstanceNotFoundException;
 import javax.management.ObjectName;
+import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
 import org.opendaylight.controller.config.spi.ModuleFactory;
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class BGPApplicationPeerModuleTest extends AbstractRIBImplModuleTest {
 
-    private static final int EXP_INSTANCES = 8;
+    private static final int EXP_RIB_INSTANCES =  8;
+    private static final int EXP_APP_INSTANCES = 1;
     private static final String INSTANCE_NAME = "application-peer-instance";
     private static final String INSTANCE_NAME2 = "application-peer-instance-2";
     private static final String FACTORY_NAME = BGPApplicationPeerModuleFactory.NAME;
     private static final ApplicationRibId APP_RIB_ID = new ApplicationRibId("application-peer-test");
     private static final ApplicationRibId NEW_APP_RIB_ID = new ApplicationRibId("new-application-peer-name");
-
-    private ObjectName dataBroker = null;
-    private ObjectName ribModule = null;
+    private static final int EXP_APP_INSTANCES_REUSED = 9;
 
     @Override
     protected List<ModuleFactory> getModuleFactories() {
@@ -43,23 +46,32 @@ public class BGPApplicationPeerModuleTest extends AbstractRIBImplModuleTest {
 
     @Test
     public void testCreateInstance() throws Exception {
+        final CommitStatus statusRib = createInstance();
+        assertStatus(statusRib, EXP_RIB_INSTANCES, 0, 0);
+        this.ribService.instantiateServiceInstance();
         final CommitStatus status = createApplicationPeerInstance();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, EXP_INSTANCES, 0, 0);
+        assertStatus(status, EXP_APP_INSTANCES, 0, EXP_RIB_INSTANCES);
     }
 
     @Test
     public void testReusingOldInstance() throws Exception {
+        final CommitStatus statusRib = createInstance();
+        assertStatus(statusRib, EXP_RIB_INSTANCES, 0, 0);
+        this.ribService.instantiateServiceInstance();
         createApplicationPeerInstance();
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         assertBeanCount(1, FACTORY_NAME);
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 0, EXP_INSTANCES);
+        assertStatus(status, 0, 0, EXP_APP_INSTANCES_REUSED);
     }
 
     @Test
     public void testReconfigure() throws Exception {
+        final CommitStatus statusRib = createInstance();
+        assertStatus(statusRib, EXP_RIB_INSTANCES, 0, 0);
+        this.ribService.instantiateServiceInstance();
         createApplicationPeerInstance();
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         assertBeanCount(1, FACTORY_NAME);
@@ -68,12 +80,14 @@ public class BGPApplicationPeerModuleTest extends AbstractRIBImplModuleTest {
         mxBean.setApplicationRibId(new ApplicationRibId(NEW_APP_RIB_ID));
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 1, EXP_INSTANCES - 1);
+        assertStatus(status, 0, 1, EXP_RIB_INSTANCES);
         assertEquals(NEW_APP_RIB_ID, getApplicationRibId());
     }
 
     @Test
-    public void testConflictingPeerAddress() throws Exception {
+    public void testZConflictingPeerAddress() throws Exception {
+        final CommitStatus statusRib = createInstance();
+        assertStatus(statusRib, EXP_RIB_INSTANCES, 0, 0);
         createApplicationPeerInstance();
         try {
             createApplicationPeerInstance(INSTANCE_NAME2);

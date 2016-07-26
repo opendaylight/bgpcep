@@ -33,6 +33,7 @@ import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigProvider;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenconfigMapper;
 import org.opendaylight.protocol.bgp.openconfig.spi.InstanceConfigurationIdentifier;
 import org.opendaylight.protocol.bgp.openconfig.spi.pojo.BGPPeerInstanceConfiguration;
+import org.opendaylight.protocol.bgp.openconfig.spi.pojo.ModuleTracker;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.spi.MultiprotocolCapabilitiesUtil;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeer;
@@ -131,7 +132,17 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
 
         getPeerRegistryBackwards().addPeer(host, bgpClientPeer, prefs);
 
-        final BGPPeerModuleTracker moduleTracker = new BGPPeerModuleTracker(r.getOpenConfigProvider());
+        final Optional<BGPOpenConfigProvider> openconfigProvider = r.getOpenConfigProvider();
+        BGPOpenconfigMapper<BGPPeerInstanceConfiguration> neighborProvider = null;
+        if (openconfigProvider.isPresent()) {
+            neighborProvider = openconfigProvider.get().getOpenConfigMapper(BGPPeerInstanceConfiguration.class);
+        }
+        final InstanceConfigurationIdentifier identifier = new InstanceConfigurationIdentifier(getIdentifier().getInstanceName());
+        final BGPPeerInstanceConfiguration bgpPeerInstanceConfiguration = new BGPPeerInstanceConfiguration(identifier, getNormalizedHost(),
+            getPort(), getHoldtimer(), getPeerRole(), getInitiateConnection(),
+            getAdvertizedTableDependency(), getAsOrDefault(getRibDependency()),
+            getOptionalPassword(getPassword()), getAddPathDependency());
+        final ModuleTracker<BGPPeerInstanceConfiguration> moduleTracker = new ModuleTracker(neighborProvider, bgpPeerInstanceConfiguration);
         moduleTracker.onInstanceCreate();
 
         final CloseableNoEx peerCloseable = () -> {
@@ -239,40 +250,6 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         }
 
         return null;
-    }
-
-    private final class BGPPeerModuleTracker implements BGPConfigModuleTracker {
-
-        private final BGPOpenconfigMapper<BGPPeerInstanceConfiguration> neighborProvider;
-        private final BGPPeerInstanceConfiguration bgpPeerInstanceConfiguration;
-
-        public BGPPeerModuleTracker(final Optional<BGPOpenConfigProvider> openconfigProvider) {
-            if (openconfigProvider.isPresent()) {
-                this.neighborProvider = openconfigProvider.get().getOpenConfigMapper(BGPPeerInstanceConfiguration.class);
-            } else {
-                this.neighborProvider = null;
-            }
-            final InstanceConfigurationIdentifier identifier = new InstanceConfigurationIdentifier(getIdentifier().getInstanceName());
-            this.bgpPeerInstanceConfiguration = new BGPPeerInstanceConfiguration(identifier, getNormalizedHost(),
-                    getPort(), getHoldtimer(), getPeerRole(), getInitiateConnection(),
-                    getAdvertizedTableDependency(), getAsOrDefault(getRibDependency()),
-                    getOptionalPassword(getPassword()), getAddPathDependency());
-        }
-
-        @Override
-        public void onInstanceCreate() {
-            if (this.neighborProvider != null) {
-                this.neighborProvider.writeConfiguration(this.bgpPeerInstanceConfiguration);
-            }
-        }
-
-        @Override
-        public void onInstanceClose() {
-            if (this.neighborProvider != null) {
-                this.neighborProvider.removeConfiguration(this.bgpPeerInstanceConfiguration);
-            }
-        }
-
     }
 
     private static Optional<Rfc2385Key> getOptionalPassword(final Rfc2385Key password) {
