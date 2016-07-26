@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_1f9db959",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/AbstractTopologyBuilder.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-07-26T11:41:36Z",
+      "side": 1,
+      "message": "private",
+      "range": {
+        "startLine": 92,
+        "startChar": 4,
+        "endLine": 92,
+        "endChar": 16
+      },
+      "revId": "67fddd5d0ac5bdb77c3eaf6490d32b25ed496082",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_3f987d69",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/AbstractTopologyBuilder.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-07-26T11:41:36Z",
+      "side": 1,
+      "message": "private",
+      "range": {
+        "startLine": 104,
+        "startChar": 4,
+        "endLine": 104,
+        "endChar": 16
+      },
+      "revId": "67fddd5d0ac5bdb77c3eaf6490d32b25ed496082",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_ffa3a5af",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/AbstractTopologyBuilder.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-07-26T11:41:36Z",
+      "side": 1,
+      "message": "Is it necessary to catch exceptions here?",
+      "range": {
+        "startLine": 110,
+        "startChar": 0,
+        "endLine": 112,
+        "endChar": 13
+      },
+      "revId": "67fddd5d0ac5bdb77c3eaf6490d32b25ed496082",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_bfd92d24",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/AbstractTopologyBuilder.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-07-26T11:41:36Z",
+      "side": 1,
+      "message": "Error handling should be improved here. Transaction chain failures should be handled at one place only - onTransactionChainFailed.\nHere we should catch \"corrupted/incomplete data exceptions\" and do not submit such data, but continue with another data change processing without restarting. Otherwise we can end with infinite restaring loop (i.e. there some processing data bug - fails all the time the same way).",
+      "range": {
+        "startLine": 149,
+        "startChar": 0,
+        "endLine": 156,
+        "endChar": 13
+      },
+      "revId": "67fddd5d0ac5bdb77c3eaf6490d32b25ed496082",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_5f7bb127",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/AbstractTopologyBuilder.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-07-26T11:41:36Z",
+      "side": 1,
+      "message": "Catch exception internally.",
+      "range": {
+        "startLine": 248,
+        "startChar": 0,
+        "endLine": 252,
+        "endChar": 19
+      },
+      "revId": "67fddd5d0ac5bdb77c3eaf6490d32b25ed496082",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_9fed49ba",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/controller/config/yang/bgp/reachability/ipv4/Ipv4ReachabilityTopologyBuilderModule.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-07-26T11:41:36Z",
+      "side": 1,
+      "message": "call registration in constructor",
+      "range": {
+        "startLine": 56,
+        "startChar": 8,
+        "endLine": 56,
+        "endChar": 39
+      },
+      "revId": "67fddd5d0ac5bdb77c3eaf6490d32b25ed496082",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_df32215e",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/controller/config/yang/bgp/reachability/ipv4/Ipv4ReachabilityTopologyBuilderModule.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-07-26T11:41:36Z",
+      "side": 1,
+      "message": "return Ipv4ReachabilityTopologyBuilder instance directly",
+      "range": {
+        "startLine": 58,
+        "startChar": 0,
+        "endLine": 69,
+        "endChar": 77
+      },
+      "revId": "67fddd5d0ac5bdb77c3eaf6490d32b25ed496082",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
