@@ -9,10 +9,11 @@
 import weakref
 import traceback
 import logging
-_LOGGER = logging.getLogger('pcepy.peer')
-
 from pcepy import session as _session
 from pcepy import message as _message
+
+_LOGGER = logging.getLogger('pcepy.peer')
+
 resolve_timeout = _session.resolve_timeout
 min_timeout = _session.min_timeout
 
@@ -761,7 +762,8 @@ class Logger(Handler):
 
     def __getattr__(self, name):
         if name.startswith('on_'):
-            meth = lambda peer, eventargs: self.report_event(name, peer, eventargs)
+            def meth(peer, eventargs):
+                return self.report_event(name, peer, eventargs)
             self.__dict__[name] = meth
             return meth
         raise AttributeError(name)
