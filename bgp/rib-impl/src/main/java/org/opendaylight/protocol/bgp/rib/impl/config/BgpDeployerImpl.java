@@ -15,9 +15,12 @@ import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import org.apache.aries.blueprint.services.ExtendedBlueprintContainer;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -147,9 +150,25 @@ public final class BgpDeployerImpl implements BgpDeployer, DataTreeChangeListene
         //restart rib instance with a new configuration
         LOG.debug("Modifing RIB instance with configuration: {}", global);
         final RibImpl ribImpl = this.ribs.get(rootIdentifier);
+        //close all related peers
+        final List<PeerBean> closedPeers = closeAllBindedPeers(rootIdentifier);
         ribImpl.close();
         initiateRibInstance(rootIdentifier, global, ribImpl);
+        //start again all related peers
+        closedPeers.forEach(peer -> peer.restart(ribImpl, this.mappingService));
         LOG.debug("RIB instance modified {}", ribImpl);
+    }
+
+    private List<PeerBean> closeAllBindedPeers(final InstanceIdentifier<Bgp> rooIdentifier) {
+        final List<PeerBean> filtered = new ArrayList<>();
+        for (final Entry<InstanceIdentifier<Neighbor>, PeerBean> entry : this.peers.entrySet()) {
+            if (entry.getKey().contains(rooIdentifier)) {
+                final PeerBean peer = entry.getValue();
+                peer.close();
+                filtered.add(peer);
+            }
+        }
+        return filtered;
     }
 
     private void onGlobalCreated(final InstanceIdentifier<Bgp> rootIdentifier, final Global global) {
@@ -188,17 +207,17 @@ public final class BgpDeployerImpl implements BgpDeployer, DataTreeChangeListene
             final InstanceIdentifier<Bgp> rootIdentifier) {
         for (final DataObjectModification<? extends DataObject> neighborModification : dataObjectModification.getModifiedChildren()) {
             switch (neighborModification.getModificationType()) {
-                case DELETE:
-                    onNeighborRemoved(rootIdentifier, (Neighbor) neighborModification.getDataBefore());
-                    break;
-                case SUBTREE_MODIFIED:
-                    onNeighborModified(rootIdentifier, (Neighbor) neighborModification.getDataAfter());
-                    break;
-                case WRITE:
-                    onNeighborCreated(rootIdentifier, (Neighbor) neighborModification.getDataAfter());
-                    break;
-                default:
-                    break;
+            case DELETE:
+                onNeighborRemoved(rootIdentifier, (Neighbor) neighborModification.getDataBefore());
+                break;
+            case SUBTREE_MODIFIED:
+                onNeighborModified(rootIdentifier, (Neighbor) neighborModification.getDataAfter());
+                break;
+            case WRITE:
+                onNeighborCreated(rootIdentifier, (Neighbor) neighborModification.getDataAfter());
+                break;
+            default:
+                break;
             }
         }
     }
