@@ -82,7 +82,6 @@ import org.opendaylight.protocol.pcep.spi.LabelRegistry;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
-import org.opendaylight.protocol.pcep.spi.VendorInformationObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActivator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Close;
@@ -149,7 +148,6 @@ public final class BaseParserExtensionActivator extends AbstractPCEPExtensionPro
         registerObjectParsers(regs, context);
 
         final ObjectRegistry objReg = context.getObjectHandlerRegistry();
-        final VendorInformationObjectRegistry viObjReg = context.getVendorInformationObjectRegistry();
         final PCEPOpenMessageParser openParser = new PCEPOpenMessageParser(objReg);
         regs.add(context.registerMessageParser(PCEPOpenMessageParser.TYPE, openParser));
         regs.add(context.registerMessageSerializer(
@@ -160,11 +158,11 @@ public final class BaseParserExtensionActivator extends AbstractPCEPExtensionPro
         regs.add(context.registerMessageParser(PCEPKeepAliveMessageParser.TYPE, kaParser));
         regs.add(context.registerMessageSerializer(Keepalive.class, kaParser));
 
-        final PCEPRequestMessageParser reqParser = new PCEPRequestMessageParser(objReg, viObjReg);
+        final PCEPRequestMessageParser reqParser = new PCEPRequestMessageParser(objReg);
         regs.add(context.registerMessageParser(PCEPRequestMessageParser.TYPE, reqParser));
         regs.add(context.registerMessageSerializer(Pcreq.class, reqParser));
 
-        final PCEPReplyMessageParser repParser = new PCEPReplyMessageParser(objReg, viObjReg);
+        final PCEPReplyMessageParser repParser = new PCEPReplyMessageParser(objReg);
         regs.add(context.registerMessageParser(PCEPReplyMessageParser.TYPE, repParser));
         regs.add(context.registerMessageSerializer(Pcrep.class, repParser));
 
@@ -184,7 +182,7 @@ public final class BaseParserExtensionActivator extends AbstractPCEPExtensionPro
         regs.add(context.registerMessageParser(PCEPMonitoringReplyMessageParser.TYPE, monRepParser));
         regs.add(context.registerMessageSerializer(Pcmonrep.class, monRepParser));
 
-        final PCEPMonitoringRequestMessageParser monReqParser = new PCEPMonitoringRequestMessageParser(objReg, viObjReg);
+        final PCEPMonitoringRequestMessageParser monReqParser = new PCEPMonitoringRequestMessageParser(objReg);
         regs.add(context.registerMessageParser(PCEPMonitoringRequestMessageParser.TYPE, monReqParser));
         regs.add(context.registerMessageSerializer(Pcmonreq.class, monReqParser));
 
