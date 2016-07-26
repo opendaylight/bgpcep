@@ -12,6 +12,7 @@ import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUti
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getPeerAs;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import io.netty.util.concurrent.Future;
 import java.util.ArrayList;
@@ -56,9 +57,9 @@ public class BgpPeer implements PeerBean {
     private final BGPPeerRegistry peerRegistry;
     private BGPPeer bgpPeer;
 
-    private IpAddress neighborAddress;
-
     private Future<Void> connection;
+
+    private Neighbor currentConfiguration;
 
     public BgpPeer(final RpcProviderRegistry rpcRegistry, final BGPPeerRegistry peerRegistry) {
         this.rpcRegistry = rpcRegistry;
@@ -67,20 +68,27 @@ public class BgpPeer implements PeerBean {
 
     @Override
     public void start(final RIB rib, final Neighbor neighbor, final BGPOpenConfigMappingService mappingService) {
-        this.neighborAddress = neighbor.getNeighborAddress();
-        this.bgpPeer = new BGPPeer(Ipv4Util.toStringIP(this.neighborAddress), rib,
+        this.currentConfiguration = neighbor;
+        final IpAddress neighborAddress = neighbor.getNeighborAddress();
+        this.bgpPeer = new BGPPeer(Ipv4Util.toStringIP(neighborAddress), rib,
                 mappingService.toPeerRole(neighbor), this.rpcRegistry);
         final List<BgpParameters> bgpParameters = getBgpParameters(neighbor, rib, mappingService);
         final KeyMapping key = OpenConfigMappingUtil.getNeighborKey(neighbor);
         final BGPSessionPreferences prefs = new BGPSessionPreferences(rib.getLocalAs(),
                 getHoldTimer(neighbor), rib.getBgpIdentifier(), getPeerAs(neighbor, rib), bgpParameters, getPassword(key));
-        this.peerRegistry.addPeer(this.neighborAddress, this.bgpPeer, prefs);
+        this.peerRegistry.addPeer(neighborAddress, this.bgpPeer, prefs);
         if (OpenConfigMappingUtil.isActive(neighbor)) {
             this.connection = rib.getDispatcher().createReconnectingClient(
-                    Ipv4Util.toInetSocketAddress(this.neighborAddress, PORT), this.peerRegistry,
+                    Ipv4Util.toInetSocketAddress(neighborAddress, PORT), this.peerRegistry,
                     OpenConfigMappingUtil.getRetryTimer(neighbor), Optional.fromNullable(key));
         }
 
+    }
+
+    @Override
+    public void restart(final RIB rib, final BGPOpenConfigMappingService mappingService) {
+        Preconditions.checkNotNull(this.currentConfiguration);
+        start(rib, this.currentConfiguration, mappingService);
     }
 
     @Override
@@ -90,7 +98,7 @@ public class BgpPeer implements PeerBean {
                 this.connection.cancel(true);
             }
             this.bgpPeer.close();
-            this.peerRegistry.removePeer(this.neighborAddress);
+            this.peerRegistry.removePeer(this.currentConfiguration.getNeighborAddress());
         }
     }
 
