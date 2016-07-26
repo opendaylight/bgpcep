@@ -29,6 +29,7 @@ import org.opendaylight.protocol.bgp.openconfig.spi.BGPConfigModuleTracker;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenconfigMapper;
 import org.opendaylight.protocol.bgp.openconfig.spi.InstanceConfigurationIdentifier;
 import org.opendaylight.protocol.bgp.openconfig.spi.pojo.BGPRibInstanceConfiguration;
+import org.opendaylight.protocol.bgp.openconfig.spi.pojo.ModuleTracker;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPBestPathSelection;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
@@ -68,9 +69,16 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
     @Override
     public java.lang.AutoCloseable createInstance() {
         final Map<TablesKey, PathSelectionMode> pathSelectionStrategies = mapBestPathSelectionStrategyByFamily(getRibPathSelectionModeDependency());
-        final RIBImpl rib = new RIBImpl(getRibId(), getLocalAs(), getBgpRibId(), getClusterId(), getExtensionsDependency(),
-            getBgpDispatcherDependency(), getCodecTreeFactoryDependency(), getDomDataProviderDependency(), getLocalTableDependency(), pathSelectionStrategies, classLoadingStrategy(),
-            new RIBImplModuleTracker(getGlobalWriter()), getOpenconfigProviderDependency());
+
+        final InstanceConfigurationIdentifier identifier = new InstanceConfigurationIdentifier(getIdentifier().getInstanceName());
+        final List<BgpTableType> tableDependency = getLocalTableDependency();
+        final BGPRibInstanceConfiguration bgpRibConfig = new BGPRibInstanceConfiguration(identifier, getLocalAs(), getBgpRibId(), getClusterId(), tableDependency,
+            mapBestPathSelectionStrategyByFamily(getRibPathSelectionModeDependency()));
+        final ModuleTracker<BGPRibInstanceConfiguration> moduleTracker = new ModuleTracker(getGlobalWriter(), bgpRibConfig);
+        final RIBImpl rib = new RIBImpl(getClusterSingletonServiceProviderDependency(), getRibId(), getLocalAs(), getBgpRibId(), getClusterId(),
+            getExtensionsDependency(), getBgpDispatcherDependency(), getCodecTreeFactoryDependency(), getDomDataProviderDependency(),
+            getLocalTableDependency(), pathSelectionStrategies, classLoadingStrategy(), moduleTracker,
+            getOpenconfigProviderDependency());
         registerSchemaContextListener(rib);
 
         rib.registerRootRuntimeBean(getRootRuntimeBeanRegistratorWrapper());
@@ -107,35 +115,4 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
         }
         return null;
     }
-
-    private final class RIBImplModuleTracker implements BGPConfigModuleTracker {
-
-        private final BGPOpenconfigMapper<BGPRibInstanceConfiguration> globalWriter;
-        private final BGPRibInstanceConfiguration bgpRibConfig;
-
-        public RIBImplModuleTracker(final BGPOpenconfigMapper<BGPRibInstanceConfiguration> globalWriter) {
-            this.globalWriter = globalWriter;
-            final InstanceConfigurationIdentifier identifier = new InstanceConfigurationIdentifier(getIdentifier().getInstanceName());
-            final List<BgpTableType> tableDependency = getLocalTableDependency();
-            this.bgpRibConfig = new BGPRibInstanceConfiguration(identifier, getLocalAs(), getBgpRibId(), getClusterId(), tableDependency,
-                    mapBestPathSelectionStrategyByFamily(getRibPathSelectionModeDependency()));
-        }
-
-        @Override
-        public void onInstanceCreate() {
-            if (globalWriter != null) {
-                globalWriter.writeConfiguration(this.bgpRibConfig);
-            }
-        }
-
-        @Override
-        public void onInstanceClose() {
-            if (globalWriter != null) {
-                globalWriter.removeConfiguration(this.bgpRibConfig);
-            }
-        }
-
-    }
-
-
 }

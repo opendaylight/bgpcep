@@ -83,18 +83,23 @@ import org.opendaylight.controller.md.sal.dom.api.DOMRpcProviderService;
 import org.opendaylight.controller.md.sal.dom.api.DOMRpcService;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
 import org.opendaylight.controller.sal.core.api.model.YangTextSourceProvider;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
+import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
 import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.md.sal.config.impl.cluster.singleton.service.rev160718.ClusterSingletonServiceProviderModuleFactory;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.md.sal.config.impl.cluster.singleton.service.rev160718.ClusterSingletonServiceProviderModuleMXBean;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.sal.binding.generator.api.ClassLoadingStrategy;
 import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
@@ -132,6 +137,9 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     private static final String BINDING_BROKER_INSTANCE_NAME = "binding-broker-impl";
     private static final String COMPATIBLE_DATA_BROKER_INSTANCE_NAME = "binding-data-compatible-broker-instance";
     private static final String NOTIFICATION_BROKER_INSTANCE_NAME = "notification-broker-impl";
+    private static final String CLUSTER_SINGLETON_PROVIDER_INSTANCE_NAME = "cluster-singleton-service-impl";
+    protected ObjectName dataBroker = null;
+    protected ObjectName ribModule = null;
 
     @Mock
     private ReadWriteTransaction mockedTransaction;
@@ -147,6 +155,13 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
 
     @Mock
     protected BGPDispatcher mockedBGPDispatcher;
+
+    @Mock
+    protected ClusterSingletonServiceProvider mockedClusterServiceProvider;
+    @Mock
+    protected ClusterSingletonServiceRegistration clusterSingletonServiceRegistration;
+
+    protected ClusterSingletonService ribService;
 
     @SuppressWarnings("unchecked")
     @Before
@@ -239,6 +254,23 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         setupMockService(DOMMountPointService.class, mock(DOMMountPointService.class));
 
         setupMockService(BGPDispatcher.class, mockedBGPDispatcher);
+        setupMockService(ClusterSingletonServiceProvider.class, mockedClusterServiceProvider);
+
+        doAnswer(new Answer<ClusterSingletonServiceRegistration>() {
+            @Override
+            public ClusterSingletonServiceRegistration answer(final InvocationOnMock invocation) {
+                final ClusterSingletonService arg = invocation.getArgumentAt(0, ClusterSingletonService.class);
+                if(arg instanceof RIBImpl) {
+                    ribService = arg;
+                }
+                return clusterSingletonServiceRegistration;
+            }
+        }).when(mockedClusterServiceProvider).registerClusterSingletonService(any(ClusterSingletonService.class));
+
+
+        doNothing().when(mockedClusterServiceProvider).close();
+        doNothing().when(clusterSingletonServiceRegistration).close();
+
         doReturn(new SucceededFuture<>(ImmediateEventExecutor.INSTANCE, null)).when(mockedBGPDispatcher).createReconnectingClient(
                 any(InetSocketAddress.class), any(BGPPeerRegistry.class), anyInt(), any(Optional.class));
 
@@ -273,20 +305,14 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
                 new HashedWheelTimerModuleFactory(), new BindingAsyncDataBrokerImplModuleFactory(),
                 new DomInmemoryDataBrokerModuleFactory(), new SchemaServiceImplSingletonModuleFactory(),
                 new NotificationBrokerImplModuleFactory(), new ForwardedCompatibleDataBrokerImplModuleFactory(),
-                new BindingBrokerImplModuleFactory());
+                new BindingBrokerImplModuleFactory(), new ClusterSingletonServiceProviderModuleFactory());
     }
 
     @Override
     protected BundleContextServiceRegistrationHandler getBundleContextServiceRegistrationHandler(final Class<?> serviceType) {
         if (serviceType.equals(SchemaContextListener.class)) {
-            return new BundleContextServiceRegistrationHandler() {
-                @Override
-                public void handleServiceRegistration(final Class<?> clazz, final Object serviceInstance, final Dictionary<String, ?> props) {
-                    final SchemaContextListener listener = (SchemaContextListener) serviceInstance;
-                    final SchemaContext context = parseYangStreams(getFilesAsByteSources(getYangModelsPaths()));
-                    listener.onGlobalContextUpdated(context);
-                }
-            };
+            return (clazz, serviceInstance, props) -> ((SchemaContextListener) serviceInstance).
+                onGlobalContextUpdated(parseYangStreams(getFilesAsByteSources(getYangModelsPaths())));
         }
 
         return super.getBundleContextServiceRegistrationHandler(serviceType);
@@ -294,6 +320,9 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
 
     @After
     public void closeAllModules() throws Exception {
+        if(this.ribService != null) {
+            this.ribService.closeServiceInstance();
+        }
         super.destroyAllConfigBeans();
 
     }
@@ -323,7 +352,23 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         mxBean.setLocalAs(localAs);
         mxBean.setBgpRibId(bgpId);
         mxBean.setClusterId(clusterId);
+        mxBean.setClusterSingletonServiceProvider(lookupClusterSingletonServiceProvider(transaction));
         return nameCreated;
+    }
+
+
+    static ObjectName lookupClusterSingletonServiceProvider(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
+        try {
+            return transaction.lookupConfigBean(ClusterSingletonServiceProviderModuleFactory.NAME, CLUSTER_SINGLETON_PROVIDER_INSTANCE_NAME);
+        } catch (final InstanceNotFoundException e) {
+            try {
+                final ObjectName nameCreated = transaction.createModule(ClusterSingletonServiceProviderModuleFactory.NAME, CLUSTER_SINGLETON_PROVIDER_INSTANCE_NAME);
+                final ClusterSingletonServiceProviderModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, ClusterSingletonServiceProviderModuleMXBean.class);
+                return nameCreated;
+            } catch (final InstanceAlreadyExistsException e1) {
+                throw new IllegalStateException(e1);
+            }
+        }
     }
 
     public static ObjectName createBGPDispatcherImplInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
@@ -333,8 +378,13 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     }
 
     protected ObjectName createRIBImplModuleInstance(final ConfigTransactionJMXClient transaction) throws Exception {
-        return createRIBImplModuleInstance(transaction, RIB_ID, AS_NUMBER, BGP_ID, CLUSTER_ID,
-                createAsyncDataBrokerInstance(transaction));
+        if (this.dataBroker == null) {
+            this.dataBroker = createAsyncDataBrokerInstance(transaction);
+        }
+        if (this.ribModule == null) {
+            this.ribModule = createRIBImplModuleInstance(transaction, RIB_ID, AS_NUMBER, BGP_ID, CLUSTER_ID, this.dataBroker);
+        }
+        return this.ribModule;
     }
 
     public ObjectName createRIBImplModuleInstance(final ConfigTransactionJMXClient transaction, final ObjectName dataBroker)

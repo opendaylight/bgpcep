@@ -17,6 +17,7 @@ import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigProvider;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenconfigMapper;
 import org.opendaylight.protocol.bgp.openconfig.spi.InstanceConfigurationIdentifier;
 import org.opendaylight.protocol.bgp.openconfig.spi.pojo.BGPAppPeerInstanceConfiguration;
+import org.opendaylight.protocol.bgp.openconfig.spi.pojo.ModuleTracker;
 import org.opendaylight.protocol.bgp.rib.impl.ApplicationPeer;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeer;
 import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
@@ -59,7 +60,16 @@ public class BGPApplicationPeerModule extends org.opendaylight.controller.config
 
         final YangInstanceIdentifier id = YangInstanceIdentifier.builder().node(ApplicationRib.QNAME).nodeWithKey(ApplicationRib.QNAME, APP_ID_QNAME, getApplicationRibId().getValue()).node(Tables.QNAME).node(Tables.QNAME).build();
         final DOMDataTreeChangeService service = (DOMDataTreeChangeService) getDataBrokerDependency().getSupportedExtensions().get(DOMDataTreeChangeService.class);
-        final AppPeerModuleTracker appPeerMT = new AppPeerModuleTracker(getTargetRibDependency().getOpenConfigProvider());
+
+        final Optional<BGPOpenConfigProvider> openConfigProvider = getTargetRibDependency().getOpenConfigProvider();
+        BGPOpenconfigMapper<BGPAppPeerInstanceConfiguration> appProvider = null;
+        if (openConfigProvider.isPresent()) {
+            appProvider = openConfigProvider.get().getOpenConfigMapper(BGPAppPeerInstanceConfiguration.class);
+        }
+        final InstanceConfigurationIdentifier identifier = new InstanceConfigurationIdentifier(getIdentifier().getInstanceName());
+        final BGPAppPeerInstanceConfiguration bgpAppPeerInstanceConfiguration = new BGPAppPeerInstanceConfiguration(identifier,
+            getApplicationRibId().getValue(), getBgpPeerId());
+        final ModuleTracker<BGPAppPeerInstanceConfiguration> appPeerMT = new ModuleTracker<>(appProvider, bgpAppPeerInstanceConfiguration);
         final ApplicationPeer appPeer = new ApplicationPeer(getApplicationRibId(), getBgpPeerId(), getTargetRibDependency(), appPeerMT);
         final ListenerRegistration<ApplicationPeer> listenerRegistration = service.registerDataTreeChangeListener(
                 new DOMDataTreeIdentifier(LogicalDatastoreType.CONFIGURATION, id), appPeer);
@@ -69,11 +79,6 @@ public class BGPApplicationPeerModule extends org.opendaylight.controller.config
             appPeer.close();
             removeFromPeerRegistry();
         };
-    }
-
-    private interface CloseableNoEx extends AutoCloseable {
-        @Override
-        void close();
     }
 
     private void addToPeerRegistry() {
@@ -97,37 +102,5 @@ public class BGPApplicationPeerModule extends org.opendaylight.controller.config
 
     private BGPPeerRegistry getPeerRegistryBackwards() {
         return getBgpPeerRegistryDependency() == null ? StrictBGPPeerRegistry.GLOBAL : getBgpPeerRegistryDependency();
-    }
-
-    private final class AppPeerModuleTracker implements BGPConfigModuleTracker {
-
-        private final BGPOpenconfigMapper<BGPAppPeerInstanceConfiguration> appProvider;
-        private final BGPAppPeerInstanceConfiguration bgpAppPeerInstanceConfiguration;
-
-        AppPeerModuleTracker(final Optional<BGPOpenConfigProvider> openConfigProvider) {
-            if (openConfigProvider.isPresent()) {
-                this.appProvider = openConfigProvider.get().getOpenConfigMapper(BGPAppPeerInstanceConfiguration.class);
-            } else {
-                this.appProvider = null;
-            }
-            final InstanceConfigurationIdentifier identifier = new InstanceConfigurationIdentifier(getIdentifier().getInstanceName());
-            this.bgpAppPeerInstanceConfiguration = new BGPAppPeerInstanceConfiguration(identifier, getApplicationRibId().getValue(),
-                    getBgpPeerId());
-        }
-
-        @Override
-        public void onInstanceCreate() {
-            if (this.appProvider != null) {
-                this.appProvider.writeConfiguration(this.bgpAppPeerInstanceConfiguration);
-            }
-        }
-
-        @Override
-        public void onInstanceClose() {
-            if (this.appProvider != null) {
-                this.appProvider.removeConfiguration(this.bgpAppPeerInstanceConfiguration);
-            }
-        }
-
     }
 }

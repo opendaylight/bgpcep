@@ -7,12 +7,13 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -35,6 +36,10 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataBrokerExtension;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
+import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPConfigModuleTracker;
@@ -82,13 +87,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ThreadSafe
-public final class RIBImpl extends DefaultRibReference implements AutoCloseable, RIB, TransactionChainListener, SchemaContextListener {
+public final class RIBImpl extends DefaultRibReference implements ClusterSingletonService, RIB, TransactionChainListener,
+    SchemaContextListener {
     private static final Logger LOG = LoggerFactory.getLogger(RIBImpl.class);
-    @VisibleForTesting
-    public static final QName RIB_ID_QNAME = QName.create(Rib.QNAME, "id").intern();
-    @VisibleForTesting
-    public static final ContainerNode EMPTY_TABLE_ATTRIBUTES = ImmutableNodes.containerNode(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Attributes.QNAME);
-
+    private static final QName RIB_ID_QNAME = QName.create(Rib.QNAME, "id").intern();
+    private static final ContainerNode EMPTY_TABLE_ATTRIBUTES = ImmutableNodes.containerNode(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Attributes.QNAME);
     private final BGPDispatcher dispatcher;
     private final DOMTransactionChain domChain;
     private final AsNumber localAs;
@@ -108,15 +111,21 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies;
     private final ImportPolicyPeerTracker importPolicyPeerTracker;
     private final RIBImplRuntimeMXBeanImpl renderStats;
+    private final PolicyDatabase policyDatabase;
+    private final String ribId;
+    private final ClusterSingletonServiceProvider provider;
     private RIBImplRuntimeRegistrator registrator = null;
     private RIBImplRuntimeRegistration runtimeReg = null;
+    private ClusterSingletonServiceRegistration registration;
+    private final ServiceGroupIdentifier serviceGroupIdentifier;
 
-    public RIBImpl(final RibId ribId, final AsNumber localAs, final BgpId localBgpId, final ClusterIdentifier clusterId, final RIBExtensionConsumerContext extensions,
-            final BGPDispatcher dispatcher, final BindingCodecTreeFactory codecFactory,
-            final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
-            @Nonnull final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies, final GeneratedClassLoadingStrategy classStrategy,
-            final BGPConfigModuleTracker moduleTracker, final BGPOpenConfigProvider openConfigProvider) {
+    public RIBImpl(final ClusterSingletonServiceProvider provider, final RibId ribId, final AsNumber localAs, final BgpId localBgpId,
+        final ClusterIdentifier clusterId, final RIBExtensionConsumerContext extensions, final BGPDispatcher dispatcher,
+        final BindingCodecTreeFactory codecFactory, final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
+        @Nonnull final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies, final GeneratedClassLoadingStrategy classStrategy,
+        final BGPConfigModuleTracker moduleTracker, final BGPOpenConfigProvider openConfigProvider) {
         super(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(Preconditions.checkNotNull(ribId))));
+        this.ribId = ribId.getValue();
         this.domChain = domDataBroker.createTransactionChain(this);
         this.localAs = Preconditions.checkNotNull(localAs);
         this.bgpIdentifier = Preconditions.checkNotNull(localBgpId);
@@ -128,69 +137,34 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         this.codecsRegistry = CodecsRegistryImpl.create(codecFactory, classStrategy);
         this.ribContextRegistry = RIBSupportContextRegistryImpl.create(extensions, this.codecsRegistry);
         final InstanceIdentifierBuilder yangRibIdBuilder = YangInstanceIdentifier.builder().node(BgpRib.QNAME).node(Rib.QNAME);
-        this.yangRibId = yangRibIdBuilder.nodeWithKey(Rib.QNAME, RIB_ID_QNAME, ribId.getValue()).build();
+        this.yangRibId = yangRibIdBuilder.nodeWithKey(Rib.QNAME, RIB_ID_QNAME, this.ribId).build();
         this.configModuleTracker = moduleTracker;
         this.openConfigProvider = openConfigProvider;
         this.cacheDisconnectedPeers = new CacheDisconnectedPeersImpl();
         this.bestPathSelectionStrategies = Preconditions.checkNotNull(bestPathSelectionStrategies);
         final ClusterIdentifier cId = (clusterId == null) ? new ClusterIdentifier(localBgpId) : clusterId;
         this.renderStats = new RIBImplRuntimeMXBeanImpl(localBgpId, ribId, localAs, cId);
-
-        LOG.debug("Instantiating RIB table {} at {}", ribId, this.yangRibId);
-
-        final ContainerNode bgpRib = Builders.containerBuilder()
-                .withNodeIdentifier(new NodeIdentifier(BgpRib.QNAME))
-                .addChild(ImmutableNodes.mapNodeBuilder(Rib.QNAME).build()).build();
-
-        final MapEntryNode ribInstance = Builders.mapEntryBuilder().withNodeIdentifier(
-                new NodeIdentifierWithPredicates(Rib.QNAME, RIB_ID_QNAME, ribId.getValue()))
-                .addChild(ImmutableNodes.leafNode(RIB_ID_QNAME, ribId.getValue()))
-                .addChild(ImmutableNodes.mapNodeBuilder(Peer.QNAME).build())
-                .addChild(Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(LocRib.QNAME))
-                        .addChild(ImmutableNodes.mapNodeBuilder(Tables.QNAME).build())
-                        .build()).build();
-
-
-        final DOMDataWriteTransaction trans = this.domChain.newWriteOnlyTransaction();
-
-        // merge empty BgpRib + Rib, to make sure the top-level parent structure is present
-        trans.merge(LogicalDatastoreType.OPERATIONAL, YangInstanceIdentifier.builder().node(BgpRib.QNAME).build(), bgpRib);
-        trans.put(LogicalDatastoreType.OPERATIONAL, yangRibIdBuilder.build(), ribInstance);
-
-        try {
-            trans.submit().checkedGet();
-        } catch (final TransactionCommitFailedException e) {
-            LOG.error("Failed to initiate RIB {}", this.yangRibId, e);
-        }
-        final PolicyDatabase policyDatabase  = new PolicyDatabase(localAs.getValue(), localBgpId, cId);
+        this.policyDatabase  = new PolicyDatabase(localAs.getValue(), localBgpId, cId);
         this.importPolicyPeerTracker = new ImportPolicyPeerTrackerImpl(policyDatabase);
 
-        final DOMDataBrokerExtension domDatatreeChangeService = this.domDataBroker.getSupportedExtensions().get(DOMDataTreeChangeService.class);
-        this.service = domDatatreeChangeService;
-        LOG.debug("Effective RIB created.");
-
-        for (final BgpTableType t : this.localTables) {
-            final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
-            this.localTablesKeys.add(key);
-            startLocRib(key, policyDatabase);
-        }
-
-        if (this.configModuleTracker != null) {
-            this.configModuleTracker.onInstanceCreate();
-        }
+        this.service = this.domDataBroker.getSupportedExtensions().get(DOMDataTreeChangeService.class);
+        this.serviceGroupIdentifier = ServiceGroupIdentifier.create(this.ribId + "-service-group");
+        Preconditions.checkNotNull(provider, "ClusterSingletonServiceProvider is null");
+        this.provider = provider;
+        LOG.info("RIB Singleton Service {} registered", this.getIdentifier());
+        this.registration = provider.registerClusterSingletonService(this);
     }
 
-    public RIBImpl(final RibId ribId, final AsNumber localAs, final BgpId localBgpId, @Nullable final ClusterIdentifier clusterId, final RIBExtensionConsumerContext extensions,
-            final BGPDispatcher dispatcher, final BindingCodecTreeFactory codecFactory,
-            final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
-            final Map<TablesKey, PathSelectionMode> bestPathSelectionstrategies, final GeneratedClassLoadingStrategy classStrategy) {
-        this(ribId, localAs, localBgpId, clusterId, extensions, dispatcher, codecFactory,
-                domDataBroker, localTables, bestPathSelectionstrategies, classStrategy, null, null);
+    public RIBImpl(final ClusterSingletonServiceProvider registration, final RibId ribId, final AsNumber localAs, final BgpId localBgpId,
+        @Nullable final ClusterIdentifier clusterId, final RIBExtensionConsumerContext extensions, final BGPDispatcher dispatcher,
+        final BindingCodecTreeFactory codecFactory, final DOMDataBroker domDataBroker, final List<BgpTableType> localTables, final Map<TablesKey,
+        PathSelectionMode> bestPathSelectionStrategies, final GeneratedClassLoadingStrategy classStrategy) {
+        this(registration, ribId, localAs, localBgpId, clusterId, extensions, dispatcher, codecFactory, domDataBroker, localTables,
+            bestPathSelectionStrategies, classStrategy, null, null);
     }
 
     public synchronized void registerRootRuntimeBean(final RIBImplRuntimeRegistrator registrator) {
         this.registrator = registrator;
-
         initStatsRuntimeBean();
     }
 
@@ -259,23 +233,11 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     }
 
     @Override
-    public synchronized void close() throws InterruptedException, ExecutionException {
-        final DOMDataWriteTransaction t = this.domChain.newWriteOnlyTransaction();
-        t.delete(LogicalDatastoreType.OPERATIONAL, getYangRibId());
-        t.submit().get();
-        this.domChain.close();
-        for (final LocRibWriter locRib : this.locRibs) {
-            try {
-                locRib.close();
-            } catch (final Exception e) {
-                LOG.warn("Could not close LocalRib reference: {}", locRib, e);
-            }
-        }
-
+    public synchronized void close() throws Exception {
         stopStatsRuntimeBean();
-
-        if (this.configModuleTracker != null) {
-            this.configModuleTracker.onInstanceClose();
+        if (registration != null) {
+            registration.close();
+            registration = null;
         }
     }
 
@@ -312,6 +274,11 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     @Override
     public Set<TablesKey> getLocalTablesKeys() {
         return this.localTablesKeys;
+    }
+
+    @Override
+    public ServiceGroupIdentifier getRibIServiceGroupIdentifier() {
+        return this.serviceGroupIdentifier;
     }
 
     @Override
@@ -367,5 +334,82 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     @Override
     public ImportPolicyPeerTracker getImportPolicyPeerTracker() {
         return this.importPolicyPeerTracker;
+    }
+
+    @Override
+    public void instantiateServiceInstance() {
+        LOG.info("Instantiating RIB table {} at {}, service {}", this.ribId, this.yangRibId, this.serviceGroupIdentifier);
+
+        final ContainerNode bgpRib = Builders.containerBuilder()
+            .withNodeIdentifier(new NodeIdentifier(BgpRib.QNAME))
+            .addChild(ImmutableNodes.mapNodeBuilder(Rib.QNAME).build()).build();
+
+        final MapEntryNode ribInstance = Builders.mapEntryBuilder().withNodeIdentifier(
+            new NodeIdentifierWithPredicates(Rib.QNAME, RIB_ID_QNAME, this.ribId))
+            .addChild(ImmutableNodes.leafNode(RIB_ID_QNAME, this.ribId))
+            .addChild(ImmutableNodes.mapNodeBuilder(Peer.QNAME).build())
+            .addChild(Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(LocRib.QNAME))
+                .addChild(ImmutableNodes.mapNodeBuilder(Tables.QNAME).build())
+                .build()).build();
+
+
+        final DOMDataWriteTransaction trans = this.domChain.newWriteOnlyTransaction();
+
+        // merge empty BgpRib + Rib, to make sure the top-level parent structure is present
+        trans.merge(LogicalDatastoreType.OPERATIONAL, YangInstanceIdentifier.builder().node(BgpRib.QNAME).build(), bgpRib);
+        trans.put(LogicalDatastoreType.OPERATIONAL, this.yangRibId, ribInstance);
+
+        try {
+            trans.submit().checkedGet();
+        } catch (final TransactionCommitFailedException e) {
+            LOG.error("Failed to initiate RIB {}", this.yangRibId, e);
+        }
+
+        LOG.debug("Effective RIB created.");
+
+        for (final BgpTableType t : this.localTables) {
+            final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
+            this.localTablesKeys.add(key);
+            startLocRib(key, this.policyDatabase);
+        }
+
+        if (this.configModuleTracker != null) {
+            this.configModuleTracker.onInstanceCreate();
+        }
+    }
+
+    @Override
+    public ListenableFuture<Void> closeServiceInstance() {
+        LOG.info("Rib Singleton Service {} instance closing", this.getIdentifier());
+        final DOMDataWriteTransaction t = this.domChain.newWriteOnlyTransaction();
+        t.delete(LogicalDatastoreType.OPERATIONAL, getYangRibId());
+        try {
+            t.submit().get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.warn("Could not remove Rib: {}", getYangRibId(), e);
+        }
+        this.domChain.close();
+        for (final LocRibWriter locRib : this.locRibs) {
+            try {
+                locRib.close();
+            } catch (final Exception e) {
+                LOG.warn("Could not close LocalRib reference: {}", locRib, e);
+            }
+        }
+
+        if (this.configModuleTracker != null) {
+            this.configModuleTracker.onInstanceClose();
+        }
+        return Futures.immediateFuture(null);
+    }
+
+    @Override
+    public ServiceGroupIdentifier getIdentifier() {
+        return this.serviceGroupIdentifier;
+    }
+
+    @Override
+    public ClusterSingletonServiceRegistration registerClusterSingletonService(final ClusterSingletonService clusterSingletonService) {
+        return this.provider.registerClusterSingletonService(clusterSingletonService);
     }
 }
