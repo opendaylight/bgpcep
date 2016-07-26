@@ -61,11 +61,10 @@ public class BgpPeer implements PeerBean, BGPPeerRuntimeMXBean {
     private final BGPPeerRegistry peerRegistry;
     private BGPPeer bgpPeer;
 
-    private IpAddress neighborAddress;
-
     private Future<Void> connection;
 
     private ServiceRegistration<?> serviceRegistration;
+    private Neighbor currentConfiguration;
 
     public BgpPeer(final RpcProviderRegistry rpcRegistry, final BGPPeerRegistry peerRegistry) {
         this.rpcRegistry = rpcRegistry;
@@ -75,20 +74,27 @@ public class BgpPeer implements PeerBean, BGPPeerRuntimeMXBean {
     @Override
     public void start(final RIB rib, final Neighbor neighbor, final BGPOpenConfigMappingService mappingService) {
         Preconditions.checkState(this.bgpPeer == null, "Previous peer instance {} was not closed.");
-        this.neighborAddress = neighbor.getNeighborAddress();
-        this.bgpPeer = new BGPPeer(Ipv4Util.toStringIP(this.neighborAddress), rib,
+        this.currentConfiguration = Preconditions.checkNotNull(neighbor);
+        final IpAddress neighborAddress = neighbor.getNeighborAddress();
+        this.bgpPeer = new BGPPeer(Ipv4Util.toStringIP(neighborAddress), rib,
                 mappingService.toPeerRole(neighbor), this.rpcRegistry);
         final List<BgpParameters> bgpParameters = getBgpParameters(neighbor, rib, mappingService);
         final KeyMapping key = OpenConfigMappingUtil.getNeighborKey(neighbor);
         final BGPSessionPreferences prefs = new BGPSessionPreferences(rib.getLocalAs(),
                 getHoldTimer(neighbor), rib.getBgpIdentifier(), getPeerAs(neighbor, rib), bgpParameters, getPassword(key));
-        this.peerRegistry.addPeer(this.neighborAddress, this.bgpPeer, prefs);
+        this.peerRegistry.addPeer(neighborAddress, this.bgpPeer, prefs);
         if (OpenConfigMappingUtil.isActive(neighbor)) {
             this.connection = rib.getDispatcher().createReconnectingClient(
-                    Ipv4Util.toInetSocketAddress(this.neighborAddress, PORT), this.peerRegistry,
+                    Ipv4Util.toInetSocketAddress(neighborAddress, PORT), this.peerRegistry,
                     OpenConfigMappingUtil.getRetryTimer(neighbor), Optional.fromNullable(key));
         }
 
+    }
+
+    @Override
+    public void restart(final RIB rib, final BGPOpenConfigMappingService mappingService) {
+        Preconditions.checkState(this.currentConfiguration != null);
+        start(rib, this.currentConfiguration, mappingService);
     }
 
     @Override
@@ -100,8 +106,8 @@ public class BgpPeer implements PeerBean, BGPPeerRuntimeMXBean {
             }
             this.bgpPeer.close();
             this.bgpPeer = null;
-            this.peerRegistry.removePeer(this.neighborAddress);
-            this.neighborAddress = null;
+            this.peerRegistry.removePeer(this.currentConfiguration.getNeighborAddress());
+            this.currentConfiguration = null;
             if (this.serviceRegistration != null) {
                 this.serviceRegistration.unregister();
                 this.serviceRegistration = null;
