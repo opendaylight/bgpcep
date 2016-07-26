@@ -9,10 +9,11 @@
 import weakref
 import traceback
 import logging
-_LOGGER = logging.getLogger('pcepy.peer')
-
 from pcepy import session as _session
 from pcepy import message as _message
+
+_LOGGER = logging.getLogger('pcepy.peer')
+
 resolve_timeout = _session.resolve_timeout
 min_timeout = _session.min_timeout
 
