@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_8d536338",
+        "filename": "pcep/api/src/main/yang/pcep-types.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-07-26T15:03:07Z",
+      "side": 1,
+      "message": "The yang data model (public API) should not change in SRs distributions with exception of unavoidable blocking issue fixes (a waiver required).\nThe same applies to post-API-freeze Boron.",
+      "range": {
+        "startLine": 430,
+        "startChar": 18,
+        "endLine": 430,
+        "endChar": 42
+      },
+      "revId": "4661eeee9aa4f5b5c0bd02c4e8297074fa170387",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
