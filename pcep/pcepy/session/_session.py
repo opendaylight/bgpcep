@@ -7,6 +7,7 @@
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 
 import errno
+import logging
 import os
 import socket as _socket
 try:
@@ -15,14 +16,12 @@ except ImportError:
     import Queue as queue
 import time
 import weakref
-
 from .bus import resolve_timeout
 from pcepy import message as _message
 
 # Standard assigned port for PCEP
 PCEP_PORT = 4189
 
-import logging
 _LOGGER = logging.getLogger('pcepy.session')
 
 
