@@ -16,8 +16,8 @@
  */
 package org.opendaylight.controller.config.yang.bgp.reachability.ipv4;
 
-import org.opendaylight.bgpcep.bgp.topology.provider.BackwardsCssTopologyProvider;
 import org.opendaylight.bgpcep.bgp.topology.provider.Ipv4ReachabilityTopologyBuilder;
+import org.opendaylight.bgpcep.bgp.topology.provider.config.BackwardsCssTopologyProvider;
 import org.opendaylight.controller.config.api.DependencyResolver;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.controller.config.api.ModuleIdentifier;
@@ -26,6 +26,7 @@ import org.osgi.framework.BundleContext;
 /**
  *
  */
+@Deprecated
 public final class Ipv4ReachabilityTopologyBuilderModule extends AbstractIpv4ReachabilityTopologyBuilderModule {
 
     private BundleContext bundleContext;
