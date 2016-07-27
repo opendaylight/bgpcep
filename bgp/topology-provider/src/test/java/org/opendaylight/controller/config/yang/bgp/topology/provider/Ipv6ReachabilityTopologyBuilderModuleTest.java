@@ -11,8 +11,12 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.List;
+import java.util.function.Function;
 import javax.management.ObjectName;
 import org.junit.Test;
+import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyDeployer;
+import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyProvider;
+import org.opendaylight.bgpcep.bgp.topology.provider.spi.TopologyReferenceSingletonService;
 import org.opendaylight.bgpcep.topology.TopologyReference;
 import org.opendaylight.controller.config.api.ValidationException;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
@@ -21,8 +25,10 @@ import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
 import org.opendaylight.controller.config.yang.bgp.reachability.ipv6.Ipv6ReachabilityTopologyBuilderModuleFactory;
 import org.opendaylight.controller.config.yang.bgp.reachability.ipv6.Ipv6ReachabilityTopologyBuilderModuleMXBean;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractRIBImplModuleTest;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class Ipv6ReachabilityTopologyBuilderModuleTest extends AbstractRIBImplModuleTest {
@@ -37,6 +43,29 @@ public class Ipv6ReachabilityTopologyBuilderModuleTest extends AbstractRIBImplMo
             @Override
             public InstanceIdentifier<Topology> getInstanceIdentifier() {
                 return null;
+            }
+        });
+        setupMockService(BgpTopologyDeployer.class, new BgpTopologyDeployer() {
+            @Override
+            public AbstractRegistration registerTopologyProvider(final BgpTopologyProvider topologyBuilder) {
+                return null;
+            }
+            @Override
+            public DataBroker getDataBroker() {
+                return null;
+            }
+            @Override
+            public AbstractRegistration registerService(final TopologyReferenceSingletonService topologyProviderService) {
+                return null;
+            }
+            @Override
+            public void createInstance(final Topology topology, final Function<Topology, Void> writeFunction) {
+                return;
+            }
+
+            @Override
+            public void removeInstance(final Topology topology) {
+                return;
             }
         });
     }
