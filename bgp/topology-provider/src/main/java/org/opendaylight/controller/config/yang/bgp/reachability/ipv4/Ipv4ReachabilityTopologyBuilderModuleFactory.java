@@ -24,6 +24,7 @@ import org.osgi.framework.BundleContext;
 /**
  *
  */
+@Deprecated
 public class Ipv4ReachabilityTopologyBuilderModuleFactory extends AbstractIpv4ReachabilityTopologyBuilderModuleFactory {
 
     @Override
