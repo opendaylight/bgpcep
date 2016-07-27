@@ -45,28 +45,33 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypes;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCloseable, ClusteredDataTreeChangeListener<T>, TopologyReference, TransactionChainListener {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractTopologyBuilder.class);
-    private final InstanceIdentifier<Topology> topology;
+    private final KeyedInstanceIdentifier<Topology, TopologyKey> topology;
     private final BindingTransactionChain chain;
     private final RibReference locRibReference;
+    private final TopologyTypes types;
 
     @GuardedBy("this")
     private boolean closed = false;
 
     protected AbstractTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
             final TopologyId topologyId, final TopologyTypes types) {
+        this.types = types;
         this.locRibReference = Preconditions.checkNotNull(locRibReference);
         this.chain = dataProvider.createTransactionChain(this);
 
         final TopologyKey tk = new TopologyKey(Preconditions.checkNotNull(topologyId));
-        this.topology = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class, tk).build();
+        this.topology = KeyedInstanceIdentifier.create(NetworkTopology.class).child(Topology.class, tk);
 
         LOG.debug("Initiating topology builder from {} at {}", locRibReference, this.topology);
+    }
 
+    private void createEmptyTopology(final TopologyTypes types, final TopologyKey tk) {
         final WriteTransaction t = this.chain.newWriteOnlyTransaction();
 
         t.put(LogicalDatastoreType.OPERATIONAL, this.topology,
@@ -94,6 +99,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
 
     public final ListenerRegistration<AbstractTopologyBuilder<T>> start(final DataTreeChangeService service, final Class<? extends AddressFamily> afi,
             final Class<? extends SubsequentAddressFamily> safi) {
+        createEmptyTopology(this.types, this.topology.getKey());
         final InstanceIdentifier<Tables> tablesId = this.locRibReference.getInstanceIdentifier().child(LocRib.class).child(Tables.class, new TablesKey(afi, safi));
         final DataTreeIdentifier<T> id = new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL, getRouteWildcard(tablesId));
 
