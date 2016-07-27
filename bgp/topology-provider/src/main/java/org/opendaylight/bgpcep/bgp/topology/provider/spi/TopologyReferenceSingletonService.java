@@ -6,11 +6,12 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.bgpcep.bgp.topology.provider;
+package org.opendaylight.bgpcep.bgp.topology.provider.spi;
 
 import org.opendaylight.bgpcep.topology.TopologyReference;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 
-public interface TopologyReferenceAutoCloseable extends AutoCloseable, TopologyReference {
+public interface TopologyReferenceSingletonService extends TopologyReference, AutoCloseable, ClusterSingletonService  {
 
     @Override
     public void close();
