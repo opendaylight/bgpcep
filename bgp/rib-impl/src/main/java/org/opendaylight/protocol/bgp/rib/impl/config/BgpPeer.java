@@ -32,7 +32,6 @@ import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.OptionalCapabilities;
@@ -51,9 +50,6 @@ import org.slf4j.LoggerFactory;
 
 
 public class BgpPeer implements PeerBean, BGPPeerRuntimeMXBean {
-
-    //FIXME make configurable
-    private static final PortNumber PORT = new PortNumber(179);
 
     private static final Logger LOG = LoggerFactory.getLogger(BgpPeer.class);
 
@@ -85,7 +81,7 @@ public class BgpPeer implements PeerBean, BGPPeerRuntimeMXBean {
         this.peerRegistry.addPeer(neighborAddress, this.bgpPeer, prefs);
         if (OpenConfigMappingUtil.isActive(neighbor)) {
             this.connection = rib.getDispatcher().createReconnectingClient(
-                    Ipv4Util.toInetSocketAddress(neighborAddress, PORT), this.peerRegistry,
+                    Ipv4Util.toInetSocketAddress(neighborAddress, OpenConfigMappingUtil.getPort(neighbor)), this.peerRegistry,
                     OpenConfigMappingUtil.getRetryTimer(neighbor), Optional.fromNullable(key));
         }
 
