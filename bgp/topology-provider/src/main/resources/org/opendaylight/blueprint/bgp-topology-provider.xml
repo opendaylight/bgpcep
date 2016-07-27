@@ -3,23 +3,25 @@
            xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
 
   <reference id="dataBroker" interface="org.opendaylight.controller.md.sal.binding.api.DataBroker" odl:type="pingpong"/>
+  <reference id="clusterSingletonServiceProvider" interface="org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider"/>
 
-  <bean id="bgpTopologyDeployer" class="org.opendaylight.bgpcep.bgp.topology.provider.BgpTopologyDeployerImpl" destroy-method="close">
+  <bean id="bgpTopologyDeployer" class="org.opendaylight.bgpcep.bgp.topology.provider.config.BgpTopologyDeployerImpl" destroy-method="close">
     <argument ref="blueprintContainer"/>
     <argument ref="dataBroker"/>
+    <argument ref="clusterSingletonServiceProvider"/>
   </bean>
 
   <service ref="bgpTopologyDeployer" interface="org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyDeployer"/>
 
-  <bean id="ipv4TopologyProvider" class="org.opendaylight.bgpcep.bgp.topology.provider.Ipv4TopologyProvider" destroy-method="close">
+  <bean id="ipv4TopologyProvider" class="org.opendaylight.bgpcep.bgp.topology.provider.config.Ipv4TopologyProvider" destroy-method="close">
     <argument ref="bgpTopologyDeployer"/>
   </bean>
 
-  <bean id="ipv6TopologyProvider" class="org.opendaylight.bgpcep.bgp.topology.provider.Ipv6TopologyProvider" destroy-method="close">
+  <bean id="ipv6TopologyProvider" class="org.opendaylight.bgpcep.bgp.topology.provider.config.Ipv6TopologyProvider" destroy-method="close">
     <argument ref="bgpTopologyDeployer"/>
   </bean>
 
-  <bean id="linkstateTopologyProvider" class="org.opendaylight.bgpcep.bgp.topology.provider.LinkstateTopologyProvider" destroy-method="close">
+  <bean id="linkstateTopologyProvider" class="org.opendaylight.bgpcep.bgp.topology.provider.config.LinkstateTopologyProvider" destroy-method="close">
     <argument ref="bgpTopologyDeployer"/>
   </bean>
 

@@ -16,7 +16,8 @@
  */
 package org.opendaylight.controller.config.yang.bgp.reachability.ipv6;
 
-import org.opendaylight.bgpcep.bgp.topology.provider.BackwardsCssTopologyProvider;
+import org.opendaylight.bgpcep.bgp.topology.provider.config.BackwardsCssTopologyProvider;
+
 import org.opendaylight.bgpcep.bgp.topology.provider.Ipv6ReachabilityTopologyBuilder;
 import org.opendaylight.controller.config.api.DependencyResolver;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
