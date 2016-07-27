@@ -177,6 +177,9 @@ public final class BGPOpenConfigMappingServiceImpl implements BGPOpenConfigMappi
         neighborBuilder.setTransport(new TransportBuilder().setConfig(
                 new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.transport.ConfigBuilder()
                 .setPassiveMode(!isActive)
+                .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config1.class,
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config1Builder()
+                .setRemotePort(portNumber).build())
                 .build()).build());
         neighborBuilder.setConfig(
                 new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.ConfigBuilder()
