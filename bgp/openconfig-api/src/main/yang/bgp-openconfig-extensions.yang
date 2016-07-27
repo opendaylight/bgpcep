@@ -6,6 +6,7 @@ module bgp-openconfig-extensions {
     import openconfig-bgp-types { prefix bgp-types; }
     import openconfig-network-instance { prefix netinst; }
     import openconfig-bgp { prefix openconfig-bgp; }
+    import ietf-inet-types { prefix inet; }
 
     organization "Cisco Systems, Inc.";
     contact "Milos Fabian <milfabia@cisco.com>";
@@ -65,6 +66,16 @@ module bgp-openconfig-extensions {
         reference "https://tools.ietf.org/html/rfc7752";
     }
 
+    grouping transport-config {
+        leaf remote-port {
+            type inet:port-number;
+            default 179;
+            description
+                "Remote port being used by the peer for the TCP session
+                 supporting the BGP session";
+        }
+    }
+
     augment /netinst:network-instances/netinst:network-instance/netinst:protocols/netinst:protocol {
         uses openconfig-bgp:bgp-top {
             augment bgp/neighbors/neighbor/afi-safis/afi-safi {
@@ -72,6 +83,9 @@ module bgp-openconfig-extensions {
             }
             augment bgp/global/afi-safis/afi-safi {
                 uses openconfig-bgp:bgp-neighbor-add-paths_config;
+            }
+            augment bgp/neighbors/neighbor/transport/config {
+                uses transport-config;
             }
         }
     }
