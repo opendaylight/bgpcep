@@ -8,7 +8,6 @@
 
 package org.opendaylight.bgpcep.bgp.topology.provider.spi;
 
-import org.opendaylight.bgpcep.topology.TopologyReference;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 
@@ -18,6 +17,6 @@ public interface BgpTopologyDeployer {
 
     DataBroker getDataBroker();
 
-    AbstractRegistration registerTopologyReference(TopologyReference topologyReference);
+    AbstractRegistration registerService(TopologyReferenceSingletonService topologyProviderService);
 
 }

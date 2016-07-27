@@ -6,7 +6,9 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.bgpcep.bgp.topology.provider;
+package org.opendaylight.bgpcep.bgp.topology.provider.config;
+
+import org.opendaylight.bgpcep.bgp.topology.provider.spi.TopologyReferenceSingletonService;
 
 import com.google.common.reflect.AbstractInvocationHandler;
 import com.google.common.reflect.Reflection;
@@ -34,7 +36,7 @@ import org.osgi.framework.BundleContext;
 
 public final class BackwardsCssTopologyProvider {
 
-    public static TopologyReferenceAutoCloseable createBackwardsCssInstance(final TopologyTypes topologyTypes, final TopologyId topologyId, final DataBroker dataBroker, final BundleContext bundleContext,
+    public static TopologyReferenceSingletonService createBackwardsCssInstance(final TopologyTypes topologyTypes, final TopologyId topologyId, final DataBroker dataBroker, final BundleContext bundleContext,
             final KeyedInstanceIdentifier<Rib, RibKey> ribIId) {
         //map configuration to topology
         final Topology topology = createConfiguration(topologyTypes, topologyId, ribIId.getKey().getId());
@@ -45,7 +47,7 @@ public final class BackwardsCssTopologyProvider {
         final WaitingServiceTracker<TopologyReference> topologyTracker = WaitingServiceTracker.create(TopologyReference.class,
                 bundleContext, "(" + "topology-id" + "=" + topology.getTopologyId().getValue() + ")");
         final TopologyReference topologyService = topologyTracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
-        return Reflection.newProxy(TopologyReferenceAutoCloseable.class, new AbstractInvocationHandler() {
+        return Reflection.newProxy(TopologyReferenceSingletonService.class, new AbstractInvocationHandler() {
             @Override
             protected Object handleInvocation(final Object proxy, final Method method, final Object[] args) throws Throwable {
                 if (method.getName().equals("close")) {
