@@ -90,17 +90,19 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
         this.listenerResetLimitInMillsec = listenerResetLimitInMillsec;
         this.listenerResetEnforceCounter = listenerResetEnforceCounter;
         this.topology = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class, this.topologyKey).build();
-
-        LOG.debug("Initiating topology builder from {} at {}. AFI={}, SAFI={}", locRibReference, this.topology, this.afi, this.safi);
-        initTransactionChain();
-        initOperationalTopology();
-        registerDataChangeListener();
     }
 
     protected AbstractTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
         final TopologyId topologyId, final TopologyTypes types, final Class<? extends AddressFamily> afi,
         final Class<? extends SubsequentAddressFamily> safi) {
         this(dataProvider, locRibReference, topologyId, types, afi, safi, LISTENER_RESET_LIMIT_IN_MILLSEC, LISTENER_RESET_ENFORCE_COUNTER);
+    }
+
+    public void start() {
+        LOG.debug("Initiating topology builder from {} at {}. AFI={}, SAFI={}", this.locRibReference, this.topology, this.afi, this.safi);
+        initTransactionChain();
+        initOperationalTopology();
+        registerDataChangeListener();
     }
 
     @Deprecated
@@ -148,9 +150,6 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
         if (this.closed) {
             LOG.trace("Transaction chain was already closed.");
             return;
-        }
-        } catch (final TransactionCommitFailedException e) {
-            LOG.warn("Failed to remove BGP Topology instance {} from DS.", this.topology, e);
         }
         this.closed = true;
         LOG.info("Shutting down builder for {}", getInstanceIdentifier());
@@ -257,7 +256,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
         trans.delete(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier());
         try {
             trans.submit().checkedGet();
-        } catch (TransactionCommitFailedException e) {
+        } catch (final TransactionCommitFailedException e) {
             LOG.error("Unable to reset operational topology {} (transaction {})", this.topology, trans.getIdentifier(), e);
         }
     }

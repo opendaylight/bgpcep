@@ -16,20 +16,18 @@
  */
 package org.opendaylight.controller.config.yang.bgp.reachability.ipv6;
 
-import org.opendaylight.bgpcep.bgp.topology.provider.BackwardsCssTopologyProvider;
 import org.opendaylight.bgpcep.bgp.topology.provider.Ipv6ReachabilityTopologyBuilder;
+import org.opendaylight.bgpcep.bgp.topology.provider.config.BackwardsCssTopologyProvider;
 import org.opendaylight.controller.config.api.DependencyResolver;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.controller.config.api.ModuleIdentifier;
 import org.osgi.framework.BundleContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
  */
+@Deprecated
 public final class Ipv6ReachabilityTopologyBuilderModule extends AbstractIpv6ReachabilityTopologyBuilderModule {
-    private static final Logger LOG = LoggerFactory.getLogger(Ipv6ReachabilityTopologyBuilderModule.class);
 
     private BundleContext bundleContext;
 
