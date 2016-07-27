@@ -18,6 +18,8 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.t
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Neighbors;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.Protocol;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config1;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 final class OpenConfigMappingUtil {
@@ -61,6 +63,10 @@ final class OpenConfigMappingUtil {
     public static InstanceIdentifier<Neighbor> getNeighborInstanceIdentifier(final InstanceIdentifier<Bgp> rootIdentifier,
             final NeighborKey neighborKey) {
         return rootIdentifier.child(Neighbors.class).child(Neighbor.class, neighborKey);
+    }
+
+    public static PortNumber getPort(final Neighbor neighbor) {
+        return neighbor.getTransport().getConfig().getAugmentation(Config1.class).getRemotePort();
     }
 
 }
