@@ -6,14 +6,15 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.bgpcep.bgp.topology.provider;
+package org.opendaylight.bgpcep.bgp.topology.provider.config;
 
-import com.google.common.collect.Maps;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.function.Function;
+import org.opendaylight.bgpcep.bgp.topology.provider.AbstractTopologyBuilder;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyDeployer;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyProvider;
+import org.opendaylight.bgpcep.bgp.topology.provider.spi.TopologyReferenceSingletonService;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.protocol.bgp.rib.DefaultRibReference;
 import org.opendaylight.protocol.bgp.rib.RibReference;
@@ -29,11 +30,11 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractBgpTopologyProvider implements BgpTopologyProvider, AutoCloseable {
+abstract class AbstractBgpTopologyProvider implements BgpTopologyProvider, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractBgpTopologyProvider.class);
 
-    private final Map<TopologyId, Entry<TopologyReferenceAutoCloseable, AbstractRegistration>> topologyBuilders = new HashMap<>();
+    private final Map<TopologyId, TopologyReferenceSingletonService> topologyBuilders = new HashMap<>();
     private final AbstractRegistration registration;
     private final DataBroker dataBroker;
     private final BgpTopologyDeployer deployer;
@@ -45,21 +46,22 @@ public abstract class AbstractBgpTopologyProvider implements BgpTopologyProvider
     }
 
     @Override
-    public final void onTopologyBuilderCreated(final Topology topology) {
+    public final void onTopologyBuilderCreated(final Topology topology, final Function<Topology, Void> writeFunction) {
         LOG.debug("Cretaing topology builder instance {}", topology);
-        final TopologyReferenceAutoCloseable topologyBuilder = createInstance(topology);
-        final AbstractRegistration serviceRegistration = this.deployer.registerTopologyReference(topologyBuilder);
-        this.topologyBuilders.put(getTopologyId(topologyBuilder), Maps.immutableEntry(topologyBuilder, serviceRegistration));
-        LOG.debug("Topology builder instance created {}", topologyBuilder);
+        final TopologyReferenceSingletonService currentInstance = this.topologyBuilders.get(topology.getTopologyId());
+        if (currentInstance == null || !currentInstance.getConfiguration().equals(topology)) {
+            final TopologyReferenceSingletonService topologyBuilder = createInstance(topology, writeFunction);
+            this.topologyBuilders.put(topology.getTopologyId(), topologyBuilder);
+            LOG.debug("Topology builder instance created {}", topologyBuilder);
+        }
     }
 
     @Override
     public final void onTopologyBuilderRemoved(final Topology topology) {
         LOG.debug("Removing topology builder instance {}", topology);
-        final Entry<TopologyReferenceAutoCloseable, AbstractRegistration> topologyBuilder = this.topologyBuilders.remove(topology.getTopologyId());
+        final TopologyReferenceSingletonService topologyBuilder = this.topologyBuilders.remove(topology.getTopologyId());
         if (topologyBuilder != null) {
-            topologyBuilder.getValue().close();
-            topologyBuilder.getKey().close();
+            topologyBuilder.close();
             LOG.debug("Topology builder instance removed {}", topologyBuilder);
         }
     }
@@ -78,18 +80,15 @@ public abstract class AbstractBgpTopologyProvider implements BgpTopologyProvider
         return topologyTypeFilter(topologyTypes);
     }
 
-    TopologyReferenceAutoCloseable createInstance(final Topology topology) {
+    private TopologyReferenceSingletonService createInstance(final Topology topology, final Function<Topology, Void> writeFunction) {
         final RibReference ribReference = new DefaultRibReference(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(topology.getAugmentation(Topology1.class).getRibId())));
-        return initiate(this.dataBroker, ribReference, topology.getTopologyId());
+        final AbstractTopologyBuilder<?> topologyBuilder = createTopologyBuilder(this.dataBroker, ribReference, topology.getTopologyId());
+        return new TopologyReferenceSingletonServiceImpl(topologyBuilder, this.deployer, topology, writeFunction);
     }
 
-    abstract TopologyReferenceAutoCloseable initiate(final DataBroker dataProvider, final RibReference locRibReference,
+    abstract AbstractTopologyBuilder<?> createTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
             final TopologyId topologyId);
 
     abstract boolean topologyTypeFilter(TopologyTypes1 topology);
-
-    private static TopologyId getTopologyId(final TopologyReferenceAutoCloseable topologyBuilder) {
-        return topologyBuilder.getInstanceIdentifier().firstKeyOf(Topology.class).getTopologyId();
-    }
 
 }
