@@ -24,6 +24,7 @@ import org.osgi.framework.BundleContext;
 /**
  *
  */
+@Deprecated
 public class LinkstateTopologyBuilderModuleFactory extends AbstractLinkstateTopologyBuilderModuleFactory {
 
     @Override
