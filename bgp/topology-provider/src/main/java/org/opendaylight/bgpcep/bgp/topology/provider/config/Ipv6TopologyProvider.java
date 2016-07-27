@@ -6,15 +6,15 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.bgpcep.bgp.topology.provider;
+package org.opendaylight.bgpcep.bgp.topology.provider.config;
 
+import org.opendaylight.bgpcep.bgp.topology.provider.AbstractTopologyBuilder;
+import org.opendaylight.bgpcep.bgp.topology.provider.Ipv6ReachabilityTopologyBuilder;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyDeployer;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.TopologyTypes1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public final class Ipv6TopologyProvider extends AbstractBgpTopologyProvider {
 
@@ -23,21 +23,8 @@ public final class Ipv6TopologyProvider extends AbstractBgpTopologyProvider {
     }
 
     @Override
-    TopologyReferenceAutoCloseable initiate(final DataBroker dataProvider, final RibReference locRibReference,
-            final TopologyId topologyId) {
-        final Ipv6ReachabilityTopologyBuilder builder = new Ipv6ReachabilityTopologyBuilder(dataProvider, locRibReference, topologyId);
-        builder.start();
-        return new TopologyReferenceAutoCloseable() {
-            @Override
-            public void close() {
-                builder.close();
-            }
-
-            @Override
-            public InstanceIdentifier<Topology> getInstanceIdentifier() {
-                return builder.getInstanceIdentifier();
-            }
-        };
+    AbstractTopologyBuilder<?> createTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference, final TopologyId topologyId) {
+        return new Ipv6ReachabilityTopologyBuilder(dataProvider, locRibReference, topologyId);
     }
 
     @Override
