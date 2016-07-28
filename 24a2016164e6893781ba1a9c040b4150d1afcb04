@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_8c6cf7d1",
+        "filename": "pcep/ietf-stateful07/src/main/resources/org/opendaylight/blueprint/pcep-ietf-stateful.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-07-28T12:14:49Z",
+      "side": 1,
+      "message": "Ok, I agree.",
+      "parentUuid": "9a561d44_c2efeae7",
+      "range": {
+        "startLine": 6,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 2
+      },
+      "revId": "24a2016164e6893781ba1a9c040b4150d1afcb04",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_e2330ea9",
         "filename": "pcep/ietf-stateful07/src/main/resources/org/opendaylight/blueprint/pcep-ietf-stateful.xml",
         "patchSetId": 4
