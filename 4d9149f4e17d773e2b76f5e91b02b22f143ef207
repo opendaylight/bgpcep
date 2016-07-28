@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_f243caac",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpDeployerImpl.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-07-28T18:08:34Z",
+      "side": 1,
+      "message": "This Map needs synchronization. It is mainly accessed via onDataTreeChanged but is also accessed by close which could occur concurrently with onDataTreeChanged. I would suggest using a synchronized block to protect access to the ribs Map.\n\nAlso an onDataTreeChanged event could be in flight and occur after close() is called. You could add a closed flag that is synchronized with ribs and check the flag prior to updating via onDataTreeChanged.",
+      "revId": "4d9149f4e17d773e2b76f5e91b02b22f143ef207",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_f2146aea",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpDeployerImpl.java",
         "patchSetId": 8
