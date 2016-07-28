@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_b2ccb28a",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpDeployerImpl.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-07-28T17:33:14Z",
+      "side": 1,
+      "message": "I think it would be better to not depend an Aries here.  The OSGi BlueprintContainer interface has the getComponentInstance method but not the registerService method provided by ExtendedBlueprintContainer. However, for the latter you can inject the BundleContext via the \"blueprintBundleContext\" id in the blueprint XML.",
+      "revId": "4d9149f4e17d773e2b76f5e91b02b22f143ef207",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_f2146aea",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpDeployerImpl.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-07-28T17:33:14Z",
+      "side": 1,
+      "message": "Should this check for null just in case?",
+      "revId": "4d9149f4e17d773e2b76f5e91b02b22f143ef207",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_72ae9a99",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpDeployerImpl.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-07-28T17:33:14Z",
+      "side": 1,
+      "message": "Check for null just in case?",
+      "revId": "4d9149f4e17d773e2b76f5e91b02b22f143ef207",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_b293125a",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/RibImpl.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-07-28T17:33:14Z",
+      "side": 1,
+      "message": "schemaContextReistration (sic) -\u003e schemaContextRegistration",
+      "revId": "4d9149f4e17d773e2b76f5e91b02b22f143ef207",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_328f022c",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/RibImpl.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-07-28T17:33:14Z",
+      "side": 1,
+      "message": "ribImpl could be null here.",
+      "revId": "4d9149f4e17d773e2b76f5e91b02b22f143ef207",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_528a761b",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/RibImpl.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-07-28T17:33:14Z",
+      "side": 1,
+      "message": "null out schemaContextReistration just in case.",
+      "revId": "4d9149f4e17d773e2b76f5e91b02b22f143ef207",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_f2990a7a",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/RibImpl.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-07-28T17:33:14Z",
+      "side": 1,
+      "message": "This could throw an ISE - *shouldn\u0027t* happen but might be good to catch it. Also null out serviceRegistration.",
+      "revId": "4d9149f4e17d773e2b76f5e91b02b22f143ef207",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
