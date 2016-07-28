@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_43df520d",
+        "filename": "bgp/openconfig-api/src/main/yang/openconfig-bgp.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-07-28T07:39:52Z",
+      "side": 1,
+      "message": "Please add textual description to presence statement.\nAlso left here a comment (i.e. bug number), so we do not fortget to do the chnage when switching to newer model revision in a future.",
+      "range": {
+        "startLine": 517,
+        "startChar": 15,
+        "endLine": 517,
+        "endChar": 17
+      },
+      "revId": "8a868d291f68e26f08d3175b5bfa10d4239faf40",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
