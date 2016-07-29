@@ -3,7 +3,7 @@
            xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
 
   <!-- Protocal extension providers -->
-  
+
   <bean id="ietfStateful07Activator" class="org.opendaylight.protocol.pcep.ietf.stateful07.StatefulActivator"/>
   <service ref="ietfStateful07Activator" interface="org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator"
           odl:type="org.opendaylight.protocol.pcep.ietf.stateful07.StatefulActivator"/>
@@ -27,5 +27,5 @@
 
   <service ref="statefulCapability" interface="org.opendaylight.protocol.pcep.PCEPCapability"
           odl:type="org.opendaylight.protocol.pcep.ietf.stateful07.PCEPStatefulCapability"/>
-          
+
 </blueprint>
