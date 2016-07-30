@@ -69,7 +69,7 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
 
     public ApplicationPeer(final ApplicationRibId applicationRibId, final Ipv4Address ipAddress, final RIB rib,
             final BGPConfigModuleTracker moduleTracker) {
-        this.name = applicationRibId.getValue().toString();
+        this.name = applicationRibId.getValue();
         final RIB targetRib = Preconditions.checkNotNull(rib);
         this.rawIdentifier = InetAddresses.forString(ipAddress.getValue()).getAddress();
         final NodeIdentifierWithPredicates peerId = IdentifierUtils.domPeerId(RouterIds.createPeerId(ipAddress));
