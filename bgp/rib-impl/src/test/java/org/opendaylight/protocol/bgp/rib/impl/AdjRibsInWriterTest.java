@@ -62,12 +62,12 @@ public class AdjRibsInWriterTest {
 
     private AdjRibInWriter writer;
 
-    private static final TablesKey k4 = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
-    private final Set<TablesKey> tableTypes = Sets.newHashSet(k4);
+    private static final TablesKey K4 = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+    private final Set<TablesKey> tableTypes = Sets.newHashSet(K4);
 
-    private static final AddressFamilies addressFamilies = new AddressFamiliesBuilder().setAfi(Ipv4AddressFamily.class)
+    private static final AddressFamilies ADDRESS_FAMILIES = new AddressFamiliesBuilder().setAfi(Ipv4AddressFamily.class)
         .setSafi(UnicastSubsequentAddressFamily.class).setSendReceive(SendReceive.Both).build();
-    private final List<AddressFamilies> addPathTablesType = Collections.singletonList(addressFamilies);
+    private final List<AddressFamilies> addPathTablesType = Collections.singletonList(ADDRESS_FAMILIES);
     private final String peerIp = "12.34.56.78";
 
     @Before
@@ -91,12 +91,12 @@ public class AdjRibsInWriterTest {
         this.writer.transform(new PeerId(this.peerIp), this.registry, this.tableTypes, this.addPathTablesType);
         verifyPeerSkeletonInsertedCorrectly(peerPath);
         // verify supported tables were inserted for ipv4
-        Mockito.verify(this.tx).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.eq(peerPath.node(SupportedTables.QNAME).node(RibSupportUtils.toYangKey(SupportedTables.QNAME, k4))), Mockito.any(NormalizedNode.class));
+        Mockito.verify(this.tx).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.eq(peerPath.node(SupportedTables.QNAME).node(RibSupportUtils.toYangKey(SupportedTables.QNAME, K4))), Mockito.any(NormalizedNode.class));
         verifyUptodateSetToFalse(peerPath);
     }
 
     private void verifyUptodateSetToFalse(final YangInstanceIdentifier peerPath) {
-        final YangInstanceIdentifier path = peerPath.node(AdjRibIn.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(k4))
+        final YangInstanceIdentifier path = peerPath.node(AdjRibIn.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(K4))
             .node(Attributes.QNAME).node(AdjRibInWriter.ATTRIBUTES_UPTODATE_FALSE.getNodeType());
         Mockito.verify(this.tx).merge(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.eq(path), Mockito.eq(AdjRibInWriter.ATTRIBUTES_UPTODATE_FALSE));
     }
@@ -115,7 +115,7 @@ public class AdjRibsInWriterTest {
         this.writer.transform(new PeerId(this.peerIp), this.registry, this.tableTypes, this.addPathTablesType);
         verifyPeerSkeletonInsertedCorrectly(peerPath);
         // verify supported tables were not inserted for ipv4, AnnounceNone
-        Mockito.verify(this.tx, never()).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.eq(peerPath.node(SupportedTables.QNAME).node(RibSupportUtils.toYangKey(SupportedTables.QNAME, k4))), Mockito.any(NormalizedNode.class));
+        Mockito.verify(this.tx, never()).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.eq(peerPath.node(SupportedTables.QNAME).node(RibSupportUtils.toYangKey(SupportedTables.QNAME, K4))), Mockito.any(NormalizedNode.class));
         verifyUptodateSetToFalse(peerPath);
 
     }

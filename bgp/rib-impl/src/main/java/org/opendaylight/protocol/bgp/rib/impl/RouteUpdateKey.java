@@ -49,7 +49,7 @@ final class RouteUpdateKey {
         if (!(obj instanceof RouteUpdateKey)) {
             return false;
         }
-        RouteUpdateKey other = (RouteUpdateKey) obj;
+        final RouteUpdateKey other = (RouteUpdateKey) obj;
         if (!peerId.equals(other.peerId)) {
             return false;
         }

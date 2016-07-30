@@ -18,11 +18,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 public final class BGPPSMImplModule extends AbstractBGPPSMImplModule {
-    public BGPPSMImplModule(ModuleIdentifier identifier, DependencyResolver dependencyResolver) {
+    public BGPPSMImplModule(final ModuleIdentifier identifier, final DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
 
-    public BGPPSMImplModule(ModuleIdentifier identifier, DependencyResolver dependencyResolver, BGPPSMImplModule oldModule, AutoCloseable oldInstance) {
+    public BGPPSMImplModule(final ModuleIdentifier identifier, final DependencyResolver dependencyResolver, final BGPPSMImplModule oldModule, final AutoCloseable oldInstance) {
         super(identifier, dependencyResolver, oldModule, oldInstance);
     }
 

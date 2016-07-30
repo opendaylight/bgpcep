@@ -149,7 +149,7 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
      * @param routeTableIdentifier
      */
     private void processRoutesTable(final DataTreeCandidateNode node, final YangInstanceIdentifier identifier,
-            final DOMDataWriteTransaction tx, final YangInstanceIdentifier routeTableIdentifier) {
+        final DOMDataWriteTransaction tx, final YangInstanceIdentifier routeTableIdentifier) {
         for (final DataTreeCandidateNode child : node.getChildNodes()) {
             final YangInstanceIdentifier childIdentifier = identifier.node(child.getIdentifier());
             switch (child.getModificationType()) {
@@ -204,7 +204,7 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
 
     @Override
     public void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction,
-            final Throwable cause) {
+        final Throwable cause) {
         LOG.error("Transaction chain failed.", cause);
     }
 

@@ -18,9 +18,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 
-/**
- * @author Kevin Wang
- */
 public class RIBImplRuntimeMXBeanImpl implements BGPRenderStats, RIBImplRuntimeMXBean {
     private final BGPRenderStats renderStats;
 
