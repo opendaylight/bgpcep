@@ -154,14 +154,14 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
         assertTablesExists(tables, true);
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
         final BGPPeer peer = new BGPPeer("peer-" + this.mock.toString(), rib, PeerRole.Ibgp, null);
-
+        peer.instantiateServiceInstance();
         final ListenerRegistration<?> reg = this.mock.registerUpdateListener(peer);
         reg.close();
     }
 
     @Test
     public void testWithoutLinkstate() throws InterruptedException, ExecutionException {
-        final List<BgpTableType> tables = ImmutableList.of((BgpTableType) new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
+        final List<BgpTableType> tables = ImmutableList.of(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
         final RIBImpl rib = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(TEST_RIB_ID), new AsNumber(72L), new BgpId("127.0.0.1"), null,
             this.ext1, this.dispatcher, this.codecFactory, getDomBroker(), tables,
                 Collections.singletonMap(new TablesKey(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class),
@@ -170,7 +170,7 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
         rib.instantiateServiceInstance();
         assertTablesExists(tables, true);
         final BGPPeer peer = new BGPPeer("peer-" + this.mock.toString(), rib, PeerRole.Ibgp, null);
-
+        peer.instantiateServiceInstance();
         final ListenerRegistration<?> reg = this.mock.registerUpdateListener(peer);
         reg.close();
     }

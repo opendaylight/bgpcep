@@ -120,17 +120,19 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         this.simpleRoutingPolicy = Optional.ofNullable(peerStatus);
         this.rib = Preconditions.checkNotNull(rib);
         this.name = name;
-        this.chain = rib.createPeerChain(this);
-        this.ribWriter = AdjRibInWriter.create(rib.getYangRibId(), this.peerRole, this.simpleRoutingPolicy, this.chain);
         this.rpcRegistry = rpcRegistry;
         this.peerStats = new BGPPeerStatsImpl(this.name, this.tables);
-
         // add current peer to "configured BGP peer" stats
         this.rib.getRenderStats().getConfiguredPeerCounter().increaseCount();
     }
 
     public BGPPeer(final String name, final RIB rib, final PeerRole role, final RpcProviderRegistry rpcRegistry) {
         this(name, rib, role, null, rpcRegistry);
+    }
+
+    public void instantiateServiceInstance() {
+        this.chain = rib.createPeerChain(this);
+        this.ribWriter = AdjRibInWriter.create(rib.getYangRibId(), this.peerRole, this.simpleRoutingPolicy, this.chain);
     }
 
     @Override
