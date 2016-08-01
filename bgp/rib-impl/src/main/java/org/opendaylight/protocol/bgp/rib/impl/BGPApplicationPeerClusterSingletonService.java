@@ -54,7 +54,6 @@ public final class BGPApplicationPeerClusterSingletonService implements ClusterS
     private final RIB rib;
     private final BgpId bgpPeerId;
     private final BGPPeerRegistry bgpPeerRegistry;
-    private final String instanceName;
     private ClusterSingletonServiceRegistration registration;
     private ListenerRegistration<ApplicationPeer> listenerRegistration;
 
@@ -67,7 +66,6 @@ public final class BGPApplicationPeerClusterSingletonService implements ClusterS
         this.domDataTreeChangeService = (DOMDataTreeChangeService) dataBroker.getSupportedExtensions().get(DOMDataTreeChangeService.class);
         this.bgpPeerId = bgpPeerId;
         this.bgpPeerRegistry = bgpPeerRegistry;
-        this.instanceName = instanceName;
 
         final Optional<BGPOpenConfigProvider> openConfigProvider = this.rib.getOpenConfigProvider();
        BGPOpenconfigMapper<BGPAppPeerInstanceConfiguration> appProvider = null;
