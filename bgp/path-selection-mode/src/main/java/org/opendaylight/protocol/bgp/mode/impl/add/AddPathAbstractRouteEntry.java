@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
@@ -195,7 +196,7 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
         return this.offsets.isEmty();
     }
 
-    protected void selectBest(final RouteKey key, final AddPathSelector selector) {
+    private void selectBest(final RouteKey key, final AddPathSelector selector) {
         final int offset = this.offsets.offsetOf(key);
         final ContainerNode attributes = this.offsets.getValue(this.values, offset);
         final Long pathId = this.offsets.getValue(this.pathsId, offset);
@@ -220,11 +221,32 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
         return selector.result();
     }
 
-    protected boolean isFirstBestPath(final int bestPathPosition) {
+    private boolean isFirstBestPath(final int bestPathPosition) {
         return bestPathPosition == 0;
     }
 
     private boolean peersSupportsAddPathOrIsFirstBestPath(final boolean peerSupportsAddPath, final boolean isFirstBestPath) {
         return !(!peerSupportsAddPath && !isFirstBestPath);
+    }
+
+    protected boolean isBestPathNew(final List<AddPathBestPath> newBestPathList) {
+        filterRemovedPaths(newBestPathList);
+        if (!this.bestPathRemoved.isEmpty() || !this.bestPath.equals(newBestPathList)) {
+            this.bestPath = newBestPathList;
+            LOG.trace("Actual Best {}, removed best {}", this.bestPath, this.bestPathRemoved);
+            return true;
+        }
+        return false;
+    }
+
+    private void filterRemovedPaths(final List<AddPathBestPath> newBestPathList) {
+        this.bestPathRemoved = new ArrayList<>(this.bestPath);
+        this.bestPath.forEach(oldBest -> {
+            final Optional<AddPathBestPath> present = newBestPathList.stream()
+                .filter(newBest -> newBest.getPathId() == oldBest.getPathId() && newBest.getRouteKey() == oldBest.getRouteKey()).findAny();
+            if(present.isPresent()) {
+                this.bestPathRemoved.remove(oldBest);
+            }
+        });
     }
 }

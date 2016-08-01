@@ -17,8 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 abstract class AbstractNPathsRouteEntry extends AddPathAbstractRouteEntry {
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractNPathsRouteEntry.class);
-
     private final long nBestPaths;
 
     AbstractNPathsRouteEntry(final Long nBestPaths) {
@@ -30,18 +28,11 @@ abstract class AbstractNPathsRouteEntry extends AddPathAbstractRouteEntry {
         final List<AddPathBestPath> newBestPathList = new ArrayList<>();
         final List<RouteKey> keyList = this.offsets.getRouteKeysList();
         final long maxSearch = this.nBestPaths < this.offsets.size() && this.nBestPaths != 0 ? this.nBestPaths : this.offsets.size();
-        for (long i = 0; i < maxSearch; ++i) {
+        for (long l = 0; l < maxSearch; ++l) {
             final AddPathBestPath newBest = selectBest(localAs, keyList);
             newBestPathList.add(newBest);
             keyList.remove(newBest.getRouteKey());
         }
-
-        this.bestPathRemoved = new ArrayList<>(this.bestPath);
-        if (this.bestPathRemoved.removeAll(newBestPathList) && !this.bestPathRemoved.isEmpty() || !this.bestPath.equals(newBestPathList)) {
-            this.bestPath = newBestPathList;
-            LOG.trace("Actual Best {}, removed best {}", this.bestPath, this.bestPathRemoved);
-            return true;
-        }
-        return false;
+        return isBestPathNew(newBestPathList);
     }
 }
