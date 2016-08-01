@@ -62,6 +62,7 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
     private final String name;
     private final YangInstanceIdentifier adjRibsInId;
     private final DOMTransactionChain chain;
+    private final DOMTransactionChain writerChain;
     private final BGPConfigModuleTracker moduleTracker;
     private final EffectiveRibInWriter effectiveRibInWriter;
     private AdjRibInWriter writer;
@@ -75,12 +76,13 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
         final YangInstanceIdentifier peerIId = targetRib.getYangRibId().node(Peer.QNAME).node(peerId);
         this.adjRibsInId = peerIId.node(AdjRibIn.QNAME).node(Tables.QNAME);
         this.chain = targetRib.createPeerChain(this);
-        this.writer = AdjRibInWriter.create(targetRib.getYangRibId(), PeerRole.Internal, Optional.of(SimpleRoutingPolicy.AnnounceNone), this.chain);
-        this.writer = this.writer.transform(RouterIds.createPeerId(ipAddress), targetRib.getRibSupportContext(), targetRib.getLocalTablesKeys(),
-                Collections.emptyList());
         //TODO need to create effective rib in writer with route counter here
-        this.effectiveRibInWriter = EffectiveRibInWriter.create(targetRib.getService(), this.chain, peerIId,
+        this.effectiveRibInWriter = EffectiveRibInWriter.create(targetRib.getService(), targetRib.createPeerChain(this), peerIId,
             targetRib.getImportPolicyPeerTracker(), targetRib.getRibSupportContext(), PeerRole.Internal);
+        this.writerChain = targetRib.createPeerChain(this);
+        this.writer = AdjRibInWriter.create(targetRib.getYangRibId(), PeerRole.Internal, Optional.of(SimpleRoutingPolicy.AnnounceNone), this.writerChain);
+        this.writer = this.writer.transform(RouterIds.createPeerId(ipAddress), targetRib.getRibSupportContext(), targetRib.getLocalTablesKeys(),
+            Collections.emptyList());
         this.moduleTracker = moduleTracker;
         if (moduleTracker != null) {
             moduleTracker.onInstanceCreate();
@@ -189,6 +191,7 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
         this.effectiveRibInWriter.close();
         this.writer.removePeer();
         this.chain.close();
+        this.writerChain.close();
         if (this.moduleTracker != null) {
             this.moduleTracker.onInstanceClose();
         }
