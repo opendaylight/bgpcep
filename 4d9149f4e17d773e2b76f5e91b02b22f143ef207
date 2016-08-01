@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_592b6730",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpDeployerImpl.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-08-01T16:25:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_b2ccb28a",
+      "revId": "4d9149f4e17d773e2b76f5e91b02b22f143ef207",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_f243caac",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpDeployerImpl.java",
         "patchSetId": 8
@@ -30,6 +48,24 @@
       "writtenOn": "2016-07-28T18:08:34Z",
       "side": 1,
       "message": "This Map needs synchronization. It is mainly accessed via onDataTreeChanged but is also accessed by close which could occur concurrently with onDataTreeChanged. I would suggest using a synchronized block to protect access to the ribs Map.\n\nAlso an onDataTreeChanged event could be in flight and occur after close() is called. You could add a closed flag that is synchronized with ribs and check the flag prior to updating via onDataTreeChanged.",
+      "revId": "4d9149f4e17d773e2b76f5e91b02b22f143ef207",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_b9a27b98",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpDeployerImpl.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-08-01T16:25:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_f243caac",
       "revId": "4d9149f4e17d773e2b76f5e91b02b22f143ef207",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_f9c35336",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpDeployerImpl.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-08-01T16:25:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_f2146aea",
+      "revId": "4d9149f4e17d773e2b76f5e91b02b22f143ef207",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_72ae9a99",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpDeployerImpl.java",
         "patchSetId": 8
@@ -64,6 +118,24 @@
       "writtenOn": "2016-07-28T17:33:14Z",
       "side": 1,
       "message": "Check for null just in case?",
+      "revId": "4d9149f4e17d773e2b76f5e91b02b22f143ef207",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_d9c0172d",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpDeployerImpl.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-08-01T16:25:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_72ae9a99",
       "revId": "4d9149f4e17d773e2b76f5e91b02b22f143ef207",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_b93efb27",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/RibImpl.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-08-01T16:25:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_b293125a",
+      "revId": "4d9149f4e17d773e2b76f5e91b02b22f143ef207",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_328f022c",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/RibImpl.java",
         "patchSetId": 8
@@ -98,6 +188,24 @@
       "writtenOn": "2016-07-28T17:33:14Z",
       "side": 1,
       "message": "ribImpl could be null here.",
+      "revId": "4d9149f4e17d773e2b76f5e91b02b22f143ef207",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_790c6395",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/RibImpl.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-08-01T16:25:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_328f022c",
       "revId": "4d9149f4e17d773e2b76f5e91b02b22f143ef207",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_5911a7ab",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/RibImpl.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-08-01T16:25:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_528a761b",
+      "revId": "4d9149f4e17d773e2b76f5e91b02b22f143ef207",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_f2990a7a",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/RibImpl.java",
         "patchSetId": 8
@@ -132,6 +258,24 @@
       "writtenOn": "2016-07-28T17:33:14Z",
       "side": 1,
       "message": "This could throw an ISE - *shouldn\u0027t* happen but might be good to catch it. Also null out serviceRegistration.",
+      "revId": "4d9149f4e17d773e2b76f5e91b02b22f143ef207",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_f94d13c6",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/RibImpl.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-08-01T16:25:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_f2990a7a",
       "revId": "4d9149f4e17d773e2b76f5e91b02b22f143ef207",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
