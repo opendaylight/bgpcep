@@ -127,6 +127,7 @@ public class PeerTest extends AbstractRIBTestSetup {
         final Ipv4Prefix second = new Ipv4Prefix("127.0.0.1/32");
         final Ipv4Prefix third = new Ipv4Prefix("127.0.0.3/32");
         this.peer = new ApplicationPeer(new ApplicationRibId("t"), new Ipv4Address("127.0.0.1"), getRib(), null);
+        this.peer.instantiateServiceInstance();
         final YangInstanceIdentifier base = getRib().getYangRibId().node(LocRib.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(KEY));
         this.peer.onDataTreeChanged(ipv4Input(base, ModificationType.WRITE, first, second, third));
         assertEquals(3, this.routes.size());
@@ -138,6 +139,7 @@ public class PeerTest extends AbstractRIBTestSetup {
     @Test
     public void testClassicPeer() throws Exception {
         this.classic = new BGPPeer("testPeer", getRib(), PeerRole.Ibgp, null);
+        this.classic.instantiateServiceInstance();
         this.mockSession();
         assertEquals("testPeer", this.classic.getName());
         this.classic.onSessionUp(this.session);
@@ -171,6 +173,7 @@ public class PeerTest extends AbstractRIBTestSetup {
 
         //create new peer so that it gets advertized routes from RIB
         try (final BGPPeer testingPeer = new BGPPeer("testingPeer", getRib(), PeerRole.Ibgp, null)) {
+            testingPeer.instantiateServiceInstance();
             testingPeer.onSessionUp(this.session);
             assertEquals(3, this.routes.size());
             assertEquals(1, testingPeer.getBgpPeerState().getSessionEstablishedCount().getValue().intValue());
