@@ -42,12 +42,14 @@ public class PCCTriggeredFullDBResyncTest extends PCCMockCommon {
         final int lspQuantity = 3;
         final BigInteger numberOflspAndDBv = BigInteger.valueOf(lspQuantity);
         this.channel = createServer(factory, socket, new PCCPeerProposal());
+        Thread.sleep(300);
         PCEPSession session = createPCCSession(numberOflspAndDBv).get();
         assertNotNull(session);
         final TestingSessionListener pceSessionListener = getListener(factory);
         assertNotNull(pceSessionListener);
         checkSynchronizedSession(lspQuantity, pceSessionListener, numberOflspAndDBv);
         pccSessionListener.onMessage(session, createTriggerLspResync());
+        Thread.sleep(300);
         final TestingSessionListener sessionListenerAfterReconnect = getListener(factory);
         checkResyncSession(Optional.of(lspQuantity), 4, null, numberOflspAndDBv, sessionListenerAfterReconnect);
         channel.close().get();

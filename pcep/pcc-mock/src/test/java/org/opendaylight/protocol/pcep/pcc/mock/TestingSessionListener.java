@@ -9,11 +9,7 @@
 package org.opendaylight.protocol.pcep.pcc.mock;
 
 import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.Uninterruptibles;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import org.junit.Assert;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPTerminationReason;
@@ -24,7 +20,6 @@ import org.slf4j.LoggerFactory;
 public class TestingSessionListener implements PCEPSessionListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(TestingSessionListener.class);
-    private final CountDownLatch sessionLatch = new CountDownLatch(1);
 
     private final List<Message> messages = Lists.newArrayList();
 
@@ -42,8 +37,6 @@ public class TestingSessionListener implements PCEPSessionListener {
         LOG.debug("Session up.");
         this.up = true;
         this.session = session;
-        sessionLatch.countDown();
-
     }
 
     @Override
@@ -58,16 +51,15 @@ public class TestingSessionListener implements PCEPSessionListener {
         LOG.debug("Session terminated. Cause : {}", cause);
     }
 
-    List<Message> messages() {
+    public List<Message> messages() {
         return this.messages;
     }
 
-    boolean isUp () {
+    public boolean isUp () {
         return this.up;
     }
 
     public PCEPSession getSession() {
-        Assert.assertEquals("Session up", true, Uninterruptibles.awaitUninterruptibly(sessionLatch, 10, TimeUnit.SECONDS));
         return this.session;
     }
 }

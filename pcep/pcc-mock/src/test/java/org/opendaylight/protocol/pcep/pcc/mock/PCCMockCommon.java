@@ -12,14 +12,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.opendaylight.protocol.pcep.pcc.mock.WaitForFutureSucces.waitFutureSuccess;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Stopwatch;
 import com.google.common.net.InetAddresses;
-import com.google.common.util.concurrent.Uninterruptibles;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.Future;
@@ -27,8 +23,6 @@ import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import org.junit.Assert;
 import org.junit.Before;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
@@ -62,9 +56,9 @@ public abstract class PCCMockCommon {
     private final static short KEEP_ALIVE = 40;
     private final static short DEAD_TIMER = 120;
     protected final InetSocketAddress socket = new InetSocketAddress(PCCMockCommon.REMOTE_ADDRESS, getPort());
-    protected PCCSessionListener pccSessionListener;
     private PCEPDispatcher pceDispatcher;
     private PCCDispatcherImpl pccDispatcher;
+    protected PCCSessionListener pccSessionListener;
 
     protected abstract List<PCEPCapability> getCapabilities();
 
@@ -78,57 +72,28 @@ public abstract class PCCMockCommon {
             nf, new NioEventLoopGroup(), new NioEventLoopGroup());
     }
 
-    protected static TestingSessionListener checkSessionListener(final int numMessages, final Channel channel, final TestingSessionListenerFactory factory,
-        final String localAddress) throws
-        Exception {
-        final TestingSessionListener sessionListener = checkSessionListenerNotNull(factory, localAddress);
+    protected static TestingSessionListener checkSessionListener(final int numMessages, final Channel channel, final TestingSessionListenerFactory factory, final String localAddress) throws
+        ExecutionException, InterruptedException {
+        final TestingSessionListener sessionListener = factory.getSessionListenerByRemoteAddress(InetAddresses.forString(localAddress));
+        assertNotNull(sessionListener);
         assertTrue(sessionListener.isUp());
-        checkNumberOfMessages(numMessages, sessionListener);
         assertEquals(numMessages, sessionListener.messages().size());
         channel.close().get();
         return sessionListener;
     }
 
-    private static void checkNumberOfMessages(final int expectedNMessages, final TestingSessionListener listener) throws Exception {
-        Stopwatch sw = Stopwatch.createStarted();
-        while (sw.elapsed(TimeUnit.SECONDS) <= 10) {
-            if (expectedNMessages != listener.messages().size()) {
-                Uninterruptibles.sleepUninterruptibly(50, TimeUnit.MILLISECONDS);
-            } else {
-                return;
-            }
-        }
-        Assert.assertEquals(expectedNMessages, listener.messages().size());
-    }
-
-    static TestingSessionListener checkSessionListenerNotNull(final TestingSessionListenerFactory factory, final String localAddress) {
-        Stopwatch sw = Stopwatch.createStarted();
-        TestingSessionListener listener = null;
-        while (sw.elapsed(TimeUnit.SECONDS) <= 1000) {
-            listener = factory.getSessionListenerByRemoteAddress(InetAddresses.forString(localAddress));
-            if (listener == null) {
-                Uninterruptibles.sleepUninterruptibly(50, TimeUnit.MILLISECONDS);
-            } else {
-                return listener;
-            }
-        }
-        throw new NullPointerException();
-    }
-
-    protected Channel createServer(final TestingSessionListenerFactory factory, final InetSocketAddress serverAddress2) throws InterruptedException {
+    protected Channel createServer(final TestingSessionListenerFactory factory, final InetSocketAddress serverAddress2) {
         return createServer(factory, serverAddress2, null);
     }
 
     protected Channel createServer(final TestingSessionListenerFactory factory, final InetSocketAddress
-        serverAddress2, final PCEPPeerProposal peerProposal) throws InterruptedException {
+        serverAddress2, final PCEPPeerProposal peerProposal) {
         final PCEPExtensionProviderContext ctx = ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance();
         final StatefulActivator activator07 = new StatefulActivator();
         final SyncOptimizationsActivator optimizationsActivator = new SyncOptimizationsActivator();
         activator07.start(ctx);
         optimizationsActivator.start(ctx);
-        final ChannelFuture future = this.pceDispatcher.createServer(serverAddress2, factory, peerProposal);
-        waitFutureSuccess(future);
-        return future.channel();
+        return this.pceDispatcher.createServer(serverAddress2, factory, peerProposal).channel();
     }
 
     protected static void checkSynchronizedSession(final int numberOfLsp, final TestingSessionListener pceSessionListener, final BigInteger expectedeInitialDb) throws InterruptedException {
@@ -138,7 +103,7 @@ public abstract class PCCMockCommon {
         final List<Message> messages = pceSessionListener.messages();
         int numberOfSyncMessage = 1;
         int numberOfLspExpected = numberOfLsp;
-        if (!expectedeInitialDb.equals(BigInteger.ZERO)) {
+        if(!expectedeInitialDb.equals(BigInteger.ZERO)) {
             checkSequequenceDBVersionSync(messages, expectedeInitialDb);
             numberOfLspExpected += numberOfSyncMessage;
         }
@@ -151,12 +116,10 @@ public abstract class PCCMockCommon {
     }
 
     protected static void checkResyncSession(final Optional<Integer> startAtNumberLsp, final int expectedNumberOfLsp, final BigInteger startingDBVersion,
-        final BigInteger expectedDBVersion, final TestingSessionListener pceSessionListener) throws InterruptedException {
-        assertNotNull(pceSessionListener.getSession());
+                                             final BigInteger expectedDBVersion, final TestingSessionListener pceSessionListener) {
         assertTrue(pceSessionListener.isUp());
-        Thread.sleep(50);
         List<Message> messages;
-        if (startAtNumberLsp.isPresent()) {
+        if(startAtNumberLsp.isPresent()) {
             messages = pceSessionListener.messages().subList(startAtNumberLsp.get(), startAtNumberLsp.get() + expectedNumberOfLsp);
         } else {
             messages = pceSessionListener.messages();
@@ -226,6 +189,6 @@ public abstract class PCCMockCommon {
     }
 
     protected TestingSessionListener getListener(final TestingSessionListenerFactory factory) {
-        return checkSessionListenerNotNull(factory, PCCMockTest.LOCAL_ADDRESS);
+        return factory.getSessionListenerByRemoteAddress(InetAddresses.forString(PCCMockTest.LOCAL_ADDRESS));
     }
 }
