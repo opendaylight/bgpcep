@@ -33,7 +33,7 @@ public class PCCMockTest extends PCCMockCommon {
         "--redelegation-timeout", "0", "--state-timeout", "-1"};
 
     @Test
-    public void testSessionEstablishment() throws Exception {
+    public void testSessionEstablishment() throws UnknownHostException, InterruptedException, ExecutionException {
         final TestingSessionListenerFactory factory = new TestingSessionListenerFactory();
         final Channel channel = createServer(factory, this.socket);
         Main.main(mainInput);
@@ -46,7 +46,7 @@ public class PCCMockTest extends PCCMockCommon {
 
 
     @Test
-    public void testMockPCCToManyPCE() throws Exception {
+    public void testMockPCCToManyPCE() throws InterruptedException, ExecutionException, UnknownHostException {
         final TestingSessionListenerFactory factory = new TestingSessionListenerFactory();
         final TestingSessionListenerFactory factory2 = new TestingSessionListenerFactory();
         final TestingSessionListenerFactory factory3 = new TestingSessionListenerFactory();

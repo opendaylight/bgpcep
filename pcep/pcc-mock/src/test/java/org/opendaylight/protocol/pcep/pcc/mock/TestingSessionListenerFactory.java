@@ -28,7 +28,7 @@ public class TestingSessionListenerFactory implements PCEPSessionListenerFactory
         return sessionListener;
     }
 
-    TestingSessionListener getSessionListenerByRemoteAddress(final InetAddress ipAddress) {
+    public TestingSessionListener getSessionListenerByRemoteAddress(final InetAddress ipAddress) {
         for (final TestingSessionListener sessionListener : this.sessionListeners) {
             if (sessionListener.isUp()) {
                 final PCEPSession session = sessionListener.getSession();
