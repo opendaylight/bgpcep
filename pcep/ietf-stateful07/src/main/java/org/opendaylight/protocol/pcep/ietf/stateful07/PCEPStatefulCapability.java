@@ -55,6 +55,7 @@ public class PCEPStatefulCapability implements PCEPCapability {
         }
     }
 
+    @Override
     public boolean isStateful() {
         return this.stateful;
     }
