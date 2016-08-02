@@ -9,6 +9,8 @@
 package org.opendaylight.protocol.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.net.InetSocketAddress;
 import java.util.Arrays;
@@ -48,5 +50,16 @@ public class InetSocketAddressUtilTest {
     public void getInetSocketAddress() throws Exception {
         assertEquals(new InetSocketAddress(ADDRESS1, PORT1), InetSocketAddressUtil.getInetSocketAddress(ADDRESS1 + ":" + PORT1, DEFAULT_PORT));
         assertEquals(new InetSocketAddress(ADDRESS1, DEFAULT_PORT), InetSocketAddressUtil.getInetSocketAddress(ADDRESS1, DEFAULT_PORT));
+    }
+
+    @Test
+    public void getRandomLoopbackInetSocketAddressTest() throws Exception {
+        final InetSocketAddress addr1 = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
+        final InetSocketAddress addr2 = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
+        assertNotNull(addr1);
+        assertNotNull(addr2);
+        assertNotEquals(addr1, addr2);
+        assertNotEquals(addr1.getHostString(), addr2.getHostString());
+        assertNotEquals(addr1.getPort(), addr2.getPort());
     }
 }

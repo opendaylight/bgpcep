@@ -24,12 +24,12 @@ import org.opendaylight.protocol.concepts.KeyMapping;
 public class TestClientDispatcher {
 
     private final BGPHandlerFactory hf;
-    private final InetSocketAddress defaulAddress;
+    private final InetSocketAddress defaultAddress;
     private InetSocketAddress localAddress;
     private final BGPDispatcherImpl disp;
 
     protected TestClientDispatcher(final EventLoopGroup bossGroup, final EventLoopGroup workerGroup, final MessageRegistry messageRegistry,
-            final InetSocketAddress locaAddress) {
+            final InetSocketAddress localAddress) {
         this.disp = new BGPDispatcherImpl(messageRegistry, bossGroup, workerGroup) {
             @Override
             protected Bootstrap createClientBootStrap(final Optional<KeyMapping> keys, final EventLoopGroup workerGroup) {
@@ -46,14 +46,14 @@ public class TestClientDispatcher {
                 if (bootstrap.group() == null) {
                     bootstrap.group(workerGroup);
                 }
-                bootstrap.localAddress(locaAddress);
+                bootstrap.localAddress(localAddress);
                 bootstrap.option(ChannelOption.SO_REUSEADDR, true);
                 return bootstrap;
             }
         };
         this.hf = new BGPHandlerFactory(messageRegistry);
-        this.localAddress = locaAddress;
-        this.defaulAddress = locaAddress;
+        this.localAddress = localAddress;
+        this.defaultAddress = localAddress;
     }
 
     public synchronized Future<BGPSessionImpl> createClient(final InetSocketAddress remoteAddress,
@@ -72,7 +72,7 @@ public class TestClientDispatcher {
         if (localAddress.isPresent()) {
             this.localAddress = localAddress.get();
         } else {
-            this.localAddress = this.defaulAddress;
+            this.localAddress = this.defaultAddress;
         }
     }
 }

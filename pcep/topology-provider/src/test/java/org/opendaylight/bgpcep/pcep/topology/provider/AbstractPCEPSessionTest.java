@@ -43,6 +43,7 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiator;
+import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Ero;
@@ -68,16 +69,16 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
     protected static final String TEST_TOPOLOGY_NAME = "testtopo";
     protected static final InstanceIdentifier<Topology> TOPO_IID = InstanceIdentifier.builder(NetworkTopology.class).child(
             Topology.class, new TopologyKey(new TopologyId(TEST_TOPOLOGY_NAME))).build();
-    protected static final String TEST_ADDRESS = "127.0.0.1";
-    protected static final NodeId NODE_ID = new NodeId("pcc://" + TEST_ADDRESS);
-    protected static final String TEST_LSP_NAME = "tunnel0";
     protected static final String IPV4_MASK = "/32";
-    protected static final String ERO_IP_PREFIX = TEST_ADDRESS + IPV4_MASK;
-    protected static final String NEW_DESTINATION_ADDRESS = "127.0.1.0";
-    protected static final String DST_IP_PREFIX = NEW_DESTINATION_ADDRESS + IPV4_MASK;
     protected static final short DEAD_TIMER = 30;
     protected static final short KEEP_ALIVE = 10;
     protected static final int RPC_TIMEOUT = 4;
+
+    protected final String testAddress = InetSocketAddressUtil.getRandomLoopbackIpAddress();
+    protected final NodeId nodeId = new NodeId("pcc://" + testAddress);
+    protected final String eroIpPrefix = testAddress + IPV4_MASK;
+    protected final String newDestinationAddress = InetSocketAddressUtil.getRandomLoopbackIpAddress();
+    protected final String dstIpPrefix = newDestinationAddress + IPV4_MASK;
 
     protected List<Notification> receivedMsgs;
 
@@ -124,9 +125,9 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
         doReturn(this.eventLoop).when(this.clientListener).eventLoop();
         doReturn(null).when(this.eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
         doReturn(true).when(this.clientListener).isActive();
-        final SocketAddress ra = new InetSocketAddress(TEST_ADDRESS, 4189);
+        final SocketAddress ra = new InetSocketAddress(testAddress, 4189);
         doReturn(ra).when(this.clientListener).remoteAddress();
-        final SocketAddress la = new InetSocketAddress(TEST_ADDRESS, 30000);
+        final SocketAddress la = new InetSocketAddress(testAddress, InetSocketAddressUtil.getRandomPort());
         doReturn(la).when(this.clientListener).localAddress();
 
         doReturn(mock(ChannelFuture.class)).when(this.clientListener).close();
