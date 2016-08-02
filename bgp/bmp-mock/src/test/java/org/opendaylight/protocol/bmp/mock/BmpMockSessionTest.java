@@ -26,6 +26,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.InitiationMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.PeerUp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.RouteMonitoringMessage;
@@ -33,8 +34,8 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 
 public class BmpMockSessionTest {
 
-    private static final InetSocketAddress REMOTE_ADDRESS = new InetSocketAddress(InetAddresses.forString("127.0.0.1"), 0);
-    private static final InetSocketAddress LOCAL_ADDRESS = new InetSocketAddress(InetAddresses.forString("127.0.0.2"), 0);
+    private static final InetSocketAddress REMOTE_ADDRESS = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(0);
+    private static final InetSocketAddress LOCAL_ADDRESS = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(0);
 
     private ChannelHandlerContext context;
     private Channel channel;

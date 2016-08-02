@@ -42,7 +42,7 @@ public class PCCTriggeredLspResyncTest extends PCCMockCommon {
         final int lspQuantity = 3;
         final BigInteger numberOflspAndDBv = BigInteger.valueOf(lspQuantity);
 
-        this.channel = createServer(factory, socket, new PCCPeerProposal());
+        this.channel = createServer(factory, this.remoteAddress, new PCCPeerProposal());
         PCEPSession session = createPCCSession(numberOflspAndDBv).get();
         assertNotNull(session);
         final TestingSessionListener pceSessionListener = getListener(factory);
@@ -76,10 +76,5 @@ public class PCCTriggeredLspResyncTest extends PCCMockCommon {
         final List<PCEPCapability> caps = new ArrayList<>();
         caps.add(new PCEPStatefulCapability(true, true, true, false, true, false, true));
         return caps;
-    }
-
-    @Override
-    protected int getPort() {
-        return 4584;
     }
 }

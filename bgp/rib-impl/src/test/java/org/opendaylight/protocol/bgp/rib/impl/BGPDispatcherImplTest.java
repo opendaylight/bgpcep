@@ -38,6 +38,7 @@ import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
+import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -105,7 +106,7 @@ public class BGPDispatcherImplTest {
     }
 
     private void configureClient(final BGPExtensionProviderContext ctx) {
-        final InetSocketAddress clientAddress = new InetSocketAddress("127.0.11.0", 1791);
+        final InetSocketAddress clientAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
         final IpAddress clientPeerIp = new IpAddress(new Ipv4Address(clientAddress.getAddress().getHostAddress()));
         this.registry.addPeer(clientPeerIp, this.clientListener, createPreferences(clientAddress));
         this.clientDispatcher = new TestClientDispatcher(this.boss, this.worker, ctx.getMessageRegistry(), clientAddress);
@@ -136,7 +137,7 @@ public class BGPDispatcherImplTest {
 
     @Test
     public void testCreateClient() throws InterruptedException, ExecutionException {
-        final InetSocketAddress serverAddress = new InetSocketAddress("127.0.10.0", 1790);
+        final InetSocketAddress serverAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
         final Channel serverChannel = createServer(serverAddress);
         Thread.sleep(1000);
         final Future<BGPSessionImpl> futureClient = this.clientDispatcher.createClient(serverAddress, this.registry, 2, Optional.absent());
@@ -155,7 +156,7 @@ public class BGPDispatcherImplTest {
 
     @Test
     public void testCreateReconnectingClient() throws Exception {
-        final InetSocketAddress serverAddress = new InetSocketAddress("127.0.20.0", 1792);
+        final InetSocketAddress serverAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
         final Future<Void> future = this.clientDispatcher.createReconnectingClient(serverAddress, this.registry, RETRY_TIMER, Optional.absent());
         waitFutureSuccess(future);
         final Channel serverChannel = createServer(serverAddress);
