@@ -42,4 +42,9 @@ public final class DefaultPCEPSessionNegotiatorFactory extends AbstractPCEPSessi
         return new DefaultPCEPSessionNegotiator(promise, channel, listener, sessionId, this.maxUnknownMessages,
                 this.spf.getSessionProposal((InetSocketAddress)channel.remoteAddress(), sessionId, peerProposal), this.tlsConfiguration);
     }
+
+    @Override
+    public PCEPSessionProposalFactory getPCEPSessionProposalFactory() {
+        return this.spf;
+    }
 }

@@ -23,4 +23,5 @@ public interface PCEPCapability {
      */
     void setCapabilityProposal(InetSocketAddress address, TlvsBuilder builder);
 
+    boolean isStateful();
 }
