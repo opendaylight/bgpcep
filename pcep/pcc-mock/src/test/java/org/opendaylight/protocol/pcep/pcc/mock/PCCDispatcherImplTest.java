@@ -38,7 +38,6 @@ import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCDispatcherImpl;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
 
-@RunWith(Parameterized.class)
 public class PCCDispatcherImplTest {
 
     private static final List<PCEPCapability> CAPS = new ArrayList<>();
@@ -51,14 +50,6 @@ public class PCCDispatcherImplTest {
     private InetSocketAddress clientAddress;
     private EventLoopGroup workerGroup;
     private EventLoopGroup bossGroup;
-
-    @Parameterized.Parameters
-    public static List<Object[]> data() {
-        return Arrays.asList(new Object[100][0]);
-    }
-
-    public PCCDispatcherImplTest() {
-    }
 
     @Before
     public void setUp() {
