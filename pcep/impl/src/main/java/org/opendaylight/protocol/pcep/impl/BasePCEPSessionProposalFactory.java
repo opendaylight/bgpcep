@@ -79,4 +79,8 @@ public final class BasePCEPSessionProposalFactory implements PCEPSessionProposal
         return this.deadTimer;
     }
 
+    @Override
+    public List<PCEPCapability> getCapabilities() {
+        return this.capabilities;
+    }
 }

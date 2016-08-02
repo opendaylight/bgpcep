@@ -10,6 +10,7 @@ package org.opendaylight.controller.config.yang.pcep.tunnel.provider;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import io.netty.channel.nio.NioEventLoopGroup;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import javax.management.ObjectName;
@@ -28,6 +29,7 @@ import org.opendaylight.controller.config.yang.pcep.topology.provider.Stateful07
 import org.opendaylight.controller.config.yang.programming.impl.AbstractInstructionSchedulerTest;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
+import org.opendaylight.protocol.pcep.ietf.stateful07.PCEPStatefulCapability;
 import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
@@ -50,7 +52,7 @@ public class PCEPTunnelTopologyProviderModuleTest extends AbstractInstructionSch
         SimplePCEPExtensionProviderContext extContext = new SimplePCEPExtensionProviderContext();
         setupMockService(PCEPExtensionProviderContext.class, extContext);
         BasePCEPSessionProposalFactory proposalFactory = new BasePCEPSessionProposalFactory(120, 30,
-                Collections.emptyList());
+                Arrays.asList(new PCEPStatefulCapability(true, true, true, true, true, true, true)));
         setupMockService(PCEPSessionProposalFactory.class, proposalFactory);
         NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup();
         setupMockService(PCEPDispatcher.class, new PCEPDispatcherImpl(extContext.getMessageHandlerRegistry(),

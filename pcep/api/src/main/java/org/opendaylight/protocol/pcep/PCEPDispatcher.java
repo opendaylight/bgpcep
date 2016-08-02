@@ -36,4 +36,6 @@ public interface PCEPDispatcher {
      * @return instance of PCEPServer
      */
     ChannelFuture createServer(InetSocketAddress address, Optional<KeyMapping> keys, PCEPSessionListenerFactory listenerFactory, PCEPPeerProposal peerProposal);
+
+    PCEPSessionNegotiatorFactory getPCEPSessionNegotiatorFactory();
 }
