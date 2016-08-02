@@ -32,11 +32,47 @@ public final class InetSocketAddressUtil {
         return Lists.transform(Arrays.asList(address.split(SEPARATOR)), input -> getInetSocketAddress(input, null));
     }
 
+    public static HostAndPort toHostAndPort(final InetSocketAddress address) {
+        return HostAndPort.fromParts(address.getHostString(), address.getPort());
+    }
+
     public static InetSocketAddress getInetSocketAddress(final String hostPortString, final Integer defaultPort) {
         final HostAndPort hostAndPort = HostAndPort.fromString(hostPortString);
         if (defaultPort != null) {
             return new InetSocketAddress(hostAndPort.getHostText(), hostAndPort.getPortOrDefault(defaultPort));
         }
         return new InetSocketAddress(hostAndPort.getHostText(), hostAndPort.getPort());
+    }
+
+    public static InetSocketAddress getRandomLoopbackInetSocketAddress(final int port) {
+        return new InetSocketAddress(getRandomLoopbackIpAddress(), port);
+    }
+
+    public static InetSocketAddress getRandomLoopbackInetSocketAddress() {
+        return getRandomLoopbackInetSocketAddress(getRandomPort());
+    }
+
+    /**
+     * Generate a random high range port number
+     *
+     * @return A port number range from 10000 to 50000
+     */
+    public static int getRandomPort() {
+        final int randPort = 10000 + (int) Math.round(40000 * Math.random());
+        return randPort;
+    }
+
+    /**
+     * Generate a random loopback ip address
+     * IP address range: 127.50.50.50 ~ 127.250.250.250
+     * We did not utilize the whole 127./8 range to avoid using common addresses like 127.0.0.1
+     * @return Generated random loopback IP address
+     */
+    public static String getRandomLoopbackIpAddress() {
+        final StringBuilder sb = new StringBuilder("127");
+        for (int i = 0; i < 3; i++) {
+            sb.append(".").append(50 + (int) Math.round(Math.random() * 200));
+        }
+        return sb.toString();
     }
 }

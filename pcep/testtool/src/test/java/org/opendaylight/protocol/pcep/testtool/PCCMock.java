@@ -20,6 +20,7 @@ import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCDispatcherImpl;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
+import org.opendaylight.protocol.util.InetSocketAddressUtil;
 
 public class PCCMock {
 
@@ -27,14 +28,15 @@ public class PCCMock {
         final List<PCEPCapability> caps = new ArrayList<>();
         final PCEPSessionProposalFactory proposal = new BasePCEPSessionProposalFactory((short) 120, (short) 30, caps);
         final PCEPSessionNegotiatorFactory snf = new DefaultPCEPSessionNegotiatorFactory(proposal, 0);
+        final InetSocketAddress clientAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(0);
 
         try (final PCCDispatcherImpl pccDispatcher = new PCCDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry())) {
-            pccDispatcher.createClient(new InetSocketAddress("127.0.0.3", 12345), -1, new PCEPSessionListenerFactory() {
+            pccDispatcher.createClient(clientAddr, -1, new PCEPSessionListenerFactory() {
                 @Override
                 public PCEPSessionListener getSessionListener() {
                     return new SimpleSessionListener();
                 }
-            }, snf, null, new InetSocketAddress("127.0.0.1", 12345)).get();
+            }, snf, null, clientAddr).get();
         }
     }
 }

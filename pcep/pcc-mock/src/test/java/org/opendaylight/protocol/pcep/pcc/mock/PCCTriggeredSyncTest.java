@@ -39,7 +39,7 @@ public class PCCTriggeredSyncTest extends PCCMockCommon {
     @Test
     public void testSessionTriggeredSync() throws Exception {
         final TestingSessionListenerFactory factory = new TestingSessionListenerFactory();
-        this.channel = createServer(factory, socket, new PCCPeerProposal());
+        this.channel = createServer(factory, this.remoteAddress, new PCCPeerProposal());
         final BigInteger numberOflspAndDBv = BigInteger.valueOf(3);
         PCEPSession session = createPCCSession(numberOflspAndDBv).get();
         assertNotNull(session);
@@ -76,11 +76,6 @@ public class PCCTriggeredSyncTest extends PCCMockCommon {
         final List<PCEPCapability> caps = new ArrayList<>();
         caps.add(new PCEPStatefulCapability(true, true, true, true, false, false, true));
         return caps;
-    }
-
-    @Override
-    protected int getPort() {
-        return 4582;
     }
 }
 

@@ -28,7 +28,7 @@ public class PCCSyncAvoidanceProcedureTest extends PCCMockCommon {
     public void testSessionAvoidanceDesynchronizedEstablishment() throws UnknownHostException, InterruptedException, ExecutionException {
         final TestingSessionListenerFactory factory = new TestingSessionListenerFactory();
 
-        final Channel channel = createServer(factory, socket, new PCCPeerProposal());
+        final Channel channel = createServer(factory, this.remoteAddress, new PCCPeerProposal());
         PCEPSession session = createPCCSession(BigInteger.TEN).get();
         assertNotNull(session);
         final TestingSessionListener pceSessionListener = getListener(factory);
@@ -43,10 +43,5 @@ public class PCCSyncAvoidanceProcedureTest extends PCCMockCommon {
         final List<PCEPCapability> caps = new ArrayList<>();
         caps.add(new PCEPStatefulCapability(true, true, true, false, false, false, true));
         return caps;
-    }
-
-    @Override
-    protected int getPort() {
-        return 4567;
     }
 }
