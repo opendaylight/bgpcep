@@ -20,7 +20,6 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import org.junit.After;
 import org.junit.Assert;
@@ -37,13 +36,13 @@ import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCDispatcherImpl;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
+import org.opendaylight.protocol.util.InetSocketAddressUtil;
 
 public class PCCDispatcherImplTest {
 
     private static final List<PCEPCapability> CAPS = new ArrayList<>();
     private static final PCEPSessionProposalFactory PROPOSAL = new BasePCEPSessionProposalFactory(30, 120, CAPS);
     private final DefaultPCEPSessionNegotiatorFactory nf = new DefaultPCEPSessionNegotiatorFactory(PROPOSAL, 0);
-    private final Random random = new Random();
     private PCCDispatcherImpl dispatcher;
     private PCEPDispatcher pcepDispatcher;
     private InetSocketAddress serverAddress;
@@ -58,8 +57,8 @@ public class PCCDispatcherImplTest {
         this.dispatcher = new PCCDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry());
         this.pcepDispatcher = new PCEPDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry(),
             this.nf, this.bossGroup, this.workerGroup);
-        this.serverAddress = new InetSocketAddress("127.0.5.0", getRandomPort());
-        this.clientAddress = new InetSocketAddress("127.0.4.0", getRandomPort());
+        this.serverAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
+        this.clientAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
     }
 
     @After
@@ -83,7 +82,7 @@ public class PCCDispatcherImplTest {
         waitFutureSuccess(futureServer);
         final Channel channel = futureServer.channel();
         Assert.assertNotNull(futureSession.get());
-        checkSessionListenerNotNull(slf, "127.0.4.0");
+        checkSessionListenerNotNull(slf, this.clientAddress.getHostString());
         final TestingSessionListener sl = checkSessionListenerNotNull(slf, this.clientAddress.getAddress().getHostAddress());
         Assert.assertNotNull(sl.getSession());
         Assert.assertTrue(sl.isUp());
@@ -102,9 +101,5 @@ public class PCCDispatcherImplTest {
         final TestingSessionListener sl2 = checkSessionListenerNotNull(slf2, this.clientAddress.getAddress().getHostAddress());
         Assert.assertNotNull(sl2.getSession());
         Assert.assertTrue(sl2.isUp());
-    }
-
-    private int getRandomPort() {
-        return this.random.nextInt(4000) + 1024;
     }
 }

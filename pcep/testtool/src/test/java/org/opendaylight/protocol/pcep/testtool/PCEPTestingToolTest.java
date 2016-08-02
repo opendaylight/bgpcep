@@ -13,6 +13,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.KeepaliveMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.keepalive.message.KeepaliveMessageBuilder;
@@ -22,7 +23,8 @@ public class PCEPTestingToolTest {
     @Test
     public void testSessionEstablishment() {
         try {
-            Main.main(new String[]{"-a", "127.0.0.3:12345", "-ka", "10", "-d", "0", "--stateful", "--active", "--instant"});
+            Main.main(new String[]{"-a", InetSocketAddressUtil.toHostAndPort(InetSocketAddressUtil.getRandomLoopbackInetSocketAddress()).toString(),
+                "-ka", "10", "-d", "0", "--stateful", "--active", "--instant"});
             PCCMock.main(new String[0]);
         } catch (final Exception e) {
             Assert.fail();

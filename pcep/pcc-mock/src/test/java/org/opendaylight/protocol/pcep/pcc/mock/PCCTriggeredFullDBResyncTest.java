@@ -41,7 +41,7 @@ public class PCCTriggeredFullDBResyncTest extends PCCMockCommon {
         final TestingSessionListenerFactory factory = new TestingSessionListenerFactory();
         final int lspQuantity = 3;
         final BigInteger numberOflspAndDBv = BigInteger.valueOf(lspQuantity);
-        this.channel = createServer(factory, socket, new PCCPeerProposal());
+        this.channel = createServer(factory, remoteAddress, new PCCPeerProposal());
         PCEPSession session = createPCCSession(numberOflspAndDBv).get();
         assertNotNull(session);
         final TestingSessionListener pceSessionListener = getListener(factory);
@@ -75,10 +75,5 @@ public class PCCTriggeredFullDBResyncTest extends PCCMockCommon {
         final List<PCEPCapability> caps = new ArrayList<>();
         caps.add(new PCEPStatefulCapability(true, true, true, false, true, false, true));
         return caps;
-    }
-
-    @Override
-    protected int getPort() {
-        return 4566;
     }
 }

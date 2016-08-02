@@ -78,7 +78,7 @@ public class PCEPTriggeredReSynchronizationProcedureTest extends AbstractPCEPSes
         Assert.assertFalse(pcc.getReportedLsp().isEmpty());
 
         //PCEP Trigger Full Resync
-        this.listener.triggerSync(new TriggerSyncInputBuilder().setNode(NODE_ID).build());
+        this.listener.triggerSync(new TriggerSyncInputBuilder().setNode(nodeId).build());
 
         final PathComputationClient pcc1 = getTopology().get().getNode().get(0).getAugmentation(Node1.class).getPathComputationClient();
         Assert.assertEquals(PccSyncState.PcepTriggeredResync, pcc1.getStateSync());
@@ -95,7 +95,7 @@ public class PCEPTriggeredReSynchronizationProcedureTest extends AbstractPCEPSes
         Assert.assertEquals(1, pcc3.getReportedLsp().size());
 
         //Trigger Full Resync
-        this.listener.triggerSync(new TriggerSyncInputBuilder().setNode(NODE_ID).build());
+        this.listener.triggerSync(new TriggerSyncInputBuilder().setNode(nodeId).build());
         this.listener.onMessage(session, pcRpt);
         //end of sync
         this.listener.onMessage(session, syncMsg);
@@ -123,7 +123,7 @@ public class PCEPTriggeredReSynchronizationProcedureTest extends AbstractPCEPSes
         Assert.assertFalse(reportedLspPcc.isEmpty());
 
         //Trigger Full Resync
-        this.listener.triggerSync(new TriggerSyncInputBuilder().setNode(NODE_ID).setName("test").build());
+        this.listener.triggerSync(new TriggerSyncInputBuilder().setNode(nodeId).setName("test").build());
 
         final PathComputationClient pcc1 = getTopology().get().getNode().get(0).getAugmentation(Node1.class).getPathComputationClient();
         Assert.assertEquals(PccSyncState.PcepTriggeredResync, pcc1.getStateSync());
@@ -143,7 +143,7 @@ public class PCEPTriggeredReSynchronizationProcedureTest extends AbstractPCEPSes
         Assert.assertEquals(1, pcc2.getReportedLsp().size());
 
         //Trigger Full Resync
-        this.listener.triggerSync(new TriggerSyncInputBuilder().setNode(NODE_ID).setName("test").build());
+        this.listener.triggerSync(new TriggerSyncInputBuilder().setNode(nodeId).setName("test").build());
         this.listener.onMessage(session, syncMsg);
 
         final PathComputationClient pcc3 = getTopology().get().getNode().get(0).getAugmentation(Node1.class).getPathComputationClient();
