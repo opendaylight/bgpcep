@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.ietf.stateful07.PCEPStatefulCapability;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCServerPeerProposal;
+import org.opendaylight.protocol.util.InetSocketAddressUtil;
 
 public class PCCIncrementalSyncTest extends PCCMockCommon {
 
@@ -30,15 +31,15 @@ public class PCCIncrementalSyncTest extends PCCMockCommon {
      * Create 8 lsp, then it disconnects after 5 sec and then after 5 sec reconnects with Pcc DBVersion 10
      * After reconnection PCE has DBVersion 10, therefore there is 9 changes missed. 9 Pcrt + 1 Pcrt-Sync
      */
-    private final String[] mainInputIncrementalSync = new String[]{"--local-address", PCCMockTest.LOCAL_ADDRESS, "--remote-address",
-        PCCMockTest.REMOTE_ADDRESS + ":4578", "--pcc", "1", "--lsp", lsp.toString(), "--log-level", "DEBUG", "-ka", "40", "-d", "120",
+    private final String[] mainInputIncrementalSync = new String[]{"--local-address", this.localAddress.getHostString(), "--remote-address",
+        InetSocketAddressUtil.toHostAndPort(this.remoteAddress).toString(), "--pcc", "1", "--lsp", lsp.toString(), "--log-level", "DEBUG", "-ka", "40", "-d", "120",
         "--reconnect", "-1", "--redelegation-timeout", "0", "--state-timeout", "-1", "--incremental-sync-procedure", "10", "5", "5"};
 
     @Test
     public void testSessionIncrementalSyncEstablishment() throws UnknownHostException, InterruptedException, ExecutionException {
         final TestingSessionListenerFactory factory = new TestingSessionListenerFactory();
         final BigInteger numberOflspAndDBv = BigInteger.valueOf(8);
-        final Channel channel = createServer(factory, socket, new PCCServerPeerProposal(numberOflspAndDBv));
+        final Channel channel = createServer(factory, this.remoteAddress, new PCCServerPeerProposal(numberOflspAndDBv));
         Main.main(mainInputIncrementalSync);
         Thread.sleep(1000);
         final TestingSessionListener pceSessionListener = getListener(factory);
@@ -57,10 +58,5 @@ public class PCCIncrementalSyncTest extends PCCMockCommon {
         final List<PCEPCapability> caps = new ArrayList<>();
         caps.add(new PCEPStatefulCapability(true, true, true, false, false, true, true));
         return caps;
-    }
-
-    @Override
-    protected int getPort() {
-        return 4578;
     }
 }

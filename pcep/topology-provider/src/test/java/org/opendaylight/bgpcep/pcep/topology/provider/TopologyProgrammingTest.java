@@ -187,57 +187,57 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest<MockedTopol
     public void testSubmitAddLsp() throws InterruptedException, ExecutionException {
         final SubmitAddLspInputBuilder inputBuilder = new SubmitAddLspInputBuilder();
         inputBuilder.setName(NAME);
-        inputBuilder.setNode(NODE_ID);
+        inputBuilder.setNode(nodeId);
         inputBuilder.setArguments(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.add.lsp.args.ArgumentsBuilder().build());
         this.topologyProgramming.submitAddLsp(inputBuilder.build());
         Assert.assertNotNull(this.addLspArgs);
         Assert.assertEquals(NAME, this.addLspArgs.getName());
-        Assert.assertEquals(NODE_ID, this.addLspArgs.getNode());
+        Assert.assertEquals(nodeId, this.addLspArgs.getNode());
     }
 
     @Test
     public void testSubmitUpdateLsp() {
         final SubmitUpdateLspInputBuilder inputBuilder = new SubmitUpdateLspInputBuilder();
         inputBuilder.setName(NAME);
-        inputBuilder.setNode(NODE_ID);
+        inputBuilder.setNode(nodeId);
         this.topologyProgramming.submitUpdateLsp(inputBuilder.build());
         Assert.assertNotNull(this.updateLspArgs);
         Assert.assertEquals(NAME, this.updateLspArgs.getName());
-        Assert.assertEquals(NODE_ID, this.updateLspArgs.getNode());
+        Assert.assertEquals(nodeId, this.updateLspArgs.getNode());
     }
 
     @Test
     public void testSubmitEnsureLsp() {
         final SubmitEnsureLspOperationalInputBuilder inputBuilder = new SubmitEnsureLspOperationalInputBuilder();
         inputBuilder.setName(NAME);
-        inputBuilder.setNode(NODE_ID);
+        inputBuilder.setNode(nodeId);
         inputBuilder.setArguments(new ArgumentsBuilder().build());
         this.topologyProgramming.submitEnsureLspOperational(inputBuilder.build());
         Assert.assertNotNull(this.ensureLspInput);
         Assert.assertEquals(NAME, this.ensureLspInput.getName());
-        Assert.assertEquals(NODE_ID, this.ensureLspInput.getNode());
+        Assert.assertEquals(nodeId, this.ensureLspInput.getNode());
     }
 
     @Test
     public void testSubmitRemoveLsp() {
         final SubmitRemoveLspInputBuilder inputBuilder = new SubmitRemoveLspInputBuilder();
         inputBuilder.setName(NAME);
-        inputBuilder.setNode(NODE_ID);
+        inputBuilder.setNode(nodeId);
         this.topologyProgramming.submitRemoveLsp(inputBuilder.build());
         Assert.assertNotNull(this.removeLspArgs);
         Assert.assertEquals(NAME, this.removeLspArgs.getName());
-        Assert.assertEquals(NODE_ID, this.removeLspArgs.getNode());
+        Assert.assertEquals(nodeId, this.removeLspArgs.getNode());
     }
 
     @Test
     public void testSubmitTriggerSync() {
         final SubmitTriggerSyncInputBuilder inputBuilder = new SubmitTriggerSyncInputBuilder();
         inputBuilder.setName(NAME);
-        inputBuilder.setNode(NODE_ID);
+        inputBuilder.setNode(nodeId);
         this.topologyProgramming.submitTriggerSync(inputBuilder.build());
         Assert.assertNotNull(this.triggerSyncArgs);
         Assert.assertEquals(NAME, this.triggerSyncArgs.getName());
-        Assert.assertEquals(NODE_ID, this.triggerSyncArgs.getNode());
+        Assert.assertEquals(nodeId, this.triggerSyncArgs.getNode());
     }
 
     protected static final class MockedTopologySessionListenerFactory implements TopologySessionListenerFactory {
