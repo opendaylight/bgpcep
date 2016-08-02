@@ -12,35 +12,31 @@ import io.netty.channel.Channel;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil;
+import org.opendaylight.protocol.util.InetSocketAddressUtil;
 
 public class PCCMockTest extends PCCMockCommon {
-    private static final String REMOTE_ADDRESS2 = "127.0.2.0";
-    private static final String REMOTE_ADDRESS3 = "127.0.3.0";
-    private static final String REMOTE_ADDRESS4 = "127.0.4.0";
     private static final String LOCAL_ADDRESS2 = "127.0.0.2";
-    private static final InetSocketAddress SERVER_ADDRESS2 = new InetSocketAddress(REMOTE_ADDRESS2, 4189);
-    private static final InetSocketAddress SERVER_ADDRESS3 = new InetSocketAddress(REMOTE_ADDRESS3, 4189);
-    private static final InetSocketAddress SERVER_ADDRESS4 = new InetSocketAddress(REMOTE_ADDRESS4, 4189);
-    private final String[] mainInput = new String[]{"--local-address", PCCMockCommon.LOCAL_ADDRESS, "--remote-address",
-        PCCMockCommon.REMOTE_ADDRESS + ":4560", "--pcc", "1", "--lsp", "3", "--log-level", "DEBUG", "-ka", "10", "-d", "40", "--reconnect", "-1",
+    private static final InetSocketAddress SERVER_ADDRESS2 = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
+    private static final InetSocketAddress SERVER_ADDRESS3 = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
+    private static final InetSocketAddress SERVER_ADDRESS4 = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
+    private final String[] mainInput = new String[] {"--local-address", this.localAddress.getHostString(), "--remote-address",
+        InetSocketAddressUtil.toHostAndPort(this.remoteAddress).toString(), "--pcc", "1", "--lsp", "3", "--log-level", "DEBUG", "-ka", "10", "-d", "40", "--reconnect", "-1",
         "--redelegation-timeout", "0", "--state-timeout", "-1"};
 
     @Test
     public void testSessionEstablishment() throws Exception {
         final TestingSessionListenerFactory factory = new TestingSessionListenerFactory();
-        final Channel channel = createServer(factory, this.socket);
+        final Channel channel = createServer(factory, this.remoteAddress);
         Main.main(mainInput);
         Thread.sleep(1000);
         //3 reported LSPs + syc
         final int numMessages = 4;
-        final TestingSessionListener sessionListener = checkSessionListener(numMessages, channel, factory, PCCMockCommon.LOCAL_ADDRESS);
+        final TestingSessionListener sessionListener = checkSessionListener(numMessages, channel, factory, this.localAddress.getHostString());
         checkSession(sessionListener.getSession(), 40, 10);
     }
 
@@ -54,17 +50,21 @@ public class PCCMockTest extends PCCMockCommon {
         final Channel channel2 = createServer(factory2, SERVER_ADDRESS3);
         final Channel channel3 = createServer(factory3, SERVER_ADDRESS4);
 
-        Main.main(new String[]{"--local-address", PCCMockCommon.LOCAL_ADDRESS, "--remote-address", REMOTE_ADDRESS2 + "," + REMOTE_ADDRESS3 + "," + REMOTE_ADDRESS4, "--pcc", "2"});
+        Main.main(new String[] {"--local-address", this.localAddress.getHostString(), "--remote-address",
+            InetSocketAddressUtil.toHostAndPort(SERVER_ADDRESS2).toString() + "," +
+                InetSocketAddressUtil.toHostAndPort(SERVER_ADDRESS3).toString() + "," +
+                InetSocketAddressUtil.toHostAndPort(SERVER_ADDRESS4).toString(),
+            "--pcc", "2"});
         Thread.sleep(1000);
         //PCE1
         int numMessages = 2;
-        checkSessionListener(numMessages, channel, factory, PCCMockCommon.LOCAL_ADDRESS);
+        checkSessionListener(numMessages, channel, factory, this.localAddress.getHostString());
         checkSessionListener(numMessages, channel, factory, LOCAL_ADDRESS2);
         //PCE2
-        checkSessionListener(numMessages, channel2, factory2, LOCAL_ADDRESS);
+        checkSessionListener(numMessages, channel2, factory2, localAddress.getHostString());
         checkSessionListener(numMessages, channel2, factory2, LOCAL_ADDRESS2);
         //PCE3
-        checkSessionListener(numMessages, channel3, factory3, PCCMockCommon.LOCAL_ADDRESS);
+        checkSessionListener(numMessages, channel3, factory3, this.localAddress.getHostString());
         checkSessionListener(numMessages, channel3, factory3, LOCAL_ADDRESS2);
     }
 
@@ -82,10 +82,5 @@ public class PCCMockTest extends PCCMockCommon {
     @Override
     protected List<PCEPCapability> getCapabilities() {
         return Collections.emptyList();
-    }
-
-    @Override
-    protected int getPort() {
-        return 4560;
     }
 }

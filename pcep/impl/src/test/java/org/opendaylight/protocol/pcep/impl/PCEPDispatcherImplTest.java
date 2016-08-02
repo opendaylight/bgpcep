@@ -44,16 +44,16 @@ import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl.ChannelPipelineInitializer;
 import org.opendaylight.protocol.pcep.spi.MessageRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
+import org.opendaylight.protocol.util.InetSocketAddressUtil;
 
 public class PCEPDispatcherImplTest {
-
     private static final int PORT = 4189;
-    private static final InetSocketAddress CLIENT1_ADDRESS = new InetSocketAddress("127.0.0.10", PORT);
-    private static final InetSocketAddress CLIENT2_ADDRESS = new InetSocketAddress("127.0.0.11", PORT);
     private static final short DEAD_TIMER = 120;
     private static final short KEEP_ALIVE = 30;
     private static final int RETRY_TIMER = 0;
     private static final int CONNECT_TIMEOUT = 500;
+    private final InetSocketAddress CLIENT1_ADDRESS = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(PORT);
+    private final InetSocketAddress CLIENT2_ADDRESS = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(PORT);
 
     private PCEPDispatcherImpl dispatcher;
     private PCEPDispatcherImpl disp2Spy;
