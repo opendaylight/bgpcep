@@ -27,4 +27,6 @@ public interface PCEPSessionNegotiatorFactory<S extends PCEPSession> {
      * @return PCEPSessionNegotiator instance
      */
     SessionNegotiator getSessionNegotiator(PCEPSessionListenerFactory sessionListenerFactory, Channel channel, Promise<S> promise, final PCEPPeerProposal peerProposal);
+
+    PCEPSessionProposalFactory getPCEPSessionProposalFactory();
 }
