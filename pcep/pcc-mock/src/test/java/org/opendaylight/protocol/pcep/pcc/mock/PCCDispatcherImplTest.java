@@ -25,6 +25,7 @@ import java.util.concurrent.ExecutionException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -38,7 +39,7 @@ import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCDispatcherImpl;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
 
-@RunWith(Parameterized.class)
+@Ignore
 public class PCCDispatcherImplTest {
 
     private static final List<PCEPCapability> CAPS = new ArrayList<>();
@@ -51,14 +52,6 @@ public class PCCDispatcherImplTest {
     private InetSocketAddress clientAddress;
     private EventLoopGroup workerGroup;
     private EventLoopGroup bossGroup;
-
-    @Parameterized.Parameters
-    public static List<Object[]> data() {
-        return Arrays.asList(new Object[100][0]);
-    }
-
-    public PCCDispatcherImplTest() {
-    }
 
     @Before
     public void setUp() {
