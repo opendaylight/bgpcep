@@ -12,6 +12,7 @@ import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import java.net.InetSocketAddress;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
@@ -22,6 +23,7 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.protocol.concepts.KeyMapping;
+import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.topology.rev140113.NetworkTopologyContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.NetworkTopologyPcepProgrammingService;
@@ -54,6 +56,17 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference impleme
             final InstanceIdentifier<Topology> topology, final TopologySessionListenerFactory listenerFactory,
             final Optional<PCEPTopologyProviderRuntimeRegistrator> runtimeRootRegistrator, final int rpcTimeout) throws InterruptedException,
             ExecutionException, ReadFailedException, TransactionCommitFailedException {
+        List<PCEPCapability> capabilities = dispatcher.getPCEPSessionNegotiatorFactory().getPCEPSessionProposalFactory().getCapabilities();
+        boolean statefulCapability = false;
+        for (final PCEPCapability capability : capabilities) {
+            if (capability.isStateful()) {
+                statefulCapability = true;
+                break;
+            }
+        }
+        if (!statefulCapability && listenerFactory != null) {
+            throw new IllegalStateException("Stateful capability not defined, aborting PCEP Topology Provider instantiation");
+        }
 
         final ServerSessionManager manager = new ServerSessionManager(dataBroker, topology, listenerFactory, rpcTimeout);
         if (runtimeRootRegistrator.isPresent()) {
