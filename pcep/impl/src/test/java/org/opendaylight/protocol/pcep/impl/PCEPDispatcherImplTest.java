@@ -44,12 +44,9 @@ import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl.ChannelPipelineInitializer;
 import org.opendaylight.protocol.pcep.spi.MessageRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
+import org.opendaylight.protocol.util.InetSocketAddressUtil;
 
 public class PCEPDispatcherImplTest {
-
-    private static final int PORT = 4189;
-    private static final InetSocketAddress CLIENT1_ADDRESS = new InetSocketAddress("127.0.0.10", PORT);
-    private static final InetSocketAddress CLIENT2_ADDRESS = new InetSocketAddress("127.0.0.11", PORT);
     private static final short DEAD_TIMER = 120;
     private static final short KEEP_ALIVE = 30;
     private static final int RETRY_TIMER = 0;
@@ -89,22 +86,26 @@ public class PCEPDispatcherImplTest {
 
     @Test
     public void testCreateClientServer() throws InterruptedException, ExecutionException {
-        final ChannelFuture futureChannel = this.dispatcher.createServer(new InetSocketAddress("0.0.0.0", PORT),
+        final int port = InetSocketAddressUtil.getRandomPort();
+        final InetSocketAddress serverAddr = new InetSocketAddress("0.0.0.0", port);
+        final InetSocketAddress clientAddr1 = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
+        final InetSocketAddress clientAddr2 = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
+        final ChannelFuture futureChannel = this.dispatcher.createServer(serverAddr,
                 () -> new SimpleSessionListener(), null);
-        final PCEPSessionImpl session1 = (PCEPSessionImpl) this.pccMock.createClient(CLIENT1_ADDRESS,
+        final PCEPSessionImpl session1 = (PCEPSessionImpl) this.pccMock.createClient(clientAddr1,
                 RETRY_TIMER, CONNECT_TIMEOUT,
                 () -> new SimpleSessionListener()).get();
 
-        final PCEPSessionImpl session2 = (PCEPSessionImpl) this.pccMock.createClient(CLIENT2_ADDRESS,
+        final PCEPSessionImpl session2 = (PCEPSessionImpl) this.pccMock.createClient(clientAddr2,
                 RETRY_TIMER, CONNECT_TIMEOUT,
                 () -> new SimpleSessionListener()).get();
 
         Assert.assertTrue(futureChannel.channel().isActive());
-        Assert.assertEquals(CLIENT1_ADDRESS.getAddress().getHostAddress(), session1.getPeerPref().getIpAddress());
+        Assert.assertEquals(clientAddr1.getAddress().getHostAddress(), session1.getPeerPref().getIpAddress());
         Assert.assertEquals(DEAD_TIMER, session1.getDeadTimerValue().shortValue());
         Assert.assertEquals(KEEP_ALIVE, session1.getKeepAliveTimerValue().shortValue());
 
-        Assert.assertEquals(CLIENT2_ADDRESS.getAddress().getHostAddress(), session2.getPeerPref().getIpAddress());
+        Assert.assertEquals(clientAddr2.getAddress().getHostAddress(), session2.getPeerPref().getIpAddress());
         Assert.assertEquals(DEAD_TIMER, session2.getDeadTimerValue().shortValue());
         Assert.assertEquals(KEEP_ALIVE, session2.getKeepAliveTimerValue().shortValue());
 
@@ -115,14 +116,18 @@ public class PCEPDispatcherImplTest {
 
     @Test
     public void testCreateDuplicateClient() throws InterruptedException, ExecutionException {
-        this.dispatcher.createServer(new InetSocketAddress("0.0.0.0", PORT),
+        final int port = InetSocketAddressUtil.getRandomPort();
+        final InetSocketAddress serverAddr = new InetSocketAddress("0.0.0.0", port);
+        final InetSocketAddress clientAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
+        this.dispatcher.createServer(serverAddr,
                 () -> new SimpleSessionListener(), null);
-        final PCEPSessionImpl session1 = (PCEPSessionImpl) this.pccMock.createClient(CLIENT1_ADDRESS,
+        final PCEPSessionImpl session1 = (PCEPSessionImpl) this.pccMock.createClient(clientAddr,
                 RETRY_TIMER, CONNECT_TIMEOUT,
                 () -> new SimpleSessionListener()).get();
 
         try {
-            this.pccMock.createClient(CLIENT1_ADDRESS, RETRY_TIMER, CONNECT_TIMEOUT,
+            this.pccMock.createClient(clientAddr,
+                    RETRY_TIMER, CONNECT_TIMEOUT,
                     () -> new SimpleSessionListener()).get();
             Assert.fail();
         } catch (final ExecutionException e) {
@@ -134,22 +139,24 @@ public class PCEPDispatcherImplTest {
 
     @Test
     public void testReconectClient() throws InterruptedException, ExecutionException {
-        this.dispatcher.createServer(new InetSocketAddress("0.0.0.0", PORT),
+        final int port = InetSocketAddressUtil.getRandomPort();
+        final InetSocketAddress clientAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
+        this.dispatcher.createServer(new InetSocketAddress("0.0.0.0", port),
                 () -> new SimpleSessionListener(), null);
-        final PCEPSessionImpl session1 = (PCEPSessionImpl) this.pccMock.createClient(CLIENT1_ADDRESS,
+        final PCEPSessionImpl session1 = (PCEPSessionImpl) this.pccMock.createClient(clientAddr,
                 RETRY_TIMER, CONNECT_TIMEOUT,
                 () -> new SimpleSessionListener()).get();
 
-        Assert.assertEquals(CLIENT1_ADDRESS.getAddress(), session1.getRemoteAddress());
+        Assert.assertEquals(clientAddr.getAddress(), session1.getRemoteAddress());
         Assert.assertEquals(DEAD_TIMER, session1.getDeadTimerValue().shortValue());
         Assert.assertEquals(KEEP_ALIVE, session1.getKeepAliveTimerValue().shortValue());
         session1.close();
 
-        final PCEPSessionImpl session2 = (PCEPSessionImpl) this.pccMock.createClient(CLIENT1_ADDRESS,
+        final PCEPSessionImpl session2 = (PCEPSessionImpl) this.pccMock.createClient(clientAddr,
                 RETRY_TIMER, CONNECT_TIMEOUT,
                 () -> new SimpleSessionListener()).get();
 
-        Assert.assertEquals(CLIENT1_ADDRESS.getAddress(), session1.getRemoteAddress());
+        Assert.assertEquals(clientAddr.getAddress(), session1.getRemoteAddress());
         Assert.assertEquals(DEAD_TIMER, session2.getDeadTimerValue().shortValue());
         Assert.assertEquals(KEEP_ALIVE, session2.getKeepAliveTimerValue().shortValue());
 
@@ -158,10 +165,13 @@ public class PCEPDispatcherImplTest {
 
     @Test
     public void testCustomizeBootstrap() {
-        final KeyMapping keys = KeyMapping.getKeyMapping(CLIENT1_ADDRESS.getAddress(), new String("CLIENT1_ADDRESS"));
-        keys.put(CLIENT2_ADDRESS.getAddress(), new String("CLIENT2_ADDRESS").getBytes() );
+        final int port = InetSocketAddressUtil.getRandomPort();
+        final InetSocketAddress clientAddr1 = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
+        final InetSocketAddress clientAddr2 = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
+        final KeyMapping keys = KeyMapping.getKeyMapping(clientAddr1.getAddress(), new String("CLIENT1_ADDRESS"));
+        keys.put(clientAddr2.getAddress(), new String("CLIENT2_ADDRESS").getBytes() );
 
-        final ChannelFuture futureChannel = this.disp2Spy.createServer(new InetSocketAddress("0.0.0.0", PORT),
+        final ChannelFuture futureChannel = this.disp2Spy.createServer(new InetSocketAddress("0.0.0.0", port),
                 () -> new SimpleSessionListener(), null);
         Mockito.verify(this.disp2Spy).createServerBootstrap(Mockito.any(PCEPDispatcherImpl.ChannelPipelineInitializer.class));
     }

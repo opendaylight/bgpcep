@@ -26,7 +26,6 @@ import io.netty.util.concurrent.Future;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
 import org.junit.Before;
@@ -48,6 +47,7 @@ import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCSessionListener;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsActivator;
+import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs3;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Stateful1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Pcrpt;
@@ -57,18 +57,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 public abstract class PCCMockCommon {
-    protected static final String REMOTE_ADDRESS = "127.0.1.0";
-    protected static final String LOCAL_ADDRESS = "127.0.0.1";
     private final static short KEEP_ALIVE = 40;
     private final static short DEAD_TIMER = 120;
-    protected final InetSocketAddress socket = new InetSocketAddress(PCCMockCommon.REMOTE_ADDRESS, getPort());
+    protected final int port = InetSocketAddressUtil.getRandomPort();
+    protected final InetSocketAddress remoteAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
+    protected final InetSocketAddress localAddress = new InetSocketAddress("127.0.0.1", port);
     protected PCCSessionListener pccSessionListener;
     private PCEPDispatcher pceDispatcher;
     private PCCDispatcherImpl pccDispatcher;
 
     protected abstract List<PCEPCapability> getCapabilities();
-
-    protected abstract int getPort();
 
     @Before
     public void setUp() {
@@ -200,25 +198,17 @@ public abstract class PCCMockCommon {
     protected Future<PCEPSession> createPCCSession(BigInteger DBVersion) {
         this.pccDispatcher = new PCCDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry());
         final PCEPSessionNegotiatorFactory<PCEPSessionImpl> snf = getSessionNegotiatorFactory();
-        final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(3, getLocalAdress().getAddress(), 0, -1, new HashedWheelTimer(),
+        final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(3, this.localAddress.getAddress(), 0, -1, new HashedWheelTimer(),
             Optional.<TimerHandler>absent());
 
-        return pccDispatcher.createClient(getRemoteAdress(), -1,
+        return pccDispatcher.createClient(this.remoteAddress, -1,
             new PCEPSessionListenerFactory() {
                 @Override
                 public PCEPSessionListener getSessionListener() {
                     pccSessionListener = new PCCSessionListener(1, tunnelManager, false);
                     return pccSessionListener;
                 }
-            }, snf, null, getLocalAdress(), DBVersion);
-    }
-
-    private InetSocketAddress getLocalAdress() {
-        return new InetSocketAddress(PCCMockTest.LOCAL_ADDRESS, getPort());
-    }
-
-    private InetSocketAddress getRemoteAdress() {
-        return new InetSocketAddress(PCCMockTest.REMOTE_ADDRESS, getPort());
+            }, snf, null, this.localAddress, DBVersion);
     }
 
     private PCEPSessionNegotiatorFactory<PCEPSessionImpl> getSessionNegotiatorFactory() {
@@ -226,6 +216,6 @@ public abstract class PCCMockCommon {
     }
 
     protected TestingSessionListener getListener(final TestingSessionListenerFactory factory) {
-        return checkSessionListenerNotNull(factory, PCCMockTest.LOCAL_ADDRESS);
+        return checkSessionListenerNotNull(factory, this.localAddress.getHostString());
     }
 }
