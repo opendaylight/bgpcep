@@ -24,6 +24,7 @@ import org.opendaylight.protocol.bmp.api.BmpSessionListenerFactory;
 import org.opendaylight.protocol.bmp.impl.BmpDispatcherImpl;
 import org.opendaylight.protocol.bmp.spi.registry.BmpMessageRegistry;
 import org.opendaylight.protocol.concepts.KeyMapping;
+import org.opendaylight.protocol.util.InetSocketAddressUtil;
 
 public class BmpMockDispatcherTest {
 
@@ -34,13 +35,14 @@ public class BmpMockDispatcherTest {
     @Test
     public void testCreateClient() throws InterruptedException {
         final BmpMockDispatcher dispatcher = new BmpMockDispatcher(this.registry, this.sessionFactory);
-        final int port = getRandomPort();
+        final int port = InetSocketAddressUtil.getRandomPort();
+        final InetSocketAddress serverAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
         final BmpDispatcherImpl serverDispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(),
             this.registry, this.sessionFactory);
-        final ChannelFuture futureServer = serverDispatcher.createServer(new InetSocketAddress(InetAddresses.forString("0.0.0.0"), port), this.slf, Optional.<KeyMapping>absent());
+        final ChannelFuture futureServer = serverDispatcher.createServer(serverAddr, this.slf, Optional.<KeyMapping>absent());
         waitFutureSuccess(futureServer);
-        final ChannelFuture channelFuture = dispatcher.createClient(new InetSocketAddress(InetAddresses.forString("127.0.0.2"), 0),
-            new InetSocketAddress(InetAddresses.forString("127.0.0.3"), port));
+        final ChannelFuture channelFuture = dispatcher.createClient(InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(0),
+            serverAddr);
         waitFutureSuccess(channelFuture);
         final Channel channel = channelFuture.sync().channel();
 
@@ -52,22 +54,18 @@ public class BmpMockDispatcherTest {
     @Test
     public void testCreateServer() throws InterruptedException {
         final BmpMockDispatcher dispatcher = new BmpMockDispatcher(this.registry, this.sessionFactory);
-        final int port = getRandomPort();
+        final int port = InetSocketAddressUtil.getRandomPort();
         final BmpDispatcherImpl serverDispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(),
             this.registry, this.sessionFactory);
         final ChannelFuture futureServer = dispatcher.createServer(new InetSocketAddress(InetAddresses.forString("0.0.0.0"), port));
         waitFutureSuccess(futureServer);
-        final ChannelFuture channelFuture = serverDispatcher.createClient(new InetSocketAddress(InetAddresses.forString("127.0.0.3"), port), this.slf, Optional.<KeyMapping>absent());
+        final ChannelFuture channelFuture = serverDispatcher.createClient(InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port), this.slf, Optional.<KeyMapping>absent());
         waitFutureSuccess(channelFuture);
         final Channel channel = channelFuture.sync().channel();
 
         Assert.assertTrue(channel.isActive());
         channel.close();
         serverDispatcher.close();
-    }
-
-    protected static int getRandomPort() {
-        return (int) (Math.random() * 64000 + 1024);
     }
 
 }
