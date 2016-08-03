@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_64794893",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/AbstractTopologyBuilder.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2016-08-03T15:52:51Z",
+      "side": 1,
+      "message": "Guys, calling transaction.cancel() is the only real option here. The only errors which can show up here are logic errors from this code (and plugins), hence those need to be fixed. An approach to allow PingPong to cancel transactions has been discussed -- and a cut at that is at https://git.opendaylight.org/gerrit/43058. The important part is to re-start the transaction chain here.",
+      "parentUuid": "7a6b29fe_02032710",
+      "range": {
+        "startLine": 177,
+        "startChar": 0,
+        "endLine": 181,
+        "endChar": 45
+      },
+      "revId": "331a506eaa3ab120ceea7e5b7f7c2f55ed1c9880",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_222f43a3",
         "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/AbstractTopologyBuilder.java",
         "patchSetId": 16
