@@ -69,6 +69,30 @@
       "revId": "331a506eaa3ab120ceea7e5b7f7c2f55ed1c9880",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_0a897dca",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/AbstractTopologyBuilder.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2016-08-03T19:03:23Z",
+      "side": 1,
+      "message": "The main problem is every time we restart the listener, the whole topology get rebuilt.  It is a huge overhead when the topology is large.  If we immediately restart of the listener, the topology can become unstable if the error get triggered frequently due to any reason.  I can add that check but it won\u0027t help solving the first problem.",
+      "parentUuid": "7a6b29fe_222f43a3",
+      "range": {
+        "startLine": 327,
+        "startChar": 0,
+        "endLine": 332,
+        "endChar": 82
+      },
+      "revId": "331a506eaa3ab120ceea7e5b7f7c2f55ed1c9880",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
