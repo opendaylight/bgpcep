@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_02032710",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/AbstractTopologyBuilder.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-08-03T12:50:27Z",
+      "side": 1,
+      "message": "Could we call transaction #submit immediatelly and then return?",
+      "range": {
+        "startLine": 177,
+        "startChar": 0,
+        "endLine": 181,
+        "endChar": 45
+      },
+      "revId": "331a506eaa3ab120ceea7e5b7f7c2f55ed1c9880",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_222f43a3",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/AbstractTopologyBuilder.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-08-03T12:50:27Z",
+      "side": 1,
+      "message": "We can check if the onTransactionChainFailed was invoked on current transaction (equals), if not - ignore the failure, if yes - restart listener.",
+      "range": {
+        "startLine": 327,
+        "startChar": 0,
+        "endLine": 332,
+        "endChar": 82
+      },
+      "revId": "331a506eaa3ab120ceea7e5b7f7c2f55ed1c9880",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
