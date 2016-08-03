@@ -160,7 +160,7 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         final AdjRibOutListener listener = this.adjRibOutListenerSet.get(key);
         if (listener != null) {
             listener.close();
-            this.adjRibOutListenerSet.remove(listener);
+            this.adjRibOutListenerSet.remove(key);
             createAdjRibOutListener(RouterIds.createPeerId(session.getBgpId()), key, listener.isMpSupported());
         } else {
             LOG.info("Ignoring RouteRefresh message. Afi/Safi is not supported: {}, {}.", rrAfi, rrSafi);
