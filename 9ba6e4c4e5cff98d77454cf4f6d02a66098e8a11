@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_6c7934fc",
+        "filename": "bgp/path-selection-mode/src/main/java/org/opendaylight/protocol/bgp/mode/impl/base/BaseAbstractRouteEntry.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-08-03T08:04:07Z",
+      "side": 1,
+      "message": "Indeed, why do we need to keep track of removed best paths?\nThe route (the best one) should be \"deleted\" only in a case it was explicitly withdrwarn by the originator, or the session is going down.",
+      "range": {
+        "startLine": 43,
+        "startChar": 4,
+        "endLine": 43,
+        "endChar": 70
+      },
+      "revId": "9ba6e4c4e5cff98d77454cf4f6d02a66098e8a11",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
