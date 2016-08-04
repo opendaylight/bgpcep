@@ -14,7 +14,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.mode.api.BestPath;
-import org.opendaylight.protocol.bgp.mode.impl.OffsetMap;
 import org.opendaylight.protocol.bgp.mode.spi.AbstractRouteEntry;
 import org.opendaylight.protocol.bgp.rib.spi.CacheDisconnectedPeers;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
@@ -34,18 +33,17 @@ import org.slf4j.LoggerFactory;
 
 @NotThreadSafe
 abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
-
     private static final Logger LOG = LoggerFactory.getLogger(BaseAbstractRouteEntry.class);
     private static final ContainerNode[] EMPTY_ATTRIBUTES = new ContainerNode[0];
-    private OffsetMap<UnsignedInteger> offsets = new OffsetMap<>(UnsignedInteger.class);
+    private OffsetMap offsets = OffsetMap.EMPTY;
     private ContainerNode[] values = EMPTY_ATTRIBUTES;
-    private Optional<BaseBestPath> bestPath = Optional.empty();
-    private Optional<BaseBestPath> removedBestPath = Optional.empty();
+    private BaseBestPath bestPath;
+    private BaseBestPath removedBestPath;
 
     private int addRoute(final UnsignedInteger routerId, final ContainerNode attributes) {
         int offset = this.offsets.offsetOf(routerId);
         if (offset < 0) {
-            final OffsetMap<UnsignedInteger> newOffsets = this.offsets.with(routerId);
+            final OffsetMap newOffsets = this.offsets.with(routerId);
             offset = newOffsets.offsetOf(routerId);
 
             this.values = newOffsets.expand(this.offsets, this.values, offset);
@@ -67,7 +65,7 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
     protected final boolean removeRoute(final UnsignedInteger routerId, final int offset) {
         this.values = this.offsets.removeValue(this.values, offset);
         this.offsets = this.offsets.without(routerId);
-        return this.offsets.isEmty();
+        return this.offsets.isEmpty();
     }
 
     @Override
@@ -86,7 +84,7 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
         }
 
         // Get the newly-selected best path.
-        final Optional<BaseBestPath> newBestPath = Optional.ofNullable(selector.result());
+        final BaseBestPath newBestPath = selector.result();
         final boolean modified = !newBestPath.equals(this.bestPath);
         if (modified) {
             this.removedBestPath = this.bestPath;
@@ -106,12 +104,12 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
     @Override
     public void updateRoute(final TablesKey localTK, final ExportPolicyPeerTracker peerPT, final YangInstanceIdentifier locRibTarget, final RIBSupport ribSup,
         final CacheDisconnectedPeers discPeers, final DOMDataWriteTransaction tx, final PathArgument routeIdPA) {
-        if (this.removedBestPath.isPresent()) {
-            removePathFromDataStore(this.removedBestPath.get(), routeIdPA, locRibTarget, peerPT, localTK, ribSup, discPeers, tx);
-            this.removedBestPath = Optional.empty();
+        if (this.removedBestPath != null) {
+            removePathFromDataStore(this.removedBestPath, routeIdPA, locRibTarget, peerPT, localTK, ribSup, discPeers, tx);
+            this.removedBestPath = null;
         }
-        if (this.bestPath.isPresent()) {
-            addPathToDataStore(this.bestPath.get(), routeIdPA, locRibTarget, ribSup, peerPT, localTK, discPeers, tx);
+        if (this.bestPath != null) {
+            addPathToDataStore(this.bestPath, routeIdPA, locRibTarget, ribSup, peerPT, localTK, discPeers, tx);
         }
     }
 
@@ -119,8 +117,8 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
     public void writeRoute(final PeerId destPeer, final PathArgument routeId, final YangInstanceIdentifier rootPath, final PeerExportGroup peerGroup,
         final TablesKey localTK, final ExportPolicyPeerTracker peerPT, final RIBSupport ribSup, final CacheDisconnectedPeers discPeers,
         final DOMDataWriteTransaction tx) {
-        if (this.bestPath.isPresent()) {
-            final BaseBestPath path = this.bestPath.get();
+        if (this.bestPath != null) {
+            final BaseBestPath path = this.bestPath;
             if (filterRoutes(path.getPeerId(), destPeer, peerPT, localTK, discPeers)) {
                 final ContainerNode effAttrib = peerGroup.effectiveAttributes(path.getPeerId(), path.getAttributes());
                 writeRoute(destPeer, getAdjRibOutYII(ribSup, rootPath, routeId, localTK), effAttrib, createValue(routeId, path), ribSup, tx);
@@ -161,7 +159,7 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
         fillAdjRibsOut(path.getAttributes(), value, routeIdPA, path.getPeerId(), peerPT, localTK, ribSup, discPeers, tx);
     }
 
-    protected final OffsetMap<UnsignedInteger> getOffsets() {
+    final OffsetMap getOffsets() {
         return this.offsets;
     }
 
