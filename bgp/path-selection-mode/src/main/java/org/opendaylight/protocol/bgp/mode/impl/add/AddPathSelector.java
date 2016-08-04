@@ -27,7 +27,7 @@ public final class AddPathSelector extends AbstractBestPathSelector {
         super(ourAs);
     }
 
-    public void processPath(final ContainerNode attrs, final RouteKey key, final int offsetPosition, final Long pathId) {
+    void processPath(final ContainerNode attrs, final RouteKey key, final int offsetPosition, final Long pathId) {
         Preconditions.checkNotNull(key.getRouteId(), "Router ID may not be null");
 
         // Consider only non-null attributes

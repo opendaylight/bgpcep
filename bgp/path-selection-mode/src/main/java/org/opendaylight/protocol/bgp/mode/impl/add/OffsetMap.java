@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.mode.impl;
+package org.opendaylight.protocol.bgp.mode.impl.add;
 
 import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
@@ -15,6 +15,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -30,73 +31,59 @@ import org.slf4j.LoggerFactory;
  * We also provide utility reformat methods, which provide access to
  * array members and array management features.
  */
-public final class OffsetMap<E extends Comparable<E>> {
+public final class OffsetMap {
+    static final OffsetMap EMPTY = new OffsetMap(Collections.emptySet());
     private static final Logger LOG = LoggerFactory.getLogger(OffsetMap.class);
     private static final String NEGATIVEOFFSET = "Invalid negative offset %s";
     private static final String INVALIDOFFSET = "Invalid offset %s for %s router IDs";
-    private final Comparator<E> ipv4Comparator = E::compareTo;
-    private final E[] routeKeys;
-    private final Class<E> clazz;
-    private final LoadingCache<Set<E>, OffsetMap<E>> keyCache = CacheBuilder.newBuilder().weakValues().build(new CacheLoader<Set<E>, OffsetMap<E>>() {
-        @Override
-        public OffsetMap<E> load(@Nonnull final Set<E> key) throws Exception {
-            return new OffsetMap<>(key, clazz);
-        }
-    });
+    private static final LoadingCache<Set<RouteKey>, OffsetMap> OFFSETMAPS = CacheBuilder.newBuilder().weakValues().build(
+        new CacheLoader<Set<RouteKey>, OffsetMap>() {
+            @Override
+            public OffsetMap load(@Nonnull final Set<RouteKey> key) throws Exception {
+                return new OffsetMap(key);
+            }
+        });
+    private static final Comparator<RouteKey> COMPARATOR = RouteKey::compareTo;
+    private final RouteKey[] routeKeys;
 
-    public OffsetMap(final Class<E> clazz) {
-        this.clazz = clazz;
-        this.routeKeys = (E[]) Array.newInstance(clazz, 0);
-    }
-
-    private OffsetMap(final Set<E> keysSet, final Class<E> clazz) {
-        this.clazz = clazz;
-        final E[] array = keysSet.toArray((E[]) Array.newInstance(this.clazz, keysSet.size()));
-        Arrays.sort(array, ipv4Comparator);
+    private OffsetMap(final Set<RouteKey> routerIds) {
+        final RouteKey[] array = routerIds.toArray(new RouteKey[0]);
+        Arrays.sort(array, COMPARATOR);
         this.routeKeys = array;
     }
 
-    public List<E> getRouteKeysList() {
-        return Arrays.stream(this.routeKeys).collect(Collectors.toList());
-    }
-
-    public E getRouterKey(final int offset) {
-        Preconditions.checkArgument(offset >= 0);
-        return this.routeKeys[offset];
-    }
-
-    public int offsetOf(final E key) {
-        return Arrays.binarySearch(this.routeKeys, key, ipv4Comparator);
+    public int offsetOf(final RouteKey key) {
+        return Arrays.binarySearch(this.routeKeys, key, COMPARATOR);
     }
 
     public int size() {
         return this.routeKeys.length;
     }
 
-    public OffsetMap<E> with(final E key) {
+    public OffsetMap with(final RouteKey key) {
         // TODO: we could make this faster if we had an array-backed Set and requiring
         //       the caller to give us the result of offsetOf() -- as that indicates
         //       where to insert the new routerId while maintaining the sorted nature
         //       of the array
-        final Builder<E> b = ImmutableSet.builder();
-        b.add(this.routeKeys);
-        b.add(key);
+        final Builder<RouteKey> builder = ImmutableSet.builder();
+        builder.add(this.routeKeys);
+        builder.add(key);
 
-        return keyCache.getUnchecked(b.build());
+        return OFFSETMAPS.getUnchecked(builder.build());
     }
 
-    public OffsetMap<E> without(final E key) {
-        final Builder<E> b = ImmutableSet.builder();
-        int index = indexOfRouterId(key);
+    public OffsetMap without(final RouteKey key) {
+        final Builder<RouteKey> builder = ImmutableSet.builder();
+        final int index = indexOfRouterId(key);
         if (index < 0) {
             LOG.trace("Router key not found", key);
         } else {
-            b.add(removeValue(this.routeKeys, index));
+            builder.add(removeValue(this.routeKeys, index));
         }
-        return keyCache.getUnchecked(b.build());
+        return OFFSETMAPS.getUnchecked(builder.build());
     }
 
-    private int indexOfRouterId(final E key) {
+    private int indexOfRouterId(final RouteKey key) {
         for (int i = 0; i < this.routeKeys.length; i++) {
             if (key.equals(this.routeKeys[i])) {
                 return i;
@@ -142,7 +129,11 @@ public final class OffsetMap<E extends Comparable<E>> {
         return ret;
     }
 
-    public boolean isEmty() {
+    boolean isEmpty() {
         return this.size() == 0;
+    }
+
+    public List<RouteKey> getRouteKeysList() {
+        return Arrays.stream(this.routeKeys).collect(Collectors.toList());
     }
 }
