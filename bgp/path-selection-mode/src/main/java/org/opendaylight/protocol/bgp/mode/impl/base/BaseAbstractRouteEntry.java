@@ -14,7 +14,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.mode.api.BestPath;
-import org.opendaylight.protocol.bgp.mode.impl.OffsetMap;
 import org.opendaylight.protocol.bgp.mode.spi.AbstractRouteEntry;
 import org.opendaylight.protocol.bgp.rib.spi.CacheDisconnectedPeers;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
@@ -34,10 +33,9 @@ import org.slf4j.LoggerFactory;
 
 @NotThreadSafe
 abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
-
     private static final Logger LOG = LoggerFactory.getLogger(BaseAbstractRouteEntry.class);
     private static final ContainerNode[] EMPTY_ATTRIBUTES = new ContainerNode[0];
-    private OffsetMap<UnsignedInteger> offsets = new OffsetMap<>(UnsignedInteger.class);
+    private OffsetMap offsets = OffsetMap.EMPTY;
     private ContainerNode[] values = EMPTY_ATTRIBUTES;
     private Optional<BaseBestPath> bestPath = Optional.empty();
     private Optional<BaseBestPath> removedBestPath = Optional.empty();
@@ -45,7 +43,7 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
     private int addRoute(final UnsignedInteger routerId, final ContainerNode attributes) {
         int offset = this.offsets.offsetOf(routerId);
         if (offset < 0) {
-            final OffsetMap<UnsignedInteger> newOffsets = this.offsets.with(routerId);
+            final OffsetMap newOffsets = this.offsets.with(routerId);
             offset = newOffsets.offsetOf(routerId);
 
             this.values = newOffsets.expand(this.offsets, this.values, offset);
@@ -67,7 +65,7 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
     protected final boolean removeRoute(final UnsignedInteger routerId, final int offset) {
         this.values = this.offsets.removeValue(this.values, offset);
         this.offsets = this.offsets.without(routerId);
-        return this.offsets.isEmty();
+        return this.offsets.isEmpty();
     }
 
     @Override
@@ -161,7 +159,7 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
         fillAdjRibsOut(path.getAttributes(), value, routeIdPA, path.getPeerId(), peerPT, localTK, ribSup, discPeers, tx);
     }
 
-    protected final OffsetMap<UnsignedInteger> getOffsets() {
+    final OffsetMap getOffsets() {
         return this.offsets;
     }
 

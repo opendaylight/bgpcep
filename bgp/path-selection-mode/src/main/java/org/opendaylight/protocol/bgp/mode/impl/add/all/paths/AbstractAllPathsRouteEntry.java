@@ -54,6 +54,4 @@ abstract class AbstractAllPathsRouteEntry extends AddPathAbstractRouteEntry {
         }
         return false;
     }
-
-
 }

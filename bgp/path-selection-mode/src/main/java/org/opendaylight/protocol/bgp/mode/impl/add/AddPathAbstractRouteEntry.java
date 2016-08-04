@@ -15,7 +15,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.mode.api.BestPath;
-import org.opendaylight.protocol.bgp.mode.impl.OffsetMap;
 import org.opendaylight.protocol.bgp.mode.spi.AbstractRouteEntry;
 import org.opendaylight.protocol.bgp.rib.spi.CacheDisconnectedPeers;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
@@ -48,7 +47,7 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
     private static final Logger LOG = LoggerFactory.getLogger(AddPathAbstractRouteEntry.class);
     protected List<AddPathBestPath> bestPath = new ArrayList<>();
     protected List<AddPathBestPath> bestPathRemoved = new ArrayList<>();
-    protected OffsetMap<RouteKey> offsets = new OffsetMap<>(RouteKey.class);
+    protected OffsetMap offsets = OffsetMap.EMPTY;
     protected ContainerNode[] values = new ContainerNode[0];
     protected Long[] pathsId = new Long[0];
     private long pathIdCounter = 0L;
@@ -56,7 +55,7 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
     private int addRoute(final RouteKey key, final ContainerNode attributes) {
         int offset = this.offsets.offsetOf(key);
         if (offset < 0) {
-            final OffsetMap<RouteKey> newOffsets = this.offsets.with(key);
+            final OffsetMap newOffsets = this.offsets.with(key);
             offset = newOffsets.offsetOf(key);
             final ContainerNode[] newAttributes = newOffsets.expand(this.offsets, this.values, offset);
             final Long[] newPathsId = newOffsets.expand(this.offsets, this.pathsId, offset);
@@ -187,12 +186,12 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
         }
     }
 
-    protected final OffsetMap<RouteKey> getOffsets() {
+    protected final OffsetMap getOffsets() {
         return this.offsets;
     }
 
     public final boolean isEmpty() {
-        return this.offsets.isEmty();
+        return this.offsets.isEmpty();
     }
 
     protected void selectBest(final RouteKey key, final AddPathSelector selector) {
