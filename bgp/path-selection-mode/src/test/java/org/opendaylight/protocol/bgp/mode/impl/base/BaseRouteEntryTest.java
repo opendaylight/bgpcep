@@ -67,7 +67,7 @@ public class BaseRouteEntryTest extends AbstractRouteEntryTest {
 
     private void testAddRouteSelectBestAndWriteOnDS() {
         this.testBARE.addRoute(ROUTER_ID, REMOTE_PATH_ID, this.ribSupport.routeAttributesIdentifier(), this.attributes);
-        assertFalse(this.testBARE.getOffsets().isEmty());
+        assertFalse(this.testBARE.getOffsets().isEmpty());
         this.testBARE.selectBest(AS);
         this.testBARE.updateRoute(TABLES_KEY, this.peerPT, LOC_RIB_TARGET, this.ribSupport, this.discCache, this.tx, ROUTE_ID_PA);
         Map<YangInstanceIdentifier, Long> yiiCount = this.yIIChanges.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));

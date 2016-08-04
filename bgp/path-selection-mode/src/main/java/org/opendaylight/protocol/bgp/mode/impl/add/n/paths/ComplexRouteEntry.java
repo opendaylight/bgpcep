@@ -9,8 +9,8 @@ package org.opendaylight.protocol.bgp.mode.impl.add.n.paths;
 
 import com.google.common.primitives.UnsignedInteger;
 import org.opendaylight.protocol.bgp.mode.api.BestPath;
-import org.opendaylight.protocol.bgp.mode.impl.OffsetMap;
 import org.opendaylight.protocol.bgp.mode.impl.add.AddPathBestPath;
+import org.opendaylight.protocol.bgp.mode.impl.add.OffsetMap;
 import org.opendaylight.protocol.bgp.mode.impl.add.RouteKey;
 import org.opendaylight.protocol.bgp.mode.spi.RouteEntryUtil;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -29,7 +29,7 @@ final class ComplexRouteEntry extends AbstractNPathsRouteEntry {
     @Override
     public boolean removeRoute(final UnsignedInteger routerId, final Long remotePathId) {
         final RouteKey key = new RouteKey(routerId, remotePathId);
-        final OffsetMap<RouteKey> map = getOffsets();
+        final OffsetMap map = getOffsets();
         final int offset = map.offsetOf(key);
         this.values = map.removeValue(this.values, offset);
         return removeRoute(key, offset);
@@ -37,16 +37,16 @@ final class ComplexRouteEntry extends AbstractNPathsRouteEntry {
 
     @Override
     public MapEntryNode createValue(final PathArgument routeId, final BestPath path) {
-        final OffsetMap<RouteKey> map = getOffsets();
+        final OffsetMap map = getOffsets();
         final MapEntryNode mapValues = map.getValue(this.values, map.offsetOf(((AddPathBestPath) path).getRouteKey()));
         return RouteEntryUtil.createComplexRouteValue(routeId, path, mapValues);
     }
 
     @Override
     public int addRoute(final UnsignedInteger routerId, final Long remotePathId, final NodeIdentifier attributesIdentifier, final NormalizedNode<?, ?> data) {
-        final OffsetMap<RouteKey> oldMap = getOffsets();
+        final OffsetMap oldMap = getOffsets();
         final int offset = addRoute(new RouteKey(routerId, remotePathId), attributesIdentifier, data);
-        final OffsetMap<RouteKey> newMap = getOffsets();
+        final OffsetMap newMap = getOffsets();
 
         if (!newMap.equals(oldMap)) {
             this.values = newMap.expand(oldMap, this.values, offset);

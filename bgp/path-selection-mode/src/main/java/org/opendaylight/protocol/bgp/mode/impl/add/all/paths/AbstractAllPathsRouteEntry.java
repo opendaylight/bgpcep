@@ -34,7 +34,7 @@ abstract class AbstractAllPathsRouteEntry extends AddPathAbstractRouteEntry {
             newBestPathList.add(newBest);
             keyList.remove(newBest.getRouteKey());
             /*we add the rest of path, regardless in what order they are, since this is all path case */
-            for (RouteKey key : keyList) {
+            for (final RouteKey key : keyList) {
                 final int offset = this.offsets.offsetOf(key);
                 final ContainerNode attributes = this.offsets.getValue(this.values, offset);
                 Preconditions.checkNotNull(key.getRouteId(), "Router ID may not be null");
@@ -46,14 +46,15 @@ abstract class AbstractAllPathsRouteEntry extends AddPathAbstractRouteEntry {
             }
         }
 
-        this.bestPathRemoved = new ArrayList<>(this.bestPath);
-        if (this.bestPathRemoved.removeAll(newBestPathList) && !this.bestPathRemoved.isEmpty() || !this.bestPath.equals(newBestPathList)) {
+        if(this.bestPath != null) {
+            this.bestPathRemoved = new ArrayList<>(this.bestPath);
+        }
+
+        if (!newBestPathList.equals(this.bestPath) || this.bestPathRemoved != null && this.bestPathRemoved.removeAll(newBestPathList)) {
             this.bestPath = newBestPathList;
             LOG.trace("Actual Best {}, removed best {}", this.bestPath, this.bestPathRemoved);
             return true;
         }
         return false;
     }
-
-
 }

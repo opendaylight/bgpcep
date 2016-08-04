@@ -36,8 +36,10 @@ abstract class AbstractNPathsRouteEntry extends AddPathAbstractRouteEntry {
             keyList.remove(newBest.getRouteKey());
         }
 
-        this.bestPathRemoved = new ArrayList<>(this.bestPath);
-        if (this.bestPathRemoved.removeAll(newBestPathList) && !this.bestPathRemoved.isEmpty() || !this.bestPath.equals(newBestPathList)) {
+        if(this.bestPath != null) {
+            this.bestPathRemoved = new ArrayList<>(this.bestPath);
+        }
+        if (!newBestPathList.equals(this.bestPath) || this.bestPathRemoved != null && this.bestPathRemoved.removeAll(newBestPathList) ) {
             this.bestPath = newBestPathList;
             LOG.trace("Actual Best {}, removed best {}", this.bestPath, this.bestPathRemoved);
             return true;
