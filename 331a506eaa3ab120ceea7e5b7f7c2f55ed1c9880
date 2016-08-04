@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_4e03820f",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/AbstractTopologyBuilder.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2016-08-04T19:12:46Z",
+      "side": 1,
+      "message": "Could we have the transaction.cancel() implemented here later?  Right now a few other BGP tickets are depending on this patch.  We can push a second patch with transaction.cancel() later. If we can merge this patch now, we can move on with other tickets first when the yangtools patch is being verified.",
+      "parentUuid": "7a6b29fe_64794893",
+      "range": {
+        "startLine": 177,
+        "startChar": 0,
+        "endLine": 181,
+        "endChar": 45
+      },
+      "revId": "331a506eaa3ab120ceea7e5b7f7c2f55ed1c9880",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_222f43a3",
         "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/AbstractTopologyBuilder.java",
         "patchSetId": 16
