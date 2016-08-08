@@ -87,7 +87,9 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
         final BaseBestPath newBestPath = selector.result();
         final boolean modified = newBestPath == null || !newBestPath.equals(this.bestPath);
         if (modified) {
-            this.removedBestPath = this.bestPath;
+            if(this.offsets.isEmpty()) {
+                this.removedBestPath = this.bestPath;
+            }
             LOG.trace("Previous best {}, current best {}", this.bestPath, newBestPath);
             this.bestPath = newBestPath;
         }
