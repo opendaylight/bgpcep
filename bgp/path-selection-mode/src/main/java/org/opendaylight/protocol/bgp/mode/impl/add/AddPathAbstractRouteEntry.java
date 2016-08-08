@@ -7,8 +7,11 @@
  */
 package org.opendaylight.protocol.bgp.mode.impl.add;
 
+import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
@@ -43,8 +46,8 @@ import org.slf4j.LoggerFactory;
 public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
 
     private static final Logger LOG = LoggerFactory.getLogger(AddPathAbstractRouteEntry.class);
-    protected List<AddPathBestPath> bestPath;
-    protected List<AddPathBestPath> bestPathRemoved;
+    private List<AddPathBestPath> bestPath;
+    private List<AddPathBestPath> bestPathRemoved;
     protected OffsetMap offsets = OffsetMap.EMPTY;
     protected ContainerNode[] values = new ContainerNode[0];
     protected Long[] pathsId = new Long[0];
@@ -199,7 +202,7 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
         return this.offsets.isEmpty();
     }
 
-    protected void selectBest(final RouteKey key, final AddPathSelector selector) {
+    private void selectBest(final RouteKey key, final AddPathSelector selector) {
         final int offset = this.offsets.offsetOf(key);
         final ContainerNode attributes = this.offsets.getValue(this.values, offset);
         final Long pathId = this.offsets.getValue(this.pathsId, offset);
@@ -219,16 +222,40 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
          * FIXME: optimize flaps by making sure we consider stability of currently-selected route.
          */
         final AddPathSelector selector = new AddPathSelector(localAs);
-        keyList.forEach(key -> selectBest(key, selector));
+        Lists.reverse(keyList).forEach(key -> selectBest(key, selector));
         LOG.trace("Best path selected {}", this.bestPath);
         return selector.result();
     }
 
-    protected boolean isFirstBestPath(final int bestPathPosition) {
+    private boolean isFirstBestPath(final int bestPathPosition) {
         return bestPathPosition == 0;
     }
 
     private boolean peersSupportsAddPathOrIsFirstBestPath(final boolean peerSupportsAddPath, final boolean isFirstBestPath) {
         return !(!peerSupportsAddPath && !isFirstBestPath);
+    }
+
+    protected boolean isBestPathNew(final List<AddPathBestPath> newBestPathList) {
+        filterRemovedPaths(newBestPathList);
+        if (this.bestPathRemoved != null && !this.bestPathRemoved.isEmpty() || newBestPathList != null && !newBestPathList.equals(this.bestPath)) {
+            this.bestPath = newBestPathList;
+            LOG.trace("Actual Best {}, removed best {}", this.bestPath, this.bestPathRemoved);
+            return true;
+        }
+        return false;
+    }
+
+    private void filterRemovedPaths(final List<AddPathBestPath> newBestPathList) {
+        if(this.bestPath == null) {
+            return;
+        }
+        this.bestPathRemoved = new ArrayList<>(this.bestPath);
+        this.bestPath.forEach(oldBest -> {
+            final Optional<AddPathBestPath> present = newBestPathList.stream()
+                .filter(newBest -> newBest.getPathId() == oldBest.getPathId() && newBest.getRouteKey() == oldBest.getRouteKey()).findAny();
+            if(present.isPresent()) {
+                this.bestPathRemoved.remove(oldBest);
+            }
+        });
     }
 }
