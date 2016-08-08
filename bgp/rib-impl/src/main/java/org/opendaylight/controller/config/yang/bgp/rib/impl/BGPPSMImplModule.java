@@ -31,14 +31,14 @@ public final class BGPPSMImplModule extends AbstractBGPPSMImplModule {
         private final BgpTableType pathFamilyDependency;
         private final PathSelectionMode strategyFactory;
 
-        public AutoCloseableBestPathSelectionStrategy(final BgpTableType pathFamilyDependency, final PathSelectionMode strategyFactory) {
+        AutoCloseableBestPathSelectionStrategy(final BgpTableType pathFamilyDependency, final PathSelectionMode strategyFactory) {
             this.pathFamilyDependency = Preconditions.checkNotNull(pathFamilyDependency);
             this.strategyFactory = Preconditions.checkNotNull(strategyFactory);
         }
 
         @Override
         public void close() throws Exception {
-            //no op
+            this.strategyFactory.close();
         }
 
         @Override
