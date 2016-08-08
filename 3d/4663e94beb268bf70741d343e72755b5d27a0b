@@ -1,0 +1,7 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+2: Thanh Ha <thanh.ha@linuxfoundation.org>
+Submitted-by: Thanh Ha <thanh.ha@linuxfoundation.org>
+Submitted-at: Mon, 08 Aug 2016 23:02:11 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/43351
+Project: bgpcep
+Branch: refs/heads/stable/boron
