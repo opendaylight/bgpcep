@@ -21,8 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 abstract class AbstractAllPathsRouteEntry extends AddPathAbstractRouteEntry {
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractAllPathsRouteEntry.class);
-
     @Override
     public final boolean selectBest(final long localAs) {
         final List<AddPathBestPath> newBestPathList = new ArrayList<>();
@@ -45,16 +43,6 @@ abstract class AbstractAllPathsRouteEntry extends AddPathAbstractRouteEntry {
                 }
             }
         }
-
-        if(this.bestPath != null) {
-            this.bestPathRemoved = new ArrayList<>(this.bestPath);
-        }
-
-        if (!newBestPathList.equals(this.bestPath) || this.bestPathRemoved != null && this.bestPathRemoved.removeAll(newBestPathList)) {
-            this.bestPath = newBestPathList;
-            LOG.trace("Actual Best {}, removed best {}", this.bestPath, this.bestPathRemoved);
-            return true;
-        }
-        return false;
+        return isBestPathNew(newBestPathList);
     }
 }
