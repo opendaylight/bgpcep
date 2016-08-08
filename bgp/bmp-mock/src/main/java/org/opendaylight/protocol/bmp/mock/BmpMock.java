@@ -12,7 +12,9 @@ import com.google.common.net.InetAddresses;
 import io.netty.channel.Channel;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
+import org.opendaylight.protocol.bgp.parser.impl.BGPActivator;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
+import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
 import org.opendaylight.protocol.bmp.api.BmpSession;
 import org.opendaylight.protocol.bmp.api.BmpSessionFactory;
 import org.opendaylight.protocol.bmp.api.BmpSessionListenerFactory;
@@ -48,9 +50,11 @@ public final class BmpMock {
 
 
     private static BmpMockDispatcher initiateMock(final BmpMockArguments arguments) {
+        final BGPExtensionProviderContext bgpCtx = new SimpleBGPExtensionProviderContext();
+        final BGPActivator bgpActivator = new BGPActivator();
+        bgpActivator.start(bgpCtx);
         final BmpExtensionProviderContext ctx = new SimpleBmpExtensionProviderContext();
-        final BmpExtensionProviderActivator bmpActivator = new BmpActivator(
-            ServiceLoaderBGPExtensionProviderContext.getSingletonInstance());
+        final BmpExtensionProviderActivator bmpActivator = new BmpActivator(bgpCtx);
         bmpActivator.start(ctx);
 
         return new BmpMockDispatcher(ctx.getBmpMessageRegistry(),
