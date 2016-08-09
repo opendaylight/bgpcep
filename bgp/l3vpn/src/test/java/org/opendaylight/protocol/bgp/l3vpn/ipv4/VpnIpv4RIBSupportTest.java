@@ -73,8 +73,7 @@ public class VpnIpv4RIBSupportTest extends AbstractRIBSupportTest {
         act.start(context);
         final ByteBuf buffer = Unpooled.buffer();
         AbstractVpnNlriParser.serializeNlri(Collections.singletonList(IPV4_VPN), buffer);
-        final byte[] arrayKey = ByteArray.readAllBytes(buffer);
-        ROUTE_KEY = new VpnRouteKey(arrayKey);
+        ROUTE_KEY = new VpnRouteKey(ByteArray.encodeBase64(buffer));
         ROUTE = new VpnRouteBuilder().setPathId(new PathId(NON_PATH_ID)).setAttributes(ATTRIBUTES).setPrefix(IPv4_PREFIX)
             .setLabelStack(LABEL_STACK).setRouteDistinguisher(DISTINGUISHER).setKey(ROUTE_KEY).build();
         ROUTES = new VpnIpv4RoutesBuilder().setVpnRoute(Collections.singletonList(ROUTE)).build();

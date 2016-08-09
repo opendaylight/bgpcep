@@ -119,7 +119,7 @@ final class EvpnRibSupport extends AbstractRIBSupport {
         final ByteBuf buffer = Unpooled.buffer();
         final EvpnDestination dest = EvpnNlriParser.extractRouteKeyDestination(evpn);
         EvpnNlriParser.serializeNlri(Collections.singletonList(dest), buffer);
-        return new NodeIdentifierWithPredicates(routeQName(), ROUTE_KEY, ByteArray.readAllBytes(buffer));
+        return new NodeIdentifierWithPredicates(routeQName(), ROUTE_KEY, ByteArray.encodeBase64(buffer));
     }
 
 }
