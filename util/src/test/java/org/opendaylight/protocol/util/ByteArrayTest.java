@@ -281,4 +281,10 @@ public class ByteArrayTest {
         }
     }
 
+    @Test
+    public void testEncodeBase64() {
+        final String result = ByteArray.encodeBase64(Unpooled.wrappedBuffer("abc123".getBytes()));
+        assertEquals("YWJjMTIz", result);
+    }
+
 }
