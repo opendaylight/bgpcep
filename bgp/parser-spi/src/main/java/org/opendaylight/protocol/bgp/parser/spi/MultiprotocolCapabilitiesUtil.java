@@ -9,7 +9,7 @@ package org.opendaylight.protocol.bgp.parser.spi;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import java.util.Optional;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
@@ -42,19 +42,19 @@ public final class MultiprotocolCapabilitiesUtil {
         capBuffer.writeByte(safival);
     }
 
-    public static BgpTableType parseMPAfiSafi(final ByteBuf buffer, final AddressFamilyRegistry afiReg, final SubsequentAddressFamilyRegistry safiReg) throws BGPParsingException {
+    public static Optional<BgpTableType> parseMPAfiSafi(final ByteBuf buffer, final AddressFamilyRegistry afiReg, final SubsequentAddressFamilyRegistry safiReg) {
         final int afiVal = buffer.readUnsignedShort();
         final Class<? extends AddressFamily> afi = afiReg.classForFamily(afiVal);
         if (afi == null) {
-            throw new BGPParsingException("Address Family Identifier: '" + afiVal + "' not supported.");
+            return Optional.empty();
         }
         // skip reserved
         buffer.skipBytes(RESERVED);
         final int safiVal = buffer.readUnsignedByte();
         final Class<? extends SubsequentAddressFamily> safi = safiReg.classForFamily(safiVal);
         if (safi == null) {
-            throw new BGPParsingException("Subsequent Address Family Identifier: '" + safiVal + "' not supported.");
+            return Optional.empty();
         }
-        return new BgpTableTypeImpl(afi, safi);
+        return Optional.of(new BgpTableTypeImpl(afi, safi));
     }
 }
