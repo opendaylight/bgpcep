@@ -9,12 +9,15 @@ package org.opendaylight.protocol.bgp.parser.spi;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.Optional;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -36,9 +39,11 @@ public class UtilsTest {
         MockitoAnnotations.initMocks(this);
         Mockito.doReturn(1).when(this.afiReg).numberForClass(Ipv4AddressFamily.class);
         Mockito.doReturn(Ipv4AddressFamily.class).when(this.afiReg).classForFamily(1);
+        Mockito.doReturn(null).when(this.afiReg).classForFamily(2);
 
         Mockito.doReturn(1).when(this.safiReg).numberForClass(UnicastSubsequentAddressFamily.class);
         Mockito.doReturn(UnicastSubsequentAddressFamily.class).when(this.safiReg).classForFamily(1);
+        Mockito.doReturn(null).when(this.safiReg).classForFamily(3);
     }
 
     @Test
@@ -93,13 +98,29 @@ public class UtilsTest {
     public void testMultiprotocolCapabilitiesUtil() throws BGPParsingException {
         final byte[] bytes = new byte[] {0, 1, 0, 1};
         final ByteBuf bytesBuf = Unpooled.copiedBuffer(bytes);
-        final BgpTableType parsedAfiSafi = MultiprotocolCapabilitiesUtil.parseMPAfiSafi(bytesBuf, this.afiReg, this.safiReg);
+        final BgpTableType parsedAfiSafi = MultiprotocolCapabilitiesUtil.parseMPAfiSafi(bytesBuf, this.afiReg, this.safiReg).get();
         assertEquals(Ipv4AddressFamily.class, parsedAfiSafi.getAfi());
         assertEquals(UnicastSubsequentAddressFamily.class, parsedAfiSafi.getSafi());
 
         final ByteBuf serializedAfiSafi = Unpooled.buffer(4);
         MultiprotocolCapabilitiesUtil.serializeMPAfiSafi(this.afiReg, this.safiReg, Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, serializedAfiSafi);
         assertArrayEquals(bytes, serializedAfiSafi.array());
+    }
+
+    @Test
+    public void testUnsupportedAfi() {
+        final byte[] bytes = new byte[] {0, 2, 0, 1};
+        final ByteBuf bytesBuf = Unpooled.copiedBuffer(bytes);
+        final Optional<BgpTableType> parsedAfiSafi = MultiprotocolCapabilitiesUtil.parseMPAfiSafi(bytesBuf, this.afiReg, this.safiReg);
+        Assert.assertFalse(parsedAfiSafi.isPresent());
+    }
+
+    @Test
+    public void testUnsupportedSafi() {
+        final byte[] bytes = new byte[] {0, 1, 0, 3};
+        final ByteBuf bytesBuf = Unpooled.copiedBuffer(bytes);
+        final Optional<BgpTableType> parsedAfiSafi = MultiprotocolCapabilitiesUtil.parseMPAfiSafi(bytesBuf, this.afiReg, this.safiReg);
+        Assert.assertFalse(parsedAfiSafi.isPresent());
     }
 
     @Test(expected=UnsupportedOperationException.class)
