@@ -64,7 +64,7 @@ public class LabeledUnicastIpv6RIBSupportTest extends AbstractRIBSupportTest {
     private static final LabeledUnicastRoute ROUTE;
     private static final LabeledUnicastIpv6Routes ROUTES;
     private static final LabeledUnicastRouteKey ROUTE_KEY;
-    private static final byte[] LABEL_KEY;
+    private static final String LABEL_KEY;
     private static final PathId PATH_ID = new PathId(1L);
     private static final List<LabelStack> LABEL_STACK = Lists.newArrayList(new LabelStackBuilder().setLabelValue(new MplsLabel(355L)).build());
     private static final List<CLabeledUnicastDestination> LABELED_DESTINATION_LIST = Collections.singletonList(new CLabeledUnicastDestinationBuilder()
@@ -83,7 +83,7 @@ public class LabeledUnicastIpv6RIBSupportTest extends AbstractRIBSupportTest {
         act.start(context);
         final ByteBuf buffer = Unpooled.buffer();
         LUNlriParser.serializeNlri(LABELED_DESTINATION_LIST, buffer);
-        LABEL_KEY = ByteArray.readAllBytes(buffer);
+        LABEL_KEY = ByteArray.encodeBase64(buffer);
         ROUTE_KEY = new LabeledUnicastRouteKey(PATH_ID, LABEL_KEY);
         ROUTE = new LabeledUnicastRouteBuilder().setKey(ROUTE_KEY).setPrefix(IPv6_PREFIX).setPathId(PATH_ID).setLabelStack(LABEL_STACK)
             .setAttributes(new AttributesBuilder().build()).build();

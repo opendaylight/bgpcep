@@ -42,7 +42,7 @@ module bgp-vpn {
         list vpn-route {
             key "route-key";
             leaf route-key {
-                type binary;
+                type string;
             }
             uses l3vpn;
             uses bgp-rib:route;

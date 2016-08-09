@@ -382,7 +382,7 @@ module odl-bgp-evpn {
         container evpn-routes {
             list evpn-route {
                 leaf route-key {
-                    type binary;
+                    type string;
                 }
                 key "route-key";
                 uses evpn;
