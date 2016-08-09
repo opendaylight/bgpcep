@@ -11,9 +11,9 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
+import java.util.Optional;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
-import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
@@ -75,12 +75,10 @@ public final class BGPRouteRefreshMessageParser implements MessageParser, Messag
         if (body.readableBytes() < TRIPLET_BYTE_SIZE) {
             throw BGPDocumentedException.badMessageLength("RouteRefresh message is too small.", messageLength);
         }
-        try {
-            final BgpTableType parsedAfiSafi = MultiprotocolCapabilitiesUtil.parseMPAfiSafi(body, this.afiReg, this.safiReg);
-            return new RouteRefreshBuilder().setAfi(parsedAfiSafi.getAfi()).setSafi(parsedAfiSafi.getSafi()).build();
-        } catch (final BGPParsingException e) {
-            LOG.warn("Fail to parse BGP RouteRefresh message.", e);
+        final Optional<BgpTableType> parsedAfiSafi = MultiprotocolCapabilitiesUtil.parseMPAfiSafi(body, this.afiReg, this.safiReg);
+        if (!parsedAfiSafi.isPresent()) {
             throw new BGPDocumentedException("Unsupported afi/safi in Route Refresh message.", BGPError.WELL_KNOWN_ATTR_NOT_RECOGNIZED);
         }
+        return new RouteRefreshBuilder(parsedAfiSafi.get()).build();
     }
 }

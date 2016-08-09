@@ -66,7 +66,7 @@ public final class CapabilityParameterParser implements ParameterParser, Paramet
         final ByteBuf paramBody = buffer.readSlice(capLength);
         final CParameters ret = this.reg.parseCapability(capCode, paramBody);
         if (ret == null) {
-            LOG.debug("Ignoring unsupported capability {}", capCode);
+            LOG.info("Ignoring unsupported capability {}", capCode);
             return null;
         }
         return new OptionalCapabilitiesBuilder().setCParameters(ret).build();
