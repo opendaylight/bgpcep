@@ -73,8 +73,7 @@ public class VpnIpv6RIBSupportTest extends AbstractRIBSupportTest {
         act.start(context);
         final ByteBuf buffer = Unpooled.buffer();
         AbstractVpnNlriParser.serializeNlri(Collections.singletonList(IPV6_VPN), buffer);
-        final byte[] arrayKey = ByteArray.readAllBytes(buffer);
-        ROUTE_KEY = new VpnRouteKey(arrayKey);
+        ROUTE_KEY = new VpnRouteKey(ByteArray.encodeBase64(buffer));
         ROUTE = new VpnRouteBuilder().setPathId(new PathId(NON_PATH_ID)).setAttributes(ATTRIBUTES).setPrefix(IPv6_PREFIX)
             .setLabelStack(LABEL_STACK).setRouteDistinguisher(DISTINGUISHER).setKey(ROUTE_KEY).build();
         ROUTES = new VpnIpv6RoutesBuilder().setVpnRoute(Collections.singletonList(ROUTE)).build();

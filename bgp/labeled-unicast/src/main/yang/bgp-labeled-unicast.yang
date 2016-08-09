@@ -78,7 +78,7 @@ module bgp-labeled-unicast {
     grouping labeled-unicast-routes-list {
         list labeled-unicast-route {
             leaf route-key {
-                type binary;
+                type string;
             }
             key "route-key path-id";
             uses labeled-unicast;
