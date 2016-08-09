@@ -372,6 +372,144 @@ module odl-bgp-evpn {
         }
     }
 
+    grouping pmsi-tunnel {
+        container pmsi-tunnel {
+            reference "https://tools.ietf.org/html/rfc6514#section-5";
+            description "P-Multicast Service Interface Tunnel (PMSI Tunnel) attribute";
+
+            leaf leaf-information-required {
+                type boolean;
+                mandatory true;
+            }
+            leaf tunnel-type {
+                type enumeration {
+                    enum no-tunnel-information {
+		                value 0;
+		            }
+		            enum rsvp-te-p2mp-lsp {
+		                value 1;
+		            }
+		            enum mldp-p2mp-lsp {
+		                value 2;
+                    }
+                    enum pim-ssm-tree {
+                        value 3;
+                    }
+                    enum pim-sm-tree {
+                        value 4;
+                    }
+                    enum bidir-pim-tree {
+                        value 5;
+                    }
+                    enum ingress-replication {
+                        value 6;
+                    }
+                    enum mldp-mp2mp-lsp {
+                        value 7;
+                    }
+                }
+                mandatory true;
+            }
+            leaf mpls-label {
+                type netc:mpls-label;
+                mandatory true;
+            }
+            choice tunnel-identifier {
+                case rsvp-te-p2mp-lsp {
+                    container rsvp-te-p2mp-lps {
+                        reference "https://tools.ietf.org/html/rfc4875#section-19.1.1";
+                        leaf p2mp-id {
+                            type uint32;
+                        }
+                        leaf extended-tunnel-id {
+                            type uint32;
+                        }
+                        leaf tunnel-id {
+                            type uint16;
+                        }
+                    }
+                }
+                case mldp-p2mp-lsp {
+                    container mldp-p2mp-lsp {
+                        reference "https://tools.ietf.org/html/rfc6388#section-2.2";
+                        leaf address-family {
+                            type identityref {
+                                base bgp-t:address-family;
+                            }
+                        }
+                        leaf root-node-address {
+                            type inet:ip-address;
+                        }
+                        leaf opaque-type {
+                            type uint8;
+                        }
+                        leaf opaque-extended-type {
+                            type uint16;
+                        }
+                        leaf opaque {
+                            // Base-64 encoded
+                            type string;
+                        }
+                    }
+                }
+                case pim-ssm-tree {
+                    container pim-ssm-tree {
+                        reference "https://tools.ietf.org/html/rfc6514#section-5";
+                        leaf p-root-node-address {
+                            type inet:ip-address;
+                        }
+                        leaf p-multicast-group {
+                            type inet:ip-address;
+                        }
+                    }
+                }
+                case pim-sm-tree {
+                    container pim-sm-tree {
+                        reference "https://tools.ietf.org/html/rfc6514#section-5";
+                        leaf p-sender-address {
+                            type inet:ip-address;
+                        }
+                        leaf p-multicast-group {
+                            type inet:ip-address;
+                        }
+                    }
+                }
+                case bidir-pim-tree {
+                    container bidir-pim-tree {
+                        reference "https://tools.ietf.org/html/rfc6514#section-5";
+                        leaf p-sender-address {
+                            type inet:ip-address;
+                        }
+                        leaf p-multicast-group {
+                            type inet:ip-address;
+                        }
+                    }
+                }
+                case ingress-replication {
+                    container ingress-replication {
+                        leaf receiving-endpoint-address {
+                            type inet:ip-address;
+                        }
+                    }
+                }
+                case mldp-mp2mp-lsp {
+                    container mldp-mp2mp-lsp {
+                        leaf opaque-type {
+                            type uint8;
+                        }
+                        leaf opaque-extended-type {
+                            type uint16;
+                        }
+                        leaf opaque {
+                            // Base-64 encoded
+                            type string;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     grouping evpn-destination {
         list evpn-destination {
             uses evpn;
@@ -432,6 +570,10 @@ module odl-bgp-evpn {
         }
 
         uses route-distinguisher;
+    }
+
+    augment "/bgp-msg:update/bgp-msg:attributes" {
+        uses pmsi-tunnel;
     }
 
     augment "/bgp-msg:update/bgp-msg:attributes/bgp-mp:mp-reach-nlri/bgp-mp:advertized-routes/bgp-mp:destination-type" {
