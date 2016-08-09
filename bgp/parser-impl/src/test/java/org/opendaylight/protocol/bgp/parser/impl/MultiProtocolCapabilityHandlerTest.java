@@ -69,20 +69,6 @@ public class MultiProtocolCapabilityHandlerTest {
         assertEquals(capabilityToSerialize.hashCode(), newCaps.hashCode());
     }
 
-    @Test(expected=BGPParsingException.class)
-    public void testAfiException() throws BGPDocumentedException, BGPParsingException {
-        final ByteBuf bytes = this.serializedBytes.copy();
-        final MultiProtocolCapabilityHandler handler = new MultiProtocolCapabilityHandler(this.afirExpection, this.safir);
-        handler.parseCapability(bytes);
-    }
-
-    @Test(expected=BGPParsingException.class)
-    public void testSafiException() throws BGPDocumentedException, BGPParsingException {
-        final ByteBuf bytes = this.serializedBytes.copy();
-        final MultiProtocolCapabilityHandler handler = new MultiProtocolCapabilityHandler(this.afir, this.safirException);
-        handler.parseCapability(bytes);
-    }
-
     @Test(expected=IllegalArgumentException.class)
     public void testUnhandledAfi() {
         final CParameters capabilityToSerialize = new CParametersBuilder().addAugmentation(CParameters1.class, new CParameters1Builder().setMultiprotocolCapability(

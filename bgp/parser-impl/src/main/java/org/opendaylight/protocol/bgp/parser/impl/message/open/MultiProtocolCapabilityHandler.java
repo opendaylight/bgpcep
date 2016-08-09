@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.parser.impl.message.open;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.Optional;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
@@ -27,6 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.MultiprotocolCapabilityBuilder;
 
 public final class MultiProtocolCapabilityHandler implements CapabilityParser, CapabilitySerializer {
+
     public static final int CODE = 1;
 
     private final AddressFamilyRegistry afiReg;
@@ -39,10 +41,12 @@ public final class MultiProtocolCapabilityHandler implements CapabilityParser, C
 
     @Override
     public CParameters parseCapability(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
-        final BgpTableType parsedAfiSafi = MultiprotocolCapabilitiesUtil.parseMPAfiSafi(buffer, this.afiReg, this.safiReg);
-
+        final Optional<BgpTableType> parsedAfiSafiOptional = MultiprotocolCapabilitiesUtil.parseMPAfiSafi(buffer, this.afiReg, this.safiReg);
+        if (!parsedAfiSafiOptional.isPresent()) {
+            return null;
+        }
         return new CParametersBuilder().addAugmentation(CParameters1.class,new CParameters1Builder().setMultiprotocolCapability(
-            new MultiprotocolCapabilityBuilder().setAfi(parsedAfiSafi.getAfi()).setSafi(parsedAfiSafi.getSafi()).build()).build()).build();
+            new MultiprotocolCapabilityBuilder(parsedAfiSafiOptional.get()).build()).build()).build();
     }
 
     @Override
