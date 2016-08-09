@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.util;
 
 import com.google.common.base.Preconditions;
+import com.google.common.io.BaseEncoding;
 import io.netty.buffer.ByteBuf;
 import java.io.File;
 import java.io.FileInputStream;
@@ -282,5 +283,15 @@ public final class ByteArray {
             LOG.debug("Could not apply UTF-8 encoding.", e);
             return Arrays.toString(bytes);
         }
+    }
+
+    /**
+     * Encode input ByteBuf with Base64 to string format.
+     *
+     * @param buffer Input ByteBuf
+     * @return String representation of encoded ByteBuf.
+     */
+    public static String encodeBase64(final ByteBuf buffer) {
+        return BaseEncoding.base64().encode(ByteArray.readAllBytes(buffer));
     }
 }
