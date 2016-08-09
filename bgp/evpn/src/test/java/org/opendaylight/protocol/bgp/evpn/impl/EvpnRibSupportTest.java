@@ -27,8 +27,6 @@ import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupportTest;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.EvpnSubsequentAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.L2vpnAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.bgp.rib.rib.loc.rib.tables.routes.EvpnRoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.bgp.rib.rib.loc.rib.tables.routes.EvpnRoutesCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.evpn.destination.EvpnDestination;
@@ -73,9 +71,8 @@ public final class EvpnRibSupportTest extends AbstractRIBSupportTest {
         act.start(context);
         final ByteBuf buffer = Unpooled.buffer();
         EvpnNlriParser.serializeNlri(Collections.singletonList(new EvpnDestinationBuilder().setRouteDistinguisher(RD).setEvpnChoice(ETHERNET_AD_ROUTE_CASE_KEY).build()), buffer);
-        final byte[] arrayKey = ByteArray.readAllBytes(buffer);
-        ROUTE_KEY = new EvpnRouteKey(arrayKey);
-        ROUTE = new EvpnRouteBuilder().setRouteKey(arrayKey).setAttributes(ATTRIBUTES).setRouteDistinguisher(RD).setEvpnChoice(ETHERNET_AD_ROUTE_CASE).build();
+        ROUTE_KEY = new EvpnRouteKey(ByteArray.encodeBase64(buffer));
+        ROUTE = new EvpnRouteBuilder().setRouteKey(ROUTE_KEY.getRouteKey()).setAttributes(ATTRIBUTES).setRouteDistinguisher(RD).setEvpnChoice(ETHERNET_AD_ROUTE_CASE).build();
         EVPN_ROUTES = new EvpnRoutesBuilder().setEvpnRoute(Collections.singletonList(ROUTE)).build();
     }
 
