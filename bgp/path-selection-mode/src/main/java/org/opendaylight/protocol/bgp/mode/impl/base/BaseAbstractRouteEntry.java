@@ -120,7 +120,7 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
         if (this.bestPath != null) {
             final BaseBestPath path = this.bestPath;
             if (filterRoutes(path.getPeerId(), destPeer, peerPT, localTK, discPeers)) {
-                final ContainerNode effAttrib = peerGroup.effectiveAttributes(path.getPeerId(), path.getAttributes());
+                final ContainerNode effAttrib = peerGroup.effectiveAttributes(getRoutePeerIdRole(peerPT,path.getPeerId()), path.getAttributes());
                 writeRoute(destPeer, getAdjRibOutYII(ribSup, rootPath, routeId, localTK), effAttrib, createValue(routeId, path), ribSup, tx);
             }
         }
@@ -179,7 +179,7 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
         for (final PeerRole role : PeerRole.values()) {
             final PeerExportGroup peerGroup = peerPT.getPeerGroup(role);
             if (peerGroup != null) {
-                final ContainerNode effAttrib = peerGroup.effectiveAttributes(routePeerId, attributes);
+                final ContainerNode effAttrib = peerGroup.effectiveAttributes(getRoutePeerIdRole(peerPT,routePeerId), attributes);
                 peerGroup.getPeers().stream()
                     .filter(pid -> filterRoutes(routePeerId, pid.getKey(), peerPT, localTK, discPeers))
                     .forEach(pid -> update(pid.getKey(), getAdjRibOutYII(ribSup, pid.getValue().getYii(), routeId, localTK), effAttrib, value, ribSup, tx));

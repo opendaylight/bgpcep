@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.Map;
 import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 final class PeerExportGroupImpl implements PeerExportGroup {
@@ -24,13 +25,17 @@ final class PeerExportGroupImpl implements PeerExportGroup {
     }
 
     @Override
-    public ContainerNode effectiveAttributes(final PeerId sourcePeerId, final ContainerNode attributes) {
-        final PeerExporTuple peer = this.peers.get(sourcePeerId);
-        return attributes == null || peer == null ? null : policy.effectiveAttributes(peer.getRole(), attributes);
+    public ContainerNode effectiveAttributes(final PeerRole role, final ContainerNode attributes) {
+        return attributes == null || role == null ? null : policy.effectiveAttributes(role, attributes);
     }
 
     @Override
     public Collection<Map.Entry<PeerId, PeerExporTuple>> getPeers() {
         return peers.entrySet();
+    }
+
+    @Override
+    public boolean containsPeer(final PeerId routePeerId) {
+        return this.peers.containsKey(routePeerId);
     }
 }
