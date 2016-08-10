@@ -5,6 +5,7 @@
   <reference id="BGPExtensionContext" interface="org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext"/>
   <reference id="globalBossGroup" interface="io.netty.channel.EventLoopGroup" odl:type="global-boss-group"/>
   <reference id="globalWorkerGroup" interface="io.netty.channel.EventLoopGroup" odl:type="global-worker-group"/>
+  <reference id="clusterSingletonServiceProvider" interface="org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider"/>
 
   <bean id="BGPDispatcher" class="org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImpl">
     <argument>
@@ -59,6 +60,7 @@
   <service ref="bgpDeployer" interface="org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer"/>
 
   <bean id="ribImpl" class="org.opendaylight.protocol.bgp.rib.impl.config.RibImpl" scope="prototype">
+    <argument ref="clusterSingletonServiceProvider"/>
     <argument ref="globalBgpExtensions"/>
     <argument ref="BGPDispatcher"/>
     <argument ref="codecTreeFactory"/>
