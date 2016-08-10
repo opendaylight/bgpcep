@@ -14,6 +14,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService;
 import org.opendaylight.protocol.bgp.rib.impl.ApplicationPeer;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer.WriteConfiguration;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Config;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
@@ -33,7 +34,7 @@ public class AppPeer implements PeerBean {
     private Neighbor currentConfiguration;
 
     @Override
-    public void start(final RIB rib, final Neighbor neighbor, final BGPOpenConfigMappingService mappingService) {
+    public void start(final RIB rib, final Neighbor neighbor, final BGPOpenConfigMappingService mappingService, final WriteConfiguration configurationWriter) {
         this.currentConfiguration = Preconditions.checkNotNull(neighbor);
         final ApplicationRibId appRibId = createAppRibId(neighbor);
         this.applicationPeer = new ApplicationPeer(appRibId, neighbor.getNeighborAddress().getIpv4Address(), rib);
@@ -46,7 +47,7 @@ public class AppPeer implements PeerBean {
     @Override
     public void restart(final RIB rib, final BGPOpenConfigMappingService mappingService) {
         Preconditions.checkState(this.currentConfiguration != null);
-        start(rib, this.currentConfiguration, mappingService);
+        start(rib, this.currentConfiguration, mappingService, null);
     }
 
     @Override
@@ -55,6 +56,11 @@ public class AppPeer implements PeerBean {
             this.registration.close();
             this.applicationPeer.close();
         }
+    }
+
+    @Override
+    public Boolean containsEqualConfiguration(final Neighbor neighbor) {
+        return this.currentConfiguration.equals(neighbor);
     }
 
     private static ApplicationRibId createAppRibId(final Neighbor neighbor) {

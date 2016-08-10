@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl.spi;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstance;
@@ -46,11 +47,25 @@ public interface BgpDeployer {
      * @param global
      * @param configurationWriter
      */
-    void onGlobalCreated(InstanceIdentifier<Bgp> rootIdentifier, Global global, WriteConfiguration configurationWriter);
+    void onGlobalModified(InstanceIdentifier<Bgp> rootIdentifier, Global global, WriteConfiguration configurationWriter);
 
     /**
      * Destroy rib instance
      * @param rootIdentifier
      */
     void onGlobalRemoved(InstanceIdentifier<Bgp> rootIdentifier);
+
+    /**
+     * Create, start and register peer instance
+     * @param rootIdentifier
+     * @param neighbor
+     */
+    void onNeighborModified(InstanceIdentifier<Bgp> rootIdentifier, Neighbor neighbor, WriteConfiguration configurationWriter);
+
+    /**
+     * Destroy peer instance
+     * @param rootIdentifier
+     * @param neighbor
+     */
+    void onNeighborRemoved(InstanceIdentifier<Bgp> rootIdentifier, Neighbor neighbor);
 }

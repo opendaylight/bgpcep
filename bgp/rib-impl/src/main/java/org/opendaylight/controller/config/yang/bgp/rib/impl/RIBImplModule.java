@@ -85,7 +85,7 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
         final KeyedInstanceIdentifier<Protocol, ProtocolKey> protocolIId = bgpDeployer.getInstanceIdentifier().child(Protocols.class)
             .child(Protocol.class, protocol.getKey());
         final InstanceIdentifier<Bgp> bgpIID = protocolIId.augmentation(Protocol1.class).child(Bgp.class);
-        bgpDeployer.onGlobalCreated(bgpIID, global, () -> bgpDeployer.writeConfiguration(protocol, protocolIId));
+        bgpDeployer.onGlobalModified(bgpIID, global, () -> bgpDeployer.writeConfiguration(protocol, protocolIId));
 
         //get rib instance service, use filter
         final WaitingServiceTracker<RIB> ribTracker = WaitingServiceTracker.create(RIB.class,
