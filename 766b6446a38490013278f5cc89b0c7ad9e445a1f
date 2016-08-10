@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_7d925958",
+        "filename": "bgp/evpn/src/main/yang/bgp-evpn.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-08-10T09:18:01Z",
+      "side": 1,
+      "message": "May be it will be better to move this grouping to a new yang module, as this attribute will be used in mVPN implementation (planned for a next release) too.",
+      "range": {
+        "startLine": 375,
+        "startChar": 4,
+        "endLine": 375,
+        "endChar": 26
+      },
+      "revId": "766b6446a38490013278f5cc89b0c7ad9e445a1f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_3d88e11e",
+        "filename": "bgp/evpn/src/main/yang/bgp-evpn.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 412,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-08-10T09:18:01Z",
+      "side": 1,
+      "message": "It might not be needed to model this field as the value can be determined from tunnel-identifier cases.",
+      "range": {
+        "startLine": 384,
+        "startChar": 0,
+        "endLine": 412,
+        "endChar": 13
+      },
+      "revId": "766b6446a38490013278f5cc89b0c7ad9e445a1f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_1d908542",
+        "filename": "bgp/evpn/src/main/yang/bgp-evpn.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-08-10T09:18:01Z",
+      "side": 1,
+      "message": "I think it should work with IPv6 version of the LSP too.\nIn fact, IP address can be used here as a type.",
+      "range": {
+        "startLine": 424,
+        "startChar": 0,
+        "endLine": 426,
+        "endChar": 25
+      },
+      "revId": "766b6446a38490013278f5cc89b0c7ad9e445a1f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_1defe588",
+        "filename": "bgp/evpn/src/main/yang/bgp-evpn.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 506,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-08-10T09:18:01Z",
+      "side": 1,
+      "message": "duplicated leafs - move to grouping and reuse here and in the p2mp case",
+      "range": {
+        "startLine": 497,
+        "startChar": 0,
+        "endLine": 506,
+        "endChar": 25
+      },
+      "revId": "766b6446a38490013278f5cc89b0c7ad9e445a1f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_7d86d9ba",
+        "filename": "bgp/evpn/src/main/yang/bgp-evpn.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 527,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-08-10T09:18:01Z",
+      "side": 1,
+      "message": "Here add augmentation of attributes too.",
+      "range": {
+        "startLine": 527,
+        "startChar": 16,
+        "endLine": 527,
+        "endChar": 34
+      },
+      "revId": "766b6446a38490013278f5cc89b0c7ad9e445a1f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
