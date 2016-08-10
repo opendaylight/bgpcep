@@ -110,14 +110,15 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
         if(this.bestPath != null) {
             this.bestPath.stream().filter(path -> filterRoutes(path.getPeerId(), destPeer, peerPT, localTK, discPeers) &&
                 peersSupportsAddPathOrIsFirstBestPath(destPeerSupAddPath, isFirstBestPath(this.bestPath.indexOf(path))))
-                .forEach(path -> writeRoutePath(destPeer, routeId, peerGroup, destPeerSupAddPath, path, rootPath, localTK, ribSup, tx));
+                .forEach(path -> writeRoutePath(destPeer, routeId, peerPT, peerGroup, destPeerSupAddPath, path, rootPath, localTK, ribSup, tx));
         }
     }
 
-    private void writeRoutePath(final PeerId destPeer, final PathArgument routeId, final PeerExportGroup peerGroup, final boolean destPeerSupAddPath,
+    private void writeRoutePath(final PeerId destPeer, final PathArgument routeId, final ExportPolicyPeerTracker peerPT,
+        final PeerExportGroup peerGroup, final boolean destPeerSupAddPath,
         final BestPath path, final YangInstanceIdentifier rootPath, final TablesKey localTK, final RIBSupport ribSup, final DOMDataWriteTransaction tx) {
         final PathArgument routeIdAddPath = ribSup.getRouteIdAddPath(path.getPathId(), routeId);
-        final ContainerNode effectiveAttributes = peerGroup.effectiveAttributes(path.getPeerId(), path.getAttributes());
+        final ContainerNode effectiveAttributes = peerGroup.effectiveAttributes(getRoutePeerIdRole(peerPT,path.getPeerId()), path.getAttributes());
         if (destPeerSupAddPath) {
             writeRoute(destPeer, getAdjRibOutYII(ribSup, rootPath, routeIdAddPath, localTK), effectiveAttributes, createValue(routeIdAddPath, path), ribSup, tx);
         } else {
@@ -164,7 +165,7 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
         for (final PeerRole role : PeerRole.values()) {
             final PeerExportGroup peerGroup = peerPT.getPeerGroup(role);
             if (peerGroup != null) {
-                final ContainerNode effectiveAttributes = peerGroup.effectiveAttributes(routePeerId, attributes);
+                final ContainerNode effectiveAttributes = peerGroup.effectiveAttributes(getRoutePeerIdRole(peerPT, routePeerId), attributes);
                 for (final Map.Entry<PeerId, PeerExporTuple> pid : peerGroup.getPeers()) {
                     final PeerId destPeer = pid.getKey();
                     final boolean destPeerSupAddPath = peerPT.isAddPathSupportedByPeer(destPeer);

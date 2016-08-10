@@ -13,9 +13,11 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.rib.spi.CacheDisconnectedPeers;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
+import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.AdjRibOut;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
@@ -70,5 +72,15 @@ public abstract class AbstractRouteEntry implements RouteEntry {
         final TablesKey localTK) {
         return ribSup.routePath(rootPath.node(AdjRibOut.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(localTK))
             .node(ROUTES_IDENTIFIER), routeId);
+    }
+
+    protected PeerRole getRoutePeerIdRole(final ExportPolicyPeerTracker peerPT, final PeerId routePeerId) {
+        for (final PeerRole role : PeerRole.values()) {
+            final PeerExportGroup peerGroup = peerPT.getPeerGroup(role);
+            if(peerGroup != null && peerGroup.containsPeer(routePeerId)) {
+                return role;
+            }
+        }
+        return null;
     }
 }
