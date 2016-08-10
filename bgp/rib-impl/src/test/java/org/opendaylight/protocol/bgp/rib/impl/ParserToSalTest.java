@@ -9,6 +9,8 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
@@ -24,6 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -33,6 +36,9 @@ import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
 import org.opendaylight.controller.md.sal.binding.test.DataBrokerTestCustomizer;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.protocol.bgp.inet.RIBActivator;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
@@ -71,19 +77,24 @@ import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 public class ParserToSalTest extends AbstractDataBrokerTest {
 
     private static final String TEST_RIB_ID = "testRib";
-
-    private final String hex_messages = "/bgp_hex.txt";
-
     private BGPMock mock;
     private AbstractRIBExtensionProviderActivator baseact, lsact;
     private RIBExtensionProviderContext ext1, ext2;
-
+    private static final TablesKey TABLE_KEY = new TablesKey(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
     @Mock
     BGPDispatcher dispatcher;
-
-    BindingCodecTreeFactory codecFactory;
+    @Mock
+    private ClusterSingletonServiceProvider clusterSingletonServiceProvider;
+    private BindingCodecTreeFactory codecFactory;
 
     private SchemaService schemaService;
+
+    @Before
+    public void setUp() throws Exception {
+        super.setup();
+        doReturn(Mockito.mock(ClusterSingletonServiceRegistration.class)).when(this.clusterSingletonServiceProvider).
+            registerClusterSingletonService(any(ClusterSingletonService.class));
+    }
 
     @Override
     protected java.lang.Iterable<org.opendaylight.yangtools.yang.binding.YangModuleInfo> getModuleInfos() throws Exception {
@@ -103,7 +114,8 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
         MockitoAnnotations.initMocks(this);
         final List<byte[]> bgpMessages;
         try {
-            bgpMessages = HexDumpBGPFileParser.parseMessages(ParserToSalTest.class.getResourceAsStream(this.hex_messages));
+            final String hexMessages = "/bgp_hex.txt";
+            bgpMessages = HexDumpBGPFileParser.parseMessages(ParserToSalTest.class.getResourceAsStream(hexMessages));
         } catch (final IOException e) {
             throw Throwables.propagate(e);
         }
@@ -130,11 +142,11 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
     @Test
     public void testWithLinkstate() throws InterruptedException, ExecutionException {
         final List<BgpTableType> tables = ImmutableList.of(
-                (BgpTableType) new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class));
-        final RIBImpl rib = new RIBImpl(new RibId(TEST_RIB_ID), new AsNumber(72L), new BgpId("127.0.0.1"), null, this.ext2, this.dispatcher,
-                this.codecFactory, getDomBroker(), tables,
-                Collections.singletonMap(new TablesKey(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class),
-                        BasePathSelectionModeFactory.createBestPathSelectionStrategy()), GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
+                new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class));
+        final RIBImpl rib = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(TEST_RIB_ID), new AsNumber(72L), new BgpId("127.0.0.1"),
+            null, this.ext2, this.dispatcher, this.codecFactory, getDomBroker(), tables, Collections.singletonMap(TABLE_KEY,
+            BasePathSelectionModeFactory.createBestPathSelectionStrategy()), GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), null);
+        rib.instantiateServiceInstance();
         assertTablesExists(tables, true);
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
         final BGPPeer peer = new BGPPeer("peer-" + this.mock.toString(), rib, PeerRole.Ibgp, null);
@@ -145,11 +157,11 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
 
     @Test
     public void testWithoutLinkstate() throws InterruptedException, ExecutionException {
-        final List<BgpTableType> tables = ImmutableList.of((BgpTableType) new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
-        final RIBImpl rib = new RIBImpl(new RibId(TEST_RIB_ID), new AsNumber(72L), new BgpId("127.0.0.1"), null, this.ext1, this.dispatcher,
-                this.codecFactory, getDomBroker(), tables,
-                Collections.singletonMap(new TablesKey(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class),
-                        BasePathSelectionModeFactory.createBestPathSelectionStrategy()), GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
+        final List<BgpTableType> tables = ImmutableList.of(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
+        final RIBImpl rib = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(TEST_RIB_ID), new AsNumber(72L), new BgpId("127.0.0.1"), null,
+            this.ext1, this.dispatcher, this.codecFactory, getDomBroker(), tables, Collections.singletonMap(TABLE_KEY,
+            BasePathSelectionModeFactory.createBestPathSelectionStrategy()), GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), null);
+        rib.instantiateServiceInstance();
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
         assertTablesExists(tables, true);
         final BGPPeer peer = new BGPPeer("peer-" + this.mock.toString(), rib, PeerRole.Ibgp, null);
@@ -163,9 +175,7 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
             final byte[] ret = new byte[input.length + 1];
             // ff
             ret[0] = -1;
-            for (int i = 0; i < input.length; i++) {
-                ret[i + 1] = input[i];
-            }
+            System.arraycopy(input, 0, ret, 1, input.length);
             return ret;
         });
     }

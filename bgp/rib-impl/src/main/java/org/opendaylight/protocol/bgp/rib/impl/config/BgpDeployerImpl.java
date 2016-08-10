@@ -12,7 +12,6 @@ import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUti
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getNeighborInstanceName;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getRibInstanceName;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
@@ -24,15 +23,14 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import javax.annotation.concurrent.GuardedBy;
+import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer;
@@ -58,44 +56,43 @@ import org.osgi.service.blueprint.container.BlueprintContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class BgpDeployerImpl implements BgpDeployer, DataTreeChangeListener<Bgp>, AutoCloseable {
-
+public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChangeListener<Bgp>, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(BgpDeployerImpl.class);
-
     private final InstanceIdentifier<NetworkInstance> networkInstanceIId;
     private final BlueprintContainer container;
     private final BundleContext bundleContext;
     private final BGPOpenConfigMappingService mappingService;
-    private final ListenerRegistration<BgpDeployerImpl>  registration;
+    private final ListenerRegistration<BgpDeployerImpl> registration;
     @GuardedBy("this")
     private final Map<InstanceIdentifier<Bgp>, RibImpl> ribs = new HashMap<>();
     @GuardedBy("this")
     private final Map<InstanceIdentifier<Neighbor>, BgpPeer> peers = new HashMap<>();
+    private final DataBroker dataBroker;
     @GuardedBy("this")
     private boolean closed;
 
-    private final DataBroker dataBroker;
-
     public BgpDeployerImpl(final String networkInstanceName, final BlueprintContainer container, final BundleContext bundleContext, final DataBroker dataBroker,
-            final BGPOpenConfigMappingService mappingService) {
+        final BGPOpenConfigMappingService mappingService) {
         this.dataBroker = Preconditions.checkNotNull(dataBroker);
         this.container = Preconditions.checkNotNull(container);
         this.bundleContext = Preconditions.checkNotNull(bundleContext);
         this.mappingService = Preconditions.checkNotNull(mappingService);
         this.networkInstanceIId = InstanceIdentifier
-                .create(NetworkInstances.class)
-                .child(NetworkInstance.class, new NetworkInstanceKey(networkInstanceName));
+            .create(NetworkInstances.class)
+            .child(NetworkInstance.class, new NetworkInstanceKey(networkInstanceName));
         Futures.addCallback(initializeNetworkInstance(dataBroker, this.networkInstanceIId), new FutureCallback<Void>() {
             @Override
             public void onSuccess(final Void result) {
                 LOG.debug("Network Instance {} initialized successfully.", networkInstanceName);
             }
+
             @Override
             public void onFailure(final Throwable t) {
                 LOG.error("Failed to initialize Network Instance {}.", networkInstanceName, t);
             }
         });
-        this.registration = dataBroker.registerDataTreeChangeListener(new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, this.networkInstanceIId.child(Protocols.class)
+        this.registration = dataBroker.registerDataTreeChangeListener(new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION,
+            this.networkInstanceIId.child(Protocols.class)
                 .child(Protocol.class)
                 .augmentation(Protocol1.class)
                 .child(Bgp.class)), this);
@@ -130,23 +127,23 @@ public final class BgpDeployerImpl implements BgpDeployer, DataTreeChangeListene
     @Override
     public synchronized void close() throws Exception {
         this.registration.close();
-        this.peers.values().forEach(bgpPeer -> bgpPeer.close());
+        this.peers.values().forEach(BgpPeer::close);
         this.peers.clear();
-        this.ribs.values().forEach(rib -> rib.close());
+        this.ribs.values().forEach(RibImpl::close);
         this.ribs.clear();
         this.closed = true;
     }
 
     private static CheckedFuture<Void, TransactionCommitFailedException> initializeNetworkInstance(final DataBroker dataBroker,
-            final InstanceIdentifier<NetworkInstance> networkInstance) {
+        final InstanceIdentifier<NetworkInstance> networkInstance) {
         final WriteTransaction wTx = dataBroker.newWriteOnlyTransaction();
         wTx.merge(LogicalDatastoreType.CONFIGURATION, networkInstance,
-                new NetworkInstanceBuilder().setName(networkInstance.firstKeyOf(NetworkInstance.class).getName()).setProtocols(new ProtocolsBuilder().build()).build());
+            new NetworkInstanceBuilder().setName(networkInstance.firstKeyOf(NetworkInstance.class).getName()).setProtocols(new ProtocolsBuilder().build()).build());
         return wTx.submit();
     }
 
     private void onGlobalChanged(final DataObjectModification<Global> dataObjectModification,
-            final InstanceIdentifier<Bgp> rootIdentifier) {
+        final InstanceIdentifier<Bgp> rootIdentifier) {
         switch (dataObjectModification.getModificationType()) {
         case DELETE:
             onGlobalRemoved(rootIdentifier);
@@ -164,27 +161,28 @@ public final class BgpDeployerImpl implements BgpDeployer, DataTreeChangeListene
         LOG.debug("Modifing RIB instance with configuration: {}", global);
         //restart existing rib instance with a new configuration
         final RibImpl ribImpl = this.ribs.get(rootIdentifier);
-        if (ribImpl != null) {
-            ribImpl.close();
-            initiateRibInstance(rootIdentifier, global, ribImpl);
-        } else {
+        if(ribImpl == null ) {
             //if not exists, create a new instance
-            onGlobalCreated(rootIdentifier, global);
+            onGlobalCreated(rootIdentifier, global, null);
+        } else if (!ribImpl.isGlobalEqual(global)) {
+            ribImpl.close();
+            initiateRibInstance(rootIdentifier, global, ribImpl, null);
         }
         LOG.debug("RIB instance modified {}", ribImpl);
     }
 
-    private void onGlobalCreated(final InstanceIdentifier<Bgp> rootIdentifier, final Global global) {
-        //create, start and register rib instance
+    @Override
+    public synchronized void onGlobalCreated(final InstanceIdentifier<Bgp> rootIdentifier, final Global global, final WriteConfiguration
+        configurationWriter) {
         LOG.debug("Creating RIB instance with configuration: {}", global);
         final RibImpl ribImpl = (RibImpl) this.container.getComponentInstance(InstanceType.RIB.getBeanName());
-        initiateRibInstance(rootIdentifier, global, ribImpl);
+        initiateRibInstance(rootIdentifier, global, ribImpl, configurationWriter);
         this.ribs.put(rootIdentifier, ribImpl);
         LOG.debug("RIB instance created {}", ribImpl);
     }
 
-    private void onGlobalRemoved(final InstanceIdentifier<Bgp> rootIdentifier) {
-        //destroy rib instance
+    @Override
+    public synchronized void onGlobalRemoved(final InstanceIdentifier<Bgp> rootIdentifier) {
         LOG.debug("Removing RIB instance: {}", rootIdentifier);
         final RibImpl ribImpl = this.ribs.remove(rootIdentifier);
         if (ribImpl != null) {
@@ -201,14 +199,14 @@ public final class BgpDeployerImpl implements BgpDeployer, DataTreeChangeListene
     }
 
     private void initiateRibInstance(final InstanceIdentifier<Bgp> rootIdentifier, final Global global,
-            final RibImpl ribImpl) {
+        final RibImpl ribImpl, final WriteConfiguration configurationWriter) {
         final String ribInstanceName = getRibInstanceName(rootIdentifier);
-        ribImpl.start(global, ribInstanceName, this.mappingService);
+        ribImpl.start(global, ribInstanceName, this.mappingService, configurationWriter);
         registerRibInstance(ribImpl, ribInstanceName);
     }
 
     private void onNeighborsChanged(final DataObjectModification<Neighbors> dataObjectModification,
-            final InstanceIdentifier<Bgp> rootIdentifier) {
+        final InstanceIdentifier<Bgp> rootIdentifier) {
         for (final DataObjectModification<? extends DataObject> neighborModification : dataObjectModification.getModifiedChildren()) {
             switch (neighborModification.getModificationType()) {
             case DELETE:
@@ -267,7 +265,7 @@ public final class BgpDeployerImpl implements BgpDeployer, DataTreeChangeListene
     }
 
     private void initiatePeerInstance(final InstanceIdentifier<Bgp> rootIdentifier, final InstanceIdentifier<Neighbor> neighborIdentifier, final Neighbor neighbor,
-            final BgpPeer bgpPeer) {
+        final BgpPeer bgpPeer) {
         final String peerInstanceName = getNeighborInstanceName(neighborIdentifier);
         final RibImpl rib = this.ribs.get(rootIdentifier);
         if (rib != null) {
@@ -277,38 +275,22 @@ public final class BgpDeployerImpl implements BgpDeployer, DataTreeChangeListene
     }
 
     @Override
-    public <T extends DataObject> ListenableFuture<Void> writeConfiguration(final T data,
-            final InstanceIdentifier<T> identifier) {
-        final ReadWriteTransaction wTx = this.dataBroker.newReadWriteTransaction();
-        final CheckedFuture<Optional<T>, ReadFailedException> readFuture = wTx.read(LogicalDatastoreType.CONFIGURATION, identifier);
-        Futures.addCallback(readFuture, new FutureCallback<Optional<T>>() {
-            @Override
-            public void onSuccess(final Optional<T> result) {
-                if (!result.isPresent()) {
-                    wTx.put(LogicalDatastoreType.CONFIGURATION, identifier, data);
-                }
-            }
-            @Override
-            public void onFailure(final Throwable t) {
-                LOG.debug("Failed to ensure presence of {}, try to write configuration.", identifier, t);
-                wTx.put(LogicalDatastoreType.CONFIGURATION, identifier, data);
-            }
-        });
-        return wTx.submit();
-
-    }
-
-    @Override
-    public <T extends DataObject> ListenableFuture<Void> removeConfiguration(
-            final InstanceIdentifier<T> identifier) {
-        final WriteTransaction wTx = this.dataBroker.newWriteOnlyTransaction();
-        wTx.delete(LogicalDatastoreType.CONFIGURATION, identifier);
-        return wTx.submit();
-    }
-
-    @Override
     public BGPOpenConfigMappingService getMappingService() {
         return this.mappingService;
     }
 
+    @Override
+    public <T extends DataObject> ListenableFuture<Void> writeConfiguration(final T data, final InstanceIdentifier<T> identifier) {
+        final ReadWriteTransaction wTx = this.dataBroker.newReadWriteTransaction();
+        wTx.put(LogicalDatastoreType.CONFIGURATION, identifier, data);
+        return wTx.submit();
+    }
+
+    @Override
+    public <T extends DataObject> ListenableFuture<Void> removeConfiguration(
+        final InstanceIdentifier<T> identifier) {
+        final WriteTransaction wTx = this.dataBroker.newWriteOnlyTransaction();
+        wTx.delete(LogicalDatastoreType.CONFIGURATION, identifier);
+        return wTx.submit();
+    }
 }
