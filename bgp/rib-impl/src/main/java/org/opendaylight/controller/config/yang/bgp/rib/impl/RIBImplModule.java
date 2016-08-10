@@ -25,16 +25,21 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPBestPathSelection;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.InstanceType;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.Protocols;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.Protocol;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.ProtocolKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Protocol1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.osgi.framework.BundleContext;
 
@@ -73,17 +78,21 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
                 WaitingServiceTracker.create(BgpDeployer.class, this.bundleContext);
         final BgpDeployer bgpDeployer = bgpDeployerTracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
         //map configuration to OpenConfig BGP
-        final Protocol protocol = bgpDeployer.getMappingService().fromRib(getBgpRibId(), getClusterId(), getRibId(), new AsNumber(getLocalAs()), getLocalTableDependency(),
+        final Protocol protocol = bgpDeployer.getMappingService().fromRib(getBgpRibId(), getClusterId(), getRibId(),
+            new AsNumber(getLocalAs()), getLocalTableDependency(),
                 mapBestPathSelectionStrategyByFamily(getRibPathSelectionModeDependency()));
-        //write to configuration DS
-        final KeyedInstanceIdentifier<Protocol, ProtocolKey> protocolIId = bgpDeployer.getInstanceIdentifier().child(Protocols.class).child(Protocol.class,
-                protocol.getKey());
-        bgpDeployer.writeConfiguration(protocol, protocolIId);
+        final Global global = protocol.getAugmentation(Protocol1.class).getBgp().getGlobal();
+        final KeyedInstanceIdentifier<Protocol, ProtocolKey> protocolIId = bgpDeployer.getInstanceIdentifier().child(Protocols.class)
+            .child(Protocol.class, protocol.getKey());
+        final InstanceIdentifier<Bgp> bgpIID = protocolIId.augmentation(Protocol1.class).child(Bgp.class);
+        bgpDeployer.onGlobalCreated(bgpIID, global, () -> bgpDeployer.writeConfiguration(protocol, protocolIId));
+
         //get rib instance service, use filter
         final WaitingServiceTracker<RIB> ribTracker = WaitingServiceTracker.create(RIB.class,
-                this.bundleContext, "(" + InstanceType.RIB.getBeanName() + "=" + getRibId().getValue() + ")");
+            this.bundleContext, "(" + InstanceType.RIB.getBeanName() + "=" + getRibId().getValue() + ")");
         final RIB rib = ribTracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
         final RIBImplRuntimeRegistration register = getRootRuntimeBeanRegistratorWrapper().register(rib.getRenderStats());
+
         return Reflection.newProxy(AutoCloseableRIB.class, new AbstractInvocationHandler() {
             @Override
             protected Object handleInvocation(final Object proxy, final Method method, final Object[] args) throws Throwable {
@@ -105,7 +114,7 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
 
     private Map<TablesKey, PathSelectionMode> mapBestPathSelectionStrategyByFamily(final List<BGPBestPathSelection> bestPathSelectionDependency) {
         return Collections.unmodifiableMap(bestPathSelectionDependency.stream().collect(
-                Collectors.<BGPBestPathSelection, TablesKey, PathSelectionMode>toMap(st -> new TablesKey(st.getAfi(), st.getSafi()), st -> st.getStrategy())));
+                Collectors.toMap(st -> new TablesKey(st.getAfi(), st.getSafi()), st -> st.getStrategy())));
     }
 
     private static interface AutoCloseableRIB extends RIB, AutoCloseable {
