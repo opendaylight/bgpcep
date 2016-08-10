@@ -14,6 +14,7 @@ import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUti
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.AsyncFunction;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -281,21 +282,20 @@ public final class BgpDeployerImpl implements BgpDeployer, DataTreeChangeListene
             final InstanceIdentifier<T> identifier) {
         final ReadWriteTransaction wTx = this.dataBroker.newReadWriteTransaction();
         final CheckedFuture<Optional<T>, ReadFailedException> readFuture = wTx.read(LogicalDatastoreType.CONFIGURATION, identifier);
-        Futures.addCallback(readFuture, new FutureCallback<Optional<T>>() {
+        return Futures.transform(readFuture, new AsyncFunction<Optional<T>, Void>() {
             @Override
-            public void onSuccess(final Optional<T> result) {
-                if (!result.isPresent()) {
-                    wTx.put(LogicalDatastoreType.CONFIGURATION, identifier, data);
+            public ListenableFuture<Void> apply(final Optional<T> input) throws Exception {
+                if (!input.isPresent()) {
+                    return writeConfiguration(wTx, identifier, data);
                 }
-            }
-            @Override
-            public void onFailure(final Throwable t) {
-                LOG.debug("Failed to ensure presence of {}, try to write configuration.", identifier, t);
-                wTx.put(LogicalDatastoreType.CONFIGURATION, identifier, data);
+                return Futures.immediateFuture(null);
             }
         });
-        return wTx.submit();
+    }
 
+    private static <T extends DataObject> CheckedFuture<Void, TransactionCommitFailedException> writeConfiguration(final WriteTransaction wTx, final InstanceIdentifier<T> identifier, final T data) {
+        wTx.put(LogicalDatastoreType.CONFIGURATION, identifier, data);
+        return wTx.submit();
     }
 
     @Override
