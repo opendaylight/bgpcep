@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl.config;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,11 +20,16 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
+import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigProvider;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ImportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
@@ -31,8 +37,10 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl.BGPRenderStats;
 import org.opendaylight.protocol.bgp.rib.spi.CacheDisconnectedPeers;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib;
@@ -60,10 +68,15 @@ public final class RibImpl implements RIB, AutoCloseable {
     private RIBImpl ribImpl;
     private ServiceRegistration<?> serviceRegistration;
     private ListenerRegistration<SchemaContextListener> schemaContextRegistration;
+    private final ClusterSingletonServiceProvider provider;
+    private List<AfiSafi> afiSafi;
+    private AsNumber asNumber;
+    private Ipv4Address routerId;
 
     @SuppressWarnings("deprecation")
-    public RibImpl(final RIBExtensionConsumerContext contextProvider, final BGPDispatcher dispatcher,
+    public RibImpl(final ClusterSingletonServiceProvider provider, final RIBExtensionConsumerContext contextProvider, final BGPDispatcher dispatcher,
             final BindingCodecTreeFactory codecTreeFactory, final DOMDataBroker domBroker, final SchemaService schemaService) {
+        this.provider = Preconditions.checkNotNull(provider);
         this.extensions = contextProvider;
         this.dispatcher = dispatcher;
         this.codecTreeFactory = codecTreeFactory;
@@ -71,10 +84,19 @@ public final class RibImpl implements RIB, AutoCloseable {
         this.schemaService = schemaService;
     }
 
-    void start(final Global global, final String instanceName, final BGPOpenConfigMappingService mappingService) {
+    void start(final Global global, final String instanceName, final BGPOpenConfigMappingService mappingService,
+        final BgpDeployer.WriteConfiguration configurationWriter) {
         Preconditions.checkState(this.ribImpl == null, "Previous instance %s was not closed.", this);
-        this.ribImpl = createRib(global, instanceName, mappingService);
+        this.ribImpl = createRib(provider, global, instanceName, mappingService, configurationWriter);
         this.schemaContextRegistration = this.schemaService.registerSchemaContextListener(this.ribImpl);
+    }
+
+    Boolean isGlobalEqual(final Global global) {
+        final List<AfiSafi> globalAfiSafi = global.getAfiSafis().getAfiSafi();
+        final AsNumber globalAs = global.getConfig().getAs();
+        final Ipv4Address globalRouterId = global.getConfig().getRouterId();
+        return this.afiSafi.containsAll(globalAfiSafi) && globalAfiSafi.containsAll(this.afiSafi)
+            && globalAs.equals(this.asNumber) && globalRouterId.equals(this.routerId);
     }
 
     @Override
@@ -145,7 +167,11 @@ public final class RibImpl implements RIB, AutoCloseable {
     @Override
     public void close() {
         if (this.ribImpl != null) {
-            this.ribImpl.close();
+            try {
+                this.ribImpl.close();
+            } catch (Exception e) {
+                LOG.warn("Failed to close {} rib instance", this, e);
+            }
             this.ribImpl = null;
         }
         if (this.schemaContextRegistration != null) {
@@ -162,7 +188,7 @@ public final class RibImpl implements RIB, AutoCloseable {
         }
     }
 
-    public void setServiceRegistration(final ServiceRegistration<?> serviceRegistration) {
+    void setServiceRegistration(final ServiceRegistration<?> serviceRegistration) {
         this.serviceRegistration = serviceRegistration;
     }
 
@@ -182,18 +208,29 @@ public final class RibImpl implements RIB, AutoCloseable {
     }
 
     @Override
+    public ServiceGroupIdentifier getRibIServiceGroupIdentifier() {
+        return this.ribImpl.getRibIServiceGroupIdentifier();
+    }
+
+    @Override
     public String toString() {
         return this.ribImpl.toString();
     }
 
-    private RIBImpl createRib(final Global global, final String bgpInstanceName, final BGPOpenConfigMappingService mappingService) {
-        final Map<TablesKey, PathSelectionMode> pathSelectionModes = mappingService.toPathSelectionMode(global.getAfiSafis().getAfiSafi()).entrySet()
-                .stream().collect(Collectors.toMap(entry -> new TablesKey(entry.getKey().getAfi(), entry.getKey().getSafi()), entry -> entry.getValue()));
-        return new RIBImpl(new RibId(bgpInstanceName), new AsNumber(global.getConfig().getAs().getValue()),
-                new BgpId(global.getConfig().getRouterId().getValue()), new ClusterIdentifier(global.getConfig().getRouterId().getValue()),
-                this.extensions, this.dispatcher, this.codecTreeFactory, this.domBroker,
-                mappingService.toTableTypes(global.getAfiSafis().getAfiSafi()), pathSelectionModes,
-                this.extensions.getClassLoadingStrategy());
+    private RIBImpl createRib(final ClusterSingletonServiceProvider provider, final Global global, final String bgpInstanceName,
+        final BGPOpenConfigMappingService mappingService, final BgpDeployer.WriteConfiguration configurationWriter) {
+        this.afiSafi = global.getAfiSafis().getAfiSafi();
+        this.asNumber = global.getConfig().getAs();
+        this.routerId = global.getConfig().getRouterId();
+        final Map<TablesKey, PathSelectionMode> pathSelectionModes = mappingService.toPathSelectionMode(this.afiSafi).entrySet()
+                .stream().collect(Collectors.toMap(entry -> new TablesKey(entry.getKey().getAfi(), entry.getKey().getSafi()), Map.Entry::getValue));
+        return new RIBImpl(provider, new RibId(bgpInstanceName), this.asNumber, new BgpId(this.routerId), new ClusterIdentifier(this.routerId),
+                this.extensions, this.dispatcher, this.codecTreeFactory, this.domBroker, mappingService.toTableTypes(this.afiSafi), pathSelectionModes,
+                this.extensions.getClassLoadingStrategy(), configurationWriter);
     }
 
+    @Override
+    public ClusterSingletonServiceRegistration registerClusterSingletonService(final ClusterSingletonService clusterSingletonService) {
+        return this.provider.registerClusterSingletonService(clusterSingletonService);
+    }
 }
