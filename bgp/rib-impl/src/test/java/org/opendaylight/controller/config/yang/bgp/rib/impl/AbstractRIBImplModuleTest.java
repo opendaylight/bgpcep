@@ -101,6 +101,8 @@ import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborKey;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.NetworkInstances;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstance;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstanceKey;
@@ -109,6 +111,8 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.re
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151009.BGP;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Protocol1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Protocol1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib;
@@ -274,7 +278,14 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
                 any(InetSocketAddress.class), any(BGPPeerRegistry.class), anyInt(), any(Optional.class));
 
         setupMockService(BgpDeployer.class, this.bgpDeployer);
-        doReturn(new ProtocolBuilder().setKey(new ProtocolKey(BGP.class, "bgp")).build()).when(this.bgpMappingService).fromRib(any(), any(), any(), any(), any(), any());
+        final Global global = mock(Global.class);
+        final Bgp globalBgp = mock(Bgp.class);
+        doReturn(global).when(globalBgp).getGlobal();
+        doReturn("global").when(global).toString();
+        doReturn(new ProtocolBuilder().setKey(new ProtocolKey(BGP.class, "bgp"))
+            .addAugmentation(Protocol1.class, new Protocol1Builder().setBgp(globalBgp).build()).build())
+            .when(this.bgpMappingService).fromRib(any(), any(), any(), any(), any(), any());
+        doNothing().when(this.bgpDeployer).onGlobalCreated(any(),any(),any());
         doReturn(NEIGHBOR).when(this.bgpMappingService).fromBgpPeer(any(), any(),
                 any(), any(), any(), any(), any(), any(), any(), any(), any());
         doReturn(this.mockedFuture).when(this.bgpDeployer).writeConfiguration(any(), any());
@@ -327,6 +338,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         doReturn(new ServiceReference[]{mockServiceRef}).when(this.mockedContext).
         getServiceReferences(serviceInterface.getName(), null);
         doReturn(instance).when(this.mockedContext).getService(mockServiceRef);
+        doReturn("test").when(mockServiceRef).toString();
     }
 
     private static SchemaContext parseYangStreams(final Collection<ByteSource> streams) {
