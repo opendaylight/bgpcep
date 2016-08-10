@@ -38,6 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Protocol1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.rfc2385.cfg.rev160324.Rfc2385Key;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.osgi.framework.BundleContext;
 
@@ -85,18 +86,19 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        final RIB r = getRibDependency();
-        final WaitingServiceTracker<BgpDeployer> bgpDeployerTracker =
-                WaitingServiceTracker.create(BgpDeployer.class, this.bundleContext);
+        final RIB rib = getRibDependency();
+        final WaitingServiceTracker<BgpDeployer> bgpDeployerTracker = WaitingServiceTracker.create(BgpDeployer.class, this.bundleContext);
         final BgpDeployer bgpDeployer = bgpDeployerTracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
         //map configuration to OpenConfig BGP
         final Neighbor neighbor = bgpDeployer.getMappingService().fromBgpPeer(getAddPathDependency(), getAdvertizedTableDependency(), getHoldtimer(),
                 getHost(), getInitiateConnection(), getPassword(), getPort(), getRetrytimer(), getRemoteAs(), getPeerRole(), getSimpleRoutingPolicy());
         //write to configuration DS
-        final KeyedInstanceIdentifier<Neighbor, NeighborKey> neighborIId = bgpDeployer.getInstanceIdentifier().child(Protocols.class).child(Protocol.class,
-                new ProtocolKey(BGP.class, r.getInstanceIdentifier().getKey().getId().getValue()))
-                .augmentation(Protocol1.class).child(Bgp.class).child(Neighbors.class).child(Neighbor.class, neighbor.getKey());
-        bgpDeployer.writeConfiguration(neighbor, neighborIId);
+        final KeyedInstanceIdentifier<Protocol, ProtocolKey> protocolIId = bgpDeployer.getInstanceIdentifier().child(Protocols.class)
+            .child(Protocol.class, new ProtocolKey(BGP.class, rib.getInstanceIdentifier().getKey().getId().getValue()));
+        final InstanceIdentifier<Bgp> bgpIID = protocolIId.augmentation(Protocol1.class).child(Bgp.class);
+        final KeyedInstanceIdentifier<Neighbor, NeighborKey> neighborIId = protocolIId.augmentation(Protocol1.class).child(Bgp.class)
+            .child(Neighbors.class).child(Neighbor.class, neighbor.getKey());
+        bgpDeployer.onNeighborModified(bgpIID, neighbor, () -> bgpDeployer.writeConfiguration(neighbor, neighborIId));
         //get rib instance service, use filter
         final WaitingServiceTracker<BGPPeerRuntimeMXBean> peerTracker = WaitingServiceTracker.create(BGPPeerRuntimeMXBean.class,
                 this.bundleContext, "(" + InstanceType.PEER.getBeanName() + "=" + Ipv4Util.toStringIP(getHost()) + ")");
@@ -106,6 +108,7 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
             @Override
             protected Object handleInvocation(final Object proxy, final Method method, final Object[] args) throws Throwable {
                 if (method.getName().equals("close")) {
+                    bgpDeployer.onNeighborRemoved(bgpIID, neighbor);
                     runtimeRegistration.close();
                     bgpDeployerTracker.close();
                     peerTracker.close();

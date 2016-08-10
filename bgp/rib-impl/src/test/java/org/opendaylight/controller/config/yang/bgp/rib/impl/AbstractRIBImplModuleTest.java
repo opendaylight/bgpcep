@@ -285,7 +285,8 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         doReturn(new ProtocolBuilder().setKey(new ProtocolKey(BGP.class, "bgp"))
             .addAugmentation(Protocol1.class, new Protocol1Builder().setBgp(globalBgp).build()).build())
             .when(this.bgpMappingService).fromRib(any(), any(), any(), any(), any(), any());
-        doNothing().when(this.bgpDeployer).onGlobalCreated(any(),any(),any());
+        doNothing().when(this.bgpDeployer).onGlobalModified(any(),any(),any());
+        doNothing().when(this.bgpDeployer).onNeighborModified(any(),any(),any());
         doReturn(NEIGHBOR).when(this.bgpMappingService).fromBgpPeer(any(), any(),
                 any(), any(), any(), any(), any(), any(), any(), any(), any());
         doReturn(NEIGHBOR).when(this.bgpMappingService).fromApplicationPeer(any(), any());
