@@ -40,14 +40,16 @@ public interface PeerExportGroup {
     /**
      * Transform outgoing attributes according to policy per Peer
      *
-     * @param sourcePeerId root Peer
+     * @param role root Peer role
      * @param attributes attributes container
      * @return return attributes container after apply policy
      */
-    ContainerNode effectiveAttributes(PeerId sourcePeerId, ContainerNode attributes);
+    ContainerNode effectiveAttributes(PeerRole role, ContainerNode attributes);
 
     /**
      * @return map of peer
      */
     Collection<Map.Entry<PeerId, PeerExporTuple>> getPeers();
+
+    boolean containsPeer(PeerId routePeerId);
 }
