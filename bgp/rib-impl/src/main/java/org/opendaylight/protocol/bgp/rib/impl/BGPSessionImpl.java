@@ -148,10 +148,6 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         this.keepAlive = this.holdTimerValue / KA_TO_DEADTIMER_RATIO;
         this.asNumber = AsNumberUtil.advertizedAsNumber(remoteOpen);
         this.peerRegistry = peerRegistry;
-        final boolean enableExMess = BgpExtendedMessageUtil.advertizedBgpExtendedMessageCapability(remoteOpen);
-        if (enableExMess) {
-            this.channel.pipeline().replace(BGPMessageHeaderDecoder.class, EXTENDED_MSG_DECODER, BGPMessageHeaderDecoder.getExtendedBGPMessageHeaderDecoder());
-        }
 
         final Set<TablesKey> tts = Sets.newHashSet();
         final Set<BgpTableType> tats = Sets.newHashSet();
@@ -206,6 +202,24 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         this.bgpId = remoteOpen.getBgpIdentifier();
         this.sessionStats = new BGPSessionStatsImpl(this, remoteOpen, this.holdTimerValue, this.keepAlive, channel, Optional.<BGPSessionPreferences>absent(),
                 this.tableTypes, this.addPathTypes);
+    }
+
+    /**
+     * Set the extend message coder for current channel
+     * The reason for separating this part from constructor is, in #channel.pipeline().replace(..), the
+     * invokeChannelRead() will be invoked after the original message coder handler got removed. And there
+     * is chance that before the session instance is fully initiated (constructor returns), a KeepAlive
+     * message arrived already in the channel buffer. Thus #AbstractBGPSessionNegotiator.handleMessage(..)
+     * gets invoked again and a deadlock is caused.  A BGP final state machine error will happen as BGP
+     * negotiator is still in OPEN_SENT state as the session constructor hasn't returned yet.
+     *
+     * @param remoteOpen
+     */
+    public synchronized void setChannelExtMsgCoder(final Open remoteOpen) {
+        final boolean enableExMess = BgpExtendedMessageUtil.advertizedBgpExtendedMessageCapability(remoteOpen);
+        if (enableExMess) {
+            this.channel.pipeline().replace(BGPMessageHeaderDecoder.class, EXTENDED_MSG_DECODER, BGPMessageHeaderDecoder.getExtendedBGPMessageHeaderDecoder());
+        }
     }
 
     @Override
