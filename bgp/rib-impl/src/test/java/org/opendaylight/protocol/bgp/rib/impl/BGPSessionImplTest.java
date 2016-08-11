@@ -149,6 +149,7 @@ public class BGPSessionImplTest {
         doReturn(futureChannel).when(this.speakerListener).close();
         this.listener = new SimpleSessionListener();
         this.bgpSession = new BGPSessionImpl(this.listener, this.speakerListener, this.classicOpen, this.classicOpen.getHoldTimer(), null);
+        this.bgpSession.setChannelExtMsgCoder(this.classicOpen);
     }
 
     @Test

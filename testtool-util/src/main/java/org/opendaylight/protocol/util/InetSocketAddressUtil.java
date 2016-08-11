@@ -55,10 +55,10 @@ public final class InetSocketAddressUtil {
     /**
      * Generate a random high range port number
      *
-     * @return A port number range from 10000 to 50000
+     * @return A port number range from 20000 to 60000
      */
     public static int getRandomPort() {
-        final int randPort = 10000 + (int) Math.round(40000 * Math.random());
+        final int randPort = 20000 + (int) Math.round(40000 * Math.random());
         return randPort;
     }
 
