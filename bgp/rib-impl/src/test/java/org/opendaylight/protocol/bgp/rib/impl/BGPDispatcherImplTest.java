@@ -58,7 +58,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.slf4j.LoggerFactory;
 
 public class BGPDispatcherImplTest {
-
+    private static final short HOLD_TIMER = 30;
     private static final AsNumber AS_NUMBER = new AsNumber(30L);
     private static final int RETRY_TIMER = 1;
     private static final BgpTableType IPV_4_TT = new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
@@ -149,7 +149,7 @@ public class BGPDispatcherImplTest {
         Assert.assertEquals(Sets.newHashSet(IPV_4_TT), session.getAdvertisedTableTypes());
         Assert.assertTrue(serverChannel.isWritable());
         session.close();
-
+        this.serverListener.releaseConnection();
         checkIdleState(this.clientListener);
         checkIdleState(this.serverListener);
     }
@@ -178,6 +178,6 @@ public class BGPDispatcherImplTest {
         capas.add(new OptionalCapabilitiesBuilder().setCParameters(BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY).build());
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
         final BgpId bgpId = new BgpId(new Ipv4Address(socketAddress.getAddress().getHostAddress()));
-        return new BGPSessionPreferences(AS_NUMBER, (short) 4, bgpId, AS_NUMBER, tlvs, Optional.absent());
+        return new BGPSessionPreferences(AS_NUMBER, HOLD_TIMER, bgpId, AS_NUMBER, tlvs, Optional.absent());
     }
 }
