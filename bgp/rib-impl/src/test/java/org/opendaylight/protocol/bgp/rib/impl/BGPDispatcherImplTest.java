@@ -149,7 +149,7 @@ public class BGPDispatcherImplTest {
         Assert.assertEquals(Sets.newHashSet(IPV_4_TT), session.getAdvertisedTableTypes());
         Assert.assertTrue(serverChannel.isWritable());
         session.close();
-
+        this.serverListener.releaseConnection();
         checkIdleState(this.clientListener);
         checkIdleState(this.serverListener);
     }
