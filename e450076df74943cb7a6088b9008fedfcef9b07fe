@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_fbaae0d0",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/controller/config/yang/bgp/rib/impl/RIBImplModule.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-08-12T17:46:21Z",
+      "side": 1,
+      "message": "Should not we close the RIB instance here (onGlobalRemoved)?",
+      "revId": "e450076df74943cb7a6088b9008fedfcef9b07fe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_5bbaf423",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/RIBImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-08-12T17:46:21Z",
+      "side": 1,
+      "message": "Is it safe to retun null?",
+      "range": {
+        "startLine": 377,
+        "startChar": 15,
+        "endLine": 377,
+        "endChar": 19
+      },
+      "revId": "e450076df74943cb7a6088b9008fedfcef9b07fe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_bb7228ab",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpDeployerImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-08-12T17:46:21Z",
+      "side": 1,
+      "message": "should be synchronized",
+      "revId": "e450076df74943cb7a6088b9008fedfcef9b07fe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_db7d6470",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/RibImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-08-12T17:46:21Z",
+      "side": 1,
+      "message": "Not need to wrap, we can store the filed as AsNumber, similar with routerId -\u003e Ipv4Address",
+      "range": {
+        "startLine": 227,
+        "startChar": 65,
+        "endLine": 227,
+        "endChar": 92
+      },
+      "revId": "e450076df74943cb7a6088b9008fedfcef9b07fe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
