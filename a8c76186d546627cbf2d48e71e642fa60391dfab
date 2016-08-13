@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_be1056a9",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpDeployerImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-08-13T07:30:16Z",
+      "side": 1,
+      "message": "Should be synchornized, invokation missing in RIBImplModule",
+      "revId": "a8c76186d546627cbf2d48e71e642fa60391dfab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
