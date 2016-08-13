@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.flowspec;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.opendaylight.bgp.concepts.RouteDistinguisherUtil.extractRouteDistinguisher;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -801,7 +802,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         );
 
         RouteDistinguisher rd = RouteDistinguisherBuilder.getDefaultInstance(ROUTE_DISTINGUISHER);
-        assertEquals(rd, FS_PARSER.extractRouteDistinguisher(entry.build()));
+        assertEquals(rd, extractRouteDistinguisher(entry.build(), FS_PARSER.RD_NID));
     }
 }
 
