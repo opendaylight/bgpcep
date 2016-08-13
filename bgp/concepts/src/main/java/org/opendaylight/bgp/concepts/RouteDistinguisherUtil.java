@@ -17,6 +17,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.RdTwoOctetAs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.RouteDistinguisher;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.RouteDistinguisherBuilder;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.PathArgument;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
+import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -140,5 +146,13 @@ public final class RouteDistinguisherUtil {
         } else {
             return null;
         }
+    }
+
+    public static RouteDistinguisher extractRouteDistinguisher(final DataContainerNode<?> route, final NodeIdentifier rdNid) {
+        final NormalizedNode<?, ?> rdNode = NormalizedNodes.findNode(route, rdNid).orNull();
+        if (rdNode != null) {
+            return parseRouteDistinguisher(rdNode.getValue());
+        }
+        return null;
     }
 }
