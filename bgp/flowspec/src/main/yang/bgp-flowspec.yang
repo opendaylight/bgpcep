@@ -461,39 +461,59 @@ module bgp-flowspec {
         }
     }
 
+    grouping flowspec-ipv4-route-list {
+        leaf route-key {
+            description
+                "The sole function of this leaf
+                to act as the key in the list.
+                Its format does not form the
+                API contract of this model.";
+            type string;
+        }
+        uses flowspec-destination-group-ipv4;
+        uses bgp-rib-route;
+    }
+
     grouping flowspec-ipv4-route {
         list flowspec-route {
-            leaf route-key {
-                description
-                    "The sole function of this leaf
-                    to act as the key in the list.
-                    Its format does not form the
-                    API contract of this model.";
-                type string;
-            }
             key "route-key path-id";
+            uses flowspec-ipv4-route-list;
+        }
+    }
 
-            uses flowspec-destination-group-ipv4;
+    grouping flowspec-l3vpn-ipv4-route {
+        list flowspec-l3vpn-route {
+            key "route-key path-id";
+            uses flowspec-ipv4-route-list;
+            uses flowspec-l3vpn-rd;
+        }
+    }
 
-            uses bgp-rib-route;
+    grouping flowspec-ipv6-route-list {
+        uses flowspec-destination-group-ipv6;
+        uses bgp-rib-route;
+        leaf route-key {
+            description
+                "The sole function of this leaf
+                to act as the key in the list.
+                Its format does not form the
+                API contract of this model.";
+            type string;
         }
     }
 
     grouping flowspec-ipv6-route {
         list flowspec-route {
-            leaf route-key {
-                description
-                    "The sole function of this leaf
-                    to act as the key in the list.
-                    Its format does not form the
-                    API contract of this model.";
-                type string;
-            }
             key "route-key path-id";
+            uses flowspec-ipv6-route-list;
+        }
+    }
 
-            uses flowspec-destination-group-ipv6;
-
-            uses bgp-rib-route;
+    grouping flowspec-l3vpn-ipv6-route {
+        list flowspec-l3vpn-route {
+            key "route-key path-id";
+            uses flowspec-ipv6-route-list;
+            uses flowspec-l3vpn-rd;
         }
     }
 
@@ -511,21 +531,13 @@ module bgp-flowspec {
 
     grouping flowspec-l3vpn-ipv4-routes {
         container flowspec-l3vpn-ipv4-routes {
-            uses flowspec-ipv4-route {
-                augment "flowspec-route" {
-                    uses flowspec-l3vpn-rd;
-                }
-            }
+            uses flowspec-l3vpn-ipv4-route;
         }
     }
 
     grouping flowspec-l3vpn-ipv6-routes {
         container flowspec-l3vpn-ipv6-routes {
-            uses flowspec-ipv6-route {
-                augment "flowspec-route" {
-                    uses flowspec-l3vpn-rd;
-                }
-            }
+            uses flowspec-l3vpn-ipv6-route;
         }
     }
 
