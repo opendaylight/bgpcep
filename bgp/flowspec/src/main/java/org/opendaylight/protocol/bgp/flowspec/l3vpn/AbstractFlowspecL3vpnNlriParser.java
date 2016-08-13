@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.flowspec.l3vpn;
 
-import com.google.common.base.Optional;
+import static org.opendaylight.bgp.concepts.RouteDistinguisherUtil.extractRouteDistinguisher;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import java.util.List;
@@ -20,41 +21,27 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.RouteDistinguisher;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
-import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * @author Kevin Wang
- */
 public abstract class AbstractFlowspecL3vpnNlriParser extends AbstractFlowspecNlriParser {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractFlowspecL3vpnNlriParser.class);
+    public static final NodeIdentifier RD_NID = new NodeIdentifier(QName.create(Flowspec.QNAME.getNamespace(), Flowspec.QNAME.getRevision(), "route-distinguisher"));
 
-    private static final NodeIdentifier RD_NID = new NodeIdentifier(QName.create(Flowspec.QNAME.getNamespace(), Flowspec.QNAME.getRevision(), "route-distinguisher"));
-
-    protected AbstractFlowspecL3vpnNlriParser(SimpleFlowspecTypeRegistry flowspecTypeRegistry) {
+    protected AbstractFlowspecL3vpnNlriParser(final SimpleFlowspecTypeRegistry flowspecTypeRegistry) {
         super(flowspecTypeRegistry);
     }
 
     @Override
     public String stringNlri(final DataContainerNode<?> flowspec) {
         final StringBuilder buffer = new StringBuilder();
-        final RouteDistinguisher rd = extractRouteDistinguisher(flowspec);
+        final RouteDistinguisher rd = extractRouteDistinguisher(flowspec, RD_NID);
         if (rd != null) {
             buffer.append("[l3vpn with route-distinguisher ").append(rd.getValue()).append("] ");
         }
         buffer.append(super.stringNlri(flowspec));
         return buffer.toString();
-    }
-
-    public static final RouteDistinguisher extractRouteDistinguisher(final DataContainerNode<?> route) {
-        final Optional<DataContainerChild<? extends PathArgument, ?>> rdNode = route.getChild(RD_NID);
-        if (rdNode.isPresent()) {
-            return RouteDistinguisherUtil.parseRouteDistinguisher(rdNode.get().getValue());
-        }
-        return null;
     }
 
     /**
@@ -63,7 +50,7 @@ public abstract class AbstractFlowspecL3vpnNlriParser extends AbstractFlowspecNl
      * @param nlri
      * @return
      */
-    private static final RouteDistinguisher readRouteDistinguisher(final ByteBuf nlri) {
+    private static RouteDistinguisher readRouteDistinguisher(final ByteBuf nlri) {
         final RouteDistinguisher rd = RouteDistinguisherUtil.parseRouteDistinguisher(nlri);
         LOG.trace("Route Distinguisher read from NLRI: {}", rd);
         return rd;
