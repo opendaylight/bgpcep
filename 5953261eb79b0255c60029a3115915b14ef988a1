@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_7e16bea8",
+        "filename": "bgp/evpn/src/main/yang/pmsi-tunnel.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-08-13T07:25:57Z",
+      "side": 1,
+      "message": "Please remove this tab indentation and then publish the patch.",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 1
+      },
+      "revId": "5953261eb79b0255c60029a3115915b14ef988a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
