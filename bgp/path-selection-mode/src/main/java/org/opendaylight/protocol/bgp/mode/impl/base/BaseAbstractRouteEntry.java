@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.mode.impl.base;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.primitives.UnsignedInteger;
-import java.util.Optional;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
@@ -121,7 +120,8 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
         final DOMDataWriteTransaction tx) {
         if (this.bestPath != null) {
             final BaseBestPath path = this.bestPath;
-            if (filterRoutes(path.getPeerId(), destPeer, peerPT, localTK, discPeers)) {
+            final PeerRole destPeerRole = getRoutePeerIdRole(peerPT, destPeer);
+            if (filterRoutes(path.getPeerId(), destPeer, peerPT, localTK, discPeers, destPeerRole)) {
                 final ContainerNode effAttrib = peerGroup.effectiveAttributes(getRoutePeerIdRole(peerPT,path.getPeerId()), path.getAttributes());
                 writeRoute(destPeer, getAdjRibOutYII(ribSup, rootPath, routeId, localTK), effAttrib, createValue(routeId, path), ribSup, tx);
             }
@@ -181,9 +181,9 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
         for (final PeerRole role : PeerRole.values()) {
             final PeerExportGroup peerGroup = peerPT.getPeerGroup(role);
             if (peerGroup != null) {
-                final ContainerNode effAttrib = peerGroup.effectiveAttributes(getRoutePeerIdRole(peerPT,routePeerId), attributes);
+                final ContainerNode effAttrib = peerGroup.effectiveAttributes(getRoutePeerIdRole(peerPT, routePeerId), attributes);
                 peerGroup.getPeers().stream()
-                    .filter(pid -> filterRoutes(routePeerId, pid.getKey(), peerPT, localTK, discPeers))
+                    .filter(pid -> filterRoutes(routePeerId, pid.getKey(), peerPT, localTK, discPeers, getRoutePeerIdRole(peerPT, pid.getKey())))
                     .forEach(pid -> update(pid.getKey(), getAdjRibOutYII(ribSup, pid.getValue().getYii(), routeId, localTK), effAttrib, value, ribSup, tx));
             }
         }
