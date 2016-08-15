@@ -46,6 +46,30 @@
       "revId": "76ca93f7860612334dfd0a6013429e383b1b6ae0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_15a0409e",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpDeployerImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-08-15T19:45:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_f2f79a57",
+      "range": {
+        "startLine": 168,
+        "startChar": 0,
+        "endLine": 169,
+        "endChar": 84
+      },
+      "revId": "76ca93f7860612334dfd0a6013429e383b1b6ae0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
