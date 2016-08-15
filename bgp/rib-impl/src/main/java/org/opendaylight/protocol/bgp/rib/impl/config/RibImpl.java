@@ -96,7 +96,7 @@ public final class RibImpl implements RIB, AutoCloseable {
         final AsNumber globalAs = global.getConfig().getAs();
         final Ipv4Address globalRouterId = global.getConfig().getRouterId();
         return this.afiSafi.containsAll(globalAfiSafi) && globalAfiSafi.containsAll(this.afiSafi)
-            && globalAs.equals(this.asNumber) && globalRouterId.equals(this.routerId);
+            && globalAs.equals(this.asNumber) && globalRouterId.getValue().equals(this.routerId.getValue());
     }
 
     @Override
