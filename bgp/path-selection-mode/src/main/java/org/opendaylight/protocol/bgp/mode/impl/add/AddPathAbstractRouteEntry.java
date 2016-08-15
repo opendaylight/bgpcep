@@ -111,7 +111,8 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
         final DOMDataWriteTransaction tx) {
         final boolean destPeerSupAddPath = peerPT.isAddPathSupportedByPeer(destPeer);
         if(this.bestPath != null) {
-            this.bestPath.stream().filter(path -> filterRoutes(path.getPeerId(), destPeer, peerPT, localTK, discPeers) &&
+            final PeerRole destPeerRole = getRoutePeerIdRole(peerPT, destPeer);
+            this.bestPath.stream().filter(path -> filterRoutes(path.getPeerId(), destPeer, peerPT, localTK, discPeers, destPeerRole) &&
                 peersSupportsAddPathOrIsFirstBestPath(destPeerSupAddPath, isFirstBestPath(this.bestPath.indexOf(path))))
                 .forEach(path -> writeRoutePath(destPeer, routeId, peerPT, peerGroup, destPeerSupAddPath, path, rootPath, localTK, ribSup, tx));
         }
@@ -168,11 +169,12 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
         for (final PeerRole role : PeerRole.values()) {
             final PeerExportGroup peerGroup = peerPT.getPeerGroup(role);
             if (peerGroup != null) {
-                final ContainerNode effectiveAttributes = peerGroup.effectiveAttributes(getRoutePeerIdRole(peerPT, routePeerId), attributes);
+                final PeerRole destPeerRole = getRoutePeerIdRole(peerPT, routePeerId);
+                final ContainerNode effectiveAttributes = peerGroup.effectiveAttributes(destPeerRole, attributes);
                 for (final Map.Entry<PeerId, PeerExporTuple> pid : peerGroup.getPeers()) {
                     final PeerId destPeer = pid.getKey();
                     final boolean destPeerSupAddPath = peerPT.isAddPathSupportedByPeer(destPeer);
-                    if (filterRoutes(routePeerId, destPeer, peerPT, localTK, discPeers) && peersSupportsAddPathOrIsFirstBestPath(destPeerSupAddPath, isFirstBestPath)) {
+                    if (filterRoutes(routePeerId, destPeer, peerPT, localTK, discPeers, destPeerRole) && peersSupportsAddPathOrIsFirstBestPath(destPeerSupAddPath, isFirstBestPath)) {
                         if (destPeerSupAddPath) {
                             update(destPeer, getAdjRibOutYII(ribSup, pid.getValue().getYii(), routeIdAddPath, localTK), effectiveAttributes,
                                 addPathValue,

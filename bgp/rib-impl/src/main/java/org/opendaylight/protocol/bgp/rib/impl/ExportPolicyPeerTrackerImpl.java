@@ -68,7 +68,7 @@ final class ExportPolicyPeerTrackerImpl implements ExportPolicyPeerTracker {
             .collect(Collectors.groupingBy(Map.Entry::getValue, toMap(peer -> IdentifierUtils.peerKeyToPeerId(peer
             .getKey()), peer -> new PeerExporTuple(peer.getKey(), peer.getValue()))));
 
-        final Map<PeerRole, PeerExportGroup> ret = peerPathRoles.values().stream().collect(Collectors.toSet()).stream().filter(role -> role != PeerRole.Internal)
+        final Map<PeerRole, PeerExportGroup> ret = peerPathRoles.values().stream().collect(Collectors.toSet()).stream()
             .collect(toMap(identity(), role -> new PeerExportGroupImpl(ImmutableMap.copyOf(immutablePeers.get(role)),
                 this.policyDatabase.exportPolicyForRole(role)), (oldKey, newKey) -> oldKey, () -> new EnumMap<>(PeerRole.class)));
 
