@@ -12,6 +12,7 @@ module odl-bgp-evpn {
     import bmp-monitor { prefix bmp-mon; revision-date 2015-05-12; }
     import bgp-message { prefix bgp-msg; revision-date 2013-09-19; }
     import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-19; }
+    import pmsi-tunnel { prefix pmsi; revision-date 2016-08-12; }
 
     organization "Cisco Systems, Inc.";
 
@@ -387,6 +388,9 @@ module odl-bgp-evpn {
                 key "route-key";
                 uses evpn;
                 uses bgp-rib:route {
+                    augment "attributes" {
+                        uses pmsi:pmsi-tunnel;
+                    }
                     augment "attributes/extended-communities/extended-community" {
                         case esi-label-extended-community-case {
                             uses esi-label-extended-community;
@@ -432,6 +436,10 @@ module odl-bgp-evpn {
         }
 
         uses route-distinguisher;
+    }
+
+    augment "/bgp-msg:update/bgp-msg:attributes" {
+        uses pmsi:pmsi-tunnel;
     }
 
     augment "/bgp-msg:update/bgp-msg:attributes/bgp-mp:mp-reach-nlri/bgp-mp:advertized-routes/bgp-mp:destination-type" {

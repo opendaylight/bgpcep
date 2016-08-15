@@ -1,0 +1,141 @@
+// vi: set smarttab et sw=4 tabstop=4:
+module pmsi-tunnel {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:pmsi-tunnel";
+    prefix "pmsi-tunnel";
+
+    import bgp-types { prefix bgp-t; revision-date 2013-09-19; }
+    import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
+    import network-concepts { prefix netc; revision-date 2013-11-25; }
+
+    organization "AT&T Services, Inc.";
+
+    contact "Bruce Brandon <bb2697@att.com>";
+
+    description
+        "This module contains the data model of a BGP attribute called the
+        P-Multicast Service Interface Tunnel (PMSI Tunnel), defined
+        in RFC6514, Section 5.
+
+        Copyright (c)2016 AT&T Services, Inc. All rights reserved.;
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2016-08-12" {
+        description "Initial revision";
+        reference "https://tools.ietf.org/html/rfc6514#section-5";
+    }
+
+    grouping opaque {
+        leaf opaque-type {
+            type uint8;
+        }
+        leaf opaque-extended-type {
+            type uint16;
+        }
+        leaf opaque {
+            // Base-64 encoded
+            type string;
+        }
+    }
+
+    grouping pmsi-tunnel {
+        container pmsi-tunnel {
+            description "P-Multicast Service Interface Tunnel (PMSI Tunnel) attribute";
+            reference "https://tools.ietf.org/html/rfc6514#section-5";
+
+            leaf leaf-information-required {
+                type boolean;
+                mandatory true;
+            }
+            leaf mpls-label {
+                type netc:mpls-label;
+                mandatory true;
+            }
+            choice tunnel-identifier {
+                case rsvp-te-p2mp-lsp {
+                    container rsvp-te-p2mp-lps {
+                        reference "https://tools.ietf.org/html/rfc4875#section-19.1.1";
+                        leaf p2mp-id {
+                            type uint32;
+                        }
+                        leaf tunnel-id {
+                            type uint16;
+                        }
+                        leaf address-family {
+                            type identityref {
+                                base bgp-t:address-family;
+                            }
+                        }
+                        leaf extended-tunnel-id {
+                            type inet:ip-address;
+                        }
+                    }
+                }
+                case mldp-p2mp-lsp {
+                    container mldp-p2mp-lsp {
+                        reference "https://tools.ietf.org/html/rfc6388#section-2.2";
+                        leaf address-family {
+                            type identityref {
+                                base bgp-t:address-family;
+                            }
+                        }
+                        leaf root-node-address {
+                            type inet:ip-address;
+                        }
+                        uses opaque;
+                    }
+                }
+                case pim-ssm-tree {
+                    container pim-ssm-tree {
+                        reference "https://tools.ietf.org/html/rfc6514#section-5";
+                        leaf p-root-node-address {
+                            type inet:ip-address;
+                        }
+                        leaf p-multicast-group {
+                            type inet:ip-address;
+                        }
+                    }
+                }
+                case pim-sm-tree {
+                    container pim-sm-tree {
+                        reference "https://tools.ietf.org/html/rfc6514#section-5";
+                        leaf p-sender-address {
+                            type inet:ip-address;
+                        }
+                        leaf p-multicast-group {
+                            type inet:ip-address;
+                        }
+                    }
+                }
+                case bidir-pim-tree {
+                    container bidir-pim-tree {
+                        reference "https://tools.ietf.org/html/rfc6514#section-5";
+                        leaf p-sender-address {
+                            type inet:ip-address;
+                        }
+                        leaf p-multicast-group {
+                            type inet:ip-address;
+                        }
+                    }
+                }
+                case ingress-replication {
+                    container ingress-replication {
+                        leaf receiving-endpoint-address {
+                            type inet:ip-address;
+                        }
+                    }
+                }
+                case mldp-mp2mp-lsp {
+                    container mldp-mp2mp-lsp {
+                        uses opaque;
+                    }
+                }
+            }
+        }
+    }
+}
+
