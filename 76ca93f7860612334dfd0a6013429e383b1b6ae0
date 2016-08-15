@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_2a219c4d",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpDeployerImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-08-15T09:22:08Z",
+      "side": 1,
+      "message": "I think this doesn\u0027t belong here, ribImpl \u003d\u003d null",
+      "range": {
+        "startLine": 168,
+        "startChar": 0,
+        "endLine": 169,
+        "endChar": 84
+      },
+      "revId": "76ca93f7860612334dfd0a6013429e383b1b6ae0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
