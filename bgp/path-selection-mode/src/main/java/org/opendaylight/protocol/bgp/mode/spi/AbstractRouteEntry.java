@@ -56,8 +56,9 @@ public abstract class AbstractRouteEntry implements RouteEntry {
     }
 
     protected final boolean filterRoutes(final PeerId rootPeer, final PeerId destPeer, final ExportPolicyPeerTracker peerPT,
-        final TablesKey localTK, final CacheDisconnectedPeers discPeers) {
-        return !rootPeer.equals(destPeer) && isTableSupported(destPeer, peerPT, localTK) && !discPeers.isPeerDisconnected(destPeer);
+        final TablesKey localTK, final CacheDisconnectedPeers discPeers, final PeerRole destPeerRole) {
+        return !rootPeer.equals(destPeer) && isTableSupported(destPeer, peerPT, localTK) && !discPeers.isPeerDisconnected(destPeer) &&
+            !PeerRole.Internal.equals(destPeerRole);
     }
 
     private boolean isTableSupported(final PeerId destPeer, final ExportPolicyPeerTracker peerPT, final TablesKey localTK) {
