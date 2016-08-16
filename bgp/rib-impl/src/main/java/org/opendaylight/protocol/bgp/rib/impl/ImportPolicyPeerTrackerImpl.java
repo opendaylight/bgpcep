@@ -50,6 +50,6 @@ final class ImportPolicyPeerTrackerImpl implements ImportPolicyPeerTracker {
     @Override
     public AbstractImportPolicy policyFor(final PeerId peerId) {
         LOG.trace("Peer ID : {}", peerId);
-        return new CachingImportPolicy(this.policies.get(peerId));
+        return this.policies.get(peerId);
     }
 }
