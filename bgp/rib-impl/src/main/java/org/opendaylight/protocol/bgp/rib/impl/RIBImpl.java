@@ -209,6 +209,7 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
 
     @Override
     public synchronized void close() throws Exception {
+        this.domChain.close();
         if (registration != null) {
             registration.close();
             registration = null;
@@ -352,14 +353,7 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
 
     @Override
     public ListenableFuture<Void> closeServiceInstance() {
-        try {
-            final DOMDataWriteTransaction t = this.domChain.newWriteOnlyTransaction();
-            t.delete(LogicalDatastoreType.OPERATIONAL, getYangRibId());
-            t.submit().checkedGet();
-        } catch (final TransactionCommitFailedException e) {
-            LOG.warn("Failed to remove RIB instance {} from DS.", getYangRibId(), e);
-        }
-        this.domChain.close();
+        LOG.info("Close RIB Singleton Service {}", this.getIdentifier());
         for (final LocRibWriter locRib : this.locRibs) {
             try {
                 locRib.close();
@@ -367,7 +361,13 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
                 LOG.warn("Could not close LocalRib reference: {}", locRib, e);
             }
         }
-
+        try {
+            final DOMDataWriteTransaction t = this.domChain.newWriteOnlyTransaction();
+            t.delete(LogicalDatastoreType.OPERATIONAL, getYangRibId());
+            t.submit().checkedGet();
+        } catch (final TransactionCommitFailedException e) {
+            LOG.warn("Failed to remove RIB instance {} from DS.", getYangRibId(), e);
+        }
         this.renderStats.getLocRibRouteCounter().resetAll();
 
         if (this.configModuleTracker != null) {
