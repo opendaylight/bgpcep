@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_0677743b",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/AppPeer.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-08-16T10:06:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_86270464",
+      "range": {
+        "startLine": 48,
+        "startChar": 7,
+        "endLine": 48,
+        "endChar": 62
+      },
+      "revId": "4f914b3f1c18f38782157e2f9c985f4293f2ecdc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_662aa82d",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpDeployerImpl.java",
         "patchSetId": 9
@@ -36,6 +60,30 @@
       "writtenOn": "2016-08-16T09:45:32Z",
       "side": 1,
       "message": "root",
+      "range": {
+        "startLine": 179,
+        "startChar": 77,
+        "endLine": 179,
+        "endChar": 80
+      },
+      "revId": "4f914b3f1c18f38782157e2f9c985f4293f2ecdc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_26939050",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpDeployerImpl.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-08-16T10:06:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_662aa82d",
       "range": {
         "startLine": 179,
         "startChar": 77,
