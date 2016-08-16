@@ -181,10 +181,9 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
         for (final PeerRole role : PeerRole.values()) {
             final PeerExportGroup peerGroup = peerPT.getPeerGroup(role);
             if (peerGroup != null) {
-                final PeerRole destPeerRole = getRoutePeerIdRole(peerPT, routePeerId);
-                final ContainerNode effAttrib = peerGroup.effectiveAttributes(destPeerRole, attributes);
+                final ContainerNode effAttrib = peerGroup.effectiveAttributes(getRoutePeerIdRole(peerPT, routePeerId), attributes);
                 peerGroup.getPeers().stream()
-                    .filter(pid -> filterRoutes(routePeerId, pid.getKey(), peerPT, localTK, discPeers, destPeerRole))
+                    .filter(pid -> filterRoutes(routePeerId, pid.getKey(), peerPT, localTK, discPeers, getRoutePeerIdRole(peerPT, pid.getKey())))
                     .forEach(pid -> update(pid.getKey(), getAdjRibOutYII(ribSup, pid.getValue().getYii(), routeId, localTK), effAttrib, value, ribSup, tx));
             }
         }
