@@ -156,7 +156,7 @@ public class AbstractRIBTestSetup {
             .registerClusterSingletonService(any(ClusterSingletonService.class));
         this.rib = new RIBImpl(this.clusterSingletonServiceProvider, new RibId("test"), new AsNumber(5L), RIB_ID, CLUSTER_ID, context,
             this.dispatcher, this.codecFactory, this.dom, localTables, Collections.singletonMap(new TablesKey(AFI, SAFI),
-            BasePathSelectionModeFactory.createBestPathSelectionStrategy()), GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), null);
+            BasePathSelectionModeFactory.createBestPathSelectionStrategy()), GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), null, 1);
         this.rib.onGlobalContextUpdated(schemaContext);
         this.ribSupport = getRib().getRibSupportContext().getRIBSupportContext(KEY).getRibSupport();
     }
