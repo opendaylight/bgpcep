@@ -44,6 +44,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.t
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.NeighborsBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.PeerGroups;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.PeerGroupsBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.CommunityType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.PeerType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.Protocol;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.ProtocolBuilder;
@@ -74,6 +75,8 @@ public final class BGPOpenConfigMappingServiceImpl implements BGPOpenConfigMappi
     private static final PeerGroup APP_PEER_GROUP = new PeerGroupBuilder().setPeerGroupName(APPLICATION_PEER_GROUP_NAME)
             .setKey(new PeerGroupKey(APPLICATION_PEER_GROUP_NAME)).build();
     private static final PeerGroups PEER_GROUPS = new PeerGroupsBuilder().setPeerGroup(Collections.singletonList(APP_PEER_GROUP)).build();
+    private static final BigDecimal DEFAULT_KEEP_ALIVE = BigDecimal.valueOf(30);
+    private static final BigDecimal DEFAULT_MINIMUM_ADV_INTERVAL = BigDecimal.valueOf(30);
 
     @Override
     public List<BgpTableType> toTableTypes(final List<AfiSafi> afiSafis) {
@@ -177,6 +180,7 @@ public final class BGPOpenConfigMappingServiceImpl implements BGPOpenConfigMappi
         neighborBuilder.setTransport(new TransportBuilder().setConfig(
                 new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.transport.ConfigBuilder()
                 .setPassiveMode(!isActive)
+                .setMtuDiscovery(Boolean.FALSE)
                 .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config1.class,
                         new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config1Builder()
                 .setRemotePort(portNumber).build())
@@ -186,11 +190,15 @@ public final class BGPOpenConfigMappingServiceImpl implements BGPOpenConfigMappi
                 .setAuthPassword(password != null ? password.getValue() : null)
                 .setPeerAs(remoteAs)
                 .setPeerType(toPeerTye(peerRole))
+                .setSendCommunity(CommunityType.NONE)
+                .setRouteFlapDamping(Boolean.FALSE)
                 .build());
         neighborBuilder.setTimers(new TimersBuilder().setConfig(
                 new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.timers.ConfigBuilder()
                 .setHoldTime(BigDecimal.valueOf(holdTimer))
                 .setConnectRetry(BigDecimal.valueOf(retryTimer))
+                .setKeepaliveInterval(DEFAULT_KEEP_ALIVE)
+                .setMinimumAdvertisementInterval(DEFAULT_MINIMUM_ADV_INTERVAL)
                 .build()).build());
         neighborBuilder.setRouteReflector(new RouteReflectorBuilder().setConfig(
                 new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.route.reflector.ConfigBuilder()
