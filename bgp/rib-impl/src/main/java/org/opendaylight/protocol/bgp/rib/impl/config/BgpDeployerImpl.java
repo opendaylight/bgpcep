@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -72,6 +73,7 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
     private final DataBroker dataBroker;
     @GuardedBy("this")
     private boolean closed;
+    private final AtomicInteger ribVersion = new AtomicInteger();
 
     public BgpDeployerImpl(final String networkInstanceName, final BlueprintContainer container, final BundleContext bundleContext, final DataBroker dataBroker,
         final BGPOpenConfigMappingService mappingService) {
@@ -211,7 +213,7 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
     private void initiateRibInstance(final InstanceIdentifier<Bgp> rootIdentifier, final Global global,
         final RibImpl ribImpl, final WriteConfiguration configurationWriter) {
         final String ribInstanceName = getRibInstanceName(rootIdentifier);
-        ribImpl.start(global, ribInstanceName, this.mappingService, configurationWriter);
+        ribImpl.start(global, ribInstanceName, this.mappingService, configurationWriter, this.ribVersion.incrementAndGet());
         registerRibInstance(ribImpl, ribInstanceName);
     }
 
