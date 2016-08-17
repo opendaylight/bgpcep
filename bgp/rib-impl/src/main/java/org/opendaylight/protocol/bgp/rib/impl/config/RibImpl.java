@@ -85,9 +85,9 @@ public final class RibImpl implements RIB, AutoCloseable {
     }
 
     void start(final Global global, final String instanceName, final BGPOpenConfigMappingService mappingService,
-        final BgpDeployer.WriteConfiguration configurationWriter) {
+        final BgpDeployer.WriteConfiguration configurationWriter, final int ribVersion) {
         Preconditions.checkState(this.ribImpl == null, "Previous instance %s was not closed.", this);
-        this.ribImpl = createRib(provider, global, instanceName, mappingService, configurationWriter);
+        this.ribImpl = createRib(provider, global, instanceName, mappingService, configurationWriter, ribVersion);
         this.schemaContextRegistration = this.schemaService.registerSchemaContextListener(this.ribImpl);
     }
 
@@ -218,7 +218,7 @@ public final class RibImpl implements RIB, AutoCloseable {
     }
 
     private RIBImpl createRib(final ClusterSingletonServiceProvider provider, final Global global, final String bgpInstanceName,
-        final BGPOpenConfigMappingService mappingService, final BgpDeployer.WriteConfiguration configurationWriter) {
+        final BGPOpenConfigMappingService mappingService, final BgpDeployer.WriteConfiguration configurationWriter, final int ribVersion) {
         this.afiSafi = global.getAfiSafis().getAfiSafi();
         this.asNumber = global.getConfig().getAs();
         this.routerId = global.getConfig().getRouterId();
@@ -226,7 +226,7 @@ public final class RibImpl implements RIB, AutoCloseable {
                 .stream().collect(Collectors.toMap(entry -> new TablesKey(entry.getKey().getAfi(), entry.getKey().getSafi()), Map.Entry::getValue));
         return new RIBImpl(provider, new RibId(bgpInstanceName), this.asNumber, new BgpId(this.routerId), new ClusterIdentifier(this.routerId),
                 this.extensions, this.dispatcher, this.codecTreeFactory, this.domBroker, mappingService.toTableTypes(this.afiSafi), pathSelectionModes,
-                this.extensions.getClassLoadingStrategy(), configurationWriter);
+                this.extensions.getClassLoadingStrategy(), configurationWriter, ribVersion);
     }
 
     @Override

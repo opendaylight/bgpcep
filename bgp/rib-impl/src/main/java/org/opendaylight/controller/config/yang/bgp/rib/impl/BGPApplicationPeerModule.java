@@ -59,7 +59,10 @@ public class BGPApplicationPeerModule extends org.opendaylight.controller.config
             .child(Neighbors.class).child(Neighbor.class, neighbor.getKey());
         bgpDeployer.onNeighborModified(bgpIID, neighbor, () -> bgpDeployer.writeConfiguration(neighbor, neighborIId));
 
-        return bgpDeployerTracker::close;
+        return () -> {
+            bgpDeployer.onNeighborRemoved(bgpIID,neighbor);
+            bgpDeployerTracker.close();
+        };
     }
 
     public void setBundleContext(final BundleContext bundleContext) {
