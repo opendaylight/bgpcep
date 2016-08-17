@@ -20,6 +20,7 @@ import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BGPPeerRuntimeMXBean;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpPeerState;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpSessionState;
@@ -38,6 +39,9 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer.WriteConfiguration
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.util.Ipv4Util;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.AfiSafis;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Config;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
@@ -52,6 +56,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.AddPathCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.add.path.capability.AddressFamilies;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi2;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,7 +108,24 @@ public class BgpPeer implements PeerBean, BGPPeerRuntimeMXBean {
 
     @Override
     public Boolean containsEqualConfiguration(final Neighbor neighbor) {
-        return this.currentConfiguration.equals(neighbor);
+        final AfiSafis actAfiSafi = this.currentConfiguration.getAfiSafis();
+        final AfiSafis extAfiSafi = neighbor.getAfiSafis();
+        final List<AfiSafi> actualSafi = actAfiSafi.getAfiSafi();
+        final List<AfiSafi> extSafa = extAfiSafi.getAfiSafi();
+        return actualSafi.containsAll(extSafa) && extSafa.containsAll(actualSafi)
+        && Objects.equals(this.currentConfiguration.getConfig(), neighbor.getConfig())
+        && Objects.equals(this.currentConfiguration.getNeighborAddress(), neighbor.getNeighborAddress())
+        && Objects.equals(this.currentConfiguration.getAddPaths(),neighbor.getAddPaths())
+        && Objects.equals(this.currentConfiguration.getApplyPolicy(), neighbor.getApplyPolicy())
+        && Objects.equals(this.currentConfiguration.getAsPathOptions(), neighbor.getAsPathOptions())
+        && Objects.equals(this.currentConfiguration.getEbgpMultihop(), neighbor.getEbgpMultihop())
+        && Objects.equals(this.currentConfiguration.getGracefulRestart(), neighbor.getGracefulRestart())
+        && Objects.equals(this.currentConfiguration.getErrorHandling(), neighbor.getErrorHandling())
+        && Objects.equals(this.currentConfiguration.getLoggingOptions(), neighbor.getLoggingOptions())
+        && Objects.equals(this.currentConfiguration.getRouteReflector(), neighbor.getRouteReflector())
+        && Objects.equals(this.currentConfiguration.getState(), neighbor.getState())
+        && Objects.equals(this.currentConfiguration.getTimers(), neighbor.getTimers())
+        && Objects.equals(this.currentConfiguration.getTransport(), neighbor.getTransport());
     }
 
     private static List<BgpParameters> getBgpParameters(final Neighbor neighbor, final RIB rib,
