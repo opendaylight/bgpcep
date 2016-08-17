@@ -145,7 +145,7 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
                 new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class));
         final RIBImpl rib = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(TEST_RIB_ID), new AsNumber(72L), new BgpId("127.0.0.1"),
             null, this.ext2, this.dispatcher, this.codecFactory, getDomBroker(), tables, Collections.singletonMap(TABLE_KEY,
-            BasePathSelectionModeFactory.createBestPathSelectionStrategy()), GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), null);
+            BasePathSelectionModeFactory.createBestPathSelectionStrategy()), GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), null, 1);
         rib.instantiateServiceInstance();
         assertTablesExists(tables, true);
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
@@ -160,7 +160,7 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
         final List<BgpTableType> tables = ImmutableList.of(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
         final RIBImpl rib = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(TEST_RIB_ID), new AsNumber(72L), new BgpId("127.0.0.1"), null,
             this.ext1, this.dispatcher, this.codecFactory, getDomBroker(), tables, Collections.singletonMap(TABLE_KEY,
-            BasePathSelectionModeFactory.createBestPathSelectionStrategy()), GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), null);
+            BasePathSelectionModeFactory.createBestPathSelectionStrategy()), GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), null, 1);
         rib.instantiateServiceInstance();
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
         assertTablesExists(tables, true);

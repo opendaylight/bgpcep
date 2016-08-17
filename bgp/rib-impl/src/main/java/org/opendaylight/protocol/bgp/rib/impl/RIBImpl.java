@@ -23,8 +23,6 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
-import org.opendaylight.controller.config.yang.bgp.rib.impl.RIBImplRuntimeRegistration;
-import org.opendaylight.controller.config.yang.bgp.rib.impl.RIBImplRuntimeRegistrator;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
@@ -122,7 +120,8 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
         final ClusterIdentifier clusterId, final RIBExtensionConsumerContext extensions, final BGPDispatcher dispatcher,
         final BindingCodecTreeFactory codecFactory, final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
         @Nonnull final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies, final GeneratedClassLoadingStrategy classStrategy,
-        final BGPConfigModuleTracker moduleTracker, final BGPOpenConfigProvider openConfigProvider, final BgpDeployer.WriteConfiguration configurationWriter) {
+        final BGPConfigModuleTracker moduleTracker, final BGPOpenConfigProvider openConfigProvider,
+        final BgpDeployer.WriteConfiguration configurationWriter, final int ribVersion) {
 
         super(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(Preconditions.checkNotNull(ribId))));
         this.domChain = domDataBroker.createTransactionChain(this);
@@ -147,7 +146,7 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
         this.ribId = ribId;
         this.policyDatabase  = new PolicyDatabase(this.localAs.getValue(), localBgpId, cId);
         this.importPolicyPeerTracker = new ImportPolicyPeerTrackerImpl( this.policyDatabase);
-        this.serviceGroupIdentifier = ServiceGroupIdentifier.create(this.ribId + "-service-group");
+        this.serviceGroupIdentifier = ServiceGroupIdentifier.create(this.ribId + "-service-group-" + ribVersion);
         Preconditions.checkNotNull(provider, "ClusterSingletonServiceProvider is null");
         this.provider = provider;
         LOG.info("RIB Singleton Service {} registered", this.getIdentifier());
@@ -158,9 +157,9 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
     public RIBImpl(final ClusterSingletonServiceProvider provider, final RibId ribId, final AsNumber localAs, final BgpId localBgpId, @Nullable final ClusterIdentifier clusterId,
         final RIBExtensionConsumerContext extensions, final BGPDispatcher dispatcher, final BindingCodecTreeFactory codecFactory,
         final DOMDataBroker domDataBroker, final List<BgpTableType> localTables, final Map<TablesKey, PathSelectionMode> bestPathSelectionstrategies,
-        final GeneratedClassLoadingStrategy classStrategy, final BgpDeployer.WriteConfiguration configurationWriter) {
+        final GeneratedClassLoadingStrategy classStrategy, final BgpDeployer.WriteConfiguration configurationWriter, final int ribVersion) {
         this(provider, ribId, localAs, localBgpId, clusterId, extensions, dispatcher, codecFactory,
-                domDataBroker, localTables, bestPathSelectionstrategies, classStrategy, null, null, configurationWriter);
+                domDataBroker, localTables, bestPathSelectionstrategies, classStrategy, null, null, configurationWriter, ribVersion);
     }
 
     private void startLocRib(final TablesKey key, final PolicyDatabase pd) {
