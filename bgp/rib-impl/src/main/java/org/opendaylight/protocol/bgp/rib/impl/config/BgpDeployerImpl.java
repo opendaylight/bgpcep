@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -175,13 +174,11 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
 
     private List<PeerBean> closeAllBindedPeers(final InstanceIdentifier<Bgp> rootIdentifier) {
         final List<PeerBean> filtered = new ArrayList<>();
-        for (final Entry<InstanceIdentifier<Neighbor>, PeerBean> entry : this.peers.entrySet()) {
-            if (entry.getKey().contains(rootIdentifier)) {
-                final PeerBean peer = entry.getValue();
-                peer.close();
-                filtered.add(peer);
-            }
-        }
+        this.peers.entrySet().stream().filter(entry -> entry.getKey().contains(rootIdentifier)).forEach(entry -> {
+            final PeerBean peer = entry.getValue();
+            peer.close();
+            filtered.add(peer);
+        });
         return filtered;
     }
 

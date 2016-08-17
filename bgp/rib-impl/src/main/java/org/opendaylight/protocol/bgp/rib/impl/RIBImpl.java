@@ -23,8 +23,6 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
-import org.opendaylight.controller.config.yang.bgp.rib.impl.RIBImplRuntimeRegistration;
-import org.opendaylight.controller.config.yang.bgp.rib.impl.RIBImplRuntimeRegistrator;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
@@ -122,7 +120,8 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
         final ClusterIdentifier clusterId, final RIBExtensionConsumerContext extensions, final BGPDispatcher dispatcher,
         final BindingCodecTreeFactory codecFactory, final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
         @Nonnull final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies, final GeneratedClassLoadingStrategy classStrategy,
-        final BGPConfigModuleTracker moduleTracker, final BGPOpenConfigProvider openConfigProvider, final BgpDeployer.WriteConfiguration configurationWriter) {
+        final BGPConfigModuleTracker moduleTracker, final BGPOpenConfigProvider openConfigProvider,
+        final BgpDeployer.WriteConfiguration configurationWriter) {
 
         super(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(Preconditions.checkNotNull(ribId))));
         this.domChain = domDataBroker.createTransactionChain(this);
@@ -150,9 +149,10 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
         this.serviceGroupIdentifier = ServiceGroupIdentifier.create(this.ribId + "-service-group");
         Preconditions.checkNotNull(provider, "ClusterSingletonServiceProvider is null");
         this.provider = provider;
-        LOG.info("RIB Singleton Service {} registered", this.getIdentifier());
-        this.registration = registerClusterSingletonService(this);
         this.configurationWriter = configurationWriter;
+        LOG.info("RIB Singleton Service {} registered", this.getIdentifier());
+        //this need to be always the last step
+        this.registration = registerClusterSingletonService(this);
     }
 
     public RIBImpl(final ClusterSingletonServiceProvider provider, final RibId ribId, final AsNumber localAs, final BgpId localBgpId, @Nullable final ClusterIdentifier clusterId,
