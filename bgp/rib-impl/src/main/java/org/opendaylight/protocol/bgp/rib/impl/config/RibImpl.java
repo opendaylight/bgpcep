@@ -214,7 +214,7 @@ public final class RibImpl implements RIB, AutoCloseable {
 
     @Override
     public String toString() {
-        return this.ribImpl.toString();
+        return this.ribImpl != null ? this.ribImpl.toString() : null;
     }
 
     private RIBImpl createRib(final ClusterSingletonServiceProvider provider, final Global global, final String bgpInstanceName,

@@ -162,6 +162,7 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
         LOG.debug("Modifying RIB instance with configuration: {}", global);
         //restart existing rib instance with a new configuration
         final RibImpl ribImpl = this.ribs.get(rootIdentifier);
+        LOG.debug("RIB instance modified {}", ribImpl);
         if(ribImpl == null ) {
             onGlobalCreated(rootIdentifier, global, configurationWriter);
         } else if (!ribImpl.isGlobalEqual(global)) {
@@ -169,8 +170,7 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
             ribImpl.close();
             initiateRibInstance(rootIdentifier, global, ribImpl, configurationWriter);
             closedPeers.forEach(peer -> peer.restart(ribImpl, this.mappingService));
-       }
-        LOG.debug("RIB instance modified {}", ribImpl);
+        }
     }
 
     private List<PeerBean> closeAllBindedPeers(final InstanceIdentifier<Bgp> rootIdentifier) {
@@ -199,8 +199,8 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
         LOG.debug("Removing RIB instance: {}", rootIdentifier);
         final RibImpl ribImpl = this.ribs.remove(rootIdentifier);
         if (ribImpl != null) {
-            ribImpl.close();
             LOG.debug("RIB instance removed {}", ribImpl);
+            ribImpl.close();
         }
     }
 
