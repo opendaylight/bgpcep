@@ -88,6 +88,7 @@ public class AppPeer implements PeerBean {
             this.dataTreeChangeService = rib.getService();
             this.serviceGroupIdentifier = rib.getRibIServiceGroupIdentifier();
             LOG.info("Application Peer Singleton Service {} registered", getIdentifier());
+            //this need to be always the last step
             this.singletonServiceRegistration = rib.registerClusterSingletonService(this);
         }
 

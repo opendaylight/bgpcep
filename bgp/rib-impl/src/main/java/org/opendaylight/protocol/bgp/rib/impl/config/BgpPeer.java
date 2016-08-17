@@ -218,10 +218,11 @@ public class BgpPeer implements PeerBean, BGPPeerRuntimeMXBean {
             this.inetAddress = Ipv4Util.toInetSocketAddress(this.neighborAddress, OpenConfigMappingUtil.getPort(neighbor));
             this.retryTimer = OpenConfigMappingUtil.getRetryTimer(neighbor);
             this.key = Optional.fromNullable(key);
+            this.configurationWriter = configurationWriter;
             this.serviceGroupIdentifier = rib.getRibIServiceGroupIdentifier();
             LOG.info("Peer Singleton Service {} registered", this.serviceGroupIdentifier);
+            //this need to be always the last step
             this.registration = rib.registerClusterSingletonService(this);
-            this.configurationWriter = configurationWriter;
         }
 
         @Override
@@ -247,7 +248,7 @@ public class BgpPeer implements PeerBean, BGPPeerRuntimeMXBean {
 
         @Override
         public ListenableFuture<Void> closeServiceInstance() {
-            LOG.info("Close RIB Singleton Service {}", this.getIdentifier());
+            LOG.info("Close Peer Singleton Service {}", this.getIdentifier());
             if (this.connection != null) {
                 this.connection.cancel(true);
                 this.connection = null;
