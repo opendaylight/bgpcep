@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_48b5efcb",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/controller/config/yang/bgp/rib/impl/BGPApplicationPeerModule.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-08-18T07:39:14Z",
+      "side": 1,
+      "message": "onNeighborRemoved should be invoked here too",
+      "range": {
+        "startLine": 62,
+        "startChar": 15,
+        "endLine": 62,
+        "endChar": 40
+      },
+      "revId": "ff6f162a257a423d8a0c99271f8b0c52d84d2e57",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
