@@ -157,6 +157,8 @@ Enabling this flag makes the script not decoding the update mesage, because of n
 supported decoding for these elements."
     parser.add_argument("--evpn", default=False, action="store_true", help=str_help)
     parser.add_argument("--wfr", default=10, type=int, help="Wait for read timeout")
+    str_help = "Skipping well known attributes for update message"
+    parser.add_argument("--skipattr", default=False, action="store_true", help=str_help)
     arguments = parser.parse_args()
     if arguments.multiplicity < 1:
         print "Multiplicity", arguments.multiplicity, "is not positive."
@@ -353,6 +355,7 @@ class MessageGenerator(object):
         self.rfc4760 = args.rfc4760
         self.bgpls = args.bgpls
         self.evpn = args.evpn
+        self.skipattr = args.skipattr
         # Default values when BGP-LS Attributes are used
         if self.bgpls:
             self.prefix_count_to_add_default = 1
@@ -950,7 +953,7 @@ class MessageGenerator(object):
         # TODO: to replace hardcoded string by encoding?
         # Path Attributes
         path_attributes_hex = ""
-        if nlri_prefixes != []:
+        if not self.skipattr:
             path_attributes_hex += (
                 "\x40"  # Flags ("Well-Known")
                 "\x01"  # Type (ORIGIN)
@@ -968,18 +971,19 @@ class MessageGenerator(object):
             path_attributes_hex += my_as_hex  # AS segment (4 bytes)
             path_attributes_hex += (
                 "\x40"  # Flags ("Well-Known")
+                "\x05"  # Type (LOCAL_PREF)
+                "\x04"  # Length (4)
+                "\x00\x00\x00\x64"  # (100)
+            )
+        if nlri_prefixes != []:
+            path_attributes_hex += (
+                "\x40"  # Flags ("Well-Known")
                 "\x03"  # Type (NEXT_HOP)
                 "\x04"  # Length (4)
             )
             next_hop_hex = struct.pack(">I", int(next_hop))
             path_attributes_hex += (
                 next_hop_hex  # IP address of the next hop (4 bytes)
-            )
-            path_attributes_hex += (
-                "\x40"  # Flags ("Well-Known")
-                "\x05"  # Type (LOCAL_PREF)
-                "\x04"  # Length (4)
-                "\x00\x00\x00\x64"  # (100)
             )
             if originator_id is not None:
                 path_attributes_hex += (
