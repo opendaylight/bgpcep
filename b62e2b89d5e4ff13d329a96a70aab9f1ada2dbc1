@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_e8f2fbd0",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/AbstractTopologyBuilder.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-08-18T07:09:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_c73a9333",
+      "revId": "b62e2b89d5e4ff13d329a96a70aab9f1ada2dbc1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_6761ff38",
         "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/BgpTopologyDeployerImpl.java",
         "patchSetId": 11
@@ -30,6 +48,24 @@
       "writtenOn": "2016-08-17T08:12:31Z",
       "side": 1,
       "message": "sync",
+      "revId": "b62e2b89d5e4ff13d329a96a70aab9f1ada2dbc1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_08bf77d1",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/BgpTopologyDeployerImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-08-18T07:09:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_6761ff38",
       "revId": "b62e2b89d5e4ff13d329a96a70aab9f1ada2dbc1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -59,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_68b6ebfb",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/spi/BgpTopologyDeployer.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-08-18T07:09:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_67057f79",
+      "range": {
+        "startLine": 17,
+        "startChar": 50,
+        "endLine": 17,
+        "endChar": 55
+      },
+      "revId": "b62e2b89d5e4ff13d329a96a70aab9f1ada2dbc1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_a7ff9766",
         "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/spi/BgpTopologyProvider.java",
         "patchSetId": 11
@@ -70,6 +130,30 @@
       "writtenOn": "2016-08-17T08:12:31Z",
       "side": 1,
       "message": "remove",
+      "range": {
+        "startLine": 16,
+        "startChar": 31,
+        "endLine": 16,
+        "endChar": 36
+      },
+      "revId": "b62e2b89d5e4ff13d329a96a70aab9f1ada2dbc1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_48b96fe8",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/spi/BgpTopologyProvider.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-08-18T07:09:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_a7ff9766",
       "range": {
         "startLine": 16,
         "startChar": 31,
