@@ -9,9 +9,8 @@ package org.opendaylight.controller.config.yang.pcep.tunnel.provider;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import io.netty.channel.nio.NioEventLoopGroup;
+
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import javax.management.ObjectName;
 import org.junit.Before;
@@ -54,9 +53,8 @@ public class PCEPTunnelTopologyProviderModuleTest extends AbstractInstructionSch
         BasePCEPSessionProposalFactory proposalFactory = new BasePCEPSessionProposalFactory(120, 30,
                 Arrays.asList(new PCEPStatefulCapability(true, true, true, true, true, true, true)));
         setupMockService(PCEPSessionProposalFactory.class, proposalFactory);
-        NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup();
         setupMockService(PCEPDispatcher.class, new PCEPDispatcherImpl(extContext.getMessageHandlerRegistry(),
-                new DefaultPCEPSessionNegotiatorFactory(proposalFactory, 5), eventLoopGroup, eventLoopGroup));
+            new DefaultPCEPSessionNegotiatorFactory(proposalFactory, 5)));
     }
 
     @Test

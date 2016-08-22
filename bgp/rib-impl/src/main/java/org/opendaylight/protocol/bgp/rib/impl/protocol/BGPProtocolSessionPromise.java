@@ -109,10 +109,13 @@ public class BGPProtocolSessionPromise<S extends BGPSession> extends DefaultProm
                     loop.schedule(new Runnable() {
                         @Override
                         public void run() {
-                            BGPProtocolSessionPromise.LOG.debug("Attempting to connect to {}", BGPProtocolSessionPromise.this.address);
-                            final Future reconnectFuture = BGPProtocolSessionPromise.this.bootstrap.connect();
-                            reconnectFuture.addListener(BGPProtocolSessionPromise.BootstrapConnectListener.this);
-                            BGPProtocolSessionPromise.this.pending = reconnectFuture;
+                            synchronized (BootstrapConnectListener.this.lock) {
+                                BGPProtocolSessionPromise.LOG
+                                    .debug("Attempting to connect to {}", BGPProtocolSessionPromise.this.address);
+                                final Future reconnectFuture = BGPProtocolSessionPromise.this.bootstrap.connect();
+                                reconnectFuture.addListener(BGPProtocolSessionPromise.BootstrapConnectListener.this);
+                                BGPProtocolSessionPromise.this.pending = reconnectFuture;
+                            }
                         }
                     }, BGPProtocolSessionPromise.this.retryTimer, TimeUnit.SECONDS);
                     BGPProtocolSessionPromise.LOG.debug("Next reconnection attempt in {}s", BGPProtocolSessionPromise.this.retryTimer);

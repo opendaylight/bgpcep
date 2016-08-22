@@ -19,6 +19,7 @@ import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollChannelOption;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
+import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.concurrent.DefaultPromise;
@@ -27,6 +28,7 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
 import java.io.Closeable;
 import java.net.InetSocketAddress;
+import javax.annotation.Nonnull;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
@@ -44,8 +46,6 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     private static final Integer SOCKET_BACKLOG_SIZE = 128;
     private final PCEPSessionNegotiatorFactory snf;
     private final PCEPHandlerFactory hf;
-
-
     private final EventLoopGroup bossGroup;
     private final EventLoopGroup workerGroup;
     private final EventExecutor executor;
@@ -56,20 +56,17 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
      *
      * @param registry a message registry
      * @param negotiatorFactory a negotiation factory
-     * @param bossGroup accepts an incoming connection
-     * @param workerGroup handles the traffic of accepted connection
      */
-    public PCEPDispatcherImpl(final MessageRegistry registry,
-            final PCEPSessionNegotiatorFactory negotiatorFactory,
-            final EventLoopGroup bossGroup, final EventLoopGroup workerGroup) {
+    public PCEPDispatcherImpl(@Nonnull final MessageRegistry registry,
+        @Nonnull final PCEPSessionNegotiatorFactory negotiatorFactory) {
         this.snf = Preconditions.checkNotNull(negotiatorFactory);
         this.hf = new PCEPHandlerFactory(registry);
         if (Epoll.isAvailable()) {
             this.bossGroup = new EpollEventLoopGroup();
             this.workerGroup = new EpollEventLoopGroup();
         } else {
-            this.bossGroup = Preconditions.checkNotNull(bossGroup);
-            this.workerGroup = Preconditions.checkNotNull(workerGroup);
+            this.bossGroup = new NioEventLoopGroup();
+            this.workerGroup = new NioEventLoopGroup();
         }
         this.executor = Preconditions.checkNotNull(GlobalEventExecutor.INSTANCE);
     }

@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.pcep.testtool;
 
-import io.netty.channel.nio.NioEventLoopGroup;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
@@ -127,7 +126,9 @@ public final class Main {
         try (final StatefulActivator activator07 = new StatefulActivator()) {
             activator07.start(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance());
 
-            final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry(), new DefaultPCEPSessionNegotiatorFactory(spf, MAX_UNKNOWN_MESSAGES), new NioEventLoopGroup(), new NioEventLoopGroup());
+            final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext
+                .getSingletonInstance()
+                .getMessageHandlerRegistry(), new DefaultPCEPSessionNegotiatorFactory(spf, MAX_UNKNOWN_MESSAGES));
             dispatcher.createServer(address, new TestingSessionListenerFactory(), null).get();
         }
     }

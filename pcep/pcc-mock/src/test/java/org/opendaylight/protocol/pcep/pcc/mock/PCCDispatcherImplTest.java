@@ -13,22 +13,16 @@ import static org.opendaylight.protocol.pcep.pcc.mock.WaitForFutureSucces.waitFu
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 import org.opendaylight.protocol.pcep.PCEPCapability;
-import org.opendaylight.protocol.pcep.PCEPDispatcher;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
@@ -44,62 +38,60 @@ public class PCCDispatcherImplTest {
     private static final PCEPSessionProposalFactory PROPOSAL = new BasePCEPSessionProposalFactory(30, 120, CAPS);
     private final DefaultPCEPSessionNegotiatorFactory nf = new DefaultPCEPSessionNegotiatorFactory(PROPOSAL, 0);
     private PCCDispatcherImpl dispatcher;
-    private PCEPDispatcher pcepDispatcher;
-    private InetSocketAddress serverAddress;
-    private InetSocketAddress clientAddress;
-    private EventLoopGroup workerGroup;
-    private EventLoopGroup bossGroup;
+    private PCEPDispatcherImpl pcepDispatcher;
 
     @Before
     public void setUp() {
-        this.workerGroup = new NioEventLoopGroup();
-        this.bossGroup = new NioEventLoopGroup();
         this.dispatcher = new PCCDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry());
-        this.pcepDispatcher = new PCEPDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry(),
-            this.nf, this.bossGroup, this.workerGroup);
-        this.serverAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
-        this.clientAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(0);
     }
 
     @After
     public void tearDown() throws InterruptedException, ExecutionException {
         this.dispatcher.close();
-        closeEventLoopGroups();
     }
 
-    private void closeEventLoopGroups() throws ExecutionException, InterruptedException {
-        this.workerGroup.shutdownGracefully().get();
-        this.bossGroup.shutdownGracefully().get();
+    private void initPcepDispatcher() {
+        this.pcepDispatcher = new PCEPDispatcherImpl(
+            ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry(),
+            this.nf);
+    }
+
+    private void destroyPcepDispatcher() {
+        this.pcepDispatcher.close();
     }
 
     @Test
     public void testClientReconnect() throws Exception {
-        final Future<PCEPSession> futureSession = this.dispatcher.createClient(this.serverAddress, 1, new TestingSessionListenerFactory(),
-            this.nf, null, this.clientAddress);
+        final InetSocketAddress serverAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
+        final InetSocketAddress clientAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(0);
+
+        initPcepDispatcher();
+        // create the client first
+        final Future<PCEPSession> futureSession = this.dispatcher
+            .createClient(serverAddress, 1, new TestingSessionListenerFactory(),
+                this.nf, null, clientAddress);
         waitFutureSuccess(futureSession);
         final TestingSessionListenerFactory slf = new TestingSessionListenerFactory();
-        final ChannelFuture futureServer = this.pcepDispatcher.createServer(this.serverAddress, slf, null);
+        final ChannelFuture futureServer = this.pcepDispatcher.createServer(serverAddress, slf, null);
         waitFutureSuccess(futureServer);
         final Channel channel = futureServer.channel();
         Assert.assertNotNull(futureSession.get());
-        checkSessionListenerNotNull(slf, this.clientAddress.getHostString());
-        final TestingSessionListener sl = checkSessionListenerNotNull(slf, this.clientAddress.getAddress().getHostAddress());
+        final TestingSessionListener sl = checkSessionListenerNotNull(slf, clientAddress.getHostString());
         Assert.assertNotNull(sl.getSession());
         Assert.assertTrue(sl.isUp());
+        // close server here
         channel.close().get();
-        closeEventLoopGroups();
+        destroyPcepDispatcher();
 
-        this.workerGroup = new NioEventLoopGroup();
-        this.bossGroup = new NioEventLoopGroup();
-        this.pcepDispatcher = new PCEPDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry(),
-            this.nf, this.bossGroup, this.workerGroup);
-
+        initPcepDispatcher();
         final TestingSessionListenerFactory slf2 = new TestingSessionListenerFactory();
-        final ChannelFuture future2 = this.pcepDispatcher.createServer(this.serverAddress, slf2, null);
+        final ChannelFuture future2 = this.pcepDispatcher.createServer(serverAddress, slf2, null);
         waitFutureSuccess(future2);
         final Channel channel2 = future2.channel();
-        final TestingSessionListener sl2 = checkSessionListenerNotNull(slf2, this.clientAddress.getAddress().getHostAddress());
+        final TestingSessionListener sl2 = checkSessionListenerNotNull(slf2, clientAddress.getHostString());
         Assert.assertNotNull(sl2.getSession());
         Assert.assertTrue(sl2.isUp());
+        channel2.close();
+        destroyPcepDispatcher();
     }
 }
