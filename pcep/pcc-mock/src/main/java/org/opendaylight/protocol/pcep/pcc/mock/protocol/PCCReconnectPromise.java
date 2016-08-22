@@ -16,6 +16,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoop;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
@@ -38,6 +39,7 @@ public class PCCReconnectPromise extends DefaultPromise<PCEPSession> {
 
     public PCCReconnectPromise(final InetSocketAddress address, final int retryTimer,
             final int connectTimeout, final Bootstrap b) {
+        super(GlobalEventExecutor.INSTANCE);
         this.address = address;
         this.retryTimer = retryTimer;
         this.connectTimeout = connectTimeout;
@@ -60,6 +62,7 @@ public class PCCReconnectPromise extends DefaultPromise<PCEPSession> {
     @Override
     public synchronized boolean cancel(final boolean mayInterruptIfRunning) {
         if (super.cancel(mayInterruptIfRunning)) {
+            Preconditions.checkNotNull(this.pending);
             this.pending.cancel(mayInterruptIfRunning);
             return true;
         } else {
@@ -89,15 +92,16 @@ public class PCCReconnectPromise extends DefaultPromise<PCEPSession> {
 
         @Override
         public void operationComplete(final ChannelFuture cf) throws Exception {
-
             synchronized (this.lock) {
+                PCCReconnectPromise.LOG.debug("Promise {} connection resolved", this.lock);
+                Preconditions.checkState(PCCReconnectPromise.this.pending.equals(cf));
                 if (PCCReconnectPromise.this.isCancelled()) {
                     if (cf.isSuccess()) {
                         PCCReconnectPromise.LOG.debug("Closing channels for cancelled promise {}");
                         cf.channel().close();
                     }
                 } else if (cf.isSuccess()) {
-                    PCCReconnectPromise.LOG.debug("Promise connection is successful.");
+                    PCCReconnectPromise.LOG.debug("Promise {} connection is successful.", this.lock);
                 } else {
                     PCCReconnectPromise.LOG.debug("Attempt to connect to {} failed", PCCReconnectPromise.this.address, cf.cause());
 
@@ -111,10 +115,14 @@ public class PCCReconnectPromise extends DefaultPromise<PCEPSession> {
                     loop.schedule(new Runnable() {
                         @Override
                         public void run() {
-                            PCCReconnectPromise.LOG.debug("Attempting to connect to {}", PCCReconnectPromise.this.address);
-                            final Future reconnectFuture = PCCReconnectPromise.this.b.connect();
-                            reconnectFuture.addListener(PCCReconnectPromise.BootstrapConnectListener.this);
-                            PCCReconnectPromise.this.pending = reconnectFuture;
+                            synchronized (BootstrapConnectListener.this.lock) {
+                                PCCReconnectPromise.LOG
+                                    .debug("Attempting to connect to {}", PCCReconnectPromise.this.address);
+                                final Future reconnectFuture = PCCReconnectPromise.this.b.connect();
+                                reconnectFuture.addListener(PCCReconnectPromise.BootstrapConnectListener.this);
+                                LOG.debug("Replace pending {} with {}", PCCReconnectPromise.this.pending, reconnectFuture);
+                                PCCReconnectPromise.this.pending = reconnectFuture;
+                            }
                         }
                     }, PCCReconnectPromise.this.retryTimer, TimeUnit.SECONDS);
                     PCCReconnectPromise.LOG.debug("Next reconnection attempt in {}s", PCCReconnectPromise.this.retryTimer);

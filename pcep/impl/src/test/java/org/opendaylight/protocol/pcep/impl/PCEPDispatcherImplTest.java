@@ -14,8 +14,6 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.epoll.Epoll;
-import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -64,19 +62,12 @@ public class PCEPDispatcherImplTest {
         MockitoAnnotations.initMocks(this);
         final List<PCEPCapability> capList = new ArrayList<>();
         final PCEPSessionProposalFactory sessionProposal = new BasePCEPSessionProposalFactory(DEAD_TIMER, KEEP_ALIVE, capList);
-        final EventLoopGroup eventLoopGroup;
-        if (Epoll.isAvailable()) {
-            eventLoopGroup = new EpollEventLoopGroup();
-        } else {
-            eventLoopGroup = new NioEventLoopGroup();
-        }
         final MessageRegistry msgReg = ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance()
                 .getMessageHandlerRegistry();
-        this.dispatcher = new PCEPDispatcherImpl(msgReg, new DefaultPCEPSessionNegotiatorFactory(sessionProposal, 0),
-                eventLoopGroup, eventLoopGroup);
+        this.dispatcher = new PCEPDispatcherImpl(msgReg, new DefaultPCEPSessionNegotiatorFactory(sessionProposal, 0));
 
         Mockito.doReturn("mockChannel").when(this.mockChannel).toString();
-        final PCEPDispatcherImpl dispatcher2 = new PCEPDispatcherImpl(msgReg, new DefaultPCEPSessionNegotiatorFactory(sessionProposal, 0), eventLoopGroup, eventLoopGroup);
+        final PCEPDispatcherImpl dispatcher2 = new PCEPDispatcherImpl(msgReg, new DefaultPCEPSessionNegotiatorFactory(sessionProposal, 0));
         this.disp2Spy = Mockito.spy(dispatcher2);
 
         this.pccMock = new PCCMock(new DefaultPCEPSessionNegotiatorFactory(sessionProposal, 0),
