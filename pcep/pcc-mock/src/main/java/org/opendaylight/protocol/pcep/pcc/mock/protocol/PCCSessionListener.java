@@ -44,7 +44,7 @@ public final class PCCSessionListener implements PCEPSessionListener, PCCSession
 
     @Override
     public void onMessage(final PCEPSession session, final Message message) {
-        LOG.trace("Received message: {}", message);
+        LOG.trace("Received message on session {}: {}", this.sessionId, message);
         if (this.errorMode) {
             //random error message
             session.sendMessage(createErrorMessage(message));
@@ -60,25 +60,25 @@ public final class PCCSessionListener implements PCEPSessionListener, PCCSession
 
     @Override
     public void onSessionUp(final PCEPSession session) {
-        LOG.debug("Session up.");
+        LOG.debug("Session {} is up.", this.sessionId);
         this.session = session;
         this.tunnelManager.onSessionUp(this);
     }
 
     @Override
     public void onSessionDown(final PCEPSession session, final Exception e) {
-        LOG.info("Session down with cause : {} or exception: {}", e.getCause(), e, e);
+        LOG.info("Session {} down with cause: {}", this.sessionId, e.getCause(), e);
         this.tunnelManager.onSessionDown(this);
         try {
             session.close();
         } catch (Exception ie) {
-            LOG.warn("Error closing session", ie);
+            LOG.warn("Error closing session {}", this.sessionId, ie);
         }
     }
 
     @Override
     public void onSessionTerminated(final PCEPSession session, final PCEPTerminationReason cause) {
-        LOG.info("Session terminated. Cause : {}", cause.toString());
+        LOG.info("Session {} is terminated. Cause : {}", this.sessionId, cause.toString());
     }
 
     @Override

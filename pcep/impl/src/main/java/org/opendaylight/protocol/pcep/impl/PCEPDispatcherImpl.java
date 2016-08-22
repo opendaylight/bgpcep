@@ -20,6 +20,7 @@ import io.netty.channel.epoll.EpollChannelOption;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollMode;
 import io.netty.channel.epoll.EpollServerSocketChannel;
+import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.concurrent.DefaultPromise;
@@ -28,6 +29,8 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
 import java.io.Closeable;
 import java.net.InetSocketAddress;
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
@@ -45,32 +48,28 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     private static final Integer SOCKET_BACKLOG_SIZE = 128;
     private final PCEPSessionNegotiatorFactory snf;
     private final PCEPHandlerFactory hf;
-
-
     private final EventLoopGroup bossGroup;
     private final EventLoopGroup workerGroup;
     private final EventExecutor executor;
-    private Optional<KeyMapping> keys;
+    @GuardedBy("this")
+    private Optional<KeyMapping> keys = Optional.absent();
 
     /**
      * Creates an instance of PCEPDispatcherImpl, gets the default selector and opens it.
      *
      * @param registry a message registry
      * @param negotiatorFactory a negotiation factory
-     * @param bossGroup accepts an incoming connection
-     * @param workerGroup handles the traffic of accepted connection
      */
-    public PCEPDispatcherImpl(final MessageRegistry registry,
-            final PCEPSessionNegotiatorFactory negotiatorFactory,
-            final EventLoopGroup bossGroup, final EventLoopGroup workerGroup) {
+    public PCEPDispatcherImpl(@Nonnull final MessageRegistry registry,
+        @Nonnull final PCEPSessionNegotiatorFactory negotiatorFactory) {
         this.snf = Preconditions.checkNotNull(negotiatorFactory);
         this.hf = new PCEPHandlerFactory(registry);
         if (Epoll.isAvailable()) {
             this.bossGroup = new EpollEventLoopGroup();
             this.workerGroup = new EpollEventLoopGroup();
         } else {
-            this.bossGroup = Preconditions.checkNotNull(bossGroup);
-            this.workerGroup = Preconditions.checkNotNull(workerGroup);
+            this.bossGroup = new NioEventLoopGroup();
+            this.workerGroup = new NioEventLoopGroup();
         }
         this.executor = Preconditions.checkNotNull(GlobalEventExecutor.INSTANCE);
     }
@@ -100,7 +99,7 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
         return f;
     }
 
-    protected ServerBootstrap createServerBootstrap(final ChannelPipelineInitializer initializer) {
+    protected synchronized ServerBootstrap createServerBootstrap(final ChannelPipelineInitializer initializer) {
         final ServerBootstrap b = new ServerBootstrap();
         b.childHandler(new ChannelInitializer<SocketChannel>() {
             @Override
@@ -128,20 +127,15 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
 
         // Make sure we are doing round-robin processing
         b.childOption(ChannelOption.MAX_MESSAGES_PER_READ, 1);
-
-        if (b.group() == null) {
-            b.group(this.bossGroup, this.workerGroup);
-        }
+        b.group(this.bossGroup, this.workerGroup);
 
         return b;
     }
 
     @Override
-    public void close() {
-        if (Epoll.isAvailable()) {
-            this.workerGroup.shutdownGracefully().awaitUninterruptibly();
-            this.bossGroup.shutdownGracefully().awaitUninterruptibly();
-        }
+    public synchronized void close() {
+        this.workerGroup.shutdownGracefully().awaitUninterruptibly();
+        this.bossGroup.shutdownGracefully().awaitUninterruptibly();
     }
 
     protected interface ChannelPipelineInitializer {

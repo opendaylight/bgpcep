@@ -8,22 +8,31 @@
 
 package org.opendaylight.protocol.pcep.pcc.mock;
 
+import com.google.common.net.InetAddresses;
 import io.netty.channel.Channel;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 
+@RunWith(Parameterized.class)
 public final class PCCMockTest extends PCCMockCommon {
     private final String[] mainInput = new String[] {"--local-address", this.localAddress.getHostString(), "--remote-address",
         InetSocketAddressUtil.toHostAndPort(this.remoteAddress).toString(), "--pcc", "1", "--lsp", "3", "--log-level", "DEBUG", "-ka", "10", "-d", "40", "--reconnect", "-1",
         "--redelegation-timeout", "0", "--state-timeout", "-1"};
 
+    @Parameterized.Parameters
+    public static List<Object[]> data() {
+        return Arrays.asList(new Object[10][0]);
+    }
     @Test
     public void testSessionEstablishment() throws Exception {
         final TestingSessionListenerFactory factory = new TestingSessionListenerFactory();
@@ -34,39 +43,41 @@ public final class PCCMockTest extends PCCMockCommon {
         final int numMessages = 4;
         final TestingSessionListener sessionListener = checkSessionListener(numMessages, channel, factory, this.localAddress.getHostString());
         checkSession(sessionListener.getSession(), 40, 10);
+        sessionListener.getSession().close();
+        channel.close();
     }
-
 
     @Test
     public void testMockPCCToManyPCE() throws Exception {
-        final String localAddress2 = "127.0.0.2";
-        final InetSocketAddress serverAddress2 = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
-        final InetSocketAddress serverAddress3 = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
-        final InetSocketAddress serverAddress4 = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
+        final int SERVER_COUNT = 2;
+        final int CLIENT_COUNT = 1;
+        final String[] localAddress = new String[CLIENT_COUNT];
+        final String[] serverAddress = new String[SERVER_COUNT];
+        final TestingSessionListenerFactory[] factory = new TestingSessionListenerFactory[SERVER_COUNT];
+        final Channel[] channel = new Channel[SERVER_COUNT];
+        for (int i = 0; i < SERVER_COUNT; i++) {
+            final InetSocketAddress randSrvAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
+            serverAddress[i] = InetSocketAddressUtil.toHostAndPort(randSrvAddr).toString();
+            factory[i] = new TestingSessionListenerFactory();
+            channel[i] = createServer(factory[i], randSrvAddr);
+        }
+        localAddress[0] = InetSocketAddressUtil.getRandomLoopbackIpAddress();
+        for (int i = 1; i < CLIENT_COUNT; i++) {
+            localAddress[i] = InetAddresses.increment(InetAddresses.forString(localAddress[i - 1])).getHostAddress();
+        }
 
-        final TestingSessionListenerFactory factory = new TestingSessionListenerFactory();
-        final TestingSessionListenerFactory factory2 = new TestingSessionListenerFactory();
-        final TestingSessionListenerFactory factory3 = new TestingSessionListenerFactory();
-        final Channel channel = createServer(factory, serverAddress2);
-        final Channel channel2 = createServer(factory2, serverAddress3);
-        final Channel channel3 = createServer(factory3, serverAddress4);
-
-        Main.main(new String[] {"--local-address", this.localAddress.getHostString(), "--remote-address",
-                InetSocketAddressUtil.toHostAndPort(serverAddress2).toString() + "," +
-                InetSocketAddressUtil.toHostAndPort(serverAddress3).toString() + "," +
-                InetSocketAddressUtil.toHostAndPort(serverAddress4).toString(),
-            "--pcc", "2"});
+        Main.main(new String[] {"--local-address", localAddress[0], "--remote-address",
+            String.join(",", Arrays.asList(serverAddress)),
+            "--pcc", new Integer(CLIENT_COUNT).toString()});
         Thread.sleep(1000);
-        //PCE1
-        int numMessages = 2;
-        checkSessionListener(numMessages, channel, factory, this.localAddress.getHostString());
-        checkSessionListener(numMessages, channel, factory, localAddress2);
-        //PCE2
-        checkSessionListener(numMessages, channel2, factory2, this.localAddress.getHostString());
-        checkSessionListener(numMessages, channel2, factory2, localAddress2);
-        //PCE3
-        checkSessionListener(numMessages, channel3, factory3, this.localAddress.getHostString());
-        checkSessionListener(numMessages, channel3, factory3, localAddress2);
+
+        final int NUM_OF_MSG = 2;
+        for (int i = 0; i < SERVER_COUNT; i++) {
+            for (int j = 0; j < CLIENT_COUNT; j++) {
+                checkSessionListener(NUM_OF_MSG, channel[i], factory[i], localAddress[j]);
+            }
+            channel[i].close().get();
+        }
     }
 
     @Test(expected = UnsupportedOperationException.class)

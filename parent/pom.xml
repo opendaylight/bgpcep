@@ -173,12 +173,12 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <redirectTestOutputToFile>true</redirectTestOutputToFile>
-                    <!--parallel>classes</parallel>
+                    <parallel>classes</parallel>
                     <forkCount>1C</forkCount>
-                    <perCoreThreadCount>true</perCoreThreadCount-->
+                    <perCoreThreadCount>true</perCoreThreadCount>
                     <runOrder>alphabetical</runOrder>
                     <threadCount>1</threadCount>
-                    <reuseForks>false</reuseForks>
+                    <reuseForks>true</reuseForks>
                     <!-- Specific to generate mapping between tests and covered code -->
                     <!--properties>
                         <property>

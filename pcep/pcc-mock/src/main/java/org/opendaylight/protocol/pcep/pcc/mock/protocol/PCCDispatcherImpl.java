@@ -26,7 +26,6 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.Future;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
-import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.protocol.concepts.KeyMapping;
@@ -49,7 +48,7 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
     private final EventLoopGroup workerGroup;
 
     public PCCDispatcherImpl(@Nonnull final MessageRegistry registry) {
-        if(Epoll.isAvailable()){
+        if (Epoll.isAvailable()) {
             this.workerGroup = new EpollEventLoopGroup();
         } else {
             this.workerGroup = new NioEventLoopGroup();
@@ -92,10 +91,11 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
                         }
 
                         if (!promise.isInitialConnectFinished()) {
-                            LOG.debug("Connection to {} was dropped during negotiation, reattempting", remoteAddress);
+                            PCCDispatcherImpl.LOG
+                                .debug("Connection to {} was dropped during negotiation, reattempting", remoteAddress);
                             return;
                         }
-                        LOG.debug("Reconnecting after connection to {} was dropped", remoteAddress);
+                        PCCDispatcherImpl.LOG.debug("Reconnecting after connection to {} was dropped", remoteAddress);
                         PCCDispatcherImpl.this.createClient(remoteAddress, reconnectTime, listenerFactory, negotiatorFactory,
                             keys, localAddress, dbVersion);
                     }
@@ -103,12 +103,13 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
             }
         };
         b.handler(channelInitializer);
+        LOG.info("Creating PCC client from local {} to server {}", localAddress, remoteAddress);
         promise.connect();
         return promise;
     }
 
     private void setChannelFactory(final Bootstrap bootstrap, final Optional<KeyMapping> keys) {
-        if(Epoll.isAvailable()) {
+        if (Epoll.isAvailable()) {
             bootstrap.channel(EpollSocketChannel.class);
             bootstrap.option(EpollChannelOption.EPOLL_MODE, EpollMode.LEVEL_TRIGGERED);
         } else {
@@ -125,10 +126,6 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
 
     @Override
     public void close() {
-        try {
-            this.workerGroup.shutdownGracefully().get();
-        } catch (final InterruptedException | ExecutionException e) {
-            LOG.warn("Failed to properly close dispatcher.", e);
-        }
+        this.workerGroup.shutdownGracefully().awaitUninterruptibly();
     }
 }

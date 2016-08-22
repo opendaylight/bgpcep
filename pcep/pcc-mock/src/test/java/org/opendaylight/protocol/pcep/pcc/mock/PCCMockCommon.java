@@ -20,13 +20,13 @@ import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.Uninterruptibles;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.Future;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.opendaylight.protocol.pcep.PCEPCapability;
@@ -59,11 +59,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 public abstract class PCCMockCommon {
     private final static short KEEP_ALIVE = 40;
     private final static short DEAD_TIMER = 120;
-    protected final int port = InetSocketAddressUtil.getRandomPort();
-    protected final InetSocketAddress remoteAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
-    protected final InetSocketAddress localAddress = new InetSocketAddress("127.0.0.1", port);
+    protected final InetSocketAddress remoteAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
+    protected final InetSocketAddress localAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(0);
     protected PCCSessionListener pccSessionListener;
-    private PCEPDispatcher pceDispatcher;
+    private PCEPDispatcherImpl pceDispatcher;
     private PCCDispatcherImpl pccDispatcher;
 
     protected abstract List<PCEPCapability> getCapabilities();
@@ -73,7 +72,15 @@ public abstract class PCCMockCommon {
         final BasePCEPSessionProposalFactory proposal = new BasePCEPSessionProposalFactory(DEAD_TIMER, KEEP_ALIVE, getCapabilities());
         final DefaultPCEPSessionNegotiatorFactory nf = new DefaultPCEPSessionNegotiatorFactory(proposal, 0);
         this.pceDispatcher = new PCEPDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry(),
-            nf, new NioEventLoopGroup(), new NioEventLoopGroup());
+            nf);
+    }
+
+    @After
+    public void tearDown() {
+        if (this.pccDispatcher != null) {
+            this.pccDispatcher.close();
+        }
+        this.pceDispatcher.close();
     }
 
     protected static TestingSessionListener checkSessionListener(final int numMessages, final Channel channel, final TestingSessionListenerFactory factory,
@@ -102,7 +109,7 @@ public abstract class PCCMockCommon {
     static TestingSessionListener checkSessionListenerNotNull(final TestingSessionListenerFactory factory, final String localAddress) {
         Stopwatch sw = Stopwatch.createStarted();
         TestingSessionListener listener = null;
-        while (sw.elapsed(TimeUnit.SECONDS) <= 1000) {
+        while (sw.elapsed(TimeUnit.SECONDS) <= 10) {
             listener = factory.getSessionListenerByRemoteAddress(InetAddresses.forString(localAddress));
             if (listener == null) {
                 Uninterruptibles.sleepUninterruptibly(50, TimeUnit.MILLISECONDS);
@@ -113,18 +120,19 @@ public abstract class PCCMockCommon {
         throw new NullPointerException();
     }
 
-    protected Channel createServer(final TestingSessionListenerFactory factory, final InetSocketAddress serverAddress2) throws InterruptedException {
-        return createServer(factory, serverAddress2, null);
+    protected Channel createServer(final TestingSessionListenerFactory factory,
+        final InetSocketAddress serverAddress) throws InterruptedException {
+        return createServer(factory, serverAddress, null);
     }
 
     protected Channel createServer(final TestingSessionListenerFactory factory, final InetSocketAddress
-        serverAddress2, final PCEPPeerProposal peerProposal) throws InterruptedException {
+        serverAddress, final PCEPPeerProposal peerProposal) throws InterruptedException {
         final PCEPExtensionProviderContext ctx = ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance();
         final StatefulActivator activator07 = new StatefulActivator();
         final SyncOptimizationsActivator optimizationsActivator = new SyncOptimizationsActivator();
         activator07.start(ctx);
         optimizationsActivator.start(ctx);
-        final ChannelFuture future = this.pceDispatcher.createServer(serverAddress2, factory, peerProposal);
+        final ChannelFuture future = this.pceDispatcher.createServer(serverAddress, factory, peerProposal);
         waitFutureSuccess(future);
         return future.channel();
     }
@@ -196,12 +204,16 @@ public abstract class PCCMockCommon {
     }
 
     protected Future<PCEPSession> createPCCSession(BigInteger DBVersion) {
-        this.pccDispatcher = new PCCDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry());
+        if (this.pccDispatcher == null) {
+            this.pccDispatcher = new PCCDispatcherImpl(
+                ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry()
+            );
+        }
         final PCEPSessionNegotiatorFactory<PCEPSessionImpl> snf = getSessionNegotiatorFactory();
         final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(3, this.localAddress.getAddress(), 0, -1, new HashedWheelTimer(),
             Optional.<TimerHandler>absent());
 
-        return pccDispatcher.createClient(this.remoteAddress, -1,
+        return this.pccDispatcher.createClient(this.remoteAddress, -1,
             new PCEPSessionListenerFactory() {
                 @Override
                 public PCEPSessionListener getSessionListener() {
