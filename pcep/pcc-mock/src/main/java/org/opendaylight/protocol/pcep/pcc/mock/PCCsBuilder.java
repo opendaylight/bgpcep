@@ -73,7 +73,7 @@ final class PCCsBuilder {
     void createPCCs(final BigInteger initialDBVersion, final Optional<TimerHandler> timerHandler) throws InterruptedException, ExecutionException {
         InetAddress currentAddress = this.localAddress.getAddress();
         this.pccDispatcher = new PCCDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry());
-        if(timerHandler.isPresent()) {
+        if (timerHandler.isPresent()) {
             timerHandler.get().setPCCDispatcher(this.pccDispatcher);
         }
         for (int i = 0; i < this.pccCount; i++) {

@@ -48,7 +48,7 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
     private final EventLoopGroup workerGroup;
 
     public PCCDispatcherImpl(@Nonnull final MessageRegistry registry) {
-        if(Epoll.isAvailable()){
+        if (Epoll.isAvailable()) {
             this.workerGroup = new EpollEventLoopGroup();
         } else {
             this.workerGroup = new NioEventLoopGroup();
@@ -91,10 +91,11 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
                         }
 
                         if (!promise.isInitialConnectFinished()) {
-                            LOG.debug("Connection to {} was dropped during negotiation, reattempting", remoteAddress);
+                            PCCDispatcherImpl.LOG
+                                .debug("Connection to {} was dropped during negotiation, reattempting", remoteAddress);
                             return;
                         }
-                        LOG.debug("Reconnecting after connection to {} was dropped", remoteAddress);
+                        PCCDispatcherImpl.LOG.debug("Reconnecting after connection to {} was dropped", remoteAddress);
                         PCCDispatcherImpl.this.createClient(remoteAddress, reconnectTime, listenerFactory, negotiatorFactory,
                             keys, localAddress, dbVersion);
                     }
@@ -107,7 +108,7 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
     }
 
     private void setChannelFactory(final Bootstrap bootstrap, final Optional<KeyMapping> keys) {
-        if(Epoll.isAvailable()) {
+        if (Epoll.isAvailable()) {
             bootstrap.channel(EpollSocketChannel.class);
         } else {
             bootstrap.channel(NioSocketChannel.class);

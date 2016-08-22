@@ -47,10 +47,10 @@ public abstract class AbstractSessionNegotiator extends ChannelInboundHandlerAda
             @Override
             public void operationComplete(final ChannelFuture f) {
                 if (!f.isSuccess()) {
-                    LOG.info("Failed to send message {}", msg, f.cause());
+                    LOG.info("Failed to send message {} on channel {}", msg, AbstractSessionNegotiator.this.channel, f.cause());
                     negotiationFailed(f.cause());
                 } else {
-                    LOG.trace("Message {} sent to socket", msg);
+                    LOG.trace("Message {} sent to channel {}", msg, AbstractSessionNegotiator.this.channel);
                 }
 
             }
@@ -64,7 +64,7 @@ public abstract class AbstractSessionNegotiator extends ChannelInboundHandlerAda
         try {
             this.startNegotiation();
         } catch (final Exception e) {
-            LOG.warn("Unexpected negotiation failure", e);
+            LOG.warn("Unexpected negotiation failure on channel {}", this.channel, e);
             this.negotiationFailed(e);
         }
 
@@ -77,7 +77,7 @@ public abstract class AbstractSessionNegotiator extends ChannelInboundHandlerAda
         try {
             this.handleMessage((Message) msg);
         } catch (Exception e) {
-            LOG.debug("Unexpected error while handling negotiation message {}", msg, e);
+            LOG.debug("Unexpected error while handling negotiation message {} on channel {}", msg, this.channel, e);
             this.negotiationFailed(e);
         }
 
@@ -85,7 +85,7 @@ public abstract class AbstractSessionNegotiator extends ChannelInboundHandlerAda
 
     @Override
     public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
-        LOG.info("Unexpected error during negotiation", cause);
+        LOG.info("Unexpected error during negotiation on channel {}", this.channel, cause);
         this.negotiationFailed(cause);
     }
 
