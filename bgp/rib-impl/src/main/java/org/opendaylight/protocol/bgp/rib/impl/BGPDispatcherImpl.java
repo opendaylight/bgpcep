@@ -20,6 +20,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollChannelOption;
 import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollMode;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.socket.SocketChannel;
@@ -94,6 +95,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         final Bootstrap bootstrap = new Bootstrap();
         if (Epoll.isAvailable()) {
             bootstrap.channel(EpollSocketChannel.class);
+            bootstrap.option(EpollChannelOption.EPOLL_MODE, EpollMode.LEVEL_TRIGGERED);
         } else {
             bootstrap.channel(NioSocketChannel.class);
         }
@@ -152,6 +154,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         final ServerBootstrap serverBootstrap = new ServerBootstrap();
         if (Epoll.isAvailable()) {
             serverBootstrap.channel(EpollServerSocketChannel.class);
+            serverBootstrap.childOption(EpollChannelOption.EPOLL_MODE, EpollMode.LEVEL_TRIGGERED);
         } else {
             serverBootstrap.channel(NioServerSocketChannel.class);
         }
