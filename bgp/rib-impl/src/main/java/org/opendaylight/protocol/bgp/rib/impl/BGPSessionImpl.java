@@ -21,12 +21,13 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.handler.timeout.IdleStateHandler;
 import java.io.IOException;
 import java.nio.channels.NonWritableChannelException;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpSessionState;
 import org.opendaylight.protocol.bgp.parser.AsNumberUtil;
@@ -97,17 +98,6 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
          */
         IDLE,
     }
-
-    /**
-     * System.nanoTime value about when was sent the last message.
-     */
-    @VisibleForTesting
-    private long lastMessageSentAt;
-
-    /**
-     * System.nanoTime value about when was received the last message
-     */
-    private long lastMessageReceivedAt;
 
     private final BGPSessionListener listener;
 
@@ -185,19 +175,8 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         }
 
         if (this.holdTimerValue != 0) {
-            channel.eventLoop().schedule(new Runnable() {
-                @Override
-                public void run() {
-                    handleHoldTimer();
-                }
-            }, this.holdTimerValue, TimeUnit.SECONDS);
-
-            channel.eventLoop().schedule(new Runnable() {
-                @Override
-                public void run() {
-                    handleKeepaliveTimer();
-                }
-            }, this.keepAlive, TimeUnit.SECONDS);
+            final IdleStateHandler idleStateHandler = new IdleStateHandler(this.holdTimerValue, this.keepAlive, 0);
+            this.channel.pipeline().addFirst(idleStateHandler);
         }
         this.bgpId = remoteOpen.getBgpIdentifier();
         this.sessionStats = new BGPSessionStatsImpl(this, remoteOpen, this.holdTimerValue, this.keepAlive, channel, Optional.<BGPSessionPreferences>absent(),
@@ -225,9 +204,9 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     @Override
     public synchronized void close() {
         if (this.state != State.IDLE) {
-            this.writeAndFlush(new NotifyBuilder().setErrorCode(BGPError.CEASE.getCode()).setErrorSubcode(BGPError.CEASE.getSubcode()).build());
+            writeAndFlush(new NotifyBuilder().setErrorCode(BGPError.CEASE.getCode()).setErrorSubcode(BGPError.CEASE.getSubcode()).build());
         }
-        this.closeWithoutMessage();
+        closeWithoutMessage();
     }
 
     /**
@@ -236,18 +215,15 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
      * @param msg incoming message
      */
     synchronized void handleMessage(final Notification msg) throws BGPDocumentedException {
-        // Update last reception time
-        this.lastMessageReceivedAt = System.nanoTime();
-
         if (msg instanceof Open) {
             // Open messages should not be present here
-            this.terminate(new BGPDocumentedException(null, BGPError.FSM_ERROR));
+            terminate(new BGPDocumentedException(null, BGPError.FSM_ERROR));
         } else if (msg instanceof Notify) {
             final Notify notify = (Notify) msg;
             // Notifications are handled internally
             LOG.info("Session closed because Notification message received: {} / {}, data={}", notify.getErrorCode(),
                     notify.getErrorSubcode(), notify.getData() != null ? ByteBufUtil.hexDump(notify.getData()) : null);
-            this.closeWithoutMessage();
+            closeWithoutMessage();
             this.listener.onSessionTerminated(this, new BGPTerminationReason(
                     BGPError.forValue(notify.getErrorCode(), notify.getErrorSubcode())));
         } else if (msg instanceof Keepalive) {
@@ -289,7 +265,6 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
                     }
                 }
             });
-        this.lastMessageSentAt = System.nanoTime();
         this.sessionStats.updateSentMsg(msg);
         return future;
     }
@@ -338,8 +313,8 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         if (data != null && data.length != 0) {
             builder.setData(data);
         }
-        this.writeAndFlush(builder.build());
-        this.closeWithoutMessage();
+        writeAndFlush(builder.build());
+        closeWithoutMessage();
 
         this.listener.onSessionTerminated(this, new BGPTerminationReason(error));
     }
@@ -350,60 +325,6 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         }
     }
 
-    /**
-     * If HoldTimer expires, the session ends. If a message (whichever) was received during this period, the HoldTimer
-     * will be rescheduled by HOLD_TIMER_VALUE + the time that has passed from the start of the HoldTimer to the time at
-     * which the message was received. If the session was closed by the time this method starts to execute (the session
-     * state will become IDLE), then rescheduling won't occur.
-     */
-    private synchronized void handleHoldTimer() {
-        if (this.state == State.IDLE) {
-            return;
-        }
-
-        final long ct = System.nanoTime();
-        final long nextHold = this.lastMessageReceivedAt + TimeUnit.SECONDS.toNanos(this.holdTimerValue);
-
-        if (ct >= nextHold) {
-            LOG.debug("HoldTimer expired. {}", new Date());
-            this.terminate(new BGPDocumentedException(BGPError.HOLD_TIMER_EXPIRED));
-        } else {
-            this.channel.eventLoop().schedule(new Runnable() {
-                @Override
-                public void run() {
-                    handleHoldTimer();
-                }
-            }, nextHold - ct, TimeUnit.NANOSECONDS);
-        }
-    }
-
-    /**
-     * If KeepAlive Timer expires, sends KeepAlive message. If a message (whichever) was send during this period, the
-     * KeepAlive Timer will be rescheduled by KEEP_ALIVE_TIMER_VALUE + the time that has passed from the start of the
-     * KeepAlive timer to the time at which the message was sent. If the session was closed by the time this method
-     * starts to execute (the session state will become IDLE), that rescheduling won't occur.
-     */
-    private synchronized void handleKeepaliveTimer() {
-        if (this.state == State.IDLE) {
-            return;
-        }
-
-        final long ct = System.nanoTime();
-        long nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(this.keepAlive);
-
-        if (ct >= nextKeepalive) {
-            this.writeAndFlush(KEEP_ALIVE);
-            nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(this.keepAlive);
-            this.sessionStats.updateSentMsgKA();
-        }
-        this.channel.eventLoop().schedule(new Runnable() {
-            @Override
-            public void run() {
-                handleKeepaliveTimer();
-            }
-        }, nextKeepalive - ct, TimeUnit.NANOSECONDS);
-    }
-
     @Override
     public final String toString() {
         return addToStringAttributes(MoreObjects.toStringHelper(this)).toString();
@@ -411,7 +332,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
 
     protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
         toStringHelper.add("channel", this.channel);
-        toStringHelper.add("state", this.getState());
+        toStringHelper.add("state", getState());
         return toStringHelper;
     }
 
@@ -454,11 +375,6 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         this.channel.eventLoop().submit(task);
     }
 
-    @VisibleForTesting
-    protected synchronized void setLastMessageSentAt(final long lastMessageSentAt) {
-        this.lastMessageSentAt = lastMessageSentAt;
-    }
-
     @Override
     public synchronized BgpSessionState getBgpSessionState() {
         return this.sessionStats.getBgpSessionState();
@@ -476,7 +392,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     @Override
     public final void channelInactive(final ChannelHandlerContext ctx) {
         LOG.debug("Channel {} inactive.", ctx.channel());
-        this.endOfInput();
+        endOfInput();
 
         try {
             super.channelInactive(ctx);
@@ -489,24 +405,40 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     protected final void channelRead0(final ChannelHandlerContext ctx, final Notification msg) {
         LOG.debug("Message was received: {}", msg);
         try {
-            this.handleMessage(msg);
+            handleMessage(msg);
         } catch (final BGPDocumentedException e) {
-            this.terminate(e);
+            terminate(e);
         }
     }
 
     @Override
     public final void handlerAdded(final ChannelHandlerContext ctx) {
-        this.sessionUp();
+        sessionUp();
     }
 
     @Override
     public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
         LOG.warn("BGP session encountered error", cause);
         if (cause.getCause() instanceof BGPDocumentedException) {
-            this.terminate((BGPDocumentedException) cause.getCause());
+            terminate((BGPDocumentedException) cause.getCause());
         } else {
-            this.close();
+            close();
         }
+    }
+
+    @Override
+    public void userEventTriggered(final ChannelHandlerContext ctx, final Object evt) throws Exception {
+        if (evt instanceof IdleStateEvent && this.state != State.IDLE) {
+            final IdleStateEvent idleStateEvent = (IdleStateEvent) evt;
+            if (idleStateEvent.state() == IdleState.READER_IDLE) {
+                LOG.debug("Handling HT event.");
+                terminate(new BGPDocumentedException(BGPError.HOLD_TIMER_EXPIRED));
+            } else if (idleStateEvent.state() == IdleState.WRITER_IDLE) {
+                LOG.debug("Handling KA event.");
+                writeAndFlush(KEEP_ALIVE);
+                this.sessionStats.updateSentMsgKA();
+            }
+        }
+        super.userEventTriggered(ctx, evt);
     }
 }
