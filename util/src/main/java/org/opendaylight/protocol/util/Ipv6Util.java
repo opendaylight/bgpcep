@@ -42,6 +42,16 @@ public final class Ipv6Util {
     }
 
     /**
+     * Creates uncompressed IP Address
+     *
+     * @param ip to be uncompressed
+     * @return Ipv6Address with same, but uncompressed, value
+     */
+    public static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address getFullForm(final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address ip) {
+        return new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address(InetAddresses.forString(ip.getValue()).getHostAddress());
+    }
+
+    /**
      * Reads from ByteBuf buffer and converts bytes to Ipv6Address.
      *
      * @param buffer containing Ipv6 address, starting at reader index

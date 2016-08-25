@@ -12,6 +12,7 @@ import static org.opendaylight.protocol.bgp.openconfig.impl.util.OpenConfigUtil.
 import com.google.common.base.Preconditions;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.protocol.bgp.openconfig.impl.spi.BGPConfigStateStore;
+import org.opendaylight.protocol.bgp.openconfig.impl.util.OpenConfigUtil;
 import org.opendaylight.protocol.bgp.openconfig.spi.InstanceConfiguration;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborKey;
@@ -36,6 +37,6 @@ abstract class AbstractBGPNeighborProvider<T extends InstanceConfiguration> exte
 
     @Override
     public final NeighborKey keyForConfiguration(final Neighbor neighbor) {
-        return neighbor.getKey();
+        return OpenConfigUtil.getNeighborKey(neighbor);
     }
 }

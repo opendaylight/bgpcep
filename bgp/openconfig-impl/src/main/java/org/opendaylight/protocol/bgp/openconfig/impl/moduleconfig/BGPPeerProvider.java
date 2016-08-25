@@ -20,6 +20,7 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.protocol.bgp.openconfig.impl.spi.BGPConfigHolder;
 import org.opendaylight.protocol.bgp.openconfig.impl.spi.BGPConfigStateStore;
 import org.opendaylight.protocol.bgp.openconfig.impl.util.GlobalIdentifier;
+import org.opendaylight.protocol.bgp.openconfig.impl.util.OpenConfigUtil;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.RouteReflector;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Timers;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Transport;
@@ -76,7 +77,7 @@ final class BGPPeerProvider {
     }
 
     public void onNeighborRemoved(final Neighbor removedNeighbor) {
-        final ModuleKey moduleKey = neighborState.getModuleKey(removedNeighbor.getKey());
+        final ModuleKey moduleKey = neighborState.getModuleKey(OpenConfigUtil.getNeighborKey(removedNeighbor));
         if (moduleKey != null) {
             try {
                 final ReadWriteTransaction rwTx = dataBroker.newReadWriteTransaction();
@@ -92,7 +93,7 @@ final class BGPPeerProvider {
     }
 
     public void onNeighborModified(final Neighbor modifiedNeighbor) {
-        final ModuleKey moduleKey = neighborState.getModuleKey(modifiedNeighbor.getKey());
+        final ModuleKey moduleKey = neighborState.getModuleKey(OpenConfigUtil.getNeighborKey(modifiedNeighbor));
         final ReadOnlyTransaction rTx = dataBroker.newReadOnlyTransaction();
         final List<AdvertizedTable> advertizedTables = getAdvertizedTables(modifiedNeighbor, rTx);
         if (moduleKey != null) {
@@ -108,7 +109,7 @@ final class BGPPeerProvider {
 
     private void updateExistingPeerConfiguration(final ModuleKey moduleKey, final Neighbor modifiedNeighbor, final List<AdvertizedTable>
         advertizedTables, final ReadOnlyTransaction rTx) {
-        if (neighborState.addOrUpdate(moduleKey, modifiedNeighbor.getKey(), modifiedNeighbor)) {
+        if (neighborState.addOrUpdate(moduleKey, OpenConfigUtil.getNeighborKey(modifiedNeighbor), modifiedNeighbor)) {
             final Optional<Module> maybeModule = getOldModuleConfiguration(moduleKey, rTx);
             if (maybeModule.isPresent()) {
                 final Module peerConfigModule = toPeerConfigModule(modifiedNeighbor, maybeModule.get(), advertizedTables);
@@ -143,7 +144,7 @@ final class BGPPeerProvider {
                 final Rib rib = RibInstanceFunction.getRibInstance(this.configModuleOp, this.TO_RIB_FUNCTION, ribImplKey.getName(), rTx);
                 final Module peerConfigModule = toPeerConfigModule(modifiedNeighbor, advertizedTables, rib);
                 configModuleOp.putModuleConfiguration(peerConfigModule, dataBroker.newWriteOnlyTransaction());
-                neighborState.addOrUpdate(peerConfigModule.getKey(), modifiedNeighbor.getKey(), modifiedNeighbor);
+                neighborState.addOrUpdate(peerConfigModule.getKey(), OpenConfigUtil.getNeighborKey(modifiedNeighbor), modifiedNeighbor);
             } catch (final Exception e) {
                 LOG.error("Failed to create a configuration module: {}", moduleKey, e);
                 throw new IllegalStateException(e);
@@ -165,7 +166,7 @@ final class BGPPeerProvider {
 
     private static Module toPeerConfigModule(final Neighbor neighbor, final List<AdvertizedTable> tableTypes, final Rib rib) {
         final ModuleBuilder mBuilder = new ModuleBuilder();
-        mBuilder.setName(createPeerName(neighbor.getNeighborAddress()));
+        mBuilder.setName(createPeerName(OpenConfigUtil.getNeighborAddress(neighbor)));
         mBuilder.setType(BgpPeer.class);
         mBuilder.setConfiguration(toBgpPeerConfig(neighbor, tableTypes, rib).build());
         mBuilder.setKey(new ModuleKey(mBuilder.getName(), mBuilder.getType()));
@@ -182,7 +183,7 @@ final class BGPPeerProvider {
                 .gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address(neighbor.getNeighborAddress().getIpv4Address().getValue()));
         } else {
             ipAdress = new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress(new org.opendaylight.yang
-                .gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address(neighbor.getNeighborAddress().getIpv6Address().getValue()));
+                .gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address(OpenConfigUtil.getNeighborAddress(neighbor).getIpv6Address().getValue()));
         }
         bgpPeerBuilder.setHost(ipAdress);
         final Timers timers = neighbor.getTimers();
@@ -208,7 +209,7 @@ final class BGPPeerProvider {
     }
 
     private static String createPeerName(final IpAddress ipAddress) {
-        final String address = ipAddress.getIpv4Address() != null ? ipAddress.getIpv4Address().getValue() : ipAddress.getIpv6Address().getValue();
+        final String address = ipAddress.getIpv4Address() != null ? ipAddress.getIpv4Address().getValue() : ipAddress.getIpv6Address().getValue().replace(':', '-');
         return PEER + address;
     }
 
@@ -226,7 +227,7 @@ final class BGPPeerProvider {
                 return PeerRole.Ebgp;
             }
         }
-        LOG.info("Unknown peer role, setting peer {} role to iBGP", neighbor.getKey());
+        LOG.info("Unknown peer role, setting peer {} role to iBGP", OpenConfigUtil.getNeighborKey(neighbor));
         return PeerRole.Ibgp;
     }
 

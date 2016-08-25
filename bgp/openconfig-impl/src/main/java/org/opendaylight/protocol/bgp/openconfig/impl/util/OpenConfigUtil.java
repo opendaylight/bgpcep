@@ -15,13 +15,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
+import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4LABELLEDUNICAST;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4UNICAST;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV6LABELLEDUNICAST;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV6UNICAST;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.FlowspecSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.LabeledUnicastSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateAddressFamily;
@@ -83,5 +88,26 @@ public final class OpenConfigUtil {
 
     public static String getModuleName(final String provider) {
         return provider.substring(provider.lastIndexOf('=') + 2, provider.length() - 2);
+    }
+
+    public static NeighborKey getNeighborKey(final Neighbor neighbor) {
+        if (neighbor.getKey() == null || neighbor.getKey().getNeighborAddress() == null) {
+            return null;
+        }
+        return new NeighborKey(getNormalizedNeighborAddress(neighbor.getKey().getNeighborAddress()));
+    }
+
+    public static IpAddress getNeighborAddress(final Neighbor neighbor) {
+        return getNormalizedNeighborAddress(neighbor.getNeighborAddress());
+
+    }
+
+    private static IpAddress getNormalizedNeighborAddress(final IpAddress address) {
+        if (address != null && address.getIpv6Address() != null) {
+            final Ipv6Address ipv6Address = Ipv6Util.getFullForm(address.getIpv6Address());
+            return new IpAddress(ipv6Address);
+        } else {
+            return address;
+        }
     }
 }
