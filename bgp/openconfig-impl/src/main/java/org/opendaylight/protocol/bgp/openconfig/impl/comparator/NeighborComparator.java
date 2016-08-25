@@ -12,6 +12,7 @@ import com.google.common.base.Preconditions;
 import java.util.List;
 import java.util.Objects;
 import org.opendaylight.protocol.bgp.openconfig.impl.spi.OpenConfigComparator;
+import org.opendaylight.protocol.bgp.openconfig.impl.util.OpenConfigUtil;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.Neighbor1;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Config;
@@ -48,10 +49,10 @@ final class NeighborComparator implements OpenConfigComparator<Neighbor> {
                 return false;
             }
         }
-        if (!Objects.equals(neighbor1.getKey(), neighbor2.getKey())) {
+        if (!Objects.equals(OpenConfigUtil.getNeighborKey(neighbor1), OpenConfigUtil.getNeighborKey(neighbor2))) {
             return false;
         }
-        if (!Objects.equals(neighbor1.getNeighborAddress(), neighbor2.getNeighborAddress())) {
+        if (!Objects.equals(OpenConfigUtil.getNeighborAddress(neighbor1), OpenConfigUtil.getNeighborAddress(neighbor2))) {
             return false;
         }
         if (!Objects.equals(neighbor1.getRouteReflector(), neighbor2.getRouteReflector())) {
