@@ -17,6 +17,7 @@ import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.protocol.bgp.openconfig.impl.spi.BGPConfigHolder;
 import org.opendaylight.protocol.bgp.openconfig.impl.spi.BGPConfigStateStore;
 import org.opendaylight.protocol.bgp.openconfig.impl.util.GlobalIdentifier;
+import org.opendaylight.protocol.bgp.openconfig.impl.util.OpenConfigUtil;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -71,7 +72,7 @@ final class BGPAppPeerProvider {
     }
 
     public void onNeighborRemoved(final Neighbor removedNeighbor) {
-        final ModuleKey moduleKey = neighborState.getModuleKey(removedNeighbor.getKey());
+        final ModuleKey moduleKey = neighborState.getModuleKey(OpenConfigUtil.getNeighborKey(removedNeighbor));
         if (moduleKey != null) {
             try {
                 final ReadWriteTransaction rwTx = dataBroker.newReadWriteTransaction();
@@ -87,12 +88,12 @@ final class BGPAppPeerProvider {
     }
 
     public void onNeighborModified(final Neighbor modifiedAppNeighbor) {
-        final ModuleKey moduleKey = neighborState.getModuleKey(modifiedAppNeighbor.getKey());
+        final ModuleKey moduleKey = neighborState.getModuleKey(OpenConfigUtil.getNeighborKey(modifiedAppNeighbor));
         final ReadOnlyTransaction rTx = dataBroker.newReadOnlyTransaction();
         if (moduleKey != null) {
             //update an existing peer configuration
             try {
-                if (neighborState.addOrUpdate(moduleKey, modifiedAppNeighbor.getKey(), modifiedAppNeighbor)) {
+                if (neighborState.addOrUpdate(moduleKey, OpenConfigUtil.getNeighborKey(modifiedAppNeighbor), modifiedAppNeighbor)) {
                     final Optional<Module> maybeModule = configModuleOp.readModuleConfiguration(moduleKey, rTx);
                     if (maybeModule.isPresent()) {
                         final Module peerConfigModule = toPeerConfigModule(modifiedAppNeighbor, maybeModule.get());
@@ -116,7 +117,7 @@ final class BGPAppPeerProvider {
 
                     final Module peerConfigModule = toPeerConfigModule(modifiedAppNeighbor, rib, moduleDataBroker);
                     configModuleOp.putModuleConfiguration(peerConfigModule, dataBroker.newWriteOnlyTransaction());
-                    neighborState.addOrUpdate(peerConfigModule.getKey(), modifiedAppNeighbor.getKey(), modifiedAppNeighbor);
+                    neighborState.addOrUpdate(peerConfigModule.getKey(), OpenConfigUtil.getNeighborKey(modifiedAppNeighbor), modifiedAppNeighbor);
                 } catch (final Exception e) {
                     LOG.error("Failed to create a configuration module: {}", moduleKey, e);
                     throw new IllegalStateException(e);
