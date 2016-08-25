@@ -24,6 +24,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.SessionNegotiator;
+import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
@@ -127,7 +128,11 @@ public abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandler
     }
 
     private IpAddress getRemoteIp() {
-        return StrictBGPPeerRegistry.getIpAddress(this.channel.remoteAddress());
+        final IpAddress remoteIp = StrictBGPPeerRegistry.getIpAddress(this.channel.remoteAddress());
+        if (remoteIp.getIpv6Address() != null) {
+            return new IpAddress(Ipv6Util.getFullForm(remoteIp.getIpv6Address()));
+        }
+        return remoteIp;
     }
 
     protected synchronized void handleMessage(final Notification msg) {
