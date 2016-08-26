@@ -87,6 +87,12 @@ module bgp-openconfig-extensions {
             augment bgp/neighbors/neighbor/transport/config {
                 uses transport-config;
             }
+            augment bgp/neighbors/neighbor/config {
+                description
+                    "Augmentation to allow association of a neighbor with a
+                     peer-group";
+                uses openconfig-bgp:bgp-neighbor-peer-group_config;
+            }
         }
     }
 

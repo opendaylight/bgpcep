@@ -24,8 +24,6 @@ import org.opendaylight.protocol.bgp.mode.impl.add.n.paths.AddPathBestNPathSelec
 import org.opendaylight.protocol.bgp.openconfig.impl.util.OpenConfigUtil;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.Config1;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.Config1Builder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.AfiSafisBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.ConfigBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.RouteReflectorBuilder;
@@ -52,6 +50,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.re
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151009.BGP;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.SendReceive;
@@ -59,6 +58,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.add.path.capability.AddressFamiliesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Protocol1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Protocol1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRibId;
@@ -181,8 +182,8 @@ public final class BGPOpenConfigMappingServiceImpl implements BGPOpenConfigMappi
                 new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.transport.ConfigBuilder()
                 .setPassiveMode(!isActive)
                 .setMtuDiscovery(Boolean.FALSE)
-                .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config1.class,
-                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config1Builder()
+                .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config2.class,
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config2Builder()
                 .setRemotePort(portNumber).build())
                 .build()).build());
         neighborBuilder.setConfig(
@@ -224,7 +225,7 @@ public final class BGPOpenConfigMappingServiceImpl implements BGPOpenConfigMappi
     @Override
     public Neighbor fromApplicationPeer(final ApplicationRibId applicationRibId, final BgpId bgpId) {
         final NeighborBuilder neighborBuilder = new NeighborBuilder();
-        neighborBuilder.setNeighborAddress(new IpAddress(bgpId));
+        neighborBuilder.setNeighborAddress(new IpAddress(new Ipv4Address(bgpId.getValue())));
         neighborBuilder.setKey(new NeighborKey(neighborBuilder.getNeighborAddress()));
         neighborBuilder.setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.ConfigBuilder()
         .setDescription(applicationRibId.getValue())
