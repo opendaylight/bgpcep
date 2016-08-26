@@ -12,6 +12,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import java.util.Objects;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
@@ -39,11 +40,14 @@ public class AppPeer implements PeerBean {
     private static final QName APP_ID_QNAME = QName.create(ApplicationRib.QNAME, "id").intern();
     private Neighbor currentConfiguration;
     private BgpAppPeerSingletonService bgpAppPeerSingletonService;
+    private BGPOpenConfigMappingService mappingService;
 
     @Override
     public void start(final RIB rib, final Neighbor neighbor, final BGPOpenConfigMappingService mappingService, final WriteConfiguration configurationWriter) {
         this.currentConfiguration = neighbor;
-        this.bgpAppPeerSingletonService = new BgpAppPeerSingletonService(rib, createAppRibId(neighbor), neighbor.getNeighborAddress().getIpv4Address());
+        this.mappingService = mappingService;
+        this.bgpAppPeerSingletonService = new BgpAppPeerSingletonService(rib, createAppRibId(neighbor), neighbor.getNeighborAddress().getIpv4Address(),
+                configurationWriter);
     }
 
     @Override
@@ -63,7 +67,8 @@ public class AppPeer implements PeerBean {
 
     @Override
     public Boolean containsEqualConfiguration(final Neighbor neighbor) {
-        return this.currentConfiguration.equals(neighbor);
+        return Objects.equals(this.currentConfiguration.getKey(), neighbor.getKey())
+                && this.mappingService.isApplicationPeer(neighbor);
     }
 
     private static ApplicationRibId createAppRibId(final Neighbor neighbor) {
@@ -81,12 +86,14 @@ public class AppPeer implements PeerBean {
         private ClusterSingletonServiceRegistration singletonServiceRegistration;
         private ListenerRegistration<ApplicationPeer> registration;
         private final ServiceGroupIdentifier serviceGroupIdentifier;
+        private final WriteConfiguration configurationWriter;
 
-        BgpAppPeerSingletonService(final RIB rib, final ApplicationRibId appRibId, final Ipv4Address neighborAddress) {
+        BgpAppPeerSingletonService(final RIB rib, final ApplicationRibId appRibId, final Ipv4Address neighborAddress, final WriteConfiguration configurationWriter) {
             this.applicationPeer = new ApplicationPeer(appRibId, neighborAddress, rib);
             this.appRibId = appRibId;
             this.dataTreeChangeService = rib.getService();
             this.serviceGroupIdentifier = rib.getRibIServiceGroupIdentifier();
+            this.configurationWriter = configurationWriter;
             LOG.info("Application Peer Singleton Service {} registered", getIdentifier());
             //this need to be always the last step
             this.singletonServiceRegistration = rib.registerClusterSingletonService(this);
@@ -102,9 +109,12 @@ public class AppPeer implements PeerBean {
 
         @Override
         public void instantiateServiceInstance() {
+            if(this.configurationWriter != null) {
+                this.configurationWriter.apply();
+            }
             LOG.info("Application Peer Singleton Service {} instantiated", getIdentifier());
             final YangInstanceIdentifier yangIId = YangInstanceIdentifier.builder().node(ApplicationRib.QNAME)
-                .nodeWithKey(ApplicationRib.QNAME, APP_ID_QNAME, appRibId.getValue()).node(Tables.QNAME).node(Tables.QNAME).build();
+                .nodeWithKey(ApplicationRib.QNAME, APP_ID_QNAME, this.appRibId.getValue()).node(Tables.QNAME).node(Tables.QNAME).build();
             this.applicationPeer.instantiateServiceInstance();
             this.registration = this.dataTreeChangeService
                 .registerDataTreeChangeListener(new DOMDataTreeIdentifier(LogicalDatastoreType.CONFIGURATION, yangIId), this.applicationPeer);
