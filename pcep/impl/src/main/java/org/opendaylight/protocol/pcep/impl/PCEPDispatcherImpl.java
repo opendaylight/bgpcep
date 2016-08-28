@@ -18,6 +18,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollChannelOption;
 import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollMode;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -113,6 +114,7 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
 
         if (Epoll.isAvailable()) {
             b.channel(EpollServerSocketChannel.class);
+            b.childOption(EpollChannelOption.EPOLL_MODE, EpollMode.LEVEL_TRIGGERED);
         } else {
             b.channel(NioServerSocketChannel.class);
         }
