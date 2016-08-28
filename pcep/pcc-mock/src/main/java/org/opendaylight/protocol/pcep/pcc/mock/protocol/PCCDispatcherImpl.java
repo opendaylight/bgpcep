@@ -18,6 +18,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollChannelOption;
 import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollMode;
 import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -109,6 +110,7 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
     private void setChannelFactory(final Bootstrap bootstrap, final Optional<KeyMapping> keys) {
         if(Epoll.isAvailable()) {
             bootstrap.channel(EpollSocketChannel.class);
+            bootstrap.option(EpollChannelOption.EPOLL_MODE, EpollMode.LEVEL_TRIGGERED);
         } else {
             bootstrap.channel(NioSocketChannel.class);
         }
