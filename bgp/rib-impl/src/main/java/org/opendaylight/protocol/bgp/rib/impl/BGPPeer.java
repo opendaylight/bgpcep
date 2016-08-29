@@ -338,7 +338,7 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         }
     }
 
-    private synchronized void cleanup() {
+    private void cleanup() {
         // FIXME: BUG-196: support graceful
         this.adjRibOutListenerSet.values().forEach(AdjRibOutListener::close);
         this.adjRibOutListenerSet.clear();
@@ -384,7 +384,8 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
     }
 
     @Override
-    public void releaseConnection() {
+    @GuardedBy("this")
+    public synchronized void releaseConnection() {
         if (this.rpcRegistration != null) {
             this.rpcRegistration.close();
         }
@@ -399,7 +400,6 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         }
     }
 
-    @GuardedBy("this")
     private void dropConnection() {
         if (this.runtimeReg != null) {
             this.runtimeReg.close();
