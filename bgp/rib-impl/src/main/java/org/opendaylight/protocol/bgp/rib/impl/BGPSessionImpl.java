@@ -226,8 +226,8 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     public synchronized void close() {
         if (this.state != State.IDLE) {
             this.writeAndFlush(new NotifyBuilder().setErrorCode(BGPError.CEASE.getCode()).setErrorSubcode(BGPError.CEASE.getSubcode()).build());
+            this.closeWithoutMessage();
         }
-        this.closeWithoutMessage();
     }
 
     /**
@@ -314,6 +314,9 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     }
 
     private synchronized void closeWithoutMessage() {
+        if (this.state == State.IDLE) {
+            return;
+        }
         LOG.info("Closing session: {}", this);
         removePeerSession();
         this.channel.close().addListener(new ChannelFutureListener() {
