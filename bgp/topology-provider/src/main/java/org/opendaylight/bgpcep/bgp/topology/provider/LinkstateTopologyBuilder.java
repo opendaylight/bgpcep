@@ -337,7 +337,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
 
         if (type != null) {
             stpb.addAugmentation(TerminationPoint1.class, new TerminationPoint1Builder().setIgpTerminationPointAttributes(
-                new IgpTerminationPointAttributesBuilder().setTerminationPointType(null).build()).build());
+                    new IgpTerminationPointAttributesBuilder().setTerminationPointType(type).build()).build());
         }
 
         return stpb.build();
