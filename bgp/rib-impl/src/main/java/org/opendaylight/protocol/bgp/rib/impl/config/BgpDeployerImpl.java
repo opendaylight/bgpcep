@@ -37,9 +37,14 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.InstanceType;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.AfiSafisBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.GlobalBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Neighbors;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.NetworkInstances;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstance;
@@ -48,6 +53,10 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.re
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.Protocols;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.ProtocolsBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.Protocol;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Protocol1;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -158,18 +167,38 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
     @Override
     public synchronized void onGlobalModified(final InstanceIdentifier<Bgp> rootIdentifier, final Global global,
         final WriteConfiguration configurationWriter) {
-        LOG.debug("Modifying RIB instance with configuration: {}", global);
+        final Global modifiedGlobal = unifyAugmentation(global);
+        LOG.debug("Modifying RIB instance with configuration: {}", modifiedGlobal);
         //restart existing rib instance with a new configuration
         final RibImpl ribImpl = this.ribs.get(rootIdentifier);
         LOG.debug("RIB instance modified {}", ribImpl);
         if(ribImpl == null ) {
-            onGlobalCreated(rootIdentifier, global, configurationWriter);
-        } else if (!ribImpl.isGlobalEqual(global)) {
+            onGlobalCreated(rootIdentifier, modifiedGlobal, configurationWriter);
+        } else if (!ribImpl.isGlobalEqual(modifiedGlobal)) {
             final List<PeerBean> closedPeers = closeAllBindedPeers(rootIdentifier);
             ribImpl.close();
-            initiateRibInstance(rootIdentifier, global, ribImpl, configurationWriter);
+            initiateRibInstance(rootIdentifier, modifiedGlobal, ribImpl, configurationWriter);
             closedPeers.forEach(peer -> peer.restart(ribImpl, this.mappingService));
         }
+    }
+
+    //workaround - Bug-6497
+    private Global unifyAugmentation(final Global global) {
+        if (global.getAfiSafis() != null && global.getAfiSafis().getAfiSafi() != null) {
+            final GlobalBuilder globalBuilder = new GlobalBuilder(global);
+            final List<AfiSafi> afiSafis = global.getAfiSafis().getAfiSafi();
+            final List<AfiSafi> modifiedAfiSafis = new ArrayList<>(afiSafis.size());
+            for (final AfiSafi afiSafi : afiSafis) {
+                final AfiSafiBuilder afiSafiBuilder = new AfiSafiBuilder(afiSafi);
+                if (afiSafi.getAugmentation(AfiSafi2.class) != null) {
+                    afiSafiBuilder.addAugmentation(AfiSafi1.class, new AfiSafi1Builder(afiSafi.getAugmentation(AfiSafi2.class)).build());
+                    afiSafiBuilder.removeAugmentation(AfiSafi2.class);
+                }
+                modifiedAfiSafis.add(afiSafiBuilder.build());
+            }
+            return globalBuilder.setAfiSafis(new AfiSafisBuilder().setAfiSafi(modifiedAfiSafis).build()).build();
+        }
+        return global;
     }
 
     private List<PeerBean> closeAllBindedPeers(final InstanceIdentifier<Bgp> rootIdentifier) {
@@ -235,17 +264,37 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
     @Override
     public synchronized void onNeighborModified(final InstanceIdentifier<Bgp> rootIdentifier, final Neighbor neighbor,
         final WriteConfiguration configurationWriter) {
-        LOG.debug("Modifying Peer instance with configuration: {}", neighbor);
+        final Neighbor modifiedNeighbor = unifyAugmentation(neighbor);
+        LOG.debug("Modifying Peer instance with configuration: {}", modifiedNeighbor);
         //restart peer instance with a new configuration
-        final PeerBean bgpPeer = this.peers.get(getNeighborInstanceIdentifier(rootIdentifier, neighbor.getKey()));
+        final PeerBean bgpPeer = this.peers.get(getNeighborInstanceIdentifier(rootIdentifier, modifiedNeighbor.getKey()));
         if (bgpPeer == null) {
-            onNeighborCreated(rootIdentifier, neighbor, configurationWriter);
-        } else if(!bgpPeer.containsEqualConfiguration(neighbor)){
+            onNeighborCreated(rootIdentifier, modifiedNeighbor, configurationWriter);
+        } else if(!bgpPeer.containsEqualConfiguration(modifiedNeighbor)){
             bgpPeer.close();
-            final InstanceIdentifier<Neighbor> neighborInstanceIdentifier = getNeighborInstanceIdentifier(rootIdentifier, neighbor.getKey());
-            initiatePeerInstance(rootIdentifier, neighborInstanceIdentifier, neighbor, bgpPeer, configurationWriter);
+            final InstanceIdentifier<Neighbor> neighborInstanceIdentifier = getNeighborInstanceIdentifier(rootIdentifier, modifiedNeighbor.getKey());
+            initiatePeerInstance(rootIdentifier, neighborInstanceIdentifier, modifiedNeighbor, bgpPeer, configurationWriter);
         }
         LOG.debug("Peer instance modified {}", bgpPeer);
+    }
+
+    //workaround - Bug-6497
+    private Neighbor unifyAugmentation(final Neighbor neighbor) {
+        if (neighbor.getAfiSafis() != null && neighbor.getAfiSafis().getAfiSafi() != null) {
+            final NeighborBuilder neighborBuilder = new NeighborBuilder(neighbor);
+            final List<AfiSafi> afiSafis = neighbor.getAfiSafis().getAfiSafi();
+            final List<AfiSafi> modifiedAfiSafis = new ArrayList<>(afiSafis.size());
+            for (final AfiSafi afiSafi : afiSafis) {
+                final AfiSafiBuilder afiSafiBuilder = new AfiSafiBuilder(afiSafi);
+                if (afiSafi.getAugmentation(AfiSafi1.class) != null) {
+                    afiSafiBuilder.addAugmentation(AfiSafi2.class, new AfiSafi2Builder(afiSafi.getAugmentation(AfiSafi1.class)).build());
+                    afiSafiBuilder.removeAugmentation(AfiSafi1.class);
+                }
+                modifiedAfiSafis.add(afiSafiBuilder.build());
+            }
+            return neighborBuilder.setAfiSafis(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.AfiSafisBuilder().setAfiSafi(modifiedAfiSafis).build()).build();
+        }
+        return neighbor;
     }
 
     private synchronized void onNeighborCreated(final InstanceIdentifier<Bgp> rootIdentifier, final Neighbor neighbor,
