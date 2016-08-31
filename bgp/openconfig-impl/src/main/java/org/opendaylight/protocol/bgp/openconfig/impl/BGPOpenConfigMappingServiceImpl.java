@@ -24,6 +24,7 @@ import org.opendaylight.protocol.bgp.mode.impl.add.n.paths.AddPathBestNPathSelec
 import org.opendaylight.protocol.bgp.openconfig.impl.util.OpenConfigUtil;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighborAddPathsConfig;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.AfiSafisBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.ConfigBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.RouteReflectorBuilder;
@@ -92,10 +93,10 @@ public final class BGPOpenConfigMappingServiceImpl implements BGPOpenConfigMappi
     public Map<BgpTableType, PathSelectionMode> toPathSelectionMode(final List<AfiSafi> afiSafis) {
         final Map<BgpTableType, PathSelectionMode> pathSelectionModes = new HashMap<>();
         for (final AfiSafi afiSafi : afiSafis) {
-            final AfiSafi1 afiSafi1 = afiSafi.getAugmentation(AfiSafi1.class);
+            final BgpNeighborAddPathsConfig afiSafi2 = afiSafi.getAugmentation(AfiSafi2.class);
             final Optional<BgpTableType> bgpTableType = OpenConfigUtil.toBgpTableType(afiSafi.getAfiSafiName());
-            if (afiSafi1 != null && bgpTableType.isPresent()) {
-                final Short sendMax = afiSafi1.getSendMax();
+            if (afiSafi2 != null && bgpTableType.isPresent()) {
+                final Short sendMax = afiSafi2.getSendMax();
                 final PathSelectionMode selectionMode;
                 if (sendMax > 1) {
                     selectionMode = new AddPathBestNPathSelection(sendMax.longValue());
@@ -122,18 +123,18 @@ public final class BGPOpenConfigMappingServiceImpl implements BGPOpenConfigMappi
     public List<AddressFamilies> toAddPathCapability(final List<AfiSafi> afiSafis) {
         final List<AddressFamilies> addPathCapability = new ArrayList<>();
         for (final AfiSafi afiSafi : afiSafis) {
-            final AfiSafi2 afiSafi2 = afiSafi.getAugmentation(AfiSafi2.class);
+            final BgpNeighborAddPathsConfig afiSafi1 = afiSafi.getAugmentation(AfiSafi1.class);
             final Optional<BgpTableType> bgpTableType = OpenConfigUtil.toBgpTableType(afiSafi.getAfiSafiName());
-            if (afiSafi2 != null && bgpTableType.isPresent()) {
+            if (afiSafi1 != null && bgpTableType.isPresent()) {
                 final AddressFamiliesBuilder builder = new AddressFamiliesBuilder(bgpTableType.get());
-                builder.setSendReceive(toSendReceiveMode(afiSafi2));
+                builder.setSendReceive(toSendReceiveMode(afiSafi1));
                 addPathCapability.add(builder.build());
             }
         }
         return addPathCapability;
     }
 
-    private static SendReceive toSendReceiveMode(final AfiSafi2 addPath) {
+    private static SendReceive toSendReceiveMode(final BgpNeighborAddPathsConfig addPath) {
         if (addPath.isReceive() && addPath.getSendMax() != null) {
             return SendReceive.Both;
         }
