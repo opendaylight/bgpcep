@@ -94,7 +94,6 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener {
                 processSupportedFamilyRoutes(child);
             }
         }
-        this.session.flush();
     }
 
     private void processSupportedFamilyRoutes(final DataTreeCandidateNode child) {
@@ -125,7 +124,7 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener {
             LOG.warn("Ignoring unhandled modification type {}", route.getModificationType());
             return;
         }
-        this.session.write(update);
+        this.session.writeAndFlush(update);
     }
 
     private Attributes routeAttributes(final MapEntryNode route) {
