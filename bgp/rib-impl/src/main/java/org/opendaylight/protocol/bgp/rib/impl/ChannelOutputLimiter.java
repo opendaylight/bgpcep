@@ -37,6 +37,7 @@ public final class ChannelOutputLimiter extends ChannelInboundHandlerAdapter {
                 while (this.blocked) {
                     try {
                         LOG.debug("Waiting for session {} to become writable", this.session);
+                        flush();
                         this.wait();
                     } catch (final InterruptedException e) {
                         throw new IllegalStateException("Interrupted while waiting for channel to come back", e);
@@ -71,9 +72,7 @@ public final class ChannelOutputLimiter extends ChannelInboundHandlerAdapter {
             LOG.debug("Writes on session {} {}", this.session, w ? "unblocked" : "blocked");
 
             if (w) {
-                this.notifyAll();
-            } else {
-                flush();
+                notifyAll();
             }
         }
 
@@ -84,7 +83,7 @@ public final class ChannelOutputLimiter extends ChannelInboundHandlerAdapter {
     public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
         synchronized (this) {
             this.blocked = false;
-            this.notifyAll();
+            notifyAll();
         }
 
         super.channelInactive(ctx);
