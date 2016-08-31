@@ -72,10 +72,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>pcep-base-parser</artifactId>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>concepts</artifactId>
-        </dependency>
 
         <!--
             FIXME: this is in support of the generated code. This should not
