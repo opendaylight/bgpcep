@@ -1,0 +1,7 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+2: Milos Fabian <milfabia@cisco.com>
+Submitted-by: Milos Fabian <milfabia@cisco.com>
+Submitted-at: Thu, 01 Sep 2016 07:33:44 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/44784
+Project: bgpcep
+Branch: refs/heads/stable/boron
