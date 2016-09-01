@@ -25,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.TopologyTypes1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypes;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -73,11 +74,11 @@ abstract class AbstractBgpTopologyProvider implements BgpTopologyProvider, AutoC
 
     @Override
     public final boolean topologyTypeFilter(final Topology topology) {
-        final TopologyTypes1 topologyTypes = topology.getTopologyTypes().getAugmentation(TopologyTypes1.class);
-        if (topologyTypes == null) {
+        final TopologyTypes topologyTypes = topology.getTopologyTypes();
+        if (topologyTypes == null || topologyTypes.getAugmentation(TopologyTypes1.class) == null) {
             return false;
         }
-        return topologyTypeFilter(topologyTypes);
+        return topologyTypeFilter(topologyTypes.getAugmentation(TopologyTypes1.class));
     }
 
     private TopologyReferenceSingletonService createInstance(final Topology topology, final Function<Topology, Void> writeFunction) {
