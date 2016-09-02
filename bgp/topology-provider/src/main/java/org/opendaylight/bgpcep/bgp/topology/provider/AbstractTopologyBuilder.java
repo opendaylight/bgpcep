@@ -140,6 +140,8 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
 
     protected abstract void removeObject(ReadWriteTransaction trans, InstanceIdentifier<T> id, T value);
 
+    protected abstract void clearTopology();
+
     @Override
     public final InstanceIdentifier<Topology> getInstanceIdentifier() {
         return this.topology;
@@ -259,6 +261,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
         } catch (final TransactionCommitFailedException e) {
             LOG.error("Unable to reset operational topology {} (transaction {})", this.topology, trans.getIdentifier(), e);
         }
+        clearTopology();
     }
 
     /**

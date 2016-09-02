@@ -925,6 +925,11 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
     @Override
     protected void removeObject(final ReadWriteTransaction trans,
             final InstanceIdentifier<LinkstateRoute> id, final LinkstateRoute value) {
+        if (value == null) {
+            LOG.error("Empty before-data received in delete data change notification for instance id {}", id);
+            return;
+        }
+
         final UriBuilder base = new UriBuilder(value);
 
         final ObjectType t = value.getObjectType();
@@ -943,5 +948,10 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
     @Override
     protected InstanceIdentifier<LinkstateRoute> getRouteWildcard(final InstanceIdentifier<Tables> tablesId) {
         return tablesId.child((Class)LinkstateRoutes.class).child(LinkstateRoute.class);
+    }
+
+    @Override
+    protected void clearTopology() {
+        this.nodes.clear();
     }
 }
