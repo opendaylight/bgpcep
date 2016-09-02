@@ -142,6 +142,11 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
 
     @Override
     protected final void removeObject(final ReadWriteTransaction trans, final InstanceIdentifier<T> id, final T value) {
+        if (value == null) {
+            LOG.error("Empty before-data received in delete data change notification for instance id {}", id);
+            return;
+        }
+
         final NodeId ni = advertizingNode(getAttributes(value));
         if (ni == null) {
             return;
@@ -173,5 +178,10 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
                 }
             }
         }
+    }
+
+    @Override
+    protected void clearTopology() {
+        this.nodes.clear();
     }
 }
