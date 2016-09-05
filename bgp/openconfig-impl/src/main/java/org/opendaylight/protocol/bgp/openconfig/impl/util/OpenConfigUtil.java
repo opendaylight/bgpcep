@@ -31,6 +31,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.AfiSa
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.AfiSafi1Builder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.AfiSafi2;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.AfiSafi2Builder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Config;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.RouteReflector;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
@@ -215,9 +216,13 @@ public final class OpenConfigUtil {
     }
 
     public static boolean isAppNeighbor(final Neighbor neighbor) {
-        final Config2 config1 = neighbor.getConfig().getAugmentation(Config2.class);
-        if (config1 != null) {
-            return config1.getPeerGroup() != null && config1.getPeerGroup().equals(OpenConfigUtil.APPLICATION_PEER_GROUP_NAME);
+        final Config config = neighbor.getConfig();
+        if (config != null) {
+            final Config2 config1 = config.getAugmentation(Config2.class);
+            if (config1 != null) {
+                final String peerGroup = config1.getPeerGroup();
+                return peerGroup != null && peerGroup.equals(OpenConfigUtil.APPLICATION_PEER_GROUP_NAME);
+            }
         }
         return false;
     }
