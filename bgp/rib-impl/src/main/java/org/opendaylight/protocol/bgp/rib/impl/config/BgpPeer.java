@@ -137,14 +137,15 @@ public class BgpPeer implements PeerBean, BGPPeerRuntimeMXBean {
         caps.add(new OptionalCapabilitiesBuilder().setCParameters(BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY).build());
         caps.add(new OptionalCapabilitiesBuilder().setCParameters(MultiprotocolCapabilitiesUtil.RR_CAPABILITY).build());
 
-        final List<AddressFamilies> addPathCapability = mappingService.toAddPathCapability(neighbor.getAfiSafis().getAfiSafi());
+        final List<AfiSafi> afiSafi = OpenConfigMappingUtil.getAfiSafiWithDefault(neighbor.getAfiSafis(), false);
+        final List<AddressFamilies> addPathCapability = mappingService.toAddPathCapability(afiSafi);
         if (!addPathCapability.isEmpty()) {
             caps.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class,
                     new CParameters1Builder().setAddPathCapability(
                             new AddPathCapabilityBuilder().setAddressFamilies(addPathCapability).build()).build()).build()).build());
         }
 
-        final List<BgpTableType> tableTypes = mappingService.toTableTypes(neighbor.getAfiSafis().getAfiSafi());
+        final List<BgpTableType> tableTypes = mappingService.toTableTypes(afiSafi);
         for (final BgpTableType tableType : tableTypes) {
             if (!rib.getLocalTables().contains(tableType)) {
                 LOG.info("RIB instance does not list {} in its local tables. Incoming data will be dropped.", tableType);
@@ -207,7 +208,7 @@ public class BgpPeer implements PeerBean, BGPPeerRuntimeMXBean {
         private BgpPeerSingletonService(final RIB rib, final Neighbor neighbor, final BGPOpenConfigMappingService mappingService,
             final WriteConfiguration configurationWriter) {
             this.neighborAddress = neighbor.getNeighborAddress();
-            this.bgpPeer = new BGPPeer(Ipv4Util.toStringIP(this.neighborAddress), rib, mappingService.toPeerRole(neighbor), rpcRegistry);
+            this.bgpPeer = new BGPPeer(Ipv4Util.toStringIP(this.neighborAddress), rib, mappingService.toPeerRole(neighbor), BgpPeer.this.rpcRegistry);
             final List<BgpParameters> bgpParameters = getBgpParameters(neighbor, rib, mappingService);
             final KeyMapping key = OpenConfigMappingUtil.getNeighborKey(neighbor);
             this.prefs = new BGPSessionPreferences(rib.getLocalAs(), getHoldTimer(neighbor), rib.getBgpIdentifier(), getPeerAs(neighbor, rib),
@@ -239,22 +240,22 @@ public class BgpPeer implements PeerBean, BGPPeerRuntimeMXBean {
             }
             LOG.info("Peer Singleton Service {} instantiated", getIdentifier());
             this.bgpPeer.instantiateServiceInstance();
-            peerRegistry.addPeer(this.neighborAddress, this.bgpPeer, prefs);
+            BgpPeer.this.peerRegistry.addPeer(this.neighborAddress, this.bgpPeer, this.prefs);
             if (this.activeConnection) {
-                this.connection = this.dispatcher.createReconnectingClient(this.inetAddress, peerRegistry, this.retryTimer, this.key);
+                this.connection = this.dispatcher.createReconnectingClient(this.inetAddress, BgpPeer.this.peerRegistry, this.retryTimer, this.key);
             }
         }
 
         @Override
         public ListenableFuture<Void> closeServiceInstance() {
-            LOG.info("Close Peer Singleton Service {}", this.getIdentifier());
+            LOG.info("Close Peer Singleton Service {}", getIdentifier());
             if (this.connection != null) {
                 this.connection.cancel(true);
                 this.connection = null;
             }
             this.bgpPeer.close();
-            if(currentConfiguration != null) {
-                peerRegistry.removePeer(currentConfiguration.getNeighborAddress());
+            if(BgpPeer.this.currentConfiguration != null) {
+                BgpPeer.this.peerRegistry.removePeer(BgpPeer.this.currentConfiguration.getNeighborAddress());
             }
             return Futures.immediateFuture(null);
         }

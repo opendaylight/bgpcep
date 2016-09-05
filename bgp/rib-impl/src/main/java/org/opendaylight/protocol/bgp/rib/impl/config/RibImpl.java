@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
+import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getAfiSafiWithDefault;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import java.util.List;
@@ -73,7 +75,6 @@ public final class RibImpl implements RIB, AutoCloseable {
     private AsNumber asNumber;
     private Ipv4Address routerId;
 
-    @SuppressWarnings("deprecation")
     public RibImpl(final ClusterSingletonServiceProvider provider, final RIBExtensionConsumerContext contextProvider, final BGPDispatcher dispatcher,
             final BindingCodecTreeFactory codecTreeFactory, final DOMDataBroker domBroker, final SchemaService schemaService) {
         this.provider = Preconditions.checkNotNull(provider);
@@ -87,12 +88,12 @@ public final class RibImpl implements RIB, AutoCloseable {
     void start(final Global global, final String instanceName, final BGPOpenConfigMappingService mappingService,
         final BgpDeployer.WriteConfiguration configurationWriter) {
         Preconditions.checkState(this.ribImpl == null, "Previous instance %s was not closed.", this);
-        this.ribImpl = createRib(provider, global, instanceName, mappingService, configurationWriter);
+        this.ribImpl = createRib(this.provider, global, instanceName, mappingService, configurationWriter);
         this.schemaContextRegistration = this.schemaService.registerSchemaContextListener(this.ribImpl);
     }
 
     Boolean isGlobalEqual(final Global global) {
-        final List<AfiSafi> globalAfiSafi = global.getAfiSafis().getAfiSafi();
+        final List<AfiSafi> globalAfiSafi = getAfiSafiWithDefault(global.getAfiSafis(), true);
         final AsNumber globalAs = global.getConfig().getAs();
         final Ipv4Address globalRouterId = global.getConfig().getRouterId();
         return this.afiSafi.containsAll(globalAfiSafi) && globalAfiSafi.containsAll(this.afiSafi)
@@ -169,7 +170,7 @@ public final class RibImpl implements RIB, AutoCloseable {
         if (this.ribImpl != null) {
             try {
                 this.ribImpl.close();
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 LOG.warn("Failed to close {} rib instance", this, e);
             }
             this.ribImpl = null;
@@ -219,7 +220,7 @@ public final class RibImpl implements RIB, AutoCloseable {
 
     private RIBImpl createRib(final ClusterSingletonServiceProvider provider, final Global global, final String bgpInstanceName,
         final BGPOpenConfigMappingService mappingService, final BgpDeployer.WriteConfiguration configurationWriter) {
-        this.afiSafi = global.getAfiSafis().getAfiSafi();
+        this.afiSafi = getAfiSafiWithDefault(global.getAfiSafis(), true);
         this.asNumber = global.getConfig().getAs();
         this.routerId = global.getConfig().getRouterId();
         final Map<TablesKey, PathSelectionMode> pathSelectionModes = mappingService.toPathSelectionMode(this.afiSafi).entrySet()
