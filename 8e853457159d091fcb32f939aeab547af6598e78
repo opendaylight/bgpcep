@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_19e5cb37",
+        "filename": "bgp/l3vpn/src/main/java/org/opendaylight/protocol/bgp/l3vpn/AbstractVpnRIBSupport.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2016-09-05T16:08:29Z",
+      "side": 1,
+      "message": "Is this convention mentioned somewhere in Best Practices? https://wiki.opendaylight.org/view/BestPractices",
+      "range": {
+        "startLine": 76,
+        "startChar": 8,
+        "endLine": 76,
+        "endChar": 13
+      },
+      "revId": "8e853457159d091fcb32f939aeab547af6598e78",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
