@@ -9,6 +9,7 @@
 package org.opendaylight.protocol.bgp.mode.impl.add.all.paths;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.protocol.bgp.mode.api.BestPathState;
@@ -43,6 +44,6 @@ abstract class AbstractAllPathsRouteEntry extends AddPathAbstractRouteEntry {
                 }
             }
         }
-        return isBestPathNew(newBestPathList);
+        return isBestPathNew(ImmutableList.copyOf(newBestPathList));
     }
 }

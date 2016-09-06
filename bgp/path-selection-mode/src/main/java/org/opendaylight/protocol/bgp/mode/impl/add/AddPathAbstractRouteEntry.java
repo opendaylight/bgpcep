@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.mode.impl.add;
 
 import com.google.common.collect.Lists;
+import com.google.common.primitives.UnsignedInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,8 @@ import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
 import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup.PeerExporTuple;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
+import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
@@ -52,6 +55,27 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
     protected ContainerNode[] values = new ContainerNode[0];
     protected Long[] pathsId = new Long[0];
     private long pathIdCounter = 0L;
+    private boolean oldNonAddPathBestPathTheSame;
+    private List<AddPathBestPath> newBestPathToBeAdvertised;
+    private List<RemovedPath> removedPaths;
+
+    private static final class RemovedPath {
+        private final RouteKey key;
+        private final Long pathId;
+
+        RemovedPath(final RouteKey key, final Long pathId) {
+            this.key = key;
+            this.pathId = pathId;
+        }
+
+        Long getPathId() {
+            return this.pathId;
+        }
+
+        UnsignedInteger getRouteId() {
+            return this.key.getRouteId();
+        }
+    }
 
     private int addRoute(final RouteKey key, final ContainerNode attributes) {
         int offset = this.offsets.offsetOf(key);
@@ -84,24 +108,43 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
      * @return true if it was the last route
      */
     protected final boolean removeRoute(final RouteKey key, final int offset) {
+        final Long pathId = this.offsets.getValue(this.pathsId, offset);
         this.values = this.offsets.removeValue(this.values, offset);
         this.pathsId = this.offsets.removeValue(this.pathsId, offset);
         this.offsets = this.offsets.without(key);
+        if(this.removedPaths == null) {
+            this.removedPaths = new ArrayList<>();
+        }
+        this.removedPaths.add(new RemovedPath(key, pathId));
         return isEmpty();
     }
 
     @Override
     public void updateRoute(final TablesKey localTK, final ExportPolicyPeerTracker peerPT, final YangInstanceIdentifier locRibTarget, final RIBSupport ribSup,
         final CacheDisconnectedPeers discPeers, final DOMDataWriteTransaction tx, final PathArgument routeIdPA) {
+        //FIXME: Here we should have 2 independent removal for LocRib and RibOut, first will be only executed for best path changes, the second
+        // when the owner of the route removes it.
         if(this.bestPathRemoved != null) {
-            this.bestPathRemoved.forEach(path -> removePathFromDataStore(path, isFirstBestPath(bestPathRemoved.indexOf(path)), routeIdPA, locRibTarget, ribSup,
-                peerPT, localTK, discPeers, tx));
+            this.bestPathRemoved.forEach(path -> {
+                final PathArgument routeIdAddPath = ribSup.getRouteIdAddPath(path.getPathId(), routeIdPA);
+                final YangInstanceIdentifier pathAddPathTarget = ribSup.routePath(locRibTarget.node(ROUTES_IDENTIFIER), routeIdAddPath);
+                fillLocRib(pathAddPathTarget, null, tx);
+            });
             this.bestPathRemoved = null;
         }
+        if(this.removedPaths != null) {
+            this.removedPaths.forEach(removedPath -> {
+                final PathArgument routeIdAddPath = ribSup.getRouteIdAddPath(removedPath.getPathId(), routeIdPA);
+                fillAdjRibsOut(true, null, null, null, routeIdPA, routeIdAddPath, RouterIds.createPeerId(removedPath.getRouteId()),
+                    peerPT, localTK, ribSup, discPeers, tx);
+            });
+            this.removedPaths = null;
+        }
 
-        if(this.bestPath != null) {
-            this.bestPath.forEach(path -> addPathToDataStore(path, isFirstBestPath(this.bestPath.indexOf(path)), routeIdPA, locRibTarget, ribSup,
-                peerPT, localTK, discPeers, tx));
+        if(this.newBestPathToBeAdvertised != null) {
+            this.newBestPathToBeAdvertised.forEach(path -> addPathToDataStore(path, isFirstBestPath(this.bestPath.indexOf(path)), routeIdPA,
+                locRibTarget, ribSup, peerPT, localTK, discPeers, tx));
+            this.newBestPathToBeAdvertised = null;
         }
     }
 
@@ -178,7 +221,7 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
                         if (destPeerSupAddPath) {
                             update(destPeer, getAdjRibOutYII(ribSup, pid.getValue().getYii(), routeIdAddPath, localTK), effectiveAttributes,
                                 addPathValue, ribSup, tx);
-                        } else {
+                        } else if(!this.oldNonAddPathBestPathTheSame){
                             update(destPeer, getAdjRibOutYII(ribSup, pid.getValue().getYii(), routeId, localTK), effectiveAttributes, value, ribSup, tx);
                         }
                     }
@@ -237,13 +280,23 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
     }
 
     protected boolean isBestPathNew(final List<AddPathBestPath> newBestPathList) {
+        this.oldNonAddPathBestPathTheSame = isNonAddPathBestPathTheSame(newBestPathList);
         filterRemovedPaths(newBestPathList);
         if (this.bestPathRemoved != null && !this.bestPathRemoved.isEmpty() || newBestPathList != null && !newBestPathList.equals(this.bestPath)) {
+            this.newBestPathToBeAdvertised = new ArrayList<>(newBestPathList);
+            if(this.bestPath != null) {
+                this.newBestPathToBeAdvertised.removeAll(this.bestPath);
+            }
             this.bestPath = newBestPathList;
             LOG.trace("Actual Best {}, removed best {}", this.bestPath, this.bestPathRemoved);
             return true;
         }
         return false;
+    }
+
+    private boolean isNonAddPathBestPathTheSame(final List<AddPathBestPath> newBestPathList) {
+        return !(this.bestPath == null || newBestPathList == null || this.bestPath.isEmpty() || newBestPathList.isEmpty()) &&
+            this.bestPath.get(0).equals(newBestPathList.get(0));
     }
 
     private void filterRemovedPaths(final List<AddPathBestPath> newBestPathList) {
