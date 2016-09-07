@@ -20,7 +20,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgum
 
 public final class IdentifierUtils {
     private static final Predicate<PathArgument> IS_PEER = input -> input instanceof NodeIdentifierWithPredicates && Peer.QNAME.equals(input.getNodeType());
-    private static final Predicate<PathArgument> IS_TABLES = input -> Tables.QNAME.equals(input.getNodeType());
+    private static final Predicate<PathArgument> IS_TABLES = input -> input instanceof NodeIdentifierWithPredicates && Tables.QNAME.equals(input.getNodeType());
     private static final QName PEER_ID = QName.create(Peer.QNAME, "peer-id").intern();
 
     private IdentifierUtils() {
