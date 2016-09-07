@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPBestPathSelection;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer;
