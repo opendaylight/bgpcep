@@ -32,8 +32,6 @@ public abstract class AbstractVendorSpecificTlvParser implements TlvParser, TlvS
 
     public static final int TYPE = 27;
 
-    protected static final int ENTERPRISE_NUM_LENGTH = 4;
-
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
         Preconditions.checkArgument(tlv instanceof VsTlv, "Vendor Specific Tlv is mandatory.");

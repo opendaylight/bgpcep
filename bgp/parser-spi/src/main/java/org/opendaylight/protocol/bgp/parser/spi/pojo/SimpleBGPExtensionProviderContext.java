@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
-import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import java.util.concurrent.atomic.AtomicReference;
@@ -145,18 +144,6 @@ public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsume
     @Override
     public ReferenceCache getReferenceCache() {
         return this.referenceCache;
-    }
-
-    public final synchronized int getMaximumCachedObjects() {
-        return this.maximumCachedObjects;
-    }
-
-    public final synchronized void setMaximumCachedObjects(final int maximumCachedObjects) {
-        Preconditions.checkArgument(maximumCachedObjects >= 0);
-
-        final Cache<Object, Object> newCache = CacheBuilder.newBuilder().maximumSize(maximumCachedObjects).build();
-        newCache.putAll(this.cacheRef.get().asMap());
-        this.cacheRef.set(newCache);
     }
 
     @Override

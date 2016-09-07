@@ -160,7 +160,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         }
         final PcreqMessageBuilder mBuilder = new PcreqMessageBuilder();
         mBuilder.setMonitoringRequest(getMonitoring(objects));
-        final List<Svec> svecs = getSvecs(objects, errors);
+        final List<Svec> svecs = getSvecs(objects);
         if (!svecs.isEmpty()) {
             mBuilder.setSvec(svecs);
         }
@@ -176,7 +176,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         return new PcreqBuilder().setPcreqMessage(mBuilder.build()).build();
     }
 
-    protected List<Svec> getSvecs(final List<Object> objects, final List<Message> errors) {
+    protected List<Svec> getSvecs(final List<Object> objects) {
         final List<Svec> svecList = new ArrayList<>();
         while (!objects.isEmpty()) {
             final SvecBuilder sBuilder = new SvecBuilder();

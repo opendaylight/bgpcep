@@ -418,11 +418,6 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
     }
 
     @Override
-    public boolean isSessionActive() {
-        return this.session != null;
-    }
-
-    @Override
     public synchronized byte[] getRawIdentifier() {
         return Arrays.copyOf(this.rawIdentifier, this.rawIdentifier.length);
     }
@@ -437,10 +432,6 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         if (this.session instanceof BGPSessionStats) {
             ((BGPSessionStats) this.session).resetBgpSessionStats();
         }
-    }
-
-    public synchronized void registerRootRuntimeBean(final BGPPeerRuntimeRegistrator registrator) {
-        this.registrator = registrator;
     }
 
     @Override

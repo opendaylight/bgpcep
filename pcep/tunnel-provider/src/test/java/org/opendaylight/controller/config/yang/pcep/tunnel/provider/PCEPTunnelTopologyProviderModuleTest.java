@@ -11,7 +11,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import io.netty.channel.nio.NioEventLoopGroup;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import javax.management.ObjectName;
 import org.junit.Before;

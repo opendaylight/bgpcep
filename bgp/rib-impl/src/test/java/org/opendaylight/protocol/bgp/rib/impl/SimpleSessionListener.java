@@ -39,11 +39,6 @@ public final class SimpleSessionListener implements BGPSessionListener {
     }
 
     @Override
-    public boolean isSessionActive() {
-        return getSession().isWritable();
-    }
-
-    @Override
     public void markUptodate(final TablesKey tablesKey) {
         LOG.debug("Table marked as up-to-date {}", tablesKey);
     }
