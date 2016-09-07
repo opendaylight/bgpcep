@@ -46,11 +46,6 @@ public final class BasePCEPSessionProposalFactory implements PCEPSessionProposal
     }
 
     @Override
-    public Open getSessionProposal(final InetSocketAddress address, final int sessionId) {
-        return getSessionProposal(address, sessionId, null);
-    }
-
-    @Override
     public Open getSessionProposal(final InetSocketAddress address, final int sessionId,
             final PCEPPeerProposal peerProposal) {
         final OpenBuilder oBuilder = new OpenBuilder();
@@ -69,14 +64,6 @@ public final class BasePCEPSessionProposalFactory implements PCEPSessionProposal
             peerProposal.setPeerSpecificProposal(address, builder);
         }
         return oBuilder.setTlvs(builder.build()).build();
-    }
-
-    public int getKeepAlive() {
-        return this.keepAlive;
-    }
-
-    public int getDeadTimer() {
-        return this.deadTimer;
     }
 
     @Override

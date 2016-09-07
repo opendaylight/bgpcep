@@ -17,9 +17,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * @author Kevin Wang
- */
 public final class PerTableTypeRouteCounter {
     private static final Logger LOG = LoggerFactory.getLogger(PerTableTypeRouteCounter.class);
 
@@ -61,15 +58,6 @@ public final class PerTableTypeRouteCounter {
      */
     @Nonnull public final UnsignedInt32Counter getCounterOrDefault(@Nonnull final TablesKey tablesKey) {
         return this.counters.getOrDefault(Preconditions.checkNotNull(tablesKey), createCounter(tablesKey));
-    }
-
-    /**
-     * Get the counter with given tablesKey
-     * @param tablesKey
-     * @return
-     */
-    public final UnsignedInt32Counter getCounter(@Nonnull final TablesKey tablesKey) {
-        return this.counters.get(Preconditions.checkNotNull(tablesKey));
     }
 
     /**

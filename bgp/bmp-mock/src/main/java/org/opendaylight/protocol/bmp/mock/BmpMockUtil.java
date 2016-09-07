@@ -94,7 +94,7 @@ final class BmpMockUtil {
     private static PeerHeader createPeerHeader(final Ipv4Address bgpId, final AdjRibInType ribType) {
         return new PeerHeaderBuilder()
             .setAddress(new IpAddress(bgpId))
-            .setAdjRibInType(AdjRibInType.PrePolicy)
+            .setAdjRibInType(ribType)
             .setAs(new AsNumber(ASN))
             .setBgpId(bgpId)
             .setIpv4(true)

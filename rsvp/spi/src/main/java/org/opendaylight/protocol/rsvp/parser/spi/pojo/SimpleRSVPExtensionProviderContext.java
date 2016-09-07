@@ -8,7 +8,6 @@
 
 package org.opendaylight.protocol.rsvp.parser.spi.pojo;
 
-import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import java.util.concurrent.atomic.AtomicReference;
@@ -59,18 +58,6 @@ public class SimpleRSVPExtensionProviderContext extends SimpleRSVPExtensionConsu
 
         final Cache<Object, Object> cache = CacheBuilder.newBuilder().maximumSize(maximumCachedObjects).build();
         this.cacheRef = new AtomicReference<Cache<Object,Object>>(cache);
-    }
-
-    public final synchronized int getMaximumCachedObjects() {
-        return this.maximumCachedObjects;
-    }
-
-    public final synchronized void setMaximumCachedObjects(final int maximumCachedObjects) {
-        Preconditions.checkArgument(maximumCachedObjects >= 0);
-
-        final Cache<Object, Object> newCache = CacheBuilder.newBuilder().maximumSize(maximumCachedObjects).build();
-        newCache.putAll(this.cacheRef.get().asMap());
-        this.cacheRef.set(newCache);
     }
 
     @Override

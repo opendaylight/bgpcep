@@ -38,7 +38,6 @@ public class MultiProtocolCapabilityHandlerTest {
     private final static Class safi = UnicastSubsequentAddressFamily.class;
     @Mock private SubsequentAddressFamilyRegistry safir;
     @Mock private SubsequentAddressFamilyRegistry safirException;
-    private final ByteBuf serializedBytes = Unpooled.copiedBuffer(new byte[] {1, 4, 1, 4, 0, 4});
 
     @Before
     public void setUp() {

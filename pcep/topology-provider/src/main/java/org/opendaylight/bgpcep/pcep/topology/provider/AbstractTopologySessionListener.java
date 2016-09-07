@@ -498,10 +498,6 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         return this.pccIdentifier.child(ReportedLsp.class, new ReportedLspKey(name));
     }
 
-    protected final InstanceIdentifier<PathComputationClient> getPccIdentifier() {
-        return this.pccIdentifier;
-    }
-
     /**
      * Remove LSP from the database.
      *

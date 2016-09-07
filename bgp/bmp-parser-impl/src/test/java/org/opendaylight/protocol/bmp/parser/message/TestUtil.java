@@ -274,10 +274,6 @@ public final class TestUtil {
         return routeMirrorMsgBuilder.build();
     }
 
-    public static RouteMirroringMessage createRouteMirrorMsg() {
-        return createRouteMirrorMsg(IPV4_ADDRESS_10);
-    }
-
     private static Update createUpdate(final boolean withNormalizedIpv4Prefixes) {
         final UpdateBuilder updateBuilder = new UpdateBuilder()
             .setAttributes(createAttributes())

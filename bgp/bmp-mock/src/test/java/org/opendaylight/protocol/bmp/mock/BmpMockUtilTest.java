@@ -77,7 +77,7 @@ public class BmpMockUtilTest {
     @Test
     public void testCreateRouteMonitoringPostPolicy() {
         final RouteMonitoringMessage routeMonitoring = BmpMockUtil.createRouteMonitoring(PEER_IP, AdjRibInType.PostPolicy, PREFIX);
-        assertEquals(AdjRibInType.PrePolicy, routeMonitoring.getPeerHeader().getAdjRibInType());
+        assertEquals(AdjRibInType.PostPolicy, routeMonitoring.getPeerHeader().getAdjRibInType());
     }
 
     @Test(expected=UnsupportedOperationException.class)
@@ -90,5 +90,4 @@ public class BmpMockUtilTest {
             throw e.getCause();
         }
     }
-
 }
