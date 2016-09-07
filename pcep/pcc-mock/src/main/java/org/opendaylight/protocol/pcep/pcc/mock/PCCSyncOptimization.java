@@ -78,13 +78,6 @@ final class PCCSyncOptimization {
         return this.remoteLspDbVersion.getLspDbVersionValue();
     }
 
-    public boolean isRemoteLspDbVersionNull() {
-        if (this.remoteLspDbVersion == null) {
-            return true;
-        }
-        return false;
-    }
-
     private static LspDbVersion getLspDbVersion(final Tlvs openTlvs) {
         if (openTlvs != null) {
             final Tlvs3 tlvs3 = openTlvs.getAugmentation(Tlvs3.class);

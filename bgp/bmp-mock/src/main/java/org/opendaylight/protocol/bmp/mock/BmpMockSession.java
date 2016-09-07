@@ -21,7 +21,6 @@ import java.net.InetSocketAddress;
 import org.opendaylight.protocol.bmp.api.BmpSession;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.AdjRibInType;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,17 +83,17 @@ public final class BmpMockSession extends SimpleChannelInboundHandler<Notificati
         for (int i = 0; i < this.peersCount; i++) {
             channel.writeAndFlush(BmpMockUtil.createPeerUp(peerAddress, localAddress.getAddress()));
             LOG.debug("BMP router {} advertized peer {}", channel.localAddress(), peerAddress);
-            advertizeRoutes(this.prePolicyRoutesCount, AdjRibInType.PrePolicy, channel, peerAddress);
-            advertizeRoutes(this.postPolicyRoutesCount, AdjRibInType.PostPolicy, channel, peerAddress);
+            advertizeRoutes(this.prePolicyRoutesCount, channel, peerAddress);
+            advertizeRoutes(this.postPolicyRoutesCount, channel, peerAddress);
             peerAddress = incrementIpv4Address(peerAddress);
         }
     }
 
-    private static void advertizeRoutes(final int count, final AdjRibInType type, final Channel channel,
+    private static void advertizeRoutes(final int count, final Channel channel,
             final Ipv4Address peerAddress) {
         Ipv4Prefix prefix = PREFIX;
         for (int i = 0; i < count; i++) {
-            channel.writeAndFlush(BmpMockUtil.createRouteMonitoring(peerAddress, type, prefix));
+            channel.writeAndFlush(BmpMockUtil.createRouteMonitoring(peerAddress, prefix));
             prefix = incrementIpv4Prefix(prefix);
         }
     }

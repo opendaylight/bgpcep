@@ -173,13 +173,6 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
         return transaction.createModule(StrictBgpPeerRegistryModuleFactory.NAME, "peer-registry");
     }
 
-    private static BGPDispatcherImplModuleMXBean getBgpDispatcherImplModuleMXBean(final ConfigTransactionJMXClient transaction,
-            final BGPPeerModuleMXBean mxBean) {
-        final RIBImplModuleMXBean ribProxy = transaction.newMXBeanProxy(mxBean.getRib(), RIBImplModuleMXBean.class);
-        final ObjectName dispatcherON = ribProxy.getBgpDispatcher();
-        return transaction.newMXBeanProxy(dispatcherON, BGPDispatcherImplModuleMXBean.class);
-    }
-
     private CommitStatus createBgpPeerInstance() throws Exception {
         return createBgpPeerInstance(false);
     }

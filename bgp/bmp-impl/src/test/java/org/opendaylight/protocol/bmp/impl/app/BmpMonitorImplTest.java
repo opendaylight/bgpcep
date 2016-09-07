@@ -43,7 +43,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.controller.config.yang.bmp.impl.MonitoredRouter;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
 import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
@@ -131,7 +130,6 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
     private BmpDispatcher dispatcher;
     private BmpMonitoringStation bmpApp;
     private BmpMessageRegistry msgRegistry;
-    private List<MonitoredRouter> mrs;
     private ModuleInfoBackedContext moduleInfoBackedContext;
 
 
@@ -169,7 +167,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
 
         this.bmpApp = BmpMonitoringStationImpl.createBmpMonitorInstance(ribExtension, this.dispatcher, getDomBroker(),
                 MONITOR_ID, new InetSocketAddress(InetAddresses.forString(MONITOR_LOCAL_ADDRESS), MONITOR_LOCAL_PORT), Optional.of(keys),
-                this.mappingService.getCodecFactory(), this.moduleInfoBackedContext.getSchemaContext(), this.mrs);
+                this.mappingService.getCodecFactory(), this.moduleInfoBackedContext.getSchemaContext(), null);
 
         readData(InstanceIdentifier.create(BmpMonitor.class), monitor -> {
             Assert.assertEquals(1, monitor.getMonitor().size());
@@ -419,7 +417,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
     public void deploySecondInstance() throws Exception {
         final BmpMonitoringStation monitoringStation2 = BmpMonitoringStationImpl.createBmpMonitorInstance(new SimpleRIBExtensionProviderContext(), this.dispatcher, getDomBroker(),
                 new MonitorId("monitor2"), new InetSocketAddress(InetAddresses.forString(MONITOR_LOCAL_ADDRESS_2), MONITOR_LOCAL_PORT), Optional.of(KeyMapping.getKeyMapping()),
-                this.mappingService.getCodecFactory(), this.moduleInfoBackedContext.getSchemaContext(), this.mrs);
+                this.mappingService.getCodecFactory(), this.moduleInfoBackedContext.getSchemaContext(), null);
 
         readData(InstanceIdentifier.create(BmpMonitor.class), monitor -> {
             Assert.assertEquals(2, monitor.getMonitor().size());

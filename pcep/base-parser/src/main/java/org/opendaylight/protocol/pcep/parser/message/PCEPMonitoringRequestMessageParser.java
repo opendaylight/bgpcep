@@ -68,7 +68,7 @@ public class PCEPMonitoringRequestMessageParser extends PCEPRequestMessageParser
         }
         final PcreqMessageBuilder mBuilder = new PcreqMessageBuilder();
         mBuilder.setMonitoringRequest(monReq);
-        final List<Svec> svecs = getSvecs(objects, errors);
+        final List<Svec> svecs = getSvecs(objects);
         if (!svecs.isEmpty()) {
             mBuilder.setSvec(svecs);
         }

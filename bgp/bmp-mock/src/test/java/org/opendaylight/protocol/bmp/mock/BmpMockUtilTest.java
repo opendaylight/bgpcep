@@ -62,7 +62,7 @@ public class BmpMockUtilTest {
 
     @Test
     public void testCreateRouteMonitoringPrePolicy() {
-        final RouteMonitoringMessage routeMonitoring = BmpMockUtil.createRouteMonitoring(PEER_IP, AdjRibInType.PrePolicy, PREFIX);
+        final RouteMonitoringMessage routeMonitoring = BmpMockUtil.createRouteMonitoring(PEER_IP, PREFIX);
         final PeerHeader peerHeader = routeMonitoring.getPeerHeader();
         assertEquals(PEER_IP, peerHeader.getAddress().getIpv4Address());
         assertEquals(65431L, peerHeader.getAs().getValue().longValue());
@@ -76,7 +76,7 @@ public class BmpMockUtilTest {
 
     @Test
     public void testCreateRouteMonitoringPostPolicy() {
-        final RouteMonitoringMessage routeMonitoring = BmpMockUtil.createRouteMonitoring(PEER_IP, AdjRibInType.PostPolicy, PREFIX);
+        final RouteMonitoringMessage routeMonitoring = BmpMockUtil.createRouteMonitoring(PEER_IP, PREFIX);
         assertEquals(AdjRibInType.PrePolicy, routeMonitoring.getPeerHeader().getAdjRibInType());
     }
 

@@ -452,16 +452,6 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         return this.channel != null && this.channel.isWritable();
     }
 
-    void schedule(final Runnable task) {
-        Preconditions.checkState(this.channel != null);
-        this.channel.eventLoop().submit(task);
-    }
-
-    @VisibleForTesting
-    protected synchronized void setLastMessageSentAt(final long lastMessageSentAt) {
-        this.lastMessageSentAt = lastMessageSentAt;
-    }
-
     @Override
     public synchronized BgpSessionState getBgpSessionState() {
         return this.sessionStats.getBgpSessionState();

@@ -203,11 +203,6 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
     }
 
     @Override
-    public PeerId getPeerId() {
-        return this.peerId;
-    }
-
-    @Override
     public void close() {
         Preconditions.checkState(this.up, "Already closed.");
         this.up = false;

@@ -72,10 +72,6 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
         }
     }
 
-    public synchronized void removeLspMetadata(final String name) {
-        metadata.remove(name);
-    }
-
     public synchronized void cleanupExcept(final Collection<String> values) {
         final Iterator<String> it = metadata.keySet().iterator();
         while (it.hasNext()) {
