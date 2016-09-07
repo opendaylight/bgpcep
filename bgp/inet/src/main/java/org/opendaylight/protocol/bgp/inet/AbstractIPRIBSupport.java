@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.inet;
 
+import com.google.common.annotations.Beta;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableCollection;
@@ -35,6 +36,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Common {@link org.opendaylight.protocol.bgp.rib.spi.RIBSupport} class for IPv4 and IPv6 addresses.
  */
+@Beta
 abstract class AbstractIPRIBSupport extends MultiPathAbstractRIBSupport {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractIPRIBSupport.class);
     private final NodeIdentifier prefixNid;
