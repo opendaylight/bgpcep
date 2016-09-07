@@ -8,6 +8,7 @@
 
 package org.opendaylight.protocol.bgp.rib.spi;
 
+import com.google.common.annotations.Beta;
 import com.google.common.collect.ImmutableMap;
 import javax.annotation.Nonnull;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
@@ -25,6 +26,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 /**
  * Implements common methods for Advertisement of Multiple Paths on ribSupport
  */
+@Beta
 public abstract class MultiPathAbstractRIBSupport extends AbstractRIBSupport {
     private final QName routeKeyQname;
     private final QName pathIdQname;
@@ -53,7 +55,7 @@ public abstract class MultiPathAbstractRIBSupport extends AbstractRIBSupport {
         this.pathIdNid = new NodeIdentifier(this.pathIdQname);
     }
 
-    public final NodeIdentifier routePathIdNid() {
+    protected final NodeIdentifier routePathIdNid() {
         return this.pathIdNid;
     }
 

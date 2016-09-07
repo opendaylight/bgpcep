@@ -166,7 +166,7 @@ public final class OpenConfigUtil {
     }
 
     public static AfiSafi toGlobalAfiSafiAddPath(final AfiSafi afiSafi, final BgpTableType tableType,
-            final Map<TablesKey, PathSelectionMode> multiPathTables) {
+        final Map<TablesKey, PathSelectionMode> multiPathTables) {
         final PathSelectionMode pathSelection = multiPathTables.get(new TablesKey(tableType.getAfi(), tableType.getSafi()));
         if (pathSelection == null) {
             return afiSafi;
@@ -178,27 +178,28 @@ public final class OpenConfigUtil {
             maxPaths = 0L;
         }
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi2 addPath = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi2Builder()
-        .setReceive(false)
-        .setSendMax(Shorts.checkedCast(maxPaths))
-        .build();
+            .setReceive(true)
+            .setSendMax(Shorts.checkedCast(maxPaths))
+            .build();
         return new AfiSafiBuilder(afiSafi)
-        .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi2.class,
+            .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi2.class,
                 addPath).build();
     }
 
     public static AfiSafi toNeighborAfiSafiAddPath(final AfiSafi afiSafi, final BgpTableType tableType, final List<AddressFamilies> capabilities) {
-        final Optional<AddressFamilies> capability = Iterables.tryFind(capabilities, af -> af.getAfi().equals(tableType.getAfi()) && af.getSafi().equals(tableType.getSafi()));
+        final Optional<AddressFamilies> capability = Iterables.tryFind(capabilities,
+            af -> af.getAfi().equals(tableType.getAfi()) && af.getSafi().equals(tableType.getSafi()));
         if (!capability.isPresent()) {
             return afiSafi;
         }
         return new AfiSafiBuilder(afiSafi)
-        .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi1.class,
+            .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi1.class,
                 fromSendReceiveMode(capability.get().getSendReceive())).build();
     }
 
     private static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi1 fromSendReceiveMode(final SendReceive mode) {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi1Builder builder =
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi1Builder();
+            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi1Builder();
         switch (mode) {
         case Both:
             builder.setReceive(true).setSendMax((short) 0);
@@ -239,6 +240,21 @@ public final class OpenConfigUtil {
             }
         }
         return PeerRole.Ibgp;
+    }
+
+    public static PeerType toPeerType(final PeerRole peerRole) {
+        switch (peerRole) {
+        case Ibgp:
+        case RrClient:
+            return PeerType.INTERNAL;
+        case Ebgp:
+            return PeerType.EXTERNAL;
+        case Internal:
+            break;
+        default:
+            break;
+        }
+        return null;
     }
 
     private static boolean isRrClient(final Neighbor neighbor) {
