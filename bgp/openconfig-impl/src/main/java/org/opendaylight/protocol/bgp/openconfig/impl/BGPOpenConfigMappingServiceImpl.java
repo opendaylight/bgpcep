@@ -9,6 +9,7 @@
 package org.opendaylight.protocol.bgp.openconfig.impl;
 
 import static org.opendaylight.protocol.bgp.openconfig.impl.util.OpenConfigUtil.APPLICATION_PEER_GROUP_NAME;
+import static org.opendaylight.protocol.bgp.openconfig.impl.util.OpenConfigUtil.toPeerType;
 
 import com.google.common.base.Optional;
 import java.math.BigDecimal;
@@ -191,7 +192,7 @@ public final class BGPOpenConfigMappingServiceImpl implements BGPOpenConfigMappi
                 new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.ConfigBuilder()
                 .setAuthPassword(password != null ? password.getValue() : null)
                 .setPeerAs(remoteAs)
-                .setPeerType(toPeerTye(peerRole))
+                .setPeerType(toPeerType(peerRole))
                 .setSendCommunity(CommunityType.NONE)
                 .setRouteFlapDamping(Boolean.FALSE)
                 .build());
@@ -206,21 +207,6 @@ public final class BGPOpenConfigMappingServiceImpl implements BGPOpenConfigMappi
                 new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.route.reflector.ConfigBuilder()
                 .setRouteReflectorClient(peerRole == PeerRole.RrClient).build()).build());
         return neighborBuilder.build();
-    }
-
-    private static PeerType toPeerTye(final PeerRole peerRole) {
-        switch (peerRole) {
-        case Ibgp:
-        case RrClient:
-            return PeerType.INTERNAL;
-        case Ebgp:
-            return PeerType.EXTERNAL;
-        case Internal:
-            break;
-        default:
-            break;
-        }
-        return null;
     }
 
     @Override

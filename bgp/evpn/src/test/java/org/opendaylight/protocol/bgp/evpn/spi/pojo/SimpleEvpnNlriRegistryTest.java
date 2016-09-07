@@ -38,10 +38,10 @@ import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContaine
 public final class SimpleEvpnNlriRegistryTest {
     public static final YangInstanceIdentifier.NodeIdentifier EVPN_NID = new YangInstanceIdentifier.NodeIdentifier(EvpnChoice.QNAME);
 
-    private class notRegistered implements EvpnChoice {
+    private class NotRegistered implements EvpnChoice {
         @Override
         public Class<? extends DataContainer> getImplementedInterface() {
-            return notRegistered.class;
+            return NotRegistered.class;
         }
     }
 
@@ -71,7 +71,7 @@ public final class SimpleEvpnNlriRegistryTest {
     @Test
     public void registryNullTest() {
         final ByteBuf body = Unpooled.buffer();
-        SimpleEvpnNlriRegistry.getInstance().serializeEvpn(new notRegistered(), body);
+        SimpleEvpnNlriRegistry.getInstance().serializeEvpn(new NotRegistered(), body);
         assertEquals(0, body.readableBytes());
     }
 

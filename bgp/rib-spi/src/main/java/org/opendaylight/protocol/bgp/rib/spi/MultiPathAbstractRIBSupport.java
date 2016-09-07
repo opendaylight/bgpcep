@@ -53,7 +53,7 @@ public abstract class MultiPathAbstractRIBSupport extends AbstractRIBSupport {
         this.pathIdNid = new NodeIdentifier(this.pathIdQname);
     }
 
-    public final NodeIdentifier routePathIdNid() {
+    protected final NodeIdentifier routePathIdNid() {
         return this.pathIdNid;
     }
 

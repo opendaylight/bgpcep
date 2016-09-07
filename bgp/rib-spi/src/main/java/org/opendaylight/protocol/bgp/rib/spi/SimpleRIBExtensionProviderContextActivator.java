@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Thomas Pantelis
  */
-public class SimpleRIBExtensionProviderContextActivator implements AutoCloseable {
+public final class SimpleRIBExtensionProviderContextActivator implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(SimpleRIBExtensionProviderContextActivator.class);
 
     private final RIBExtensionProviderContext providerContext;
