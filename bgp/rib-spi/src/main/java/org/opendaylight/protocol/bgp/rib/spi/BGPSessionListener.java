@@ -18,13 +18,6 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 public interface BGPSessionListener extends EventListener {
 
     /**
-     * Returns state of BGP session associated with this listener.
-     *
-     * @return false if session associated with this listener is null, true if its non-null
-     */
-    boolean isSessionActive();
-
-    /**
      * Marks synchronization finished for given Table key
      *
      * @param tablesKey of the table where synchronization finished

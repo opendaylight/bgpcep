@@ -20,15 +20,8 @@ import org.opendaylight.protocol.bgp.rib.impl.stats.peer.route.PerTableTypeRoute
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.common.QName;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-/**
- * @author Kevin Wang
- */
 public final class BGPPeerStatsImpl implements BGPPeerStats {
-    private static final Logger LOG = LoggerFactory.getLogger(BGPPeerStatsImpl.class);
-
     private final Set<TablesKey> tablesKeySet;
     private final PerTableTypeRouteCounter adjRibInRouteCounters;
     private final PerTableTypeRouteCounter adjRibOutRouteCounters;

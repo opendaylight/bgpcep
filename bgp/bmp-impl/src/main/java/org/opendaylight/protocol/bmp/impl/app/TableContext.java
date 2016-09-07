@@ -104,10 +104,6 @@ final class TableContext {
                         new NodeIdentifier(TablesUtil.BMP_ROUTES_QNAME)).build()).build());
     }
 
-    void removeTable(final DOMDataWriteTransaction tx) {
-        tx.delete(LogicalDatastoreType.OPERATIONAL, this.tableId);
-    }
-
     void writeRoutes(final DOMDataWriteTransaction tx, final MpReachNlri nlri, final Attributes attributes) {
         final ContainerNode domNlri = serializeReachNlri(nlri);
         final ContainerNode routeAttributes = serializeAttributes(attributes);

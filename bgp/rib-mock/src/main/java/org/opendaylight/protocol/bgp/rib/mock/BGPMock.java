@@ -13,8 +13,6 @@ import com.google.common.eventbus.EventBus;
 import io.netty.buffer.Unpooled;
 
 import java.io.Closeable;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -71,22 +69,6 @@ public final class BGPMock implements Closeable {
         return messages;
     }
 
-    public synchronized void insertConnectionLostEvent() {
-        this.insertMessage(CONNECTION_LOST_MAGIC_MSG);
-    }
-
-    public synchronized void insertMessages(final List<Notification> messages) {
-        for (final Notification message : messages) {
-            this.insertMessage(message);
-        }
-    }
-
-    @GuardedBy("this")
-    private void insertMessage(final Notification message) {
-        this.allPreviousBGPMessages.add(message);
-        this.eventBus.post(message);
-    }
-
     @Override
     public synchronized void close() {
         // unregister all EventBusRegistration instances
@@ -94,24 +76,6 @@ public final class BGPMock implements Closeable {
             registration.close();
         }
         this.openRegistrations.clear();
-    }
-
-    public boolean isMessageListSame(final List<byte[]> newMessages) {
-        if (this.allPreviousBGPMessages.size() != newMessages.size()) {
-            return false;
-        }
-        final Iterator<byte[]> i1 = this.allPreviousByteMessages.iterator();
-        final Iterator<byte[]> i2 = newMessages.iterator();
-        for (int i = 0; i < this.allPreviousBGPMessages.size(); i++) {
-            if (!Arrays.equals(i1.next(), i2.next())) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public EventBus getEventBus() {
-        return this.eventBus;
     }
 
     public ListenerRegistration<BGPSessionListener> registerUpdateListener(final BGPSessionListener listener) {

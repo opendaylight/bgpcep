@@ -24,7 +24,6 @@ public class BGPApplicationPeerModuleTest extends AbstractRIBImplModuleTest {
 
     private static final int EXP_INSTANCES = 8;
     private static final String INSTANCE_NAME = "application-peer-instance";
-    private static final String INSTANCE_NAME2 = "application-peer-instance-2";
     private static final String FACTORY_NAME = BGPApplicationPeerModuleFactory.NAME;
     private static final ApplicationRibId APP_RIB_ID = new ApplicationRibId("application-peer-test");
     private static final ApplicationRibId NEW_APP_RIB_ID = new ApplicationRibId("new-application-peer-name");
