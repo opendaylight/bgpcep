@@ -13,7 +13,6 @@ import com.google.common.collect.Interners;
 import com.google.common.collect.MapMaker;
 
 import java.util.IdentityHashMap;
-import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.annotation.Nonnull;

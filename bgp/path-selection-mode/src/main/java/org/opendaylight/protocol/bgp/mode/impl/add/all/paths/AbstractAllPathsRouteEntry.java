@@ -18,8 +18,6 @@ import org.opendaylight.protocol.bgp.mode.impl.add.AddPathAbstractRouteEntry;
 import org.opendaylight.protocol.bgp.mode.impl.add.AddPathBestPath;
 import org.opendaylight.protocol.bgp.mode.impl.add.RouteKey;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 abstract class AbstractAllPathsRouteEntry extends AddPathAbstractRouteEntry {
     @Override
