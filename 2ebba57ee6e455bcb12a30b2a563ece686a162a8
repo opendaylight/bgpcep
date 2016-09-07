@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_3b4991b7",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/AddPathAllPathsTest.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-09-07T19:16:14Z",
+      "side": 1,
+      "message": "Peer1 sends the same prefix again however with worse attributes than the original route.\nAs the peer1 is not add-path-enabled peer, so in Adj-RIB-In, the original route is overriden.\nWhat happens in Loc-RIB? Is the original route removed (but not withdrawn) and replaced with the later one?\n\nThe procedure is explained here: https://tools.ietf.org/html/rfc4271#section-3.1 - see the last paragraph.\n\nHow does it apply when add-path is enabled?",
+      "range": {
+        "startLine": 95,
+        "startChar": 8,
+        "endLine": 95,
+        "endChar": 58
+      },
+      "revId": "2ebba57ee6e455bcb12a30b2a563ece686a162a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
