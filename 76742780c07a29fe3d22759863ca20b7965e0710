@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_2cecb5f2",
+        "filename": "bgp/bmp-mock/src/main/java/org/opendaylight/protocol/bmp/mock/BmpMockUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-09-08T13:14:14Z",
+      "side": 0,
+      "message": "Yeah it is a bug, ribType should be set",
+      "parentUuid": "7a6b29fe_5e60bbce",
+      "range": {
+        "startLine": 97,
+        "startChar": 29,
+        "endLine": 97,
+        "endChar": 51
+      },
+      "revId": "76742780c07a29fe3d22759863ca20b7965e0710",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_dea32bfe",
         "filename": "bgp/bmp-mock/src/test/java/org/opendaylight/protocol/bmp/mock/BmpMockUtilTest.java",
         "patchSetId": 1
