@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_5e60bbce",
+        "filename": "bgp/bmp-mock/src/main/java/org/opendaylight/protocol/bmp/mock/BmpMockUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-09-08T10:22:10Z",
+      "side": 0,
+      "message": "We should use ribType or always must be Prepolicy?",
+      "range": {
+        "startLine": 97,
+        "startChar": 29,
+        "endLine": 97,
+        "endChar": 51
+      },
+      "revId": "76742780c07a29fe3d22759863ca20b7965e0710",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_dea32bfe",
+        "filename": "bgp/bmp-mock/src/test/java/org/opendaylight/protocol/bmp/mock/BmpMockUtilTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-09-08T10:22:10Z",
+      "side": 0,
+      "message": "postPolicy test using prepolicy?",
+      "range": {
+        "startLine": 78,
+        "startChar": 40,
+        "endLine": 80,
+        "endChar": 43
+      },
+      "revId": "76742780c07a29fe3d22759863ca20b7965e0710",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
