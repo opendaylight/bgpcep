@@ -12,18 +12,13 @@ import static org.mockito.Mockito.doReturn;
 import static org.opendaylight.protocol.bgp.rib.spi.RouterIds.createPeerId;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
-import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -81,6 +76,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.LocalPrefBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.OriginBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.OriginatorIdBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.message.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
@@ -114,37 +110,40 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 
-public class AbstractAddPathTest extends AbstractDataBrokerTest {
+class AbstractAddPathTest extends AbstractDataBrokerTest {
 
-    protected static final String RIB_ID = "127.0.0.1";
+    static final String RIB_ID = "127.0.0.1";
     private static final ClusterIdentifier CLUSTER_ID = new ClusterIdentifier(RIB_ID);
-    protected static final Ipv4Address PEER1 = new Ipv4Address("127.0.0.2");
-    protected static final Ipv4Address PEER2 = new Ipv4Address("127.0.0.3");
-    protected static final Ipv4Address PEER3 = new Ipv4Address("127.0.0.4");
-    protected static final Ipv4Address PEER4 = new Ipv4Address("127.0.0.5");
-    protected static final Ipv4Address PEER5 = new Ipv4Address("127.0.0.6");
+    static final Ipv4Address PEER1 = new Ipv4Address("127.0.0.2");
+    static final Ipv4Address PEER2 = new Ipv4Address("127.0.0.3");
+    static final Ipv4Address PEER3 = new Ipv4Address("127.0.0.4");
+    static final Ipv4Address PEER4 = new Ipv4Address("127.0.0.5");
+    static final Ipv4Address PEER5 = new Ipv4Address("127.0.0.6");
+    protected static final Ipv4Address PEER6 = new Ipv4Address("127.0.0.7");
 
-    protected static final PeerId PEER1_ID = createPeerId(PEER1);
-    protected static final PeerId PEER2_ID = createPeerId(PEER2);
-    protected static final PeerId PEER3_ID = createPeerId(PEER3);
-    protected static final PeerId PEER4_ID = createPeerId(PEER4);
-    protected static final PeerId PEER5_ID = createPeerId(PEER5);
+    private static final PeerId PEER1_ID = createPeerId(PEER1);
+    private static final PeerId PEER2_ID = createPeerId(PEER2);
+    private static final PeerId PEER3_ID = createPeerId(PEER3);
+    private static final PeerId PEER4_ID = createPeerId(PEER4);
+    private static final PeerId PEER5_ID = createPeerId(PEER5);
 
-    protected static final AsNumber AS_NUMBER = new AsNumber(72L);
-    protected static final int HOLDTIMER = 180;
+    static final AsNumber AS_NUMBER = new AsNumber(72L);
+    private static final int HOLDTIMER = 2180;
 
-    protected static final int PORT = InetSocketAddressUtil.getRandomPort();
+    static final int PORT = InetSocketAddressUtil.getRandomPort();
 
-    protected static final Ipv4Prefix PREFIX1 = new Ipv4Prefix("1.1.1.1/32");
-    protected static final Ipv4Address NH1 = new Ipv4Address("2.2.2.2");
-    protected static final Update UPD_100 = createSimpleUpdate(PREFIX1, new PathId(1l), CLUSTER_ID, 100);
-    protected static final Update UPD_50 = createSimpleUpdate(PREFIX1, new PathId(2l), CLUSTER_ID, 50);
-    protected static final Update UPD_200 = createSimpleUpdate(PREFIX1, new PathId(3l), CLUSTER_ID, 200);
-    protected static final Update UPD_20 = createSimpleUpdate(PREFIX1, new PathId(1l), CLUSTER_ID, 20);
+    static final Ipv4Prefix PREFIX1 = new Ipv4Prefix("1.1.1.1/32");
+    private static final Ipv4Address NH1 = new Ipv4Address("2.2.2.2");
+    static final Update UPD_100 = createSimpleUpdate(PREFIX1, new PathId(1L), CLUSTER_ID, 100);
+    static final Update UPD_50 = createSimpleUpdate(PREFIX1, new PathId(2L), CLUSTER_ID, 50);
+    static final Update UPD_200 = createSimpleUpdate(PREFIX1, new PathId(3L), CLUSTER_ID, 200);
+    static final Update UPD_20 = createSimpleUpdate(PREFIX1, new PathId(1L), CLUSTER_ID, 20);
+    static final Update UPD_NA_100 = createSimpleUpdate(PREFIX1, null, CLUSTER_ID, 100);
+    static final Update UPD_NA_200 = createSimpleUpdate(PREFIX1, null, CLUSTER_ID, 200);
 
-    protected BindingToNormalizedNodeCodec mappingService;
-    protected BGPDispatcherImpl dispatcher;
-    protected RIBExtensionProviderContext ribExtension;
+    BindingToNormalizedNodeCodec mappingService;
+    BGPDispatcherImpl dispatcher;
+    RIBExtensionProviderContext ribExtension;
     protected BGPExtensionProviderContext context;
     protected SchemaContext schemaContext;
     private RIBActivator ribActivator;
@@ -223,11 +222,22 @@ public class AbstractAddPathTest extends AbstractDataBrokerTest {
         }
     }
 
-    void sendRouteAndCheckIsOnDS(final Channel session, final Ipv4Prefix prefix, final long localPreference, final int expectedRoutesOnDS)
+    void sendRouteAndCheckIsOnLocRib(final Channel session, final Ipv4Prefix prefix, final long localPreference, final int expectedRoutesOnDS)
             throws InterruptedException, ExecutionException {
         session.writeAndFlush(createSimpleUpdate(prefix, null, null, localPreference));
         Thread.sleep(2000);
+        checkLocRib(expectedRoutesOnDS);
 
+    }
+
+    void sendWithdrawalRouteAndCheckIsOnLacRib(final Channel session, final Ipv4Prefix prefix, final long localPreference, final int expectedRoutesOnDS)
+        throws InterruptedException, ExecutionException {
+        session.writeAndFlush(createSimpleWithdrawalUpdate(prefix, localPreference));
+        Thread.sleep(2000);
+        checkLocRib(expectedRoutesOnDS);
+    }
+
+    private void checkLocRib(final int expectedRoutesOnDS) throws ExecutionException, InterruptedException {
         final ReadOnlyTransaction rTx = getDataBroker().newReadOnlyTransaction();
         final BgpRib bgpRib = rTx.read(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(BgpRib.class)).get().get();
         rTx.close();
@@ -249,7 +259,7 @@ public class AbstractAddPathTest extends AbstractDataBrokerTest {
     Channel createPeerSession(final Ipv4Address peer, final PeerRole peerRole, final BgpParameters nonAddPathParams, final RIBImpl ribImpl,
             final BGPHandlerFactory hf, final SimpleSessionListener sessionListsner) throws InterruptedException, ExecutionException {
         configurePeer(peer, ribImpl, nonAddPathParams, peerRole);
-        return connectPeer(peer, ribImpl, nonAddPathParams, this.dispatcher, hf, sessionListsner);
+        return connectPeer(peer, nonAddPathParams, this.dispatcher, hf, sessionListsner);
     }
 
     private static int getPeerRibOutSize(final Peer peer) {
@@ -260,14 +270,14 @@ public class AbstractAddPathTest extends AbstractDataBrokerTest {
             final BGPPeerRegistry registry, final InetSocketAddress localAddress, final BGPHandlerFactory hf) throws InterruptedException {
         final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(registry);
 
-        final Bootstrap bootstrap = dispatcher.createClientBootStrap(Optional.<KeyMapping>absent(), Epoll.isAvailable() ? new EpollEventLoopGroup() : new NioEventLoopGroup());
+        final Bootstrap bootstrap = dispatcher.createClientBootStrap(Optional.absent(), Epoll.isAvailable() ? new EpollEventLoopGroup() : new NioEventLoopGroup());
         bootstrap.localAddress(localAddress);
         bootstrap.option(ChannelOption.SO_REUSEADDR, true);
         bootstrap.handler(new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(final SocketChannel ch) throws Exception {
                 ch.pipeline().addLast(hf.getDecoders());
-                ch.pipeline().addLast("negotiator", snf.getSessionNegotiator(ch, new DefaultPromise<BGPSessionImpl>(ch.eventLoop())));
+                ch.pipeline().addLast("negotiator", snf.getSessionNegotiator(ch, new DefaultPromise<>(ch.eventLoop())));
                 ch.pipeline().addLast(hf.getEncoders());
             }
         });
@@ -281,16 +291,16 @@ public class AbstractAddPathTest extends AbstractDataBrokerTest {
         final List<BgpParameters> tlvs = Lists.newArrayList(bgpParameters);
         StrictBGPPeerRegistry.GLOBAL.addPeer(new IpAddress(new Ipv4Address(inetAddress.getHostAddress())), bgpPeer,
                 new BGPSessionPreferences(AS_NUMBER, HOLDTIMER, new BgpId(RIB_ID),
-                        AS_NUMBER,  tlvs, Optional.<byte[]>absent()));
+                        AS_NUMBER,  tlvs, Optional.absent()));
         bgpPeer.instantiateServiceInstance();
     }
 
-    private static Channel connectPeer(final Ipv4Address localAddress, final RIBImpl ribImpl, final BgpParameters bgpParameters,
-            final BGPDispatcherImpl dispatcherImpl, final BGPHandlerFactory hf, final BGPSessionListener sessionListsner) throws InterruptedException, ExecutionException {
+    private static Channel connectPeer(final Ipv4Address localAddress, final BgpParameters bgpParameters,
+            final BGPDispatcherImpl dispatcherImpl, final BGPHandlerFactory hf, final BGPSessionListener sessionListsner) throws InterruptedException {
         final BGPPeerRegistry peerRegistry = new StrictBGPPeerRegistry();
         peerRegistry.addPeer(new IpAddress(new Ipv4Address(RIB_ID)), sessionListsner,
                 new BGPSessionPreferences(AS_NUMBER, HOLDTIMER, new BgpId(localAddress),
-                        AS_NUMBER, Lists.newArrayList(bgpParameters),Optional.<byte[]>absent()));
+                        AS_NUMBER, Lists.newArrayList(bgpParameters),Optional.absent()));
 
         final ChannelFuture createClient = createClient(dispatcherImpl, new InetSocketAddress(RIB_ID, PORT), peerRegistry, new InetSocketAddress(localAddress.getValue(), PORT), hf);
         Thread.sleep(1000);
@@ -344,5 +354,14 @@ public class AbstractAddPathTest extends AbstractDataBrokerTest {
                                                 .build()).build())
                                                 .build()).build());
         return new UpdateBuilder().setAttributes(attBuilder.build()).build();
+    }
+
+    private static Update createSimpleWithdrawalUpdate(final Ipv4Prefix prefix, final long localPreference) {
+        final AttributesBuilder attBuilder = new AttributesBuilder();
+        attBuilder.setLocalPref(new LocalPrefBuilder().setPref(localPreference).build());
+        attBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build());
+        attBuilder.setAsPath(new AsPathBuilder().setSegments(Collections.emptyList()).build());
+        attBuilder.setUnrecognizedAttributes(Collections.emptyList());
+        return new UpdateBuilder().setWithdrawnRoutes(new WithdrawnRoutesBuilder().setWithdrawnRoutes(Collections.singletonList(prefix)).build()).build();
     }
 }
