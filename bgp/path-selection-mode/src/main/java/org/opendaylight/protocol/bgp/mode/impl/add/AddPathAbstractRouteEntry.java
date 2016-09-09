@@ -186,17 +186,6 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
             ribSup, discPeers, tx);
     }
 
-    private void removePathFromDataStore(final BestPath path, final boolean isFirstBestPath, final PathArgument routeIdPA,
-        final YangInstanceIdentifier locRibTarget, final RIBSupport ribSup, final ExportPolicyPeerTracker peerPT, final TablesKey localTK,
-        final CacheDisconnectedPeers discPeers, final DOMDataWriteTransaction tx) {
-        LOG.trace("Best Path removed {}", path);
-        final PathArgument routeIdAddPath = ribSup.getRouteIdAddPath(path.getPathId(), routeIdPA);
-        final YangInstanceIdentifier pathAddPathTarget = ribSup.routePath(locRibTarget.node(ROUTES_IDENTIFIER), routeIdAddPath);
-
-        fillLocRib(pathAddPathTarget, null, tx);
-        fillAdjRibsOut(isFirstBestPath, null, null, null, routeIdPA, routeIdAddPath, path.getPeerId(), peerPT, localTK, ribSup, discPeers, tx);
-    }
-
     private void fillAdjRibsOut(final boolean isFirstBestPath, final ContainerNode attributes, final NormalizedNode<?, ?> value, final MapEntryNode addPathValue,
         final PathArgument routeId, final PathArgument routeIdAddPath, final PeerId routePeerId, final ExportPolicyPeerTracker peerPT, final TablesKey
         localTK, final RIBSupport ribSup, final CacheDisconnectedPeers discPeers, final DOMDataWriteTransaction tx) {

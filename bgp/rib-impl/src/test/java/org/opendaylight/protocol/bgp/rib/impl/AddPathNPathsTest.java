@@ -72,27 +72,42 @@ public class AddPathNPathsTest extends AbstractAddPathTest {
         checkPeersPresentOnDataStore(5);
 
         //new best route so far
-        sendRouteAndCheckIsOnDS(session1, PREFIX1, 100, 1);
+        sendRouteAndCheckIsOnLocRib(session1, PREFIX1, 100, 1);
         assertEquals(1, listener4.getListMsg().size());
         assertEquals(1, listener5.getListMsg().size());
         assertEquals(UPD_100, listener5.getListMsg().get(0));
 
         //the second best route
-        sendRouteAndCheckIsOnDS(session2, PREFIX1, 50, 2);
+        sendRouteAndCheckIsOnLocRib(session2, PREFIX1, 50, 2);
         assertEquals(1, listener4.getListMsg().size());
         assertEquals(2, listener5.getListMsg().size());
         assertEquals(UPD_50, listener5.getListMsg().get(1));
 
         //new best route
-        sendRouteAndCheckIsOnDS(session3, PREFIX1, 200, 2);
+        sendRouteAndCheckIsOnLocRib(session3, PREFIX1, 200, 2);
         assertEquals(2, listener4.getListMsg().size());
         assertEquals(3, listener5.getListMsg().size());
         assertEquals(UPD_200, listener5.getListMsg().get(2));
 
         //the worst prefix, no changes
-        sendRouteAndCheckIsOnDS(session2, PREFIX1, 20, 2);
+        sendRouteAndCheckIsOnLocRib(session2, PREFIX1, 20, 2);
         assertEquals(2, listener4.getListMsg().size());
         assertEquals(3, listener5.getListMsg().size());
+
+        //withdraw second best route, 2 advertisement (1 withdrawal) for add-path supported, none for non add path
+        sendWithdrawalRouteAndCheckIsOnLacRib(session1, PREFIX1, 100, 2);
+        assertEquals(2, listener4.getListMsg().size());
+        assertEquals(5, listener5.getListMsg().size());
+
+        //we advertise again to try new test
+        sendRouteAndCheckIsOnLocRib(session1, PREFIX1, 100, 2);
+        assertEquals(2, listener4.getListMsg().size());
+        assertEquals(6, listener5.getListMsg().size());
+
+        //withdraw second best route, 2 advertisement (1 withdrawal) for add-path supported, 1 withdrawal for non add path
+        sendWithdrawalRouteAndCheckIsOnLacRib(session3, PREFIX1, 200, 2);
+        assertEquals(3, listener4.getListMsg().size());
+        assertEquals(8, listener5.getListMsg().size());
 
         session1.close();
         session2.close();
