@@ -22,6 +22,30 @@
       "revId": "2ebba57ee6e455bcb12a30b2a563ece686a162a8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_b2b93e7b",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/AddPathAllPathsTest.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-09-09T07:00:48Z",
+      "side": 1,
+      "message": "Independently if peer is add-path-anebled or not, if the same route is announce with worse attributes, it will be removed from LocRib( it will stay on RibOut). \nIn the case that route is removed it, will be removed from RibOut, and LocRib if it was part of the best paths selection.\n\nThis approach was introduced by https://git.opendaylight.org/gerrit/#/c/45256/, and is implemented for N paths and All paths.\n\nIt still need to be done to Base path, I will do it this days.",
+      "parentUuid": "7a6b29fe_3b4991b7",
+      "range": {
+        "startLine": 95,
+        "startChar": 8,
+        "endLine": 95,
+        "endChar": 58
+      },
+      "revId": "2ebba57ee6e455bcb12a30b2a563ece686a162a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
