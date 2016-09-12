@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_d875f8cb",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/AddPathBasePathsTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-09-12T10:32:26Z",
+      "side": 1,
+      "message": "new bug needs to be open",
+      "range": {
+        "startLine": 91,
+        "startChar": 0,
+        "endLine": 101,
+        "endChar": 27
+      },
+      "revId": "73c83169ef5804c63d111af2e263155bfa79cb6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
