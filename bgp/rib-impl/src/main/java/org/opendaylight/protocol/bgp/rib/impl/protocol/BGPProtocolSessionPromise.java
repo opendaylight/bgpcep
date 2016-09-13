@@ -61,6 +61,13 @@ public class BGPProtocolSessionPromise<S extends BGPSession> extends DefaultProm
 
     }
 
+    public synchronized void reconnect() {
+        final BGPProtocolSessionPromise lock = this;
+        final Future reconnectFuture = this.strategy.scheduleReconnect(this.pending.cause());
+        reconnectFuture.addListener(new BGPProtocolSessionPromise.BootstrapConnectListener(lock).new ReconnectingStrategyListener());
+        BGPProtocolSessionPromise.this.pending = reconnectFuture;
+    }
+
     @Override
     public synchronized boolean cancel(final boolean mayInterruptIfRunning) {
         if (super.cancel(mayInterruptIfRunning)) {
@@ -100,9 +107,7 @@ public class BGPProtocolSessionPromise<S extends BGPSession> extends DefaultProm
                     BGPProtocolSessionPromise.LOG.debug("Promise {} connection successful", this.lock);
                 } else {
                     BGPProtocolSessionPromise.LOG.debug("Attempt to connect to {} failed", BGPProtocolSessionPromise.this.address, channelFuture.cause());
-                    final Future reconnectFuture = BGPProtocolSessionPromise.this.strategy.scheduleReconnect(channelFuture.cause());
-                    reconnectFuture.addListener(new BGPProtocolSessionPromise.BootstrapConnectListener.ReconnectingStrategyListener());
-                    BGPProtocolSessionPromise.this.pending = reconnectFuture;
+                    BGPProtocolSessionPromise.this.reconnect();
                 }
             }
         }

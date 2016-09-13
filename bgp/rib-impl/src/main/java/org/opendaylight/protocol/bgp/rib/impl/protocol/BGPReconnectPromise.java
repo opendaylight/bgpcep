@@ -34,7 +34,7 @@ public class BGPReconnectPromise<S extends BGPSession> extends DefaultPromise<Vo
     private final ReconnectStrategyFactory strategyFactory;
     private final Bootstrap bootstrap;
     private final ChannelPipelineInitializer initializer;
-    private Future<S> pending;
+    private BGPProtocolSessionPromise<S> pending;
 
     public BGPReconnectPromise(final EventExecutor executor, final InetSocketAddress address,
                                final ReconnectStrategyFactory connectStrategyFactory, final Bootstrap bootstrap,
@@ -72,7 +72,7 @@ public class BGPReconnectPromise<S extends BGPSession> extends DefaultPromise<Vo
         });
     }
 
-    public Future<S> connectSessionPromise(final InetSocketAddress address, final ReconnectStrategy strategy, final Bootstrap bootstrap,
+    public BGPProtocolSessionPromise<S> connectSessionPromise(final InetSocketAddress address, final ReconnectStrategy strategy, final Bootstrap bootstrap,
                                   final ChannelPipelineInitializer initializer) {
         final BGPProtocolSessionPromise sessionPromise = new BGPProtocolSessionPromise(address, strategy, bootstrap);
         final ChannelHandler chInit = new ChannelInitializer<SocketChannel>() {
@@ -125,7 +125,8 @@ public class BGPReconnectPromise<S extends BGPSession> extends DefaultPromise<Vo
             }
 
             if (!this.promise.isInitialConnectFinished()) {
-                LOG.debug("Connection to {} was dropped during negotiation", this.promise.address);
+                LOG.debug("Connection to {} was dropped during negotiation, reattempting", this.promise.address);
+                this.promise.pending.reconnect();
                 return;
             }
 

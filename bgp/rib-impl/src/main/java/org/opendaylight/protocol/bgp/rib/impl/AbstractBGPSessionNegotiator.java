@@ -16,6 +16,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.concurrent.Promise;
+import io.netty.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
@@ -78,6 +79,8 @@ public abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandler
     private final Channel channel;
     @GuardedBy("this")
     private State state = State.IDLE;
+    @GuardedBy("this")
+    private ScheduledFuture pending;
 
     @GuardedBy("this")
     private BGPSessionImpl session;
@@ -114,13 +117,16 @@ public abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandler
         if (this.state != State.FINISHED) {
             this.state = State.OPEN_SENT;
 
-            this.channel.eventLoop().schedule(new Runnable() {
+            this.pending = this.channel.eventLoop().schedule(new Runnable() {
                 @Override
                 public void run() {
-                    if (AbstractBGPSessionNegotiator.this.state != State.FINISHED) {
-                        AbstractBGPSessionNegotiator.this.sendMessage(buildErrorNotify(BGPError.HOLD_TIMER_EXPIRED));
-                        negotiationFailed(new BGPDocumentedException("HoldTimer expired", BGPError.FSM_ERROR));
-                        AbstractBGPSessionNegotiator.this.state = State.FINISHED;
+                    synchronized (AbstractBGPSessionNegotiator.this) {
+                        AbstractBGPSessionNegotiator.this.pending = null;
+                        if (AbstractBGPSessionNegotiator.this.state != State.FINISHED) {
+                            AbstractBGPSessionNegotiator.this.sendMessage(buildErrorNotify(BGPError.HOLD_TIMER_EXPIRED));
+                            negotiationFailed(new BGPDocumentedException("HoldTimer expired", BGPError.FSM_ERROR));
+                            AbstractBGPSessionNegotiator.this.state = State.FINISHED;
+                        }
                     }
                 }
             }, INITIAL_HOLDTIMER, TimeUnit.MINUTES);
@@ -245,7 +251,12 @@ public abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandler
     private void negotiationFailedCloseChannel(final Throwable cause) {
         LOG.debug("Negotiation on channel {} failed", this.channel, cause);
         this.channel.close();
-        this.promise.setFailure(cause);
+        synchronized (AbstractBGPSessionNegotiator.this) {
+            if (this.pending != null && this.pending.isCancellable()) {
+                this.pending.cancel(true);
+                this.pending = null;
+            }
+        }
     }
 
     private void sendMessage(final Notification msg) {
