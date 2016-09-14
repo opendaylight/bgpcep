@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_d41e5c6f",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/ChannelOutputLimiter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2016-09-14T13:39:30Z",
+      "side": 1,
+      "message": "It would be easier to think about the code if this call was inside the synchronized block. Performance should be the same, reliability should be higher.",
+      "range": {
+        "startLine": 68,
+        "startChar": 40,
+        "endLine": 68,
+        "endChar": 52
+      },
+      "revId": "684d75cb36f3b34b2691b374166f1bbc9ef52de5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
