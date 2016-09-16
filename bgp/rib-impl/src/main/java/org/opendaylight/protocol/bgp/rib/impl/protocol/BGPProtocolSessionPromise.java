@@ -32,7 +32,7 @@ public class BGPProtocolSessionPromise<S extends BGPSession> extends DefaultProm
     private final int retryTimer;
     private final Bootstrap bootstrap;
     @GuardedBy("this")
-    private Future<?> pending;
+    private ChannelFuture pending;
 
     public BGPProtocolSessionPromise(InetSocketAddress remoteAddress, int retryTimer, Bootstrap bootstrap) {
         super(GlobalEventExecutor.INSTANCE);
@@ -59,6 +59,27 @@ public class BGPProtocolSessionPromise<S extends BGPSession> extends DefaultProm
             LOG.info("Failed to connect to {}", this.address, e);
             this.setFailure(e);
         }
+    }
+
+    public synchronized void reconnect() {
+        if (this.retryTimer == 0) {
+            LOG.debug("Retry timer value is 0. Reconnection will not be attempted");
+            this.setFailure(this.pending.cause());
+            return;
+        }
+
+        final BGPProtocolSessionPromise lock = this;
+        final EventLoop loop = this.pending.channel().eventLoop();
+        loop.schedule(new Runnable() {
+            @Override
+            public void run() {
+                LOG.debug("Attempting to connect to {}", BGPProtocolSessionPromise.this.address);
+                final ChannelFuture reconnectFuture = BGPProtocolSessionPromise.this.bootstrap.connect();
+                reconnectFuture.addListener(new BootstrapConnectListener(lock));
+                BGPProtocolSessionPromise.this.pending = reconnectFuture;
+            }
+        }, this.retryTimer, TimeUnit.SECONDS);
+        LOG.debug("Next reconnection attempt in {}s", this.retryTimer);
     }
 
     @Override
@@ -98,24 +119,7 @@ public class BGPProtocolSessionPromise<S extends BGPSession> extends DefaultProm
                     BGPProtocolSessionPromise.LOG.debug("Promise {} connection successful", this.lock);
                 } else {
                     BGPProtocolSessionPromise.LOG.debug("Attempt to connect to {} failed", BGPProtocolSessionPromise.this.address, channelFuture.cause());
-
-                    if (BGPProtocolSessionPromise.this.retryTimer == 0) {
-                        BGPProtocolSessionPromise.LOG.debug("Retry timer value is 0. Reconnection will not be attempted");
-                        BGPProtocolSessionPromise.this.setFailure(channelFuture.cause());
-                        return;
-                    }
-
-                    final EventLoop loop = channelFuture.channel().eventLoop();
-                    loop.schedule(new Runnable() {
-                        @Override
-                        public void run() {
-                            BGPProtocolSessionPromise.LOG.debug("Attempting to connect to {}", BGPProtocolSessionPromise.this.address);
-                            final Future reconnectFuture = BGPProtocolSessionPromise.this.bootstrap.connect();
-                            reconnectFuture.addListener(BGPProtocolSessionPromise.BootstrapConnectListener.this);
-                            BGPProtocolSessionPromise.this.pending = reconnectFuture;
-                        }
-                    }, BGPProtocolSessionPromise.this.retryTimer, TimeUnit.SECONDS);
-                    BGPProtocolSessionPromise.LOG.debug("Next reconnection attempt in {}s", BGPProtocolSessionPromise.this.retryTimer);
+                    BGPProtocolSessionPromise.this.reconnect();
                 }
             }
         }
