@@ -16,6 +16,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.concurrent.Promise;
+import io.netty.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
@@ -80,6 +81,8 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
     private State state = State.IDLE;
     @GuardedBy("this")
     private BGPSessionImpl session;
+    @GuardedBy("this")
+    private ScheduledFuture<?> pending;
 
     AbstractBGPSessionNegotiator(final Promise<BGPSessionImpl> promise, final Channel channel,
             final BGPPeerRegistry registry) {
@@ -114,10 +117,11 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
                 preferences.getBgpId()).setBgpParameters(preferences.getParams()).build());
             if (this.state != State.FINISHED) {
                 this.state = State.OPEN_SENT;
-                this.channel.eventLoop().schedule(new Runnable() {
+                this.pending = this.channel.eventLoop().schedule(new Runnable() {
                     @Override
                     public void run() {
                         synchronized (AbstractBGPSessionNegotiator.this) {
+                            AbstractBGPSessionNegotiator.this.pending = null;
                             if (AbstractBGPSessionNegotiator.this.state != State.FINISHED) {
                                 AbstractBGPSessionNegotiator.this
                                     .sendMessage(buildErrorNotify(BGPError.HOLD_TIMER_EXPIRED));
@@ -253,7 +257,12 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
     private void negotiationFailedCloseChannel(final Throwable cause) {
         LOG.debug("Negotiation on channel {} failed", this.channel, cause);
         this.channel.close();
-        this.promise.setFailure(cause);
+        synchronized (AbstractBGPSessionNegotiator.this) {
+            if (this.pending != null && this.pending.isCancellable()) {
+                this.pending.cancel(true);
+                this.pending = null;
+            }
+        }
     }
 
     private void sendMessage(final Notification msg) {
