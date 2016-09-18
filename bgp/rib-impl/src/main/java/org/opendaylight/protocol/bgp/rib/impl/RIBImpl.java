@@ -192,7 +192,9 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
 
     @Override
     public synchronized void close() throws Exception {
-        this.domChain.close();
+        if(this.domChain != null) {
+            this.domChain.close();
+        }
         if (this.registration != null) {
             this.registration.close();
             this.registration = null;

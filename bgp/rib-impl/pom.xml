@@ -30,6 +30,9 @@
     <prerequisites>
         <maven>3.0.4</maven>
     </prerequisites>
+    <properties>
+        <powermock.version>1.6.5</powermock.version>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -294,8 +297,24 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
         </dependency>
-
-
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock</artifactId>
+            <version>${powermock.version}</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+            <version>${powermock.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito</artifactId>
+            <version>${powermock.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
