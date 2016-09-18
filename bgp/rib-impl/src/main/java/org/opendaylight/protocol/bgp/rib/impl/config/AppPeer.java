@@ -35,7 +35,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AppPeer implements PeerBean {
+public final class AppPeer implements PeerBean {
     private static final Logger LOG = LoggerFactory.getLogger(AppPeer.class);
     private static final QName APP_ID_QNAME = QName.create(ApplicationRib.QNAME, "id").intern();
     private Neighbor currentConfiguration;
@@ -123,7 +123,9 @@ public class AppPeer implements PeerBean {
         @Override
         public ListenableFuture<Void> closeServiceInstance() {
             LOG.info("Application Peer Singleton Service {} instance closed", getIdentifier());
-            this.registration.close();
+            if(this.registration != null) {
+                this.registration.close();
+            }
             this.applicationPeer.close();
             return Futures.immediateFuture(null);
         }

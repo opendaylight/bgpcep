@@ -60,7 +60,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class BgpPeer implements PeerBean, BGPPeerRuntimeMXBean {
+public final class BgpPeer implements PeerBean, BGPPeerRuntimeMXBean {
 
     private static final Logger LOG = LoggerFactory.getLogger(BgpPeer.class);
 
@@ -86,21 +86,26 @@ public class BgpPeer implements PeerBean, BGPPeerRuntimeMXBean {
     @Override
     public void restart(final RIB rib, final BGPOpenConfigMappingService mappingService) {
         Preconditions.checkState(this.currentConfiguration != null);
+        closeSingletonService();
         start(rib, this.currentConfiguration, mappingService, null);
     }
 
     @Override
     public void close() {
+        closeSingletonService();
+        this.currentConfiguration = null;
+        if (this.serviceRegistration != null) {
+            this.serviceRegistration.unregister();
+            this.serviceRegistration = null;
+        }
+    }
+
+    private void closeSingletonService() {
         try {
             this.bgpPeerSingletonService.close();
             this.bgpPeerSingletonService = null;
         } catch (final Exception e) {
             LOG.warn("Failed to close peer instance", e);
-        }
-        this.currentConfiguration = null;
-        if (this.serviceRegistration != null) {
-            this.serviceRegistration.unregister();
-            this.serviceRegistration = null;
         }
     }
 
