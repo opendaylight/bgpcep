@@ -150,7 +150,7 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
         Preconditions.checkNotNull(provider, "ClusterSingletonServiceProvider is null");
         this.provider = provider;
         this.configurationWriter = configurationWriter;
-        LOG.info("RIB Singleton Service {} registered", this.getIdentifier());
+        LOG.info("RIB Singleton Service {} registered", getIdentifier());
         //this need to be always the last step
         this.registration = registerClusterSingletonService(this);
     }
@@ -209,10 +209,12 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
 
     @Override
     public synchronized void close() throws Exception {
-        this.domChain.close();
-        if (registration != null) {
-            registration.close();
-            registration = null;
+        if (this.registration != null) {
+            this.registration.close();
+            this.registration = null;
+        }
+        if(this.domChain != null) {
+            this.domChain.close();
         }
     }
 
@@ -226,6 +228,7 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
         return this.bgpIdentifier;
     }
 
+    @Nonnull
     @Override
     public Set<? extends BgpTableType> getLocalTables() {
         return this.localTables;
@@ -311,7 +314,7 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
         if(this.configurationWriter != null) {
             this.configurationWriter.apply();
         }
-        LOG.info("RIB Singleton Service {} instantiated", this.getIdentifier());
+        LOG.info("RIB Singleton Service {} instantiated", getIdentifier());
         LOG.debug("Instantiating RIB table {} at {}", this.ribId , this.yangRibId);
 
         final ContainerNode bgpRib = Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(BgpRib.QNAME))
@@ -343,7 +346,7 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
         for (final BgpTableType t : this.localTables) {
             final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
             this.localTablesKeys.add(key);
-            startLocRib(key, policyDatabase);
+            startLocRib(key, this.policyDatabase);
         }
 
         if (this.configModuleTracker != null) {
@@ -353,7 +356,7 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
 
     @Override
     public ListenableFuture<Void> closeServiceInstance() {
-        LOG.info("Close RIB Singleton Service {}", this.getIdentifier());
+        LOG.info("Close RIB Singleton Service {}", getIdentifier());
         for (final LocRibWriter locRib : this.locRibs) {
             try {
                 locRib.close();

@@ -47,11 +47,11 @@ import org.slf4j.LoggerFactory;
 
 final class CommunitiesBuilder {
     private static final Logger LOG = LoggerFactory.getLogger(CommunitiesBuilder.class);
-    private final static As4SpecificCommon AS_4_COMMON = new As4SpecificCommonBuilder().setAsNumber(new AsNumber(20L)).setLocalAdministrator(100).build();
-    private final static Ipv4Address IPV4 = new Ipv4Address("192.168.1.0");
-    private final static byte[] BYTE = new byte[]{(byte) 0x4f, (byte) 0x70, (byte) 0x00, (byte) 0x00};
-    private final static int LA = 4660;
-    private final static ShortAsNumber SHORT_AS = new ShortAsNumber(20L);
+    private static final As4SpecificCommon AS_4_COMMON = new As4SpecificCommonBuilder().setAsNumber(new AsNumber(20L)).setLocalAdministrator(100).build();
+    private static final Ipv4Address IPV4 = new Ipv4Address("192.168.1.0");
+    private static final byte[] BYTE = new byte[]{(byte) 0x4f, (byte) 0x70, (byte) 0x00, (byte) 0x00};
+    private static final int LA = 4660;
+    private static final ShortAsNumber SHORT_AS = new ShortAsNumber(20L);
 
     private CommunitiesBuilder() {
         throw new UnsupportedOperationException();
