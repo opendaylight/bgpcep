@@ -24,7 +24,6 @@ import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
 import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup.PeerExporTuple;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
@@ -184,17 +183,6 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
         fillLocRib(pathAddPathTarget, addPathValue, tx);
         fillAdjRibsOut(isFirstBestPath, path.getAttributes(), value, addPathValue, routeIdPA, routeIdAddPath, path.getPeerId(), peerPT, localTK,
             ribSup, discPeers, tx);
-    }
-
-    private void removePathFromDataStore(final BestPath path, final boolean isFirstBestPath, final PathArgument routeIdPA,
-        final YangInstanceIdentifier locRibTarget, final RIBSupport ribSup, final ExportPolicyPeerTracker peerPT, final TablesKey localTK,
-        final CacheDisconnectedPeers discPeers, final DOMDataWriteTransaction tx) {
-        LOG.trace("Best Path removed {}", path);
-        final PathArgument routeIdAddPath = ribSup.getRouteIdAddPath(path.getPathId(), routeIdPA);
-        final YangInstanceIdentifier pathAddPathTarget = ribSup.routePath(locRibTarget.node(ROUTES_IDENTIFIER), routeIdAddPath);
-
-        fillLocRib(pathAddPathTarget, null, tx);
-        fillAdjRibsOut(isFirstBestPath, null, null, null, routeIdPA, routeIdAddPath, path.getPeerId(), peerPT, localTK, ribSup, discPeers, tx);
     }
 
     private void fillAdjRibsOut(final boolean isFirstBestPath, final ContainerNode attributes, final NormalizedNode<?, ?> value, final MapEntryNode addPathValue,
