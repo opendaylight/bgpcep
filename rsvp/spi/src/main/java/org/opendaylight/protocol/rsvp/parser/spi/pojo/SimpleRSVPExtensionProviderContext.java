@@ -29,7 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 
 public class SimpleRSVPExtensionProviderContext extends SimpleRSVPExtensionConsumerContext implements RSVPExtensionProviderContext {
 
-    public static final int DEFAULT_MAXIMUM_CACHED_OBJECTS = 100000;
+    private static final int DEFAULT_MAXIMUM_CACHED_OBJECTS = 100000;
 
     private final AtomicReference<Cache<Object, Object>> cacheRef;
     private final ReferenceCache referenceCache = new ReferenceCache() {
@@ -47,15 +47,12 @@ public class SimpleRSVPExtensionProviderContext extends SimpleRSVPExtensionConsu
             return ret;
         }
     };
-    private final int maximumCachedObjects;
 
     public SimpleRSVPExtensionProviderContext() {
         this(DEFAULT_MAXIMUM_CACHED_OBJECTS);
     }
 
     public SimpleRSVPExtensionProviderContext(final int maximumCachedObjects) {
-        this.maximumCachedObjects = maximumCachedObjects;
-
         final Cache<Object, Object> cache = CacheBuilder.newBuilder().maximumSize(maximumCachedObjects).build();
         this.cacheRef = new AtomicReference<Cache<Object,Object>>(cache);
     }

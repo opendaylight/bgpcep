@@ -192,10 +192,12 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
 
     @Override
     public synchronized void close() throws Exception {
-        this.domChain.close();
         if (this.registration != null) {
             this.registration.close();
             this.registration = null;
+        }
+        if(this.domChain != null) {
+            this.domChain.close();
         }
     }
 
@@ -209,6 +211,7 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
         return this.bgpIdentifier;
     }
 
+    @Nonnull
     @Override
     public Set<? extends BgpTableType> getLocalTables() {
         return this.localTables;

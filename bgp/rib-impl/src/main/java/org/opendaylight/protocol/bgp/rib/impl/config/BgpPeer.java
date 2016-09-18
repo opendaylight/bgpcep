@@ -60,7 +60,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class BgpPeer implements PeerBean, BGPPeerRuntimeMXBean {
+public final class BgpPeer implements PeerBean, BGPPeerRuntimeMXBean {
 
     private static final Logger LOG = LoggerFactory.getLogger(BgpPeer.class);
 
@@ -86,21 +86,26 @@ public class BgpPeer implements PeerBean, BGPPeerRuntimeMXBean {
     @Override
     public void restart(final RIB rib, final BGPOpenConfigMappingService mappingService) {
         Preconditions.checkState(this.currentConfiguration != null);
+        closeSingletonService();
         start(rib, this.currentConfiguration, mappingService, null);
     }
 
     @Override
     public void close() {
+        closeSingletonService();
+        this.currentConfiguration = null;
+        if (this.serviceRegistration != null) {
+            this.serviceRegistration.unregister();
+            this.serviceRegistration = null;
+        }
+    }
+
+    private void closeSingletonService() {
         try {
             this.bgpPeerSingletonService.close();
             this.bgpPeerSingletonService = null;
         } catch (final Exception e) {
             LOG.warn("Failed to close peer instance", e);
-        }
-        this.currentConfiguration = null;
-        if (this.serviceRegistration != null) {
-            this.serviceRegistration.unregister();
-            this.serviceRegistration = null;
         }
     }
 
@@ -209,14 +214,14 @@ public class BgpPeer implements PeerBean, BGPPeerRuntimeMXBean {
             this.neighborAddress = neighbor.getNeighborAddress();
             this.bgpPeer = new BGPPeer(Ipv4Util.toStringIP(this.neighborAddress), rib, mappingService.toPeerRole(neighbor), BgpPeer.this.rpcRegistry);
             final List<BgpParameters> bgpParameters = getBgpParameters(neighbor, rib, mappingService);
-            final KeyMapping key = OpenConfigMappingUtil.getNeighborKey(neighbor);
+            final KeyMapping keyMapping = OpenConfigMappingUtil.getNeighborKey(neighbor);
             this.prefs = new BGPSessionPreferences(rib.getLocalAs(), getHoldTimer(neighbor), rib.getBgpIdentifier(), getPeerAs(neighbor, rib),
-                bgpParameters, getPassword(key));
+                bgpParameters, getPassword(keyMapping));
             this.activeConnection = OpenConfigMappingUtil.isActive(neighbor);
             this.dispatcher = rib.getDispatcher();
             this.inetAddress = Ipv4Util.toInetSocketAddress(this.neighborAddress, OpenConfigMappingUtil.getPort(neighbor));
             this.retryTimer = OpenConfigMappingUtil.getRetryTimer(neighbor);
-            this.key = Optional.fromNullable(key);
+            this.key = Optional.fromNullable(keyMapping);
             this.configurationWriter = configurationWriter;
             this.serviceGroupIdentifier = rib.getRibIServiceGroupIdentifier();
             LOG.info("Peer Singleton Service {} registered", this.serviceGroupIdentifier);

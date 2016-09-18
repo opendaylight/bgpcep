@@ -10,8 +10,6 @@ package org.opendaylight.protocol.bgp.rib.impl.config;
 
 import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil.INSTANCE;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import java.util.List;
@@ -127,12 +125,7 @@ final class OpenConfigMappingUtil {
         }
         final List<AfiSafi> afiSafi = afiSAfis.getAfiSafi();
         if (setDeafultIPv4) {
-            final boolean anyMatch = FluentIterable.from(afiSafi).anyMatch(new Predicate<AfiSafi>() {
-                @Override
-                public boolean apply(final AfiSafi input) {
-                    return input.getAfiSafiName().getName().equals(IPV4UNICAST.class);
-                }
-            });
+            final boolean anyMatch = afiSafi.stream().anyMatch(input -> input.getAfiSafiName().equals(IPV4UNICAST.class));
             if (!anyMatch) {
                 afiSafi.add(IPV4_AFISAFI);
             }
