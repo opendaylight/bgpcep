@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_9fbcf1bc",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/RIBImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-09-19T15:49:37Z",
+      "side": 1,
+      "message": "I think the chain should be closed after the singleton app close is invoked, because ClusterSingletonServiceRegistration#close calls #closeServiceInstance() which is doing operations on chain (deleting RIB from operational DS).",
+      "range": {
+        "startLine": 195,
+        "startChar": 0,
+        "endLine": 197,
+        "endChar": 9
+      },
+      "revId": "51053f0580071f738df8accf9a736f2e2f9931cd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_bf344dfc",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/config/OpenConfigMappingUtilTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-09-19T15:49:37Z",
+      "side": 1,
+      "message": "assertTrue",
+      "range": {
+        "startLine": 206,
+        "startChar": 8,
+        "endLine": 206,
+        "endChar": 20
+      },
+      "revId": "51053f0580071f738df8accf9a736f2e2f9931cd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
