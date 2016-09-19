@@ -69,8 +69,8 @@
         <feature version='${config.version}'>odl-config-api</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-api/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-api/{{VERSION}}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/bgp-inet/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-bmp-api/{{VERSION}}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-inet/{{VERSION}}</bundle>
     </feature>
 
     <feature name='odl-bgpcep-bgp-parser' version='${project.version}'>
