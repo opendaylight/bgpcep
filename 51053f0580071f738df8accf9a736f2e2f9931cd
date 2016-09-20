@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_30d18a23",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/RIBImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-09-20T07:00:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_9fbcf1bc",
+      "range": {
+        "startLine": 195,
+        "startChar": 0,
+        "endLine": 197,
+        "endChar": 9
+      },
+      "revId": "51053f0580071f738df8accf9a736f2e2f9931cd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_bf344dfc",
         "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/config/OpenConfigMappingUtilTest.java",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2016-09-19T15:49:37Z",
       "side": 1,
       "message": "assertTrue",
+      "range": {
+        "startLine": 206,
+        "startChar": 8,
+        "endLine": 206,
+        "endChar": 20
+      },
+      "revId": "51053f0580071f738df8accf9a736f2e2f9931cd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_10cc4e88",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/config/OpenConfigMappingUtilTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-09-20T07:00:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_bf344dfc",
       "range": {
         "startLine": 206,
         "startChar": 8,
