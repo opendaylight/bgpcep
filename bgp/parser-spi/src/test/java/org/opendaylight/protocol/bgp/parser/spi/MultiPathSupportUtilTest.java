@@ -8,6 +8,12 @@
 
 package org.opendaylight.protocol.bgp.parser.spi;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.Assert;
 import org.junit.Before;
@@ -17,7 +23,12 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.SendReceive;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.add.path.capability.AddressFamilies;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.add.path.capability.AddressFamiliesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 
 public class MultiPathSupportUtilTest {
@@ -65,4 +76,18 @@ public class MultiPathSupportUtilTest {
         MultiPathSupportUtil.isTableTypeSupported(null, null);
     }
 
+    @Test
+    public void testMapTableTypesFamilies() {
+        final List<AddressFamilies> addPathTablesType = new ArrayList<>();
+        addPathTablesType.add(new AddressFamiliesBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
+            .setSendReceive(SendReceive.Both).build());
+        addPathTablesType.add(new AddressFamiliesBuilder().setAfi(Ipv6AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
+            .setSendReceive(SendReceive.Send).build());
+        final Map<TablesKey, SendReceive> result = MultiPathSupportUtil.mapTableTypesFamilies(addPathTablesType);
+
+        final Map<TablesKey, SendReceive> expected = new HashMap<>();
+        expected.put(new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class), SendReceive.Both);
+        expected.put(new TablesKey(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class), SendReceive.Send);
+        assertEquals(expected, result);
+    }
 }

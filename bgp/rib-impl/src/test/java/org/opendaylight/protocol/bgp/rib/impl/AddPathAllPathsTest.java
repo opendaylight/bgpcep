@@ -28,7 +28,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
-import org.opendaylight.yangtools.yang.binding.Notification;
 
 public class AddPathAllPathsTest extends AbstractAddPathTest {
     /*
@@ -74,29 +73,53 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         checkPeersPresentOnDataStore(5);
 
         //the best route
-        sendRouteAndCheckIsOnDS(session1, PREFIX1, 100, 1);
+        sendRouteAndCheckIsOnLocRib(session1, PREFIX1, 100, 1);
         assertEquals(1, listener4.getListMsg().size());
         assertEquals(1, listener5.getListMsg().size());
         assertEquals(UPD_100, listener5.getListMsg().get(0));
 
+        final SimpleSessionListener listener6 = new SimpleSessionListener();
+        final Channel session6 = createPeerSession(PEER6, PeerRole.RrClient, nonAddPathParams, ribImpl, hf, listener6);
+        Thread.sleep(1000);
+        checkPeersPresentOnDataStore(6);
+        assertEquals(1, listener6.getListMsg().size());
+        assertEquals(UPD_NA_100, listener6.getListMsg().get(0));
+        session6.close();
+
         //the second best route
-        sendRouteAndCheckIsOnDS(session2, PREFIX1, 50, 2);
+        sendRouteAndCheckIsOnLocRib(session2, PREFIX1, 50, 2);
         assertEquals(1, listener4.getListMsg().size());
         assertEquals(2, listener5.getListMsg().size());
         assertEquals(UPD_50, listener5.getListMsg().get(1));
 
         //new best route
-        sendRouteAndCheckIsOnDS(session3, PREFIX1, 200, 3);
+        sendRouteAndCheckIsOnLocRib(session3, PREFIX1, 200, 3);
         assertEquals(2, listener4.getListMsg().size());
         assertEquals(3, listener5.getListMsg().size());
         assertEquals(UPD_200, listener5.getListMsg().get(2));
 
         //the worst route
-        sendRouteAndCheckIsOnDS(session1, PREFIX1, 20, 3);
+        sendRouteAndCheckIsOnLocRib(session1, PREFIX1, 20, 3);
         assertEquals(2, listener4.getListMsg().size());
         assertEquals(4, listener5.getListMsg().size());
         assertEquals(UPD_200.getAttributes().getLocalPref(), ((Update) listener4.getListMsg().get(1)).getAttributes().getLocalPref());
         assertEquals(UPD_20, listener5.getListMsg().get(3));
+
+        //withdraw second best route, 1 advertisement(1 withdrawal) for add-path supported, none for non add path
+        sendWithdrawalRouteAndCheckIsOnLocRib(session1, PREFIX1, 100, 2);
+        assertEquals(2, listener4.getListMsg().size());
+        assertEquals(5, listener5.getListMsg().size());
+
+        //we advertise again to try new test
+        sendRouteAndCheckIsOnLocRib(session1, PREFIX1, 100, 3);
+        assertEquals(2, listener4.getListMsg().size());
+        assertEquals(6, listener5.getListMsg().size());
+        assertEquals(UPD_200, listener5.getListMsg().get(2));
+
+        //withdraw second best route, 1 advertisement(1 withdrawal) for add-path supported, 1 for non add path (withdrawal)
+        sendWithdrawalRouteAndCheckIsOnLocRib(session3, PREFIX1, 200, 2);
+        assertEquals(3, listener4.getListMsg().size());
+        assertEquals(7, listener5.getListMsg().size());
 
         session1.close();
         session2.close();
