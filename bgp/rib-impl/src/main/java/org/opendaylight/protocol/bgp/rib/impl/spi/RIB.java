@@ -16,7 +16,7 @@ import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvid
 import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl.BGPRenderStats;
-import org.opendaylight.protocol.bgp.rib.spi.CacheDisconnectedPeers;
+import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
@@ -76,14 +76,6 @@ public interface RIB  extends RibReference, ClusterSingletonServiceProvider {
     CodecsRegistry getCodecsRegistry();
 
     /**
-     * Return cache disconnected peers which allows us to avoid update
-     * DS from a peer already disconnected, when multiple peers are disconnected
-     * at the same time and their own exportPolicy has not been updated yet.
-     * @return
-     */
-    CacheDisconnectedPeers getCacheDisconnectedPeers();
-
-    /**
      * Return instance of DOMDataTreeChangeService, where consumer can register to
      * listen on DOM data changes.
      * @return DOMDataTreeChangeService
@@ -93,6 +85,15 @@ public interface RIB  extends RibReference, ClusterSingletonServiceProvider {
     BGPRenderStats getRenderStats();
 
     ImportPolicyPeerTracker getImportPolicyPeerTracker();
+
+    /**
+     * Returns ExportPolicyPeerTracker for specific tableKey, where peer can register himself
+     * as supporting the table. Same export policy can be used to check which peers support respective
+     * table and announce then routes if required.
+     * @param tablesKey supported table
+     * @return ExportPolicyPeerTracker
+     */
+    ExportPolicyPeerTracker getExportPolicyPeerTracker(TablesKey tablesKey);
 
     Set<TablesKey> getLocalTablesKeys();
 

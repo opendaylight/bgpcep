@@ -120,7 +120,6 @@ public class PeerTest extends AbstractRIBTestSetup {
         }).when(getTransaction()).delete(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(YangInstanceIdentifier.class));
     }
 
-
     @Test
     public void testAppPeer() {
         final Ipv4Prefix first = new Ipv4Prefix("127.0.0.2/32");
