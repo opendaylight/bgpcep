@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.spi;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 
+@Deprecated
 public interface CacheDisconnectedPeers {
 
     /**

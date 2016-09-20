@@ -38,6 +38,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl.BGPRenderStats;
 import org.opendaylight.protocol.bgp.rib.spi.CacheDisconnectedPeers;
+import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
@@ -156,11 +157,6 @@ public final class RibImpl implements RIB, AutoCloseable {
     }
 
     @Override
-    public CacheDisconnectedPeers getCacheDisconnectedPeers() {
-        return this.ribImpl.getCacheDisconnectedPeers();
-    }
-
-    @Override
     public DOMDataTreeChangeService getService() {
         return this.ribImpl.getService();
     }
@@ -201,6 +197,11 @@ public final class RibImpl implements RIB, AutoCloseable {
     @Override
     public ImportPolicyPeerTracker getImportPolicyPeerTracker() {
         return this.ribImpl.getImportPolicyPeerTracker();
+    }
+
+    @Override
+    public ExportPolicyPeerTracker getExportPolicyPeerTracker(final TablesKey tablesKey) {
+        return this.ribImpl.getExportPolicyPeerTracker(tablesKey);
     }
 
     @Override

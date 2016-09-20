@@ -13,6 +13,7 @@ import static org.opendaylight.protocol.bgp.rib.impl.AdjRibInWriter.isLearnNone;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.net.InetAddresses;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,9 +48,11 @@ import org.opendaylight.protocol.bgp.rib.impl.stats.peer.BGPSessionStats;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
+import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
+import org.opendaylight.protocol.concepts.AbstractRegistration;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.prefixes.DestinationIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.prefixes.destination.ipv4.Ipv4Prefixes;
@@ -58,7 +61,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpAddPathTableType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.RouteRefresh;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.SendReceive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.add.path.capability.AddressFamilies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlriBuilder;
@@ -114,6 +120,8 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
     private final PeerRole peerRole;
     private final Optional<SimpleRoutingPolicy> simpleRoutingPolicy;
     private final BGPPeerStats peerStats;
+    private YangInstanceIdentifier peerIId;
+    private final Set<AbstractRegistration> tableRegistration = new HashSet<>();
 
     public BGPPeer(final String name, final RIB rib, final PeerRole role, final SimpleRoutingPolicy peerStatus, final RpcProviderRegistry rpcRegistry) {
         this.peerRole = role;
@@ -279,26 +287,37 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
     @Override
     public synchronized void onSessionUp(final BGPSession session) {
         final List<AddressFamilies> addPathTablesType = session.getAdvertisedAddPathTableTypes();
-        LOG.info("Session with peer {} went up with tables {} and Add Path tables {}", this.name, addPathTablesType,
-                session.getAdvertisedAddPathTableTypes());
+        final Set<BgpTableType> advertizedTableTypes = session.getAdvertisedTableTypes();
+        LOG.info("Session with peer {} went up with tables {} and Add Path tables {}", this.name, advertizedTableTypes, addPathTablesType);
         this.session = session;
 
         this.rawIdentifier = InetAddresses.forString(session.getBgpId().getValue()).getAddress();
         final PeerId peerId = RouterIds.createPeerId(session.getBgpId());
 
-        this.tables.addAll(this.session.getAdvertisedTableTypes().stream().map(t -> new TablesKey(t.getAfi(), t.getSafi())).collect(Collectors.toList()));
+        this.tables.addAll(advertizedTableTypes.stream().map(t -> new TablesKey(t.getAfi(), t.getSafi())).collect(Collectors.toList()));
         final boolean announceNone = isAnnounceNone(this.simpleRoutingPolicy);
+        final Map<TablesKey, SendReceive> addPathTableMaps = mapTableTypesFamilies(addPathTablesType);
+        this.peerIId = this.rib.getYangRibId().node(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer.QNAME)
+            .node(IdentifierUtils.domPeerId(peerId));
+
         if(!announceNone) {
             createAdjRibOutListener(peerId);
         }
+        this.tables.forEach(tablesKey -> {
+            final ExportPolicyPeerTracker exportTracker = this.rib.getExportPolicyPeerTracker(tablesKey);
+            if (exportTracker != null) {
+                this.tableRegistration.add(exportTracker.registerPeer(peerId, addPathTableMaps.get(tablesKey), this.peerIId, this.peerRole,
+                    this.simpleRoutingPolicy));
+            }
+        });
         addBgp4Support(peerId, announceNone);
 
         if(!isLearnNone(this.simpleRoutingPolicy)) {
-            final YangInstanceIdentifier peerIId = this.rib.getYangRibId().node(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer.QNAME).node(IdentifierUtils.domPeerId(peerId));
-            this.effRibInWriter = EffectiveRibInWriter.create(this.rib.getService(), this.rib.createPeerChain(this), peerIId, this.rib.getImportPolicyPeerTracker(),
-                    this.rib.getRibSupportContext(), this.peerRole, this.peerStats.getEffectiveRibInRouteCounters(), this.peerStats.getAdjRibInRouteCounters());
+            this.effRibInWriter = EffectiveRibInWriter.create(this.rib.getService(), this.rib.createPeerChain(this), this.peerIId,
+                this.rib.getImportPolicyPeerTracker(), this.rib.getRibSupportContext(), this.peerRole,
+                this.peerStats.getEffectiveRibInRouteCounters(), this.peerStats.getAdjRibInRouteCounters());
         }
-        this.ribWriter = this.ribWriter.transform(peerId, this.rib.getRibSupportContext(), this.tables, addPathTablesType);
+        this.ribWriter = this.ribWriter.transform(peerId, this.rib.getRibSupportContext(), this.tables, addPathTableMaps);
 
         // register BGP Peer stats
         this.peerStats.getSessionEstablishedCounter().increaseCount();
@@ -334,7 +353,8 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         // not particularly nice
         if (context != null && this.session instanceof BGPSessionImpl) {
             this.adjRibOutListenerSet.put(key, AdjRibOutListener.create(peerId, key, this.rib.getYangRibId(), this.rib.getCodecsRegistry(),
-                    context.getRibSupport(), this.rib.getService(), ((BGPSessionImpl) this.session).getLimiter(), mpSupport, this.peerStats.getAdjRibOutRouteCounters().init(key)));
+                context.getRibSupport(), this.rib.getService(), ((BGPSessionImpl) this.session).getLimiter(), mpSupport,
+                this.peerStats.getAdjRibOutRouteCounters().init(key)));
         }
     }
 
@@ -389,15 +409,16 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         if (this.rpcRegistration != null) {
             this.rpcRegistration.close();
         }
-        addPeerToDisconnectedSharedList();
+        closeRegistration();
         cleanup();
         dropConnection();
     }
 
-    private void addPeerToDisconnectedSharedList() {
-        if(this.session != null) {
-            this.rib.getCacheDisconnectedPeers().insertDesconectedPeer(this.session.getBgpId());
+    private void closeRegistration() {
+        for (final AbstractRegistration tableCloseable : this.tableRegistration) {
+            tableCloseable.close();
         }
+        this.tableRegistration.clear();
     }
 
     private void dropConnection() {
@@ -464,5 +485,10 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
     @Override
     public void markUptodate(final TablesKey tablesKey) {
         this.ribWriter.markTableUptodate(tablesKey);
+    }
+
+    private static Map<TablesKey, SendReceive> mapTableTypesFamilies(final List<AddressFamilies> addPathTablesType) {
+        return ImmutableMap.copyOf(addPathTablesType.stream().collect(Collectors.toMap(af -> new TablesKey(af.getAfi(), af.getSafi()),
+            BgpAddPathTableType::getSendReceive)));
     }
 }

@@ -29,7 +29,6 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nonnull;
@@ -47,7 +46,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.ImportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl.BGPRenderStats;
-import org.opendaylight.protocol.bgp.rib.spi.CacheDisconnectedPeers;
+import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
@@ -147,11 +146,6 @@ public class OpenConfigMappingUtilTest {
         }
 
         @Override
-        public CacheDisconnectedPeers getCacheDisconnectedPeers() {
-            return null;
-        }
-
-        @Override
         public DOMDataTreeChangeService getService() {
             return null;
         }
@@ -163,6 +157,11 @@ public class OpenConfigMappingUtilTest {
 
         @Override
         public ImportPolicyPeerTracker getImportPolicyPeerTracker() {
+            return null;
+        }
+
+        @Override
+        public ExportPolicyPeerTracker getExportPolicyPeerTracker(final TablesKey tablesKey) {
             return null;
         }
 

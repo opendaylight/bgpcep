@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.opendaylight.protocol.bgp.rib.spi.RouterIds.createPeerId;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
@@ -32,7 +33,9 @@ import javassist.ClassPool;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
 import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
@@ -74,6 +77,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.LocalPrefBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.OriginBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.OriginatorIdBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.as.path.SegmentsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.message.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
@@ -88,8 +93,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
@@ -107,30 +112,39 @@ import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 
 class AbstractAddPathTest extends AbstractDataBrokerTest {
-
-    protected static final String RIB_ID = "127.0.0.1";
-    protected static final Ipv4Address PEER1 = new Ipv4Address("127.0.0.2");
-    protected static final Ipv4Address PEER2 = new Ipv4Address("127.0.0.3");
-    protected static final Ipv4Address PEER3 = new Ipv4Address("127.0.0.4");
-    protected static final Ipv4Address PEER4 = new Ipv4Address("127.0.0.5");
-    protected static final Ipv4Address PEER5 = new Ipv4Address("127.0.0.6");
-    protected static final AsNumber AS_NUMBER = new AsNumber(72L);
-    protected static final int PORT = InetSocketAddressUtil.getRandomPort();
-    protected static final Ipv4Prefix PREFIX1 = new Ipv4Prefix("1.1.1.1/32");
-    private static final int HOLDTIMER = 180;
-    private static final Ipv4Address NH1 = new Ipv4Address("2.2.2.2");
+    static final String RIB_ID = "127.0.0.1";
+    static final Ipv4Address PEER1 = new Ipv4Address("127.0.0.2");
+    static final Ipv4Address PEER2 = new Ipv4Address("127.0.0.3");
+    static final Ipv4Address PEER3 = new Ipv4Address("127.0.0.4");
+    static final Ipv4Address PEER4 = new Ipv4Address("127.0.0.5");
+    static final Ipv4Address PEER5 = new Ipv4Address("127.0.0.6");
+    static final Ipv4Address PEER6 = new Ipv4Address("127.0.0.7");
+    static final AsNumber AS_NUMBER = new AsNumber(72L);
+    static final int PORT = InetSocketAddressUtil.getRandomPort();
+    static final Ipv4Prefix PREFIX1 = new Ipv4Prefix("1.1.1.1/32");
     private static final ClusterIdentifier CLUSTER_ID = new ClusterIdentifier(RIB_ID);
-    protected static final Update UPD_100 = createSimpleUpdate(PREFIX1, new PathId(1L), CLUSTER_ID, 100);
-    protected static final Update UPD_50 = createSimpleUpdate(PREFIX1, new PathId(2L), CLUSTER_ID, 50);
-    protected static final Update UPD_200 = createSimpleUpdate(PREFIX1, new PathId(3L), CLUSTER_ID, 200);
-    protected static final Update UPD_20 = createSimpleUpdate(PREFIX1, new PathId(1L), CLUSTER_ID, 20);
-
-    protected BindingToNormalizedNodeCodec mappingService;
-    protected BGPDispatcherImpl dispatcher;
-    protected RIBExtensionProviderContext ribExtension;
+    private static final PeerId PEER1_ID = createPeerId(PEER1);
+    private static final PeerId PEER2_ID = createPeerId(PEER2);
+    private static final PeerId PEER3_ID = createPeerId(PEER3);
+    private static final PeerId PEER4_ID = createPeerId(PEER4);
+    private static final PeerId PEER5_ID = createPeerId(PEER5);
+    private static final int HOLDTIMER = 2180;
+    private static final Ipv4Address NH1 = new Ipv4Address("2.2.2.2");
+    static final Update UPD_100 = createSimpleUpdate(PREFIX1, new PathId(1L), CLUSTER_ID, 100);
+    static final Update UPD_50 = createSimpleUpdate(PREFIX1, new PathId(2L), CLUSTER_ID, 50);
+    static final Update UPD_200 = createSimpleUpdate(PREFIX1, new PathId(3L), CLUSTER_ID, 200);
+    static final Update UPD_20 = createSimpleUpdate(PREFIX1, new PathId(1L), CLUSTER_ID, 20);
+    static final Update UPD_NA_100 = createSimpleUpdate(PREFIX1, null, CLUSTER_ID, 100);
+    static final Update UPD_NA_100_EBGP = createSimpleUpdateEbgp(PREFIX1, null);
+    static final Update UPD_NA_200 = createSimpleUpdate(PREFIX1, null, CLUSTER_ID, 200);
+    static final Update UPD_NA_200_EBGP = createSimpleUpdateEbgp(PREFIX1, null);
     protected BGPExtensionProviderContext context;
     protected SchemaContext schemaContext;
+    @Mock
     protected ClusterSingletonServiceProvider clusterSingletonServiceProvider;
+    BindingToNormalizedNodeCodec mappingService;
+    BGPDispatcherImpl dispatcher;
+    RIBExtensionProviderContext ribExtension;
     private RIBActivator ribActivator;
     private BGPActivator bgpActivator;
     private NioEventLoopGroup worker;
@@ -139,6 +153,7 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
 
     @Before
     public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
         this.ribActivator = new RIBActivator();
         this.ribExtension = new SimpleRIBExtensionProviderContext();
 
@@ -166,9 +181,8 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
         this.worker = new NioEventLoopGroup();
         this.boss = new NioEventLoopGroup();
         this.dispatcher = new BGPDispatcherImpl(this.context.getMessageRegistry(), this.boss, this.worker);
-
-        this.clusterSingletonServiceProvider = Mockito.mock(ClusterSingletonServiceProvider.class);
-        doReturn(Mockito.mock(ClusterSingletonServiceRegistration.class)).when(this.clusterSingletonServiceProvider).registerClusterSingletonService(any(ClusterSingletonService.class));
+        doReturn(Mockito.mock(ClusterSingletonServiceRegistration.class)).when(this.clusterSingletonServiceProvider)
+            .registerClusterSingletonService(any(ClusterSingletonService.class));
     }
 
     @After
@@ -182,11 +196,22 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
         this.bgpActivator.close();
     }
 
-    void sendRouteAndCheckIsOnDS(final Channel session, final Ipv4Prefix prefix, final long localPreference, final int expectedRoutesOnDS)
+    void sendRouteAndCheckIsOnLocRib(final Channel session, final Ipv4Prefix prefix, final long localPreference, final int expectedRoutesOnDS)
         throws InterruptedException, ExecutionException {
         session.writeAndFlush(createSimpleUpdate(prefix, null, null, localPreference));
         Thread.sleep(2000);
+        checkLocRib(expectedRoutesOnDS);
 
+    }
+
+    void sendWithdrawalRouteAndCheckIsOnLocRib(final Channel session, final Ipv4Prefix prefix, final long localPreference, final int expectedRoutesOnDS)
+        throws InterruptedException, ExecutionException {
+        session.writeAndFlush(createSimpleWithdrawalUpdate(prefix, localPreference));
+        Thread.sleep(2000);
+        checkLocRib(expectedRoutesOnDS);
+    }
+
+    private void checkLocRib(final int expectedRoutesOnDS) throws ExecutionException, InterruptedException {
         final ReadOnlyTransaction rTx = getDataBroker().newReadOnlyTransaction();
         final BgpRib bgpRib = rTx.read(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(BgpRib.class)).get().get();
         rTx.close();
@@ -211,10 +236,6 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
         return connectPeer(peer, nonAddPathParams, this.dispatcher, hf, sessionListsner);
     }
 
-    private static int getPeerRibOutSize(final Peer peer) {
-        return ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.bgp.rib.rib.peer.adj.rib.out.tables.routes.Ipv4RoutesCase) peer.getAdjRibOut().getTables().get(0).getRoutes()).getIpv4Routes().getIpv4Route().size();
-    }
-
     private static ChannelFuture createClient(final BGPDispatcherImpl dispatcher, final InetSocketAddress remoteAddress,
         final BGPPeerRegistry registry, final InetSocketAddress localAddress, final BGPHandlerFactory hf) throws InterruptedException {
         final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(registry);
@@ -226,7 +247,7 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
             @Override
             protected void initChannel(final SocketChannel ch) throws Exception {
                 ch.pipeline().addLast(hf.getDecoders());
-                ch.pipeline().addLast("negotiator", snf.getSessionNegotiator(ch, new DefaultPromise<BGPSessionImpl>(ch.eventLoop())));
+                ch.pipeline().addLast("negotiator", snf.getSessionNegotiator(ch, new DefaultPromise<>(ch.eventLoop())));
                 ch.pipeline().addLast(hf.getEncoders());
             }
         });
@@ -289,6 +310,21 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
             attBuilder.setClusterId(new ClusterIdBuilder().setCluster(Collections.singletonList(clusterId)).build());
             attBuilder.setOriginatorId(new OriginatorIdBuilder().setOriginator(new Ipv4Address(clusterId)).build());
         }
+        addAttributeAugmentation(attBuilder, prefix, pathId);
+        return new UpdateBuilder().setAttributes(attBuilder.build()).build();
+    }
+
+    private static Update createSimpleUpdateEbgp(final Ipv4Prefix prefix, final PathId pathId) {
+        final AttributesBuilder attBuilder = new AttributesBuilder();
+        attBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build());
+        attBuilder.setAsPath(new AsPathBuilder().setSegments(Collections.singletonList(
+            new SegmentsBuilder().setAsSequence(Collections.singletonList(AS_NUMBER)).build())).build());
+        addAttributeAugmentation(attBuilder, prefix, pathId);
+
+        return new UpdateBuilder().setAttributes(attBuilder.build()).build();
+    }
+
+    private static void addAttributeAugmentation(final AttributesBuilder attBuilder, final Ipv4Prefix prefix, final PathId pathId) {
         attBuilder.setUnrecognizedAttributes(Collections.emptyList());
         attBuilder.addAugmentation(Attributes1.class,
             new Attributes1Builder().setMpReachNlri(
@@ -302,6 +338,14 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
                                 new Ipv4PrefixesBuilder().setPathId(pathId).setPrefix(new Ipv4Prefix(prefix)).build())).build())
                             .build()).build())
                     .build()).build());
-        return new UpdateBuilder().setAttributes(attBuilder.build()).build();
+    }
+
+    private static Update createSimpleWithdrawalUpdate(final Ipv4Prefix prefix, final long localPreference) {
+        final AttributesBuilder attBuilder = new AttributesBuilder();
+        attBuilder.setLocalPref(new LocalPrefBuilder().setPref(localPreference).build());
+        attBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build());
+        attBuilder.setAsPath(new AsPathBuilder().setSegments(Collections.emptyList()).build());
+        attBuilder.setUnrecognizedAttributes(Collections.emptyList());
+        return new UpdateBuilder().setWithdrawnRoutes(new WithdrawnRoutesBuilder().setWithdrawnRoutes(Collections.singletonList(prefix)).build()).build();
     }
 }

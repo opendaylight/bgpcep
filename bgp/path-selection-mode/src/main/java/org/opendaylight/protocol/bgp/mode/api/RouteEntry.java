@@ -72,12 +72,43 @@ public interface RouteEntry {
      * @param peerPT peer export policy
      * @param locRibTarget YII local rib
      * @param ribSupport rib support
-     * @param discPeers list of disconnected peers
      * @param tx DOM transaction
      * @param routeIdPA router ID pathArgument
      */
     void updateRoute(TablesKey localTK, ExportPolicyPeerTracker peerPT, YangInstanceIdentifier locRibTarget, RIBSupport ribSupport,
-        CacheDisconnectedPeers discPeers, DOMDataWriteTransaction tx, PathArgument routeIdPA);
+        DOMDataWriteTransaction tx, PathArgument routeIdPA);
+    /**
+     * Update LocRibOut and AdjRibsOut by removing stale best path and writing new best
+     *
+     * @param localTK local Table Key
+     * @param peerPT peer export policy
+     * @param locRibTarget YII local rib
+     * @param ribSupport rib support
+     * @param discPeers list of disconnected peers
+     * @param tx DOM transaction
+     * @param routeIdPA router ID pathArgument
+     */
+    @Deprecated
+    default void updateRoute(TablesKey localTK, ExportPolicyPeerTracker peerPT, YangInstanceIdentifier locRibTarget, RIBSupport ribSupport,
+        CacheDisconnectedPeers discPeers, DOMDataWriteTransaction tx, PathArgument routeIdPA) {
+        updateRoute(localTK, peerPT, locRibTarget, ribSupport, tx, routeIdPA);
+    }
+
+    /**
+     * Write Route on LocRibOut and AdjRibsOut
+     *  @param peerId destination peerId
+     * @param routeId router ID path Argument
+     * @param rootPath YII root path
+     * @param peerGroup PeerExportGroup
+     * @param localTK local Table Key
+     * @param ribSupport rib support
+     * @param tx DOM transaction
+     */
+    @Deprecated
+    default void writeRoute(PeerId peerId, PathArgument routeId, YangInstanceIdentifier rootPath, PeerExportGroup peerGroup, TablesKey localTK,
+        ExportPolicyPeerTracker peerPT, RIBSupport ribSupport, CacheDisconnectedPeers discPeers, DOMDataWriteTransaction tx) {
+        writeRoute(peerId, routeId, rootPath, peerGroup, localTK, peerPT, ribSupport, tx);
+    }
 
     /**
      * Write Route on LocRibOut and AdjRibsOut
@@ -90,5 +121,5 @@ public interface RouteEntry {
      * @param tx DOM transaction
      */
     void writeRoute(PeerId peerId, PathArgument routeId, YangInstanceIdentifier rootPath, PeerExportGroup peerGroup, TablesKey localTK,
-        ExportPolicyPeerTracker peerPT, RIBSupport ribSupport, CacheDisconnectedPeers discPeers, DOMDataWriteTransaction tx);
+        ExportPolicyPeerTracker peerPT, RIBSupport ribSupport, DOMDataWriteTransaction tx);
 }
