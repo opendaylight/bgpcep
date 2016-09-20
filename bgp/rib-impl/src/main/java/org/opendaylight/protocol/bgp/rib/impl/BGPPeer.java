@@ -39,6 +39,7 @@ import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.LocalPreferenceAttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
+import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupportUtil;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.stats.peer.BGPPeerStats;
@@ -47,6 +48,7 @@ import org.opendaylight.protocol.bgp.rib.impl.stats.peer.BGPSessionStats;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
+import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
@@ -58,7 +60,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.RouteRefresh;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.SendReceive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.add.path.capability.AddressFamilies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlriBuilder;
@@ -114,6 +118,8 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
     private final PeerRole peerRole;
     private final Optional<SimpleRoutingPolicy> simpleRoutingPolicy;
     private final BGPPeerStats peerStats;
+    private YangInstanceIdentifier peerIId;
+    private final Set<AutoCloseable> TABLE_REGISTRATION = new HashSet<>();
 
     public BGPPeer(final String name, final RIB rib, final PeerRole role, final SimpleRoutingPolicy peerStatus, final RpcProviderRegistry rpcRegistry) {
         this.peerRole = role;
@@ -279,26 +285,37 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
     @Override
     public synchronized void onSessionUp(final BGPSession session) {
         final List<AddressFamilies> addPathTablesType = session.getAdvertisedAddPathTableTypes();
-        LOG.info("Session with peer {} went up with tables {} and Add Path tables {}", this.name, addPathTablesType,
-                session.getAdvertisedAddPathTableTypes());
+        final Set<BgpTableType> advertizedTableTypes = session.getAdvertisedTableTypes();
+        LOG.info("Session with peer {} went up with tables {} and Add Path tables {}", this.name, advertizedTableTypes, addPathTablesType);
         this.session = session;
 
         this.rawIdentifier = InetAddresses.forString(session.getBgpId().getValue()).getAddress();
         final PeerId peerId = RouterIds.createPeerId(session.getBgpId());
 
-        this.tables.addAll(this.session.getAdvertisedTableTypes().stream().map(t -> new TablesKey(t.getAfi(), t.getSafi())).collect(Collectors.toList()));
+        this.tables.addAll(advertizedTableTypes.stream().map(t -> new TablesKey(t.getAfi(), t.getSafi())).collect(Collectors.toList()));
         final boolean announceNone = isAnnounceNone(this.simpleRoutingPolicy);
+        final Map<TablesKey, SendReceive> addPathTableMaps = MultiPathSupportUtil.mapTableTypesFamilies(addPathTablesType);
+        this.peerIId = this.rib.getYangRibId().node(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer.QNAME)
+            .node(IdentifierUtils.domPeerId(peerId));
+
         if(!announceNone) {
             createAdjRibOutListener(peerId);
         }
+        this.tables.forEach(tablesKey -> {
+            final ExportPolicyPeerTracker exportTracker = this.rib.getExportPolicyPeerTracker(tablesKey);
+            if (exportTracker != null) {
+                TABLE_REGISTRATION.add(exportTracker.registerPeer(peerId, addPathTableMaps.get(tablesKey), this.peerIId, this.peerRole,
+                    this.simpleRoutingPolicy));
+            }
+        });
         addBgp4Support(peerId, announceNone);
 
         if(!isLearnNone(this.simpleRoutingPolicy)) {
-            final YangInstanceIdentifier peerIId = this.rib.getYangRibId().node(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer.QNAME).node(IdentifierUtils.domPeerId(peerId));
-            this.effRibInWriter = EffectiveRibInWriter.create(this.rib.getService(), this.rib.createPeerChain(this), peerIId, this.rib.getImportPolicyPeerTracker(),
-                    this.rib.getRibSupportContext(), this.peerRole, this.peerStats.getEffectiveRibInRouteCounters(), this.peerStats.getAdjRibInRouteCounters());
+            this.effRibInWriter = EffectiveRibInWriter.create(this.rib.getService(), this.rib.createPeerChain(this), this.peerIId,
+                this.rib.getImportPolicyPeerTracker(), this.rib.getRibSupportContext(), this.peerRole,
+                this.peerStats.getEffectiveRibInRouteCounters(), this.peerStats.getAdjRibInRouteCounters());
         }
-        this.ribWriter = this.ribWriter.transform(peerId, this.rib.getRibSupportContext(), this.tables, addPathTablesType);
+        this.ribWriter = this.ribWriter.transform(peerId, this.rib.getRibSupportContext(), this.tables, addPathTableMaps);
 
         // register BGP Peer stats
         this.peerStats.getSessionEstablishedCounter().increaseCount();
@@ -334,7 +351,8 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         // not particularly nice
         if (context != null && this.session instanceof BGPSessionImpl) {
             this.adjRibOutListenerSet.put(key, AdjRibOutListener.create(peerId, key, this.rib.getYangRibId(), this.rib.getCodecsRegistry(),
-                    context.getRibSupport(), this.rib.getService(), ((BGPSessionImpl) this.session).getLimiter(), mpSupport, this.peerStats.getAdjRibOutRouteCounters().init(key)));
+                context.getRibSupport(), this.rib.getService(), ((BGPSessionImpl) this.session).getLimiter(), mpSupport,
+                this.peerStats.getAdjRibOutRouteCounters().init(key)));
         }
     }
 
@@ -389,15 +407,20 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         if (this.rpcRegistration != null) {
             this.rpcRegistration.close();
         }
-        addPeerToDisconnectedSharedList();
+        closeRegistration();
         cleanup();
         dropConnection();
     }
 
-    private void addPeerToDisconnectedSharedList() {
-        if(this.session != null) {
-            this.rib.getCacheDisconnectedPeers().insertDesconectedPeer(this.session.getBgpId());
+    private void closeRegistration() {
+        for (final AutoCloseable tableCloseable : TABLE_REGISTRATION) {
+            try {
+                tableCloseable.close();
+            } catch (final Exception e) {
+                LOG.warn("Failed to close registration", e);
+            }
         }
+        TABLE_REGISTRATION.clear();
     }
 
     private void dropConnection() {
