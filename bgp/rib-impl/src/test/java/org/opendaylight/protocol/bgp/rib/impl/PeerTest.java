@@ -12,6 +12,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+
 import com.google.common.collect.Lists;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
@@ -85,7 +86,7 @@ public class PeerTest extends AbstractRIBTestSetup {
 
     private BGPSessionImpl session;
 
-    private Map<YangInstanceIdentifier, NormalizedNode<?,?>> routes;
+    private Map<YangInstanceIdentifier, NormalizedNode<?, ?>> routes;
 
     private BGPPeer classic;
 
@@ -102,7 +103,7 @@ public class PeerTest extends AbstractRIBTestSetup {
             @Override
             public Object answer(final InvocationOnMock invocation) throws Throwable {
                 final Object[] args = invocation.getArguments();
-                final NormalizedNode<?,?>node = (NormalizedNode<?,?>)args[2];
+                final NormalizedNode<?, ?> node = (NormalizedNode<?, ?>) args[2];
                 if (node.getIdentifier().getNodeType().equals(Ipv4Route.QNAME) || node.getNodeType().equals(PREFIX_QNAME)) {
                     PeerTest.this.routes.put((YangInstanceIdentifier) args[1], node);
                 }
@@ -119,7 +120,6 @@ public class PeerTest extends AbstractRIBTestSetup {
             }
         }).when(getTransaction()).delete(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(YangInstanceIdentifier.class));
     }
-
 
     @Test
     public void testAppPeer() {
@@ -144,7 +144,7 @@ public class PeerTest extends AbstractRIBTestSetup {
         assertEquals("testPeer", this.classic.getName());
         this.classic.onSessionUp(this.session);
         assertEquals(1, this.classic.getBgpPeerState().getSessionEstablishedCount().getValue().intValue());
-        Assert.assertArrayEquals(new byte[] {1, 1, 1, 1}, this.classic.getRawIdentifier());
+        Assert.assertArrayEquals(new byte[]{1, 1, 1, 1}, this.classic.getRawIdentifier());
         assertEquals("BGPPeer{name=testPeer, tables=[TablesKey [_afi=class org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily, _safi=class org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily]]}", this.classic.toString());
 
         final List<Ipv4Prefix> prefs = Lists.newArrayList(new Ipv4Prefix("8.0.1.0/28"), new Ipv4Prefix("127.0.0.1/32"), new Ipv4Prefix("2.2.2.2/24"));
@@ -162,11 +162,11 @@ public class PeerTest extends AbstractRIBTestSetup {
             assertEquals(BGPError.MANDATORY_ATTR_MISSING_MSG + "LOCAL_PREF", e.getMessage());
             assertEquals(BGPError.WELL_KNOWN_ATTR_MISSING.getCode(), e.getError().getCode());
             assertEquals(BGPError.WELL_KNOWN_ATTR_MISSING.getSubcode(), e.getError().getSubcode());
-            assertArrayEquals(new byte[] { LocalPreferenceAttributeParser.TYPE }, e.getData());
+            assertArrayEquals(new byte[]{LocalPreferenceAttributeParser.TYPE}, e.getData());
         }
         assertEquals(0, this.routes.size());
 
-        final LocalPref localPref = new LocalPrefBuilder().setPref((long)100).build();
+        final LocalPref localPref = new LocalPrefBuilder().setPref((long) 100).build();
         ub.setAttributes(ab.setLocalPref(localPref).build());
         this.classic.onMessage(this.session, ub.build());
         assertEquals(3, this.routes.size());
@@ -193,9 +193,9 @@ public class PeerTest extends AbstractRIBTestSetup {
         this.classic.onMessage(this.session, new KeepaliveBuilder().build());
         this.classic.onMessage(this.session, new UpdateBuilder().setAttributes(
             new AttributesBuilder().addAugmentation(
-                    Attributes2.class,
-                    new Attributes2Builder().setMpUnreachNlri(
-                            new MpUnreachNlriBuilder().setAfi(AFI).setSafi(SAFI).build()).build()).build()).build());
+                Attributes2.class,
+                new Attributes2Builder().setMpUnreachNlri(
+                    new MpUnreachNlriBuilder().setAfi(AFI).setSafi(SAFI).build()).build()).build()).build());
         this.classic.onMessage(this.session, new RouteRefreshBuilder().setAfi(AFI).setSafi(SAFI).build());
         this.classic.onMessage(this.session, new RouteRefreshBuilder().setAfi(Ipv6AddressFamily.class).setSafi(SAFI).build());
         assertEquals(2, this.routes.size());

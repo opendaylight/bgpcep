@@ -72,32 +72,57 @@ public class AddPathNPathsTest extends AbstractAddPathTest {
         checkPeersPresentOnDataStore(5);
 
         //new best route so far
-        sendRouteAndCheckIsOnDS(session1, PREFIX1, 100, 1);
+        sendRouteAndCheckIsOnLocRib(session1, PREFIX1, 100, 1);
         assertEquals(1, listener4.getListMsg().size());
         assertEquals(1, listener5.getListMsg().size());
         assertEquals(UPD_100, listener5.getListMsg().get(0));
 
+        final SimpleSessionListener listener6 = new SimpleSessionListener();
+        final Channel session6 = createPeerSession(PEER6, PeerRole.RrClient, nonAddPathParams, ribImpl, hf, listener6);
+        Thread.sleep(1000);
+        checkPeersPresentOnDataStore(6);
+        assertEquals(1, listener6.getListMsg().size());
+        assertEquals(UPD_NA_100, listener6.getListMsg().get(0));
+        session6.close();
+        Thread.sleep(1000);
+
         //the second best route
-        sendRouteAndCheckIsOnDS(session2, PREFIX1, 50, 2);
+        sendRouteAndCheckIsOnLocRib(session2, PREFIX1, 50, 2);
         assertEquals(1, listener4.getListMsg().size());
         assertEquals(2, listener5.getListMsg().size());
         assertEquals(UPD_50, listener5.getListMsg().get(1));
 
         //new best route
-        sendRouteAndCheckIsOnDS(session3, PREFIX1, 200, 2);
+        sendRouteAndCheckIsOnLocRib(session3, PREFIX1, 200, 2);
         assertEquals(2, listener4.getListMsg().size());
         assertEquals(3, listener5.getListMsg().size());
         assertEquals(UPD_200, listener5.getListMsg().get(2));
 
         //the worst prefix, no changes
-        sendRouteAndCheckIsOnDS(session2, PREFIX1, 20, 2);
+        sendRouteAndCheckIsOnLocRib(session2, PREFIX1, 20, 2);
         assertEquals(2, listener4.getListMsg().size());
         assertEquals(3, listener5.getListMsg().size());
+
+        //withdraw second best route, 2 advertisement (1 withdrawal) for add-path supported, none for non add path
+        sendWithdrawalRouteAndCheckIsOnLocRib(session1, PREFIX1, 100, 2);
+        assertEquals(2, listener4.getListMsg().size());
+        assertEquals(5, listener5.getListMsg().size());
+
+        //we advertise again to try new test
+        sendRouteAndCheckIsOnLocRib(session1, PREFIX1, 100, 2);
+        assertEquals(2, listener4.getListMsg().size());
+        assertEquals(6, listener5.getListMsg().size());
+
+        //withdraw second best route, 2 advertisement (1 withdrawal) for add-path supported, 1 withdrawal for non add path
+        sendWithdrawalRouteAndCheckIsOnLocRib(session3, PREFIX1, 200, 2);
+        assertEquals(3, listener4.getListMsg().size());
+        assertEquals(8, listener5.getListMsg().size());
 
         session1.close();
         session2.close();
         session3.close();
         session4.close();
         session5.close();
+        Thread.sleep(1000);
     }
 }
