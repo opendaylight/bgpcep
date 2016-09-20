@@ -68,7 +68,7 @@ abstract class AbstractBgpTopologyProvider implements BgpTopologyProvider, AutoC
     }
 
     @Override
-    public final void close() {
+    public void close() {
         this.registration.close();
     }
 

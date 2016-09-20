@@ -19,9 +19,11 @@ import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public final class TopologyReferenceSingletonServiceImpl implements TopologyReferenceSingletonService {
-
+final class TopologyReferenceSingletonServiceImpl implements TopologyReferenceSingletonService {
+    private static final Logger LOG = LoggerFactory.getLogger(TopologyReferenceSingletonServiceImpl.class);
     private final AbstractTopologyBuilder<?> topologyBuilder;
     private final AbstractRegistration serviceRegistration;
     private final Topology configuration;
@@ -47,6 +49,7 @@ public final class TopologyReferenceSingletonServiceImpl implements TopologyRefe
 
     @Override
     public void instantiateServiceInstance() {
+        LOG.info("Topology Singleton Service {} instantiated", getIdentifier());
         this.topologyBuilder.start();
         if (this.writeFunction != null) {
             this.writeFunction.apply(this.configuration);
@@ -55,6 +58,7 @@ public final class TopologyReferenceSingletonServiceImpl implements TopologyRefe
 
     @Override
     public ListenableFuture<Void> closeServiceInstance() {
+        LOG.info("Close Topology Singleton Service {}", getIdentifier());
         this.topologyBuilder.close();
         return Futures.immediateFuture(null);
     }
