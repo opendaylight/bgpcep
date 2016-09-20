@@ -14,7 +14,6 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoop;
 import io.netty.util.concurrent.DefaultPromise;
-import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;

@@ -25,7 +25,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
-import org.opendaylight.protocol.bgp.rib.spi.CacheDisconnectedPeers;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
@@ -91,7 +90,6 @@ public class AbstractRouteEntryTest {
     protected ExportPolicyPeerTracker peerPT;
     @Mock
     protected PeerExportGroup peg;
-    protected CacheDisconnectedPeers discCache;
     protected List<YangInstanceIdentifier> yIIChanges;
     protected NormalizedNode<?, ?> attributes;
     protected YangInstanceIdentifier routePaYii;
@@ -113,7 +111,6 @@ public class AbstractRouteEntryTest {
         MockitoAnnotations.initMocks(this);
         this.yIIChanges = new ArrayList<>();
         this.peerPT = Mockito.mock(ExportPolicyPeerTracker.class);
-        this.discCache = Mockito.mock(CacheDisconnectedPeers.class);
         this.attributes = createAttr();
         this.locRibTargetYii = LOC_RIB_TARGET.node(ROUTES_IDENTIFIER);
         this.locRibOutTargetYii = PEER_YII.node(AdjRibOut.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(TABLES_KEY)).node(ROUTES_IDENTIFIER);
@@ -131,12 +128,6 @@ public class AbstractRouteEntryTest {
         mockExportPolicies();
         mockExportGroup();
         mockTransactionChain();
-        mockCacheDiscPeers();
-    }
-
-    private void mockCacheDiscPeers() {
-        Mockito.doReturn(false).when(this.discCache).isPeerDisconnected(PEER_ID);
-        Mockito.doReturn(true).when(this.discCache).isPeerDisconnected(PEER_DISCONNECTED);
     }
 
     private void mockTransactionChain() {
