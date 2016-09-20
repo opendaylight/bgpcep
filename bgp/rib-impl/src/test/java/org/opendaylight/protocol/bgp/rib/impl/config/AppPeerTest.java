@@ -43,7 +43,7 @@ public class AppPeerTest extends AbstractConfig {
 
         this.singletonService.instantiateServiceInstance();
         Mockito.verify(this.configurationWriter).apply();
-        Mockito.verify(this.rib, times(2)).getRibSupportContext();
+        Mockito.verify(this.rib).getRibSupportContext();
         Mockito.verify(this.rib).getLocalTablesKeys();
         Mockito.verify(this.domTx).newWriteOnlyTransaction();
 

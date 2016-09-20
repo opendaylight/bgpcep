@@ -12,12 +12,10 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -30,7 +28,6 @@ import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.PeerRoleUtil;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.SendReceive;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.add.path.capability.AddressFamilies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
@@ -129,7 +126,7 @@ final class AdjRibInWriter {
      * @return New writer
      */
     AdjRibInWriter transform(final PeerId newPeerId, final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes,
-        final List<AddressFamilies> addPathTablesType) {
+        final Map<TablesKey, SendReceive> addPathTablesType) {
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
 
         final YangInstanceIdentifier newPeerPath;
@@ -150,10 +147,9 @@ final class AdjRibInWriter {
      * @return
      */
     private ImmutableMap<TablesKey, TableContext> createNewTableInstances(final YangInstanceIdentifier newPeerPath,
-        final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes, final List<AddressFamilies> addPathTablesType,
+        final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes, final Map<TablesKey, SendReceive> addPathTablesType,
         final DOMDataWriteTransaction tx) {
 
-        final Map<TablesKey, SendReceive> addPathTableMaps = mapTableTypesFamilies(addPathTablesType);
         final Builder<TablesKey, TableContext> tb = ImmutableMap.builder();
         for (final TablesKey tableKey : tableTypes) {
             final RIBSupportContext rs = registry.getRIBSupportContext(tableKey);
@@ -163,15 +159,10 @@ final class AdjRibInWriter {
                 LOG.warn("No support for table type {}, skipping it", tableKey);
                 continue;
             }
-            installAdjRibsOutTables(newPeerPath, rs, instanceIdentifierKey, tableKey, addPathTableMaps.get(tableKey), tx);
+            installAdjRibsOutTables(newPeerPath, rs, instanceIdentifierKey, tableKey, addPathTablesType.get(tableKey), tx);
             installAdjRibInTables(newPeerPath, tableKey, rs, instanceIdentifierKey, tx, tb);
         }
         return tb.build();
-    }
-
-    private Map<TablesKey, SendReceive> mapTableTypesFamilies(final List<AddressFamilies> addPathTablesType) {
-        return Collections.unmodifiableMap(addPathTablesType.stream().collect(Collectors.toMap(af -> new TablesKey(af.getAfi(), af.getSafi()),
-            af -> af.getSendReceive())));
     }
 
     private void installAdjRibInTables(final YangInstanceIdentifier newPeerPath, final TablesKey tableKey, final RIBSupportContext rs,

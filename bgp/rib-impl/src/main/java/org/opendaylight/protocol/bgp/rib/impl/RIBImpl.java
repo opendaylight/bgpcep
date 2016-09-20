@@ -10,10 +10,12 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +49,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl.BGPRenderStats;
 import org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl.RIBImplRuntimeMXBeanImpl;
-import org.opendaylight.protocol.bgp.rib.spi.CacheDisconnectedPeers;
+import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
@@ -99,16 +101,15 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
     private final CodecsRegistryImpl codecsRegistry;
     private final ServiceGroupIdentifier serviceGroupIdentifier;
     private final ClusterSingletonServiceProvider provider;
-    private final PolicyDatabase policyDatabase;
     private final BgpDeployer.WriteConfiguration configurationWriter;
     private ClusterSingletonServiceRegistration registration;
     private final DOMDataBrokerExtension service;
     private final List<LocRibWriter> locRibs = new ArrayList<>();
-    private final CacheDisconnectedPeers cacheDisconnectedPeers;
     private final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies;
     private final ImportPolicyPeerTracker importPolicyPeerTracker;
     private final RIBImplRuntimeMXBeanImpl renderStats;
     private final RibId ribId;
+    private final Map<TablesKey, ExportPolicyPeerTracker> exportPolicyPeerTrackerMap;
 
     public RIBImpl(final ClusterSingletonServiceProvider provider, final RibId ribId, final AsNumber localAs, final BgpId localBgpId,
         final ClusterIdentifier clusterId, final RIBExtensionConsumerContext extensions, final BGPDispatcher dispatcher,
@@ -130,23 +131,31 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
         this.ribContextRegistry = RIBSupportContextRegistryImpl.create(extensions, this.codecsRegistry);
         final InstanceIdentifierBuilder yangRibIdBuilder = YangInstanceIdentifier.builder().node(BgpRib.QNAME).node(Rib.QNAME);
         this.yangRibId = yangRibIdBuilder.nodeWithKey(Rib.QNAME, RIB_ID_QNAME, ribId.getValue()).build();
-        this.cacheDisconnectedPeers = new CacheDisconnectedPeersImpl();
         this.bestPathSelectionStrategies = Preconditions.checkNotNull(bestPathSelectionStrategies);
         final ClusterIdentifier cId = (clusterId == null) ? new ClusterIdentifier(localBgpId) : clusterId;
         this.renderStats = new RIBImplRuntimeMXBeanImpl(localBgpId, ribId, localAs, cId);
         this.ribId = ribId;
-        this.policyDatabase  = new PolicyDatabase(this.localAs.getValue(), localBgpId, cId);
-        this.importPolicyPeerTracker = new ImportPolicyPeerTrackerImpl( this.policyDatabase);
-        this.serviceGroupIdentifier = ServiceGroupIdentifier.create(this.ribId + "-service-group");
+        final PolicyDatabase policyDatabase = new PolicyDatabase(this.localAs.getValue(), localBgpId, cId);
+        this.importPolicyPeerTracker = new ImportPolicyPeerTrackerImpl(policyDatabase);
+        this.serviceGroupIdentifier = ServiceGroupIdentifier.create(this.ribId.getValue() + "-service-group");
         Preconditions.checkNotNull(provider, "ClusterSingletonServiceProvider is null");
         this.provider = provider;
         this.configurationWriter = configurationWriter;
+
+        final ImmutableMap.Builder<TablesKey, ExportPolicyPeerTracker> exportPolicies = new ImmutableMap.Builder<>();
+        for (final BgpTableType t : this.localTables) {
+            final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
+            this.localTablesKeys.add(key);
+            exportPolicies.put(key, new ExportPolicyPeerTrackerImpl(policyDatabase, key));
+        }
+        this.exportPolicyPeerTrackerMap = exportPolicies.build();
+
         LOG.info("RIB Singleton Service {} registered", getIdentifier());
         //this need to be always the last step
         this.registration = registerClusterSingletonService(this);
     }
 
-    private void startLocRib(final TablesKey key, final PolicyDatabase pd) {
+    private void startLocRib(final TablesKey key) {
         LOG.debug("Creating LocRib table for {}", key);
         // create locRibWriter for each table
         final DOMDataWriteTransaction tx = this.domChain.newWriteOnlyTransaction();
@@ -177,8 +186,8 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
             pathSelectionStrategy = BasePathSelectionModeFactory.createBestPathSelectionStrategy();
         }
 
-        this.locRibs.add(LocRibWriter.create(this.ribContextRegistry, key, createPeerChain(this), getYangRibId(), this.localAs, getService(), pd,
-                this.cacheDisconnectedPeers, pathSelectionStrategy, this.renderStats.getLocRibRouteCounter().init(key)));
+        this.locRibs.add(LocRibWriter.create(this.ribContextRegistry, key, createPeerChain(this), getYangRibId(), this.localAs, getService(),
+            this.exportPolicyPeerTrackerMap.get(key), pathSelectionStrategy, this.renderStats.getLocRibRouteCounter().init(key)));
     }
 
     @Override
@@ -276,14 +285,15 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
     public CodecsRegistry getCodecsRegistry() {
         return this.codecsRegistry;
     }
-    @Override
-    public CacheDisconnectedPeers getCacheDisconnectedPeers() {
-        return this.cacheDisconnectedPeers;
-    }
 
     @Override
     public ImportPolicyPeerTracker getImportPolicyPeerTracker() {
         return this.importPolicyPeerTracker;
+    }
+
+    @Override
+    public ExportPolicyPeerTracker getExportPolicyPeerTracker(final TablesKey tablesKey) {
+        return this.exportPolicyPeerTrackerMap.get(tablesKey);
     }
 
     @Override
@@ -320,11 +330,7 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
 
         LOG.debug("Effective RIB created.");
 
-        for (final BgpTableType t : this.localTables) {
-            final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
-            this.localTablesKeys.add(key);
-            startLocRib(key, this.policyDatabase);
-        }
+        this.localTablesKeys.forEach(this::startLocRib);
     }
 
     @Override
