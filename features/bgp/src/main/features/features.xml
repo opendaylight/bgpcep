@@ -29,6 +29,7 @@
         <feature version='${project.version}'>odl-bgpcep-bgp-parser</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-rib-api</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-rib-impl</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-inet</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-linkstate</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-flowspec</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-labeled-unicast</feature>
@@ -97,39 +98,39 @@
         <feature version='${project.version}'>odl-bgpcep-bgp-parser</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-rib-api</feature>
         <feature version='${project.version}'>odl-bgpcep-rsvp</feature>
-        <bundle>mvn:org.opendaylight.bgpcep/bgp-linkstate/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-bmp-api/{{VERSION}}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-linkstate/{{VERSION}}</bundle>
     </feature>
 
     <feature name='odl-bgpcep-bgp-flowspec' version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-bgp-parser</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-rib-api</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-inet</feature>
-        <bundle>mvn:org.opendaylight.bgpcep/bgp-flowspec/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-bmp-api/{{VERSION}}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-flowspec/{{VERSION}}</bundle>
     </feature>
 
     <feature name='odl-bgpcep-bgp-labeled-unicast' version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-bgp-parser</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-rib-api</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-inet</feature>
-        <bundle>mvn:org.opendaylight.bgpcep/bgp-labeled-unicast/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-bmp-api/{{VERSION}}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-labeled-unicast/{{VERSION}}</bundle>
     </feature>
 
     <feature name='odl-bgpcep-bgp-l3vpn' version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-bgp-parser</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-rib-api</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-labeled-unicast</feature>
-        <bundle>mvn:org.opendaylight.bgpcep/bgp-l3vpn/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-bmp-api/{{VERSION}}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-l3vpn/{{VERSION}}</bundle>
     </feature>
 
     <feature name='odl-bgpcep-bgp-evpn' version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-bgp-parser</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-rib-api</feature>
-        <bundle>mvn:org.opendaylight.bgpcep/bgp-evpn/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-bmp-api/{{VERSION}}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-evpn/{{VERSION}}</bundle>
     </feature>
 
     <feature name='odl-bgpcep-bgp-path-selection-mode' version='${project.version}'>
@@ -143,10 +144,10 @@
     <feature name='odl-bgpcep-bgp-rib-impl' version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-bgp-dependencies</feature>
         <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
-        <feature version='${project.version}'>odl-bgpcep-bgp-linkstate</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-rib-api</feature>
-        <feature version='${project.version}'>odl-bgpcep-bgp-path-selection-mode</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-inet</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-linkstate</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-path-selection-mode</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-openconfig-api/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-openconfig-spi/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-impl/{{VERSION}}</bundle>
