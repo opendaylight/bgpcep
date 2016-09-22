@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_41fd48b0",
+        "filename": "features/bgp/src/main/features/features.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-09-22T15:08:54Z",
+      "side": 1,
+      "message": "Do we really need/use linkstate in rib-impl?",
+      "range": {
+        "startLine": 148,
+        "startChar": 8,
+        "endLine": 148,
+        "endChar": 80
+      },
+      "revId": "21b157e21e7cae4d55fbfa1fd623aa70672a0981",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
