@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_b2d0e9c9",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/MultiPathSupportUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-09-23T20:58:49Z",
+      "side": 1,
+      "message": "Is it used in BGPPeer class only? If so, keep it there.",
+      "range": {
+        "startLine": 48,
+        "startChar": 46,
+        "endLine": 48,
+        "endChar": 67
+      },
+      "revId": "f3d83dccc9c2680f71a3e459653a43a0a99cf18e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_92d32dd4",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-09-23T20:58:49Z",
+      "side": 1,
+      "message": "naming convention",
+      "range": {
+        "startLine": 122,
+        "startChar": 37,
+        "endLine": 122,
+        "endChar": 55
+      },
+      "revId": "f3d83dccc9c2680f71a3e459653a43a0a99cf18e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_52f4f559",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/ExportPolicyPeerTrackerImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-09-23T20:58:49Z",
+      "side": 1,
+      "message": "https://docs.oracle.com/javase/8/docs/api/java/util/Optional.html#orElse-T-",
+      "range": {
+        "startLine": 75,
+        "startChar": 0,
+        "endLine": 78,
+        "endChar": 9
+      },
+      "revId": "f3d83dccc9c2680f71a3e459653a43a0a99cf18e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_72f1316a",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/ExportPolicyPeerTrackerImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-09-23T20:58:49Z",
+      "side": 1,
+      "message": "Do we need to throw an exception here?",
+      "range": {
+        "startLine": 89,
+        "startChar": 39,
+        "endLine": 89,
+        "endChar": 48
+      },
+      "revId": "f3d83dccc9c2680f71a3e459653a43a0a99cf18e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_92ea0d72",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-09-23T20:58:49Z",
+      "side": 1,
+      "message": "Narrow listener?\nWild-carded identifier to  peers\u0027 eff-rib-in table should be enough?",
+      "range": {
+        "startLine": 99,
+        "startChar": 37,
+        "endLine": 99,
+        "endChar": 44
+      },
+      "revId": "f3d83dccc9c2680f71a3e459653a43a0a99cf18e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_f204214b",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/RIBImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-09-23T20:58:49Z",
+      "side": 1,
+      "message": "use immutable map builder",
+      "range": {
+        "startLine": 145,
+        "startChar": 8,
+        "endLine": 145,
+        "endChar": 87
+      },
+      "revId": "f3d83dccc9c2680f71a3e459653a43a0a99cf18e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
