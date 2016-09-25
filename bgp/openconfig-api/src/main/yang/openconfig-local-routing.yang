@@ -286,7 +286,4 @@ module openconfig-local-routing {
       uses local-aggregate-top;
     }
   }
-
-  uses local-routes-top;
-
 }
