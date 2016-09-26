@@ -32,7 +32,7 @@
                     {
                         "protocol-ips": [
                             {
-                                "op": "equals end-of-list",
+                                "op": "end-of-list equals",
                                 "value": 6
                             }
                         ]
@@ -40,7 +40,7 @@
                     {
                         "ports": [
                             {
-                                "op": "equals end-of-list",
+                                "op": "end-of-list equals",
                                 "value": 80
                             }
                         ]
@@ -52,7 +52,7 @@
                                 "value": 8080
                             },
                             {
-                                "op": "end-of-list less-than and-bit",
+                                "op": "end-of-list and-bit less-than",
                                 "value": 8088
                             }
                         ]
@@ -68,7 +68,7 @@
                     {
                         "types": [
                             {
-                                "op": "equals end-of-list",
+                                "op": "end-of-list equals",
                                 "value": 0
                             }
                         ]
@@ -76,7 +76,7 @@
                     {
                         "codes": [
                             {
-                                "op": "equals end-of-list",
+                                "op": "end-of-list equals",
                                 "value": 0
                             }
                         ]
@@ -84,7 +84,7 @@
                     {
                         "tcp-flags": [
                             {
-                                "op": "match end-of-list",
+                                "op": "end-of-list match",
                                 "value": 32
                             }
                         ]
@@ -96,7 +96,7 @@
                                 "value": 400
                             },
                             {
-                                "op": "end-of-list less-than and-bit",
+                                "op": "end-of-list and-bit less-than",
                                 "value": 500
                             }
                         ]
@@ -104,7 +104,7 @@
                     {
                         "dscps": [
                             {
-                                "op": "equals end-of-list",
+                                "op": "end-of-list equals",
                                 "value": 20
                             }
                         ]
@@ -112,7 +112,7 @@
                     {
                         "fragments": [
                             {
-                                "op": "match end-of-list",
+                                "op": "end-of-list match",
                                 "value": "first"
                             }
                         ]
