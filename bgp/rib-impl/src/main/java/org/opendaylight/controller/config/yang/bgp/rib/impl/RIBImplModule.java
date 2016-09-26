@@ -35,11 +35,11 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.t
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.Protocols;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.Protocol;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.ProtocolKey;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151009.BGP;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Protocol1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -77,14 +77,13 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
                 WaitingServiceTracker.create(BgpDeployer.class, this.bundleContext);
         final BgpDeployer bgpDeployer = bgpDeployerTracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
         //map configuration to OpenConfig BGP
-        final Protocol protocol = bgpDeployer.getMappingService().fromRib(getBgpRibId(), getClusterId(), getRibId(),
+        final Global global = bgpDeployer.getMappingService().fromRib(getBgpRibId(), getClusterId(), getRibId(),
             new AsNumber(getLocalAs()), getLocalTableDependency(),
                 mapBestPathSelectionStrategyByFamily(getRibPathSelectionModeDependency()));
-        final Global global = protocol.getAugmentation(Protocol1.class).getBgp().getGlobal();
-        final KeyedInstanceIdentifier<Protocol, ProtocolKey> protocolIId = bgpDeployer.getInstanceIdentifier().child(Protocols.class)
-            .child(Protocol.class, protocol.getKey());
-        final InstanceIdentifier<Bgp> bgpIID = protocolIId.augmentation(Protocol1.class).child(Bgp.class);
-        bgpDeployer.onGlobalModified(bgpIID, global, () -> bgpDeployer.writeConfiguration(protocol, protocolIId));
+        final InstanceIdentifier<Bgp> bgpIID = bgpDeployer.getInstanceIdentifier().child(Protocols.class)
+            .child(Protocol.class, new ProtocolKey(BGP.class, getRibId().getValue())).augmentation(Protocol1.class)
+            .child(Bgp.class);
+        bgpDeployer.onGlobalModified(bgpIID, global, () -> bgpDeployer.writeConfiguration(global, bgpIID.child(Global.class)));
 
         //get rib instance service, use filter
         final WaitingServiceTracker<RIB> ribTracker = WaitingServiceTracker.create(RIB.class,

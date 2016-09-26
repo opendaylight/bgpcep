@@ -15,7 +15,6 @@ import static org.opendaylight.protocol.bgp.openconfig.impl.util.OpenConfigUtil.
 import com.google.common.primitives.Shorts;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,20 +33,12 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.n
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.TransportBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborBuilder;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.peer.group.PeerGroupBuilder;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.BgpBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.GlobalBuilder;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.NeighborsBuilder;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.PeerGroupsBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.CommunityType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4UNICAST;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV6UNICAST;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.PeerType;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.Protocol;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.ProtocolBuilder;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.ProtocolKey;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151009.BGP;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -66,8 +57,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.IPV6FLOW;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Protocol1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Protocol1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
@@ -186,18 +175,12 @@ public class BGPOpenConfigMappingServiceImplTest {
         bgpTableKeyPsm.put(new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class), ADD_PATH_BEST_N_PATH_SELECTION);
         bgpTableKeyPsm.put(new TablesKey(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class), ADD_PATH_BEST_ALL_PATH_SELECTION);
 
-        final Protocol result = OPENCONFIG.fromRib(BGP_ID, new ClusterIdentifier("192.168.1.2"), RIB_ID, AS, TABLE_TYPES, bgpTableKeyPsm);
-        final Bgp globalBgp = new BgpBuilder()
-            .setGlobal(new GlobalBuilder()
+        final Global result = OPENCONFIG.fromRib(BGP_ID, new ClusterIdentifier("192.168.1.2"), RIB_ID, AS, TABLE_TYPES, bgpTableKeyPsm);
+        final Global expected = new GlobalBuilder()
                 .setAfiSafis(new AfiSafisBuilder().setAfiSafi(AFISAFIS).build())
                 .setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base
                     .ConfigBuilder()
-                    .setAs(AS).setRouterId(BGP_ID).build()).build())
-            .setPeerGroups(new PeerGroupsBuilder().setPeerGroup(Collections.singletonList(new PeerGroupBuilder().setPeerGroupName("application-peers").build())).build())
-            .setNeighbors(new NeighborsBuilder().build())
-            .build();
-        final Protocol expected = new ProtocolBuilder()
-            .setKey(new ProtocolKey(BGP.class, RIB_ID.getValue())).addAugmentation(Protocol1.class, new Protocol1Builder().setBgp(globalBgp).build()).build();
+                    .setAs(AS).setRouterId(BGP_ID).build()).build();
         assertEquals(expected, result);
     }
 

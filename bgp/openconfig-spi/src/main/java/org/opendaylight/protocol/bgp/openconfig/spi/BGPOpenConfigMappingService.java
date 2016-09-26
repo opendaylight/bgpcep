@@ -13,7 +13,7 @@ import java.util.Map;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.Protocol;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
@@ -40,7 +40,7 @@ public interface BGPOpenConfigMappingService {
 
     PeerRole toPeerRole(Neighbor neighbor);
 
-    Protocol fromRib(BgpId bgpId, ClusterIdentifier clusterIdentifier, RibId ribId, AsNumber localAs, List<BgpTableType> localTables,
+    Global fromRib(BgpId bgpId, ClusterIdentifier clusterIdentifier, RibId ribId, AsNumber localAs, List<BgpTableType> localTables,
             Map<TablesKey, PathSelectionMode> pathSelectionStrategies);
 
     Neighbor fromBgpPeer(List<AddressFamilies> addPathCapabilities,
