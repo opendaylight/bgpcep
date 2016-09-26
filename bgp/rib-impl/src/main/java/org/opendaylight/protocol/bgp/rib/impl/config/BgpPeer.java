@@ -86,14 +86,12 @@ public final class BgpPeer implements PeerBean, BGPPeerRuntimeMXBean {
     @Override
     public void restart(final RIB rib, final BGPOpenConfigMappingService mappingService) {
         Preconditions.checkState(this.currentConfiguration != null);
-        closeSingletonService();
         start(rib, this.currentConfiguration, mappingService, null);
     }
 
     @Override
     public void close() {
         closeSingletonService();
-        this.currentConfiguration = null;
         if (this.serviceRegistration != null) {
             this.serviceRegistration.unregister();
             this.serviceRegistration = null;

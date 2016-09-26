@@ -158,10 +158,7 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
     @Override
     public synchronized void onGlobalModified(final InstanceIdentifier<Bgp> rootIdentifier, final Global global,
         final WriteConfiguration configurationWriter) {
-        LOG.debug("Modifying RIB instance with configuration: {}", global);
-        //restart existing rib instance with a new configuration
         final RibImpl ribImpl = this.ribs.get(rootIdentifier);
-        LOG.debug("RIB instance modified {}", ribImpl);
         if(ribImpl == null ) {
             onGlobalCreated(rootIdentifier, global, configurationWriter);
         } else if (!ribImpl.isGlobalEqual(global)) {
@@ -171,7 +168,7 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
 
     private List<PeerBean> closeAllBindedPeers(final InstanceIdentifier<Bgp> rootIdentifier) {
         final List<PeerBean> filtered = new ArrayList<>();
-        this.peers.entrySet().stream().filter(entry -> entry.getKey().contains(rootIdentifier)).forEach(entry -> {
+        this.peers.entrySet().stream().filter(entry -> entry.getKey().firstIdentifierOf(Bgp.class).contains(rootIdentifier)).forEach(entry -> {
             final PeerBean peer = entry.getValue();
             peer.close();
             filtered.add(peer);
@@ -185,15 +182,17 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
         final RibImpl ribImpl = (RibImpl) this.container.getComponentInstance(InstanceType.RIB.getBeanName());
         initiateRibInstance(rootIdentifier, global, ribImpl, configurationWriter);
         this.ribs.put(rootIdentifier, ribImpl);
-        LOG.debug("RIB instance created {}", ribImpl);
+        LOG.debug("RIB instance created: {}", ribImpl);
     }
 
     private void onGlobalUpdated(final InstanceIdentifier<Bgp> rootIdentifier, final Global global, final RibImpl ribImpl,
         final WriteConfiguration configurationWriter) {
+        LOG.debug("Modifying RIB instance with configuration: {}", global);
         final List<PeerBean> closedPeers = closeAllBindedPeers(rootIdentifier);
         ribImpl.close();
         initiateRibInstance(rootIdentifier, global, ribImpl, configurationWriter);
         closedPeers.forEach(peer -> peer.restart(ribImpl, this.mappingService));
+        LOG.debug("RIB instance created: {}", ribImpl);
     }
 
     @Override
@@ -240,17 +239,13 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
     @Override
     public synchronized void onNeighborModified(final InstanceIdentifier<Bgp> rootIdentifier, final Neighbor neighbor,
         final WriteConfiguration configurationWriter) {
-        LOG.debug("Modifying Peer instance with configuration: {}", neighbor);
         //restart peer instance with a new configuration
         final PeerBean bgpPeer = this.peers.get(getNeighborInstanceIdentifier(rootIdentifier, neighbor.getKey()));
         if (bgpPeer == null) {
             onNeighborCreated(rootIdentifier, neighbor, configurationWriter);
         } else if(!bgpPeer.containsEqualConfiguration(neighbor)){
-            bgpPeer.close();
-            final InstanceIdentifier<Neighbor> neighborInstanceIdentifier = getNeighborInstanceIdentifier(rootIdentifier, neighbor.getKey());
-            initiatePeerInstance(rootIdentifier, neighborInstanceIdentifier, neighbor, bgpPeer, configurationWriter);
+            onNeighborUpdated(bgpPeer, rootIdentifier, neighbor, configurationWriter);
         }
-        LOG.debug("Peer instance modified {}", bgpPeer);
     }
 
     private synchronized void onNeighborCreated(final InstanceIdentifier<Bgp> rootIdentifier, final Neighbor neighbor,
@@ -266,6 +261,15 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
         initiatePeerInstance(rootIdentifier, neighborInstanceIdentifier, neighbor, bgpPeer, configurationWriter);
         this.peers.put(neighborInstanceIdentifier, bgpPeer);
         LOG.debug("Peer instance created {}", bgpPeer);
+    }
+
+    private void onNeighborUpdated(final PeerBean bgpPeer, final InstanceIdentifier<Bgp> rootIdentifier, final Neighbor neighbor,
+            final WriteConfiguration configurationWriter) {
+        LOG.debug("Updating Peer instance with configuration: {}", neighbor);
+        bgpPeer.close();
+        final InstanceIdentifier<Neighbor> neighborInstanceIdentifier = getNeighborInstanceIdentifier(rootIdentifier, neighbor.getKey());
+        initiatePeerInstance(rootIdentifier, neighborInstanceIdentifier, neighbor, bgpPeer, configurationWriter);
+        LOG.debug("Peer instance updated {}", bgpPeer);
     }
 
     @Override
@@ -305,7 +309,7 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
     @Override
     public <T extends DataObject> ListenableFuture<Void> writeConfiguration(final T data, final InstanceIdentifier<T> identifier) {
         final ReadWriteTransaction wTx = this.dataBroker.newReadWriteTransaction();
-        wTx.put(LogicalDatastoreType.CONFIGURATION, identifier, data);
+        wTx.put(LogicalDatastoreType.CONFIGURATION, identifier, data, true);
         return wTx.submit();
     }
 
