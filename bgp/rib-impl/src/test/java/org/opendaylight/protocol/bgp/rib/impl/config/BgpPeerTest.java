@@ -68,6 +68,7 @@ public class BgpPeerTest extends AbstractConfig {
     static final List<AfiSafi> AFI_SAFI = Collections.singletonList(AFI_SAFI_IPV4);
     private BgpPeer bgpPeer;
 
+    @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -102,7 +103,8 @@ public class BgpPeerTest extends AbstractConfig {
         } catch (final IllegalStateException expected) {
             assertEquals("Previous peer instance {} was not closed.", expected.getMessage());
         }
-        this.bgpPeer.setServiceRegistration(serviceRegistration);
+        this.bgpPeer.setServiceRegistration(this.serviceRegistration);
+        this.bgpPeer.close();
         this.bgpPeer.restart(this.rib, this.mappingService);
         Mockito.verify(this.mappingService, times(2)).toPeerRole(any());
         Mockito.verify(this.render, times(2)).getConfiguredPeerCounter();
@@ -129,7 +131,7 @@ public class BgpPeerTest extends AbstractConfig {
 
         this.bgpPeer.close();
         Mockito.verify(this.singletonServiceRegistration, times(2)).close();
-        Mockito.verify(serviceRegistration).unregister();
+        Mockito.verify(this.serviceRegistration).unregister();
         Mockito.verify(this.future).cancel(true);
     }
 
