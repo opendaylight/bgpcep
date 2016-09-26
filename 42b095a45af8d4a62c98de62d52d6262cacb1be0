@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_48da8417",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-09-26T10:28:47Z",
+      "side": 1,
+      "message": "this",
+      "revId": "42b095a45af8d4a62c98de62d52d6262cacb1be0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_28d588e4",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-09-26T10:28:47Z",
+      "side": 1,
+      "message": "this",
+      "revId": "42b095a45af8d4a62c98de62d52d6262cacb1be0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_88077c81",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 424,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-09-26T10:28:47Z",
+      "side": 1,
+      "message": "this",
+      "revId": "42b095a45af8d4a62c98de62d52d6262cacb1be0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_08d40cea",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/ExportPolicyPeerTrackerImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-09-26T10:28:47Z",
+      "side": 1,
+      "message": "How about using AbstractRegistration as a return type? Client (BGPPeer) will not have to catch exception when closing registration.",
+      "range": {
+        "startLine": 84,
+        "startChar": 19,
+        "endLine": 84,
+        "endChar": 32
+      },
+      "revId": "42b095a45af8d4a62c98de62d52d6262cacb1be0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
