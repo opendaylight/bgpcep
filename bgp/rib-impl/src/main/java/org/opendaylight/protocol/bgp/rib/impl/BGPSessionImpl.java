@@ -235,38 +235,46 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
      *
      * @param msg incoming message
      */
-    synchronized void handleMessage(final Notification msg) throws BGPDocumentedException {
-        // Update last reception time
-        this.lastMessageReceivedAt = System.nanoTime();
-
-        if (msg instanceof Open) {
-            // Open messages should not be present here
-            this.terminate(new BGPDocumentedException(null, BGPError.FSM_ERROR));
-        } else if (msg instanceof Notify) {
-            final Notify notify = (Notify) msg;
-            // Notifications are handled internally
-            LOG.info("Session closed because Notification message received: {} / {}, data={}", notify.getErrorCode(),
-                    notify.getErrorSubcode(), notify.getData() != null ? ByteBufUtil.hexDump(notify.getData()) : null);
-            this.closeWithoutMessage();
-            this.listener.onSessionTerminated(this, new BGPTerminationReason(
-                    BGPError.forValue(notify.getErrorCode(), notify.getErrorSubcode())));
-        } else if (msg instanceof Keepalive) {
-            // Keepalives are handled internally
-            LOG.trace("Received KeepAlive message.");
-            this.kaCounter++;
-            if (this.kaCounter >= 2) {
-                this.sync.kaReceived();
-            }
-        } else if (msg instanceof RouteRefresh) {
-            this.listener.onMessage(this, msg);
-        } else if (msg instanceof Update) {
-            this.listener.onMessage(this, msg);
-            this.sync.updReceived((Update) msg);
-        } else {
-            LOG.warn("Ignoring unhandled message: {}.", msg.getClass());
+    synchronized void handleMessage(final Notification msg) {
+        if (this.state == State.IDLE) {
+            return;
         }
+        try {
+            // Update last reception time
+            this.lastMessageReceivedAt = System.nanoTime();
 
-        this.sessionStats.updateReceivedMsg(msg);
+            if (msg instanceof Open) {
+                // Open messages should not be present here
+                this.terminate(new BGPDocumentedException(null, BGPError.FSM_ERROR));
+            } else if (msg instanceof Notify) {
+                final Notify notify = (Notify) msg;
+                // Notifications are handled internally
+                LOG.info("Session closed because Notification message received: {} / {}, data={}", notify.getErrorCode(),
+                    notify.getErrorSubcode(), notify.getData() != null ? ByteBufUtil.hexDump(notify.getData()) : null);
+                this.closeWithoutMessage();
+                this.listener.onSessionTerminated(this, new BGPTerminationReason(
+                    BGPError.forValue(notify.getErrorCode(), notify.getErrorSubcode())));
+            } else if (msg instanceof Keepalive) {
+                // Keepalives are handled internally
+                LOG.trace("Received KeepAlive message.");
+                this.kaCounter++;
+                if (this.kaCounter >= 2) {
+                    this.sync.kaReceived();
+                }
+            } else if (msg instanceof RouteRefresh) {
+                this.listener.onMessage(this, msg);
+            } else if (msg instanceof Update) {
+                this.listener.onMessage(this, msg);
+                this.sync.updReceived((Update) msg);
+            } else {
+                LOG.warn("Ignoring unhandled message: {}.", msg.getClass());
+            }
+
+            this.sessionStats.updateReceivedMsg(msg);
+
+        } catch (final BGPDocumentedException e) {
+            this.terminate(e);
+        }
     }
 
     synchronized void endOfInput() {
@@ -318,7 +326,6 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
             return;
         }
         LOG.info("Closing session: {}", this);
-        removePeerSession();
         this.channel.close().addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(final ChannelFuture future) throws Exception {
@@ -326,6 +333,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
             }
         });
         this.state = State.IDLE;
+        removePeerSession();
     }
 
     /**
@@ -342,9 +350,8 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
             builder.setData(data);
         }
         this.writeAndFlush(builder.build());
-        this.closeWithoutMessage();
-
         this.listener.onSessionTerminated(this, new BGPTerminationReason(error));
+        this.closeWithoutMessage();
     }
 
     private void removePeerSession() {
@@ -481,11 +488,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     @Override
     protected final void channelRead0(final ChannelHandlerContext ctx, final Notification msg) {
         LOG.debug("Message was received: {}", msg);
-        try {
-            this.handleMessage(msg);
-        } catch (final BGPDocumentedException e) {
-            this.terminate(e);
-        }
+        this.handleMessage(msg);
     }
 
     @Override

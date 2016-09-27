@@ -33,7 +33,9 @@ import javassist.ClassPool;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
 import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
@@ -139,6 +141,7 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
     static final Update UPD_NA_200_EBGP = createSimpleUpdateEbgp(PREFIX1, null);
     protected BGPExtensionProviderContext context;
     protected SchemaContext schemaContext;
+    @Mock
     protected ClusterSingletonServiceProvider clusterSingletonServiceProvider;
     BindingToNormalizedNodeCodec mappingService;
     BGPDispatcherImpl dispatcher;
@@ -151,6 +154,7 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
 
     @Before
     public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
         this.ribActivator = new RIBActivator();
         this.ribExtension = new SimpleRIBExtensionProviderContext();
 
@@ -178,8 +182,6 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
         this.worker = new NioEventLoopGroup();
         this.boss = new NioEventLoopGroup();
         this.dispatcher = new BGPDispatcherImpl(this.context.getMessageRegistry(), this.boss, this.worker);
-
-        this.clusterSingletonServiceProvider = Mockito.mock(ClusterSingletonServiceProvider.class);
         doReturn(Mockito.mock(ClusterSingletonServiceRegistration.class)).when(this.clusterSingletonServiceProvider)
             .registerClusterSingletonService(any(ClusterSingletonService.class));
     }
