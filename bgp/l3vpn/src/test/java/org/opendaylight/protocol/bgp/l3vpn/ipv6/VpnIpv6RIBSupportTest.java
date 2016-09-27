@@ -18,17 +18,11 @@ import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import java.util.Collection;
 import java.util.Collections;
 import org.junit.Assert;
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.l3vpn.AbstractVpnNlriParser;
-import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
-import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupportTest;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
@@ -62,22 +56,10 @@ public class VpnIpv6RIBSupportTest extends AbstractRIBSupportTest {
     private static final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv6.rev160331.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.
         DestinationVpnIpv6Case UNREACH_NLRI = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv6.rev160331.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.
         DestinationVpnIpv6CaseBuilder().setVpnIpv6Destination(new VpnIpv6DestinationBuilder().setVpnDestination(Lists.newArrayList(IPV6_VPN)).build()).build();
-
-    private static final VpnRoute ROUTE;
-    private static final VpnIpv6Routes ROUTES;
-    private static final VpnRouteKey ROUTE_KEY;
-
-    static {
-        final BgpIpv6Activator act = new BgpIpv6Activator();
-        final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
-        act.start(context);
-        final ByteBuf buffer = Unpooled.buffer();
-        AbstractVpnNlriParser.serializeNlri(Collections.singletonList(IPV6_VPN), buffer);
-        ROUTE_KEY = new VpnRouteKey(ByteArray.encodeBase64(buffer));
-        ROUTE = new VpnRouteBuilder().setPathId(new PathId(NON_PATH_ID)).setAttributes(ATTRIBUTES).setPrefix(IPv6_PREFIX)
-            .setLabelStack(LABEL_STACK).setRouteDistinguisher(DISTINGUISHER).setKey(ROUTE_KEY).build();
-        ROUTES = new VpnIpv6RoutesBuilder().setVpnRoute(Collections.singletonList(ROUTE)).build();
-    }
+    private static final VpnRouteKey ROUTE_KEY = new VpnRouteKey("cAABAQIDBAECIAEjRVaJ");
+    private static final VpnRoute ROUTE = new VpnRouteBuilder().setPathId(new PathId(NON_PATH_ID)).setAttributes(ATTRIBUTES).setPrefix(IPv6_PREFIX)
+        .setLabelStack(LABEL_STACK).setRouteDistinguisher(DISTINGUISHER).setKey(ROUTE_KEY).build();
+    private static final VpnIpv6Routes ROUTES = new VpnIpv6RoutesBuilder().setVpnRoute(Collections.singletonList(ROUTE)).build();
 
     @Override
     public void setUp() throws Exception {
@@ -98,7 +80,6 @@ public class VpnIpv6RIBSupportTest extends AbstractRIBSupportTest {
         final VpnRoute route = (VpnRoute) this.insertedRoutes.get(0).getValue();
         assertEquals(ROUTE, route);
     }
-
 
     @Test
     public void testEmptyRoute() throws Exception {

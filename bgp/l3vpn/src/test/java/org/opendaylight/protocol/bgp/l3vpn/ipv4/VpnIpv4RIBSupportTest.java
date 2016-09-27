@@ -18,17 +18,11 @@ import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import java.util.Collection;
 import java.util.Collections;
 import org.junit.Assert;
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.l3vpn.AbstractVpnNlriParser;
-import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
-import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupportTest;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
@@ -62,22 +56,11 @@ public class VpnIpv4RIBSupportTest extends AbstractRIBSupportTest {
     private static final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev160210.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.
         DestinationVpnIpv4Case UNREACH_NLRI = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev160210.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.
         DestinationVpnIpv4CaseBuilder().setVpnIpv4Destination(new VpnIpv4DestinationBuilder().setVpnDestination(Lists.newArrayList(IPV4_VPN)).build()).build();
+    private static final VpnRouteKey ROUTE_KEY = new VpnRouteKey("WAABAQIDBAECIgEW");
 
-    private static final VpnRoute ROUTE;
-    private static final VpnIpv4Routes ROUTES;
-    private static final VpnRouteKey ROUTE_KEY;
-
-    static {
-        final BgpIpv4Activator act = new BgpIpv4Activator();
-        final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
-        act.start(context);
-        final ByteBuf buffer = Unpooled.buffer();
-        AbstractVpnNlriParser.serializeNlri(Collections.singletonList(IPV4_VPN), buffer);
-        ROUTE_KEY = new VpnRouteKey(ByteArray.encodeBase64(buffer));
-        ROUTE = new VpnRouteBuilder().setPathId(new PathId(NON_PATH_ID)).setAttributes(ATTRIBUTES).setPrefix(IPv4_PREFIX)
-            .setLabelStack(LABEL_STACK).setRouteDistinguisher(DISTINGUISHER).setKey(ROUTE_KEY).build();
-        ROUTES = new VpnIpv4RoutesBuilder().setVpnRoute(Collections.singletonList(ROUTE)).build();
-    }
+    private static final VpnRoute ROUTE = new VpnRouteBuilder().setPathId(new PathId(NON_PATH_ID)).setAttributes(ATTRIBUTES).setPrefix(IPv4_PREFIX)
+        .setLabelStack(LABEL_STACK).setRouteDistinguisher(DISTINGUISHER).setKey(ROUTE_KEY).build();
+    private static final VpnIpv4Routes ROUTES = new VpnIpv4RoutesBuilder().setVpnRoute(Collections.singletonList(ROUTE)).build();
 
     @Override
     public void setUp() throws Exception {
