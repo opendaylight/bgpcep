@@ -34,9 +34,6 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * @author Kevin Wang
- */
 public abstract class AbstractVpnNlriParser implements NlriParser, NlriSerializer {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractVpnNlriParser.class);
 
@@ -48,15 +45,13 @@ public abstract class AbstractVpnNlriParser implements NlriParser, NlriSerialize
 
     protected abstract AdvertizedRoutes getAdvertizedRoutesByDestination(List<VpnDestination> dst);
 
-    public static void serializeNlri(final List<VpnDestination> dests, final ByteBuf buffer) {
+    private static void serializeNlri(final List<VpnDestination> dests, final ByteBuf buffer) {
         final ByteBuf nlriByteBuf = Unpooled.buffer();
         for (final VpnDestination dest : dests) {
             final List<LabelStack> labelStack = dest.getLabelStack();
             final IpPrefix prefix = dest.getPrefix();
             LOG.debug("Serializing Nlri: VpnDestination={}, IpPrefix={}", dest, prefix);
-            // Serialize the length field
-            // Length field contains one Byte which represents the length of label stack and prefix in bits
-            nlriByteBuf.writeByte(((LUNlriParser.LABEL_LENGTH * labelStack.size()) + LUNlriParser.getPrefixLength(prefix) + RouteDistinguisherUtil.RD_LENGTH) * Byte.SIZE);
+            AbstractVpnNlriParser.serializeLengtField(prefix, labelStack, nlriByteBuf);
             LUNlriParser.serializeLabelStackEntries(labelStack, nlriByteBuf);
             RouteDistinguisherUtil.serializeRouteDistinquisher(dest.getRouteDistinguisher(), nlriByteBuf);
             Preconditions.checkArgument(prefix.getIpv6Prefix() != null || prefix.getIpv4Prefix() != null, "Ipv6 or Ipv4 prefix is missing.");
@@ -64,6 +59,22 @@ public abstract class AbstractVpnNlriParser implements NlriParser, NlriSerialize
         }
         buffer.writeBytes(nlriByteBuf);
     }
+
+    /**
+     * Serialize the length field Length field contains one Byte which represents the length of label stack and prefix in bits
+     * @param prefix ipPrefix
+     * @param labelStack list of labelStack
+     * @param nlriByteBuf ByteBuf
+     */
+    static void serializeLengtField(final IpPrefix prefix, final List<LabelStack> labelStack, final ByteBuf nlriByteBuf) {
+        final int prefixLenght = LUNlriParser.getPrefixLength(prefix);
+        int labelStackLenght = 0;
+        if(labelStack != null) {
+            labelStackLenght = LUNlriParser.LABEL_LENGTH * labelStack.size();
+        }
+        nlriByteBuf.writeByte((labelStackLenght + prefixLenght + RouteDistinguisherUtil.RD_LENGTH) * Byte.SIZE);
+    }
+
 
     private static List<VpnDestination> parseNlri(final ByteBuf nlri, final Class<? extends AddressFamily> afi) {
         if (!nlri.isReadable()) {

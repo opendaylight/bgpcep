@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.l3vpn;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
@@ -17,7 +18,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.protocol.bgp.labeled.unicast.LUNlriParser;
 import org.opendaylight.protocol.bgp.labeled.unicast.LabeledUnicastIpv4RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
 import org.opendaylight.protocol.util.ByteArray;
@@ -47,9 +50,6 @@ import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * @author Kevin Wang
- */
 public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractVpnRIBSupport.class);
     private final NodeIdentifier nlriRoutesListNid;
@@ -164,9 +164,20 @@ public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport {
 
     private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode l3vpn) {
         final ByteBuf buffer = Unpooled.buffer();
+        final VpnDestination dests = new VpnDestinationBuilder().setPrefix(extractPrefix(l3vpn, this.prefixTypeNid))
+            .setRouteDistinguisher(extractRouteDistinguisher(l3vpn)).build();
+        final ByteBuf nlriByteBuf = Unpooled.buffer();
 
-        final VpnDestination dest = extractVpnDestination(l3vpn);
-        AbstractVpnNlriParser.serializeNlri(Collections.singletonList(dest), buffer);
+        for (final VpnDestination dest : Collections.singletonList(dests)) {
+            final IpPrefix prefix = dest.getPrefix();
+            LOG.debug("Serializing Nlri: VpnDestination={}, IpPrefix={}", dest, prefix);
+            AbstractVpnNlriParser.serializeLengtField(prefix, null, nlriByteBuf);
+            RouteDistinguisherUtil.serializeRouteDistinquisher(dest.getRouteDistinguisher(), nlriByteBuf);
+            Preconditions.checkArgument(prefix.getIpv6Prefix() != null || prefix.getIpv4Prefix() != null, "Ipv6 or Ipv4 prefix is missing.");
+            LUNlriParser.serializePrefixField(prefix, nlriByteBuf);
+        }
+        buffer.writeBytes(nlriByteBuf);
+
         return new NodeIdentifierWithPredicates(routeQName(), this.routeKey, ByteArray.encodeBase64(buffer));
     }
 }
