@@ -13,6 +13,7 @@ module odl-bgp-evpn {
     import bgp-message { prefix bgp-msg; revision-date 2013-09-19; }
     import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-19; }
     import pmsi-tunnel { prefix pmsi; revision-date 2016-08-12; }
+    import yang-ext { prefix ext; revision-date 2013-07-09; }
 
     organization "Cisco Systems, Inc.";
 
@@ -389,6 +390,7 @@ module odl-bgp-evpn {
                 uses evpn;
                 uses bgp-rib:route {
                     augment "attributes" {
+                        ext:augment-identifier pmsi-tunnel-augmentation;
                         uses pmsi:pmsi-tunnel;
                     }
                     augment "attributes/extended-communities/extended-community" {

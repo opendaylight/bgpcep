@@ -7,6 +7,7 @@ module pmsi-tunnel {
     import bgp-types { prefix bgp-t; revision-date 2013-09-19; }
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import network-concepts { prefix netc; revision-date 2013-11-25; }
+    import ietf-yang-types { prefix yang; }
 
     organization "AT&T Services, Inc.";
 
@@ -31,14 +32,26 @@ module pmsi-tunnel {
 
     grouping opaque {
         leaf opaque-type {
+            mandatory true;
             type uint8;
         }
         leaf opaque-extended-type {
             type uint16;
         }
         leaf opaque {
-            // Base-64 encoded
-            type string;
+            mandatory true;
+            type yang:hex-string;
+        }
+    }
+
+    grouping p-address-p-multicast-group {
+        leaf p-address {
+            mandatory true;
+            type inet:ip-address;
+        }
+        leaf p-multicast-group {
+            mandatory true;
+            type inet:ip-address;
         }
     }
 
@@ -54,24 +67,21 @@ module pmsi-tunnel {
             }
             leaf mpls-label {
                 type netc:mpls-label;
-                mandatory true;
             }
             choice tunnel-identifier {
                 case rsvp-te-p2mp-lsp {
                     container rsvp-te-p2mp-lps {
                         reference "https://tools.ietf.org/html/rfc4875#section-19.1.1";
                         leaf p2mp-id {
+                            mandatory true;
                             type uint32;
                         }
                         leaf tunnel-id {
+                            mandatory true;
                             type uint16;
                         }
-                        leaf address-family {
-                            type identityref {
-                                base bgp-t:address-family;
-                            }
-                        }
                         leaf extended-tunnel-id {
+                            mandatory true;
                             type inet:ip-address;
                         }
                     }
@@ -80,47 +90,36 @@ module pmsi-tunnel {
                     container mldp-p2mp-lsp {
                         reference "https://tools.ietf.org/html/rfc6388#section-2.2";
                         leaf address-family {
+                            mandatory true;
                             type identityref {
                                 base bgp-t:address-family;
                             }
                         }
                         leaf root-node-address {
+                            mandatory true;
                             type inet:ip-address;
                         }
-                        uses opaque;
+                        list opaque-value {
+                            uses opaque;
+                        }
                     }
                 }
                 case pim-ssm-tree {
                     container pim-ssm-tree {
                         reference "https://tools.ietf.org/html/rfc6514#section-5";
-                        leaf p-root-node-address {
-                            type inet:ip-address;
-                        }
-                        leaf p-multicast-group {
-                            type inet:ip-address;
-                        }
+                        uses p-address-p-multicast-group;
                     }
                 }
                 case pim-sm-tree {
                     container pim-sm-tree {
                         reference "https://tools.ietf.org/html/rfc6514#section-5";
-                        leaf p-sender-address {
-                            type inet:ip-address;
-                        }
-                        leaf p-multicast-group {
-                            type inet:ip-address;
-                        }
+                        uses p-address-p-multicast-group;
                     }
                 }
                 case bidir-pim-tree {
                     container bidir-pim-tree {
                         reference "https://tools.ietf.org/html/rfc6514#section-5";
-                        leaf p-sender-address {
-                            type inet:ip-address;
-                        }
-                        leaf p-multicast-group {
-                            type inet:ip-address;
-                        }
+                        uses p-address-p-multicast-group;
                     }
                 }
                 case ingress-replication {
