@@ -7,6 +7,7 @@ module bgp-openconfig-extensions {
     import openconfig-network-instance { prefix netinst; }
     import openconfig-bgp { prefix openconfig-bgp; }
     import ietf-inet-types { prefix inet; }
+    import yang-ext { prefix ext; revision-date 2013-07-09; }
 
     organization "Cisco Systems, Inc.";
     contact "Milos Fabian <milfabia@cisco.com>";
@@ -92,6 +93,15 @@ module bgp-openconfig-extensions {
                     "Augmentation to allow association of a neighbor with a
                      peer-group";
                 uses openconfig-bgp:bgp-neighbor-peer-group_config;
+            }
+            augment bgp/global/config {
+                ext:augment-identifier global-config-augmentation;
+                leaf route-reflector-cluster-id {
+                    type bgp-types:rr-cluster-id-type;
+                    description
+                      "Route-reflector cluster id to use when local router is
+                      configured as a route reflector.";
+                  }
             }
         }
     }
