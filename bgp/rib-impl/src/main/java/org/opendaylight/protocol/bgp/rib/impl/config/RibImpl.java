@@ -41,6 +41,7 @@ import org.opendaylight.protocol.bgp.rib.spi.CacheDisconnectedPeers;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.Config;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -76,6 +77,8 @@ public final class RibImpl implements RIB, AutoCloseable {
     private AsNumber asNumber;
     private Ipv4Address routerId;
 
+    private ClusterIdentifier clusterId;
+
     public RibImpl(final ClusterSingletonServiceProvider provider, final RIBExtensionConsumerContext contextProvider, final BGPDispatcher dispatcher,
             final BindingCodecTreeFactory codecTreeFactory, final DOMDataBroker domBroker, final SchemaService schemaService) {
         this.provider = Preconditions.checkNotNull(provider);
@@ -95,10 +98,14 @@ public final class RibImpl implements RIB, AutoCloseable {
 
     Boolean isGlobalEqual(final Global global) {
         final List<AfiSafi> globalAfiSafi = getAfiSafiWithDefault(global.getAfiSafis(), true);
-        final AsNumber globalAs = global.getConfig().getAs();
+        final Config globalConfig = global.getConfig();
+        final AsNumber globalAs = globalConfig.getAs();
         final Ipv4Address globalRouterId = global.getConfig().getRouterId();
+        final ClusterIdentifier globalClusterId = OpenConfigMappingUtil.getClusterIdentifier(globalConfig);
         return this.afiSafi.containsAll(globalAfiSafi) && globalAfiSafi.containsAll(this.afiSafi)
-            && globalAs.equals(this.asNumber) && globalRouterId.getValue().equals(this.routerId.getValue());
+            && globalAs.equals(this.asNumber)
+            && globalRouterId.getValue().equals(this.routerId.getValue())
+            && globalClusterId.getValue().equals(this.clusterId.getValue());
     }
 
     @Override
@@ -222,11 +229,13 @@ public final class RibImpl implements RIB, AutoCloseable {
     private RIBImpl createRib(final ClusterSingletonServiceProvider provider, final Global global, final String bgpInstanceName,
         final BGPOpenConfigMappingService mappingService, final BgpDeployer.WriteConfiguration configurationWriter) {
         this.afiSafi = getAfiSafiWithDefault(global.getAfiSafis(), true);
-        this.asNumber = global.getConfig().getAs();
-        this.routerId = global.getConfig().getRouterId();
+        final Config globalConfig = global.getConfig();
+        this.asNumber = globalConfig.getAs();
+        this.routerId = globalConfig.getRouterId();
+        this.clusterId = OpenConfigMappingUtil.getClusterIdentifier(globalConfig);
         final Map<TablesKey, PathSelectionMode> pathSelectionModes = mappingService.toPathSelectionMode(this.afiSafi).entrySet()
                 .stream().collect(Collectors.toMap(entry -> new TablesKey(entry.getKey().getAfi(), entry.getKey().getSafi()), Map.Entry::getValue));
-        return new RIBImpl(provider, new RibId(bgpInstanceName), this.asNumber, new BgpId(this.routerId), new ClusterIdentifier(this.routerId),
+        return new RIBImpl(provider, new RibId(bgpInstanceName), this.asNumber, new BgpId(this.routerId), this.clusterId,
                 this.extensions, this.dispatcher, this.codecTreeFactory, this.domBroker, mappingService.toTableTypes(this.afiSafi), pathSelectionModes,
                 this.extensions.getClassLoadingStrategy(), configurationWriter);
     }
