@@ -45,7 +45,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.t
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.PeerGroups;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.PeerGroupsBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.CommunityType;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.PeerType;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.RrClusterIdType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.Protocol;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.ProtocolBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.ProtocolKey;
@@ -62,6 +62,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config2Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config3;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config3Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Protocol1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Protocol1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRibId;
@@ -163,9 +165,15 @@ public final class BGPOpenConfigMappingServiceImpl implements BGPOpenConfigMappi
         final BgpBuilder bgpBuilder = new BgpBuilder();
         bgpBuilder.setNeighbors(new NeighborsBuilder().build());
         bgpBuilder.setPeerGroups(PEER_GROUPS);
+        final ConfigBuilder configBuilder = new ConfigBuilder();
+        configBuilder.setAs(localAs);
+        configBuilder.setRouterId(bgpId);
+        if (clusterIdentifier != null) {
+            configBuilder.addAugmentation(Config3.class, new Config3Builder().setRouteReflectorClusterId(new RrClusterIdType(clusterIdentifier)).build());
+        }
         final Global global = new GlobalBuilder().setAfiSafis(new AfiSafisBuilder().setAfiSafi(OpenConfigUtil.toAfiSafis(localTables,
                 (afiSafi, tableType) -> OpenConfigUtil.toGlobalAfiSafiAddPath(afiSafi, tableType, pathSelectionStrategies))).build())
-                .setConfig(new ConfigBuilder().setAs(localAs).setRouterId(bgpId).build()).build();
+                .setConfig(configBuilder.build()).build();
         bgpBuilder.setGlobal(global);
         return bgpBuilder.build();
     }

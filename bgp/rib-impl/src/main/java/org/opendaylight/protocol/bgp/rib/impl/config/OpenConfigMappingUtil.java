@@ -30,6 +30,8 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.re
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config3;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 final class OpenConfigMappingUtil {
@@ -131,6 +133,14 @@ final class OpenConfigMappingUtil {
             }
         }
         return afiSafi;
+    }
+
+    public static ClusterIdentifier getClusterIdentifier(final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.Config globalConfig) {
+        final Config3 config3 = globalConfig.getAugmentation(Config3.class);
+        if (config3 != null && config3.getRouteReflectorClusterId() != null) {
+            return new ClusterIdentifier(config3.getRouteReflectorClusterId().getIpv4Address());
+        }
+        return new ClusterIdentifier(globalConfig.getRouterId());
     }
 
     private static org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.timers.Config getTimersConfig(final Neighbor neighbor) {

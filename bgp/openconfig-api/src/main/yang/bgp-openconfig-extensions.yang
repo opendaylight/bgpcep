@@ -93,6 +93,14 @@ module bgp-openconfig-extensions {
                      peer-group";
                 uses openconfig-bgp:bgp-neighbor-peer-group_config;
             }
+            augment bgp/global/config {
+                leaf route-reflector-cluster-id {
+                    type bgp-types:rr-cluster-id-type;
+                    description
+                      "Route-reflector cluster id to use when local router is
+                      configured as a route reflector.";
+                  }
+            }
         }
     }
 
