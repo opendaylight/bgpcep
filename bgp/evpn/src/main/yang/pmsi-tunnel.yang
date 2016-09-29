@@ -57,6 +57,7 @@ module pmsi-tunnel {
 
     grouping pmsi-tunnel {
         container pmsi-tunnel {
+            presence "PMSI Attribute";
             description "P-Multicast Service Interface Tunnel (PMSI Tunnel) attribute";
             reference "https://tools.ietf.org/html/rfc6514#section-5";
 
