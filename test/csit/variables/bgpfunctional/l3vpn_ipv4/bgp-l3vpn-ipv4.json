@@ -21,7 +21,7 @@
     ],
     "prefix": "1.1.1.0/24",
     "route-distinguisher": "1.2.3.4:1",
-    "route-key": "cAXcUQABAQIDBAABAQEB"
+    "route-key": "WAABAQIDBAABAQEB"
    }
   ]
  }
