@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl.config;
 
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getHoldTimer;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getPeerAs;
+import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getSimpleRoutingPolicy;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -212,7 +213,8 @@ public final class BgpPeer implements PeerBean, BGPPeerRuntimeMXBean {
         private BgpPeerSingletonService(final RIB rib, final Neighbor neighbor, final BGPOpenConfigMappingService mappingService,
             final WriteConfiguration configurationWriter) {
             this.neighborAddress = neighbor.getNeighborAddress();
-            this.bgpPeer = new BGPPeer(Ipv4Util.toStringIP(this.neighborAddress), rib, mappingService.toPeerRole(neighbor), BgpPeer.this.rpcRegistry);
+            this.bgpPeer = new BGPPeer(Ipv4Util.toStringIP(this.neighborAddress), rib,
+                    mappingService.toPeerRole(neighbor), getSimpleRoutingPolicy(neighbor), BgpPeer.this.rpcRegistry);
             final List<BgpParameters> bgpParameters = getBgpParameters(neighbor, rib, mappingService);
             final KeyMapping keyMapping = OpenConfigMappingUtil.getNeighborKey(neighbor);
             this.prefs = new BGPSessionPreferences(rib.getLocalAs(), getHoldTimer(neighbor), rib.getBgpIdentifier(), getPeerAs(neighbor, rib),

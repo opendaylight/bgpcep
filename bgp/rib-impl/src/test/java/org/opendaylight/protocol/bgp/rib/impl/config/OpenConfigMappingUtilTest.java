@@ -23,6 +23,7 @@ import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.SHORT;
 import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.createAfiSafi;
 import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.createNeighborExpected;
 import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.createTransport;
+import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getSimpleRoutingPolicy;
 import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil.INSTANCE;
 
 import com.google.common.collect.ImmutableList;
@@ -76,7 +77,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.GlobalConfigAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.GlobalConfigAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.NeighborConfigAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.NeighborConfigAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Protocol1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.SimpleRoutingPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.RibKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
@@ -287,5 +291,15 @@ public class OpenConfigMappingUtilTest {
         configBuilder.addAugmentation(GlobalConfigAugmentation.class,
                 new GlobalConfigAugmentationBuilder().setRouteReflectorClusterId(new RrClusterIdType(CLUSTER_ID)).build()).build();
         assertEquals(CLUSTER_ID.getValue(), OpenConfigMappingUtil.getClusterIdentifier(configBuilder.build()).getValue());
+    }
+
+    @Test
+    public void testGetSimpleRoutingPolicy() {
+        final NeighborBuilder neighborBuilder = new NeighborBuilder();
+        assertNull(getSimpleRoutingPolicy(neighborBuilder.build()));
+        neighborBuilder.setConfig(new ConfigBuilder()
+                .addAugmentation(NeighborConfigAugmentation.class,
+                        new NeighborConfigAugmentationBuilder().setSimpleRoutingPolicy(SimpleRoutingPolicy.LearnNone).build()).build());
+        assertEquals(SimpleRoutingPolicy.LearnNone, getSimpleRoutingPolicy(neighborBuilder.build()));
     }
 }
