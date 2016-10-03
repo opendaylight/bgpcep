@@ -149,6 +149,7 @@
         <bundle>mvn:org.opendaylight.bgpcep/bgp-openconfig-api/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-openconfig-spi/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-impl/{{VERSION}}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-peer-acceptor/{{VERSION}}</bundle>
     </feature>
 
     <feature name='odl-bgpcep-bgp-topology' version='${project.version}'>
