@@ -24,26 +24,6 @@
 
         <data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
             <modules xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
-                <module>
-                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-peer-acceptor</type>
-                    <name>bgp-peer-server</name>
-
-                    <!--Default parameters-->
-                    <!--<binding-address>0.0.0.0</binding-address>-->
-
-                    <!--Default binding-port 179-->
-                    <binding-port>1790</binding-port>
-
-                    <accepting-bgp-dispatcher>
-                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-dispatcher</type>
-                        <name>global-bgp-dispatcher</name>
-                    </accepting-bgp-dispatcher>
-                    <accepting-peer-registry>
-                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-peer-registry</type>
-                        <name>global-bgp-peer-registry</name>
-                    </accepting-peer-registry>
-                </module>
-
                 <!--<module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:path:selection:mode">prefix:advertise-n-paths</type>
                     <name>n-paths</name>
