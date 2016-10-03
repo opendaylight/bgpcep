@@ -109,50 +109,6 @@ module odl-bgp-rib-impl-cfg {
         config:java-name-prefix BGPPeer;
     }
 
-    identity bgp-peer-acceptor {
-        description
-            "BGP peer acceptor that handles incoming bgp connections. Uses BGP peer registry to accept or decline incoming connections";
-
-        base config:module-type;
-        config:java-name-prefix BGPPeerAcceptor;
-    }
-
-    augment "/config:modules/config:module/config:configuration" {
-        case bgp-peer-acceptor {
-            when "/config:modules/config:module/config:type = 'bgp-peer-acceptor'";
-
-            leaf binding-address {
-                description "IP address to bind to";
-                type inet:ip-address;
-                default "0.0.0.0";
-            }
-
-            leaf binding-port {
-                description "Port to bind to";
-                type inet:port-number;
-                default "179";
-            }
-
-            container accepting-bgp-dispatcher {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity bgp-dispatcher;
-                    }
-                }
-            }
-
-            container accepting-peer-registry {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity bgp-peer-registry;
-                    }
-                }
-            }
-        }
-    }
-
     identity bgp-application-peer {
         description
             "Application peer handler which handles translation from custom RIB into local RIB";

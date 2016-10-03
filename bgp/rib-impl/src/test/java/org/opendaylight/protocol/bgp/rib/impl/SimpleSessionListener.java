@@ -31,7 +31,7 @@ public final class SimpleSessionListener implements BGPSessionListener {
     private BGPSession session;
     private final CountDownLatch sessionLatch = new CountDownLatch(1);
 
-    SimpleSessionListener() {
+    public SimpleSessionListener() {
     }
 
     List<Notification> getListMsg() {
@@ -78,7 +78,7 @@ public final class SimpleSessionListener implements BGPSessionListener {
         }
     }
 
-    BGPSessionImpl.State getState() {
+    public BGPSessionImpl.State getState() {
         return getSession().getState();
     }
 

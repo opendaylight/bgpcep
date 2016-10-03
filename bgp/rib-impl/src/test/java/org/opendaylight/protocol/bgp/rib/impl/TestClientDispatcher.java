@@ -28,8 +28,8 @@ public class TestClientDispatcher {
     private InetSocketAddress localAddress;
     private final BGPDispatcherImpl disp;
 
-    protected TestClientDispatcher(final EventLoopGroup bossGroup, final EventLoopGroup workerGroup, final MessageRegistry messageRegistry,
-            final InetSocketAddress localAddress) {
+    public TestClientDispatcher(final EventLoopGroup bossGroup, final EventLoopGroup workerGroup, final MessageRegistry messageRegistry,
+        final InetSocketAddress localAddress) {
         this.disp = new BGPDispatcherImpl(messageRegistry, bossGroup, workerGroup) {
             @Override
             protected Bootstrap createClientBootStrap(final Optional<KeyMapping> keys, final EventLoopGroup workerGroup) {

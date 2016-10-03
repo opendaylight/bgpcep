@@ -134,6 +134,11 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-peer-acceptor</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>bgp-rib-mock</artifactId>
                 <version>${project.version}</version>
             </dependency>
