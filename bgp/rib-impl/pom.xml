@@ -96,16 +96,8 @@
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
-            <artifactId>netty-transport</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
             <artifactId>netty-transport-native-epoll</artifactId>
             <classifier>${os.detected.classifier}</classifier>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-handler</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -138,10 +130,6 @@
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>yang-data-impl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.mdsal.model</groupId>
-            <artifactId>ietf-inet-types-2013-07-15</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>

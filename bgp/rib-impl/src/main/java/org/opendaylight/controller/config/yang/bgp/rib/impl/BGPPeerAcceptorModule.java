@@ -30,6 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 /**
  * BGP peer acceptor that handles incoming bgp connections.
  */
+@Deprecated
 public class BGPPeerAcceptorModule extends org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractBGPPeerAcceptorModule {
 
     private static final int PRIVILEGED_PORTS = 1024;

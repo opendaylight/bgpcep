@@ -6,6 +6,7 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
+@Deprecated
 public class BGPPeerAcceptorModuleFactory extends org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractBGPPeerAcceptorModuleFactory {
 
 }
