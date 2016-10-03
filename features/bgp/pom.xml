@@ -218,6 +218,10 @@
       </dependency>
       <dependency>
           <groupId>${project.groupId}</groupId>
+          <artifactId>bgp-peer-acceptor</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>${project.groupId}</groupId>
           <artifactId>bgp-controller-config</artifactId>
           <type>xml</type>
           <classifier>config</classifier>

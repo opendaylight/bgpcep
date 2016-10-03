@@ -60,6 +60,7 @@
         <module>benchmark-app</module>
         <module>evpn</module>
         <module>cli</module>
+        <module>peer-acceptor</module>
     </modules>
 
   <!--
