@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_11c09b29",
+        "filename": "bgp/rib-impl/src/main/yang/odl-bgp-rib-impl-cfg.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-10-05T18:32:44Z",
+      "side": 0,
+      "message": "Cannot be removed now, Atrium project is still using this module - https://git.opendaylight.org/gerrit/gitweb?p\u003datrium.git;a\u003dblob;f\u003dutils/config/src/main/resources/atrium-bgp-config.xml;h\u003de856b34f5db886944b5663b48cc5dde266cf6a34;hb\u003drefs/heads/master\n\nWe need to migrate them first and then delete here.",
+      "range": {
+        "startLine": 112,
+        "startChar": 0,
+        "endLine": 154,
+        "endChar": 5
+      },
+      "revId": "533415c23f2dc2115e529594be8673ea087d1264",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
