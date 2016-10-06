@@ -7,7 +7,7 @@
   <reference id="globalWorkerGroup" interface="io.netty.channel.EventLoopGroup" odl:type="global-worker-group"/>
   <reference id="clusterSingletonServiceProvider" interface="org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider"/>
 
-  <bean id="BGPDispatcher" class="org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImpl">
+  <bean id="BGPDispatcher" class="org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImpl"  destroy-method="close">
     <argument>
       <bean factory-ref="BGPExtensionContext" factory-method="getMessageRegistry"/>
     </argument>
@@ -27,7 +27,7 @@
   </service>
 
   <bean id="BGPPeerRegistry" class="org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry"
-          factory-method="instance"/>
+          factory-method="instance" destroy-method="close"/>
 
   <service ref="BGPPeerRegistry" interface="org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry"
           odl:type="default">
@@ -49,7 +49,7 @@
   <reference id="schemaService" interface="org.opendaylight.controller.sal.core.api.model.SchemaService"/>
   <reference id="rpcRegistry" interface="org.opendaylight.controller.sal.binding.api.RpcProviderRegistry"/>
 
-  <bean id="bgpDeployer" class="org.opendaylight.protocol.bgp.rib.impl.config.BgpDeployerImpl">
+  <bean id="bgpDeployer" class="org.opendaylight.protocol.bgp.rib.impl.config.BgpDeployerImpl"  destroy-method="close">
     <argument value="global-bgp"/>
     <argument ref="blueprintContainer"/>
     <argument ref="blueprintBundleContext"/>
@@ -75,4 +75,10 @@
 
   <bean id="appPeer" class="org.opendaylight.protocol.bgp.rib.impl.config.AppPeer" scope="prototype"/>
 
+  <reference id="bgpConfigLoader" interface="org.opendaylight.protocol.bgp.config.loader.spi.ConfigLoader"/>
+
+  <bean id="protocolsInitialConfig" class="org.opendaylight.protocol.bgp.rib.impl.ProtocolsConfigFileProcessor" destroy-method="close">
+      <argument ref="bgpConfigLoader"/>
+      <argument ref="bgpDeployer"/>
+  </bean>
 </blueprint>

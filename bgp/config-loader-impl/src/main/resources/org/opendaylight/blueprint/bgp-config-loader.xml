@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2016 Cisco Systems, Inc. and others.  All rights reserved.
+  ~
+  ~ This program and the accompanying materials are made available under the
+  ~ terms of the Eclipse Public License v1.0 which accompanies this distribution,
+  ~ and is available at http://www.eclipse.org/legal/epl-v10.html
+  -->
+
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
+    <odl:static-reference id="schemaService" interface="org.opendaylight.controller.sal.core.api.model.SchemaService" />
+    <odl:static-reference id="binding-codec" interface="org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer" />
+
+    <bean id="bgpConfigLoader" class="org.opendaylight.protocol.bgp.config.loader.impl.ConfigLoaderImpl"  destroy-method="close">
+        <argument>
+            <bean factory-ref="schemaService" factory-method="getGlobalContext"/>
+        </argument>
+        <argument ref="binding-codec"/>
+    </bean>
+
+    <service ref="bgpConfigLoader" interface="org.opendaylight.protocol.bgp.config.loader.spi.ConfigLoader" odl:type="default"/>
+</blueprint>
