@@ -40,6 +40,7 @@
         <feature version='${project.version}'>odl-bgpcep-bgp-cli</feature>
         <configfile finalname="etc/opendaylight/karaf/31-bgp.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/{{VERSION}}/xml/config</configfile>
         <configfile finalname="etc/opendaylight/karaf/41-bgp-example.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/{{VERSION}}/xml/config-example</configfile>
+        <configfile finalname="etc/opendaylight/bgp/protocols-config.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/{{VERSION}}/xml/bgp-initial-config</configfile>
     </feature>
 
     <feature name="odl-bgpcep-bgp-openconfig" version='${project.version}'>
@@ -146,6 +147,7 @@
         <feature version='${project.version}'>odl-bgpcep-bgp-rib-api</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-inet</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-path-selection-mode</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-config-loader</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-openconfig-api/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-openconfig-spi/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-impl/{{VERSION}}</bundle>
@@ -170,4 +172,10 @@
         <feature version='${project.version}'>odl-bgpcep-bgp-rib-impl</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-cli/{{VERSION}}</bundle>
     </feature>
+
+    <feature name="odl-bgpcep-bgp-config-loader" version='${project.version}'>
+        <feature version='${mdsal.common.version}'>odl-mdsal-binding-runtime</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-config-loader-spi/{{VERSION}}</bundle>
+      <bundle>mvn:org.opendaylight.bgpcep/bgp-config-loader-impl/{{VERSION}}</bundle>
+   </feature>
 </features>

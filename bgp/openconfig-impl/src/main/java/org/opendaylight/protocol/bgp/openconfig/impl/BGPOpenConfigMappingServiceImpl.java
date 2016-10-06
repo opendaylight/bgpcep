@@ -81,16 +81,18 @@ public final class BGPOpenConfigMappingServiceImpl implements BGPOpenConfigMappi
         final Map<BgpTableType, PathSelectionMode> pathSelectionModes = new HashMap<>();
         for (final AfiSafi afiSafi : afiSafis) {
             final BgpNeighborAddPathsConfig afiSafi2 = afiSafi.getAugmentation(AfiSafi2.class);
-            final Optional<BgpTableType> bgpTableType = OpenConfigUtil.toBgpTableType(afiSafi.getAfiSafiName());
-            if (afiSafi2 != null && bgpTableType.isPresent()) {
-                final Short sendMax = afiSafi2.getSendMax();
-                final PathSelectionMode selectionMode;
-                if (sendMax > 1) {
-                    selectionMode = new AddPathBestNPathSelection(sendMax.longValue());
-                } else {
-                    selectionMode = new AllPathSelection();
+            if (afiSafi2 != null) {
+                final Optional<BgpTableType> bgpTableType = OpenConfigUtil.toBgpTableType(afiSafi.getAfiSafiName());
+                if (bgpTableType.isPresent()) {
+                    final Short sendMax = afiSafi2.getSendMax();
+                    final PathSelectionMode selectionMode;
+                    if (sendMax > 1) {
+                        selectionMode = new AddPathBestNPathSelection(sendMax.longValue());
+                    } else {
+                        selectionMode = new AllPathSelection();
+                    }
+                    pathSelectionModes.put(bgpTableType.get(), selectionMode);
                 }
-                pathSelectionModes.put(bgpTableType.get(), selectionMode);
             }
         }
         return pathSelectionModes;
