@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_7ecf13b4",
+        "filename": "bgp/peer-acceptor/src/main/resources/org/opendaylight/blueprint/bgp-acceptor.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-10-07T15:26:48Z",
+      "side": 1,
+      "message": "I think this value should be same like \"config-name\" value in default-config.",
+      "range": {
+        "startLine": 9,
+        "startChar": 46,
+        "endLine": 9,
+        "endChar": 56
+      },
+      "revId": "716cfe0d8a43854f1b84ebd5cf7e8be00f14bf69",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
