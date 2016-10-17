@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.opendaylight.protocol.bgp.flowspec.FlowspecActivator;
+import org.opendaylight.protocol.bgp.flowspec.SimpleFlowspecExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.impl.BGPActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
@@ -76,6 +78,27 @@ final class BGPTestTool {
         final BGPActivator activator = new BGPActivator();
         final BGPExtensionProviderContext ctx = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance();
         activator.start(ctx);
+
+        final org.opendaylight.protocol.bgp.inet.BGPActivator inetActivator = new org.opendaylight.protocol.bgp.inet.BGPActivator();
+        inetActivator.start(ctx);
+
+        final org.opendaylight.protocol.bgp.evpn.impl.BGPActivator evpnActivator = new org.opendaylight.protocol.bgp.evpn.impl.BGPActivator();
+        evpnActivator.start(ctx);
+
+        final SimpleFlowspecExtensionProviderContext fs_context = new SimpleFlowspecExtensionProviderContext();
+        final FlowspecActivator flowspecActivator = new FlowspecActivator(fs_context);
+        final org.opendaylight.protocol.bgp.flowspec.BGPActivator flowspecBGPActivator = new org.opendaylight.protocol.bgp.flowspec.BGPActivator(flowspecActivator);
+        flowspecBGPActivator.start(ctx);
+
+        final org.opendaylight.protocol.bgp.labeled.unicast.BGPActivator labeledActivator = new org.opendaylight.protocol.bgp.labeled.unicast.BGPActivator();
+        labeledActivator.start(ctx);
+
+        final org.opendaylight.protocol.bgp.l3vpn.ipv4.BgpIpv4Activator bgpIpv4Activator = new org.opendaylight.protocol.bgp.l3vpn.ipv4.BgpIpv4Activator();
+        bgpIpv4Activator.start(ctx);
+
+        final org.opendaylight.protocol.bgp.l3vpn.ipv6.BgpIpv6Activator bgpIpv6Activator = new org.opendaylight.protocol.bgp.l3vpn.ipv6.BgpIpv6Activator();
+        bgpIpv6Activator.start(ctx);
+
         return new BGPDispatcherImpl(ctx.getMessageRegistry(), new NioEventLoopGroup(), new NioEventLoopGroup());
     }
 
