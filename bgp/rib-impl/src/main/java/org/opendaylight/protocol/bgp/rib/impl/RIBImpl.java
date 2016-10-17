@@ -12,10 +12,9 @@ import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +51,7 @@ import org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl.RIBImplRuntimeMXBea
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
+import org.opendaylight.protocol.bgp.rib.spi.util.ClusterSingletonServiceRegistrationHelper;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRib;
@@ -87,9 +87,10 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
     private static final Logger LOG = LoggerFactory.getLogger(RIBImpl.class);
     private static final QName RIB_ID_QNAME = QName.create(Rib.QNAME, "id").intern();
     private static final ContainerNode EMPTY_TABLE_ATTRIBUTES = ImmutableNodes.containerNode(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Attributes.QNAME);
+    private static final int MAX_REGISTRATION_ATTEMPTS = 10;
+    private static final int SLEEP_TIME = MAX_REGISTRATION_ATTEMPTS;
 
     private final BGPDispatcher dispatcher;
-    private final DOMTransactionChain domChain;
     private final AsNumber localAs;
     private final BgpId bgpIdentifier;
     private final Set<BgpTableType> localTables;
@@ -111,6 +112,8 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
     private final RibId ribId;
     private final Map<TablesKey, ExportPolicyPeerTracker> exportPolicyPeerTrackerMap;
 
+    private DOMTransactionChain domChain;
+
     public RIBImpl(final ClusterSingletonServiceProvider provider, final RibId ribId, final AsNumber localAs, final BgpId localBgpId,
         final ClusterIdentifier clusterId, final RIBExtensionConsumerContext extensions, final BGPDispatcher dispatcher,
         final BindingCodecTreeFactory codecFactory, final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
@@ -118,7 +121,6 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
         final BgpDeployer.WriteConfiguration configurationWriter) {
 
         super(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(Preconditions.checkNotNull(ribId))));
-        this.domChain = domDataBroker.createTransactionChain(this);
         this.localAs = Preconditions.checkNotNull(localAs);
         this.bgpIdentifier = Preconditions.checkNotNull(localBgpId);
         this.dispatcher = Preconditions.checkNotNull(dispatcher);
@@ -204,9 +206,6 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
         if (this.registration != null) {
             this.registration.close();
             this.registration = null;
-        }
-        if(this.domChain != null) {
-            this.domChain.close();
         }
     }
 
@@ -298,6 +297,7 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
 
     @Override
     public void instantiateServiceInstance() {
+        this.domChain = this.domDataBroker.createTransactionChain(this);
         if(this.configurationWriter != null) {
             this.configurationWriter.apply();
         }
@@ -336,23 +336,19 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
     @Override
     public ListenableFuture<Void> closeServiceInstance() {
         LOG.info("Close RIB Singleton Service {}", getIdentifier());
-        for (final LocRibWriter locRib : this.locRibs) {
-            try {
-                locRib.close();
-            } catch (final Exception e) {
-                LOG.warn("Could not close LocalRib reference: {}", locRib, e);
-            }
-        }
-        try {
-            final DOMDataWriteTransaction t = this.domChain.newWriteOnlyTransaction();
-            t.delete(LogicalDatastoreType.OPERATIONAL, getYangRibId());
-            t.submit().checkedGet();
-        } catch (final TransactionCommitFailedException e) {
-            LOG.warn("Failed to remove RIB instance {} from DS.", getYangRibId(), e);
-        }
+        this.locRibs.forEach(LocRibWriter::close);
+        this.locRibs.clear();
+
         this.renderStats.getLocRibRouteCounter().resetAll();
 
-        return Futures.immediateFuture(null);
+
+        final DOMDataWriteTransaction t = this.domChain.newWriteOnlyTransaction();
+        t.delete(LogicalDatastoreType.OPERATIONAL, getYangRibId());
+        final CheckedFuture<Void, TransactionCommitFailedException> cleanFuture = t.submit();
+
+        this.domChain.close();
+
+        return cleanFuture;
     }
 
     @Override
@@ -362,7 +358,8 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
 
     @Override
     public ClusterSingletonServiceRegistration registerClusterSingletonService(final ClusterSingletonService clusterSingletonService) {
-        return this.provider.registerClusterSingletonService(clusterSingletonService);
+        return ClusterSingletonServiceRegistrationHelper.registerSingletonService(this.provider, clusterSingletonService, MAX_REGISTRATION_ATTEMPTS,
+                SLEEP_TIME);
     }
 
     @Override

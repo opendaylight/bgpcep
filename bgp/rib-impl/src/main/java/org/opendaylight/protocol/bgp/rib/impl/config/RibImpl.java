@@ -234,6 +234,6 @@ public final class RibImpl implements RIB, AutoCloseable {
 
     @Override
     public ClusterSingletonServiceRegistration registerClusterSingletonService(final ClusterSingletonService clusterSingletonService) {
-        return this.provider.registerClusterSingletonService(clusterSingletonService);
+        return this.ribImpl.registerClusterSingletonService(clusterSingletonService);
     }
 }
