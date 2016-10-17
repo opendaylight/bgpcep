@@ -16,7 +16,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -369,7 +368,7 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
             }
         }
         try {
-            final DOMDataWriteTransaction t = this.domChain.newWriteOnlyTransaction();
+            final DOMDataWriteTransaction t = this.domDataBroker.newWriteOnlyTransaction();
             t.delete(LogicalDatastoreType.OPERATIONAL, getYangRibId());
             t.submit().checkedGet();
         } catch (final TransactionCommitFailedException e) {
@@ -390,7 +389,17 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
 
     @Override
     public ClusterSingletonServiceRegistration registerClusterSingletonService(final ClusterSingletonService clusterSingletonService) {
-        return this.provider.registerClusterSingletonService(clusterSingletonService);
+        try {
+            return this.provider.registerClusterSingletonService(clusterSingletonService);
+        } catch (final RuntimeException e) {
+            LOG.warn("Failed to register {} service to ClusterSingletonServiceRegistration. Try again in 10ms.", clusterSingletonService);
+            try {
+                Thread.sleep(10);
+            } catch (final InterruptedException e1) {
+                //ignore
+            }
+            return registerClusterSingletonService(clusterSingletonService);
+        }
     }
 
     @Override
