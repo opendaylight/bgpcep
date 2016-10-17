@@ -27,8 +27,10 @@ import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
+import org.opendaylight.protocol.bgp.rib.spi.util.ClusterSingletonServiceRegistrationHelper;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
@@ -42,6 +44,9 @@ import org.slf4j.LoggerFactory;
 public final class BgpTopologyDeployerImpl implements AutoCloseable, ClusteredDataTreeChangeListener<Topology>, BgpTopologyDeployer {
 
     private static final Logger LOG = LoggerFactory.getLogger(BgpTopologyDeployerImpl.class);
+
+    private static final int MAX_REGISTRATION_ATTEMPTS = 10;
+    private static final int SLEEP_TIME = MAX_REGISTRATION_ATTEMPTS;
 
     @GuardedBy("this")
     private final Set<BgpTopologyProvider> topologyProviders = new HashSet<>();
@@ -57,7 +62,7 @@ public final class BgpTopologyDeployerImpl implements AutoCloseable, ClusteredDa
         this.dataBroker = Preconditions.checkNotNull(dataBroker);
         this.singletonProvider = Preconditions.checkNotNull(singletonProvider);
         this.registration =
-                this.dataBroker.registerDataTreeChangeListener(new DataTreeIdentifier<Topology>(LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(NetworkTopology.class).child(Topology.class)), this);
+                this.dataBroker.registerDataTreeChangeListener(new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(NetworkTopology.class).child(Topology.class)), this);
         LOG.info("BGP topology deployer started.");
     }
 
@@ -123,7 +128,7 @@ public final class BgpTopologyDeployerImpl implements AutoCloseable, ClusteredDa
         final Dictionary<String, String> properties = new Hashtable<>();
         properties.put("topology-id", topologyProviderService.getInstanceIdentifier().firstKeyOf(Topology.class).getTopologyId().getValue());
         final ServiceRegistration<?> registerService = this.context.registerService(new String[] {TopologyReference.class.getName()}, topologyProviderService, properties);
-        final ClusterSingletonServiceRegistration registerClusterSingletonService = this.singletonProvider.registerClusterSingletonService(topologyProviderService);
+        final ClusterSingletonServiceRegistration registerClusterSingletonService = registerSingletonService(topologyProviderService);
         return new AbstractRegistration() {
             @Override
             protected void removeRegistration() {
@@ -146,6 +151,10 @@ public final class BgpTopologyDeployerImpl implements AutoCloseable, ClusteredDa
     @Override
     public void removeInstance(final Topology topology) {
         filterTopologyBuilders(topology).forEach(provider -> provider.onTopologyBuilderRemoved(topology));
+    }
+
+    private ClusterSingletonServiceRegistration registerSingletonService(final ClusterSingletonService clusterSingletonService) {
+        return ClusterSingletonServiceRegistrationHelper.registerSingletonService(this.singletonProvider, clusterSingletonService, MAX_REGISTRATION_ATTEMPTS, SLEEP_TIME);
     }
 
 }
