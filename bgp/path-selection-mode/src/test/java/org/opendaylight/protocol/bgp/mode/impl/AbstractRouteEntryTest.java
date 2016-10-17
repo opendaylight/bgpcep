@@ -8,6 +8,7 @@
 
 package org.opendaylight.protocol.bgp.mode.impl;
 
+import static org.mockito.Matchers.any;
 import static org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectorTest.ATTRS_EXTENSION_Q;
 import static org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectorTest.SEGMENTS_NID;
 
@@ -67,7 +68,6 @@ public class AbstractRouteEntryTest {
         .node(LocRib.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(TABLES_KEY)).getPathArguments());
     private static final long PATH_ID = 1;
     private static final PeerId PEER_ID2 = new PeerId("bgp://43.43.43.43");
-    private static final PeerId PEER_DISCONNECTED = new PeerId("bgp://44.44.44.44");
     private static final String PREFIX = "1.2.3.4/32";
     private static final String PREFIX2 = "2.2.2.2/32";
     private static final YangInstanceIdentifier PEER_YII = YangInstanceIdentifier.of(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet:test", "2015-03-05", "peer1"));
@@ -138,7 +138,7 @@ public class AbstractRouteEntryTest {
                 yIIChanges.add((YangInstanceIdentifier) args[1]);
                 return args[1];
             }
-        }).when(this.tx).put(Mockito.any(LogicalDatastoreType.class), Mockito.any(YangInstanceIdentifier.class), Mockito.any(NormalizedNode.class));
+        }).when(this.tx).put(any(LogicalDatastoreType.class), any(YangInstanceIdentifier.class), any(NormalizedNode.class));
 
         Mockito.doAnswer(new Answer<Object>() {
             @Override
@@ -157,16 +157,16 @@ public class AbstractRouteEntryTest {
                 }
                 return args[1];
             }
-        }).when(this.tx).delete(Mockito.any(LogicalDatastoreType.class), Mockito.any(YangInstanceIdentifier.class));
+        }).when(this.tx).delete(any(LogicalDatastoreType.class), any(YangInstanceIdentifier.class));
     }
 
     private void mockExportGroup() {
-        Mockito.doReturn(this.attributes).when(this.peg).effectiveAttributes(Mockito.any(PeerRole.class), Mockito.any(ContainerNode.class));
-        Mockito.doReturn(null).when(this.pegNot).effectiveAttributes(Mockito.any(PeerRole.class), Mockito.any(ContainerNode.class));
+        Mockito.doReturn(this.attributes).when(this.peg).effectiveAttributes(any(PeerRole.class), any(ContainerNode.class));
+        Mockito.doReturn(null).when(this.pegNot).effectiveAttributes(any(PeerRole.class), any(ContainerNode.class));
 
         Map<PeerId, PeerExportGroup.PeerExporTuple> peers = new HashMap<>();
         Mockito.doReturn(ImmutableList.copyOf(peers.entrySet())).when(this.pegNot).getPeers();
-        Mockito.doReturn(true).when(this.pegNot).containsPeer(Mockito.any(PeerId.class));
+        Mockito.doReturn(true).when(this.pegNot).containsPeer(any(PeerId.class));
 
         peers.put(PEER_ID, new PeerExportGroup.PeerExporTuple(PEER_YII, PeerRole.Ibgp));
         peers.put(PEER_ID2, new PeerExportGroup.PeerExporTuple(PEER_YII2, PeerRole.Ibgp));
@@ -175,6 +175,7 @@ public class AbstractRouteEntryTest {
     }
 
     private void mockExportPolicies() {
+        Mockito.doReturn(false).when(this.peerPT).isOnlyReadMode(any());
         Mockito.doReturn(true).when(this.peerPT).isTableSupported(PEER_ID);
         Mockito.doReturn(false).when(this.peerPT).isTableSupported(PEER_ID2);
         Mockito.doAnswer(new Answer<Object>() {
@@ -189,7 +190,7 @@ public class AbstractRouteEntryTest {
                     return null;
                 }
             }
-        }).when(this.peerPT).getPeerGroup(Mockito.any(PeerRole.class));
+        }).when(this.peerPT).getPeerGroup(any(PeerRole.class));
 
         Mockito.doReturn(true).when(this.peerPT).isAddPathSupportedByPeer(PEER_ID);
         Mockito.doReturn(false).when(this.peerPT).isAddPathSupportedByPeer(PEER_ID2);
@@ -197,8 +198,8 @@ public class AbstractRouteEntryTest {
 
     private void mockRibSupport() {
         Mockito.doReturn(ROUTE_ATTRIBUTES_IDENTIFIER).when(this.ribSupport).routeAttributesIdentifier();
-        Mockito.doReturn(ROUTE_ID_PA_ADD_PATH).when(this.ribSupport).getRouteIdAddPath(Mockito.any(Long.class), Mockito.eq(ROUTE_ID_PA_ADD_PATH));
-        Mockito.doReturn(null).when(this.ribSupport).getRouteIdAddPath(Mockito.any(Long.class), Mockito.eq(ROUTE_ID_PA));
+        Mockito.doReturn(ROUTE_ID_PA_ADD_PATH).when(this.ribSupport).getRouteIdAddPath(any(Long.class), Mockito.eq(ROUTE_ID_PA_ADD_PATH));
+        Mockito.doReturn(null).when(this.ribSupport).getRouteIdAddPath(any(Long.class), Mockito.eq(ROUTE_ID_PA));
         Mockito.doAnswer(new Answer<Object>() {
             @Override
             public Object answer(final InvocationOnMock invocation) throws Throwable {
@@ -225,7 +226,7 @@ public class AbstractRouteEntryTest {
                 }
                 return null;
             }
-        }).when(this.ribSupport).routePath(Mockito.any(YangInstanceIdentifier.class), Mockito.any(PathArgument.class));
+        }).when(this.ribSupport).routePath(any(YangInstanceIdentifier.class), any(PathArgument.class));
     }
 
     private NormalizedNode<?, ?> createAttr() {

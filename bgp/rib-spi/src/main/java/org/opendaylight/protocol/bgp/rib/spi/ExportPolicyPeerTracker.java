@@ -78,4 +78,17 @@ public interface ExportPolicyPeerTracker {
     @Deprecated
     default void peerRoleChanged(@Nonnull YangInstanceIdentifier peerPath,  @Nullable PeerRole role) {
     }
+
+    /**
+     * check whether the peer supports the table
+     * @param peerId of peer
+     * @return true if peer supports table
+     */
+    boolean isOnlyReadMode(@Nonnull PeerId peerId);
+
+    /**
+     * Remove peer from peers on ReadMode only status
+     * @param peerId
+     */
+    void removeReadModeOnly(final PeerId peerId);
 }

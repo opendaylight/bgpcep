@@ -45,6 +45,8 @@ final class ExportPolicyPeerTrackerImpl implements ExportPolicyPeerTracker {
     private final Map<PeerId, SendReceive> peerAddPathTables = new HashMap<>();
     @GuardedBy("this")
     private final Set<PeerId> peerTables = new HashSet<>();
+    @GuardedBy("this")
+    private final Set<PeerId> readOnlyMode = new HashSet<>();
     private final PolicyDatabase policyDatabase;
     private final TablesKey localTableKey;
     private volatile Map<PeerRole, PeerExportGroup> groups = Collections.emptyMap();
@@ -69,6 +71,7 @@ final class ExportPolicyPeerTrackerImpl implements ExportPolicyPeerTracker {
     @Override
     public synchronized AbstractRegistration registerPeer(final PeerId peerId, final SendReceive sendReceive, final YangInstanceIdentifier peerPath,
         final PeerRole peerRole, final Optional<SimpleRoutingPolicy> optSimpleRoutingPolicy) {
+        this.readOnlyMode.add(peerId);
         if (sendReceive != null) {
             this.peerAddPathTables.put(peerId, sendReceive);
             LOG.debug("Supported Add BestPath table {} added to peer {}", sendReceive, peerId);
@@ -108,6 +111,10 @@ final class ExportPolicyPeerTrackerImpl implements ExportPolicyPeerTracker {
     public synchronized boolean isTableSupported(final PeerId peerId) {
         return this.peerTables.contains(peerId);
     }
+    @Override
+    public synchronized boolean isOnlyReadMode(final PeerId peerId) {
+        return this.readOnlyMode.contains(peerId);
+    }
 
     @Override
     public synchronized PeerRole getRole(final YangInstanceIdentifier peerId) {
@@ -118,6 +125,11 @@ final class ExportPolicyPeerTrackerImpl implements ExportPolicyPeerTracker {
     public synchronized boolean isAddPathSupportedByPeer(final PeerId peerId) {
         final SendReceive sendReceive = this.peerAddPathTables.get(peerId);
         return sendReceive != null && (sendReceive.equals(SendReceive.Both) || sendReceive.equals(SendReceive.Receive));
+    }
+
+    @Override
+    public synchronized void removeReadModeOnly(final PeerId peerId) {
+        this.readOnlyMode.remove(peerId);
     }
 
 }

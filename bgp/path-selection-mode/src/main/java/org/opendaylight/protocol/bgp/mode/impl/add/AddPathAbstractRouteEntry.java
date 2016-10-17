@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.concurrent.NotThreadSafe;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.mode.api.BestPath;
 import org.opendaylight.protocol.bgp.mode.spi.AbstractRouteEntry;
@@ -199,8 +198,8 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
                 for (final Map.Entry<PeerId, PeerExporTuple> pid : peerGroup.getPeers()) {
                     final PeerId destPeer = pid.getKey();
                     final boolean destPeerSupAddPath = peerPT.isAddPathSupportedByPeer(destPeer);
-                    if (filterRoutes(routePeerId, destPeer, peerPT, localTK, getRoutePeerIdRole(peerPT, destPeer))
-                        && peersSupportsAddPathOrIsFirstBestPath(destPeerSupAddPath, isFirstBestPath)) {
+                    if (filterRoutes(routePeerId, destPeer, peerPT, localTK, role) &&
+                        peersSupportsAddPathOrIsFirstBestPath(destPeerSupAddPath, isFirstBestPath)) {
                         if (destPeerSupAddPath) {
                             update(destPeer, getAdjRibOutYII(ribSup, pid.getValue().getYii(), routeIdAddPath, localTK), effectiveAttributes,
                                 addPathValue, ribSup, tx);
@@ -213,13 +212,6 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
         }
     }
 
-    private void update(final PeerId destPeer, final YangInstanceIdentifier routeTarget, final ContainerNode effAttr, final NormalizedNode<?, ?> value,
-        final RIBSupport ribSup, final DOMDataWriteTransaction tx) {
-        if (!writeRoute(destPeer, routeTarget, effAttr, value, ribSup, tx)) {
-            LOG.trace("Removing {} from transaction for peer {}", routeTarget, destPeer);
-            tx.delete(LogicalDatastoreType.OPERATIONAL, routeTarget);
-        }
-    }
 
     protected final OffsetMap getOffsets() {
         return this.offsets;

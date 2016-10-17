@@ -104,6 +104,7 @@ class AbstractConfig {
 
         Mockito.doReturn(new UnsignedInt32Counter("counter")).when(this.render).getConfiguredPeerCounter();
         Mockito.doReturn(this.render).when(this.rib).getRenderStats();
+        Mockito.doReturn(3).when(this.rib).getReadOnlyLimit();
         Mockito.doReturn(this.domTx).when(this.rib).createPeerChain(any(TransactionChainListener.class));
         Mockito.doReturn(AS).when(this.rib).getLocalAs();
         Mockito.doReturn(this.importPolicyPeerTracker).when(this.rib).getImportPolicyPeerTracker();
