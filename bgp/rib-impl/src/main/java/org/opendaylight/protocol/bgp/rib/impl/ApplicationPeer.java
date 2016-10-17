@@ -24,6 +24,8 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
+import org.opendaylight.protocol.bgp.rib.impl.stats.peer.BGPPeerStats;
+import org.opendaylight.protocol.bgp.rib.impl.stats.peer.BGPPeerStatsImpl;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
@@ -72,6 +74,7 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
     private DOMTransactionChain writerChain;
     private EffectiveRibInWriter effectiveRibInWriter;
     private AdjRibInWriter adjRibInWriter;
+    private BGPPeerStats peerStats;
 
     public ApplicationPeer(final ApplicationRibId applicationRibId, final Ipv4Address ipAddress, final RIB rib) {
         this.name = applicationRibId.getValue();
@@ -101,9 +104,10 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
         this.adjRibInWriter = AdjRibInWriter.create(this.rib.getYangRibId(), PeerRole.Internal, simpleRoutingPolicy, this.writerChain);
         final RIBSupportContextRegistry context = this.rib.getRibSupportContext();
         this.adjRibInWriter = this.adjRibInWriter.transform(peerId, context, localTables, Collections.emptyMap());
-        //TODO need to create effective rib in adjRibInWriter with route counter here
+        this.peerStats = new BGPPeerStatsImpl(this.name, localTables);
         this.effectiveRibInWriter = EffectiveRibInWriter.create(this.rib.getService(), this.rib.createPeerChain(this), this.peerIId,
-            this.rib.getImportPolicyPeerTracker(), context, PeerRole.Internal);
+            this.rib.getImportPolicyPeerTracker(), context, PeerRole.Internal, this.peerStats.getEffectiveRibInRouteCounters(),
+            this.peerStats.getAdjRibInRouteCounters());
     }
 
     /**
