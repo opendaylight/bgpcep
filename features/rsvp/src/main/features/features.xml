@@ -23,7 +23,6 @@
 
     <feature name='odl-bgpcep-rsvp-dependencies' version='${project.version}'>
         <!--  concepts -->
-        <bundle>mvn:com.google.guava/guava/{{VERSION}}</bundle>
         <feature version='${mdsal.binding.base}'>odl-mdsal-models</feature>
         <bundle>mvn:org.opendaylight.bgpcep/concepts/{{VERSION}}</bundle>
         <!-- util -->
