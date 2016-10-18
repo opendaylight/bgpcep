@@ -22,6 +22,30 @@
       "revId": "cc538cc9f1f8a17ffa83a8b2b2440645d49e99dd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_d11c3cc4",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/ApplicationPeer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-10-18T09:30:30Z",
+      "side": 1,
+      "message": "so far there is no implementation doing it/required, when close the routes will be removed and discounted from counters ending in initialized status 0.",
+      "parentUuid": "7a6b29fe_8ef581cd",
+      "range": {
+        "startLine": 107,
+        "startChar": 13,
+        "endLine": 107,
+        "endChar": 22
+      },
+      "revId": "cc538cc9f1f8a17ffa83a8b2b2440645d49e99dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
