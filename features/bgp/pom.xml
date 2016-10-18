@@ -288,11 +288,6 @@
         <groupId>io.netty</groupId>
         <artifactId>netty-buffer</artifactId>
       </dependency>
-
-      <dependency>
-          <groupId>com.google.guava</groupId>
-          <artifactId>guava</artifactId>
-      </dependency>
   </dependencies>
 
   <!--

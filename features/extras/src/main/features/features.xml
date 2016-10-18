@@ -19,7 +19,6 @@
 
     <feature name='odl-bgpcep-dependencies' version='${project.version}'>
         <!--  concepts -->
-        <bundle>mvn:com.google.guava/guava/{{VERSION}}</bundle>
         <feature version='${mdsal.model.version}'>odl-mdsal-models</feature>
         <bundle>mvn:org.opendaylight.bgpcep/concepts/{{VERSION}}</bundle>
         <!-- util -->
