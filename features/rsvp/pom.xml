@@ -67,10 +67,6 @@
             <artifactId>bgp-concepts</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.opendaylight.mdsal.model</groupId>
             <artifactId>features-mdsal-model</artifactId>
             <version>${mdsal.binding.base}</version>
