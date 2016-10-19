@@ -63,15 +63,27 @@ public class BmpMockTest {
         final BmpSessionListenerFactory bmpSessionListenerFactory = () -> BmpMockTest.this.sessionListener;
         final ChannelFuture futureServer = bmpDispatcher.createServer(serverAddr,
             bmpSessionListenerFactory, Optional.<KeyMapping>absent());
-        waitFutureSuccess(futureServer);
-        Channel serverChannel = futureServer.channel();
+        waitFutureComplete(futureServer);
+        Channel serverChannel;
+        int sessionUpWait;
+        if (futureServer.isSuccess()) {
+            serverChannel = futureServer.channel();
+            sessionUpWait = 10;
+        } else {
+            serverChannel = null;
+            // wait longer for the reconnection attempt
+            sessionUpWait = 40;
+        }
 
         BmpMock.main(new String[]{"--remote_address", InetSocketAddressUtil.toHostAndPort(serverAddr).toString(), "--peers_count", "3", "--pre_policy_routes", "3"});
-        Mockito.verify(this.sessionListener, Mockito.timeout(TimeUnit.SECONDS.toMillis(10))).onSessionUp(Mockito.any(BmpSession.class));
+
+        Mockito.verify(this.sessionListener, Mockito.timeout(TimeUnit.SECONDS.toMillis(sessionUpWait))).onSessionUp(Mockito.any(BmpSession.class));
         //1 * Initiate message + 3 * PeerUp Notification + 9 * Route Monitoring message
         Mockito.verify(this.sessionListener, Mockito.timeout(TimeUnit.SECONDS.toMillis(10)).times(13)).onMessage(Mockito.any(Notification.class));
 
-        serverChannel.close().sync();
+        if (serverChannel != null) {
+            serverChannel.close().sync();
+        }
     }
 
     @Test
@@ -84,16 +96,28 @@ public class BmpMockTest {
             "--peers_count", "3", "--pre_policy_routes", "3", "--passive"});
         final ChannelFuture futureServer = bmpDispatcher.createClient(serverAddr,
             bmpSessionListenerFactory, Optional.<KeyMapping>absent());
-        waitFutureSuccess(futureServer);
-        Channel serverChannel = futureServer.channel();
-        Mockito.verify(this.sessionListener, Mockito.timeout(TimeUnit.SECONDS.toMillis(10))).onSessionUp(Mockito.any(BmpSession.class));
+        waitFutureComplete(futureServer);
+        Channel serverChannel;
+        int sessionUpWait;
+        if (futureServer.isSuccess()) {
+            serverChannel = futureServer.channel();
+            sessionUpWait = 10;
+        } else {
+            serverChannel = null;
+            // wait longer for the reconnection attempt
+            sessionUpWait = 40;
+        }
+
+        Mockito.verify(this.sessionListener, Mockito.timeout(TimeUnit.SECONDS.toMillis(sessionUpWait))).onSessionUp(Mockito.any(BmpSession.class));
         //1 * Initiate message + 3 * PeerUp Notification + 9 * Route Monitoring message
         Mockito.verify(this.sessionListener, Mockito.timeout(TimeUnit.SECONDS.toMillis(10)).times(13)).onMessage(Mockito.any(Notification.class));
 
-        serverChannel.close().sync();
+        if (serverChannel != null) {
+            serverChannel.close().sync();
+        }
     }
 
-    static void waitFutureSuccess(final ChannelFuture future) throws InterruptedException {
+    static void waitFutureComplete(final ChannelFuture future) throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         future.addListener(future1 -> latch.countDown());
         Uninterruptibles.awaitUninterruptibly(latch, 10, TimeUnit.SECONDS);
