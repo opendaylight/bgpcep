@@ -84,4 +84,14 @@ public interface BGPPeerRegistry extends AutoCloseable {
      */
     @Nonnull AutoCloseable registerPeerRegisterListener(@Nonnull PeerRegistryListener listener);
 
+    /**
+     * Register PeerRegistrySessionListener, which listens to the changes in sessions
+     * of peers in peer registry (create session, remove session). After registration,
+     * an initial drop is provided by calling onSessionCreated().
+     *
+     * @param listener The PeerRegistrySessionListener to be registered.
+     * @return Registration ticked, used for closing of registration.
+     */
+    @Nonnull AutoCloseable registerPeerSessionListener(PeerRegistrySessionListener listener);
+
 }
