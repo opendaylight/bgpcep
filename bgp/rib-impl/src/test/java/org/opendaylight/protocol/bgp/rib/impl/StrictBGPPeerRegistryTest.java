@@ -23,6 +23,7 @@ import org.mockito.Mockito;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
+import org.opendaylight.protocol.bgp.rib.impl.spi.PeerRegistrySessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -67,6 +68,13 @@ public class StrictBGPPeerRegistryTest {
     private static BGPSessionListener getMockSession() {
         final BGPSessionListener mock = Mockito.mock(BGPSessionListener.class);
         Mockito.doNothing().when(mock).releaseConnection();
+        return mock;
+    }
+
+    private static PeerRegistrySessionListener getMockSessionListener() {
+        final PeerRegistrySessionListener mock = Mockito.mock(PeerRegistrySessionListener.class);
+        Mockito.doNothing().when(mock).onSessionCreated(Mockito.any(IpAddress.class));
+        Mockito.doNothing().when(mock).onSessionRemoved(Mockito.any(IpAddress.class));
         return mock;
     }
 
@@ -200,5 +208,45 @@ public class StrictBGPPeerRegistryTest {
             return;
         }
         fail("Peer AS number mismatch");
+    }
+
+    @Test
+    public void testRegisterPeerSessionListener() throws Exception {
+        final PeerRegistrySessionListener sessionListener1 = getMockSessionListener();
+        this.peerRegistry.registerPeerSessionListener(sessionListener1);
+
+        final PeerRegistrySessionListener sessionListener2 = getMockSessionListener();
+        this.peerRegistry.registerPeerSessionListener(sessionListener2);
+
+        this.peerRegistry.addPeer(REMOTE_IP, this.peer1, this.mockPreferences);
+        this.peerRegistry.getPeer(REMOTE_IP, FROM, TO, this.classicOpen);
+        Mockito.verify(sessionListener1, Mockito.times(1)).onSessionCreated(REMOTE_IP);
+        Mockito.verify(sessionListener2, Mockito.times(1)).onSessionCreated(REMOTE_IP);
+
+        this.peerRegistry.removePeerSession(REMOTE_IP);
+        Mockito.verify(sessionListener1, Mockito.times(1)).onSessionRemoved(REMOTE_IP);
+        Mockito.verify(sessionListener2, Mockito.times(1)).onSessionRemoved(REMOTE_IP);
+    }
+
+    @Test
+    public void testClosePeerSessionOneListener() throws Exception {
+        final PeerRegistrySessionListener sessionListener1 = getMockSessionListener();
+        final AutoCloseable registration1 = this.peerRegistry.registerPeerSessionListener(sessionListener1);
+
+        final PeerRegistrySessionListener sessionListener2 = getMockSessionListener();
+        this.peerRegistry.registerPeerSessionListener(sessionListener2);
+
+        this.peerRegistry.addPeer(REMOTE_IP, this.peer1, this.mockPreferences);
+        this.peerRegistry.getPeer(REMOTE_IP, FROM, TO, this.classicOpen);
+        this.peerRegistry.removePeerSession(REMOTE_IP);
+
+        registration1.close();
+        this.peerRegistry.getPeer(REMOTE_IP, FROM, TO, this.classicOpen);
+        this.peerRegistry.removePeerSession(REMOTE_IP);
+
+        Mockito.verify(sessionListener1, Mockito.times(1)).onSessionCreated(REMOTE_IP);
+        Mockito.verify(sessionListener2, Mockito.times(2)).onSessionCreated(REMOTE_IP);
+        Mockito.verify(sessionListener1, Mockito.times(1)).onSessionRemoved(REMOTE_IP);
+        Mockito.verify(sessionListener2, Mockito.times(2)).onSessionRemoved(REMOTE_IP);
     }
 }
