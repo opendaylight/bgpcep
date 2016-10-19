@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_329e4b57",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/RIBImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-10-19T10:14:48Z",
+      "side": 1,
+      "message": "done - moved TX chain creation to #instantiateServiceInstance",
+      "parentUuid": "7a6b29fe_bceeb7b2",
+      "range": {
+        "startLine": 371,
+        "startChar": 51,
+        "endLine": 371,
+        "endChar": 64
+      },
+      "revId": "6f78aa01eee80b4e1c32a4a2720817c24bc4f587",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_7c3b7f38",
         "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/config/BgpTopologyDeployerImpl.java",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2016-10-18T12:31:19Z",
       "side": 1,
       "message": "It looks like never ending cycle unless a CSSProvider is in unexpected state (e.g. frozen).",
+      "range": {
+        "startLine": 162,
+        "startChar": 19,
+        "endLine": 162,
+        "endChar": 43
+      },
+      "revId": "6f78aa01eee80b4e1c32a4a2720817c24bc4f587",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_92a2bf98",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/config/BgpTopologyDeployerImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-10-19T10:14:48Z",
+      "side": 1,
+      "message": "Done - limited number of attempts.",
+      "parentUuid": "7a6b29fe_7c3b7f38",
       "range": {
         "startLine": 162,
         "startChar": 19,
