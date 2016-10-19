@@ -35,6 +35,7 @@ import org.opendaylight.protocol.bgp.parser.impl.message.open.As4CapabilityHandl
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.PeerRegistryListener;
+import org.opendaylight.protocol.bgp.rib.impl.spi.PeerRegistrySessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
@@ -71,6 +72,8 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     private final Map<IpAddress, BGPSessionPreferences> peerPreferences = Maps.newHashMap();
     @GuardedBy("this")
     private final Set<PeerRegistryListener> listeners = new HashSet<>();
+    @GuardedBy("this")
+    private final Set<PeerRegistrySessionListener> sessionListeners = new HashSet<>();
 
     public static BGPPeerRegistry instance() {
         return GLOBAL;
@@ -104,6 +107,9 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     public synchronized void removePeerSession(final IpAddress ip) {
         Preconditions.checkNotNull(ip);
         this.sessionIds.remove(ip);
+        for (final PeerRegistrySessionListener peerRegistrySessionListener : this.sessionListeners) {
+            peerRegistrySessionListener.onSessionRemoved(ip);
+        }
     }
 
     @Override
@@ -183,6 +189,9 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
 
         // Map session id to peer IP address
         this.sessionIds.put(ip, currentConnection);
+        for (final PeerRegistrySessionListener peerRegistrySessionListener : this.sessionListeners) {
+            peerRegistrySessionListener.onSessionCreated(ip);
+        }
         return p;
     }
 
@@ -348,6 +357,22 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
             protected void removeRegistration() {
                 synchronized (StrictBGPPeerRegistry.this) {
                     StrictBGPPeerRegistry.this.listeners.remove(listener);
+                }
+            }
+        };
+    }
+
+    @Override
+    public synchronized AutoCloseable registerPeerSessionListener(final PeerRegistrySessionListener listener) {
+        this.sessionListeners.add(listener);
+        for (final IpAddress ipAddress : this.sessionIds.keySet()) {
+            listener.onSessionCreated(ipAddress);
+        }
+        return new AbstractRegistration() {
+            @Override
+            protected void removeRegistration() {
+                synchronized (StrictBGPPeerRegistry.this) {
+                    StrictBGPPeerRegistry.this.sessionListeners.remove(listener);
                 }
             }
         };
