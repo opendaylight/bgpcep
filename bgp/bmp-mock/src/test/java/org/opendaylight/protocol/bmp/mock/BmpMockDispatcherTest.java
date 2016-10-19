@@ -8,7 +8,7 @@
 
 package org.opendaylight.protocol.bmp.mock;
 
-import static org.opendaylight.protocol.bmp.mock.BmpMockTest.waitFutureSuccess;
+import static org.opendaylight.protocol.bmp.mock.BmpMockTest.waitFutureComplete;
 
 import com.google.common.base.Optional;
 import com.google.common.net.InetAddresses;
@@ -40,10 +40,10 @@ public class BmpMockDispatcherTest {
         final BmpDispatcherImpl serverDispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(),
             this.registry, this.sessionFactory);
         final ChannelFuture futureServer = serverDispatcher.createServer(serverAddr, this.slf, Optional.<KeyMapping>absent());
-        waitFutureSuccess(futureServer);
+        waitFutureComplete(futureServer);
         final ChannelFuture channelFuture = dispatcher.createClient(InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(0),
             serverAddr);
-        waitFutureSuccess(channelFuture);
+        waitFutureComplete(channelFuture);
         final Channel channel = channelFuture.sync().channel();
 
         Assert.assertTrue(channel.isActive());
@@ -58,9 +58,9 @@ public class BmpMockDispatcherTest {
         final BmpDispatcherImpl serverDispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(),
             this.registry, this.sessionFactory);
         final ChannelFuture futureServer = dispatcher.createServer(new InetSocketAddress(InetAddresses.forString("0.0.0.0"), port));
-        waitFutureSuccess(futureServer);
+        waitFutureComplete(futureServer);
         final ChannelFuture channelFuture = serverDispatcher.createClient(InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port), this.slf, Optional.<KeyMapping>absent());
-        waitFutureSuccess(channelFuture);
+        waitFutureComplete(channelFuture);
         final Channel channel = channelFuture.sync().channel();
 
         Assert.assertTrue(channel.isActive());
