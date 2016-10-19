@@ -26,7 +26,7 @@
         <yangtools.version>1.1.0-SNAPSHOT</yangtools.version>
         <mdsal.version>1.5.0-SNAPSHOT</mdsal.version>
         <config.version>0.6.0-SNAPSHOT</config.version>
-        <commons.opendaylight.version>1.8.0-SNAPSHOT</commons.opendaylight.version>
+        <odlparent.version>1.8.0-SNAPSHOT</odlparent.version>
         <mdsal.model.version>0.10.0-SNAPSHOT</mdsal.model.version>
     </properties>
 
@@ -69,7 +69,7 @@
             <dependency>
                 <groupId>org.opendaylight.odlparent</groupId>
                 <artifactId>odlparent-artifacts</artifactId>
-                <version>${commons.opendaylight.version}</version>
+                <version>${odlparent.version}</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
