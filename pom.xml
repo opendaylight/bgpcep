@@ -18,13 +18,15 @@
         <tag>HEAD</tag>
     </scm>
     <parent>
-        <groupId>org.opendaylight.bgpcep</groupId>
-        <artifactId>bgpcep-parent</artifactId>
-        <version>0.7.0-SNAPSHOT</version>
-        <relativePath>parent</relativePath>
+        <groupId>org.opendaylight.odlparent</groupId>
+        <artifactId>odlparent-lite</artifactId>
+        <version>1.8.0-SNAPSHOT</version>
+        <relativePath/>
     </parent>
 
+    <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>bgpcep-aggregator</artifactId>
+    <version>0.7.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>bgpcep</name> <!-- Used by Sonar to set project name -->
     <description>BGPCEP top-level aggregator</description>
@@ -34,6 +36,11 @@
         <module>artifacts</module>
         <module>features</module>
         <module>parent</module>
+
+        <!-- Utility parents -->
+        <module>binding-parent</module>
+        <module>bundle-parent</module>
+        <module>config-parent</module>
 
         <!-- Common infra -->
         <module>concepts</module>
