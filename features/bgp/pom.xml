@@ -243,6 +243,12 @@
       </dependency>
       <dependency>
           <groupId>${project.groupId}</groupId>
+          <artifactId>bgp-controller-config</artifactId>
+          <type>xml</type>
+          <classifier>bgp-initial-config</classifier>
+      </dependency>
+      <dependency>
+          <groupId>${project.groupId}</groupId>
           <artifactId>bgp-benchmark-app</artifactId>
           <type>xml</type>
           <classifier>app-peer-benchmark-config</classifier>

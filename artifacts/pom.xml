@@ -207,6 +207,13 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-controller-config</artifactId>
+                <version>${project.version}</version>
+                <type>xml</type>
+                <classifier>bgp-initial-config</classifier>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>bgp-benchmark-app</artifactId>
                 <version>${project.version}</version>
             </dependency>
