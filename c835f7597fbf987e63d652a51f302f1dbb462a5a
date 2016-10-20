@@ -22,6 +22,30 @@
       "revId": "c835f7597fbf987e63d652a51f302f1dbb462a5a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_d2838cca",
+        "filename": "bgp/concepts/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2016-10-20T20:44:27Z",
+      "side": 1,
+      "message": "In theory, but this includes any potential third-parties. The point is to get some win first and cleanup later.",
+      "parentUuid": "7a6b29fe_b201b06c",
+      "range": {
+        "startLine": 38,
+        "startChar": 28,
+        "endLine": 38,
+        "endChar": 41
+      },
+      "revId": "c835f7597fbf987e63d652a51f302f1dbb462a5a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
