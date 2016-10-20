@@ -54,9 +54,6 @@
         <controller.framework.version>0.9.0-SNAPSHOT</controller.framework.version>
         <controller.mdsal.version>1.5.0-SNAPSHOT</controller.mdsal.version>
 
-        <!-- EPOLL artifacts -->
-        <os.detected.classifier>linux-x86_64</os.detected.classifier>
-
         <bgpcep.version>0.7.0-SNAPSHOT</bgpcep.version>
     </properties>
 
