@@ -133,6 +133,11 @@ public class BgpPeerTest extends AbstractConfig {
         Mockito.verify(this.singletonServiceRegistration, times(2)).close();
         Mockito.verify(this.serviceRegistration).unregister();
         Mockito.verify(this.future).cancel(true);
+
+        final Neighbor emptyNeighbor = new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS).build();
+        this.bgpPeer.start(this.rib, emptyNeighbor, this.mappingService, this.configurationWriter);
+        assertTrue(this.bgpPeer.containsEqualConfiguration(emptyNeighbor));
+        this.bgpPeer.close();
     }
 
     static Neighbor createNeighborExpected(final IpAddress neighborAddress) {
