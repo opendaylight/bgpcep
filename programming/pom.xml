@@ -19,10 +19,10 @@
         <tag>HEAD</tag>
     </scm>
     <parent>
-        <groupId>org.opendaylight.bgpcep</groupId>
-        <artifactId>bgpcep-parent</artifactId>
-        <version>0.7.0-SNAPSHOT</version>
-        <relativePath>../parent</relativePath>
+        <groupId>org.opendaylight.odlparent</groupId>
+        <artifactId>odlparent-lite</artifactId>
+        <version>1.8.0-SNAPSHOT</version>
+        <relativePath/>
     </parent>
 
     <artifactId>programming-parent</artifactId>
