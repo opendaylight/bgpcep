@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_471dfc65",
+        "filename": "features/bgp/src/main/features/features.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-10-20T15:53:03Z",
+      "side": 1,
+      "message": "this config file needs to be specified as a dependency in the features/bgp/pom.xml file",
+      "range": {
+        "startLine": 43,
+        "startChar": 8,
+        "endLine": 44,
+        "endChar": 14
+      },
+      "revId": "b77302cddc50c6f6326b9e9c014cf6571111d10a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
