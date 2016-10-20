@@ -11,25 +11,17 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <scm>
-        <connection>scm:git:ssh://git.opendaylight.org:29418/bgpcep.git</connection>
-        <developerConnection>scm:git:ssh://git.opendaylight.org:29418/bgpcep.git</developerConnection>
-        <url>https://wiki.opendaylight.org/view/BGP_LS_PCEP:Main</url>
-        <tag>HEAD</tag>
-    </scm>
     <parent>
         <groupId>org.opendaylight.bgpcep</groupId>
-        <artifactId>programming-parent</artifactId>
+        <artifactId>config-parent</artifactId>
         <version>0.7.0-SNAPSHOT</version>
+        <relativePath>../../config-parent</relativePath>
     </parent>
 
     <artifactId>programming-spi</artifactId>
     <description>Programming Service Provider Interface</description>
     <packaging>bundle</packaging>
     <name>${project.artifactId}</name>
-    <prerequisites>
-        <maven>3.0.4</maven>
-    </prerequisites>
 
     <dependencies>
         <dependency>
@@ -62,38 +54,18 @@
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-           <plugin>
-               <groupId>org.apache.felix</groupId>
-               <artifactId>maven-bundle-plugin</artifactId>
-               <extensions>true</extensions>
-               <configuration>
-                   <instructions>
-                       <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
-                   </instructions>
-               </configuration>
-           </plugin>
-           <plugin>
-               <groupId>org.opendaylight.yangtools</groupId>
-               <artifactId>yang-maven-plugin</artifactId>
-           </plugin>
-        </plugins>
-    </build>
+    <scm>
+        <connection>scm:git:ssh://git.opendaylight.org:29418/bgpcep.git</connection>
+        <developerConnection>scm:git:ssh://git.opendaylight.org:29418/bgpcep.git</developerConnection>
+        <url>https://wiki.opendaylight.org/view/BGP_LS_PCEP:Main</url>
+        <tag>HEAD</tag>
+    </scm>
 
-  <!--
-      Maven Site Configuration
-
-      The following configuration is necessary for maven-site-plugin to
-      correctly identify the correct deployment path for OpenDaylight Maven
-      sites.
-  -->
-  <url>${odl.site.url}/${project.groupId}/${stream}/${project.artifactId}/</url>
-
-  <distributionManagement>
-    <site>
-      <id>opendaylight-site</id>
-      <url>${nexus.site.url}/${project.artifactId}/</url>
-    </site>
-  </distributionManagement>
+    <url>${odl.site.url}/${project.groupId}/${stream}/${project.artifactId}/</url>
+    <distributionManagement>
+        <site>
+            <id>opendaylight-site</id>
+            <url>${nexus.site.url}/${project.artifactId}/</url>
+        </site>
+    </distributionManagement>
 </project>
