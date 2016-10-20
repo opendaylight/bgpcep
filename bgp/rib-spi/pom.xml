@@ -18,18 +18,30 @@
         <tag>HEAD</tag>
     </scm>
     <parent>
-        <groupId>org.opendaylight.bgpcep</groupId>
-        <artifactId>bgp-parent</artifactId>
-        <version>0.7.0-SNAPSHOT</version>
+        <groupId>org.opendaylight.mdsal</groupId>
+        <artifactId>binding-parent</artifactId>
+        <version>0.10.0-SNAPSHOT</version>
+        <relativePath/>
     </parent>
 
+    <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>bgp-rib-spi</artifactId>
-    <description>BGP RIB SPI</description>
+    <version>0.7.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
+    <description>BGP RIB SPI</description>
     <name>${project.artifactId}</name>
-    <prerequisites>
-        <maven>3.0.4</maven>
-    </prerequisites>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>bgpcep-parent</artifactId>
+                <version>0.7.0-SNAPSHOT</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -140,16 +152,6 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
-                    </instructions>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <executions>
@@ -160,10 +162,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.opendaylight.yangtools</groupId>
-                <artifactId>yang-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
