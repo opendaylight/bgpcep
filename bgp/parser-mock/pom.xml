@@ -18,18 +18,30 @@
         <tag>HEAD</tag>
     </scm>
     <parent>
-        <groupId>org.opendaylight.bgpcep</groupId>
-        <artifactId>bgp-parent</artifactId>
-        <version>0.7.0-SNAPSHOT</version>
+        <groupId>org.opendaylight.mdsal</groupId>
+        <artifactId>binding-parent</artifactId>
+        <version>0.10.0-SNAPSHOT</version>
+        <relativePath/>
     </parent>
 
+    <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>bgp-parser-mock</artifactId>
-    <description>BGP Parser Mock Implementation</description>
+        <version>0.7.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
+    <description>BGP Parser Mock Implementation</description>
     <name>${project.artifactId}</name>
-    <prerequisites>
-        <maven>3.0.4</maven>
-    </prerequisites>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>bgpcep-parent</artifactId>
+                <version>0.7.0-SNAPSHOT</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
        <dependency>
@@ -71,21 +83,6 @@
             <artifactId>guava</artifactId>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
-                    </instructions>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 
   <!--
       Maven Site Configuration
