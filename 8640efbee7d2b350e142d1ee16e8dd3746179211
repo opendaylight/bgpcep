@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_9eb765f5",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/RIBImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-10-20T12:55:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_b4f1a397",
+      "range": {
+        "startLine": 98,
+        "startChar": 4,
+        "endLine": 98,
+        "endChar": 41
+      },
+      "revId": "8640efbee7d2b350e142d1ee16e8dd3746179211",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_d42ffff4",
         "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/util/ClusterSingletonServiceRegistrationHelper.java",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2016-10-20T08:34:55Z",
       "side": 1,
       "message": "public class in SPI: needs javadoc",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 6
+      },
+      "revId": "8640efbee7d2b350e142d1ee16e8dd3746179211",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_dec8bd77",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/util/ClusterSingletonServiceRegistrationHelper.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-10-20T12:55:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_d42ffff4",
       "range": {
         "startLine": 17,
         "startChar": 0,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_7ea1a9a8",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/util/ClusterSingletonServiceRegistrationHelper.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-10-20T12:55:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_543bef37",
+      "range": {
+        "startLine": 41,
+        "startChar": 20,
+        "endLine": 41,
+        "endChar": 30
+      },
+      "revId": "8640efbee7d2b350e142d1ee16e8dd3746179211",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_b44883cd",
         "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/util/ClusterSingletonServiceRegistrationHelper.java",
         "patchSetId": 3
@@ -82,6 +154,30 @@
       "writtenOn": "2016-10-20T08:34:55Z",
       "side": 1,
       "message": "If we are interrupted we should log a message and exist the function",
+      "range": {
+        "startLine": 49,
+        "startChar": 20,
+        "endLine": 49,
+        "endChar": 28
+      },
+      "revId": "8640efbee7d2b350e142d1ee16e8dd3746179211",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_fe949945",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/util/ClusterSingletonServiceRegistrationHelper.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-10-20T12:55:03Z",
+      "side": 1,
+      "message": "Replaced by Uninterruptibles.sleepUninterruptibly.",
+      "parentUuid": "7a6b29fe_b44883cd",
       "range": {
         "startLine": 49,
         "startChar": 20,
