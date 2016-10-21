@@ -16,7 +16,7 @@ import org.opendaylight.controller.config.yang.bgp.rib.impl.LocalPeerPreferences
 import org.opendaylight.controller.config.yang.bgp.rib.impl.MessagesStats;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.RemotePeerPreferences;
 
-public final class BgpCliUtils{
+public final class BgpCliUtils {
     private static final String MESSAGE_STATS_LABEL = "MessagesStats.";
     private static final String PEER_PREFERENCES_LABEL = "PeerPreferences.";
     private static final String SPEAKER_PREFERENCES_LABEL = "SpeakerPreferences.";
@@ -37,36 +37,42 @@ public final class BgpCliUtils{
 
         //Messages Stats
         final MessagesStats messageStats = bgpSessionState.getMessagesStats();
-        table.addRow().addContent(MESSAGE_STATS_LABEL + "ErrorMsgsSent", messageStats.getErrorMsgs().getErrorSent().size());
-        table.addRow().addContent(MESSAGE_STATS_LABEL + "ErrorMsgsReceived", messageStats.getErrorMsgs().getErrorReceived().size());
-        table.addRow().addContent(MESSAGE_STATS_LABEL + "KeepAliveMsgsSent", messageStats.getKeepAliveMsgs().getSent().getCount());
-        table.addRow().addContent(MESSAGE_STATS_LABEL + "KeepAliveMsgsReceived", messageStats.getKeepAliveMsgs().getReceived().getCount());
-        table.addRow().addContent(MESSAGE_STATS_LABEL + "TotalMsgsSent", messageStats.getTotalMsgs().getSent().getCount());
-        table.addRow().addContent(MESSAGE_STATS_LABEL + "TotalMsgsReceived", messageStats.getTotalMsgs().getReceived().getCount());
-        table.addRow().addContent(MESSAGE_STATS_LABEL + "UpdateMsgsSent", messageStats.getUpdateMsgs().getSent().getCount());
-        table.addRow().addContent(MESSAGE_STATS_LABEL + "UpdateMsgsReceived", messageStats.getUpdateMsgs().getReceived().getCount());
+        if (messageStats != null) {
+            table.addRow().addContent(MESSAGE_STATS_LABEL + "ErrorMsgsSent", messageStats.getErrorMsgs().getErrorSent().size());
+            table.addRow().addContent(MESSAGE_STATS_LABEL + "ErrorMsgsReceived", messageStats.getErrorMsgs().getErrorReceived().size());
+            table.addRow().addContent(MESSAGE_STATS_LABEL + "KeepAliveMsgsSent", messageStats.getKeepAliveMsgs().getSent().getCount());
+            table.addRow().addContent(MESSAGE_STATS_LABEL + "KeepAliveMsgsReceived", messageStats.getKeepAliveMsgs().getReceived().getCount());
+            table.addRow().addContent(MESSAGE_STATS_LABEL + "TotalMsgsSent", messageStats.getTotalMsgs().getSent().getCount());
+            table.addRow().addContent(MESSAGE_STATS_LABEL + "TotalMsgsReceived", messageStats.getTotalMsgs().getReceived().getCount());
+            table.addRow().addContent(MESSAGE_STATS_LABEL + "UpdateMsgsSent", messageStats.getUpdateMsgs().getSent().getCount());
+            table.addRow().addContent(MESSAGE_STATS_LABEL + "UpdateMsgsReceived", messageStats.getUpdateMsgs().getReceived().getCount());
+        }
 
         //Peer Preferences
         final LocalPeerPreferences peerPreferences = bgpSessionState.getLocalPeerPreferences();
-        table.addRow().addContent(PEER_PREFERENCES_LABEL + "AddPathCapability", peerPreferences.getAddPathCapability());
-        table.addRow().addContent(PEER_PREFERENCES_LABEL + "AS", peerPreferences.getAs());
-        table.addRow().addContent(PEER_PREFERENCES_LABEL + "BgpExtendedMessageCapability", peerPreferences.getBgpExtendedMessageCapability());
-        table.addRow().addContent(PEER_PREFERENCES_LABEL + "BgpId", peerPreferences.getBgpId());
-        table.addRow().addContent(PEER_PREFERENCES_LABEL + "FourOctetAsCapability", peerPreferences.getFourOctetAsCapability());
-        table.addRow().addContent(PEER_PREFERENCES_LABEL + "GrCapability", peerPreferences.getGrCapability());
-        table.addRow().addContent(PEER_PREFERENCES_LABEL + "Port", peerPreferences.getPort());
-        table.addRow().addContent(PEER_PREFERENCES_LABEL + "RouteRefreshCapability", peerPreferences.getRouteRefreshCapability());
+        if (peerPreferences != null) {
+            table.addRow().addContent(PEER_PREFERENCES_LABEL + "AddPathCapability", peerPreferences.getAddPathCapability());
+            table.addRow().addContent(PEER_PREFERENCES_LABEL + "AS", peerPreferences.getAs());
+            table.addRow().addContent(PEER_PREFERENCES_LABEL + "BgpExtendedMessageCapability", peerPreferences.getBgpExtendedMessageCapability());
+            table.addRow().addContent(PEER_PREFERENCES_LABEL + "BgpId", peerPreferences.getBgpId());
+            table.addRow().addContent(PEER_PREFERENCES_LABEL + "FourOctetAsCapability", peerPreferences.getFourOctetAsCapability());
+            table.addRow().addContent(PEER_PREFERENCES_LABEL + "GrCapability", peerPreferences.getGrCapability());
+            table.addRow().addContent(PEER_PREFERENCES_LABEL + "Port", peerPreferences.getPort());
+            table.addRow().addContent(PEER_PREFERENCES_LABEL + "RouteRefreshCapability", peerPreferences.getRouteRefreshCapability());
+        }
 
         //Speaker Preferences
         final RemotePeerPreferences speakerPreferences = bgpSessionState.getRemotePeerPreferences();
-        table.addRow().addContent(SPEAKER_PREFERENCES_LABEL + "AddPathCapability", speakerPreferences.getAddPathCapability());
-        table.addRow().addContent(SPEAKER_PREFERENCES_LABEL + "AS", speakerPreferences.getAs());
-        table.addRow().addContent(SPEAKER_PREFERENCES_LABEL + "BgpExtendedMessageCapability", speakerPreferences.getBgpExtendedMessageCapability());
-        table.addRow().addContent(SPEAKER_PREFERENCES_LABEL + "BgpId", speakerPreferences.getBgpId());
-        table.addRow().addContent(SPEAKER_PREFERENCES_LABEL + "FourOctetAsCapability", speakerPreferences.getFourOctetAsCapability());
-        table.addRow().addContent(SPEAKER_PREFERENCES_LABEL + "GrCapability", speakerPreferences.getGrCapability());
-        table.addRow().addContent(SPEAKER_PREFERENCES_LABEL + "Port", speakerPreferences.getPort());
-        table.addRow().addContent(SPEAKER_PREFERENCES_LABEL + "RouteRefreshCapability", speakerPreferences.getRouteRefreshCapability());
+        if (speakerPreferences != null) {
+            table.addRow().addContent(SPEAKER_PREFERENCES_LABEL + "AddPathCapability", speakerPreferences.getAddPathCapability());
+            table.addRow().addContent(SPEAKER_PREFERENCES_LABEL + "AS", speakerPreferences.getAs());
+            table.addRow().addContent(SPEAKER_PREFERENCES_LABEL + "BgpExtendedMessageCapability", speakerPreferences.getBgpExtendedMessageCapability());
+            table.addRow().addContent(SPEAKER_PREFERENCES_LABEL + "BgpId", speakerPreferences.getBgpId());
+            table.addRow().addContent(SPEAKER_PREFERENCES_LABEL + "FourOctetAsCapability", speakerPreferences.getFourOctetAsCapability());
+            table.addRow().addContent(SPEAKER_PREFERENCES_LABEL + "GrCapability", speakerPreferences.getGrCapability());
+            table.addRow().addContent(SPEAKER_PREFERENCES_LABEL + "Port", speakerPreferences.getPort());
+            table.addRow().addContent(SPEAKER_PREFERENCES_LABEL + "RouteRefreshCapability", speakerPreferences.getRouteRefreshCapability());
+        }
 
         table.print(printStream);
     }
