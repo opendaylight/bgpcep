@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5a682502_6f112dac",
+        "filename": "bgp/benchmark-app/pom.xml",
+        "patchSetId": 10
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2016-10-24T16:48:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5a682502_7e7c4573",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 3
+      },
+      "revId": "b59c3149ea980f74e4d1736fbd02b8bc61bae221",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a682502_7e26056a",
         "filename": "bgp/bmp-api/pom.xml",
         "patchSetId": 10
@@ -36,6 +60,30 @@
       "writtenOn": "2016-10-24T09:18:11Z",
       "side": 1,
       "message": "Could we keep using \"${project.groupId}\" here?",
+      "range": {
+        "startLine": 55,
+        "startChar": 21,
+        "endLine": 55,
+        "endChar": 44
+      },
+      "revId": "b59c3149ea980f74e4d1736fbd02b8bc61bae221",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a682502_8f0c8996",
+        "filename": "bgp/bmp-api/pom.xml",
+        "patchSetId": 10
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2016-10-24T16:48:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5a682502_7e26056a",
       "range": {
         "startLine": 55,
         "startChar": 21,
