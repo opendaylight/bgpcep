@@ -1,0 +1,86 @@
+/*
+ * Copyright (c) 2016 Cisco Systems, Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+
+package org.opendaylight.protocol.bgp.config.loader.impl;
+
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
+import com.google.common.collect.Lists;
+import java.util.List;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.opendaylight.protocol.bgp.config.loader.spi.ConfigFileProcessor;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.NetworkInstances;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstance;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.Protocols;
+import org.opendaylight.yangtools.concepts.AbstractRegistration;
+import org.opendaylight.yangtools.sal.binding.generator.impl.ModuleInfoBackedContext;
+import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
+import org.opendaylight.yangtools.yang.model.api.SchemaPath;
+
+public class ConfigLoaderImplTest extends AbstractConfigLoader {
+    @Mock
+    private ConfigFileProcessor processor;
+
+    @Override
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
+        final SchemaPath schemaPath = SchemaPath.create(true, NetworkInstances.QNAME, NetworkInstance.QNAME, Protocols.QNAME);
+        doReturn(schemaPath).when(this.processor).getSchemaPath();
+        doNothing().when(this.processor).loadConfiguration(any());
+        doReturn("processor").when(this.processor).toString();
+    }
+
+    @Override
+    protected String getResourceFolder() {
+        return getClass().getClassLoader().getResource("etc/opendaylight/bgp").getPath();
+    }
+
+    @Override
+    protected void registerModules(final ModuleInfoBackedContext moduleInfoBackedContext) throws Exception {
+        moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(NetworkInstances.class));
+    }
+
+    @Override
+    protected List<String> getYangModelsPaths() {
+        final List<String> paths = Lists.newArrayList(
+            "/META-INF/yang/ietf-interfaces.yang",
+            "/META-INF/yang/openconfig-network-instance-types.yang",
+            "/META-INF/yang/openconfig-interfaces.yang",
+            "/META-INF/yang/openconfig-network-instance.yang",
+            "/META-INF/yang/openconfig-routing-policy.yang",
+            "/META-INF/yang/openconfig-policy-types.yang",
+            "/META-INF/yang/openconfig-extensions.yang",
+            "/META-INF/yang/openconfig-routing-policy.yang",
+            "/META-INF/yang/openconfig-local-routing.yang",
+            "/META-INF/yang/ietf-inet-types@2013-07-15.yang",
+            "/META-INF/yang/ietf-yang-types@2013-07-15.yang"
+        );
+        return paths;
+    }
+
+    @Test
+    public void configLoaderImplTest() throws Exception {
+        final AbstractRegistration ticket = this.configLoader.registerConfigFile(this.processor);
+        verify(this.processor).loadConfiguration(any());
+
+        this.newFileFunctionHandler.apply("protocols-config.xml");
+        verify(this.processor, times(2)).loadConfiguration(any());
+
+        ticket.close();
+        this.newFileFunctionHandler.apply("protocols-config.xml");
+        verify(this.processor, times(2)).loadConfiguration(any());
+    }
+}
