@@ -8,23 +8,16 @@
 
 package org.opendaylight.protocol.bgp.config.loader.impl;
 
-import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
-import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
-
 import com.google.common.base.Preconditions;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
-import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
@@ -38,63 +31,54 @@ import org.opendaylight.yangtools.yang.data.codec.xml.XmlParserStream;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNormalizedNodeStreamWriter;
 import org.opendaylight.yangtools.yang.data.impl.schema.NormalizedNodeResult;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
+import org.opendaylight.yangtools.yang.model.api.SchemaNode;
 import org.opendaylight.yangtools.yang.model.util.SchemaContextUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigLoaderImpl.class);
-    private static final String DEFAULT_APP_CONFIG_FILE_PATH = "etc" + File.separator + "opendaylight" + File.separator + "bgp";
     private static final String INTERRUPTED = "InterruptedException";
     private static final String EXTENSION = "-.*\\.xml";
     private static final String INITIAL = "^";
-    private static final Path PATH = Paths.get(DEFAULT_APP_CONFIG_FILE_PATH);
     @GuardedBy("this")
     private final Map<String, ConfigFileProcessor> configServices = new HashMap<>();
     private final SchemaContext schemaContext;
-    private final Thread watcherThread;
     private final BindingNormalizedNodeSerializer bindingSerializer;
+    private final String path;
+    private final Thread watcherThread;
 
-    public ConfigLoaderImpl(final SchemaContext schemaContext, final BindingNormalizedNodeSerializer bindingSerializer) {
+    public ConfigLoaderImpl(final SchemaContext schemaContext, final BindingNormalizedNodeSerializer bindingSerializer,
+        final String path, final WatchService watchService) {
         this.schemaContext = Preconditions.checkNotNull(schemaContext);
         this.bindingSerializer = Preconditions.checkNotNull(bindingSerializer);
-        this.watcherThread = new Thread(new Watcher());
-        this.watcherThread.start();
-        LOG.info("Config Loader service initiated");
-    }
-
-    private class Watcher implements Runnable {
-        @Override
-        public void run() {
-            WatchKey key;
+        this.path = Preconditions.checkNotNull(path);
+        Preconditions.checkNotNull(watchService);
+        this.watcherThread = new Thread(() -> {
             try {
                 while (!Thread.currentThread().isInterrupted()) {
-                    final WatchService watcher = FileSystems.getDefault().newWatchService();
-                    Runtime.getRuntime().addShutdownHook(new Thread() {
-                        @Override
-                        public void run() {
-                            try {
-                                watcher.close();
-                            } catch (final IOException e) {
-                                LOG.warn(INTERRUPTED, e);
+                    try {
+                        final WatchKey key = watchService.take();
+                        if (key != null) {
+                            for (final WatchEvent event : key.pollEvents()) {
+                                handleEvent(event.context().toString());
+                            }
+                            final boolean reset = key.reset();
+                            if (!reset) {
+                                LOG.warn("Could not reset the watch key.");
+                                return;
                             }
                         }
-                    });
-
-                    PATH.register(watcher, OVERFLOW, ENTRY_CREATE);
-                    key = watcher.take();
-                    key.pollEvents().forEach(event -> handleEvent(event.context().toString()));
-
-                    final boolean reset = key.reset();
-                    if (!reset) {
-                        LOG.warn("Could not reset the watch key.");
-                        break;
+                    } catch (final InterruptedException e) {
+                        LOG.warn(INTERRUPTED, e);
                     }
                 }
             } catch (final Exception e) {
                 LOG.warn(INTERRUPTED, e);
             }
-        }
+        });
+        this.watcherThread.start();
+        LOG.info("Config Loader service initiated");
     }
 
     private void handleConfigFile(final ConfigFileProcessor config, final String filename) {
@@ -113,22 +97,23 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
         final NormalizedNodeResult result = new NormalizedNodeResult();
         final NormalizedNodeStreamWriter streamWriter = ImmutableNormalizedNodeStreamWriter.from(result);
 
-        final InputStream resourceAsStream = new FileInputStream(new File(DEFAULT_APP_CONFIG_FILE_PATH, filename));
+        final InputStream resourceAsStream = new FileInputStream(new File(this.path, filename));
         final XMLInputFactory factory = XMLInputFactory.newInstance();
         final XMLStreamReader reader = factory.createXMLStreamReader(resourceAsStream);
 
-        final XmlParserStream xmlParser = XmlParserStream.create(streamWriter, this.schemaContext,
-            SchemaContextUtil.findDataSchemaNode(this.schemaContext, config.getSchemaPath()));
+        final SchemaNode schemaNode = SchemaContextUtil.findDataSchemaNode(this.schemaContext, config.getSchemaPath());
+        final XmlParserStream xmlParser = XmlParserStream.create(streamWriter, this.schemaContext, schemaNode);
         xmlParser.parse(reader);
 
         return result.getResult();
     }
 
-    public synchronized AbstractRegistration registerConfigFile(@Nonnull final ConfigFileProcessor config) {
+    @Override
+    public synchronized AbstractRegistration registerConfigFile(final ConfigFileProcessor config) {
         final String pattern = INITIAL + config.getSchemaPath().getLastComponent().getLocalName() + EXTENSION;
-        configServices.put(pattern, config);
+        this.configServices.put(pattern, config);
 
-        final File[] fList = new File(DEFAULT_APP_CONFIG_FILE_PATH).listFiles();
+        final File[] fList = new File(this.path).listFiles();
         if (fList != null) {
             for (final File file : fList) {
                 if (file.isFile()) {
@@ -156,7 +141,7 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
     }
 
     private synchronized void handleEvent(final String filename) {
-        configServices.entrySet().stream().filter(entry -> Pattern.matches(entry.getKey(), filename)).
+        this.configServices.entrySet().stream().filter(entry -> Pattern.matches(entry.getKey(), filename)).
             forEach(entry -> handleConfigFile(entry.getValue(), filename));
     }
 

@@ -17,11 +17,11 @@ public interface ConfigLoader {
      * Register object model handler
      * @param config Config File Processor
      */
-    AbstractRegistration registerConfigFile(@Nonnull ConfigFileProcessor config);
+    @Nonnull AbstractRegistration registerConfigFile(@Nonnull ConfigFileProcessor config);
 
     /**
      *
      * @return Binding Normalized node serializer
      */
-    BindingNormalizedNodeSerializer getBindingNormalizedNodeSerializer();
+    @Nonnull BindingNormalizedNodeSerializer getBindingNormalizedNodeSerializer();
 }
