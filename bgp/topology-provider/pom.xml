@@ -156,6 +156,11 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>bgp-config-loader-impl</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-config-loader-impl</artifactId>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
@@ -227,6 +232,29 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-remote-resources-plugin</artifactId>
+                <version>1.5</version>
+                <configuration>
+                    <attachToMain>false</attachToMain>
+                    <resourceBundles>
+                        <resourceBundle>${project.groupId}:bgp-controller-config:${project.version}</resourceBundle>
+                    </resourceBundles>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>process-test-sources</phase>
+                        <goals>
+                            <goal>process</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
     <scm>
         <connection>scm:git:ssh://git.opendaylight.org:29418/bgpcep.git</connection>
         <developerConnection>scm:git:ssh://git.opendaylight.org:29418/bgpcep.git</developerConnection>

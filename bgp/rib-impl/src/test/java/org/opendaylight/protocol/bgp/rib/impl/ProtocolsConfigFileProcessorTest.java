@@ -51,11 +51,6 @@ public class ProtocolsConfigFileProcessorTest extends AbstractConfigLoader {
     }
 
     @Override
-    protected String getResourceFolder() {
-        return ClassLoader.getSystemClassLoader().getResource("initial").getPath();
-    }
-
-    @Override
     protected void registerModules(final ModuleInfoBackedContext moduleInfoBackedContext) throws Exception {
         moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(NetworkInstances.class));
         moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(Protocols.class));
