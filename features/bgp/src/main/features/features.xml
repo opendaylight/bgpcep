@@ -41,6 +41,7 @@
         <configfile finalname="etc/opendaylight/karaf/31-bgp.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/{{VERSION}}/xml/config</configfile>
         <configfile finalname="etc/opendaylight/karaf/41-bgp-example.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/{{VERSION}}/xml/config-example</configfile>
         <configfile finalname="etc/opendaylight/bgp/protocols-config.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/{{VERSION}}/xml/bgp-initial-config</configfile>
+        <configfile finalname="etc/opendaylight/bgp/network-topology-config.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/{{VERSION}}/xml/network-topology-initial-config</configfile>
     </feature>
 
     <feature name="odl-bgpcep-bgp-openconfig" version='${project.version}'>
@@ -158,6 +159,7 @@
         <feature version='${project.version}'>odl-bgpcep-bgp-linkstate</feature>
         <bundle>mvn:org.opendaylight.bgpcep/topology-api/{{VERSION}}</bundle>
         <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-config-loader</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-topology-provider/{{VERSION}}</bundle>
     </feature>
 

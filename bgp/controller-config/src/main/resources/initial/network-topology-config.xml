@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?><!--
+  ~ Copyright (c) 2016 Cisco Systems, Inc. and others.  All rights reserved.
+  ~
+  ~ This program and the accompanying materials are made available under the
+  ~ terms of the Eclipse Public License v1.0 which accompanies this distribution,
+  ~ and is available at http://www.eclipse.org/legal/epl-v10.html
+  -->
+<network-topology xmlns="urn:TBD:params:xml:ns:yang:network-topology">
+    <topology>
+        <topology-id>example-bgp-rib-ipv4-topology</topology-id>
+        <topology-types>
+            <bgp-ipv4-reachability-topology xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-topology-types"/>
+        </topology-types>
+        <rib-id xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-topology-config">example-bgp-rib</rib-id>
+    </topology>
+    <topology>
+        <topology-id>example-bgp-rib-ipv6-topology</topology-id>
+        <topology-types>
+            <bgp-ipv6-reachability-topology xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-topology-types"/>
+        </topology-types>
+        <rib-id xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-topology-config">example-bgp-rib</rib-id>
+    </topology>
+    <topology>
+        <topology-id>example-bgp-rib-linkstate-topology</topology-id>
+        <topology-types>
+            <bgp-linkstate-topology xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-topology-types"/>
+        </topology-types>
+        <rib-id xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-topology-config">example-bgp-rib</rib-id>
+    </topology>
+</network-topology>
