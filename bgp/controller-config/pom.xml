@@ -57,11 +57,6 @@
                                     <classifier>config</classifier>
                                 </artifact>
                                 <artifact>
-                                    <file>${project.build.directory}/classes/initial/41-bgp-example.xml</file>
-                                    <type>xml</type>
-                                    <classifier>config-example</classifier>
-                                </artifact>
-                                <artifact>
                                     <file>${project.build.directory}/classes/initial/32-bmp.xml</file>
                                     <type>xml</type>
                                     <classifier>bmp-config</classifier>
