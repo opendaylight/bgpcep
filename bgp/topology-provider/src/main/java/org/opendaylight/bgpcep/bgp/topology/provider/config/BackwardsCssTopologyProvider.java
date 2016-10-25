@@ -11,26 +11,21 @@ package org.opendaylight.bgpcep.bgp.topology.provider.config;
 import com.google.common.reflect.AbstractInvocationHandler;
 import com.google.common.reflect.Reflection;
 import java.lang.reflect.Method;
-import java.util.function.Function;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyDeployer;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.TopologyReferenceSingletonService;
 import org.opendaylight.bgpcep.topology.TopologyReference;
 import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.RibKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.config.rev160726.Topology1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.config.rev160726.Topology1Builder;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypes;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.osgi.framework.BundleContext;
 
@@ -43,13 +38,7 @@ public final class BackwardsCssTopologyProvider {
         //create instance
         final WaitingServiceTracker<BgpTopologyDeployer> deployerTracker = WaitingServiceTracker.create(BgpTopologyDeployer.class, bundleContext);
         final BgpTopologyDeployer topologyDeployer = deployerTracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
-        topologyDeployer.createInstance(topology, new Function<Topology, Void>() {
-            @Override
-            public Void apply(final Topology topology) {
-                writeConfiguration(dataBroker, topology);
-                return null;
-            }
-        });
+        topologyDeployer.createInstance(topology);
         //get topology service, use filter
         final WaitingServiceTracker<TopologyReference> topologyTracker = WaitingServiceTracker.create(TopologyReference.class,
                 bundleContext, "(" + "topology-id" + "=" + topology.getTopologyId().getValue() + ")");
@@ -67,14 +56,6 @@ public final class BackwardsCssTopologyProvider {
                 }
             }
         });
-    }
-
-    private static void writeConfiguration(final DataBroker dataBroker, final Topology topology) {
-        final KeyedInstanceIdentifier<Topology, TopologyKey> topologyIId = InstanceIdentifier.create(NetworkTopology.class).child(Topology.class,
-                topology.getKey());
-        final WriteTransaction wTx = dataBroker.newWriteOnlyTransaction();
-        wTx.put(LogicalDatastoreType.CONFIGURATION, topologyIId, topology, true);
-        wTx.submit();
     }
 
     private static Topology createConfiguration(final TopologyTypes topologyTypes, final TopologyId topologyId, final RibId ribId) {
