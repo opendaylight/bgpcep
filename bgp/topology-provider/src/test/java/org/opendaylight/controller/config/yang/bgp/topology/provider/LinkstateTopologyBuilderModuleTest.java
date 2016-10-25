@@ -56,14 +56,24 @@ public class LinkstateTopologyBuilderModuleTest extends AbstractRIBImplModuleTes
             public AbstractRegistration registerService(final TopologyReferenceSingletonService topologyProviderService) {
                 return null;
             }
+
             @Override
-            public void createInstance(final Topology topology, final Function<Topology, Void> writeFunction) {
+            public void createInstance(final Topology topology) {
+
+            }
+
+            void createInstance(final Topology topology, final Function<Topology, Void> writeFunction) {
                 return;
             }
 
             @Override
             public void removeInstance(final Topology topology) {
                 return;
+            }
+
+            @Override
+            public InstanceIdentifier<Topology> getInstanceIdentifier() {
+                return null;
             }
         });
     }

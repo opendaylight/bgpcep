@@ -100,7 +100,10 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-config-loader-spi</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.opendaylight.mdsal.model</groupId>
             <artifactId>ietf-ted</artifactId>
@@ -159,15 +162,6 @@
 
         <!-- Test dependencies -->
         <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>config-manager</artifactId>
             <type>test-jar</type>
@@ -181,10 +175,7 @@
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>config-util</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.opendaylight.yangtools</groupId>
-            <artifactId>mockito-configuration</artifactId>
-        </dependency>
+
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>bgp-rib-impl</artifactId>
@@ -199,7 +190,33 @@
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>sal-binding-broker-impl</artifactId>
             <scope>test</scope>
+            <type>test-jar</type>
         </dependency>
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>sal-dom-broker-config</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-controller-config</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- junit/mockito default -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.yangtools</groupId>
+            <artifactId>mockito-configuration</artifactId>
+        </dependency>
+        <!-- netty -->
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>netty-event-executor-config</artifactId>
@@ -207,18 +224,7 @@
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
-            <artifactId>sal-binding-broker-impl</artifactId>
-            <scope>test</scope>
-            <type>test-jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.controller</groupId>
             <artifactId>netty-threadgroup-config</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>sal-dom-broker-config</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
