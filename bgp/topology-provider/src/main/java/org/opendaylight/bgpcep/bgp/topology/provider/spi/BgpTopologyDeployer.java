@@ -8,10 +8,10 @@
 
 package org.opendaylight.bgpcep.bgp.topology.provider.spi;
 
-import java.util.function.Function;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public interface BgpTopologyDeployer {
 
@@ -21,8 +21,9 @@ public interface BgpTopologyDeployer {
 
     AbstractRegistration registerService(TopologyReferenceSingletonService topologyProviderService);
 
-    void createInstance(Topology topology, Function<Topology, Void> writeFunction);
+    void createInstance(Topology topology);
 
     void removeInstance(Topology topology);
 
+    InstanceIdentifier<Topology> getInstanceIdentifier();
 }
