@@ -11,7 +11,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.List;
-import java.util.function.Function;
 import javax.management.ObjectName;
 import org.junit.Test;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyDeployer;
@@ -57,13 +56,18 @@ public class LinkstateTopologyBuilderModuleTest extends AbstractRIBImplModuleTes
                 return null;
             }
             @Override
-            public void createInstance(final Topology topology, final Function<Topology, Void> writeFunction) {
+            public void createInstance(final Topology topology) {
                 return;
             }
 
             @Override
             public void removeInstance(final Topology topology) {
                 return;
+            }
+
+            @Override
+            public InstanceIdentifier<Topology> getInstanceIdentifier() {
+                return null;
             }
         });
     }
