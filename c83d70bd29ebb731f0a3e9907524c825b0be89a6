@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a682502_bed7f8be",
+        "filename": "bgp/concepts/pom.xml",
+        "patchSetId": 12
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-10-25T08:47:56Z",
+      "side": 1,
+      "message": "${project.groupId}",
+      "range": {
+        "startLine": 27,
+        "startChar": 21,
+        "endLine": 27,
+        "endChar": 44
+      },
+      "revId": "c83d70bd29ebb731f0a3e9907524c825b0be89a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a682502_dedab4e8",
+        "filename": "bgp/concepts/pom.xml",
+        "patchSetId": 12
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-10-25T08:47:56Z",
+      "side": 1,
+      "message": "${project.groupId}",
+      "range": {
+        "startLine": 60,
+        "startChar": 21,
+        "endLine": 60,
+        "endChar": 44
+      },
+      "revId": "c83d70bd29ebb731f0a3e9907524c825b0be89a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
