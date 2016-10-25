@@ -11,72 +11,18 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.List;
-import java.util.function.Function;
 import javax.management.ObjectName;
 import org.junit.Test;
-import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyDeployer;
-import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyProvider;
-import org.opendaylight.bgpcep.bgp.topology.provider.spi.TopologyReferenceSingletonService;
-import org.opendaylight.bgpcep.topology.TopologyReference;
 import org.opendaylight.controller.config.api.ValidationException;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
 import org.opendaylight.controller.config.spi.ModuleFactory;
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
-import org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractRIBImplModuleTest;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
-import org.opendaylight.yangtools.concepts.AbstractRegistration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class LinkstateTopologyBuilderModuleTest extends AbstractRIBImplModuleTest {
+public class LinkstateTopologyBuilderModuleTest extends AbstractTopologyBuilderModuleTest {
 
     private static final String FACTORY_NAME = LinkstateTopologyBuilderModuleFactory.NAME;
     private static final String INSTANCE_NAME = "bgp-linkstate-topology-instance";
-
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-        setupMockService(TopologyReference.class, new TopologyReference() {
-            @Override
-            public InstanceIdentifier<Topology> getInstanceIdentifier() {
-                return null;
-            }
-        });
-        setupMockService(BgpTopologyDeployer.class, new BgpTopologyDeployer() {
-            @Override
-            public AbstractRegistration registerTopologyProvider(final BgpTopologyProvider topologyBuilder) {
-                return null;
-            }
-            @Override
-            public DataBroker getDataBroker() {
-                return null;
-            }
-            @Override
-            public AbstractRegistration registerService(final TopologyReferenceSingletonService topologyProviderService) {
-                return null;
-            }
-
-            @Override
-            public void createInstance(final Topology topology) {
-
-            }
-
-            void createInstance(final Topology topology, final Function<Topology, Void> writeFunction) {
-                return;
-            }
-
-            @Override
-            public void removeInstance(final Topology topology) {
-                return;
-            }
-
-            @Override
-            public InstanceIdentifier<Topology> getInstanceIdentifier() {
-                return null;
-            }
-        });
-    }
 
     @Override
     protected List<ModuleFactory> getModuleFactories() {

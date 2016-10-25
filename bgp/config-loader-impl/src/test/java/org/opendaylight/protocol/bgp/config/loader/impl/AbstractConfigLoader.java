@@ -79,11 +79,13 @@ public abstract class AbstractConfigLoader {
         this.configLoader = new ConfigLoaderImpl(schemaContext, this.mappingService, getResourceFolder(), this.watchService);
     }
 
-    protected synchronized void clearEvent() {
+    private synchronized void clearEvent() {
         this.eventList.clear();
     }
 
-    protected abstract String getResourceFolder();
+    protected String getResourceFolder() {
+        return ClassLoader.getSystemClassLoader().getResource("initial").getPath();
+    }
 
     protected abstract void registerModules(final ModuleInfoBackedContext moduleInfoBackedContext) throws Exception;
 
