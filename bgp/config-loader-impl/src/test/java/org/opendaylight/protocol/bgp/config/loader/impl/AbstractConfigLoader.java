@@ -65,10 +65,7 @@ public abstract class AbstractConfigLoader {
         final ModuleInfoBackedContext moduleInfoBackedContext = ModuleInfoBackedContext.create();
         registerModules(moduleInfoBackedContext);
         this.mappingService.onGlobalContextUpdated(moduleInfoBackedContext.tryToCreateSchemaContext().get());
-        doAnswer(invocation -> {
-           // clearEvent();
-            return true;
-        }).when(this.watchKey).reset();
+        doAnswer(invocation -> true).when(this.watchKey).reset();
         doReturn(this.eventList).when(this.watchKey).pollEvents();
         doReturn(this.watchKey).when(this.watchService).take();
         doReturn("watchKey").when(this.watchKey).toString();
