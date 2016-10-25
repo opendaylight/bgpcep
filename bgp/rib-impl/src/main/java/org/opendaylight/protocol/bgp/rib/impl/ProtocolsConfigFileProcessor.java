@@ -43,15 +43,15 @@ public final class ProtocolsConfigFileProcessor implements ConfigFileProcessor, 
     private final AbstractRegistration registration;
     private final InstanceIdentifier<Protocols> protocolsIID;
     private final YangInstanceIdentifier protocolYIId;
-    private static final SchemaPath PROTOCOLS_SCHEMA_PATH = SchemaPath.create(true, NetworkInstances.QNAME, NetworkInstance.QNAME,Protocols.QNAME);
+    private static final SchemaPath PROTOCOLS_SCHEMA_PATH = SchemaPath.create(true, NetworkInstances.QNAME, NetworkInstance.QNAME, Protocols.QNAME);
 
     public ProtocolsConfigFileProcessor(final ConfigLoader configLoader, final BgpDeployer bgpDeployer) {
         Preconditions.checkNotNull(configLoader);
         this.bgpDeployer = Preconditions.checkNotNull(bgpDeployer);
         this.protocolsIID = this.bgpDeployer.getInstanceIdentifier().child(Protocols.class);
         this.bindingSerializer = configLoader.getBindingNormalizedNodeSerializer();
-        this.registration = configLoader.registerConfigFile(this);
         this.protocolYIId = this.bindingSerializer.toYangInstanceIdentifier(this.protocolsIID.child(Protocol.class));
+        this.registration = configLoader.registerConfigFile(this);
     }
 
     @Override

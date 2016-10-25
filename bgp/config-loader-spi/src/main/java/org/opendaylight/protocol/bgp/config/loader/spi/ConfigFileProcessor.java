@@ -24,7 +24,7 @@ public interface ConfigFileProcessor {
      *
      * @return SchemaPath
      */
-    SchemaPath getSchemaPath();
+    @Nonnull SchemaPath getSchemaPath();
 
     /**
      * Load the information contained on the normalized node
