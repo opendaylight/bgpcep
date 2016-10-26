@@ -32,6 +32,15 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>bgp-openconfig-api</artifactId>
         </dependency>
+        <!-- test scope dependencies -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+        </dependency>
     </dependencies>
 
     <scm>
