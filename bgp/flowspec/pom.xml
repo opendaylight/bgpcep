@@ -101,6 +101,14 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>bgp-bmp-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-openconfig-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-openconfig-spi</artifactId>
+        </dependency>
          <!-- test scope dependencies -->
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
