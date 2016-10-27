@@ -252,7 +252,7 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
         final WriteConfiguration configurationWriter) {
         LOG.debug("Creating Peer instance with configuration: {}", neighbor);
         final PeerBean bgpPeer;
-        if (this.mappingService.isApplicationPeer(neighbor)) {
+        if (OpenConfigMappingUtil.isApplicationPeer(neighbor)) {
             bgpPeer = (PeerBean) this.container.getComponentInstance(InstanceType.APP_PEER.getBeanName());
         } else {
             bgpPeer = (PeerBean) this.container.getComponentInstance(InstanceType.PEER.getBeanName());

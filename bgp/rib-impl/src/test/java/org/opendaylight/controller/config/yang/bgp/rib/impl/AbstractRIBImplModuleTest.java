@@ -98,16 +98,14 @@ import org.opendaylight.protocol.bgp.rib.impl.stats.UnsignedInt32Counter;
 import org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl.BGPRenderStats;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborBuilder;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborKey;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4UNICAST;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.NetworkInstances;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstance;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib;
@@ -139,16 +137,12 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
 
     protected static final RibId RIB_ID = new RibId("test");
     protected static final BgpId BGP_ID = new BgpId("192.168.1.1");
-    private static final Neighbor NEIGHBOR = new NeighborBuilder().setKey(new NeighborKey(new IpAddress(BGP_ID))).build();
     protected static final ClusterIdentifier CLUSTER_ID = new ClusterIdentifier("192.168.1.2");
 
     private static final AsNumber AS_NUMBER = new AsNumber(5000L);
-    private static final String SESSION_RS_INSTANCE_NAME = "session-reconnect-strategy-factory";
-    private static final String TCP_RS_INSTANCE_NAME = "tcp-reconnect-strategy-factory";
     private static final String RIB_EXTENSIONS_INSTANCE_NAME = "rib-extensions-impl";
     private static final String DOM_BROKER_INSTANCE_NAME = "dom-broker-impl";
     private static final String BINDING_ASYNC_BROKER_INSTANCE_NAME = "binding-async-broker-instance";
-    private static final String DOM_ASYNC_DATA_BROKER_INSTANCE = "dom-inmemory-data-broker";
     private static final String BINDING_BROKER_INSTANCE_NAME = "binding-broker-impl";
     private static final String COMPATIBLE_DATA_BROKER_INSTANCE_NAME = "binding-data-compatible-broker-instance";
     private static final String NOTIFICATION_BROKER_INSTANCE_NAME = "notification-broker-impl";
@@ -277,15 +271,11 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         final Bgp globalBgp = mock(Bgp.class);
         doReturn(global).when(globalBgp).getGlobal();
         doReturn("global").when(global).toString();
-        doReturn(global)
-            .when(this.bgpMappingService).fromRib(any(), any(), any(), any(), any(), any());
         doNothing().when(this.bgpDeployer).onGlobalModified(any(),any(),any());
         doNothing().when(this.bgpDeployer).onNeighborModified(any(),any(),any());
-        doReturn(NEIGHBOR).when(this.bgpMappingService).fromBgpPeer(any(), any(),
-                any(), any(), any(), any(), any(), any(), any(), any(), any());
-        doReturn(NEIGHBOR).when(this.bgpMappingService).fromApplicationPeer(any(), any());
         doReturn(this.mockedFuture).when(this.bgpDeployer).writeConfiguration(any(), any());
         doReturn(this.mockedFuture).when(this.bgpDeployer).removeConfiguration(any());
+        doReturn(java.util.Optional.of(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class).build())).when(this.bgpMappingService).toAfiSafi(any());
         doReturn(this.bgpMappingService).when(this.bgpDeployer).getMappingService();
         doReturn(OPENCONFIG_IID).when(this.bgpDeployer).getInstanceIdentifier();
         final DOMTransactionChain mockedChain = mock(DOMTransactionChain.class);

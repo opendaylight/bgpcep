@@ -8,6 +8,7 @@
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
 import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
+import org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
@@ -50,7 +51,7 @@ public class BGPApplicationPeerModule extends org.opendaylight.controller.config
         final WaitingServiceTracker<BgpDeployer> bgpDeployerTracker = WaitingServiceTracker.create(BgpDeployer.class, this.bundleContext);
         final BgpDeployer bgpDeployer = bgpDeployerTracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
         //map configuration to OpenConfig BGP
-        final Neighbor neighbor = bgpDeployer.getMappingService().fromApplicationPeer(getApplicationRibId(), getBgpPeerId());
+        final Neighbor neighbor = OpenConfigMappingUtil.fromApplicationPeer(getApplicationRibId(), getBgpPeerId());
         //write to configuration DS
         final KeyedInstanceIdentifier<Protocol, ProtocolKey> protocolIId = bgpDeployer.getInstanceIdentifier().child(Protocols.class)
             .child(Protocol.class, new ProtocolKey(BGP.class, rib.getInstanceIdentifier().getKey().getId().getValue()));

@@ -82,12 +82,10 @@ public class BgpPeerTest extends AbstractConfig {
             .setRouteReflector(createRR()).setTimers(createTimers()).setTransport(createTransport()).setAddPaths(createAddPath()).build();
 
         this.bgpPeer.start(this.rib, neighbor, this.mappingService, this.configurationWriter);
-        Mockito.verify(this.mappingService).toPeerRole(any());
         Mockito.verify(this.render).getConfiguredPeerCounter();
         Mockito.verify(this.rib).createPeerChain(any());
         Mockito.verify(this.rib, times(2)).getLocalAs();
         Mockito.verify(this.rib).getLocalTables();
-        Mockito.verify(this.mappingService).toAddPathCapability(anyList());
         Mockito.verify(this.mappingService).toTableTypes(anyList());
         Mockito.verify(this.rib).getRibIServiceGroupIdentifier();
         Mockito.verify(this.rib).registerClusterSingletonService(any(ClusterSingletonService.class));
@@ -106,12 +104,10 @@ public class BgpPeerTest extends AbstractConfig {
         this.bgpPeer.setServiceRegistration(this.serviceRegistration);
         this.bgpPeer.close();
         this.bgpPeer.restart(this.rib, this.mappingService);
-        Mockito.verify(this.mappingService, times(2)).toPeerRole(any());
         Mockito.verify(this.render, times(2)).getConfiguredPeerCounter();
         Mockito.verify(this.rib, times(2)).createPeerChain(any());
         Mockito.verify(this.rib, times(4)).getLocalAs();
         Mockito.verify(this.rib, times(2)).getLocalTables();
-        Mockito.verify(this.mappingService, times(2)).toAddPathCapability(anyList());
         Mockito.verify(this.mappingService, times(2)).toTableTypes(anyList());
         Mockito.verify(this.rib, times(2)).getRibIServiceGroupIdentifier();
         Mockito.verify(this.rib, times(2)).registerClusterSingletonService(any(ClusterSingletonService.class));

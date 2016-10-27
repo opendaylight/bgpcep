@@ -17,24 +17,28 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.ConfigBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config2Builder;
 
 public class AppPeerTest extends AbstractConfig {
     private static final AppPeer APP_PEER = new AppPeer();
 
 
+    @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        Mockito.doReturn(true).when(this.mappingService).isApplicationPeer(any(Neighbor.class));
     }
 
     @Test
     public void testAppPeer() throws Exception {
-        final Neighbor neighbor = new NeighborBuilder().setNeighborAddress(new IpAddress(new Ipv4Address("127.0.0.1"))).build();
+        final Neighbor neighbor = new NeighborBuilder().setConfig(new ConfigBuilder().addAugmentation(Config2.class,
+                new Config2Builder().setPeerGroup(OpenConfigMappingUtil.APPLICATION_PEER_GROUP_NAME).build()).build()).setNeighborAddress(new IpAddress(new Ipv4Address("127.0.0.1"))).build();
         APP_PEER.start(this.rib, neighbor, this.mappingService, this.configurationWriter);
         Mockito.verify(this.rib).getYangRibId();
         Mockito.verify(this.rib).getService();
@@ -57,7 +61,7 @@ public class AppPeerTest extends AbstractConfig {
         this.singletonService.closeServiceInstance();
         Mockito.verify(this.listener, times(2)).close();
 
-        assertTrue(APP_PEER.containsEqualConfiguration(new NeighborBuilder().setNeighborAddress(new IpAddress(new Ipv4Address("127.0.0.1"))).build()));
+        assertTrue(APP_PEER.containsEqualConfiguration(neighbor));
         assertFalse(APP_PEER.containsEqualConfiguration(new NeighborBuilder().setNeighborAddress(new IpAddress(new Ipv4Address("127.0.0.2"))).build()));
         APP_PEER.close();
         Mockito.verify(this.singletonServiceRegistration).close();

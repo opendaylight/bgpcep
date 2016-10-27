@@ -34,8 +34,6 @@ import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
-import org.opendaylight.protocol.bgp.mode.impl.add.all.paths.AllPathSelection;
-import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
@@ -83,8 +81,6 @@ public class RibImplTest extends AbstractConfig {
     @Mock
     private ClusterSingletonServiceProvider clusterSingletonServiceProvider;
     @Mock
-    private BGPOpenConfigMappingService mappingService;
-    @Mock
     private ListenerRegistration dataTreeRegistration;
     @Mock
     private RIBSupport ribSupport;
@@ -103,9 +99,6 @@ public class RibImplTest extends AbstractConfig {
             }
         }).when(this.clusterSingletonServiceProvider).registerClusterSingletonService(any(ClusterSingletonService.class));
 
-        Mockito.doReturn(Collections.singletonMap(TABLE_TYPE, new AllPathSelection()))
-            .when(this.mappingService).toPathSelectionMode(any());
-        Mockito.doReturn(Collections.singletonList(TABLE_TYPE)).when(this.mappingService).toTableTypes(any());
         Mockito.doReturn(mock(GeneratedClassLoadingStrategy.class)).when(this.extension).getClassLoadingStrategy();
         Mockito.doReturn(this.ribSupport).when(this.extension).getRIBSupport(any(TablesKey.class));
         final NodeIdentifier nii = new NodeIdentifier(QName.create("test").intern());
@@ -131,7 +124,6 @@ public class RibImplTest extends AbstractConfig {
             this.bindingCodecTreeFactory, this.domDataBroker, this.schemaService);
         ribImpl.setServiceRegistration(this.serviceRegistration);
         ribImpl.start(createGlobal(), "rib-test", this.mappingService, this.configurationWriter);
-        verify(this.mappingService).toPathSelectionMode(anyList());
         verify(this.mappingService).toTableTypes(anyList());
         verify(this.extension).getClassLoadingStrategy();
         verify(this.domDataBroker).getSupportedExtensions();

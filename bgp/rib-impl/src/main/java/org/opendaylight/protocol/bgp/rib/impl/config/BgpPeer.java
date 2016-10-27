@@ -142,7 +142,7 @@ public final class BgpPeer implements PeerBean, BGPPeerRuntimeMXBean {
         caps.add(new OptionalCapabilitiesBuilder().setCParameters(MultiprotocolCapabilitiesUtil.RR_CAPABILITY).build());
 
         final List<AfiSafi> afiSafi = OpenConfigMappingUtil.getAfiSafiWithDefault(neighbor.getAfiSafis(), false);
-        final List<AddressFamilies> addPathCapability = mappingService.toAddPathCapability(afiSafi);
+        final List<AddressFamilies> addPathCapability = OpenConfigMappingUtil.toAddPathCapability(afiSafi, mappingService);
         if (!addPathCapability.isEmpty()) {
             caps.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class,
                     new CParameters1Builder().setAddPathCapability(
@@ -213,7 +213,7 @@ public final class BgpPeer implements PeerBean, BGPPeerRuntimeMXBean {
             final WriteConfiguration configurationWriter) {
             this.neighborAddress = neighbor.getNeighborAddress();
             this.bgpPeer = new BGPPeer(Ipv4Util.toStringIP(this.neighborAddress), rib,
-                    mappingService.toPeerRole(neighbor), getSimpleRoutingPolicy(neighbor), BgpPeer.this.rpcRegistry);
+                    OpenConfigMappingUtil.toPeerRole(neighbor), getSimpleRoutingPolicy(neighbor), BgpPeer.this.rpcRegistry);
             final List<BgpParameters> bgpParameters = getBgpParameters(neighbor, rib, mappingService);
             final KeyMapping keyMapping = OpenConfigMappingUtil.getNeighborKey(neighbor);
             this.prefs = new BGPSessionPreferences(rib.getLocalAs(), getHoldTimer(neighbor), rib.getBgpIdentifier(), getPeerAs(neighbor, rib),

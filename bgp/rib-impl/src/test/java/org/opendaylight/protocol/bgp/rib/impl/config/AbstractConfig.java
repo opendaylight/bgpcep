@@ -47,8 +47,6 @@ import org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl.BGPRenderStats;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.SendReceive;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.add.path.capability.AddressFamiliesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Rib;
@@ -62,7 +60,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.osgi.framework.ServiceRegistration;
 
 class AbstractConfig {
-    protected static final AsNumber AS = new AsNumber(123456L);
+    protected static final AsNumber AS = new AsNumber(72L);
     @Mock
     protected RIB rib;
     @Mock
@@ -99,8 +97,8 @@ class AbstractConfig {
         Mockito.doAnswer(new Answer<ClusterSingletonServiceRegistration>() {
             @Override
             public ClusterSingletonServiceRegistration answer(final InvocationOnMock invocationOnMock) throws Throwable {
-                singletonService = (ClusterSingletonService) invocationOnMock.getArguments()[0];
-                return singletonServiceRegistration;
+                AbstractConfig.this.singletonService = (ClusterSingletonService) invocationOnMock.getArguments()[0];
+                return AbstractConfig.this.singletonServiceRegistration;
             }
         }).when(this.rib).registerClusterSingletonService(any(ClusterSingletonService.class));
 
@@ -128,16 +126,15 @@ class AbstractConfig {
         Mockito.doReturn(this.listener).when(this.dataTreeChangeService).registerDataTreeChangeListener(any(), any());
         Mockito.doReturn(mock(ServiceGroupIdentifier.class)).when(this.rib).getRibIServiceGroupIdentifier();
         Mockito.doReturn(new BgpId("127.0.0.1")).when(this.rib).getBgpIdentifier();
-        Mockito.doReturn(true).when(future).cancel(true);
-        Mockito.doReturn(future).when(this.dispatcher)
+        Mockito.doReturn(true).when(this.future).cancel(true);
+        Mockito.doReturn(this.future).when(this.dispatcher)
             .createReconnectingClient(any(InetSocketAddress.class), any(BGPPeerRegistry.class), anyInt(), any(Optional.class));
         Mockito.doReturn(this.dispatcher).when(this.rib).getDispatcher();
 
-        Mockito.doReturn(PeerRole.Ibgp).when(this.mappingService).toPeerRole(any());
-        Mockito.doReturn(Collections.singletonList(new AddressFamiliesBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
-            .setSendReceive(SendReceive.Both).build())).when(this.mappingService).toAddPathCapability(any());
         Mockito.doReturn(Collections.singletonList(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class)))
             .when(this.mappingService).toTableTypes(any());
+        Mockito.doReturn(java.util.Optional.of(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class)))
+            .when(this.mappingService).toBgpTableType(any());
         Mockito.doReturn(Collections.singleton(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class)))
             .when(this.rib).getLocalTables();
         Mockito.doNothing().when(this.configurationWriter).apply();

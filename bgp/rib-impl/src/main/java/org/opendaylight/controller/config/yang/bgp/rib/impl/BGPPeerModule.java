@@ -22,6 +22,7 @@ import io.netty.channel.epoll.Epoll;
 import java.lang.reflect.Method;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
+import org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.InstanceType;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
@@ -90,8 +91,9 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         final WaitingServiceTracker<BgpDeployer> bgpDeployerTracker = WaitingServiceTracker.create(BgpDeployer.class, this.bundleContext);
         final BgpDeployer bgpDeployer = bgpDeployerTracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
         //map configuration to OpenConfig BGP
-        final Neighbor neighbor = bgpDeployer.getMappingService().fromBgpPeer(getAddPathDependency(), getAdvertizedTableDependency(), getHoldtimer(),
-                getHost(), getInitiateConnection(), getPassword(), getPort(), getRetrytimer(), getRemoteAs(), getPeerRole(), getSimpleRoutingPolicy());
+        final Neighbor neighbor = OpenConfigMappingUtil.fromBgpPeer(getAddPathDependency(), getAdvertizedTableDependency(), getHoldtimer(),
+                getHost(), getInitiateConnection(), getPassword(), getPort(), getRetrytimer(), getRemoteAs(), getPeerRole(), getSimpleRoutingPolicy(),
+                bgpDeployer.getMappingService());
         //write to configuration DS
         final KeyedInstanceIdentifier<Protocol, ProtocolKey> protocolIId = bgpDeployer.getInstanceIdentifier().child(Protocols.class)
             .child(Protocol.class, new ProtocolKey(BGP.class, rib.getInstanceIdentifier().getKey().getId().getValue()));

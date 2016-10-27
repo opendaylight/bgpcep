@@ -225,7 +225,7 @@ public final class RibImpl implements RIB, AutoCloseable {
         this.asNumber = globalConfig.getAs();
         this.routerId = globalConfig.getRouterId();
         this.clusterId = OpenConfigMappingUtil.getClusterIdentifier(globalConfig);
-        final Map<TablesKey, PathSelectionMode> pathSelectionModes = mappingService.toPathSelectionMode(this.afiSafi).entrySet()
+        final Map<TablesKey, PathSelectionMode> pathSelectionModes = OpenConfigMappingUtil.toPathSelectionMode(this.afiSafi, mappingService).entrySet()
                 .stream().collect(Collectors.toMap(entry -> new TablesKey(entry.getKey().getAfi(), entry.getKey().getSafi()), Map.Entry::getValue));
         return new RIBImpl(provider, new RibId(bgpInstanceName), this.asNumber, new BgpId(this.routerId), this.clusterId,
                 this.extensions, this.dispatcher, this.codecTreeFactory, this.domBroker, mappingService.toTableTypes(this.afiSafi), pathSelectionModes,

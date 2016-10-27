@@ -11,38 +11,84 @@ package org.opendaylight.protocol.bgp.rib.impl.config;
 import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil.INSTANCE;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.primitives.Shorts;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.BiFunction;
+import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
+import org.opendaylight.protocol.bgp.mode.impl.add.all.paths.AllPathSelection;
+import org.opendaylight.protocol.bgp.mode.impl.add.n.paths.AddPathBestNPathSelection;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService;
+import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.BgpCommonAfiSafiList;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighborAddPathsConfig;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.AfiSafisBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.ConfigBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.RouteReflector;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.RouteReflectorBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Timers;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.TimersBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.TransportBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.transport.Config;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.GlobalBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Neighbors;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.CommunityType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4UNICAST;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.PeerType;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.RrClusterIdType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.Protocol;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.SendReceive;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.add.path.capability.AddressFamilies;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.add.path.capability.AddressFamiliesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.GlobalConfigAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.GlobalConfigAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.NeighborConfigAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.NeighborConfigAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRibId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.SimpleRoutingPolicy;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.rfc2385.cfg.rev160324.Rfc2385Key;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-final class OpenConfigMappingUtil {
+public final class OpenConfigMappingUtil {
 
     private static final AfiSafi IPV4_AFISAFI = new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class).build();
     private static final List<AfiSafi> DEFAULT_AFISAFI = ImmutableList.of(IPV4_AFISAFI);
     private static final int HOLDTIMER = 90;
     private static final int CONNECT_RETRY = 30;
     private static final PortNumber PORT = new PortNumber(179);
+    static final String APPLICATION_PEER_GROUP_NAME = "application-peers";
+    private static final BigDecimal DEFAULT_KEEP_ALIVE = BigDecimal.valueOf(30);
+    private static final BigDecimal DEFAULT_MINIMUM_ADV_INTERVAL = BigDecimal.valueOf(30);
 
     private OpenConfigMappingUtil() {
         throw new UnsupportedOperationException();
@@ -158,6 +204,245 @@ final class OpenConfigMappingUtil {
     private static org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.timers.Config getTimersConfig(final Neighbor neighbor) {
         final Timers timers = neighbor.getTimers();
         return timers != null ? timers.getConfig() : null;
+    }
+
+    public static Map<BgpTableType, PathSelectionMode> toPathSelectionMode(final List<AfiSafi> afiSafis, final BGPOpenConfigMappingService mappingService) {
+        final Map<BgpTableType, PathSelectionMode> pathSelectionModes = new HashMap<>();
+        for (final AfiSafi afiSafi : afiSafis) {
+            final BgpNeighborAddPathsConfig afiSafi2 = afiSafi.getAugmentation(AfiSafi2.class);
+            if (afiSafi2 != null) {
+                final Optional<BgpTableType> bgpTableType = mappingService.toBgpTableType(afiSafi.getAfiSafiName());
+                if (bgpTableType.isPresent()) {
+                    final Short sendMax = afiSafi2.getSendMax();
+                    final PathSelectionMode selectionMode;
+                    if (sendMax > 1) {
+                        selectionMode = new AddPathBestNPathSelection(sendMax.longValue());
+                    } else {
+                        selectionMode = new AllPathSelection();
+                    }
+                    pathSelectionModes.put(bgpTableType.get(), selectionMode);
+                }
+            }
+        }
+        return pathSelectionModes;
+    }
+
+    public static boolean isApplicationPeer(final Neighbor neighbor) {
+        final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Config config = neighbor.getConfig();
+        if (config != null) {
+            final Config2 config1 = config.getAugmentation(Config2.class);
+            if (config1 != null) {
+                final String peerGroup = config1.getPeerGroup();
+                return peerGroup != null && peerGroup.equals(APPLICATION_PEER_GROUP_NAME);
+            }
+        }
+        return false;
+    }
+
+    public static List<AddressFamilies> toAddPathCapability(final List<AfiSafi> afiSafis, final BGPOpenConfigMappingService mappingService) {
+        final List<AddressFamilies> addPathCapability = new ArrayList<>();
+        for (final AfiSafi afiSafi : afiSafis) {
+            final BgpNeighborAddPathsConfig afiSafi1 = afiSafi.getAugmentation(AfiSafi1.class);
+            final Optional<BgpTableType> bgpTableType = mappingService.toBgpTableType(afiSafi.getAfiSafiName());
+            if (afiSafi1 != null && bgpTableType.isPresent()) {
+                final AddressFamiliesBuilder builder = new AddressFamiliesBuilder(bgpTableType.get());
+                builder.setSendReceive(toSendReceiveMode(afiSafi1));
+                addPathCapability.add(builder.build());
+            }
+        }
+        return addPathCapability;
+    }
+
+    private static SendReceive toSendReceiveMode(final BgpNeighborAddPathsConfig addPath) {
+        if (addPath.isReceive() && addPath.getSendMax() != null) {
+            return SendReceive.Both;
+        }
+        if (addPath.getSendMax() != null) {
+            return SendReceive.Send;
+        }
+        return SendReceive.Receive;
+    }
+
+    public static Global fromRib(final BgpId bgpId, final ClusterIdentifier clusterIdentifier, final RibId ribId,
+            final AsNumber localAs, final List<BgpTableType> localTables,
+            final Map<TablesKey, PathSelectionMode> pathSelectionStrategies, final BGPOpenConfigMappingService mappingService) {
+        return toGlobalConfiguration(bgpId, clusterIdentifier, localAs, localTables, pathSelectionStrategies, mappingService);
+    }
+
+    private static Global toGlobalConfiguration(final BgpId bgpId, final ClusterIdentifier clusterIdentifier,
+            final AsNumber localAs, final List<BgpTableType> localTables,
+            final Map<TablesKey, PathSelectionMode> pathSelectionStrategies, final BGPOpenConfigMappingService mappingService) {
+        final ConfigBuilder configBuilder = new ConfigBuilder();
+        configBuilder.setAs(localAs);
+        configBuilder.setRouterId(bgpId);
+        if (clusterIdentifier != null) {
+            configBuilder.addAugmentation(GlobalConfigAugmentation.class,
+                    new GlobalConfigAugmentationBuilder().setRouteReflectorClusterId(new RrClusterIdType(clusterIdentifier)).build());
+        }
+        return new GlobalBuilder().setAfiSafis(new AfiSafisBuilder().setAfiSafi(toAfiSafis(localTables,
+                (afiSafi, tableType) -> toGlobalAfiSafiAddPath(afiSafi, tableType, pathSelectionStrategies), mappingService)).build())
+                .setConfig(configBuilder.build()).build();
+    }
+
+    public static Neighbor fromBgpPeer(final List<AddressFamilies> addPathCapabilities,
+            final List<BgpTableType> advertisedTables, final Integer holdTimer, final IpAddress ipAddress,
+            final Boolean isActive, final Rfc2385Key password, final PortNumber portNumber, final Integer retryTimer,
+            final AsNumber remoteAs, final PeerRole peerRole, final SimpleRoutingPolicy simpleRoutingPolicy, final BGPOpenConfigMappingService mappingService) {
+        final NeighborBuilder neighborBuilder = new NeighborBuilder();
+        neighborBuilder.setNeighborAddress(ipAddress);
+        neighborBuilder.setKey(new NeighborKey(ipAddress));
+        neighborBuilder.setAfiSafis(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.AfiSafisBuilder().setAfiSafi(toAfiSafis(advertisedTables,
+                (afiSafi, tableType) -> toNeighborAfiSafiAddPath(afiSafi, tableType, addPathCapabilities), mappingService)).build());
+        neighborBuilder.setTransport(new TransportBuilder().setConfig(
+                new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.transport.ConfigBuilder()
+                .setPassiveMode(!isActive)
+                .setMtuDiscovery(Boolean.FALSE)
+                .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config1.class,
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config1Builder()
+                .setRemotePort(portNumber).build())
+                .build()).build());
+        neighborBuilder.setConfig(
+                new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.ConfigBuilder()
+                .setAuthPassword(password != null ? password.getValue() : null)
+                .setPeerAs(remoteAs)
+                .setPeerType(toPeerType(peerRole))
+                .setSendCommunity(CommunityType.NONE)
+                .setRouteFlapDamping(Boolean.FALSE)
+                .addAugmentation(NeighborConfigAugmentation.class, setNeighborAugmentation(simpleRoutingPolicy))
+                .build());
+        neighborBuilder.setTimers(new TimersBuilder().setConfig(
+                new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.timers.ConfigBuilder()
+                .setHoldTime(BigDecimal.valueOf(holdTimer))
+                .setConnectRetry(BigDecimal.valueOf(retryTimer))
+                .setKeepaliveInterval(DEFAULT_KEEP_ALIVE)
+                .setMinimumAdvertisementInterval(DEFAULT_MINIMUM_ADV_INTERVAL)
+                .build()).build());
+        neighborBuilder.setRouteReflector(new RouteReflectorBuilder().setConfig(
+                new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.route.reflector.ConfigBuilder()
+                .setRouteReflectorClient(peerRole == PeerRole.RrClient).build()).build());
+        return neighborBuilder.build();
+    }
+
+
+    public static Neighbor fromApplicationPeer(final ApplicationRibId applicationRibId, final BgpId bgpId) {
+        final NeighborBuilder neighborBuilder = new NeighborBuilder();
+        neighborBuilder.setNeighborAddress(new IpAddress(new Ipv4Address(bgpId.getValue())));
+        neighborBuilder.setKey(new NeighborKey(neighborBuilder.getNeighborAddress()));
+        neighborBuilder.setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.ConfigBuilder()
+        .setDescription(applicationRibId.getValue())
+        .addAugmentation(Config2.class, new Config2Builder().setPeerGroup(APPLICATION_PEER_GROUP_NAME).build())
+        .build());
+
+        return neighborBuilder.build();
+    }
+
+    private static final NeighborConfigAugmentation setNeighborAugmentation(final SimpleRoutingPolicy simpleRoutingPolicy) {
+        if (simpleRoutingPolicy != null) {
+            return new NeighborConfigAugmentationBuilder().setSimpleRoutingPolicy(simpleRoutingPolicy).build();
+        }
+        return null;
+    }
+
+    public static PeerRole toPeerRole(final Neighbor neighbor) {
+        if (isRrClient(neighbor)) {
+            return PeerRole.RrClient;
+        }
+
+        if (neighbor.getConfig() != null) {
+            final PeerType peerType = neighbor.getConfig().getPeerType();
+            if (peerType == PeerType.EXTERNAL) {
+                return PeerRole.Ebgp;
+            }
+        }
+        return PeerRole.Ibgp;
+    }
+
+    static PeerType toPeerType(final PeerRole peerRole) {
+        switch (peerRole) {
+        case Ibgp:
+        case RrClient:
+            return PeerType.INTERNAL;
+        case Ebgp:
+            return PeerType.EXTERNAL;
+        case Internal:
+            break;
+        default:
+            break;
+        }
+        return null;
+    }
+
+    private static boolean isRrClient(final Neighbor neighbor) {
+        final RouteReflector routeReflector = neighbor.getRouteReflector();
+        if (routeReflector != null && routeReflector.getConfig() != null) {
+            return routeReflector.getConfig().isRouteReflectorClient();
+        }
+        return false;
+    }
+
+    static List<AfiSafi> toAfiSafis(final List<BgpTableType> advertizedTables, final BiFunction<AfiSafi, BgpTableType, AfiSafi> function,
+            final BGPOpenConfigMappingService mappingService) {
+        final List<AfiSafi> afiSafis = new ArrayList<>(advertizedTables.size());
+        for (final BgpTableType tableType : advertizedTables) {
+            final Optional<AfiSafi> afiSafiMaybe = mappingService.toAfiSafi(new BgpTableTypeImpl(tableType.getAfi(), tableType.getSafi()));
+            if (afiSafiMaybe.isPresent()) {
+                final AfiSafi afiSafi = function.apply(afiSafiMaybe.get(), tableType);
+                afiSafis.add(afiSafi);
+            }
+        }
+        return afiSafis;
+    }
+
+    static AfiSafi toGlobalAfiSafiAddPath(final AfiSafi afiSafi, final BgpTableType tableType,
+        final Map<TablesKey, PathSelectionMode> multiPathTables) {
+        final PathSelectionMode pathSelection = multiPathTables.get(new TablesKey(tableType.getAfi(), tableType.getSafi()));
+        if (pathSelection == null) {
+            return afiSafi;
+        }
+        final long maxPaths;
+        if (pathSelection instanceof AddPathBestNPathSelection) {
+            maxPaths = ((AddPathBestNPathSelection) pathSelection).getNBestPaths();
+        } else {
+            maxPaths = 0L;
+        }
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi2 addPath = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi2Builder()
+            .setReceive(true)
+            .setSendMax(Shorts.checkedCast(maxPaths))
+            .build();
+        return new AfiSafiBuilder(afiSafi)
+            .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi2.class,
+                addPath).build();
+    }
+
+    static AfiSafi toNeighborAfiSafiAddPath(final AfiSafi afiSafi, final BgpTableType tableType, final List<AddressFamilies> capabilities) {
+        final Optional<AddressFamilies> capability = capabilities.stream()
+                .filter(af -> af.getAfi().equals(tableType.getAfi()) && af.getSafi().equals(tableType.getSafi()))
+                .findFirst();
+        if (!capability.isPresent()) {
+            return afiSafi;
+        }
+        return new AfiSafiBuilder(afiSafi)
+            .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi1.class,
+                fromSendReceiveMode(capability.get().getSendReceive())).build();
+    }
+
+    private static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi1 fromSendReceiveMode(final SendReceive mode) {
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi1Builder builder =
+            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi1Builder();
+        switch (mode) {
+        case Both:
+            builder.setReceive(true).setSendMax((short) 0);
+            break;
+        case Receive:
+            builder.setReceive(true);
+            break;
+        case Send:
+            builder.setReceive(false).setSendMax((short) 0);
+            break;
+        default:
+            break;
+        }
+        return builder.build();
     }
 
 }

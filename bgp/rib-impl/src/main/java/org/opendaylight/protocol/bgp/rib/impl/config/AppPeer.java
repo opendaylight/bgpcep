@@ -40,12 +40,10 @@ public final class AppPeer implements PeerBean {
     private static final QName APP_ID_QNAME = QName.create(ApplicationRib.QNAME, "id").intern();
     private Neighbor currentConfiguration;
     private BgpAppPeerSingletonService bgpAppPeerSingletonService;
-    private BGPOpenConfigMappingService mappingService;
 
     @Override
     public void start(final RIB rib, final Neighbor neighbor, final BGPOpenConfigMappingService mappingService, final WriteConfiguration configurationWriter) {
         this.currentConfiguration = neighbor;
-        this.mappingService = mappingService;
         this.bgpAppPeerSingletonService = new BgpAppPeerSingletonService(rib, createAppRibId(neighbor), neighbor.getNeighborAddress().getIpv4Address(),
                 configurationWriter);
     }
@@ -68,7 +66,7 @@ public final class AppPeer implements PeerBean {
     @Override
     public Boolean containsEqualConfiguration(final Neighbor neighbor) {
         return Objects.equals(this.currentConfiguration.getKey(), neighbor.getKey())
-                && this.mappingService.isApplicationPeer(neighbor);
+                && OpenConfigMappingUtil.isApplicationPeer(neighbor);
     }
 
     private static ApplicationRibId createAppRibId(final Neighbor neighbor) {

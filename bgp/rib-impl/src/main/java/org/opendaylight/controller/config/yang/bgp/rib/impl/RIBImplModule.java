@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
+import org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPBestPathSelection;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.InstanceType;
@@ -77,9 +78,9 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
                 WaitingServiceTracker.create(BgpDeployer.class, this.bundleContext);
         final BgpDeployer bgpDeployer = bgpDeployerTracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
         //map configuration to OpenConfig BGP
-        final Global global = bgpDeployer.getMappingService().fromRib(getBgpRibId(), getClusterId(), getRibId(),
+        final Global global = OpenConfigMappingUtil.fromRib(getBgpRibId(), getClusterId(), getRibId(),
             new AsNumber(getLocalAs()), getLocalTableDependency(),
-                mapBestPathSelectionStrategyByFamily(getRibPathSelectionModeDependency()));
+                mapBestPathSelectionStrategyByFamily(getRibPathSelectionModeDependency()), bgpDeployer.getMappingService());
         final InstanceIdentifier<Bgp> bgpIID = bgpDeployer.getInstanceIdentifier().child(Protocols.class)
             .child(Protocol.class, new ProtocolKey(BGP.class, getRibId().getValue())).augmentation(Protocol1.class)
             .child(Bgp.class);
