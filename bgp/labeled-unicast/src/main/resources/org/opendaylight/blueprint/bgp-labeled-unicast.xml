@@ -6,9 +6,14 @@
 
   <bean id="RIBActivator" class="org.opendaylight.protocol.bgp.labeled.unicast.RIBActivator"/>
 
+  <bean id="TableTypeActivator" class="org.opendaylight.protocol.bgp.labeled.unicast.TableTypeActivator"/>
+
   <service ref="BGPActivator" interface="org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator"
           odl:type="org.opendaylight.protocol.bgp.labeled.unicast.BGPActivator"/>
 
   <service ref="RIBActivator" interface="org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator"
           odl:type="org.opendaylight.protocol.bgp.labeled.unicast.RIBActivator"/>
+
+  <service ref="TableTypeActivator" interface="org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryProviderActivator"
+          odl:type="org.opendaylight.protocol.bgp.labeled.unicast.TableTypeActivator"/>
 </blueprint>
