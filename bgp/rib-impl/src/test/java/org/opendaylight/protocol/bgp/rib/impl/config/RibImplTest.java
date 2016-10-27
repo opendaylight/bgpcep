@@ -11,7 +11,6 @@ package org.opendaylight.protocol.bgp.rib.impl.config;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -123,8 +122,7 @@ public class RibImplTest extends AbstractConfig {
         final RibImpl ribImpl = new RibImpl(this.clusterSingletonServiceProvider, this.extension, this.dispatcher,
             this.bindingCodecTreeFactory, this.domDataBroker, this.schemaService);
         ribImpl.setServiceRegistration(this.serviceRegistration);
-        ribImpl.start(createGlobal(), "rib-test", this.mappingService, this.configurationWriter);
-        verify(this.mappingService).toTableTypes(anyList());
+        ribImpl.start(createGlobal(), "rib-test", this.tableTypeRegistry, this.configurationWriter);
         verify(this.extension).getClassLoadingStrategy();
         verify(this.domDataBroker).getSupportedExtensions();
         verify(this.clusterSingletonServiceProvider).registerClusterSingletonService(any());

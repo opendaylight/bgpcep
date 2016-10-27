@@ -9,7 +9,7 @@
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
@@ -35,7 +35,7 @@ public interface BgpDeployer {
      */
     InstanceIdentifier<NetworkInstance> getInstanceIdentifier();
 
-    BGPOpenConfigMappingService getMappingService();
+    BGPTableTypeRegistryConsumer getTableTypeRegistry();
 
     <T extends DataObject> ListenableFuture<Void> writeConfiguration(T data, InstanceIdentifier<T> identifier);
 

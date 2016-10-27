@@ -39,7 +39,7 @@ public class AppPeerTest extends AbstractConfig {
     public void testAppPeer() throws Exception {
         final Neighbor neighbor = new NeighborBuilder().setConfig(new ConfigBuilder().addAugmentation(Config2.class,
                 new Config2Builder().setPeerGroup(OpenConfigMappingUtil.APPLICATION_PEER_GROUP_NAME).build()).build()).setNeighborAddress(new IpAddress(new Ipv4Address("127.0.0.1"))).build();
-        APP_PEER.start(this.rib, neighbor, this.mappingService, this.configurationWriter);
+        APP_PEER.start(this.rib, neighbor, this.tableTypeRegistry, this.configurationWriter);
         Mockito.verify(this.rib).getYangRibId();
         Mockito.verify(this.rib).getService();
         Mockito.verify(this.rib).getRibIServiceGroupIdentifier();
@@ -51,7 +51,7 @@ public class AppPeerTest extends AbstractConfig {
         Mockito.verify(this.rib).getLocalTablesKeys();
         Mockito.verify(this.domTx).newWriteOnlyTransaction();
 
-        APP_PEER.restart(this.rib, this.mappingService);
+        APP_PEER.restart(this.rib, this.tableTypeRegistry);
         this.singletonService.instantiateServiceInstance();
         Mockito.verify(this.rib, times(4)).getYangRibId();
         Mockito.verify(this.rib, times(4)).getService();

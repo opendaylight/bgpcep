@@ -20,10 +20,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.add.all.paths.AllPathSelection;
 import org.opendaylight.protocol.bgp.mode.impl.add.n.paths.AddPathBestNPathSelection;
-import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.concepts.KeyMapping;
@@ -47,6 +48,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.t
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.GlobalBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Neighbors;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.CommunityType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4UNICAST;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.PeerType;
@@ -206,12 +208,12 @@ public final class OpenConfigMappingUtil {
         return timers != null ? timers.getConfig() : null;
     }
 
-    public static Map<BgpTableType, PathSelectionMode> toPathSelectionMode(final List<AfiSafi> afiSafis, final BGPOpenConfigMappingService mappingService) {
+    public static Map<BgpTableType, PathSelectionMode> toPathSelectionMode(final List<AfiSafi> afiSafis, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         final Map<BgpTableType, PathSelectionMode> pathSelectionModes = new HashMap<>();
         for (final AfiSafi afiSafi : afiSafis) {
             final BgpNeighborAddPathsConfig afiSafi2 = afiSafi.getAugmentation(AfiSafi2.class);
             if (afiSafi2 != null) {
-                final Optional<BgpTableType> bgpTableType = mappingService.toBgpTableType(afiSafi.getAfiSafiName());
+                final Optional<BgpTableType> bgpTableType = tableTypeRegistry.getTableType(afiSafi.getAfiSafiName());
                 if (bgpTableType.isPresent()) {
                     final Short sendMax = afiSafi2.getSendMax();
                     final PathSelectionMode selectionMode;
@@ -239,11 +241,11 @@ public final class OpenConfigMappingUtil {
         return false;
     }
 
-    public static List<AddressFamilies> toAddPathCapability(final List<AfiSafi> afiSafis, final BGPOpenConfigMappingService mappingService) {
+    public static List<AddressFamilies> toAddPathCapability(final List<AfiSafi> afiSafis, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         final List<AddressFamilies> addPathCapability = new ArrayList<>();
         for (final AfiSafi afiSafi : afiSafis) {
             final BgpNeighborAddPathsConfig afiSafi1 = afiSafi.getAugmentation(AfiSafi1.class);
-            final Optional<BgpTableType> bgpTableType = mappingService.toBgpTableType(afiSafi.getAfiSafiName());
+            final Optional<BgpTableType> bgpTableType = tableTypeRegistry.getTableType(afiSafi.getAfiSafiName());
             if (afiSafi1 != null && bgpTableType.isPresent()) {
                 final AddressFamiliesBuilder builder = new AddressFamiliesBuilder(bgpTableType.get());
                 builder.setSendReceive(toSendReceiveMode(afiSafi1));
@@ -265,13 +267,13 @@ public final class OpenConfigMappingUtil {
 
     public static Global fromRib(final BgpId bgpId, final ClusterIdentifier clusterIdentifier, final RibId ribId,
             final AsNumber localAs, final List<BgpTableType> localTables,
-            final Map<TablesKey, PathSelectionMode> pathSelectionStrategies, final BGPOpenConfigMappingService mappingService) {
-        return toGlobalConfiguration(bgpId, clusterIdentifier, localAs, localTables, pathSelectionStrategies, mappingService);
+            final Map<TablesKey, PathSelectionMode> pathSelectionStrategies, final BGPTableTypeRegistryConsumer bgpTableTypeRegistryConsumer) {
+        return toGlobalConfiguration(bgpId, clusterIdentifier, localAs, localTables, pathSelectionStrategies, bgpTableTypeRegistryConsumer);
     }
 
     private static Global toGlobalConfiguration(final BgpId bgpId, final ClusterIdentifier clusterIdentifier,
             final AsNumber localAs, final List<BgpTableType> localTables,
-            final Map<TablesKey, PathSelectionMode> pathSelectionStrategies, final BGPOpenConfigMappingService mappingService) {
+            final Map<TablesKey, PathSelectionMode> pathSelectionStrategies, final BGPTableTypeRegistryConsumer bgpTableTypeRegistryConsumer) {
         final ConfigBuilder configBuilder = new ConfigBuilder();
         configBuilder.setAs(localAs);
         configBuilder.setRouterId(bgpId);
@@ -280,19 +282,19 @@ public final class OpenConfigMappingUtil {
                     new GlobalConfigAugmentationBuilder().setRouteReflectorClusterId(new RrClusterIdType(clusterIdentifier)).build());
         }
         return new GlobalBuilder().setAfiSafis(new AfiSafisBuilder().setAfiSafi(toAfiSafis(localTables,
-                (afiSafi, tableType) -> toGlobalAfiSafiAddPath(afiSafi, tableType, pathSelectionStrategies), mappingService)).build())
+                (afiSafi, tableType) -> toGlobalAfiSafiAddPath(afiSafi, tableType, pathSelectionStrategies), bgpTableTypeRegistryConsumer)).build())
                 .setConfig(configBuilder.build()).build();
     }
 
     public static Neighbor fromBgpPeer(final List<AddressFamilies> addPathCapabilities,
             final List<BgpTableType> advertisedTables, final Integer holdTimer, final IpAddress ipAddress,
             final Boolean isActive, final Rfc2385Key password, final PortNumber portNumber, final Integer retryTimer,
-            final AsNumber remoteAs, final PeerRole peerRole, final SimpleRoutingPolicy simpleRoutingPolicy, final BGPOpenConfigMappingService mappingService) {
+            final AsNumber remoteAs, final PeerRole peerRole, final SimpleRoutingPolicy simpleRoutingPolicy, final BGPTableTypeRegistryConsumer bgpTableTypeRegistryConsumer) {
         final NeighborBuilder neighborBuilder = new NeighborBuilder();
         neighborBuilder.setNeighborAddress(ipAddress);
         neighborBuilder.setKey(new NeighborKey(ipAddress));
         neighborBuilder.setAfiSafis(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.AfiSafisBuilder().setAfiSafi(toAfiSafis(advertisedTables,
-                (afiSafi, tableType) -> toNeighborAfiSafiAddPath(afiSafi, tableType, addPathCapabilities), mappingService)).build());
+                (afiSafi, tableType) -> toNeighborAfiSafiAddPath(afiSafi, tableType, addPathCapabilities), bgpTableTypeRegistryConsumer)).build());
         neighborBuilder.setTransport(new TransportBuilder().setConfig(
                 new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.transport.ConfigBuilder()
                 .setPassiveMode(!isActive)
@@ -381,10 +383,10 @@ public final class OpenConfigMappingUtil {
     }
 
     static List<AfiSafi> toAfiSafis(final List<BgpTableType> advertizedTables, final BiFunction<AfiSafi, BgpTableType, AfiSafi> function,
-            final BGPOpenConfigMappingService mappingService) {
+            final BGPTableTypeRegistryConsumer bgpTableTypeRegistryConsumer) {
         final List<AfiSafi> afiSafis = new ArrayList<>(advertizedTables.size());
         for (final BgpTableType tableType : advertizedTables) {
-            final Optional<AfiSafi> afiSafiMaybe = mappingService.toAfiSafi(new BgpTableTypeImpl(tableType.getAfi(), tableType.getSafi()));
+            final Optional<AfiSafi> afiSafiMaybe = toAfiSafi(new BgpTableTypeImpl(tableType.getAfi(), tableType.getSafi()), bgpTableTypeRegistryConsumer);
             if (afiSafiMaybe.isPresent()) {
                 final AfiSafi afiSafi = function.apply(afiSafiMaybe.get(), tableType);
                 afiSafis.add(afiSafi);
@@ -443,6 +445,22 @@ public final class OpenConfigMappingUtil {
             break;
         }
         return builder.build();
+    }
+
+    public static Optional<AfiSafi> toAfiSafi(final BgpTableType tableType, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
+        final Optional<Class<? extends AfiSafiType>> afiSafi = tableTypeRegistry.getAfiSafiType(tableType);
+        if (afiSafi.isPresent()) {
+            return Optional.of(new AfiSafiBuilder().setAfiSafiName(afiSafi.get()).build());
+        }
+        return Optional.empty();
+    }
+
+    public static List<BgpTableType> toTableTypes(final List<AfiSafi> afiSafis, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
+        return afiSafis.stream()
+                .map(afiSafi -> tableTypeRegistry.getTableType(afiSafi.getAfiSafiName()))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
     }
 
 }

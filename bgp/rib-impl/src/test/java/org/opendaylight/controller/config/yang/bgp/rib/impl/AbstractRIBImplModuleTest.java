@@ -84,7 +84,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMRpcService;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
 import org.opendaylight.controller.sal.core.api.model.YangTextSourceProvider;
-import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
@@ -98,7 +98,6 @@ import org.opendaylight.protocol.bgp.rib.impl.stats.UnsignedInt32Counter;
 import org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl.BGPRenderStats;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4UNICAST;
@@ -172,7 +171,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     private BgpDeployer bgpDeployer;
 
     @Mock
-    private BGPOpenConfigMappingService bgpMappingService;
+    private BGPTableTypeRegistryConsumer tableTypeREgistry;
 
     @Mock
     private BGPPeerRuntimeMXBean mockedPeer;
@@ -275,8 +274,8 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         doNothing().when(this.bgpDeployer).onNeighborModified(any(),any(),any());
         doReturn(this.mockedFuture).when(this.bgpDeployer).writeConfiguration(any(), any());
         doReturn(this.mockedFuture).when(this.bgpDeployer).removeConfiguration(any());
-        doReturn(java.util.Optional.of(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class).build())).when(this.bgpMappingService).toAfiSafi(any());
-        doReturn(this.bgpMappingService).when(this.bgpDeployer).getMappingService();
+        doReturn(java.util.Optional.of(IPV4UNICAST.class)).when(this.tableTypeREgistry).getAfiSafiType(any());
+        doReturn(this.tableTypeREgistry).when(this.bgpDeployer).getTableTypeRegistry();
         doReturn(OPENCONFIG_IID).when(this.bgpDeployer).getInstanceIdentifier();
         final DOMTransactionChain mockedChain = mock(DOMTransactionChain.class);
         final DOMDataWriteTransaction mockedWTx = mock(DOMDataWriteTransaction.class);

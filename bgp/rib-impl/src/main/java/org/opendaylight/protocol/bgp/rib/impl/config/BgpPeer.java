@@ -30,7 +30,7 @@ import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
-import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.spi.MultiprotocolCapabilitiesUtil;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeer;
@@ -78,17 +78,17 @@ public final class BgpPeer implements PeerBean, BGPPeerRuntimeMXBean {
     }
 
     @Override
-    public void start(final RIB rib, final Neighbor neighbor, final BGPOpenConfigMappingService mappingService,
+    public void start(final RIB rib, final Neighbor neighbor, final BGPTableTypeRegistryConsumer tableTypeRegistry,
         final WriteConfiguration configurationWriter) {
         Preconditions.checkState(this.bgpPeerSingletonService == null, "Previous peer instance {} was not closed.");
-        this.bgpPeerSingletonService = new BgpPeerSingletonService(rib, neighbor, mappingService, configurationWriter);
+        this.bgpPeerSingletonService = new BgpPeerSingletonService(rib, neighbor, tableTypeRegistry, configurationWriter);
         this.currentConfiguration = neighbor;
     }
 
     @Override
-    public void restart(final RIB rib, final BGPOpenConfigMappingService mappingService) {
+    public void restart(final RIB rib, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         Preconditions.checkState(this.currentConfiguration != null);
-        start(rib, this.currentConfiguration, mappingService, null);
+        start(rib, this.currentConfiguration, tableTypeRegistry, null);
     }
 
     @Override
@@ -132,7 +132,7 @@ public final class BgpPeer implements PeerBean, BGPPeerRuntimeMXBean {
     }
 
     private static List<BgpParameters> getBgpParameters(final Neighbor neighbor, final RIB rib,
-            final BGPOpenConfigMappingService mappingService) {
+            final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         final List<BgpParameters> tlvs = new ArrayList<>();
         final List<OptionalCapabilities> caps = new ArrayList<>();
         caps.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().setAs4BytesCapability(
@@ -142,14 +142,14 @@ public final class BgpPeer implements PeerBean, BGPPeerRuntimeMXBean {
         caps.add(new OptionalCapabilitiesBuilder().setCParameters(MultiprotocolCapabilitiesUtil.RR_CAPABILITY).build());
 
         final List<AfiSafi> afiSafi = OpenConfigMappingUtil.getAfiSafiWithDefault(neighbor.getAfiSafis(), false);
-        final List<AddressFamilies> addPathCapability = OpenConfigMappingUtil.toAddPathCapability(afiSafi, mappingService);
+        final List<AddressFamilies> addPathCapability = OpenConfigMappingUtil.toAddPathCapability(afiSafi, tableTypeRegistry);
         if (!addPathCapability.isEmpty()) {
             caps.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class,
                     new CParameters1Builder().setAddPathCapability(
                             new AddPathCapabilityBuilder().setAddressFamilies(addPathCapability).build()).build()).build()).build());
         }
 
-        final List<BgpTableType> tableTypes = mappingService.toTableTypes(afiSafi);
+        final List<BgpTableType> tableTypes = OpenConfigMappingUtil.toTableTypes(afiSafi, tableTypeRegistry);
         for (final BgpTableType tableType : tableTypes) {
             if (!rib.getLocalTables().contains(tableType)) {
                 LOG.info("RIB instance does not list {} in its local tables. Incoming data will be dropped.", tableType);
@@ -209,12 +209,12 @@ public final class BgpPeer implements PeerBean, BGPPeerRuntimeMXBean {
         private final BGPSessionPreferences prefs;
         private Future<Void> connection;
 
-        private BgpPeerSingletonService(final RIB rib, final Neighbor neighbor, final BGPOpenConfigMappingService mappingService,
+        private BgpPeerSingletonService(final RIB rib, final Neighbor neighbor, final BGPTableTypeRegistryConsumer tableTypeRegistry,
             final WriteConfiguration configurationWriter) {
             this.neighborAddress = neighbor.getNeighborAddress();
             this.bgpPeer = new BGPPeer(Ipv4Util.toStringIP(this.neighborAddress), rib,
                     OpenConfigMappingUtil.toPeerRole(neighbor), getSimpleRoutingPolicy(neighbor), BgpPeer.this.rpcRegistry);
-            final List<BgpParameters> bgpParameters = getBgpParameters(neighbor, rib, mappingService);
+            final List<BgpParameters> bgpParameters = getBgpParameters(neighbor, rib, tableTypeRegistry);
             final KeyMapping keyMapping = OpenConfigMappingUtil.getNeighborKey(neighbor);
             this.prefs = new BGPSessionPreferences(rib.getLocalAs(), getHoldTimer(neighbor), rib.getBgpIdentifier(), getPeerAs(neighbor, rib),
                 bgpParameters, getPassword(keyMapping));

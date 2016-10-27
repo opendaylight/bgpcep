@@ -34,7 +34,7 @@ import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.InstanceType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
@@ -63,7 +63,7 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
     private final InstanceIdentifier<NetworkInstance> networkInstanceIId;
     private final BlueprintContainer container;
     private final BundleContext bundleContext;
-    private final BGPOpenConfigMappingService mappingService;
+    private final BGPTableTypeRegistryConsumer tableTypeRegistry;
     private final ListenerRegistration<BgpDeployerImpl> registration;
     @GuardedBy("this")
     private final Map<InstanceIdentifier<Bgp>, RibImpl> ribs = new HashMap<>();
@@ -74,11 +74,11 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
     private boolean closed;
 
     public BgpDeployerImpl(final String networkInstanceName, final BlueprintContainer container, final BundleContext bundleContext, final DataBroker dataBroker,
-        final BGPOpenConfigMappingService mappingService) {
+        final BGPTableTypeRegistryConsumer mappingService) {
         this.dataBroker = Preconditions.checkNotNull(dataBroker);
         this.container = Preconditions.checkNotNull(container);
         this.bundleContext = Preconditions.checkNotNull(bundleContext);
-        this.mappingService = Preconditions.checkNotNull(mappingService);
+        this.tableTypeRegistry = Preconditions.checkNotNull(mappingService);
         this.networkInstanceIId = InstanceIdentifier.create(NetworkInstances.class)
             .child(NetworkInstance.class, new NetworkInstanceKey(networkInstanceName));
         Futures.addCallback(initializeNetworkInstance(dataBroker, this.networkInstanceIId), new FutureCallback<Void>() {
@@ -191,7 +191,7 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
         final List<PeerBean> closedPeers = closeAllBindedPeers(rootIdentifier);
         ribImpl.close();
         initiateRibInstance(rootIdentifier, global, ribImpl, configurationWriter);
-        closedPeers.forEach(peer -> peer.restart(ribImpl, this.mappingService));
+        closedPeers.forEach(peer -> peer.restart(ribImpl, this.tableTypeRegistry));
         LOG.debug("RIB instance created: {}", ribImpl);
     }
 
@@ -215,7 +215,7 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
     private void initiateRibInstance(final InstanceIdentifier<Bgp> rootIdentifier, final Global global,
         final RibImpl ribImpl, final WriteConfiguration configurationWriter) {
         final String ribInstanceName = getRibInstanceName(rootIdentifier);
-        ribImpl.start(global, ribInstanceName, this.mappingService, configurationWriter);
+        ribImpl.start(global, ribInstanceName, this.tableTypeRegistry, configurationWriter);
         registerRibInstance(ribImpl, ribInstanceName);
     }
 
@@ -294,7 +294,7 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
         final String peerInstanceName = getNeighborInstanceName(neighborIdentifier);
         final RibImpl rib = this.ribs.get(rootIdentifier);
         if (rib != null) {
-            bgpPeer.start(rib, neighbor, this.mappingService, configurationWriter);
+            bgpPeer.start(rib, neighbor, this.tableTypeRegistry, configurationWriter);
             if (bgpPeer instanceof BgpPeer) {
                 registerPeerInstance((BgpPeer) bgpPeer, peerInstanceName);
             }
@@ -302,8 +302,8 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
     }
 
     @Override
-    public BGPOpenConfigMappingService getMappingService() {
-        return this.mappingService;
+    public BGPTableTypeRegistryConsumer getTableTypeRegistry() {
+        return this.tableTypeRegistry;
     }
 
     @Override
