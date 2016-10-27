@@ -57,7 +57,6 @@
         <module>controller-config</module>
         <module>openconfig-api</module>
         <module>openconfig-spi</module>
-        <module>openconfig-impl</module>
         <module>path-selection-mode</module>
         <module>benchmark-app</module>
         <module>evpn</module>
