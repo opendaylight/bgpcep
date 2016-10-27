@@ -21,4 +21,9 @@
 
   <service ref="RIBIpv6Activator" interface="org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator"
           odl:type="org.opendaylight.protocol.bgp.l3vpn.ipv6.RibIpv6Activator"/>
+
+  <bean id="TableTypeActivator" class="org.opendaylight.protocol.bgp.l3vpn.TableTypeActivator"/>
+
+  <service ref="TableTypeActivator" interface="org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryProviderActivator"
+          odl:type="org.opendaylight.protocol.bgp.l3vpn.TableTypeActivator"/>
 </blueprint>
