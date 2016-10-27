@@ -26,7 +26,7 @@ import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvid
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
-import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer;
@@ -86,10 +86,10 @@ public final class RibImpl implements RIB, AutoCloseable {
         this.schemaService = schemaService;
     }
 
-    void start(final Global global, final String instanceName, final BGPOpenConfigMappingService mappingService,
+    void start(final Global global, final String instanceName, final BGPTableTypeRegistryConsumer tableTypeRegistry,
         final BgpDeployer.WriteConfiguration configurationWriter) {
         Preconditions.checkState(this.ribImpl == null, "Previous instance %s was not closed.", this);
-        this.ribImpl = createRib(this.provider, global, instanceName, mappingService, configurationWriter);
+        this.ribImpl = createRib(this.provider, global, instanceName, tableTypeRegistry, configurationWriter);
         this.schemaContextRegistration = this.schemaService.registerSchemaContextListener(this.ribImpl);
     }
 
@@ -219,16 +219,16 @@ public final class RibImpl implements RIB, AutoCloseable {
     }
 
     private RIBImpl createRib(final ClusterSingletonServiceProvider provider, final Global global, final String bgpInstanceName,
-        final BGPOpenConfigMappingService mappingService, final BgpDeployer.WriteConfiguration configurationWriter) {
+        final BGPTableTypeRegistryConsumer tableTypeRegistry, final BgpDeployer.WriteConfiguration configurationWriter) {
         this.afiSafi = getAfiSafiWithDefault(global.getAfiSafis(), true);
         final Config globalConfig = global.getConfig();
         this.asNumber = globalConfig.getAs();
         this.routerId = globalConfig.getRouterId();
         this.clusterId = OpenConfigMappingUtil.getClusterIdentifier(globalConfig);
-        final Map<TablesKey, PathSelectionMode> pathSelectionModes = OpenConfigMappingUtil.toPathSelectionMode(this.afiSafi, mappingService).entrySet()
+        final Map<TablesKey, PathSelectionMode> pathSelectionModes = OpenConfigMappingUtil.toPathSelectionMode(this.afiSafi, tableTypeRegistry).entrySet()
                 .stream().collect(Collectors.toMap(entry -> new TablesKey(entry.getKey().getAfi(), entry.getKey().getSafi()), Map.Entry::getValue));
         return new RIBImpl(provider, new RibId(bgpInstanceName), this.asNumber, new BgpId(this.routerId), this.clusterId,
-                this.extensions, this.dispatcher, this.codecTreeFactory, this.domBroker, mappingService.toTableTypes(this.afiSafi), pathSelectionModes,
+                this.extensions, this.dispatcher, this.codecTreeFactory, this.domBroker, OpenConfigMappingUtil.toTableTypes(this.afiSafi, tableTypeRegistry), pathSelectionModes,
                 this.extensions.getClassLoadingStrategy(), configurationWriter);
     }
 

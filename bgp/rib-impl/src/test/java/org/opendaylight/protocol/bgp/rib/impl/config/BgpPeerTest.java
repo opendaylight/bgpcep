@@ -15,7 +15,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.times;
 
 import com.google.common.base.Optional;
@@ -81,12 +80,11 @@ public class BgpPeerTest extends AbstractConfig {
         final Neighbor neighbor = new NeighborBuilder().setAfiSafis(createAfiSafi()).setConfig(createConfig()).setNeighborAddress(NEIGHBOR_ADDRESS)
             .setRouteReflector(createRR()).setTimers(createTimers()).setTransport(createTransport()).setAddPaths(createAddPath()).build();
 
-        this.bgpPeer.start(this.rib, neighbor, this.mappingService, this.configurationWriter);
+        this.bgpPeer.start(this.rib, neighbor, this.tableTypeRegistry, this.configurationWriter);
         Mockito.verify(this.render).getConfiguredPeerCounter();
         Mockito.verify(this.rib).createPeerChain(any());
         Mockito.verify(this.rib, times(2)).getLocalAs();
         Mockito.verify(this.rib).getLocalTables();
-        Mockito.verify(this.mappingService).toTableTypes(anyList());
         Mockito.verify(this.rib).getRibIServiceGroupIdentifier();
         Mockito.verify(this.rib).registerClusterSingletonService(any(ClusterSingletonService.class));
 
@@ -96,19 +94,18 @@ public class BgpPeerTest extends AbstractConfig {
         Mockito.verify(this.dispatcher).createReconnectingClient(any(InetSocketAddress.class), any(BGPPeerRegistry.class), anyInt(), any(Optional.class));
 
         try {
-            this.bgpPeer.start(this.rib, neighbor, this.mappingService, this.configurationWriter);
+            this.bgpPeer.start(this.rib, neighbor, this.tableTypeRegistry, this.configurationWriter);
             fail("Expected Exception");
         } catch (final IllegalStateException expected) {
             assertEquals("Previous peer instance {} was not closed.", expected.getMessage());
         }
         this.bgpPeer.setServiceRegistration(this.serviceRegistration);
         this.bgpPeer.close();
-        this.bgpPeer.restart(this.rib, this.mappingService);
+        this.bgpPeer.restart(this.rib, this.tableTypeRegistry);
         Mockito.verify(this.render, times(2)).getConfiguredPeerCounter();
         Mockito.verify(this.rib, times(2)).createPeerChain(any());
         Mockito.verify(this.rib, times(4)).getLocalAs();
         Mockito.verify(this.rib, times(2)).getLocalTables();
-        Mockito.verify(this.mappingService, times(2)).toTableTypes(anyList());
         Mockito.verify(this.rib, times(2)).getRibIServiceGroupIdentifier();
         Mockito.verify(this.rib, times(2)).registerClusterSingletonService(any(ClusterSingletonService.class));
         this.singletonService.instantiateServiceInstance();
@@ -131,7 +128,7 @@ public class BgpPeerTest extends AbstractConfig {
         Mockito.verify(this.future).cancel(true);
 
         final Neighbor emptyNeighbor = new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS).build();
-        this.bgpPeer.start(this.rib, emptyNeighbor, this.mappingService, this.configurationWriter);
+        this.bgpPeer.start(this.rib, emptyNeighbor, this.tableTypeRegistry, this.configurationWriter);
         assertTrue(this.bgpPeer.containsEqualConfiguration(emptyNeighbor));
         this.bgpPeer.close();
     }

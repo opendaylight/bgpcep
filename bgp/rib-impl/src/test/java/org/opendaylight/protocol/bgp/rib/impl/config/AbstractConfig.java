@@ -32,7 +32,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
-import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.AbstractImportPolicy;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
@@ -66,7 +66,7 @@ class AbstractConfig {
     @Mock
     protected ClusterSingletonServiceRegistration singletonServiceRegistration;
     @Mock
-    protected BGPOpenConfigMappingService mappingService;
+    protected BGPTableTypeRegistryConsumer tableTypeRegistry;
     @Mock
     protected BgpDeployer.WriteConfiguration configurationWriter;
     @Mock
@@ -131,10 +131,8 @@ class AbstractConfig {
             .createReconnectingClient(any(InetSocketAddress.class), any(BGPPeerRegistry.class), anyInt(), any(Optional.class));
         Mockito.doReturn(this.dispatcher).when(this.rib).getDispatcher();
 
-        Mockito.doReturn(Collections.singletonList(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class)))
-            .when(this.mappingService).toTableTypes(any());
         Mockito.doReturn(java.util.Optional.of(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class)))
-            .when(this.mappingService).toBgpTableType(any());
+            .when(this.tableTypeRegistry).getTableType(any());
         Mockito.doReturn(Collections.singleton(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class)))
             .when(this.rib).getLocalTables();
         Mockito.doNothing().when(this.configurationWriter).apply();

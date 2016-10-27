@@ -19,7 +19,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
-import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.impl.ApplicationPeer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer.WriteConfiguration;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
@@ -42,16 +42,16 @@ public final class AppPeer implements PeerBean {
     private BgpAppPeerSingletonService bgpAppPeerSingletonService;
 
     @Override
-    public void start(final RIB rib, final Neighbor neighbor, final BGPOpenConfigMappingService mappingService, final WriteConfiguration configurationWriter) {
+    public void start(final RIB rib, final Neighbor neighbor, final BGPTableTypeRegistryConsumer tableTypeRegistry, final WriteConfiguration configurationWriter) {
         this.currentConfiguration = neighbor;
         this.bgpAppPeerSingletonService = new BgpAppPeerSingletonService(rib, createAppRibId(neighbor), neighbor.getNeighborAddress().getIpv4Address(),
                 configurationWriter);
     }
 
     @Override
-    public void restart(final RIB rib, final BGPOpenConfigMappingService mappingService) {
+    public void restart(final RIB rib, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         Preconditions.checkState(this.currentConfiguration != null);
-        start(rib, this.currentConfiguration, mappingService, null);
+        start(rib, this.currentConfiguration, tableTypeRegistry, null);
     }
 
     @Override

@@ -13,7 +13,6 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
 import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.AFI_SAFI;
 import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.AFI_SAFI_IPV4;
 import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.MD5_PASSWORD;
@@ -45,7 +44,7 @@ import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.add.all.paths.AllPathSelection;
 import org.opendaylight.protocol.bgp.mode.impl.add.n.paths.AddPathBestNPathSelection;
-import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
@@ -158,7 +157,7 @@ public class OpenConfigMappingUtilTest {
     }
 
     @Mock
-    private BGPOpenConfigMappingService mappingService;
+    private BGPTableTypeRegistryConsumer tableTypeRegistry;
 
     @Mock
     private RIB rib;
@@ -166,18 +165,16 @@ public class OpenConfigMappingUtilTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        Mockito.doReturn(Collections.singletonList(BGP_TABLE_TYPE_IPV4))
-            .when(this.mappingService).toTableTypes(any());
         Mockito.doReturn(java.util.Optional.of(BGP_TABLE_TYPE_IPV4))
-            .when(this.mappingService).toBgpTableType(IPV4UNICAST.class);
+            .when(this.tableTypeRegistry).getTableType(IPV4UNICAST.class);
         Mockito.doReturn(java.util.Optional.of(BGP_TABLE_TYPE_IPV6))
-            .when(this.mappingService).toBgpTableType(IPV6UNICAST.class);
+            .when(this.tableTypeRegistry).getTableType(IPV6UNICAST.class);
         Mockito.doReturn(java.util.Optional.of(new BgpTableTypeImpl(Ipv6AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class)))
-            .when(this.mappingService).toBgpTableType(IPV6LABELLEDUNICAST.class);
-        Mockito.doReturn(java.util.Optional.of(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class).build()))
-            .when(this.mappingService).toAfiSafi(BGP_TABLE_TYPE_IPV4);
-        Mockito.doReturn(java.util.Optional.of(new AfiSafiBuilder().setAfiSafiName(IPV6UNICAST.class).build()))
-            .when(this.mappingService).toAfiSafi(BGP_TABLE_TYPE_IPV6);
+            .when(this.tableTypeRegistry).getTableType(IPV6LABELLEDUNICAST.class);
+        Mockito.doReturn(java.util.Optional.of(IPV4UNICAST.class))
+            .when(this.tableTypeRegistry).getAfiSafiType(BGP_TABLE_TYPE_IPV4);
+        Mockito.doReturn(java.util.Optional.of(IPV6UNICAST.class))
+            .when(this.tableTypeRegistry).getAfiSafiType(BGP_TABLE_TYPE_IPV6);
         Mockito.doReturn(AS).when(this.rib).getLocalAs();
     }
 
@@ -303,7 +300,7 @@ public class OpenConfigMappingUtilTest {
     @Test
     public void testToAfiSafis() {
         final List<AfiSafi> afiSafis = OpenConfigMappingUtil.toAfiSafis(Lists.newArrayList(BGP_TABLE_TYPE_IPV4), (afisafi, tableType) -> afisafi,
-                this.mappingService);
+                this.tableTypeRegistry);
         Assert.assertEquals(Collections.singletonList(AFISAFI_IPV4), afiSafis);
     }
 
@@ -378,7 +375,7 @@ public class OpenConfigMappingUtilTest {
             .addAugmentation(AfiSafi2.class, new AfiSafi2Builder().setSendMax(Shorts.checkedCast(N_PATHS)).build()).build());
         families.add(new AfiSafiBuilder().setAfiSafiName(IPV6UNICAST.class)
             .addAugmentation(AfiSafi2.class, new AfiSafi2Builder().setSendMax(Shorts.checkedCast(ALL_PATHS)).build()).build());
-        final Map<BgpTableType, PathSelectionMode> result = OpenConfigMappingUtil.toPathSelectionMode(families, this.mappingService);
+        final Map<BgpTableType, PathSelectionMode> result = OpenConfigMappingUtil.toPathSelectionMode(families, this.tableTypeRegistry);
         final Map<BgpTableType, PathSelectionMode> expected = new HashMap<>();
         expected.put(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class), ADD_PATH_BEST_N_PATH_SELECTION);
         expected.put(new BgpTableTypeImpl(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class), ADD_PATH_BEST_ALL_PATH_SELECTION);
@@ -418,7 +415,7 @@ public class OpenConfigMappingUtilTest {
             .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi1.class,
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi1Builder()
                     .setReceive(false).build()).build());
-        final List<AddressFamilies> result = OpenConfigMappingUtil.toAddPathCapability(families, this.mappingService);
+        final List<AddressFamilies> result = OpenConfigMappingUtil.toAddPathCapability(families, this.tableTypeRegistry);
         assertEquals(FAMILIES, result);
     }
 
@@ -428,7 +425,7 @@ public class OpenConfigMappingUtilTest {
         bgpTableKeyPsm.put(new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class), ADD_PATH_BEST_N_PATH_SELECTION);
         bgpTableKeyPsm.put(new TablesKey(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class), ADD_PATH_BEST_ALL_PATH_SELECTION);
 
-        final Global result = OpenConfigMappingUtil.fromRib(BGP_ID, CLUSTER_IDENTIFIER, RIB_ID, AS, TABLE_TYPES, bgpTableKeyPsm, this.mappingService);
+        final Global result = OpenConfigMappingUtil.fromRib(BGP_ID, CLUSTER_IDENTIFIER, RIB_ID, AS, TABLE_TYPES, bgpTableKeyPsm, this.tableTypeRegistry);
         final Global expected = new GlobalBuilder()
                 .setAfiSafis(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.AfiSafisBuilder().setAfiSafi(AFISAFIS).build())
                 .setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base
@@ -443,7 +440,7 @@ public class OpenConfigMappingUtilTest {
 
     @Test
     public void fromBgpPeer() {
-        final Neighbor result = OpenConfigMappingUtil.fromBgpPeer(FAMILIES, TABLE_TYPES, 30, IPADDRESS, true, null, PORT_NUMBER, 30, AS, PeerRole.Ibgp, null, this.mappingService);
+        final Neighbor result = OpenConfigMappingUtil.fromBgpPeer(FAMILIES, TABLE_TYPES, 30, IPADDRESS, true, null, PORT_NUMBER, 30, AS, PeerRole.Ibgp, null, this.tableTypeRegistry);
         final List<AfiSafi> afisafis = new ArrayList<>();
         afisafis.add(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
             .addAugmentation(AfiSafi1.class, new AfiSafi1Builder().setReceive(true).setSendMax(Shorts.checkedCast(ALL_PATHS)).build()).build());

@@ -8,7 +8,7 @@
 
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
-import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer.WriteConfiguration;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
@@ -19,9 +19,9 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.n
  */
 public interface PeerBean extends AutoCloseable {
 
-    void start(RIB rib, Neighbor neighbor, BGPOpenConfigMappingService mappingService, WriteConfiguration configurationWriter);
+    void start(RIB rib, Neighbor neighbor, BGPTableTypeRegistryConsumer tableTypeRegistry, WriteConfiguration configurationWriter);
 
-    void restart(RIB rib, BGPOpenConfigMappingService mappingService);
+    void restart(RIB rib, BGPTableTypeRegistryConsumer tableTypeRegistry);
 
     @Override
     void close();

@@ -80,7 +80,7 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
         //map configuration to OpenConfig BGP
         final Global global = OpenConfigMappingUtil.fromRib(getBgpRibId(), getClusterId(), getRibId(),
             new AsNumber(getLocalAs()), getLocalTableDependency(),
-                mapBestPathSelectionStrategyByFamily(getRibPathSelectionModeDependency()), bgpDeployer.getMappingService());
+                mapBestPathSelectionStrategyByFamily(getRibPathSelectionModeDependency()), bgpDeployer.getTableTypeRegistry());
         final InstanceIdentifier<Bgp> bgpIID = bgpDeployer.getInstanceIdentifier().child(Protocols.class)
             .child(Protocol.class, new ProtocolKey(BGP.class, getRibId().getValue())).augmentation(Protocol1.class)
             .child(Bgp.class);
