@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_d1c9035c",
+        "filename": "bgp/openconfig-spi/src/main/resources/org/opendaylight/blueprint/bgp-openconfig-spi.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-10-28T08:45:52Z",
+      "side": 1,
+      "message": "Is really required?",
+      "range": {
+        "startLine": 17,
+        "startChar": 6,
+        "endLine": 17,
+        "endChar": 94
+      },
+      "revId": "9d3d30e57bbbc5e809906e7e21f2e3eb3fd23e08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
