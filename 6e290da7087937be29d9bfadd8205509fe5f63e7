@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_f154ff22",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-10-28T10:02:41Z",
+      "side": 1,
+      "message": "Tests are related to provider config loader.",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 28
+      },
+      "revId": "6e290da7087937be29d9bfadd8205509fe5f63e7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
