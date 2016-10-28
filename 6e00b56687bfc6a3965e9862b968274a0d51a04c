@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_cacdcc5f",
+        "filename": "bgp/topology-provider/src/test/java/org/opendaylight/controller/config/yang/bgp/topology/provider/AbstractTopologyBuilderModuleTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-10-28T18:42:10Z",
+      "side": 1,
+      "message": "missing copyright header",
+      "revId": "6e00b56687bfc6a3965e9862b968274a0d51a04c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
