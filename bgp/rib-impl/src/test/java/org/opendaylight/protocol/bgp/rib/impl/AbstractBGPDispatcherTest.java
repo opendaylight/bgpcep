@@ -56,11 +56,12 @@ public class AbstractBGPDispatcherTest {
     protected static final int RETRY_TIMER = 1;
     protected static final BgpTableType IPV_4_TT = new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
     private static final short HOLD_TIMER = 30;
-    protected TestClientDispatcher clientDispatcher;
+    protected BGPDispatcherImpl clientDispatcher;
     protected BGPPeerRegistry registry;
     protected SimpleSessionListener clientListener;
     protected BGPDispatcherImpl serverDispatcher;
     protected SimpleSessionListener serverListener;
+    protected InetSocketAddress clientAddress;
     private EventLoopGroup boss;
     private EventLoopGroup worker;
 
@@ -75,7 +76,11 @@ public class AbstractBGPDispatcherTest {
         this.serverListener = new SimpleSessionListener();
         final BGPExtensionProviderContext ctx = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance();
         this.serverDispatcher = new BGPDispatcherImpl(ctx.getMessageRegistry(), this.boss, this.worker);
-        configureClient(ctx);
+
+        this.clientAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
+        final IpAddress clientPeerIp = new IpAddress(new Ipv4Address(clientAddress.getAddress().getHostAddress()));
+        this.registry.addPeer(clientPeerIp, this.clientListener, createPreferences(clientAddress));
+        this.clientDispatcher = new BGPDispatcherImpl(ctx.getMessageRegistry(), this.boss, this.worker);
     }
 
     @After
@@ -92,7 +97,11 @@ public class AbstractBGPDispatcherTest {
         final InetSocketAddress clientAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
         final IpAddress clientPeerIp = new IpAddress(new Ipv4Address(clientAddress.getAddress().getHostAddress()));
         this.registry.addPeer(clientPeerIp, this.clientListener, createPreferences(clientAddress));
-        this.clientDispatcher = new TestClientDispatcher(this.boss, this.worker, ctx.getMessageRegistry(), clientAddress);
+        this.clientDispatcher = new BGPDispatcherImpl(ctx.getMessageRegistry(), this.boss, this.worker);
+        if (!Epoll.isAvailable()) {
+            this.worker.shutdownGracefully().awaitUninterruptibly();
+            this.boss.shutdownGracefully().awaitUninterruptibly();
+        }
     }
 
     protected BGPSessionPreferences createPreferences(final InetSocketAddress socketAddress) {

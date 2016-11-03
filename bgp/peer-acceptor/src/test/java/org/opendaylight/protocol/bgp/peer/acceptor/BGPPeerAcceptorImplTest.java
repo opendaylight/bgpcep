@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.peer.acceptor;
 
-import com.google.common.base.Optional;
 import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.waitFutureSuccess;
 
 import com.google.common.collect.Sets;
@@ -36,8 +35,7 @@ public class BGPPeerAcceptorImplTest extends AbstractBGPDispatcherTest {
         this.registry.addPeer(serverIpAddress, this.serverListener, createPreferences(inetServerAddress));
 
         final BGPPeerAcceptorImpl bgpPeerAcceptor = new BGPPeerAcceptorImpl(config, this.registry, this.serverDispatcher);
-        final Future<BGPSessionImpl> futureClient = this.clientDispatcher.createClient(inetServerAddress, this.registry, 2, Optional.absent());
-
+        final Future<BGPSessionImpl> futureClient = this.clientDispatcher.createClient(this.clientAddress, inetServerAddress, this.registry, 2, true);
         waitFutureSuccess(futureClient);
         final BGPSessionImpl session = futureClient.get();
         Assert.assertEquals(BGPSessionImpl.State.UP, this.clientListener.getState());
