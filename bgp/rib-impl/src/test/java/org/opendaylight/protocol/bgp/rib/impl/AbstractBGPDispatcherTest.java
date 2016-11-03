@@ -16,10 +16,8 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.Epoll;
-import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -58,20 +56,18 @@ public class AbstractBGPDispatcherTest {
     protected static final int RETRY_TIMER = 1;
     protected static final BgpTableType IPV_4_TT = new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
     private static final short HOLD_TIMER = 30;
-    protected TestClientDispatcher clientDispatcher;
+    protected BGPDispatcherImpl clientDispatcher;
     protected BGPPeerRegistry registry;
     protected SimpleSessionListener clientListener;
     protected BGPDispatcherImpl serverDispatcher;
     protected SimpleSessionListener serverListener;
+    protected InetSocketAddress clientAddress;
     private EventLoopGroup boss;
     private EventLoopGroup worker;
 
     @Before
     public void setUp() throws BGPDocumentedException {
-        if (Epoll.isAvailable()) {
-            this.boss = new EpollEventLoopGroup();
-            this.worker = new EpollEventLoopGroup();
-        } else {
+        if (!Epoll.isAvailable()) {
             this.boss = new NioEventLoopGroup();
             this.worker = new NioEventLoopGroup();
         }
@@ -80,23 +76,21 @@ public class AbstractBGPDispatcherTest {
         this.serverListener = new SimpleSessionListener();
         final BGPExtensionProviderContext ctx = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance();
         this.serverDispatcher = new BGPDispatcherImpl(ctx.getMessageRegistry(), this.boss, this.worker);
-        configureClient(ctx);
+
+        this.clientAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
+        final IpAddress clientPeerIp = new IpAddress(new Ipv4Address(clientAddress.getAddress().getHostAddress()));
+        this.registry.addPeer(clientPeerIp, this.clientListener, createPreferences(clientAddress));
+        this.clientDispatcher = new BGPDispatcherImpl(ctx.getMessageRegistry(), this.boss, this.worker);
     }
 
     @After
     public void tearDown() throws Exception {
         this.serverDispatcher.close();
         this.registry.close();
-        this.worker.shutdownGracefully().awaitUninterruptibly();
-        this.boss.shutdownGracefully().awaitUninterruptibly();
-    }
-
-
-    private void configureClient(final BGPExtensionProviderContext ctx) {
-        final InetSocketAddress clientAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
-        final IpAddress clientPeerIp = new IpAddress(new Ipv4Address(clientAddress.getAddress().getHostAddress()));
-        this.registry.addPeer(clientPeerIp, this.clientListener, createPreferences(clientAddress));
-        this.clientDispatcher = new TestClientDispatcher(this.boss, this.worker, ctx.getMessageRegistry(), clientAddress);
+        if (!Epoll.isAvailable()) {
+            this.worker.shutdownGracefully().awaitUninterruptibly();
+            this.boss.shutdownGracefully().awaitUninterruptibly();
+        }
     }
 
     protected BGPSessionPreferences createPreferences(final InetSocketAddress socketAddress) {
@@ -135,12 +129,7 @@ public class AbstractBGPDispatcherTest {
         this.registry.addPeer(new IpAddress(new Ipv4Address(serverAddress.getAddress().getHostAddress())), this.serverListener, createPreferences(serverAddress));
         LoggerFactory.getLogger(AbstractBGPDispatcherTest.class).info("createServer");
         final ChannelFuture future = this.serverDispatcher.createServer(this.registry, serverAddress);
-        future.addListener(new GenericFutureListener<Future<Void>>() {
-            @Override
-            public void operationComplete(final Future<Void> future) {
-                Preconditions.checkArgument(future.isSuccess(), "Unable to start bgp server on %s", future.cause());
-            }
-        });
+        future.addListener(future1 -> Preconditions.checkArgument(future1.isSuccess(), "Unable to start bgp server on %s", future1.cause()));
         waitFutureSuccess(future);
         return future.channel();
     }
