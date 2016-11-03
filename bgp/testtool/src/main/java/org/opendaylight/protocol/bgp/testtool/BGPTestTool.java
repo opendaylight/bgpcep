@@ -12,7 +12,6 @@ import static org.opendaylight.protocol.bgp.testtool.BGPPeerBuilder.createPeer;
 
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
-import io.netty.channel.nio.NioEventLoopGroup;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -99,7 +98,7 @@ final class BGPTestTool {
         final org.opendaylight.protocol.bgp.l3vpn.ipv6.BgpIpv6Activator bgpIpv6Activator = new org.opendaylight.protocol.bgp.l3vpn.ipv6.BgpIpv6Activator();
         bgpIpv6Activator.start(ctx);
 
-        return new BGPDispatcherImpl(ctx.getMessageRegistry(), new NioEventLoopGroup(), new NioEventLoopGroup());
+        return new BGPDispatcherImpl(ctx.getMessageRegistry());
     }
 
     private static OptionalCapabilities createMPCapability(final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi) {
