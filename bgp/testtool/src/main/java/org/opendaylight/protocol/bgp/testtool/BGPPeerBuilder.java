@@ -41,7 +41,7 @@ final class BGPPeerBuilder {
         if (arguments.getInitiateConnection()) {
             for (final InetSocketAddress remoteAddress : arguments.getRemoteAddresses()) {
                 strictBGPPeerRegistry.addPeer(StrictBGPPeerRegistry.getIpAddress(remoteAddress), sessionListener, proposal);
-                addFutureListener(localAddress, ((BGPDispatcherImpl) dispatcher).createClient(localAddress, remoteAddress, strictBGPPeerRegistry, RETRY_TIMER));
+                addFutureListener(localAddress, ((BGPDispatcherImpl) dispatcher).createClient(localAddress, remoteAddress, strictBGPPeerRegistry, RETRY_TIMER, true));
             }
         } else {
             for (final InetSocketAddress remoteAddress : arguments.getRemoteAddresses()) {
