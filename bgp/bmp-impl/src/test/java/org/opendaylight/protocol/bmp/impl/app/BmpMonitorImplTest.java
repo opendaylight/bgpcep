@@ -14,11 +14,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.readData;
+import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.waitFutureSuccess;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Stopwatch;
 import com.google.common.net.InetAddresses;
-import com.google.common.util.concurrent.Uninterruptibles;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -31,23 +31,16 @@ import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 import javassist.ClassPool;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
 import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.protocol.bgp.inet.RIBActivator;
 import org.opendaylight.protocol.bgp.parser.impl.BGPActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
@@ -104,7 +97,6 @@ import org.opendaylight.yangtools.binding.data.codec.impl.BindingNormalizedNodeC
 import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
 import org.opendaylight.yangtools.sal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.yangtools.sal.binding.generator.util.JavassistUtils;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
@@ -122,7 +114,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
     private static final KeyedInstanceIdentifier<Monitor, MonitorKey> MONITOR_IID = InstanceIdentifier.create(BmpMonitor.class).child(Monitor.class, new MonitorKey(MONITOR_ID));
     private static final PeerId PEER_ID = new PeerId(PEER1.getValue());
     private static final String MD5_PASSWORD = "abcdef";
-
+    private static final InstanceIdentifier<BmpMonitor> BMP_II = InstanceIdentifier.create(BmpMonitor.class);
     private BindingToNormalizedNodeCodec mappingService;
     private RIBActivator ribActivator;
     private BGPActivator bgpActivator;
@@ -169,7 +161,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
                 MONITOR_ID, new InetSocketAddress(InetAddresses.forString(MONITOR_LOCAL_ADDRESS), MONITOR_LOCAL_PORT), Optional.of(keys),
                 this.mappingService.getCodecFactory(), this.moduleInfoBackedContext.getSchemaContext(), null);
 
-        readData(InstanceIdentifier.create(BmpMonitor.class), monitor -> {
+        readData(getDataBroker(), BMP_II, monitor -> {
             Assert.assertEquals(1, monitor.getMonitor().size());
             final Monitor bmpMonitor = monitor.getMonitor().get(0);
             Assert.assertEquals(MONITOR_ID, bmpMonitor.getMonitorId());
@@ -189,7 +181,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
         this.bmpApp.close();
         this.mappingService.close();
 
-        readData(InstanceIdentifier.create(BmpMonitor.class), monitor -> {
+        readData(getDataBroker(), BMP_II, monitor -> {
             assertTrue(monitor.getMonitor().isEmpty());
             return monitor;
         });
@@ -199,13 +191,13 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
     public void testRouterMonitoring() throws Exception {
         // first test if a single router monitoring is working
         final Channel channel1 = testMonitoringStation(REMOTE_ROUTER_ADDRESS_1);
-        readData(MONITOR_IID, monitor -> {
+        readData(getDataBroker(), MONITOR_IID, monitor -> {
             assertEquals(1, monitor.getRouter().size());
             return monitor;
         });
 
         final Channel channel2 = testMonitoringStation(REMOTE_ROUTER_ADDRESS_2);
-        readData(MONITOR_IID, monitor -> {
+        readData(getDataBroker(), MONITOR_IID, monitor -> {
             assertEquals(2, monitor.getRouter().size());
             return monitor;
         });
@@ -224,13 +216,13 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
         waitFutureSuccess(channel1.close());
 
         // channel 2 is still open
-        readData(MONITOR_IID, monitor -> {
+        readData(getDataBroker(), MONITOR_IID, monitor -> {
             assertEquals(1, monitor.getRouter().size());
             return monitor;
         });
 
         final Channel channel4 = testMonitoringStation(REMOTE_ROUTER_ADDRESS_1);
-        readData(MONITOR_IID, monitor -> {
+        readData(getDataBroker(), MONITOR_IID, monitor -> {
             assertEquals(2, monitor.getRouter().size());
             return monitor;
         });
@@ -242,16 +234,10 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
         // sleep for a while to avoid intermittent InMemoryDataTree modification conflict
         waitFutureSuccess(channel4.close());
 
-        readData(MONITOR_IID, monitor -> {
+        readData(getDataBroker(), MONITOR_IID, monitor -> {
             assertEquals(0, monitor.getRouter().size());
             return monitor;
         });
-    }
-
-    private static <T extends Future> void waitFutureSuccess(final T future) throws InterruptedException {
-        final CountDownLatch latch = new CountDownLatch(1);
-        future.addListener(future1 -> latch.countDown());
-        Uninterruptibles.awaitUninterruptibly(latch, 10, TimeUnit.SECONDS);
     }
 
     private void waitWriteAndFlushSuccess(final ChannelFuture channelFuture) throws InterruptedException {
@@ -262,7 +248,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
         final Channel channel = connectTestClient(remoteRouterIpAddr, this.msgRegistry);
         final RouterId routerId = getRouterId(remoteRouterIpAddr);
         try {
-            readData(MONITOR_IID, monitor -> {
+            readData(getDataBroker(), MONITOR_IID, monitor -> {
                 assertFalse(monitor.getRouter().isEmpty());
                 // now find the current router instance
                 Router router = null;
@@ -280,7 +266,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
 
             waitWriteAndFlushSuccess(channel.writeAndFlush(TestUtil.createInitMsg("description", "name", "some info")));
 
-            readData(MONITOR_IID, monitor -> {
+            readData(getDataBroker(), MONITOR_IID, monitor -> {
                 assertFalse(monitor.getRouter().isEmpty());
                 Router retRouter = null;
                 for (final Router r : monitor.getRouter()) {
@@ -302,7 +288,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
             waitWriteAndFlushSuccess(channel.writeAndFlush(TestUtil.createPeerUpNotification(PEER1, true)));
             final KeyedInstanceIdentifier<Router, RouterKey> routerIId = MONITOR_IID.child(Router.class, new RouterKey(routerId));
 
-            readData(routerIId, router -> {
+            readData(getDataBroker(), routerIId, router -> {
                 final List<Peer> peers = router.getPeer();
                 assertEquals(1, peers.size());
                 final Peer peer = peers.get(0);
@@ -346,7 +332,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
             waitWriteAndFlushSuccess(channel.writeAndFlush(statsMsg));
             final KeyedInstanceIdentifier<Peer, PeerKey> peerIId = routerIId.child(Peer.class, new PeerKey(PEER_ID));
 
-            readData(peerIId.child(Stats.class), peerStats -> {
+            readData(getDataBroker(), peerIId.child(Stats.class), peerStats -> {
                 assertNotNull(peerStats.getTimestampSec());
                 final Tlvs tlvs = statsMsg.getTlvs();
                 assertEquals(tlvs.getAdjRibsInRoutesTlv().getCount(), peerStats.getAdjRibsInRoutes());
@@ -367,7 +353,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
             final RouteMirroringMessage routeMirrorMsg = TestUtil.createRouteMirrorMsg(PEER1);
             waitWriteAndFlushSuccess(channel.writeAndFlush(routeMirrorMsg));
 
-            readData(peerIId.child(Mirrors.class), routeMirrors -> {
+            readData(getDataBroker(), peerIId.child(Mirrors.class), routeMirrors -> {
                 assertNotNull(routeMirrors.getTimestampSec());
                 return routeMirrors;
             });
@@ -375,7 +361,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
             waitWriteAndFlushSuccess(channel.writeAndFlush(TestUtil.createRouteMonitMsg(false, PEER1, AdjRibInType.PrePolicy)));
             waitWriteAndFlushSuccess(channel.writeAndFlush(TestUtil.createRouteMonMsgWithEndOfRibMarker(PEER1, AdjRibInType.PrePolicy)));
 
-            readData(peerIId.child(PrePolicyRib.class), prePolicyRib -> {
+            readData(getDataBroker(), peerIId.child(PrePolicyRib.class), prePolicyRib -> {
                 assertTrue(!prePolicyRib.getTables().isEmpty());
                 final Tables tables = prePolicyRib.getTables().get(0);
                 assertTrue(tables.getAttributes().isUptodate());
@@ -386,7 +372,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
             waitWriteAndFlushSuccess(channel.writeAndFlush(TestUtil.createRouteMonitMsg(false, PEER1, AdjRibInType.PostPolicy)));
             waitWriteAndFlushSuccess(channel.writeAndFlush(TestUtil.createRouteMonMsgWithEndOfRibMarker(PEER1, AdjRibInType.PostPolicy)));
 
-            readData(peerIId.child(PostPolicyRib.class), postPolicyRib -> {
+            readData(getDataBroker(), peerIId.child(PostPolicyRib.class), postPolicyRib -> {
                 assertTrue(!postPolicyRib.getTables().isEmpty());
                 final Tables tables = postPolicyRib.getTables().get(0);
                 assertTrue(tables.getAttributes().isUptodate());
@@ -397,7 +383,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
 
             waitWriteAndFlushSuccess(channel.writeAndFlush(TestUtil.createPeerDownNotification(PEER1)));
 
-            readData(routerIId, router -> {
+            readData(getDataBroker(), routerIId, router -> {
                 final List<Peer> peersAfterDown = router.getPeer();
                 assertTrue(peersAfterDown.isEmpty());
                 return router;
@@ -419,7 +405,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
                 new MonitorId("monitor2"), new InetSocketAddress(InetAddresses.forString(MONITOR_LOCAL_ADDRESS_2), MONITOR_LOCAL_PORT), Optional.of(KeyMapping.getKeyMapping()),
                 this.mappingService.getCodecFactory(), this.moduleInfoBackedContext.getSchemaContext(), null);
 
-        readData(InstanceIdentifier.create(BmpMonitor.class), monitor -> {
+        readData(getDataBroker(), BMP_II, monitor -> {
             Assert.assertEquals(2, monitor.getMonitor().size());
             return monitor;
         });
@@ -452,27 +438,6 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
         final ChannelFuture future = b.connect(new InetSocketAddress(MONITOR_LOCAL_ADDRESS, MONITOR_LOCAL_PORT)).sync();
         waitFutureSuccess(future);
         return future.channel();
-    }
-
-    private <R, T extends DataObject> R readData(final InstanceIdentifier<T> iid, final Function<T, R> function)
-            throws ReadFailedException {
-        AssertionError lastError = null;
-        final Stopwatch sw = Stopwatch.createStarted();
-        while(sw.elapsed(TimeUnit.SECONDS) <= 10) {
-            try (final ReadOnlyTransaction tx = getDataBroker().newReadOnlyTransaction()) {
-                final Optional<T> data = tx.read(LogicalDatastoreType.OPERATIONAL, iid).checkedGet();
-                if(data.isPresent()) {
-                    try {
-                        return function.apply(data.get());
-                    } catch (final AssertionError e) {
-                        lastError = e;
-                        Uninterruptibles.sleepUninterruptibly(50, TimeUnit.MILLISECONDS);
-                    }
-                }
-            }
-        }
-
-        throw lastError;
     }
 
     private RouterId getRouterId(final String routerIp) {
