@@ -8,6 +8,8 @@
 package org.opendaylight.protocol.bgp.peer.acceptor;
 
 import com.google.common.base.Optional;
+import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.waitFutureSuccess;
+
 import com.google.common.collect.Sets;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;

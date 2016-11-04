@@ -178,9 +178,10 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
         moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(MpReachNlri.class));
         this.mappingService.onGlobalContextUpdated(moduleInfoBackedContext.tryToCreateSchemaContext().get());
         this.schemaContext = moduleInfoBackedContext.getSchemaContext();
-
-        this.worker = new NioEventLoopGroup();
-        this.boss = new NioEventLoopGroup();
+        if (!Epoll.isAvailable()) {
+            this.worker = new NioEventLoopGroup();
+            this.boss = new NioEventLoopGroup();
+        }
         this.dispatcher = new BGPDispatcherImpl(this.context.getMessageRegistry(), this.boss, this.worker);
         doReturn(Mockito.mock(ClusterSingletonServiceRegistration.class)).when(this.clusterSingletonServiceProvider)
             .registerClusterSingletonService(any(ClusterSingletonService.class));
@@ -189,8 +190,10 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
     @After
     public void tearDown() {
         this.dispatcher.close();
-        this.worker.shutdownGracefully().awaitUninterruptibly();
-        this.boss.shutdownGracefully().awaitUninterruptibly();
+        if (!Epoll.isAvailable()) {
+            this.worker.shutdownGracefully().awaitUninterruptibly();
+            this.boss.shutdownGracefully().awaitUninterruptibly();
+        }
         this.mappingService.close();
         this.ribActivator.close();
         this.inetActivator.close();

@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.waitFutureSuccess;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
@@ -16,13 +18,9 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.Epoll;
-import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
 import java.net.InetSocketAddress;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Assert;
@@ -68,10 +66,7 @@ public class AbstractBGPDispatcherTest {
 
     @Before
     public void setUp() throws BGPDocumentedException {
-        if (Epoll.isAvailable()) {
-            this.boss = new EpollEventLoopGroup();
-            this.worker = new EpollEventLoopGroup();
-        } else {
+        if (!Epoll.isAvailable()) {
             this.boss = new NioEventLoopGroup();
             this.worker = new NioEventLoopGroup();
         }
@@ -87,10 +82,11 @@ public class AbstractBGPDispatcherTest {
     public void tearDown() throws Exception {
         this.serverDispatcher.close();
         this.registry.close();
-        this.worker.shutdownGracefully().awaitUninterruptibly();
-        this.boss.shutdownGracefully().awaitUninterruptibly();
+        if (!Epoll.isAvailable()) {
+            this.worker.shutdownGracefully().awaitUninterruptibly();
+            this.boss.shutdownGracefully().awaitUninterruptibly();
+        }
     }
-
 
     private void configureClient(final BGPExtensionProviderContext ctx) {
         final InetSocketAddress clientAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
@@ -113,12 +109,6 @@ public class AbstractBGPDispatcherTest {
         return new BGPSessionPreferences(AS_NUMBER, HOLD_TIMER, bgpId, AS_NUMBER, tlvs, Optional.absent());
     }
 
-    protected static <T extends Future> void waitFutureSuccess(final T future) {
-        final CountDownLatch latch = new CountDownLatch(1);
-        future.addListener(future1 -> latch.countDown());
-        Uninterruptibles.awaitUninterruptibly(latch, 10, TimeUnit.SECONDS);
-    }
-
     public static void checkIdleState(final SimpleSessionListener listener) {
         Stopwatch sw = Stopwatch.createStarted();
         while (sw.elapsed(TimeUnit.SECONDS) <= 10) {
@@ -135,12 +125,7 @@ public class AbstractBGPDispatcherTest {
         this.registry.addPeer(new IpAddress(new Ipv4Address(serverAddress.getAddress().getHostAddress())), this.serverListener, createPreferences(serverAddress));
         LoggerFactory.getLogger(AbstractBGPDispatcherTest.class).info("createServer");
         final ChannelFuture future = this.serverDispatcher.createServer(this.registry, serverAddress);
-        future.addListener(new GenericFutureListener<Future<Void>>() {
-            @Override
-            public void operationComplete(final Future<Void> future) {
-                Preconditions.checkArgument(future.isSuccess(), "Unable to start bgp server on %s", future.cause());
-            }
-        });
+        future.addListener(future1 -> Preconditions.checkArgument(future1.isSuccess(), "Unable to start bgp server on %s", future1.cause()));
         waitFutureSuccess(future);
         return future.channel();
     }
