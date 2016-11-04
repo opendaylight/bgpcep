@@ -48,5 +48,11 @@ module bgp-rib-impl {
             reference "https://tools.ietf.org/html/rfc4456#section-7";
             type bgp-t:cluster-identifier;
         }
+
+        leaf read-only-limit {
+            description "Peers time limit for been on Read Only status";
+            type uint16;
+            default 120;
+        }
     }
 }
