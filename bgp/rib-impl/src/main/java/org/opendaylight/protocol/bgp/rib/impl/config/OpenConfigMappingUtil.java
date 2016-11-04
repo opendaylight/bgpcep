@@ -91,6 +91,7 @@ public final class OpenConfigMappingUtil {
     static final String APPLICATION_PEER_GROUP_NAME = "application-peers";
     private static final BigDecimal DEFAULT_KEEP_ALIVE = BigDecimal.valueOf(30);
     private static final BigDecimal DEFAULT_MINIMUM_ADV_INTERVAL = BigDecimal.valueOf(30);
+    private static final int DEFAULT_READ_ONLY_LIMIT = 3;
 
     private OpenConfigMappingUtil() {
         throw new UnsupportedOperationException();
@@ -191,6 +192,14 @@ public final class OpenConfigMappingUtil {
             return new ClusterIdentifier(globalConfigAugmentation.getRouteReflectorClusterId().getIpv4Address());
         }
         return new ClusterIdentifier(globalConfig.getRouterId());
+    }
+
+    public static int getReadOnlyLimit(final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.Config globalConfig) {
+        final GlobalConfigAugmentation globalConfigAugmentation = globalConfig.getAugmentation(GlobalConfigAugmentation.class);
+        if (globalConfigAugmentation != null && globalConfigAugmentation.getReadOnlyLimit() != null) {
+            return globalConfigAugmentation.getReadOnlyLimit();
+        }
+        return DEFAULT_READ_ONLY_LIMIT;
     }
 
     public static SimpleRoutingPolicy getSimpleRoutingPolicy(final Neighbor neighbor) {

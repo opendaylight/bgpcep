@@ -105,7 +105,7 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
     private static final Ipv4Address BGP_ID = new Ipv4Address("1.1.1.2");
     private static final String LOCAL_IP = "1.1.1.4";
     private static final int LOCAL_PORT = 12345;
-    private final BgpTableType ipv4tt = new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+    private static final BgpTableType BGP_TABLE_TYPE = new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
     private Open classicOpen;
     @Mock
     private EventLoop eventLoop;
@@ -138,7 +138,7 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         final List<OptionalCapabilities> capa = Lists.newArrayList();
         capa.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class,
             new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
-                .setAfi(this.ipv4tt.getAfi()).setSafi(this.ipv4tt.getSafi()).build())
+                .setAfi(BGP_TABLE_TYPE.getAfi()).setSafi(BGP_TABLE_TYPE.getSafi()).build())
                 .setGracefulRestartCapability(new GracefulRestartCapabilityBuilder().build()).build())
             .setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(AS_NUMBER).build()).build()).build());
         capa.add(new OptionalCapabilitiesBuilder().setCParameters(BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY).build());
@@ -190,10 +190,10 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
 
     @Test
     public void testHandleMessageAfterException() throws InterruptedException {
-        final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(new TablesKey(ipv4tt.getAfi(), ipv4tt.getSafi()),
+        final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(new TablesKey(BGP_TABLE_TYPE.getAfi(), BGP_TABLE_TYPE.getSafi()),
             BasePathSelectionModeFactory.createBestPathSelectionStrategy());
-        final RIBImpl ribImpl = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(RIB_ID), AS_NUMBER, new BgpId(RIB_ID), null, this.ribExtension,
-            this.dispatcher, this.mappingService.getCodecFactory(), this.domBroker, ImmutableList.of(ipv4tt), pathTables, this.ribExtension
+        final RIBImpl ribImpl = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(RIB_ID), AS_NUMBER, new BgpId(RIB_ID), null, READ_ONLY_LIMIT, this.ribExtension,
+            this.dispatcher, this.mappingService.getCodecFactory(), this.domBroker, ImmutableList.of(BGP_TABLE_TYPE), pathTables, this.ribExtension
             .getClassLoadingStrategy(), null);
         ribImpl.instantiateServiceInstance();
         ribImpl.onGlobalContextUpdated(this.schemaContext);
@@ -229,10 +229,10 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
 
     @Test
     public void testUseCase1() throws InterruptedException {
-        final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(new TablesKey(ipv4tt.getAfi(), ipv4tt.getSafi()),
+        final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(new TablesKey(BGP_TABLE_TYPE.getAfi(), BGP_TABLE_TYPE.getSafi()),
             BasePathSelectionModeFactory.createBestPathSelectionStrategy());
-        final RIBImpl ribImpl = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(RIB_ID), AS_NUMBER, new BgpId(RIB_ID), null, this.ribExtension,
-            this.dispatcher, this.mappingService.getCodecFactory(), this.domBroker, ImmutableList.of(ipv4tt), pathTables, this.ribExtension
+        final RIBImpl ribImpl = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(RIB_ID), AS_NUMBER, new BgpId(RIB_ID), null, READ_ONLY_LIMIT, this.ribExtension,
+            this.dispatcher, this.mappingService.getCodecFactory(), this.domBroker, ImmutableList.of(BGP_TABLE_TYPE), pathTables, this.ribExtension
             .getClassLoadingStrategy(), null);
         ribImpl.instantiateServiceInstance();
         ribImpl.onGlobalContextUpdated(this.schemaContext);

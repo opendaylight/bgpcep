@@ -18,6 +18,7 @@
                     <as>64496</as>
                     <!-- if cluster-id is not present, it's value is the same as bgp-id -->
                     <!-- <route-reflector-cluster-id>192.0.2.3</route-reflector-cluster-id> -->
+                    <!-- <read-only-limit>120</read-only-limit>-->
                 </config>
                 <afi-safis>
                     <afi-safi>

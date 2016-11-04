@@ -67,7 +67,6 @@ public class AbstractRouteEntryTest {
         .node(LocRib.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(TABLES_KEY)).getPathArguments());
     private static final long PATH_ID = 1;
     private static final PeerId PEER_ID2 = new PeerId("bgp://43.43.43.43");
-    private static final PeerId PEER_DISCONNECTED = new PeerId("bgp://44.44.44.44");
     private static final String PREFIX = "1.2.3.4/32";
     private static final String PREFIX2 = "2.2.2.2/32";
     private static final YangInstanceIdentifier PEER_YII = YangInstanceIdentifier.of(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet:test", "2015-03-05", "peer1"));
@@ -175,6 +174,7 @@ public class AbstractRouteEntryTest {
     }
 
     private void mockExportPolicies() {
+        Mockito.doReturn(false).when(this.peerPT).isOnlyReadMode(Mockito.any());
         Mockito.doReturn(true).when(this.peerPT).isTableSupported(PEER_ID);
         Mockito.doReturn(false).when(this.peerPT).isTableSupported(PEER_ID2);
         Mockito.doAnswer(new Answer<Object>() {

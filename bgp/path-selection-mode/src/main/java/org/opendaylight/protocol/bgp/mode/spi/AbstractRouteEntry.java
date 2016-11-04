@@ -43,6 +43,14 @@ public abstract class AbstractRouteEntry implements RouteEntry {
         }
     }
 
+
+    protected final void update(final PeerId destPeer, final YangInstanceIdentifier routeTarget, final ContainerNode effAttr,
+        final NormalizedNode<?, ?> value, final RIBSupport ribSup, final DOMDataWriteTransaction tx) {
+        if (!writeRoute(destPeer, routeTarget, effAttr, value, ribSup, tx)) {
+            deleteRoute(destPeer, routeTarget, tx);
+        }
+    }
+
     protected final boolean writeRoute(final PeerId destPeer, final YangInstanceIdentifier routeTarget, final ContainerNode effAttrib,
         final NormalizedNode<?, ?> value, final RIBSupport ribSup, final DOMDataWriteTransaction tx) {
         if (effAttrib != null && value != null) {
@@ -54,13 +62,22 @@ public abstract class AbstractRouteEntry implements RouteEntry {
         return false;
     }
 
-    protected final boolean filterRoutes(final PeerId rootPeer, final PeerId destPeer, final ExportPolicyPeerTracker peerPT,        final TablesKey localTK, final PeerRole destPeerRole) {
-        return !rootPeer.equals(destPeer) && isTableSupported(destPeer, peerPT, localTK) && !PeerRole.Internal.equals(destPeerRole);
+    private void deleteRoute(final PeerId destPeer, final YangInstanceIdentifier routeTarget, final DOMDataWriteTransaction tx) {
+        LOG.trace("Removing {} from transaction for peer {}", routeTarget, destPeer);
+        tx.delete(LogicalDatastoreType.OPERATIONAL, routeTarget);
     }
 
-    private boolean isTableSupported(final PeerId destPeer, final ExportPolicyPeerTracker peerPT, final TablesKey localTK) {
+    protected final boolean filterRoutes(final PeerId rootPeer, final PeerId destPeer, final ExportPolicyPeerTracker peerPT, final TablesKey localTK, final PeerRole destPeerRole) {
+        return !rootPeer.equals(destPeer) && isTableSupportedAndNotInROStatus(destPeer, peerPT, localTK) && !PeerRole.Internal.equals(destPeerRole);
+    }
+
+    private boolean isTableSupportedAndNotInROStatus(final PeerId destPeer, final ExportPolicyPeerTracker peerPT, final TablesKey localTK) {
         if (!peerPT.isTableSupported(destPeer)) {
             LOG.trace("Route rejected, peer {} does not support this table type {}", destPeer, localTK);
+            return false;
+        }
+        if (peerPT.isOnlyReadMode(destPeer)) {
+            LOG.trace("Route skipped, peer is on Read Only Mode {}", destPeer, localTK);
             return false;
         }
         return true;

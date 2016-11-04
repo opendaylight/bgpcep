@@ -39,6 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
@@ -56,9 +57,7 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(AdjRibOutListener.class);
 
-    static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, "prefix").intern();
-    private final YangInstanceIdentifier.NodeIdentifier routeKeyLeaf = new YangInstanceIdentifier.NodeIdentifier(PREFIX_QNAME);
-
+    private static final NodeIdentifier routeKeyLeaf = new NodeIdentifier(QName.create(Ipv4Route.QNAME, "prefix").intern());
     private final ChannelOutputLimiter session;
     private final Codecs codecs;
     private final RIBSupport support;
@@ -73,15 +72,15 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener {
         this.support = Preconditions.checkNotNull(support);
         this.codecs = registry.getCodecs(this.support);
         this.mpSupport = mpSupport;
-        final YangInstanceIdentifier adjRibOutId =  ribId.node(Peer.QNAME).node(IdentifierUtils.domPeerId(peerId)).node(AdjRibOut.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(tablesKey));
+        final YangInstanceIdentifier adjRibOutId =  ribId.node(Peer.QNAME).node(IdentifierUtils.domPeerId(peerId)).node(AdjRibOut.QNAME)
+            .node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(tablesKey));
         this.registerDataTreeChangeListener = service.registerDataTreeChangeListener(new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, adjRibOutId), this);
-        this.routeCounter = routeCounter;
+        this.routeCounter = Preconditions.checkNotNull(routeCounter);
     }
 
     static AdjRibOutListener create(@Nonnull final PeerId peerId, @Nonnull final TablesKey tablesKey, @Nonnull final YangInstanceIdentifier ribId,
         @Nonnull final CodecsRegistry registry, @Nonnull final RIBSupport support, @Nonnull final DOMDataTreeChangeService service,
-        @Nonnull final ChannelOutputLimiter session, @Nonnull final boolean mpSupport, @Nonnull final UnsignedInt32Counter routeCounter
-    ) {
+        @Nonnull final ChannelOutputLimiter session, @Nonnull final boolean mpSupport, @Nonnull final UnsignedInt32Counter routeCounter) {
         return new AdjRibOutListener(peerId, tablesKey, ribId, registry, support, service, session, mpSupport, routeCounter);
     }
 
