@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
@@ -118,6 +119,17 @@ final class ExportPolicyPeerTrackerImpl implements ExportPolicyPeerTracker {
     public synchronized boolean isAddPathSupportedByPeer(final PeerId peerId) {
         final SendReceive sendReceive = this.peerAddPathTables.get(peerId);
         return sendReceive != null && (sendReceive.equals(SendReceive.Both) || sendReceive.equals(SendReceive.Receive));
+    }
+
+    @Override
+    public boolean isOnlyReadMode(@Nonnull final PeerId peerId) {
+        //TODO
+        return false;
+    }
+
+    @Override
+    public synchronized void removeReadModeOnly(final PeerId peerId) {
+        //TODO
     }
 
 }

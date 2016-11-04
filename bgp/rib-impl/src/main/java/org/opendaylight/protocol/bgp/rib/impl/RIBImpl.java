@@ -366,4 +366,10 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
     public ServiceGroupIdentifier getRibIServiceGroupIdentifier() {
         return getIdentifier();
     }
+
+    @Override
+    public int getReadOnlyLimit() {
+        //TODO
+        return 0;
+    }
 }
