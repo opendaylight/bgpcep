@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.waitFutureSuccess;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
@@ -17,10 +19,8 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Assert;
@@ -105,12 +105,6 @@ public class AbstractBGPDispatcherTest {
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
         final BgpId bgpId = new BgpId(new Ipv4Address(socketAddress.getAddress().getHostAddress()));
         return new BGPSessionPreferences(AS_NUMBER, HOLD_TIMER, bgpId, AS_NUMBER, tlvs, Optional.absent());
-    }
-
-    protected static <T extends Future> void waitFutureSuccess(final T future) {
-        final CountDownLatch latch = new CountDownLatch(1);
-        future.addListener(future1 -> latch.countDown());
-        Uninterruptibles.awaitUninterruptibly(latch, 10, TimeUnit.SECONDS);
     }
 
     public static void checkIdleState(final SimpleSessionListener listener) {

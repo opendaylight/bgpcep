@@ -9,7 +9,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
-import static org.opendaylight.protocol.bgp.rib.impl.AbstractBGPDispatcherTest.waitFutureSuccess;
+import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.waitFutureSuccess;
 import static org.opendaylight.protocol.bgp.rib.spi.RouterIds.createPeerId;
 
 import com.google.common.base.Optional;
