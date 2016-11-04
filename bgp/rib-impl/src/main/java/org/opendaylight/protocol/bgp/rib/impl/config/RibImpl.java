@@ -214,6 +214,12 @@ public final class RibImpl implements RIB, AutoCloseable {
     }
 
     @Override
+    public int getReadOnlyLimit() {
+        //TODO
+        return 0;
+    }
+
+    @Override
     public String toString() {
         return this.ribImpl != null ? this.ribImpl.toString() : null;
     }

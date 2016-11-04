@@ -78,6 +78,11 @@ public final class SimpleSessionListener implements BGPSessionListener {
         }
     }
 
+    @Override
+    public void endOfReadOnly() {
+
+    }
+
     public BGPSessionImpl.State getState() {
         return getSession().getState();
     }

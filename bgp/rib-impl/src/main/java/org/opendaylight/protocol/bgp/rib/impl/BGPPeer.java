@@ -414,6 +414,11 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         dropConnection();
     }
 
+    @Override
+    public void endOfReadOnly() {
+        //TODO
+    }
+
     private void closeRegistration() {
         for (final AbstractRegistration tableCloseable : this.tableRegistration) {
             tableCloseable.close();
