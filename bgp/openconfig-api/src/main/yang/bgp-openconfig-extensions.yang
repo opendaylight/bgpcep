@@ -108,6 +108,11 @@ module bgp-openconfig-extensions {
                       "Route-reflector cluster id to use when local router is
                       configured as a route reflector.";
                   }
+                leaf read-only-limit {
+                    description "Read Only status time limit";
+                    type uint16;
+                    default 1;
+                }
             }
             augment bgp/neighbors/neighbor/config {
                 ext:augment-identifier neighbor-config-augmentation;
