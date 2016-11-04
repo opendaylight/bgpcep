@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.waitFutureSuccess;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
