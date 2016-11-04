@@ -366,4 +366,10 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
     public ServiceGroupIdentifier getRibIServiceGroupIdentifier() {
         return getIdentifier();
     }
+
+    @Override
+    public int getReadOnlyLimit() {
+        //TODO
+        return 0;
+    }
 }

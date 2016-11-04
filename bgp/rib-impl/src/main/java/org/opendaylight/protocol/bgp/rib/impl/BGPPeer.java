@@ -443,6 +443,11 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
         resetState();
     }
 
+    @Override
+    public void endOfReadOnly() {
+        //TODO
+    }
+
     private void closeRegistration() {
         for (final AbstractRegistration tableCloseable : this.tableRegistration) {
             tableCloseable.close();

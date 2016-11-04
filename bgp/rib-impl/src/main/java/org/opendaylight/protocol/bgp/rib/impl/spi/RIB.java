@@ -102,4 +102,10 @@ public interface RIB  extends RibReference, ClusterSingletonServiceProvider {
      * @return ServiceGroupIdentifier
      */
     ServiceGroupIdentifier getRibIServiceGroupIdentifier();
+
+    /**
+     * Returns Read Only time limit in seconds
+     * @return
+     */
+    int getReadOnlyLimit();
 }

@@ -55,4 +55,9 @@ public interface BGPSessionListener extends EventListener {
     void onMessage(BGPSession session, Notification notification) throws BGPDocumentedException;
 
     void releaseConnection();
+
+    /**
+     * End of Read Only status, triggered when first KA received
+     */
+    void endOfReadOnly();
 }

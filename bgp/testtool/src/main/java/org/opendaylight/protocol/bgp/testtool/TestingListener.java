@@ -76,6 +76,11 @@ final class TestingListener implements BGPSessionListener {
         LOG.info("Client Listener: Connection released.");
     }
 
+    @Override
+    public void endOfReadOnly() {
+
+    }
+
     void printCount(final String localAddress) {
         LOG.info("Peer {} received {} update messages.", localAddress, this.messageCounter.longValue());
     }
