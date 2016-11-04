@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_9e778102",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-11-04T15:00:36Z",
+      "side": 1,
+      "message": "Robert, why waiting for 2 KA to mark end of Sync?\n\nThere is a note under BGPSynchronization\n/**\n * BGP speaker (without Graceful restart capability) sends KeepAlive message after sending all initial Update messages\n * with certain AFI/SAFI. For each AFI/SAFI, it sends one KA message. As it is undetermined which KA message belongs to\n * which AFI/SAFI, an algorithm needed to be implemented.\n */",
+      "range": {
+        "startLine": 261,
+        "startChar": 16,
+        "endLine": 261,
+        "endChar": 42
+      },
+      "revId": "df56a73b4f54b0c4b352bb41697a9018abe016b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_7e7425fd",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-11-04T15:00:36Z",
+      "side": 1,
+      "message": "this might not go here, up to answer of previous question. Waiting for 2 Ka can take a lot of time, we can start sync after 1 KA and update EOS flag on the 2 KA",
+      "range": {
+        "startLine": 263,
+        "startChar": 1,
+        "endLine": 266,
+        "endChar": 17
+      },
+      "revId": "df56a73b4f54b0c4b352bb41697a9018abe016b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
