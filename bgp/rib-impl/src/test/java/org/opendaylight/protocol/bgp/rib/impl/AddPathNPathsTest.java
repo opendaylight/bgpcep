@@ -12,12 +12,10 @@ import static org.junit.Assert.assertEquals;
 import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.checkReceivedMessages;
 import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.waitFutureSuccess;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import java.net.InetSocketAddress;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import org.junit.After;
@@ -25,15 +23,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.add.n.paths.AddPathBestNPathSelection;
-import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 
 public class AddPathNPathsTest extends AbstractAddPathTest {
     private RIBImpl ribImpl;
@@ -42,11 +36,11 @@ public class AddPathNPathsTest extends AbstractAddPathTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        final TablesKey tk = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
-        final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(tk, new AddPathBestNPathSelection(2L));
+        final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(TABLES_KEY,
+            new AddPathBestNPathSelection(2L));
 
         this.ribImpl = new RIBImpl(this.clusterSingletonServiceProvider, new RibId("test-rib"),
-            AS_NUMBER, new BgpId(RIB_ID), null, this.ribExtension, this.dispatcher,
+            AS_NUMBER, new BgpId(RIB_ID), null, READ_ONLY_LIMIT, this.ribExtension, this.dispatcher,
             this.mappingService.getCodecFactory(), getDomBroker(), TABLES_TYPE, pathTables,
             this.ribExtension.getClassLoadingStrategy(), null);
 
@@ -56,6 +50,7 @@ public class AddPathNPathsTest extends AbstractAddPathTest {
             new InetSocketAddress(RIB_ID, PORT));
         waitFutureSuccess(channelFuture);
         this.serverChannel = channelFuture.channel();
+        checkPeersPresentOnDataStore(0);
     }
 
     @After
@@ -95,6 +90,10 @@ public class AddPathNPathsTest extends AbstractAddPathTest {
         configurePeer(PEER5, this.ribImpl, addPathParams, PeerRole.RrClient);
         final BGPSessionImpl session5 = createPeerSession(PEER5, addPathParams, listener5);
         checkPeersPresentOnDataStore(5);
+        markEndOfReadOnly(session4);
+        checkRibOut(PEER4, 0);
+        markEndOfReadOnly(session5);
+        checkRibOut(PEER5, 0);
 
         //new best route so far
         sendRouteAndCheckIsOnLocRib(session1, PREFIX1, 100, 1);
@@ -106,6 +105,8 @@ public class AddPathNPathsTest extends AbstractAddPathTest {
         configurePeer(PEER6, this.ribImpl, nonAddPathParams, PeerRole.RrClient);
         final BGPSessionImpl session6 = createPeerSession(PEER6, nonAddPathParams, listener6);
         checkPeersPresentOnDataStore(6);
+        markEndOfReadOnly(session6);
+        checkRibOut(PEER6, 1);
         checkReceivedMessages(listener6, 1);
         assertEquals(UPD_NA_100, listener6.getListMsg().get(0));
         session6.close();
@@ -119,6 +120,7 @@ public class AddPathNPathsTest extends AbstractAddPathTest {
 
         //new best route
         sendRouteAndCheckIsOnLocRib(session3, PREFIX1, 200, 2);
+        checkRibOut(PEER5, 3);
         checkReceivedMessages(listener4, 2);
         checkReceivedMessages(listener5, 3);
         assertEquals(UPD_200, listener5.getListMsg().get(2));
@@ -130,6 +132,7 @@ public class AddPathNPathsTest extends AbstractAddPathTest {
 
         //withdraw second best route, 2 advertisement (1 withdrawal) for add-path supported, none for non add path
         sendWithdrawalRouteAndCheckIsOnLocRib(session1, PREFIX1, 100, 2);
+        sendRouteAndCheckIsOnLocRib(session2, PREFIX1, 20, 2);
         checkReceivedMessages(listener4, 2);
         checkReceivedMessages(listener5, 5);
 

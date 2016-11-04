@@ -77,8 +77,8 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
     private List<AfiSafi> afiSafi;
     private AsNumber asNumber;
     private Ipv4Address routerId;
-
     private ClusterIdentifier clusterId;
+    private int readOnlyLimit;
 
     public RibImpl(final ClusterSingletonServiceProvider provider, final RIBExtensionConsumerContext contextProvider,
         final BGPDispatcher dispatcher, final BindingCodecTreeFactory codecTreeFactory, final DOMDataBroker domBroker,
@@ -104,10 +104,12 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
         final AsNumber globalAs = globalConfig.getAs();
         final Ipv4Address globalRouterId = global.getConfig().getRouterId();
         final ClusterIdentifier globalClusterId = getClusterIdentifier(globalConfig);
+        final int globalReadOnlyLimit = OpenConfigMappingUtil.getReadOnlyLimit(globalConfig);
         return this.afiSafi.containsAll(globalAfiSafi) && globalAfiSafi.containsAll(this.afiSafi)
             && globalAs.equals(this.asNumber)
             && globalRouterId.getValue().equals(this.routerId.getValue())
-            && globalClusterId.getValue().equals(this.clusterId.getValue());
+            && globalClusterId.getValue().equals(this.clusterId.getValue())
+            && globalReadOnlyLimit == this.readOnlyLimit;
     }
 
     @Override
@@ -220,8 +222,7 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
 
     @Override
     public int getReadOnlyLimit() {
-        //TODO
-        return 0;
+        return this.readOnlyLimit;
     }
 
     @Override
@@ -236,11 +237,15 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
         this.asNumber = globalConfig.getAs();
         this.routerId = globalConfig.getRouterId();
         this.clusterId = getClusterIdentifier(globalConfig);
-        final Map<TablesKey, PathSelectionMode> pathSelectionModes = OpenConfigMappingUtil.toPathSelectionMode(this.afiSafi, tableTypeRegistry).entrySet()
-                .stream().collect(Collectors.toMap(entry -> new TablesKey(entry.getKey().getAfi(), entry.getKey().getSafi()), Map.Entry::getValue));
-        return new RIBImpl(this.provider, new RibId(bgpInstanceName), this.asNumber, new BgpId(this.routerId), this.clusterId,
-                this.extensions, this.dispatcher, this.codecTreeFactory, this.domBroker, toTableTypes(this.afiSafi, tableTypeRegistry), pathSelectionModes,
-                this.extensions.getClassLoadingStrategy(), configurationWriter);
+        this.readOnlyLimit = OpenConfigMappingUtil.getReadOnlyLimit(globalConfig);
+        final Map<TablesKey, PathSelectionMode> pathSelectionModes = OpenConfigMappingUtil
+            .toPathSelectionMode(this.afiSafi, tableTypeRegistry).entrySet().stream()
+            .collect(Collectors.toMap(entry ->
+                new TablesKey(entry.getKey().getAfi(), entry.getKey().getSafi()), Map.Entry::getValue));
+        return new RIBImpl(this.provider, new RibId(bgpInstanceName), this.asNumber, new BgpId(this.routerId),
+            this.clusterId,this.readOnlyLimit, this.extensions, this.dispatcher, this.codecTreeFactory, this.domBroker,
+            toTableTypes(this.afiSafi, tableTypeRegistry), pathSelectionModes,
+            this.extensions.getClassLoadingStrategy(), configurationWriter);
     }
 
     @Override

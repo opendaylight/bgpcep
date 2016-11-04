@@ -15,6 +15,9 @@ import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.net.InetAddresses;
+import io.netty.util.HashedWheelTimer;
+import io.netty.util.Timeout;
+import io.netty.util.Timer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -23,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
@@ -106,9 +110,11 @@ import org.slf4j.LoggerFactory;
 public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Peer, AutoCloseable,
     BGPPeerRuntimeMXBean, TransactionChainListener {
     private static final Logger LOG = LoggerFactory.getLogger(BGPPeer.class);
-
+    private final Integer readOnlyLimit;
     @GuardedBy("this")
     private final Set<TablesKey> tables = new HashSet<>();
+    @GuardedBy("this")
+    private final Map<TablesKey, Timeout> readOnlyTimeouts = new HashMap<>();
     @GuardedBy("this")
     private BGPSession session;
     @GuardedBy("this")
@@ -132,6 +138,8 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
     private final BGPPeerStats peerStats;
     private YangInstanceIdentifier peerIId;
     private final Set<AbstractRegistration> tableRegistration = new HashSet<>();
+    private Map<TablesKey, SendReceive> addPathTableMaps;
+    private final Timer timer = new HashedWheelTimer();
 
     public BGPPeer(final String name, final RIB rib, final PeerRole role, final SimpleRoutingPolicy peerStatus,
         final RpcProviderRegistry rpcRegistry,
@@ -146,6 +154,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
         this.name = name;
         this.rpcRegistry = rpcRegistry;
         this.peerStats = new BGPPeerStatsImpl(this.name, this.tables, this);
+        this.readOnlyLimit = rib.getReadOnlyLimit();
         this.chain = rib.createPeerChain(this);
     }
 
@@ -320,7 +329,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
         setAdvertizedGracefulRestartTableTypes(advertizedGracefulRestartTableTypes.stream()
             .map(t -> new TablesKey(t.getAfi(), t.getSafi())).collect(Collectors.toList()));
         final boolean announceNone = isAnnounceNone(this.simpleRoutingPolicy);
-        final Map<TablesKey, SendReceive> addPathTableMaps = mapTableTypesFamilies(addPathTablesType);
+        this.addPathTableMaps = mapTableTypesFamilies(addPathTablesType);
         this.peerIId = this.rib.getYangRibId().node(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer.QNAME)
             .node(IdentifierUtils.domPeerId(peerId));
 
@@ -330,8 +339,8 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
         this.tables.forEach(tablesKey -> {
             final ExportPolicyPeerTracker exportTracker = this.rib.getExportPolicyPeerTracker(tablesKey);
             if (exportTracker != null) {
-                this.tableRegistration.add(exportTracker.registerPeer(peerId, addPathTableMaps.get(tablesKey), this.peerIId, this.peerRole,
-                    this.simpleRoutingPolicy));
+                this.tableRegistration.add(exportTracker.registerPeer(peerId, this.addPathTableMaps.get(tablesKey),
+                    this.peerIId, this.peerRole, this.simpleRoutingPolicy));
             }
         });
         addBgp4Support(peerId, announceNone);
@@ -342,7 +351,8 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
                 this.peerStats.getAdjRibInRouteCounters(), this.tables);
             registerPrefixesCounters(this.effRibInWriter, this.effRibInWriter);
         }
-        this.ribWriter = this.ribWriter.transform(peerId, this.rib.getRibSupportContext(), this.tables, addPathTableMaps);
+        this.ribWriter = this.ribWriter.transform(peerId, this.rib.getRibSupportContext(), this.tables,
+            this.addPathTableMaps);
 
         // register BGP Peer stats
         this.peerStats.getSessionEstablishedCounter().increment();
@@ -358,6 +368,9 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
         }
 
         this.rib.getRenderStats().getConnectedPeerCounter().increment();
+        this.tables.forEach(
+            key->this.readOnlyTimeouts.put(key, this.timer.newTimeout(timeout -> bgpReadOnlyEvent(key), this.readOnlyLimit, TimeUnit.SECONDS)));
+
     }
 
     private void createAdjRibOutListener(final PeerId peerId) {
@@ -386,7 +399,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
         }
     }
 
-    private void cleanup() {
+    private synchronized void cleanup() {
         // FIXME: BUG-196: support graceful
         this.adjRibOutListenerSet.values().forEach(AdjRibOutListener::close);
         this.adjRibOutListenerSet.clear();
@@ -434,6 +447,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
     @Override
     @GuardedBy("this")
     public synchronized void releaseConnection() {
+        this.readOnlyTimeouts.entrySet().forEach(entry->entry.getValue().cancel());
         if (this.rpcRegistration != null) {
             this.rpcRegistration.close();
         }
@@ -445,7 +459,8 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
 
     @Override
     public void endOfReadOnly() {
-        //TODO
+        LOG.info("End of Read Only status", this.name);
+        this.tables.forEach(this::bgpReadOnlyEvent);
     }
 
     private void closeRegistration() {
@@ -519,6 +534,42 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
     @Override
     public void markUptodate(final TablesKey tablesKey) {
         this.ribWriter.markTableUptodate(tablesKey);
+    }
+
+    /**
+     * Once BGP Read only event is triggered, Effective Rib In will be created,
+     * listener will receive an event with all routes on Adj Rib In
+     * in one batch, making possible to do the Best path selection on Loc Rib only once.
+     *
+     * @param tablesKey supported table
+     */
+    private synchronized void bgpReadOnlyEvent(final TablesKey tablesKey) {
+        LOG.info("Read Only status finished for table {}", tablesKey);
+        final Timeout timeout = this.readOnlyTimeouts.remove(tablesKey);
+        if (timeout == null) {
+            return;
+        }
+        timeout.cancel();
+        final PeerId peerId = RouterIds.createPeerId(this.session.getBgpId());
+        final ExportPolicyPeerTracker exportTracker = this.rib.getExportPolicyPeerTracker(tablesKey);
+        if (exportTracker != null) {
+            this.tableRegistration.add(exportTracker.registerPeer(peerId, this.addPathTableMaps.get(tablesKey), this.peerIId, this.peerRole,
+                this.simpleRoutingPolicy));
+        }
+
+        final boolean announceNone = isAnnounceNone(this.simpleRoutingPolicy);
+
+        if (!announceNone) {
+            this.tables.forEach(key->createAdjRibOutListener(peerId, key, true));
+        }
+
+        addBgp4Support(peerId, announceNone);
+
+        if (!isLearnNone(this.simpleRoutingPolicy)) {
+            this.effRibInWriter = EffectiveRibInWriter.create(this.rib.getService(),
+                this.rib.createPeerChain(this), this.peerIId, this.rib.getImportPolicyPeerTracker(),
+                this.rib.getRibSupportContext(), this.peerRole, this.peerStats.getAdjRibInRouteCounters(), this.tables);
+        }
     }
 
     private static Map<TablesKey, SendReceive> mapTableTypesFamilies(final List<AddressFamilies> addPathTablesType) {

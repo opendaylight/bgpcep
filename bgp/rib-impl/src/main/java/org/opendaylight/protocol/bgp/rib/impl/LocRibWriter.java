@@ -10,8 +10,10 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedInteger;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.LongAdder;
@@ -78,6 +80,7 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
     private final PathSelectionMode pathSelectionMode;
     private final LongAdder totalPathsCounter = new LongAdder();
     private final LongAdder totalPrefixesCounter = new LongAdder();
+    private final List<YangInstanceIdentifier> newPeers = new ArrayList<>();
 
     private LocRibWriter(final RIBSupportContextRegistry registry, final DOMTransactionChain chain,
         final YangInstanceIdentifier target, final Long ourAs, final DOMDataTreeChangeService service,
@@ -144,10 +147,26 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
             if (!toUpdate.isEmpty()) {
                 walkThrough(tx, toUpdate.entrySet());
             }
+            initializeNewPeersWithRemoteRoutes(tx);
         } catch (final Exception e) {
             LOG.error("Failed to completely propagate updates {}, state is undefined", changes, e);
         } finally {
             tx.submit();
+        }
+    }
+
+    private void initializeNewPeersWithRemoteRoutes(final DOMDataWriteTransaction tx) {
+        if(!this.newPeers.isEmpty()) {
+            this.newPeers.forEach(rootPath -> {
+                final PeerId peerId = IdentifierUtils.peerKeyToPeerId(rootPath);
+                this.exportPolicyPeerTracker.removeReadModeOnly(peerId);
+                LOG.debug("Peer {} table has been created, inserting existent routes", peerId);
+                final PeerRole newPeerRole = this.exportPolicyPeerTracker.getRole(IdentifierUtils.peerPath(rootPath));
+                final PeerExportGroup peerGroup = this.exportPolicyPeerTracker.getPeerGroup(newPeerRole);
+                this.routeEntries.entrySet().forEach(entry -> entry.getValue().writeRoute(peerId, entry.getKey(),
+                    rootPath.getParent().getParent().getParent(), peerGroup, this.localTablesKey, this.exportPolicyPeerTracker, this.ribSupport, tx));
+            });
+            this.newPeers.clear();
         }
     }
 
@@ -157,20 +176,15 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
             final DataTreeCandidateNode table = tc.getRootNode();
             final YangInstanceIdentifier rootPath = tc.getRootPath();
             final PeerId peerId = IdentifierUtils.peerKeyToPeerId(rootPath);
-            initializeTableWithExistentRoutes(table, peerId, rootPath, tx);
+            lookForNewPeers(table, peerId, rootPath);
             updateNodes(table, peerId, tx, ret);
         });
         return ret;
     }
 
-    private void initializeTableWithExistentRoutes(final DataTreeCandidateNode table, final PeerId peerIdOfNewPeer, final YangInstanceIdentifier rootPath,
-        final DOMDataWriteTransaction tx) {
+    private void lookForNewPeers(final DataTreeCandidateNode table, final PeerId peerIdOfNewPeer, final YangInstanceIdentifier rootPath) {
         if (!table.getDataBefore().isPresent() && this.exportPolicyPeerTracker.isTableSupported(peerIdOfNewPeer)) {
-            LOG.debug("Peer {} table has been created, inserting existent routes", peerIdOfNewPeer);
-            final PeerRole newPeerRole = this.exportPolicyPeerTracker.getRole(IdentifierUtils.peerPath(rootPath));
-            final PeerExportGroup peerGroup = this.exportPolicyPeerTracker.getPeerGroup(newPeerRole);
-            this.routeEntries.entrySet().forEach(entry -> entry.getValue().writeRoute(peerIdOfNewPeer, entry.getKey(),
-                rootPath.getParent().getParent().getParent(), peerGroup, this.localTablesKey, this.exportPolicyPeerTracker, this.ribSupport, tx));
+            this.newPeers.add(rootPath);
         }
     }
 
@@ -178,21 +192,31 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
         final Map<RouteUpdateKey, RouteEntry> routes) {
         for (final DataTreeCandidateNode child : table.getChildNodes()) {
             LOG.debug("Modification type {}", child.getModificationType());
-            if ((Attributes.QNAME).equals(child.getIdentifier().getNodeType())) {
-                if (child.getDataAfter().isPresent()) {
-                    // putting uptodate attribute in
-                    LOG.trace("Uptodate found for {}", child.getDataAfter());
-                    tx.put(LogicalDatastoreType.OPERATIONAL, this.locRibTarget.node(child.getIdentifier()), child.getDataAfter().get());
-                }
+            if(upToDateUpdate(child, tx)) {
                 continue;
             }
             updateRoutesEntries(child, peerId, routes);
         }
     }
 
+    private boolean upToDateUpdate(final DataTreeCandidateNode child, final DOMDataWriteTransaction tx) {
+        if ((Attributes.QNAME).equals(child.getIdentifier().getNodeType())) {
+            if (child.getDataAfter().isPresent()) {
+                // putting uptodate attribute in
+                LOG.trace("Uptodate found for {}", child.getDataAfter());
+                tx.put(LogicalDatastoreType.OPERATIONAL, this.locRibTarget.node(child.getIdentifier()), child.getDataAfter().get());
+            }
+            return true;
+        }
+        return false;
+    }
+
     private void updateRoutesEntries(final DataTreeCandidateNode child, final PeerId peerId, final Map<RouteUpdateKey, RouteEntry> routes) {
-        final UnsignedInteger routerId = RouterIds.routerIdForPeerId(peerId);
+        if (!(Routes.QNAME).equals(child.getIdentifier().getNodeType())) {
+            return;
+        }
         final Collection<DataTreeCandidateNode> modifiedRoutes = this.ribSupport.changedRoutes(child);
+        final UnsignedInteger routerId = RouterIds.routerIdForPeerId(peerId);
         for (final DataTreeCandidateNode route : modifiedRoutes) {
             final PathArgument routeId = this.ribSupport.createRouteKeyPathArgument(route.getIdentifier());
             RouteEntry entry = this.routeEntries.get(routeId);

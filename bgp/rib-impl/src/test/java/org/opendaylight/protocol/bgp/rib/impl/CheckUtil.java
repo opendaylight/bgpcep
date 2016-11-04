@@ -23,7 +23,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public final class CheckUtil {
-    private static final int TIMEOUT = 40;
+    private static final int TIMEOUT = 60;
     private static final int LATCH_TIMEOUT = 10;
     private static final int SLEEP_FOR = 20;
     private static final int SLEEP_UNINTERRUPTIBLY = 50;

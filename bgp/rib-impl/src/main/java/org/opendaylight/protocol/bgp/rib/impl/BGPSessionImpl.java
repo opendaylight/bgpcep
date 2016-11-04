@@ -255,6 +255,9 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
                 this.kaCounter++;
                 if (this.kaCounter >= 2) {
                     this.sync.kaReceived();
+                } else if (this.kaCounter == 1) {
+                    //FIXME
+                    this.listener.endOfReadOnly();
                 }
             } else if (msg instanceof RouteRefresh) {
                 this.listener.onMessage(this, msg);

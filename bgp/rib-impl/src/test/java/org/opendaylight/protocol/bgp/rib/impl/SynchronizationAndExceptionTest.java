@@ -106,9 +106,8 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
     private static final AsNumber AS_NUMBER = new AsNumber(30L);
     private static final Ipv4Address BGP_ID = new Ipv4Address("1.1.1.2");
     private static final String LOCAL_IP = "1.1.1.4";
-    private final IpAddress neighbor = new IpAddress(new Ipv4Address(LOCAL_IP));
     private static final int LOCAL_PORT = 12345;
-    private final BgpTableType ipv4tt = new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+    private static final BgpTableType BGP_TABLE_TYPE = new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
     private Open classicOpen;
     @Mock
     private EventLoop eventLoop;
@@ -141,7 +140,7 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         final List<OptionalCapabilities> capa = Lists.newArrayList();
         capa.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class,
             new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
-                .setAfi(this.ipv4tt.getAfi()).setSafi(this.ipv4tt.getSafi()).build())
+                .setAfi(BGP_TABLE_TYPE.getAfi()).setSafi(BGP_TABLE_TYPE.getSafi()).build())
                 .setGracefulRestartCapability(new GracefulRestartCapabilityBuilder().build()).build())
             .setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(AS_NUMBER).build()).build()).build());
         capa.add(new OptionalCapabilitiesBuilder().setCParameters(BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY).build());
@@ -150,15 +149,12 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         doReturn(null).when(mock(ChannelFuture.class)).addListener(any());
         doReturn(this.eventLoop).when(this.speakerListener).eventLoop();
         doReturn(true).when(this.speakerListener).isActive();
-        doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(final InvocationOnMock invocation) throws Throwable {
-                final Runnable command = (Runnable) invocation.getArguments()[0];
-                final long delay = (long) invocation.getArguments()[1];
-                final TimeUnit unit = (TimeUnit) invocation.getArguments()[2];
-                GlobalEventExecutor.INSTANCE.schedule(command, delay, unit);
-                return null;
-            }
+        doAnswer(invocation -> {
+            final Runnable command = (Runnable) invocation.getArguments()[0];
+            final long delay = (long) invocation.getArguments()[1];
+            final TimeUnit unit = (TimeUnit) invocation.getArguments()[2];
+            GlobalEventExecutor.INSTANCE.schedule(command, delay, unit);
+            return null;
         }).when(this.eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
         doReturn("TestingChannel").when(this.speakerListener).toString();
         doReturn(true).when(this.speakerListener).isWritable();
@@ -187,13 +183,10 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
             any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         Mockito.doNothing().when(this.tx).delete(Mockito.any(LogicalDatastoreType.class), Mockito.any(YangInstanceIdentifier.class));
         final CheckedFuture future = mock(CheckedFuture.class);
-        Mockito.doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(final InvocationOnMock invocation) throws Throwable {
-                final Runnable callback = (Runnable) invocation.getArguments()[0];
-                callback.run();
-                return null;
-            }
+        Mockito.doAnswer(invocation -> {
+            final Runnable callback = (Runnable) invocation.getArguments()[0];
+            callback.run();
+            return null;
         }).when(future).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
         Mockito.doReturn(future).when(this.tx).submit();
         Mockito.doReturn(mock(Optional.class)).when(future).checkedGet();
@@ -204,9 +197,9 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(TABLES_KEY,
             BasePathSelectionModeFactory.createBestPathSelectionStrategy());
         final RIBImpl ribImpl = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(RIB_ID), AS_NUMBER,
-            new BgpId(RIB_ID), null, this.ribExtension, this.dispatcher, this.mappingService.getCodecFactory(),
-            this.domBroker, ImmutableList.of(this.ipv4tt), pathTables, this.ribExtension.getClassLoadingStrategy(),
-            null);
+            new BgpId(RIB_ID), null, READ_ONLY_LIMIT, this.ribExtension, this.dispatcher,
+            this.mappingService.getCodecFactory(), this.domBroker, ImmutableList.of(BGP_TABLE_TYPE), pathTables,
+            this.ribExtension.getClassLoadingStrategy(), null);
         ribImpl.instantiateServiceInstance();
         ribImpl.onGlobalContextUpdated(this.schemaContext);
 
@@ -245,9 +238,9 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(TABLES_KEY,
             BasePathSelectionModeFactory.createBestPathSelectionStrategy());
         final RIBImpl ribImpl = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(RIB_ID), AS_NUMBER,
-            new BgpId(RIB_ID), null, this.ribExtension, this.dispatcher, this.mappingService.getCodecFactory(),
-            this.domBroker, ImmutableList.of(this.ipv4tt), pathTables, this.ribExtension.getClassLoadingStrategy(),
-            null);
+            new BgpId(RIB_ID), null, READ_ONLY_LIMIT, this.ribExtension, this.dispatcher,
+            this.mappingService.getCodecFactory(), this.domBroker, TABLES_TYPE, pathTables, this.ribExtension
+            .getClassLoadingStrategy(), null);
         ribImpl.instantiateServiceInstance();
         ribImpl.onGlobalContextUpdated(this.schemaContext);
 

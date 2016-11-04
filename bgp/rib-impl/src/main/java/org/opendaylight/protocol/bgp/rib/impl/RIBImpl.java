@@ -104,6 +104,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
     private final ServiceGroupIdentifier serviceGroupIdentifier;
     private final ClusterSingletonServiceProvider provider;
     private final BgpDeployer.WriteConfiguration configurationWriter;
+    private final int readOnlyLimit;
     private ClusterSingletonServiceRegistration registration;
     private final DOMDataBrokerExtension service;
     private final List<LocRibWriter> locRibs = new ArrayList<>();
@@ -116,7 +117,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
     private DOMTransactionChain domChain;
 
     public RIBImpl(final ClusterSingletonServiceProvider provider, final RibId ribId, final AsNumber localAs, final BgpId localBgpId,
-        final ClusterIdentifier clusterId, final RIBExtensionConsumerContext extensions, final BGPDispatcher dispatcher,
+        final ClusterIdentifier clusterId, final int readOnlyLimit, final RIBExtensionConsumerContext extensions, final BGPDispatcher dispatcher,
         final BindingCodecTreeFactory codecFactory, final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
         @Nonnull final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies, final GeneratedClassLoadingStrategy classStrategy,
         final BgpDeployer.WriteConfiguration configurationWriter) {
@@ -124,6 +125,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
             localBgpId, localAs);
         this.localAs = Preconditions.checkNotNull(localAs);
         this.bgpIdentifier = Preconditions.checkNotNull(localBgpId);
+        this.readOnlyLimit = readOnlyLimit;
         this.dispatcher = Preconditions.checkNotNull(dispatcher);
         this.localTables = ImmutableSet.copyOf(localTables);
         this.localTablesKeys = new HashSet<>();
@@ -346,7 +348,6 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
         final DOMDataWriteTransaction t = this.domChain.newWriteOnlyTransaction();
         t.delete(LogicalDatastoreType.OPERATIONAL, getYangRibId());
         final CheckedFuture<Void, TransactionCommitFailedException> cleanFuture = t.submit();
-
         this.domChain.close();
         return cleanFuture;
     }
@@ -369,7 +370,6 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
 
     @Override
     public int getReadOnlyLimit() {
-        //TODO
-        return 0;
+        return this.readOnlyLimit;
     }
 }

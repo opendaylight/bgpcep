@@ -8,9 +8,11 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.readData;
 import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.waitFutureSuccess;
+import static org.opendaylight.protocol.bgp.rib.spi.RouterIds.createPeerId;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
@@ -21,8 +23,10 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import javassist.ClassPool;
@@ -30,10 +34,10 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
 import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
@@ -62,6 +66,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.NotifyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.OpenBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.UpdateBuilder;
@@ -93,7 +98,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
@@ -115,6 +122,7 @@ import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 
 class AbstractAddPathTest extends AbstractDataBrokerTest {
     private static final int RETRY_TIMER = 10;
+    protected static final Map<IpAddress, BGPSessionImpl> PEER_SESSIONS = new HashMap<>();
     static final String RIB_ID = "127.0.0.1";
     static final BgpId BGP_ID = new BgpId(RIB_ID);
     static final Ipv4Address PEER1 = new Ipv4Address("127.0.0.2");
@@ -126,8 +134,9 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
     static final AsNumber AS_NUMBER = new AsNumber(72L);
     static final int PORT = InetSocketAddressUtil.getRandomPort();
     static final Ipv4Prefix PREFIX1 = new Ipv4Prefix("1.1.1.1/32");
+    static final int READ_ONLY_LIMIT = 120;
     private static final ClusterIdentifier CLUSTER_ID = new ClusterIdentifier(RIB_ID);
-    static final int HOLDTIMER = 2180;
+    protected static final int HOLDTIMER = 2180;
     private static final Ipv4Address NH1 = new Ipv4Address("2.2.2.2");
     static final Update UPD_100 = createSimpleUpdate(PREFIX1, new PathId(1L), CLUSTER_ID, 100);
     static final Update UPD_50 = createSimpleUpdate(PREFIX1, new PathId(2L), CLUSTER_ID, 50);
@@ -149,6 +158,8 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
     BindingToNormalizedNodeCodec mappingService;
     BGPDispatcherImpl dispatcher;
     RIBExtensionProviderContext ribExtension;
+    @Mock
+    private ClusterSingletonServiceRegistration clusterSingletonServiceRegistration;
     private RIBActivator ribActivator;
     private BGPActivator bgpActivator;
     private NioEventLoopGroup worker;
@@ -160,7 +171,6 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
         MockitoAnnotations.initMocks(this);
         this.ribActivator = new RIBActivator();
         this.ribExtension = new SimpleRIBExtensionProviderContext();
-
         this.ribActivator.startRIBExtensionProvider(this.ribExtension);
 
         this.bgpActivator = new BGPActivator();
@@ -188,7 +198,8 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
             this.boss = new NioEventLoopGroup();
         }
         this.dispatcher = new BGPDispatcherImpl(this.context.getMessageRegistry(), this.boss, this.worker);
-        doReturn(Mockito.mock(ClusterSingletonServiceRegistration.class)).when(this.clusterSingletonServiceProvider)
+        doNothing().when(this.clusterSingletonServiceRegistration).close();
+        doReturn(this.clusterSingletonServiceRegistration).when(this.clusterSingletonServiceProvider)
             .registerClusterSingletonService(any(ClusterSingletonService.class));
     }
 
@@ -205,9 +216,20 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
         this.bgpActivator.close();
     }
 
+    void checkRibOut(final Ipv4Address ipv4Address, final int nAddPathRoutesExpected) throws Exception {
+        final PeerId peerId = createPeerId(ipv4Address);
+        readData(getDataBroker(), BGP_IID, bgpRib -> {
+            //check peer's rib-out
+            bgpRib.getRib().get(0).getPeer().stream().filter(peer -> peer.getPeerId().equals(peerId))
+                .forEach(peer -> Assert.assertEquals(nAddPathRoutesExpected, getPeerRibOutSize(peer)));
+            return bgpRib;
+        });
+    }
+
     void sendRouteAndCheckIsOnLocRib(final BGPSessionImpl session, final Ipv4Prefix prefix, final long localPreference,
         final int expectedRoutesOnDS) throws Exception {
         waitFutureSuccess(session.writeAndFlush(createSimpleUpdate(prefix, null, null, localPreference)));
+        markEndOfReadOnly(session);
         checkLocRib(expectedRoutesOnDS);
     }
 
@@ -282,6 +304,7 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
         Thread.sleep(200);
         waitFutureSuccess(future);
         final BGPSessionImpl client = future.getNow();
+        PEER_SESSIONS.put(new IpAddress(localAddress), client);
         return client;
     }
 
@@ -359,5 +382,29 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
         attBuilder.setUnrecognizedAttributes(Collections.emptyList());
         return new UpdateBuilder().setWithdrawnRoutes(new WithdrawnRoutesBuilder()
             .setWithdrawnRoutes(Collections.singletonList(prefix)).build()).build();
+    }
+
+
+    protected static void markEndOfReadOnly(final BGPSessionImpl session) {
+        waitFutureSuccess(session.writeAndFlush(new KeepaliveBuilder().build()));
+    }
+
+    protected static void closePeerSession(final IpAddress peer, final BGPSessionImpl session) {
+        session.close();
+        StrictBGPPeerRegistry.GLOBAL.removePeer(peer);
+    }
+
+    protected static void closePeerSessions(final Set<Map.Entry<IpAddress, BGPSessionImpl>> sessions) {
+        for (final Map.Entry<IpAddress, BGPSessionImpl> entry : sessions) {
+            closePeerSession(entry.getKey(), entry.getValue());
+        }
+    }
+
+    protected void checkRibRemoved() throws ExecutionException, InterruptedException, ReadFailedException {
+        readData(getDataBroker(), BGP_IID, bgpRib -> {
+            final List<Rib> ribs = bgpRib.getRib();
+            Assert.assertTrue(ribs.isEmpty());
+            return bgpRib;
+        });
     }
 }

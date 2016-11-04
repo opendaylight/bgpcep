@@ -108,6 +108,7 @@ class AbstractConfig {
         }).when(this.rib).registerClusterSingletonService(any(ClusterSingletonService.class));
         Mockito.doReturn(new LongAdder()).when(this.render).getConfiguredPeerCounter();
         Mockito.doReturn(this.render).when(this.rib).getRenderStats();
+        Mockito.doReturn(3).when(this.rib).getReadOnlyLimit();
         Mockito.doReturn(InstanceIdentifier.create(BgpRib.class).child(org.opendaylight.yang.gen.v1.urn.opendaylight
             .params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib.class, new RibKey(RIB_ID))).when(this.rib)
             .getInstanceIdentifier();

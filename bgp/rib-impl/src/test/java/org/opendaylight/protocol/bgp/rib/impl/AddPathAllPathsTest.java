@@ -47,12 +47,12 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 
 public class AddPathAllPathsTest extends AbstractAddPathTest {
     private RIBImpl ribImpl;
@@ -63,23 +63,26 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         void check();
     }
 
+    @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
         final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(TABLES_KEY, new AllPathSelection());
 
         this.ribImpl = new RIBImpl(this.clusterSingletonServiceProvider, new RibId("test-rib"),
-            AS_NUMBER, BGP_ID, null, this.ribExtension, this.dispatcher, this.mappingService.getCodecFactory(),
+            AS_NUMBER, BGP_ID, null, READ_ONLY_LIMIT, this.ribExtension, this.dispatcher, this.mappingService.getCodecFactory(),
             getDomBroker(), TABLES_TYPE, pathTables, this.ribExtension.getClassLoadingStrategy(), null);
 
         this.ribImpl.instantiateServiceInstance();
         this.ribImpl.onGlobalContextUpdated(this.schemaContext);
         final ChannelFuture channelFuture = this.dispatcher.createServer(StrictBGPPeerRegistry.GLOBAL,
             new InetSocketAddress(RIB_ID, PORT));
+        checkPeersPresentOnDataStore(0);
         waitFutureSuccess(channelFuture);
         this.serverChannel = channelFuture.channel();
     }
 
+    @Override
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
         waitFutureSuccess(this.serverChannel.close());
@@ -208,6 +211,7 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         final BGPPeer peer6 = configurePeer(PEER6, this.ribImpl, nonAddPathParams, PeerRole.RrClient);
         final BGPSessionImpl session6 = createPeerSession(PEER6, nonAddPathParams, listener6);
         checkPeersPresentOnDataStore(6);
+        markEndOfReadOnly(session6);
         checkReceivedMessages(listener6, 1);
         assertEquals(UPD_NA_100, listener6.getListMsg().get(0));
         causeBGPError(session6);

@@ -39,6 +39,7 @@ public class AddPathBasePathsTest extends AbstractAddPathTest {
     private RIBImpl ribImpl;
     private Channel serverChannel;
 
+    @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -47,17 +48,19 @@ public class AddPathBasePathsTest extends AbstractAddPathTest {
             BasePathSelectionModeFactory.createBestPathSelectionStrategy());
 
         this.ribImpl = new RIBImpl(this.clusterSingletonServiceProvider, new RibId("test-rib"),
-            AS_NUMBER, new BgpId(RIB_ID), null, this.ribExtension, this.dispatcher,
+            AS_NUMBER, new BgpId(RIB_ID), null, READ_ONLY_LIMIT, this.ribExtension, this.dispatcher,
             this.mappingService.getCodecFactory(), getDomBroker(), TABLES_TYPE, pathTables,
             this.ribExtension.getClassLoadingStrategy(), null);
         this.ribImpl.instantiateServiceInstance();
         this.ribImpl.onGlobalContextUpdated(this.schemaContext);
         final ChannelFuture channelFuture = this.dispatcher.createServer(StrictBGPPeerRegistry.GLOBAL,
             new InetSocketAddress(RIB_ID, PORT));
+        checkPeersPresentOnDataStore(0);
         waitFutureSuccess(channelFuture);
         this.serverChannel = channelFuture.channel();
     }
 
+    @Override
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
         waitFutureSuccess(this.serverChannel.close());
@@ -94,6 +97,10 @@ public class AddPathBasePathsTest extends AbstractAddPathTest {
         configurePeer(PEER5, this.ribImpl, nonAddPathParams, PeerRole.Ebgp);
         final BGPSessionImpl session5 = createPeerSession(PEER5, nonAddPathParams, listener5);
         checkPeersPresentOnDataStore(5);
+        markEndOfReadOnly(session4);
+        checkRibOut(PEER4, 0);
+        markEndOfReadOnly(session5);
+        checkRibOut(PEER5, 0);
 
         //new best route so far
         sendRouteAndCheckIsOnLocRib(session1, PREFIX1, 100, 1);
@@ -117,8 +124,8 @@ public class AddPathBasePathsTest extends AbstractAddPathTest {
         final SimpleSessionListener listener6 = new SimpleSessionListener();
         configurePeer(PEER6, this.ribImpl, nonAddPathParams, PeerRole.RrClient);
         final BGPSessionImpl session6 = createPeerSession(PEER6, nonAddPathParams, listener6);
-
         checkPeersPresentOnDataStore(6);
+        markEndOfReadOnly(session6);
         checkReceivedMessages(listener6, 1);
         assertEquals(UPD_NA_200, listener6.getListMsg().get(0));
         session6.close();
