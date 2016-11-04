@@ -67,13 +67,17 @@ public abstract class AbstractRouteEntry implements RouteEntry {
         tx.delete(LogicalDatastoreType.OPERATIONAL, routeTarget);
     }
 
-    protected final boolean filterRoutes(final PeerId rootPeer, final PeerId destPeer, final ExportPolicyPeerTracker peerPT,        final TablesKey localTK, final PeerRole destPeerRole) {
-        return !rootPeer.equals(destPeer) && isTableSupported(destPeer, peerPT, localTK) && !PeerRole.Internal.equals(destPeerRole);
+    protected final boolean filterRoutes(final PeerId rootPeer, final PeerId destPeer, final ExportPolicyPeerTracker peerPT, final TablesKey localTK, final PeerRole destPeerRole) {
+        return !rootPeer.equals(destPeer) && isTableSupportedAndNotInROStatus(destPeer, peerPT, localTK) && !PeerRole.Internal.equals(destPeerRole);
     }
 
-    private boolean isTableSupported(final PeerId destPeer, final ExportPolicyPeerTracker peerPT, final TablesKey localTK) {
+    private boolean isTableSupportedAndNotInROStatus(final PeerId destPeer, final ExportPolicyPeerTracker peerPT, final TablesKey localTK) {
         if (!peerPT.isTableSupported(destPeer)) {
             LOG.trace("Route rejected, peer {} does not support this table type {}", destPeer, localTK);
+            return false;
+        }
+        if (peerPT.isOnlyReadMode(destPeer)) {
+            LOG.trace("Route skipped, peer is on Read Only Mode {}", destPeer, localTK);
             return false;
         }
         return true;

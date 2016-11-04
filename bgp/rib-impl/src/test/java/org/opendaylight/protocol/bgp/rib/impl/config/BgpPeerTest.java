@@ -59,12 +59,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 public class BgpPeerTest extends AbstractConfig {
     static final short SHORT = 0;
     static final IpAddress NEIGHBOR_ADDRESS = new IpAddress(new Ipv4Address("127.0.0.1"));
-    static final BigDecimal DEFAULT_TIMERS = BigDecimal.valueOf(30);
     static final String MD5_PASSWORD = "123";
     static final PortNumber PORT = new PortNumber(179);
     static final AfiSafi AFI_SAFI_IPV4 = new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
-    .addAugmentation(AfiSafi1.class, new AfiSafi1Builder().setReceive(true).setSendMax(SHORT).build()).build();
+        .addAugmentation(AfiSafi1.class, new AfiSafi1Builder().setReceive(true).setSendMax(SHORT).build()).build();
     static final List<AfiSafi> AFI_SAFI = Collections.singletonList(AFI_SAFI_IPV4);
+    private static final BigDecimal DEFAULT_TIMERS = BigDecimal.valueOf(30);
     private BgpPeer bgpPeer;
 
     @Override

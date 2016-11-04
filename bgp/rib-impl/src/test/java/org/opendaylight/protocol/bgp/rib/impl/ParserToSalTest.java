@@ -11,6 +11,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.opendaylight.protocol.bgp.rib.impl.AbstractAddPathTest.READ_ONLY_LIMIT;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
@@ -144,7 +145,7 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
         final List<BgpTableType> tables = ImmutableList.of(
                 new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class));
         final RIBImpl rib = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(TEST_RIB_ID), new AsNumber(72L), new BgpId("127.0.0.1"),
-            null, this.ext2, this.dispatcher, this.codecFactory, getDomBroker(), tables, Collections.singletonMap(TABLE_KEY,
+            null, READ_ONLY_LIMIT, this.ext2, this.dispatcher, this.codecFactory, getDomBroker(), tables, Collections.singletonMap(TABLE_KEY,
             BasePathSelectionModeFactory.createBestPathSelectionStrategy()), GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), null);
         rib.instantiateServiceInstance();
         assertTablesExists(tables, true);
@@ -159,7 +160,7 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
     public void testWithoutLinkstate() throws InterruptedException, ExecutionException {
         final List<BgpTableType> tables = ImmutableList.of(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
         final RIBImpl rib = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(TEST_RIB_ID), new AsNumber(72L), new BgpId("127.0.0.1"), null,
-            this.ext1, this.dispatcher, this.codecFactory, getDomBroker(), tables, Collections.singletonMap(TABLE_KEY,
+            READ_ONLY_LIMIT, this.ext1, this.dispatcher, this.codecFactory, getDomBroker(), tables, Collections.singletonMap(TABLE_KEY,
             BasePathSelectionModeFactory.createBestPathSelectionStrategy()), GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), null);
         rib.instantiateServiceInstance();
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
