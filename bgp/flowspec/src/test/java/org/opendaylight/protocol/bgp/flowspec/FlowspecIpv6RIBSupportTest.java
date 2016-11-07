@@ -68,15 +68,15 @@ public class FlowspecIpv6RIBSupportTest extends AbstractRIBSupportTest {
         .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecIpv6CaseBuilder().setDestinationFlowspec(DEST_FLOW).build();
     private static final FlowspecIpv6Routes ROUTES;
     static {
-        final SimpleFlowspecExtensionProviderContext fs_context = new SimpleFlowspecExtensionProviderContext();
-        final FlowspecActivator activator = new FlowspecActivator(fs_context);
+        final SimpleFlowspecExtensionProviderContext fsContext = new SimpleFlowspecExtensionProviderContext();
+        final FlowspecActivator activator = new FlowspecActivator(fsContext);
         final BGPActivator act = new BGPActivator(activator);
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         act.start(context);
-        RIB_SUPPORT = FlowspecIpv6RIBSupport.getInstance(fs_context);
+        RIB_SUPPORT = FlowspecIpv6RIBSupport.getInstance(fsContext);
 
         final SimpleFlowspecIpv6NlriParser parser = new SimpleFlowspecIpv6NlriParser(
-            fs_context.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
+            fsContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
 
         ROUTE_KEY = new FlowspecRouteKey(PATH_ID, parser.stringNlri(FLOW_LIST));
         ROUTE = new FlowspecRouteBuilder().setKey(ROUTE_KEY).setPathId(PATH_ID).setFlowspec(FLOW_LIST)

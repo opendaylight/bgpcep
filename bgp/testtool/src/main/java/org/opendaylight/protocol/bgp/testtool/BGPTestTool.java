@@ -85,8 +85,8 @@ final class BGPTestTool {
         final org.opendaylight.protocol.bgp.evpn.impl.BGPActivator evpnActivator = new org.opendaylight.protocol.bgp.evpn.impl.BGPActivator();
         evpnActivator.start(ctx);
 
-        final SimpleFlowspecExtensionProviderContext fs_context = new SimpleFlowspecExtensionProviderContext();
-        final FlowspecActivator flowspecActivator = new FlowspecActivator(fs_context);
+        final SimpleFlowspecExtensionProviderContext fsContext = new SimpleFlowspecExtensionProviderContext();
+        final FlowspecActivator flowspecActivator = new FlowspecActivator(fsContext);
         final org.opendaylight.protocol.bgp.flowspec.BGPActivator flowspecBGPActivator = new org.opendaylight.protocol.bgp.flowspec.BGPActivator(flowspecActivator);
         flowspecBGPActivator.start(ctx);
 
