@@ -43,6 +43,14 @@ public abstract class AbstractRouteEntry implements RouteEntry {
         }
     }
 
+
+    protected final void update(final PeerId destPeer, final YangInstanceIdentifier routeTarget, final ContainerNode effAttr,
+        final NormalizedNode<?, ?> value, final RIBSupport ribSup, final DOMDataWriteTransaction tx) {
+        if (!writeRoute(destPeer, routeTarget, effAttr, value, ribSup, tx)) {
+            deleteRoute(destPeer, routeTarget, tx);
+        }
+    }
+
     protected final boolean writeRoute(final PeerId destPeer, final YangInstanceIdentifier routeTarget, final ContainerNode effAttrib,
         final NormalizedNode<?, ?> value, final RIBSupport ribSup, final DOMDataWriteTransaction tx) {
         if (effAttrib != null && value != null) {
@@ -52,6 +60,11 @@ public abstract class AbstractRouteEntry implements RouteEntry {
             return true;
         }
         return false;
+    }
+
+    private void deleteRoute(final PeerId destPeer, final YangInstanceIdentifier routeTarget, final DOMDataWriteTransaction tx) {
+        LOG.trace("Removing {} from transaction for peer {}", routeTarget, destPeer);
+        tx.delete(LogicalDatastoreType.OPERATIONAL, routeTarget);
     }
 
     protected final boolean filterRoutes(final PeerId rootPeer, final PeerId destPeer, final ExportPolicyPeerTracker peerPT,        final TablesKey localTK, final PeerRole destPeerRole) {
