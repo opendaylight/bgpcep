@@ -167,8 +167,8 @@
         <feature version='${project.version}'>odl-bgpcep-bgp-inet</feature>
         <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-benchmark-app/{{VERSION}}</bundle>
-        <configfile finalname="etc/opendaylight/karaf/bgp-app-peer-benchmark.xml">mvn:org.opendaylight.bgpcep/bgp-benchmark-app/{{VERSION}}/xml/app-peer-benchmark-config</configfile>
     </feature>
+
     <feature name='odl-bgpcep-bgp-cli' version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-bgp-rib-impl</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-cli/{{VERSION}}</bundle>
