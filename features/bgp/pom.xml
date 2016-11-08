@@ -249,12 +249,6 @@
       </dependency>
       <dependency>
           <groupId>${project.groupId}</groupId>
-          <artifactId>bgp-benchmark-app</artifactId>
-          <type>xml</type>
-          <classifier>app-peer-benchmark-config</classifier>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
           <artifactId>data-change-counter-controller-config</artifactId>
           <type>xml</type>
           <classifier>config</classifier>

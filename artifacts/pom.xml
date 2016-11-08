@@ -224,13 +224,6 @@
                 <artifactId>bgp-benchmark-app</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-benchmark-app</artifactId>
-                <version>${project.version}</version>
-                <type>xml</type>
-                <classifier>app-peer-benchmark-config</classifier>
-            </dependency>
 
             <dependency>
                 <groupId>${project.groupId}</groupId>
