@@ -1,0 +1,1 @@
+restconf/config/network-topology:network-topology/topology/topology-netconf/node/$DEVICE_NAME/yang-ext:mount/config:modules/module/odl-bgp-rib-impl-cfg:bgp-peer/$NAME

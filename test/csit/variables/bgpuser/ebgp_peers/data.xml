@@ -1,31 +1,30 @@
-<module xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
-    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-peer</type>
-    <name>$NAME</name>
-    <host xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">$IP</host>
-    <port xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">$PEER_PORT</port>
-    <peer-role xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">$PEER_ROLE</peer-role>
-    <remote-as xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">$AS_NUMBER</remote-as>
-    <holdtimer xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">$HOLDTIME</holdtimer>
-    <initiate-connection xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">$INITIATE</initiate-connection>
-    <rib xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">
-        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:rib-instance</type>
-        <name>example-bgp-rib</name>
-    </rib>
-    <peer-registry xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">
-        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-peer-registry</type>
-        <name>global-bgp-peer-registry</name>
-    </peer-registry>
-    <advertized-table xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">
-        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
-        <name>ipv4-unicast</name>
-    </advertized-table>
-    <advertized-table xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">
-        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
-        <name>ipv6-unicast</name>
-    </advertized-table>
-    <advertized-table xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">
-        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
-        <name>linkstate</name>
-    </advertized-table>
-</module>
-
+<neighbor xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
+    <neighbor-address>$IP</neighbor-address>
+    <timers>
+        <config>
+            <hold-time>$HOLDTIME</hold-time>
+            <connect-retry>5</connect-retry>
+        </config>
+    </timers>
+    <transport>
+        <config>
+            <remote-port>$PEER_PORT</remote-port>
+            <passive-mode>$PASSIVE_MODE</passive-mode>
+        </config>
+    </transport>
+    <config>
+        <peer-type>EXTERNAL</peer-type>
+        <peer-as>$AS_NUMBER</peer-as>
+    </config>
+    <afi-safis>
+        <afi-safi>
+            <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV4-UNICAST</afi-safi-name>
+        </afi-safi>
+        <afi-safi>
+            <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV6-UNICAST</afi-safi-name>
+        </afi-safi>
+        <afi-safi>
+            <afi-safi-name>LINKSTATE</afi-safi-name>
+        </afi-safi>
+    </afi-safis>
+</neighbor>
