@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.checkReceivedMessages;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -56,76 +57,71 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         this.dispatcher.createServer(StrictBGPPeerRegistry.GLOBAL, new InetSocketAddress(RIB_ID, PORT)).sync();
         Thread.sleep(1000);
 
-
-        final BGPHandlerFactory hf = new BGPHandlerFactory(this.context.getMessageRegistry());
         final BgpParameters nonAddPathParams = createParameter(false);
         final BgpParameters addPathParams = createParameter(true);
 
-        final BGPSessionImpl session1 = createPeerSession(PEER1, PeerRole.Ibgp, nonAddPathParams, ribImpl, hf, new SimpleSessionListener());
-        final BGPSessionImpl session2 = createPeerSession(PEER2, PeerRole.Ibgp, nonAddPathParams, ribImpl, hf, new SimpleSessionListener());
-        final BGPSessionImpl session3 = createPeerSession(PEER3, PeerRole.Ibgp, nonAddPathParams, ribImpl, hf, new SimpleSessionListener());
+        final BGPSessionImpl session1 = createPeerSession(PEER1, PeerRole.Ibgp, nonAddPathParams, ribImpl, new SimpleSessionListener());
+        final BGPSessionImpl session2 = createPeerSession(PEER2, PeerRole.Ibgp, nonAddPathParams, ribImpl, new SimpleSessionListener());
+        final BGPSessionImpl session3 = createPeerSession(PEER3, PeerRole.Ibgp, nonAddPathParams, ribImpl, new SimpleSessionListener());
         final SimpleSessionListener listener4 = new SimpleSessionListener();
-        final BGPSessionImpl session4 = createPeerSession(PEER4, PeerRole.RrClient, nonAddPathParams, ribImpl, hf, listener4);
+        final BGPSessionImpl session4 = createPeerSession(PEER4, PeerRole.RrClient, nonAddPathParams, ribImpl, listener4);
         final SimpleSessionListener listener5 = new SimpleSessionListener();
-        final BGPSessionImpl session5 = createPeerSession(PEER5, PeerRole.RrClient, addPathParams, ribImpl, hf, listener5);
-        Thread.sleep(1000);
+        final BGPSessionImpl session5 = createPeerSession(PEER5, PeerRole.RrClient, addPathParams, ribImpl, listener5);
         checkPeersPresentOnDataStore(5);
 
         //the best route
         sendRouteAndCheckIsOnLocRib(session1, PREFIX1, 100, 1);
-        assertEquals(1, listener4.getListMsg().size());
-        assertEquals(1, listener5.getListMsg().size());
+        checkReceivedMessages(listener4, 1);
+        checkReceivedMessages(listener5, 1);
         assertEquals(UPD_100, listener5.getListMsg().get(0));
 
         final SimpleSessionListener listener6 = new SimpleSessionListener();
-        final BGPSessionImpl session6 = createPeerSession(PEER6, PeerRole.RrClient, nonAddPathParams, ribImpl, hf, listener6);
-        Thread.sleep(1000);
+        final BGPSessionImpl session6 = createPeerSession(PEER6, PeerRole.RrClient, nonAddPathParams, ribImpl, listener6);
         checkPeersPresentOnDataStore(6);
-        assertEquals(1, listener6.getListMsg().size());
+        checkReceivedMessages(listener6, 1);
         assertEquals(UPD_NA_100, listener6.getListMsg().get(0));
         session6.close();
         Thread.sleep(1000);
 
         //the second best route
         sendRouteAndCheckIsOnLocRib(session2, PREFIX1, 50, 2);
-        assertEquals(1, listener4.getListMsg().size());
-        assertEquals(2, listener5.getListMsg().size());
+        checkReceivedMessages(listener4, 1);
+        checkReceivedMessages(listener5, 2);
         assertEquals(UPD_50, listener5.getListMsg().get(1));
 
         //new best route
         sendRouteAndCheckIsOnLocRib(session3, PREFIX1, 200, 3);
-        assertEquals(2, listener4.getListMsg().size());
-        assertEquals(3, listener5.getListMsg().size());
+        checkReceivedMessages(listener4, 2);
+        checkReceivedMessages(listener5, 3);
         assertEquals(UPD_200, listener5.getListMsg().get(2));
 
         //the worst route
         sendRouteAndCheckIsOnLocRib(session1, PREFIX1, 20, 3);
-        assertEquals(2, listener4.getListMsg().size());
-        assertEquals(4, listener5.getListMsg().size());
+        checkReceivedMessages(listener4, 2);
+        checkReceivedMessages(listener5, 4);
         assertEquals(UPD_200.getAttributes().getLocalPref(), ((Update) listener4.getListMsg().get(1)).getAttributes().getLocalPref());
         assertEquals(UPD_20, listener5.getListMsg().get(3));
 
         //withdraw second best route, 1 advertisement(1 withdrawal) for add-path supported, none for non add path
         sendWithdrawalRouteAndCheckIsOnLocRib(session1, PREFIX1, 100, 2);
-        assertEquals(2, listener4.getListMsg().size());
-        assertEquals(5, listener5.getListMsg().size());
+        checkReceivedMessages(listener4, 2);
+        checkReceivedMessages(listener5, 5);
 
         //we advertise again to try new test
         sendRouteAndCheckIsOnLocRib(session1, PREFIX1, 100, 3);
-        assertEquals(2, listener4.getListMsg().size());
-        assertEquals(6, listener5.getListMsg().size());
+        checkReceivedMessages(listener4, 2);
+        checkReceivedMessages(listener5, 6);
         assertEquals(UPD_200, listener5.getListMsg().get(2));
 
         //withdraw second best route, 1 advertisement(1 withdrawal) for add-path supported, 1 for non add path (withdrawal)
         sendWithdrawalRouteAndCheckIsOnLocRib(session3, PREFIX1, 200, 2);
-        assertEquals(3, listener4.getListMsg().size());
-        assertEquals(7, listener5.getListMsg().size());
+        checkReceivedMessages(listener4, 3);
+        checkReceivedMessages(listener5, 7);
 
         session1.close();
         session2.close();
         session3.close();
         session4.close();
         session5.close();
-        Thread.sleep(1000);
     }
 }
