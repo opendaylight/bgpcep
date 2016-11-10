@@ -24,7 +24,6 @@ public class BGPDispatcherImplTest extends AbstractBGPDispatcherTest {
     public void testCreateClient() throws InterruptedException, ExecutionException {
         final InetSocketAddress serverAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
         final Channel serverChannel = createServer(serverAddress);
-        Thread.sleep(1000);
         final Future<BGPSessionImpl> futureClient = this.clientDispatcher.createClient(this.clientAddress, serverAddress, this.registry, 2, true);
         waitFutureSuccess(futureClient);
         final BGPSessionImpl session = futureClient.get();
