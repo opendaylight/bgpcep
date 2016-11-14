@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_2247124d",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/AbstractAddPathTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2016-11-14T09:04:35Z",
+      "side": 1,
+      "message": "Can we get rid of this at all?",
+      "revId": "6e7db57ef72a6454df458da6eb6447924e2dac45",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
