@@ -1,6 +1,7 @@
 <module xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgpcep:data:change:counter">prefix:data-change-counter-impl</type>
-    <name>data-change-counter-singleton</name>
+    <name>data-change-counter</name>
+    <counter-id xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgpcep:data:change:counter">data-change-counter</counter-id>
     <data-provider xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgpcep:data:change:counter">
         <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-async-data-broker</type>
         <name>pingpong-binding-data-broker</name>
