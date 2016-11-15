@@ -9,6 +9,7 @@ module bgp-openconfig-extensions {
     import ietf-inet-types { prefix inet; }
     import yang-ext { prefix ext; revision-date 2013-07-09; }
     import bgp-rib { prefix bgp-rib; revision-date 2013-09-25; }
+    import openconfig-bgp-operational { prefix bgp-op; }
 
     organization "Cisco Systems, Inc.";
     contact "Milos Fabian <milfabia@cisco.com>";
@@ -86,6 +87,10 @@ module bgp-openconfig-extensions {
             augment bgp/global/afi-safis/afi-safi {
                 uses openconfig-bgp:bgp-neighbor-add-paths_config;
             }
+            augment bgp/global/afi-safis/afi-safi/state {
+                ext:augment-identifier global-afi-safi_state-augmentation;
+                uses bgp-op:bgp-global-afi-safi_state;
+            }
             augment bgp/neighbors/neighbor/transport/config {
                 uses transport-config;
             }
@@ -109,6 +114,54 @@ module bgp-openconfig-extensions {
                 leaf simple-routing-policy {
                     type bgp-rib:simple-routing-policy;
                 }
+            }
+            augment bgp/neighbors/neighbor/state {
+                ext:augment-identifier neighbor_state-augmentation;
+                uses bgp-op:bgp-neighbor_state;
+            }
+            augment bgp/neighbors/neighbor/state {
+                ext:augment-identifier bgp-neighbor_state-augmentation;
+                container messages {
+                    container sent {
+                        uses bgp-op:bgp-neighbor-message-counters-sent_state;
+                    }
+
+                    container received {
+                        uses bgp-op:bgp-neighbor-message-counters-received_state;
+                    }
+                }
+
+                container queues {
+                    uses bgp-op:bgp-neighbor-queue-counters_state;
+                }
+            }
+            augment bgp/neighbors/neighbor/timers/state {
+                ext:augment-identifier neighbor-timers_state-augmentation;
+                uses bgp-op:bgp-neighbor-timers_state;
+            }
+            augment bgp/neighbors/neighbor/transport/state {
+                ext:augment-identifier neighbor-transport_state-augmentation;
+                uses bgp-op:bgp-neighbor-transport_state;
+            }
+            augment bgp/neighbors/neighbor/error-handling/state {
+                ext:augment-identifier neighbor-error-handling_state-augmentation;
+                uses bgp-op:bgp-neighbor-error-handling_state;
+            }
+            augment bgp/neighbors/neighbor/afi-safis/afi-safi/state {
+                ext:augment-identifier neighbor-afi-safi_state-augmentation;
+                uses bgp-op:bgp-neighbor-afi-safi_state;
+            }
+            augment bgp/neighbors/neighbor/graceful-restart/state {
+                ext:augment-identifier neighbor-graceful-restart_state-augmentation;
+                uses bgp-op:bgp-afi-safi-graceful-restart_state;
+            }
+            augment bgp/neighbors/neighbor/afi-safis/afi-safi/graceful-restart/state {
+                ext:augment-identifier neighbor-afi-safi-graceful-restart_state-augmentation;
+                uses bgp-op:bgp-neighbor-afi-safi-graceful-restart_state;
+            }
+            augment bgp/peer-groups/peer-group/state {
+                ext:augment-identifier peer-group_state-augmentation;
+                uses bgp-op:bgp-peer-group_state;
             }
         }
     }
