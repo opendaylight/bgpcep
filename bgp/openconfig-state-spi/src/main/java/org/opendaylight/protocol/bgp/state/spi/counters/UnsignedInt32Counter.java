@@ -1,0 +1,101 @@
+/*
+ * Copyright (c) 2016 Cisco Systems, Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+
+package org.opendaylight.protocol.bgp.state.spi.counters;
+
+import com.google.common.base.Preconditions;
+import java.util.concurrent.atomic.LongAdder;
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.ThreadSafe;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.ZeroBasedCounter32;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+@ThreadSafe
+public final class UnsignedInt32Counter {
+    private static final Logger LOG = LoggerFactory.getLogger(UnsignedInt32Counter.class);
+
+    private static final long MAX_VALUE = 4294967295L;
+    private final LongAdder counter = new LongAdder();
+    private final String counterName;
+
+    public UnsignedInt32Counter(@Nonnull final String counterName) {
+        this.counterName = Preconditions.checkNotNull(counterName);
+    }
+
+    private static long safetyCheck(final long value) {
+        return Math.min(Math.max(0L, value), MAX_VALUE);
+    }
+
+    public long incrementCount(final long change) {
+        final long result;
+        if (change == 0) {
+            result = getCount();
+        } else {
+            Preconditions.checkArgument(change > 0, "Count number %s must be a positive number.", change);
+            this.counter.add(change);
+            result = getCount();
+            LOG.debug("Counter [{}] is incremented by {}. Current count: {}", this.counterName, change, result);
+            if (result > MAX_VALUE) {
+                LOG.warn("Counter [{}] has exceeded the max allowed value {}. Counter's current value {} is invalid.",
+                    this.counterName, MAX_VALUE, result);
+            }
+        }
+        return result;
+    }
+
+    public long incrementCount() {
+        return incrementCount(1);
+    }
+
+    public long decrementCount(final long change) {
+        final long result;
+        if (change == 0) {
+            result = getCount();
+        } else {
+            Preconditions.checkArgument(change > 0, "Count number %s must be a positive number.", change);
+            for (int i = 0; i < change; i++) {
+                this.counter.decrement();
+            }
+            result = getCount();
+            LOG.debug("Counter [{}] is decremented by {}. Current count: {}", this.counterName, change, result);
+            if (result < 0) {
+                // In most case, we do not want the BGP session get into trouble due to an ERROR in counter
+                // so here we print ERROR log instead of throwing out exception
+                LOG.warn("Counter {} must not be less than 0. Counter's current value {} is invalid.", this.counterName, result);
+            }
+        }
+        return result;
+    }
+
+    public long decrementCount() {
+        return this.decrementCount(1);
+    }
+
+    public long getCount() {
+        return this.counter.longValue();
+    }
+
+    public void setCount(final long count) {
+        final long result = getCount();
+        if (count != result) {
+            LOG.debug("Value of counter [{}] changes to {} (previous value is {})", this.counterName, count, result);
+            this.counter.reset();
+            incrementCount(count);
+        }
+    }
+
+    public void resetCount() {
+        LOG.debug("Value of counter [{}] is reset to 0.", this.counterName);
+        this.counter.reset();
+    }
+
+    public ZeroBasedCounter32 getCountAsZeroBasedCounter32() {
+        return new ZeroBasedCounter32(safetyCheck(getCount()));
+    }
+}
