@@ -12,10 +12,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import java.util.Optional;
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
@@ -24,6 +26,8 @@ public final class SimpleBGPTableTypeRegistryProvider implements BGPTableTypeReg
 
     @GuardedBy("this")
     private final BiMap<BgpTableType, Class<? extends AfiSafiType>> tableTypes = HashBiMap.create();
+    @GuardedBy("this")
+    private final BiMap<TablesKey, Class<? extends AfiSafiType>> tableKeys = HashBiMap.create();
 
     @Override
     public synchronized AbstractRegistration registerBGPTableType(final Class<? extends AddressFamily> afi,
@@ -47,9 +51,36 @@ public final class SimpleBGPTableTypeRegistryProvider implements BGPTableTypeReg
         return Optional.ofNullable(tableType);
     }
 
+    @Nonnull
+    @Override
+    public Optional<TablesKey> getTableKey(@Nonnull final Class<? extends AfiSafiType> afiSafiType) {
+        TablesKey tableKey = this.tableKeys.inverse().get(afiSafiType);
+        if (tableKey == null) {
+            final BgpTableType tableType = this.tableTypes.inverse().get(afiSafiType);
+            if (tableType != null) {
+                tableKey = new TablesKey(tableType.getAfi(), tableType.getSafi());
+                this.tableKeys.put(tableKey, afiSafiType);
+            }
+        }
+        return Optional.ofNullable(tableKey);
+    }
+
     @Override
     public synchronized Optional<Class<? extends AfiSafiType>> getAfiSafiType(final BgpTableType bgpTableType) {
         final Class<? extends AfiSafiType> afiSafi = this.tableTypes.get(bgpTableType);
+        return Optional.ofNullable(afiSafi);
+    }
+
+    @Nonnull
+    @Override
+    public Optional<Class<? extends AfiSafiType>> getAfiSafiType(@Nonnull final TablesKey tablesKey) {
+        Class<? extends AfiSafiType> afiSafi = this.tableKeys.get(tablesKey);
+        if (afiSafi == null) {
+            afiSafi = this.tableTypes.get(new BgpTableTypeImpl(tablesKey.getAfi(), tablesKey.getSafi()));
+            if (afiSafi != null) {
+                this.tableKeys.put(tablesKey, afiSafi);
+            }
+        }
         return Optional.ofNullable(afiSafi);
     }
 

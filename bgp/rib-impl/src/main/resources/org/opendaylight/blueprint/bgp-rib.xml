@@ -84,10 +84,23 @@
 
   <bean id="bgpStatesCollector" class="org.opendaylight.protocol.bgp.rib.impl.state.BGPStateCollectorImpl"/>
 
+  <odl:clustered-app-config id="bgpStateConfig"
+    binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.state.config.rev161107.BgpStateConfig"/>
+
   <reference-list id="ribStatsListener" interface="org.opendaylight.protocol.bgp.rib.spi.state.BGPRIBState"
     availability="optional">
       <reference-listener bind-method="bind" unbind-method="unbind">
           <ref component-id="bgpStatesCollector"/>
       </reference-listener>
   </reference-list>
+
+  <bean id="bgpOpenconfigState" class="org.opendaylight.protocol.bgp.state.impl.StateProviderImpl"
+        destroy-method="close">
+      <argument ref="dataBroker"/>
+      <argument>
+          <bean factory-ref="bgpStateConfig" factory-method="getTimer" />
+      </argument>
+      <argument ref="bgpTableTypeRegistry"/>
+      <argument ref="bgpStatesCollector"/>
+  </bean>
 </blueprint>

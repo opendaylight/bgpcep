@@ -105,10 +105,12 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.re
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstance;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.RibKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
@@ -171,7 +173,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     private BgpDeployer bgpDeployer;
 
     @Mock
-    private BGPTableTypeRegistryConsumer tableTypeREgistry;
+    private BGPTableTypeRegistryConsumer tableTypeRegistry;
 
     @Mock
     private BGPPeerRuntimeMXBean mockedPeer;
@@ -274,8 +276,11 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         doNothing().when(this.bgpDeployer).onNeighborModified(any(),any(),any());
         doReturn(this.mockedFuture).when(this.bgpDeployer).writeConfiguration(any(), any());
         doReturn(this.mockedFuture).when(this.bgpDeployer).removeConfiguration(any());
-        doReturn(java.util.Optional.of(IPV4UNICAST.class)).when(this.tableTypeREgistry).getAfiSafiType(any());
-        doReturn(this.tableTypeREgistry).when(this.bgpDeployer).getTableTypeRegistry();
+        doReturn(java.util.Optional.of(IPV4UNICAST.class)).when(this.tableTypeRegistry)
+            .getAfiSafiType(any(TablesKey.class));
+        doReturn(java.util.Optional.of(IPV4UNICAST.class)).when(this.tableTypeRegistry)
+            .getAfiSafiType(any(BgpTableType.class));
+        doReturn(this.tableTypeRegistry).when(this.bgpDeployer).getTableTypeRegistry();
         doReturn(OPENCONFIG_IID).when(this.bgpDeployer).getInstanceIdentifier();
         final DOMTransactionChain mockedChain = mock(DOMTransactionChain.class);
         final DOMDataWriteTransaction mockedWTx = mock(DOMDataWriteTransaction.class);
