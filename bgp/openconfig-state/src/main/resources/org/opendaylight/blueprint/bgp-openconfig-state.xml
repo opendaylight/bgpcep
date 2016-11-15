@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
+
+    <reference id="dataBroker" interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
+               odl:type="pingpong"/>
+    <reference id="bgpTableTypeRegistry" interface="org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer"/>
+    <reference id="bgpStateProvider" interface="org.opendaylight.protocol.bgp.rib.spi.state.BGPStateConsumer"/>
+
+    <odl:clustered-app-config id="bgpStateConfig"
+                              binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.state.config.rev161107.BgpStateConfig"/>
+
+    <bean id="bgpOpenconfigState" class="org.opendaylight.protocol.bgp.state.StateProviderImpl"
+          init-method="init"
+          destroy-method="close">
+        <argument ref="dataBroker"/>
+        <argument>
+            <bean factory-ref="bgpStateConfig" factory-method="getTimer"/>
+        </argument>
+        <argument ref="bgpTableTypeRegistry"/>
+        <argument ref="bgpStateProvider"/>
+        <argument value="global-bgp"/>
+    </bean>
+</blueprint>
