@@ -28,6 +28,7 @@
         <feature version='${project.version}'>odl-bgpcep-bgp-parser</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-rib-api</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-openconfig</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-openconfig-state</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-rib-impl</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-inet</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-linkstate</feature>
@@ -177,6 +178,14 @@
     <feature name="odl-bgpcep-bgp-config-loader" version='${project.version}'>
         <feature version='${mdsal.common.version}'>odl-mdsal-binding-runtime</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-config-loader-spi/{{VERSION}}</bundle>
-      <bundle>mvn:org.opendaylight.bgpcep/bgp-config-loader-impl/{{VERSION}}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-config-loader-impl/{{VERSION}}</bundle>
    </feature>
+
+    <feature name="odl-bgpcep-bgp-openconfig-state" version='${project.version}'>
+        <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-rib-api</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-openconfig-api/{{VERSION}}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-openconfig-spi/{{VERSION}}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-openconfig-state/{{VERSION}}</bundle>
+    </feature>
 </features>
