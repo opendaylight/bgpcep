@@ -231,6 +231,10 @@
       </dependency>
       <dependency>
           <groupId>${project.groupId}</groupId>
+          <artifactId>bgp-openconfig-state-spi</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>${project.groupId}</groupId>
           <artifactId>bgp-controller-config</artifactId>
           <type>xml</type>
           <classifier>config</classifier>
