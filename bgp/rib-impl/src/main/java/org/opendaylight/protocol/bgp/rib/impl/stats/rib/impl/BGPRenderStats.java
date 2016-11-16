@@ -16,6 +16,7 @@ import org.opendaylight.protocol.bgp.state.spi.counters.UnsignedInt32Counter;
  */
 public interface BGPRenderStats extends RIBImplRuntimeMXBean {
 
+    @Deprecated
     PerTableTypeRouteCounter getLocRibRouteCounter();
 
     UnsignedInt32Counter getConfiguredPeerCounter();
