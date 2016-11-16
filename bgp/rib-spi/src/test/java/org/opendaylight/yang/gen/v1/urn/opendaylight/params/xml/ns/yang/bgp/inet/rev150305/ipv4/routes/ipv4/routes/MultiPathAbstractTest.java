@@ -48,9 +48,10 @@ public final class MultiPathAbstractTest extends MultiPathAbstractRIBSupport {
     }
 
     @Override
-    protected void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath, final ContainerNode destination,
+    protected Integer processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath, final ContainerNode destination,
         final ContainerNode attributes, final ApplyRoute applyFunction) {
         applyFunction.apply(tx, routesPath.node(Ipv4Route.QNAME), PREFIX_NII, destination, attributes);
+        return 1;
     }
 
     @Nonnull

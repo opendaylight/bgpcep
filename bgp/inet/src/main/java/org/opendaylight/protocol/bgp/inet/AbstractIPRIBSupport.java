@@ -72,7 +72,7 @@ abstract class AbstractIPRIBSupport extends MultiPathAbstractRIBSupport {
     }
 
     @Override
-    protected void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
+    protected Integer processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
         final ContainerNode destination, final ContainerNode attributes, final ApplyRoute function) {
         if (destination != null) {
             final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = destination.getChild(this.nlriRoutesList);
@@ -82,15 +82,19 @@ abstract class AbstractIPRIBSupport extends MultiPathAbstractRIBSupport {
                     // Instance identifier to table/(choice routes)/(map of route)
                     // FIXME: cache on per-table basis (in TableContext, for example)
                     final YangInstanceIdentifier base = routesPath.node(routesContainerIdentifier()).node(routeNid());
+                    int installedRoutes = 0;
                     for (final UnkeyedListEntryNode e : ((UnkeyedListNode) routes).getValue()) {
                         final NodeIdentifierWithPredicates routeKey = createRouteKey(e);
                         function.apply(tx, base, routeKey, e, attributes);
+                        installedRoutes++;
                     }
+                    return installedRoutes;
                 } else {
                     LOG.warn("Routes {} are not a map", routes);
                 }
             }
         }
+        return null;
     }
 
     /**

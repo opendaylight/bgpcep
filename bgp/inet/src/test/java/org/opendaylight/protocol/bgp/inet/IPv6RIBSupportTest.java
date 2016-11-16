@@ -75,6 +75,7 @@ public final class IPv6RIBSupportTest extends AbstractRIBSupportTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testDeleteRoutes() {
         RIB_SUPPORT.deleteRoutes(this.tx, getTablePath(), createNlriWithDrawnRoute(UNREACH_NLRI));
         final InstanceIdentifier<Ipv6Route> instanceIdentifier = (InstanceIdentifier<Ipv6Route>) this.deletedRoutes.get(0);
@@ -83,7 +84,7 @@ public final class IPv6RIBSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testPutRoutes() {
-        RIB_SUPPORT.putRoutes(this.tx, getTablePath(), createNlriAdvertiseRoute(REACH_NLRI), createAttributes());
+        assertEquals(NUMBER_OF_ROUTED_INSTALLED, RIB_SUPPORT.putRoutes(this.tx, getTablePath(), createNlriAdvertiseRoute(REACH_NLRI), createAttributes()));
         final Ipv6Route route = (Ipv6Route) this.insertedRoutes.get(0).getValue();
         assertEquals(ROUTE, route);
     }

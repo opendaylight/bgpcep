@@ -33,6 +33,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 
 public abstract class AbstractFlowspecRIBSupport<T extends AbstractFlowspecNlriParser> extends MultiPathAbstractRIBSupport {
+    private static final Integer QUANTITY_OF_ROUTE_INSTALLED = 1;
     protected final T nlriParser;
 
     protected AbstractFlowspecRIBSupport(
@@ -89,19 +90,16 @@ public abstract class AbstractFlowspecRIBSupport<T extends AbstractFlowspecNlriP
     }
 
     @Override
-    protected final void processDestination(
-        final DOMDataWriteTransaction tx,
-        final YangInstanceIdentifier routesPath,
-        final ContainerNode destination,
-        final ContainerNode attributes,
-        final ApplyRoute function
-    ) {
+    protected final Integer processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath, final ContainerNode destination,
+        final ContainerNode attributes, final ApplyRoute function) {
         if (destination != null) {
             final YangInstanceIdentifier base = routesPath.node(routesContainerIdentifier()).node(routeQName());
             final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf = destination.getChild(routePathIdNid());
             final String routeKeyValue = this.nlriParser.stringNlri(destination);
             final NodeIdentifierWithPredicates routeKey = PathIdUtil.createNidKey(routeQName(), routeKeyQName(), pathIdQName(), routeKeyValue, maybePathIdLeaf);
             function.apply(tx, base, routeKey, destination, attributes);
+            return QUANTITY_OF_ROUTE_INSTALLED;
         }
+        return null;
     }
 }

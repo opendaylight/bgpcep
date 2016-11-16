@@ -85,6 +85,7 @@ public class FlowspecL3vpnIpv6RIBSupportTest extends AbstractRIBSupportTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testDeleteRoutes() {
         RIB_SUPPORT.deleteRoutes(this.tx, getTablePath(), createNlriWithDrawnRoute(UNREACH_NLRI));
         final InstanceIdentifier<FlowspecL3vpnRoute> instanceIdentifier = (InstanceIdentifier<FlowspecL3vpnRoute>) this.deletedRoutes.get(0);
@@ -93,7 +94,7 @@ public class FlowspecL3vpnIpv6RIBSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testPutRoutes() {
-        RIB_SUPPORT.putRoutes(this.tx, getTablePath(), createNlriAdvertiseRoute(REACH_NLRI), createAttributes());
+        assertEquals(NUMBER_OF_ROUTED_INSTALLED, RIB_SUPPORT.putRoutes(this.tx, getTablePath(), createNlriAdvertiseRoute(REACH_NLRI), createAttributes()));
         final FlowspecL3vpnRoute route = (FlowspecL3vpnRoute) this.insertedRoutes.get(0).getValue();
         assertEquals(ROUTE, route);
     }

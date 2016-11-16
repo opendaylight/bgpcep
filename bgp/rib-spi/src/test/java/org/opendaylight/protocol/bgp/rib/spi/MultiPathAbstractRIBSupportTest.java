@@ -252,7 +252,8 @@ public class MultiPathAbstractRIBSupportTest {
 
     @Test
     public void putRoutes() throws Exception {
-        MULTI_PATH_ABSTRACT_TEST.putRoutes(this.tx, LOC_RIB_TARGET, this.nlri, this.attributes);
+        final Integer numberOfUpdatedRoutes = MULTI_PATH_ABSTRACT_TEST.putRoutes(this.tx, LOC_RIB_TARGET, this.nlri, this.attributes);
+        assertEquals(1, numberOfUpdatedRoutes.intValue());
         assertFalse(this.routes.isEmpty());
     }
 
