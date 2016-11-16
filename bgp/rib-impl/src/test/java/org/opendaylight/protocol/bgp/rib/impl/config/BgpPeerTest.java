@@ -101,6 +101,9 @@ public class BgpPeerTest extends AbstractConfig {
         }
         this.bgpPeer.setServiceRegistration(this.serviceRegistration);
         this.bgpPeer.close();
+        Mockito.verify(this.singletonServiceRegistration).close();
+        Mockito.verify(this.future).cancel(true);
+
         this.bgpPeer.restart(this.rib, this.tableTypeRegistry);
         Mockito.verify(this.rib, times(2)).createPeerChain(any());
         Mockito.verify(this.rib, times(4)).getLocalAs();
@@ -117,18 +120,17 @@ public class BgpPeerTest extends AbstractConfig {
         final Neighbor neighborExpected = createNeighborExpected(NEIGHBOR_ADDRESS);
         assertTrue(this.bgpPeer.containsEqualConfiguration(neighborExpected));
         assertFalse(this.bgpPeer.containsEqualConfiguration(createNeighborExpected(new IpAddress(new Ipv4Address("127.0.0.2")))));
-
-        this.singletonService.closeServiceInstance();
         Mockito.verify(this.bgpPeerRegistry).removePeer(any(IpAddress.class));
 
         this.bgpPeer.close();
         Mockito.verify(this.singletonServiceRegistration, times(2)).close();
         Mockito.verify(this.serviceRegistration).unregister();
-        Mockito.verify(this.future).cancel(true);
+        Mockito.verify(this.future, times(2)).cancel(true);
 
-        final Neighbor emptyNeighbor = new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS).build();
-        this.bgpPeer.start(this.rib, emptyNeighbor, this.tableTypeRegistry, this.configurationWriter);
-        assertTrue(this.bgpPeer.containsEqualConfiguration(emptyNeighbor));
+        final Neighbor neighborDiffConfig = new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS)
+            .setAfiSafis(createAfiSafi()).build();
+        this.bgpPeer.start(this.rib, neighborDiffConfig, this.tableTypeRegistry, this.configurationWriter);
+        assertTrue(this.bgpPeer.containsEqualConfiguration(neighborDiffConfig));
         this.bgpPeer.close();
     }
 

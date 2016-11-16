@@ -27,12 +27,20 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
+import org.opendaylight.protocol.bgp.rib.impl.state.BGPPeerStateImpl;
+import org.opendaylight.protocol.bgp.rib.impl.state.BGPSessionStateImpl;
 import org.opendaylight.protocol.bgp.rib.impl.stats.peer.BGPPeerStats;
 import org.opendaylight.protocol.bgp.rib.impl.stats.peer.BGPPeerStatsImpl;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPAfiSafiState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPErrorHandlingState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPSessionState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPTimersState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPTransportState;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
@@ -65,7 +73,8 @@ import org.slf4j.LoggerFactory;
  * For purposed of import policies such as Best Path Selection, application
  * peer needs to have a BGP-ID that is configurable.
  */
-public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol.bgp.rib.spi.Peer, ClusteredDOMDataTreeChangeListener, TransactionChainListener {
+public class ApplicationPeer extends BGPPeerStateImpl implements AutoCloseable,
+    org.opendaylight.protocol.bgp.rib.spi.Peer, ClusteredDOMDataTreeChangeListener, TransactionChainListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(ApplicationPeer.class);
 
@@ -79,10 +88,9 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
     private DOMTransactionChain writerChain;
     private EffectiveRibInWriter effectiveRibInWriter;
     private AdjRibInWriter adjRibInWriter;
-    private BGPPeerStats peerStats;
     private ListenerRegistration<ApplicationPeer> registration;
     private final Set<NodeIdentifierWithPredicates> supportedTables = new HashSet<>();
-
+    private final BGPSessionStateImpl bgpSessionState = new BGPSessionStateImpl();
 
     @FunctionalInterface
     interface RegisterAppPeerListener {
@@ -93,6 +101,8 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
     }
 
     public ApplicationPeer(final ApplicationRibId applicationRibId, final Ipv4Address ipAddress, final RIB rib) {
+        super(rib.getInstanceIdentifier(), "application-peers", new IpAddress(ipAddress), rib.getLocalTablesKeys(),
+            Collections.emptySet());
         this.name = applicationRibId.getValue();
         final RIB targetRib = Preconditions.checkNotNull(rib);
         this.rawIdentifier = InetAddresses.forString(ipAddress.getValue()).getAddress();
@@ -118,6 +128,7 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
             }
             this.supportedTables.add(RibSupportUtils.toYangTablesKey(tablesKey));
         });
+        setAdvertizedGracefulRestartTableTypes(Collections.emptyList());
 
         this.adjRibInWriter = AdjRibInWriter.create(this.rib.getYangRibId(), PeerRole.Internal, simpleRoutingPolicy, this.writerChain);
         final RIBSupportContextRegistry context = this.rib.getRibSupportContext();
@@ -130,10 +141,11 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
         };
         this.adjRibInWriter = this.adjRibInWriter.transform(peerId, context, localTables, Collections.emptyMap(),
             registerAppPeerListener);
-        this.peerStats = new BGPPeerStatsImpl(localTables);
+        final BGPPeerStats peerStats = new BGPPeerStatsImpl(this.name, localTables, this);
         this.effectiveRibInWriter = EffectiveRibInWriter.create(this.rib.getService(), this.rib.createPeerChain(this), this.peerIId,
-            this.rib.getImportPolicyPeerTracker(), context, PeerRole.Internal, this.peerStats.getEffectiveRibInRouteCounters(),
-            this.peerStats.getAdjRibInRouteCounters());
+            this.rib.getImportPolicyPeerTracker(), context, PeerRole.Internal,
+            peerStats.getAdjRibInRouteCounters(), localTables);
+        this.bgpSessionState.registerMessagesCounter(this);
     }
 
     /**
@@ -273,5 +285,30 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
     @Override
     public void onTransactionChainSuccessful(final TransactionChain<?, ?> chain) {
         LOG.debug("Transaction chain {} successful.", chain);
+    }
+
+    @Override
+    public BGPErrorHandlingState getBGPErrorHandlingState() {
+        return this;
+    }
+
+    @Override
+    public BGPAfiSafiState getBGPAfiSafiState() {
+        return this;
+    }
+
+    @Override
+    public BGPSessionState getBGPSessionState() {
+        return this.bgpSessionState;
+    }
+
+    @Override
+    public BGPTimersState getBGPTimersState() {
+        return this.bgpSessionState;
+    }
+
+    @Override
+    public BGPTransportState getBGPTransportState() {
+        return this.bgpSessionState;
     }
 }

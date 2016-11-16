@@ -21,6 +21,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.protocol.bgp.rib.impl.spi.Codecs;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
+import org.opendaylight.protocol.bgp.rib.impl.state.peer.PrefixesSentCounters;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
@@ -52,7 +53,7 @@ import org.slf4j.LoggerFactory;
  * performs transcoding to BA form (message) and sends it down the channel.
  */
 @NotThreadSafe
-final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener {
+final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, PrefixesSentCounters {
 
     private static final Logger LOG = LoggerFactory.getLogger(AdjRibOutListener.class);
 
@@ -65,6 +66,7 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener {
     private final boolean mpSupport;
     private final ListenerRegistration<AdjRibOutListener> registerDataTreeChangeListener;
     private final LongAdder routeCounter;
+    private final LongAdder prefixesSentCounter = new LongAdder();
 
     private AdjRibOutListener(final PeerId peerId, final TablesKey tablesKey, final YangInstanceIdentifier ribId,
         final CodecsRegistry registry, final RIBSupport support, final DOMDataTreeChangeService service,
@@ -146,6 +148,7 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener {
 
     private Update advertise(final MapEntryNode route) {
         this.routeCounter.increment();
+        this.prefixesSentCounter.increment();
         if (!this.mpSupport) {
             return buildUpdate(Collections.singleton(route), Collections.<MapEntryNode>emptyList(), routeAttributes(route));
         }
@@ -175,5 +178,10 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener {
 
     boolean isMpSupported() {
         return this.mpSupport;
+    }
+
+    @Override
+    public long getPrefixesSentCount() {
+        return this.prefixesSentCounter.longValue();
     }
 }
