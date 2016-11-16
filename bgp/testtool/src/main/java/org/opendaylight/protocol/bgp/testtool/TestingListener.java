@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.testtool;
 
 import java.util.List;
+import java.util.concurrent.atomic.LongAdder;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
@@ -26,7 +27,7 @@ final class TestingListener implements BGPSessionListener {
     private final int nPrefixes;
     private final List<String> extCom;
     private final boolean multiPathSupport;
-    private int messageCounter = 0;
+    private LongAdder messageCounter = new LongAdder();
 
     TestingListener(final int nPrefixes, final List<String> extCom, final boolean multiPathSupport) {
         this.nPrefixes = nPrefixes;
@@ -65,7 +66,7 @@ final class TestingListener implements BGPSessionListener {
     @Override
     public void onMessage(final BGPSession session, final Notification message) {
         if (message instanceof Update) {
-            messageCounter++;
+            this.messageCounter.increment();
         }
         LOG.debug("Message received: {}", message.toString());
     }
@@ -76,6 +77,6 @@ final class TestingListener implements BGPSessionListener {
     }
 
     void printCount(final String localAddress) {
-        LOG.info("Peer {} received {} update messages.", localAddress, messageCounter);
+        LOG.info("Peer {} received {} update messages.", localAddress, this.messageCounter.longValue());
     }
 }
