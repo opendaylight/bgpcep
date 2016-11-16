@@ -50,4 +50,12 @@ public interface BGPSession extends AutoCloseable, ChannelInboundHandler {
      */
     List<AddressFamilies> getAdvertisedAddPathTableTypes();
 
+    /**
+     * Return the list of tables which the peer has advertised to support.
+     * Graceful Restart.
+     *
+     * @return Set of tables which it supports.
+     */
+    List<BgpTableType> getAdvertisedGracefulRestartTableTypes();
+
 }
