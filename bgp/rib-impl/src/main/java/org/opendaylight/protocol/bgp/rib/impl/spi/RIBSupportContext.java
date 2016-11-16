@@ -50,8 +50,9 @@ public abstract class RIBSupportContext {
      * @param tableId Instance Identifier of table to be updated
      * @param nlri ReachNlri which contains routes to be written.
      * @param attributes Attributes which should be written.
+     * @return number of route installed
      */
-    public abstract void writeRoutes(DOMDataWriteTransaction tx, YangInstanceIdentifier tableId, MpReachNlri nlri,
+    public abstract Integer writeRoutes(DOMDataWriteTransaction tx, YangInstanceIdentifier tableId, MpReachNlri nlri,
             Attributes attributes);
 
     /**

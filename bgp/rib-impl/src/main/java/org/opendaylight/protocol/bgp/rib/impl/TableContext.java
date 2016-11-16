@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.base.Preconditions;
 import javax.annotation.concurrent.NotThreadSafe;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
@@ -36,17 +35,12 @@ final class TableContext {
         return this.tableId;
     }
 
-
     void createEmptyTableStructure(final DOMDataWriteTransaction tx) {
         this.tableSupport.createEmptyTableStructure(tx, this.tableId);
     }
 
-    void removeTable(final DOMDataWriteTransaction tx) {
-        tx.delete(LogicalDatastoreType.OPERATIONAL, this.tableId);
-    }
-
-    void writeRoutes(final DOMDataWriteTransaction tx, final MpReachNlri nlri, final Attributes attributes) {
-        this.tableSupport.writeRoutes(tx, this.tableId, nlri, attributes);
+    Integer writeRoutes(final DOMDataWriteTransaction tx, final MpReachNlri nlri, final Attributes attributes) {
+        return this.tableSupport.writeRoutes(tx, this.tableId, nlri, attributes);
     }
 
     void removeRoutes(final DOMDataWriteTransaction tx, final MpUnreachNlri nlri) {

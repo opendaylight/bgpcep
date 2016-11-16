@@ -21,7 +21,6 @@ import java.util.Collections;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -32,8 +31,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
-import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
-import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
+import org.opendaylight.protocol.bgp.rib.impl.AbstractBgpStateHandler;
 import org.opendaylight.protocol.bgp.rib.impl.spi.AbstractImportPolicy;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
@@ -42,31 +40,29 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ImportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
+import org.opendaylight.protocol.bgp.state.spi.counters.UnsignedInt32Counter;
 import org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl.BGPRenderStats;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
-import org.opendaylight.protocol.bgp.state.spi.counters.UnsignedInt32Counter;
+import org.opendaylight.protocol.concepts.AbstractRegistration;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.osgi.framework.ServiceRegistration;
 
-class AbstractConfig {
+abstract class AbstractConfig extends AbstractBgpStateHandler {
     protected static final AsNumber AS = new AsNumber(72L);
+    protected ClusterSingletonService singletonService;
     @Mock
     protected RIB rib;
     @Mock
     protected ClusterSingletonServiceRegistration singletonServiceRegistration;
-    @Mock
-    protected BGPTableTypeRegistryConsumer tableTypeRegistry;
     @Mock
     protected BgpDeployer.WriteConfiguration configurationWriter;
     @Mock
@@ -83,7 +79,6 @@ class AbstractConfig {
     protected ListenerRegistration listener;
     @Mock
     protected Future future;
-    protected ClusterSingletonService singletonService;
     @Mock
     protected DOMDataWriteTransaction domDW;
     @Mock
@@ -91,9 +86,11 @@ class AbstractConfig {
     @Mock
     private DOMDataTreeChangeService dataTreeChangeService;
 
+    @Override
     @Before
+    @SuppressWarnings("unchecked")
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+        super.setUp();
         Mockito.doAnswer(new Answer<ClusterSingletonServiceRegistration>() {
             @Override
             public ClusterSingletonServiceRegistration answer(final InvocationOnMock invocationOnMock) throws Throwable {
@@ -130,16 +127,17 @@ class AbstractConfig {
         Mockito.doReturn(this.future).when(this.dispatcher)
             .createReconnectingClient(any(InetSocketAddress.class), any(BGPPeerRegistry.class), anyInt(), any(Optional.class));
         Mockito.doReturn(this.dispatcher).when(this.rib).getDispatcher();
-
-        Mockito.doReturn(java.util.Optional.of(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class)))
-            .when(this.tableTypeRegistry).getTableType(any());
-        Mockito.doReturn(Collections.singleton(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class)))
-            .when(this.rib).getLocalTables();
+        Mockito.doReturn(Collections.singleton(TABLE_TYPE)).when(this.rib).getLocalTables();
         Mockito.doNothing().when(this.configurationWriter).apply();
 
         Mockito.doNothing().when(this.bgpPeerRegistry).addPeer(any(IpAddress.class), any(BGPSessionListener.class), any(BGPSessionPreferences.class));
         Mockito.doNothing().when(this.bgpPeerRegistry).removePeer(any(IpAddress.class));
         Mockito.doReturn("registry").when(this.bgpPeerRegistry).toString();
         Mockito.doNothing().when(this.listener).close();
+        Mockito.doReturn(new AbstractRegistration() {
+            @Override
+            protected void removeRegistration() {
+            }
+        }).when(this.rib).registerNeighbor(any(),any());
     }
 }
