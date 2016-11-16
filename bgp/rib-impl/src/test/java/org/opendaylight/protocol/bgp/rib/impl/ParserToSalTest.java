@@ -32,14 +32,13 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
 import org.opendaylight.controller.md.sal.binding.test.DataBrokerTestCustomizer;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
+import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.protocol.bgp.inet.RIBActivator;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
@@ -50,6 +49,7 @@ import org.opendaylight.protocol.bgp.rib.mock.BGPMock;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
+import org.opendaylight.protocol.bgp.state.spi.state.BGPNeighborState;
 import org.opendaylight.protocol.bgp.util.HexDumpBGPFileParser;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.ipv4.routes.Ipv4Route;
@@ -67,14 +67,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 
-public class ParserToSalTest extends AbstractDataBrokerTest {
+public class ParserToSalTest extends AbstractBgpStateHandler {
 
     private static final String TEST_RIB_ID = "testRib";
     private BGPMock mock;
@@ -88,10 +86,12 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
     private BindingCodecTreeFactory codecFactory;
 
     private SchemaService schemaService;
+    private BGPNeighborState neighborState;
 
+    @Override
     @Before
     public void setUp() throws Exception {
-        super.setup();
+        super.setUp();
         doReturn(Mockito.mock(ClusterSingletonServiceRegistration.class)).when(this.clusterSingletonServiceProvider).
             registerClusterSingletonService(any(ClusterSingletonService.class));
     }
@@ -110,6 +110,7 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     protected void setupWithDataBroker(final DataBroker dataBroker) {
         MockitoAnnotations.initMocks(this);
         final List<byte[]> bgpMessages;
@@ -145,11 +146,12 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
                 new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class));
         final RIBImpl rib = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(TEST_RIB_ID), new AsNumber(72L), new BgpId("127.0.0.1"),
             null, this.ext2, this.dispatcher, this.codecFactory, getDomBroker(), tables, Collections.singletonMap(TABLE_KEY,
-            BasePathSelectionModeFactory.createBestPathSelectionStrategy()), GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), null);
+            BasePathSelectionModeFactory.createBestPathSelectionStrategy()), GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), null,
+            TABLE_TYPE_REGISTRY, this.bgpStateProvider, this.bgpStateFactory, this.bgpIID);
         rib.instantiateServiceInstance();
         assertTablesExists(tables, true);
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
-        final BGPPeer peer = new BGPPeer("peer-" + this.mock.toString(), rib, PeerRole.Ibgp, null);
+        final BGPPeer peer = new BGPPeer(NEIGHBOR_ADDRESS, rib, PeerRole.Ibgp, null, this.neighborState , TABLE_TYPE_REGISTRY);
         peer.instantiateServiceInstance();
         final ListenerRegistration<?> reg = this.mock.registerUpdateListener(peer);
         reg.close();
@@ -157,14 +159,14 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
 
     @Test
     public void testWithoutLinkstate() throws InterruptedException, ExecutionException {
-        final List<BgpTableType> tables = ImmutableList.of(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
         final RIBImpl rib = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(TEST_RIB_ID), new AsNumber(72L), new BgpId("127.0.0.1"), null,
-            this.ext1, this.dispatcher, this.codecFactory, getDomBroker(), tables, Collections.singletonMap(TABLE_KEY,
-            BasePathSelectionModeFactory.createBestPathSelectionStrategy()), GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), null);
+            this.ext1, this.dispatcher, this.codecFactory, getDomBroker(), TABLES, Collections.singletonMap(TABLE_KEY,
+            BasePathSelectionModeFactory.createBestPathSelectionStrategy()), GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), null,
+            TABLE_TYPE_REGISTRY, this.bgpStateProvider, this.bgpStateFactory, this.bgpIID);
         rib.instantiateServiceInstance();
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
-        assertTablesExists(tables, true);
-        final BGPPeer peer = new BGPPeer("peer-" + this.mock.toString(), rib, PeerRole.Ibgp, null);
+        assertTablesExists(TABLES, true);
+        final BGPPeer peer = new BGPPeer(NEIGHBOR_ADDRESS, rib, PeerRole.Ibgp, null, this.neighborState , TABLE_TYPE_REGISTRY);
         peer.instantiateServiceInstance();
         final ListenerRegistration<?> reg = this.mock.registerUpdateListener(peer);
         reg.close();

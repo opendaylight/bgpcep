@@ -21,6 +21,7 @@ public interface BGPPeerStats {
 
     PerTableTypeRouteCounter getAdjRibOutRouteCounters();
 
+    @Deprecated
     PerTableTypeRouteCounter getEffectiveRibInRouteCounters();
 
     UnsignedInt32Counter getSessionEstablishedCounter();

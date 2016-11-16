@@ -17,7 +17,6 @@ import static org.mockito.internal.verification.VerificationModeFactory.times;
 import static org.opendaylight.protocol.bgp.rib.impl.AdjRibInWriter.ATTRIBUTES_UPTODATE_FALSE;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.CheckedFuture;
@@ -49,7 +48,6 @@ import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
-import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -72,7 +70,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.Origin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.OriginBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.message.NlriBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.GracefulRestartCapabilityBuilder;
@@ -105,7 +102,13 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
     private static final Ipv4Address BGP_ID = new Ipv4Address("1.1.1.2");
     private static final String LOCAL_IP = "1.1.1.4";
     private static final int LOCAL_PORT = 12345;
-    private final BgpTableType ipv4tt = new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+    private static final String RIB_ID = "1.1.1.2";
+    private static final YangInstanceIdentifier PEER_PATH = YangInstanceIdentifier.builder().node(BgpRib.QNAME).node(Rib.QNAME)
+        .nodeWithKey(Rib.QNAME, QName.create(Rib.QNAME, "id").intern(), RIB_ID)
+        .node(Peer.QNAME).nodeWithKey(Peer.QNAME, AdjRibInWriter.PEER_ID_QNAME, "bgp://1.1.1.2").build();
+    private static final YangInstanceIdentifier TABLE_PATH = PEER_PATH.node(AdjRibIn.QNAME).node(Tables.QNAME)
+        .node(RibSupportUtils.toYangTablesKey(new TablesKey(Ipv4AddressFamily.class,
+            UnicastSubsequentAddressFamily.class))).node(Attributes.QNAME).node(QName.create(Attributes.QNAME, "uptodate"));
     private Open classicOpen;
     @Mock
     private EventLoop eventLoop;
@@ -119,14 +122,8 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
     private DOMTransactionChain domChain;
     @Mock
     private DOMDataWriteTransaction tx;
-    private static final String RIB_ID = "1.1.1.2";
-    private static final YangInstanceIdentifier PEER_PATH = YangInstanceIdentifier.builder().node(BgpRib.QNAME).node(Rib.QNAME)
-        .nodeWithKey(Rib.QNAME, QName.create(Rib.QNAME, "id").intern(), RIB_ID)
-        .node(Peer.QNAME).nodeWithKey(Peer.QNAME, AdjRibInWriter.PEER_ID_QNAME, "bgp://1.1.1.2").build();
-    private static final YangInstanceIdentifier TABLE_PATH = PEER_PATH.node(AdjRibIn.QNAME).node(Tables.QNAME)
-        .node(RibSupportUtils.toYangTablesKey(new TablesKey(Ipv4AddressFamily.class,
-            UnicastSubsequentAddressFamily.class))).node(Attributes.QNAME).node(QName.create(Attributes.QNAME, "uptodate"));
 
+    @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -138,7 +135,7 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         final List<OptionalCapabilities> capa = Lists.newArrayList();
         capa.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class,
             new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
-                .setAfi(this.ipv4tt.getAfi()).setSafi(this.ipv4tt.getSafi()).build())
+                .setAfi(TABLE_TYPE.getAfi()).setSafi(TABLE_TYPE.getSafi()).build())
                 .setGracefulRestartCapability(new GracefulRestartCapabilityBuilder().build()).build())
             .setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(AS_NUMBER).build()).build()).build());
         capa.add(new OptionalCapabilitiesBuilder().setCParameters(BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY).build());
@@ -190,15 +187,16 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
 
     @Test
     public void testHandleMessageAfterException() throws InterruptedException {
-        final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(new TablesKey(ipv4tt.getAfi(), ipv4tt.getSafi()),
+        final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(new TablesKey(TABLE_TYPE.getAfi(), TABLE_TYPE.getSafi()),
             BasePathSelectionModeFactory.createBestPathSelectionStrategy());
         final RIBImpl ribImpl = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(RIB_ID), AS_NUMBER, new BgpId(RIB_ID), null, this.ribExtension,
-            this.dispatcher, this.mappingService.getCodecFactory(), this.domBroker, ImmutableList.of(ipv4tt), pathTables, this.ribExtension
-            .getClassLoadingStrategy(), null);
+            this.dispatcher, this.mappingService.getCodecFactory(), this.domBroker, TABLES, pathTables, this.ribExtension
+            .getClassLoadingStrategy(), null, TABLE_TYPE_REGISTRY, this.bgpStateProvider, this.bgpStateFactory, this.bgpIID);
         ribImpl.instantiateServiceInstance();
         ribImpl.onGlobalContextUpdated(this.schemaContext);
 
-        final BGPPeer bgpPeer = new BGPPeer("peer-test", ribImpl, PeerRole.Ibgp, null);
+        final BGPPeer bgpPeer = new BGPPeer(NEIGHBOR_ADDRESS, ribImpl, PeerRole.Ibgp, null, this.neighborState,
+            TABLE_TYPE_REGISTRY);
         bgpPeer.instantiateServiceInstance();
         final BGPSessionImpl bgpSession = new BGPSessionImpl(bgpPeer, this.speakerListener, this.classicOpen, this.classicOpen.getHoldTimer(), null);
         bgpSession.setChannelExtMsgCoder(this.classicOpen);
@@ -229,15 +227,16 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
 
     @Test
     public void testUseCase1() throws InterruptedException {
-        final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(new TablesKey(ipv4tt.getAfi(), ipv4tt.getSafi()),
+        final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(new TablesKey(TABLE_TYPE.getAfi(), TABLE_TYPE.getSafi()),
             BasePathSelectionModeFactory.createBestPathSelectionStrategy());
         final RIBImpl ribImpl = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(RIB_ID), AS_NUMBER, new BgpId(RIB_ID), null, this.ribExtension,
-            this.dispatcher, this.mappingService.getCodecFactory(), this.domBroker, ImmutableList.of(ipv4tt), pathTables, this.ribExtension
-            .getClassLoadingStrategy(), null);
+            this.dispatcher, this.mappingService.getCodecFactory(), this.domBroker, TABLES, pathTables, this.ribExtension
+            .getClassLoadingStrategy(), null, TABLE_TYPE_REGISTRY, this.bgpStateProvider, this.bgpStateFactory, this.bgpIID);
         ribImpl.instantiateServiceInstance();
         ribImpl.onGlobalContextUpdated(this.schemaContext);
 
-        final BGPPeer bgpPeer = new BGPPeer("peer-test", ribImpl, PeerRole.Ibgp, null);
+        final BGPPeer bgpPeer = new BGPPeer(NEIGHBOR_ADDRESS, ribImpl, PeerRole.Ibgp, null, this.neighborState,
+            TABLE_TYPE_REGISTRY);
         bgpPeer.instantiateServiceInstance();
         final BGPSessionImpl bgpSession = new BGPSessionImpl(bgpPeer, this.speakerListener, this.classicOpen, this.classicOpen.getHoldTimer(), null);
         bgpSession.setChannelExtMsgCoder(this.classicOpen);

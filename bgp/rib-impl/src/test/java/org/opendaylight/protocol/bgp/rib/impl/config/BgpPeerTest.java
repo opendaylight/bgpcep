@@ -58,8 +58,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 
 public class BgpPeerTest extends AbstractConfig {
     static final short SHORT = 0;
-    static final IpAddress NEIGHBOR_ADDRESS = new IpAddress(new Ipv4Address("127.0.0.1"));
-    static final BigDecimal DEFAULT_TIMERS = BigDecimal.valueOf(30);
+    private static final BigDecimal DEFAULT_TIMERS = BigDecimal.valueOf(30);
     static final String MD5_PASSWORD = "123";
     static final PortNumber PORT = new PortNumber(179);
     static final AfiSafi AFI_SAFI_IPV4 = new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
@@ -71,7 +70,7 @@ public class BgpPeerTest extends AbstractConfig {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        this.bgpPeer = new BgpPeer(Mockito.mock(RpcProviderRegistry.class), this.bgpPeerRegistry);
+        this.bgpPeer = new BgpPeer(Mockito.mock(RpcProviderRegistry.class), this.bgpPeerRegistry, this.bgpStateFactory);
         Mockito.doNothing().when(this.serviceRegistration).unregister();
     }
 
@@ -80,7 +79,7 @@ public class BgpPeerTest extends AbstractConfig {
         final Neighbor neighbor = new NeighborBuilder().setAfiSafis(createAfiSafi()).setConfig(createConfig()).setNeighborAddress(NEIGHBOR_ADDRESS)
             .setRouteReflector(createRR()).setTimers(createTimers()).setTransport(createTransport()).setAddPaths(createAddPath()).build();
 
-        this.bgpPeer.start(this.rib, neighbor, this.tableTypeRegistry, this.configurationWriter);
+        this.bgpPeer.start(this.rib, neighbor, TABLE_TYPE_REGISTRY, this.configurationWriter);
         Mockito.verify(this.rib).createPeerChain(any());
         Mockito.verify(this.rib, times(2)).getLocalAs();
         Mockito.verify(this.rib).getLocalTables();
@@ -94,14 +93,14 @@ public class BgpPeerTest extends AbstractConfig {
         Mockito.verify(this.dispatcher).createReconnectingClient(any(InetSocketAddress.class), any(BGPPeerRegistry.class), anyInt(), any(Optional.class));
 
         try {
-            this.bgpPeer.start(this.rib, neighbor, this.tableTypeRegistry, this.configurationWriter);
+            this.bgpPeer.start(this.rib, neighbor, TABLE_TYPE_REGISTRY, this.configurationWriter);
             fail("Expected Exception");
         } catch (final IllegalStateException expected) {
             assertEquals("Previous peer instance {} was not closed.", expected.getMessage());
         }
         this.bgpPeer.setServiceRegistration(this.serviceRegistration);
         this.bgpPeer.close();
-        this.bgpPeer.restart(this.rib, this.tableTypeRegistry);
+        this.bgpPeer.restart(this.rib, TABLE_TYPE_REGISTRY);
         Mockito.verify(this.rib, times(2)).createPeerChain(any());
         Mockito.verify(this.rib, times(4)).getLocalAs();
         Mockito.verify(this.rib, times(2)).getLocalTables();
@@ -126,8 +125,8 @@ public class BgpPeerTest extends AbstractConfig {
         Mockito.verify(this.serviceRegistration).unregister();
         Mockito.verify(this.future).cancel(true);
 
-        final Neighbor emptyNeighbor = new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS).build();
-        this.bgpPeer.start(this.rib, emptyNeighbor, this.tableTypeRegistry, this.configurationWriter);
+        final Neighbor emptyNeighbor = new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS).setAfiSafis(createAfiSafi()).build();
+        this.bgpPeer.start(this.rib, emptyNeighbor, TABLE_TYPE_REGISTRY, this.configurationWriter);
         assertTrue(this.bgpPeer.containsEqualConfiguration(emptyNeighbor));
         this.bgpPeer.close();
     }

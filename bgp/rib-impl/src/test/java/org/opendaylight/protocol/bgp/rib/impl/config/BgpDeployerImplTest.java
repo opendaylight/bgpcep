@@ -31,13 +31,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
-import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
@@ -52,8 +50,7 @@ import org.opendaylight.controller.sal.core.api.model.SchemaService;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
-import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
-import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
+import org.opendaylight.protocol.bgp.rib.impl.AbstractBgpStateHandler;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer;
@@ -86,15 +83,12 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Protocol1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -107,12 +101,11 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({BgpDeployerImpl.class})
-public class BgpDeployerImplTest {
+public class BgpDeployerImplTest extends AbstractBgpStateHandler {
     private static final String NETWORK_INSTANCE_NAME = "network-test";
     private static final AsNumber AS = new AsNumber(72L);
     private static final IpAddress IPADDRESS = new IpAddress(new Ipv4Address("127.0.0.1"));
     private static final BgpId BGP_ID = new BgpId(IPADDRESS.getIpv4Address());
-    private static final BgpTableType TABLE_TYPE = new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
     private static final short SHORT = 0;
 
     @Mock
@@ -124,8 +117,6 @@ public class BgpDeployerImplTest {
     @Mock
     private DataBroker dataBroker;
     @Mock
-    private BGPTableTypeRegistryConsumer tableTypeRegistry;
-    @Mock
     private WriteTransaction wTx;
     @Mock
     private DataTreeModification<Bgp> modification;
@@ -136,24 +127,22 @@ public class BgpDeployerImplTest {
 
     private Collection<DataTreeModification<Bgp>> collection = Collections.singleton(this.modification);
 
+    @Override
     @Before
+    @SuppressWarnings("unchecked")
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+        super.setUp();
         final DOMDataBroker domDataBroker = mock(DOMDataBroker.class);
 
         Mockito.doReturn(this.wTx).when(this.dataBroker).newWriteOnlyTransaction();
-        Mockito.doReturn("mapping").when(this.tableTypeRegistry).toString();
 
         Mockito.doReturn(null).when(domDataBroker).createTransactionChain(any());
         Mockito.doReturn(Collections.singletonMap(DOMDataTreeChangeService.class, mock(DOMDataBrokerExtension.class)))
             .when(domDataBroker).getSupportedExtensions();
 
-        Mockito.doReturn(Optional.of(TABLE_TYPE)).when(this.tableTypeRegistry).getTableType(any());
         Mockito.doNothing().when(this.registration).unregister();
-        Mockito.doReturn(this.registration).when(this.bundleContext).registerService(eq(InstanceType.RIB.getServices()), any()
-            , any(Dictionary.class));
-        Mockito.doReturn(this.registration).when(this.bundleContext).registerService(eq(InstanceType.PEER.getServices()), any()
-            , any(Dictionary.class));
+        Mockito.doReturn(this.registration).when(this.bundleContext).registerService(eq(InstanceType.RIB.getServices()), any(), any(Dictionary.class));
+        Mockito.doReturn(this.registration).when(this.bundleContext).registerService(eq(InstanceType.PEER.getServices()), any(), any(Dictionary.class));
 
 
         Mockito.doNothing().when(this.wTx).merge(any(LogicalDatastoreType.class), any(InstanceIdentifier.class), any(NetworkInstance.class));
@@ -188,18 +177,21 @@ public class BgpDeployerImplTest {
         Mockito.doReturn(this.dataTreeRegistration).when(schemaService).registerSchemaContextListener(any());
 
         final RibImpl ribImpl = new RibImpl(singletonServiceProvider, extension,
-            mock(BGPDispatcher.class), mock(BindingCodecTreeFactory.class), domDataBroker, schemaService);
+            mock(BGPDispatcher.class), mock(BindingCodecTreeFactory.class), domDataBroker, schemaService,
+            this.bgpStateFactory);
         Mockito.doReturn(ribImpl).when(this.blueprintContainer).getComponentInstance(eq("ribImpl"));
 
-        final BgpPeer bgpPeer = new BgpPeer(mock(RpcProviderRegistry.class), mock(BGPPeerRegistry.class));
+        final BgpPeer bgpPeer = new BgpPeer(mock(RpcProviderRegistry.class), mock(BGPPeerRegistry.class), this.bgpStateFactory);
         Mockito.doReturn(bgpPeer).when(this.blueprintContainer).getComponentInstance(eq("bgpPeer"));
         this.collection = Collections.singleton(this.modification);
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testDeployerRib() throws Exception {
         Mockito.doReturn(Global.class).when(this.dObject).getDataType();
-        final BgpDeployerImpl deployer = new BgpDeployerImpl(NETWORK_INSTANCE_NAME, this.blueprintContainer, this.bundleContext, this.dataBroker, this.tableTypeRegistry);
+        final BgpDeployerImpl deployer = new BgpDeployerImpl(NETWORK_INSTANCE_NAME, this.blueprintContainer, this.bundleContext, this.dataBroker,
+            TABLE_TYPE_REGISTRY, this.bgpStateProvider);
         final BgpDeployerImpl spyDeployer = spy(deployer);
         configureGlobal(IPV4UNICAST.class);
         Mockito.doReturn(WRITE).when(this.dObject).getModificationType();
@@ -212,7 +204,7 @@ public class BgpDeployerImplTest {
         verify(this.dataBroker).registerDataTreeChangeListener(Mockito.any(DataTreeIdentifier.class), Mockito.any(BgpDeployerImpl.class));
 
         assertEquals(networkInstanceIId, spyDeployer.getInstanceIdentifier());
-        assertEquals(this.tableTypeRegistry, spyDeployer.getTableTypeRegistry());
+        assertEquals(TABLE_TYPE_REGISTRY, spyDeployer.getTableTypeRegistry());
 
         spyDeployer.onDataTreeChanged(this.collection);
         verifyPrivate(spyDeployer).invoke("onGlobalChanged", any(DataObjectModification.class), any(InstanceIdentifier.class));
@@ -296,9 +288,11 @@ public class BgpDeployerImplTest {
      * Test create Rib
      */
     @Test
+    @SuppressWarnings("unchecked")
     public void testDeployerCreateNeighbor() throws Exception {
 
-        final BgpDeployerImpl deployer = new BgpDeployerImpl(NETWORK_INSTANCE_NAME, this.blueprintContainer, this.bundleContext, this.dataBroker, this.tableTypeRegistry);
+        final BgpDeployerImpl deployer = new BgpDeployerImpl(NETWORK_INSTANCE_NAME, this.blueprintContainer, this.bundleContext, this.dataBroker,
+            TABLE_TYPE_REGISTRY, this.bgpStateProvider);
         final BgpDeployerImpl spyDeployer = spy(deployer);
 
         //First create Rib
@@ -332,7 +326,7 @@ public class BgpDeployerImplTest {
         verify(this.dataBroker).registerDataTreeChangeListener(Mockito.any(DataTreeIdentifier.class), Mockito.any(BgpDeployerImpl.class));
 
         assertEquals(networkInstanceIId, spyDeployer.getInstanceIdentifier());
-        assertEquals(this.tableTypeRegistry, spyDeployer.getTableTypeRegistry());
+        assertEquals(TABLE_TYPE_REGISTRY, spyDeployer.getTableTypeRegistry());
 
         spyDeployer.onDataTreeChanged(this.collection);
         verify(spyDeployer, times(2)).onDataTreeChanged(any(Collection.class));
