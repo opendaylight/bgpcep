@@ -10,6 +10,8 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Verify;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -28,6 +30,8 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.AbstractImportPolicy;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ImportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
+import org.opendaylight.protocol.bgp.rib.impl.state.peer.PrefixesInstalledCounters;
+import org.opendaylight.protocol.bgp.rib.impl.state.peer.PrefixesReceivedCounters;
 import org.opendaylight.protocol.bgp.rib.impl.stats.peer.route.PerTableTypeRouteCounter;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
@@ -64,52 +68,49 @@ import org.slf4j.LoggerFactory;
  *
  */
 @NotThreadSafe
-final class EffectiveRibInWriter implements AutoCloseable {
+final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesInstalledCounters, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(EffectiveRibInWriter.class);
-    protected static final NodeIdentifier TABLE_ROUTES = new NodeIdentifier(Routes.QNAME);
+    static final NodeIdentifier TABLE_ROUTES = new NodeIdentifier(Routes.QNAME);
 
-    private final class AdjInTracker implements AutoCloseable, ClusteredDOMDataTreeChangeListener {
+    private final class AdjInTracker implements PrefixesReceivedCounters, PrefixesInstalledCounters, AutoCloseable,
+        ClusteredDOMDataTreeChangeListener {
         private final RIBSupportContextRegistry registry;
         private final YangInstanceIdentifier peerIId;
         private final YangInstanceIdentifier effRibTables;
         private final ListenerRegistration<?> reg;
         private final DOMTransactionChain chain;
-        private final PerTableTypeRouteCounter effectiveRibInRouteCounters;
         private final PerTableTypeRouteCounter adjRibInRouteCounters;
-        private final Map<TablesKey, Set<YangInstanceIdentifier>> effectiveRibInRouteMap = new ConcurrentHashMap<>();
         private final Map<TablesKey, Set<YangInstanceIdentifier>> adjRibInRouteMap = new ConcurrentHashMap<>();
-
-        AdjInTracker(final DOMDataTreeChangeService service, final RIBSupportContextRegistry registry, final DOMTransactionChain chain, final YangInstanceIdentifier peerIId,
-                @Nonnull final PerTableTypeRouteCounter effectiveRibInRouteCounters, @Nonnull final PerTableTypeRouteCounter adjRibInRouteCounters) {
+        private final Map<TablesKey, LongAdder> prefixesReceived;
+        private final Map<TablesKey, LongAdder> prefixesInstalled;
+        AdjInTracker(final DOMDataTreeChangeService service, final RIBSupportContextRegistry registry,
+            final DOMTransactionChain chain, final YangInstanceIdentifier peerIId,
+            @Nonnull final PerTableTypeRouteCounter adjRibInRouteCounters, @Nonnull Set<TablesKey> tables) {
             this.registry = Preconditions.checkNotNull(registry);
             this.chain = Preconditions.checkNotNull(chain);
             this.peerIId = Preconditions.checkNotNull(peerIId);
             this.effRibTables = this.peerIId.node(EffectiveRibIn.QNAME).node(Tables.QNAME);
-            this.effectiveRibInRouteCounters = Preconditions.checkNotNull(effectiveRibInRouteCounters);
             this.adjRibInRouteCounters = Preconditions.checkNotNull(adjRibInRouteCounters);
+            this.prefixesInstalled = buildPrefixesTables(tables);
+            this.prefixesReceived = buildPrefixesTables(tables);
 
-            final DOMDataTreeIdentifier treeId = new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, this.peerIId.node(AdjRibIn.QNAME).node(Tables.QNAME));
+            final DOMDataTreeIdentifier treeId = new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL,
+                this.peerIId.node(AdjRibIn.QNAME).node(Tables.QNAME));
             LOG.debug("Registered Effective RIB on {}", this.peerIId);
             this.reg = service.registerDataTreeChangeListener(treeId, this);
         }
 
-        /**
-         * @deprecated Should always pass in route counter
-         * @param service
-         * @param registry
-         * @param chain
-         * @param peerIId
-         */
-        @Deprecated
-        AdjInTracker(final DOMDataTreeChangeService service, final RIBSupportContextRegistry registry, final DOMTransactionChain chain, final YangInstanceIdentifier peerIId) {
-            this(service, registry, chain, peerIId, new PerTableTypeRouteCounter(), new PerTableTypeRouteCounter());
+        private Map<TablesKey, LongAdder> buildPrefixesTables(final Set<TablesKey> tables) {
+            final ImmutableMap.Builder<TablesKey, LongAdder> b = ImmutableMap.builder();
+            tables.forEach(table -> b.put(table, new LongAdder()));
+            return b.build();
         }
+
 
         private void updateRoute(@Nonnull final PerTableTypeRouteCounter counter, @Nonnull final Map<TablesKey, Set<YangInstanceIdentifier>> routeMap,
                 @Nonnull final TablesKey tablesKey, @Nonnull final YangInstanceIdentifier routeId) {
             routeMap.putIfAbsent(tablesKey, new HashSet<>());
             routeMap.get(tablesKey).add(routeId);
-
             updateRouteCounter(counter, routeMap,tablesKey);
         }
 
@@ -129,14 +130,14 @@ final class EffectiveRibInWriter implements AutoCloseable {
             updateRouteCounter(counter, routeMap,tablesKey);
         }
 
-        private void updateRouteCounter(@Nonnull final PerTableTypeRouteCounter counter, @Nonnull final Map<TablesKey, Set<YangInstanceIdentifier>> routeMap,
-                @Nonnull final TablesKey tablesKey) {
-            final LongAdder tableCounter = counter.getCounterOrSetDefault(tablesKey);
-            tableCounter.reset();
-            tableCounter.add(routeMap.getOrDefault(tablesKey, new HashSet<>()).size());
+        private void updateRouteCounter(@Nonnull final PerTableTypeRouteCounter counter, @Nonnull final Map<TablesKey,
+            Set<YangInstanceIdentifier>> routeMap, @Nonnull final TablesKey tablesKey) {
+            final int size = routeMap.getOrDefault(tablesKey, new HashSet<>()).size();
+            counter.setValueToCounterOrSetDefault(tablesKey, size);
         }
 
-        private void processRoute(final DOMDataWriteTransaction tx, final RIBSupport ribSupport, final AbstractImportPolicy policy, final YangInstanceIdentifier routesPath, final DataTreeCandidateNode route) {
+        private void processRoute(final DOMDataWriteTransaction tx, final RIBSupport ribSupport, final AbstractImportPolicy policy,
+            final YangInstanceIdentifier routesPath, final DataTreeCandidateNode route) {
             LOG.debug("Process route {}", route.getIdentifier());
             final YangInstanceIdentifier routeId = ribSupport.routePath(routesPath, route.getIdentifier());
             final TablesKey tablesKey = new TablesKey(ribSupport.getAfi(), ribSupport.getSafi());
@@ -147,7 +148,7 @@ final class EffectiveRibInWriter implements AutoCloseable {
                 LOG.debug("Route deleted. routeId={}", routeId);
 
                 deleteRoute(this.adjRibInRouteCounters, this.adjRibInRouteMap, tablesKey, routeId);
-                deleteRoute(this.effectiveRibInRouteCounters, this.effectiveRibInRouteMap, tablesKey, routeId);
+                CountersUtil.decrement(this.prefixesInstalled.get(tablesKey), tablesKey);
                 break;
             case UNMODIFIED:
                 // No-op
@@ -156,9 +157,9 @@ final class EffectiveRibInWriter implements AutoCloseable {
             case SUBTREE_MODIFIED:
             case WRITE:
                 tx.put(LogicalDatastoreType.OPERATIONAL, routeId, route.getDataAfter().get());
+                CountersUtil.increment(this.prefixesReceived.get(tablesKey), tablesKey);
                 // count adj-rib-in route first
                 updateRoute(this.adjRibInRouteCounters, this.adjRibInRouteMap, tablesKey, routeId);
-                updateRoute(this.effectiveRibInRouteCounters, this.effectiveRibInRouteMap, tablesKey, routeId);
                 // Lookup per-table attributes from RIBSupport
                 final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(route.getDataAfter(), ribSupport.routeAttributesIdentifier()).orNull();
                 final ContainerNode effectiveAttrs;
@@ -173,13 +174,12 @@ final class EffectiveRibInWriter implements AutoCloseable {
 
                 if (effectiveAttrs != null) {
                     tx.put(LogicalDatastoreType.OPERATIONAL, routeId.node(ribSupport.routeAttributesIdentifier()), effectiveAttrs);
-
-                    updateRoute(this.effectiveRibInRouteCounters, this.effectiveRibInRouteMap, tablesKey, routeId);
+                    if(route.getModificationType() == ModificationType.WRITE) {
+                        CountersUtil.increment(this.prefixesInstalled.get(tablesKey), tablesKey);
+                    }
                 } else {
                     LOG.warn("Route {} advertised empty attributes", routeId);
                     tx.delete(LogicalDatastoreType.OPERATIONAL,  routeId);
-
-                    deleteRoute(this.effectiveRibInRouteCounters, this.effectiveRibInRouteMap, tablesKey, routeId);
                 }
                 break;
             default:
@@ -203,7 +203,7 @@ final class EffectiveRibInWriter implements AutoCloseable {
                     LOG.debug("Route deleted. routeId={}", childPath);
 
                     deleteRoute(this.adjRibInRouteCounters, this.adjRibInRouteMap, tablesKey, childPath);
-                    deleteRoute(this.effectiveRibInRouteCounters, this.effectiveRibInRouteMap, tablesKey, childPath);
+                    CountersUtil.decrement(this.prefixesInstalled.get(tablesKey), tablesKey);
                     break;
                 case UNMODIFIED:
                     // No-op
@@ -312,9 +312,9 @@ final class EffectiveRibInWriter implements AutoCloseable {
 
                 // delete the corresponding effective table
                 tx.delete(LogicalDatastoreType.OPERATIONAL, effectiveTablePath);
-
-                deleteRoute(this.adjRibInRouteCounters, this.adjRibInRouteMap, new TablesKey(ribSupport.getAfi(), ribSupport.getSafi()));
-                deleteRoute(this.effectiveRibInRouteCounters, this.effectiveRibInRouteMap, new TablesKey(ribSupport.getAfi(), ribSupport.getSafi()));
+                final TablesKey tk = new TablesKey(ribSupport.getAfi(), ribSupport.getSafi());
+                deleteRoute(this.adjRibInRouteCounters, this.adjRibInRouteMap, tk);
+                CountersUtil.decrement(this.prefixesInstalled.get(tk), tk);
                 break;
             case SUBTREE_MODIFIED:
                 modifyTable(tx, tableKey, table);
@@ -335,42 +335,90 @@ final class EffectiveRibInWriter implements AutoCloseable {
         @Override
         public void close() {
             this.reg.close();
+            this.prefixesReceived.values().forEach(LongAdder::reset);
+            this.prefixesInstalled.values().forEach(LongAdder::reset);
+        }
+
+        @Override
+        public long getPrefixedReceivedCount(final TablesKey tablesKey) {
+            final LongAdder counter = this.prefixesReceived.get(tablesKey);
+            if (counter == null) {
+                return 0;
+            }
+            return counter.longValue();
+        }
+
+        @Override
+        public Set<TablesKey> getTableKeys() {
+            return ImmutableSet.copyOf(this.prefixesReceived.keySet());
+        }
+
+        @Override
+        public boolean isSupported(final TablesKey tablesKey) {
+            return this.prefixesReceived.containsKey(tablesKey);
+        }
+
+        @Override
+        public long getPrefixedInstalledCount(final TablesKey tablesKey) {
+            final LongAdder counter = this.prefixesInstalled.get(tablesKey);
+            if (counter == null) {
+                return 0;
+            }
+            return counter.longValue();
+        }
+
+        @Override
+        public long getTotalPrefixesInstalled() {
+            return this.prefixesInstalled.values().stream().mapToLong(LongAdder::longValue).sum();
         }
     }
 
     private final AdjInTracker adjInTracker;
     private final AbstractImportPolicy importPolicy;
 
-    @Deprecated
     static EffectiveRibInWriter create(@Nonnull final DOMDataTreeChangeService service, @Nonnull final DOMTransactionChain chain,
-            @Nonnull final YangInstanceIdentifier peerIId, @Nonnull final ImportPolicyPeerTracker importPolicyPeerTracker, @Nonnull final RIBSupportContextRegistry registry, final PeerRole peerRole) {
-        return new EffectiveRibInWriter(service, chain, peerIId, importPolicyPeerTracker, registry, peerRole);
-    }
-
-    static EffectiveRibInWriter create(@Nonnull final DOMDataTreeChangeService service, @Nonnull final DOMTransactionChain chain,
-            @Nonnull final YangInstanceIdentifier peerIId, @Nonnull final ImportPolicyPeerTracker importPolicyPeerTracker, @Nonnull final RIBSupportContextRegistry registry, final PeerRole peerRole,
-            @Nonnull final PerTableTypeRouteCounter effectiveRouteCounters, @Nonnull final PerTableTypeRouteCounter adjRibInRouteCounters) {
-        return new EffectiveRibInWriter(service, chain, peerIId, importPolicyPeerTracker, registry, peerRole, effectiveRouteCounters, adjRibInRouteCounters);
-    }
-
-    @Deprecated
-    private EffectiveRibInWriter(final DOMDataTreeChangeService service, final DOMTransactionChain chain, final YangInstanceIdentifier peerIId,
-            final ImportPolicyPeerTracker importPolicyPeerTracker, final RIBSupportContextRegistry registry, final PeerRole peerRole) {
-        importPolicyPeerTracker.peerRoleChanged(peerIId, peerRole);
-        this.importPolicy = importPolicyPeerTracker.policyFor(IdentifierUtils.peerId((NodeIdentifierWithPredicates) peerIId.getLastPathArgument()));
-        this.adjInTracker = new AdjInTracker(service, registry, chain, peerIId);
+        @Nonnull final YangInstanceIdentifier peerIId, @Nonnull final ImportPolicyPeerTracker importPolicyPeerTracker,
+        @Nonnull final RIBSupportContextRegistry registry, final PeerRole peerRole,
+        @Nonnull final PerTableTypeRouteCounter adjRibInRouteCounters, @Nonnull Set<TablesKey> tables) {
+        return new EffectiveRibInWriter(service, chain, peerIId, importPolicyPeerTracker, registry, peerRole,
+            adjRibInRouteCounters, tables);
     }
 
     private EffectiveRibInWriter(final DOMDataTreeChangeService service, final DOMTransactionChain chain, final YangInstanceIdentifier peerIId,
-            final ImportPolicyPeerTracker importPolicyPeerTracker, final RIBSupportContextRegistry registry, final PeerRole peerRole,
-            @Nonnull final PerTableTypeRouteCounter effectiveRouteCounters, @Nonnull final PerTableTypeRouteCounter adjRibInRouteCounters) {
+        final ImportPolicyPeerTracker importPolicyPeerTracker, final RIBSupportContextRegistry registry, final PeerRole peerRole,
+        @Nonnull final PerTableTypeRouteCounter adjRibInRouteCounters, @Nonnull Set<TablesKey> tables) {
         importPolicyPeerTracker.peerRoleChanged(peerIId, peerRole);
         this.importPolicy = importPolicyPeerTracker.policyFor(IdentifierUtils.peerId((NodeIdentifierWithPredicates) peerIId.getLastPathArgument()));
-        this.adjInTracker = new AdjInTracker(service, registry, chain, peerIId, effectiveRouteCounters, adjRibInRouteCounters);
+        this.adjInTracker = new AdjInTracker(service, registry, chain, peerIId, adjRibInRouteCounters, tables);
     }
 
     @Override
     public void close() {
         this.adjInTracker.close();
+    }
+
+    @Override
+    public long getPrefixedReceivedCount(final TablesKey tablesKey) {
+        return this.adjInTracker.getPrefixedReceivedCount(tablesKey);
+    }
+
+    @Override
+    public Set<TablesKey> getTableKeys() {
+        return this.adjInTracker.getTableKeys();
+    }
+
+    @Override
+    public boolean isSupported(final TablesKey tablesKey) {
+        return this.adjInTracker.isSupported(tablesKey);
+    }
+
+    @Override
+    public long getPrefixedInstalledCount(@Nonnull final TablesKey tablesKey) {
+        return this.adjInTracker.getPrefixedInstalledCount(tablesKey);
+    }
+
+    @Override
+    public long getTotalPrefixesInstalled() {
+        return this.adjInTracker.getTotalPrefixesInstalled();
     }
 }

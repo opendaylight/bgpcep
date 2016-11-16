@@ -12,15 +12,16 @@ import static org.opendaylight.protocol.bgp.rib.impl.CountersUtil.toZeroBasedCou
 import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.LongAdder;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.controller.config.api.IdentityAttributeRef;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpRenderState;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.LocRibRouteTable;
-import org.opendaylight.protocol.bgp.rib.impl.stats.peer.route.PerTableTypeRouteCounter;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPRIBState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.ZeroBasedCounter32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
@@ -28,22 +29,25 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.common.QName;
 
-public class BGPRenderStatsImpl implements BGPRenderStats {
-    private final PerTableTypeRouteCounter locRibRouteCounter = new PerTableTypeRouteCounter();
+public final class BGPRenderStatsImpl implements BGPRenderStats {
     private final BgpId bgpId;
     private final RibId ribId;
     private final ClusterIdentifier clusterId;
     private final AsNumber localAs;
-    private final LongAdder configuredPeerCounter;
-    private final LongAdder connectedPeerCounter;
+    private final LongAdder configuredPeerCounter = new LongAdder();
+    private final LongAdder connectedPeerCounter = new LongAdder();
+    private final BGPRIBState globalState;
+    private final Set<TablesKey> tablesKeys;
 
-    public BGPRenderStatsImpl(@Nonnull final BgpId bgpId, @Nonnull final RibId ribId, @Nonnull final AsNumber localAs, @Nullable final ClusterIdentifier clusterId) {
+    public BGPRenderStatsImpl(@Nonnull final BgpId bgpId, @Nonnull final RibId ribId, @Nonnull final AsNumber localAs,
+        @Nullable final ClusterIdentifier clusterId, @Nonnull final BGPRIBState globalState,
+        @Nonnull final Set<TablesKey> tablesKeys) {
         this.bgpId = Preconditions.checkNotNull(bgpId);
         this.ribId = Preconditions.checkNotNull(ribId);
+        this.globalState = Preconditions.checkNotNull(globalState);
+        this.tablesKeys = Preconditions.checkNotNull(tablesKeys);
         this.localAs = localAs;
         this.clusterId = clusterId;
-        this.configuredPeerCounter = new LongAdder();
-        this.connectedPeerCounter = new LongAdder();
     }
 
     @Override
@@ -58,28 +62,24 @@ public class BGPRenderStatsImpl implements BGPRenderStats {
         // fill in the the statistic part
         final LongAdder totalRouteCount = new LongAdder();
         final List<LocRibRouteTable> locRibRouteTableList = new ArrayList<>();
-        this.locRibRouteCounter.getCounters().entrySet().forEach(e -> generateCounters(e, locRibRouteTableList, totalRouteCount));
+        this.tablesKeys.forEach(e -> generateCounters(e, locRibRouteTableList, totalRouteCount));
         renderState.setLocRibRouteTable(locRibRouteTableList);
         renderState.setLocRibRoutesCount(toZeroBasedCounter32(totalRouteCount));
         return renderState;
     }
 
-    private void generateCounters(final Map.Entry<TablesKey, LongAdder> e, final List<LocRibRouteTable> locRibRouteTableList,
+    private void generateCounters(final TablesKey tablesKey, final List<LocRibRouteTable> locRibRouteTableList,
         final LongAdder totalRouteCount) {
         final LocRibRouteTable table = new LocRibRouteTable();
-        final QName afi = BindingReflections.getQName(e.getKey().getAfi()).intern();
-        final QName safi = BindingReflections.getQName(e.getKey().getSafi()).intern();
+        final QName afi = BindingReflections.getQName(tablesKey.getAfi()).intern();
+        final QName safi = BindingReflections.getQName(tablesKey.getSafi()).intern();
         table.setAfi(new IdentityAttributeRef(afi.toString()));
         table.setSafi(new IdentityAttributeRef(safi.toString()));
-        table.setRoutesCount(toZeroBasedCounter32(e.getValue()));
+        final long count = this.globalState.getPathCount(tablesKey);
+        table.setRoutesCount(new ZeroBasedCounter32(count));
         locRibRouteTableList.add(table);
-        totalRouteCount.add(e.getValue().longValue());
+        totalRouteCount.add(count);
 
-    }
-
-    @Override
-    public PerTableTypeRouteCounter getLocRibRouteCounter() {
-        return this.locRibRouteCounter;
     }
 
     @Override

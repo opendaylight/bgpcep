@@ -45,8 +45,7 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
     public void testUseCase1() throws Exception {
 
         final List<BgpTableType> tables = ImmutableList.of(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
-        final TablesKey tk = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
-        final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(tk, new AllPathSelection());
+        final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(TABLES_KEY, new AllPathSelection());
 
 
         final RIBImpl ribImpl = new RIBImpl(this.clusterSingletonServiceProvider, new RibId("test-rib"), AS_NUMBER, new BgpId(RIB_ID), null, this.ribExtension,

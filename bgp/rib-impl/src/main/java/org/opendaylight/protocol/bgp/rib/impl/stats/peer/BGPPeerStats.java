@@ -18,7 +18,5 @@ public interface BGPPeerStats {
 
     PerTableTypeRouteCounter getAdjRibOutRouteCounters();
 
-    PerTableTypeRouteCounter getEffectiveRibInRouteCounters();
-
     LongAdder getSessionEstablishedCounter();
 }

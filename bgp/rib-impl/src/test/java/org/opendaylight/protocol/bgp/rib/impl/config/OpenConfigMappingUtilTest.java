@@ -76,7 +76,6 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.re
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.ProtocolKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151009.BGP;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
@@ -130,8 +129,7 @@ public class OpenConfigMappingUtilTest {
 
     private static final ClusterIdentifier CLUSTER_IDENTIFIER = new ClusterIdentifier("192.168.1.2");
     private static final AsNumber AS = new AsNumber(72L);
-    private static final IpAddress IPADDRESS = new IpAddress(new Ipv4Address("127.0.0.1"));
-    private static final BgpId BGP_ID = new BgpId(IPADDRESS.getIpv4Address());
+    private static final BgpId BGP_ID = new BgpId(NEIGHBOR_ADDRESS.getIpv4Address());
     private static final RibId RIB_ID = new RibId("bgp");
     private static final List<AddressFamilies> FAMILIES;
     private static final List<BgpTableType> TABLE_TYPES;
@@ -440,7 +438,7 @@ public class OpenConfigMappingUtilTest {
 
     @Test
     public void fromBgpPeer() {
-        final Neighbor result = OpenConfigMappingUtil.fromBgpPeer(FAMILIES, TABLE_TYPES, 30, IPADDRESS, true, null, PORT_NUMBER, 30, AS, PeerRole.Ibgp, null, this.tableTypeRegistry);
+        final Neighbor result = OpenConfigMappingUtil.fromBgpPeer(FAMILIES, TABLE_TYPES, 30, NEIGHBOR_ADDRESS, true, null, PORT_NUMBER, 30, AS, PeerRole.Ibgp, null, this.tableTypeRegistry);
         final List<AfiSafi> afisafis = new ArrayList<>();
         afisafis.add(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
             .addAugmentation(AfiSafi1.class, new AfiSafi1Builder().setReceive(true).setSendMax(Shorts.checkedCast(ALL_PATHS)).build()).build());
@@ -449,7 +447,7 @@ public class OpenConfigMappingUtilTest {
         final Neighbor expected = new NeighborBuilder()
             .setAfiSafis(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.AfiSafisBuilder().setAfiSafi(afisafis).build())
             .setConfig(new ConfigBuilder().setPeerAs(AS).setPeerType(PeerType.INTERNAL).setRouteFlapDamping(false).setSendCommunity(CommunityType.NONE).build())
-            .setNeighborAddress(IPADDRESS)
+            .setNeighborAddress(NEIGHBOR_ADDRESS)
             .setRouteReflector(new RouteReflectorBuilder().setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp
                 .neighbor.group.route.reflector.ConfigBuilder().setRouteReflectorClient(false).build()).build())
             .setTimers(new TimersBuilder().setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group
@@ -468,7 +466,7 @@ public class OpenConfigMappingUtilTest {
         final Neighbor result = OpenConfigMappingUtil.fromApplicationPeer(app, BGP_ID);
         final Neighbor expected = new NeighborBuilder().setConfig(new ConfigBuilder().setDescription(app.getValue())
             .addAugmentation(Config2.class, new Config2Builder().setPeerGroup(OpenConfigMappingUtil.APPLICATION_PEER_GROUP_NAME).build()).build())
-            .setNeighborAddress(IPADDRESS).build();
+            .setNeighborAddress(NEIGHBOR_ADDRESS).build();
         assertEquals(expected, result);
     }
 }
