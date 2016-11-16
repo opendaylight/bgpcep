@@ -16,8 +16,8 @@ import java.util.Collections;
 import org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImpl;
 import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerSessionListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
-import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
@@ -33,7 +33,7 @@ final class BGPPeerBuilder {
     }
 
     static void createPeer(final BGPDispatcher dispatcher, final Arguments arguments, final InetSocketAddress localAddress,
-            final BGPSessionListener sessionListener, final BgpParameters bgpParameters) {
+            final BGPPeerSessionListener sessionListener, final BgpParameters bgpParameters) {
         final AsNumber as = arguments.getAs();
         final BGPSessionPreferences proposal = new BGPSessionPreferences(as, arguments.getHoldTimer(), new BgpId(localAddress.getAddress().getHostAddress()),
                 as, Collections.singletonList(bgpParameters), Optional.absent());

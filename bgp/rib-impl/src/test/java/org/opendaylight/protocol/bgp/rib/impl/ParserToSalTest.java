@@ -52,6 +52,8 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.util.HexDumpBGPFileParser;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.ipv4.routes.Ipv4Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv6.routes.ipv6.routes.Ipv6Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateAddressFamily;
@@ -81,6 +83,7 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
     private AbstractRIBExtensionProviderActivator baseact, lsact;
     private RIBExtensionProviderContext ext1, ext2;
     private static final TablesKey TABLE_KEY = new TablesKey(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
+    private final IpAddress neighborAddress = new IpAddress(new Ipv4Address("127.0.0.1"));
     @Mock
     BGPDispatcher dispatcher;
     @Mock
@@ -143,13 +146,14 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
     public void testWithLinkstate() throws InterruptedException, ExecutionException {
         final List<BgpTableType> tables = ImmutableList.of(
                 new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class));
-        final RIBImpl rib = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(TEST_RIB_ID), new AsNumber(72L), new BgpId("127.0.0.1"),
+        final RIBImplImpl rib = new RIBImplImpl(this.clusterSingletonServiceProvider, new RibId(TEST_RIB_ID), new AsNumber(72L), new BgpId("127.0.0.1"),
             null, this.ext2, this.dispatcher, this.codecFactory, getDomBroker(), tables, Collections.singletonMap(TABLE_KEY,
             BasePathSelectionModeFactory.createBestPathSelectionStrategy()), GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), null);
         rib.instantiateServiceInstance();
         assertTablesExists(tables, true);
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
-        final BGPPeer peer = new BGPPeer("peer-" + this.mock.toString(), rib, PeerRole.Ibgp, null);
+        final BGPPeer peer = new BGPPeer(this.neighborAddress, rib, PeerRole.Ibgp, null, Collections.emptySet(),
+            Collections.emptySet());
         peer.instantiateServiceInstance();
         final ListenerRegistration<?> reg = this.mock.registerUpdateListener(peer);
         reg.close();
@@ -158,13 +162,14 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
     @Test
     public void testWithoutLinkstate() throws InterruptedException, ExecutionException {
         final List<BgpTableType> tables = ImmutableList.of(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
-        final RIBImpl rib = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(TEST_RIB_ID), new AsNumber(72L), new BgpId("127.0.0.1"), null,
+        final RIBImplImpl rib = new RIBImplImpl(this.clusterSingletonServiceProvider, new RibId(TEST_RIB_ID), new AsNumber(72L), new BgpId("127.0.0.1"), null,
             this.ext1, this.dispatcher, this.codecFactory, getDomBroker(), tables, Collections.singletonMap(TABLE_KEY,
             BasePathSelectionModeFactory.createBestPathSelectionStrategy()), GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), null);
         rib.instantiateServiceInstance();
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
         assertTablesExists(tables, true);
-        final BGPPeer peer = new BGPPeer("peer-" + this.mock.toString(), rib, PeerRole.Ibgp, null);
+        final BGPPeer peer = new BGPPeer(this.neighborAddress, rib, PeerRole.Ibgp, null, Collections.emptySet(), 
+            Collections.emptySet());
         peer.instantiateServiceInstance();
         final ListenerRegistration<?> reg = this.mock.registerUpdateListener(peer);
         reg.close();

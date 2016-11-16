@@ -53,6 +53,7 @@ import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Notify;
@@ -105,6 +106,7 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
     private static final AsNumber AS_NUMBER = new AsNumber(30L);
     private static final Ipv4Address BGP_ID = new Ipv4Address("1.1.1.2");
     private static final String LOCAL_IP = "1.1.1.4";
+    private final IpAddress neighbor = new IpAddress(new Ipv4Address(LOCAL_IP));
     private static final int LOCAL_PORT = 12345;
     private final BgpTableType ipv4tt = new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
     private Open classicOpen;
@@ -199,15 +201,17 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
 
     @Test
     public void testHandleMessageAfterException() throws InterruptedException {
-        final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(new TablesKey(ipv4tt.getAfi(), ipv4tt.getSafi()),
+        final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(TABLES_KEY,
             BasePathSelectionModeFactory.createBestPathSelectionStrategy());
-        final RIBImpl ribImpl = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(RIB_ID), AS_NUMBER, new BgpId(RIB_ID), null, this.ribExtension,
-            this.dispatcher, this.mappingService.getCodecFactory(), this.domBroker, ImmutableList.of(ipv4tt), pathTables, this.ribExtension
-            .getClassLoadingStrategy(), null);
+        final RIBImplImpl ribImpl = new RIBImplImpl(this.clusterSingletonServiceProvider, new RibId(RIB_ID), AS_NUMBER,
+            new BgpId(RIB_ID), null, this.ribExtension, this.dispatcher, this.mappingService.getCodecFactory(),
+            this.domBroker, ImmutableList.of(this.ipv4tt), pathTables, this.ribExtension.getClassLoadingStrategy(),
+            null);
         ribImpl.instantiateServiceInstance();
         ribImpl.onGlobalContextUpdated(this.schemaContext);
 
-        final BGPPeer bgpPeer = new BGPPeer("peer-test", ribImpl, PeerRole.Ibgp, null);
+        final BGPPeer bgpPeer = new BGPPeer(this.neighbor, ribImpl, PeerRole.Ibgp, null, AFI_SAFIS_ADVERTIZED,
+            Collections.emptySet());
         bgpPeer.instantiateServiceInstance();
         final BGPSessionImpl bgpSession = new BGPSessionImpl(bgpPeer, this.speakerListener, this.classicOpen, this.classicOpen.getHoldTimer(), null);
         bgpSession.setChannelExtMsgCoder(this.classicOpen);
@@ -238,15 +242,17 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
 
     @Test
     public void testUseCase1() throws InterruptedException {
-        final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(new TablesKey(ipv4tt.getAfi(), ipv4tt.getSafi()),
+        final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(TABLES_KEY,
             BasePathSelectionModeFactory.createBestPathSelectionStrategy());
-        final RIBImpl ribImpl = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(RIB_ID), AS_NUMBER, new BgpId(RIB_ID), null, this.ribExtension,
-            this.dispatcher, this.mappingService.getCodecFactory(), this.domBroker, ImmutableList.of(ipv4tt), pathTables, this.ribExtension
-            .getClassLoadingStrategy(), null);
+        final RIBImplImpl ribImpl = new RIBImplImpl(this.clusterSingletonServiceProvider, new RibId(RIB_ID), AS_NUMBER,
+            new BgpId(RIB_ID), null, this.ribExtension, this.dispatcher, this.mappingService.getCodecFactory(),
+            this.domBroker, ImmutableList.of(this.ipv4tt), pathTables, this.ribExtension.getClassLoadingStrategy(),
+            null);
         ribImpl.instantiateServiceInstance();
         ribImpl.onGlobalContextUpdated(this.schemaContext);
 
-        final BGPPeer bgpPeer = new BGPPeer("peer-test", ribImpl, PeerRole.Ibgp, null);
+        final BGPPeer bgpPeer = new BGPPeer(this.neighbor, ribImpl, PeerRole.Ibgp, null, AFI_SAFIS_ADVERTIZED,
+            Collections.emptySet());
         bgpPeer.instantiateServiceInstance();
         final BGPSessionImpl bgpSession = new BGPSessionImpl(bgpPeer, this.speakerListener, this.classicOpen, this.classicOpen.getHoldTimer(), null);
         bgpSession.setChannelExtMsgCoder(this.classicOpen);

@@ -34,7 +34,7 @@ import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvid
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
-import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
+import org.opendaylight.protocol.bgp.rib.impl.RIBImplImpl;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
@@ -126,10 +126,10 @@ public class RibImplTest extends AbstractConfig {
         verify(this.extension).getClassLoadingStrategy();
         verify(this.domDataBroker).getSupportedExtensions();
         verify(this.clusterSingletonServiceProvider).registerClusterSingletonService(any());
-        verify(this.schemaService).registerSchemaContextListener(any(RIBImpl.class));
+        verify(this.schemaService).registerSchemaContextListener(any(RIBImplImpl.class));
         this.singletonService.instantiateServiceInstance();
         Mockito.verify(this.configurationWriter).apply();
-        assertEquals("RIBImpl{}", ribImpl.toString());
+        assertEquals("RIBImplImpl{}", ribImpl.toString());
         assertEquals(ServiceGroupIdentifier.create("rib-test-service-group"), ribImpl.getRibIServiceGroupIdentifier());
         assertEquals(Collections.singleton(new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class)), ribImpl.getLocalTablesKeys());
         assertNotNull(ribImpl.getImportPolicyPeerTracker());

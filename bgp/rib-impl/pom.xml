@@ -69,7 +69,6 @@
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.compendium</artifactId>
         </dependency>
-
         <!--Netty -->
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
@@ -235,6 +234,7 @@
                             org.opendaylight.controller.config.yang.bgp.rib.impl,
                             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.*
                         </Export-Package>
+                        <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
                 </configuration>
             </plugin>

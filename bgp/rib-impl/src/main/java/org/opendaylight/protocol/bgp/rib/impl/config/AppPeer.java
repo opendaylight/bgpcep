@@ -13,6 +13,8 @@ import com.google.common.base.Strings;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Objects;
+import java.util.Set;
+import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
@@ -23,18 +25,22 @@ import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer
 import org.opendaylight.protocol.bgp.rib.impl.ApplicationPeer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer.WriteConfiguration;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
+import org.opendaylight.protocol.bgp.rib.spi.State;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Config;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class AppPeer implements PeerBean {
+public final class AppPeer implements PeerBean, BGPPeerState {
     private static final Logger LOG = LoggerFactory.getLogger(AppPeer.class);
     private static final QName APP_ID_QNAME = QName.create(ApplicationRib.QNAME, "id").intern();
     private Neighbor currentConfiguration;
@@ -46,7 +52,7 @@ public final class AppPeer implements PeerBean {
         Preconditions.checkState(this.bgpAppPeerSingletonService == null, "Previous peer instance was not closed.");
         this.currentConfiguration = neighbor;
         this.bgpAppPeerSingletonService = new BgpAppPeerSingletonService(rib, createAppRibId(neighbor),
-            neighbor.getNeighborAddress().getIpv4Address(), configurationWriter);
+            neighbor.getNeighborAddress(), configurationWriter);
     }
 
     @Override
@@ -87,7 +93,7 @@ public final class AppPeer implements PeerBean {
         private final ServiceGroupIdentifier serviceGroupIdentifier;
         private final WriteConfiguration configurationWriter;
 
-        BgpAppPeerSingletonService(final RIB rib, final ApplicationRibId appRibId, final Ipv4Address neighborAddress,
+        BgpAppPeerSingletonService(final RIB rib, final ApplicationRibId appRibId, final IpAddress neighborAddress,
             final WriteConfiguration configurationWriter) {
             this.applicationPeer = new ApplicationPeer(appRibId, neighborAddress, rib);
             this.appRibId = appRibId;
@@ -130,5 +136,159 @@ public final class AppPeer implements PeerBean {
         public ServiceGroupIdentifier getIdentifier() {
             return this.serviceGroupIdentifier;
         }
+
+        BGPPeerState getPeer() {
+            return this.applicationPeer;
+        }
+    }
+
+    @Override
+    public IpAddress getNeighborAddress() {
+        return this.bgpAppPeerSingletonService.getPeer().getNeighborAddress();
+    }
+
+    @Override
+    public long getTotalPrefixes() {
+        return this.bgpAppPeerSingletonService.getPeer().getTotalPrefixes();
+    }
+
+    @Override
+    public long getPrefixesSentCount(@Nonnull final TablesKey tablesKey) {
+        return this.bgpAppPeerSingletonService.getPeer().getPrefixesSentCount(tablesKey);
+    }
+
+    @Override
+    public long getPrefixesReceivedCount(@Nonnull final TablesKey tablesKey) {
+        return this.bgpAppPeerSingletonService.getPeer().getPrefixesReceivedCount(tablesKey);
+    }
+
+    @Override
+    public long getErroneousUpdateReceivedCount() {
+        return this.bgpAppPeerSingletonService.getPeer().getErroneousUpdateReceivedCount();
+    }
+
+    @Override
+    public long getUpdateMessagesSentCount() {
+        return this.bgpAppPeerSingletonService.getPeer().getUpdateMessagesSentCount();
+    }
+
+    @Override
+    public long getNotificationMessagesSentCount() {
+        return this.bgpAppPeerSingletonService.getPeer().getNotificationMessagesSentCount();
+    }
+
+    @Override
+    public long getUpdateMessagesReceivedCount() {
+        return this.bgpAppPeerSingletonService.getPeer().getUpdateMessagesReceivedCount();
+    }
+
+    @Override
+    public long getNotificationMessagesReceivedCount() {
+        return this.bgpAppPeerSingletonService.getPeer().getNotificationMessagesReceivedCount();
+    }
+
+    @Override
+    public boolean isAddPathCapabilitySupported() {
+        return this.bgpAppPeerSingletonService.getPeer().isAddPathCapabilitySupported();
+    }
+
+    @Override
+    public boolean isAsn32CapabilitySupported() {
+        return this.bgpAppPeerSingletonService.getPeer().isAsn32CapabilitySupported();
+    }
+
+    @Override
+    public boolean isGracefulRestartCapabilitySupported() {
+        return this.bgpAppPeerSingletonService.getPeer().isGracefulRestartCapabilitySupported();
+    }
+
+    @Override
+    public boolean isMultiProtocolCapabilitySupported() {
+        return this.bgpAppPeerSingletonService.getPeer().isMultiProtocolCapabilitySupported();
+    }
+
+    @Override
+    public boolean isRouterRefreshCapabilitySupported() {
+        return this.bgpAppPeerSingletonService.getPeer().isRouterRefreshCapabilitySupported();
+    }
+
+    @Override
+    public State getSessionState() {
+        return this.bgpAppPeerSingletonService.getPeer().getSessionState();
+    }
+
+    @Nonnull
+    @Override
+    public Set<TablesKey> getAfiSafisAdvertized() {
+        return this.bgpAppPeerSingletonService.getPeer().getAfiSafisAdvertized();
+    }
+
+    @Nonnull
+    @Override
+    public Set<TablesKey> getAfiSafisReceived() {
+        return this.bgpAppPeerSingletonService.getPeer().getAfiSafisReceived();
+    }
+
+    @Override
+    public long getPrefixesInstalledCount(@Nonnull final TablesKey tablesKey) {
+        return this.bgpAppPeerSingletonService.getPeer().getPrefixesInstalledCount(tablesKey);
+    }
+
+    @Override
+    public boolean isAfiSafiSupported(@Nonnull final TablesKey tablesKey) {
+        return this.bgpAppPeerSingletonService.getPeer().isAfiSafiSupported(tablesKey);
+    }
+
+    @Override
+    public boolean isGracefulRestartAdvertized(@Nonnull final TablesKey tablesKey) {
+        return this.bgpAppPeerSingletonService.getPeer().isGracefulRestartAdvertized(tablesKey);
+    }
+
+    @Override
+    public boolean isGracefulRestartReceived(final TablesKey tablesKey) {
+        return this.bgpAppPeerSingletonService.getPeer().isGracefulRestartReceived(tablesKey);
+    }
+
+    @Override
+    public long getNegotiatedHoldTime() {
+        return this.bgpAppPeerSingletonService.getPeer().getNegotiatedHoldTime();
+    }
+
+    @Override
+    public long getUpTime() {
+        return this.bgpAppPeerSingletonService.getPeer().getUpTime();
+    }
+
+    @Nonnull
+    @Override
+    public PortNumber getLocalPort() {
+        return this.bgpAppPeerSingletonService.getPeer().getLocalPort();
+    }
+
+    @Nonnull
+    @Override
+    public IpAddress getRemoteAddress() {
+        return this.bgpAppPeerSingletonService.getPeer().getRemoteAddress();
+    }
+
+    @Nonnull
+    @Override
+    public PortNumber getRemotePort() {
+        return this.bgpAppPeerSingletonService.getPeer().getRemotePort();
+    }
+
+    @Override
+    public boolean isLocalRestarting() {
+        return this.bgpAppPeerSingletonService.getPeer().isLocalRestarting();
+    }
+
+    @Override
+    public int isPeerRestartTime() {
+        return this.bgpAppPeerSingletonService.getPeer().isPeerRestartTime();
+    }
+
+    @Override
+    public boolean isPeerRestarting() {
+        return this.bgpAppPeerSingletonService.getPeer().isPeerRestarting();
     }
 }

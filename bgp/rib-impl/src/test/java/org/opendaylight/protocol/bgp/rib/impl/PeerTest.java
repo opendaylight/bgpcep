@@ -29,14 +29,13 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.RouteTable;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.LocalPreferenceAttributeParser;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.ipv4.routes.Ipv4Route;
@@ -90,6 +89,9 @@ public class PeerTest extends AbstractRIBTestSetup {
 
     private BGPPeer classic;
 
+    private final IpAddress neighborAddress = new IpAddress(new Ipv4Address("127.0.0.1"));
+    private final IpAddress neighborAddress2 = new IpAddress(new Ipv4Address("127.0.0.2"));
+
     @Override
     @Before
     public void setUp() throws Exception {
@@ -99,25 +101,19 @@ public class PeerTest extends AbstractRIBTestSetup {
     }
 
     private void overrideMockedBehaviour() {
-        Mockito.doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(final InvocationOnMock invocation) throws Throwable {
-                final Object[] args = invocation.getArguments();
-                final NormalizedNode<?, ?> node = (NormalizedNode<?, ?>) args[2];
-                if (node.getIdentifier().getNodeType().equals(Ipv4Route.QNAME) || node.getNodeType().equals(PREFIX_QNAME)) {
-                    PeerTest.this.routes.put((YangInstanceIdentifier) args[1], node);
-                }
-                return args[1];
+        Mockito.doAnswer(invocation -> {
+            final Object[] args = invocation.getArguments();
+            final NormalizedNode<?, ?> node = (NormalizedNode<?, ?>) args[2];
+            if (node.getIdentifier().getNodeType().equals(Ipv4Route.QNAME) || node.getNodeType().equals(PREFIX_QNAME)) {
+                PeerTest.this.routes.put((YangInstanceIdentifier) args[1], node);
             }
+            return args[1];
         }).when(getTransaction()).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(YangInstanceIdentifier.class), Mockito.any(NormalizedNode.class));
 
-        Mockito.doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(final InvocationOnMock invocation) throws Throwable {
-                final Object[] args = invocation.getArguments();
-                PeerTest.this.routes.remove(args[1]);
-                return args[1];
-            }
+        Mockito.doAnswer(invocation -> {
+            final Object[] args = invocation.getArguments();
+            PeerTest.this.routes.remove(args[1]);
+            return args[1];
         }).when(getTransaction()).delete(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(YangInstanceIdentifier.class));
     }
 
@@ -126,7 +122,7 @@ public class PeerTest extends AbstractRIBTestSetup {
         final Ipv4Prefix first = new Ipv4Prefix("127.0.0.2/32");
         final Ipv4Prefix second = new Ipv4Prefix("127.0.0.1/32");
         final Ipv4Prefix third = new Ipv4Prefix("127.0.0.3/32");
-        this.peer = new ApplicationPeer(new ApplicationRibId("t"), new Ipv4Address("127.0.0.1"), getRib());
+        this.peer = new ApplicationPeer(new ApplicationRibId("t"), this.neighborAddress, getRib());
         this.peer.instantiateServiceInstance(null, null);
         final YangInstanceIdentifier base = getRib().getYangRibId().node(LocRib.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(KEY));
         this.peer.onDataTreeChanged(ipv4Input(base, ModificationType.WRITE, first, second, third));
@@ -138,14 +134,15 @@ public class PeerTest extends AbstractRIBTestSetup {
 
     @Test
     public void testClassicPeer() throws Exception {
-        this.classic = new BGPPeer("testPeer", getRib(), PeerRole.Ibgp, null);
+        this.classic = new BGPPeer(this.neighborAddress, getRib(), PeerRole.Ibgp, null, Collections.emptySet(),
+            Collections.emptySet());
         this.classic.instantiateServiceInstance();
         this.mockSession();
-        assertEquals("testPeer", this.classic.getName());
+        assertEquals(this.neighborAddress.getIpv4Address().getValue(), this.classic.getName());
         this.classic.onSessionUp(this.session);
         assertEquals(1, this.classic.getBgpPeerState().getSessionEstablishedCount().getValue().intValue());
         Assert.assertArrayEquals(new byte[]{1, 1, 1, 1}, this.classic.getRawIdentifier());
-        assertEquals("BGPPeer{name=testPeer, tables=[TablesKey [_afi=class org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily, _safi=class org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily]]}", this.classic.toString());
+        assertEquals("BGPPeer{name=127.0.0.1, tables=[TablesKey [_afi=class org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily, _safi=class org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily]]}", this.classic.toString());
 
         final List<Ipv4Prefix> prefs = Lists.newArrayList(new Ipv4Prefix("8.0.1.0/28"), new Ipv4Prefix("127.0.0.1/32"), new Ipv4Prefix("2.2.2.2/24"));
         final UpdateBuilder ub = new UpdateBuilder();
@@ -172,7 +169,8 @@ public class PeerTest extends AbstractRIBTestSetup {
         assertEquals(3, this.routes.size());
 
         //create new peer so that it gets advertized routes from RIB
-        try (final BGPPeer testingPeer = new BGPPeer("testingPeer", getRib(), PeerRole.Ibgp, null)) {
+        try (final BGPPeer testingPeer = new BGPPeer(this.neighborAddress2, getRib(), PeerRole.Ibgp, null,
+            Collections.emptySet(), Collections.emptySet())) {
             testingPeer.instantiateServiceInstance();
             testingPeer.onSessionUp(this.session);
             assertEquals(3, this.routes.size());

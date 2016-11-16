@@ -18,10 +18,10 @@ import com.google.common.net.InetAddresses;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.Future;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import javassist.ClassPool;
 import org.junit.After;
@@ -40,8 +40,8 @@ import org.opendaylight.protocol.bgp.parser.impl.BGPActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerSessionListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
-import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
@@ -87,6 +87,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
@@ -104,7 +105,7 @@ import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 
 class AbstractAddPathTest extends AbstractDataBrokerTest {
-    static final int RETRY_TIMER = 10;
+    private static final int RETRY_TIMER = 10;
     static final String RIB_ID = "127.0.0.1";
     static final Ipv4Address PEER1 = new Ipv4Address("127.0.0.2");
     static final Ipv4Address PEER2 = new Ipv4Address("127.0.0.3");
@@ -126,6 +127,8 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
     static final Update UPD_NA_100_EBGP = createSimpleUpdateEbgp(PREFIX1, null);
     static final Update UPD_NA_200 = createSimpleUpdate(PREFIX1, null, CLUSTER_ID, 200);
     static final Update UPD_NA_200_EBGP = createSimpleUpdateEbgp(PREFIX1, null);
+    static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+    static final Set<TablesKey> AFI_SAFIS_ADVERTIZED = Collections.singleton(TABLES_KEY);
     protected BGPExtensionProviderContext context;
     private static final InstanceIdentifier<BgpRib> BGP_IID = InstanceIdentifier.create(BgpRib.class);
     protected SchemaContext schemaContext;
@@ -217,8 +220,8 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
         });
     }
 
-    BGPSessionImpl createPeerSession(final Ipv4Address peer, final PeerRole peerRole, final BgpParameters nonAddPathParams, final RIBImpl ribImpl,
-        final SimpleSessionListener sessionListener) throws InterruptedException, ExecutionException {
+    BGPSessionImpl createPeerSession(final Ipv4Address peer, final PeerRole peerRole, final BgpParameters nonAddPathParams, final RIBImplImpl ribImpl,
+        final BGPPeerSessionListener sessionListener) throws InterruptedException, ExecutionException {
         configurePeer(peer, ribImpl, nonAddPathParams, peerRole);
         return connectPeer(peer, nonAddPathParams, this.dispatcher, sessionListener);
     }
@@ -227,18 +230,21 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
         return ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.bgp.rib.rib.peer.adj.rib.out.tables.routes.Ipv4RoutesCase) peer.getAdjRibOut().getTables().get(0).getRoutes()).getIpv4Routes().getIpv4Route().size();
     }
 
-    private static void configurePeer(final Ipv4Address localAddress, final RIBImpl ribImpl, final BgpParameters bgpParameters, final PeerRole peerRole) {
-        final InetAddress inetAddress = InetAddresses.forString(localAddress.getValue());
+    private static void configurePeer(final Ipv4Address localAddress, final RIBImplImpl ribImpl, final BgpParameters bgpParameters, final PeerRole peerRole) {
+        final IpAddress ipAddress = new IpAddress(new Ipv4Address(InetAddresses.forString(localAddress.getValue())
+            .getHostAddress()));
 
-        final BGPPeer bgpPeer = new BGPPeer(inetAddress.getHostAddress(), ribImpl, peerRole, null);
+
+        final BGPPeer bgpPeer = new BGPPeer(ipAddress, ribImpl, peerRole, null, AFI_SAFIS_ADVERTIZED,
+            Collections.emptySet());
         final List<BgpParameters> tlvs = Lists.newArrayList(bgpParameters);
-        StrictBGPPeerRegistry.GLOBAL.addPeer(new IpAddress(new Ipv4Address(inetAddress.getHostAddress())), bgpPeer,
+        StrictBGPPeerRegistry.GLOBAL.addPeer(ipAddress, bgpPeer,
             new BGPSessionPreferences(AS_NUMBER, HOLDTIMER, new BgpId(RIB_ID), AS_NUMBER, tlvs, Optional.absent()));
         bgpPeer.instantiateServiceInstance();
     }
 
     private static BGPSessionImpl connectPeer(final Ipv4Address localAddress, final BgpParameters bgpParameters,
-        final BGPDispatcherImpl dispatcherImpl, final BGPSessionListener sessionListener) throws InterruptedException {
+        final BGPDispatcherImpl dispatcherImpl, final BGPPeerSessionListener sessionListener) throws InterruptedException {
         final BGPPeerRegistry peerRegistry = new StrictBGPPeerRegistry();
         peerRegistry.addPeer(new IpAddress(new Ipv4Address(RIB_ID)), sessionListener,
             new BGPSessionPreferences(AS_NUMBER, HOLDTIMER, new BgpId(localAddress),

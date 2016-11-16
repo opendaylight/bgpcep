@@ -22,8 +22,8 @@ import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerSessionListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
-import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.SessionNegotiator;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.protocol.util.Values;
@@ -204,7 +204,8 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
         final IpAddress remoteIp = getRemoteIp();
         final BGPSessionPreferences preferences = this.registry.getPeerPreferences(remoteIp);
         try {
-            final BGPSessionListener peer = this.registry.getPeer(remoteIp, getSourceId(openObj, preferences), getDestinationId(openObj, preferences), openObj);
+            final BGPPeerSessionListener peer = this.registry.getPeer(remoteIp, getSourceId(openObj, preferences),
+                getDestinationId(openObj, preferences), openObj);
             sendMessage(new KeepaliveBuilder().build());
             this.state = State.OPEN_CONFIRM;
             this.session = new BGPSessionImpl(peer, this.channel, openObj, preferences, this.registry);

@@ -7,12 +7,19 @@
  */
 package org.opendaylight.protocol.bgp.testtool;
 
+import java.net.SocketAddress;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.LongAdder;
+import javax.annotation.Nonnull;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
-import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
+import org.opendaylight.protocol.bgp.rib.spi.State;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
@@ -21,12 +28,12 @@ import org.slf4j.LoggerFactory;
 /**
  * Testing BGP Listener.
  */
-final class TestingListener implements BGPSessionListener {
+final class TestingListener implements BGPPeerSessionListener {
     private static final Logger LOG = LoggerFactory.getLogger(TestingListener.class);
     private final int nPrefixes;
     private final List<String> extCom;
     private final boolean multiPathSupport;
-    private int messageCounter = 0;
+    private LongAdder messageCounter = new LongAdder();
 
     TestingListener(final int nPrefixes, final List<String> extCom, final boolean multiPathSupport) {
         this.nPrefixes = nPrefixes;
@@ -64,9 +71,6 @@ final class TestingListener implements BGPSessionListener {
 
     @Override
     public void onMessage(final BGPSession session, final Notification message) {
-        if (message instanceof Update) {
-            messageCounter++;
-        }
         LOG.debug("Message received: {}", message.toString());
     }
 
@@ -76,6 +80,29 @@ final class TestingListener implements BGPSessionListener {
     }
 
     void printCount(final String localAddress) {
-        LOG.info("Peer {} received {} update messages.", localAddress, messageCounter);
+        LOG.info("Peer {} received {} update messages.", localAddress, this.messageCounter.longValue());
+    }
+
+    @Override
+    public void messageSent(@Nonnull final Notification msg) {
+
+    }
+
+    @Override
+    public void messageReceived(@Nonnull final Notification msg) {
+        if (msg instanceof Update) {
+            this.messageCounter.increment();
+        }
+    }
+
+    @Override
+    public void advertizeCapabilities(final int holdTimerValue, final SocketAddress remoteAddress,
+        final SocketAddress localAddress, final Set<BgpTableType> tableTypes, final List<BgpParameters> bgpParameters) {
+
+    }
+
+    @Override
+    public void setSessionState(final State state) {
+
     }
 }

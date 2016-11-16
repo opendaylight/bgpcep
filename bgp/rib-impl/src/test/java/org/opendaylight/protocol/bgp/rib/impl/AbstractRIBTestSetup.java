@@ -93,7 +93,7 @@ import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 
 public class AbstractRIBTestSetup {
 
-    private RIBImpl rib;
+    private RIBImplImpl rib;
     private static final ClusterIdentifier CLUSTER_ID = new ClusterIdentifier("128.0.0.1");
     private static final BgpId RIB_ID = new BgpId("127.0.0.1");
     protected static final Class<? extends AddressFamily> AFI = Ipv4AddressFamily.class;
@@ -154,7 +154,7 @@ public class AbstractRIBTestSetup {
         mockedMethods();
         doReturn(Mockito.mock(ClusterSingletonServiceRegistration.class)).when(this.clusterSingletonServiceProvider)
             .registerClusterSingletonService(any(ClusterSingletonService.class));
-        this.rib = new RIBImpl(this.clusterSingletonServiceProvider, new RibId("test"), new AsNumber(5L), RIB_ID, CLUSTER_ID, context,
+        this.rib = new RIBImplImpl(this.clusterSingletonServiceProvider, new RibId("test"), new AsNumber(5L), RIB_ID, CLUSTER_ID, context,
             this.dispatcher, this.codecFactory, this.dom, localTables, Collections.singletonMap(new TablesKey(AFI, SAFI),
             BasePathSelectionModeFactory.createBestPathSelectionStrategy()), GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), null);
         this.rib.onGlobalContextUpdated(schemaContext);
@@ -239,7 +239,7 @@ public class AbstractRIBTestSetup {
         return YangInstanceIdentifier.of(PREFIX_QNAME).node(routekey).getLastPathArgument();
     }
 
-    public RIBImpl getRib() {
+    public RIBImplImpl getRib() {
         return this.rib;
     }
 

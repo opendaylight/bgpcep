@@ -44,15 +44,17 @@ public class AppPeerTest extends AbstractConfig {
         Mockito.verify(this.rib).getService();
         Mockito.verify(this.rib).getRibIServiceGroupIdentifier();
         Mockito.verify(this.rib).registerClusterSingletonService(any(ClusterSingletonService.class));
+        Mockito.verify(this.rib, times(1)).getLocalTablesKeys();
 
         this.singletonService.instantiateServiceInstance();
         Mockito.verify(this.rib, times(2)).getYangRibId();
         Mockito.verify(this.configurationWriter).apply();
         Mockito.verify(this.rib).getRibSupportContext();
-        Mockito.verify(this.rib).getLocalTablesKeys();
+        Mockito.verify(this.rib, times(2)).getLocalTablesKeys();
         Mockito.verify(this.domTx).newWriteOnlyTransaction();
 
         APP_PEER.close();
+        this.singletonService.closeServiceInstance();
         Mockito.verify(this.singletonServiceRegistration).close();
 
         APP_PEER.restart(this.rib, this.tableTypeRegistry);
@@ -61,8 +63,6 @@ public class AppPeerTest extends AbstractConfig {
         Mockito.verify(this.rib, times(4)).getService();
         Mockito.verify(this.rib, times(2)).getRibIServiceGroupIdentifier();
         Mockito.verify(this.rib, times(2)).registerClusterSingletonService(any(ClusterSingletonService.class));
-
-        this.singletonService.closeServiceInstance();
         Mockito.verify(this.listener, times(2)).close();
 
         assertTrue(APP_PEER.containsEqualConfiguration(this.neighbor));

@@ -33,10 +33,10 @@ import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.As4CapabilityHandler;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerSessionListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.PeerRegistryListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.PeerRegistrySessionListener;
-import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -65,7 +65,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     public static final StrictBGPPeerRegistry GLOBAL = new StrictBGPPeerRegistry();
 
     @GuardedBy("this")
-    private final Map<IpAddress, BGPSessionListener> peers = Maps.newHashMap();
+    private final Map<IpAddress, BGPPeerSessionListener> peers = Maps.newHashMap();
     @GuardedBy("this")
     private final Map<IpAddress, BGPSessionId> sessionIds = Maps.newHashMap();
     @GuardedBy("this")
@@ -80,7 +80,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     }
 
     @Override
-    public synchronized void addPeer(final IpAddress ip, final BGPSessionListener peer, final BGPSessionPreferences preferences) {
+    public synchronized void addPeer(final IpAddress ip, final BGPPeerSessionListener peer, final BGPSessionPreferences preferences) {
         Preconditions.checkNotNull(ip);
         Preconditions.checkArgument(!this.peers.containsKey(ip), "Peer for %s already present", ip);
         this.peers.put(ip, Preconditions.checkNotNull(peer));
@@ -123,7 +123,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     }
 
     @Override
-    public synchronized BGPSessionListener getPeer(final IpAddress ip, final Ipv4Address sourceId,
+    public synchronized BGPPeerSessionListener getPeer(final IpAddress ip, final Ipv4Address sourceId,
         final Ipv4Address remoteId, final Open openObj) throws BGPDocumentedException {
         Preconditions.checkNotNull(ip);
         Preconditions.checkNotNull(sourceId);
@@ -136,7 +136,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         checkPeerConfigured(ip);
 
         final BGPSessionId currentConnection = new BGPSessionId(sourceId, remoteId, remoteAsNumber);
-        final BGPSessionListener p = this.peers.get(ip);
+        final BGPPeerSessionListener p = this.peers.get(ip);
 
         final BGPSessionId previousConnection = this.sessionIds.get(ip);
 

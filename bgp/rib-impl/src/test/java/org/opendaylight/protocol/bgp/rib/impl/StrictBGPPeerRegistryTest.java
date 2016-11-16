@@ -22,6 +22,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerSessionListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.PeerRegistrySessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
@@ -45,7 +46,7 @@ public class StrictBGPPeerRegistryTest {
     private static final IpAddress REMOTE_IP = new IpAddress(FROM);
     private static final Ipv4Address TO = new Ipv4Address("255.255.255.255");
 
-    private final BGPSessionListener peer1 = getMockSession();
+    private final BGPPeerSessionListener peer1 = getMockSession();
     private final Open classicOpen = createOpen(TO, LOCAL_AS);
     private StrictBGPPeerRegistry peerRegistry;
     private BGPSessionPreferences mockPreferences;
@@ -65,8 +66,8 @@ public class StrictBGPPeerRegistryTest {
                 Optional.<byte[]>absent());
     }
 
-    private static BGPSessionListener getMockSession() {
-        final BGPSessionListener mock = Mockito.mock(BGPSessionListener.class);
+    private static BGPPeerSessionListener getMockSession() {
+        final BGPPeerSessionListener mock = Mockito.mock(BGPPeerSessionListener.class);
         Mockito.doNothing().when(mock).releaseConnection();
         return mock;
     }
@@ -114,7 +115,7 @@ public class StrictBGPPeerRegistryTest {
         final IpAddress remoteIp2 = new IpAddress(to2);
 
         this.peerRegistry.addPeer(REMOTE_IP, this.peer1, this.mockPreferences);
-        final BGPSessionListener session2 = getMockSession();
+        final BGPPeerSessionListener session2 = getMockSession();
         this.peerRegistry.addPeer(remoteIp2, session2, this.mockPreferences);
 
         final BGPSessionListener returnedSession1 = this.peerRegistry.getPeer(REMOTE_IP, FROM, TO, this.classicOpen);

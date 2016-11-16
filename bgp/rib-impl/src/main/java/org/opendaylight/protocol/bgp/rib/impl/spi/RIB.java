@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.rib.impl.spi;
 
 import java.util.Set;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
@@ -18,6 +19,8 @@ import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl.BGPRenderStats;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
+import org.opendaylight.protocol.concepts.AbstractRegistration;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
@@ -102,4 +105,14 @@ public interface RIB  extends RibReference, ClusterSingletonServiceProvider {
      * @return ServiceGroupIdentifier
      */
     ServiceGroupIdentifier getRibIServiceGroupIdentifier();
+
+    /**
+     * Register neighbor belonging to global BGP State
+     *
+     * @param neighborState neighbor
+     * @param groupId group Id of the neighbor
+     * @return registration
+     */
+    @Nonnull AbstractRegistration registerNeighborState(@Nonnull final BGPPeerState neighborState,
+        @Nullable final String groupId);
 }

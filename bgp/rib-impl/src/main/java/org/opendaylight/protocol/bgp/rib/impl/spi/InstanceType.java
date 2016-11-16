@@ -14,14 +14,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BGPPeerRuntimeMXBean;
 import org.opendaylight.protocol.bgp.rib.RibReference;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPRIBState;
 
 public enum InstanceType {
 
-    RIB("ribImpl", Lists.newArrayList(RIB.class, RibReference.class)),
+    RIB("ribImpl", Lists.newArrayList(RIB.class, RibReference.class, BGPRIBState.class)),
 
-    PEER("bgpPeer", Collections.singletonList(BGPPeerRuntimeMXBean.class)),
+    PEER("bgpPeer", Lists.newArrayList(BGPPeerRuntimeMXBean.class, BGPPeerState.class)),
 
-    APP_PEER("appPeer", Collections.emptyList());
+    APP_PEER("appPeer", Collections.singletonList(BGPPeerState.class));
 
     private final String beanName;
     private final String[] services;
@@ -29,7 +31,7 @@ public enum InstanceType {
     InstanceType(final String beanName, final List<Class<?>> services) {
         this.beanName = beanName;
         this.services = new String[services.size()];
-        services.stream().map(clazz -> clazz.getName()).collect(Collectors.toList()).toArray(this.services);
+        services.stream().map(Class::getName).collect(Collectors.toList()).toArray(this.services);
     }
 
     public String getBeanName() {

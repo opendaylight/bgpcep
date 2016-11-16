@@ -17,6 +17,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.rib.impl.AbstractBGPDispatcherTest;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl;
+import org.opendaylight.protocol.bgp.rib.spi.State;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -38,7 +39,7 @@ public class BGPPeerAcceptorImplTest extends AbstractBGPDispatcherTest {
         final Future<BGPSessionImpl> futureClient = this.clientDispatcher.createClient(this.clientAddress, inetServerAddress, this.registry, 2, true);
         waitFutureSuccess(futureClient);
         final BGPSessionImpl session = futureClient.get();
-        Assert.assertEquals(BGPSessionImpl.State.UP, this.clientListener.getState());
+        Assert.assertEquals(State.UP, this.clientListener.getState());
         Assert.assertEquals(AS_NUMBER, session.getAsNumber());
         Assert.assertEquals(Sets.newHashSet(IPV_4_TT), session.getAdvertisedTableTypes());
         session.close();

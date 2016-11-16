@@ -7,13 +7,15 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl;
 
+import java.util.Set;
 import java.util.concurrent.atomic.LongAdder;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpRenderState;
-import org.opendaylight.protocol.bgp.rib.impl.stats.peer.route.PerTableTypeRouteCounter;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPRIBState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 
@@ -23,18 +25,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 public class RIBImplRuntimeMXBeanImpl implements BGPRenderStats {
     private final BGPRenderStats renderStats;
 
-    public RIBImplRuntimeMXBeanImpl(@Nonnull final BgpId bgpId, @Nonnull final RibId ribId, @Nonnull final AsNumber localAs, @Nullable final ClusterIdentifier clusterId) {
-        this.renderStats = new BGPRenderStatsImpl(bgpId, ribId, localAs, clusterId);
+    public RIBImplRuntimeMXBeanImpl(@Nonnull final BgpId bgpId, @Nonnull final RibId ribId,
+        @Nonnull final AsNumber localAs, @Nullable final ClusterIdentifier clusterId,
+        @Nonnull final BGPRIBState globalState,
+        @Nonnull final Set<TablesKey> tablesKeys) {
+        this.renderStats = new BGPRenderStatsImpl(bgpId, ribId, localAs, clusterId, globalState, tablesKeys);
     }
 
     @Override
     public BgpRenderState getBgpRenderState() {
         return this.renderStats.getBgpRenderState();
-    }
-
-    @Override
-    public PerTableTypeRouteCounter getLocRibRouteCounter() {
-        return this.renderStats.getLocRibRouteCounter();
     }
 
     @Override

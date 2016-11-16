@@ -26,6 +26,7 @@ import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateAddressFamily;
@@ -65,7 +66,7 @@ final class BGPTestTool {
         InetAddress address = localAddress.getAddress();
         int numberOfSpeakers = arguments.getSpeakerCount();
         do {
-            final BGPSessionListener sessionListener = new TestingListener(arguments.getNumberOfPrefixes(), arguments.getExtendedCommunities(),
+            final BGPPeerSessionListener sessionListener = new TestingListener(arguments.getNumberOfPrefixes(), arguments.getExtendedCommunities(),
                 arguments.getMultiPathSupport());
             this.listeners.put(address.getHostAddress(), sessionListener);
             createPeer(dispatcher, arguments, new InetSocketAddress(address, port), sessionListener, bgpParameters);

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
+           xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0"
+           odl:use-default-for-reference-types="true">
 
   <reference id="BGPExtensionContext" interface="org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext"/>
   <reference id="globalBossGroup" interface="io.netty.channel.EventLoopGroup" odl:type="global-boss-group"/>
@@ -77,22 +78,23 @@
 
   <reference id="bgpConfigLoader" interface="org.opendaylight.protocol.bgp.config.loader.spi.ConfigLoader"/>
 
-  <bean id="protocolsInitialConfig" class="org.opendaylight.protocol.bgp.rib.impl.ProtocolsConfigFileProcessor" destroy-method="close">
-    <argument ref="bgpConfigLoader"/>
-    <argument ref="bgpDeployer"/>
+  <bean id="protocolsInitialConfig" class="org.opendaylight.protocol.bgp.rib.impl.ProtocolsConfigFileProcessor"
+        destroy-method="close">
+      <argument ref="bgpConfigLoader"/>
+      <argument ref="bgpDeployer"/>
   </bean>
 
-  <bean id="bgpStatesCollector" class="org.opendaylight.protocol.bgp.rib.impl.state.BGPStateCollectorImpl"/>
-
-  <odl:clustered-app-config id="bgpStateConfig"
-    binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.state.config.rev161107.BgpStateConfig"/>
+  <bean id="bgpStateCollector" class="org.opendaylight.protocol.bgp.rib.impl.state.BGPStateCollectorImpl"/>
 
   <reference-list id="ribStatsListener" interface="org.opendaylight.protocol.bgp.rib.spi.state.BGPRIBState"
     availability="optional">
       <reference-listener bind-method="bind" unbind-method="unbind">
-          <ref component-id="bgpStatesCollector"/>
+          <ref component-id="bgpStateCollector"/>
       </reference-listener>
   </reference-list>
+
+  <odl:clustered-app-config id="bgpStateConfig"
+    binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.state.config.rev161107.BgpStateConfig"/>
 
   <bean id="bgpOpenconfigState" class="org.opendaylight.protocol.bgp.state.impl.StateProviderImpl"
         destroy-method="close">
@@ -101,6 +103,7 @@
           <bean factory-ref="bgpStateConfig" factory-method="getTimer" />
       </argument>
       <argument ref="bgpTableTypeRegistry"/>
-      <argument ref="bgpStatesCollector"/>
+      <argument ref="bgpStateCollector"/>
+      <argument value="global-bgp"/>
   </bean>
 </blueprint>

@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.rib.impl.spi;
 
 import javax.annotation.Nonnull;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
-import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
@@ -25,10 +24,10 @@ public interface BGPPeerRegistry extends AutoCloseable {
      * Add configured peer, its IP address and preferences. To be used when a BGP session is established.
      *
      * @param ip address of remote peer
-     * @param peer configured peer as BGPSessionListener
+     * @param peer configured peer as BGPPeerSessionListener
      * @param prefs session preferences for configured peer
      */
-    void addPeer(IpAddress ip, BGPSessionListener peer, BGPSessionPreferences prefs);
+    void addPeer(IpAddress ip, BGPPeerSessionListener peer, BGPSessionPreferences prefs);
 
     /**
      * Remove configured peer from registry.
@@ -59,12 +58,12 @@ public interface BGPPeerRegistry extends AutoCloseable {
      * @param sourceId BGP ID of peer that initiated the session (current device or remote peer)
      * @param remoteId BGP ID of peer that accepted the session (current device or remote peer)
      * @param open remote Open message
-     * @return BGPSessionListener configured Peer as BGP listener
+     * @return BGPPeerSessionListener configured Peer as BGP listener
      *
      * @throws BGPDocumentedException if session establishment cannot be finished successfully
      * @throws java.lang.IllegalStateException if there is no peer configured for provided ip address
      */
-    BGPSessionListener getPeer(IpAddress ip, Ipv4Address sourceId, Ipv4Address remoteId, Open open) throws BGPDocumentedException;
+    BGPPeerSessionListener getPeer(IpAddress ip, Ipv4Address sourceId, Ipv4Address remoteId, Open open) throws BGPDocumentedException;
 
     /**
      * @param ip address of remote peer

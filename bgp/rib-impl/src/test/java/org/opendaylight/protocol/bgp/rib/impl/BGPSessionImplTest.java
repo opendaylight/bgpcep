@@ -44,6 +44,7 @@ import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
+import org.opendaylight.protocol.bgp.rib.spi.State;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.KeepaliveBuilder;
@@ -155,17 +156,17 @@ public class BGPSessionImplTest {
     @Test
     public void testBGPSession() throws BGPDocumentedException {
         this.bgpSession.sessionUp();
-        assertEquals(BGPSessionImpl.State.UP, this.bgpSession.getState());
+        assertEquals(State.UP, this.bgpSession.getState());
         assertEquals(AS_NUMBER, this.bgpSession.getAsNumber());
         assertEquals(BGP_ID, this.bgpSession.getBgpId());
         assertEquals(1, this.bgpSession.getAdvertisedTableTypes().size());
-        Assert.assertEquals(BGPSessionImpl.State.UP, this.listener.getState());
+        Assert.assertEquals(State.UP, this.listener.getState());
 
         //test stats
         final BgpSessionState state = this.bgpSession.getBgpSessionState();
         assertEquals(HOLD_TIMER, state.getHoldtimeCurrent().intValue());
         assertEquals(1, state.getKeepaliveCurrent().intValue());
-        assertEquals(BGPSessionImpl.State.UP.name(), state.getSessionState());
+        assertEquals(State.UP.name(), state.getSessionState());
         assertEquals(BGP_ID.getValue(), new String(state.getLocalPeerPreferences().getHost().getValue()));
         assertEquals(AS_NUMBER.getValue(), state.getLocalPeerPreferences().getAs().getValue());
         assertTrue(state.getLocalPeerPreferences().getBgpExtendedMessageCapability());
@@ -194,7 +195,7 @@ public class BGPSessionImplTest {
         assertEquals(0, state.getMessagesStats().getKeepAliveMsgs().getSent().getCount().getValue().longValue());
 
         this.bgpSession.close();
-        assertEquals(BGPSessionImpl.State.IDLE, this.bgpSession.getState());
+        assertEquals(State.IDLE, this.bgpSession.getState());
         assertEquals(1, this.receivedMsgs.size());
         assertTrue(this.receivedMsgs.get(0) instanceof Notify);
         final Notify error = (Notify) this.receivedMsgs.get(0);
@@ -217,7 +218,7 @@ public class BGPSessionImplTest {
     @Test
     public void testHandleOpenMsg() throws BGPDocumentedException {
         this.bgpSession.handleMessage(this.classicOpen);
-        Assert.assertEquals(BGPSessionImpl.State.IDLE, this.bgpSession.getState());
+        Assert.assertEquals(State.IDLE, this.bgpSession.getState());
         Assert.assertEquals(1, this.receivedMsgs.size());
         Assert.assertTrue(this.receivedMsgs.get(0) instanceof Notify);
         final Notify error = (Notify) this.receivedMsgs.get(0);
@@ -233,14 +234,14 @@ public class BGPSessionImplTest {
         assertEquals(1, this.bgpSession.getBgpSessionState().getMessagesStats().getErrorMsgs().getErrorReceived().get(0).getCount().getValue().longValue());
         assertEquals(BGPError.BAD_BGP_ID.getCode(), this.bgpSession.getBgpSessionState().getMessagesStats().getErrorMsgs().getErrorReceived().get(0).getErrorCode().shortValue());
         assertEquals(BGPError.BAD_BGP_ID.getSubcode(), this.bgpSession.getBgpSessionState().getMessagesStats().getErrorMsgs().getErrorReceived().get(0).getErrorSubcode().shortValue());
-        Assert.assertEquals(BGPSessionImpl.State.IDLE, this.bgpSession.getState());
+        Assert.assertEquals(State.IDLE, this.bgpSession.getState());
         Mockito.verify(this.speakerListener).close();
     }
 
     @Test
     public void testEndOfInput() throws InterruptedException {
         this.bgpSession.sessionUp();
-        Assert.assertEquals(BGPSessionImpl.State.UP, this.listener.getState());
+        Assert.assertEquals(State.UP, this.listener.getState());
         this.bgpSession.endOfInput();
         checkIdleState(this.listener);
     }
