@@ -18,7 +18,9 @@ import javax.annotation.Nonnull;
 import org.opendaylight.controller.config.api.IdentityAttributeRef;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpPeerState;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.RouteTable;
+import org.opendaylight.protocol.bgp.rib.impl.state.BGPPeerStateImpl;
 import org.opendaylight.protocol.bgp.rib.impl.stats.peer.route.PerTableTypeRouteCounter;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.ZeroBasedCounter32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -27,26 +29,24 @@ public final class BGPPeerStatsImpl implements BGPPeerStats {
     private final Set<TablesKey> tablesKeySet;
     private final PerTableTypeRouteCounter adjRibInRouteCounters;
     private final PerTableTypeRouteCounter adjRibOutRouteCounters;
-    private final PerTableTypeRouteCounter effectiveRibInRouteCounters;
     private final LongAdder sessionEstablishedCounter = new LongAdder();
+    private final BGPPeerStateImpl neighborState;
 
-    public BGPPeerStatsImpl(@Nonnull final Set<TablesKey> tablesKeySet) {
+    public BGPPeerStatsImpl(@Nonnull final String peerName, @Nonnull final Set<TablesKey> tablesKeySet,
+        @Nonnull final BGPPeerStateImpl neighborState) {
+        Preconditions.checkNotNull(peerName);
         this.tablesKeySet = Preconditions.checkNotNull(tablesKeySet);
         this.adjRibInRouteCounters = new PerTableTypeRouteCounter(tablesKeySet);
         this.adjRibOutRouteCounters = new PerTableTypeRouteCounter(tablesKeySet);
-        this.effectiveRibInRouteCounters = new PerTableTypeRouteCounter(tablesKeySet);
+        this.neighborState = Preconditions.checkNotNull(neighborState);
     }
 
     public PerTableTypeRouteCounter getAdjRibInRouteCounters() {
-        return adjRibInRouteCounters;
+        return this.adjRibInRouteCounters;
     }
 
     public PerTableTypeRouteCounter getAdjRibOutRouteCounters() {
-        return adjRibOutRouteCounters;
-    }
-
-    public PerTableTypeRouteCounter getEffectiveRibInRouteCounters() {
-        return effectiveRibInRouteCounters;
+        return this.adjRibOutRouteCounters;
     }
 
     private RouteTable createRouteTable(@Nonnull final TablesKey tablesKey) {
@@ -62,7 +62,8 @@ public final class BGPPeerStatsImpl implements BGPPeerStats {
         // we want to get default counter in case particular route table is not initialized (e.g. adj-rib-out is not initialized in some cases)
         routeTable.setAdjRibInRoutesCount(toZeroBasedCounter32(this.adjRibInRouteCounters.getCounterOrDefault(tablesKey)));
         routeTable.setAdjRibOutRoutesCount(toZeroBasedCounter32(this.adjRibOutRouteCounters.getCounterOrDefault(tablesKey)));
-        routeTable.setEffectiveRibInRoutesCount(toZeroBasedCounter32(this.effectiveRibInRouteCounters.getCounterOrDefault(tablesKey)));
+        routeTable.setEffectiveRibInRoutesCount(new ZeroBasedCounter32(this.neighborState
+            .getPrefixesInstalledCount(tablesKey)));
 
         return routeTable;
     }
