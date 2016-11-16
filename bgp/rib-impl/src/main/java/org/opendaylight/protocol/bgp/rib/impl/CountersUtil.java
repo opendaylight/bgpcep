@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
  * Provides util for increment/decrement counters whenever is not null
  * Otherwise prints an informative warn.
  */
-public final class CountersUtil {
+final class CountersUtil {
     private static final Logger LOG = LoggerFactory.getLogger(CountersUtil.class);
     private static final String NOT_SUPPORTED = "Family {} not supported";
 
