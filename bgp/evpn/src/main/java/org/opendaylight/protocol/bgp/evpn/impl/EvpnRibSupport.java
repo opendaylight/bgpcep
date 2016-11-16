@@ -96,7 +96,7 @@ final class EvpnRibSupport extends AbstractRIBSupport {
     }
 
     @Override
-    protected void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
+    protected Integer processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
         final ContainerNode destination, final ContainerNode attributes, final ApplyRoute function) {
         if (destination != null) {
             final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = destination.getChild(NLRI_ROUTES_LIST);
@@ -104,15 +104,19 @@ final class EvpnRibSupport extends AbstractRIBSupport {
                 final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
                 if (routes instanceof UnkeyedListNode) {
                     final YangInstanceIdentifier base = routesPath.node(routesContainerIdentifier()).node(routeNid());
+                    int installedRoutes = 0;
                     for (final UnkeyedListEntryNode e : ((UnkeyedListNode) routes).getValue()) {
                         final NodeIdentifierWithPredicates routeKey = createRouteKey(e);
                         function.apply(tx, base, routeKey, e, attributes);
+                        installedRoutes++;
                     }
+                    return installedRoutes;
                 } else {
                     LOG.warn("Routes {} are not a map", routes);
                 }
             }
         }
+        return null;
     }
 
     private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode evpn) {

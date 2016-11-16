@@ -138,7 +138,7 @@ public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport {
     }
 
     @Override
-    protected void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
+    protected Integer processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
                                     final ContainerNode destination, final ContainerNode attributes, final ApplyRoute function) {
         if (destination != null) {
             final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = destination.getChild(this.nlriRoutesListNid);
@@ -148,11 +148,14 @@ public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport {
                     final UnkeyedListNode routeListNode = (UnkeyedListNode) routes;
                     LOG.debug("{} routes are found", routeListNode.getSize());
                     final YangInstanceIdentifier base = routesPath.node(routesContainerIdentifier()).node(routeNid());
+                    int installedRoutes = 0;
                     for (final UnkeyedListEntryNode e : routeListNode.getValue()) {
                         final NodeIdentifierWithPredicates key = createRouteKey(e);
                         LOG.debug("Route {} is processed.", key);
                         function.apply(tx, base, key, e, attributes);
+                        installedRoutes++;
                     }
+                    return installedRoutes;
                 } else {
                     LOG.warn("Routes {} are not a map", routes);
                 }
@@ -160,6 +163,7 @@ public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport {
         } else {
             LOG.debug("Destination is null.");
         }
+        return null;
     }
 
     private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode l3vpn) {

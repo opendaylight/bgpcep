@@ -67,6 +67,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
 public abstract class AbstractRIBSupportTest {
     protected final static long PATH_ID = 1;
+    protected final static Integer NUMBER_OF_ROUTED_INSTALLED = 1;
     protected static final Attributes ATTRIBUTES = new AttributesBuilder().build();
     private static final InstanceIdentifier<LocRib> RIB = InstanceIdentifier.builder(BgpRib.class).child(Rib.class, new RibKey(new RibId("rib"))).child(LocRib.class).build();
     private static final InstanceIdentifier<Attributes> ATTRIBUTES_IID = InstanceIdentifier.create(Update.class).child(Attributes.class);
@@ -146,6 +147,7 @@ public abstract class AbstractRIBSupportTest {
         return RIB.child(Tables.class, getTablesKey());
     }
 
+    @SuppressWarnings("unchecked")
     private InstanceIdentifier<DataObject> routesIId() {
         final InstanceIdentifier<Tables> tables = tablesIId();
         return tables.child((Class) this.abstractRIBSupport.routesContainerClass());

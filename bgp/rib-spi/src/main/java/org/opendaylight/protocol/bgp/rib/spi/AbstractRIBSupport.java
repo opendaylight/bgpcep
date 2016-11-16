@@ -239,13 +239,14 @@ public abstract class AbstractRIBSupport implements RIBSupport {
      * @param destination ContainerNode DOM representation of NLRI in Update message
      * @param attributes ContainerNode to be passed into implementation
      * @param routesNodeId NodeIdentifier
+     * @return number of route installed
      */
-    private void putDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
+    private Integer putDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
         final ContainerNode destination, final ContainerNode attributes, final NodeIdentifier routesNodeId) {
-        processDestination(tx, tablePath.node(routesNodeId), destination, attributes, this.putRoute);
+        return processDestination(tx, tablePath.node(routesNodeId), destination, attributes, this.putRoute);
     }
 
-    protected abstract void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath, final ContainerNode destination,
+    protected abstract Integer processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath, final ContainerNode destination,
         final ContainerNode attributes, final ApplyRoute applyFunction);
 
     private static ContainerNode getDestination(final DataContainerChild<? extends PathArgument, ?> routes, final NodeIdentifier destinationId) {
@@ -309,8 +310,8 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     }
 
     @Override
-    public final void putRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath, final ContainerNode nlri, final ContainerNode attributes) {
-        putRoutes(tx, tablePath, nlri, attributes, ROUTES);
+    public final Integer putRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath, final ContainerNode nlri, final ContainerNode attributes) {
+        return putRoutes(tx, tablePath, nlri, attributes, ROUTES);
     }
 
     @Nonnull
@@ -355,17 +356,18 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     }
 
     @Override
-    public final void putRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath, final ContainerNode nlri,
+    public final Integer putRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath, final ContainerNode nlri,
             final ContainerNode attributes, final NodeIdentifier routesNodeId) {
         final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = nlri.getChild(ADVERTISED_ROUTES);
         if (maybeRoutes.isPresent()) {
             final ContainerNode destination = getDestination(maybeRoutes.get(), destinationContainerIdentifier());
             if (destination != null) {
-                putDestinationRoutes(tx, tablePath, destination, attributes, routesNodeId);
+                return putDestinationRoutes(tx, tablePath, destination, attributes, routesNodeId);
             }
         } else {
             LOG.debug("Advertized routes are not present in NLRI {}", nlri);
         }
+        return null;
     }
 
     private static final class DeleteRoute implements ApplyRoute {
