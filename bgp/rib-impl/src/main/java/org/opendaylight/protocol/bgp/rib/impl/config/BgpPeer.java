@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BGPPeerRuntimeMXBean;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpPeerState;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpSessionState;
@@ -39,6 +40,8 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer.WriteConfiguration;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerStateConsumer;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
@@ -57,12 +60,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.AddPathCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.add.path.capability.AddressFamilies;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public final class BgpPeer implements PeerBean, BGPPeerRuntimeMXBean {
+public final class BgpPeer implements PeerBean, BGPPeerStateConsumer, BGPPeerRuntimeMXBean {
 
     private static final Logger LOG = LoggerFactory.getLogger(BgpPeer.class);
 
@@ -195,7 +199,8 @@ public final class BgpPeer implements PeerBean, BGPPeerRuntimeMXBean {
         this.serviceRegistration = serviceRegistration;
     }
 
-    private final class BgpPeerSingletonService implements ClusterSingletonService, AutoCloseable {
+    private final class BgpPeerSingletonService implements BGPPeerStateConsumer, ClusterSingletonService,
+        AutoCloseable {
         private final ServiceGroupIdentifier serviceGroupIdentifier;
         private final boolean activeConnection;
         private final BGPDispatcher dispatcher;
@@ -209,15 +214,19 @@ public final class BgpPeer implements PeerBean, BGPPeerRuntimeMXBean {
         private final BGPSessionPreferences prefs;
         private Future<Void> connection;
 
-        private BgpPeerSingletonService(final RIB rib, final Neighbor neighbor, final BGPTableTypeRegistryConsumer tableTypeRegistry,
-            final WriteConfiguration configurationWriter) {
+        private BgpPeerSingletonService(final RIB rib, final Neighbor neighbor,
+            final BGPTableTypeRegistryConsumer tableTypeRegistry, final WriteConfiguration configurationWriter) {
             this.neighborAddress = neighbor.getNeighborAddress();
+            final AfiSafis afisSAfis = Preconditions.checkNotNull(neighbor.getAfiSafis());
+            final Set<TablesKey> afiSafisAdvertized = OpenConfigMappingUtil
+                .toTableKey(afisSAfis.getAfiSafi(), tableTypeRegistry);
             this.bgpPeer = new BGPPeer(Ipv4Util.toStringIP(this.neighborAddress), rib,
-                    OpenConfigMappingUtil.toPeerRole(neighbor), getSimpleRoutingPolicy(neighbor), BgpPeer.this.rpcRegistry);
+                OpenConfigMappingUtil.toPeerRole(neighbor), getSimpleRoutingPolicy(neighbor), BgpPeer.this.rpcRegistry,
+                afiSafisAdvertized, Collections.emptySet());
             final List<BgpParameters> bgpParameters = getBgpParameters(neighbor, rib, tableTypeRegistry);
             final KeyMapping keyMapping = OpenConfigMappingUtil.getNeighborKey(neighbor);
-            this.prefs = new BGPSessionPreferences(rib.getLocalAs(), getHoldTimer(neighbor), rib.getBgpIdentifier(), getPeerAs(neighbor, rib),
-                bgpParameters, getPassword(keyMapping));
+            this.prefs = new BGPSessionPreferences(rib.getLocalAs(), getHoldTimer(neighbor), rib.getBgpIdentifier(),
+                getPeerAs(neighbor, rib), bgpParameters, getPassword(keyMapping));
             this.activeConnection = OpenConfigMappingUtil.isActive(neighbor);
             this.dispatcher = rib.getDispatcher();
             this.inetAddress = Ipv4Util.toInetSocketAddress(this.neighborAddress, OpenConfigMappingUtil.getPort(neighbor));
@@ -225,7 +234,7 @@ public final class BgpPeer implements PeerBean, BGPPeerRuntimeMXBean {
             this.key = Optional.fromNullable(keyMapping);
             this.configurationWriter = configurationWriter;
             this.serviceGroupIdentifier = rib.getRibIServiceGroupIdentifier();
-            LOG.info("Peer Singleton Service {} registered", this.serviceGroupIdentifier);
+            LOG.info("Peer Singleton Service {} registered", this.serviceGroupIdentifier.getValue());
             //this need to be always the last step
             this.registration = rib.registerClusterSingletonService(this);
         }
@@ -243,17 +252,18 @@ public final class BgpPeer implements PeerBean, BGPPeerRuntimeMXBean {
             if(this.configurationWriter != null) {
                 this.configurationWriter.apply();
             }
-            LOG.info("Peer Singleton Service {} instantiated", getIdentifier());
+            LOG.info("Peer Singleton Service {} instantiated", getIdentifier().getValue());
             this.bgpPeer.instantiateServiceInstance();
             BgpPeer.this.peerRegistry.addPeer(this.neighborAddress, this.bgpPeer, this.prefs);
             if (this.activeConnection) {
-                this.connection = this.dispatcher.createReconnectingClient(this.inetAddress, BgpPeer.this.peerRegistry, this.retryTimer, this.key);
+                this.connection = this.dispatcher.createReconnectingClient(this.inetAddress, BgpPeer.this.peerRegistry,
+                    this.retryTimer, this.key);
             }
         }
 
         @Override
         public ListenableFuture<Void> closeServiceInstance() {
-            LOG.info("Close Peer Singleton Service {}", getIdentifier());
+            LOG.info("Close Peer Singleton Service {}", getIdentifier().getValue());
             if (this.connection != null) {
                 this.connection.cancel(true);
                 this.connection = null;
@@ -273,5 +283,18 @@ public final class BgpPeer implements PeerBean, BGPPeerRuntimeMXBean {
         BGPPeerRuntimeMXBean getPeer() {
             return this.bgpPeer;
         }
+
+        @Override
+        public BGPPeerState getPeerState() {
+            return this.bgpPeer.getPeerState();
+        }
+    }
+
+    @Override
+    public BGPPeerState getPeerState() {
+        if (this.bgpPeerSingletonService == null) {
+            return null;
+        }
+        return this.bgpPeerSingletonService.getPeerState();
     }
 }

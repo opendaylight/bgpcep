@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
@@ -83,12 +84,12 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public final class OpenConfigMappingUtil {
 
+    static final String APPLICATION_PEER_GROUP_NAME = "application-peers";
     private static final AfiSafi IPV4_AFISAFI = new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class).build();
     private static final List<AfiSafi> DEFAULT_AFISAFI = ImmutableList.of(IPV4_AFISAFI);
     private static final int HOLDTIMER = 90;
     private static final int CONNECT_RETRY = 30;
     private static final PortNumber PORT = new PortNumber(179);
-    static final String APPLICATION_PEER_GROUP_NAME = "application-peers";
     private static final BigDecimal DEFAULT_KEEP_ALIVE = BigDecimal.valueOf(30);
     private static final BigDecimal DEFAULT_MINIMUM_ADV_INTERVAL = BigDecimal.valueOf(30);
 
@@ -102,7 +103,7 @@ public final class OpenConfigMappingUtil {
 
     public static int getHoldTimer(final Neighbor neighbor) {
         final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.timers.Config config =
-                getTimersConfig(neighbor);
+            getTimersConfig(neighbor);
         if (config != null && config.getHoldTime() != null) {
             return config.getHoldTime().intValue();
         }
@@ -131,7 +132,7 @@ public final class OpenConfigMappingUtil {
 
     public static int getRetryTimer(final Neighbor neighbor) {
         final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.timers.Config config =
-                getTimersConfig(neighbor);
+            getTimersConfig(neighbor);
         if (config != null && config.getConnectRetry() != null) {
             return config.getConnectRetry().intValue();
         }
@@ -149,7 +150,7 @@ public final class OpenConfigMappingUtil {
     }
 
     public static InstanceIdentifier<Neighbor> getNeighborInstanceIdentifier(final InstanceIdentifier<Bgp> rootIdentifier,
-            final NeighborKey neighborKey) {
+        final NeighborKey neighborKey) {
         return rootIdentifier.child(Neighbors.class).child(Neighbor.class, neighborKey);
     }
 
@@ -266,45 +267,45 @@ public final class OpenConfigMappingUtil {
     }
 
     public static Global fromRib(final BgpId bgpId, final ClusterIdentifier clusterIdentifier, final RibId ribId,
-            final AsNumber localAs, final List<BgpTableType> localTables,
-            final Map<TablesKey, PathSelectionMode> pathSelectionStrategies, final BGPTableTypeRegistryConsumer bgpTableTypeRegistryConsumer) {
+        final AsNumber localAs, final List<BgpTableType> localTables,
+        final Map<TablesKey, PathSelectionMode> pathSelectionStrategies, final BGPTableTypeRegistryConsumer bgpTableTypeRegistryConsumer) {
         return toGlobalConfiguration(bgpId, clusterIdentifier, localAs, localTables, pathSelectionStrategies, bgpTableTypeRegistryConsumer);
     }
 
     private static Global toGlobalConfiguration(final BgpId bgpId, final ClusterIdentifier clusterIdentifier,
-            final AsNumber localAs, final List<BgpTableType> localTables,
-            final Map<TablesKey, PathSelectionMode> pathSelectionStrategies, final BGPTableTypeRegistryConsumer bgpTableTypeRegistryConsumer) {
+        final AsNumber localAs, final List<BgpTableType> localTables,
+        final Map<TablesKey, PathSelectionMode> pathSelectionStrategies, final BGPTableTypeRegistryConsumer bgpTableTypeRegistryConsumer) {
         final ConfigBuilder configBuilder = new ConfigBuilder();
         configBuilder.setAs(localAs);
         configBuilder.setRouterId(bgpId);
         if (clusterIdentifier != null) {
             configBuilder.addAugmentation(GlobalConfigAugmentation.class,
-                    new GlobalConfigAugmentationBuilder().setRouteReflectorClusterId(new RrClusterIdType(clusterIdentifier)).build());
+                new GlobalConfigAugmentationBuilder().setRouteReflectorClusterId(new RrClusterIdType(clusterIdentifier)).build());
         }
         return new GlobalBuilder().setAfiSafis(new AfiSafisBuilder().setAfiSafi(toAfiSafis(localTables,
-                (afiSafi, tableType) -> toGlobalAfiSafiAddPath(afiSafi, tableType, pathSelectionStrategies), bgpTableTypeRegistryConsumer)).build())
-                .setConfig(configBuilder.build()).build();
+            (afiSafi, tableType) -> toGlobalAfiSafiAddPath(afiSafi, tableType, pathSelectionStrategies), bgpTableTypeRegistryConsumer)).build())
+            .setConfig(configBuilder.build()).build();
     }
 
     public static Neighbor fromBgpPeer(final List<AddressFamilies> addPathCapabilities,
-            final List<BgpTableType> advertisedTables, final Integer holdTimer, final IpAddress ipAddress,
-            final Boolean isActive, final Rfc2385Key password, final PortNumber portNumber, final Integer retryTimer,
-            final AsNumber remoteAs, final PeerRole peerRole, final SimpleRoutingPolicy simpleRoutingPolicy, final BGPTableTypeRegistryConsumer bgpTableTypeRegistryConsumer) {
+        final List<BgpTableType> advertisedTables, final Integer holdTimer, final IpAddress ipAddress,
+        final Boolean isActive, final Rfc2385Key password, final PortNumber portNumber, final Integer retryTimer,
+        final AsNumber remoteAs, final PeerRole peerRole, final SimpleRoutingPolicy simpleRoutingPolicy, final BGPTableTypeRegistryConsumer bgpTableTypeRegistryConsumer) {
         final NeighborBuilder neighborBuilder = new NeighborBuilder();
         neighborBuilder.setNeighborAddress(ipAddress);
         neighborBuilder.setKey(new NeighborKey(ipAddress));
         neighborBuilder.setAfiSafis(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.AfiSafisBuilder().setAfiSafi(toAfiSafis(advertisedTables,
-                (afiSafi, tableType) -> toNeighborAfiSafiAddPath(afiSafi, tableType, addPathCapabilities), bgpTableTypeRegistryConsumer)).build());
+            (afiSafi, tableType) -> toNeighborAfiSafiAddPath(afiSafi, tableType, addPathCapabilities), bgpTableTypeRegistryConsumer)).build());
         neighborBuilder.setTransport(new TransportBuilder().setConfig(
-                new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.transport.ConfigBuilder()
+            new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.transport.ConfigBuilder()
                 .setPassiveMode(!isActive)
                 .setMtuDiscovery(Boolean.FALSE)
                 .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config1.class,
-                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config1Builder()
-                .setRemotePort(portNumber).build())
+                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config1Builder()
+                        .setRemotePort(portNumber).build())
                 .build()).build());
         neighborBuilder.setConfig(
-                new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.ConfigBuilder()
+            new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.ConfigBuilder()
                 .setAuthPassword(password != null ? password.getValue() : null)
                 .setPeerAs(remoteAs)
                 .setPeerType(toPeerType(peerRole))
@@ -313,14 +314,14 @@ public final class OpenConfigMappingUtil {
                 .addAugmentation(NeighborConfigAugmentation.class, setNeighborAugmentation(simpleRoutingPolicy))
                 .build());
         neighborBuilder.setTimers(new TimersBuilder().setConfig(
-                new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.timers.ConfigBuilder()
+            new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.timers.ConfigBuilder()
                 .setHoldTime(BigDecimal.valueOf(holdTimer))
                 .setConnectRetry(BigDecimal.valueOf(retryTimer))
                 .setKeepaliveInterval(DEFAULT_KEEP_ALIVE)
                 .setMinimumAdvertisementInterval(DEFAULT_MINIMUM_ADV_INTERVAL)
                 .build()).build());
         neighborBuilder.setRouteReflector(new RouteReflectorBuilder().setConfig(
-                new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.route.reflector.ConfigBuilder()
+            new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.route.reflector.ConfigBuilder()
                 .setRouteReflectorClient(peerRole == PeerRole.RrClient).build()).build());
         return neighborBuilder.build();
     }
@@ -331,14 +332,14 @@ public final class OpenConfigMappingUtil {
         neighborBuilder.setNeighborAddress(new IpAddress(new Ipv4Address(bgpId.getValue())));
         neighborBuilder.setKey(new NeighborKey(neighborBuilder.getNeighborAddress()));
         neighborBuilder.setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.ConfigBuilder()
-        .setDescription(applicationRibId.getValue())
-        .addAugmentation(Config2.class, new Config2Builder().setPeerGroup(APPLICATION_PEER_GROUP_NAME).build())
-        .build());
+            .setDescription(applicationRibId.getValue())
+            .addAugmentation(Config2.class, new Config2Builder().setPeerGroup(APPLICATION_PEER_GROUP_NAME).build())
+            .build());
 
         return neighborBuilder.build();
     }
 
-    private static final NeighborConfigAugmentation setNeighborAugmentation(final SimpleRoutingPolicy simpleRoutingPolicy) {
+    private static NeighborConfigAugmentation setNeighborAugmentation(final SimpleRoutingPolicy simpleRoutingPolicy) {
         if (simpleRoutingPolicy != null) {
             return new NeighborConfigAugmentationBuilder().setSimpleRoutingPolicy(simpleRoutingPolicy).build();
         }
@@ -383,7 +384,7 @@ public final class OpenConfigMappingUtil {
     }
 
     static List<AfiSafi> toAfiSafis(final List<BgpTableType> advertizedTables, final BiFunction<AfiSafi, BgpTableType, AfiSafi> function,
-            final BGPTableTypeRegistryConsumer bgpTableTypeRegistryConsumer) {
+        final BGPTableTypeRegistryConsumer bgpTableTypeRegistryConsumer) {
         final List<AfiSafi> afiSafis = new ArrayList<>(advertizedTables.size());
         for (final BgpTableType tableType : advertizedTables) {
             final Optional<AfiSafi> afiSafiMaybe = toAfiSafi(new BgpTableTypeImpl(tableType.getAfi(), tableType.getSafi()), bgpTableTypeRegistryConsumer);
@@ -418,8 +419,8 @@ public final class OpenConfigMappingUtil {
 
     static AfiSafi toNeighborAfiSafiAddPath(final AfiSafi afiSafi, final BgpTableType tableType, final List<AddressFamilies> capabilities) {
         final Optional<AddressFamilies> capability = capabilities.stream()
-                .filter(af -> af.getAfi().equals(tableType.getAfi()) && af.getSafi().equals(tableType.getSafi()))
-                .findFirst();
+            .filter(af -> af.getAfi().equals(tableType.getAfi()) && af.getSafi().equals(tableType.getSafi()))
+            .findFirst();
         if (!capability.isPresent()) {
             return afiSafi;
         }
@@ -457,10 +458,18 @@ public final class OpenConfigMappingUtil {
 
     public static List<BgpTableType> toTableTypes(final List<AfiSafi> afiSafis, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         return afiSafis.stream()
-                .map(afiSafi -> tableTypeRegistry.getTableType(afiSafi.getAfiSafiName()))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
+            .map(afiSafi -> tableTypeRegistry.getTableType(afiSafi.getAfiSafiName()))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .collect(Collectors.toList());
     }
 
+    public static Set<TablesKey> toTableKey(final List<AfiSafi> afiSafis, final BGPTableTypeRegistryConsumer
+        tableTypeRegistry) {
+        return afiSafis.stream()
+            .map(afiSafi -> tableTypeRegistry.getTableKey(afiSafi.getAfiSafiName()))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .collect(Collectors.toSet());
+    }
 }
