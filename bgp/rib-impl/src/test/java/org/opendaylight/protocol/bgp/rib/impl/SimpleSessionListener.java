@@ -9,7 +9,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Uninterruptibles;
-import io.netty.channel.Channel;
+import java.net.SocketAddress;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -103,7 +103,9 @@ public final class SimpleSessionListener implements BGPSessionListener {
     }
 
     @Override
-    public void advertizeCapabilities(final int holdTimerValue, final Channel remoteAddress, final Set<BgpTableType> tableTypes, final List<BgpParameters> bgpParameters) {
+    public void advertizeCapabilities(final int holdTimerValue, final SocketAddress remoteAddress,
+        final SocketAddress localAddress, final Set<BgpTableType> tableTypes,
+        final List<BgpParameters> bgpParameters) {
 
     }
 

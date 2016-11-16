@@ -26,7 +26,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -91,7 +90,7 @@ import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 
-public class AbstractRIBTestSetup {
+public class AbstractRIBTestSetup extends AbstractBgpStateHandler {
 
     private RIBImpl rib;
     private static final ClusterIdentifier CLUSTER_ID = new ClusterIdentifier("128.0.0.1");
@@ -136,8 +135,10 @@ public class AbstractRIBTestSetup {
     @Mock
     private ClusterSingletonServiceProvider clusterSingletonServiceProvider;
 
+    @Override
     @Before
     public void setUp() throws Exception {
+        super.setUp();
         mockRib();
     }
 
@@ -156,7 +157,8 @@ public class AbstractRIBTestSetup {
             .registerClusterSingletonService(any(ClusterSingletonService.class));
         this.rib = new RIBImpl(this.clusterSingletonServiceProvider, new RibId("test"), new AsNumber(5L), RIB_ID, CLUSTER_ID, context,
             this.dispatcher, this.codecFactory, this.dom, localTables, Collections.singletonMap(new TablesKey(AFI, SAFI),
-            BasePathSelectionModeFactory.createBestPathSelectionStrategy()), GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), null);
+            BasePathSelectionModeFactory.createBestPathSelectionStrategy()), GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), null,
+            TABLE_TYPE_REGISTRY, this.bgpStateProvider, this.bgpStateFactory, this.bgpIID);
         this.rib.onGlobalContextUpdated(schemaContext);
         this.ribSupport = getRib().getRibSupportContext().getRIBSupportContext(KEY).getRibSupport();
     }
@@ -180,7 +182,6 @@ public class AbstractRIBTestSetup {
 
     @SuppressWarnings("unchecked")
     private void mockedMethods() throws Exception {
-        MockitoAnnotations.initMocks(this);
         final ReadOnlyTransaction readTx = Mockito.mock(ReadOnlyTransaction.class);
         Mockito.doReturn(new listenerRegistration()).when(this.service).registerDataTreeChangeListener(Mockito.any(DOMDataTreeIdentifier.class), Mockito.any(ClusteredDOMDataTreeChangeListener.class));
         final Map<Class<? extends DOMDataBrokerExtension>, DOMDataBrokerExtension> map = new HashMap<>();

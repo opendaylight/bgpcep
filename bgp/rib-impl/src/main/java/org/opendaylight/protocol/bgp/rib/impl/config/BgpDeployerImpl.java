@@ -37,6 +37,7 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.InstanceType;
+import org.opendaylight.protocol.bgp.state.spi.BGPStateProvider;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
@@ -65,6 +66,7 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
     private final BundleContext bundleContext;
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
     private final ListenerRegistration<BgpDeployerImpl> registration;
+    private final BGPStateProvider bgpStateProvider;
     @GuardedBy("this")
     private final Map<InstanceIdentifier<Bgp>, RibImpl> ribs = new HashMap<>();
     @GuardedBy("this")
@@ -74,13 +76,14 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
     private boolean closed;
 
     public BgpDeployerImpl(final String networkInstanceName, final BlueprintContainer container, final BundleContext bundleContext, final DataBroker dataBroker,
-        final BGPTableTypeRegistryConsumer mappingService) {
+        final BGPTableTypeRegistryConsumer mappingService, final BGPStateProvider bgpStateProvider) {
         this.dataBroker = Preconditions.checkNotNull(dataBroker);
         this.container = Preconditions.checkNotNull(container);
         this.bundleContext = Preconditions.checkNotNull(bundleContext);
         this.tableTypeRegistry = Preconditions.checkNotNull(mappingService);
         this.networkInstanceIId = InstanceIdentifier.create(NetworkInstances.class)
             .child(NetworkInstance.class, new NetworkInstanceKey(networkInstanceName));
+        this.bgpStateProvider = bgpStateProvider;
         Futures.addCallback(initializeNetworkInstance(dataBroker, this.networkInstanceIId), new FutureCallback<Void>() {
             @Override
             public void onSuccess(final Void result) {
@@ -215,7 +218,7 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
     private void initiateRibInstance(final InstanceIdentifier<Bgp> rootIdentifier, final Global global,
         final RibImpl ribImpl, final WriteConfiguration configurationWriter) {
         final String ribInstanceName = getRibInstanceName(rootIdentifier);
-        ribImpl.start(global, ribInstanceName, this.tableTypeRegistry, configurationWriter);
+        ribImpl.start(global, ribInstanceName, this.tableTypeRegistry, configurationWriter, this.bgpStateProvider, rootIdentifier);
         registerRibInstance(ribImpl, ribInstanceName);
     }
 
