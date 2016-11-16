@@ -27,6 +27,8 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.PeerRoleUtil;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
+import org.opendaylight.protocol.bgp.state.spi.state.BGPNeighborState;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.SendReceive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlri;
@@ -78,7 +80,7 @@ final class AdjRibInWriter {
     private static final NodeIdentifier PEER_TABLES = new NodeIdentifier(SupportedTables.QNAME);
     private static final NodeIdentifier TABLES = new NodeIdentifier(Tables.QNAME);
     private static final QName SEND_RECEIVE = QName.create(SupportedTables.QNAME, "send-receive").intern();
-    static final NodeIdentifier SIMPLE_ROUTING_POLICY_NID = new NodeIdentifier(QName.create(Peer.QNAME, "simple-routing-policy").intern());
+    private static final NodeIdentifier SIMPLE_ROUTING_POLICY_NID = new NodeIdentifier(QName.create(Peer.QNAME, "simple-routing-policy").intern());
 
     // FIXME: is there a utility method to construct this?
     private static final ContainerNode EMPTY_ADJRIBIN = Builders.containerBuilder().withNodeIdentifier(ADJRIBIN).addChild(ImmutableNodes.mapNodeBuilder(Tables.QNAME).build()).build();
@@ -91,27 +93,31 @@ final class AdjRibInWriter {
     private final DOMTransactionChain chain;
     private final PeerRole role;
     private final Optional<SimpleRoutingPolicy> simpleRoutingPolicy;
+    private final BGPNeighborState neighborState;
 
     private AdjRibInWriter(final YangInstanceIdentifier ribPath, final DOMTransactionChain chain, final PeerRole role,
-        final Optional<SimpleRoutingPolicy> simpleRoutingPolicy, final YangInstanceIdentifier peerPath, final Map<TablesKey, TableContext> tables) {
+        final Optional<SimpleRoutingPolicy> simpleRoutingPolicy, final YangInstanceIdentifier peerPath, 
+        final Map<TablesKey, TableContext> tables, final BGPNeighborState neighborState) {
         this.ribPath = Preconditions.checkNotNull(ribPath);
         this.chain = Preconditions.checkNotNull(chain);
         this.tables = Preconditions.checkNotNull(tables);
         this.role = Preconditions.checkNotNull(role);
         this.simpleRoutingPolicy = simpleRoutingPolicy;
         this.peerPath = peerPath;
+        this.neighborState = Preconditions.checkNotNull(neighborState);
     }
 
     /**
      * Create a new writer using a transaction chain.
-     *
-     * @param role peer's role
+     *  @param role peer's role
      * @param simpleRoutingPolicy simple Routing Policy {@link SimpleRoutingPolicy}
-     *@param chain transaction chain  @return A fresh writer instance
+     * @param chain transaction chain  @return A fresh writer instance
+     * @param neighborState neighbor state container
      */
-    static AdjRibInWriter create(@Nonnull final YangInstanceIdentifier ribId, @Nonnull final PeerRole role, final Optional<SimpleRoutingPolicy> simpleRoutingPolicy,
-        @Nonnull final DOMTransactionChain chain) {
-        return new AdjRibInWriter(ribId, chain, role, simpleRoutingPolicy, null, Collections.emptyMap());
+    static AdjRibInWriter create(@Nonnull final YangInstanceIdentifier ribId, @Nonnull final PeerRole role,
+        final Optional<SimpleRoutingPolicy> simpleRoutingPolicy, @Nonnull final DOMTransactionChain chain, 
+        final BGPNeighborState neighborState) {
+        return new AdjRibInWriter(ribId, chain, role, simpleRoutingPolicy, null, Collections.emptyMap(), neighborState);
     }
 
     /**
@@ -134,7 +140,8 @@ final class AdjRibInWriter {
         final ImmutableMap<TablesKey, TableContext> tb = createNewTableInstances(newPeerPath, registry, tableTypes, addPathTablesType, tx);
         tx.submit();
 
-        return new AdjRibInWriter(this.ribPath, this.chain, this.role, this.simpleRoutingPolicy, newPeerPath, tb);
+        return new AdjRibInWriter(this.ribPath, this.chain, this.role, this.simpleRoutingPolicy, newPeerPath, tb,
+            this.neighborState);
     }
 
     /**
@@ -241,11 +248,13 @@ final class AdjRibInWriter {
     void markTableUptodate(final TablesKey tableTypes) {
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         final TableContext ctx = this.tables.get(tableTypes);
-        tx.merge(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(Attributes.QNAME).node(ATTRIBUTES_UPTODATE_TRUE.getNodeType()), ATTRIBUTES_UPTODATE_TRUE);
+        tx.merge(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(Attributes.QNAME)
+            .node(ATTRIBUTES_UPTODATE_TRUE.getNodeType()), ATTRIBUTES_UPTODATE_TRUE);
         tx.submit();
     }
 
-    void updateRoutes(final MpReachNlri nlri, final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes attributes) {
+    void updateRoutes(final MpReachNlri nlri, final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.
+        bgp.message.rev130919.path.attributes.Attributes attributes, final Class<? extends AfiSafiType> afiSafi) {
         final TablesKey key = new TablesKey(nlri.getAfi(), nlri.getSafi());
         final TableContext ctx = this.tables.get(key);
         if (ctx == null) {
@@ -254,7 +263,8 @@ final class AdjRibInWriter {
         }
 
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
-        ctx.writeRoutes(tx, nlri, attributes);
+        final Integer numberOfRoutesInstalled = ctx.writeRoutes(tx, nlri, attributes);
+        this.neighborState.increasePrefixesReceived(afiSafi, numberOfRoutesInstalled);
         LOG.trace("Write routes {}", nlri);
         tx.submit();
     }

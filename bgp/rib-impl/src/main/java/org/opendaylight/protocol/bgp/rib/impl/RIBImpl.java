@@ -39,7 +39,9 @@ import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegist
 import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.DefaultRibReference;
+import org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
@@ -52,6 +54,14 @@ import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.protocol.bgp.rib.spi.util.ClusterSingletonServiceRegistrationHelper;
+import org.opendaylight.protocol.bgp.state.impl.global.BGPGlobalStateImpl;
+import org.opendaylight.protocol.bgp.state.spi.BGPStateProvider;
+import org.opendaylight.protocol.bgp.state.spi.state.BGPGlobalState;
+import org.opendaylight.protocol.bgp.state.spi.state.BGPNeighborState;
+import org.opendaylight.protocol.bgp.state.spi.state.BGPStateConsumer;
+import org.opendaylight.protocol.concepts.AbstractRegistration;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRib;
@@ -103,6 +113,10 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
     private final ServiceGroupIdentifier serviceGroupIdentifier;
     private final ClusterSingletonServiceProvider provider;
     private final BgpDeployer.WriteConfiguration configurationWriter;
+    private final BGPTableTypeRegistryConsumer tableTypeRegistry;
+    private BGPGlobalState globalState;
+    private AbstractRegistration globalStateRegistry;
+    private final BGPStateProvider stateHandler;
     private ClusterSingletonServiceRegistration registration;
     private final DOMDataBrokerExtension service;
     private final List<LocRibWriter> locRibs = new ArrayList<>();
@@ -118,12 +132,14 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
         final ClusterIdentifier clusterId, final RIBExtensionConsumerContext extensions, final BGPDispatcher dispatcher,
         final BindingCodecTreeFactory codecFactory, final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
         @Nonnull final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies, final GeneratedClassLoadingStrategy classStrategy,
-        final BgpDeployer.WriteConfiguration configurationWriter) {
-
+        final BgpDeployer.WriteConfiguration configurationWriter, final BGPTableTypeRegistryConsumer tableTypeRegistry,
+        final BGPStateProvider stateProvider, final InstanceIdentifier<Bgp> bgpIId) {
         super(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(Preconditions.checkNotNull(ribId))));
+        Preconditions.checkNotNull(bgpIId);
         this.localAs = Preconditions.checkNotNull(localAs);
         this.bgpIdentifier = Preconditions.checkNotNull(localBgpId);
         this.dispatcher = Preconditions.checkNotNull(dispatcher);
+        this.tableTypeRegistry = Preconditions.checkNotNull(tableTypeRegistry);
         this.localTables = ImmutableSet.copyOf(localTables);
         this.localTablesKeys = new HashSet<>();
         this.domDataBroker = Preconditions.checkNotNull(domDataBroker);
@@ -152,6 +168,10 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
         }
         this.exportPolicyPeerTrackerMap = exportPolicies.build();
 
+        this.stateHandler = stateProvider;
+        final List<AfiSafi> afiSafiSupported = OpenConfigMappingUtil.toAfiSafisList(localTablesKeys, this.tableTypeRegistry);
+        this.globalState = new BGPGlobalStateImpl(afiSafiSupported, this.ribId.getValue(), this.bgpIdentifier,
+            this.localAs, bgpIId);
         LOG.info("RIB Singleton Service {} registered", getIdentifier());
         //this need to be always the last step
         this.registration = registerClusterSingletonService(this);
@@ -188,8 +208,10 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
             pathSelectionStrategy = BasePathSelectionModeFactory.createBestPathSelectionStrategy();
         }
 
-        this.locRibs.add(LocRibWriter.create(this.ribContextRegistry, key, createPeerChain(this), getYangRibId(), this.localAs, getService(),
-            this.exportPolicyPeerTrackerMap.get(key), pathSelectionStrategy, this.renderStats.getLocRibRouteCounter().init(key)));
+        final AfiSafi afiSafi = OpenConfigMappingUtil.toAfiSafi(key, this.tableTypeRegistry).get();
+        this.locRibs.add(LocRibWriter.create(this.ribContextRegistry, key, afiSafi, createPeerChain(this),
+            getYangRibId(), this.localAs, getService(), this.exportPolicyPeerTrackerMap.get(key), pathSelectionStrategy,
+            this.renderStats.getLocRibRouteCounter().init(key), this.globalState));
     }
 
     @Override
@@ -297,6 +319,7 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
 
     @Override
     public void instantiateServiceInstance() {
+        this.globalStateRegistry = this.stateHandler.registerBGPState((BGPStateConsumer) this.globalState);
         this.domChain = this.domDataBroker.createTransactionChain(this);
         if(this.configurationWriter != null) {
             this.configurationWriter.apply();
@@ -348,6 +371,7 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
 
         this.domChain.close();
 
+        this.globalStateRegistry.close();
         return cleanFuture;
     }
 
@@ -365,5 +389,10 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
     @Override
     public ServiceGroupIdentifier getRibIServiceGroupIdentifier() {
         return getIdentifier();
+    }
+
+    @Override
+    public AbstractRegistration registerNeighbor(final BGPNeighborState neighborState, final String groupId) {
+        return this.globalState.registerNeighbor(neighborState, groupId);
     }
 }

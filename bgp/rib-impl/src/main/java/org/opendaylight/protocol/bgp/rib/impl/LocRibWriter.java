@@ -32,6 +32,8 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
 import org.opendaylight.protocol.bgp.state.spi.counters.UnsignedInt32Counter;
+import org.opendaylight.protocol.bgp.state.spi.state.BGPGlobalState;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
@@ -74,13 +76,16 @@ final class LocRibWriter implements AutoCloseable, ClusteredDOMDataTreeChangeLis
     private final ListenerRegistration<LocRibWriter> reg;
     private final PathSelectionMode pathSelectionMode;
     private final UnsignedInt32Counter routeCounter;
+    private final BGPGlobalState globalState;
+    private final AfiSafi afiSafi;
 
     private LocRibWriter(final RIBSupportContextRegistry registry, final DOMTransactionChain chain, final YangInstanceIdentifier target,
         final Long ourAs, final DOMDataTreeChangeService service, final ExportPolicyPeerTracker exportPolicyPeerTracker, final TablesKey tablesKey,
-        @Nonnull final PathSelectionMode pathSelectionMode, final UnsignedInt32Counter routeCounter) {
+        final AfiSafi afiSafi, final PathSelectionMode pathSelectionMode, final UnsignedInt32Counter routeCounter, final BGPGlobalState globalState) {
         this.chain = Preconditions.checkNotNull(chain);
         final NodeIdentifierWithPredicates tableKey = RibSupportUtils.toYangTablesKey(tablesKey);
         this.localTablesKey = tablesKey;
+        this.afiSafi = afiSafi;
         this.locRibTarget = YangInstanceIdentifier.create(target.node(LocRib.QNAME).node(Tables.QNAME).node(tableKey).getPathArguments());
         this.ourAs = Preconditions.checkNotNull(ourAs);
         this.ribSupport = registry.getRIBSupportContext(tablesKey).getRibSupport();
@@ -88,6 +93,7 @@ final class LocRibWriter implements AutoCloseable, ClusteredDOMDataTreeChangeLis
         this.exportPolicyPeerTracker = exportPolicyPeerTracker;
         this.pathSelectionMode = pathSelectionMode;
         this.routeCounter = routeCounter;
+        this.globalState = globalState;
 
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         tx.merge(LogicalDatastoreType.OPERATIONAL, this.locRibTarget.node(Routes.QNAME), this.ribSupport.emptyRoutes());
@@ -99,10 +105,14 @@ final class LocRibWriter implements AutoCloseable, ClusteredDOMDataTreeChangeLis
         this.reg = service.registerDataTreeChangeListener(wildcard, this);
     }
 
-    public static LocRibWriter create(@Nonnull final RIBSupportContextRegistry registry, @Nonnull final TablesKey tablesKey, @Nonnull final DOMTransactionChain chain,
-        @Nonnull final YangInstanceIdentifier target, @Nonnull final AsNumber ourAs, @Nonnull final DOMDataTreeChangeService service, @Nonnull final ExportPolicyPeerTracker ep,
-        @Nonnull final PathSelectionMode pathSelectionStrategy, @Nonnull final UnsignedInt32Counter routeCounter) {
-        return new LocRibWriter(registry, chain, target, ourAs.getValue(), service, ep, tablesKey, pathSelectionStrategy, routeCounter);
+    public static LocRibWriter create(@Nonnull final RIBSupportContextRegistry registry, @Nonnull final TablesKey tablesKey,
+        final AfiSafi afiSafi, @Nonnull final DOMTransactionChain chain, @Nonnull final YangInstanceIdentifier target,
+        @Nonnull final AsNumber ourAs, @Nonnull final DOMDataTreeChangeService service,
+        @Nonnull final ExportPolicyPeerTracker ep, @Nonnull final PathSelectionMode pathSelectionStrategy,
+        @Nonnull final UnsignedInt32Counter routeCounter,
+        final BGPGlobalState globalState) {
+        return new LocRibWriter(registry, chain, target, ourAs.getValue(), service, ep, tablesKey, afiSafi,
+            pathSelectionStrategy, routeCounter, globalState);
     }
 
     @Override
@@ -116,6 +126,7 @@ final class LocRibWriter implements AutoCloseable, ClusteredDOMDataTreeChangeLis
     private RouteEntry createEntry(final PathArgument routeId) {
         final RouteEntry ret = this.pathSelectionMode.createRouteEntry(ribSupport.isComplexRoute());
         this.routeEntries.put(routeId, ret);
+        this.globalState.increaseAfiSafiPrefixes(this.afiSafi);
         LOG.trace("Created new entry for {}", routeId);
         return ret;
     }
@@ -196,9 +207,14 @@ final class LocRibWriter implements AutoCloseable, ClusteredDOMDataTreeChangeLis
                     entry = createEntry(routeId);
                 }
                 entry.addRoute(routerId, this.ribSupport.extractPathId(maybeData.get()), this.attributesIdentifier, maybeData.get());
-            } else if (entry != null && entry.removeRoute(routerId, this.ribSupport.extractPathId(maybeDataBefore.get()))) {
-                this.routeEntries.remove(routeId);
-                LOG.trace("Removed route from {}", routerId);
+                this.globalState.increaseAfiSafiPaths(this.afiSafi);
+            } else if (entry != null) {
+                this.globalState.decreaseAfiSafiPaths(this.afiSafi);
+                if(entry.removeRoute(routerId, this.ribSupport.extractPathId(maybeDataBefore.get()))) {
+                    this.routeEntries.remove(routeId);
+                    this.globalState.decreaseAfiSafiPrefixes(this.afiSafi);
+                    LOG.trace("Removed route from {}", routerId);
+                }
             }
             final RouteUpdateKey routeUpdateKey = new RouteUpdateKey(peerId, routeId);
             LOG.debug("Updated route {} entry {}", routeId, entry);

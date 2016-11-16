@@ -42,11 +42,11 @@ class RIBSupportContextImpl extends RIBSupportContext {
     }
 
     @Override
-    public void writeRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tableId, final MpReachNlri nlri,
+    public Integer writeRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tableId, final MpReachNlri nlri,
             final Attributes attributes) {
         final ContainerNode domNlri = this.codecs.serializeReachNlri(nlri);
         final ContainerNode routeAttributes = this.codecs.serializeAttributes(attributes);
-        this.ribSupport.putRoutes(tx, tableId, domNlri, routeAttributes);
+        return this.ribSupport.putRoutes(tx, tableId, domNlri, routeAttributes);
     }
 
     @Override
