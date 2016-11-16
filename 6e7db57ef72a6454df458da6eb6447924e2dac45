@@ -16,6 +16,24 @@
       "revId": "6e7db57ef72a6454df458da6eb6447924e2dac45",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_9c3802a2",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/AbstractAddPathTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-11-16T07:36:02Z",
+      "side": 1,
+      "message": "if we remove it, test wont pass, since we hit a bug.\nThis patch is only a partial improvement(40sec test to 10 sec)\nuntil the issue is fixed. More investigation is need it and this is low priority.\nYou can merge it if you want.",
+      "parentUuid": "3a65312a_2247124d",
+      "revId": "6e7db57ef72a6454df458da6eb6447924e2dac45",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
