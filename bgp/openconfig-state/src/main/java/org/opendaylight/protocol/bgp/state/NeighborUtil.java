@@ -24,6 +24,7 @@ import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPAfiSafiState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPErrorHandlingState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPGracelfulRestartState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerMessagesState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPSessionState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTimersState;
@@ -118,7 +119,7 @@ public final class NeighborUtil {
         @Nonnull final BGPTableTypeRegistryConsumer bgpTableTypeRegistry) {
         return new NeighborBuilder()
             .setNeighborAddress(neighbor.getNeighborAddress())
-            .setState(buildNeighborState(neighbor.getBGPSessionState()))
+            .setState(buildNeighborState(neighbor.getBGPSessionState(), neighbor.getBGPPeerMessagesState()))
             .setTimers(buildTimer(neighbor.getBGPTimersState()))
             .setTransport(buildTransport(neighbor.getBGPTransportState()))
             .setErrorHandling(buildErrorHandling(neighbor.getBGPErrorHandlingState()))
@@ -130,18 +131,24 @@ public final class NeighborUtil {
     /**
      * Builds Neighbor State from BGPPeerState counters
      *
-     * @param neighbor BGPPeerState containing Operational state counters
+     * @param sessionState BGPPeerState containing Operational state counters
+     * @param bgpPeerMessagesState
      * @return Neighbor State
      */
     @Nullable
-    public static State buildNeighborState(@Nullable final BGPSessionState neighbor) {
-        if (neighbor == null) {
+    public static State buildNeighborState(@Nullable final BGPSessionState sessionState,
+        final BGPPeerMessagesState bgpPeerMessagesState) {
+        if (sessionState == null && bgpPeerMessagesState == null) {
             return null;
         }
-        return new StateBuilder()
-            .addAugmentation(NeighborStateAugmentation.class, buildCapabilityState(neighbor))
-            .addAugmentation(BgpNeighborStateAugmentation.class,
-                buildMessageState(neighbor)).build();
+        final StateBuilder builder = new StateBuilder();
+        if (sessionState != null) {
+            builder.addAugmentation(NeighborStateAugmentation.class, buildCapabilityState(sessionState));
+        }
+        if (bgpPeerMessagesState != null) {
+            builder.addAugmentation(BgpNeighborStateAugmentation.class, buildMessageState(bgpPeerMessagesState));
+        }
+        return builder.build();
     }
 
     /**
@@ -262,14 +269,14 @@ public final class NeighborUtil {
      * @return BgpNeighborState containing Message State
      */
     @Nonnull
-    public static BgpNeighborStateAugmentation buildMessageState(@Nonnull final BGPSessionState neighbor) {
+    public static BgpNeighborStateAugmentation buildMessageState(@Nonnull final BGPPeerMessagesState neighbor) {
         return new BgpNeighborStateAugmentationBuilder()
             .setMessages(new MessagesBuilder()
                 .setReceived(buildMessagesReceived(neighbor))
                 .setSent(buildMessagesSent(neighbor)).build()).build();
     }
 
-    private static Received buildMessagesReceived(@Nonnull final BGPSessionState neighbor) {
+    private static Received buildMessagesReceived(@Nonnull final BGPPeerMessagesState neighbor) {
         return new ReceivedBuilder()
             .setUPDATE(toBigInteger(neighbor.getUpdateMessagesReceivedCount()))
             .setNOTIFICATION(toBigInteger(neighbor.getNotificationMessagesReceivedCount()))
@@ -280,7 +287,7 @@ public final class NeighborUtil {
         return UnsignedLong.valueOf(updateReceivedCounter).bigIntegerValue();
     }
 
-    private static Sent buildMessagesSent(@Nonnull final BGPSessionState neighbor) {
+    private static Sent buildMessagesSent(@Nonnull final BGPPeerMessagesState neighbor) {
         return new SentBuilder()
             .setUPDATE(toBigInteger(neighbor.getUpdateMessagesSentCount()))
             .setNOTIFICATION(toBigInteger(neighbor.getNotificationMessagesSentCount()))

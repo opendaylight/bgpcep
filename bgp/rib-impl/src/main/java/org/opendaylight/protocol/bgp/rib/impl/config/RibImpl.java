@@ -9,6 +9,8 @@
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getAfiSafiWithDefault;
+import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getClusterIdentifier;
+import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.toTableTypes;
 
 import com.google.common.base.Preconditions;
 import java.util.List;
@@ -37,6 +39,8 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl.BGPRenderStats;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPRIBState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPRIBStateConsumer;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.Config;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
@@ -57,7 +61,7 @@ import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class RibImpl implements RIB, AutoCloseable {
+public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(RibImpl.class);
 
@@ -76,8 +80,9 @@ public final class RibImpl implements RIB, AutoCloseable {
 
     private ClusterIdentifier clusterId;
 
-    public RibImpl(final ClusterSingletonServiceProvider provider, final RIBExtensionConsumerContext contextProvider, final BGPDispatcher dispatcher,
-            final BindingCodecTreeFactory codecTreeFactory, final DOMDataBroker domBroker, final SchemaService schemaService) {
+    public RibImpl(final ClusterSingletonServiceProvider provider, final RIBExtensionConsumerContext contextProvider,
+        final BGPDispatcher dispatcher, final BindingCodecTreeFactory codecTreeFactory, final DOMDataBroker domBroker,
+        final SchemaService schemaService) {
         this.provider = Preconditions.checkNotNull(provider);
         this.extensions = contextProvider;
         this.dispatcher = dispatcher;
@@ -89,7 +94,7 @@ public final class RibImpl implements RIB, AutoCloseable {
     void start(final Global global, final String instanceName, final BGPTableTypeRegistryConsumer tableTypeRegistry,
         final BgpDeployer.WriteConfiguration configurationWriter) {
         Preconditions.checkState(this.ribImpl == null, "Previous instance %s was not closed.", this);
-        this.ribImpl = createRib(this.provider, global, instanceName, tableTypeRegistry, configurationWriter);
+        this.ribImpl = createRib(global, instanceName, tableTypeRegistry, configurationWriter);
         this.schemaContextRegistration = this.schemaService.registerSchemaContextListener(this.ribImpl);
     }
 
@@ -98,7 +103,7 @@ public final class RibImpl implements RIB, AutoCloseable {
         final Config globalConfig = global.getConfig();
         final AsNumber globalAs = globalConfig.getAs();
         final Ipv4Address globalRouterId = global.getConfig().getRouterId();
-        final ClusterIdentifier globalClusterId = OpenConfigMappingUtil.getClusterIdentifier(globalConfig);
+        final ClusterIdentifier globalClusterId = getClusterIdentifier(globalConfig);
         return this.afiSafi.containsAll(globalAfiSafi) && globalAfiSafi.containsAll(this.afiSafi)
             && globalAs.equals(this.asNumber)
             && globalRouterId.getValue().equals(this.routerId.getValue())
@@ -218,22 +223,27 @@ public final class RibImpl implements RIB, AutoCloseable {
         return this.ribImpl != null ? this.ribImpl.toString() : null;
     }
 
-    private RIBImpl createRib(final ClusterSingletonServiceProvider provider, final Global global, final String bgpInstanceName,
+    private RIBImpl createRib(final Global global, final String bgpInstanceName,
         final BGPTableTypeRegistryConsumer tableTypeRegistry, final BgpDeployer.WriteConfiguration configurationWriter) {
         this.afiSafi = getAfiSafiWithDefault(global.getAfiSafis(), true);
         final Config globalConfig = global.getConfig();
         this.asNumber = globalConfig.getAs();
         this.routerId = globalConfig.getRouterId();
-        this.clusterId = OpenConfigMappingUtil.getClusterIdentifier(globalConfig);
+        this.clusterId = getClusterIdentifier(globalConfig);
         final Map<TablesKey, PathSelectionMode> pathSelectionModes = OpenConfigMappingUtil.toPathSelectionMode(this.afiSafi, tableTypeRegistry).entrySet()
                 .stream().collect(Collectors.toMap(entry -> new TablesKey(entry.getKey().getAfi(), entry.getKey().getSafi()), Map.Entry::getValue));
-        return new RIBImpl(provider, new RibId(bgpInstanceName), this.asNumber, new BgpId(this.routerId), this.clusterId,
-                this.extensions, this.dispatcher, this.codecTreeFactory, this.domBroker, OpenConfigMappingUtil.toTableTypes(this.afiSafi, tableTypeRegistry), pathSelectionModes,
+        return new RIBImpl(this.provider, new RibId(bgpInstanceName), this.asNumber, new BgpId(this.routerId), this.clusterId,
+                this.extensions, this.dispatcher, this.codecTreeFactory, this.domBroker, toTableTypes(this.afiSafi, tableTypeRegistry), pathSelectionModes,
                 this.extensions.getClassLoadingStrategy(), configurationWriter);
     }
 
     @Override
     public ClusterSingletonServiceRegistration registerClusterSingletonService(final ClusterSingletonService clusterSingletonService) {
         return this.ribImpl.registerClusterSingletonService(clusterSingletonService);
+    }
+
+    @Override
+    public BGPRIBState getRIBState() {
+        return this.ribImpl.getRIBState();
     }
 }

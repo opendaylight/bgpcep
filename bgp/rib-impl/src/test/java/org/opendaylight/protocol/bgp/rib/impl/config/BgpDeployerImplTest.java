@@ -17,6 +17,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.opendaylight.controller.md.sal.binding.api.DataObjectModification.ModificationType.DELETE;
 import static org.opendaylight.controller.md.sal.binding.api.DataObjectModification.ModificationType.WRITE;
+import static org.opendaylight.protocol.bgp.rib.impl.config.AbstractConfig.TABLES_KEY;
 import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.createAddPath;
 import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.createConfig;
 import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.createRR;
@@ -112,7 +113,9 @@ public class BgpDeployerImplTest {
     private static final AsNumber AS = new AsNumber(72L);
     private static final IpAddress IPADDRESS = new IpAddress(new Ipv4Address("127.0.0.1"));
     private static final BgpId BGP_ID = new BgpId(IPADDRESS.getIpv4Address());
-    private static final BgpTableType TABLE_TYPE = new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+    private static final BgpTableType TABLE_TYPE = new BgpTableTypeImpl(Ipv4AddressFamily.class,
+        UnicastSubsequentAddressFamily.class);
+
     private static final short SHORT = 0;
 
     @Mock
@@ -149,6 +152,7 @@ public class BgpDeployerImplTest {
             .when(domDataBroker).getSupportedExtensions();
 
         Mockito.doReturn(Optional.of(TABLE_TYPE)).when(this.tableTypeRegistry).getTableType(any());
+        Mockito.doReturn(Optional.of(TABLES_KEY)).when(this.tableTypeRegistry).getTableKey(any());
         Mockito.doNothing().when(this.registration).unregister();
         Mockito.doReturn(this.registration).when(this.bundleContext).registerService(eq(InstanceType.RIB.getServices()), any()
             , any(Dictionary.class));
@@ -342,7 +346,7 @@ public class BgpDeployerImplTest {
         verify(this.blueprintContainer).getComponentInstance(eq("bgpPeer"));
         verifyPrivate(spyDeployer).invoke("initiatePeerInstance", any(InstanceIdentifier.class), any(InstanceIdentifier.class), any(Neighbor.class),
             any(PeerBean.class), any(BgpDeployer.WriteConfiguration.class));
-        verifyPrivate(spyDeployer).invoke("registerPeerInstance", any(Neighbor.class), anyString());
+        verifyPrivate(spyDeployer).invoke("registerPeerInstance", any(BgpPeer.class), anyString());
         verify(this.bundleContext).registerService(eq(InstanceType.PEER.getServices()), any(BgpPeer.class), any(Dictionary.class));
 
         //change with same peer already existing

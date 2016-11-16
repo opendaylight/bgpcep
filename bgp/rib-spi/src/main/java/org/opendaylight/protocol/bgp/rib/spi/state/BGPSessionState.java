@@ -55,32 +55,4 @@ public interface BGPSessionState {
      * @return true if supported
      */
     boolean isRouterRefreshCapabilitySupported();
-
-    /**
-     * Update Messages Sent count
-     *
-     * @return count
-     */
-    long getUpdateMessagesSentCount();
-
-    /**
-     * Notification Messages Sent count
-     *
-     * @return count
-     */
-    long getNotificationMessagesSentCount();
-
-    /**
-     * Update Messages Received count
-     *
-     * @return count
-     */
-    long getUpdateMessagesReceivedCount();
-
-    /**
-     * Notification Update Messages Received count
-     *
-     * @return count
-     */
-    long getNotificationMessagesReceivedCount();
 }
