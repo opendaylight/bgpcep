@@ -11,24 +11,18 @@ import static org.junit.Assert.assertEquals;
 import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.checkReceivedMessages;
 import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.waitFutureSuccess;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.net.InetSocketAddress;
-import java.util.List;
 import java.util.Map;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.add.all.paths.AllPathSelection;
-import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 
 public class AddPathAllPathsTest extends AbstractAddPathTest {
     /*
@@ -44,13 +38,10 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
     @Test
     public void testUseCase1() throws Exception {
 
-        final List<BgpTableType> tables = ImmutableList.of(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
-        final TablesKey tk = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
-        final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(tk, new AllPathSelection());
-
-
-        final RIBImpl ribImpl = new RIBImpl(this.clusterSingletonServiceProvider, new RibId("test-rib"), AS_NUMBER, new BgpId(RIB_ID), null, this.ribExtension,
-                this.dispatcher, this.mappingService.getCodecFactory(), getDomBroker(), tables, pathTables, this.ribExtension.getClassLoadingStrategy(), null);
+        final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(TABLE_KEY, new AllPathSelection());
+        final RIBImpl ribImpl = new RIBImpl(this.clusterSingletonServiceProvider, new RibId("test-rib"), AS_NUMBER, new BgpId(RIB_ID), null,
+            this.ribExtension, this.dispatcher, this.mappingService.getCodecFactory(), getDomBroker(), TABLES, pathTables,
+            this.ribExtension.getClassLoadingStrategy(), null, TABLE_TYPE_REGISTRY, this.bgpStateProvider, this.bgpIID);
 
         ribImpl.instantiateServiceInstance();
         ribImpl.onGlobalContextUpdated(this.schemaContext);

@@ -33,7 +33,6 @@ import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
-import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
@@ -44,13 +43,10 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.t
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.GlobalBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4UNICAST;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -61,7 +57,6 @@ import org.osgi.framework.ServiceRegistration;
 public class RibImplTest extends AbstractConfig {
     private static final List<AfiSafi> AFISAFIS = new ArrayList<>();
     private static final Long ALL_PATHS = 0L;
-    private static final BgpTableType TABLE_TYPE = new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
     private static final Ipv4Address BGP_ID = new BgpId(new Ipv4Address("127.0.0.1"));
 
     static {
@@ -122,7 +117,7 @@ public class RibImplTest extends AbstractConfig {
         final RibImpl ribImpl = new RibImpl(this.clusterSingletonServiceProvider, this.extension, this.dispatcher,
             this.bindingCodecTreeFactory, this.domDataBroker, this.schemaService);
         ribImpl.setServiceRegistration(this.serviceRegistration);
-        ribImpl.start(createGlobal(), "rib-test", this.tableTypeRegistry, this.configurationWriter);
+        ribImpl.start(createGlobal(), "rib-test", TABLE_TYPE_REGISTRY, this.configurationWriter, this.bgpStateProvider, this.bgpIID);
         verify(this.extension).getClassLoadingStrategy();
         verify(this.domDataBroker).getSupportedExtensions();
         verify(this.clusterSingletonServiceProvider).registerClusterSingletonService(any());
@@ -131,7 +126,7 @@ public class RibImplTest extends AbstractConfig {
         Mockito.verify(this.configurationWriter).apply();
         assertEquals("RIBImpl{}", ribImpl.toString());
         assertEquals(ServiceGroupIdentifier.create("rib-test-service-group"), ribImpl.getRibIServiceGroupIdentifier());
-        assertEquals(Collections.singleton(new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class)), ribImpl.getLocalTablesKeys());
+        assertEquals(Collections.singleton(TABLE_KEY), ribImpl.getLocalTablesKeys());
         assertNotNull(ribImpl.getImportPolicyPeerTracker());
         assertNotNull(ribImpl.getService());
         assertNotNull(ribImpl.getInstanceIdentifier());
