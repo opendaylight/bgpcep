@@ -110,8 +110,9 @@ public interface RIBSupport extends AddPathRibSupport {
      * @param tablePath YangInstanceIdentifier
      * @param nlri ContainerNode DOM representation of NLRI in Update message
      * @param attributes ContainerNode
+     * @return number of routes installed
      */
-    void putRoutes(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier tablePath, @Nonnull ContainerNode nlri, @Nonnull ContainerNode attributes);
+    Integer putRoutes(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier tablePath, @Nonnull ContainerNode nlri, @Nonnull ContainerNode attributes);
 
     /**
      * Given the NLRI as ContainerNode, this method should extract advertised routes
@@ -128,7 +129,7 @@ public interface RIBSupport extends AddPathRibSupport {
      * @param attributes ContainerNode
      * @param routesNodeId NodeIdentifier of "routes" data node
      */
-    void putRoutes(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier tablePath, @Nonnull ContainerNode nlri,
+    Integer putRoutes(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier tablePath, @Nonnull ContainerNode nlri,
             @Nonnull ContainerNode attributes, @Nonnull NodeIdentifier routesNodeId);
 
     /**

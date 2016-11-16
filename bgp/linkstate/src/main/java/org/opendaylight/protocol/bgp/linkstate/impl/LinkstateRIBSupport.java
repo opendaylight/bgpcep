@@ -77,28 +77,32 @@ public final class LinkstateRIBSupport extends AbstractRIBSupport {
     }
 
     @Override
-    protected void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
+    protected Integer processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
         final ContainerNode destination, final ContainerNode attributes, final ApplyRoute function) {
         if (destination != null) {
             final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = destination.getChild(this.nlriRoutesList);
-            processRoute(maybeRoutes, routesPath, attributes, function, tx);
-        }
-    }
-
-    private void processRoute(final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes, final YangInstanceIdentifier routesPath,
-        final ContainerNode attributes, final ApplyRoute function, final DOMDataWriteTransaction tx) {
-        if (maybeRoutes.isPresent()) {
-            final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
-            if (routes instanceof UnkeyedListNode) {
-                final YangInstanceIdentifier base = routesPath.node(routesContainerIdentifier()).node(this.route);
-                for (final UnkeyedListEntryNode e : ((UnkeyedListNode) routes).getValue()) {
-                    final NodeIdentifierWithPredicates routeKey = createRouteKey(e);
-                    function.apply(tx, base, routeKey, e, attributes);
-                }
-            } else {
-                LOG.warn("Routes {} are not a map", routes);
+            if (maybeRoutes.isPresent()) {
+                return processRoute(maybeRoutes.get(), routesPath, attributes, function, tx);
             }
         }
+        return null;
+    }
+
+    private Integer processRoute(final DataContainerChild<? extends PathArgument, ?> routes, final YangInstanceIdentifier routesPath,
+        final ContainerNode attributes, final ApplyRoute function, final DOMDataWriteTransaction tx) {
+        if (routes instanceof UnkeyedListNode) {
+            final YangInstanceIdentifier base = routesPath.node(routesContainerIdentifier()).node(this.route);
+            int installedRoutes = 0;
+            for (final UnkeyedListEntryNode e : ((UnkeyedListNode) routes).getValue()) {
+                final NodeIdentifierWithPredicates routeKey = createRouteKey(e);
+                function.apply(tx, base, routeKey, e, attributes);
+                installedRoutes++;
+            }
+            return installedRoutes;
+        } else {
+            LOG.warn("Routes {} are not a map", routes);
+        }
+        return null;
     }
 
     private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode linkstate) {

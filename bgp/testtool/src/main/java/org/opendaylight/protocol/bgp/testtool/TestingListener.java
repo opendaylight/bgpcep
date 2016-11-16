@@ -7,12 +7,17 @@
  */
 package org.opendaylight.protocol.bgp.testtool;
 
+import io.netty.channel.Channel;
 import java.util.List;
+import java.util.Set;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.operational.rev151009.BgpNeighborState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
@@ -77,5 +82,26 @@ final class TestingListener implements BGPSessionListener {
 
     void printCount(final String localAddress) {
         LOG.info("Peer {} received {} update messages.", localAddress, messageCounter);
+    }
+
+    @Override
+    public void messageSent(final Notification msg) {
+
+    }
+
+    @Override
+    public void messageReceived(final Notification msg) {
+
+    }
+
+    @Override
+    public void advertizeCapabilities(final int holdTimerValue, final Channel remoteAddress,
+        final Set<BgpTableType> tableTypes, final List<BgpParameters> bgpParameters) {
+
+    }
+
+    @Override
+    public void setSessionState(final BgpNeighborState.SessionState state) {
+
     }
 }

@@ -87,6 +87,7 @@
         <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-spi/{{VERSION}}</bundle>
         <feature version='${config.version}'>odl-config-netty-config-api</feature>
         <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-openconfig-state-spi</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-api/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-spi/{{VERSION}}</bundle>
     </feature>
