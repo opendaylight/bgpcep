@@ -23,6 +23,8 @@ import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer
 import org.opendaylight.protocol.bgp.rib.impl.ApplicationPeer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer.WriteConfiguration;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerStateConsumer;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Config;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -34,7 +36,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class AppPeer implements PeerBean {
+public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
     private static final Logger LOG = LoggerFactory.getLogger(AppPeer.class);
     private static final QName APP_ID_QNAME = QName.create(ApplicationRib.QNAME, "id").intern();
     private Neighbor currentConfiguration;
@@ -79,7 +81,8 @@ public final class AppPeer implements PeerBean {
         return new ApplicationRibId(neighbor.getNeighborAddress().getIpv4Address().getValue());
     }
 
-    private final class BgpAppPeerSingletonService implements ClusterSingletonService, AutoCloseable {
+    private final class BgpAppPeerSingletonService implements ClusterSingletonService, BGPPeerStateConsumer,
+        AutoCloseable {
         private final ApplicationPeer applicationPeer;
         private final DOMDataTreeChangeService dataTreeChangeService;
         private final ApplicationRibId appRibId;
@@ -130,5 +133,15 @@ public final class AppPeer implements PeerBean {
         public ServiceGroupIdentifier getIdentifier() {
             return this.serviceGroupIdentifier;
         }
+
+        @Override
+        public BGPPeerState getPeerState() {
+            return this.applicationPeer.getPeerState();
+        }
+    }
+
+    @Override
+    public BGPPeerState getPeerState() {
+        return this.bgpAppPeerSingletonService.getPeerState();
     }
 }

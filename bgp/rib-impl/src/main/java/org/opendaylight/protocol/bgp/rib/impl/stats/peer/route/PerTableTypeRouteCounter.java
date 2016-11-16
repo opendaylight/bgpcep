@@ -47,6 +47,7 @@ public final class PerTableTypeRouteCounter {
     /**
      * Get the counter for given tablesKey. Return an empty counter if it doesn't exist
      * NOTE: the created empty counter won't be put into the original map
+     *
      * @param tablesKey
      * @return
      */
@@ -57,6 +58,7 @@ public final class PerTableTypeRouteCounter {
     /**
      * Get the counter with given tablesKey.  Create an empty counter if it doesn't exist
      * This method will put the created empty counter back to map
+     *
      * @param tablesKey
      * @return
      */
@@ -75,5 +77,11 @@ public final class PerTableTypeRouteCounter {
     public final void resetAll() {
         LOG.debug("Resetting all route counters..");
         this.counters.values().forEach(LongAdder::reset);
+    }
+
+    public void setValueToCounterOrSetDefault(final TablesKey tablesKey, final int size) {
+        final LongAdder counter = getCounterOrSetDefault(tablesKey);
+        counter.reset();
+        counter.add(size);
     }
 }
