@@ -71,7 +71,7 @@ public class BGPRenderStatsImpl implements BGPRenderStats {
         table.setSafi(new IdentityAttributeRef(safi.toString()));
         table.setRoutesCount(e.getValue().getCountAsZeroBasedCounter32());
         locRibRouteTableList.add(table);
-        totalRouteCount.increaseCount(e.getValue().getCount());
+        totalRouteCount.incrementCount(e.getValue().getCount());
 
     }
 

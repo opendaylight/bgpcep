@@ -24,6 +24,8 @@ import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.protocol.bgp.state.spi.counters.UnsignedInt32Counter;
+import org.opendaylight.protocol.bgp.state.spi.state.BGPNeighborState;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.ipv4.routes.Ipv4Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
@@ -39,6 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
@@ -55,9 +58,7 @@ import org.slf4j.LoggerFactory;
 final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(AdjRibOutListener.class);
-
-    static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, "prefix").intern();
-    private final YangInstanceIdentifier.NodeIdentifier routeKeyLeaf = new YangInstanceIdentifier.NodeIdentifier(PREFIX_QNAME);
+    private final NodeIdentifier routeKeyLeaf = new YangInstanceIdentifier.NodeIdentifier(QName.create(Ipv4Route.QNAME, "prefix").intern());
 
     private final ChannelOutputLimiter session;
     private final Codecs codecs;
@@ -65,24 +66,33 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener {
     private final boolean mpSupport;
     private final ListenerRegistration<AdjRibOutListener> registerDataTreeChangeListener;
     private final UnsignedInt32Counter routeCounter;
+    private final BGPNeighborState neighborState;
+    private final Class<? extends AfiSafiType> afiSafi;
 
-    private AdjRibOutListener(final PeerId peerId, final TablesKey tablesKey, final YangInstanceIdentifier ribId,
-        final CodecsRegistry registry, final RIBSupport support, final DOMDataTreeChangeService service,
-        final ChannelOutputLimiter session, final boolean mpSupport, final UnsignedInt32Counter routeCounter) {
+    private AdjRibOutListener(final PeerId peerId, final TablesKey tablesKey, final Class<? extends AfiSafiType> afiSafi,
+        final YangInstanceIdentifier ribId, final CodecsRegistry registry, final RIBSupport support,
+        final DOMDataTreeChangeService service, final ChannelOutputLimiter session, final boolean mpSupport,
+        final UnsignedInt32Counter routeCounter, final BGPNeighborState neighborState) {
         this.session = Preconditions.checkNotNull(session);
         this.support = Preconditions.checkNotNull(support);
+        this.neighborState = Preconditions.checkNotNull(neighborState);
         this.codecs = registry.getCodecs(this.support);
         this.mpSupport = mpSupport;
-        final YangInstanceIdentifier adjRibOutId =  ribId.node(Peer.QNAME).node(IdentifierUtils.domPeerId(peerId)).node(AdjRibOut.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(tablesKey));
-        this.registerDataTreeChangeListener = service.registerDataTreeChangeListener(new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, adjRibOutId), this);
+        this.afiSafi = afiSafi;
+        final YangInstanceIdentifier adjRibOutId =  ribId.node(Peer.QNAME)
+            .node(IdentifierUtils.domPeerId(peerId)).node(AdjRibOut.QNAME)
+            .node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(tablesKey));
+        this.registerDataTreeChangeListener = service
+            .registerDataTreeChangeListener(new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, adjRibOutId), this);
         this.routeCounter = routeCounter;
     }
 
-    static AdjRibOutListener create(@Nonnull final PeerId peerId, @Nonnull final TablesKey tablesKey, @Nonnull final YangInstanceIdentifier ribId,
-        @Nonnull final CodecsRegistry registry, @Nonnull final RIBSupport support, @Nonnull final DOMDataTreeChangeService service,
-        @Nonnull final ChannelOutputLimiter session, @Nonnull final boolean mpSupport, @Nonnull final UnsignedInt32Counter routeCounter
-    ) {
-        return new AdjRibOutListener(peerId, tablesKey, ribId, registry, support, service, session, mpSupport, routeCounter);
+    static AdjRibOutListener create(@Nonnull final PeerId peerId, @Nonnull final TablesKey tablesKey, final Class<? extends AfiSafiType> afiSafi,
+        @Nonnull final YangInstanceIdentifier ribId, @Nonnull final CodecsRegistry registry, @Nonnull final RIBSupport support,
+        @Nonnull final DOMDataTreeChangeService service, @Nonnull final ChannelOutputLimiter session, @Nonnull final boolean mpSupport,
+        @Nonnull final UnsignedInt32Counter routeCounter, @Nonnull final BGPNeighborState neighborState) {
+        return new AdjRibOutListener(peerId, tablesKey, afiSafi, ribId, registry, support, service, session,
+            mpSupport, routeCounter, neighborState);
     }
 
     @Override
@@ -90,17 +100,13 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener {
         LOG.debug("Data change received for AdjRibOut {}", changes);
         for (final DataTreeCandidate tc : changes) {
             LOG.trace("Change {} type {}", tc.getRootNode(), tc.getRootNode().getModificationType());
-            for (final DataTreeCandidateNode child : tc.getRootNode().getChildNodes()) {
-                processSupportedFamilyRoutes(child);
-            }
+            tc.getRootNode().getChildNodes().forEach(this::processSupportedFamilyRoutes);
         }
         this.session.flush();
     }
 
     private void processSupportedFamilyRoutes(final DataTreeCandidateNode child) {
-        for (final DataTreeCandidateNode route : this.support.changedRoutes(child)) {
-            processRouteChange(route);
-        }
+        this.support.changedRoutes(child).forEach(this::processRouteChange);
     }
 
     private void processRouteChange(final DataTreeCandidateNode route) {
@@ -137,19 +143,20 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener {
     }
 
     private Update withdraw(final MapEntryNode route) {
-        this.routeCounter.decreaseCount();
+        this.routeCounter.decrementCount();
         if (!this.mpSupport) {
-            return buildUpdate(Collections.<MapEntryNode>emptyList(), Collections.singleton(route), routeAttributes(route));
+            return buildUpdate(Collections.emptyList(), Collections.singleton(route), routeAttributes(route));
         }
-        return this.support.buildUpdate(Collections.<MapEntryNode>emptyList(), Collections.singleton(route), routeAttributes(route));
+        return this.support.buildUpdate(Collections.emptyList(), Collections.singleton(route), routeAttributes(route));
     }
 
     private Update advertise(final MapEntryNode route) {
-        this.routeCounter.increaseCount();
+        this.routeCounter.incrementCount();
+        this.neighborState.incrementPrefixesSent(this.afiSafi);
         if (!this.mpSupport) {
-            return buildUpdate(Collections.singleton(route), Collections.<MapEntryNode>emptyList(), routeAttributes(route));
+            return buildUpdate(Collections.singleton(route), Collections.emptyList(), routeAttributes(route));
         }
-        return this.support.buildUpdate(Collections.singleton(route), Collections.<MapEntryNode>emptyList(), routeAttributes(route));
+        return this.support.buildUpdate(Collections.singleton(route), Collections.emptyList(), routeAttributes(route));
     }
 
     private Update buildUpdate(@Nonnull final Collection<MapEntryNode> advertised, @Nonnull final Collection<MapEntryNode> withdrawn, @Nonnull final Attributes attr) {

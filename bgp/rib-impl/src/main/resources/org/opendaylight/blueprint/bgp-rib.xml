@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
+           xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0"
+           odl:use-default-for-reference-types="true">
 
   <reference id="BGPExtensionContext" interface="org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext"/>
   <reference id="globalBossGroup" interface="io.netty.channel.EventLoopGroup" odl:type="global-boss-group"/>
@@ -49,12 +50,23 @@
   <reference id="schemaService" interface="org.opendaylight.controller.sal.core.api.model.SchemaService"/>
   <reference id="rpcRegistry" interface="org.opendaylight.controller.sal.binding.api.RpcProviderRegistry"/>
 
+  <odl:clustered-app-config id="bgpStateConfig"
+                            binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.state.config.rev161107.BgpStateConfig"/>
+
+  <bean id="bgpStateProvider" class="org.opendaylight.protocol.bgp.state.impl.StateProviderImpl" destroy-method="close">
+      <argument ref="dataBroker"/>
+      <argument>
+          <bean factory-ref="bgpStateConfig" factory-method="getTimer" />
+      </argument>
+  </bean>
+
   <bean id="bgpDeployer" class="org.opendaylight.protocol.bgp.rib.impl.config.BgpDeployerImpl"  destroy-method="close">
     <argument value="global-bgp"/>
     <argument ref="blueprintContainer"/>
     <argument ref="blueprintBundleContext"/>
     <argument ref="dataBroker"/>
     <argument ref="bgpTableTypeRegistry"/>
+    <argument ref="bgpStateProvider"/>
   </bean>
 
   <service ref="bgpDeployer" interface="org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer"/>

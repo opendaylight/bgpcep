@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static org.opendaylight.protocol.bgp.rib.impl.AbstractBgpStateHandler.TABLE_TYPE;
 import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.waitFutureSuccess;
 
 import com.google.common.base.Optional;
@@ -30,7 +31,7 @@ public class BGPDispatcherImplTest extends AbstractBGPDispatcherTest {
         Assert.assertEquals(BGPSessionImpl.State.UP, this.clientListener.getState());
         Assert.assertEquals(BGPSessionImpl.State.UP, this.serverListener.getState());
         Assert.assertEquals(AS_NUMBER, session.getAsNumber());
-        Assert.assertEquals(Sets.newHashSet(IPV_4_TT), session.getAdvertisedTableTypes());
+        Assert.assertEquals(Sets.newHashSet(TABLE_TYPE), session.getAdvertisedTableTypes());
         Assert.assertTrue(serverChannel.isWritable());
         session.close();
         this.serverListener.releaseConnection();
