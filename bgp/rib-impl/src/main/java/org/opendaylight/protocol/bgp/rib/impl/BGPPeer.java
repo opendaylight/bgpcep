@@ -42,6 +42,7 @@ import org.opendaylight.protocol.bgp.parser.impl.message.update.LocalPreferenceA
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
+import org.opendaylight.protocol.bgp.rib.impl.state.BGPPeerState;
 import org.opendaylight.protocol.bgp.rib.impl.stats.peer.BGPPeerStats;
 import org.opendaylight.protocol.bgp.rib.impl.stats.peer.BGPPeerStatsImpl;
 import org.opendaylight.protocol.bgp.rib.impl.stats.peer.BGPSessionStats;
@@ -93,8 +94,7 @@ import org.slf4j.LoggerFactory;
  * Class representing a peer. We have a single instance for each peer, which provides translation from BGP events into
  * RIB actions.
  */
-public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeerRuntimeMXBean, TransactionChainListener {
-
+public class BGPPeer extends BGPPeerState implements BGPSessionListener, Peer, AutoCloseable, BGPPeerRuntimeMXBean, TransactionChainListener {
     private static final Logger LOG = LoggerFactory.getLogger(BGPPeer.class);
 
     @GuardedBy("this")

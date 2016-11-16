@@ -177,6 +177,10 @@ final class EventBusRegistration extends AbstractListenerRegistration<BGPSession
                 return Collections.emptyList();
             }
 
+            @Override
+            public List<BgpTableType> getAdvertisedGracefulRestartTableTypes() {
+                return Collections.emptyList();
+            }
         });
     }
 }
