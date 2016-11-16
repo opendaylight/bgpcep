@@ -77,6 +77,7 @@ public final class BGPSessionStatsImpl implements BGPSessionStats {
     private final ErrorMsgs errMsgs = new ErrorMsgs();
     private final ErrorSentTotal errMsgsSentTotal = new ErrorSentTotal();
     private final ErrorReceivedTotal errMsgsRecvTotal = new ErrorReceivedTotal();
+    private static final ZeroBasedCounter32 INITIAL_COUNTER = new ZeroBasedCounter32(0L);
 
     public BGPSessionStatsImpl(@Nonnull final BGPSessionImpl session, @Nonnull final Open remoteOpen, final int holdTimerValue, final int keepAlive, @Nonnull final Channel channel,
         @Nonnull final Optional<BGPSessionPreferences> localPreferences, @Nonnull final Collection<BgpTableType> tableTypes, @Nonnull final List<AddressFamilies> addPathTypes) {
@@ -87,8 +88,8 @@ public final class BGPSessionStatsImpl implements BGPSessionStats {
         this.stats.setKeepaliveCurrent(keepAlive);
         this.stats.setLocalPeerPreferences(setLocalPeerPref(remoteOpen, channel, tableTypes, addPathTypes));
         this.stats.setRemotePeerPreferences(setRemotePeerPref(channel, localPreferences));
-        this.errMsgs.setErrorReceivedTotal(errMsgsRecvTotal);
-        this.errMsgs.setErrorSentTotal(errMsgsSentTotal);
+        this.errMsgs.setErrorReceivedTotal(this.errMsgsRecvTotal);
+        this.errMsgs.setErrorSentTotal(this.errMsgsSentTotal);
         this.errMsgs.setErrorReceived(new ArrayList<>());
         this.errMsgs.setErrorSent(new ArrayList<>());
         initMsgs();
@@ -96,13 +97,13 @@ public final class BGPSessionStatsImpl implements BGPSessionStats {
 
     private static Received newReceivedInstance() {
         final Received recv = new Received();
-        recv.setCount(new ZeroBasedCounter32(0L));
+        recv.setCount(INITIAL_COUNTER);
         return recv;
     }
 
     private static Sent newSentInstance() {
         final Sent sent = new Sent();
-        sent.setCount(new ZeroBasedCounter32(0L));
+        sent.setCount(INITIAL_COUNTER);
         return sent;
     }
 
@@ -255,8 +256,8 @@ public final class BGPSessionStatsImpl implements BGPSessionStats {
         this.updMsgs.setSent(newSentInstance());
         this.rrMsgs.setReceived(newReceivedInstance());
         this.rrMsgs.setSent(newSentInstance());
-        this.errMsgsSentTotal.setCount(new ZeroBasedCounter32(0L));
-        this.errMsgsRecvTotal.setCount(new ZeroBasedCounter32(0L));
+        this.errMsgsSentTotal.setCount(INITIAL_COUNTER);
+        this.errMsgsRecvTotal.setCount(INITIAL_COUNTER);
         this.errMsgs.getErrorSent().clear();
         this.errMsgs.getErrorReceived().clear();
     }
@@ -311,7 +312,7 @@ public final class BGPSessionStatsImpl implements BGPSessionStats {
             received = new ErrorReceived();
             received.setErrorCode(error.getErrorCode());
             received.setErrorSubcode(error.getErrorSubcode());
-            received.setCount(new ZeroBasedCounter32(0L));
+            received.setCount(INITIAL_COUNTER);
             errList.add(received);
         }
         received.setCount(new ZeroBasedCounter32(received.getCount().getValue() + 1));
@@ -335,7 +336,7 @@ public final class BGPSessionStatsImpl implements BGPSessionStats {
             sent = new ErrorSent();
             sent.setErrorCode(error.getErrorCode());
             sent.setErrorSubcode(error.getErrorSubcode());
-            sent.setCount(new ZeroBasedCounter32(0L));
+            sent.setCount(INITIAL_COUNTER);
             errList.add(sent);
         }
         sent.setCount(new ZeroBasedCounter32(sent.getCount().getValue() + 1));

@@ -79,6 +79,12 @@ public interface BGPPeerState extends RibReference {
     @Nullable BGPSessionState getBGPSessionState();
 
     /**
+     * BGP Message Operational State
+     * @return BGPPeerMessagesState
+     */
+    @Nullable BGPPeerMessagesState getBGPPeerMessagesState();
+
+    /**
      * BGP Operation Timers State
      * @return BGPTimersState
      */

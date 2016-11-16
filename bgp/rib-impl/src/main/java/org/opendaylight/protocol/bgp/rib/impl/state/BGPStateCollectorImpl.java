@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl.state;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
@@ -22,21 +23,23 @@ import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateProvider;
 @ThreadSafe
 public class BGPStateCollectorImpl implements BGPStateProvider, BGPStateConsumer {
     @GuardedBy("this")
-    private final List<BGPRIBState> bgpRibStates = new ArrayList<>();
+    private final List<BGPRIBStateConsumer> bgpRibStates = new ArrayList<>();
     @GuardedBy("this")
-    private final List<BGPPeerState> bgpPeerStates = new ArrayList<>();
+    private final List<BGPPeerStateConsumer> bgpPeerStates = new ArrayList<>();
 
     @Override
     public List<BGPRIBState> getRibStats() {
         synchronized (this.bgpRibStates) {
-            return ImmutableList.copyOf(this.bgpRibStates);
+            return ImmutableList.copyOf(this.bgpRibStates.stream().map(BGPRIBStateConsumer::getRIBState)
+                .collect(Collectors.toList()));
         }
     }
 
     @Override
     public List<BGPPeerState> getPeerStats() {
         synchronized (this.bgpPeerStates) {
-            return ImmutableList.copyOf(this.bgpPeerStates);
+            return ImmutableList.copyOf(this.bgpPeerStates.stream().map(BGPPeerStateConsumer::getPeerState)
+                .collect(Collectors.toList()));
         }
     }
 
@@ -46,7 +49,7 @@ public class BGPStateCollectorImpl implements BGPStateProvider, BGPStateConsumer
             return;
         }
         synchronized (this.bgpRibStates) {
-            this.bgpRibStates.add(bgpState.getRIBState());
+            this.bgpRibStates.add(bgpState);
         }
     }
 
@@ -56,7 +59,7 @@ public class BGPStateCollectorImpl implements BGPStateProvider, BGPStateConsumer
             return;
         }
         synchronized (this.bgpRibStates) {
-            this.bgpRibStates.remove(bgpState.getRIBState());
+            this.bgpRibStates.remove(bgpState);
         }
     }
 
@@ -66,7 +69,7 @@ public class BGPStateCollectorImpl implements BGPStateProvider, BGPStateConsumer
             return;
         }
         synchronized (this.bgpPeerStates) {
-            this.bgpPeerStates.add(bgpState.getPeerState());
+            this.bgpPeerStates.add(bgpState);
         }
     }
 
@@ -76,7 +79,7 @@ public class BGPStateCollectorImpl implements BGPStateProvider, BGPStateConsumer
             return;
         }
         synchronized (this.bgpPeerStates) {
-            this.bgpPeerStates.remove(bgpState.getPeerState());
+            this.bgpPeerStates.remove(bgpState);
         }
     }
 }

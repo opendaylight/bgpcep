@@ -8,28 +8,29 @@
 
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BGPPeerRuntimeMXBean;
 import org.opendaylight.protocol.bgp.rib.RibReference;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerStateConsumer;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPRIBStateConsumer;
 
 public enum InstanceType {
 
-    RIB("ribImpl", Lists.newArrayList(RIB.class, RibReference.class)),
+    RIB("ribImpl", ImmutableList.of(RIB.class, RibReference.class, BGPRIBStateConsumer.class)),
 
-    PEER("bgpPeer", Collections.singletonList(BGPPeerRuntimeMXBean.class)),
+    PEER("bgpPeer", ImmutableList.of(BGPPeerRuntimeMXBean.class, BGPPeerStateConsumer.class)),
 
-    APP_PEER("appPeer", Collections.emptyList());
+    APP_PEER("appPeer", Collections.singletonList(BGPPeerStateConsumer.class));
 
     private final String beanName;
-    private final String[] services;
+    private final List<String> services;
 
     InstanceType(final String beanName, final List<Class<?>> services) {
         this.beanName = beanName;
-        this.services = new String[services.size()];
-        services.stream().map(clazz -> clazz.getName()).collect(Collectors.toList()).toArray(this.services);
+        this.services = ImmutableList.copyOf(services.stream().map(Class::getName).collect(Collectors.toList()));
     }
 
     public String getBeanName() {
@@ -37,7 +38,6 @@ public enum InstanceType {
     }
 
     public String[] getServices() {
-        return this.services;
+        return this.services.toArray(new String[0]);
     }
-
 }
