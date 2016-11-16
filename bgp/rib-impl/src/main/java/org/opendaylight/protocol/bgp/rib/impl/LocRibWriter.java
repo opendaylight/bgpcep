@@ -73,11 +73,14 @@ final class LocRibWriter implements AutoCloseable, ClusteredDOMDataTreeChangeLis
     private final TablesKey localTablesKey;
     private final ListenerRegistration<LocRibWriter> reg;
     private final PathSelectionMode pathSelectionMode;
-    private final UnsignedInt32Counter routeCounter;
+    private final UnsignedInt32Counter totalPathsCounter;
+    private final UnsignedInt32Counter totalPrefixesCounter;
 
-    private LocRibWriter(final RIBSupportContextRegistry registry, final DOMTransactionChain chain, final YangInstanceIdentifier target,
-        final Long ourAs, final DOMDataTreeChangeService service, final ExportPolicyPeerTracker exportPolicyPeerTracker, final TablesKey tablesKey,
-        @Nonnull final PathSelectionMode pathSelectionMode, final UnsignedInt32Counter routeCounter) {
+    private LocRibWriter(final RIBSupportContextRegistry registry, final DOMTransactionChain chain,
+        final YangInstanceIdentifier target, final Long ourAs, final DOMDataTreeChangeService service,
+        final ExportPolicyPeerTracker exportPolicyPeerTracker, final TablesKey tablesKey,
+        final PathSelectionMode pathSelectionMode, final UnsignedInt32Counter totalPathsCounter,
+        final UnsignedInt32Counter totalPrefixesCounter) {
         this.chain = Preconditions.checkNotNull(chain);
         final NodeIdentifierWithPredicates tableKey = RibSupportUtils.toYangTablesKey(tablesKey);
         this.localTablesKey = tablesKey;
@@ -87,7 +90,8 @@ final class LocRibWriter implements AutoCloseable, ClusteredDOMDataTreeChangeLis
         this.attributesIdentifier = this.ribSupport.routeAttributesIdentifier();
         this.exportPolicyPeerTracker = exportPolicyPeerTracker;
         this.pathSelectionMode = pathSelectionMode;
-        this.routeCounter = routeCounter;
+        this.totalPathsCounter = totalPathsCounter;
+        this.totalPrefixesCounter = totalPrefixesCounter;
 
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         tx.merge(LogicalDatastoreType.OPERATIONAL, this.locRibTarget.node(Routes.QNAME), this.ribSupport.emptyRoutes());
@@ -99,10 +103,14 @@ final class LocRibWriter implements AutoCloseable, ClusteredDOMDataTreeChangeLis
         this.reg = service.registerDataTreeChangeListener(wildcard, this);
     }
 
-    public static LocRibWriter create(@Nonnull final RIBSupportContextRegistry registry, @Nonnull final TablesKey tablesKey, @Nonnull final DOMTransactionChain chain,
-        @Nonnull final YangInstanceIdentifier target, @Nonnull final AsNumber ourAs, @Nonnull final DOMDataTreeChangeService service, @Nonnull final ExportPolicyPeerTracker ep,
-        @Nonnull final PathSelectionMode pathSelectionStrategy, @Nonnull final UnsignedInt32Counter routeCounter) {
-        return new LocRibWriter(registry, chain, target, ourAs.getValue(), service, ep, tablesKey, pathSelectionStrategy, routeCounter);
+    public static LocRibWriter create(@Nonnull final RIBSupportContextRegistry registry, @Nonnull final TablesKey tablesKey,
+        @Nonnull final DOMTransactionChain chain,
+        @Nonnull final YangInstanceIdentifier target, @Nonnull final AsNumber ourAs, @Nonnull final DOMDataTreeChangeService service,
+        @Nonnull final ExportPolicyPeerTracker ep, @Nonnull final PathSelectionMode pathSelectionStrategy,
+        @Nonnull final UnsignedInt32Counter totalPathsCounter,
+        @Nonnull final UnsignedInt32Counter totalPrefixesCounter) {
+        return new LocRibWriter(registry, chain, target, ourAs.getValue(), service, ep, tablesKey,
+            pathSelectionStrategy, totalPathsCounter, totalPrefixesCounter);
     }
 
     @Override
@@ -114,8 +122,9 @@ final class LocRibWriter implements AutoCloseable, ClusteredDOMDataTreeChangeLis
 
     @Nonnull
     private RouteEntry createEntry(final PathArgument routeId) {
-        final RouteEntry ret = this.pathSelectionMode.createRouteEntry(ribSupport.isComplexRoute());
+        final RouteEntry ret = this.pathSelectionMode.createRouteEntry(this.ribSupport.isComplexRoute());
         this.routeEntries.put(routeId, ret);
+        this.totalPrefixesCounter.incrementCount();
         LOG.trace("Created new entry for {}", routeId);
         return ret;
     }
@@ -196,22 +205,19 @@ final class LocRibWriter implements AutoCloseable, ClusteredDOMDataTreeChangeLis
                     entry = createEntry(routeId);
                 }
                 entry.addRoute(routerId, this.ribSupport.extractPathId(maybeData.get()), this.attributesIdentifier, maybeData.get());
-            } else if (entry != null && entry.removeRoute(routerId, this.ribSupport.extractPathId(maybeDataBefore.get()))) {
-                this.routeEntries.remove(routeId);
-                LOG.trace("Removed route from {}", routerId);
+                this.totalPathsCounter.incrementCount();
+            } else if (entry != null) {
+                this.totalPathsCounter.decrementCount();
+                if(entry.removeRoute(routerId, this.ribSupport.extractPathId(maybeDataBefore.get()))) {
+                    this.routeEntries.remove(routeId);
+                    this.totalPrefixesCounter.decrementCount();
+                    LOG.trace("Removed route from {}", routerId);
+                }
             }
             final RouteUpdateKey routeUpdateKey = new RouteUpdateKey(peerId, routeId);
             LOG.debug("Updated route {} entry {}", routeId, entry);
             routes.put(routeUpdateKey, entry);
         }
-        updateRouteCounter();
-    }
-
-    /**
-     * Update the statistic of loc-rib route
-     */
-    private void updateRouteCounter() {
-        routeCounter.setCount(this.routeEntries.size());
     }
 
     private void walkThrough(final DOMDataWriteTransaction tx, final Set<Map.Entry<RouteUpdateKey, RouteEntry>> toUpdate) {

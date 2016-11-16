@@ -12,6 +12,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import java.util.Collections;
 import java.util.Objects;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
@@ -23,9 +24,11 @@ import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer
 import org.opendaylight.protocol.bgp.rib.impl.ApplicationPeer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer.WriteConfiguration;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
+import org.opendaylight.protocol.bgp.state.spi.BGPStateFactory;
+import org.opendaylight.protocol.bgp.state.spi.state.BGPNeighborState;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Config;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
@@ -38,14 +41,20 @@ import org.slf4j.LoggerFactory;
 public final class AppPeer implements PeerBean {
     private static final Logger LOG = LoggerFactory.getLogger(AppPeer.class);
     private static final QName APP_ID_QNAME = QName.create(ApplicationRib.QNAME, "id").intern();
+    private final BGPStateFactory bgpStateFactory;
     private Neighbor currentConfiguration;
     private BgpAppPeerSingletonService bgpAppPeerSingletonService;
 
+    public AppPeer(final BGPStateFactory bgpStateFactory) {
+        this.bgpStateFactory = bgpStateFactory;
+    }
+
     @Override
-    public void start(final RIB rib, final Neighbor neighbor, final BGPTableTypeRegistryConsumer tableTypeRegistry, final WriteConfiguration configurationWriter) {
+    public void start(final RIB rib, final Neighbor neighbor, final BGPTableTypeRegistryConsumer tableTypeRegistry,
+        final WriteConfiguration configurationWriter) {
         this.currentConfiguration = neighbor;
-        this.bgpAppPeerSingletonService = new BgpAppPeerSingletonService(rib, createAppRibId(neighbor), neighbor.getNeighborAddress().getIpv4Address(),
-                configurationWriter);
+        this.bgpAppPeerSingletonService = new BgpAppPeerSingletonService(rib, createAppRibId(neighbor),
+            neighbor.getNeighborAddress(), configurationWriter, tableTypeRegistry);
     }
 
     @Override
@@ -86,8 +95,12 @@ public final class AppPeer implements PeerBean {
         private final ServiceGroupIdentifier serviceGroupIdentifier;
         private final WriteConfiguration configurationWriter;
 
-        BgpAppPeerSingletonService(final RIB rib, final ApplicationRibId appRibId, final Ipv4Address neighborAddress, final WriteConfiguration configurationWriter) {
-            this.applicationPeer = new ApplicationPeer(appRibId, neighborAddress, rib);
+        BgpAppPeerSingletonService(final RIB rib, final ApplicationRibId appRibId, final IpAddress neighborAddress,
+            final WriteConfiguration configurationWriter, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
+            final BGPNeighborState neighborState = AppPeer.this.bgpStateFactory.
+                createBGPNeighborState(neighborAddress, OpenConfigMappingUtil
+                .toAfiSafiTypeSet(rib.getLocalTablesKeys(), tableTypeRegistry), Collections.emptySet());
+            this.applicationPeer = new ApplicationPeer(appRibId, neighborAddress, rib, tableTypeRegistry, neighborState);
             this.appRibId = appRibId;
             this.dataTreeChangeService = rib.getService();
             this.serviceGroupIdentifier = rib.getRibIServiceGroupIdentifier();

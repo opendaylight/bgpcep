@@ -50,6 +50,13 @@ public final class PerTableTypeRouteCounter {
         return counter;
     }
 
+    public final synchronized UnsignedInt32Counter init(@Nonnull final TablesKey tablesKey,
+        @Nonnull final UnsignedInt32Counter counter) {
+        this.counters.put(tablesKey, counter);
+        LOG.debug("Initializing route counter for tablesKey {}", tablesKey);
+        return counter;
+    }
+
     /**
      * Get the counter for given tablesKey. Return an empty counter if it doesn't exist
      * NOTE: the created empty counter won't be put into the original map
