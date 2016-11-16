@@ -39,12 +39,18 @@ import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupport;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.MultiPathSupportImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
+import org.opendaylight.protocol.bgp.rib.impl.state.BGPSessionStateImpl;
+import org.opendaylight.protocol.bgp.rib.impl.state.BGPSessionStateProvider;
 import org.opendaylight.protocol.bgp.rib.impl.stats.peer.BGPSessionStats;
 import org.opendaylight.protocol.bgp.rib.impl.stats.peer.BGPSessionStatsImpl;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
 import org.opendaylight.protocol.bgp.rib.spi.State;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPErrorHandlingState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPSessionState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPTimersState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPTransportState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Keepalive;
@@ -68,7 +74,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @VisibleForTesting
-public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> implements BGPSession, BGPSessionStats, AutoCloseable {
+public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> implements BGPSession, BGPSessionStats,
+    BGPSessionStateProvider, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(BGPSessionImpl.class);
 
@@ -112,15 +119,17 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     private final ChannelOutputLimiter limiter;
 
     private BGPSessionStatsImpl sessionStats;
+    private BGPSessionStateImpl sessionState;
 
-    public BGPSessionImpl(final BGPSessionListener listener, final Channel channel, final Open remoteOpen, final BGPSessionPreferences localPreferences,
-            final BGPPeerRegistry peerRegistry) {
+    public BGPSessionImpl(final BGPSessionListener listener, final Channel channel, final Open remoteOpen,
+        final BGPSessionPreferences localPreferences, final BGPPeerRegistry peerRegistry) {
         this(listener, channel, remoteOpen, localPreferences.getHoldTime(), peerRegistry);
-        this.sessionStats = new BGPSessionStatsImpl(this, remoteOpen, this.holdTimerValue, this.keepAlive, channel, Optional.of(localPreferences), this.tableTypes, this.addPathTypes);
+        this.sessionStats = new BGPSessionStatsImpl(this, remoteOpen, this.holdTimerValue, this.keepAlive, channel,
+            Optional.of(localPreferences), this.tableTypes, this.addPathTypes);
     }
 
-    public BGPSessionImpl(final BGPSessionListener listener, final Channel channel, final Open remoteOpen, final int localHoldTimer,
-            final BGPPeerRegistry peerRegistry) {
+    public BGPSessionImpl(final BGPSessionListener listener, final Channel channel, final Open remoteOpen,
+        final int localHoldTimer, final BGPPeerRegistry peerRegistry) {
         this.listener = Preconditions.checkNotNull(listener);
         this.channel = Preconditions.checkNotNull(channel);
         this.limiter = new ChannelOutputLimiter(this);
@@ -130,6 +139,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         this.keepAlive = this.holdTimerValue / KA_TO_DEADTIMER_RATIO;
         this.asNumber = AsNumberUtil.advertizedAsNumber(remoteOpen);
         this.peerRegistry = peerRegistry;
+        this.sessionState = new BGPSessionStateImpl();
 
         final Set<TablesKey> tts = Sets.newHashSet();
         final Set<BgpTableType> tats = Sets.newHashSet();
@@ -184,6 +194,9 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         this.bgpId = remoteOpen.getBgpIdentifier();
         this.sessionStats = new BGPSessionStatsImpl(this, remoteOpen, this.holdTimerValue, this.keepAlive, channel, Optional.<BGPSessionPreferences>absent(),
                 this.tableTypes, this.addPathTypes);
+
+        this.sessionState.advertizeCapabilities(this.holdTimerValue, channel.remoteAddress(), channel.localAddress(),
+            this.tableTypes, remoteOpen.getBgpParameters());
     }
 
     /**
@@ -253,7 +266,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
             }
 
             this.sessionStats.updateReceivedMsg(msg);
-
+            this.sessionState.messageReceived(msg);
         } catch (final BGPDocumentedException e) {
             this.terminate(e);
         }
@@ -281,6 +294,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
             });
         this.lastMessageSentAt = System.nanoTime();
         this.sessionStats.updateSentMsg(msg);
+        this.sessionState.messageSent(msg);
         return future;
     }
 
@@ -316,6 +330,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         });
         this.state = State.IDLE;
         removePeerSession();
+        this.sessionState.setSessionState(this.state);
     }
 
     /**
@@ -425,6 +440,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     protected synchronized void sessionUp() {
         this.sessionStats.startSessionStopwatch();
         this.state = State.UP;
+        this.sessionState.setSessionState(this.state);
         this.listener.onSessionUp(this);
     }
 
@@ -491,5 +507,25 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         } else {
             this.close();
         }
+    }
+
+    @Override
+    public BGPSessionState getBGPSessionState() {
+        return this.sessionState;
+    }
+
+    @Override
+    public BGPTimersState getBGPTimersState() {
+        return this.sessionState;
+    }
+
+    @Override
+    public BGPTransportState getBGPTransportState() {
+        return this.sessionState;
+    }
+
+    @Override
+    public BGPErrorHandlingState getBGPErrorHandlingState() {
+        return this.sessionState;
     }
 }

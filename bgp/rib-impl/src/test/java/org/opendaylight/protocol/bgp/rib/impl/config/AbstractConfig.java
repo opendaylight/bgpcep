@@ -48,20 +48,27 @@ import org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl.BGPRenderStats;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Rib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.RibKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.osgi.framework.ServiceRegistration;
 
 class AbstractConfig {
+    static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
     protected static final AsNumber AS = new AsNumber(72L);
+    protected ClusterSingletonService singletonService;
     @Mock
     protected RIB rib;
     @Mock
@@ -84,13 +91,13 @@ class AbstractConfig {
     protected ListenerRegistration listener;
     @Mock
     protected Future future;
-    protected ClusterSingletonService singletonService;
     @Mock
     protected DOMDataWriteTransaction domDW;
     @Mock
     private ImportPolicyPeerTracker importPolicyPeerTracker;
     @Mock
     private DOMDataTreeChangeService dataTreeChangeService;
+    protected static final RibId RIB_ID = new RibId("test");
 
     @Before
     public void setUp() throws Exception {
@@ -101,6 +108,9 @@ class AbstractConfig {
         }).when(this.rib).registerClusterSingletonService(any(ClusterSingletonService.class));
         Mockito.doReturn(new LongAdder()).when(this.render).getConfiguredPeerCounter();
         Mockito.doReturn(this.render).when(this.rib).getRenderStats();
+        Mockito.doReturn(InstanceIdentifier.create(BgpRib.class).child(org.opendaylight.yang.gen.v1.urn.opendaylight
+            .params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib.class, new RibKey(RIB_ID))).when(this.rib)
+            .getInstanceIdentifier();
         Mockito.doReturn(this.domTx).when(this.rib).createPeerChain(any(TransactionChainListener.class));
         Mockito.doReturn(AS).when(this.rib).getLocalAs();
         Mockito.doReturn(this.importPolicyPeerTracker).when(this.rib).getImportPolicyPeerTracker();
@@ -126,8 +136,10 @@ class AbstractConfig {
         Mockito.doReturn(null).when(checkedFuture).checkedGet();
         Mockito.doReturn(null).when(checkedFuture).get();
         Mockito.doReturn("checkedFuture").when(checkedFuture).toString();
-
-        Mockito.doNothing().when(this.singletonServiceRegistration).close();
+        Mockito.doAnswer(invocationOnMock->{
+            this.singletonService.closeServiceInstance();
+            return null;
+        }).when(this.singletonServiceRegistration).close();
         Mockito.doReturn(YangInstanceIdentifier.of(Rib.QNAME)).when(this.rib).getYangRibId();
         Mockito.doReturn(this.dataTreeChangeService).when(this.rib).getService();
         Mockito.doReturn(this.listener).when(this.dataTreeChangeService).registerDataTreeChangeListener(any(), any());
@@ -140,6 +152,7 @@ class AbstractConfig {
 
         Mockito.doReturn(java.util.Optional.of(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class)))
             .when(this.tableTypeRegistry).getTableType(any());
+        Mockito.doReturn(java.util.Optional.of(TABLES_KEY)).when(this.tableTypeRegistry).getTableKey(any());
         Mockito.doReturn(Collections.singleton(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class)))
             .when(this.rib).getLocalTables();
         Mockito.doNothing().when(this.configurationWriter).apply();

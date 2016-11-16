@@ -39,13 +39,13 @@ import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegist
 import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
-import org.opendaylight.protocol.bgp.rib.DefaultRibReference;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ImportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
+import org.opendaylight.protocol.bgp.rib.impl.state.BGPRIBStateImpl;
 import org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl.BGPRenderStats;
 import org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl.RIBImplRuntimeMXBeanImpl;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
@@ -83,7 +83,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ThreadSafe
-public final class RIBImpl extends DefaultRibReference implements ClusterSingletonService, AutoCloseable, RIB, TransactionChainListener, SchemaContextListener {
+public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonService, RIB, TransactionChainListener,
+    SchemaContextListener, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(RIBImpl.class);
     private static final QName RIB_ID_QNAME = QName.create(Rib.QNAME, "id").intern();
     private static final ContainerNode EMPTY_TABLE_ATTRIBUTES = ImmutableNodes.containerNode(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Attributes.QNAME);
@@ -119,8 +120,8 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
         final BindingCodecTreeFactory codecFactory, final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
         @Nonnull final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies, final GeneratedClassLoadingStrategy classStrategy,
         final BgpDeployer.WriteConfiguration configurationWriter) {
-
-        super(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(Preconditions.checkNotNull(ribId))));
+        super(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(Preconditions.checkNotNull(ribId))),
+            localBgpId, localAs);
         this.localAs = Preconditions.checkNotNull(localAs);
         this.bgpIdentifier = Preconditions.checkNotNull(localBgpId);
         this.dispatcher = Preconditions.checkNotNull(dispatcher);
@@ -135,7 +136,6 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
         this.yangRibId = yangRibIdBuilder.nodeWithKey(Rib.QNAME, RIB_ID_QNAME, ribId.getValue()).build();
         this.bestPathSelectionStrategies = Preconditions.checkNotNull(bestPathSelectionStrategies);
         final ClusterIdentifier cId = (clusterId == null) ? new ClusterIdentifier(localBgpId) : clusterId;
-        this.renderStats = new RIBImplRuntimeMXBeanImpl(localBgpId, ribId, localAs, cId);
         this.ribId = ribId;
         final PolicyDatabase policyDatabase = new PolicyDatabase(this.localAs.getValue(), localBgpId, cId);
         this.importPolicyPeerTracker = new ImportPolicyPeerTrackerImpl(policyDatabase);
@@ -152,6 +152,7 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
         }
         this.exportPolicyPeerTrackerMap = exportPolicies.build();
 
+        this.renderStats = new RIBImplRuntimeMXBeanImpl(localBgpId, ribId, localAs, cId, this, this.localTablesKeys);
         LOG.info("RIB Singleton Service {} registered", getIdentifier());
         //this need to be always the last step
         this.registration = registerClusterSingletonService(this);
@@ -188,8 +189,11 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
             pathSelectionStrategy = BasePathSelectionModeFactory.createBestPathSelectionStrategy();
         }
 
-        this.locRibs.add(LocRibWriter.create(this.ribContextRegistry, key, createPeerChain(this), getYangRibId(), this.localAs, getService(),
-            this.exportPolicyPeerTrackerMap.get(key), pathSelectionStrategy, this.renderStats.getLocRibRouteCounter().init(key)));
+        final LocRibWriter locRibWriter = LocRibWriter.create(this.ribContextRegistry, key, createPeerChain(this),
+            getYangRibId(), this.localAs, getService(), this.exportPolicyPeerTrackerMap.get(key), pathSelectionStrategy);
+        registerTotalPathCounter(key, locRibWriter);
+        registerTotalPrefixesCounter(key, locRibWriter);
+        this.locRibs.add(locRibWriter);
     }
 
     @Override
@@ -339,15 +343,11 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
         this.locRibs.forEach(LocRibWriter::close);
         this.locRibs.clear();
 
-        this.renderStats.getLocRibRouteCounter().resetAll();
-
-
         final DOMDataWriteTransaction t = this.domChain.newWriteOnlyTransaction();
         t.delete(LogicalDatastoreType.OPERATIONAL, getYangRibId());
         final CheckedFuture<Void, TransactionCommitFailedException> cleanFuture = t.submit();
 
         this.domChain.close();
-
         return cleanFuture;
     }
 
