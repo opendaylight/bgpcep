@@ -140,7 +140,7 @@ public class BGPPeer extends BGPPeerState implements BGPSessionListener, Peer, A
 
     public void instantiateServiceInstance() {
         // add current peer to "configured BGP peer" stats
-        this.rib.getRenderStats().getConfiguredPeerCounter().increaseCount();
+        this.rib.getRenderStats().getConfiguredPeerCounter().incrementCount();
         this.ribWriter = AdjRibInWriter.create(rib.getYangRibId(), this.peerRole, this.simpleRoutingPolicy, this.chain);
     }
 
@@ -320,7 +320,7 @@ public class BGPPeer extends BGPPeerState implements BGPSessionListener, Peer, A
         this.ribWriter = this.ribWriter.transform(peerId, this.rib.getRibSupportContext(), this.tables, addPathTableMaps);
 
         // register BGP Peer stats
-        this.peerStats.getSessionEstablishedCounter().increaseCount();
+        this.peerStats.getSessionEstablishedCounter().incrementCount();
         if (this.registrator != null) {
             this.runtimeReg = this.registrator.register(this);
         }
@@ -332,7 +332,7 @@ public class BGPPeer extends BGPPeerState implements BGPSessionListener, Peer, A
             this.rpcRegistration.registerPath(PeerContext.class, path);
         }
 
-        this.rib.getRenderStats().getConnectedPeerCounter().increaseCount();
+        this.rib.getRenderStats().getConnectedPeerCounter().incrementCount();
     }
 
     private void createAdjRibOutListener(final PeerId peerId) {
@@ -434,7 +434,7 @@ public class BGPPeer extends BGPPeerState implements BGPSessionListener, Peer, A
             }
             this.session = null;
 
-            this.rib.getRenderStats().getConnectedPeerCounter().decreaseCount();
+            this.rib.getRenderStats().getConnectedPeerCounter().decrementCount();
         }
     }
 
