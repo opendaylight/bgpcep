@@ -47,8 +47,8 @@ public class BGPRenderStatsImplTest {
         renderStateExpected.setLocRibRoutesCount(COUTER);
 
         assertEquals(renderStateExpected, render.getBgpRenderState());
-        assertEquals(1L, render.getLocRibRouteCounter().init(new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class)).increaseCount());
-        assertEquals(1L, render.getConfiguredPeerCounter().increaseCount());
-        assertEquals(1L, render.getConnectedPeerCounter().increaseCount());
+        assertEquals(1L, render.getLocRibRouteCounter().init(new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class)).incrementCount());
+        assertEquals(1L, render.getConfiguredPeerCounter().incrementCount());
+        assertEquals(1L, render.getConnectedPeerCounter().incrementCount());
     }
 }

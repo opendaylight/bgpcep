@@ -16,8 +16,8 @@ import javax.annotation.Nullable;
 import org.opendaylight.controller.config.api.IdentityAttributeRef;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpRenderState;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.LocRibRouteTable;
-import org.opendaylight.protocol.bgp.rib.impl.stats.UnsignedInt32Counter;
 import org.opendaylight.protocol.bgp.rib.impl.stats.peer.route.PerTableTypeRouteCounter;
+import org.opendaylight.protocol.bgp.state.spi.counters.UnsignedInt32Counter;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
@@ -71,7 +71,7 @@ public class BGPRenderStatsImpl implements BGPRenderStats {
         table.setSafi(new IdentityAttributeRef(safi.toString()));
         table.setRoutesCount(e.getValue().getCountAsZeroBasedCounter32());
         locRibRouteTableList.add(table);
-        totalRouteCount.increaseCount(e.getValue().getCount());
+        totalRouteCount.incrementCount(e.getValue().getCount());
 
     }
 

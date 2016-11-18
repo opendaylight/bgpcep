@@ -8,8 +8,8 @@
 package org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl;
 
 import org.opendaylight.controller.config.yang.bgp.rib.impl.RIBImplRuntimeMXBean;
-import org.opendaylight.protocol.bgp.rib.impl.stats.UnsignedInt32Counter;
 import org.opendaylight.protocol.bgp.rib.impl.stats.peer.route.PerTableTypeRouteCounter;
+import org.opendaylight.protocol.bgp.state.spi.counters.UnsignedInt32Counter;
 
 /**
  * @author Kevin Wang
