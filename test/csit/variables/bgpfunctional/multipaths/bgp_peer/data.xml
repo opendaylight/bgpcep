@@ -25,11 +25,5 @@
              <receive>true</receive>
              <send-max>$MULTIPATH</send-max>
         </afi-safi>
-        <afi-safi>
-            <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV4-UNICAST</afi-safi-name>
-        </afi-safi>
-        <afi-safi>
-            <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L2VPN-EVPN</afi-safi-name>
-        </afi-safi>
     </afi-safis>
 </neighbor>
