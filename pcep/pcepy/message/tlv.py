@@ -218,6 +218,7 @@ class Ipv6LspIdentifiers(base.Tlv):
     tunnel_id = data.Int(offset=128+16, size=16)
     extended_tunnel_id = data.Int(offset=128+32, size=32)
 
+
 LspIdentifiers = Ipv4LspIdentifiers, Ipv6LspIdentifiers
 
 
@@ -256,6 +257,7 @@ class Ipv6RsvpErrorSpec(base.Tlv):
     not_guilty = data.Flag(offset=128+6)
     error_code = data.Int(offset=128+8, size=8)
     error_value = data.Int(offset=128+16, size=16)
+
 
 RsvpErrorSpec = Ipv4RsvpErrorSpec, Ipv6RsvpErrorSpec
 
@@ -403,5 +405,6 @@ class Unknown(base.Tlv):
             super(Unknown, self).__str__(),
             data.to_hex(self._octets)
         )
+
 
 base.Tlv.unknown_class = Unknown

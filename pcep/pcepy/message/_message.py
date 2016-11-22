@@ -270,4 +270,6 @@ class PCCreate(base.Message):
 # We do not need special handling for unknown messages
 class Unknown(base.Message):
     pass
+
+
 base.Message.unknown_class = Unknown

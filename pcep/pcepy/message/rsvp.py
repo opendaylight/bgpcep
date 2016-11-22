@@ -33,6 +33,7 @@ class Ipv6Prefix(base.Rsvp):
     lp_in_use = data.Flag(offset=128+14)         # RRO
     attribute = data.Int(offset=128+8, size=8)   # RFC 4874 RSVP-TE XRO
 
+
 Prefix = Ipv4Prefix, Ipv6Prefix
 
 
@@ -81,6 +82,7 @@ class Ipv6PathKey(base.Rsvp):
     type_id = 65
     path_key = data.Int(offset=0, size=16)
     pce_id = data.Ipv6(offset=16)
+
 
 PathKey = (Ipv4PathKey, Ipv6PathKey)
 
@@ -223,5 +225,6 @@ class Unknown(base.Rsvp):
             super(Unknown, self).__str__(),
             data.to_hex(self._octets)
         )
+
 
 base.Rsvp.unknown_class = Unknown

@@ -76,6 +76,7 @@ class _CodeMeta(type):
 
         return cls
 
+
 # Kludge for python 2 and 3 syntax compatibility
 _CodeBase = _CodeMeta('_CodeBase', (object, ), dict(
     # updated by metaclass

@@ -390,6 +390,7 @@ class _BlockMeta(type):
         attrs['_bits'] = bits
         return super(_BlockMeta, mcs).__new__(mcs, name, bases, attrs)
 
+
 # Kludge for python 2 and 3 syntax compatibility
 _BlockBase = _BlockMeta('_BlockBase', (object, ), dict(
     # updated by metaclass
