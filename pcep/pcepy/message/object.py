@@ -415,6 +415,7 @@ class Ipv6PccIdReq(base.Object):
 
     address = data.Ipv6(offset=0)
 
+
 PccIdReq = (Ipv4PccIdReq, Ipv6PccIdReq)
 
 
@@ -440,6 +441,7 @@ class Ipv6PceId(base.Object):
     type_id = 2
 
     address = data.Ipv6(offset=0)
+
 
 PceId = (Ipv4PceId, Ipv6PceId)
 
@@ -536,5 +538,6 @@ class Unknown(base.Object):
         return '%soctets="%s"' % (
             super(Unknown, self).__str__(),
             data.to_hex(self._octets))
+
 
 base.Object.unknown_class = Unknown
