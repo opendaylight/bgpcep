@@ -31,6 +31,10 @@ import org.osgi.framework.BundleContext;
 
 public final class BackwardsCssTopologyProvider {
 
+    private BackwardsCssTopologyProvider() {
+        throw new UnsupportedOperationException();
+    }
+
     public static TopologyReferenceSingletonService createBackwardsCssInstance(final TopologyTypes topologyTypes, final TopologyId topologyId, final DataBroker dataBroker, final BundleContext bundleContext,
             final KeyedInstanceIdentifier<Rib, RibKey> ribIId) {
         //map configuration to topology
