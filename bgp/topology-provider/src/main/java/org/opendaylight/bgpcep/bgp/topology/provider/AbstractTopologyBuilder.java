@@ -284,12 +284,14 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
             // so we abandon the chain directly
             // FIXME we want to close the transaction chain gracefully once the PingPongTransactionChain get improved
             // and the above problem get resolved.
-//            try {
-//                this.chain.close();
-//            } catch (Exception e) {
-//                // the close() may not succeed when the transaction chain is locked
-//                LOG.error("Unable to close transaction chain {} for topology builder {}", this.chain, getInstanceIdentifier());
-//            }
+            /*
+            try {
+                this.chain.close();
+            } catch (Exception e) {
+                // the close() may not succeed when the transaction chain is locked
+                LOG.error("Unable to close transaction chain {} for topology builder {}", this.chain, getInstanceIdentifier());
+            }
+            */
             this.chain = null;
         }
     }
