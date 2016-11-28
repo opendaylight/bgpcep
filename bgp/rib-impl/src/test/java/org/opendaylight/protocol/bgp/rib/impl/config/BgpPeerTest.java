@@ -81,7 +81,6 @@ public class BgpPeerTest extends AbstractConfig {
             .setRouteReflector(createRR()).setTimers(createTimers()).setTransport(createTransport()).setAddPaths(createAddPath()).build();
 
         this.bgpPeer.start(this.rib, neighbor, this.tableTypeRegistry, this.configurationWriter);
-        Mockito.verify(this.render).getConfiguredPeerCounter();
         Mockito.verify(this.rib).createPeerChain(any());
         Mockito.verify(this.rib, times(2)).getLocalAs();
         Mockito.verify(this.rib).getLocalTables();
@@ -89,6 +88,7 @@ public class BgpPeerTest extends AbstractConfig {
         Mockito.verify(this.rib).registerClusterSingletonService(any(ClusterSingletonService.class));
 
         this.singletonService.instantiateServiceInstance();
+        Mockito.verify(this.render).getConfiguredPeerCounter();
         Mockito.verify(this.configurationWriter).apply();
         Mockito.verify(this.bgpPeerRegistry).addPeer(any(), any(), any());
         Mockito.verify(this.dispatcher).createReconnectingClient(any(InetSocketAddress.class), any(BGPPeerRegistry.class), anyInt(), any(Optional.class));
@@ -102,14 +102,13 @@ public class BgpPeerTest extends AbstractConfig {
         this.bgpPeer.setServiceRegistration(this.serviceRegistration);
         this.bgpPeer.close();
         this.bgpPeer.restart(this.rib, this.tableTypeRegistry);
-        Mockito.verify(this.render, times(2)).getConfiguredPeerCounter();
         Mockito.verify(this.rib, times(2)).createPeerChain(any());
         Mockito.verify(this.rib, times(4)).getLocalAs();
         Mockito.verify(this.rib, times(2)).getLocalTables();
         Mockito.verify(this.rib, times(2)).getRibIServiceGroupIdentifier();
         Mockito.verify(this.rib, times(2)).registerClusterSingletonService(any(ClusterSingletonService.class));
         this.singletonService.instantiateServiceInstance();
-
+        Mockito.verify(this.render, times(2)).getConfiguredPeerCounter();
         assertNotNull(this.bgpPeer.getBgpPeerState());
         assertNotNull(this.bgpPeer.getBgpSessionState());
         this.bgpPeer.resetStats();
