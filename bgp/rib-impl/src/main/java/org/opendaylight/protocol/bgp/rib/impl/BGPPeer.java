@@ -130,9 +130,6 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         this.name = name;
         this.rpcRegistry = rpcRegistry;
         this.peerStats = new BGPPeerStatsImpl(this.name, this.tables);
-
-        // add current peer to "configured BGP peer" stats
-        this.rib.getRenderStats().getConfiguredPeerCounter().increaseCount();
         this.chain = rib.createPeerChain(this);
     }
 
@@ -141,6 +138,8 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
     }
 
     public void instantiateServiceInstance() {
+        // add current peer to "configured BGP peer" stats
+        this.rib.getRenderStats().getConfiguredPeerCounter().increaseCount();
         this.ribWriter = AdjRibInWriter.create(rib.getYangRibId(), this.peerRole, this.simpleRoutingPolicy, this.chain);
     }
 

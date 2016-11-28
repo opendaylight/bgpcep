@@ -77,13 +77,13 @@ public class BgpPeerTest extends AbstractConfig {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testBgpPeer() throws Exception {
         final Neighbor neighbor = new NeighborBuilder().setAfiSafis(createAfiSafi()).setConfig(createConfig()).setNeighborAddress(NEIGHBOR_ADDRESS)
             .setRouteReflector(createRR()).setTimers(createTimers()).setTransport(createTransport()).setAddPaths(createAddPath()).build();
 
         this.bgpPeer.start(this.rib, neighbor, this.mappingService, this.configurationWriter);
         Mockito.verify(this.mappingService).toPeerRole(any());
-        Mockito.verify(this.render).getConfiguredPeerCounter();
         Mockito.verify(this.rib).createPeerChain(any());
         Mockito.verify(this.rib, times(2)).getLocalAs();
         Mockito.verify(this.rib).getLocalTables();
@@ -92,7 +92,8 @@ public class BgpPeerTest extends AbstractConfig {
         Mockito.verify(this.rib).getRibIServiceGroupIdentifier();
         Mockito.verify(this.rib).registerClusterSingletonService(any(ClusterSingletonService.class));
 
-        this.singletonService.instantiateServiceInstance();
+        this.singletonService.instantiateServiceInstance();.
+        Mockito.verify(this.render).getConfiguredPeerCounter();
         Mockito.verify(this.configurationWriter).apply();
         Mockito.verify(this.bgpPeerRegistry).addPeer(any(), any(), any());
         Mockito.verify(this.dispatcher).createReconnectingClient(any(InetSocketAddress.class), any(BGPPeerRegistry.class), anyInt(), any(Optional.class));
@@ -107,7 +108,6 @@ public class BgpPeerTest extends AbstractConfig {
         this.bgpPeer.close();
         this.bgpPeer.restart(this.rib, this.mappingService);
         Mockito.verify(this.mappingService, times(2)).toPeerRole(any());
-        Mockito.verify(this.render, times(2)).getConfiguredPeerCounter();
         Mockito.verify(this.rib, times(2)).createPeerChain(any());
         Mockito.verify(this.rib, times(4)).getLocalAs();
         Mockito.verify(this.rib, times(2)).getLocalTables();
@@ -116,7 +116,7 @@ public class BgpPeerTest extends AbstractConfig {
         Mockito.verify(this.rib, times(2)).getRibIServiceGroupIdentifier();
         Mockito.verify(this.rib, times(2)).registerClusterSingletonService(any(ClusterSingletonService.class));
         this.singletonService.instantiateServiceInstance();
-
+        Mockito.verify(this.render, times(2)).getConfiguredPeerCounter();
         assertNotNull(this.bgpPeer.getBgpPeerState());
         assertNotNull(this.bgpPeer.getBgpSessionState());
         this.bgpPeer.resetStats();
