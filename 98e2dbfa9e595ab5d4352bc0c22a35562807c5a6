@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_a27360e6",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/AbstractTopologyBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2016-11-29T08:58:15Z",
+      "side": 1,
+      "message": "This won\u0027t actually solve the warning of committing commented code.",
+      "revId": "98e2dbfa9e595ab5d4352bc0c22a35562807c5a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
