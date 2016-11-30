@@ -80,7 +80,7 @@ public final class BgpPeer implements PeerBean, BGPPeerRuntimeMXBean {
     @Override
     public void start(final RIB rib, final Neighbor neighbor, final BGPTableTypeRegistryConsumer tableTypeRegistry,
         final WriteConfiguration configurationWriter) {
-        Preconditions.checkState(this.bgpPeerSingletonService == null, "Previous peer instance {} was not closed.");
+        Preconditions.checkState(this.bgpPeerSingletonService == null, "Previous peer instance was not closed.");
         this.bgpPeerSingletonService = new BgpPeerSingletonService(rib, neighbor, tableTypeRegistry, configurationWriter);
         this.currentConfiguration = neighbor;
     }

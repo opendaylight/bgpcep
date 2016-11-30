@@ -97,7 +97,7 @@ public class BgpPeerTest extends AbstractConfig {
             this.bgpPeer.start(this.rib, neighbor, this.tableTypeRegistry, this.configurationWriter);
             fail("Expected Exception");
         } catch (final IllegalStateException expected) {
-            assertEquals("Previous peer instance {} was not closed.", expected.getMessage());
+            assertEquals("Previous peer instance was not closed.", expected.getMessage());
         }
         this.bgpPeer.setServiceRegistration(this.serviceRegistration);
         this.bgpPeer.close();
