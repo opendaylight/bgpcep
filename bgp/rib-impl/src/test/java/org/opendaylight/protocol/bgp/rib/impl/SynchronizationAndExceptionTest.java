@@ -33,6 +33,7 @@ import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.junit.Test;
@@ -184,6 +185,14 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
             any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         Mockito.doNothing().when(this.tx).delete(Mockito.any(LogicalDatastoreType.class), Mockito.any(YangInstanceIdentifier.class));
         final CheckedFuture future = mock(CheckedFuture.class);
+        Mockito.doAnswer(new Answer<Void>() {
+            @Override
+            public Void answer(final InvocationOnMock invocation) throws Throwable {
+                final Runnable callback = (Runnable) invocation.getArguments()[0];
+                callback.run();
+                return null;
+            }
+        }).when(future).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
         Mockito.doReturn(future).when(this.tx).submit();
         Mockito.doReturn(mock(Optional.class)).when(future).checkedGet();
     }

@@ -13,6 +13,7 @@ import com.google.common.net.InetAddresses;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
@@ -20,6 +21,8 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.controller.md.sal.dom.api.ClusteredDOMDataTreeChangeListener;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
@@ -28,6 +31,7 @@ import org.opendaylight.protocol.bgp.rib.impl.stats.peer.BGPPeerStats;
 import org.opendaylight.protocol.bgp.rib.impl.stats.peer.BGPPeerStatsImpl;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
+import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRibId;
@@ -38,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.AdjRibIn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
+import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
@@ -75,6 +80,12 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
     private EffectiveRibInWriter effectiveRibInWriter;
     private AdjRibInWriter adjRibInWriter;
     private BGPPeerStats peerStats;
+    private ListenerRegistration<ApplicationPeer> registration;
+    private final Set<NodeIdentifierWithPredicates> supportedTables = new HashSet<>();
+
+    interface RegisterAppPeerListener {
+        void register();
+    }
 
     public ApplicationPeer(final ApplicationRibId applicationRibId, final Ipv4Address ipAddress, final RIB rib) {
         this.name = applicationRibId.getValue();
@@ -87,7 +98,8 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
         this.ipAddress = ipAddress;
     }
 
-    public void instantiateServiceInstance() {
+    public void instantiateServiceInstance(final DOMDataTreeChangeService dataTreeChangeService,
+        final DOMDataTreeIdentifier appPeerDOMId) {
         this.chain = this.rib.createPeerChain(this);
         this.writerChain = this.rib.createPeerChain(this);
 
@@ -99,11 +111,15 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
             if (exportTracker != null) {
                 exportTracker.registerPeer(peerId, null, this.peerIId, PeerRole.Internal, simpleRoutingPolicy);
             }
+            this.supportedTables.add(RibSupportUtils.toYangTablesKey(tablesKey));
         });
 
         this.adjRibInWriter = AdjRibInWriter.create(this.rib.getYangRibId(), PeerRole.Internal, simpleRoutingPolicy, this.writerChain);
         final RIBSupportContextRegistry context = this.rib.getRibSupportContext();
-        this.adjRibInWriter = this.adjRibInWriter.transform(peerId, context, localTables, Collections.emptyMap());
+        final RegisterAppPeerListener registerAppPeerListener = () ->
+            this.registration =  dataTreeChangeService.registerDataTreeChangeListener(appPeerDOMId, this);
+        this.adjRibInWriter = this.adjRibInWriter.transform(peerId, context, localTables, Collections.emptyMap(),
+            registerAppPeerListener);
         this.peerStats = new BGPPeerStatsImpl(this.name, localTables);
         this.effectiveRibInWriter = EffectiveRibInWriter.create(this.rib.getService(), this.rib.createPeerChain(this), this.peerIId,
             this.rib.getImportPolicyPeerTracker(), context, PeerRole.Internal, this.peerStats.getEffectiveRibInRouteCounters(),
@@ -126,6 +142,9 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
             final PathArgument lastArg = path.getLastPathArgument();
             Verify.verify(lastArg instanceof NodeIdentifierWithPredicates, "Unexpected type %s in path %s", lastArg.getClass(), path);
             final NodeIdentifierWithPredicates tableKey = (NodeIdentifierWithPredicates) lastArg;
+            if(!this.supportedTables.contains(tableKey)) {
+                continue;
+            }
             for (final DataTreeCandidateNode child : tc.getRootNode().getChildNodes()) {
                 final PathArgument childIdentifier = child.getIdentifier();
                 final YangInstanceIdentifier tableId = this.adjRibsInId.node(tableKey).node(childIdentifier);
@@ -205,6 +224,9 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
 
     @Override
     public void close() {
+        if(this.registration != null) {
+            this.registration.close();
+        }
         if(this.effectiveRibInWriter != null) {
             this.effectiveRibInWriter.close();
         }

@@ -11,17 +11,21 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
+import org.opendaylight.protocol.bgp.rib.impl.ApplicationPeer.RegisterAppPeerListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
@@ -56,7 +60,6 @@ import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContaine
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableMapNodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 /**
  * Writer of Adjacency-RIB-In for a single peer. An instance of this object
  * is attached to each {@link BGPPeer} and {@link ApplicationPeer}.
@@ -78,7 +81,7 @@ final class AdjRibInWriter {
     private static final NodeIdentifier PEER_TABLES = new NodeIdentifier(SupportedTables.QNAME);
     private static final NodeIdentifier TABLES = new NodeIdentifier(Tables.QNAME);
     private static final QName SEND_RECEIVE = QName.create(SupportedTables.QNAME, "send-receive").intern();
-    static final NodeIdentifier SIMPLE_ROUTING_POLICY_NID = new NodeIdentifier(QName.create(Peer.QNAME, "simple-routing-policy").intern());
+    private static final NodeIdentifier SIMPLE_ROUTING_POLICY_NID = new NodeIdentifier(QName.create(Peer.QNAME, "simple-routing-policy").intern());
 
     // FIXME: is there a utility method to construct this?
     private static final ContainerNode EMPTY_ADJRIBIN = Builders.containerBuilder().withNodeIdentifier(ADJRIBIN).addChild(ImmutableNodes.mapNodeBuilder(Tables.QNAME).build()).build();
@@ -109,8 +112,8 @@ final class AdjRibInWriter {
      * @param simpleRoutingPolicy simple Routing Policy {@link SimpleRoutingPolicy}
      *@param chain transaction chain  @return A fresh writer instance
      */
-    static AdjRibInWriter create(@Nonnull final YangInstanceIdentifier ribId, @Nonnull final PeerRole role, final Optional<SimpleRoutingPolicy> simpleRoutingPolicy,
-        @Nonnull final DOMTransactionChain chain) {
+    static AdjRibInWriter create(@Nonnull final YangInstanceIdentifier ribId, @Nonnull final PeerRole role,
+        final Optional<SimpleRoutingPolicy> simpleRoutingPolicy, @Nonnull final DOMTransactionChain chain) {
         return new AdjRibInWriter(ribId, chain, role, simpleRoutingPolicy, null, Collections.emptyMap());
     }
 
@@ -125,15 +128,34 @@ final class AdjRibInWriter {
      * @param addPathTablesType
      * @return New writer
      */
+    AdjRibInWriter transform(final PeerId newPeerId, final RIBSupportContextRegistry registry,
+        final Set<TablesKey> tableTypes, final Map<TablesKey, SendReceive> addPathTablesType) {
+        return transform(newPeerId, registry, tableTypes, addPathTablesType, null);
+    }
+
     AdjRibInWriter transform(final PeerId newPeerId, final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes,
-        final Map<TablesKey, SendReceive> addPathTablesType) {
+        final Map<TablesKey, SendReceive> addPathTablesType, @Nullable final RegisterAppPeerListener registerAppPeerListener) {
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
 
         final YangInstanceIdentifier newPeerPath;
         newPeerPath = createEmptyPeerStructure(newPeerId, tx);
-        final ImmutableMap<TablesKey, TableContext> tb = createNewTableInstances(newPeerPath, registry, tableTypes, addPathTablesType, tx);
-        tx.submit();
+        final ImmutableMap<TablesKey, TableContext> tb = createNewTableInstances(newPeerPath, registry, tableTypes,
+            addPathTablesType, tx);
 
+        Futures.addCallback(tx.submit(), new FutureCallback<Void>() {
+            @Override
+            public void onSuccess(final Void result) {
+                if(registerAppPeerListener != null) {
+                    LOG.trace("Application Peer Listener registered");
+                    registerAppPeerListener.register();
+                }
+            }
+
+            @Override
+            public void onFailure(final Throwable throwable) {
+                LOG.error("Failed to register Application Peer Listener", throwable);
+            }
+        });
         return new AdjRibInWriter(this.ribPath, this.chain, this.role, this.simpleRoutingPolicy, newPeerPath, tb);
     }
 
