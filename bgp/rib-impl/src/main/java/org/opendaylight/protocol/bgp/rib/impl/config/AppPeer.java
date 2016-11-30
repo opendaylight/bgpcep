@@ -29,7 +29,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.slf4j.Logger;
@@ -42,10 +41,13 @@ public final class AppPeer implements PeerBean {
     private BgpAppPeerSingletonService bgpAppPeerSingletonService;
 
     @Override
-    public void start(final RIB rib, final Neighbor neighbor, final BGPTableTypeRegistryConsumer tableTypeRegistry, final WriteConfiguration configurationWriter) {
+    public void start(final RIB rib, final Neighbor neighbor, final BGPTableTypeRegistryConsumer tableTypeRegistry,
+        final WriteConfiguration configurationWriter) {
+        Preconditions.checkState(this.bgpAppPeerSingletonService == null, "Previous peer instance {} was not closed.",
+            this.bgpAppPeerSingletonService);
         this.currentConfiguration = neighbor;
-        this.bgpAppPeerSingletonService = new BgpAppPeerSingletonService(rib, createAppRibId(neighbor), neighbor.getNeighborAddress().getIpv4Address(),
-                configurationWriter);
+        this.bgpAppPeerSingletonService = new BgpAppPeerSingletonService(rib, createAppRibId(neighbor),
+            neighbor.getNeighborAddress().getIpv4Address(), configurationWriter);
     }
 
     @Override
@@ -58,6 +60,7 @@ public final class AppPeer implements PeerBean {
     public void close() {
         try {
             this.bgpAppPeerSingletonService.close();
+            this.bgpAppPeerSingletonService = null;
         } catch (final Exception e) {
             LOG.warn("Failed to close application peer instance", e);
         }
@@ -82,11 +85,11 @@ public final class AppPeer implements PeerBean {
         private final DOMDataTreeChangeService dataTreeChangeService;
         private final ApplicationRibId appRibId;
         private ClusterSingletonServiceRegistration singletonServiceRegistration;
-        private ListenerRegistration<ApplicationPeer> registration;
         private final ServiceGroupIdentifier serviceGroupIdentifier;
         private final WriteConfiguration configurationWriter;
 
-        BgpAppPeerSingletonService(final RIB rib, final ApplicationRibId appRibId, final Ipv4Address neighborAddress, final WriteConfiguration configurationWriter) {
+        BgpAppPeerSingletonService(final RIB rib, final ApplicationRibId appRibId, final Ipv4Address neighborAddress,
+            final WriteConfiguration configurationWriter) {
             this.applicationPeer = new ApplicationPeer(appRibId, neighborAddress, rib);
             this.appRibId = appRibId;
             this.dataTreeChangeService = rib.getService();
@@ -113,17 +116,13 @@ public final class AppPeer implements PeerBean {
             LOG.info("Application Peer Singleton Service {} instantiated", getIdentifier());
             final YangInstanceIdentifier yangIId = YangInstanceIdentifier.builder().node(ApplicationRib.QNAME)
                 .nodeWithKey(ApplicationRib.QNAME, APP_ID_QNAME, this.appRibId.getValue()).node(Tables.QNAME).node(Tables.QNAME).build();
-            this.applicationPeer.instantiateServiceInstance();
-            this.registration = this.dataTreeChangeService
-                .registerDataTreeChangeListener(new DOMDataTreeIdentifier(LogicalDatastoreType.CONFIGURATION, yangIId), this.applicationPeer);
+            this.applicationPeer.instantiateServiceInstance(this.dataTreeChangeService,
+                new DOMDataTreeIdentifier(LogicalDatastoreType.CONFIGURATION, yangIId));
         }
 
         @Override
         public ListenableFuture<Void> closeServiceInstance() {
             LOG.info("Application Peer Singleton Service {} instance closed", getIdentifier());
-            if(this.registration != null) {
-                this.registration.close();
-            }
             this.applicationPeer.close();
             return Futures.immediateFuture(null);
         }

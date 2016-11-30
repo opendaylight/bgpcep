@@ -18,6 +18,7 @@ import com.google.common.util.concurrent.CheckedFuture;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import java.util.Collections;
+import java.util.concurrent.Executor;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -94,14 +95,10 @@ class AbstractConfig {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        Mockito.doAnswer(new Answer<ClusterSingletonServiceRegistration>() {
-            @Override
-            public ClusterSingletonServiceRegistration answer(final InvocationOnMock invocationOnMock) throws Throwable {
-                AbstractConfig.this.singletonService = (ClusterSingletonService) invocationOnMock.getArguments()[0];
-                return AbstractConfig.this.singletonServiceRegistration;
-            }
+        Mockito.doAnswer(invocationOnMock->{
+            this.singletonService = (ClusterSingletonService) invocationOnMock.getArguments()[0];
+            return this.singletonServiceRegistration;
         }).when(this.rib).registerClusterSingletonService(any(ClusterSingletonService.class));
-
         Mockito.doReturn(new UnsignedInt32Counter("counter")).when(this.render).getConfiguredPeerCounter();
         Mockito.doReturn(this.render).when(this.rib).getRenderStats();
         Mockito.doReturn(this.domTx).when(this.rib).createPeerChain(any(TransactionChainListener.class));
@@ -117,8 +114,18 @@ class AbstractConfig {
         Mockito.doNothing().when(this.domDW).delete(eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class));
         Mockito.doNothing().when(this.domDW).merge(eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         final CheckedFuture checkedFuture = mock(CheckedFuture.class);
+        Mockito.doAnswer(new Answer<Void>() {
+            @Override
+            public Void answer(final InvocationOnMock invocation) throws Throwable {
+                final Runnable callback = (Runnable) invocation.getArguments()[0];
+                callback.run();
+                return null;
+            }
+        }).when(checkedFuture).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
         Mockito.doReturn(checkedFuture).when(this.domDW).submit();
         Mockito.doReturn(null).when(checkedFuture).checkedGet();
+        Mockito.doReturn(null).when(checkedFuture).get();
+        Mockito.doReturn("checkedFuture").when(checkedFuture).toString();
 
         Mockito.doNothing().when(this.singletonServiceRegistration).close();
         Mockito.doReturn(YangInstanceIdentifier.of(Rib.QNAME)).when(this.rib).getYangRibId();

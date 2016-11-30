@@ -8,12 +8,12 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.CheckedFuture;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -30,8 +30,6 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.SendReceive;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.add.path.capability.AddressFamilies;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.add.path.capability.AddressFamiliesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Rib;
@@ -65,10 +63,6 @@ public class AdjRibsInWriterTest {
 
     private static final TablesKey K4 = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
     private final Set<TablesKey> tableTypes = Sets.newHashSet(K4);
-
-    private static final AddressFamilies ADDRESS_FAMILIES = new AddressFamiliesBuilder().setAfi(Ipv4AddressFamily.class)
-        .setSafi(UnicastSubsequentAddressFamily.class).setSendReceive(SendReceive.Both).build();
-    private final List<AddressFamilies> addPathTablesType = Collections.singletonList(ADDRESS_FAMILIES);
     private static final Map<TablesKey, SendReceive> ADD_PATH_TABLE_MAPS = Collections.singletonMap(K4, SendReceive.Both);
 
     private final String peerIp = "12.34.56.78";
@@ -78,7 +72,9 @@ public class AdjRibsInWriterTest {
         MockitoAnnotations.initMocks(this);
         Mockito.doReturn("MockedTrans").when(this.tx).toString();
         Mockito.doReturn(this.tx).when(this.chain).newWriteOnlyTransaction();
-        Mockito.doReturn(Mockito.mock(CheckedFuture.class)).when(this.tx).submit();
+        final CheckedFuture checkedFuture =  Mockito.mock(CheckedFuture.class);
+        Mockito.doNothing().when(checkedFuture).addListener(any(), any());
+        Mockito.doReturn(checkedFuture).when(this.tx).submit();
         Mockito.doNothing().when(this.tx).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(YangInstanceIdentifier.class), Mockito.any(NormalizedNode.class));
         Mockito.doNothing().when(this.tx).merge(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(YangInstanceIdentifier.class), Mockito.any(NormalizedNode.class));
         Mockito.doReturn(this.context).when(this.registry).getRIBSupportContext(Mockito.any(TablesKey.class));
