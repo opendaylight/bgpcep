@@ -13,6 +13,7 @@ import com.google.common.net.InetAddresses;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
@@ -20,6 +21,8 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.controller.md.sal.dom.api.ClusteredDOMDataTreeChangeListener;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPConfigModuleTracker;
@@ -29,6 +32,7 @@ import org.opendaylight.protocol.bgp.rib.impl.stats.peer.BGPPeerStats;
 import org.opendaylight.protocol.bgp.rib.impl.stats.peer.BGPPeerStatsImpl;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
+import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRibId;
@@ -39,6 +43,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.AdjRibIn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
+import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
@@ -77,6 +82,17 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
     private EffectiveRibInWriter effectiveRibInWriter;
     private AdjRibInWriter adjRibInWriter;
     private BGPPeerStats peerStats;
+    private ListenerRegistration<ApplicationPeer> registration;
+    private final Set<NodeIdentifierWithPredicates> supportedTables = new HashSet<>();
+
+
+    @FunctionalInterface
+    interface RegisterAppPeerListener {
+        /**
+         * Register Application Peer Change Listener once AdjRibIn has been successfully initialized.
+         */
+        void register();
+    }
 
     public ApplicationPeer(final ApplicationRibId applicationRibId, final Ipv4Address ipAddress, final RIB rib,
         final BGPConfigModuleTracker moduleTracker) {
@@ -95,7 +111,8 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
         this(applicationRibId, bgpPeerId, targetRibDependency, null);
     }
 
-    public void instantiateServiceInstance() {
+    public synchronized void instantiateServiceInstance(final DOMDataTreeChangeService dataTreeChangeService,
+        final DOMDataTreeIdentifier appPeerDOMId) {
         this.chain = this.rib.createPeerChain(this);
         this.writerChain = this.rib.createPeerChain(this);
 
@@ -107,11 +124,20 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
             if (exportTracker != null) {
                 exportTracker.registerPeer(peerId, null, this.peerIId, PeerRole.Internal, simpleRoutingPolicy);
             }
+            this.supportedTables.add(RibSupportUtils.toYangTablesKey(tablesKey));
         });
 
         this.adjRibInWriter = AdjRibInWriter.create(this.rib.getYangRibId(), PeerRole.Internal, simpleRoutingPolicy, this.writerChain);
         final RIBSupportContextRegistry context = this.rib.getRibSupportContext();
-        this.adjRibInWriter = this.adjRibInWriter.transform(peerId, context, localTables, Collections.emptyMap());
+        final RegisterAppPeerListener registerAppPeerListener = () -> {
+            synchronized (this) {
+                if(this.chain != null) {
+                    this.registration = dataTreeChangeService.registerDataTreeChangeListener(appPeerDOMId, this);
+                }
+            }
+        };
+        this.adjRibInWriter = this.adjRibInWriter.transform(peerId, context, localTables, Collections.emptyMap(),
+            registerAppPeerListener);
         this.peerStats = new BGPPeerStatsImpl(this.name, localTables);
         this.effectiveRibInWriter = EffectiveRibInWriter.create(this.rib.getService(), this.rib.createPeerChain(this), this.peerIId,
             this.rib.getImportPolicyPeerTracker(), context, PeerRole.Internal, this.peerStats.getEffectiveRibInRouteCounters(),
@@ -128,7 +154,11 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
      * be determined in LocRib.
      */
     @Override
-    public void onDataTreeChanged(final Collection<DataTreeCandidate> changes) {
+    public synchronized void onDataTreeChanged(final Collection<DataTreeCandidate> changes) {
+        if(this.chain == null) {
+            LOG.trace("Skipping data changed called to Application Peer. Change : {}", changes);
+            return;
+        }
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         LOG.debug("Received data change to ApplicationRib {}", changes);
         for (final DataTreeCandidate tc : changes) {
@@ -137,6 +167,10 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
             final PathArgument lastArg = path.getLastPathArgument();
             Verify.verify(lastArg instanceof NodeIdentifierWithPredicates, "Unexpected type %s in path %s", lastArg.getClass(), path);
             final NodeIdentifierWithPredicates tableKey = (NodeIdentifierWithPredicates) lastArg;
+            if (!this.supportedTables.contains(tableKey)) {
+                LOG.trace("Skipping received data change for non supported family {}.", tableKey);
+                continue;
+            }
             for (final DataTreeCandidateNode child : tc.getRootNode().getChildNodes()) {
                 final PathArgument childIdentifier = child.getIdentifier();
                 final YangInstanceIdentifier tableId = this.adjRibsInId.node(tableKey).node(childIdentifier);
@@ -176,7 +210,7 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
      * @param tx
      * @param routeTableIdentifier
      */
-    private void processRoutesTable(final DataTreeCandidateNode node, final YangInstanceIdentifier identifier,
+    private synchronized void processRoutesTable(final DataTreeCandidateNode node, final YangInstanceIdentifier identifier,
             final DOMDataWriteTransaction tx, final YangInstanceIdentifier routeTableIdentifier) {
         for (final DataTreeCandidateNode child : node.getChildNodes()) {
             final YangInstanceIdentifier childIdentifier = identifier.node(child.getIdentifier());
@@ -215,18 +249,24 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
     }
 
     @Override
-    public void close() {
-        if(this.effectiveRibInWriter != null) {
+    public synchronized void close() {
+        if (this.registration != null) {
+            this.registration.close();
+            this.registration = null;
+        }
+        if (this.effectiveRibInWriter != null) {
             this.effectiveRibInWriter.close();
         }
-        if(this.adjRibInWriter != null) {
+        if (this.adjRibInWriter != null) {
             this.adjRibInWriter.removePeer();
         }
-        if(this.chain != null) {
+        if (this.chain != null) {
             this.chain.close();
+            this.chain = null;
         }
-        if(this.writerChain != null) {
+        if (this.writerChain != null) {
             this.writerChain.close();
+            this.writerChain = null;
         }
         if (this.moduleTracker != null) {
             this.moduleTracker.onInstanceClose();
@@ -239,13 +279,13 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
     }
 
     @Override
-    public void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction,
-            final Throwable cause) {
-        LOG.error("Transaction chain failed.", cause);
+    public void onTransactionChainFailed(final TransactionChain<?, ?> chain,
+        final AsyncTransaction<?, ?> transaction, final Throwable cause) {
+        LOG.error("Transaction chain {} failed.", transaction != null ? transaction.getIdentifier() : null, cause);
     }
 
     @Override
     public void onTransactionChainSuccessful(final TransactionChain<?, ?> chain) {
-        LOG.debug("Transaction chain {} successfull.", chain);
+        LOG.debug("Transaction chain {} successful.", chain);
     }
 }
