@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_515205de",
+        "filename": "bgp/openconfig-state-impl/src/main/java/org/opendaylight/protocol/bgp/state/impl/NeighborStateUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2016-12-05T12:29:40Z",
+      "side": 1,
+      "message": "missing javadoc",
+      "range": {
+        "startLine": 81,
+        "startChar": 4,
+        "endLine": 81,
+        "endChar": 98
+      },
+      "revId": "d9a2f6b96d8a8d72d424d455d4b8b88bebf3e04f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_5169658a",
+        "filename": "bgp/openconfig-state-impl/src/main/java/org/opendaylight/protocol/bgp/state/impl/StateProviderImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2016-12-05T12:29:40Z",
+      "side": 1,
+      "message": "Do we expect a single instance being created?",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 44
+      },
+      "revId": "d9a2f6b96d8a8d72d424d455d4b8b88bebf3e04f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f15871fc",
+        "filename": "bgp/openconfig-state-impl/src/main/java/org/opendaylight/protocol/bgp/state/impl/StateProviderImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2016-12-05T12:29:40Z",
+      "side": 1,
+      "message": "nonnull Integer \u003d\u003d int\nin what units is it?",
+      "range": {
+        "startLine": 37,
+        "startChar": 82,
+        "endLine": 37,
+        "endChar": 97
+      },
+      "revId": "d9a2f6b96d8a8d72d424d455d4b8b88bebf3e04f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_3172e97c",
+        "filename": "bgp/openconfig-state-impl/src/main/java/org/opendaylight/protocol/bgp/state/impl/StateProviderImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2016-12-05T12:29:40Z",
+      "side": 1,
+      "message": "TimeUnit.SECONDS.toMillis(timeout)?",
+      "range": {
+        "startLine": 51,
+        "startChar": 48,
+        "endLine": 51,
+        "endChar": 68
+      },
+      "revId": "d9a2f6b96d8a8d72d424d455d4b8b88bebf3e04f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b15ef9e7",
+        "filename": "bgp/openconfig-state-impl/src/main/java/org/opendaylight/protocol/bgp/state/impl/StateProviderImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2016-12-05T12:29:40Z",
+      "side": 1,
+      "message": "Failure mode for transaction?",
+      "range": {
+        "startLine": 65,
+        "startChar": 8,
+        "endLine": 66,
+        "endChar": 53
+      },
+      "revId": "d9a2f6b96d8a8d72d424d455d4b8b88bebf3e04f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b10559c4",
+        "filename": "bgp/openconfig-state-impl/src/main/java/org/opendaylight/protocol/bgp/state/impl/global/BGPGlobalStateImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2016-12-05T12:29:40Z",
+      "side": 1,
+      "message": "should be first and separated by an empty line",
+      "range": {
+        "startLine": 62,
+        "startChar": 3,
+        "endLine": 62,
+        "endChar": 88
+      },
+      "revId": "d9a2f6b96d8a8d72d424d455d4b8b88bebf3e04f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_31f949c9",
+        "filename": "bgp/openconfig-state-impl/src/main/java/org/opendaylight/protocol/bgp/state/impl/neighbor/BGPNeighborStateImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2016-12-05T12:29:40Z",
+      "side": 1,
+      "message": "does does null have a special meaning?",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 36
+      },
+      "revId": "d9a2f6b96d8a8d72d424d455d4b8b88bebf3e04f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
