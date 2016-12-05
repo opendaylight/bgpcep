@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_ee3b70e9",
+        "filename": "bgp/openconfig-state-spi/src/main/java/org/opendaylight/protocol/bgp/state/spi/counters/BGPCountersMessagesTypesCommon.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2016-12-05T11:13:21Z",
+      "side": 1,
+      "message": "increment, here and elsewhere",
+      "range": {
+        "startLine": 30,
+        "startChar": 16,
+        "endLine": 30,
+        "endChar": 24
+      },
+      "revId": "ec3100c19f03ded903e1d5420a0689ef5b907a2a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_6e580057",
+        "filename": "bgp/openconfig-state-spi/src/main/java/org/opendaylight/protocol/bgp/state/spi/counters/BigIntegerCounter.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2016-12-05T11:13:21Z",
+      "side": 1,
+      "message": "This is an unsigned long, hence use a LongAdder internally and return results as UnsignedLong -- which has a bigIntegerValue() method.",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 93
+      },
+      "revId": "ec3100c19f03ded903e1d5420a0689ef5b907a2a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_4e55441c",
+        "filename": "bgp/openconfig-state-spi/src/main/java/org/opendaylight/protocol/bgp/state/spi/counters/UnsignedInt32Counter.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2016-12-05T11:13:21Z",
+      "side": 1,
+      "message": "LongAdder",
+      "range": {
+        "startLine": 25,
+        "startChar": 17,
+        "endLine": 25,
+        "endChar": 54
+      },
+      "revId": "ec3100c19f03ded903e1d5420a0689ef5b907a2a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_8e363c02",
+        "filename": "bgp/openconfig-state-spi/src/main/java/org/opendaylight/protocol/bgp/state/spi/state/BGPGlobalState.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2016-12-05T11:13:21Z",
+      "side": 1,
+      "message": "increment",
+      "range": {
+        "startLine": 46,
+        "startChar": 9,
+        "endLine": 46,
+        "endChar": 17
+      },
+      "revId": "ec3100c19f03ded903e1d5420a0689ef5b907a2a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
