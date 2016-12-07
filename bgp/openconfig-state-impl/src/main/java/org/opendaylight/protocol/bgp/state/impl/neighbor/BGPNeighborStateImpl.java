@@ -12,7 +12,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +44,7 @@ public final class BGPNeighborStateImpl implements BGPNeighborState {
     private final IpAddress neighborAddress;
     private final Set<Class<? extends AfiSafiType>> afiSafisAdvertized;
     private final Set<Class<? extends AfiSafiType>> afiSafisGracefulAdvertized;
-    private final Set<Class<? extends AfiSafiType>> afiSafisGracefulReceived = new HashSet<>();
+    private final Set<Class<? extends AfiSafiType>> afiSafisGracefulReceived = new LinkedHashSet<>();
     @GuardedBy("this")
     private final Map<Class<? extends AfiSafiType>, UnsignedInt32Counter> prefixesReceived = new HashMap<>();
     @GuardedBy("this")

@@ -15,7 +15,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -142,7 +142,7 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
         this.dispatcher = Preconditions.checkNotNull(dispatcher);
         this.tableTypeRegistry = Preconditions.checkNotNull(tableTypeRegistry);
         this.localTables = ImmutableSet.copyOf(localTables);
-        this.localTablesKeys = new HashSet<>();
+        this.localTablesKeys = new LinkedHashSet<>();
         this.domDataBroker = Preconditions.checkNotNull(domDataBroker);
         this.service = this.domDataBroker.getSupportedExtensions().get(DOMDataTreeChangeService.class);
         this.extensions = Preconditions.checkNotNull(extensions);

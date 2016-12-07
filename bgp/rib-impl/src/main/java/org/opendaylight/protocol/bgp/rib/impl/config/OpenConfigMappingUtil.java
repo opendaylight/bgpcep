@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -481,7 +482,8 @@ public final class OpenConfigMappingUtil {
         final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         return tables.stream()
             .map(tablesKey -> OpenConfigMappingUtil.toAfiSafi(tablesKey, tableTypeRegistry))
-            .filter(Optional::isPresent).map(optional -> optional.get().getAfiSafiName()).collect(Collectors.toSet());
+            .filter(Optional::isPresent).map(optional -> optional.get().getAfiSafiName())
+            .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     /**
