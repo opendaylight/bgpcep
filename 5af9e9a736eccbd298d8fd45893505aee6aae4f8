@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_12bd0f69",
+        "filename": "bgp/rib-impl/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-12-12T23:20:50Z",
+      "side": 1,
+      "message": "tight coupling between components - would be better if rib-impl depends on api/spi only.",
+      "range": {
+        "startLine": 76,
+        "startChar": 0,
+        "endLine": 79,
+        "endChar": 21
+      },
+      "revId": "5af9e9a736eccbd298d8fd45893505aee6aae4f8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f26853f7",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibOutListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-12-12T23:20:50Z",
+      "side": 1,
+      "message": "I would prefer to not see this class here - use TablesKey or inject context-aware counter.\nIn my opinion, core components should stay unaware of OpenConfig and native API (rib/parser-api) should be used only.",
+      "range": {
+        "startLine": 72,
+        "startChar": 78,
+        "endLine": 72,
+        "endChar": 120
+      },
+      "revId": "5af9e9a736eccbd298d8fd45893505aee6aae4f8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_92b0ff8c",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibOutListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-12-12T23:20:50Z",
+      "side": 1,
+      "message": "what is a difference between routeCounter and neighborState?",
+      "range": {
+        "startLine": 75,
+        "startChar": 8,
+        "endLine": 75,
+        "endChar": 85
+      },
+      "revId": "5af9e9a736eccbd298d8fd45893505aee6aae4f8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d22f17a0",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-12-12T23:20:50Z",
+      "side": 1,
+      "message": "Looks like stats collectors are duplicated - Would not be better to have only one collector and two consumers (openconfig and config subsystem-based)?",
+      "range": {
+        "startLine": 270,
+        "startChar": 0,
+        "endLine": 271,
+        "endChar": 47
+      },
+      "revId": "5af9e9a736eccbd298d8fd45893505aee6aae4f8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
