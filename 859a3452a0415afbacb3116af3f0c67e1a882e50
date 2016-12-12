@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_b2c1bb30",
+        "filename": "bgp/openconfig-state-spi/src/main/java/org/opendaylight/protocol/bgp/state/spi/BGPSessionStateListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-12-12T21:39:52Z",
+      "side": 1,
+      "message": "Any reason for using netty\u0027s Channel here? Would not be IpAddress/InetAddress/InetSocketAddress sufficient?",
+      "range": {
+        "startLine": 46,
+        "startChar": 72,
+        "endLine": 46,
+        "endChar": 79
+      },
+      "revId": "859a3452a0415afbacb3116af3f0c67e1a882e50",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_7223a305",
+        "filename": "features/bgp/src/main/features/features.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-12-12T21:39:52Z",
+      "side": 1,
+      "message": "Is it really depending on config?",
+      "range": {
+        "startLine": 186,
+        "startChar": 8,
+        "endLine": 186,
+        "endChar": 69
+      },
+      "revId": "859a3452a0415afbacb3116af3f0c67e1a882e50",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
