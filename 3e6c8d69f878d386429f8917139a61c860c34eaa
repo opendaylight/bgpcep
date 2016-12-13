@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_08b7a0d9",
+        "filename": "bgp/openconfig-state-impl/src/main/java/org/opendaylight/protocol/bgp/state/impl/StateProviderImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-12-13T16:50:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_72ff2335",
+      "range": {
+        "startLine": 37,
+        "startChar": 42,
+        "endLine": 37,
+        "endChar": 58
+      },
+      "revId": "3e6c8d69f878d386429f8917139a61c860c34eaa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_1296aff0",
         "filename": "bgp/openconfig-state-impl/src/main/java/org/opendaylight/protocol/bgp/state/impl/StateProviderImpl.java",
         "patchSetId": 6
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_c8c48842",
+        "filename": "bgp/openconfig-state-impl/src/main/java/org/opendaylight/protocol/bgp/state/impl/StateProviderImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-12-13T16:50:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_1296aff0",
+      "revId": "3e6c8d69f878d386429f8917139a61c860c34eaa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_52a02743",
         "filename": "bgp/openconfig-state-impl/src/main/java/org/opendaylight/protocol/bgp/state/impl/global/BGPGlobalStateImpl.java",
         "patchSetId": 6
@@ -53,6 +95,30 @@
       "writtenOn": "2016-12-12T22:28:43Z",
       "side": 1,
       "message": "prepend space to following literal",
+      "range": {
+        "startLine": 76,
+        "startChar": 111,
+        "endLine": 76,
+        "endChar": 114
+      },
+      "revId": "3e6c8d69f878d386429f8917139a61c860c34eaa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_88a3b09d",
+        "filename": "bgp/openconfig-state-impl/src/main/java/org/opendaylight/protocol/bgp/state/impl/global/BGPGlobalStateImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-12-13T16:50:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_52a02743",
       "range": {
         "startLine": 76,
         "startChar": 111,
@@ -88,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_489a3864",
+        "filename": "bgp/openconfig-state-impl/src/main/java/org/opendaylight/protocol/bgp/state/impl/neighbor/BGPNeighborStateImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-12-13T16:50:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_32a5ab53",
+      "range": {
+        "startLine": 134,
+        "startChar": 64,
+        "endLine": 134,
+        "endChar": 67
+      },
+      "revId": "3e6c8d69f878d386429f8917139a61c860c34eaa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_92dbdfec",
         "filename": "bgp/openconfig-state-impl/src/main/yang/bgp-state-config.yang",
         "patchSetId": 6
@@ -111,6 +201,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_6879f42e",
+        "filename": "bgp/openconfig-state-impl/src/main/yang/bgp-state-config.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-12-13T16:50:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_92dbdfec",
+      "range": {
+        "startLine": 10,
+        "startChar": 22,
+        "endLine": 10,
+        "endChar": 26
+      },
+      "revId": "3e6c8d69f878d386429f8917139a61c860c34eaa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_32d76bc3",
         "filename": "bgp/openconfig-state-impl/src/main/yang/bgp-state-config.yang",
         "patchSetId": 6
@@ -122,6 +236,24 @@
       "writtenOn": "2016-12-12T22:28:43Z",
       "side": 1,
       "message": "Would be nice to use \"units\" statement.",
+      "revId": "3e6c8d69f878d386429f8917139a61c860c34eaa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c876483e",
+        "filename": "bgp/openconfig-state-impl/src/main/yang/bgp-state-config.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-12-13T16:50:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_32d76bc3",
       "revId": "3e6c8d69f878d386429f8917139a61c860c34eaa",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
