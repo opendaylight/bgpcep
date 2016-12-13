@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_c8f128cf",
+        "filename": "bgp/openconfig-state-spi/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-12-13T16:37:40Z",
+      "side": 1,
+      "message": "there is no dependency on rib-api. \nAdded others required dependencies.",
+      "parentUuid": "1a622d24_d24ef7c0",
+      "revId": "859a3452a0415afbacb3116af3f0c67e1a882e50",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_b2c1bb30",
         "filename": "bgp/openconfig-state-spi/src/main/java/org/opendaylight/protocol/bgp/state/spi/BGPSessionStateListener.java",
         "patchSetId": 5
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_75ad4d31",
+        "filename": "bgp/openconfig-state-spi/src/main/java/org/opendaylight/protocol/bgp/state/spi/BGPSessionStateListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-12-13T16:37:40Z",
+      "side": 1,
+      "message": "reason is to pass only one object containing remote/local address, instead of 2 and avoid do method bigger and bigger.\nDoc was wrong, anyway changing it to pass both values as InetSocketAddress.",
+      "parentUuid": "1a622d24_b2c1bb30",
+      "range": {
+        "startLine": 46,
+        "startChar": 72,
+        "endLine": 46,
+        "endChar": 79
+      },
+      "revId": "859a3452a0415afbacb3116af3f0c67e1a882e50",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_7223a305",
         "filename": "features/bgp/src/main/features/features.xml",
         "patchSetId": 5
@@ -53,6 +95,30 @@
       "writtenOn": "2016-12-12T21:39:52Z",
       "side": 1,
       "message": "Is it really depending on config?",
+      "range": {
+        "startLine": 186,
+        "startChar": 8,
+        "endLine": 186,
+        "endChar": 69
+      },
+      "revId": "859a3452a0415afbacb3116af3f0c67e1a882e50",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_0b2dda46",
+        "filename": "features/bgp/src/main/features/features.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-12-13T16:37:40Z",
+      "side": 1,
+      "message": "bgp-parser-api is depending on it",
+      "parentUuid": "1a622d24_7223a305",
       "range": {
         "startLine": 186,
         "startChar": 8,
