@@ -20,7 +20,7 @@
     <parent>
         <artifactId>bgp-parent</artifactId>
         <groupId>org.opendaylight.bgpcep</groupId>
-        <version>0.6.2-SNAPSHOT</version>
+        <version>0.6.2-Boron-SR2</version>
     </parent>
 
     <artifactId>bgp-evpn</artifactId>
