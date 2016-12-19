@@ -23,6 +23,7 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.SimpleChannelInboundHandler;
 import java.io.IOException;
 import java.nio.channels.NonWritableChannelException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -43,6 +44,7 @@ import org.opendaylight.protocol.bgp.rib.impl.stats.peer.BGPSessionStatsImpl;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
+import org.opendaylight.protocol.bgp.rib.spi.State;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Keepalive;
@@ -77,26 +79,6 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     private static final String EXTENDED_MSG_DECODER = "EXTENDED_MSG_DECODER";
 
     static final String END_OF_INPUT = "End of input detected. Close the session.";
-
-    /**
-     * Internal session state.
-     */
-    public enum State {
-        /**
-         * The session object is created by the negotiator in OpenConfirm state. While in this state, the session object
-         * is half-alive, e.g. the timers are running, but the session is not completely up, e.g. it has not been
-         * announced to the listener. If the session is torn down in this state, we do not inform the listener.
-         */
-        OPEN_CONFIRM,
-        /**
-         * The session has been completely established.
-         */
-        UP,
-        /**
-         * The session has been closed. It will not be resurrected.
-         */
-        IDLE,
-    }
 
     /**
      * System.nanoTime value about when was sent the last message.
@@ -433,6 +415,11 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     @Override
     public List<AddressFamilies> getAdvertisedAddPathTableTypes() {
         return this.addPathTypes;
+    }
+
+    @Override
+    public List<BgpTableType> getAdvertisedGracefulRestartTableTypes() {
+        return Collections.emptyList();
     }
 
     protected synchronized void sessionUp() {

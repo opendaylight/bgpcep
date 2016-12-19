@@ -32,6 +32,7 @@ import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
+import org.opendaylight.protocol.bgp.rib.spi.State;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -121,7 +122,7 @@ public class AbstractBGPDispatcherTest {
     public static void checkIdleState(final SimpleSessionListener listener) {
         Stopwatch sw = Stopwatch.createStarted();
         while (sw.elapsed(TimeUnit.SECONDS) <= 10) {
-            if (BGPSessionImpl.State.IDLE != listener.getState()) {
+            if (State.IDLE != listener.getState()) {
                 Uninterruptibles.sleepUninterruptibly(50, TimeUnit.MILLISECONDS);
             } else {
                 return;
