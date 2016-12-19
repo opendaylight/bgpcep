@@ -11,8 +11,8 @@ import com.google.common.base.Preconditions;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.LongAdder;
 import javax.annotation.Nonnull;
-import org.opendaylight.protocol.bgp.rib.impl.stats.UnsignedInt32Counter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,33 +20,27 @@ import org.slf4j.LoggerFactory;
 public final class PerTableTypeRouteCounter {
     private static final Logger LOG = LoggerFactory.getLogger(PerTableTypeRouteCounter.class);
 
-    private final Map<TablesKey, UnsignedInt32Counter> counters = new ConcurrentHashMap<>();
-    private final String counterName;
+    private final Map<TablesKey, LongAdder> counters = new ConcurrentHashMap<>();
 
-    private final UnsignedInt32Counter createCounter(@Nonnull final TablesKey tablesKey) {
-        return new UnsignedInt32Counter(this.counterName + tablesKey.toString());
-    }
-
-    public PerTableTypeRouteCounter(@Nonnull final String counterName) {
-        this.counterName = Preconditions.checkNotNull(counterName);
-    }
-
-    public PerTableTypeRouteCounter(@Nonnull final String counterName, @Nonnull final Set<TablesKey> tablesKeySet) {
-        this(counterName);
+    public PerTableTypeRouteCounter(@Nonnull final Set<TablesKey> tablesKeySet) {
         init(tablesKeySet);
     }
 
-    public final synchronized void init(@Nonnull Set<TablesKey> tablesKeySet) {
-        tablesKeySet.stream().forEach(tablesKey -> init(tablesKey));
+    public PerTableTypeRouteCounter() {
     }
 
-    public final synchronized UnsignedInt32Counter init(@Nonnull final TablesKey tablesKey) {
-        UnsignedInt32Counter counter = this.counters.get(Preconditions.checkNotNull(tablesKey));
+    private synchronized void init(@Nonnull Set<TablesKey> tablesKeySet) {
+        tablesKeySet.forEach(this::init);
+    }
+
+    public final synchronized LongAdder init(@Nonnull final TablesKey tablesKey) {
+        LongAdder counter = this.counters.get(Preconditions.checkNotNull(tablesKey));
         if (counter == null) {
-            this.counters.put(tablesKey, counter = createCounter(tablesKey));
+            counter = new LongAdder();
+            this.counters.put(tablesKey, counter);
         }
         LOG.debug("Initializing route counter for tablesKey {}", tablesKey);
-        counter.resetCount();
+        counter.reset();
         return counter;
     }
 
@@ -56,8 +50,8 @@ public final class PerTableTypeRouteCounter {
      * @param tablesKey
      * @return
      */
-    @Nonnull public final UnsignedInt32Counter getCounterOrDefault(@Nonnull final TablesKey tablesKey) {
-        return this.counters.getOrDefault(Preconditions.checkNotNull(tablesKey), createCounter(tablesKey));
+    @Nonnull public final LongAdder getCounterOrDefault(@Nonnull final TablesKey tablesKey) {
+        return this.counters.getOrDefault(Preconditions.checkNotNull(tablesKey), new LongAdder());
     }
 
     /**
@@ -66,7 +60,7 @@ public final class PerTableTypeRouteCounter {
      * @param tablesKey
      * @return
      */
-    public final UnsignedInt32Counter getCounterOrSetDefault(@Nonnull final TablesKey tablesKey) {
+    public final LongAdder getCounterOrSetDefault(@Nonnull final TablesKey tablesKey) {
         if (!this.counters.containsKey(tablesKey)) {
             return init(tablesKey);
         } else {
@@ -74,12 +68,12 @@ public final class PerTableTypeRouteCounter {
         }
     }
 
-    public final Map<TablesKey, UnsignedInt32Counter> getCounters() {
+    public final Map<TablesKey, LongAdder> getCounters() {
         return this.counters;
     }
 
     public final void resetAll() {
         LOG.debug("Resetting all route counters..");
-        this.counters.values().stream().forEach(v -> v.resetCount());
+        this.counters.values().forEach(LongAdder::reset);
     }
 }

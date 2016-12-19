@@ -7,13 +7,10 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.stats.peer;
 
+import java.util.concurrent.atomic.LongAdder;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpPeerState;
-import org.opendaylight.protocol.bgp.rib.impl.stats.UnsignedInt32Counter;
 import org.opendaylight.protocol.bgp.rib.impl.stats.peer.route.PerTableTypeRouteCounter;
 
-/**
- * @author Kevin Wang
- */
 public interface BGPPeerStats {
     BgpPeerState getBgpPeerState();
 
@@ -23,5 +20,5 @@ public interface BGPPeerStats {
 
     PerTableTypeRouteCounter getEffectiveRibInRouteCounters();
 
-    UnsignedInt32Counter getSessionEstablishedCounter();
+    LongAdder getSessionEstablishedCounter();
 }

@@ -7,15 +7,17 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.stats.peer;
 
+import static org.opendaylight.protocol.bgp.rib.impl.CountersUtil.toZeroBasedCounter32;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.LongAdder;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.config.api.IdentityAttributeRef;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpPeerState;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.RouteTable;
-import org.opendaylight.protocol.bgp.rib.impl.stats.UnsignedInt32Counter;
 import org.opendaylight.protocol.bgp.rib.impl.stats.peer.route.PerTableTypeRouteCounter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
@@ -26,15 +28,13 @@ public final class BGPPeerStatsImpl implements BGPPeerStats {
     private final PerTableTypeRouteCounter adjRibInRouteCounters;
     private final PerTableTypeRouteCounter adjRibOutRouteCounters;
     private final PerTableTypeRouteCounter effectiveRibInRouteCounters;
-    private final UnsignedInt32Counter sessionEstablishedCounter = new UnsignedInt32Counter("SESSION ESTABLISHED");
-    private final String peerName;
+    private final LongAdder sessionEstablishedCounter = new LongAdder();
 
-    public BGPPeerStatsImpl(@Nonnull final String peerName, @Nonnull final Set<TablesKey> tablesKeySet) {
-        this.peerName = Preconditions.checkNotNull(peerName);
+    public BGPPeerStatsImpl(@Nonnull final Set<TablesKey> tablesKeySet) {
         this.tablesKeySet = Preconditions.checkNotNull(tablesKeySet);
-        this.adjRibInRouteCounters = new PerTableTypeRouteCounter("["+ this.peerName +"] adj-rib-in route", tablesKeySet);
-        this.adjRibOutRouteCounters = new PerTableTypeRouteCounter("["+ this.peerName +"] adj-rib-out route", tablesKeySet);
-        this.effectiveRibInRouteCounters = new PerTableTypeRouteCounter("["+ this.peerName +"] effective-rib-in route", tablesKeySet);
+        this.adjRibInRouteCounters = new PerTableTypeRouteCounter(tablesKeySet);
+        this.adjRibOutRouteCounters = new PerTableTypeRouteCounter(tablesKeySet);
+        this.effectiveRibInRouteCounters = new PerTableTypeRouteCounter(tablesKeySet);
     }
 
     public PerTableTypeRouteCounter getAdjRibInRouteCounters() {
@@ -60,9 +60,9 @@ public final class BGPPeerStatsImpl implements BGPPeerStats {
         routeTable.setAfi(new IdentityAttributeRef(afiQName.toString()));
         routeTable.setSafi(new IdentityAttributeRef(safiQName.toString()));
         // we want to get default counter in case particular route table is not initialized (e.g. adj-rib-out is not initialized in some cases)
-        routeTable.setAdjRibInRoutesCount(adjRibInRouteCounters.getCounterOrDefault(tablesKey).getCountAsZeroBasedCounter32());
-        routeTable.setAdjRibOutRoutesCount(adjRibOutRouteCounters.getCounterOrDefault(tablesKey).getCountAsZeroBasedCounter32());
-        routeTable.setEffectiveRibInRoutesCount(effectiveRibInRouteCounters.getCounterOrDefault(tablesKey).getCountAsZeroBasedCounter32());
+        routeTable.setAdjRibInRoutesCount(toZeroBasedCounter32(this.adjRibInRouteCounters.getCounterOrDefault(tablesKey)));
+        routeTable.setAdjRibOutRoutesCount(toZeroBasedCounter32(this.adjRibOutRouteCounters.getCounterOrDefault(tablesKey)));
+        routeTable.setEffectiveRibInRoutesCount(toZeroBasedCounter32(this.effectiveRibInRouteCounters.getCounterOrDefault(tablesKey)));
 
         return routeTable;
     }
@@ -71,14 +71,14 @@ public final class BGPPeerStatsImpl implements BGPPeerStats {
     public BgpPeerState getBgpPeerState() {
         final BgpPeerState peerState = new BgpPeerState();
         final List<RouteTable> routes = Lists.newArrayList();
-        this.tablesKeySet.stream().forEach(tablesKey -> routes.add(createRouteTable(tablesKey)));
+        this.tablesKeySet.forEach(tablesKey -> routes.add(createRouteTable(tablesKey)));
         peerState.setRouteTable(routes);
-        peerState.setSessionEstablishedCount(this.sessionEstablishedCounter.getCountAsZeroBasedCounter32());
+        peerState.setSessionEstablishedCount(toZeroBasedCounter32(this.sessionEstablishedCounter));
         return peerState;
     }
 
     @Override
-    public UnsignedInt32Counter getSessionEstablishedCounter() {
+    public LongAdder getSessionEstablishedCounter() {
         return this.sessionEstablishedCounter;
     }
 }
