@@ -17,6 +17,7 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
 import org.junit.Assert;
 import org.junit.Test;
+import org.opendaylight.protocol.bgp.rib.spi.State;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 
 public class BGPDispatcherImplTest extends AbstractBGPDispatcherTest {
@@ -27,8 +28,8 @@ public class BGPDispatcherImplTest extends AbstractBGPDispatcherTest {
         final Future<BGPSessionImpl> futureClient = this.clientDispatcher.createClient(this.clientAddress, serverAddress, this.registry, 2, true);
         waitFutureSuccess(futureClient);
         final BGPSessionImpl session = futureClient.get();
-        Assert.assertEquals(BGPSessionImpl.State.UP, this.clientListener.getState());
-        Assert.assertEquals(BGPSessionImpl.State.UP, this.serverListener.getState());
+        Assert.assertEquals(State.UP, this.clientListener.getState());
+        Assert.assertEquals(State.UP, this.serverListener.getState());
         Assert.assertEquals(AS_NUMBER, session.getAsNumber());
         Assert.assertEquals(Sets.newHashSet(IPV_4_TT), session.getAdvertisedTableTypes());
         Assert.assertTrue(serverChannel.isWritable());
@@ -45,7 +46,7 @@ public class BGPDispatcherImplTest extends AbstractBGPDispatcherTest {
             this.clientAddress, true);
         waitFutureSuccess(future);
         final Channel serverChannel = createServer(serverAddress);
-        Assert.assertEquals(BGPSessionImpl.State.UP, this.serverListener.getState());
+        Assert.assertEquals(State.UP, this.serverListener.getState());
         Assert.assertTrue(serverChannel.isWritable());
         future.cancel(true);
         this.serverListener.releaseConnection();
