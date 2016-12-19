@@ -7,10 +7,10 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl;
 
+import java.util.concurrent.atomic.LongAdder;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpRenderState;
-import org.opendaylight.protocol.bgp.rib.impl.stats.UnsignedInt32Counter;
 import org.opendaylight.protocol.bgp.rib.impl.stats.peer.route.PerTableTypeRouteCounter;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
@@ -38,12 +38,12 @@ public class RIBImplRuntimeMXBeanImpl implements BGPRenderStats {
     }
 
     @Override
-    public UnsignedInt32Counter getConfiguredPeerCounter() {
+    public LongAdder getConfiguredPeerCounter() {
         return this.renderStats.getConfiguredPeerCounter();
     }
 
     @Override
-    public UnsignedInt32Counter getConnectedPeerCounter() {
+    public LongAdder getConnectedPeerCounter() {
         return this.renderStats.getConnectedPeerCounter();
     }
 }

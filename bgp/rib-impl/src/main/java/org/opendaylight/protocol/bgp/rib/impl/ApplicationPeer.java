@@ -130,7 +130,7 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
         };
         this.adjRibInWriter = this.adjRibInWriter.transform(peerId, context, localTables, Collections.emptyMap(),
             registerAppPeerListener);
-        this.peerStats = new BGPPeerStatsImpl(this.name, localTables);
+        this.peerStats = new BGPPeerStatsImpl(localTables);
         this.effectiveRibInWriter = EffectiveRibInWriter.create(this.rib.getService(), this.rib.createPeerChain(this), this.peerIId,
             this.rib.getImportPolicyPeerTracker(), context, PeerRole.Internal, this.peerStats.getEffectiveRibInRouteCounters(),
             this.peerStats.getAdjRibInRouteCounters());
