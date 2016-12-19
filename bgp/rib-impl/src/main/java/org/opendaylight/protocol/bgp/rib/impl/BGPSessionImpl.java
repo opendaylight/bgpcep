@@ -23,6 +23,7 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.SimpleChannelInboundHandler;
 import java.io.IOException;
 import java.nio.channels.NonWritableChannelException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -433,6 +434,11 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     @Override
     public List<AddressFamilies> getAdvertisedAddPathTableTypes() {
         return this.addPathTypes;
+    }
+
+    @Override
+    public List<BgpTableType> getAdvertisedGracefulRestartTableTypes() {
+        return Collections.emptyList();
     }
 
     protected synchronized void sessionUp() {
