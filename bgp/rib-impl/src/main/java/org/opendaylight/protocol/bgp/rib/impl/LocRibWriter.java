@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.LongAdder;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -25,7 +26,6 @@ import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
-import org.opendaylight.protocol.bgp.rib.impl.stats.UnsignedInt32Counter;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
@@ -73,11 +73,11 @@ final class LocRibWriter implements AutoCloseable, ClusteredDOMDataTreeChangeLis
     private final TablesKey localTablesKey;
     private final ListenerRegistration<LocRibWriter> reg;
     private final PathSelectionMode pathSelectionMode;
-    private final UnsignedInt32Counter routeCounter;
+    private final LongAdder routeCounter;
 
     private LocRibWriter(final RIBSupportContextRegistry registry, final DOMTransactionChain chain, final YangInstanceIdentifier target,
         final Long ourAs, final DOMDataTreeChangeService service, final ExportPolicyPeerTracker exportPolicyPeerTracker, final TablesKey tablesKey,
-        @Nonnull final PathSelectionMode pathSelectionMode, final UnsignedInt32Counter routeCounter) {
+        @Nonnull final PathSelectionMode pathSelectionMode, final LongAdder routeCounter) {
         this.chain = Preconditions.checkNotNull(chain);
         final NodeIdentifierWithPredicates tableKey = RibSupportUtils.toYangTablesKey(tablesKey);
         this.localTablesKey = tablesKey;
@@ -101,7 +101,7 @@ final class LocRibWriter implements AutoCloseable, ClusteredDOMDataTreeChangeLis
 
     public static LocRibWriter create(@Nonnull final RIBSupportContextRegistry registry, @Nonnull final TablesKey tablesKey, @Nonnull final DOMTransactionChain chain,
         @Nonnull final YangInstanceIdentifier target, @Nonnull final AsNumber ourAs, @Nonnull final DOMDataTreeChangeService service, @Nonnull final ExportPolicyPeerTracker ep,
-        @Nonnull final PathSelectionMode pathSelectionStrategy, @Nonnull final UnsignedInt32Counter routeCounter) {
+        @Nonnull final PathSelectionMode pathSelectionStrategy, @Nonnull final LongAdder routeCounter) {
         return new LocRibWriter(registry, chain, target, ourAs.getValue(), service, ep, tablesKey, pathSelectionStrategy, routeCounter);
     }
 
@@ -211,7 +211,8 @@ final class LocRibWriter implements AutoCloseable, ClusteredDOMDataTreeChangeLis
      * Update the statistic of loc-rib route
      */
     private void updateRouteCounter() {
-        routeCounter.setCount(this.routeEntries.size());
+        this.routeCounter.reset();
+        this.routeCounter.add(this.routeEntries.size());
     }
 
     private void walkThrough(final DOMDataWriteTransaction tx, final Set<Map.Entry<RouteUpdateKey, RouteEntry>> toUpdate) {

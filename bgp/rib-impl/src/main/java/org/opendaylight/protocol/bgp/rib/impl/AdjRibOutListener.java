@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.LongAdder;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -20,7 +21,6 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.protocol.bgp.rib.impl.spi.Codecs;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
-import org.opendaylight.protocol.bgp.rib.impl.stats.UnsignedInt32Counter;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
@@ -64,11 +64,11 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener {
     private final RIBSupport support;
     private final boolean mpSupport;
     private final ListenerRegistration<AdjRibOutListener> registerDataTreeChangeListener;
-    private final UnsignedInt32Counter routeCounter;
+    private final LongAdder routeCounter;
 
     private AdjRibOutListener(final PeerId peerId, final TablesKey tablesKey, final YangInstanceIdentifier ribId,
         final CodecsRegistry registry, final RIBSupport support, final DOMDataTreeChangeService service,
-        final ChannelOutputLimiter session, final boolean mpSupport, final UnsignedInt32Counter routeCounter) {
+        final ChannelOutputLimiter session, final boolean mpSupport, final LongAdder routeCounter) {
         this.session = Preconditions.checkNotNull(session);
         this.support = Preconditions.checkNotNull(support);
         this.codecs = registry.getCodecs(this.support);
@@ -80,7 +80,7 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener {
 
     static AdjRibOutListener create(@Nonnull final PeerId peerId, @Nonnull final TablesKey tablesKey, @Nonnull final YangInstanceIdentifier ribId,
         @Nonnull final CodecsRegistry registry, @Nonnull final RIBSupport support, @Nonnull final DOMDataTreeChangeService service,
-        @Nonnull final ChannelOutputLimiter session, @Nonnull final boolean mpSupport, @Nonnull final UnsignedInt32Counter routeCounter
+        @Nonnull final ChannelOutputLimiter session, @Nonnull final boolean mpSupport, @Nonnull final LongAdder routeCounter
     ) {
         return new AdjRibOutListener(peerId, tablesKey, ribId, registry, support, service, session, mpSupport, routeCounter);
     }
@@ -137,7 +137,7 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener {
     }
 
     private Update withdraw(final MapEntryNode route) {
-        this.routeCounter.decreaseCount();
+        this.routeCounter.decrement();
         if (!this.mpSupport) {
             return buildUpdate(Collections.<MapEntryNode>emptyList(), Collections.singleton(route), routeAttributes(route));
         }
@@ -145,7 +145,7 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener {
     }
 
     private Update advertise(final MapEntryNode route) {
-        this.routeCounter.increaseCount();
+        this.routeCounter.increment();
         if (!this.mpSupport) {
             return buildUpdate(Collections.singleton(route), Collections.<MapEntryNode>emptyList(), routeAttributes(route));
         }

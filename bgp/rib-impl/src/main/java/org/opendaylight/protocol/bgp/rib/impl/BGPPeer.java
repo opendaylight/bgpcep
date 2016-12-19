@@ -114,7 +114,7 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
     private final String name;
     private BGPPeerRuntimeRegistrator registrator;
     private BGPPeerRuntimeRegistration runtimeReg;
-    private final Map<TablesKey, AdjRibOutListener> adjRibOutListenerSet = new HashMap();
+    private final Map<TablesKey, AdjRibOutListener> adjRibOutListenerSet = new HashMap<>();
     private final RpcProviderRegistry rpcRegistry;
     private RoutedRpcRegistration<BgpPeerRpcService> rpcRegistration;
     private final PeerRole peerRole;
@@ -129,7 +129,7 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         this.rib = Preconditions.checkNotNull(rib);
         this.name = name;
         this.rpcRegistry = rpcRegistry;
-        this.peerStats = new BGPPeerStatsImpl(this.name, this.tables);
+        this.peerStats = new BGPPeerStatsImpl(this.tables);
 
         this.chain = rib.createPeerChain(this);
     }
@@ -140,7 +140,7 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
 
     public void instantiateServiceInstance() {
         // add current peer to "configured BGP peer" stats
-        this.rib.getRenderStats().getConfiguredPeerCounter().increaseCount();
+        this.rib.getRenderStats().getConfiguredPeerCounter().increment();
         this.ribWriter = AdjRibInWriter.create(rib.getYangRibId(), this.peerRole, this.simpleRoutingPolicy, this.chain);
     }
 
@@ -320,7 +320,7 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         this.ribWriter = this.ribWriter.transform(peerId, this.rib.getRibSupportContext(), this.tables, addPathTableMaps);
 
         // register BGP Peer stats
-        this.peerStats.getSessionEstablishedCounter().increaseCount();
+        this.peerStats.getSessionEstablishedCounter().increment();
         if (this.registrator != null) {
             this.runtimeReg = this.registrator.register(this);
         }
@@ -332,7 +332,7 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
             this.rpcRegistration.registerPath(PeerContext.class, path);
         }
 
-        this.rib.getRenderStats().getConnectedPeerCounter().increaseCount();
+        this.rib.getRenderStats().getConnectedPeerCounter().increment();
     }
 
     private void createAdjRibOutListener(final PeerId peerId) {
@@ -434,7 +434,7 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
             }
             this.session = null;
 
-            this.rib.getRenderStats().getConnectedPeerCounter().decreaseCount();
+            this.rib.getRenderStats().getConnectedPeerCounter().decrement();
         }
     }
 

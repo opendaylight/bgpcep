@@ -7,18 +7,15 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl;
 
+import java.util.concurrent.atomic.LongAdder;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.RIBImplRuntimeMXBean;
-import org.opendaylight.protocol.bgp.rib.impl.stats.UnsignedInt32Counter;
 import org.opendaylight.protocol.bgp.rib.impl.stats.peer.route.PerTableTypeRouteCounter;
 
-/**
- * @author Kevin Wang
- */
 public interface BGPRenderStats extends RIBImplRuntimeMXBean {
 
     PerTableTypeRouteCounter getLocRibRouteCounter();
 
-    UnsignedInt32Counter getConfiguredPeerCounter();
+    LongAdder getConfiguredPeerCounter();
 
-    UnsignedInt32Counter getConnectedPeerCounter();
+    LongAdder getConnectedPeerCounter();
 }

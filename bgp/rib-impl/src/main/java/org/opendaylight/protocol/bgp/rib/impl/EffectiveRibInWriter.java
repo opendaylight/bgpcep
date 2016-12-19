@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.LongAdder;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -101,7 +102,7 @@ final class EffectiveRibInWriter implements AutoCloseable {
          */
         @Deprecated
         AdjInTracker(final DOMDataTreeChangeService service, final RIBSupportContextRegistry registry, final DOMTransactionChain chain, final YangInstanceIdentifier peerIId) {
-            this(service, registry, chain, peerIId, new PerTableTypeRouteCounter("effective-rib-in"), new PerTableTypeRouteCounter("adj-rib-in"));
+            this(service, registry, chain, peerIId, new PerTableTypeRouteCounter(), new PerTableTypeRouteCounter());
         }
 
         private void updateRoute(@Nonnull final PerTableTypeRouteCounter counter, @Nonnull final Map<TablesKey, Set<YangInstanceIdentifier>> routeMap,
@@ -130,8 +131,9 @@ final class EffectiveRibInWriter implements AutoCloseable {
 
         private void updateRouteCounter(@Nonnull final PerTableTypeRouteCounter counter, @Nonnull final Map<TablesKey, Set<YangInstanceIdentifier>> routeMap,
                 @Nonnull final TablesKey tablesKey) {
-            counter.getCounterOrSetDefault(tablesKey)
-            .setCount(routeMap.getOrDefault(tablesKey, new HashSet<>()).size());
+            final LongAdder tableCounter = counter.getCounterOrSetDefault(tablesKey);
+            tableCounter.reset();
+            tableCounter.add(routeMap.getOrDefault(tablesKey, new HashSet<>()).size());
         }
 
         private void processRoute(final DOMDataWriteTransaction tx, final RIBSupport ribSupport, final AbstractImportPolicy policy, final YangInstanceIdentifier routesPath, final DataTreeCandidateNode route) {

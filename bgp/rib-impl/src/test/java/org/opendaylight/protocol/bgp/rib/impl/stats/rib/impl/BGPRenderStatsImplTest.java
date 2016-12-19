@@ -12,6 +12,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.LongAdder;
 import org.junit.Test;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpRenderState;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.LocRibRouteTable;
@@ -47,8 +48,15 @@ public class BGPRenderStatsImplTest {
         renderStateExpected.setLocRibRoutesCount(COUTER);
 
         assertEquals(renderStateExpected, render.getBgpRenderState());
-        assertEquals(1L, render.getLocRibRouteCounter().init(new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class)).increaseCount());
-        assertEquals(1L, render.getConfiguredPeerCounter().increaseCount());
-        assertEquals(1L, render.getConnectedPeerCounter().increaseCount());
+        LongAdder counter = render.getLocRibRouteCounter().init(new TablesKey(Ipv4AddressFamily.class,
+            UnicastSubsequentAddressFamily.class));
+        counter.increment();
+        assertEquals(1L, counter.longValue());
+        counter = render.getConfiguredPeerCounter();
+        counter.increment();
+        assertEquals(1L, counter.longValue());
+        counter = render.getConnectedPeerCounter();
+        counter.increment();
+        assertEquals(1L, counter.longValue());
     }
 }
