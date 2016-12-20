@@ -81,4 +81,15 @@
       <argument ref="bgpConfigLoader"/>
       <argument ref="bgpDeployer"/>
   </bean>
+
+  <bean id="bgpStateCollector" class="org.opendaylight.protocol.bgp.rib.impl.state.BGPStateCollectorImpl"/>
+
+  <service ref="bgpStateCollector" interface="org.opendaylight.protocol.bgp.rib.spi.state.BGPStateCollector"/>
+
+  <reference-list id="statsListener" interface="org.opendaylight.protocol.bgp.rib.spi.state.BGPState"
+    availability="optional">
+      <reference-listener bind-method="bind" unbind-method="unbind">
+          <ref component-id="bgpStateCollector"/>
+      </reference-listener>
+  </reference-list>
 </blueprint>
