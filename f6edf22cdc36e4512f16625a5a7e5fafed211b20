@@ -151,6 +151,30 @@
       "revId": "f6edf22cdc36e4512f16625a5a7e5fafed211b20",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_5fdf673b",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/state/BGPRIBState.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-12-21T18:09:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_3bf2806f",
+      "range": {
+        "startLine": 85,
+        "startChar": 0,
+        "endLine": 90,
+        "endChar": 49
+      },
+      "revId": "f6edf22cdc36e4512f16625a5a7e5fafed211b20",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
