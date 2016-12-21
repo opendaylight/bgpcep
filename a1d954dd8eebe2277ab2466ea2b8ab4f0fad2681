@@ -1,0 +1,280 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_7f3d03bb",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AbstractBGPSessionNegotiator.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-12-21T18:31:12Z",
+      "side": 1,
+      "message": "Is it necessary to change this?",
+      "range": {
+        "startLine": 207,
+        "startChar": 18,
+        "endLine": 207,
+        "endChar": 40
+      },
+      "revId": "a1d954dd8eebe2277ab2466ea2b8ab4f0fad2681",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_bf303be9",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibOutListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-12-21T18:31:12Z",
+      "side": 1,
+      "message": "Should not decrease the routes count?",
+      "range": {
+        "startLine": 141,
+        "startChar": 26,
+        "endLine": 141,
+        "endChar": 35
+      },
+      "revId": "a1d954dd8eebe2277ab2466ea2b8ab4f0fad2681",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_7f64e3e4",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/ApplicationPeer.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-12-21T18:31:12Z",
+      "side": 1,
+      "message": "Wrap IPv4 address to IPAddress here.",
+      "range": {
+        "startLine": 98,
+        "startChar": 14,
+        "endLine": 98,
+        "endChar": 29
+      },
+      "revId": "a1d954dd8eebe2277ab2466ea2b8ab4f0fad2681",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_3f870b11",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-12-21T18:31:12Z",
+      "side": 1,
+      "message": "Transform to IP address here, so you do not need to change constructor signature.",
+      "range": {
+        "startLine": 135,
+        "startChar": 14,
+        "endLine": 135,
+        "endChar": 29
+      },
+      "revId": "a1d954dd8eebe2277ab2466ea2b8ab4f0fad2681",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_5f280734",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-12-21T18:31:12Z",
+      "side": 1,
+      "message": "Why do not you use the same approach for getting session related stats? I guess, it would require less changes.\nRespectively - what information you need to get from bgp session - could not we expose it via BGPSession API?",
+      "range": {
+        "startLine": 445,
+        "startChar": 8,
+        "endLine": 445,
+        "endChar": 54
+      },
+      "revId": "a1d954dd8eebe2277ab2466ea2b8ab4f0fad2681",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ffd75321",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/EffectiveRibInWriter.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-12-21T18:31:12Z",
+      "side": 1,
+      "message": "extract to method",
+      "range": {
+        "startLine": 94,
+        "startChar": 0,
+        "endLine": 102,
+        "endChar": 47
+      },
+      "revId": "a1d954dd8eebe2277ab2466ea2b8ab4f0fad2681",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ffe113d1",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/EffectiveRibInWriter.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-12-21T18:31:12Z",
+      "side": 1,
+      "message": "Should not be safer to expose actual count only?",
+      "range": {
+        "startLine": 372,
+        "startChar": 8,
+        "endLine": 372,
+        "endChar": 55
+      },
+      "revId": "a1d954dd8eebe2277ab2466ea2b8ab4f0fad2681",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_dfba5722",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/RIBImplImpl.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-12-21T18:31:12Z",
+      "side": 1,
+      "message": "What was the reason to rename this class?",
+      "range": {
+        "startLine": 88,
+        "startChar": 19,
+        "endLine": 88,
+        "endChar": 30
+      },
+      "revId": "a1d954dd8eebe2277ab2466ea2b8ab4f0fad2681",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_bf515bda",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/AppPeer.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-12-21T18:31:12Z",
+      "side": 1,
+      "message": "Should be hidden behind a facade.",
+      "range": {
+        "startLine": 145,
+        "startChar": 0,
+        "endLine": 293,
+        "endChar": 5
+      },
+      "revId": "a1d954dd8eebe2277ab2466ea2b8ab4f0fad2681",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_5f5ac7f3",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/RibImpl.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-12-21T18:31:12Z",
+      "side": 1,
+      "message": "Should be hidden behind a facade.",
+      "range": {
+        "startLine": 253,
+        "startChar": 0,
+        "endLine": 298,
+        "endChar": 5
+      },
+      "revId": "a1d954dd8eebe2277ab2466ea2b8ab4f0fad2681",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ff93d34c",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/spi/RIB.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-12-21T18:31:12Z",
+      "side": 1,
+      "message": "We should keep one-way dependency. Peers stats collection should be independent.",
+      "range": {
+        "startLine": 109,
+        "startChar": 0,
+        "endLine": 117,
+        "endChar": 40
+      },
+      "revId": "a1d954dd8eebe2277ab2466ea2b8ab4f0fad2681",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_9fcbbf52",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/state/BGPPeerGroupStateImpl.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-12-21T18:31:12Z",
+      "side": 1,
+      "message": "AFAIR, wildcards imports are not \"allowed\".",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 53
+      },
+      "revId": "a1d954dd8eebe2277ab2466ea2b8ab4f0fad2681",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
