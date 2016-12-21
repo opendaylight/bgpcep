@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_1f068f86",
+        "filename": "bgp/openconfig-spi/src/main/java/org/opendaylight/protocol/bgp/openconfig/spi/SimpleBGPTableTypeRegistryProvider.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-12-21T19:13:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_3b1c4077",
+      "range": {
+        "startLine": 30,
+        "startChar": 65,
+        "endLine": 30,
+        "endChar": 74
+      },
+      "revId": "03b1aa7a95979124f2e909b1b08f852c9727f82a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_ff03d30a",
         "filename": "bgp/openconfig-state/pom.xml",
         "patchSetId": 9
@@ -36,6 +60,30 @@
       "writtenOn": "2016-12-21T17:03:53Z",
       "side": 1,
       "message": "Config-subsystem is not used here, binding parent would fit better.\n\n    \u003cparent\u003e\n        \u003cgroupId\u003eorg.opendaylight.bgpcep\u003c/groupId\u003e\n        \u003cartifactId\u003ebinding-parent\u003c/artifactId\u003e\n        \u003cversion\u003e0.7.0-SNAPSHOT\u003c/version\u003e\n        \u003crelativePath\u003e../../binding-parent\u003c/relativePath\u003e\n    \u003c/parent\u003e",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 13
+      },
+      "revId": "03b1aa7a95979124f2e909b1b08f852c9727f82a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_7fcd035d",
+        "filename": "bgp/openconfig-state/pom.xml",
+        "patchSetId": 9
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-12-21T19:13:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_ff03d30a",
       "range": {
         "startLine": 13,
         "startChar": 0,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_7f3b4338",
+        "filename": "bgp/openconfig-state/src/main/java/org/opendaylight/protocol/bgp/state/impl/StateProviderImpl.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-12-21T19:13:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_9f145f45",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 81,
+        "endChar": 113
+      },
+      "revId": "03b1aa7a95979124f2e909b1b08f852c9727f82a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_bb2050b1",
         "filename": "bgp/rib-impl/src/main/resources/org/opendaylight/blueprint/bgp-rib.xml",
         "patchSetId": 9
@@ -82,6 +154,30 @@
       "writtenOn": "2016-12-21T17:03:53Z",
       "side": 1,
       "message": "Should be defined in openconfig-state module.\nDo not you miss one argument?",
+      "range": {
+        "startLine": 97,
+        "startChar": 0,
+        "endLine": 105,
+        "endChar": 9
+      },
+      "revId": "03b1aa7a95979124f2e909b1b08f852c9727f82a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_bfc03b2b",
+        "filename": "bgp/rib-impl/src/main/resources/org/opendaylight/blueprint/bgp-rib.xml",
+        "patchSetId": 9
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-12-21T19:13:49Z",
+      "side": 1,
+      "message": "yes, it was on next commit. Fix in it.",
+      "parentUuid": "1a622d24_bb2050b1",
       "range": {
         "startLine": 97,
         "startChar": 0,
