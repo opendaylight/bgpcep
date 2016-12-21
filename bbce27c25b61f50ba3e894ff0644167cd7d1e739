@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_5fb2c7e6",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/state/BGPStateCollectorImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-12-21T18:26:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_5b32dc10",
+      "range": {
+        "startLine": 2,
+        "startChar": 22,
+        "endLine": 2,
+        "endChar": 52
+      },
+      "revId": "bbce27c25b61f50ba3e894ff0644167cd7d1e739",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_9b3c74e4",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/state/BGPStateCollectorImpl.java",
         "patchSetId": 1
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_3fb54bcd",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/state/BGPStateCollectorImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-12-21T18:26:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_9b3c74e4",
+      "revId": "bbce27c25b61f50ba3e894ff0644167cd7d1e739",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_bb59705d",
         "filename": "bgp/rib-impl/src/main/resources/org/opendaylight/blueprint/bgp-rib.xml",
         "patchSetId": 1
@@ -53,6 +95,30 @@
       "writtenOn": "2016-12-21T16:35:39Z",
       "side": 1,
       "message": "Should be exposed as a service, so it can be consumed by external services.",
+      "range": {
+        "startLine": 85,
+        "startChar": 12,
+        "endLine": 85,
+        "endChar": 30
+      },
+      "revId": "bbce27c25b61f50ba3e894ff0644167cd7d1e739",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_7fc6a34a",
+        "filename": "bgp/rib-impl/src/main/resources/org/opendaylight/blueprint/bgp-rib.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-12-21T18:26:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_bb59705d",
       "range": {
         "startLine": 85,
         "startChar": 12,
