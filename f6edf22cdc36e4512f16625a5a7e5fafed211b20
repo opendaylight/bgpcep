@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_7ba3584f",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/State.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-12-21T16:21:14Z",
+      "side": 1,
+      "message": "Why is this duplicating BGPSessionImpl.State?",
+      "revId": "f6edf22cdc36e4512f16625a5a7e5fafed211b20",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_bb7210e1",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/state/BGPPeerGroupState.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-12-21T16:21:14Z",
+      "side": 1,
+      "message": "Could be done in opposite way - filtered (by group name) service listener - Peers services are registered in OSGi.",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 79
+      },
+      "revId": "f6edf22cdc36e4512f16625a5a7e5fafed211b20",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_bbab301d",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/state/BGPPeerState.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-12-21T16:21:14Z",
+      "side": 1,
+      "message": "What time units are used?",
+      "range": {
+        "startLine": 203,
+        "startChar": 11,
+        "endLine": 203,
+        "endChar": 15
+      },
+      "revId": "f6edf22cdc36e4512f16625a5a7e5fafed211b20",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_3bf2806f",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/state/BGPRIBState.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-12-21T16:21:14Z",
+      "side": 1,
+      "message": "The peer statistics collection should be independent on RIB.",
+      "range": {
+        "startLine": 85,
+        "startChar": 0,
+        "endLine": 90,
+        "endChar": 49
+      },
+      "revId": "f6edf22cdc36e4512f16625a5a7e5fafed211b20",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
