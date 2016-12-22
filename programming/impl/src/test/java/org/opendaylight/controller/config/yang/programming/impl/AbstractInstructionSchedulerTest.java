@@ -22,6 +22,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.Timer;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -81,8 +82,7 @@ import org.opendaylight.yangtools.yang.model.parser.api.YangSyntaxErrorException
 import org.opendaylight.yangtools.yang.model.repo.api.SchemaSourceException;
 import org.opendaylight.yangtools.yang.parser.repo.YangTextSchemaContextResolver;
 import org.opendaylight.yangtools.yang.parser.spi.meta.ReactorException;
-import org.opendaylight.yangtools.yang.parser.stmt.reactor.CrossSourceStatementReactor;
-import org.opendaylight.yangtools.yang.parser.stmt.rfc6020.YangInferencePipeline;
+import org.opendaylight.yangtools.yang.test.util.YangParserTestUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleListener;
 import org.osgi.framework.Filter;
@@ -148,7 +148,7 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
         Mockito.doReturn(GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy()).when(mockedContext).getService(classLoadingStrategySR);
         Mockito.doReturn(null).when(mockedContext).getService(emptyServiceReference);
 
-        final SchemaContext context = parseYangStreams(getFilesAsByteSources(getYangModelsPaths()));
+        final SchemaContext context = parseYangStreams(getFilesAsStreams(getYangModelsPaths()));
         final SchemaService mockedSchemaService = mock(SchemaService.class);
         doReturn(context).when(mockedSchemaService).getGlobalContext();
         doAnswer(new Answer<ListenerRegistration<SchemaContextListener>>() {
@@ -319,7 +319,7 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
                 @Override
                 public void handleServiceRegistration(final Class<?> clazz, final Object serviceInstance, final Dictionary<String, ?> props) {
                     final SchemaContextListener listener = (SchemaContextListener) serviceInstance;
-                    final SchemaContext context = parseYangStreams(getFilesAsByteSources(getYangModelsPaths()));
+                    final SchemaContext context = parseYangStreams(getFilesAsStreams(getYangModelsPaths()));
                     listener.onGlobalContextUpdated(context);
                     listener.onGlobalContextUpdated(context);
                 }
@@ -329,8 +329,7 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
     }
 
     public List<String> getYangModelsPaths() {
-        final List<String> paths = Lists.newArrayList("/META-INF/yang/ietf-inet-types@2013-07-15.yang", "/META-INF/yang/programming.yang");
-        return paths;
+        return Lists.newArrayList("/META-INF/yang/ietf-inet-types@2013-07-15.yang", "/META-INF/yang/programming.yang");
     }
 
     public List<ModuleFactory> getModuleFactories() {
@@ -342,18 +341,18 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
     }
 
     // TODO move back to AbstractConfigTest
-    private static Collection<ByteSource> getFilesAsByteSources(final List<String> paths) {
-        final Collection<ByteSource> resources = new ArrayList<>();
+    private static List<InputStream> getFilesAsStreams(final List<String> paths) {
+        final List<InputStream> resources = new ArrayList<>();
         final List<String> failedToFind = new ArrayList<>();
         for (final String path : paths) {
-            final URL url = AbstractInstructionSchedulerTest.class.getResource(path);
-            if (url == null) {
+            final InputStream is = AbstractInstructionSchedulerTest.class.getResourceAsStream(path);
+            if (is == null) {
                 failedToFind.add(path);
             } else {
-                resources.add(Resources.asByteSource(url));
+                resources.add(is);
             }
         }
-        Assert.assertEquals("Some files were not found", Collections.<String> emptyList(), failedToFind);
+        Assert.assertEquals("Some files were not found", Collections.emptyList(), failedToFind);
 
         return resources;
     }
@@ -368,7 +367,7 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
             } else {
                 try {
                     resolver.registerSource(url);
-                } catch(SchemaSourceException | IOException | YangSyntaxErrorException e) {
+                } catch (SchemaSourceException | IOException | YangSyntaxErrorException e) {
                     Throwables.propagate(e);
                 }
             }
@@ -377,12 +376,10 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
         return resolver;
     }
 
-    private static SchemaContext parseYangStreams(final Collection<ByteSource> streams) {
-        final CrossSourceStatementReactor.BuildAction reactor = YangInferencePipeline.RFC6020_REACTOR
-                .newBuild();
+    private static SchemaContext parseYangStreams(final List<InputStream> streams) {
         try {
-            return reactor.buildEffective(streams);
-        } catch (final ReactorException | IOException e) {
+            return YangParserTestUtils.parseYangStreams(streams);
+        } catch (final ReactorException e) {
             throw new RuntimeException("Unable to build schema context from " + streams, e);
         }
     }

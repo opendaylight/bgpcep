@@ -230,6 +230,10 @@
             <artifactId>netty-threadgroup-config</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.opendaylight.yangtools</groupId>
+            <artifactId>yang-test-util</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

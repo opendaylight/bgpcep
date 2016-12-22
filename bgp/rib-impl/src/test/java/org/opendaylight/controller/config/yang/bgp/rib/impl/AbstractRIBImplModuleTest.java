@@ -18,14 +18,12 @@ import static org.mockito.Mockito.mock;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
-import com.google.common.io.ByteSource;
-import com.google.common.io.Resources;
 import com.google.common.util.concurrent.CheckedFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.ImmediateEventExecutor;
 import io.netty.util.concurrent.SucceededFuture;
-import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.URL;
 import java.util.ArrayList;
@@ -120,8 +118,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.opendaylight.yangtools.yang.model.api.SchemaContextListener;
 import org.opendaylight.yangtools.yang.parser.spi.meta.ReactorException;
-import org.opendaylight.yangtools.yang.parser.stmt.reactor.CrossSourceStatementReactor;
-import org.opendaylight.yangtools.yang.parser.stmt.rfc6020.YangInferencePipeline;
+import org.opendaylight.yangtools.yang.test.util.YangParserTestUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleListener;
 import org.osgi.framework.Filter;
@@ -230,7 +227,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         Mockito.doReturn(null).when(this.mockedFuture).get();
         Mockito.doReturn(null).when(this.mockedFuture).checkedGet();
 
-        final SchemaContext context = parseYangStreams(getFilesAsByteSources(getYangModelsPaths()));
+        final SchemaContext context = parseYangStreams(getFilesAsStreams(getYangModelsPaths()));
         final SchemaService mockedSchemaService = mock(SchemaService.class);
         doReturn(context).when(mockedSchemaService).getGlobalContext();
         doAnswer(invocation -> {
@@ -292,7 +289,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         doReturn(new UnsignedInt32Counter("counter")).when(mockedRenderStats).getConfiguredPeerCounter();
         doReturn(mockedRenderStats).when(this.mockedRIB).getRenderStats();
         final DOMDataTreeChangeService mockedTreeChangeService = mock(DOMDataTreeChangeService.class);
-        final ListenerRegistration mockedListenerReg = mock(ListenerRegistration.class);
+        final ListenerRegistration<?> mockedListenerReg = mock(ListenerRegistration.class);
         doNothing().when(mockedListenerReg).close();
         doReturn(mockedListenerReg).when(mockedTreeChangeService).registerDataTreeChangeListener(any(), any());
         doReturn(mockedTreeChangeService).when(this.mockedRIB).getService();
@@ -325,12 +322,10 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         doReturn("test").when(mockServiceRef).toString();
     }
 
-    private static SchemaContext parseYangStreams(final Collection<ByteSource> streams) {
-        final CrossSourceStatementReactor.BuildAction reactor = YangInferencePipeline.RFC6020_REACTOR
-                .newBuild();
+    private static SchemaContext parseYangStreams(final List<InputStream> streams) {
         try {
-            return reactor.buildEffective(streams);
-        } catch (final ReactorException | IOException e) {
+            return YangParserTestUtils.parseYangStreams(streams);
+        } catch (final ReactorException e) {
             throw new RuntimeException("Unable to build schema context from " + streams, e);
         }
     }
@@ -350,7 +345,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         if (serviceType.equals(SchemaContextListener.class)) {
             return (clazz, serviceInstance, props) -> {
                 final SchemaContextListener listener = (SchemaContextListener) serviceInstance;
-                final SchemaContext context = parseYangStreams(getFilesAsByteSources(getYangModelsPaths()));
+                final SchemaContext context = parseYangStreams(getFilesAsStreams(getYangModelsPaths()));
                 listener.onGlobalContextUpdated(context);
             };
         }
@@ -470,15 +465,15 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     }
 
     // TODO move back to AbstractConfigTest
-    private static Collection<ByteSource> getFilesAsByteSources(final List<String> paths) {
-        final Collection<ByteSource> resources = new ArrayList<>();
+    private static List<InputStream> getFilesAsStreams(final List<String> paths) {
+        final List<InputStream> resources = new ArrayList<>();
         final List<String> failedToFind = new ArrayList<>();
         for (final String path : paths) {
-            final URL url = AbstractRIBImplModuleTest.class.getResource(path);
-            if (url == null) {
+            final InputStream is = AbstractRIBImplModuleTest.class.getResourceAsStream(path);
+            if (is == null) {
                 failedToFind.add(path);
             } else {
-                resources.add(Resources.asByteSource(url));
+                resources.add(is);
             }
         }
         Assert.assertEquals("Some files were not found", Collections.<String> emptyList(), failedToFind);
