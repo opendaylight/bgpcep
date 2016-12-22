@@ -12,15 +12,11 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 
-import com.google.common.io.ByteSource;
-import com.google.common.io.Resources;
-import java.io.IOException;
-import java.net.URL;
+import java.io.InputStream;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import javassist.ClassPool;
@@ -39,13 +35,11 @@ import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadi
 import org.opendaylight.yangtools.sal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.yangtools.sal.binding.generator.util.JavassistUtils;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
-import org.opendaylight.yangtools.yang.parser.spi.meta.ReactorException;
-import org.opendaylight.yangtools.yang.parser.stmt.reactor.CrossSourceStatementReactor;
-import org.opendaylight.yangtools.yang.parser.stmt.rfc6020.YangInferencePipeline;
+import org.opendaylight.yangtools.yang.test.util.YangParserTestUtils;
 
 public abstract class AbstractConfigLoader {
     @GuardedBy("this")
-    private final List<WatchEvent> eventList = new ArrayList<>();
+    private final List<WatchEvent<?>> eventList = new ArrayList<>();
     protected BindingToNormalizedNodeCodec mappingService;
     protected ConfigLoader configLoader;
     @Mock
@@ -53,7 +47,7 @@ public abstract class AbstractConfigLoader {
     @Mock
     private WatchKey watchKey;
     @Mock
-    private WatchEvent watchEvent;
+    private WatchEvent<?> watchEvent;
     @Mock
     protected ConfigFileProcessor processor;
 
@@ -75,7 +69,8 @@ public abstract class AbstractConfigLoader {
             clearEvent();
             return null;
         }).when(this.processor).loadConfiguration(any());
-        final SchemaContext schemaContext = parseYangStreams(getFilesAsByteSources(getYangModelsPaths()));
+        final SchemaContext schemaContext = YangParserTestUtils.parseYangStreams(
+            getFilesAsStreams(getYangModelsPaths()));
         this.configLoader = new ConfigLoaderImpl(schemaContext, this.mappingService, getResourceFolder(), this.watchService);
     }
 
@@ -91,28 +86,19 @@ public abstract class AbstractConfigLoader {
 
     protected abstract List<String> getYangModelsPaths();
 
-    private Collection<ByteSource> getFilesAsByteSources(final List<String> paths) {
-        final Collection<ByteSource> resources = new ArrayList<>();
+    private static List<InputStream> getFilesAsStreams(final List<String> paths) {
+        final List<InputStream> resources = new ArrayList<>();
         final List<String> failedToFind = new ArrayList<>();
         for (final String path : paths) {
-            final URL url = ConfigLoaderImplTest.class.getResource(path);
-            if (url == null) {
+            final InputStream is = ConfigLoaderImplTest.class.getResourceAsStream(path);
+            if (is == null) {
                 failedToFind.add(path);
             } else {
-                resources.add(Resources.asByteSource(url));
+                resources.add(is);
             }
         }
-        Assert.assertEquals("Some files were not found", Collections.<String>emptyList(), failedToFind);
+        Assert.assertEquals("Some files were not found", Collections.emptyList(), failedToFind);
         return resources;
-    }
-
-    private static SchemaContext parseYangStreams(final Collection<ByteSource> streams) {
-        final CrossSourceStatementReactor.BuildAction reactor = YangInferencePipeline.RFC6020_REACTOR.newBuild();
-        try {
-            return reactor.buildEffective(streams);
-        } catch (final ReactorException | IOException e) {
-            throw new RuntimeException("Unable to build schema context from " + streams, e);
-        }
     }
 
     protected synchronized void triggerEvent(final String filename) {
