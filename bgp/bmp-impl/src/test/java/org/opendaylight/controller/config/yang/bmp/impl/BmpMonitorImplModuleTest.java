@@ -13,12 +13,9 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import com.google.common.collect.Lists;
-import com.google.common.io.ByteSource;
-import com.google.common.io.Resources;
 import com.google.common.util.concurrent.CheckedFuture;
 import io.netty.channel.nio.NioEventLoopGroup;
-import java.io.IOException;
-import java.net.URL;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -68,8 +65,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.opendaylight.yangtools.yang.model.api.SchemaContextListener;
 import org.opendaylight.yangtools.yang.parser.spi.meta.ReactorException;
-import org.opendaylight.yangtools.yang.parser.stmt.reactor.CrossSourceStatementReactor;
-import org.opendaylight.yangtools.yang.parser.stmt.rfc6020.YangInferencePipeline;
+import org.opendaylight.yangtools.yang.test.util.YangParserTestUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleListener;
 import org.osgi.framework.ServiceReference;
@@ -139,7 +135,7 @@ public class BmpMonitorImplModuleTest extends AbstractBmpModuleTest {
 
         Mockito.doReturn(null).when(this.mockedFuture).get();
 
-        final SchemaContext context = parseYangStreams(getFilesAsByteSources(getYangModelsPaths()));
+        final SchemaContext context = parseYangStreams(getFilesAsStreams(getYangModelsPaths()));
         final SchemaService mockedSchemaService = mock(SchemaService.class);
         doReturn(context).when(mockedSchemaService).getGlobalContext();
         doAnswer(new Answer<ListenerRegistration<SchemaContextListener>>() {
@@ -166,11 +162,10 @@ public class BmpMonitorImplModuleTest extends AbstractBmpModuleTest {
         setupMockService(BmpDispatcher.class, bmpDispatcher);
     }
 
-    private static SchemaContext parseYangStreams(final Collection<ByteSource> streams) {
-        final CrossSourceStatementReactor.BuildAction reactor = YangInferencePipeline.RFC6020_REACTOR.newBuild();
+    private static SchemaContext parseYangStreams(final List<InputStream> streams) {
         try {
-            return reactor.buildEffective(streams);
-        } catch (final ReactorException | IOException e) {
+            return YangParserTestUtils.parseYangStreams(streams);
+        } catch (final ReactorException e) {
             throw new RuntimeException("Unable to build schema context from " + streams, e);
         }
     }
@@ -183,18 +178,18 @@ public class BmpMonitorImplModuleTest extends AbstractBmpModuleTest {
         return paths;
     }
 
-    private Collection<ByteSource> getFilesAsByteSources(final List<String> paths) {
-        final Collection<ByteSource> resources = new ArrayList<>();
+    private List<InputStream> getFilesAsStreams(final List<String> paths) {
+        final List<InputStream> resources = new ArrayList<>();
         final List<String> failedToFind = new ArrayList<>();
         for (final String path : paths) {
-            final URL url = BmpMonitorImplModuleTest.class.getResource(path);
-            if (url == null) {
+            final InputStream is = BmpMonitorImplModuleTest.class.getResourceAsStream(path);
+            if (is == null) {
                 failedToFind.add(path);
             } else {
-                resources.add(Resources.asByteSource(url));
+                resources.add(is);
             }
         }
-        Assert.assertEquals("Some files were not found", Collections.<String> emptyList(), failedToFind);
+        Assert.assertEquals("Some files were not found", Collections.emptyList(), failedToFind);
         return resources;
     }
 
