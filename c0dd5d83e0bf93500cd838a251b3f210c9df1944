@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_c5728a48",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/state/BGPPeerState.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-12-22T08:01:08Z",
+      "side": 1,
+      "message": "Seems to be too complex - would not be better to have some hierarchy here?",
+      "revId": "c0dd5d83e0bf93500cd838a251b3f210c9df1944",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e577c638",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/state/BGPStateCollector.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-12-22T08:01:08Z",
+      "side": 1,
+      "message": "How about having one pair of bind/unbound for RIB stats providers and another pair for Peer stats providers;\nhaving two reference-list listeners.",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 42
+      },
+      "revId": "c0dd5d83e0bf93500cd838a251b3f210c9df1944",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
