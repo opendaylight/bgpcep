@@ -107,6 +107,7 @@ import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 class AbstractAddPathTest extends AbstractDataBrokerTest {
     private static final int RETRY_TIMER = 10;
     static final String RIB_ID = "127.0.0.1";
+    static final BgpId BGP_ID = new BgpId(RIB_ID);
     static final Ipv4Address PEER1 = new Ipv4Address("127.0.0.2");
     static final Ipv4Address PEER2 = new Ipv4Address("127.0.0.3");
     static final Ipv4Address PEER3 = new Ipv4Address("127.0.0.4");
@@ -117,7 +118,7 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
     static final int PORT = InetSocketAddressUtil.getRandomPort();
     static final Ipv4Prefix PREFIX1 = new Ipv4Prefix("1.1.1.1/32");
     private static final ClusterIdentifier CLUSTER_ID = new ClusterIdentifier(RIB_ID);
-    private static final int HOLDTIMER = 2180;
+    protected static final int HOLDTIMER = 2180;
     private static final Ipv4Address NH1 = new Ipv4Address("2.2.2.2");
     static final Update UPD_100 = createSimpleUpdate(PREFIX1, new PathId(1L), CLUSTER_ID, 100);
     static final Update UPD_50 = createSimpleUpdate(PREFIX1, new PathId(2L), CLUSTER_ID, 50);
@@ -220,9 +221,8 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
         });
     }
 
-    BGPSessionImpl createPeerSession(final Ipv4Address peer, final PeerRole peerRole, final BgpParameters nonAddPathParams, final RIBImpl ribImpl,
+    BGPSessionImpl createPeerSession(final Ipv4Address peer, final BgpParameters nonAddPathParams,
         final SimpleSessionListener sessionListener) throws InterruptedException, ExecutionException {
-        configurePeer(peer, ribImpl, nonAddPathParams, peerRole);
         return connectPeer(peer, nonAddPathParams, this.dispatcher, sessionListener);
     }
 
@@ -230,7 +230,7 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
         return ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.bgp.rib.rib.peer.adj.rib.out.tables.routes.Ipv4RoutesCase) peer.getAdjRibOut().getTables().get(0).getRoutes()).getIpv4Routes().getIpv4Route().size();
     }
 
-    private static void configurePeer(final Ipv4Address localAddress, final RIBImpl ribImpl, final BgpParameters bgpParameters, final PeerRole peerRole) {
+    protected static BGPPeer configurePeer(final Ipv4Address localAddress, final RIBImpl ribImpl, final BgpParameters bgpParameters, final PeerRole peerRole) {
         final IpAddress ipAddress = new IpAddress(new Ipv4Address(InetAddresses.forString(localAddress.getValue())
             .getHostAddress()));
 
@@ -241,6 +241,7 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
         StrictBGPPeerRegistry.GLOBAL.addPeer(ipAddress, bgpPeer,
             new BGPSessionPreferences(AS_NUMBER, HOLDTIMER, new BgpId(RIB_ID), AS_NUMBER, tlvs, Optional.absent()));
         bgpPeer.instantiateServiceInstance();
+        return bgpPeer;
     }
 
     private static BGPSessionImpl connectPeer(final Ipv4Address localAddress, final BgpParameters bgpParameters,
