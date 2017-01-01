@@ -36,6 +36,7 @@ import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.protocol.bgp.inet.RIBActivator;
+import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.impl.BGPActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
@@ -55,6 +56,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.ipv4.routes.Ipv4Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv4Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv4CaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.NotifyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.UpdateBuilder;
@@ -101,12 +105,14 @@ import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadi
 import org.opendaylight.yangtools.sal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.yangtools.sal.binding.generator.util.JavassistUtils;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.Notification;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 
 class AbstractAddPathTest extends AbstractDataBrokerTest {
     private static final int RETRY_TIMER = 10;
     static final String RIB_ID = "127.0.0.1";
+    static final BgpId BGP_ID = new BgpId(RIB_ID);
     static final Ipv4Address PEER1 = new Ipv4Address("127.0.0.2");
     static final Ipv4Address PEER2 = new Ipv4Address("127.0.0.3");
     static final Ipv4Address PEER3 = new Ipv4Address("127.0.0.4");
@@ -117,7 +123,7 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
     static final int PORT = InetSocketAddressUtil.getRandomPort();
     static final Ipv4Prefix PREFIX1 = new Ipv4Prefix("1.1.1.1/32");
     private static final ClusterIdentifier CLUSTER_ID = new ClusterIdentifier(RIB_ID);
-    private static final int HOLDTIMER = 2180;
+    protected static final int HOLDTIMER = 2180;
     private static final Ipv4Address NH1 = new Ipv4Address("2.2.2.2");
     static final Update UPD_100 = createSimpleUpdate(PREFIX1, new PathId(1L), CLUSTER_ID, 100);
     static final Update UPD_50 = createSimpleUpdate(PREFIX1, new PathId(2L), CLUSTER_ID, 50);
@@ -203,6 +209,18 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
         checkLocRib(expectedRoutesOnDS);
     }
 
+    void sendNotification(final BGPSessionImpl session) {
+        Notification notMsg = new NotifyBuilder().setErrorCode(BGPError.OPT_PARAM_NOT_SUPPORTED.getCode()).setErrorSubcode(
+            BGPError.OPT_PARAM_NOT_SUPPORTED.getSubcode()).setData(new byte[] { 4, 9 }).build();
+        waitFutureSuccess(session.writeAndFlush(notMsg));
+    }
+
+    void causeBGPError(final BGPSessionImpl session) {
+        final Open openObj = new OpenBuilder().setBgpIdentifier(new Ipv4Address("1.1.1.1"))
+            .setHoldTimer(50).setMyAsNumber(72).build();
+        waitFutureSuccess(session.writeAndFlush(openObj));
+    }
+
     private void checkLocRib(final int expectedRoutesOnDS) throws Exception {
         Thread.sleep(100);
         readData(getDataBroker(), BGP_IID, bgpRib -> {
@@ -220,9 +238,8 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
         });
     }
 
-    BGPSessionImpl createPeerSession(final Ipv4Address peer, final PeerRole peerRole, final BgpParameters nonAddPathParams, final RIBImpl ribImpl,
+    BGPSessionImpl createPeerSession(final Ipv4Address peer, final BgpParameters nonAddPathParams,
         final SimpleSessionListener sessionListener) throws InterruptedException, ExecutionException {
-        configurePeer(peer, ribImpl, nonAddPathParams, peerRole);
         return connectPeer(peer, nonAddPathParams, this.dispatcher, sessionListener);
     }
 
@@ -230,7 +247,7 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
         return ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.bgp.rib.rib.peer.adj.rib.out.tables.routes.Ipv4RoutesCase) peer.getAdjRibOut().getTables().get(0).getRoutes()).getIpv4Routes().getIpv4Route().size();
     }
 
-    private static void configurePeer(final Ipv4Address localAddress, final RIBImpl ribImpl, final BgpParameters bgpParameters, final PeerRole peerRole) {
+    protected static BGPPeer configurePeer(final Ipv4Address localAddress, final RIBImpl ribImpl, final BgpParameters bgpParameters, final PeerRole peerRole) {
         final IpAddress ipAddress = new IpAddress(new Ipv4Address(InetAddresses.forString(localAddress.getValue())
             .getHostAddress()));
 
@@ -241,6 +258,7 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
         StrictBGPPeerRegistry.GLOBAL.addPeer(ipAddress, bgpPeer,
             new BGPSessionPreferences(AS_NUMBER, HOLDTIMER, new BgpId(RIB_ID), AS_NUMBER, tlvs, Optional.absent()));
         bgpPeer.instantiateServiceInstance();
+        return bgpPeer;
     }
 
     private static BGPSessionImpl connectPeer(final Ipv4Address localAddress, final BgpParameters bgpParameters,

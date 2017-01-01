@@ -59,13 +59,22 @@ public class AddPathNPathsTest extends AbstractAddPathTest {
         final BgpParameters nonAddPathParams = createParameter(false);
         final BgpParameters addPathParams = createParameter(true);
 
-        final BGPSessionImpl session1 = createPeerSession(PEER1, PeerRole.Ibgp, nonAddPathParams, ribImpl, new SimpleSessionListener());
-        final BGPSessionImpl session2 = createPeerSession(PEER2, PeerRole.Ibgp, nonAddPathParams, ribImpl, new SimpleSessionListener());
-        final BGPSessionImpl session3 = createPeerSession(PEER3, PeerRole.Ibgp, nonAddPathParams, ribImpl, new SimpleSessionListener());
+        configurePeer(PEER1, ribImpl, nonAddPathParams, PeerRole.Ibgp);
+        final BGPSessionImpl session1 = createPeerSession(PEER1, nonAddPathParams, new SimpleSessionListener());
+
+        configurePeer(PEER2, ribImpl, nonAddPathParams, PeerRole.Ibgp);
+        final BGPSessionImpl session2 = createPeerSession(PEER2, nonAddPathParams, new SimpleSessionListener());
+
+        configurePeer(PEER3, ribImpl, nonAddPathParams, PeerRole.Ibgp);
+        final BGPSessionImpl session3 = createPeerSession(PEER3, nonAddPathParams, new SimpleSessionListener());
+
         final SimpleSessionListener listener4 = new SimpleSessionListener();
-        final BGPSessionImpl session4 = createPeerSession(PEER4, PeerRole.RrClient, nonAddPathParams, ribImpl, listener4);
+        configurePeer(PEER4, ribImpl, nonAddPathParams, PeerRole.RrClient);
+        final BGPSessionImpl session4 = createPeerSession(PEER4, nonAddPathParams, listener4);
+
         final SimpleSessionListener listener5 = new SimpleSessionListener();
-        final BGPSessionImpl session5 = createPeerSession(PEER5, PeerRole.RrClient, addPathParams, ribImpl, listener5);
+        configurePeer(PEER5, ribImpl, addPathParams, PeerRole.RrClient);
+        final BGPSessionImpl session5 = createPeerSession(PEER5, addPathParams, listener5);
         checkPeersPresentOnDataStore(5);
 
         //new best route so far
@@ -75,7 +84,8 @@ public class AddPathNPathsTest extends AbstractAddPathTest {
         assertEquals(UPD_100, listener5.getListMsg().get(0));
 
         final SimpleSessionListener listener6 = new SimpleSessionListener();
-        final BGPSessionImpl session6 = createPeerSession(PEER6, PeerRole.RrClient, nonAddPathParams, ribImpl, listener6);
+        configurePeer(PEER6, ribImpl, nonAddPathParams, PeerRole.RrClient);
+        final BGPSessionImpl session6 = createPeerSession(PEER6, nonAddPathParams, listener6);
         checkPeersPresentOnDataStore(6);
         checkReceivedMessages(listener6, 1);
         assertEquals(UPD_NA_100, listener6.getListMsg().get(0));
