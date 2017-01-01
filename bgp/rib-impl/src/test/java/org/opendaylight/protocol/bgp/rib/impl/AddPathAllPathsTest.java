@@ -8,29 +8,52 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.checkReceivedMessages;
 import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.waitFutureSuccess;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.util.concurrent.Uninterruptibles;
 import java.net.InetSocketAddress;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.add.all.paths.AllPathSelection;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
+import org.opendaylight.protocol.bgp.rib.spi.State;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPAfiSafiState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPErrorHandlingState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPGracelfulRestartState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerMessagesState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPRIBState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPSessionState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPTimersState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPTransportState;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 
 public class AddPathAllPathsTest extends AbstractAddPathTest {
+    @FunctionalInterface
+    private interface CheckEquals {
+        void check();
+    }
     /*
      * All-Paths
      *                                            ___________________
@@ -48,7 +71,7 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(TABLES_KEY, new AllPathSelection());
 
 
-        final RIBImpl ribImpl = new RIBImpl(this.clusterSingletonServiceProvider, new RibId("test-rib"), AS_NUMBER, new BgpId(RIB_ID), null, this.ribExtension,
+        final RIBImpl ribImpl = new RIBImpl(this.clusterSingletonServiceProvider, new RibId("test-rib"), AS_NUMBER, BGP_ID, null, this.ribExtension,
                 this.dispatcher, this.mappingService.getCodecFactory(), getDomBroker(), tables, pathTables, this.ribExtension.getClassLoadingStrategy(), null);
 
         ribImpl.instantiateServiceInstance();
@@ -58,13 +81,54 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         final BgpParameters nonAddPathParams = createParameter(false);
         final BgpParameters addPathParams = createParameter(true);
 
-        final BGPSessionImpl session1 = createPeerSession(PEER1, PeerRole.Ibgp, nonAddPathParams, ribImpl, new SimpleSessionListener());
-        final BGPSessionImpl session2 = createPeerSession(PEER2, PeerRole.Ibgp, nonAddPathParams, ribImpl, new SimpleSessionListener());
-        final BGPSessionImpl session3 = createPeerSession(PEER3, PeerRole.Ibgp, nonAddPathParams, ribImpl, new SimpleSessionListener());
+        final BGPPeer peer1 = configurePeer(PEER1, ribImpl, nonAddPathParams, PeerRole.Ibgp);
+        final BGPSessionImpl session1 = createPeerSession(PEER1, nonAddPathParams, new SimpleSessionListener());
+
+        configurePeer(PEER2, ribImpl, nonAddPathParams, PeerRole.Ibgp);
+        final BGPSessionImpl session2 = createPeerSession(PEER2, nonAddPathParams, new SimpleSessionListener());
+
+        configurePeer(PEER3, ribImpl, nonAddPathParams, PeerRole.Ibgp);
+        final BGPSessionImpl session3 = createPeerSession(PEER3, nonAddPathParams, new SimpleSessionListener());
+
         final SimpleSessionListener listener4 = new SimpleSessionListener();
-        final BGPSessionImpl session4 = createPeerSession(PEER4, PeerRole.RrClient, nonAddPathParams, ribImpl, listener4);
+        final BGPPeer peer4 = configurePeer(PEER4, ribImpl, nonAddPathParams, PeerRole.RrClient);
+
+        BGPPeerState peer4State = peer4.getPeerState();
+        assertNull(peer4State.getGroupId());
+        assertEquals(new IpAddress(PEER4), peer4State.getNeighborAddress());
+        assertEquals(0L, peer4State.getTotalPathsCount());
+        assertEquals(0L, peer4State.getTotalPrefixes());
+
+        assertNull(peer4State.getBGPTimersState());
+        assertNull(peer4State.getBGPTransportState());
+        assertNull(peer4State.getBGPSessionState());
+        assertEquals(0L, peer4State.getBGPErrorHandlingState().getErroneousUpdateReceivedCount());
+
+        BGPGracelfulRestartState gracefulRestart = peer4State.getBGPGracelfulRestart();
+        assertFalse(gracefulRestart.isGracefulRestartAdvertized(TABLES_KEY));
+        assertFalse(gracefulRestart.isGracefulRestartReceived(TABLES_KEY));
+        assertFalse(gracefulRestart.isLocalRestarting());
+        assertFalse(gracefulRestart.isPeerRestarting());
+        assertEquals(0L, gracefulRestart.getPeerRestartTime());
+
+        BGPAfiSafiState afiSafiState = peer4State.getBGPAfiSafiState();
+        assertEquals(AFI_SAFIS_ADVERTIZED, afiSafiState.getAfiSafisAdvertized());
+        assertEquals(Collections.emptySet(), afiSafiState.getAfiSafisReceived());
+        assertEquals(0L, afiSafiState.getPrefixesSentCount(TABLES_KEY));
+        assertEquals(0L, afiSafiState.getPrefixesReceivedCount(TABLES_KEY));
+        assertEquals(0L, afiSafiState.getPrefixesInstalledCount(TABLES_KEY));
+
+        assertFalse(afiSafiState.isGracefulRestartAdvertized(TABLES_KEY));
+        assertFalse(afiSafiState.isGracefulRestartAdvertized(TABLES_KEY));
+        assertFalse(afiSafiState.isLocalRestarting());
+        assertFalse(afiSafiState.isPeerRestarting());
+        assertFalse(afiSafiState.isAfiSafiSupported(TABLES_KEY));
+
+        final BGPSessionImpl session4 = createPeerSession(PEER4, nonAddPathParams, listener4);
+
         final SimpleSessionListener listener5 = new SimpleSessionListener();
-        final BGPSessionImpl session5 = createPeerSession(PEER5, PeerRole.RrClient, addPathParams, ribImpl, listener5);
+        configurePeer(PEER5, ribImpl, addPathParams, PeerRole.RrClient);
+        final BGPSessionImpl session5 = createPeerSession(PEER5, addPathParams, listener5);
         checkPeersPresentOnDataStore(5);
 
         //the best route
@@ -73,12 +137,64 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         checkReceivedMessages(listener5, 1);
         assertEquals(UPD_100, listener5.getListMsg().get(0));
 
+        final BGPPeerState peer1State = peer1.getPeerState();
+        assertNull(peer1State.getGroupId());
+        assertEquals(new IpAddress(PEER1), peer1State.getNeighborAddress());
+        assertEquals(1L, peer1State.getTotalPathsCount());
+        assertEquals(1L, peer1State.getTotalPrefixes());
+
+        final BGPTimersState timerStatePeer1 = peer1State.getBGPTimersState();
+        assertEquals(HOLDTIMER, timerStatePeer1.getNegotiatedHoldTime());
+        assertTrue(timerStatePeer1.getUpTime() > 0L);
+
+        final BGPTransportState transportStatePeer1 = peer1State.getBGPTransportState();
+        assertEquals(new PortNumber(PORT), transportStatePeer1.getLocalPort());
+        assertEquals(new IpAddress(PEER1), transportStatePeer1.getRemoteAddress());
+
+        assertEquals(State.UP, peer1State.getBGPSessionState().getSessionState());
+        checkEquals(()-> assertEquals(1L, peer1State.getBGPPeerMessagesState().getUpdateMessagesReceivedCount()));
+        checkEquals(()-> assertEquals(0L, peer1State.getBGPPeerMessagesState().getUpdateMessagesSentCount()));
+
+        final BGPSessionState sessionStatePeer1 = peer1State.getBGPSessionState();
+        assertFalse(sessionStatePeer1.isAddPathCapabilitySupported());
+        assertFalse(sessionStatePeer1.isAsn32CapabilitySupported());
+        assertFalse(sessionStatePeer1.isGracefulRestartCapabilitySupported());
+        assertTrue(sessionStatePeer1.isMultiProtocolCapabilitySupported());
+        assertFalse(sessionStatePeer1.isRouterRefreshCapabilitySupported());
+
+        final BGPAfiSafiState afiSafiStatePeer1 = peer1State.getBGPAfiSafiState();
+        assertEquals(AFI_SAFIS_ADVERTIZED, afiSafiStatePeer1.getAfiSafisAdvertized());
+        assertEquals(AFI_SAFIS_ADVERTIZED, afiSafiStatePeer1.getAfiSafisReceived());
+        assertEquals(0L, afiSafiStatePeer1.getPrefixesSentCount(TABLES_KEY));
+        assertEquals(1L, afiSafiStatePeer1.getPrefixesReceivedCount(TABLES_KEY));
+        assertEquals(1L, afiSafiStatePeer1.getPrefixesInstalledCount(TABLES_KEY));
+
+        assertFalse(afiSafiStatePeer1.isGracefulRestartAdvertized(TABLES_KEY));
+        assertFalse(afiSafiStatePeer1.isGracefulRestartAdvertized(TABLES_KEY));
+        assertFalse(afiSafiStatePeer1.isLocalRestarting());
+        assertFalse(afiSafiStatePeer1.isPeerRestarting());
+        assertTrue(afiSafiStatePeer1.isAfiSafiSupported(TABLES_KEY));
+
+        final BGPRIBState ribState = ribImpl.getRIBState();
+        assertEquals(1, ribState.getPathsCount().size());
+        assertEquals(1L,  ribState.getPrefixesCount().size());
+        assertEquals(BGP_ID, ribState.getRouteId());
+        assertEquals(AS_NUMBER, ribState.getAs());
+        assertEquals(1L, ribState.getPathCount(TABLES_KEY));
+        assertEquals(1L, ribState.getPrefixesCount(TABLES_KEY));
+        assertEquals(1L, ribState.getTotalPathsCount());
+        assertEquals(1L, ribState.getTotalPrefixesCount());
+
         final SimpleSessionListener listener6 = new SimpleSessionListener();
-        final BGPSessionImpl session6 = createPeerSession(PEER6, PeerRole.RrClient, nonAddPathParams, ribImpl, listener6);
+        final BGPPeer peer6 = configurePeer(PEER6, ribImpl, nonAddPathParams, PeerRole.RrClient);
+        final BGPSessionImpl session6 = createPeerSession(PEER6, nonAddPathParams, listener6);
         checkPeersPresentOnDataStore(6);
         checkReceivedMessages(listener6, 1);
         assertEquals(UPD_NA_100, listener6.getListMsg().get(0));
-        session6.close();
+        causeBGPError(session6);
+        //session6.close();aca send wrong message
+        checkEquals(()-> assertEquals(1L, peer6.getPeerState().getBGPPeerMessagesState().getNotificationMessagesSentCount()));
+
         checkPeersPresentOnDataStore(5);
 
         //the second best route
@@ -92,6 +208,57 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         checkReceivedMessages(listener4, 2);
         checkReceivedMessages(listener5, 3);
         assertEquals(UPD_200, listener5.getListMsg().get(2));
+
+        peer4State = peer4.getPeerState();
+        assertNull(peer4State.getGroupId());
+        assertEquals(new IpAddress(PEER4), peer4State.getNeighborAddress());
+        assertEquals(0L, peer4State.getTotalPathsCount());
+        assertEquals(0L, peer4State.getTotalPrefixes());
+
+        final BGPTimersState timerState = peer4State.getBGPTimersState();
+        assertEquals(HOLDTIMER, timerState.getNegotiatedHoldTime());
+        assertTrue(timerState.getUpTime() > 0L);
+
+        final BGPTransportState transportState = peer4State.getBGPTransportState();
+        assertEquals(new PortNumber(PORT), transportState.getLocalPort());
+        assertEquals(new IpAddress(PEER4), transportState.getRemoteAddress());
+
+        final BGPPeerMessagesState peerMessagesState = peer4State.getBGPPeerMessagesState();
+        assertEquals(0L, peerMessagesState.getNotificationMessagesReceivedCount());
+        assertEquals(0L, peerMessagesState.getNotificationMessagesSentCount());
+        assertEquals(0L, peerMessagesState.getUpdateMessagesReceivedCount());
+        assertEquals(2L, peerMessagesState.getUpdateMessagesSentCount());
+
+        final BGPSessionState bgpSessionState = peer4State.getBGPSessionState();
+        assertEquals(State.UP, bgpSessionState.getSessionState());
+        assertFalse(bgpSessionState.isAddPathCapabilitySupported());
+        assertFalse(bgpSessionState.isAsn32CapabilitySupported());
+        assertFalse(bgpSessionState.isGracefulRestartCapabilitySupported());
+        assertTrue(bgpSessionState.isMultiProtocolCapabilitySupported());
+        assertFalse(bgpSessionState.isRouterRefreshCapabilitySupported());
+
+        final BGPErrorHandlingState errorHandling = peer4State.getBGPErrorHandlingState();
+        assertEquals(0L, errorHandling.getErroneousUpdateReceivedCount());
+
+        gracefulRestart = peer4State.getBGPGracelfulRestart();
+        assertFalse(gracefulRestart.isGracefulRestartAdvertized(TABLES_KEY));
+        assertFalse(gracefulRestart.isGracefulRestartReceived(TABLES_KEY));
+        assertFalse(gracefulRestart.isLocalRestarting());
+        assertFalse(gracefulRestart.isPeerRestarting());
+        assertEquals(0L, gracefulRestart.getPeerRestartTime());
+
+        afiSafiState = peer4State.getBGPAfiSafiState();
+        assertEquals(AFI_SAFIS_ADVERTIZED, afiSafiState.getAfiSafisAdvertized());
+        assertEquals(AFI_SAFIS_ADVERTIZED, afiSafiState.getAfiSafisReceived());
+        assertEquals(2L, afiSafiState.getPrefixesSentCount(TABLES_KEY));
+        assertEquals(0L, afiSafiState.getPrefixesReceivedCount(TABLES_KEY));
+        assertEquals(0L, afiSafiState.getPrefixesInstalledCount(TABLES_KEY));
+
+        assertFalse(afiSafiState.isGracefulRestartAdvertized(TABLES_KEY));
+        assertFalse(afiSafiState.isGracefulRestartAdvertized(TABLES_KEY));
+        assertFalse(afiSafiState.isLocalRestarting());
+        assertFalse(afiSafiState.isPeerRestarting());
+        assertTrue(afiSafiState.isAfiSafiSupported(TABLES_KEY));
 
         //the worst route
         sendRouteAndCheckIsOnLocRib(session1, PREFIX1, 20, 3);
@@ -116,10 +283,28 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         checkReceivedMessages(listener4, 3);
         checkReceivedMessages(listener5, 7);
 
+        sendNotification(session1);
+        checkEquals(()-> assertEquals(1L, peer1.getPeerState().getBGPPeerMessagesState().getNotificationMessagesReceivedCount()));
         session1.close();
         session2.close();
         session3.close();
         session4.close();
         session5.close();
+    }
+
+    private static void checkEquals(final CheckEquals function) throws Exception {
+        AssertionError lastError = null;
+        Stopwatch sw = Stopwatch.createStarted();
+        while (sw.elapsed(TimeUnit.SECONDS) <= 10) {
+            try {
+                function.check();
+                return;
+            } catch (final AssertionError e) {
+                lastError = e;
+                Uninterruptibles.sleepUninterruptibly(10, TimeUnit.MILLISECONDS);
+            }
+        }
+        Assert.fail(lastError.getMessage());
+        throw lastError;
     }
 }
