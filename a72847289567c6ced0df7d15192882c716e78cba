@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_a98aa918",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/CountersUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2017-01-05T17:43:40Z",
+      "side": 1,
+      "message": "this is a bad pattern, LOG.warn(), String.format() and similar need to use string literals, not constants -- otherwise the coupling between the format string and its arguments is lost.",
+      "range": {
+        "startLine": 25,
+        "startChar": 32,
+        "endLine": 25,
+        "endChar": 74
+      },
+      "revId": "a72847289567c6ced0df7d15192882c716e78cba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
