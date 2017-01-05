@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_4672e411",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/CountersUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-01-05T15:48:51Z",
+      "side": 1,
+      "message": "its used outside of the package\nhttps://git.opendaylight.org/gerrit/#/c/49926/1/bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/stats/peer/BGPPeerStatsImpl.java",
+      "parentUuid": "1a622d24_63b7123b",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 6
+      },
+      "revId": "843fe004eb5a9e6cd307974a5a209441486fc011",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_a3848a5e",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/CountersUtil.java",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2017-01-05T10:01:02Z",
       "side": 1,
       "message": "\"Family {} not supported\"",
+      "range": {
+        "startLine": 41,
+        "startChar": 18,
+        "endLine": 41,
+        "endChar": 41
+      },
+      "revId": "843fe004eb5a9e6cd307974a5a209441486fc011",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a6f01868",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/CountersUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-01-05T15:48:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_a3848a5e",
       "range": {
         "startLine": 41,
         "startChar": 18,
