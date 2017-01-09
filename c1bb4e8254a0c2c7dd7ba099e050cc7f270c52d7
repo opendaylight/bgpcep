@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_02d0cfc7",
+        "filename": "bgp/openconfig-state/src/main/java/org/opendaylight/protocol/bgp/state/NeighborUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-01-09T12:47:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_a2191bd9",
+      "range": {
+        "startLine": 145,
+        "startChar": 9,
+        "endLine": 145,
+        "endChar": 11
+      },
+      "revId": "c1bb4e8254a0c2c7dd7ba099e050cc7f270c52d7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_821e9fb9",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
         "patchSetId": 8
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_e2d4b3be",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-01-09T12:47:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_821e9fb9",
+      "range": {
+        "startLine": 122,
+        "startChar": 4,
+        "endLine": 122,
+        "endChar": 45
+      },
+      "revId": "c1bb4e8254a0c2c7dd7ba099e050cc7f270c52d7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_a280fbc0",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/EffectiveRibInWriter.java",
         "patchSetId": 8
@@ -59,6 +107,30 @@
       "writtenOn": "2017-01-09T10:14:37Z",
       "side": 1,
       "message": "Keep this as a constant based on Collections.emptySet().",
+      "range": {
+        "startLine": 135,
+        "startChar": 62,
+        "endLine": 135,
+        "endChar": 77
+      },
+      "revId": "c1bb4e8254a0c2c7dd7ba099e050cc7f270c52d7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_256cf534",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/EffectiveRibInWriter.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-01-09T12:47:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_a280fbc0",
       "range": {
         "startLine": 135,
         "startChar": 62,
