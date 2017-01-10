@@ -103,9 +103,9 @@ final class CreateTunnelInstructionExecutor extends AbstractInstructionExecutor 
     @Override
     protected ListenableFuture<OperationResult> invokeOperation() {
         try (final ReadOnlyTransaction transaction = this.dataProvider.newReadOnlyTransaction()) {
-            AddLspInput addLspInput = createAddLspInput(transaction);
+            final AddLspInput addLspInput = createAddLspInput(transaction);
 
-            return Futures.transform(
+            return Futures.transformAsync(
                 (ListenableFuture<RpcResult<AddLspOutput>>) this.topologyService.addLsp(addLspInput),
                 (Function<RpcResult<AddLspOutput>, OperationResult>) RpcResult::getResult);
         }
