@@ -72,7 +72,7 @@ final class UpdateTunnelInstructionExecutor extends AbstractInstructionExecutor 
                 LOG.debug("Link or node does not exist.", e);
                 return TunelProgrammingUtil.RESULT;
             }
-            return Futures.transform(
+            return Futures.transformAsync(
                 (ListenableFuture<RpcResult<UpdateLspOutput>>) this.topologyService.updateLsp(buildUpdateInput(link, node)),
                 (Function<RpcResult<UpdateLspOutput>, OperationResult>) RpcResult::getResult);
         }
