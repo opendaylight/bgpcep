@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_3b7b6d7c",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/EffectiveRibInWriter.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-01-10T11:49:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_9850c7d5",
+      "range": {
+        "startLine": 88,
+        "startChar": 0,
+        "endLine": 89,
+        "endChar": 1
+      },
+      "revId": "90f0034cd3959604a45700ab4d80ea46fcaad6d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_185cb7ec",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/AppPeer.java",
         "patchSetId": 9
@@ -36,6 +60,30 @@
       "writtenOn": "2017-01-10T09:28:57Z",
       "side": 1,
       "message": "this looks ugly: method after an internal class...",
+      "range": {
+        "startLine": 150,
+        "startChar": 0,
+        "endLine": 156,
+        "endChar": 5
+      },
+      "revId": "90f0034cd3959604a45700ab4d80ea46fcaad6d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_7b9845c0",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/AppPeer.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-01-10T11:49:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_185cb7ec",
       "range": {
         "startLine": 150,
         "startChar": 0,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_5b958985",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpPeer.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-01-10T11:49:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_b86ae37e",
+      "range": {
+        "startLine": 293,
+        "startChar": 0,
+        "endLine": 299,
+        "endChar": 5
+      },
+      "revId": "90f0034cd3959604a45700ab4d80ea46fcaad6d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_d80cffef",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/spi/InstanceType.java",
         "patchSetId": 9
@@ -82,6 +154,30 @@
       "writtenOn": "2017-01-10T09:28:57Z",
       "side": 1,
       "message": "ImmutableList.of()",
+      "range": {
+        "startLine": 22,
+        "startChar": 18,
+        "endLine": 22,
+        "endChar": 38
+      },
+      "revId": "90f0034cd3959604a45700ab4d80ea46fcaad6d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_dbd7d949",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/spi/InstanceType.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-01-10T11:49:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_d80cffef",
       "range": {
         "startLine": 22,
         "startChar": 18,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_5b7bc927",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/spi/InstanceType.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-01-10T11:49:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_58f8efc2",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 98
+      },
+      "revId": "90f0034cd3959604a45700ab4d80ea46fcaad6d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_98fe07ad",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/spi/InstanceType.java",
         "patchSetId": 9
@@ -128,6 +248,30 @@
       "writtenOn": "2017-01-10T09:28:57Z",
       "side": 1,
       "message": "... return services.toArray();\n\nThat is needed to ensure services are really constant and cannot be changed.",
+      "range": {
+        "startLine": 42,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 29
+      },
+      "revId": "90f0034cd3959604a45700ab4d80ea46fcaad6d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_bb749d36",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/spi/InstanceType.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-01-10T11:49:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_98fe07ad",
       "range": {
         "startLine": 42,
         "startChar": 0,
