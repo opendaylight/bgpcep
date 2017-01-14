@@ -233,6 +233,10 @@
           <groupId>${project.groupId}</groupId>
           <artifactId>bgp-openconfig-state</artifactId>
       </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-openconfig-routing-policy-spi</artifactId>
+        </dependency>
       <dependency>
           <groupId>${project.groupId}</groupId>
           <artifactId>bgp-controller-config</artifactId>
