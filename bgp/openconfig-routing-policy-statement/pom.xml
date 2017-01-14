@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.opendaylight.bgpcep</groupId>
+        <artifactId>binding-parent</artifactId>
+        <version>0.7.0-SNAPSHOT</version>
+        <relativePath>../../binding-parent</relativePath>
+    </parent>
+
+    <artifactId>bgp-openconfig-routing-policy-statement</artifactId>
+    <description>BGP Openconfig Routing Policy Statement</description>
+    <packaging>bundle</packaging>
+    <name>${project.artifactId}</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-concepts</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-openconfig-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-openconfig-routing-policy-spi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-parser-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-rib-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>util</artifactId>
+        </dependency>
+    </dependencies>
+
+    <scm>
+        <connection>scm:git:ssh://git.opendaylight.org:29418/bgpcep.git</connection>
+        <developerConnection>scm:git:ssh://git.opendaylight.org:29418/bgpcep.git</developerConnection>
+        <url>https://wiki.opendaylight.org/view/BGP_LS_PCEP:Main</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <url>${odl.site.url}/${project.groupId}/${stream}/${project.artifactId}/</url>
+    <distributionManagement>
+        <site>
+            <id>opendaylight-site</id>
+            <url>${nexus.site.url}/${project.artifactId}/</url>
+        </site>
+    </distributionManagement>
+</project>

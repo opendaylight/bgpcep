@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2017 Cisco Systems, Inc. and others.  All rights reserved.
+  ~
+  ~ This program and the accompanying materials are made available under the
+  ~ terms of the Eclipse Public License v1.0 which accompanies this distribution,
+  ~ and is available at http://www.eclipse.org/legal/epl-v10.html
+  -->
+
+<!-- vi: set et smarttab sw=4 tabstop=4: -->
+
+<routing-policy xmlns="http://openconfig.net/yang/routing-policy">
+    <policy-definitions>
+        <policy-definition>
+            <name>default-odl-import-policy</name>
+            <statements>
+                <statement>
+                    <name>from-external</name>
+                    <conditions>
+                        <neighbor-announcer-condition xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-default-policy">
+                            <config>
+                                <peer-type>EXTERNAL</peer-type>
+                            </config>
+                        </neighbor-announcer-condition>
+                    </conditions>
+                    <actions>
+                        <from-external-import-actions xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-default-policy"/>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>from-internal</name>
+                    <conditions>
+                        <neighbor-announcer-condition xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-default-policy">
+                            <config>
+                                <peer-type>INTERNAL</peer-type>
+                            </config>
+                        </neighbor-announcer-condition>
+                    </conditions>
+                    <actions>
+                        <from-internal-import-actions xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-default-policy"/>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>from-route-reflector</name>
+                    <conditions>
+                        <neighbor-announcer-condition xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-default-policy">
+                            <config>
+                                <peer-type>INTERNAL</peer-type>
+                            </config>
+                            <route-reflector xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-default-policy">
+                                <config>
+                                    <route-reflector-client>true</route-reflector-client>
+                                </config>
+                            </route-reflector>
+                        </neighbor-announcer-condition>
+                    </conditions>
+                    <actions>
+                        <from-route-reflector-import-actions xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-default-policy"/>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>from-odl-internal</name>
+                    <conditions>
+                        <neighbor-announcer-condition xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-default-policy">
+                            <config>
+                                <peer-group>application-peers</peer-group>
+                            </config>
+                        </neighbor-announcer-condition>
+                    </conditions>
+                    <actions>
+                        <from-odl-internal-import-actions
+                                xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-default-policy"/>
+                    </actions>
+                </statement>
+            </statements>
+        </policy-definition>
+        <policy-definition>
+            <name>default-odl-export-policy</name>
+            <statements>
+                <statement>
+                    <name>to-external</name>
+                    <conditions>
+                        <neighbor-announced-condition xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-default-policy">
+                            <config>
+                                <peer-type>EXTERNAL</peer-type>
+                            </config>
+                        </neighbor-announced-condition>
+                    </conditions>
+                    <actions>
+                        <to-external-export-actions xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-default-policy"/>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>to-internal</name>
+                    <conditions>
+                        <neighbor-announced-condition xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-default-policy">
+                            <config>
+                                <peer-type>INTERNAL</peer-type>
+                            </config>
+                        </neighbor-announced-condition>
+                    </conditions>
+                    <actions>
+                        <to-internal-export-actions xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-default-policy"/>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>to-route-reflector</name>
+                    <conditions>
+                        <neighbor-announced-condition xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-default-policy">
+                            <config>
+                                <peer-type>INTERNAL</peer-type>
+                            </config>
+                            <route-reflector xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-default-policy">
+                                <config>
+                                    <route-reflector-client>true</route-reflector-client>
+                                </config>
+                            </route-reflector>
+                        </neighbor-announced-condition>
+                    </conditions>
+                    <actions>
+                        <to-route-reflector-export-actions xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-default-policy"/>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>to-odl-internal</name>
+                    <conditions>
+                        <neighbor-announced-condition xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-default-policy">
+                            <config>
+                                <peer-group>application-peers</peer-group>
+                            </config>
+                        </neighbor-announced-condition>
+                    </conditions>
+                    <actions>
+                        <to-odl-internal-export-actions xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-default-policy"/>
+                    </actions>
+                </statement>
+            </statements>
+        </policy-definition>
+    </policy-definitions>
+</routing-policy>

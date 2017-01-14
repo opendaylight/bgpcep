@@ -191,6 +191,11 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-openconfig-routing-policy-statement</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>bgp-path-selection-mode</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -233,6 +238,13 @@
                 <version>${project.version}</version>
                 <type>xml</type>
                 <classifier>network-topology-initial-config</classifier>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-controller-config</artifactId>
+                <version>${project.version}</version>
+                <type>xml</type>
+                <classifier>routing-policy-initial-config</classifier>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
