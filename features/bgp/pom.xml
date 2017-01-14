@@ -44,6 +44,7 @@
         <module>odl-bgpcep-bgp-cli</module>
         <module>odl-bgpcep-bgp-config-loader</module>
         <module>odl-bgpcep-bgp-openconfig-state</module>
+        <module>odl-bgpcep-bgp-openconfig-routing-policy-spi</module>
     </modules>
 
   <!--
