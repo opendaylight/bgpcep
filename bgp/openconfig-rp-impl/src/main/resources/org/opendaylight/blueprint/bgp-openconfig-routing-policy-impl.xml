@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+~  Copyright (c) 2017. AT&T Intellectual Property. All rights reserved.
+~
+~  This program and the accompanying materials are made available under the
+~  terms of the Eclipse Public License v1.0 which accompanies this distribution,
+~  and is available at http://www.eclipse.org/legal/epl-v10.html
+-->
+<blueprint xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+    <reference id="dataBroker" interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
+               odl:type="pingpong"/>
+
+    <bean id="openconfigRoutingPolicyListener"
+          class="org.opendaylight.protocol.bgp.openconfig.routing.policy.impl.OpenconfigRoutingPolicy"
+          destroy-method="close">
+        <argument ref="dataBroker"/>
+    </bean>
+
+    <service ref="openconfigRoutingPolicyListener"
+             interface="org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.OpenconfigPolicyConsumer"/>
+
+    <reference id="statementRegistry"
+               interface="org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.StatementRegistryConsumer"/>
+
+    <bean id="openconfigRIBPolicyConsumer"
+          class="org.opendaylight.protocol.bgp.openconfig.routing.policy.impl.BGPOpenConfigRIBPolicy">
+        <argument ref="openconfigRoutingPolicyListener"/>
+        <argument ref="statementRegistry"/>
+    </bean>
+
+    <service ref="openconfigRIBPolicyConsumer"
+             interface="org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.BGPOpenconfigRIBRoutingPolicyConsumer"/>
+</blueprint>
