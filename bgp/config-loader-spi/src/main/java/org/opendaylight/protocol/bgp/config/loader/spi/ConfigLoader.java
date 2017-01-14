@@ -5,11 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.config.loader.spi;
 
 import javax.annotation.Nonnull;
-import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
+import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 
 public interface ConfigLoader {
@@ -23,5 +22,6 @@ public interface ConfigLoader {
      *
      * @return Binding Normalized node serializer
      */
-    @Nonnull BindingNormalizedNodeSerializer getBindingNormalizedNodeSerializer();
+    @Nonnull
+    BindingNormalizedNodeSerializer getBindingNormalizedNodeSerializer();
 }

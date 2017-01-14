@@ -21,9 +21,9 @@ import java.util.regex.Pattern;
 import javax.annotation.concurrent.GuardedBy;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
+import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.config.loader.spi.ConfigFileProcessor;
 import org.opendaylight.protocol.bgp.config.loader.spi.ConfigLoader;
-import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.stream.NormalizedNodeStreamWriter;
@@ -104,7 +104,8 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
         final SchemaNode schemaNode = SchemaContextUtil.findDataSchemaNode(this.schemaContext, config.getSchemaPath());
         final XmlParserStream xmlParser = XmlParserStream.create(streamWriter, this.schemaContext, schemaNode);
         xmlParser.parse(reader);
-
+        streamWriter.close();
+        resourceAsStream.close();
         return result.getResult();
     }
 

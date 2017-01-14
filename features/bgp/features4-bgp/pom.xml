@@ -169,6 +169,13 @@
             <classifier>features</classifier>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>odl-bgpcep-bgp-openconfig-routing-policy</artifactId>
+            <type>xml</type>
+            <classifier>features</classifier>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
 
     <!--
