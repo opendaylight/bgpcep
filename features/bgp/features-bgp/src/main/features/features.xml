@@ -29,6 +29,7 @@
         <feature version='${project.version}'>odl-bgpcep-bgp-rib-api</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-openconfig</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-openconfig-routing-policy-spi</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-openconfig-routing-policy</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-rib-impl</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-openconfig-state</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-inet</feature>
@@ -154,6 +155,7 @@
         <feature version='${project.version}'>odl-bgpcep-bgp-inet</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-path-selection-mode</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-config-loader</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-openconfig-routing-policy</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-openconfig-api/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-openconfig-spi/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-impl/{{VERSION}}</bundle>
@@ -195,5 +197,11 @@
     <feature name="odl-bgpcep-bgp-openconfig-routing-policy-spi" version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-bgp-inet</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-openconfig-routing-policy-spi/{{VERSION}}</bundle>
+    </feature>
+
+    <feature name="odl-bgpcep-bgp-openconfig-routing-policy" version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-bgp-config-loader</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-openconfig-routing-policy-spi</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-openconfig-routing-policy-impl/{{VERSION}}</bundle>
     </feature>
 </features>
