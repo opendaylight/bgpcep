@@ -61,5 +61,6 @@
         <module>peer-acceptor</module>
         <module>openconfig-state</module>
         <module>openconfig-rp-spi</module>
+        <module>openconfig-rp-impl</module>
     </modules>
 </project>
