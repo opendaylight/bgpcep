@@ -45,5 +45,6 @@
         <module>odl-bgpcep-bgp-cli</module>
         <module>odl-bgpcep-bgp-openconfig-state</module>
         <module>odl-bgpcep-bgp-openconfig-rp-spi</module>
+        <module>odl-bgpcep-bgp-openconfig-rp-impl</module>
     </modules>
 </project>
