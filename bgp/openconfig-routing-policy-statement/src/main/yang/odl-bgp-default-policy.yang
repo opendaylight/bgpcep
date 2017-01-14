@@ -1,0 +1,118 @@
+module odl-bgp-policy {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:odl-bgp-default-policy";
+    prefix "odl-bgp-policy";
+
+    import yang-ext { prefix ext; revision-date 2013-07-09; }
+    import openconfig-network-instance { prefix netinst; }
+    import openconfig-bgp { prefix openconfig-bgp; }
+
+    organization "Cisco Systems, Inc.";
+    contact "Claudio D. Gasparini <cgaspari@cisco.com>";
+
+    description
+        "This module contains odl bgp policy model
+        to be used under openconfig policy model definitions.
+
+        Copyright (c)2017 Cisco Systems, Inc. All rights reserved.
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2017-01-09" {
+        description
+            "ODL BGP policy models";
+    }
+
+    grouping default-odl-bgp-neighbor-conditions {
+        container config {
+            description
+                "Configuration parameters relating to the BGP neighbor or
+                group";
+            uses openconfig-bgp:bgp-neighbor_config;
+            uses openconfig-bgp:bgp-neighbor-peer-group_config;
+        }
+        container route-reflector {
+            description
+                "Route reflector parameters for the BGP neighbor or group";
+            container config {
+                description
+                    "Configuraton parameters relating to route reflection
+                    for the BGP neighbor or group";
+                uses openconfig-bgp:bgp-neighbor-route-reflector_config;
+            }
+        }
+    }
+
+    augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:conditions {
+        ext:augment-identifier neighbor-announcer-condition;
+        container neighbor-announcer-condition {
+            uses default-odl-bgp-neighbor-conditions;
+        }
+    }
+
+    augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:conditions {
+        ext:augment-identifier neighbor-announced-condition;
+        container neighbor-announced-condition {
+            uses default-odl-bgp-neighbor-conditions;
+        }
+    }
+
+    augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions {
+        ext:augment-identifier to-external-export-actions;
+        container to-external-export-actions {
+            presence "Default ODL to external export policy action";
+        }
+    }
+
+    augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions {
+        ext:augment-identifier to-internal-export-actions;
+        container to-internal-export-actions {
+            presence "Default ODL to internal export policy action";
+        }
+    }
+
+    augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions {
+        ext:augment-identifier to-route-reflector-export-actions;
+        container to-route-reflector-export-actions {
+            presence "Default ODL to route reflector export policy action";
+        }
+    }
+
+    augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions {
+        ext:augment-identifier to-odl-internal-export-actions;
+        container to-odl-internal-export-actions {
+            presence "Default ODL to internal export policy action";
+        }
+    }
+
+    augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions {
+        ext:augment-identifier from-external-import-actions;
+        container from-external-import-actions {
+            presence "Default ODL from external import policy action";
+        }
+    }
+
+    augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions {
+        ext:augment-identifier from-internal-import-actions;
+        container from-internal-import-actions {
+            presence "Default ODL from internal import policy action";
+        }
+    }
+
+    augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions {
+        ext:augment-identifier from-route-reflector-import-actions;
+        container from-route-reflector-import-actions {
+            presence "Default ODL from route reflector import policy action";
+        }
+    }
+
+    augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions {
+        ext:augment-identifier from-odl-internal-import-actions;
+        container from-odl-internal-import-actions {
+            presence "Default ODL from odl internal import policy action";
+        }
+    }
+}

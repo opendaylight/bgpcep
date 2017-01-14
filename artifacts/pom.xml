@@ -191,6 +191,11 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-openconfig-routing-policy-statement</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>bgp-path-selection-mode</artifactId>
                 <version>${project.version}</version>
             </dependency>
