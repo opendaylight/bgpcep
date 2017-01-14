@@ -66,6 +66,7 @@
         <module>config-loader-impl</module>
         <module>openconfig-state</module>
         <module>openconfig-routing-policy-spi</module>
+        <module>openconfig-routing-policy-impl</module>
     </modules>
 
   <!--
