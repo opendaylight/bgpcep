@@ -243,6 +243,10 @@
       </dependency>
       <dependency>
           <groupId>${project.groupId}</groupId>
+          <artifactId>bgp-openconfig-routing-policy-statement</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>${project.groupId}</groupId>
           <artifactId>bgp-controller-config</artifactId>
           <type>xml</type>
           <classifier>config</classifier>

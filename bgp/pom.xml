@@ -67,6 +67,7 @@
         <module>openconfig-state</module>
         <module>openconfig-routing-policy-spi</module>
         <module>openconfig-routing-policy-impl</module>
+        <module>openconfig-routing-policy-statement</module>
     </modules>
 
   <!--

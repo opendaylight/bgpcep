@@ -93,6 +93,11 @@
                                     <type>xml</type>
                                     <classifier>network-topology-initial-config</classifier>
                                 </artifact>
+                                <artifact>
+                                    <file>${project.build.directory}/classes/initial/routing-policy-config.xml</file>
+                                    <type>xml</type>
+                                    <classifier>routing-policy-initial-config</classifier>
+                                </artifact>
                             </artifacts>
                         </configuration>
                     </execution>
