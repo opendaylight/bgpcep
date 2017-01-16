@@ -12,8 +12,6 @@ import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
-import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
@@ -96,4 +94,6 @@ public interface RIB extends RibReference {
     ExportPolicyPeerTracker getExportPolicyPeerTracker(TablesKey tablesKey);
 
     Set<TablesKey> getLocalTablesKeys();
+
+    boolean supportsTable(TablesKey tableKey);
 }

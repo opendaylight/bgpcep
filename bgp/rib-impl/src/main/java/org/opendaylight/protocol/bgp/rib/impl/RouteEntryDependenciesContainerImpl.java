@@ -22,13 +22,17 @@ public final class RouteEntryDependenciesContainerImpl implements RouteEntryDepe
     private final TablesKey tablesKey;
     private final YangInstanceIdentifier locRibTarget;
     private final ExportPolicyPeerTracker exportPolicyPeerTracker;
+    private final BGPRibRoutingPolicy routingPolicies;
 
     public RouteEntryDependenciesContainerImpl(
             final RIBSupport ribSupport,
+            final BGPRibRoutingPolicy routingPolicies,
             final TablesKey tablesKey,
-            final YangInstanceIdentifier locRibTarget, final ExportPolicyPeerTracker exportPolicyPeerTracker) {
+            final YangInstanceIdentifier locRibTarget,
+            final ExportPolicyPeerTracker exportPolicyPeerTracker) {
         this.ribSupport = requireNonNull(ribSupport);
         this.tablesKey = requireNonNull(tablesKey);
+        this.routingPolicies = requireNonNull(routingPolicies);
         this.locRibTarget = requireNonNull(locRibTarget);
         this.exportPolicyPeerTracker = requireNonNull(exportPolicyPeerTracker);
     }
@@ -36,6 +40,11 @@ public final class RouteEntryDependenciesContainerImpl implements RouteEntryDepe
     @Override
     public RIBSupport getRibSupport() {
         return this.ribSupport;
+    }
+
+    @Override
+    public BGPRibRoutingPolicy getRoutingPolicies() {
+        return this.routingPolicies;
     }
 
     @Override
@@ -50,7 +59,7 @@ public final class RouteEntryDependenciesContainerImpl implements RouteEntryDepe
 
     @Override
     public ExportPolicyPeerTracker getExportPolicyPeerTracker() {
-        return exportPolicyPeerTracker;
+        return this.exportPolicyPeerTracker;
     }
 
     @Override
