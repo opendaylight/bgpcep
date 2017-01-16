@@ -18,6 +18,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 /**
  * A collection of peers sharing the same export policy.
  */
+@Deprecated
 public interface PeerExportGroup {
     final class PeerExporTuple {
         private final YangInstanceIdentifier yii;

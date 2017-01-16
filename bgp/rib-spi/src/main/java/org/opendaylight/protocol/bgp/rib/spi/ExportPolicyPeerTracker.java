@@ -22,6 +22,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNod
 /**
  * Tracks peers for adj-rib-out writeout.
  */
+@Deprecated
 public interface ExportPolicyPeerTracker {
     /**
      * Update set with supported tables per peer
