@@ -21,6 +21,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 /**
  * Tracks peers for adj-rib-out writeout.
  */
+@Deprecated
 public interface ExportPolicyPeerTracker {
     /**
      * Register Peer.
