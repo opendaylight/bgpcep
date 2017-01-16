@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BGPPeerRuntimeMXBean;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BGPPeerRuntimeRegistration;
@@ -134,6 +135,8 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
     private final BGPPeerStats peerStats;
     private YangInstanceIdentifier peerIId;
     private final Set<AbstractRegistration> tableRegistration = new HashSet<>();
+    private PeerId peerId;
+    private Map<TablesKey, SendReceive> addPathTableMaps;
 
     public BGPPeer(final String name, final RIB rib, final PeerRole role, final SimpleRoutingPolicy peerStatus,
         final RpcProviderRegistry rpcRegistry,
@@ -169,6 +172,16 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
         final ListenableFuture<Void> future = releaseConnection();
         this.chain.close();
         return future;
+    }
+
+    @Override
+    public boolean isTableSupportedAndReady(final TablesKey tablesKey) {
+        return !(!supportsTable(tablesKey) || !isTableStructureInitialized(tablesKey));
+    }
+
+    private boolean isTableStructureInitialized(final TablesKey tablesKey) {
+        //TBD
+        return false;
     }
 
     @Override
@@ -317,28 +330,28 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
         final List<BgpTableType> advertizedGracefulRestartTableTypes = session.getAdvertisedGracefulRestartTableTypes();
         LOG.info("Session with peer {} went up with tables {} and Add Path tables {}", this.name, advertizedTableTypes, addPathTablesType);
         this.rawIdentifier = InetAddresses.forString(session.getBgpId().getValue()).getAddress();
-        final PeerId peerId = RouterIds.createPeerId(session.getBgpId());
+        this.peerId = RouterIds.createPeerId(session.getBgpId());
 
         this.tables.addAll(advertizedTableTypes.stream().map(t -> new TablesKey(t.getAfi(), t.getSafi())).collect(Collectors.toList()));
 
         setAdvertizedGracefulRestartTableTypes(advertizedGracefulRestartTableTypes.stream()
             .map(t -> new TablesKey(t.getAfi(), t.getSafi())).collect(Collectors.toList()));
         final boolean announceNone = isAnnounceNone(this.simpleRoutingPolicy);
-        final Map<TablesKey, SendReceive> addPathTableMaps = mapTableTypesFamilies(addPathTablesType);
+        this.addPathTableMaps = mapTableTypesFamilies(addPathTablesType);
         this.peerIId = this.rib.getYangRibId().node(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer.QNAME)
-            .node(IdentifierUtils.domPeerId(peerId));
+            .node(IdentifierUtils.domPeerId(this.peerId));
 
         if(!announceNone) {
-            createAdjRibOutListener(peerId);
+            createAdjRibOutListener(this.peerId);
         }
         this.tables.forEach(tablesKey -> {
             final ExportPolicyPeerTracker exportTracker = this.rib.getExportPolicyPeerTracker(tablesKey);
             if (exportTracker != null) {
-                this.tableRegistration.add(exportTracker.registerPeer(peerId, addPathTableMaps.get(tablesKey), this.peerIId, this.peerRole,
-                    this.simpleRoutingPolicy));
+                this.tableRegistration.add(exportTracker.registerPeer(this.peerId, this.addPathTableMaps.get(tablesKey),
+                    this.peerIId, this.peerRole, this.simpleRoutingPolicy));
             }
         });
-        addBgp4Support(peerId, announceNone);
+        addBgp4Support(this.peerId, announceNone);
 
         if(!isLearnNone(this.simpleRoutingPolicy)) {
             this.effRibInWriter = EffectiveRibInWriter.create(this.rib.getService(), this.rib.createPeerChain(this),
@@ -346,7 +359,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
                 this.peerStats.getAdjRibInRouteCounters(), this.tables);
             registerPrefixesCounters(this.effRibInWriter, this.effRibInWriter);
         }
-        this.ribWriter = this.ribWriter.transform(peerId, this.rib.getRibSupportContext(), this.tables, addPathTableMaps);
+        this.ribWriter = this.ribWriter.transform(this.peerId, this.rib.getRibSupportContext(), this.tables, this.addPathTableMaps);
 
         // register BGP Peer stats
         this.peerStats.getSessionEstablishedCounter().increment();
@@ -357,7 +370,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
         if (this.rpcRegistry != null) {
             this.rpcRegistration = this.rpcRegistry.addRoutedRpcImplementation(BgpPeerRpcService.class, new BgpPeerRpc(session, this.tables));
             final KeyedInstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer, PeerKey> path =
-                    this.rib.getInstanceIdentifier().child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer.class, new PeerKey(peerId));
+                    this.rib.getInstanceIdentifier().child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer.class, new PeerKey(this.peerId));
             this.rpcRegistration.registerPath(PeerContext.class, path);
         }
 
@@ -475,6 +488,35 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
     @Override
     public synchronized byte[] getRawIdentifier() {
         return Arrays.copyOf(this.rawIdentifier, this.rawIdentifier.length);
+    }
+
+    @Nonnull
+    @Override
+    public PeerId getPeerId() {
+        return this.peerId;
+    }
+
+    @Nullable
+    @Override
+    public SendReceive getSupportedAddPathTables(@Nonnull final TablesKey tableKey) {
+        return this.addPathTableMaps.get(tableKey);
+    }
+
+    @Override
+    public boolean supportsTable(@Nonnull final TablesKey tableKey) {
+        return this.tables.contains(tableKey);
+    }
+
+    @Nonnull
+    @Override
+    public YangInstanceIdentifier getYii() {
+        return this.peerIId;
+    }
+
+    @Nonnull
+    @Override
+    public PeerRole getRole() {
+        return this.peerRole;
     }
 
     @Override

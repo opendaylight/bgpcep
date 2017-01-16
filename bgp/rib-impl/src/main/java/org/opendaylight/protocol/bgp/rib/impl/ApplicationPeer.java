@@ -18,6 +18,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
@@ -44,6 +46,7 @@ import org.opendaylight.protocol.bgp.rib.spi.state.BGPTimersState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTransportState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.SendReceive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
@@ -93,6 +96,7 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
     private ListenerRegistration<ApplicationPeer> registration;
     private final Set<NodeIdentifierWithPredicates> supportedTables = new HashSet<>();
     private final BGPSessionStateImpl bgpSessionState = new BGPSessionStateImpl();
+    private PeerId peerId;
 
     @FunctionalInterface
     interface RegisterAppPeerListener {
@@ -121,12 +125,12 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
         this.writerChain = this.rib.createPeerChain(this);
 
         final Optional<SimpleRoutingPolicy> simpleRoutingPolicy = Optional.of(SimpleRoutingPolicy.AnnounceNone);
-        final PeerId peerId = RouterIds.createPeerId(this.ipAddress);
+        this.peerId = RouterIds.createPeerId(this.ipAddress);
         final Set<TablesKey> localTables = this.rib.getLocalTablesKeys();
         localTables.forEach(tablesKey -> {
             final ExportPolicyPeerTracker exportTracker = this.rib.getExportPolicyPeerTracker(tablesKey);
             if (exportTracker != null) {
-                exportTracker.registerPeer(peerId, null, this.peerIId, PeerRole.Internal, simpleRoutingPolicy);
+                exportTracker.registerPeer(this.peerId, null, this.peerIId, PeerRole.Internal, simpleRoutingPolicy);
             }
             this.supportedTables.add(RibSupportUtils.toYangTablesKey(tablesKey));
         });
@@ -141,7 +145,7 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
                 }
             }
         };
-        this.adjRibInWriter = this.adjRibInWriter.transform(peerId, context, localTables, Collections.emptyMap(),
+        this.adjRibInWriter = this.adjRibInWriter.transform(this.peerId, context, localTables, Collections.emptyMap(),
             registerAppPeerListener);
         final BGPPeerStats peerStats = new BGPPeerStatsImpl(this.name, localTables, this);
         this.effectiveRibInWriter = EffectiveRibInWriter.create(this.rib.getService(), this.rib.createPeerChain(this), this.peerIId,
@@ -279,8 +283,49 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
     }
 
     @Override
+    public boolean isTableSupportedAndReady(final TablesKey tablesKey) {
+        return !(!supportsTable(tablesKey) || !isTableStructureInitialized(tablesKey));
+    }
+
+    private boolean isTableStructureInitialized(final TablesKey tablesKey) {
+        //TBD
+        return false;
+    }
+
+    @Override
     public byte[] getRawIdentifier() {
         return Arrays.copyOf(this.rawIdentifier, this.rawIdentifier.length);
+    }
+
+    @Override
+    public PeerId getPeerId() {
+        return this.peerId;
+    }
+
+    @Override
+    public boolean supportsAddPathSupported(final TablesKey tableKey) {
+        return false;
+    }
+
+    @Nullable
+    @Override
+    public SendReceive getSupportedAddPathTables(@Nonnull final TablesKey tableKey) {
+        return null;
+    }
+
+    @Override
+    public boolean supportsTable(final TablesKey tableKey) {
+        return this.rib.getLocalTablesKeys().contains(tableKey);
+    }
+
+    @Override
+    public YangInstanceIdentifier getYii() {
+        return this.peerIId;
+    }
+
+    @Override
+    public PeerRole getRole() {
+        return PeerRole.Internal;
     }
 
     @Override
