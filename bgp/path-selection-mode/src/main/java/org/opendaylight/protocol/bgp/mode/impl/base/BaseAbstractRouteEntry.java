@@ -16,6 +16,7 @@ import org.opendaylight.protocol.bgp.mode.spi.AbstractRouteEntry;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
+import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRIBRoutingPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
@@ -98,6 +99,20 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
         LOG.trace("Find {} in {}", attributesIdentifier, data);
         final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(data, attributesIdentifier).orNull();
         return addRoute(routerId, advertisedAttrs);
+    }
+
+    @Override
+    public void updateRoute(final TablesKey localTK, final BGPRIBRoutingPolicy routingPolicies,
+        final YangInstanceIdentifier locRibTarget, final RIBSupport ribSup,
+        final DOMDataWriteTransaction tx, final PathArgument routeIdPA) {
+        //TODO
+    }
+
+    @Override
+    public void writeRoute(final PathArgument key, final PeerId destPeer, final PathArgument routeId, final YangInstanceIdentifier rootPath,
+        final BGPRIBRoutingPolicy routingPolicies, final TablesKey localTK, final RIBSupport ribSupport,
+        final DOMDataWriteTransaction tx) {
+        //TODO
     }
 
     @Override

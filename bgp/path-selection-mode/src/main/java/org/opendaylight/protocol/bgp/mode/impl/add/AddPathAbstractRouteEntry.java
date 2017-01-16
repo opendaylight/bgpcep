@@ -22,6 +22,7 @@ import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
 import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup.PeerExporTuple;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
+import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRIBRoutingPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
@@ -114,6 +115,20 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
         }
         this.removedPaths.add(new RemovedPath(key, pathId));
         return isEmpty();
+    }
+
+    @Override
+    public void updateRoute(final TablesKey localTK, final BGPRIBRoutingPolicy routingPolicies,
+        final YangInstanceIdentifier locRibTarget, final RIBSupport ribSupport, final DOMDataWriteTransaction tx,
+        final PathArgument routeIdPA) {
+        //TODO
+    }
+
+    @Override
+    public void writeRoute(final PathArgument key, final PeerId destPeer, final PathArgument routeId, final YangInstanceIdentifier rootPath,
+        final BGPRIBRoutingPolicy ribPolicies,
+        final TablesKey localTK, final RIBSupport ribSup, final DOMDataWriteTransaction tx) {
+        //TODO
     }
 
     @Override

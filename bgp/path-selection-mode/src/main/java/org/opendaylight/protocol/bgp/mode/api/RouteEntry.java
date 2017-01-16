@@ -13,6 +13,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
+import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRIBRoutingPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -74,6 +75,7 @@ public interface RouteEntry {
      * @param tx DOM transaction
      * @param routeIdPA router ID pathArgument
      */
+    @Deprecated
     void updateRoute(TablesKey localTK, ExportPolicyPeerTracker peerPT, YangInstanceIdentifier locRibTarget, RIBSupport ribSupport,
         DOMDataWriteTransaction tx, PathArgument routeIdPA);
 
@@ -87,6 +89,34 @@ public interface RouteEntry {
      * @param ribSupport rib support
      * @param tx DOM transaction
      */
+    @Deprecated
     void writeRoute(PeerId peerId, PathArgument routeId, YangInstanceIdentifier rootPath, PeerExportGroup peerGroup, TablesKey localTK,
         ExportPolicyPeerTracker peerPT, RIBSupport ribSupport, DOMDataWriteTransaction tx);
+
+    /**
+     * Update LocRibOut and AdjRibsOut by removing stale best path and writing new best
+     *
+     * @param localTK local Table Key
+     * @param routingPolicies routingPolicies
+     * @param locRibTarget YII local rib
+     * @param ribSupport rib support
+     * @param tx DOM transaction
+     * @param routeIdPA router ID pathArgument
+     */
+    void updateRoute(TablesKey localTK, BGPRIBRoutingPolicy routingPolicies, YangInstanceIdentifier locRibTarget,
+        RIBSupport ribSupport, DOMDataWriteTransaction tx, PathArgument routeIdPA);
+
+    /**
+     * Write Route on LocRibOut and AdjRibsOut
+     * @param key RouteKey
+     * @param peerId destination peerId
+     * @param routeId router ID path Argument
+     * @param rootPath YII root path
+     * @param ribPolicies ribPolicies
+     * @param localTK local Table Key
+     * @param ribSupport rib support
+     * @param tx DOM transaction
+     */
+    void writeRoute(final PathArgument key, PeerId peerId, PathArgument routeId, YangInstanceIdentifier rootPath, BGPRIBRoutingPolicy ribPolicies,
+        TablesKey localTK, RIBSupport ribSupport, DOMDataWriteTransaction tx);
 }
