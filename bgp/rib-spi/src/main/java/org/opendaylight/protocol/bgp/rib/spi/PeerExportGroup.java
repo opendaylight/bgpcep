@@ -17,8 +17,26 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 /**
  * A collection of peers sharing the same export policy.
+ *
+ * @deprecated Replaced by {@link BGPPeerTracker}
  */
 public interface PeerExportGroup {
+    /**
+     * Transform outgoing attributes according to policy per Peer
+     *
+     * @param role       root Peer role
+     * @param attributes attributes container
+     * @return return attributes container after apply policy
+     */
+    ContainerNode effectiveAttributes(PeerRole role, ContainerNode attributes);
+
+    /**
+     * @return map of peer
+     */
+    Collection<Map.Entry<PeerId, PeerExporTuple>> getPeers();
+
+    boolean containsPeer(PeerId routePeerId);
+
     final class PeerExporTuple {
         private final YangInstanceIdentifier yii;
         private final PeerRole role;
@@ -36,20 +54,4 @@ public interface PeerExportGroup {
             return this.role;
         }
     }
-
-    /**
-     * Transform outgoing attributes according to policy per Peer
-     *
-     * @param role root Peer role
-     * @param attributes attributes container
-     * @return return attributes container after apply policy
-     */
-    ContainerNode effectiveAttributes(PeerRole role, ContainerNode attributes);
-
-    /**
-     * @return map of peer
-     */
-    Collection<Map.Entry<PeerId, PeerExporTuple>> getPeers();
-
-    boolean containsPeer(PeerId routePeerId);
 }
