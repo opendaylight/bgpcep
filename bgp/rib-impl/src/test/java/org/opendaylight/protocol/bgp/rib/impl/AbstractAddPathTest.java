@@ -13,6 +13,7 @@ import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.readData;
 import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.waitFutureSuccess;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import io.netty.channel.epoll.Epoll;
@@ -23,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import javassist.ClassPool;
 import org.junit.After;
 import org.junit.Assert;
@@ -37,6 +39,7 @@ import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvid
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.protocol.bgp.inet.RIBActivator;
 import org.opendaylight.protocol.bgp.parser.BGPError;
+import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.impl.BGPActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
@@ -77,6 +80,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.message.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.SendReceive;
@@ -130,12 +134,14 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
     static final Update UPD_200 = createSimpleUpdate(PREFIX1, new PathId(3L), CLUSTER_ID, 200);
     static final Update UPD_20 = createSimpleUpdate(PREFIX1, new PathId(1L), CLUSTER_ID, 20);
     static final Update UPD_NA_100 = createSimpleUpdate(PREFIX1, null, CLUSTER_ID, 100);
-    static final Update UPD_NA_100_EBGP = createSimpleUpdateEbgp(PREFIX1, null);
+    static final Update UPD_NA_100_EBGP = createSimpleUpdateEbgp(PREFIX1);
     static final Update UPD_NA_200 = createSimpleUpdate(PREFIX1, null, CLUSTER_ID, 200);
-    static final Update UPD_NA_200_EBGP = createSimpleUpdateEbgp(PREFIX1, null);
+    static final Update UPD_NA_200_EBGP = createSimpleUpdateEbgp(PREFIX1);
     static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+    static final List<BgpTableType> TABLES_TYPE = ImmutableList.of(new BgpTableTypeImpl(TABLES_KEY.getAfi(),
+        TABLES_KEY.getSafi()));
     static final Set<TablesKey> AFI_SAFIS_ADVERTIZED = Collections.singleton(TABLES_KEY);
-    protected BGPExtensionProviderContext context;
+    private BGPExtensionProviderContext context;
     private static final InstanceIdentifier<BgpRib> BGP_IID = InstanceIdentifier.create(BgpRib.class);
     protected SchemaContext schemaContext;
     @Mock
@@ -163,8 +169,10 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
         this.bgpActivator.start(this.context);
         this.inetActivator.start(this.context);
 
-        this.mappingService = new BindingToNormalizedNodeCodec(GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(),
-            new BindingNormalizedNodeCodecRegistry(StreamWriterGenerator.create(JavassistUtils.forClassPool(ClassPool.getDefault()))));
+        this.mappingService = new BindingToNormalizedNodeCodec(
+            GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(),
+            new BindingNormalizedNodeCodecRegistry(StreamWriterGenerator.create(
+                JavassistUtils.forClassPool(ClassPool.getDefault()))));
         final ModuleInfoBackedContext moduleInfoBackedContext = ModuleInfoBackedContext.create();
         moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(BgpParameters.class));
         moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(MultiprotocolCapability.class));
@@ -185,11 +193,11 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws ExecutionException, InterruptedException {
         this.dispatcher.close();
         if (!Epoll.isAvailable()) {
-            this.worker.shutdownGracefully().awaitUninterruptibly();
-            this.boss.shutdownGracefully().awaitUninterruptibly();
+            this.worker.shutdownGracefully(0, 0, TimeUnit.SECONDS);
+            this.boss.shutdownGracefully(0, 0, TimeUnit.SECONDS);
         }
         this.mappingService.close();
         this.ribActivator.close();
@@ -197,21 +205,21 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
         this.bgpActivator.close();
     }
 
-    void sendRouteAndCheckIsOnLocRib(final BGPSessionImpl session, final Ipv4Prefix prefix, final long localPreference, final int expectedRoutesOnDS)
-        throws Exception {
+    void sendRouteAndCheckIsOnLocRib(final BGPSessionImpl session, final Ipv4Prefix prefix, final long localPreference,
+        final int expectedRoutesOnDS) throws Exception {
         waitFutureSuccess(session.writeAndFlush(createSimpleUpdate(prefix, null, null, localPreference)));
         checkLocRib(expectedRoutesOnDS);
     }
 
-    void sendWithdrawalRouteAndCheckIsOnLocRib(final BGPSessionImpl session, final Ipv4Prefix prefix, final long localPreference, final int expectedRoutesOnDS)
-        throws Exception {
+    void sendWithdrawalRouteAndCheckIsOnLocRib(final BGPSessionImpl session, final Ipv4Prefix prefix,
+        final long localPreference, final int expectedRoutesOnDS) throws Exception {
         waitFutureSuccess(session.writeAndFlush(createSimpleWithdrawalUpdate(prefix, localPreference)));
         checkLocRib(expectedRoutesOnDS);
     }
 
     void sendNotification(final BGPSessionImpl session) {
-        Notification notMsg = new NotifyBuilder().setErrorCode(BGPError.OPT_PARAM_NOT_SUPPORTED.getCode()).setErrorSubcode(
-            BGPError.OPT_PARAM_NOT_SUPPORTED.getSubcode()).setData(new byte[] { 4, 9 }).build();
+        final Notification notMsg = new NotifyBuilder().setErrorCode(BGPError.OPT_PARAM_NOT_SUPPORTED.getCode())
+            .setErrorSubcode(BGPError.OPT_PARAM_NOT_SUPPORTED.getSubcode()).setData(new byte[] { 4, 9 }).build();
         waitFutureSuccess(session.writeAndFlush(notMsg));
     }
 
@@ -224,7 +232,8 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
     private void checkLocRib(final int expectedRoutesOnDS) throws Exception {
         Thread.sleep(100);
         readData(getDataBroker(), BGP_IID, bgpRib -> {
-            final Ipv4RoutesCase routes = ((Ipv4RoutesCase) bgpRib.getRib().get(0).getLocRib().getTables().get(0).getRoutes());
+            final Ipv4RoutesCase routes = ((Ipv4RoutesCase) bgpRib.getRib().get(0).getLocRib().getTables().get(0)
+                .getRoutes());
             final List<Ipv4Route> routeList = routes.getIpv4Routes().getIpv4Route();
             Assert.assertEquals(expectedRoutesOnDS, routeList.size());
             return bgpRib;
@@ -313,28 +322,31 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
         return new UpdateBuilder().setAttributes(attBuilder.build()).build();
     }
 
-    private static Update createSimpleUpdateEbgp(final Ipv4Prefix prefix, final PathId pathId) {
+    private static Update createSimpleUpdateEbgp(final Ipv4Prefix prefix) {
         final AttributesBuilder attBuilder = new AttributesBuilder();
         attBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build());
         attBuilder.setAsPath(new AsPathBuilder().setSegments(Collections.singletonList(
             new SegmentsBuilder().setAsSequence(Collections.singletonList(AS_NUMBER)).build())).build());
-        addAttributeAugmentation(attBuilder, prefix, pathId);
+        addAttributeAugmentation(attBuilder, prefix, null);
 
         return new UpdateBuilder().setAttributes(attBuilder.build()).build();
     }
 
-    private static void addAttributeAugmentation(final AttributesBuilder attBuilder, final Ipv4Prefix prefix, final PathId pathId) {
+    private static void addAttributeAugmentation(final AttributesBuilder attBuilder, final Ipv4Prefix prefix,
+        final PathId pathId) {
         attBuilder.setUnrecognizedAttributes(Collections.emptyList());
         attBuilder.addAugmentation(Attributes1.class,
             new Attributes1Builder().setMpReachNlri(
                 new MpReachNlriBuilder()
-                    .setCNextHop(new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(NH1).build()).build())
+                    .setCNextHop(new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(NH1)
+                        .build()).build())
                     .setAfi(Ipv4AddressFamily.class)
                     .setSafi(UnicastSubsequentAddressFamily.class)
                     .setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
                         new DestinationIpv4CaseBuilder().setDestinationIpv4(
                             new DestinationIpv4Builder().setIpv4Prefixes(Collections.singletonList(
-                                new Ipv4PrefixesBuilder().setPathId(pathId).setPrefix(new Ipv4Prefix(prefix)).build())).build())
+                                new Ipv4PrefixesBuilder().setPathId(pathId).setPrefix(new Ipv4Prefix(prefix)).build()))
+                                .build())
                             .build()).build())
                     .build()).build());
     }
@@ -345,6 +357,7 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
         attBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build());
         attBuilder.setAsPath(new AsPathBuilder().setSegments(Collections.emptyList()).build());
         attBuilder.setUnrecognizedAttributes(Collections.emptyList());
-        return new UpdateBuilder().setWithdrawnRoutes(new WithdrawnRoutesBuilder().setWithdrawnRoutes(Collections.singletonList(prefix)).build()).build();
+        return new UpdateBuilder().setWithdrawnRoutes(new WithdrawnRoutesBuilder()
+            .setWithdrawnRoutes(Collections.singletonList(prefix)).build()).build();
     }
 }
