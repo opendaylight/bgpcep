@@ -20,6 +20,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -65,8 +66,8 @@ public class PCCDispatcherImplTest {
     }
 
     private void closeEventLoopGroups() throws ExecutionException, InterruptedException {
-        this.workerGroup.shutdownGracefully().get();
-        this.bossGroup.shutdownGracefully().get();
+        this.workerGroup.shutdownGracefully(0, 0, TimeUnit.SECONDS);
+        this.bossGroup.shutdownGracefully(0, 0, TimeUnit.SECONDS);
     }
 
     @Test

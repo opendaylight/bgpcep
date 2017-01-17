@@ -32,6 +32,7 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
+import java.util.concurrent.TimeUnit;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.protocol.BGPProtocolSessionPromise;
 import org.opendaylight.protocol.bgp.rib.impl.protocol.BGPReconnectPromise;
@@ -52,6 +53,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     private static final int SOCKET_BACKLOG_SIZE = 128;
     private static final int HIGH_WATER_MARK = 256 * 1024;
     private static final int LOW_WATER_MARK = 128 * 1024;
+    private static final long TIMEOUT = 10;
 
     private final BGPHandlerFactory handlerFactory;
     private final EventLoopGroup bossGroup;
@@ -76,7 +78,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     private synchronized Future<BGPSessionImpl> createClient(final InetSocketAddress remoteAddress, final BGPPeerRegistry listener, final int retryTimer,
             final Bootstrap clientBootStrap) {
         final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(listener);
-        final ChannelPipelineInitializer initializer = BGPChannel.createChannelPipelineInitializer(BGPDispatcherImpl.this.handlerFactory, snf);
+        final ChannelPipelineInitializer initializer = BGPChannel.createChannelPipelineInitializer(this.handlerFactory, snf);
 
         final BGPProtocolSessionPromise sessionPromise = new BGPProtocolSessionPromise(remoteAddress, retryTimer, clientBootStrap, listener);
         clientBootStrap.handler(BGPChannel.createClientChannelHandler(initializer, sessionPromise));
@@ -124,10 +126,11 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     }
 
     @Override
-    public synchronized void close() {
+    public synchronized void close() throws InterruptedException {
         if (Epoll.isAvailable()) {
-            this.workerGroup.shutdownGracefully().awaitUninterruptibly();
-            this.bossGroup.shutdownGracefully().awaitUninterruptibly();
+            LOG.debug("Closing Dispatcher");
+            this.workerGroup.shutdownGracefully(0, TIMEOUT, TimeUnit.SECONDS);
+            this.bossGroup.shutdownGracefully(0, TIMEOUT, TimeUnit.SECONDS);
         }
     }
 
@@ -144,7 +147,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         final Bootstrap bootstrap = createClientBootStrap(keys, reuseAddress);
         bootstrap.localAddress(localAddress);
         final BGPReconnectPromise reconnectPromise = new BGPReconnectPromise(GlobalEventExecutor.INSTANCE, remoteAddress,
-            retryTimer, bootstrap, peerRegistry, BGPChannel.createChannelPipelineInitializer(BGPDispatcherImpl.this.handlerFactory, snf));
+            retryTimer, bootstrap, peerRegistry, BGPChannel.createChannelPipelineInitializer(this.handlerFactory, snf));
         reconnectPromise.connect();
         return reconnectPromise;
     }
@@ -152,7 +155,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     @Override
     public synchronized ChannelFuture createServer(final BGPPeerRegistry registry, final InetSocketAddress serverAddress) {
         final BGPServerSessionNegotiatorFactory snf = new BGPServerSessionNegotiatorFactory(registry);
-        final ChannelPipelineInitializer initializer = BGPChannel.createChannelPipelineInitializer(BGPDispatcherImpl.this.handlerFactory, snf);
+        final ChannelPipelineInitializer initializer = BGPChannel.createChannelPipelineInitializer(this.handlerFactory, snf);
         final ServerBootstrap serverBootstrap = createServerBootstrap(initializer);
         final ChannelFuture channelFuture = serverBootstrap.bind(serverAddress);
         LOG.debug("Initiated server {} at {}.", channelFuture, serverAddress);

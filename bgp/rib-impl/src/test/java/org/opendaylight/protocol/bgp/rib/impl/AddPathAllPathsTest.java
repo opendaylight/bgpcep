@@ -18,12 +18,17 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.Uninterruptibles;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.add.all.paths.AllPathSelection;
@@ -50,9 +55,35 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 
 public class AddPathAllPathsTest extends AbstractAddPathTest {
+    private RIBImpl ribImpl;
+    private Channel serverChannel;
+
     @FunctionalInterface
     private interface CheckEquals {
         void check();
+    }
+
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
+        final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(TABLES_KEY, new AllPathSelection());
+
+        this.ribImpl = new RIBImpl(this.clusterSingletonServiceProvider, new RibId("test-rib"),
+            AS_NUMBER, BGP_ID, null, this.ribExtension, this.dispatcher, this.mappingService.getCodecFactory(),
+            getDomBroker(), TABLES_TYPE, pathTables, this.ribExtension.getClassLoadingStrategy(), null);
+
+        this.ribImpl.instantiateServiceInstance();
+        this.ribImpl.onGlobalContextUpdated(this.schemaContext);
+        final ChannelFuture channelFuture = this.dispatcher.createServer(StrictBGPPeerRegistry.GLOBAL,
+            new InetSocketAddress(RIB_ID, PORT));
+        waitFutureSuccess(channelFuture);
+        this.serverChannel = channelFuture.channel();
+    }
+
+    @After
+    public void tearDown() throws ExecutionException, InterruptedException {
+        waitFutureSuccess(this.serverChannel.close());
+        super.tearDown();
     }
     /*
      * All-Paths
@@ -66,32 +97,20 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
      */
     @Test
     public void testUseCase1() throws Exception {
-
-        final List<BgpTableType> tables = ImmutableList.of(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
-        final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(TABLES_KEY, new AllPathSelection());
-
-
-        final RIBImpl ribImpl = new RIBImpl(this.clusterSingletonServiceProvider, new RibId("test-rib"), AS_NUMBER, BGP_ID, null, this.ribExtension,
-                this.dispatcher, this.mappingService.getCodecFactory(), getDomBroker(), tables, pathTables, this.ribExtension.getClassLoadingStrategy(), null);
-
-        ribImpl.instantiateServiceInstance();
-        ribImpl.onGlobalContextUpdated(this.schemaContext);
-
-        waitFutureSuccess(this.dispatcher.createServer(StrictBGPPeerRegistry.GLOBAL, new InetSocketAddress(RIB_ID, PORT)));
         final BgpParameters nonAddPathParams = createParameter(false);
         final BgpParameters addPathParams = createParameter(true);
 
-        final BGPPeer peer1 = configurePeer(PEER1, ribImpl, nonAddPathParams, PeerRole.Ibgp);
+        final BGPPeer peer1 = configurePeer(PEER1, this.ribImpl, nonAddPathParams, PeerRole.Ibgp);
         final BGPSessionImpl session1 = createPeerSession(PEER1, nonAddPathParams, new SimpleSessionListener());
 
-        configurePeer(PEER2, ribImpl, nonAddPathParams, PeerRole.Ibgp);
+        configurePeer(PEER2, this.ribImpl, nonAddPathParams, PeerRole.Ibgp);
         final BGPSessionImpl session2 = createPeerSession(PEER2, nonAddPathParams, new SimpleSessionListener());
 
-        configurePeer(PEER3, ribImpl, nonAddPathParams, PeerRole.Ibgp);
+        configurePeer(PEER3, this.ribImpl, nonAddPathParams, PeerRole.Ibgp);
         final BGPSessionImpl session3 = createPeerSession(PEER3, nonAddPathParams, new SimpleSessionListener());
 
         final SimpleSessionListener listener4 = new SimpleSessionListener();
-        final BGPPeer peer4 = configurePeer(PEER4, ribImpl, nonAddPathParams, PeerRole.RrClient);
+        final BGPPeer peer4 = configurePeer(PEER4, this.ribImpl, nonAddPathParams, PeerRole.RrClient);
 
         BGPPeerState peer4State = peer4.getPeerState();
         assertNull(peer4State.getGroupId());
@@ -127,7 +146,7 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         final BGPSessionImpl session4 = createPeerSession(PEER4, nonAddPathParams, listener4);
 
         final SimpleSessionListener listener5 = new SimpleSessionListener();
-        configurePeer(PEER5, ribImpl, addPathParams, PeerRole.RrClient);
+        configurePeer(PEER5, this.ribImpl, addPathParams, PeerRole.RrClient);
         final BGPSessionImpl session5 = createPeerSession(PEER5, addPathParams, listener5);
         checkPeersPresentOnDataStore(5);
 
@@ -175,7 +194,7 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         assertFalse(afiSafiStatePeer1.isPeerRestarting());
         assertTrue(afiSafiStatePeer1.isAfiSafiSupported(TABLES_KEY));
 
-        final BGPRIBState ribState = ribImpl.getRIBState();
+        final BGPRIBState ribState = this.ribImpl.getRIBState();
         assertEquals(1, ribState.getPathsCount().size());
         assertEquals(1L,  ribState.getPrefixesCount().size());
         assertEquals(BGP_ID, ribState.getRouteId());
@@ -186,7 +205,7 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         assertEquals(1L, ribState.getTotalPrefixesCount());
 
         final SimpleSessionListener listener6 = new SimpleSessionListener();
-        final BGPPeer peer6 = configurePeer(PEER6, ribImpl, nonAddPathParams, PeerRole.RrClient);
+        final BGPPeer peer6 = configurePeer(PEER6, this.ribImpl, nonAddPathParams, PeerRole.RrClient);
         final BGPSessionImpl session6 = createPeerSession(PEER6, nonAddPathParams, listener6);
         checkPeersPresentOnDataStore(6);
         checkReceivedMessages(listener6, 1);
@@ -294,7 +313,7 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
 
     private static void checkEquals(final CheckEquals function) throws Exception {
         AssertionError lastError = null;
-        Stopwatch sw = Stopwatch.createStarted();
+        final Stopwatch sw = Stopwatch.createStarted();
         while (sw.elapsed(TimeUnit.SECONDS) <= 10) {
             try {
                 function.check();
