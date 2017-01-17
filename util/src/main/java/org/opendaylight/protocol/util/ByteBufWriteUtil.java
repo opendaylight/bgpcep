@@ -306,26 +306,4 @@ public final class ByteBufWriteUtil {
             output.writeZero(FLOAT32_BYTES_LENGTH);
         }
     }
-
-    /**
-     * Writes BitSet's bits if not null, otherwise writes zeros to the
-     * <code>output</code> ByteBuf. ByteBuf's writerIndex is increased by
-     * specified length.
-     *
-     * @param bitSet
-     *            BitSet values to be written to the output, starting from left most bit.
-     * @param outputLength
-     *            Number of bytes to be written, must be greater than 0.
-     * @param output
-     *            ByteBuf, where bitSet or zeros are written.
-     */
-    public static void writeBitSet(final BitSet bitSet, final int outputLength, final ByteBuf output) {
-        Preconditions.checkArgument(outputLength > 0);
-        if (bitSet != null) {
-            output.writeBytes(ByteArray.bitSetToBytes(bitSet, outputLength));
-        } else {
-            output.writeZero(outputLength);
-        }
-    }
-
 }

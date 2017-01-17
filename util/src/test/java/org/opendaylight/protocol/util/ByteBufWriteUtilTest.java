@@ -9,7 +9,6 @@
 package org.opendaylight.protocol.util;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeBitSet;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeBoolean;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeFloat32;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeInt;
@@ -30,7 +29,6 @@ import io.netty.buffer.Unpooled;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
-import java.util.BitSet;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
@@ -220,20 +218,6 @@ public class ByteBufWriteUtilTest {
         output.clear();
         writeFloat32(null, output);
         assertArrayEquals(FOUR_BYTE_ZEROS, output.array());
-    }
-
-    @Test
-    public void testWriteBitSet() {
-        final byte[] result = { 1 };
-        final ByteBuf output = Unpooled.buffer(1);
-        final BitSet bitSet = new BitSet(8);
-        bitSet.set(7);
-        writeBitSet(bitSet, 1, output);
-        assertArrayEquals(result, output.array());
-
-        output.clear();
-        writeBitSet(null, 1, output);
-        assertArrayEquals(ONE_BYTE_ZERO, output.array());
     }
 
     @Test(expected=UnsupportedOperationException.class)
