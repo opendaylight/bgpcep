@@ -27,9 +27,9 @@ public final class CheckUtil {
     private static final int LATCH_TIMEOUT = 10;
     private static final int SLEEP_FOR = 20;
     private static final int SLEEP_UNINTERRUPTIBLY = 50;
-    public static void checkReceivedMessages(final SimpleSessionListener listener, final int numberOfMessages)
+    static void checkReceivedMessages(final SimpleSessionListener listener, final int numberOfMessages)
         throws ReadFailedException {
-        Stopwatch sw = Stopwatch.createStarted();
+        final Stopwatch sw = Stopwatch.createStarted();
         while (sw.elapsed(TimeUnit.SECONDS) <= TIMEOUT) {
             if (listener.getListMsg().size() != numberOfMessages) {
                 Uninterruptibles.sleepUninterruptibly(SLEEP_UNINTERRUPTIBLY, TimeUnit.MILLISECONDS);
@@ -40,7 +40,8 @@ public final class CheckUtil {
         Assert.fail();
     }
 
-    public static <R, T extends DataObject> R readData(final DataBroker dataBroker, final InstanceIdentifier<T> iid, final Function<T, R> function)
+    public static <R, T extends DataObject> R readData(final DataBroker dataBroker, final InstanceIdentifier<T> iid,
+        final Function<T, R> function)
         throws ReadFailedException {
         AssertionError lastError = null;
         final Stopwatch sw = Stopwatch.createStarted();

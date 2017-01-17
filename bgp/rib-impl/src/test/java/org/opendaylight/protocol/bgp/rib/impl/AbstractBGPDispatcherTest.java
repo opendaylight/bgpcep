@@ -78,8 +78,8 @@ public class AbstractBGPDispatcherTest {
         this.serverDispatcher = new BGPDispatcherImpl(ctx.getMessageRegistry(), this.boss, this.worker);
 
         this.clientAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
-        final IpAddress clientPeerIp = new IpAddress(new Ipv4Address(clientAddress.getAddress().getHostAddress()));
-        this.registry.addPeer(clientPeerIp, this.clientListener, createPreferences(clientAddress));
+        final IpAddress clientPeerIp = new IpAddress(new Ipv4Address(this.clientAddress.getAddress().getHostAddress()));
+        this.registry.addPeer(clientPeerIp, this.clientListener, createPreferences(this.clientAddress));
         this.clientDispatcher = new BGPDispatcherImpl(ctx.getMessageRegistry(), this.boss, this.worker);
     }
 
@@ -88,19 +88,8 @@ public class AbstractBGPDispatcherTest {
         this.serverDispatcher.close();
         this.registry.close();
         if (!Epoll.isAvailable()) {
-            this.worker.shutdownGracefully().awaitUninterruptibly();
-            this.boss.shutdownGracefully().awaitUninterruptibly();
-        }
-    }
-
-    private void configureClient(final BGPExtensionProviderContext ctx) {
-        final InetSocketAddress clientAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
-        final IpAddress clientPeerIp = new IpAddress(new Ipv4Address(clientAddress.getAddress().getHostAddress()));
-        this.registry.addPeer(clientPeerIp, this.clientListener, createPreferences(clientAddress));
-        this.clientDispatcher = new BGPDispatcherImpl(ctx.getMessageRegistry(), this.boss, this.worker);
-        if (!Epoll.isAvailable()) {
-            this.worker.shutdownGracefully().awaitUninterruptibly();
-            this.boss.shutdownGracefully().awaitUninterruptibly();
+            this.worker.shutdownGracefully(0, 0, TimeUnit.SECONDS);;
+            this.boss.shutdownGracefully(0, 0, TimeUnit.SECONDS);;
         }
     }
 
@@ -119,7 +108,7 @@ public class AbstractBGPDispatcherTest {
     }
 
     public static void checkIdleState(final SimpleSessionListener listener) {
-        Stopwatch sw = Stopwatch.createStarted();
+        final Stopwatch sw = Stopwatch.createStarted();
         while (sw.elapsed(TimeUnit.SECONDS) <= 10) {
             if (BGPSessionImpl.State.IDLE != listener.getState()) {
                 Uninterruptibles.sleepUninterruptibly(50, TimeUnit.MILLISECONDS);

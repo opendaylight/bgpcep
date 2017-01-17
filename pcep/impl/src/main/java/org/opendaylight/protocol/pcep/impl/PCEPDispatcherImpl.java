@@ -28,6 +28,7 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
 import java.io.Closeable;
 import java.net.InetSocketAddress;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.protocol.concepts.KeyMapping;
@@ -45,6 +46,7 @@ import org.slf4j.LoggerFactory;
 public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPDispatcherImpl.class);
     private static final Integer SOCKET_BACKLOG_SIZE = 128;
+    private static final long TIMEOUT = 10;
     private final PCEPSessionNegotiatorFactory snf;
     private final PCEPHandlerFactory hf;
     private final EventLoopGroup bossGroup;
@@ -140,8 +142,8 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     @Override
     public final void close() {
         if (Epoll.isAvailable()) {
-            this.workerGroup.shutdownGracefully().awaitUninterruptibly();
-            this.bossGroup.shutdownGracefully().awaitUninterruptibly();
+            this.workerGroup.shutdownGracefully(0, TIMEOUT, TimeUnit.SECONDS);;
+            this.bossGroup.shutdownGracefully(0, TIMEOUT, TimeUnit.SECONDS);;
         }
     }
 
