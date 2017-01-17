@@ -155,7 +155,12 @@ final class AdjRibInWriter {
 
             @Override
             public void onFailure(final Throwable throwable) {
-                LOG.error("Failed to register Application Peer Listener", throwable);
+                if(registerAppPeerListener != null) {
+                    LOG.error("Failed to create Empty Structure, Application Peer Listener won't be registered",
+                        throwable);
+                } else {
+                    LOG.error("Failed to create Empty Structure", throwable);
+                }
             }
         });
         return new AdjRibInWriter(this.ribPath, this.chain, this.role, this.simpleRoutingPolicy, newPeerPath, tb);

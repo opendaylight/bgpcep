@@ -47,6 +47,7 @@ public class BmpDispatcherImpl implements BmpDispatcher {
     private static final int CONNECT_TIMEOUT = 5000;
     private static final int INITIAL_BACKOFF = 30_000;
     private static final int MAXIMUM_BACKOFF = 720_000;
+    private static final long TIMEOUT = 10;
 
     private final BmpHandlerFactory hf;
     private final EventLoopGroup bossGroup;
@@ -143,8 +144,8 @@ public class BmpDispatcherImpl implements BmpDispatcher {
     @Override
     public void close() {
         if (Epoll.isAvailable()) {
-            this.workerGroup.shutdownGracefully().awaitUninterruptibly();
-            this.bossGroup.shutdownGracefully().awaitUninterruptibly();
+            this.workerGroup.shutdownGracefully(0, TIMEOUT, TimeUnit.SECONDS);
+            this.bossGroup.shutdownGracefully(0, TIMEOUT, TimeUnit.SECONDS);
         }
     }
 
@@ -175,7 +176,7 @@ public class BmpDispatcherImpl implements BmpDispatcher {
                     return;
                 }
                 final EventLoop loop = cf.channel().eventLoop();
-                loop.schedule(() -> BootstrapListener.this.bootstrap.connect().addListener(BootstrapListener.this), this.delay, TimeUnit.MILLISECONDS);
+                loop.schedule(() -> this.bootstrap.connect().addListener(this), this.delay, TimeUnit.MILLISECONDS);
                 LOG.info("The connection try to BMP router {} failed. Next reconnection attempt in {} milliseconds.", this.address, this.delay);
                 this.delay *= 2;
             }
