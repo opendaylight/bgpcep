@@ -117,20 +117,6 @@ public class ByteArrayTest {
         ByteArray.cutBytes(this.before, 0);
     }
 
-    @Test
-    public void testParseBits() {
-        final byte b = (byte) -76; // 1011 0100
-        final boolean[] after = ByteArray.parseBits(b);
-        assertTrue(after[0]);
-        assertFalse(after[1]);
-        assertTrue(after[2]);
-        assertTrue(after[3]);
-        assertFalse(after[4]);
-        assertTrue(after[5]);
-        assertFalse(after[6]);
-        assertFalse(after[7]);
-    }
-
     private final byte[] inBytes = { (byte) 0x03, (byte) 0xFF, (byte) 0x01, (byte) 0x80 };
     final BitSet inBitSet = new BitSet();
 
@@ -147,25 +133,6 @@ public class ByteArrayTest {
 
         // 0x80
         this.inBitSet.set(24);
-    }
-
-    @Test
-    public void testBytesToBitSetFunction() {
-        final BitSet iputBitSet = ByteArray.bytesToBitSet(this.inBytes);
-
-        assertEquals(this.inBitSet, iputBitSet);
-    }
-
-    @Test
-    public void testBitSetToBytesFunction() {
-        byte[] resultBytes = ByteArray.bitSetToBytes(this.inBitSet, this.inBytes.length);
-        assertArrayEquals(this.inBytes, resultBytes);
-
-        resultBytes = ByteArray.bitSetToBytes(this.inBitSet, this.inBytes.length - 1);
-        assertArrayEquals(Arrays.copyOf(this.inBytes, this.inBytes.length - 1), resultBytes);
-
-        resultBytes = ByteArray.bitSetToBytes(this.inBitSet, this.inBytes.length + 1);
-        assertArrayEquals(Arrays.copyOf(this.inBytes, this.inBytes.length + 1), resultBytes);
     }
 
     @Test
