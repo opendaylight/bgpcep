@@ -8,252 +8,51 @@
  and is available at http://www.eclipse.org/legal/epl-v10.html
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
-        <artifactId>features-parent</artifactId>
+        <artifactId>odlparent-lite</artifactId>
         <version>1.8.0-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
     <groupId>org.opendaylight.bgpcep</groupId>
-    <artifactId>features-pcep</artifactId>
+    <artifactId>features-aggregator-pcep</artifactId>
     <version>0.7.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
-    <properties>
-        <yangtools.version>1.1.0-SNAPSHOT</yangtools.version>
-        <mdsal.version>1.5.0-SNAPSHOT</mdsal.version>
-        <config.version>0.6.0-SNAPSHOT</config.version>
-        <odlparent.version>1.8.0-SNAPSHOT</odlparent.version>
-        <mdsal.model.version>0.10.0-SNAPSHOT</mdsal.model.version>
-    </properties>
+    <modules>
+        <module>features-pcep</module>
+        <module>features4-pcep</module>
+        <module>odl-bgpcep-pcep</module>
+        <module>odl-bgpcep-pcep-dependencies</module>
+        <module>odl-bgpcep-pcep-api</module>
+        <module>odl-bgpcep-pcep-impl</module>
+        <module>odl-bgpcep-programming-api</module>
+        <module>odl-bgpcep-programming-impl</module>
+        <module>odl-bgpcep-pcep-topology</module>
+        <module>odl-bgpcep-pcep-stateful07</module>
+        <module>odl-bgpcep-pcep-topology-provider</module>
+        <module>odl-bgpcep-pcep-tunnel-provider</module>
+        <module>odl-bgpcep-pcep-segment-routing</module>
+        <module>odl-bgpcep-pcep-auto-bandwidth</module>
+    </modules>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.opendaylight.bgpcep</groupId>
-                <artifactId>bgpcep-artifacts</artifactId>
-                <version>${project.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
+    <!--
+        Maven Site Configuration
 
-            <!-- YANG tools -->
-            <dependency>
-                <groupId>org.opendaylight.yangtools</groupId>
-                <artifactId>yangtools-artifacts</artifactId>
-                <version>${yangtools.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
+        The following configuration is necessary for maven-site-plugin to
+        correctly identify the correct deployment path for OpenDaylight Maven
+        sites.
+    -->
+    <url>${odl.site.url}/${project.groupId}/${stream}/${project.artifactId}/</url>
 
-            <!-- Controller infrastructure -->
-            <dependency>
-                <groupId>org.opendaylight.controller</groupId>
-                <artifactId>mdsal-artifacts</artifactId>
-                <version>${mdsal.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.controller</groupId>
-                <artifactId>config-artifacts</artifactId>
-                <version>${config.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
-
-            <!-- ODL-PARENT -->
-            <dependency>
-                <groupId>org.opendaylight.odlparent</groupId>
-                <artifactId>odlparent-artifacts</artifactId>
-                <version>${odlparent.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
-    <!-- Testing -->
-    <dependencies>
-        <dependency>
-            <groupId>org.opendaylight.yangtools</groupId>
-            <artifactId>features-yangtools</artifactId>
-            <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>features-mdsal</artifactId>
-            <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.mdsal</groupId>
-            <artifactId>features-mdsal</artifactId>
-            <version>2.2.0-SNAPSHOT</version>
-            <classifier>features</classifier>
-            <type>xml</type>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.mdsal.model</groupId>
-            <artifactId>features-mdsal-model</artifactId>
-            <version>${mdsal.model.version}</version>
-            <classifier>features</classifier>
-            <type>xml</type>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>features-config</artifactId>
-            <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>features-config-netty</artifactId>
-            <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.odlparent</groupId>
-            <artifactId>features-odlparent</artifactId>
-            <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>concepts</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>programming-controller-config</artifactId>
-          <type>xml</type>
-          <classifier>config</classifier>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>pcep-controller-config</artifactId>
-          <type>xml</type>
-          <classifier>config</classifier>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>pcep-controller-config</artifactId>
-          <type>xml</type>
-          <classifier>config-provider</classifier>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>pcep-api</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>pcep-impl</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>pcep-base-parser</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>pcep-segment-routing</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>pcep-spi</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>pcep-ietf-stateful07</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>pcep-topology-api</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>pcep-topology-provider</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>pcep-topology-spi</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>pcep-tunnel-api</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>pcep-tunnel-provider</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>pcep-auto-bandwidth-extension</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>programming-api</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>programming-impl</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>programming-spi</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>programming-topology-api</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>programming-tunnel-api</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>rsvp-api</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>topology-api</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>topology-segment-routing</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>topology-tunnel-api</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>util</artifactId>
-      </dependency>
-
-      <dependency>
-        <groupId>io.netty</groupId>
-        <artifactId>netty-buffer</artifactId>
-      </dependency>
-  </dependencies>
-
-  <!--
-      Maven Site Configuration
-
-      The following configuration is necessary for maven-site-plugin to
-      correctly identify the correct deployment path for OpenDaylight Maven
-      sites.
-  -->
-  <url>${odl.site.url}/${project.groupId}/${stream}/${project.artifactId}/</url>
-
-  <distributionManagement>
-    <site>
-      <id>opendaylight-site</id>
-      <url>${nexus.site.url}/${project.artifactId}/</url>
-    </site>
-  </distributionManagement>
+    <distributionManagement>
+        <site>
+            <id>opendaylight-site</id>
+            <url>${nexus.site.url}/${project.artifactId}/</url>
+        </site>
+    </distributionManagement>
 </project>
