@@ -12,114 +12,22 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
-        <artifactId>features-parent</artifactId>
+        <artifactId>odlparent-lite</artifactId>
         <version>1.8.0-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
     <groupId>org.opendaylight.bgpcep</groupId>
-    <artifactId>features-extras</artifactId>
+    <artifactId>features-aggregator-extras</artifactId>
     <version>0.7.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
-    <properties>
-        <yangtools.version>1.1.0-SNAPSHOT</yangtools.version>
-        <mdsal.version>1.5.0-SNAPSHOT</mdsal.version>
-        <config.version>0.6.0-SNAPSHOT</config.version>
-        <mdsal.model.version>0.10.0-SNAPSHOT</mdsal.model.version>
-    </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.opendaylight.bgpcep</groupId>
-                <artifactId>bgpcep-artifacts</artifactId>
-                <version>${project.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
-            <!-- YANG tools -->
-            <dependency>
-                <groupId>org.opendaylight.yangtools</groupId>
-                <artifactId>yangtools-artifacts</artifactId>
-                <version>${yangtools.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
-
-
-
-            <!-- Controller infrastructure -->
-            <dependency>
-                <groupId>org.opendaylight.controller</groupId>
-                <artifactId>mdsal-artifacts</artifactId>
-                <version>${mdsal.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.controller</groupId>
-                <artifactId>config-artifacts</artifactId>
-                <version>${config.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
-    <!-- Testing -->
-    <dependencies>
-        <dependency>
-            <groupId>org.opendaylight.yangtools</groupId>
-            <artifactId>features-yangtools</artifactId>
-            <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.mdsal.model</groupId>
-            <artifactId>features-mdsal-model</artifactId>
-            <version>${mdsal.model.version}</version>
-            <classifier>features</classifier>
-            <type>xml</type>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>features-mdsal</artifactId>
-            <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>features-config</artifactId>
-            <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>concepts</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>data-change-counter</artifactId>
-      </dependency>
-       <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>data-change-counter-controller-config</artifactId>
-          <type>xml</type>
-          <classifier>config</classifier>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>util</artifactId>
-      </dependency>
-
-      <dependency>
-        <groupId>io.netty</groupId>
-        <artifactId>netty-buffer</artifactId>
-      </dependency>
-  </dependencies>
+    <modules>
+        <module>features-extras</module>
+        <module>features4-extras</module>
+        <module>odl-bgpcep-extras-dependencies</module>
+        <module>odl-bgpcep-data-change-counter</module>
+    </modules>
 
   <!--
       Maven Site Configuration

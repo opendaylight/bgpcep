@@ -29,7 +29,7 @@
 
     <feature name='odl-bgpcep-data-change-counter' version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-dependencies</feature>
-        <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
+        <feature version='${controller.mdsal.version}'>odl-mdsal-broker</feature>
         <feature version='${config.version}'>odl-config-api</feature>
         <configfile finalname="etc/opendaylight/karaf/50-topology-data-change-counter.xml">mvn:org.opendaylight.bgpcep/data-change-counter-controller-config/{{VERSION}}/xml/config</configfile>
         <bundle>mvn:org.opendaylight.bgpcep/data-change-counter/{{VERSION}}</bundle>
