@@ -22,6 +22,30 @@
       "revId": "5d3a284626314528c5e0ddd5527e262e391b7921",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_3f0fa7e2",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/AbstractAddPathTest.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-01-19T17:56:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_bf1c576b",
+      "range": {
+        "startLine": 126,
+        "startChar": 4,
+        "endLine": 126,
+        "endChar": 13
+      },
+      "revId": "5d3a284626314528c5e0ddd5527e262e391b7921",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
