@@ -74,7 +74,7 @@
 
     <feature name='odl-bgpcep-programming-impl' version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-programming-api</feature>
-        <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
+        <feature version='${controller.mdsal.version}'>odl-mdsal-broker</feature>
         <bundle>mvn:org.opendaylight.bgpcep/programming-impl/{{VERSION}}</bundle>
         <configfile finalname="etc/opendaylight/karaf/30-programming.xml">mvn:org.opendaylight.bgpcep/programming-controller-config/{{VERSION}}/xml/config</configfile>
     </feature>
@@ -96,7 +96,7 @@
     <feature name='odl-bgpcep-pcep-topology-provider' version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-programming-impl</feature>
         <feature version='${project.version}'>odl-bgpcep-pcep-stateful07</feature>
-        <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
+        <feature version='${controller.mdsal.version}'>odl-mdsal-broker</feature>
         <bundle>mvn:org.opendaylight.bgpcep/pcep-topology-provider/{{VERSION}}</bundle>
         <configfile finalname="etc/opendaylight/karaf/39-pcep-provider.xml">mvn:org.opendaylight.bgpcep/pcep-controller-config/{{VERSION}}/xml/config-provider</configfile>
     </feature>
