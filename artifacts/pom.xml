@@ -521,9 +521,31 @@
                 <type>xml</type>
                 <version>${project.version}</version>
             </dependency>
+            <!-- RSVP Features artifacts -->
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
                 <artifactId>features-rsvp</artifactId>
+                <classifier>features</classifier>
+                <type>xml</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>features4-rsvp</artifactId>
+                <classifier>features</classifier>
+                <type>xml</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>odl-bgpcep-rsvp</artifactId>
+                <classifier>features</classifier>
+                <type>xml</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>odl-bgpcep-rsvp-dependencies</artifactId>
                 <classifier>features</classifier>
                 <type>xml</type>
                 <version>${project.version}</version>
