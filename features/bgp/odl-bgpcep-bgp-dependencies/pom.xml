@@ -11,32 +11,25 @@
     </parent>
 
     <groupId>org.opendaylight.bgpcep</groupId>
-    <artifactId>odl-bgpcep-pcep-dependencies</artifactId>
+    <artifactId>odl-bgpcep-bgp-dependencies</artifactId>
     <version>0.7.0-SNAPSHOT</version>
     <packaging>feature</packaging>
 
-    <name>OpenDaylight :: PCEP :: Dependencies</name>
+    <name>OpenDaylight :: BGP :: Dependencies</name>
 
     <properties>
-        <mdsal.binding.base>0.10.0-SNAPSHOT</mdsal.binding.base>
+        <mdsal.model.version>0.10.0-SNAPSHOT</mdsal.model.version>
+        <yangtools.version>1.1.0-SNAPSHOT</yangtools.version>
         <odlparent.version>1.8.0-SNAPSHOT</odlparent.version>
     </properties>
 
     <dependencyManagement>
+        <!-- ODL-BGP-ARTIFACTS -->
         <dependencies>
-            <!-- ODL-BGP-ARTIFACTS -->
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
                 <artifactId>bgpcep-artifacts</artifactId>
                 <version>${project.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <!-- ODL-MD-SAL-ARTIFACTS -->
-            <dependency>
-                <groupId>org.opendaylight.mdsal.model</groupId>
-                <artifactId>mdsal-model-artifacts</artifactId>
-                <version>${mdsal.binding.base}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -48,10 +41,30 @@
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
+            <!-- YANG TOOLS ARTIFACTS -->
+            <dependency>
+                <groupId>org.opendaylight.yangtools</groupId>
+                <artifactId>yangtools-artifacts</artifactId>
+                <version>${yangtools.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+            <!-- ODL-MDSAL-ARTIFACTS -->
+            <dependency>
+                <groupId>org.opendaylight.mdsal.model</groupId>
+                <artifactId>mdsal-model-artifacts</artifactId>
+                <version>${mdsal.model.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-concepts</artifactId>
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>util</artifactId>
@@ -68,10 +81,16 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
+            <groupId>org.opendaylight.mdsal.model</groupId>
+            <artifactId>odl-yangtools-yang-data</artifactId>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
             <groupId>org.opendaylight.odlparent</groupId>
             <artifactId>odl-netty</artifactId>
-            <version>[4.0.30,5.0.0)</version>
             <type>xml</type>
+            <version>[4.0.30,5.0.0)</version>
             <classifier>features</classifier>
         </dependency>
     </dependencies>

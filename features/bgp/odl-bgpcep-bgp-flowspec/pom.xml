@@ -11,20 +11,15 @@
     </parent>
 
     <groupId>org.opendaylight.bgpcep</groupId>
-    <artifactId>odl-bgpcep-pcep-dependencies</artifactId>
+    <artifactId>odl-bgpcep-bgp-flowspec</artifactId>
     <version>0.7.0-SNAPSHOT</version>
     <packaging>feature</packaging>
 
-    <name>OpenDaylight :: PCEP :: Dependencies</name>
-
-    <properties>
-        <mdsal.binding.base>0.10.0-SNAPSHOT</mdsal.binding.base>
-        <odlparent.version>1.8.0-SNAPSHOT</odlparent.version>
-    </properties>
+    <name>OpenDaylight :: BGP :: Flowspec</name>
 
     <dependencyManagement>
+        <!-- ODL-BGP-ARTIFACTS -->
         <dependencies>
-            <!-- ODL-BGP-ARTIFACTS -->
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
                 <artifactId>bgpcep-artifacts</artifactId>
@@ -32,45 +27,39 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <!-- ODL-MD-SAL-ARTIFACTS -->
-            <dependency>
-                <groupId>org.opendaylight.mdsal.model</groupId>
-                <artifactId>mdsal-model-artifacts</artifactId>
-                <version>${mdsal.binding.base}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <!-- ODL-PARENT ARTIFACTS-->
-            <dependency>
-                <groupId>org.opendaylight.odlparent</groupId>
-                <artifactId>odlparent-artifacts</artifactId>
-                <version>${odlparent.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>util</artifactId>
+            <artifactId>bgp-bmp-api</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>concepts</artifactId>
+            <artifactId>bgp-flowspec</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.mdsal.model</groupId>
-            <artifactId>odl-mdsal-models</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>odl-bgpcep-bgp-parser</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.odlparent</groupId>
-            <artifactId>odl-netty</artifactId>
-            <version>[4.0.30,5.0.0)</version>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>odl-bgpcep-bgp-rib-api</artifactId>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>odl-bgpcep-bgp-inet</artifactId>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>odl-bgpcep-bgp-openconfig</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
