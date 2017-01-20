@@ -646,9 +646,24 @@
                 <type>xml</type>
                 <version>${project.version}</version>
             </dependency>
+            <!-- BMP Features artifacts -->
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
                 <artifactId>features-bmp</artifactId>
+                <classifier>features</classifier>
+                <type>xml</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>features4-bmp</artifactId>
+                <classifier>features</classifier>
+                <type>xml</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>odl-bgpcep-bmp</artifactId>
                 <classifier>features</classifier>
                 <type>xml</type>
                 <version>${project.version}</version>
