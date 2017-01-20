@@ -89,7 +89,7 @@
         <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-api/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-spi/{{VERSION}}</bundle>
         <feature version='${config.version}'>odl-config-netty-config-api</feature>
-        <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
+        <feature version='${controller.mdsal.version}'>odl-mdsal-broker</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-api/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-spi/{{VERSION}}</bundle>
     </feature>
@@ -148,7 +148,7 @@
 
     <feature name='odl-bgpcep-bgp-rib-impl' version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-bgp-dependencies</feature>
-        <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
+        <feature version='${controller.mdsal.version}'>odl-mdsal-broker</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-rib-api</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-inet</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-path-selection-mode</feature>
@@ -163,14 +163,14 @@
         <feature version='${project.version}'>odl-bgpcep-bgp-inet</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-linkstate</feature>
         <bundle>mvn:org.opendaylight.bgpcep/topology-api/{{VERSION}}</bundle>
-        <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
+        <feature version='${controller.mdsal.version}'>odl-mdsal-broker</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-config-loader</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-topology-provider/{{VERSION}}</bundle>
     </feature>
 
     <feature name='odl-bgpcep-bgp-benchmark' version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-bgp-inet</feature>
-        <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
+        <feature version='${controller.mdsal.version}'>odl-mdsal-broker</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-benchmark-app/{{VERSION}}</bundle>
     </feature>
 
