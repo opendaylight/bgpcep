@@ -28,7 +28,6 @@ import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.acceptor.config.rev161003.BgpPeerAcceptorConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,9 +37,10 @@ public final class BGPPeerAcceptorImpl implements AutoCloseable {
     private final ChannelFuture futureChannel;
     private AutoCloseable listenerRegistration;
 
-    public BGPPeerAcceptorImpl(final BgpPeerAcceptorConfig config, final BGPPeerRegistry peerRegistry, final BGPDispatcher bgpDispatcher) {
-        final PortNumber portNumber = config.getBindingPort();
-        final IpAddress bindingAddress = config.getBindingAddress();
+    public BGPPeerAcceptorImpl(final IpAddress bindingAddress, final PortNumber portNumber,
+        final BGPPeerRegistry peerRegistry, final BGPDispatcher bgpDispatcher) {
+        Preconditions.checkNotNull(bindingAddress);
+        Preconditions.checkNotNull(portNumber);
         LOG.debug("Instantiating BGP Peer Acceptor : {}/{}", bindingAddress, portNumber);
 
         if (!PlatformDependent.isWindows() && !PlatformDependent.isRoot() && portNumber.getValue() < PRIVILEGED_PORTS) {
@@ -51,10 +51,12 @@ public final class BGPPeerAcceptorImpl implements AutoCloseable {
 
         // Validate future success
         this.futureChannel.addListener(future -> {
-            Preconditions.checkArgument(future.isSuccess(), "Unable to start bgp server on %s", getAddress(bindingAddress, portNumber), future.cause());
+            Preconditions.checkArgument(future.isSuccess(), "Unable to start bgp server on %s",
+                getAddress(bindingAddress, portNumber), future.cause());
             final Channel channel = this.futureChannel.channel();
             if (Epoll.isAvailable()) {
-                BGPPeerAcceptorImpl.this.listenerRegistration = peerRegistry.registerPeerRegisterListener(new BGPPeerAcceptorImpl.PeerRegistryListenerImpl(channel.config()));
+                BGPPeerAcceptorImpl.this.listenerRegistration = peerRegistry.registerPeerRegisterListener(
+                    new BGPPeerAcceptorImpl.PeerRegistryListenerImpl(channel.config()));
             }
         });
     }
@@ -87,7 +89,8 @@ public final class BGPPeerAcceptorImpl implements AutoCloseable {
     private InetSocketAddress getAddress(final IpAddress ipAddress, final PortNumber portNumber) {
         final InetAddress inetAddr;
         try {
-            inetAddr = InetAddress.getByName(ipAddress.getIpv4Address() != null ? ipAddress.getIpv4Address().getValue() : ipAddress.getIpv6Address().getValue());
+            inetAddr = InetAddress.getByName(ipAddress.getIpv4Address() != null ?
+                ipAddress.getIpv4Address().getValue() : ipAddress.getIpv6Address().getValue());
         } catch (final UnknownHostException e) {
             throw new IllegalArgumentException("Illegal binding address " + ipAddress, e);
         }
