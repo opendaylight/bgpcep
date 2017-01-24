@@ -1,6 +1,6 @@
-module bgp-peer-acceptor-config {
+module odl-bgp-peer-acceptor-config {
     yang-version 1;
-    namespace "urn:opendaylight:params:xml:ns:yang:bgp-peer-acceptor-config";
+    namespace "urn:opendaylight:params:xml:ns:yang:odl-bgp-peer-acceptor-config";
     prefix bgp-peer-acceptor-config;
 
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
@@ -8,7 +8,7 @@ module bgp-peer-acceptor-config {
     description
         "This module contains the base YANG definitions for
          BGP Peer Acceptor Configuration.
-         Copyright (c)2013 Cisco Systems, Inc. All rights reserved.;
+         Copyright (c)2016 Cisco Systems, Inc. All rights reserved.;
 
          This program and the accompanying materials are made available
          under the terms of the Eclipse Public License v1.0 which
