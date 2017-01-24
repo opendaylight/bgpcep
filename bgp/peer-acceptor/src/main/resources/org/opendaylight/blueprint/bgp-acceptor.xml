@@ -5,11 +5,11 @@
     <reference id="BGPDispatcher" interface="org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher"/>
 
     <odl:clustered-app-config id="bgpPeerAcceptorConfig"
-                              binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.acceptor.config.rev161003.BgpPeerAcceptorConfig"
+                              binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.peer.acceptor.config.rev161003.BgpPeerAcceptorConfig"
                               list-key-value="default">
         <odl:default-config>
             <![CDATA[
-            <bgp-peer-acceptor-config xmlns="urn:opendaylight:params:xml:ns:yang:bgp-peer-acceptor-config">
+            <bgp-peer-acceptor-config xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-peer-acceptor-config">
               <config-name>default</config-name>
               <binding-port>1790</binding-port>
             </bgp-peer-acceptor-config>
@@ -17,8 +17,14 @@
         </odl:default-config>
     </odl:clustered-app-config>
 
-    <bean id="bgpPeerAcceptor" class="org.opendaylight.protocol.bgp.peer.acceptor.BGPPeerAcceptorImpl">
-        <argument ref="bgpPeerAcceptorConfig"/>
+    <bean id="bgpPeerAcceptor" class="org.opendaylight.protocol.bgp.peer.acceptor.BGPPeerAcceptorImpl"
+          init-method="start" destroy-method="close">
+        <argument>
+            <bean factory-ref="bgpPeerAcceptorConfig" factory-method="getBindingAddress"/>
+        </argument>
+        <argument>
+            <bean factory-ref="bgpPeerAcceptorConfig" factory-method="getBindingPort"/>
+        </argument>
         <argument ref="BGPPeerRegistry"/>
         <argument ref="BGPDispatcher"/>
     </bean>

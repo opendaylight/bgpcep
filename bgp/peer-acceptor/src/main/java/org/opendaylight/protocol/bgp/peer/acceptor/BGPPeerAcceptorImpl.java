@@ -28,35 +28,70 @@ import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.acceptor.config.rev161003.BgpPeerAcceptorConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class BGPPeerAcceptorImpl implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(BGPPeerAcceptorImpl.class);
     private static final int PRIVILEGED_PORTS = 1024;
-    private final ChannelFuture futureChannel;
+    private final BGPPeerRegistry peerRegistry;
+    private final BGPDispatcher bgpDispatcher;
+    private final InetSocketAddress address;
+    private ChannelFuture futureChannel;
     private AutoCloseable listenerRegistration;
 
-    public BGPPeerAcceptorImpl(final BgpPeerAcceptorConfig config, final BGPPeerRegistry peerRegistry, final BGPDispatcher bgpDispatcher) {
-        final PortNumber portNumber = config.getBindingPort();
-        final IpAddress bindingAddress = config.getBindingAddress();
-        LOG.debug("Instantiating BGP Peer Acceptor : {}/{}", bindingAddress, portNumber);
-
-        if (!PlatformDependent.isWindows() && !PlatformDependent.isRoot() && portNumber.getValue() < PRIVILEGED_PORTS) {
-            throw new AccessControlException("Unable to bind port " + portNumber.getValue() + " while running as non-root user.");
+    public BGPPeerAcceptorImpl(final IpAddress bindingAddress, final PortNumber portNumber,
+        final BGPPeerRegistry peerRegistry, final BGPDispatcher bgpDispatcher) {
+        this.peerRegistry = Preconditions.checkNotNull(peerRegistry);
+        this.bgpDispatcher = Preconditions.checkNotNull(bgpDispatcher);
+        this.address = getAddress(Preconditions.checkNotNull(bindingAddress), Preconditions.checkNotNull(portNumber));
+        if (!PlatformDependent.isWindows() && !PlatformDependent.isRoot()
+            && portNumber.getValue() < PRIVILEGED_PORTS) {
+            throw new AccessControlException("Unable to bind port " + portNumber.getValue() +
+                " while running as non-root user.");
         }
+    }
 
-        this.futureChannel = bgpDispatcher.createServer(peerRegistry, getAddress(bindingAddress, portNumber));
+    public void start() {
+        LOG.debug("Instantiating BGP Peer Acceptor : {}", this.address);
 
+        this.futureChannel = this.bgpDispatcher.createServer(this.peerRegistry, this.address);
         // Validate future success
         this.futureChannel.addListener(future -> {
-            Preconditions.checkArgument(future.isSuccess(), "Unable to start bgp server on %s", getAddress(bindingAddress, portNumber), future.cause());
+            Preconditions.checkArgument(future.isSuccess(), "Unable to start bgp server on %s",
+                this.address, future.cause());
             final Channel channel = this.futureChannel.channel();
             if (Epoll.isAvailable()) {
-                BGPPeerAcceptorImpl.this.listenerRegistration = peerRegistry.registerPeerRegisterListener(new BGPPeerAcceptorImpl.PeerRegistryListenerImpl(channel.config()));
+                this.listenerRegistration = this.peerRegistry.registerPeerRegisterListener(
+                    new BGPPeerAcceptorImpl.PeerRegistryListenerImpl(channel.config()));
             }
         });
+    }
+
+    private InetSocketAddress getAddress(final IpAddress ipAddress, final PortNumber portNumber) {
+        final InetAddress inetAddr;
+        try {
+            inetAddr = InetAddress.getByName(ipAddress.getIpv4Address() != null ?
+                ipAddress.getIpv4Address().getValue() : ipAddress.getIpv6Address().getValue());
+        } catch (final UnknownHostException e) {
+            throw new IllegalArgumentException("Illegal binding address " + ipAddress, e);
+        }
+        return new InetSocketAddress(inetAddr, portNumber.getValue());
+    }
+
+    /**
+     * This closes the acceptor and no new bgp connections will be accepted
+     * Connections already established will be preserved
+     *
+     * @throws Exception
+     */
+    @Override
+    public void close() throws Exception {
+        this.futureChannel.cancel(true);
+        this.futureChannel.channel().close();
+        if (this.listenerRegistration != null) {
+            this.listenerRegistration.close();
+        }
     }
 
     private static final class PeerRegistryListenerImpl implements PeerRegistryListener {
@@ -81,31 +116,6 @@ public final class BGPPeerAcceptorImpl implements AutoCloseable {
             if (this.keys.remove(IetfInetUtil.INSTANCE.inetAddressFor(ip)) != null) {
                 this.channelConfig.setOption(EpollChannelOption.TCP_MD5SIG, this.keys);
             }
-        }
-    }
-
-    private InetSocketAddress getAddress(final IpAddress ipAddress, final PortNumber portNumber) {
-        final InetAddress inetAddr;
-        try {
-            inetAddr = InetAddress.getByName(ipAddress.getIpv4Address() != null ? ipAddress.getIpv4Address().getValue() : ipAddress.getIpv6Address().getValue());
-        } catch (final UnknownHostException e) {
-            throw new IllegalArgumentException("Illegal binding address " + ipAddress, e);
-        }
-        return new InetSocketAddress(inetAddr, portNumber.getValue());
-    }
-
-    /**
-     * This closes the acceptor and no new bgp connections will be accepted
-     * Connections already established will be preserved
-     *
-     * @throws Exception
-     */
-    @Override
-    public void close() throws Exception {
-        this.futureChannel.cancel(true);
-        this.futureChannel.channel().close();
-        if (BGPPeerAcceptorImpl.this.listenerRegistration != null) {
-            BGPPeerAcceptorImpl.this.listenerRegistration.close();
         }
     }
 }
