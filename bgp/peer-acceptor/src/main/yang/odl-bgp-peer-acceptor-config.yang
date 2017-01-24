@@ -1,6 +1,6 @@
-module bgp-peer-acceptor-config {
+module odl-bgp-peer-acceptor-config {
     yang-version 1;
-    namespace "urn:opendaylight:params:xml:ns:yang:bgp-peer-acceptor-config";
+    namespace "urn:opendaylight:params:xml:ns:yang:odl-bgp-peer-acceptor-config";
     prefix bgp-peer-acceptor-config;
 
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
