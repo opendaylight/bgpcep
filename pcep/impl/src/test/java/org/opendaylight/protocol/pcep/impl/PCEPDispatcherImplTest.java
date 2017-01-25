@@ -196,7 +196,7 @@ public class PCEPDispatcherImplTest {
 
         public Future<PCEPSession> createClient(final InetSocketAddress address, final int retryTimer,
                 final int connectTimeout, final PCEPSessionListenerFactory listenerFactory) {
-            return createClient(address, retryTimer, connectTimeout, (ChannelPipelineInitializer) (ch, promise) -> {
+            return createClient(address, retryTimer, connectTimeout, (ch, promise) -> {
                 ch.pipeline().addLast(PCCMock.this.factory.getDecoders());
                 ch.pipeline().addLast("negotiator", PCCMock.this.negotiatorFactory.getSessionNegotiator(listenerFactory, ch, promise, null));
                 ch.pipeline().addLast(PCCMock.this.factory.getEncoders());

@@ -19,6 +19,8 @@ import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
@@ -49,12 +51,13 @@ final class PCCsBuilder {
     private final int redelegationTimeout;
     private final int stateTimeout;
     private final PCEPCapability pcepCapabilities;
+    private final Timer timer = new HashedWheelTimer();
     private PCCDispatcherImpl pccDispatcher;
-    private Timer timer = new HashedWheelTimer();
 
-    public PCCsBuilder(final int lsps, final boolean pcError, final int pccCount, @Nonnull final InetSocketAddress localAddress,
-                       @Nonnull final List<InetSocketAddress> remoteAddress, final short keepAlive, final short deadTimer, @Nonnull final String password,
-                       final long reconnectTime, final int redelegationTimeout, final int stateTimeout, @Nonnull final PCEPCapability pcepCapabilities) {
+    PCCsBuilder(final int lsps, final boolean pcError, final int pccCount, @Nonnull final InetSocketAddress localAddress,
+        @Nonnull final List<InetSocketAddress> remoteAddress, final short keepAlive, final short deadTimer,
+        @Nullable final String password, final long reconnectTime, final int redelegationTimeout, final int stateTimeout,
+        @Nonnull final PCEPCapability pcepCapabilities) {
         this.lsps = lsps;
         this.pcError = pcError;
         this.pccCount = pccCount;
@@ -70,7 +73,8 @@ final class PCCsBuilder {
         startActivators();
     }
 
-    void createPCCs(final BigInteger initialDBVersion, final Optional<TimerHandler> timerHandler) throws InterruptedException, ExecutionException {
+    void createPCCs(final BigInteger initialDBVersion, final Optional<TimerHandler> timerHandler)
+        throws InterruptedException, ExecutionException {
         InetAddress currentAddress = this.localAddress.getAddress();
         this.pccDispatcher = new PCCDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry());
         if(timerHandler.isPresent()) {
@@ -86,22 +90,18 @@ final class PCCsBuilder {
 
     private void createPCC(@Nonnull final InetSocketAddress localAddress, @Nonnull final PCCTunnelManager tunnelManager,
                            final BigInteger initialDBVersion) throws InterruptedException, ExecutionException {
-
         final PCEPSessionNegotiatorFactory<PCEPSessionImpl> snf = getSessionNegotiatorFactory();
         for (final InetSocketAddress pceAddress : this.remoteAddress) {
-            this.pccDispatcher.createClient(pceAddress, this.reconnectTime,
-                new PCEPSessionListenerFactory() {
-                    @Override
-                    public PCEPSessionListener getSessionListener() {
-                        return new PCCSessionListener(remoteAddress.indexOf(pceAddress), tunnelManager, pcError);
-                    }
-                }, snf, KeyMapping.getKeyMapping(pceAddress.getAddress(), password), localAddress, initialDBVersion);
+            this.pccDispatcher.createClient(pceAddress, this.reconnectTime, () -> new PCCSessionListener(
+                remoteAddress.indexOf(pceAddress), tunnelManager, pcError), snf,
+                KeyMapping.getKeyMapping(pceAddress.getAddress(), password), localAddress, initialDBVersion);
         }
     }
 
     private PCEPSessionNegotiatorFactory<PCEPSessionImpl> getSessionNegotiatorFactory() {
         final List<PCEPCapability> capabilities = Lists.newArrayList(this.pcepCapabilities);
-        return new DefaultPCEPSessionNegotiatorFactory(new BasePCEPSessionProposalFactory(this.deadTimer, this.keepAlive, capabilities), 0);
+        return new DefaultPCEPSessionNegotiatorFactory(new BasePCEPSessionProposalFactory(this.deadTimer,
+            this.keepAlive, capabilities), 0);
     }
 
     private static void startActivators() {

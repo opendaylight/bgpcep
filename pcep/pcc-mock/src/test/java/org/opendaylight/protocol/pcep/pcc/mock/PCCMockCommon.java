@@ -202,13 +202,10 @@ public abstract class PCCMockCommon {
             Optional.<TimerHandler>absent());
 
         return pccDispatcher.createClient(this.remoteAddress, -1,
-            new PCEPSessionListenerFactory() {
-                @Override
-                public PCEPSessionListener getSessionListener() {
+                () -> {
                     pccSessionListener = new PCCSessionListener(1, tunnelManager, false);
                     return pccSessionListener;
-                }
-            }, snf, null, this.localAddress, DBVersion);
+                }, snf, null, this.localAddress, DBVersion);
     }
 
     private PCEPSessionNegotiatorFactory<PCEPSessionImpl> getSessionNegotiatorFactory() {

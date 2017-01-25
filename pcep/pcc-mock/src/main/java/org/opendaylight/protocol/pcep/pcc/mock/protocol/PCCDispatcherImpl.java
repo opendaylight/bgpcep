@@ -24,11 +24,13 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.Future;
+
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
@@ -49,7 +51,7 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
     private final EventLoopGroup workerGroup;
 
     public PCCDispatcherImpl(@Nonnull final MessageRegistry registry) {
-        if(Epoll.isAvailable()){
+        if (Epoll.isAvailable()) {
             this.workerGroup = new EpollEventLoopGroup();
         } else {
             this.workerGroup = new NioEventLoopGroup();
@@ -59,15 +61,15 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
 
     @Override
     public Future<PCEPSession> createClient(@Nonnull final InetSocketAddress remoteAddress, @Nonnull final long reconnectTime,
-                                            @Nonnull final PCEPSessionListenerFactory listenerFactory, @Nonnull final PCEPSessionNegotiatorFactory negotiatorFactory,
-                                            @Nonnull final KeyMapping keys, @Nullable final InetSocketAddress localAddress) {
+        @Nonnull final PCEPSessionListenerFactory listenerFactory, @Nonnull final PCEPSessionNegotiatorFactory negotiatorFactory,
+        @Nullable final KeyMapping keys, @Nonnull final InetSocketAddress localAddress) {
         return createClient(remoteAddress, reconnectTime, listenerFactory, negotiatorFactory, keys, localAddress, BigInteger.ONE);
     }
 
     @Override
     public Future<PCEPSession> createClient(@Nonnull final InetSocketAddress remoteAddress, @Nonnull final long reconnectTime,
-                                            @Nonnull final PCEPSessionListenerFactory listenerFactory, @Nonnull final PCEPSessionNegotiatorFactory negotiatorFactory,
-                                            @Nonnull final KeyMapping keys, @Nullable final InetSocketAddress localAddress, @Nonnull final BigInteger dbVersion) {
+        @Nonnull final PCEPSessionListenerFactory listenerFactory, @Nonnull final PCEPSessionNegotiatorFactory negotiatorFactory,
+        @Nullable final KeyMapping keys, @Nonnull final InetSocketAddress localAddress, @Nonnull final BigInteger dbVersion) {
         final Bootstrap b = new Bootstrap();
         b.group(this.workerGroup);
         b.localAddress(localAddress);
@@ -97,7 +99,7 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
                         }
                         LOG.debug("Reconnecting after connection to {} was dropped", remoteAddress);
                         PCCDispatcherImpl.this.createClient(remoteAddress, reconnectTime, listenerFactory, negotiatorFactory,
-                            keys, localAddress, dbVersion);
+                                keys, localAddress, dbVersion);
                     }
                 });
             }
@@ -108,7 +110,7 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
     }
 
     private void setChannelFactory(final Bootstrap bootstrap, final Optional<KeyMapping> keys) {
-        if(Epoll.isAvailable()) {
+        if (Epoll.isAvailable()) {
             bootstrap.channel(EpollSocketChannel.class);
             bootstrap.option(EpollChannelOption.EPOLL_MODE, EpollMode.LEVEL_TRIGGERED);
         } else {
