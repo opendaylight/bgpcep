@@ -28,7 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BGPProtocolSessionPromise<S extends BGPSession> extends DefaultPromise<S> {
+public final class BGPProtocolSessionPromise<S extends BGPSession> extends DefaultPromise<S> {
     private static final Logger LOG = LoggerFactory.getLogger(BGPProtocolSessionPromise.class);
     private static final int CONNECT_TIMEOUT = 5000;
 
@@ -36,6 +36,7 @@ public class BGPProtocolSessionPromise<S extends BGPSession> extends DefaultProm
     private final int retryTimer;
     private final Bootstrap bootstrap;
     private final BGPPeerRegistry peerRegistry;
+    @GuardedBy("this")
     private final AutoCloseable listenerRegistration;
     @GuardedBy("this")
     private ChannelFuture pending;
@@ -45,15 +46,16 @@ public class BGPProtocolSessionPromise<S extends BGPSession> extends DefaultProm
     private boolean connectSkipped;
 
 
-    public BGPProtocolSessionPromise(InetSocketAddress remoteAddress, int retryTimer, Bootstrap bootstrap, BGPPeerRegistry peerRegistry) {
+    public BGPProtocolSessionPromise(@Nonnull final InetSocketAddress remoteAddress, final int retryTimer,
+        @Nonnull final Bootstrap bootstrap, @Nonnull final BGPPeerRegistry peerRegistry) {
         super(GlobalEventExecutor.INSTANCE);
         this.address = Preconditions.checkNotNull(remoteAddress);
         this.retryTimer = retryTimer;
         this.bootstrap = Preconditions.checkNotNull(bootstrap);
         this.peerRegistry = Preconditions.checkNotNull(peerRegistry);
-        this.listenerRegistration = this.peerRegistry
-                .registerPeerSessionListener(new BGPProtocolSessionPromise.PeerRegistrySessionListenerImpl(this,
-                        StrictBGPPeerRegistry.getIpAddress(this.address)));
+        this.listenerRegistration = this.peerRegistry.registerPeerSessionListener(
+            new BGPProtocolSessionPromise.PeerRegistrySessionListenerImpl(this,
+                StrictBGPPeerRegistry.getIpAddress(this.address)));
     }
 
     public synchronized void connect() {
@@ -77,7 +79,7 @@ public class BGPProtocolSessionPromise<S extends BGPSession> extends DefaultProm
             final ChannelFuture connectFuture = this.bootstrap.connect();
             connectFuture.addListener(new BGPProtocolSessionPromise.BootstrapConnectListener(lock));
             this.pending = connectFuture;
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LOG.info("Failed to connect to {}", this.address, e);
             this.setFailure(e);
         }
@@ -92,9 +94,8 @@ public class BGPProtocolSessionPromise<S extends BGPSession> extends DefaultProm
 
         final BGPProtocolSessionPromise lock = this;
         final EventLoop loop = this.pending.channel().eventLoop();
-        loop.schedule(new Runnable() {
-            @Override
-            public void run() {
+        loop.schedule(() -> {
+            synchronized (BGPProtocolSessionPromise.this) {
                 if (BGPProtocolSessionPromise.this.peerSessionPresent) {
                     LOG.debug("Connection to {} already exists", BGPProtocolSessionPromise.this.address);
                     BGPProtocolSessionPromise.this.connectSkipped = true;
@@ -123,7 +124,7 @@ public class BGPProtocolSessionPromise<S extends BGPSession> extends DefaultProm
         }
     }
 
-    private void closePeerSessionListener() {
+    private synchronized void closePeerSessionListener() {
         try {
             this.listenerRegistration.close();
         } catch (final Exception e) {
@@ -138,9 +139,10 @@ public class BGPProtocolSessionPromise<S extends BGPSession> extends DefaultProm
     }
 
     private class BootstrapConnectListener implements ChannelFutureListener {
+        @GuardedBy("this")
         private final Object lock;
 
-        public BootstrapConnectListener(final Object lock) {
+        BootstrapConnectListener(final Object lock) {
             this.lock = lock;
         }
 
@@ -165,6 +167,7 @@ public class BGPProtocolSessionPromise<S extends BGPSession> extends DefaultProm
     }
 
     private class PeerRegistrySessionListenerImpl implements PeerRegistrySessionListener {
+        @GuardedBy("this")
         private final Object lock;
         private final IpAddress peerAddress;
 
