@@ -50,7 +50,7 @@ final class PCCReconnectPromise extends DefaultPromise<PCEPSession> {
             this.b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, this.connectTimeout);
             this.b.remoteAddress(this.address);
             final ChannelFuture cf = this.b.connect();
-            cf.addListener(new BootstrapConnectListener(PCCReconnectPromise.this));
+            cf.addListener(new BootstrapConnectListener(this));
             this.pending = cf;
         } catch (final Exception e) {
             LOG.info("Failed to connect to {}", this.address, e);
@@ -114,7 +114,7 @@ final class PCCReconnectPromise extends DefaultPromise<PCEPSession> {
                         synchronized (PCCReconnectPromise.this) {
                             PCCReconnectPromise.LOG.debug("Attempting to connect to {}", PCCReconnectPromise.this.address);
                             final Future reconnectFuture = PCCReconnectPromise.this.b.connect();
-                            reconnectFuture.addListener(BootstrapConnectListener.this);
+                            reconnectFuture.addListener(this);
                             PCCReconnectPromise.this.pending = reconnectFuture;
                         }
                     }, PCCReconnectPromise.this.retryTimer, TimeUnit.SECONDS);

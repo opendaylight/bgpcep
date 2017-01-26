@@ -28,6 +28,8 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
 import java.io.Closeable;
 import java.net.InetSocketAddress;
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
@@ -45,11 +47,10 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     private static final Integer SOCKET_BACKLOG_SIZE = 128;
     private final PCEPSessionNegotiatorFactory snf;
     private final PCEPHandlerFactory hf;
-
-
     private final EventLoopGroup bossGroup;
     private final EventLoopGroup workerGroup;
     private final EventExecutor executor;
+    @GuardedBy("this")
     private Optional<KeyMapping> keys;
 
     /**
@@ -60,9 +61,9 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
      * @param bossGroup accepts an incoming connection
      * @param workerGroup handles the traffic of accepted connection
      */
-    public PCEPDispatcherImpl(final MessageRegistry registry,
-            final PCEPSessionNegotiatorFactory negotiatorFactory,
-            final EventLoopGroup bossGroup, final EventLoopGroup workerGroup) {
+    public PCEPDispatcherImpl(@Nonnull final MessageRegistry registry,
+        @Nonnull final PCEPSessionNegotiatorFactory negotiatorFactory,
+        @Nonnull final EventLoopGroup bossGroup, @Nonnull  final EventLoopGroup workerGroup) {
         this.snf = Preconditions.checkNotNull(negotiatorFactory);
         this.hf = new PCEPHandlerFactory(registry);
         if (Epoll.isAvailable()) {
@@ -76,20 +77,20 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     }
 
     @Override
-    public synchronized ChannelFuture createServer(final InetSocketAddress address,
-            final PCEPSessionListenerFactory listenerFactory, final PCEPPeerProposal peerProposal) {
-        return createServer(address, Optional.<KeyMapping>absent(), listenerFactory, peerProposal);
+    public final synchronized ChannelFuture createServer(final InetSocketAddress address,
+        final PCEPSessionListenerFactory listenerFactory, final PCEPPeerProposal peerProposal) {
+        return createServer(address, Optional.absent(), listenerFactory, peerProposal);
     }
 
     @Override
-    public synchronized ChannelFuture createServer(final InetSocketAddress address, final Optional<KeyMapping> keys,
-            final PCEPSessionListenerFactory listenerFactory, final PCEPPeerProposal peerProposal) {
+    public final synchronized ChannelFuture createServer(final InetSocketAddress address, final Optional<KeyMapping> keys,
+        final PCEPSessionListenerFactory listenerFactory, final PCEPPeerProposal peerProposal) {
         this.keys = keys;
 
         final ChannelPipelineInitializer initializer = (ch, promise) -> {
-            ch.pipeline().addLast(PCEPDispatcherImpl.this.hf.getDecoders());
-            ch.pipeline().addLast("negotiator", PCEPDispatcherImpl.this.snf.getSessionNegotiator(listenerFactory, ch, promise, peerProposal));
-            ch.pipeline().addLast(PCEPDispatcherImpl.this.hf.getEncoders());
+            ch.pipeline().addLast(this.hf.getDecoders());
+            ch.pipeline().addLast("negotiator", this.snf.getSessionNegotiator(listenerFactory, ch, promise, peerProposal));
+            ch.pipeline().addLast(this.hf.getEncoders());
         };
 
         final ServerBootstrap b = createServerBootstrap(initializer);
@@ -100,7 +101,7 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
         return f;
     }
 
-    protected ServerBootstrap createServerBootstrap(final ChannelPipelineInitializer initializer) {
+    synchronized ServerBootstrap createServerBootstrap(final ChannelPipelineInitializer initializer) {
         final ServerBootstrap b = new ServerBootstrap();
         b.childHandler(new ChannelInitializer<SocketChannel>() {
             @Override
@@ -137,7 +138,7 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     }
 
     @Override
-    public void close() {
+    public final void close() {
         if (Epoll.isAvailable()) {
             this.workerGroup.shutdownGracefully().awaitUninterruptibly();
             this.bossGroup.shutdownGracefully().awaitUninterruptibly();
@@ -149,7 +150,7 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     }
 
     @Override
-    public PCEPSessionNegotiatorFactory getPCEPSessionNegotiatorFactory() {
+    public final PCEPSessionNegotiatorFactory getPCEPSessionNegotiatorFactory() {
         return this.snf;
     }
 }
