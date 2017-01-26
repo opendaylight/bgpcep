@@ -107,7 +107,7 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
         return promise;
     }
 
-    private void setChannelFactory(final Bootstrap bootstrap, final Optional<KeyMapping> keys) {
+    private static void setChannelFactory(final Bootstrap bootstrap, final Optional<KeyMapping> keys) {
         if (Epoll.isAvailable()) {
             bootstrap.channel(EpollSocketChannel.class);
             bootstrap.option(EpollChannelOption.EPOLL_MODE, EpollMode.LEVEL_TRIGGERED);
