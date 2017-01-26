@@ -24,6 +24,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.Future;
 import java.math.BigInteger;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -33,8 +34,6 @@ import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSession;
-import org.opendaylight.protocol.pcep.PCEPSessionListener;
-import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.ietf.stateful07.StatefulActivator;
 import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
@@ -57,8 +56,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 public abstract class PCCMockCommon {
-    private final static short KEEP_ALIVE = 40;
+    private final static short KEEP_ALIVE = 30;
     private final static short DEAD_TIMER = 120;
+    private static final long SLEEP_FOR = 50;
     protected final int port = InetSocketAddressUtil.getRandomPort();
     protected final InetSocketAddress remoteAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
     protected final InetSocketAddress localAddress = new InetSocketAddress("127.0.0.1", port);
@@ -88,10 +88,10 @@ public abstract class PCCMockCommon {
     }
 
     private static void checkNumberOfMessages(final int expectedNMessages, final TestingSessionListener listener) throws Exception {
-        Stopwatch sw = Stopwatch.createStarted();
+        final Stopwatch sw = Stopwatch.createStarted();
         while (sw.elapsed(TimeUnit.SECONDS) <= 10) {
             if (expectedNMessages != listener.messages().size()) {
-                Uninterruptibles.sleepUninterruptibly(50, TimeUnit.MILLISECONDS);
+                Uninterruptibles.sleepUninterruptibly(SLEEP_FOR, TimeUnit.MILLISECONDS);
             } else {
                 return;
             }
@@ -100,12 +100,13 @@ public abstract class PCCMockCommon {
     }
 
     static TestingSessionListener checkSessionListenerNotNull(final TestingSessionListenerFactory factory, final String localAddress) {
-        Stopwatch sw = Stopwatch.createStarted();
-        TestingSessionListener listener = null;
-        while (sw.elapsed(TimeUnit.SECONDS) <= 1000) {
-            listener = factory.getSessionListenerByRemoteAddress(InetAddresses.forString(localAddress));
+        final Stopwatch sw = Stopwatch.createStarted();
+        TestingSessionListener listener;
+        final InetAddress address = InetAddresses.forString(localAddress);
+        while (sw.elapsed(TimeUnit.SECONDS) <= 60) {
+            listener = factory.getSessionListenerByRemoteAddress(address);
             if (listener == null) {
-                Uninterruptibles.sleepUninterruptibly(50, TimeUnit.MILLISECONDS);
+                Uninterruptibles.sleepUninterruptibly(SLEEP_FOR, TimeUnit.MILLISECONDS);
             } else {
                 return listener;
             }
@@ -134,7 +135,7 @@ public abstract class PCCMockCommon {
         Thread.sleep(1000);
         //Send Open with LspDBV = 1
         final List<Message> messages = pceSessionListener.messages();
-        int numberOfSyncMessage = 1;
+        final int numberOfSyncMessage = 1;
         int numberOfLspExpected = numberOfLsp;
         if (!expectedeInitialDb.equals(BigInteger.ZERO)) {
             checkSequequenceDBVersionSync(messages, expectedeInitialDb);
@@ -153,7 +154,7 @@ public abstract class PCCMockCommon {
         assertNotNull(pceSessionListener.getSession());
         assertTrue(pceSessionListener.isUp());
         Thread.sleep(50);
-        List<Message> messages;
+        final List<Message> messages;
         if (startAtNumberLsp.isPresent()) {
             messages = pceSessionListener.messages().subList(startAtNumberLsp.get(), startAtNumberLsp.get() + expectedNumberOfLsp);
         } else {
@@ -179,9 +180,9 @@ public abstract class PCCMockCommon {
     }
 
     protected static void checkSequequenceDBVersionSync(final List<Message> messages, final BigInteger expectedDbVersion) {
-        for (Message msg : messages) {
+        for (final Message msg : messages) {
             final List<Reports> pcrt = ((Pcrpt) msg).getPcrptMessage().getReports();
-            for (Reports report : pcrt) {
+            for (final Reports report : pcrt) {
                 final Lsp lsp = report.getLsp();
                 if (lsp.getPlspId().getValue() == 0) {
                     assertEquals(false, lsp.isSync().booleanValue());
@@ -195,20 +196,17 @@ public abstract class PCCMockCommon {
         }
     }
 
-    protected Future<PCEPSession> createPCCSession(BigInteger DBVersion) {
+    protected Future<PCEPSession> createPCCSession(final BigInteger DBVersion) {
         this.pccDispatcher = new PCCDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry());
         final PCEPSessionNegotiatorFactory<PCEPSessionImpl> snf = getSessionNegotiatorFactory();
         final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(3, this.localAddress.getAddress(), 0, -1, new HashedWheelTimer(),
-            Optional.<TimerHandler>absent());
+            Optional.absent());
 
         return pccDispatcher.createClient(this.remoteAddress, -1,
-            new PCEPSessionListenerFactory() {
-                @Override
-                public PCEPSessionListener getSessionListener() {
+                () -> {
                     pccSessionListener = new PCCSessionListener(1, tunnelManager, false);
                     return pccSessionListener;
-                }
-            }, snf, null, this.localAddress, DBVersion);
+                }, snf, null, this.localAddress, DBVersion);
     }
 
     private PCEPSessionNegotiatorFactory<PCEPSessionImpl> getSessionNegotiatorFactory() {
