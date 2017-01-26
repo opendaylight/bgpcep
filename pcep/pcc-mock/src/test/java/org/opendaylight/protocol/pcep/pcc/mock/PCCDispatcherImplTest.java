@@ -98,5 +98,6 @@ public class PCCDispatcherImplTest {
         final TestingSessionListener sl2 = checkSessionListenerNotNull(slf2, this.clientAddress.getAddress().getHostAddress());
         Assert.assertNotNull(sl2.getSession());
         Assert.assertTrue(sl2.isUp());
+        channel2.close();
     }
 }
