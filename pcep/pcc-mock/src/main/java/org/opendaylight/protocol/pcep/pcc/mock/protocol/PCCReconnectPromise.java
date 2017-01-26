@@ -16,6 +16,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoop;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
@@ -24,8 +25,7 @@ import org.opendaylight.protocol.pcep.PCEPSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PCCReconnectPromise extends DefaultPromise<PCEPSession> {
-
+final class PCCReconnectPromise extends DefaultPromise<PCEPSession> {
     private static final Logger LOG = LoggerFactory.getLogger(PCCReconnectPromise.class);
 
     private final InetSocketAddress address;
@@ -36,15 +36,16 @@ public class PCCReconnectPromise extends DefaultPromise<PCEPSession> {
     @GuardedBy("this")
     private Future<?> pending;
 
-    public PCCReconnectPromise(final InetSocketAddress address, final int retryTimer,
-            final int connectTimeout, final Bootstrap b) {
+    PCCReconnectPromise(final InetSocketAddress address, final int retryTimer,
+                        final int connectTimeout, final Bootstrap b) {
+        super(GlobalEventExecutor.INSTANCE);
         this.address = address;
         this.retryTimer = retryTimer;
         this.connectTimeout = connectTimeout;
         this.b = b;
     }
 
-    public synchronized void connect() {
+    synchronized void connect() {
         try {
             this.b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, this.connectTimeout);
             this.b.remoteAddress(this.address);
@@ -70,26 +71,27 @@ public class PCCReconnectPromise extends DefaultPromise<PCEPSession> {
     @SuppressWarnings("deprecation")
     @Override
     public synchronized Promise<PCEPSession> setSuccess(final PCEPSession result) {
+        final Promise<PCEPSession> promise = super.setSuccess(result);
         LOG.debug("Promise {} completed", this);
-        return super.setSuccess(result);
+        return promise;
     }
 
-    protected boolean isInitialConnectFinished() {
+    synchronized boolean isInitialConnectFinished() {
         Preconditions.checkNotNull(this.pending);
         return this.pending.isDone() && this.pending.isSuccess();
     }
 
     private final class BootstrapConnectListener implements ChannelFutureListener {
 
+        @GuardedBy("this")
         private final Object lock;
 
-        public BootstrapConnectListener(final Object lock) {
+        BootstrapConnectListener(final Object lock) {
             this.lock = lock;
         }
 
         @Override
         public void operationComplete(final ChannelFuture cf) throws Exception {
-
             synchronized (this.lock) {
                 if (PCCReconnectPromise.this.isCancelled()) {
                     if (cf.isSuccess()) {
@@ -108,12 +110,11 @@ public class PCCReconnectPromise extends DefaultPromise<PCEPSession> {
                     }
 
                     final EventLoop loop = cf.channel().eventLoop();
-                    loop.schedule(new Runnable() {
-                        @Override
-                        public void run() {
+                    loop.schedule(() -> {
+                        synchronized (PCCReconnectPromise.this) {
                             PCCReconnectPromise.LOG.debug("Attempting to connect to {}", PCCReconnectPromise.this.address);
                             final Future reconnectFuture = PCCReconnectPromise.this.b.connect();
-                            reconnectFuture.addListener(PCCReconnectPromise.BootstrapConnectListener.this);
+                            reconnectFuture.addListener(BootstrapConnectListener.this);
                             PCCReconnectPromise.this.pending = reconnectFuture;
                         }
                     }, PCCReconnectPromise.this.retryTimer, TimeUnit.SECONDS);
