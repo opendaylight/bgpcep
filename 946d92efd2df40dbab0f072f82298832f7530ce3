@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_7d1732a4",
+        "filename": "pcep/pcc-mock/src/main/java/org/opendaylight/protocol/pcep/pcc/mock/protocol/PCCDispatcherImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-01-26T17:43:39Z",
+      "side": 1,
+      "message": "not recommended at all",
+      "range": {
+        "startLine": 129,
+        "startChar": 8,
+        "endLine": 129,
+        "endChar": 69
+      },
+      "revId": "946d92efd2df40dbab0f072f82298832f7530ce3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_dd83beca",
+        "filename": "pcep/pcc-mock/src/test/java/org/opendaylight/protocol/pcep/pcc/mock/PCCMockTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-01-26T17:43:39Z",
+      "side": 1,
+      "message": "test should be readable,and easy to update even if we don\u0027t know what is testing.",
+      "range": {
+        "startLine": 52,
+        "startChar": 0,
+        "endLine": 80,
+        "endChar": 9
+      },
+      "revId": "946d92efd2df40dbab0f072f82298832f7530ce3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}

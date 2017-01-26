@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_fd696226",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPDispatcherImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-01-26T17:43:39Z",
+      "side": 0,
+      "message": "we use global ODL EvenLoopGroup. check the BP instantiation.",
+      "range": {
+        "startLine": 65,
+        "startChar": 12,
+        "endLine": 65,
+        "endChar": 76
+      },
+      "revId": "684d75cb36f3b34b2691b374166f1bbc9ef52de5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
