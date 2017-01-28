@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_d4d0b055",
+        "filename": "bgp/peer-acceptor/src/main/java/org/opendaylight/protocol/bgp/peer/acceptor/BGPPeerAcceptorImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2017-01-28T15:00:17Z",
+      "side": 1,
+      "message": "Slightly unrealted...anyway this part of the code should not be included in a constructor.",
+      "range": {
+        "startLine": 46,
+        "startChar": 0,
+        "endLine": 61,
+        "endChar": 11
+      },
+      "revId": "0d6f281b38d48c3f8b2836d645d0cac74b23df76",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b4d52c45",
+        "filename": "bgp/peer-acceptor/src/main/yang/odl-bgp-peer-acceptor-config.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2017-01-28T15:00:17Z",
+      "side": 1,
+      "message": "Please, do not forget to update BGP\u0027s user guide.",
+      "revId": "0d6f281b38d48c3f8b2836d645d0cac74b23df76",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_14cb58a6",
+        "filename": "bgp/peer-acceptor/src/main/yang/odl-bgp-peer-acceptor-config.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2017-01-28T15:00:17Z",
+      "side": 1,
+      "message": "2016",
+      "range": {
+        "startLine": 11,
+        "startChar": 22,
+        "endLine": 11,
+        "endChar": 26
+      },
+      "revId": "0d6f281b38d48c3f8b2836d645d0cac74b23df76",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
