@@ -15,7 +15,6 @@ import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.google.common.net.InetAddresses;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.Future;
@@ -45,7 +44,6 @@ import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
-import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
@@ -94,7 +92,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
@@ -147,13 +144,14 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
     @Mock
     protected ClusterSingletonServiceProvider clusterSingletonServiceProvider;
     BindingToNormalizedNodeCodec mappingService;
-    BGPDispatcherImpl dispatcher;
+    BGPDispatcherImpl serverDispatcher;
     RIBExtensionProviderContext ribExtension;
     private RIBActivator ribActivator;
     private BGPActivator bgpActivator;
     private NioEventLoopGroup worker;
     private NioEventLoopGroup boss;
     private org.opendaylight.protocol.bgp.inet.BGPActivator inetActivator;
+    protected StrictBGPPeerRegistry serverRegistry;
 
     @Before
     public void setUp() throws Exception {
@@ -187,14 +185,16 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
             this.worker = new NioEventLoopGroup();
             this.boss = new NioEventLoopGroup();
         }
-        this.dispatcher = new BGPDispatcherImpl(this.context.getMessageRegistry(), this.boss, this.worker);
+        this.serverRegistry = new StrictBGPPeerRegistry();
+        this.serverDispatcher = new BGPDispatcherImpl(this.context.getMessageRegistry(), this.boss, this.worker,
+            this.serverRegistry);
         doReturn(Mockito.mock(ClusterSingletonServiceRegistration.class)).when(this.clusterSingletonServiceProvider)
             .registerClusterSingletonService(any(ClusterSingletonService.class));
     }
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
-        this.dispatcher.close();
+        this.serverDispatcher.close();
         if (!Epoll.isAvailable()) {
             this.worker.shutdownGracefully(0, 0, TimeUnit.SECONDS);
             this.boss.shutdownGracefully(0, 0, TimeUnit.SECONDS);
@@ -247,42 +247,38 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
         });
     }
 
-    BGPSessionImpl createPeerSession(final Ipv4Address peer, final BgpParameters nonAddPathParams,
-        final SimpleSessionListener sessionListener) throws InterruptedException, ExecutionException {
-        return connectPeer(peer, nonAddPathParams, this.dispatcher, sessionListener);
+    BGPSessionImpl createPeerSession(final Ipv4Address peer, final BgpParameters bgpParameters,
+        final SimpleSessionListener sessionListener) throws InterruptedException {
+        StrictBGPPeerRegistry clientRegistry = new StrictBGPPeerRegistry();
+        BGPDispatcherImpl clientDispatcher = new BGPDispatcherImpl(this.context.getMessageRegistry(), this.boss,
+            this.worker, clientRegistry);
+        clientRegistry.addPeer(new IpAddress(new Ipv4Address(RIB_ID)), sessionListener,
+            new BGPSessionPreferences(AS_NUMBER, HOLDTIMER, new BgpId(peer),
+                AS_NUMBER, Lists.newArrayList(bgpParameters), Optional.absent()));
+
+        return connectPeer(peer, clientDispatcher);
     }
 
-    private static int getPeerRibOutSize(final Peer peer) {
-        return ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.bgp.rib.rib.peer.adj.rib.out.tables.routes.Ipv4RoutesCase) peer.getAdjRibOut().getTables().get(0).getRoutes()).getIpv4Routes().getIpv4Route().size();
-    }
+    protected static BGPPeer configurePeer(final Ipv4Address peerAddress, final RIBImpl ribImpl,
+        final BgpParameters bgpParameters, final PeerRole peerRole, BGPPeerRegistry bgpPeerRegistry) {
+        final IpAddress ipAddress = new IpAddress(peerAddress);
 
-    protected static BGPPeer configurePeer(final Ipv4Address localAddress, final RIBImpl ribImpl, final BgpParameters bgpParameters, final PeerRole peerRole) {
-        final IpAddress ipAddress = new IpAddress(new Ipv4Address(InetAddresses.forString(localAddress.getValue())
-            .getHostAddress()));
-
-
-        final BGPPeer bgpPeer = new BGPPeer(localAddress.getValue(), ribImpl, peerRole, null, AFI_SAFIS_ADVERTIZED,
-            Collections.emptySet());
+        final BGPPeer bgpPeer = new BGPPeer(peerAddress.getValue(), ribImpl, peerRole, null,
+            AFI_SAFIS_ADVERTIZED, Collections.emptySet());
         final List<BgpParameters> tlvs = Lists.newArrayList(bgpParameters);
-        StrictBGPPeerRegistry.GLOBAL.addPeer(ipAddress, bgpPeer,
+        bgpPeerRegistry.addPeer(ipAddress, bgpPeer,
             new BGPSessionPreferences(AS_NUMBER, HOLDTIMER, new BgpId(RIB_ID), AS_NUMBER, tlvs, Optional.absent()));
         bgpPeer.instantiateServiceInstance();
         return bgpPeer;
     }
 
-    private static BGPSessionImpl connectPeer(final Ipv4Address localAddress, final BgpParameters bgpParameters,
-        final BGPDispatcherImpl dispatcherImpl, final BGPSessionListener sessionListener) throws InterruptedException {
-        final BGPPeerRegistry peerRegistry = new StrictBGPPeerRegistry();
-        peerRegistry.addPeer(new IpAddress(new Ipv4Address(RIB_ID)), sessionListener,
-            new BGPSessionPreferences(AS_NUMBER, HOLDTIMER, new BgpId(localAddress),
-                AS_NUMBER, Lists.newArrayList(bgpParameters), Optional.absent()));
-
+    private static BGPSessionImpl connectPeer(final Ipv4Address localAddress, final BGPDispatcherImpl dispatcherImpl)
+        throws InterruptedException {
         final Future<BGPSessionImpl> future = dispatcherImpl.createClient(new InetSocketAddress(localAddress.getValue(), PORT),
-            new InetSocketAddress(RIB_ID, PORT), peerRegistry, RETRY_TIMER, true);
+            new InetSocketAddress(RIB_ID, PORT), RETRY_TIMER, true);
         Thread.sleep(200);
         waitFutureSuccess(future);
-        final BGPSessionImpl client = future.getNow();
-        return client;
+        return future.getNow();
     }
 
     protected static BgpParameters createParameter(final boolean addPath) {

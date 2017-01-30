@@ -32,10 +32,10 @@ public class BGPPeerAcceptorImplTest extends AbstractBGPDispatcherTest {
         this.registry.addPeer(serverIpAddress, this.serverListener, createPreferences(inetServerAddress));
 
         final BGPPeerAcceptorImpl bgpPeerAcceptor = new BGPPeerAcceptorImpl(serverIpAddress, portNumber,
-            this.registry, this.serverDispatcher);
+            this.serverDispatcher);
         bgpPeerAcceptor.start();
         final Future<BGPSessionImpl> futureClient = this.clientDispatcher
-            .createClient(this.clientAddress, inetServerAddress, this.registry, 2, true);
+            .createClient(this.clientAddress, inetServerAddress, 2, true);
         waitFutureSuccess(futureClient);
         final BGPSessionImpl session = futureClient.get();
         Assert.assertEquals(State.UP, this.clientListener.getState());
