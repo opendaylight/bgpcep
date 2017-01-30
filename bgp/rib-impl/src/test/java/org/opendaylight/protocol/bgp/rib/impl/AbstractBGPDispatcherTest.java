@@ -55,7 +55,8 @@ import org.slf4j.LoggerFactory;
 public class AbstractBGPDispatcherTest {
     protected static final AsNumber AS_NUMBER = new AsNumber(30L);
     protected static final int RETRY_TIMER = 1;
-    protected static final BgpTableType IPV_4_TT = new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+    protected static final BgpTableType IPV_4_TT = new BgpTableTypeImpl(Ipv4AddressFamily.class,
+        UnicastSubsequentAddressFamily.class);
     private static final short HOLD_TIMER = 30;
     protected BGPDispatcherImpl clientDispatcher;
     protected BGPPeerRegistry registry;
@@ -76,12 +77,12 @@ public class AbstractBGPDispatcherTest {
         this.clientListener = new SimpleSessionListener();
         this.serverListener = new SimpleSessionListener();
         final BGPExtensionProviderContext ctx = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance();
-        this.serverDispatcher = new BGPDispatcherImpl(ctx.getMessageRegistry(), this.boss, this.worker);
+        this.serverDispatcher = new BGPDispatcherImpl(ctx.getMessageRegistry(), this.boss, this.worker, this.registry);
 
         this.clientAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
         final IpAddress clientPeerIp = new IpAddress(new Ipv4Address(this.clientAddress.getAddress().getHostAddress()));
         this.registry.addPeer(clientPeerIp, this.clientListener, createPreferences(this.clientAddress));
-        this.clientDispatcher = new BGPDispatcherImpl(ctx.getMessageRegistry(), this.boss, this.worker);
+        this.clientDispatcher = new BGPDispatcherImpl(ctx.getMessageRegistry(), this.boss, this.worker, this.registry);
     }
 
     @After
@@ -108,7 +109,7 @@ public class AbstractBGPDispatcherTest {
         return new BGPSessionPreferences(AS_NUMBER, HOLD_TIMER, bgpId, AS_NUMBER, tlvs, Optional.absent());
     }
 
-    public static void checkIdleState(final SimpleSessionListener listener) {
+    protected static void checkIdleState(final SimpleSessionListener listener) {
         final Stopwatch sw = Stopwatch.createStarted();
         while (sw.elapsed(TimeUnit.SECONDS) <= 10) {
             if (State.IDLE != listener.getState()) {
@@ -121,10 +122,12 @@ public class AbstractBGPDispatcherTest {
     }
 
     protected Channel createServer(final InetSocketAddress serverAddress) throws InterruptedException {
-        this.registry.addPeer(new IpAddress(new Ipv4Address(serverAddress.getAddress().getHostAddress())), this.serverListener, createPreferences(serverAddress));
+        this.registry.addPeer(new IpAddress(new Ipv4Address(serverAddress.getAddress().getHostAddress())),
+            this.serverListener, createPreferences(serverAddress));
         LoggerFactory.getLogger(AbstractBGPDispatcherTest.class).info("createServer");
-        final ChannelFuture future = this.serverDispatcher.createServer(this.registry, serverAddress);
-        future.addListener(future1 -> Preconditions.checkArgument(future1.isSuccess(), "Unable to start bgp server on %s", future1.cause()));
+        final ChannelFuture future = this.serverDispatcher.createServer(serverAddress);
+        future.addListener(future1 -> Preconditions.checkArgument(future1.isSuccess(),
+            "Unable to start bgp server on %s", future1.cause()));
         waitFutureSuccess(future);
         return future.channel();
     }

@@ -63,13 +63,12 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(TABLES_KEY, new AllPathSelection());
 
         this.ribImpl = new RIBImpl(this.clusterSingletonServiceProvider, new RibId("test-rib"),
-            AS_NUMBER, BGP_ID, null, this.ribExtension, this.dispatcher, this.mappingService.getCodecFactory(),
+            AS_NUMBER, BGP_ID, null, this.ribExtension, this.serverDispatcher, this.mappingService.getCodecFactory(),
             getDomBroker(), TABLES_TYPE, pathTables, this.ribExtension.getClassLoadingStrategy(), null);
 
         this.ribImpl.instantiateServiceInstance();
         this.ribImpl.onGlobalContextUpdated(this.schemaContext);
-        final ChannelFuture channelFuture = this.dispatcher.createServer(StrictBGPPeerRegistry.GLOBAL,
-            new InetSocketAddress(RIB_ID, PORT));
+        final ChannelFuture channelFuture = this.serverDispatcher.createServer(new InetSocketAddress(RIB_ID, PORT));
         waitFutureSuccess(channelFuture);
         this.serverChannel = channelFuture.channel();
     }
@@ -94,17 +93,17 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         final BgpParameters nonAddPathParams = createParameter(false);
         final BgpParameters addPathParams = createParameter(true);
 
-        final BGPPeer peer1 = configurePeer(PEER1, this.ribImpl, nonAddPathParams, PeerRole.Ibgp);
+        final BGPPeer peer1 = configurePeer(PEER1, this.ribImpl, nonAddPathParams, PeerRole.Ibgp, this.serverRegistry);
         final BGPSessionImpl session1 = createPeerSession(PEER1, nonAddPathParams, new SimpleSessionListener());
 
-        configurePeer(PEER2, this.ribImpl, nonAddPathParams, PeerRole.Ibgp);
+        configurePeer(PEER2, this.ribImpl, nonAddPathParams, PeerRole.Ibgp, this.serverRegistry);
         final BGPSessionImpl session2 = createPeerSession(PEER2, nonAddPathParams, new SimpleSessionListener());
 
-        configurePeer(PEER3, this.ribImpl, nonAddPathParams, PeerRole.Ibgp);
+        configurePeer(PEER3, this.ribImpl, nonAddPathParams, PeerRole.Ibgp, this.serverRegistry);
         final BGPSessionImpl session3 = createPeerSession(PEER3, nonAddPathParams, new SimpleSessionListener());
 
         final SimpleSessionListener listener4 = new SimpleSessionListener();
-        final BGPPeer peer4 = configurePeer(PEER4, this.ribImpl, nonAddPathParams, PeerRole.RrClient);
+        final BGPPeer peer4 = configurePeer(PEER4, this.ribImpl, nonAddPathParams, PeerRole.RrClient, this.serverRegistry);
 
         BGPPeerState peer4State = peer4.getPeerState();
         assertNull(peer4State.getGroupId());
@@ -140,7 +139,7 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         final BGPSessionImpl session4 = createPeerSession(PEER4, nonAddPathParams, listener4);
 
         final SimpleSessionListener listener5 = new SimpleSessionListener();
-        configurePeer(PEER5, this.ribImpl, addPathParams, PeerRole.RrClient);
+        configurePeer(PEER5, this.ribImpl, addPathParams, PeerRole.RrClient, this.serverRegistry);
         final BGPSessionImpl session5 = createPeerSession(PEER5, addPathParams, listener5);
         checkPeersPresentOnDataStore(5);
 
@@ -199,7 +198,7 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         assertEquals(1L, ribState.getTotalPrefixesCount());
 
         final SimpleSessionListener listener6 = new SimpleSessionListener();
-        final BGPPeer peer6 = configurePeer(PEER6, this.ribImpl, nonAddPathParams, PeerRole.RrClient);
+        final BGPPeer peer6 = configurePeer(PEER6, this.ribImpl, nonAddPathParams, PeerRole.RrClient, this.serverRegistry);
         final BGPSessionImpl session6 = createPeerSession(PEER6, nonAddPathParams, listener6);
         checkPeersPresentOnDataStore(6);
         checkReceivedMessages(listener6, 1);

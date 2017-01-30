@@ -83,7 +83,7 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
     private AbstractRIBExtensionProviderActivator baseact, lsact;
     private RIBExtensionProviderContext ext1, ext2;
     private static final TablesKey TABLE_KEY = new TablesKey(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
-    private String localAddress = "127.0.0.1";
+    private final String localAddress = "127.0.0.1";
     private final IpAddress neighborAddress = new IpAddress(new Ipv4Address(localAddress));
     @Mock
     BGPDispatcher dispatcher;
@@ -123,10 +123,12 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
         } catch (final IOException e) {
             throw Throwables.propagate(e);
         }
-        this.mock = new BGPMock(new EventBus("test"), ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry(), Lists.newArrayList(fixMessages(bgpMessages)));
+        this.mock = new BGPMock(new EventBus("test"), ServiceLoaderBGPExtensionProviderContext
+            .getSingletonInstance().getMessageRegistry(), Lists.newArrayList(fixMessages(bgpMessages)));
 
-        Mockito.doReturn(GlobalEventExecutor.INSTANCE.newSucceededFuture(null)).when(this.dispatcher).createReconnectingClient(
-                Mockito.any(InetSocketAddress.class), Mockito.any(BGPPeerRegistry.class), Mockito.anyInt(), Mockito.any(Optional.class));
+        Mockito.doReturn(GlobalEventExecutor.INSTANCE.newSucceededFuture(null)).when(this.dispatcher)
+            .createReconnectingClient(Mockito.any(InetSocketAddress.class), Mockito.anyInt(),
+                Mockito.any(Optional.class));
 
         this.ext1 = new SimpleRIBExtensionProviderContext();
         this.ext2 = new SimpleRIBExtensionProviderContext();
