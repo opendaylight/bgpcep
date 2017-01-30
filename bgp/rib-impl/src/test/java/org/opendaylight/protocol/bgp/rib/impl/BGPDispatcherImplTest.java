@@ -26,7 +26,8 @@ public class BGPDispatcherImplTest extends AbstractBGPDispatcherTest {
     public void testCreateClient() throws InterruptedException, ExecutionException {
         final InetSocketAddress serverAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
         final Channel serverChannel = createServer(serverAddress);
-        final Future<BGPSessionImpl> futureClient = this.clientDispatcher.createClient(this.clientAddress, serverAddress, this.registry, 2, true);
+        final Future<BGPSessionImpl> futureClient = this.clientDispatcher.createClient(this.clientAddress,
+            serverAddress, 2, true);
         waitFutureSuccess(futureClient);
         final BGPSessionImpl session = futureClient.get();
         Assert.assertEquals(State.UP, this.clientListener.getState());
@@ -43,8 +44,8 @@ public class BGPDispatcherImplTest extends AbstractBGPDispatcherTest {
     @Test
     public void testCreateReconnectingClient() throws Exception {
         final InetSocketAddress serverAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
-        final Future<Void> future = this.clientDispatcher.createReconnectingClient(serverAddress, this.registry, RETRY_TIMER, Optional.absent(),
-            this.clientAddress, true);
+        final Future<Void> future = this.clientDispatcher.createReconnectingClient(serverAddress, RETRY_TIMER,
+            Optional.absent(), this.clientAddress, true);
         waitFutureSuccess(future);
         final Channel serverChannel = createServer(serverAddress);
         Assert.assertEquals(State.UP, this.serverListener.getState());

@@ -34,15 +34,13 @@ import org.slf4j.LoggerFactory;
 public final class BGPPeerAcceptorImpl implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(BGPPeerAcceptorImpl.class);
     private static final int PRIVILEGED_PORTS = 1024;
-    private final BGPPeerRegistry peerRegistry;
     private final BGPDispatcher bgpDispatcher;
     private final InetSocketAddress address;
     private ChannelFuture futureChannel;
     private AutoCloseable listenerRegistration;
 
     public BGPPeerAcceptorImpl(final IpAddress bindingAddress, final PortNumber portNumber,
-        final BGPPeerRegistry peerRegistry, final BGPDispatcher bgpDispatcher) {
-        this.peerRegistry = Preconditions.checkNotNull(peerRegistry);
+        final BGPDispatcher bgpDispatcher) {
         this.bgpDispatcher = Preconditions.checkNotNull(bgpDispatcher);
         this.address = getAddress(Preconditions.checkNotNull(bindingAddress), Preconditions.checkNotNull(portNumber));
         if (!PlatformDependent.isWindows() && !PlatformDependent.isRoot()
@@ -55,14 +53,14 @@ public final class BGPPeerAcceptorImpl implements AutoCloseable {
     public void start() {
         LOG.debug("Instantiating BGP Peer Acceptor : {}", this.address);
 
-        this.futureChannel = this.bgpDispatcher.createServer(this.peerRegistry, this.address);
+        this.futureChannel = this.bgpDispatcher.createServer(this.address);
         // Validate future success
         this.futureChannel.addListener(future -> {
             Preconditions.checkArgument(future.isSuccess(), "Unable to start bgp server on %s",
                 this.address, future.cause());
             final Channel channel = this.futureChannel.channel();
             if (Epoll.isAvailable()) {
-                this.listenerRegistration = this.peerRegistry.registerPeerRegisterListener(
+                this.listenerRegistration = this.bgpDispatcher.getBGPPeerRegistry().registerPeerRegisterListener(
                     new BGPPeerAcceptorImpl.PeerRegistryListenerImpl(channel.config()));
             }
         });

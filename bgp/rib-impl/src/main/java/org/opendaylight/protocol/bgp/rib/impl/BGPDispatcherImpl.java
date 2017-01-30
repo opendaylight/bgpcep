@@ -58,8 +58,10 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     private final BGPHandlerFactory handlerFactory;
     private final EventLoopGroup bossGroup;
     private final EventLoopGroup workerGroup;
+    private final BGPPeerRegistry bgpPeerRegistry;
 
-    public BGPDispatcherImpl(final MessageRegistry messageRegistry, final EventLoopGroup bossGroup, final EventLoopGroup workerGroup) {
+    public BGPDispatcherImpl(final MessageRegistry messageRegistry, final EventLoopGroup bossGroup,
+        final EventLoopGroup workerGroup, final BGPPeerRegistry bgpPeerRegistry) {
         if (Epoll.isAvailable()) {
             this.bossGroup = new EpollEventLoopGroup();
             this.workerGroup = new EpollEventLoopGroup();
@@ -67,20 +69,22 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
             this.bossGroup = Preconditions.checkNotNull(bossGroup);
             this.workerGroup = Preconditions.checkNotNull(workerGroup);
         }
+        this.bgpPeerRegistry = Preconditions.checkNotNull(bgpPeerRegistry);
         this.handlerFactory = new BGPHandlerFactory(messageRegistry);
     }
 
     @Override
-    public synchronized Future<BGPSessionImpl> createClient(final InetSocketAddress remoteAddress, final BGPPeerRegistry listener, final int retryTimer) {
-        return createClient(remoteAddress, listener, retryTimer, createClientBootStrap(Optional.absent(), false));
+    public synchronized Future<BGPSessionImpl> createClient(final InetSocketAddress remoteAddress, final int retryTimer) {
+        return createClient(remoteAddress, retryTimer, createClientBootStrap(Optional.absent(), false));
     }
 
-    private synchronized Future<BGPSessionImpl> createClient(final InetSocketAddress remoteAddress, final BGPPeerRegistry listener, final int retryTimer,
-            final Bootstrap clientBootStrap) {
-        final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(listener);
+    private synchronized Future<BGPSessionImpl> createClient(final InetSocketAddress remoteAddress,
+        final int retryTimer, final Bootstrap clientBootStrap) {
+        final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(this.bgpPeerRegistry);
         final ChannelPipelineInitializer initializer = BGPChannel.createChannelPipelineInitializer(this.handlerFactory, snf);
 
-        final BGPProtocolSessionPromise sessionPromise = new BGPProtocolSessionPromise(remoteAddress, retryTimer, clientBootStrap, listener);
+        final BGPProtocolSessionPromise sessionPromise = new BGPProtocolSessionPromise(remoteAddress, retryTimer,
+            clientBootStrap, this.bgpPeerRegistry);
         clientBootStrap.handler(BGPChannel.createClientChannelHandler(initializer, sessionPromise));
         sessionPromise.connect();
         LOG.debug("Client created.");
@@ -88,11 +92,11 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     }
 
     @VisibleForTesting
-    public synchronized Future<BGPSessionImpl> createClient(final InetSocketAddress localAddress, final InetSocketAddress remoteAddress,
-            final BGPPeerRegistry strictBGPPeerRegistry, final int retryTimer, final boolean reuseAddress) {
+    public synchronized Future<BGPSessionImpl> createClient(final InetSocketAddress localAddress,
+        final InetSocketAddress remoteAddress, final int retryTimer, final boolean reuseAddress) {
         final Bootstrap clientBootStrap = createClientBootStrap(Optional.absent(), reuseAddress);
         clientBootStrap.localAddress(localAddress);
-        return createClient(remoteAddress, strictBGPPeerRegistry, retryTimer, clientBootStrap);
+        return createClient(remoteAddress, retryTimer, clientBootStrap);
     }
 
     private synchronized Bootstrap createClientBootStrap(final Optional<KeyMapping> keys, final boolean reuseAddress) {
@@ -135,31 +139,38 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     }
 
     @Override
-    public synchronized Future<Void> createReconnectingClient(final InetSocketAddress remoteAddress, final BGPPeerRegistry peerRegistry,
+    public synchronized Future<Void> createReconnectingClient(final InetSocketAddress remoteAddress,
             final int retryTimer, final Optional<KeyMapping> keys) {
-        return createReconnectingClient(remoteAddress, peerRegistry, retryTimer, keys, null, false);
+        return createReconnectingClient(remoteAddress, retryTimer, keys, null, false);
     }
 
     @VisibleForTesting
-    protected synchronized Future<Void> createReconnectingClient(final InetSocketAddress remoteAddress, final BGPPeerRegistry peerRegistry,
-        final int retryTimer, final Optional<KeyMapping> keys, final InetSocketAddress localAddress, final boolean reuseAddress) {
-        final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(peerRegistry);
+    protected synchronized Future<Void> createReconnectingClient(final InetSocketAddress remoteAddress,
+        final int retryTimer, final Optional<KeyMapping> keys, final InetSocketAddress localAddress,
+        final boolean reuseAddress) {
+        final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(this.bgpPeerRegistry);
         final Bootstrap bootstrap = createClientBootStrap(keys, reuseAddress);
         bootstrap.localAddress(localAddress);
-        final BGPReconnectPromise reconnectPromise = new BGPReconnectPromise(GlobalEventExecutor.INSTANCE, remoteAddress,
-            retryTimer, bootstrap, peerRegistry, BGPChannel.createChannelPipelineInitializer(this.handlerFactory, snf));
+        final BGPReconnectPromise reconnectPromise = new BGPReconnectPromise(GlobalEventExecutor.INSTANCE,
+            remoteAddress, retryTimer, bootstrap, this.bgpPeerRegistry,
+            BGPChannel.createChannelPipelineInitializer(this.handlerFactory, snf));
         reconnectPromise.connect();
         return reconnectPromise;
     }
 
     @Override
-    public synchronized ChannelFuture createServer(final BGPPeerRegistry registry, final InetSocketAddress serverAddress) {
-        final BGPServerSessionNegotiatorFactory snf = new BGPServerSessionNegotiatorFactory(registry);
+    public synchronized ChannelFuture createServer(final InetSocketAddress serverAddress) {
+        final BGPServerSessionNegotiatorFactory snf = new BGPServerSessionNegotiatorFactory(this.bgpPeerRegistry);
         final ChannelPipelineInitializer initializer = BGPChannel.createChannelPipelineInitializer(this.handlerFactory, snf);
         final ServerBootstrap serverBootstrap = createServerBootstrap(initializer);
         final ChannelFuture channelFuture = serverBootstrap.bind(serverAddress);
         LOG.debug("Initiated server {} at {}.", channelFuture, serverAddress);
         return channelFuture;
+    }
+
+    @Override
+    public BGPPeerRegistry getBGPPeerRegistry() {
+        return this.bgpPeerRegistry;
     }
 
     private synchronized ServerBootstrap createServerBootstrap(final ChannelPipelineInitializer initializer) {
