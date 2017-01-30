@@ -195,7 +195,7 @@ public class BgpDeployerImplTest {
             mock(BGPDispatcher.class), mock(BindingCodecTreeFactory.class), domDataBroker, schemaService);
         Mockito.doReturn(ribImpl).when(this.blueprintContainer).getComponentInstance(eq("ribImpl"));
 
-        final BgpPeer bgpPeer = new BgpPeer(mock(RpcProviderRegistry.class), mock(BGPPeerRegistry.class));
+        final BgpPeer bgpPeer = new BgpPeer(mock(RpcProviderRegistry.class));
         Mockito.doReturn(bgpPeer).when(this.blueprintContainer).getComponentInstance(eq("bgpPeer"));
         this.collection = Collections.singleton(this.modification);
     }

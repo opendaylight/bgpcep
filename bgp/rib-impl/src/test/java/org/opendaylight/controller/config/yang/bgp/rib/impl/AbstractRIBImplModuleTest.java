@@ -261,8 +261,8 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         setupMockService(DOMMountPointService.class, mock(DOMMountPointService.class));
 
         setupMockService(BGPDispatcher.class, this.mockedBGPDispatcher);
-        doReturn(new SucceededFuture<>(ImmediateEventExecutor.INSTANCE, null)).when(this.mockedBGPDispatcher).createReconnectingClient(
-                any(InetSocketAddress.class), any(BGPPeerRegistry.class), anyInt(), any(Optional.class));
+        doReturn(new SucceededFuture<>(ImmediateEventExecutor.INSTANCE, null)).when(this.mockedBGPDispatcher)
+            .createReconnectingClient(any(InetSocketAddress.class), anyInt(), any(Optional.class));
 
         setupMockService(BgpDeployer.class, this.bgpDeployer);
         final Global global = mock(Global.class);

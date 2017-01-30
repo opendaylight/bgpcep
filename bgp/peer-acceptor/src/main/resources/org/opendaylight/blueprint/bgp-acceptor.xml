@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
-    <reference id="BGPPeerRegistry" interface="org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry"/>
     <reference id="BGPDispatcher" interface="org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher"/>
 
     <odl:clustered-app-config id="bgpPeerAcceptorConfig"
@@ -25,7 +24,6 @@
         <argument>
             <bean factory-ref="bgpPeerAcceptorConfig" factory-method="getBindingPort"/>
         </argument>
-        <argument ref="BGPPeerRegistry"/>
         <argument ref="BGPDispatcher"/>
     </bean>
 </blueprint>

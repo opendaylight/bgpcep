@@ -71,14 +71,12 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer, BGPPeerRun
     private static final Logger LOG = LoggerFactory.getLogger(BgpPeer.class);
 
     private final RpcProviderRegistry rpcRegistry;
-    private final BGPPeerRegistry peerRegistry;
     private ServiceRegistration<?> serviceRegistration;
     private Neighbor currentConfiguration;
     private BgpPeerSingletonService bgpPeerSingletonService;
 
-    public BgpPeer(final RpcProviderRegistry rpcRegistry, final BGPPeerRegistry peerRegistry) {
+    public BgpPeer(final RpcProviderRegistry rpcRegistry) {
         this.rpcRegistry = rpcRegistry;
-        this.peerRegistry = peerRegistry;
     }
 
     @Override
@@ -262,10 +260,9 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer, BGPPeerRun
             }
             LOG.info("Peer Singleton Service {} instantiated", getIdentifier().getValue());
             this.bgpPeer.instantiateServiceInstance();
-            BgpPeer.this.peerRegistry.addPeer(this.neighborAddress, this.bgpPeer, this.prefs);
+            this.dispatcher.getBGPPeerRegistry().addPeer(this.neighborAddress, this.bgpPeer, this.prefs);
             if (this.activeConnection) {
-                this.connection = this.dispatcher.createReconnectingClient(this.inetAddress, BgpPeer.this.peerRegistry,
-                    this.retryTimer, this.key);
+                this.connection = this.dispatcher.createReconnectingClient(this.inetAddress, this.retryTimer, this.key);
             }
         }
 
@@ -278,7 +275,7 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer, BGPPeerRun
             }
             this.bgpPeer.close();
             if(BgpPeer.this.currentConfiguration != null) {
-                BgpPeer.this.peerRegistry.removePeer(BgpPeer.this.currentConfiguration.getNeighborAddress());
+                this.dispatcher.getBGPPeerRegistry().removePeer(BgpPeer.this.currentConfiguration.getNeighborAddress());
             }
             return Futures.immediateFuture(null);
         }

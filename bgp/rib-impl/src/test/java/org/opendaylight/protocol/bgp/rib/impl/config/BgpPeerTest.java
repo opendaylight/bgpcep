@@ -71,14 +71,15 @@ public class BgpPeerTest extends AbstractConfig {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        this.bgpPeer = new BgpPeer(Mockito.mock(RpcProviderRegistry.class), this.bgpPeerRegistry);
+        this.bgpPeer = new BgpPeer(Mockito.mock(RpcProviderRegistry.class));
         Mockito.doNothing().when(this.serviceRegistration).unregister();
     }
 
     @Test
     public void testBgpPeer() throws Exception {
-        final Neighbor neighbor = new NeighborBuilder().setAfiSafis(createAfiSafi()).setConfig(createConfig()).setNeighborAddress(NEIGHBOR_ADDRESS)
-            .setRouteReflector(createRR()).setTimers(createTimers()).setTransport(createTransport()).setAddPaths(createAddPath()).build();
+        final Neighbor neighbor = new NeighborBuilder().setAfiSafis(createAfiSafi()).setConfig(createConfig())
+            .setNeighborAddress(NEIGHBOR_ADDRESS).setRouteReflector(createRR()).setTimers(createTimers())
+            .setTransport(createTransport()).setAddPaths(createAddPath()).build();
 
         this.bgpPeer.start(this.rib, neighbor, this.tableTypeRegistry, this.configurationWriter);
         Mockito.verify(this.rib).createPeerChain(any());
@@ -91,7 +92,8 @@ public class BgpPeerTest extends AbstractConfig {
         Mockito.verify(this.render).getConfiguredPeerCounter();
         Mockito.verify(this.configurationWriter).apply();
         Mockito.verify(this.bgpPeerRegistry).addPeer(any(), any(), any());
-        Mockito.verify(this.dispatcher).createReconnectingClient(any(InetSocketAddress.class), any(BGPPeerRegistry.class), anyInt(), any(Optional.class));
+        Mockito.verify(this.dispatcher).createReconnectingClient(any(InetSocketAddress.class),
+            anyInt(), any(Optional.class));
 
         try {
             this.bgpPeer.start(this.rib, neighbor, this.tableTypeRegistry, this.configurationWriter);

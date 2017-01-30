@@ -7,25 +7,6 @@
   <reference id="globalWorkerGroup" interface="io.netty.channel.EventLoopGroup" odl:type="global-worker-group"/>
   <reference id="clusterSingletonServiceProvider" interface="org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider"/>
 
-  <bean id="BGPDispatcher" class="org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImpl"  destroy-method="close">
-    <argument>
-      <bean factory-ref="BGPExtensionContext" factory-method="getMessageRegistry"/>
-    </argument>
-    <argument ref="globalBossGroup"/>
-    <argument ref="globalWorkerGroup"/>
-  </bean>
-
-  <service ref="BGPDispatcher" interface="org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher">
-    <!-- The following service properties specify the config system module and instance that correspond to
-         this OSGi service which enables the config system module to be restarted when this blueprint
-         container is restarted. -->
-    <service-properties>
-      <entry key="config-module-namespace" value="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl"/>
-      <entry key="config-module-name" value="bgp-dispatcher-impl"/>
-      <entry key="config-instance-name" value="global-bgp-dispatcher"/>
-    </service-properties>
-  </service>
-
   <bean id="BGPPeerRegistry" class="org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry"
           factory-method="instance" destroy-method="close"/>
 
@@ -38,6 +19,26 @@
       <entry key="config-module-namespace" value="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl"/>
       <entry key="config-module-name" value="strict-bgp-peer-registry"/>
       <entry key="config-instance-name" value="global-bgp-peer-registry"/>
+    </service-properties>
+  </service>
+
+  <bean id="BGPDispatcher" class="org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImpl"  destroy-method="close">
+    <argument>
+      <bean factory-ref="BGPExtensionContext" factory-method="getMessageRegistry"/>
+    </argument>
+    <argument ref="globalBossGroup"/>
+    <argument ref="globalWorkerGroup"/>
+    <argument ref="BGPPeerRegistry"/>
+  </bean>
+
+  <service ref="BGPDispatcher" interface="org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher">
+    <!-- The following service properties specify the config system module and instance that correspond to
+         this OSGi service which enables the config system module to be restarted when this blueprint
+         container is restarted. -->
+    <service-properties>
+      <entry key="config-module-namespace" value="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl"/>
+      <entry key="config-module-name" value="bgp-dispatcher-impl"/>
+      <entry key="config-instance-name" value="global-bgp-dispatcher"/>
     </service-properties>
   </service>
 
@@ -70,7 +71,6 @@
 
   <bean id="bgpPeer" class="org.opendaylight.protocol.bgp.rib.impl.config.BgpPeer" scope="prototype">
     <argument ref="rpcRegistry"/>
-    <argument ref="BGPPeerRegistry"/>
   </bean>
 
   <bean id="appPeer" class="org.opendaylight.protocol.bgp.rib.impl.config.AppPeer" scope="prototype"/>
