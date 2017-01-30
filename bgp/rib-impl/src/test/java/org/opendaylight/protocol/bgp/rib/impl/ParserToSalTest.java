@@ -48,7 +48,6 @@ import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.mock.BGPMock;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
@@ -83,6 +82,7 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
     private AbstractRIBExtensionProviderActivator baseact, lsact;
     private RIBExtensionProviderContext ext1, ext2;
     private String localAddress = "127.0.0.1";
+
     @Mock
     private BGPDispatcher dispatcher;
     @Mock
@@ -128,8 +128,8 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
             .getSingletonInstance().getMessageRegistry(), Lists.newArrayList(fixMessages(bgpMessages)));
 
         Mockito.doReturn(GlobalEventExecutor.INSTANCE.newSucceededFuture(null)).when(this.dispatcher)
-            .createReconnectingClient(Mockito.any(InetSocketAddress.class), Mockito.any(BGPPeerRegistry.class),
-                Mockito.anyInt(), Mockito.any(Optional.class));
+            .createReconnectingClient(Mockito.any(InetSocketAddress.class), Mockito.anyInt(),
+                Mockito.any(Optional.class));
 
         this.ext1 = new SimpleRIBExtensionProviderContext();
         this.ext2 = new SimpleRIBExtensionProviderContext();
