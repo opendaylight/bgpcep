@@ -8,12 +8,13 @@
 
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
-import junit.framework.TestCase;
-import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
@@ -22,7 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.Communities;
 
-public class CommunitiesAttributeParserTest extends TestCase {
+public class CommunitiesAttributeParserTest {
 
     private static final byte[] CommunitiesBytes = {(byte) 0xC0, (byte) 0x08, (byte) 0x10,
         (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x1,
@@ -44,10 +45,10 @@ public class CommunitiesAttributeParserTest extends TestCase {
         final ByteBuf actual = Unpooled.buffer();
         ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry()
             .serializeAttribute(paBuilder.build(), actual);
-        Assert.assertArrayEquals(CommunitiesBytes, ByteArray.getAllBytes(actual));
+        assertArrayEquals(CommunitiesBytes, ByteArray.getAllBytes(actual));
         final Attributes attributeOut = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry()
             .parseAttributes(actual);
-        assertEquals(comms,attributeOut.getCommunities());
+        assertEquals(comms, attributeOut.getCommunities());
     }
 
     @Test
