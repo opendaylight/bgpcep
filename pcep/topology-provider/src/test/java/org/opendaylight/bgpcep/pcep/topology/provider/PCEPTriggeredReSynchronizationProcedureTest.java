@@ -65,7 +65,7 @@ public class PCEPTriggeredReSynchronizationProcedureTest extends AbstractPCEPSes
     @Test
     public void testTriggeredResynchronization() throws InterruptedException, ExecutionException {
         //session up - sync skipped (LSP-DBs match)
-        final LspDbVersion lspDbVersion = new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.valueOf(1l)).build();
+        final LspDbVersion lspDbVersion = new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.valueOf(1L)).build();
         this.session = getPCEPSession(getOpen(lspDbVersion), getOpen(lspDbVersion));
         this.listener.onSessionUp(session);
 
@@ -109,7 +109,7 @@ public class PCEPTriggeredReSynchronizationProcedureTest extends AbstractPCEPSes
     @Test
     public void testTriggeredResynchronizationLsp() throws InterruptedException, ExecutionException {
         //session up - sync skipped (LSP-DBs match)
-        final LspDbVersion lspDbVersion = new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.valueOf(1l)).build();
+        final LspDbVersion lspDbVersion = new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.valueOf(1L)).build();
         this.session = getPCEPSession(getOpen(lspDbVersion), getOpen(lspDbVersion));
         this.listener.onSessionUp(session);
 
@@ -171,18 +171,18 @@ public class PCEPTriggeredReSynchronizationProcedureTest extends AbstractPCEPSes
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.TlvsBuilder().addAugmentation(
                     org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs1.class,
                     new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs1Builder()
-                        .setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.valueOf(3l)).build()).build()).build()), true, false),
+                        .setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.valueOf(3L)).build()).build()).build()), true, false),
                             Optional.of(srpBuilder.build()), createPath(Collections.<Subobject>emptyList()));
     }
 
     private Pcrpt getPcrt() {
-        return MsgBuilderUtil.createPcRtpMessage(new LspBuilder().setPlspId(new PlspId(1l)).setTlvs(
+        return MsgBuilderUtil.createPcRtpMessage(new LspBuilder().setPlspId(new PlspId(1L)).setTlvs(
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.
-                    TlvsBuilder().setLspIdentifiers(new LspIdentifiersBuilder().setLspId(new LspId(1l)).build()).setSymbolicPathName(
+                    TlvsBuilder().setLspIdentifiers(new LspIdentifiersBuilder().setLspId(new LspId(1L)).build()).setSymbolicPathName(
                     new SymbolicPathNameBuilder().setPathName(new SymbolicPathName("test".getBytes())).build())
                     .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs1.class,
                         new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs1Builder()
-                            .setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.valueOf(1l)).build()).build()).build())
+                            .setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.valueOf(1L)).build()).build()).build())
                 .setPlspId(new PlspId(1L)).setSync(true).setRemove(false).setOperational(OperationalStatus.Active).build(), Optional.<Srp>absent(),
             createPath(Collections.<Subobject>emptyList()));
     }
