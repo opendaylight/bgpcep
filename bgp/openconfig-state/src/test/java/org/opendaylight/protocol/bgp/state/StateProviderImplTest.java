@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
@@ -32,13 +31,14 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.spi.State;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPAfiSafiState;
@@ -152,12 +152,29 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
     private BGPGracelfulRestartState bgpGracelfulRestartState;
     @Mock
     private BGPAfiSafiState bgpAfiSafiState;
+    @Mock
+    private ClusterSingletonServiceProvider clusterSingletonServiceProvider;
+    @Mock
+    private ClusterSingletonServiceRegistration singletonServiceRegistration;
+
     private final List<BGPPeerState> bgpPeerStates = new ArrayList<>();
     private final List<BGPRIBState> bgpRibStates = new ArrayList<>();
+    private ClusterSingletonService singletonService;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+
+        Mockito.doAnswer(invocationOnMock -> {
+            this.singletonService = (ClusterSingletonService) invocationOnMock.getArguments()[0];
+            return this.singletonServiceRegistration;
+        }).when(this.clusterSingletonServiceProvider).registerClusterSingletonService(any(ClusterSingletonService.class));
+
+        Mockito.doAnswer(invocationOnMock -> {
+            this.singletonService.closeServiceInstance();
+            return null;
+        }).when(this.singletonServiceRegistration).close();
+
         doReturn(Optional.of(IPV4UNICAST.class))
             .when(this.tableTypeRegistry).getAfiSafiType(eq(TABLES_KEY));
 
@@ -170,60 +187,20 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
         doReturn(this.as).when(this.bgpRibState).getAs();
         doReturn(this.bgpId).when(this.bgpRibState).getRouteId();
 
-        Mockito.doAnswer(new Answer<Long>() {
-            @Override
-            public Long answer(final InvocationOnMock invocation) throws Throwable {
-                return StateProviderImplTest.this.totalPathsCounter.longValue();
-            }
-        }).when(this.bgpRibState).getTotalPathsCount();
-        Mockito.doAnswer(new Answer<Long>() {
-            @Override
-            public Long answer(final InvocationOnMock invocation) throws Throwable {
-                return StateProviderImplTest.this.totalPrefixesCounter.longValue();
-            }
-        }).when(this.bgpRibState).getTotalPrefixesCount();
-        Mockito.doAnswer(new Answer<Long>() {
-            @Override
-            public Long answer(final InvocationOnMock invocation) throws Throwable {
-                return StateProviderImplTest.this.totalPathsCounter.longValue();
-            }
-        }).when(this.bgpRibState).getPathCount(eq(TABLES_KEY));
-        Mockito.doAnswer(new Answer<Long>() {
-            @Override
-            public Long answer(final InvocationOnMock invocation) throws Throwable {
-                return StateProviderImplTest.this.totalPrefixesCounter.longValue();
-            }
-        }).when(this.bgpRibState).getPrefixesCount(eq(TABLES_KEY));
-        Mockito.doAnswer(new Answer<Map<TablesKey, Long>>() {
-            @Override
-            public Map<TablesKey, Long> answer(final InvocationOnMock invocation) throws Throwable {
-                return Collections.singletonMap(TABLES_KEY,
-                    StateProviderImplTest.this.totalPrefixesCounter.longValue());
-            }
-        }).when(this.bgpRibState).getPrefixesCount();
-        Mockito.doAnswer(new Answer<Map<TablesKey, Long>>() {
-            @Override
-            public Map<TablesKey, Long> answer(final InvocationOnMock invocation) throws Throwable {
-                return Collections.singletonMap(TABLES_KEY,
-                    StateProviderImplTest.this.totalPathsCounter.longValue());
-            }
-        }).when(this.bgpRibState).getPathsCount();
+        Mockito.doAnswer(invocation -> this.totalPathsCounter.longValue()).when(this.bgpRibState).getTotalPathsCount();
+        Mockito.doAnswer(invocation -> this.totalPrefixesCounter.longValue()).when(this.bgpRibState).getTotalPrefixesCount();
+        Mockito.doAnswer(invocation -> this.totalPathsCounter.longValue()).when(this.bgpRibState).getPathCount(eq(TABLES_KEY));
+        Mockito.doAnswer(invocation -> this.totalPrefixesCounter.longValue()).when(this.bgpRibState).getPrefixesCount(eq(TABLES_KEY));
+        Mockito.doAnswer(invocation -> Collections.singletonMap(TABLES_KEY,
+            this.totalPrefixesCounter.longValue())).when(this.bgpRibState).getPrefixesCount();
+        Mockito.doAnswer(invocation -> Collections.singletonMap(TABLES_KEY,
+            this.totalPathsCounter.longValue())).when(this.bgpRibState).getPathsCount();
 
         // Mock Peer
         doReturn("test-group").when(this.bgpPeerState).getGroupId();
         doReturn(iid).when(this.bgpPeerState).getInstanceIdentifier();
-        Mockito.doAnswer(new Answer<Long>() {
-            @Override
-            public Long answer(final InvocationOnMock invocation) throws Throwable {
-                return StateProviderImplTest.this.totalPrefixesCounter.longValue();
-            }
-        }).when(this.bgpPeerState).getTotalPrefixes();
-        Mockito.doAnswer(new Answer<Long>() {
-            @Override
-            public Long answer(final InvocationOnMock invocation) throws Throwable {
-                return StateProviderImplTest.this.totalPathsCounter.longValue();
-            }
-        }).when(this.bgpPeerState).getTotalPathsCount();
+        Mockito.doAnswer(invocation -> this.totalPrefixesCounter.longValue()).when(this.bgpPeerState).getTotalPrefixes();
+        Mockito.doAnswer(invocation -> this.totalPathsCounter.longValue()).when(this.bgpPeerState).getTotalPathsCount();
         doReturn(this.neighborAddress).when(this.bgpPeerState).getNeighborAddress();
         doReturn(this.bgpSessionState).when(this.bgpPeerState).getBGPSessionState();
         doReturn(this.bgpPeerMessagesState).when(this.bgpPeerState).getBGPPeerMessagesState();
@@ -267,15 +244,13 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
         doReturn(true).when(this.bgpAfiSafiState).isAfiSafiSupported(any());
         doReturn(true).when(this.bgpAfiSafiState).isGracefulRestartAdvertized(any());
         doReturn(true).when(this.bgpAfiSafiState).isGracefulRestartReceived(any());
-
-
     }
 
     @Test
     public void testStateProvider() throws Exception {
         final StateProviderImpl stateProvider = new StateProviderImpl(getDataBroker(), 1, this.tableTypeRegistry,
-            this.stateCollector, "global-bgp");
-        stateProvider.init();
+            this.stateCollector, "global-bgp", this.clusterSingletonServiceProvider);
+        this.singletonService.instantiateServiceInstance();
 
         final Global globalExpected = buildGlobalExpected(0);
         this.bgpRibStates.add(this.bgpRibState);
@@ -308,7 +283,7 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
         });
 
         this.bgpPeerStates.add(this.bgpPeerState);
-        final PeerGroup peerGroupExpected = buildGroupExpected(1L, 1L);
+        final PeerGroup peerGroupExpected = buildGroupExpected();
 
         this.totalPathsCounter.increment();
         this.totalPrefixesCounter.increment();
@@ -449,7 +424,7 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
         throw lastError;
     }
 
-    private static <R, T extends DataObject> R readData(final DataBroker dataBroker, final InstanceIdentifier<T> iid,
+    private static <R, T extends DataObject> void readData(final DataBroker dataBroker, final InstanceIdentifier<T> iid,
         final Function<T, R> function)
         throws ReadFailedException {
         AssertionError lastError = null;
@@ -459,7 +434,8 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
                 final com.google.common.base.Optional<T> data = tx.read(LogicalDatastoreType.OPERATIONAL, iid).checkedGet();
                 if (data.isPresent()) {
                     try {
-                        return function.apply(data.get());
+                        function.apply(data.get());
+                        return;
                     } catch (final AssertionError e) {
                         lastError = e;
                         Uninterruptibles.sleepUninterruptibly(10, TimeUnit.MILLISECONDS);
@@ -485,14 +461,13 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
                 .build()).build();
     }
 
-    private PeerGroup buildGroupExpected(final long totalPaths,
-        final long totalPrefixes) {
+    private PeerGroup buildGroupExpected() {
         return new PeerGroupBuilder().setPeerGroupName("test-group").setState(new org.opendaylight.yang.gen.v1.http
             .openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.StateBuilder()
             .setSendCommunity(CommunityType.NONE)
             .setRouteFlapDamping(false)
             .addAugmentation(PeerGroupStateAugmentation.class,
-                new PeerGroupStateAugmentationBuilder().setTotalPaths(totalPaths).setTotalPrefixes(totalPrefixes)
+                new PeerGroupStateAugmentationBuilder().setTotalPaths(1L).setTotalPrefixes(1L)
                     .build()).build())
             .build();
     }
