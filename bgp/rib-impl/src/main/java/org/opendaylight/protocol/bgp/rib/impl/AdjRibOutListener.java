@@ -141,18 +141,18 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
     private Update withdraw(final MapEntryNode route) {
         this.routeCounter.decrement();
         if (!this.mpSupport) {
-            return buildUpdate(Collections.<MapEntryNode>emptyList(), Collections.singleton(route), routeAttributes(route));
+            return buildUpdate(Collections.emptyList(), Collections.singleton(route), routeAttributes(route));
         }
-        return this.support.buildUpdate(Collections.<MapEntryNode>emptyList(), Collections.singleton(route), routeAttributes(route));
+        return this.support.buildUpdate(Collections.emptyList(), Collections.singleton(route), routeAttributes(route));
     }
 
     private Update advertise(final MapEntryNode route) {
         this.routeCounter.increment();
         this.prefixesSentCounter.increment();
         if (!this.mpSupport) {
-            return buildUpdate(Collections.singleton(route), Collections.<MapEntryNode>emptyList(), routeAttributes(route));
+            return buildUpdate(Collections.singleton(route), Collections.emptyList(), routeAttributes(route));
         }
-        return this.support.buildUpdate(Collections.singleton(route), Collections.<MapEntryNode>emptyList(), routeAttributes(route));
+        return this.support.buildUpdate(Collections.singleton(route), Collections.emptyList(), routeAttributes(route));
     }
 
     private Update buildUpdate(@Nonnull final Collection<MapEntryNode> advertised, @Nonnull final Collection<MapEntryNode> withdrawn, @Nonnull final Attributes attr) {

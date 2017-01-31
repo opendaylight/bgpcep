@@ -107,8 +107,8 @@ public class PCETriggeredInitialSyncProcedureTest extends AbstractPCEPSessionTes
                         .xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs1.class, new org.opendaylight
                         .yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714
                         .Tlvs1Builder().setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(BigInteger
-                        .valueOf(2L)).build()).build()).build()), true, false), Optional.<Srp>absent(),
-                        createPath(Collections.<Subobject>emptyList()));
+                        .valueOf(2L)).build()).build()).build()), true, false), Optional.absent(),
+                        createPath(Collections.emptyList()));
     }
 
     private Pcrpt getPcrpt() {
@@ -121,6 +121,6 @@ public class PCETriggeredInitialSyncProcedureTest extends AbstractPCEPSessionTes
                 .urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs1Builder()
                 .setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.valueOf(3L)).build())
                 .build()).build()).setPlspId(new PlspId(1L)).setSync(true).setRemove(false).setOperational
-            (OperationalStatus.Active).build(), Optional.<Srp>absent(), createPath(Collections.<Subobject>emptyList()));
+            (OperationalStatus.Active).build(), Optional.absent(), createPath(Collections.emptyList()));
     }
 }

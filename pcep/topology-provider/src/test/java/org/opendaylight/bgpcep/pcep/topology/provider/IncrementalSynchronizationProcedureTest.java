@@ -131,7 +131,7 @@ public class IncrementalSynchronizationProcedureTest extends AbstractPCEPSession
                 .setSymbolicPathName(new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(pathname.getBytes())).build())
                 .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs1.class, new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync
                     .optimizations.rev150714.Tlvs1Builder().setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.valueOf(val)).build()).build()).build()).setPlspId(new PlspId(val)
-        ).setSync(true).setRemove(false).setOperational(OperationalStatus.Active).build(), Optional.<Srp>absent(), createPath(Collections.<Subobject>emptyList()));
+        ).setSync(true).setRemove(false).setOperational(OperationalStatus.Active).build(), Optional.absent(), createPath(Collections.emptyList()));
     }
 
     private Pcrpt getSyncPcrt() {
@@ -139,6 +139,6 @@ public class IncrementalSynchronizationProcedureTest extends AbstractPCEPSession
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.TlvsBuilder().addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs1.class,
                     new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync
                         .optimizations.rev150714.Tlvs1Builder().setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.valueOf(3L)).build()).build()).build()), true, false), Optional.<Srp>absent(),
-            createPath(Collections.<Subobject>emptyList()));
+            createPath(Collections.emptyList()));
     }
 }

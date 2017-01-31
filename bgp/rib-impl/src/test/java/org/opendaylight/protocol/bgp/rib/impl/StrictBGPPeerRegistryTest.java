@@ -61,8 +61,8 @@ public class StrictBGPPeerRegistryTest {
     @Before
     public void setUp() throws Exception {
         this.peerRegistry = new StrictBGPPeerRegistry();
-        this.mockPreferences =  new BGPSessionPreferences(LOCAL_AS, 1, new BgpId("0.0.0.1"), LOCAL_AS, Collections.<BgpParameters> emptyList(),
-                Optional.<byte[]>absent());
+        this.mockPreferences =  new BGPSessionPreferences(LOCAL_AS, 1, new BgpId("0.0.0.1"), LOCAL_AS, Collections.emptyList(),
+                Optional.absent());
     }
 
     private static BGPSessionListener getMockSession() {

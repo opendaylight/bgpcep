@@ -50,7 +50,7 @@ public class TimerHandler {
         @Override
         public void run(final Timeout timeout) throws Exception {
             LOG.debug("Reconnecting PCCs}");
-            pcCsBuilder.createPCCs(syncOptDBVersion.isPresent() ? syncOptDBVersion.get() : BigInteger.ONE, Optional.<TimerHandler>absent());
+            pcCsBuilder.createPCCs(syncOptDBVersion.isPresent() ? syncOptDBVersion.get() : BigInteger.ONE, Optional.absent());
         }
     }
 

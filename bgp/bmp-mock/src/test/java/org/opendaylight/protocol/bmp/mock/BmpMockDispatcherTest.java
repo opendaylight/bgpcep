@@ -39,7 +39,7 @@ public class BmpMockDispatcherTest {
         final InetSocketAddress serverAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
         final BmpDispatcherImpl serverDispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(),
             this.registry, this.sessionFactory);
-        final ChannelFuture futureServer = serverDispatcher.createServer(serverAddr, this.slf, Optional.<KeyMapping>absent());
+        final ChannelFuture futureServer = serverDispatcher.createServer(serverAddr, this.slf, Optional.absent());
         waitFutureComplete(futureServer);
         final ChannelFuture channelFuture = dispatcher.createClient(InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(0),
             serverAddr);
@@ -59,7 +59,7 @@ public class BmpMockDispatcherTest {
             this.registry, this.sessionFactory);
         final ChannelFuture futureServer = dispatcher.createServer(new InetSocketAddress(InetAddresses.forString("0.0.0.0"), port));
         waitFutureComplete(futureServer);
-        final ChannelFuture channelFuture = serverDispatcher.createClient(InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port), this.slf, Optional.<KeyMapping>absent());
+        final ChannelFuture channelFuture = serverDispatcher.createClient(InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port), this.slf, Optional.absent());
         waitFutureComplete(channelFuture);
         final Channel channel = channelFuture.sync().channel();
 
