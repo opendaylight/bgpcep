@@ -23,7 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.ClusterIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 
-public class ClusterIdAttributeParserTest extends TestCase {
+public class ClusterIdAttributeParserTest {
     private static final byte[] clusterIdBytes = {(byte) 0x80, (byte) 0x0A, (byte) 0x08,
         (byte) 0xC0, (byte) 0xA8, (byte) 0x1, (byte) 0x1,
         (byte) 0xC0, (byte) 0xA8, (byte) 0x1, (byte) 0x2};
@@ -52,7 +52,7 @@ public class ClusterIdAttributeParserTest extends TestCase {
 
         AttributesBuilder clusterIdOutput = new AttributesBuilder();
         this.parser.parseAttribute(Unpooled.wrappedBuffer(ByteArray.cutBytes(clusterIdBytes, 3)), clusterIdOutput);
-        assertEquals(clusterId, clusterIdOutput.build());
+        Assert.assertEquals(clusterId, clusterIdOutput.build());
     }
 
     @Test
@@ -62,7 +62,7 @@ public class ClusterIdAttributeParserTest extends TestCase {
             (list).build()).build();
         final ByteBuf output = Unpooled.buffer();
         this.parser.serializeAttribute(clusterId, output);
-        assertEquals(Unpooled.buffer(), output);
+        Assert.assertEquals(Unpooled.buffer(), output);
     }
 
     @Test
@@ -70,6 +70,6 @@ public class ClusterIdAttributeParserTest extends TestCase {
         final Attributes clusterId = new AttributesBuilder().setClusterId(new ClusterIdBuilder().build()).build();
         final ByteBuf output = Unpooled.buffer();
         this.parser.serializeAttribute(clusterId, output);
-        assertEquals(Unpooled.buffer(), output);
+        Assert.assertEquals(Unpooled.buffer(), output);
     }
 }
