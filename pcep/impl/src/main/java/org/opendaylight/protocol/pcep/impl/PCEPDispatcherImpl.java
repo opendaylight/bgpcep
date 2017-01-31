@@ -142,8 +142,8 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     @Override
     public final void close() {
         if (Epoll.isAvailable()) {
-            this.workerGroup.shutdownGracefully(0, TIMEOUT, TimeUnit.SECONDS);;
-            this.bossGroup.shutdownGracefully(0, TIMEOUT, TimeUnit.SECONDS);;
+            this.workerGroup.shutdownGracefully(0, TIMEOUT, TimeUnit.SECONDS);
+            this.bossGroup.shutdownGracefully(0, TIMEOUT, TimeUnit.SECONDS);
         }
     }
 
