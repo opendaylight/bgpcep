@@ -64,7 +64,7 @@ public final class AsPathSegmentParser {
         for (int i = 0; i < count; i++) {
             coll.add(refCache.getSharedReference(new AsNumber(buffer.readUnsignedInt())));
         }
-        return (coll.isEmpty()) ? Collections.<AsNumber>emptyList() : coll;
+        return (coll.isEmpty()) ? Collections.emptyList() : coll;
     }
 
     static void serializeAsList(final List<AsNumber> asList, final SegmentType type, final ByteBuf byteAggregator) {

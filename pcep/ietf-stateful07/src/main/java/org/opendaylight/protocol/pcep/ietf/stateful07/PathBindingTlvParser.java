@@ -56,9 +56,9 @@ public final class PathBindingTlvParser implements TlvParser, TlvSerializer {
     static {
         final MplsLabelCodec mplsLabelCodec = new MplsLabelCodec();
         final MplsLabelEntryCodec mplsLabelEntryCodec = new MplsLabelEntryCodec();
-        final Builder<Integer, PathBindingTlvCodec> parsers = ImmutableMap.<Integer, PathBindingTlvCodec>builder();
+        final Builder<Integer, PathBindingTlvCodec> parsers = ImmutableMap.builder();
         final Builder<Class<? extends BindingTypeValue>, PathBindingTlvCodec> serializers =
-                ImmutableMap.<Class<? extends BindingTypeValue>, PathBindingTlvCodec>builder();
+                ImmutableMap.builder();
 
         parsers.put(mplsLabelCodec.getBindingType(), mplsLabelCodec);
         serializers.put(MplsLabel.class, mplsLabelCodec);

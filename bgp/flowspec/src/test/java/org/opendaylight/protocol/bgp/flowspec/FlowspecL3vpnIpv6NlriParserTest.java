@@ -356,11 +356,11 @@ public class FlowspecL3vpnIpv6NlriParserTest {
                     .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_TYPE_NID)
                     .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(AbstractFlowspecNlriParser.FRAGMENT_NID)
                         .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(FlowspecL3vpnIpv6NlriParser.OP_NID)
-                            .withChild(Builders.leafBuilder().withNodeIdentifier(FlowspecL3vpnIpv6NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.AND_BIT_VALUE, AbstractOperandParser.END_OF_LIST_VALUE, BitmaskOperandParser.MATCH_VALUE, BitmaskOperandParser.NOT_VALUE)).build())
+                            .withChild(Builders.leafBuilder().withNodeIdentifier(FlowspecL3vpnIpv6NlriParser.OP_NID).withValue(Sets.newHashSet(AbstractOperandParser.AND_BIT_VALUE, AbstractOperandParser.END_OF_LIST_VALUE, BitmaskOperandParser.MATCH_VALUE, BitmaskOperandParser.NOT_VALUE)).build())
                             .withChild(Builders.leafBuilder().withNodeIdentifier(FlowspecL3vpnIpv6NlriParser.VALUE_NID).withValue(Sets.newHashSet(AbstractFlowspecNlriParser.DO_NOT_VALUE, AbstractFlowspecNlriParser.FIRST_VALUE, AbstractFlowspecNlriParser.IS_A_VALUE, AbstractFlowspecNlriParser.LAST_VALUE)).build()).build())
                         .build()).build()).build()).build());
         final FlowspecBuilder expectedFS = new FlowspecBuilder();
-        expectedFS.setFlowspecType(new FragmentCaseBuilder().setFragments(Lists.<Fragments>newArrayList(new FragmentsBuilder().setValue(new Fragment(true, true, true, true)).setOp(new BitmaskOperand(true, true, true, true)).build())).build());
+        expectedFS.setFlowspecType(new FragmentCaseBuilder().setFragments(Lists.newArrayList(new FragmentsBuilder().setValue(new Fragment(true, true, true, true)).setOp(new BitmaskOperand(true, true, true, true)).build())).build());
         final List<Flowspec> expectedValue = new ArrayList<>();
         expectedValue.add(expectedFS.build());
         assertEquals(expectedValue, FS_PARSER.extractFlowspec(entry.build()));
@@ -378,18 +378,18 @@ public class FlowspecL3vpnIpv6NlriParserTest {
                     .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_TYPE_NID)
                     .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(NEXT_HEADER_NID)
                         .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(NEXT_HEADER_NID)
-                            .withChild(Builders.leafBuilder().withNodeIdentifier(FlowspecL3vpnIpv6NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.END_OF_LIST_VALUE, AbstractOperandParser.AND_BIT_VALUE)).build())
+                            .withChild(Builders.leafBuilder().withNodeIdentifier(FlowspecL3vpnIpv6NlriParser.OP_NID).withValue(Sets.newHashSet(AbstractOperandParser.END_OF_LIST_VALUE, AbstractOperandParser.AND_BIT_VALUE)).build())
                             .withChild(Builders.leafBuilder().withNodeIdentifier(FlowspecL3vpnIpv6NlriParser.VALUE_NID).withValue((short) 100).build()).build())
                         .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(NEXT_HEADER_NID)
-                            .withChild(Builders.leafBuilder().withNodeIdentifier(FlowspecL3vpnIpv6NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.AND_BIT_VALUE)).build())
+                            .withChild(Builders.leafBuilder().withNodeIdentifier(FlowspecL3vpnIpv6NlriParser.OP_NID).withValue(Sets.newHashSet(AbstractOperandParser.AND_BIT_VALUE)).build())
                             .withChild(Builders.leafBuilder().withNodeIdentifier(FlowspecL3vpnIpv6NlriParser.VALUE_NID).withValue((short) 200).build()).build())
                         .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(NEXT_HEADER_NID)
-                            .withChild(Builders.leafBuilder().withNodeIdentifier(FlowspecL3vpnIpv6NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.END_OF_LIST_VALUE, AbstractOperandParser.AND_BIT_VALUE, AbstractNumericOperandParser.EQUALS_VALUE)).build())
+                            .withChild(Builders.leafBuilder().withNodeIdentifier(FlowspecL3vpnIpv6NlriParser.OP_NID).withValue(Sets.newHashSet(AbstractOperandParser.END_OF_LIST_VALUE, AbstractOperandParser.AND_BIT_VALUE, AbstractNumericOperandParser.EQUALS_VALUE)).build())
                             .withChild(Builders.leafBuilder().withNodeIdentifier(FlowspecL3vpnIpv6NlriParser.VALUE_NID).withValue((short) 210).build()).build())
                         .build()).build()).build()).build());
 
         final FlowspecBuilder expectedFS = new FlowspecBuilder();
-        expectedFS.setFlowspecType(new NextHeaderCaseBuilder().setNextHeaders(Lists.<NextHeaders>newArrayList(
+        expectedFS.setFlowspecType(new NextHeaderCaseBuilder().setNextHeaders(Lists.newArrayList(
             new NextHeadersBuilder().setValue((short) 100).setOp(new NumericOperand(true, true, false, false, false)).build(),
             new NextHeadersBuilder().setValue((short) 200).setOp(new NumericOperand(true, false, false, false, false)).build(),
             new NextHeadersBuilder().setValue((short) 210).setOp(new NumericOperand(true, true, true, false, false)).build())).build());
@@ -410,15 +410,15 @@ public class FlowspecL3vpnIpv6NlriParserTest {
                     .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_TYPE_NID)
                     .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(FLOW_LABEL_NID)
                         .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(FLOW_LABEL_NID)
-                            .withChild(Builders.leafBuilder().withNodeIdentifier(FlowspecL3vpnIpv6NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.END_OF_LIST_VALUE, AbstractOperandParser.AND_BIT_VALUE)).build())
+                            .withChild(Builders.leafBuilder().withNodeIdentifier(FlowspecL3vpnIpv6NlriParser.OP_NID).withValue(Sets.newHashSet(AbstractOperandParser.END_OF_LIST_VALUE, AbstractOperandParser.AND_BIT_VALUE)).build())
                             .withChild(Builders.leafBuilder().withNodeIdentifier(FlowspecL3vpnIpv6NlriParser.VALUE_NID).withValue(100L).build()).build())
                         .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(FLOW_LABEL_NID)
-                            .withChild(Builders.leafBuilder().withNodeIdentifier(FlowspecL3vpnIpv6NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.AND_BIT_VALUE)).build())
+                            .withChild(Builders.leafBuilder().withNodeIdentifier(FlowspecL3vpnIpv6NlriParser.OP_NID).withValue(Sets.newHashSet(AbstractOperandParser.AND_BIT_VALUE)).build())
                             .withChild(Builders.leafBuilder().withNodeIdentifier(FlowspecL3vpnIpv6NlriParser.VALUE_NID).withValue(200L).build()).build())
                         .build()).build()).build()).build());
 
         final FlowspecBuilder expectedFS = new FlowspecBuilder();
-        expectedFS.setFlowspecType(new FlowLabelCaseBuilder().setFlowLabel(Lists.<FlowLabel>newArrayList(
+        expectedFS.setFlowspecType(new FlowLabelCaseBuilder().setFlowLabel(Lists.newArrayList(
             new FlowLabelBuilder().setValue(100L).setOp(new NumericOperand(true, true, false, false, false)).build(),
             new FlowLabelBuilder().setValue(200L).setOp(new NumericOperand(true, false, false, false, false)).build())).build());
         final List<Flowspec> expectedValue = new ArrayList<>();

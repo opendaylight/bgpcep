@@ -24,7 +24,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 
 public class AbstractBestPathSelector {
-    private static final Collection<YangInstanceIdentifier.PathArgument> ORIGINATOR_ID = ImmutableList.<YangInstanceIdentifier.PathArgument>of(new
+    private static final Collection<YangInstanceIdentifier.PathArgument> ORIGINATOR_ID = ImmutableList.of(new
         YangInstanceIdentifier.NodeIdentifier(OriginatorId.QNAME), new YangInstanceIdentifier.NodeIdentifier(QName.create(OriginatorId.QNAME, "originator")));
 
     private final Long ourAs;

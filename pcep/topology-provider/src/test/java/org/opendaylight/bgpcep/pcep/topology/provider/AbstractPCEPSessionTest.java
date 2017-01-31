@@ -118,7 +118,7 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
                 return channelFuture;
             }
         }).when(this.clientListener).writeAndFlush(any(Notification.class));
-        doReturn(null).when(this.channelFuture).addListener(Mockito.<GenericFutureListener<? extends Future<? super Void>>>any());
+        doReturn(null).when(this.channelFuture).addListener(Mockito.any());
         doReturn("TestingChannel").when(this.clientListener).toString();
         doReturn(this.pipeline).when(this.clientListener).pipeline();
         doReturn(this.pipeline).when(this.pipeline).replace(any(ChannelHandler.class), any(String.class), any(ChannelHandler.class));

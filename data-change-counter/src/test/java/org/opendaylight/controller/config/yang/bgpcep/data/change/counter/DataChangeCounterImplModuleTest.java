@@ -63,9 +63,9 @@ public class DataChangeCounterImplModuleTest extends AbstractConfigTest {
     public void setUp() throws Exception {
         Mockito.doNothing().when(this.registration).close();
         Mockito.doReturn(null).when(this.wTx).submit();
-        Mockito.doNothing().when(this.wTx).put(Mockito.any(LogicalDatastoreType.class), Mockito.<InstanceIdentifier<DataChangeCounter>>any(), Mockito.any(DataChangeCounter.class));
+        Mockito.doNothing().when(this.wTx).put(Mockito.any(LogicalDatastoreType.class), Mockito.any(), Mockito.any(DataChangeCounter.class));
         Mockito.doReturn(this.registration).when(this.dataBroker).registerDataTreeChangeListener(Mockito.any(DataTreeIdentifier.class), Mockito.any(ClusteredDataTreeChangeListener.class));
-        Mockito.doNothing().when(this.wTx).delete(Mockito.any(LogicalDatastoreType.class), Mockito.<InstanceIdentifier<?>>any());
+        Mockito.doNothing().when(this.wTx).delete(Mockito.any(LogicalDatastoreType.class), Mockito.any());
         Mockito.doReturn(this.chain).when(this.dataBroker).createTransactionChain(Mockito.any(TransactionChainListener.class));
         Mockito.doReturn(this.wTx).when(this.chain).newWriteOnlyTransaction();
         Mockito.doReturn(this.wTx).when(this.dataBroker).newWriteOnlyTransaction();

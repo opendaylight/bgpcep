@@ -215,7 +215,7 @@ public class BGPParserTest {
         paBuilder.setCommunities(comms);
         assertEquals(paBuilder.getCommunities(), attrs.getCommunities());
 
-        paBuilder.setUnrecognizedAttributes(Collections.<UnrecognizedAttributes> emptyList());
+        paBuilder.setUnrecognizedAttributes(Collections.emptyList());
 
         builder.setAttributes(paBuilder.build());
 
@@ -315,7 +315,7 @@ public class BGPParserTest {
 
         paBuilder.setAggregator(aggregator);
         assertEquals(paBuilder.getAggregator(), attrs.getAggregator());
-        paBuilder.setUnrecognizedAttributes(Collections.<UnrecognizedAttributes> emptyList());
+        paBuilder.setUnrecognizedAttributes(Collections.emptyList());
         builder.setAttributes(paBuilder.build());
 
         assertEquals(builder.build(), message);
@@ -402,7 +402,7 @@ public class BGPParserTest {
         paBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Egp).build());
         assertEquals(paBuilder.getOrigin(), attrs.getOrigin());
 
-        paBuilder.setAsPath(new AsPathBuilder().setSegments(Collections.<Segments> emptyList()).build());
+        paBuilder.setAsPath(new AsPathBuilder().setSegments(Collections.emptyList()).build());
         assertEquals(paBuilder.getAsPath(), attrs.getAsPath());
 
         paBuilder.setCNextHop(nextHop);
@@ -417,7 +417,7 @@ public class BGPParserTest {
         paBuilder.setExtendedCommunities(comms);
         assertEquals(paBuilder.getExtendedCommunities(), attrs.getExtendedCommunities());
 
-        paBuilder.setUnrecognizedAttributes(Collections.<UnrecognizedAttributes> emptyList());
+        paBuilder.setUnrecognizedAttributes(Collections.emptyList());
         // check API message
         builder.setAttributes(paBuilder.build());
         assertEquals(builder.build(), message);
