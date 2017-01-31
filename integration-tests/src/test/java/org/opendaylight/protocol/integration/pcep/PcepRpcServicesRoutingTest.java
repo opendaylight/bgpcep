@@ -231,11 +231,11 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
         final ListenableFuture future = Futures.immediateFuture(RpcResultBuilder.<AddLspOutput>success().build());
         final ListenableFuture futureSyncTrigger = Futures.immediateFuture(RpcResultBuilder.<TriggerSyncOutput>success().build());
 
-        when(pcepService.addLsp(Mockito.<AddLspInput>any())).thenReturn(future);
-        when(pcepService.removeLsp(Mockito.<RemoveLspInput>any())).thenReturn(future);
-        when(pcepService.triggerSync(Mockito.<TriggerSyncInput>any())).thenReturn(futureSyncTrigger);
-        when(pcepService.ensureLspOperational(Mockito.<EnsureLspOperationalInput>any())).thenReturn(future);
-        when(pcepService.updateLsp(Mockito.<UpdateLspInput>any())).thenReturn(future);
+        when(pcepService.addLsp(Mockito.any())).thenReturn(future);
+        when(pcepService.removeLsp(Mockito.any())).thenReturn(future);
+        when(pcepService.triggerSync(Mockito.any())).thenReturn(futureSyncTrigger);
+        when(pcepService.ensureLspOperational(Mockito.any())).thenReturn(future);
+        when(pcepService.updateLsp(Mockito.any())).thenReturn(future);
 
     }
 
@@ -353,11 +353,11 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
         @SuppressWarnings("rawtypes")
         final ListenableFuture future = Futures.immediateFuture(RpcResultBuilder.<AddLspOutput>success().build());
         final ListenableFuture futureTriggerSync = Futures.immediateFuture(RpcResultBuilder.<TriggerSyncOutput>success().build());
-        when(pcepService.submitAddLsp(Mockito.<SubmitAddLspInput>any())).thenReturn(future);
-        when(pcepService.submitRemoveLsp(Mockito.<SubmitRemoveLspInput>any())).thenReturn(future);
-        when(pcepService.submitTriggerSync(Mockito.<SubmitTriggerSyncInput>any())).thenReturn(futureTriggerSync);
-        when(pcepService.submitEnsureLspOperational(Mockito.<SubmitEnsureLspOperationalInput>any())).thenReturn(future);
-        when(pcepService.submitUpdateLsp(Mockito.<SubmitUpdateLspInput>any())).thenReturn(future);
+        when(pcepService.submitAddLsp(Mockito.any())).thenReturn(future);
+        when(pcepService.submitRemoveLsp(Mockito.any())).thenReturn(future);
+        when(pcepService.submitTriggerSync(Mockito.any())).thenReturn(futureTriggerSync);
+        when(pcepService.submitEnsureLspOperational(Mockito.any())).thenReturn(future);
+        when(pcepService.submitUpdateLsp(Mockito.any())).thenReturn(future);
     }
 
     @Test
@@ -454,9 +454,9 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
     private void initMock(final TopologyTunnelPcepProgrammingService pcepService) {
         @SuppressWarnings("rawtypes")
         final ListenableFuture future = Futures.immediateFuture(RpcResultBuilder.<AddLspOutput>success().build());
-        when(pcepService.pcepCreateP2pTunnel(Mockito.<PcepCreateP2pTunnelInput>any())).thenReturn(future);
-        when(pcepService.pcepDestroyTunnel(Mockito.<PcepDestroyTunnelInput>any())).thenReturn(future);
-        when(pcepService.pcepUpdateTunnel(Mockito.<PcepUpdateTunnelInput>any())).thenReturn(future);
+        when(pcepService.pcepCreateP2pTunnel(Mockito.any())).thenReturn(future);
+        when(pcepService.pcepDestroyTunnel(Mockito.any())).thenReturn(future);
+        when(pcepService.pcepUpdateTunnel(Mockito.any())).thenReturn(future);
     }
 
 }

@@ -172,7 +172,7 @@ public class PCEPTriggeredReSynchronizationProcedureTest extends AbstractPCEPSes
                     org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs1.class,
                     new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs1Builder()
                         .setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.valueOf(3L)).build()).build()).build()), true, false),
-                            Optional.of(srpBuilder.build()), createPath(Collections.<Subobject>emptyList()));
+                            Optional.of(srpBuilder.build()), createPath(Collections.emptyList()));
     }
 
     private Pcrpt getPcrt() {
@@ -183,7 +183,7 @@ public class PCEPTriggeredReSynchronizationProcedureTest extends AbstractPCEPSes
                     .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs1.class,
                         new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs1Builder()
                             .setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.valueOf(1L)).build()).build()).build())
-                .setPlspId(new PlspId(1L)).setSync(true).setRemove(false).setOperational(OperationalStatus.Active).build(), Optional.<Srp>absent(),
-            createPath(Collections.<Subobject>emptyList()));
+                .setPlspId(new PlspId(1L)).setSync(true).setRemove(false).setOperational(OperationalStatus.Active).build(), Optional.absent(),
+            createPath(Collections.emptyList()));
     }
 }

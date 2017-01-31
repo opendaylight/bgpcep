@@ -116,7 +116,7 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
             //check if session really has a delegation
             if (hasDelegation(tunnel, session)) {
                 //send report D=0
-                final Tlvs tlvs = buildTlvs(tunnel, plspId.getValue(), Optional.<List<Subobject>>absent());
+                final Tlvs tlvs = buildTlvs(tunnel, plspId.getValue(), Optional.absent());
                 final Pcrpt pcrtp = createPcRtpMessage(new LspBuilder(update.getLsp()).setSync(true).setOperational(OperationalStatus.Up).setDelegate(false).
                     setTlvs(tlvs).build(), Optional.of(createSrp(srpId)), tunnel.getLspState());
                 session.sendReport(pcrtp);
@@ -148,7 +148,7 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
                 tunnel.cancelTimeouts();
                 setDelegation(plspId, session);
                 //send report
-                final Tlvs tlvs = buildTlvs(tunnel, plspId.getValue(), Optional.<List<Subobject>>absent());
+                final Tlvs tlvs = buildTlvs(tunnel, plspId.getValue(), Optional.absent());
                 session.sendReport(createPcRtpMessage(
                     new LspBuilder(request.getLsp()).setSync(true).setOperational(OperationalStatus.Up).setDelegate(true).setTlvs(tlvs).build(),
                     Optional.of(createSrp(srpId)), tunnel.getLspState()));
@@ -321,7 +321,7 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
              missedLsp <= this.syncOptimization.getLocalLspDbVersionValue().longValue(); missedLsp++) {
             final PlspId plspId = new PlspId(missedLsp);
             final PCCTunnel tunnel = this.tunnels.get(plspId);
-            createLspAndSendReport(missedLsp, tunnel, session, Optional.<Boolean>absent(), NO_SRP);
+            createLspAndSendReport(missedLsp, tunnel, session, Optional.absent(), NO_SRP);
         }
     }
 
@@ -341,7 +341,7 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
     }
 
     private void sendEndOfSynchronization(final PCCSession session) {
-        sendEndOfSynchronization(session, Optional.<SrpIdNumber>absent());
+        sendEndOfSynchronization(session, Optional.absent());
     }
 
     private void sendEndOfSynchronization(final PCCSession session, final Optional<SrpIdNumber> operationId) {
@@ -354,12 +354,12 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
             tlv = createLspTlvsEndofSync(this.syncOptimization.incrementLspDBVersion().get());
         }
         final Pcrpt pcrtp = createPcRtpMessage(createLsp(0, false, tlv, true, false), Optional.fromNullable(srp), createPath(Collections
-            .<Subobject>emptyList()));
+            .emptyList()));
         session.sendReport(pcrtp);
     }
 
     private void reportAllKnownLsp(final PCCSession session) {
-        reportAllKnownLsp(Optional.<SrpIdNumber>absent(), session);
+        reportAllKnownLsp(Optional.absent(), session);
     }
 
     private void reportAllKnownLsp(final Optional<SrpIdNumber> operationId, final PCCSession session) {
@@ -371,7 +371,7 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
         for (final Entry<PlspId, PCCTunnel> entry : this.tunnels.entrySet()) {
             final PCCTunnel tunnel = entry.getValue();
             final long plspId = entry.getKey().getValue();
-            createLspAndSendReport(plspId, tunnel, session, Optional.<Boolean>absent(), Optional.fromNullable(srp));
+            createLspAndSendReport(plspId, tunnel, session, Optional.absent(), Optional.fromNullable(srp));
         }
     }
 
@@ -410,8 +410,8 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
                     if (tunnel.getType() == LspType.PCE_LSP) {
                         PCCTunnelManagerImpl.this.tunnels.remove(plspId);
                         //report tunnel removal to all
-                        sendToAll(tunnel, plspId, Collections.<Subobject>emptyList(), createSrp(0), new PathBuilder().build(),
-                            createLsp(plspId.getValue(), false, Optional.<Tlvs>absent(), false, true));
+                        sendToAll(tunnel, plspId, Collections.emptyList(), createSrp(0), new PathBuilder().build(),
+                            createLsp(plspId.getValue(), false, Optional.absent(), false, true));
                     }
                 }
             }, this.stateTimeout, TimeUnit.SECONDS);
@@ -435,7 +435,7 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
                     final PCCSession nextSession = PCCTunnelManagerImpl.this.sessions.get(index);
                     if (nextSession != null) {
                         tunnel.cancelTimeouts();
-                        final Tlvs tlvs = buildTlvs(tunnel, plspId.getValue(), Optional.<List<Subobject>>absent());
+                        final Tlvs tlvs = buildTlvs(tunnel, plspId.getValue(), Optional.absent());
 
                         nextSession.sendReport(createPcRtpMessage(
                             createLsp(plspId.getValue(), true, Optional.fromNullable(tlvs), true, false), NO_SRP,

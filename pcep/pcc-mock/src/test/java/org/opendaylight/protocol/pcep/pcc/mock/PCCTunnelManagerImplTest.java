@@ -304,7 +304,7 @@ public class PCCTunnelManagerImplTest {
     }
 
     private Updates createUpdate(final long plspId) {
-        return createUpdate(plspId, Optional.<Boolean>absent());
+        return createUpdate(plspId, Optional.absent());
     }
 
     private static Updates createUpdate(final long plspId, final Optional<Boolean> delegate) {
@@ -340,15 +340,15 @@ public class PCCTunnelManagerImplTest {
     }
 
     private static Requests createRequestsRemove(final long plspId) {
-        return createRequests(plspId, Optional.of(true), Optional.<Boolean>absent());
+        return createRequests(plspId, Optional.of(true), Optional.absent());
     }
 
     private static Requests createRequestsDelegate(final long plspId) {
-        return createRequests(plspId, Optional.<Boolean>absent(), Optional.of(true));
+        return createRequests(plspId, Optional.absent(), Optional.of(true));
     }
 
     private static Requests createRequests(final long plspId) {
-        return createRequests(plspId, Optional.<Boolean>absent(), Optional.<Boolean>absent());
+        return createRequests(plspId, Optional.absent(), Optional.absent());
     }
 
     private static PCEPErrors getError(final Pcerr errorMessage) {

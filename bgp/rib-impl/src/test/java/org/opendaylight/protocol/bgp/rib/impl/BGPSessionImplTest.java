@@ -115,7 +115,7 @@ public class BGPSessionImplTest {
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capa).build());
 
         final ChannelFuture f = mock(ChannelFuture.class);
-        doReturn(null).when(f).addListener(Mockito.<GenericFutureListener<? extends Future<? super Void>>>any());
+        doReturn(null).when(f).addListener(Mockito.any());
 
         doAnswer(new Answer<Object>() {
             @Override
@@ -146,7 +146,7 @@ public class BGPSessionImplTest {
         doReturn(null).when(this.pipeline).replace(Matchers.<Class<ChannelHandler>>any(), Mockito.any(String.class), Mockito.any(ChannelHandler.class));
         doReturn(this.pipeline).when(this.pipeline).addLast(Mockito.any(ChannelHandler.class));
         final ChannelFuture futureChannel = mock(ChannelFuture.class);
-        doReturn(null).when(futureChannel).addListener(Mockito.<GenericFutureListener<? extends Future<? super Void>>>any());
+        doReturn(null).when(futureChannel).addListener(Mockito.any());
         doReturn(futureChannel).when(this.speakerListener).close();
         this.listener = new SimpleSessionListener();
         this.bgpSession = new BGPSessionImpl(this.listener, this.speakerListener, this.classicOpen, this.classicOpen.getHoldTimer(), null);

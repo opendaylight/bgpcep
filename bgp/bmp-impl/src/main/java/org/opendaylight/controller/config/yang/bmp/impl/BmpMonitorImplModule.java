@@ -69,7 +69,7 @@ public class BmpMonitorImplModule extends org.opendaylight.controller.config.yan
             }
         }
 
-        return ret.isEmpty() ? Optional.<KeyMapping>absent() : Optional.<KeyMapping>of(ret);
+        return ret.isEmpty() ? Optional.absent() : Optional.of(ret);
     }
 
     @Override

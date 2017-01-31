@@ -121,7 +121,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
         final WriteTransaction t = dataProvider.newWriteOnlyTransaction();
         t.put(LogicalDatastoreType.OPERATIONAL, this.qid,
                 new InstructionsQueueBuilder().setKey(instructionsQueueKey).setInstruction(
-                        Collections.<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.instruction.queue.Instruction> emptyList()).build());
+                        Collections.emptyList()).build());
         t.submit();
     }
 

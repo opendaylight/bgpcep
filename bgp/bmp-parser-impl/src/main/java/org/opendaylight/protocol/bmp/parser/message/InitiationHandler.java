@@ -49,7 +49,7 @@ public class InitiationHandler extends AbstractBmpMessageWithTlvParser<TlvsBuild
     public Notification parseMessageBody(final ByteBuf bytes) throws BmpDeserializationException {
         final InitiationMessageBuilder initiationBuilder = new InitiationMessageBuilder();
         final TlvsBuilder tlvsBuilder = new TlvsBuilder();
-        tlvsBuilder.setStringInformation(ImmutableList.<StringInformation>of());
+        tlvsBuilder.setStringInformation(ImmutableList.of());
         parseTlvs(tlvsBuilder, bytes);
 
         if (tlvsBuilder.getDescriptionTlv() == null || tlvsBuilder.getDescriptionTlv().getDescription() == null) {
