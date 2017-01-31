@@ -39,5 +39,5 @@ public abstract class AbstractBGPTableTypeRegistryProviderActivator implements A
     @Override
     public final void close() {
         stopBGPTableTypeRegistryProvider();
-    };
+    }
 }
