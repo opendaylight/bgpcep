@@ -125,7 +125,7 @@ public class SrAttributeParserTest {
     public void testSrAlgorithm() {
         final byte[] bytes = { 0 };
         final SrAlgorithm alg = new SrAlgorithmBuilder().setAlgorithms(Lists.newArrayList(Algorithm.ShortestPathFirst)).build();
-        final SrAlgorithm empty = new SrAlgorithmBuilder().setAlgorithms(Collections.<Algorithm>emptyList()).build();
+        final SrAlgorithm empty = new SrAlgorithmBuilder().setAlgorithms(Collections.emptyList()).build();
         assertEquals(alg, SrNodeAttributesParser.parseSrAlgorithms(Unpooled.wrappedBuffer(bytes)));
         final ByteBuf b = Unpooled.buffer();
         assertEquals(empty, SrNodeAttributesParser.parseSrAlgorithms(b));

@@ -119,7 +119,7 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
                 .setSafi(UnicastSubsequentAddressFamily.class)
                 .setRoutes(
                         new Ipv4RoutesCaseBuilder().setIpv4Routes(
-                                new Ipv4RoutesBuilder().setIpv4Route(Collections.<Ipv4Route> emptyList()).build())
+                                new Ipv4RoutesBuilder().setIpv4Route(Collections.emptyList()).build())
                                 .build()).build();
 
         final ApplicationRib appRib = new ApplicationRibBuilder()

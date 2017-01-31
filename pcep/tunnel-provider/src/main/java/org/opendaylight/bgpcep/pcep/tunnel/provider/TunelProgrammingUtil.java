@@ -38,7 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 final class TunelProgrammingUtil {
-    public static final ListenableFuture<OperationResult> RESULT = Futures.<OperationResult>immediateFuture(new OperationResult() {
+    public static final ListenableFuture<OperationResult> RESULT = Futures.immediateFuture(new OperationResult() {
         @Override
         public Class<? extends DataContainer> getImplementedInterface() {
             return OperationResult.class;

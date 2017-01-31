@@ -34,7 +34,7 @@ public class PCCSyncAvoidanceProcedureTest extends PCCMockCommon {
         final TestingSessionListener pceSessionListener = getListener(factory);
         assertNotNull(pceSessionListener);
         assertNotNull(pceSessionListener.getSession());
-        checkResyncSession(Optional.<Integer>absent(), 11, null, BigInteger.valueOf(10), pceSessionListener);
+        checkResyncSession(Optional.absent(), 11, null, BigInteger.valueOf(10), pceSessionListener);
         channel.close().get();
     }
 

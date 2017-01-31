@@ -101,7 +101,7 @@ public class StateSynchronizationAvoidanceProcedureTest extends AbstractPCEPSess
         final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder().setPlspId(new PlspId(1L)).setTlvs(
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.TlvsBuilder().setLspIdentifiers(new LspIdentifiersBuilder().setLspId(new LspId(1L)).build()).setSymbolicPathName(new SymbolicPathNameBuilder().setPathName(new SymbolicPathName("test".getBytes())).build())
                     .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs1.class,
-                            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs1Builder().setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.valueOf(1L)).build()).build()).build()).setPlspId(new PlspId(1L)).setSync(true).setRemove(false).setOperational(OperationalStatus.Active).build(), Optional.<Srp>absent(), createPath(Collections.<Subobject> emptyList()));
+                            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs1Builder().setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.valueOf(1L)).build()).build()).build()).setPlspId(new PlspId(1L)).setSync(true).setRemove(false).setOperational(OperationalStatus.Active).build(), Optional.absent(), createPath(Collections.emptyList()));
         this.listener.onMessage(session, pcRpt);
         final Topology topo = getTopology().get();
         final PathComputationClient pcc = topo.getNode().get(0).getAugmentation(Node1.class).getPathComputationClient();
@@ -122,9 +122,9 @@ public class StateSynchronizationAvoidanceProcedureTest extends AbstractPCEPSess
         Assert.assertFalse(pcc2.getReportedLsp().isEmpty());
         //sync rpt + LSP-DB
         final Pcrpt syncMsg = MsgBuilderUtil.createPcRtpMessage(createLsp(0, false, Optional.of(
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.TlvsBuilder().addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs1.class,
-                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs1Builder().setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.valueOf(2L)).build()).build()).build()), true, false), Optional.<Srp>absent(),
-                createPath(Collections.<Subobject> emptyList()));
+            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.TlvsBuilder().addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs1.class,
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs1Builder().setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.valueOf(2L)).build()).build()).build()), true, false), Optional.absent(),
+                createPath(Collections.emptyList()));
         this.listener.onMessage(session, syncMsg);
         final Topology topo3 = getTopology().get();
         final PathComputationClient pcc3 = topo3.getNode().get(0).getAugmentation(Node1.class).getPathComputationClient();

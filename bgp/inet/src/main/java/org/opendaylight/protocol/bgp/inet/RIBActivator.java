@@ -20,7 +20,7 @@ public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
     @Override
     protected List<AutoCloseable> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context) {
         return Lists.newArrayList(
-                (AutoCloseable)context.registerRIBSupport(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, IPv4RIBSupport.getInstance()),
-                (AutoCloseable)context.registerRIBSupport(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, IPv6RIBSupport.getInstance()));
+            context.registerRIBSupport(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, IPv4RIBSupport.getInstance()),
+            context.registerRIBSupport(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, IPv6RIBSupport.getInstance()));
     }
 }

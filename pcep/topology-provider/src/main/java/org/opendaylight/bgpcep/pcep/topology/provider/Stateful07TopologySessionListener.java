@@ -115,7 +115,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             final Stateful stateful = tlvs.getAugmentation(Tlvs1.class).getStateful();
             if (stateful != null) {
                 getSessionListenerState().setPeerCapabilities(getCapabilities(stateful));
-                pccBuilder.setReportedLsp(Collections.<ReportedLsp> emptyList());
+                pccBuilder.setReportedLsp(Collections.emptyList());
                 if (isSynchronized()) {
                     pccBuilder.setStateSync(PccSyncState.Synchronized);
                 } else if (isTriggeredInitialSynchro()) {

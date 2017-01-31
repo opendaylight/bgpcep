@@ -233,7 +233,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
         final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
         trans.put(LogicalDatastoreType.OPERATIONAL, this.topology,
             new TopologyBuilder().setKey(this.topologyKey).setServerProvided(Boolean.TRUE).setTopologyTypes(this.topologyTypes)
-                                 .setLink(Collections.<Link>emptyList()).setNode(Collections.<Node>emptyList()).build(), true);
+                                 .setLink(Collections.emptyList()).setNode(Collections.emptyList()).build(), true);
         Futures.addCallback(trans.submit(), new FutureCallback<Void>() {
             @Override
             public void onSuccess(final Void result) {

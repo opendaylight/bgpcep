@@ -216,7 +216,7 @@ public class TunnelProgrammingTest extends AbstractDataBrokerTest {
         createInputBuilder.setBandwidth(bwd);
         createInputBuilder.setClassType(classType);
         createInputBuilder.setSymbolicPathName(tunnelName);
-        createInputBuilder.setExplicitHops(Lists.<ExplicitHops>newArrayList());
+        createInputBuilder.setExplicitHops(Lists.newArrayList());
         createInputBuilder.addAugmentation(PcepCreateP2pTunnelInput1.class, new PcepCreateP2pTunnelInput1Builder().setAdministrativeStatus(AdministrativeStatus.Active).build());
         this.tunnelProgramming.pcepCreateP2pTunnel(createInputBuilder.build());
         //check add-lsp input
