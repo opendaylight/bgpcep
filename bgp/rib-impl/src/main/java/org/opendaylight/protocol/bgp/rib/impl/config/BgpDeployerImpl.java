@@ -73,7 +73,8 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
     @GuardedBy("this")
     private boolean closed;
 
-    public BgpDeployerImpl(final String networkInstanceName, final BlueprintContainer container, final BundleContext bundleContext, final DataBroker dataBroker,
+    public BgpDeployerImpl(final String networkInstanceName, final BlueprintContainer container,
+        final BundleContext bundleContext, final DataBroker dataBroker,
         final BGPTableTypeRegistryConsumer mappingService) {
         this.dataBroker = Preconditions.checkNotNull(dataBroker);
         this.container = Preconditions.checkNotNull(container);
@@ -92,8 +93,9 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
                 LOG.error("Failed to initialize Network Instance {}.", networkInstanceName, t);
             }
         });
-        this.registration = dataBroker.registerDataTreeChangeListener(new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION,
-            this.networkInstanceIId.child(Protocols.class).child(Protocol.class).augmentation(Protocol1.class).child(Bgp.class)), this);
+        this.registration = dataBroker.registerDataTreeChangeListener(
+            new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, this.networkInstanceIId.child(Protocols.class)
+                .child(Protocol.class).augmentation(Protocol1.class).child(Bgp.class)), this);
         LOG.info("BGP Deployer {} started.", networkInstanceName);
     }
 
@@ -132,15 +134,16 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
         this.closed = true;
     }
 
-    private static CheckedFuture<Void, TransactionCommitFailedException> initializeNetworkInstance(final DataBroker dataBroker,
-        final InstanceIdentifier<NetworkInstance> networkInstance) {
+    private static CheckedFuture<Void, TransactionCommitFailedException> initializeNetworkInstance(
+        final DataBroker dataBroker, final InstanceIdentifier<NetworkInstance> networkInstance) {
         final WriteTransaction wTx = dataBroker.newWriteOnlyTransaction();
         wTx.merge(LogicalDatastoreType.CONFIGURATION, networkInstance,
-            new NetworkInstanceBuilder().setName(networkInstance.firstKeyOf(NetworkInstance.class).getName()).setProtocols(new ProtocolsBuilder().build()).build());
+            new NetworkInstanceBuilder().setName(networkInstance.firstKeyOf(NetworkInstance.class).getName())
+                .setProtocols(new ProtocolsBuilder().build()).build());
         return wTx.submit();
     }
 
-    private void onGlobalChanged(final DataObjectModification<Global> dataObjectModification,
+    private synchronized void onGlobalChanged(final DataObjectModification<Global> dataObjectModification,
         final InstanceIdentifier<Bgp> rootIdentifier) {
         switch (dataObjectModification.getModificationType()) {
         case DELETE:
@@ -166,10 +169,10 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
         }
     }
 
-    private List<PeerBean> closeAllBindedPeers(final InstanceIdentifier<Bgp> rootIdentifier) {
+    private synchronized List<PeerBean> closeAllBindedPeers(final InstanceIdentifier<Bgp> rootIdentifier) {
         final List<PeerBean> filtered = new ArrayList<>();
-        this.peers.entrySet().stream().filter(entry -> entry.getKey().firstIdentifierOf(Bgp.class).contains(rootIdentifier)).forEach(entry -> {
-            final PeerBean peer = entry.getValue();
+        this.peers.entrySet().stream().filter(entry -> entry.getKey().firstIdentifierOf(Bgp.class)
+            .contains(rootIdentifier)).forEach(entry -> {final PeerBean peer = entry.getValue();
             peer.close();
             filtered.add(peer);
         });
@@ -185,8 +188,8 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
         LOG.debug("RIB instance created: {}", ribImpl);
     }
 
-    private void onGlobalUpdated(final InstanceIdentifier<Bgp> rootIdentifier, final Global global, final RibImpl ribImpl,
-        final WriteConfiguration configurationWriter) {
+    private synchronized void onGlobalUpdated(final InstanceIdentifier<Bgp> rootIdentifier, final Global global,
+        final RibImpl ribImpl, final WriteConfiguration configurationWriter) {
         LOG.debug("Modifying RIB instance with configuration: {}", global);
         final List<PeerBean> closedPeers = closeAllBindedPeers(rootIdentifier);
         ribImpl.close();
@@ -205,21 +208,22 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
         }
     }
 
-    private void registerRibInstance(final RibImpl ribImpl, final String ribInstanceName) {
+    private synchronized void registerRibInstance(final RibImpl ribImpl, final String ribInstanceName) {
         final Dictionary<String, String> properties = new Hashtable<>();
         properties.put(InstanceType.RIB.getBeanName(), ribInstanceName);
-        final ServiceRegistration<?> serviceRegistration = this.bundleContext.registerService(InstanceType.RIB.getServices(), ribImpl, properties);
+        final ServiceRegistration<?> serviceRegistration = this.bundleContext.registerService(
+            InstanceType.RIB.getServices(), ribImpl, properties);
         ribImpl.setServiceRegistration(serviceRegistration);
     }
 
-    private void initiateRibInstance(final InstanceIdentifier<Bgp> rootIdentifier, final Global global,
+    private synchronized void initiateRibInstance(final InstanceIdentifier<Bgp> rootIdentifier, final Global global,
         final RibImpl ribImpl, final WriteConfiguration configurationWriter) {
         final String ribInstanceName = getRibInstanceName(rootIdentifier);
         ribImpl.start(global, ribInstanceName, this.tableTypeRegistry, configurationWriter);
         registerRibInstance(ribImpl, ribInstanceName);
     }
 
-    private void onNeighborsChanged(final DataObjectModification<Neighbors> dataObjectModification,
+    private synchronized void onNeighborsChanged(final DataObjectModification<Neighbors> dataObjectModification,
         final InstanceIdentifier<Bgp> rootIdentifier) {
         for (final DataObjectModification<? extends DataObject> neighborModification : dataObjectModification.getModifiedChildren()) {
             switch (neighborModification.getModificationType()) {
@@ -263,7 +267,7 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
         LOG.debug("Peer instance created {}", bgpPeer);
     }
 
-    private void onNeighborUpdated(final PeerBean bgpPeer, final InstanceIdentifier<Bgp> rootIdentifier, final Neighbor neighbor,
+    private synchronized void onNeighborUpdated(final PeerBean bgpPeer, final InstanceIdentifier<Bgp> rootIdentifier, final Neighbor neighbor,
             final WriteConfiguration configurationWriter) {
         LOG.debug("Updating Peer instance with configuration: {}", neighbor);
         bgpPeer.close();
@@ -282,14 +286,15 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
         }
     }
 
-    private void registerPeerInstance(final BgpPeer bgpPeer, final String peerInstanceName) {
+    private synchronized void registerPeerInstance(final BgpPeer bgpPeer, final String peerInstanceName) {
         final Dictionary<String, String> properties = new Hashtable<>();
         properties.put(InstanceType.PEER.getBeanName(), peerInstanceName);
-        final ServiceRegistration<?> serviceRegistration = this.bundleContext.registerService(InstanceType.PEER.getServices(), bgpPeer, properties);
+        final ServiceRegistration<?> serviceRegistration = this.bundleContext
+            .registerService(InstanceType.PEER.getServices(), bgpPeer, properties);
         bgpPeer.setServiceRegistration(serviceRegistration);
     }
 
-    private void registerAppPeerInstance(final AppPeer appPeer, final String peerInstanceName) {
+    private synchronized void registerAppPeerInstance(final AppPeer appPeer, final String peerInstanceName) {
         final Dictionary<String, String> properties = new Hashtable<>();
         properties.put(InstanceType.PEER.getBeanName(), peerInstanceName);
         final ServiceRegistration<?> serviceRegistration = this.bundleContext
@@ -297,7 +302,8 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
         appPeer.setServiceRegistration(serviceRegistration);
     }
 
-    private void initiatePeerInstance(final InstanceIdentifier<Bgp> rootIdentifier, final InstanceIdentifier<Neighbor> neighborIdentifier, final Neighbor neighbor,
+    private synchronized void initiatePeerInstance(final InstanceIdentifier<Bgp> rootIdentifier,
+        final InstanceIdentifier<Neighbor> neighborIdentifier, final Neighbor neighbor,
         final PeerBean bgpPeer, final WriteConfiguration configurationWriter) {
         final String peerInstanceName = getNeighborInstanceName(neighborIdentifier);
         final RibImpl rib = this.ribs.get(rootIdentifier);
@@ -317,8 +323,9 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
     }
 
     @Override
-    public <T extends DataObject> ListenableFuture<Void> writeConfiguration(final T data, final InstanceIdentifier<T> identifier) {
-        final ReadWriteTransaction wTx = this.dataBroker.newReadWriteTransaction();
+    public <T extends DataObject> ListenableFuture<Void> writeConfiguration(final T data,
+        final InstanceIdentifier<T> identifier) {
+        final WriteTransaction wTx = this.dataBroker.newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.CONFIGURATION, identifier, data, true);
         return wTx.submit();
     }
