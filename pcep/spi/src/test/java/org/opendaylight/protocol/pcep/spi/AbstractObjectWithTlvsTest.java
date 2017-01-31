@@ -68,7 +68,7 @@ public class AbstractObjectWithTlvsTest {
         protected void addVendorInformationTlvs(TlvsBuilder builder, List<VendorInformationTlv> tlvs) {
             builder.setVendorInformationTlv(tlvs);
         }
-    };
+    }
 
     @Before
     public void setUp() throws PCEPDeserializerException {
