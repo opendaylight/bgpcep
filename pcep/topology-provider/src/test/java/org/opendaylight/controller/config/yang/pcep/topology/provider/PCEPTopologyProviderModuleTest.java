@@ -10,7 +10,7 @@ package org.opendaylight.controller.config.yang.pcep.topology.provider;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import io.netty.channel.nio.NioEventLoopGroup;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import javax.management.ObjectName;
@@ -55,7 +55,7 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
         SimplePCEPExtensionProviderContext extContext = new SimplePCEPExtensionProviderContext();
         setupMockService(PCEPExtensionProviderContext.class, extContext);
         BasePCEPSessionProposalFactory proposalFactory = new BasePCEPSessionProposalFactory(120, 30,
-                Arrays.asList(new PCEPStatefulCapability(true, true, true, true, true, true, true)));
+            Collections.singletonList(new PCEPStatefulCapability(true, true, true, true, true, true, true)));
         setupMockService(PCEPSessionProposalFactory.class, proposalFactory);
         NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup();
         setupMockService(PCEPDispatcher.class, new PCEPDispatcherImpl(extContext.getMessageHandlerRegistry(),
@@ -174,7 +174,7 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
             final Client client = new Client();
             client.setPassword(Rfc2385Key.getDefaultInstance("foo"));
             client.setAddress(new IpAddress("127.0.0.1".toCharArray()));
-            mxBean.setClient(Arrays.asList(client));
+            mxBean.setClient(Collections.singletonList(client));
         }
 
         mxBean.setListenAddress(listenAddress == null ? null : new IpAddress(listenAddress.toCharArray()));

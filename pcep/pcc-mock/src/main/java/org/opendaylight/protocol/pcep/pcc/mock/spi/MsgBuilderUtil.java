@@ -12,7 +12,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
@@ -165,18 +165,18 @@ public final class MsgBuilderUtil {
     public static Pcerr createErrorMsg(@Nonnull final PCEPErrors e, @Nonnull final long srpId) {
         final PcerrMessageBuilder msgBuilder = new PcerrMessageBuilder();
         return new PcerrBuilder().setPcerrMessage(
-                msgBuilder
-                        .setErrorType(
-                                new StatefulCaseBuilder().setStateful(
-                                        new StatefulBuilder().setSrps(
-                                                Lists.newArrayList(new SrpsBuilder().setSrp(
-                                                        new SrpBuilder().setProcessingRule(false).setIgnore(false)
-                                                                .setOperationId(new SrpIdNumber(srpId)).build())
-                                                        .build())).build()).build())
-                        .setErrors(
-                                Arrays.asList(new ErrorsBuilder().setErrorObject(
-                                        new ErrorObjectBuilder().setType(e.getErrorType()).setValue(e.getErrorValue())
-                                                .build()).build())).build()).build();
+            msgBuilder
+                .setErrorType(
+                    new StatefulCaseBuilder().setStateful(
+                        new StatefulBuilder().setSrps(
+                            Lists.newArrayList(new SrpsBuilder().setSrp(
+                                new SrpBuilder().setProcessingRule(false).setIgnore(false)
+                                    .setOperationId(new SrpIdNumber(srpId)).build())
+                                .build())).build()).build())
+                .setErrors(
+                    Collections.singletonList(new ErrorsBuilder().setErrorObject(
+                        new ErrorObjectBuilder().setType(e.getErrorType()).setValue(e.getErrorValue())
+                            .build()).build())).build()).build();
     }
 
     public static byte[] getDefaultPathName(final String address, final long lspId) {
