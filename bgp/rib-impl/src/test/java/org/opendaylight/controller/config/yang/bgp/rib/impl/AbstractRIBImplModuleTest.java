@@ -288,7 +288,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         doReturn(mockedChain).when(this.mockedRIB).createPeerChain(any());
         doNothing().when(mockedChain).close();
         doReturn(YangInstanceIdentifier.of(BgpRib.QNAME)).when(this.mockedRIB).getYangRibId();
-        doReturn(new AsNumber(123456l)).when(this.mockedRIB).getLocalAs();
+        doReturn(new AsNumber(123456L)).when(this.mockedRIB).getLocalAs();
         doReturn(BGP_ID).when(this.mockedRIB).getBgpIdentifier();
         final BGPRenderStats mockedRenderStats = mock(BGPRenderStats.class);
         doReturn(new LongAdder()).when(mockedRenderStats).getConfiguredPeerCounter();
