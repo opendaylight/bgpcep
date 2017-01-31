@@ -9,6 +9,8 @@
 package org.opendaylight.protocol.bgp.state;
 
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.ScheduledFuture;
 import java.util.HashMap;
@@ -29,6 +31,10 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
+import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPRIBState;
@@ -54,31 +60,39 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ThreadSafe
-public final class StateProviderImpl implements TransactionChainListener, AutoCloseable {
+public final class StateProviderImpl implements TransactionChainListener, ClusterSingletonService, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(StateProviderImpl.class);
-
-    private final BindingTransactionChain transactionChain;
+    private static final ServiceGroupIdentifier SERVICE_GROUP_IDENTIFIER = ServiceGroupIdentifier
+        .create("state-provider-service-group");
     private final BGPStateConsumer stateCollector;
     private final BGPTableTypeRegistryConsumer bgpTableTypeRegistry;
     private final KeyedInstanceIdentifier<NetworkInstance, NetworkInstanceKey> networkInstanceIId;
     private final int timeout;
+    private final DataBroker dataBroker;
     @GuardedBy("this")
     private final Map<String, InstanceIdentifier<Bgp>> instanceIdentifiersCache = new HashMap<>();
+    private ClusterSingletonServiceRegistration singletonServiceRegistration;
+    @GuardedBy("this")
+    private BindingTransactionChain transactionChain;
     @GuardedBy("this")
     private ScheduledFuture<?> scheduleTask;
 
     public StateProviderImpl(@Nonnull final DataBroker dataBroker, final int timeout,
-        @Nonnull BGPTableTypeRegistryConsumer bgpTableTypeRegistry,
-        @Nonnull final BGPStateConsumer stateCollector, @Nonnull final String networkInstanceName) {
-        this.transactionChain = Preconditions.checkNotNull(dataBroker).createTransactionChain(this);
+        @Nonnull BGPTableTypeRegistryConsumer bgpTableTypeRegistry, @Nonnull final BGPStateConsumer stateCollector,
+        @Nonnull final String networkInstanceName, @Nonnull final ClusterSingletonServiceProvider provider) {
+        this.dataBroker = Preconditions.checkNotNull(dataBroker);
         this.bgpTableTypeRegistry = Preconditions.checkNotNull(bgpTableTypeRegistry);
         this.stateCollector = Preconditions.checkNotNull(stateCollector);
         this.networkInstanceIId = InstanceIdentifier.create(NetworkInstances.class)
             .child(NetworkInstance.class, new NetworkInstanceKey(networkInstanceName));
         this.timeout = timeout;
+        this.singletonServiceRegistration = Preconditions.checkNotNull(provider)
+            .registerClusterSingletonService(this);
     }
 
-    public synchronized void init() {
+    @Override
+    public synchronized void instantiateServiceInstance() {
+        this.transactionChain = this.dataBroker.createTransactionChain(this);
         final TimerTask task = new TimerTask() {
             @Override
             public void run() {
@@ -95,7 +109,8 @@ public final class StateProviderImpl implements TransactionChainListener, AutoCl
             }
         };
 
-        this.scheduleTask = GlobalEventExecutor.INSTANCE.scheduleAtFixedRate(task, 0, this.timeout, TimeUnit.SECONDS);
+        this.scheduleTask = GlobalEventExecutor.INSTANCE.scheduleAtFixedRate(task, 0, this.timeout,
+            TimeUnit.SECONDS);
     }
 
     private synchronized void updateBGPStats(final WriteTransaction wTx) {
@@ -123,7 +138,8 @@ public final class StateProviderImpl implements TransactionChainListener, AutoCl
         final Neighbors neighbors = NeighborUtil.buildNeighbors(peerStats, this.bgpTableTypeRegistry);
         InstanceIdentifier<Bgp> bgpIID = this.instanceIdentifiersCache.get(ribId);
         if (bgpIID == null) {
-            final ProtocolKey protocolKey = new ProtocolKey(BGP.class, bgpStateConsumer.getInstanceIdentifier().getKey().getId().getValue());
+            final ProtocolKey protocolKey = new ProtocolKey(BGP.class, bgpStateConsumer.getInstanceIdentifier()
+                .getKey().getId().getValue());
             final KeyedInstanceIdentifier<Protocol, ProtocolKey> protocolIId = this.networkInstanceIId
                 .child(Protocols.class).child(Protocol.class, protocolKey);
             bgpIID = protocolIId.augmentation(Protocol1.class).child(Bgp.class);
@@ -135,21 +151,36 @@ public final class StateProviderImpl implements TransactionChainListener, AutoCl
     }
 
     @Override
-    public synchronized void close() throws Exception {
-        this.scheduleTask.cancel(true);
-        final WriteTransaction wTx = this.transactionChain.newWriteOnlyTransaction();
-        this.instanceIdentifiersCache.keySet().forEach(ribId -> removeStoredOperationalState(ribId, wTx));
-        wTx.submit();
-        this.transactionChain.close();
+    public void close() throws Exception {
+        if (this.singletonServiceRegistration != null) {
+            this.singletonServiceRegistration.close();
+            this.singletonServiceRegistration = null;
+        }
     }
 
     @Override
-    public void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction, final Throwable cause) {
+    public void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction,
+        final Throwable cause) {
         LOG.error("Transaction chain failed {}.", transaction != null ? transaction.getIdentifier() : null, cause);
     }
 
     @Override
     public void onTransactionChainSuccessful(final TransactionChain<?, ?> chain) {
         LOG.debug("Transaction chain {} successful.", chain);
+    }
+
+    @Override
+    public synchronized ListenableFuture<Void> closeServiceInstance() {
+        this.scheduleTask.cancel(true);
+        final WriteTransaction wTx = this.transactionChain.newWriteOnlyTransaction();
+        this.instanceIdentifiersCache.keySet().forEach(ribId -> removeStoredOperationalState(ribId, wTx));
+        wTx.submit();
+        this.transactionChain.close();
+        return Futures.immediateFuture(null);
+    }
+
+    @Override
+    public ServiceGroupIdentifier getIdentifier() {
+        return SERVICE_GROUP_IDENTIFIER;
     }
 }
