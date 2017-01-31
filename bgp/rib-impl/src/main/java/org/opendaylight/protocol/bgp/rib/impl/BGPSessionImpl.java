@@ -192,7 +192,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
             }, this.keepAlive, TimeUnit.SECONDS);
         }
         this.bgpId = remoteOpen.getBgpIdentifier();
-        this.sessionStats = new BGPSessionStatsImpl(this, remoteOpen, this.holdTimerValue, this.keepAlive, channel, Optional.<BGPSessionPreferences>absent(),
+        this.sessionStats = new BGPSessionStatsImpl(this, remoteOpen, this.holdTimerValue, this.keepAlive, channel, Optional.absent(),
                 this.tableTypes, this.addPathTypes);
 
         this.sessionState.advertizeCapabilities(this.holdTimerValue, channel.remoteAddress(), channel.localAddress(),

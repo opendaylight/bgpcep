@@ -253,8 +253,8 @@ public final class LinkAttributesParser {
         ifPresentApply(linkAttributes.getLinkName(), value -> TlvUtil.writeTLV(LINK_NAME, Unpooled.wrappedBuffer(StandardCharsets.UTF_8.encode((String) value)), output));
         ifPresentApply(linkAttributes.getSrAdjIds(), value -> SrLinkAttributesParser.serializeAdjacencySegmentIdentifiers((List<SrAdjIds>) value, SR_ADJ_ID, output));
         ifPresentApply(linkAttributes.getSrLanAdjIds(), value -> SrLinkAttributesParser.serializeLanAdjacencySegmentIdentifiers((List<SrLanAdjIds>) value, output));
-        ifPresentApply(linkAttributes.getPeerNodeSid(), value -> TlvUtil.writeTLV(PEER_NODE_SID_CODE, SrLinkAttributesParser.serializeAdjacencySegmentIdentifier((PeerNodeSid) value), output));
-        ifPresentApply(linkAttributes.getPeerAdjSid(), value -> TlvUtil.writeTLV(PEER_ADJ_SID_CODE, SrLinkAttributesParser.serializeAdjacencySegmentIdentifier((PeerAdjSid) value), output));
+        ifPresentApply(linkAttributes.getPeerNodeSid(), value -> TlvUtil.writeTLV(PEER_NODE_SID_CODE, SrLinkAttributesParser.serializeAdjacencySegmentIdentifier(value), output));
+        ifPresentApply(linkAttributes.getPeerAdjSid(), value -> TlvUtil.writeTLV(PEER_ADJ_SID_CODE, SrLinkAttributesParser.serializeAdjacencySegmentIdentifier(value), output));
         ifPresentApply(linkAttributes.getPeerSetSids(), value -> SrLinkAttributesParser.serializeAdjacencySegmentIdentifiers((List<PeerSetSids>) value, PEER_SET_SID_CODE, output));
         LOG.trace("Finished serializing Link Attributes");
     }

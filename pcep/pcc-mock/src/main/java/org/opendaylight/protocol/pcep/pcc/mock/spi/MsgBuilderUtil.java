@@ -124,7 +124,7 @@ public final class MsgBuilderUtil {
 
     public static Tlvs createLspTlvs(final long lspId, final boolean symbolicPathName, final String tunnelEndpoint,
                                      final String tunnelSender, final String extendedTunnelAddress, final Optional<byte[]> symbolicName) {
-        return createLspTlvs(lspId, symbolicPathName, tunnelEndpoint, tunnelSender, extendedTunnelAddress, symbolicName, Optional.<BigInteger>absent());
+        return createLspTlvs(lspId, symbolicPathName, tunnelEndpoint, tunnelSender, extendedTunnelAddress, symbolicName, Optional.absent());
     }
 
     public static Tlvs createLspTlvs(final long lspId, final boolean symbolicPathName, final String tunnelEndpoint,

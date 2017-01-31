@@ -37,7 +37,7 @@ public final class TablesUtil {
      */
     public static NodeIdentifierWithPredicates toYangTablesKey(final Class<? extends AddressFamily> afi,
             final Class<? extends SubsequentAddressFamily> safi) {
-        final ImmutableMap<QName, Object> keyValues = ImmutableMap.<QName, Object>of(
+        final ImmutableMap<QName, Object> keyValues = ImmutableMap.of(
                         BMP_AFI_QNAME, BindingReflections.findQName(afi),
                         BMP_SAFI_QNAME, BindingReflections.findQName(safi));
         return new NodeIdentifierWithPredicates(BMP_TABLES_QNAME, keyValues);
@@ -55,7 +55,7 @@ public final class TablesUtil {
             final Class<? extends SubsequentAddressFamily> safi) {
         final QName afiQname = QName.create(nodeName, "afi").intern();
         final QName safiQname = QName.create(nodeName, "safi").intern();
-        final ImmutableMap<QName, Object> keyValues = ImmutableMap.<QName, Object>of(
+        final ImmutableMap<QName, Object> keyValues = ImmutableMap.of(
                         afiQname, BindingReflections.findQName(afi),
                         safiQname, BindingReflections.findQName(safi));
         return new NodeIdentifierWithPredicates(nodeName, keyValues);

@@ -98,10 +98,10 @@ final class AttributeOperations {
         this.clusterListContainer = new NodeIdentifier(QName.create(namespace, ClusterId.QNAME.getLocalName()).intern());
         this.clusterQname = QName.create(namespace, "cluster").intern();
         this.clusterListLeaf = new NodeIdentifier(this.clusterQname);
-        this.clusterListPath = ImmutableList.<PathArgument>of(this.clusterListContainer, this.clusterListLeaf);
+        this.clusterListPath = ImmutableList.of(this.clusterListContainer, this.clusterListLeaf);
         this.originatorIdContainer = new NodeIdentifier(QName.create(namespace, OriginatorId.QNAME.getLocalName()).intern());
         this.originatorIdLeaf = new NodeIdentifier(QName.create(namespace, "originator").intern());
-        this.originatorIdPath = ImmutableList.<PathArgument>of(this.originatorIdContainer, this.originatorIdLeaf);
+        this.originatorIdPath = ImmutableList.of(this.originatorIdContainer, this.originatorIdLeaf);
 
         this.transitiveLeaf = new NodeIdentifier(QName.create(UnrecognizedAttributes.QNAME, "transitive").intern());
         this.transitiveCollection = TRANSITIVE_CACHE.getUnchecked(namespace);
@@ -334,7 +334,7 @@ final class AttributeOperations {
 
         final NormalizedNode<?, ?> originatorId = maybeOriginatorId.get();
         if (originatorId instanceof LeafNode) {
-            return ((LeafNode<?>) originatorId).getValue();
+            return originatorId.getValue();
         }
 
         LOG.warn("Unexpected ORIGINATOR_ID node {}, ignoring it", originatorId);

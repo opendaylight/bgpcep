@@ -307,7 +307,7 @@ public class ProgrammingServiceImplTest extends AbstractDataBrokerTest {
     }
 
     private SubmitInstructionInput getMockedSubmitInstructionInput(final String id, final String... dependencyIds) {
-        return getMockedSubmitInstructionInput(id, Optional.<Nanotime> absent(), dependencyIds);
+        return getMockedSubmitInstructionInput(id, Optional.absent(), dependencyIds);
     }
 
     private SubmitInstructionInput getMockedSubmitInstructionInput(final String id, final Optional<Nanotime> deadline, final String... dependencyIds) {

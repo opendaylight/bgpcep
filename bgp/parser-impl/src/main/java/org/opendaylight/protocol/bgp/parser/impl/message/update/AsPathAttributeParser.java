@@ -39,7 +39,7 @@ public final class AsPathAttributeParser implements AttributeParser, AttributeSe
     private final ReferenceCache refCache;
     private static final Logger LOG = LoggerFactory.getLogger(AsPathAttributeParser.class);
 
-    private static final AsPath EMPTY = new AsPathBuilder().setSegments(Collections.<Segments> emptyList()).build();
+    private static final AsPath EMPTY = new AsPathBuilder().setSegments(Collections.emptyList()).build();
 
     public AsPathAttributeParser(final ReferenceCache refCache) {
         this.refCache = Preconditions.checkNotNull(refCache);

@@ -46,7 +46,7 @@ public class SimpleBmpMessageRegistryTest {
         this.registry.registerBmpMessageSerializer(BmpTestMessage.class, bmpTestParser);
         final BmpTestMessage message = new BmpTestMessage(257);
 
-        assertEquals(message.toString(), ((BmpTestMessage)this.registry.parseMessage(Unpooled.copiedBuffer(BMP_TEST_MESSAGE))).toString());
+        assertEquals(message.toString(), this.registry.parseMessage(Unpooled.copiedBuffer(BMP_TEST_MESSAGE)).toString());
 
         final ByteBuf aggregator = Unpooled.buffer(BMP_TEST_MESSAGE.length);
         this.registry.serializeMessage(message, aggregator);

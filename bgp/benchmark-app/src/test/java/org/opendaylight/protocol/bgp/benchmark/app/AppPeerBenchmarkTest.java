@@ -65,7 +65,7 @@ public class AppPeerBenchmarkTest extends AbstractDataBrokerTest {
     @Before
     public void setUp() throws MalformedObjectNameException {
         MockitoAnnotations.initMocks(this);
-        Mockito.doReturn(this.registration).when(this.rpcRegistry).addRpcImplementation(Mockito.<Class<OdlBgpAppPeerBenchmarkService>>any(),
+        Mockito.doReturn(this.registration).when(this.rpcRegistry).addRpcImplementation(Mockito.any(),
                 Mockito.any(OdlBgpAppPeerBenchmarkService.class));
         Mockito.doNothing().when(this.registration).close();
         this.appPeerBenchmark = new AppPeerBenchmark(getDataBroker(), this.rpcRegistry, PEER_RIB_ID);

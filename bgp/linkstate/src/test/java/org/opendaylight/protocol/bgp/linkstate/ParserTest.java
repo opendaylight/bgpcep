@@ -380,7 +380,7 @@ public class ParserTest {
         paBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build());
         assertEquals(paBuilder.getOrigin(), attrs.getOrigin());
 
-        paBuilder.setAsPath(new AsPathBuilder().setSegments(Collections.<Segments> emptyList()).build());
+        paBuilder.setAsPath(new AsPathBuilder().setSegments(Collections.emptyList()).build());
         assertEquals(paBuilder.getAsPath(), attrs.getAsPath());
 
         paBuilder.setLocalPref(new LocalPrefBuilder().setPref(100L).build());
@@ -407,7 +407,7 @@ public class ParserTest {
         paBuilder.addAugmentation(
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.Attributes1.class,
             lsAttrBuilder.build());
-        paBuilder.setUnrecognizedAttributes(Collections.<UnrecognizedAttributes> emptyList());
+        paBuilder.setUnrecognizedAttributes(Collections.emptyList());
 
         assertEquals(
             lsAttrBuilder.build(),
@@ -571,14 +571,14 @@ public class ParserTest {
         paBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build());
         assertEquals(paBuilder.getOrigin(), attrs.getOrigin());
 
-        paBuilder.setAsPath(new AsPathBuilder().setSegments(Collections.<Segments> emptyList()).build());
+        paBuilder.setAsPath(new AsPathBuilder().setSegments(Collections.emptyList()).build());
         assertEquals(paBuilder.getAsPath(), attrs.getAsPath());
 
         paBuilder.setLocalPref(new LocalPrefBuilder().setPref(100L).build());
         assertEquals(paBuilder.getLocalPref(), attrs.getLocalPref());
 
         paBuilder.addAugmentation(Attributes1.class, lsBuilder.build());
-        paBuilder.setUnrecognizedAttributes(Collections.<UnrecognizedAttributes> emptyList());
+        paBuilder.setUnrecognizedAttributes(Collections.emptyList());
 
         final MpReachNlri mp = attrs.getAugmentation(Attributes1.class).getMpReachNlri();
         assertEquals(mpBuilder.getAfi(), mp.getAfi());

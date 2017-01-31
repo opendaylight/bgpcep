@@ -128,7 +128,7 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
         mxBean.setPeerRegistry(createPeerRegistry(transaction));
         mxBean.setHost(host);
         mxBean.setPort(port);
-        mxBean.setAdvertizedTable(Collections.<ObjectName>emptyList());
+        mxBean.setAdvertizedTable(Collections.emptyList());
         mxBean.setRouteRefresh(false);
         {
             final ObjectName ribON = createRIBImplModuleInstance(transaction);

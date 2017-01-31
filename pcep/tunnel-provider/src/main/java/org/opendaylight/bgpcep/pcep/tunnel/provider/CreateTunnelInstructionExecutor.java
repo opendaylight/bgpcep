@@ -201,7 +201,7 @@ final class CreateTunnelInstructionExecutor extends AbstractInstructionExecutor 
             if (sc.getIpv4Address() != null) {
                 for (final IpAddress dc : dsts) {
                     if (dc.getIpv4Address() != null) {
-                        return Optional.<AddressFamily>of(new Ipv4CaseBuilder().setIpv4(new Ipv4Builder().setSourceIpv4Address(sc.getIpv4Address()).
+                        return Optional.of(new Ipv4CaseBuilder().setIpv4(new Ipv4Builder().setSourceIpv4Address(sc.getIpv4Address()).
                             setDestinationIpv4Address(dc.getIpv4Address()).build()).build());
                     }
                 }
@@ -216,7 +216,7 @@ final class CreateTunnelInstructionExecutor extends AbstractInstructionExecutor 
             if (sc.getIpv6Address() != null) {
                 for (final IpAddress dc : dsts) {
                     if (dc.getIpv6Address() != null) {
-                        return Optional.<AddressFamily>of(new Ipv6CaseBuilder().setIpv6(new Ipv6Builder().setSourceIpv6Address(sc.getIpv6Address()).
+                        return Optional.of(new Ipv6CaseBuilder().setIpv6(new Ipv6Builder().setSourceIpv6Address(sc.getIpv6Address()).
                             setDestinationIpv6Address(dc.getIpv6Address()).build()).build());
                     }
                 }
