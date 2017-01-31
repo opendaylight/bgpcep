@@ -50,7 +50,7 @@ public final class RibSupportUtils {
      * @return NodeIdentifierWithPredicates of 'id' for specified AFI, SAFI combination.
      */
     public static NodeIdentifierWithPredicates toYangKey(final QName id, final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi) {
-        final ImmutableMap<QName, Object> keyValues = ImmutableMap.<QName, Object>of(
+        final ImmutableMap<QName, Object> keyValues = ImmutableMap.of(
                         AFI_QNAME, BindingReflections.findQName(afi),
                         SAFI_QNAME, BindingReflections.findQName(safi));
         return new NodeIdentifierWithPredicates(id, keyValues);
@@ -67,7 +67,7 @@ public final class RibSupportUtils {
      */
     public static NodeIdentifierWithPredicates toYangPathKey(final QName id, final Class<? extends AddressFamily> afi,
         final Class<? extends SubsequentAddressFamily> safi) {
-        final ImmutableMap<QName, Object> keyValues = ImmutableMap.<QName, Object>of(
+        final ImmutableMap<QName, Object> keyValues = ImmutableMap.of(
             ADD_PATH_AFI_QNAME, BindingReflections.findQName(afi),
             ADD_PATH_SAFI_QNAME, BindingReflections.findQName(safi));
         return new NodeIdentifierWithPredicates(id, keyValues);

@@ -66,8 +66,8 @@ public class PCETriggeredInitialSyncProcedureTest extends AbstractPCEPSessionTes
         this.listener = (Stateful07TopologySessionListener) getSessionListener();
 
         //session up - expect triggered sync (LSP-DBs do not match)
-        final LspDbVersion localDbVersion = new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.valueOf(1l)).build();
-        final LspDbVersion localDbVersion2 = new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.valueOf(2l)).build();
+        final LspDbVersion localDbVersion = new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.valueOf(1L)).build();
+        final LspDbVersion localDbVersion2 = new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.valueOf(2L)).build();
         this.session = getPCEPSession(getOpen(localDbVersion, Boolean.FALSE), getOpen(localDbVersion2, Boolean.FALSE));
         this.listener.onSessionUp(session);
 
@@ -107,20 +107,20 @@ public class PCETriggeredInitialSyncProcedureTest extends AbstractPCEPSessionTes
                         .xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs1.class, new org.opendaylight
                         .yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714
                         .Tlvs1Builder().setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(BigInteger
-                        .valueOf(2l)).build()).build()).build()), true, false), Optional.<Srp>absent(),
-                        createPath(Collections.<Subobject>emptyList()));
+                        .valueOf(2L)).build()).build()).build()), true, false), Optional.absent(),
+                        createPath(Collections.emptyList()));
     }
 
     private Pcrpt getPcrpt() {
-        return MsgBuilderUtil.createPcRtpMessage(new LspBuilder().setPlspId(new PlspId(1l)).setTlvs(
+        return MsgBuilderUtil.createPcRtpMessage(new LspBuilder().setPlspId(new PlspId(1L)).setTlvs(
             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp
-                .object.lsp.TlvsBuilder().setLspIdentifiers(new LspIdentifiersBuilder().setLspId(new LspId(1l)).build
+                .object.lsp.TlvsBuilder().setLspIdentifiers(new LspIdentifiersBuilder().setLspId(new LspId(1L)).build
                 ()).setSymbolicPathName(new SymbolicPathNameBuilder().setPathName(new SymbolicPathName("test"
                 .getBytes())).build()).addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
                 .yang.controller.pcep.sync.optimizations.rev150714.Tlvs1.class, new org.opendaylight.yang.gen.v1
                 .urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs1Builder()
-                .setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.valueOf(3l)).build())
+                .setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.valueOf(3L)).build())
                 .build()).build()).setPlspId(new PlspId(1L)).setSync(true).setRemove(false).setOperational
-            (OperationalStatus.Active).build(), Optional.<Srp>absent(), createPath(Collections.<Subobject>emptyList()));
+            (OperationalStatus.Active).build(), Optional.absent(), createPath(Collections.emptyList()));
     }
 }

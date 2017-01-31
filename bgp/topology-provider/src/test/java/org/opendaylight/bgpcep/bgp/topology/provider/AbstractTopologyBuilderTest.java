@@ -44,7 +44,7 @@ public abstract class AbstractTopologyBuilderTest extends AbstractDataBrokerTest
 
     protected void createEmptyTopology() {
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
-        wTx.put(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.builder(NetworkTopology.class).build(), new NetworkTopologyBuilder().setTopology(Collections.<Topology>emptyList()).build());
+        wTx.put(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.builder(NetworkTopology.class).build(), new NetworkTopologyBuilder().setTopology(Collections.emptyList()).build());
         wTx.submit();
     }
 

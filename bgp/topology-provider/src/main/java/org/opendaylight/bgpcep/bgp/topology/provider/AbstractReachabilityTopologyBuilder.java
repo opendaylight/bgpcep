@@ -115,7 +115,7 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
 
         trans.merge(LogicalDatastoreType.OPERATIONAL, nii, new NodeBuilder().setKey(nii.getKey()).setNodeId(ni)
             .addAugmentation(Node1.class, new Node1Builder().setIgpNodeAttributes(
-                new IgpNodeAttributesBuilder().setPrefix(Collections.<Prefix>emptyList()).build()).build()).build());
+                new IgpNodeAttributesBuilder().setPrefix(Collections.emptyList()).build()).build()).build());
 
         this.nodes.put(ni, new NodeUsage(ret));
         return ret;

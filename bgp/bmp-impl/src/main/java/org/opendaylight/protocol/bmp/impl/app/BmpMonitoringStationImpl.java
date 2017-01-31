@@ -88,7 +88,7 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation {
                     ret = KeyMapping.getKeyMapping(addr, rfc2385KeyPassword.getValue());
                     dispatcher.createClient(
                         Ipv4Util.toInetSocketAddress(mr.getAddress(), mr.getPort()),
-                        this.sessionManager, Optional.<KeyMapping>fromNullable(ret));
+                        this.sessionManager, Optional.fromNullable(ret));
                 }
             }
         }

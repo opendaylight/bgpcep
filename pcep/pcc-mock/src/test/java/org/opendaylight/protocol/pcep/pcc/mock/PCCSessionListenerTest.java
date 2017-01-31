@@ -126,7 +126,7 @@ public class PCCSessionListenerTest {
         final PCCSessionListener listener = new PCCSessionListener(1, tunnelManager, false);
         listener.onSessionUp(mockedSession);
         listener.sendError(MsgBuilderUtil.createErrorMsg(PCEPErrors.ATTEMPT_2ND_SESSION, 0));
-        Mockito.verify(mockedSession).sendMessage(Mockito.<Message>any());
+        Mockito.verify(mockedSession).sendMessage(Mockito.any());
     }
 
     @Test
@@ -134,7 +134,7 @@ public class PCCSessionListenerTest {
         final PCCSessionListener listener = new PCCSessionListener(1, tunnelManager, false);
         listener.onSessionUp(mockedSession);
         listener.sendReport(null);
-        Mockito.verify(mockedSession).sendMessage(Mockito.<Message>any());
+        Mockito.verify(mockedSession).sendMessage(Mockito.any());
     }
 
     @Test

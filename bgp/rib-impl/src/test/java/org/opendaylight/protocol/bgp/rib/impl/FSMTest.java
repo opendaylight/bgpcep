@@ -113,7 +113,7 @@ public class FSMTest {
 
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
         final BGPSessionPreferences prefs = new BGPSessionPreferences(new AsNumber(30L), (short) 3, new BgpId("1.1.1.1"), new AsNumber(30L), tlvs,
-                Optional.<byte[]>absent());
+                Optional.absent());
 
         final ChannelFuture f = mock(ChannelFuture.class);
         doReturn(null).when(f).addListener(any(GenericFutureListener.class));

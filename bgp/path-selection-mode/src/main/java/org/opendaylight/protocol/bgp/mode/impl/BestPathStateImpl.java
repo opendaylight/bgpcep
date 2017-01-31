@@ -57,19 +57,19 @@ public final class BestPathStateImpl implements BestPathState {
         NamespaceSpecificIds(final QName namespace) {
             NodeIdentifier container = new NodeIdentifier(QName.create(namespace, AsPath.QNAME.getLocalName().intern()));
             NodeIdentifier leaf = new NodeIdentifier(QName.create(namespace, "segments").intern());
-            this.asPath = ImmutableList.<PathArgument>of(container, leaf);
+            this.asPath = ImmutableList.of(container, leaf);
 
             container = new NodeIdentifier(QName.create(namespace, LocalPref.QNAME.getLocalName()).intern());
             leaf = new NodeIdentifier(QName.create(namespace, "pref").intern());
-            this.locPref = ImmutableList.<PathArgument>of(container, leaf);
+            this.locPref = ImmutableList.of(container, leaf);
 
             container = new NodeIdentifier(QName.create(namespace, MultiExitDisc.QNAME.getLocalName()).intern());
             leaf = new NodeIdentifier(QName.create(namespace, "med").intern());
-            this.med = ImmutableList.<PathArgument>of(container, leaf);
+            this.med = ImmutableList.of(container, leaf);
 
             container = new NodeIdentifier(QName.create(namespace, Origin.QNAME.getLocalName()).intern());
             leaf = new NodeIdentifier(QName.create(namespace, "value").intern());
-            this.orig = ImmutableList.<PathArgument>of(container, leaf);
+            this.orig = ImmutableList.of(container, leaf);
 
             this.asSetNid = new NodeIdentifier(QName.create(namespace, "as-set").intern());
             this.asSeqNid = new NodeIdentifier(QName.create(namespace, "as-sequence").intern());
@@ -152,21 +152,21 @@ public final class BestPathStateImpl implements BestPathState {
 
         final Optional<NormalizedNode<?, ?>> maybeLocalPref = NormalizedNodes.findNode(this.attributes, this.ids.getLocPref());
         if (maybeLocalPref.isPresent()) {
-            this.localPref = (Long) ((LeafNode<?>)maybeLocalPref.get()).getValue();
+            this.localPref = (Long) maybeLocalPref.get().getValue();
         } else {
             this.localPref = null;
         }
 
         final Optional<NormalizedNode<?, ?>> maybeMultiExitDisc = NormalizedNodes.findNode(this.attributes, this.ids.getMed());
         if (maybeMultiExitDisc.isPresent()) {
-            this.multiExitDisc = (Long) ((LeafNode<?>)maybeMultiExitDisc.get()).getValue();
+            this.multiExitDisc = (Long) maybeMultiExitDisc.get().getValue();
         } else {
             this.multiExitDisc = null;
         }
 
         final Optional<NormalizedNode<?, ?>> maybeOrigin = NormalizedNodes.findNode(this.attributes, this.ids.getOrig());
         if (maybeOrigin.isPresent()) {
-            this.origin = fromString((String) ((LeafNode<?>)maybeOrigin.get()).getValue());
+            this.origin = fromString((String) maybeOrigin.get().getValue());
         } else {
             this.origin = null;
         }
