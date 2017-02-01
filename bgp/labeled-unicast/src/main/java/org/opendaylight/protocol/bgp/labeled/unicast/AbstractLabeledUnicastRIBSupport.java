@@ -97,7 +97,7 @@ abstract class AbstractLabeledUnicastRIBSupport extends MultiPathAbstractRIBSupp
                 if (routes instanceof UnkeyedListNode) {
                     final YangInstanceIdentifier base = routesPath.node(routesContainerIdentifier()).node(routeNid());
                     for (final UnkeyedListEntryNode e : ((UnkeyedListNode) routes).getValue()) {
-                        final NodeIdentifierWithPredicates routeKey = createRouteKey(e);
+                        final NodeIdentifierWithPredicates routeKey = createRouteKey(e, isDeleteRoute(function));
                         function.apply(tx, base, routeKey, e, attributes);
                     }
                 } else {
@@ -112,11 +112,11 @@ abstract class AbstractLabeledUnicastRIBSupport extends MultiPathAbstractRIBSupp
         return routes.stream().map(this::extractCLabeledUnicastDestination).collect(Collectors.toList());
     }
 
-    private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode labeledUnicast) {
+    private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode labeledUnicast, final boolean isUnreachNlri) {
         final ByteBuf buffer = Unpooled.buffer();
 
         final CLabeledUnicastDestination dest = extractCLabeledUnicastDestination(labeledUnicast);
-        LUNlriParser.serializeNlri(Collections.singletonList(dest), buffer);
+        LUNlriParser.serializeNlri(Collections.singletonList(dest), isUnreachNlri, buffer);
         final String routeKeyValue = ByteArray.encodeBase64(buffer);
         final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf = labeledUnicast.getChild(routePathIdNid());
         final NodeIdentifierWithPredicates routeKey = PathIdUtil.createNidKey(routeQName(), routeKeyQName(), pathIdQName(), routeKeyValue, maybePathIdLeaf);

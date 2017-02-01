@@ -61,10 +61,14 @@ public class LabeledUnicastIpv6RIBSupportTest extends AbstractRIBSupportTest {
 
     private static final IpPrefix IPv6_PREFIX = new IpPrefix(new Ipv6Prefix("102:304:500::/40"));
     private static final LabeledUnicastIpv6RIBSupport RIB_SUPPORT = LabeledUnicastIpv6RIBSupport.getInstance();
-    private static final LabeledUnicastRoute ROUTE;
-    private static final LabeledUnicastIpv6Routes ROUTES;
-    private static final LabeledUnicastRouteKey ROUTE_KEY;
-    private static final String LABEL_KEY;
+    private static final LabeledUnicastRoute REACH_ROUTE;
+    private static final LabeledUnicastIpv6Routes REACH_ROUTES;
+    private static final LabeledUnicastRouteKey REACH_ROUTE_KEY;
+    private static final String REACH_LABEL_KEY;
+    private static final LabeledUnicastRoute UNREACH_ROUTE;
+    private static final LabeledUnicastIpv6Routes UNREACH_ROUTES;
+    private static final LabeledUnicastRouteKey UNREACH_ROUTE_KEY;
+    private static final String UNREACH_LABEL_KEY;
     private static final PathId PATH_ID = new PathId(1L);
     private static final List<LabelStack> LABEL_STACK = Lists.newArrayList(new LabelStackBuilder().setLabelValue(new MplsLabel(355L)).build());
     private static final List<CLabeledUnicastDestination> LABELED_DESTINATION_LIST = Collections.singletonList(new CLabeledUnicastDestinationBuilder()
@@ -81,13 +85,22 @@ public class LabeledUnicastIpv6RIBSupportTest extends AbstractRIBSupportTest {
         final BGPActivator act = new BGPActivator();
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         act.start(context);
+
         final ByteBuf buffer = Unpooled.buffer();
-        LUNlriParser.serializeNlri(LABELED_DESTINATION_LIST, buffer);
-        LABEL_KEY = ByteArray.encodeBase64(buffer);
-        ROUTE_KEY = new LabeledUnicastRouteKey(PATH_ID, LABEL_KEY);
-        ROUTE = new LabeledUnicastRouteBuilder().setKey(ROUTE_KEY).setPrefix(IPv6_PREFIX).setPathId(PATH_ID).setLabelStack(LABEL_STACK)
+        LUNlriParser.serializeNlri(LABELED_DESTINATION_LIST, false, buffer);
+        REACH_LABEL_KEY = ByteArray.encodeBase64(buffer);
+        REACH_ROUTE_KEY = new LabeledUnicastRouteKey(PATH_ID, REACH_LABEL_KEY);
+        REACH_ROUTE = new LabeledUnicastRouteBuilder().setKey(REACH_ROUTE_KEY).setPrefix(IPv6_PREFIX).setPathId(PATH_ID).setLabelStack(LABEL_STACK)
             .setAttributes(new AttributesBuilder().build()).build();
-        ROUTES = new LabeledUnicastIpv6RoutesBuilder().setLabeledUnicastRoute(Collections.singletonList(ROUTE)).build();
+        REACH_ROUTES = new LabeledUnicastIpv6RoutesBuilder().setLabeledUnicastRoute(Collections.singletonList(REACH_ROUTE)).build();
+
+        final ByteBuf buffer2 = Unpooled.buffer();
+        LUNlriParser.serializeNlri(LABELED_DESTINATION_LIST, true, buffer2);
+        UNREACH_LABEL_KEY = ByteArray.encodeBase64(buffer2);
+        UNREACH_ROUTE_KEY = new LabeledUnicastRouteKey(PATH_ID, UNREACH_LABEL_KEY);
+        UNREACH_ROUTE = new LabeledUnicastRouteBuilder().setKey(UNREACH_ROUTE_KEY).setPrefix(IPv6_PREFIX).setPathId(PATH_ID).setLabelStack(LABEL_STACK)
+            .setAttributes(new AttributesBuilder().build()).build();
+        UNREACH_ROUTES = new LabeledUnicastIpv6RoutesBuilder().setLabeledUnicastRoute(Collections.singletonList(UNREACH_ROUTE)).build();
     }
 
     @Override
@@ -100,14 +113,14 @@ public class LabeledUnicastIpv6RIBSupportTest extends AbstractRIBSupportTest {
     public void testDeleteRoutes() {
         RIB_SUPPORT.deleteRoutes(this.tx, getTablePath(), createNlriWithDrawnRoute(UNREACH_NLRI));
         final InstanceIdentifier<LabeledUnicastRoute> instanceIdentifier = (InstanceIdentifier<LabeledUnicastRoute>) this.deletedRoutes.get(0);
-        assertEquals(ROUTE_KEY, instanceIdentifier.firstKeyOf(LabeledUnicastRoute.class));
+        assertEquals(UNREACH_ROUTE_KEY, instanceIdentifier.firstKeyOf(LabeledUnicastRoute.class));
     }
 
     @Test
     public void testPutRoutes() {
         RIB_SUPPORT.putRoutes(this.tx, getTablePath(), createNlriAdvertiseRoute(REACH_NLRI), createAttributes());
         final LabeledUnicastRoute route = (LabeledUnicastRoute) this.insertedRoutes.get(0).getValue();
-        assertEquals(ROUTE, route);
+        assertEquals(REACH_ROUTE, route);
     }
 
     @Test
@@ -120,7 +133,7 @@ public class LabeledUnicastIpv6RIBSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testBuildMpUnreachNlriUpdate() {
-        final Update update = RIB_SUPPORT.buildUpdate(Collections.emptyList(), createRoutes(ROUTES), ATTRIBUTES);
+        final Update update = RIB_SUPPORT.buildUpdate(Collections.emptyList(), createRoutes(REACH_ROUTES), ATTRIBUTES);
         assertEquals(UNREACH_NLRI, update.getAttributes().getAugmentation(Attributes2.class)
             .getMpUnreachNlri().getWithdrawnRoutes().getDestinationType());
         assertNull(update.getAttributes().getAugmentation(Attributes1.class));
@@ -128,7 +141,7 @@ public class LabeledUnicastIpv6RIBSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testBuildMpReachNlriUpdate() {
-        final Update update = RIB_SUPPORT.buildUpdate(createRoutes(ROUTES), Collections.emptyList(), ATTRIBUTES);
+        final Update update = RIB_SUPPORT.buildUpdate(createRoutes(REACH_ROUTES), Collections.emptyList(), ATTRIBUTES);
         assertEquals(REACH_NLRI, update.getAttributes().getAugmentation(Attributes1.class).getMpReachNlri().getAdvertizedRoutes().getDestinationType());
         assertNull(update.getAttributes().getAugmentation(Attributes2.class));
     }
@@ -150,15 +163,15 @@ public class LabeledUnicastIpv6RIBSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testRouteIdAddPath() {
-        final NodeIdentifierWithPredicates expected = createRouteNIWP(ROUTES);
+        final NodeIdentifierWithPredicates expected = createRouteNIWP(REACH_ROUTES);
         final NodeIdentifierWithPredicates prefixNii = new NodeIdentifierWithPredicates(RIB_SUPPORT.routeQName(),
-            ImmutableMap.of(RIB_SUPPORT.routeKeyQName(), LABEL_KEY));
+            ImmutableMap.of(RIB_SUPPORT.routeKeyQName(), REACH_LABEL_KEY));
         Assert.assertEquals(expected, RIB_SUPPORT.getRouteIdAddPath(AbstractRIBSupportTest.PATH_ID, prefixNii));
     }
 
     @Test
     public void testRoutePath() {
-        final NodeIdentifierWithPredicates prefixNii = createRouteNIWP(ROUTES);
+        final NodeIdentifierWithPredicates prefixNii = createRouteNIWP(REACH_ROUTES);
         Assert.assertEquals(getRoutePath().node(prefixNii), RIB_SUPPORT.routePath(getTablePath().node(Routes.QNAME), prefixNii));
     }
 
@@ -199,7 +212,7 @@ public class LabeledUnicastIpv6RIBSupportTest extends AbstractRIBSupportTest {
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(emptyRoutes)).getRootNode();
         Assert.assertTrue(RIB_SUPPORT.changedRoutes(tree).isEmpty());
 
-        final Routes routes = new LabeledUnicastIpv6RoutesCaseBuilder().setLabeledUnicastIpv6Routes(ROUTES).build();
+        final Routes routes = new LabeledUnicastIpv6RoutesCaseBuilder().setLabeledUnicastIpv6Routes(REACH_ROUTES).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(routes)).getRootNode();
         final Collection<DataTreeCandidateNode> result = RIB_SUPPORT.changedRoutes(tree);
         Assert.assertFalse(result.isEmpty());
