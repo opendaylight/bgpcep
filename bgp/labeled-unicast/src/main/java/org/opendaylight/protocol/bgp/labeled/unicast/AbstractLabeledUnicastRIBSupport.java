@@ -116,7 +116,7 @@ abstract class AbstractLabeledUnicastRIBSupport extends MultiPathAbstractRIBSupp
         final ByteBuf buffer = Unpooled.buffer();
 
         final CLabeledUnicastDestination dest = extractCLabeledUnicastDestination(labeledUnicast);
-        LUNlriParser.serializeNlri(Collections.singletonList(dest), buffer);
+        LUNlriParser.serializeNlri(Collections.singletonList(dest), false, buffer);
         final String routeKeyValue = ByteArray.encodeBase64(buffer);
         final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf = labeledUnicast.getChild(routePathIdNid());
         final NodeIdentifierWithPredicates routeKey = PathIdUtil.createNidKey(routeQName(), routeKeyQName(), pathIdQName(), routeKeyValue, maybePathIdLeaf);
