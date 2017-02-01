@@ -80,7 +80,7 @@ public final class BGPProtocolSessionPromise<S extends BGPSession> extends Defau
             connectFuture.addListener(new BGPProtocolSessionPromise.BootstrapConnectListener(lock));
             this.pending = connectFuture;
         } catch (final Exception e) {
-            LOG.info("Failed to connect to {}", this.address, e);
+            LOG.warn("Failed to connect to {}", this.address, e);
             this.setFailure(e);
         }
     }
@@ -159,7 +159,7 @@ public final class BGPProtocolSessionPromise<S extends BGPSession> extends Defau
                 } else if (channelFuture.isSuccess()) {
                     BGPProtocolSessionPromise.LOG.debug("Promise {} connection successful", this.lock);
                 } else {
-                    BGPProtocolSessionPromise.LOG.debug("Attempt to connect to {} failed", BGPProtocolSessionPromise.this.address, channelFuture.cause());
+                    BGPProtocolSessionPromise.LOG.warn("Attempt to connect to {} failed", BGPProtocolSessionPromise.this.address, channelFuture.cause());
                     BGPProtocolSessionPromise.this.reconnect();
                 }
             }
