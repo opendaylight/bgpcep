@@ -45,14 +45,14 @@ public abstract class AbstractVpnNlriParser implements NlriParser, NlriSerialize
 
     protected abstract AdvertizedRoutes getAdvertizedRoutesByDestination(List<VpnDestination> dst);
 
-    private static void serializeNlri(final List<VpnDestination> dests, final ByteBuf buffer) {
+    private static void serializeNlri(final List<VpnDestination> dests, final boolean isWithdrawnRoute, final ByteBuf buffer) {
         final ByteBuf nlriByteBuf = Unpooled.buffer();
         for (final VpnDestination dest : dests) {
             final List<LabelStack> labelStack = dest.getLabelStack();
             final IpPrefix prefix = dest.getPrefix();
             LOG.debug("Serializing Nlri: VpnDestination={}, IpPrefix={}", dest, prefix);
             AbstractVpnNlriParser.serializeLengtField(prefix, labelStack, nlriByteBuf);
-            LUNlriParser.serializeLabelStackEntries(labelStack, nlriByteBuf);
+            LUNlriParser.serializeLabelStackEntries(labelStack, isWithdrawnRoute, nlriByteBuf);
             RouteDistinguisherUtil.serializeRouteDistinquisher(dest.getRouteDistinguisher(), nlriByteBuf);
             Preconditions.checkArgument(prefix.getIpv6Prefix() != null || prefix.getIpv4Prefix() != null, "Ipv6 or Ipv4 prefix is missing.");
             LUNlriParser.serializePrefixField(prefix, nlriByteBuf);
@@ -86,7 +86,7 @@ public abstract class AbstractVpnNlriParser implements NlriParser, NlriSerialize
             final VpnDestinationBuilder builder = new VpnDestinationBuilder();
             final short length = nlri.readUnsignedByte();
             builder.setLabelStack(LUNlriParser.parseLabel(nlri));
-            final int labelNum = builder.getLabelStack().size();
+            final int labelNum = builder.getLabelStack() != null ? builder.getLabelStack().size() : 1;
             final int prefixLen = length - (LUNlriParser.LABEL_LENGTH * Byte.SIZE * labelNum) - (RouteDistinguisherUtil.RD_LENGTH * Byte.SIZE);
             builder.setRouteDistinguisher(RouteDistinguisherUtil.parseRouteDistinguisher(nlri));
             Preconditions.checkState(prefixLen > 0, "A valid VPN IP prefix is required.");
@@ -103,6 +103,7 @@ public abstract class AbstractVpnNlriParser implements NlriParser, NlriSerialize
         final Attributes1 pathAttributes1 = pathAttributes.getAugmentation(Attributes1.class);
         final Attributes2 pathAttributes2 = pathAttributes.getAugmentation(Attributes2.class);
         List<VpnDestination> vpnDst = null;
+        boolean isWithdrawnRoute = false;
         if (pathAttributes1 != null) {
             final AdvertizedRoutes routes = (pathAttributes1.getMpReachNlri()).getAdvertizedRoutes();
             if (routes != null) {
@@ -112,10 +113,11 @@ public abstract class AbstractVpnNlriParser implements NlriParser, NlriSerialize
             final WithdrawnRoutes routes = pathAttributes2.getMpUnreachNlri().getWithdrawnRoutes();
             if (routes != null) {
                 vpnDst = getWithdrawnVpnDestination(routes.getDestinationType());
+                isWithdrawnRoute = true;
             }
         }
         if (vpnDst != null) {
-            serializeNlri(vpnDst, byteAggregator);
+            serializeNlri(vpnDst, isWithdrawnRoute, byteAggregator);
         }
     }
 

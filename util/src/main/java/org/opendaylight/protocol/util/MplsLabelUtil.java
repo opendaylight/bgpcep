@@ -56,7 +56,7 @@ public final class MplsLabelUtil {
      * @param label object
      * @return shifted value
      */
-    private static int intForMplsLabel(final MplsLabel label) {
+    public static int intForMplsLabel(final MplsLabel label) {
         return label.getValue().intValue() << LABEL_OFFSET;
     }
 
