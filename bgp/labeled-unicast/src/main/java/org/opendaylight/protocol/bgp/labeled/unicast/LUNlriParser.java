@@ -11,6 +11,7 @@ package org.opendaylight.protocol.bgp.labeled.unicast;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -51,11 +52,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public class LUNlriParser implements NlriParser, NlriSerializer {
 
     public static final int LABEL_LENGTH = 3;
+    private static final byte[] WITHDRAW_LABEL_BYTE_ARRAY = { (byte) 0x80, (byte) 0x00, (byte) 0x00 };
+    private static final int WITHDRAW_LABEL_INT_VALUE = 0x800000;
 
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
@@ -70,11 +74,11 @@ public class LUNlriParser implements NlriParser, NlriSerializer {
                 if ( destinationType instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
                     .labeled.unicast.rev150525.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLabeledUnicastCase){
                     final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLabeledUnicastCase labeledUnicastCase = (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLabeledUnicastCase) routes.getDestinationType();
-                    serializeNlri(labeledUnicastCase.getDestinationLabeledUnicast().getCLabeledUnicastDestination(), byteAggregator);
+                    serializeNlri(labeledUnicastCase.getDestinationLabeledUnicast().getCLabeledUnicastDestination(), false, byteAggregator);
                 } else if (destinationType instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
                     .labeled.unicast.rev150525.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv6LabeledUnicastCase) {
                     final  org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv6LabeledUnicastCase labeledUnicastCase = ( org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv6LabeledUnicastCase) routes.getDestinationType();
-                    serializeNlri(labeledUnicastCase.getDestinationIpv6LabeledUnicast().getCLabeledUnicastDestination(), byteAggregator);
+                    serializeNlri(labeledUnicastCase.getDestinationIpv6LabeledUnicast().getCLabeledUnicastDestination(), false, byteAggregator);
                 }
             }
         } else if (pathAttributes2 != null) {
@@ -83,41 +87,47 @@ public class LUNlriParser implements NlriParser, NlriSerializer {
                 final DestinationType destinationType = mpUnreachNlri.getWithdrawnRoutes().getDestinationType();
                 if (destinationType instanceof DestinationLabeledUnicastCase) {
                     final DestinationLabeledUnicastCase labeledUnicastCase = (DestinationLabeledUnicastCase) mpUnreachNlri.getWithdrawnRoutes().getDestinationType();
-                    serializeNlri(labeledUnicastCase.getDestinationLabeledUnicast().getCLabeledUnicastDestination(), byteAggregator);
+                    serializeNlri(labeledUnicastCase.getDestinationLabeledUnicast().getCLabeledUnicastDestination(), true, byteAggregator);
                 } else if(destinationType instanceof DestinationIpv6LabeledUnicastCase) {
                     final DestinationIpv6LabeledUnicastCase labeledUnicastCase = (DestinationIpv6LabeledUnicastCase) mpUnreachNlri.getWithdrawnRoutes().getDestinationType();
-                    serializeNlri(labeledUnicastCase.getDestinationIpv6LabeledUnicast().getCLabeledUnicastDestination(), byteAggregator);
+                    serializeNlri(labeledUnicastCase.getDestinationIpv6LabeledUnicast().getCLabeledUnicastDestination(), true, byteAggregator);
                 }
             }
         }
     }
 
-    protected static void serializeNlri(final List<CLabeledUnicastDestination> dests, final ByteBuf buffer) {
+    protected static void serializeNlri(final List<CLabeledUnicastDestination> dests, final boolean isUnreachNlri,
+            final ByteBuf buffer) {
         final ByteBuf nlriByteBuf = Unpooled.buffer();
-        for (final CLabeledUnicastDestination dest: dests) {
+        for (final CLabeledUnicastDestination dest : dests) {
             PathIdUtil.writePathId(dest.getPathId(), buffer);
 
             final List<LabelStack> labelStack = dest.getLabelStack();
             final IpPrefix prefix = dest.getPrefix();
             // Serialize the length field
             // Length field contains one Byte which represents the length of label stack and prefix in bits
-            nlriByteBuf.writeByte(((LABEL_LENGTH * labelStack.size()) + getPrefixLength(prefix)) * Byte.SIZE);
+            nlriByteBuf.writeByte(((LABEL_LENGTH * (!isUnreachNlri ? labelStack.size() : 1)) + getPrefixLength(prefix)) * Byte.SIZE);
 
-            serializeLabelStackEntries(labelStack, nlriByteBuf);
+            serializeLabelStackEntries(labelStack, isUnreachNlri, nlriByteBuf);
             serializePrefixField(prefix, nlriByteBuf);
         }
         buffer.writeBytes(nlriByteBuf);
     }
 
-    public static void serializeLabelStackEntries(final List<LabelStack> stack, final ByteBuf buffer) {
-        int i = 1;
-        for (final LabelStack labelStackEntry : stack) {
-            if (i++ == stack.size()) {
-                //mark last label stack entry with bottom-bit
-                buffer.writeBytes(MplsLabelUtil.byteBufForMplsLabelWithBottomBit(labelStackEntry.getLabelValue()));
-            } else {
-                buffer.writeBytes(MplsLabelUtil.byteBufForMplsLabel(labelStackEntry.getLabelValue()));
+    public static void serializeLabelStackEntries(final List<LabelStack> stack, final boolean isUnreachNlri,
+            final ByteBuf buffer) {
+        if (!isUnreachNlri) {
+            int i = 1;
+            for (final LabelStack labelStackEntry : stack) {
+                if (i++ == stack.size()) {
+                    // mark last label stack entry with bottom-bit
+                    buffer.writeBytes(MplsLabelUtil.byteBufForMplsLabelWithBottomBit(labelStackEntry.getLabelValue()));
+                } else {
+                    buffer.writeBytes(MplsLabelUtil.byteBufForMplsLabel(labelStackEntry.getLabelValue()));
+                }
             }
+        } else {
+            buffer.writeBytes(WITHDRAW_LABEL_BYTE_ARRAY);
         }
     }
 
@@ -157,8 +167,9 @@ public class LUNlriParser implements NlriParser, NlriSerializer {
                 builder.setPathId(PathIdUtil.readPathId(nlri));
             }
             final short length = nlri.readUnsignedByte();
-            builder.setLabelStack(parseLabel(nlri));
-            final int labelNum = builder.getLabelStack().size();
+            final List<LabelStack> labels = parseLabel(nlri);
+            builder.setLabelStack(labels);
+            final int labelNum = labels != null ? labels.size() : 1;
             final int prefixLen = length - (LABEL_LENGTH * Byte.SIZE * labelNum);
             builder.setPrefix(parseIpPrefix(nlri, prefixLen, afi));
             dests.add(builder.build());
@@ -185,7 +196,11 @@ public class LUNlriParser implements NlriParser, NlriSerializer {
         do {
             final ByteBuf slice = nlri.readSlice(LABEL_LENGTH);
             bottomBit = MplsLabelUtil.getBottomBit(slice);
-            labels.add(new LabelStackBuilder().setLabelValue(MplsLabelUtil.mplsLabelForByteBuf(slice)).build());
+            final MplsLabel mplsLabel = MplsLabelUtil.mplsLabelForByteBuf(slice);
+            if (MplsLabelUtil.intForMplsLabel(mplsLabel) == WITHDRAW_LABEL_INT_VALUE) {
+                return null;
+            }
+            labels.add(new LabelStackBuilder().setLabelValue(mplsLabel).build());
         } while (!bottomBit);
         return labels;
     }

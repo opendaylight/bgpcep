@@ -42,17 +42,47 @@ public class VpnIpv4NlriParserTest {
 
     private static final VpnIpv4NlriParser PARSER = new VpnIpv4NlriParser();
 
-    private static final byte[] NLRI_TYPE1 = new byte[]{
+    /* Reach NLRI prefix value.
+    *
+    * prefix contents:
+    * 70          <- length 112
+    * 00 16 3     <- labelValue 355
+    * 1           <- bottomBit 1
+    * 00 01       <- routeDistinguisher Type=1
+    * 01 02 03 04 <- routeDistinguisher IPV4=1.2.3.4
+    * 01 02       <- routeDistinguisher AS=258
+    * 22 01 16    <- prefixType IPV4=34.1.22.0/24
+    */
+    private static final byte[] REACH_NLRI = new byte[] {
         (byte) 0x70,
         (byte) 0x00, (byte) 0x16, (byte) 0x31,
         0, 1, 1, 2, 3, 4, 1, 2,
         (byte) 0x22, (byte) 0x01, (byte) 0x16,
     };
+
+    /* Unreach NLRI prefix value.
+    *
+    * prefix contents:
+    * 70          <- length 112
+    * 80 00 00    <- labelValue for withdraw
+    * 00 01       <- routeDistinguisher Type=1
+    * 01 02 03 04 <- routeDistinguisher IPV4=1.2.3.4
+    * 01 02       <- routeDistinguisher AS=258
+    * 22 01 16    <- prefixType IPV4=34.1.22.0/24
+    */
+    private static final byte[] UNREACH_NLRI = new byte[] {
+        (byte) 0x70,
+        (byte) 0x80, (byte) 0x00, (byte) 0x00,
+        0, 1, 1, 2, 3, 4, 1, 2,
+        (byte) 0x22, (byte) 0x01, (byte) 0x16,
+    };
+
     static final IpPrefix IPv4_PREFIX = new IpPrefix(new Ipv4Prefix("34.1.22.0/24"));
     static final List<LabelStack> LABEL_STACK = Lists.newArrayList(
         new LabelStackBuilder().setLabelValue(new MplsLabel(355L)).build());
     static final RouteDistinguisher DISTINGUISHER = RouteDistinguisherBuilder.getDefaultInstance("1.2.3.4:258");
     static final VpnDestination IPV4_VPN = new VpnDestinationBuilder().setRouteDistinguisher(DISTINGUISHER).setPrefix(IPv4_PREFIX).setLabelStack(LABEL_STACK).build();
+    private static final VpnDestination IPV4_VPN_WITHOUT_LABELS = new VpnDestinationBuilder().setRouteDistinguisher(DISTINGUISHER).setPrefix(IPv4_PREFIX).build();
 
     @Test
     public void testMpReachNlri() throws BGPParsingException {
@@ -70,7 +100,7 @@ public class VpnIpv4NlriParserTest {
 
         final MpReachNlriBuilder testBuilder = new MpReachNlriBuilder();
         testBuilder.setAfi(Ipv4AddressFamily.class);
-        PARSER.parseNlri(Unpooled.copiedBuffer(NLRI_TYPE1), testBuilder);
+        PARSER.parseNlri(Unpooled.copiedBuffer(REACH_NLRI), testBuilder);
         Assert.assertEquals(mpReachExpected, testBuilder.build());
 
         final ByteBuf output = Unpooled.buffer();
@@ -79,13 +109,23 @@ public class VpnIpv4NlriParserTest {
                 new Attributes1Builder().setMpReachNlri(mpReachExpected).build()
             ).build(), output
         );
-        Assert.assertArrayEquals(NLRI_TYPE1, ByteArray.readAllBytes(output));
+        Assert.assertArrayEquals(REACH_NLRI, ByteArray.readAllBytes(output));
     }
 
     @Test
     public void testMpUnreachNlri() throws BGPParsingException {
         final MpUnreachNlriBuilder mpBuilder = new MpUnreachNlriBuilder();
         mpBuilder.setAfi(Ipv4AddressFamily.class);
+
+        mpBuilder.setWithdrawnRoutes(
+            new WithdrawnRoutesBuilder().setDestinationType(
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev160210.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationVpnIpv4CaseBuilder().setVpnIpv4Destination(
+                    new VpnIpv4DestinationBuilder().setVpnDestination(Lists.newArrayList(IPV4_VPN_WITHOUT_LABELS)).build()
+                ).build()
+            ).build()
+        ).build();
+        final MpUnreachNlri mpUnreachExpected1 = mpBuilder.build();
+
         mpBuilder.setWithdrawnRoutes(
             new WithdrawnRoutesBuilder().setDestinationType(
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev160210.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationVpnIpv4CaseBuilder().setVpnIpv4Destination(
@@ -93,20 +133,19 @@ public class VpnIpv4NlriParserTest {
                 ).build()
             ).build()
         ).build();
-
-        final MpUnreachNlri mpUnreachExpected = mpBuilder.build();
+        final MpUnreachNlri mpUnreachExpected2 = mpBuilder.build();
 
         final MpUnreachNlriBuilder testBuilder = new MpUnreachNlriBuilder();
         testBuilder.setAfi(Ipv4AddressFamily.class);
-        PARSER.parseNlri(Unpooled.copiedBuffer(NLRI_TYPE1), testBuilder);
-        Assert.assertEquals(mpUnreachExpected, testBuilder.build());
+        PARSER.parseNlri(Unpooled.copiedBuffer(UNREACH_NLRI), testBuilder);
+        Assert.assertEquals(mpUnreachExpected1, testBuilder.build());
 
         final ByteBuf output = Unpooled.buffer();
         PARSER.serializeAttribute(
             new AttributesBuilder().addAugmentation(Attributes2.class,
-                new Attributes2Builder().setMpUnreachNlri(mpUnreachExpected).build()
+                new Attributes2Builder().setMpUnreachNlri(mpUnreachExpected2).build()
             ).build(), output
         );
-        Assert.assertArrayEquals(NLRI_TYPE1, ByteArray.readAllBytes(output));
+        Assert.assertArrayEquals(UNREACH_NLRI, ByteArray.readAllBytes(output));
     }
 }
