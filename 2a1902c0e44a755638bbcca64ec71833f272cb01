@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_d1342ce0",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/AbstractRIBSupport.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2017-02-02T00:13:03Z",
+      "side": 1,
+      "message": "please do not mix nested classes and methods. A more natural place for this would be just below #routeNid().",
+      "range": {
+        "startLine": 380,
+        "startChar": 4,
+        "endLine": 380,
+        "endChar": 41
+      },
+      "revId": "2a1902c0e44a755638bbcca64ec71833f272cb01",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_d11d4c68",
         "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/AbstractRIBSupport.java",
         "patchSetId": 3
