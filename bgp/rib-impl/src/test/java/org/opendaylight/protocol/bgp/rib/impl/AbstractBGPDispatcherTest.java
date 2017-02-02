@@ -89,8 +89,8 @@ public class AbstractBGPDispatcherTest {
         this.serverDispatcher.close();
         this.registry.close();
         if (!Epoll.isAvailable()) {
-            this.worker.shutdownGracefully(0, 0, TimeUnit.SECONDS);;
-            this.boss.shutdownGracefully(0, 0, TimeUnit.SECONDS);;
+            this.worker.shutdownGracefully(0, 0, TimeUnit.SECONDS);
+            this.boss.shutdownGracefully(0, 0, TimeUnit.SECONDS);
         }
     }
 
