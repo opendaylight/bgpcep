@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_310f7832",
+        "filename": "bgp/l3vpn/src/test/java/org/opendaylight/protocol/bgp/l3vpn/ipv6/VpnIpv6NlriParserTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2017-02-02T00:02:43Z",
+      "side": 1,
+      "message": "missing space",
+      "range": {
+        "startLine": 54,
+        "startChar": 54,
+        "endLine": 54,
+        "endChar": 56
+      },
+      "revId": "2a1902c0e44a755638bbcca64ec71833f272cb01",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d11d4c68",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/AbstractRIBSupport.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2017-02-02T00:02:43Z",
+      "side": 1,
+      "message": "a plain DELETE_ROUTE.equals(function) is enough, as the constant cannot be null.",
+      "range": {
+        "startLine": 381,
+        "startChar": 15,
+        "endLine": 381,
+        "endChar": 54
+      },
+      "revId": "2a1902c0e44a755638bbcca64ec71833f272cb01",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
