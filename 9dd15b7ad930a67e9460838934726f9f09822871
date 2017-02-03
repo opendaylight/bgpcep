@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_52231705",
+        "filename": "bgp/l3vpn/src/test/java/org/opendaylight/protocol/bgp/l3vpn/ipv4/VpnIpv4NlriParserTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2017-02-03T01:56:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_86f8a57d",
+      "range": {
+        "startLine": 45,
+        "startChar": 0,
+        "endLine": 56,
+        "endChar": 6
+      },
+      "revId": "9dd15b7ad930a67e9460838934726f9f09822871",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_260f3932",
         "filename": "bgp/l3vpn/src/test/java/org/opendaylight/protocol/bgp/l3vpn/ipv4/VpnIpv4NlriParserTest.java",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2017-02-02T10:55:25Z",
       "side": 1,
       "message": "why we don\u0027t longer test parsing/serializing for NLRI_TYPE1?",
+      "range": {
+        "startLine": 115,
+        "startChar": 0,
+        "endLine": 126,
+        "endChar": 77
+      },
+      "revId": "9dd15b7ad930a67e9460838934726f9f09822871",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_921d7fc0",
+        "filename": "bgp/l3vpn/src/test/java/org/opendaylight/protocol/bgp/l3vpn/ipv4/VpnIpv4NlriParserTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2017-02-03T01:56:32Z",
+      "side": 1,
+      "message": "We are testing that as part of Reach NLRI tests. But since the Unreach NLRI payload is being updated to comply with RFC, NLRI_TYPE2 is created and used for Unreach NLRI tests",
+      "parentUuid": "fafc7978_260f3932",
       "range": {
         "startLine": 115,
         "startChar": 0,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_328493d3",
+        "filename": "bgp/l3vpn/src/test/java/org/opendaylight/protocol/bgp/l3vpn/ipv6/VpnIpv6NlriParserTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2017-02-03T01:56:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_66f5c182",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 59,
+        "endChar": 6
+      },
+      "revId": "9dd15b7ad930a67e9460838934726f9f09822871",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_8613855b",
         "filename": "bgp/l3vpn/src/test/java/org/opendaylight/protocol/bgp/l3vpn/ipv6/VpnIpv6NlriParserTest.java",
         "patchSetId": 4
@@ -82,6 +154,30 @@
       "writtenOn": "2017-02-02T10:55:25Z",
       "side": 1,
       "message": "same comment as before regarding test for NLRI_TYPE1",
+      "range": {
+        "startLine": 117,
+        "startChar": 0,
+        "endLine": 128,
+        "endChar": 77
+      },
+      "revId": "9dd15b7ad930a67e9460838934726f9f09822871",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_12898feb",
+        "filename": "bgp/l3vpn/src/test/java/org/opendaylight/protocol/bgp/l3vpn/ipv6/VpnIpv6NlriParserTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2017-02-03T01:56:32Z",
+      "side": 1,
+      "message": "Same reply",
+      "parentUuid": "fafc7978_8613855b",
       "range": {
         "startLine": 117,
         "startChar": 0,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_726d7b32",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled/unicast/LUNlriParser.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2017-02-03T01:56:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_a3031b0e",
+      "range": {
+        "startLine": 171,
+        "startChar": 67,
+        "endLine": 171,
+        "endChar": 90
+      },
+      "revId": "9dd15b7ad930a67e9460838934726f9f09822871",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c6490dd2",
         "filename": "bgp/labeled-unicast/src/test/java/org/opendaylight/protocol/bgp/labeled/unicast/LUNlriParserTest.java",
         "patchSetId": 4
@@ -134,6 +254,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_d2f38771",
+        "filename": "bgp/labeled-unicast/src/test/java/org/opendaylight/protocol/bgp/labeled/unicast/LUNlriParserTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2017-02-03T01:56:32Z",
+      "side": 1,
+      "message": "Here we are testing that when LU_UNREACH_NLRI_IPv4 (containing 0x800000 as label value) is parsed, it produces MpUnreachNlri mpUnreachExpected1 having no label value. Testing of parse logic for NLRI payload having valid label value is covered in Reach NLRI tests",
+      "parentUuid": "fafc7978_c6490dd2",
+      "revId": "9dd15b7ad930a67e9460838934726f9f09822871",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_263bb93b",
         "filename": "bgp/labeled-unicast/src/test/java/org/opendaylight/protocol/bgp/labeled/unicast/LUNlriParserTest.java",
         "patchSetId": 4
@@ -145,6 +283,30 @@
       "writtenOn": "2017-02-02T10:55:25Z",
       "side": 1,
       "message": "why don\u0027t test serialize for mpUnreachExpected1?",
+      "range": {
+        "startLine": 308,
+        "startChar": 5,
+        "endLine": 312,
+        "endChar": 87
+      },
+      "revId": "9dd15b7ad930a67e9460838934726f9f09822871",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_92f9ff4f",
+        "filename": "bgp/labeled-unicast/src/test/java/org/opendaylight/protocol/bgp/labeled/unicast/LUNlriParserTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2017-02-03T01:56:32Z",
+      "side": 1,
+      "message": "Here we are testing that when Unreach NLRI mpUnreachExpected2 containing valid label value is serialized, the NLRI payload contains 0x800000 as the label value. Test with Unreach NLRI mpUnreachExpected1 that does not have a label will be similar, as in case of Unreach NLRI, the serialization logic does not take the label value into account but uses value 0x800000",
+      "parentUuid": "fafc7978_263bb93b",
       "range": {
         "startLine": 308,
         "startChar": 5,
@@ -180,6 +342,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_f295ebe4",
+        "filename": "bgp/labeled-unicast/src/test/java/org/opendaylight/protocol/bgp/labeled/unicast/LUNlriParserTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 347,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2017-02-03T01:56:32Z",
+      "side": 1,
+      "message": "Same reply as above",
+      "parentUuid": "fafc7978_e617f1a1",
+      "range": {
+        "startLine": 322,
+        "startChar": 0,
+        "endLine": 347,
+        "endChar": 95
+      },
+      "revId": "9dd15b7ad930a67e9460838934726f9f09822871",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_460d1d90",
         "filename": "bgp/labeled-unicast/src/test/java/org/opendaylight/protocol/bgp/labeled/unicast/LUNlriParserTest.java",
         "patchSetId": 4
@@ -191,6 +377,30 @@
       "writtenOn": "2017-02-02T10:55:25Z",
       "side": 1,
       "message": "same here",
+      "range": {
+        "startLine": 429,
+        "startChar": 0,
+        "endLine": 440,
+        "endChar": 86
+      },
+      "revId": "9dd15b7ad930a67e9460838934726f9f09822871",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d29a6713",
+        "filename": "bgp/labeled-unicast/src/test/java/org/opendaylight/protocol/bgp/labeled/unicast/LUNlriParserTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 440,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2017-02-03T01:56:32Z",
+      "side": 1,
+      "message": "Same reply as above",
+      "parentUuid": "fafc7978_460d1d90",
       "range": {
         "startLine": 429,
         "startChar": 0,
@@ -226,6 +436,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_32a01343",
+        "filename": "bgp/labeled-unicast/src/test/java/org/opendaylight/protocol/bgp/labeled/unicast/LUNlriParserTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 480,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2017-02-03T01:56:32Z",
+      "side": 1,
+      "message": "Same reply as above",
+      "parentUuid": "fafc7978_261299b1",
+      "range": {
+        "startLine": 469,
+        "startChar": 0,
+        "endLine": 480,
+        "endChar": 96
+      },
+      "revId": "9dd15b7ad930a67e9460838934726f9f09822871",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e6bb71c2",
         "filename": "bgp/labeled-unicast/src/test/java/org/opendaylight/protocol/bgp/labeled/unicast/LabeledUnicastIpv4RIBSupportTest.java",
         "patchSetId": 4
@@ -237,6 +471,30 @@
       "writtenOn": "2017-02-02T10:55:25Z",
       "side": 1,
       "message": "shouldn\u0027t be UNREACH_ROUTE?",
+      "range": {
+        "startLine": 135,
+        "startChar": 92,
+        "endLine": 135,
+        "endChar": 104
+      },
+      "revId": "9dd15b7ad930a67e9460838934726f9f09822871",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ed050cc3",
+        "filename": "bgp/labeled-unicast/src/test/java/org/opendaylight/protocol/bgp/labeled/unicast/LabeledUnicastIpv4RIBSupportTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2017-02-03T01:56:32Z",
+      "side": 1,
+      "message": "I realized change to AbstractLabeledUnicastRIBSupport.java is not necessary as the serialization-deserialization in LUNlriParser.java is sufficient to ensure correct value is sent/parsed from the unreach NLRI withdraw. So I have reverted those changes including this one",
+      "parentUuid": "fafc7978_e6bb71c2",
       "range": {
         "startLine": 135,
         "startChar": 92,
@@ -272,6 +530,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_2d10b400",
+        "filename": "bgp/labeled-unicast/src/test/java/org/opendaylight/protocol/bgp/labeled/unicast/LabeledUnicastIpv6RIBSupportTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2017-02-03T01:56:32Z",
+      "side": 1,
+      "message": "Same comment as in LabeledUnicastIpv4RIBSupportTest.java",
+      "parentUuid": "fafc7978_e6e251d4",
+      "range": {
+        "startLine": 136,
+        "startChar": 92,
+        "endLine": 136,
+        "endChar": 104
+      },
+      "revId": "9dd15b7ad930a67e9460838934726f9f09822871",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_66ce615c",
         "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/AbstractRIBSupport.java",
         "patchSetId": 4
@@ -283,6 +565,30 @@
       "writtenOn": "2017-02-02T10:55:25Z",
       "side": 1,
       "message": "is need it?",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 25
+      },
+      "revId": "9dd15b7ad930a67e9460838934726f9f09822871",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f705ddc2",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/AbstractRIBSupport.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2017-02-03T01:56:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_66ce615c",
       "range": {
         "startLine": 15,
         "startChar": 0,
