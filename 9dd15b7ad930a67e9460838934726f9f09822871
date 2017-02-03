@@ -49,6 +49,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_6a83bf56",
+        "filename": "bgp/l3vpn/src/test/java/org/opendaylight/protocol/bgp/l3vpn/ipv4/VpnIpv4NlriParserTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-02-03T12:09:42Z",
+      "side": 1,
+      "message": "private?",
+      "revId": "9dd15b7ad930a67e9460838934726f9f09822871",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_260f3932",
         "filename": "bgp/l3vpn/src/test/java/org/opendaylight/protocol/bgp/l3vpn/ipv4/VpnIpv4NlriParserTest.java",
         "patchSetId": 4
@@ -84,6 +101,30 @@
       "side": 1,
       "message": "We are testing that as part of Reach NLRI tests. But since the Unreach NLRI payload is being updated to comply with RFC, NLRI_TYPE2 is created and used for Unreach NLRI tests",
       "parentUuid": "fafc7978_260f3932",
+      "range": {
+        "startLine": 115,
+        "startChar": 0,
+        "endLine": 126,
+        "endChar": 77
+      },
+      "revId": "9dd15b7ad930a67e9460838934726f9f09822871",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0a1cb3c0",
+        "filename": "bgp/l3vpn/src/test/java/org/opendaylight/protocol/bgp/l3vpn/ipv4/VpnIpv4NlriParserTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-02-03T12:09:42Z",
+      "side": 1,
+      "message": "maybe a better naming than TYPE1 and TYPE2.",
+      "parentUuid": "fafc7978_921d7fc0",
       "range": {
         "startLine": 115,
         "startChar": 0,
@@ -307,6 +348,30 @@
       "side": 1,
       "message": "Here we are testing that when Unreach NLRI mpUnreachExpected2 containing valid label value is serialized, the NLRI payload contains 0x800000 as the label value. Test with Unreach NLRI mpUnreachExpected1 that does not have a label will be similar, as in case of Unreach NLRI, the serialization logic does not take the label value into account but uses value 0x800000",
       "parentUuid": "fafc7978_263bb93b",
+      "range": {
+        "startLine": 308,
+        "startChar": 5,
+        "endLine": 312,
+        "endChar": 87
+      },
+      "revId": "9dd15b7ad930a67e9460838934726f9f09822871",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0a45d3b2",
+        "filename": "bgp/labeled-unicast/src/test/java/org/opendaylight/protocol/bgp/labeled/unicast/LUNlriParserTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-02-03T12:09:42Z",
+      "side": 1,
+      "message": "please add the test covering any case. same applies for other test cases.",
+      "parentUuid": "fafc7978_92f9ff4f",
       "range": {
         "startLine": 308,
         "startChar": 5,
