@@ -14,8 +14,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.readData;
-import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.waitFutureSuccess;
+import static org.opendaylight.protocol.util.CheckUtil.readData;
+import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
 import com.google.common.base.Optional;
 import com.google.common.net.InetAddresses;
