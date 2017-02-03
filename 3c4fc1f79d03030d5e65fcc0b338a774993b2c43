@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_0dffadab",
+        "filename": "artifacts/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2017-02-03T13:23:59Z",
+      "side": 1,
+      "message": "actually \u0027test-jar\u0027 means \u0027jar with tests\u0027. Utility classes for implementing tests should be in a separate test-util artifact.",
+      "range": {
+        "startLine": 42,
+        "startChar": 15,
+        "endLine": 42,
+        "endChar": 37
+      },
+      "revId": "3c4fc1f79d03030d5e65fcc0b338a774993b2c43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
