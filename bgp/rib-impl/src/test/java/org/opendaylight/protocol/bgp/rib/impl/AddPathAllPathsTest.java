@@ -12,17 +12,15 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.checkReceivedMessages;
-import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.waitFutureSuccess;
+import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.Uninterruptibles;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import java.net.InetSocketAddress;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -32,7 +30,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.add.all.paths.AllPathSelection;
-import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.spi.State;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPAfiSafiState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPErrorHandlingState;
@@ -47,12 +44,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 
 public class AddPathAllPathsTest extends AbstractAddPathTest {
     private RIBImpl ribImpl;
