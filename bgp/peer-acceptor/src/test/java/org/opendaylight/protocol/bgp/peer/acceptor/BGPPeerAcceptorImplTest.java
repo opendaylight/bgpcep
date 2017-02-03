@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.peer.acceptor;
 
-import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.waitFutureSuccess;
+import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
 import com.google.common.collect.Sets;
 import io.netty.util.concurrent.Future;
