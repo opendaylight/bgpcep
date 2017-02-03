@@ -9,7 +9,7 @@
 package org.opendaylight.protocol.pcep.pcc.mock;
 
 import static org.opendaylight.protocol.pcep.pcc.mock.PCCMockCommon.checkSessionListenerNotNull;
-import static org.opendaylight.protocol.pcep.pcc.mock.WaitForFutureSucces.waitFutureSuccess;
+import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;

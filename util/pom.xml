@@ -58,6 +58,11 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>sal-binding-api</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

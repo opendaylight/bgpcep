@@ -125,6 +125,11 @@
             <artifactId>config-manager</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>util</artifactId>
+            <type>test-jar</type>
+        </dependency>
     </dependencies>
 
     <build>
