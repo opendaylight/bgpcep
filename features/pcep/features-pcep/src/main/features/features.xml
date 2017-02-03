@@ -40,7 +40,7 @@
         <feature version='${mdsal.model.version}'>odl-mdsal-models</feature>
         <bundle>mvn:org.opendaylight.bgpcep/concepts/{{VERSION}}</bundle>
         <!-- util -->
-        <feature version='[4.0.30,5.0.0)'>odl-netty</feature>
+        <feature version='${odlparent.version}'>odl-netty-4</feature>
         <bundle>mvn:org.opendaylight.bgpcep/util/{{VERSION}}</bundle>
     </feature>
 
