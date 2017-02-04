@@ -66,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_7e2d4146",
+        "filename": "bgp/l3vpn/src/test/java/org/opendaylight/protocol/bgp/l3vpn/ipv4/VpnIpv4NlriParserTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2017-02-04T02:24:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_6a83bf56",
+      "revId": "9dd15b7ad930a67e9460838934726f9f09822871",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_260f3932",
         "filename": "bgp/l3vpn/src/test/java/org/opendaylight/protocol/bgp/l3vpn/ipv4/VpnIpv4NlriParserTest.java",
         "patchSetId": 4
@@ -125,6 +143,30 @@
       "side": 1,
       "message": "maybe a better naming than TYPE1 and TYPE2.",
       "parentUuid": "fafc7978_921d7fc0",
+      "range": {
+        "startLine": 115,
+        "startChar": 0,
+        "endLine": 126,
+        "endChar": 77
+      },
+      "revId": "9dd15b7ad930a67e9460838934726f9f09822871",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5e303d9e",
+        "filename": "bgp/l3vpn/src/test/java/org/opendaylight/protocol/bgp/l3vpn/ipv4/VpnIpv4NlriParserTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2017-02-04T02:24:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_0a1cb3c0",
       "range": {
         "startLine": 115,
         "startChar": 0,
@@ -372,6 +414,30 @@
       "side": 1,
       "message": "please add the test covering any case. same applies for other test cases.",
       "parentUuid": "fafc7978_92f9ff4f",
+      "range": {
+        "startLine": 308,
+        "startChar": 5,
+        "endLine": 312,
+        "endChar": 87
+      },
+      "revId": "9dd15b7ad930a67e9460838934726f9f09822871",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_be27a963",
+        "filename": "bgp/labeled-unicast/src/test/java/org/opendaylight/protocol/bgp/labeled/unicast/LUNlriParserTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2017-02-04T02:24:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_0a45d3b2",
       "range": {
         "startLine": 308,
         "startChar": 5,
