@@ -18,8 +18,8 @@ import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
 import org.opendaylight.protocol.util.MplsLabelUtil;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171207.evpn.routes.evpn.routes.evpn.route.PmsiTunnelAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171207.evpn.routes.evpn.routes.evpn.route.PmsiTunnelAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171213.evpn.routes.evpn.routes.evpn.route.PmsiTunnelAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171213.evpn.routes.evpn.routes.evpn.route.PmsiTunnelAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
@@ -50,7 +50,8 @@ public final class PMSITunnelAttributeHandler implements AttributeParser, Attrib
         if (tunnelIdentifier != null) {
             pmsiTunnelBuilder.setTunnelIdentifier(tunnelIdentifier);
         }
-        builder.addAugmentation(PmsiTunnelAugmentation.class, new PmsiTunnelAugmentationBuilder().setPmsiTunnel(pmsiTunnelBuilder.build()).build());
+        builder.addAugmentation(PmsiTunnelAugmentation.class, new PmsiTunnelAugmentationBuilder()
+                .setPmsiTunnel(pmsiTunnelBuilder.build()).build());
     }
 
     private static void parseMpls(final PmsiTunnelBuilder pmsiTunnelBuilder, final ByteBuf buffer) {
@@ -66,8 +67,10 @@ public final class PMSITunnelAttributeHandler implements AttributeParser, Attrib
 
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(attribute instanceof Attributes, "Attribute parameter is not a PathAttribute object.");
-        final PmsiTunnelAugmentation pmsiTunnelAugmentation = ((Attributes) attribute).getAugmentation(PmsiTunnelAugmentation.class);
+        Preconditions.checkArgument(attribute instanceof Attributes,
+                "Attribute parameter is not a PathAttribute object.");
+        final PmsiTunnelAugmentation pmsiTunnelAugmentation = ((Attributes) attribute)
+                .getAugmentation(PmsiTunnelAugmentation.class);
         if (pmsiTunnelAugmentation == null) {
             return;
         }

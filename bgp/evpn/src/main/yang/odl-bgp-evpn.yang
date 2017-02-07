@@ -30,6 +30,10 @@ module odl-bgp-evpn {
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
 
+    revision "2017-12-13" {
+        description "Support draft https://tools.ietf.org/html/draft-sajassi-bess-evpn-vpws-fxc-01";
+    }
+
     revision "2017-12-07" {
         description "Add support for add-path in base BGP NLRI.";
     }
@@ -351,6 +355,28 @@ module odl-bgp-evpn {
         }
     }
 
+    typedef operational-mode {
+        type enumeration {
+            enum vlan-aware-fxc {
+                value 1;
+            }
+            enum vlan-unaware-fxc {
+                value 2;
+            }
+        }
+    }
+
+    typedef normalization-type {
+        type enumeration {
+            enum single-vid {
+                value 1;
+            }
+            enum double-vid {
+                value 2;
+            }
+        }
+    }
+
     grouping layer-2-attributes-extended-community {
         container layer-2-attributes-extended-community {
             reference "https://tools.ietf.org/html/draft-ietf-bess-evpn-vpws-02#section-3.1";
@@ -370,6 +396,14 @@ module odl-bgp-evpn {
                 leaf control-word {
                    type boolean;
                    default false;
+                }
+                leaf mode-of-operation {
+                   reference "https://tools.ietf.org/html/draft-sajassi-bess-evpn-vpws-fxc-01#section-5";
+                   type operational-mode;
+                }
+                leaf operating-per {
+                   reference "https://tools.ietf.org/html/draft-sajassi-bess-evpn-vpws-fxc-01#section-5";
+                   type normalization-type;
                 }
                 leaf l2-mtu {
                     type uint16;

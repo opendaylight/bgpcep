@@ -14,10 +14,10 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171207.esi.label.extended.community.EsiLabelExtendedCommunity;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171207.esi.label.extended.community.EsiLabelExtendedCommunityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171207.evpn.routes.evpn.routes.evpn.route.attributes.extended.communities.extended.community.EsiLabelExtendedCommunityCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171207.evpn.routes.evpn.routes.evpn.route.attributes.extended.communities.extended.community.EsiLabelExtendedCommunityCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171213.esi.label.extended.community.EsiLabelExtendedCommunity;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171213.esi.label.extended.community.EsiLabelExtendedCommunityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171213.evpn.routes.evpn.routes.evpn.route.attributes.extended.communities.extended.community.EsiLabelExtendedCommunityCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171213.evpn.routes.evpn.routes.evpn.route.attributes.extended.communities.extended.community.EsiLabelExtendedCommunityCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.ExtendedCommunity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
 
@@ -26,19 +26,22 @@ public final class ESILabelExtCom extends AbstractExtendedCommunities {
     private static final int RESERVED = 2;
 
     @Override
-    public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
+    public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer)
+            throws BGPDocumentedException, BGPParsingException {
         final boolean singleActive = buffer.readBoolean();
         buffer.skipBytes(RESERVED);
         final MplsLabel label = mplsLabelForByteBuf(buffer);
         return new EsiLabelExtendedCommunityCaseBuilder().setEsiLabelExtendedCommunity(
-            new EsiLabelExtendedCommunityBuilder().setEsiLabel(label).setSingleActiveMode(singleActive).build()).build();
+            new EsiLabelExtendedCommunityBuilder().setEsiLabel(label)
+                    .setSingleActiveMode(singleActive).build()).build();
     }
 
     @Override
     public void serializeExtendedCommunity(final ExtendedCommunity extendedCommunity, final ByteBuf byteAggregator) {
         Preconditions.checkArgument(extendedCommunity instanceof EsiLabelExtendedCommunityCase,
             "The extended community %s is not EsiLabelExtendedCommunityCaseCase type.", extendedCommunity);
-        final EsiLabelExtendedCommunity extCom = ((EsiLabelExtendedCommunityCase) extendedCommunity).getEsiLabelExtendedCommunity();
+        final EsiLabelExtendedCommunity extCom = ((EsiLabelExtendedCommunityCase) extendedCommunity)
+                .getEsiLabelExtendedCommunity();
         byteAggregator.writeBoolean(extCom.isSingleActiveMode());
         byteAggregator.writeZero(RESERVED);
         byteAggregator.writeBytes(byteBufForMplsLabel(extCom.getEsiLabel()));
