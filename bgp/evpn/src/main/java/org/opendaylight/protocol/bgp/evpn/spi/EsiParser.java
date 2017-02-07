@@ -9,7 +9,8 @@
 package org.opendaylight.protocol.bgp.evpn.spi;
 
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171207.esi.Esi;
+import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171213.esi.Esi;
 
 public interface EsiParser {
     /**
@@ -18,5 +19,6 @@ public interface EsiParser {
      * @param buffer encoded ESI body in Bytebuf
      * @return Ethernet Segment Identifier
      */
-    Esi parseEsi(ByteBuf buffer);
+    @Nonnull
+    Esi parseEsi(@Nonnull ByteBuf buffer);
 }
