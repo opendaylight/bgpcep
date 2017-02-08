@@ -75,6 +75,11 @@
             <classifier>features</classifier>
             <type>xml</type>
         </dependency>
+
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+        </dependency>
     </dependencies>
 
     <!--
