@@ -111,54 +111,48 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
         MockitoAnnotations.initMocks(this);
 
         final List<ModuleFactory> moduleFactories = getModuleFactories();
-        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, moduleFactories.toArray(new ModuleFactory[moduleFactories.size()])));
+        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(this.mockedContext, moduleFactories.toArray(new ModuleFactory[moduleFactories.size()])));
 
-        doAnswer(new Answer<Filter>() {
-            @Override
-            public Filter answer(final InvocationOnMock invocation) {
-                final String str = invocation.getArgumentAt(0, String.class);
-                final Filter mockFilter = mock(Filter.class);
-                doReturn(str).when(mockFilter).toString();
-                return mockFilter;
-            }
-        }).when(mockedContext).createFilter(anyString());
+        doAnswer(invocation -> {
+            final String str = invocation.getArgumentAt(0, String.class);
+            final Filter mockFilter = mock(Filter.class);
+            doReturn(str).when(mockFilter).toString();
+            return mockFilter;
+        }).when(this.mockedContext).createFilter(anyString());
 
-        Mockito.doReturn(new ServiceReference[] {}).when(mockedContext).getServiceReferences(Matchers.anyString(), Matchers.anyString());
+        Mockito.doReturn(new ServiceReference[] {}).when(this.mockedContext).getServiceReferences(Matchers.anyString(), Matchers.anyString());
 
         final ServiceReference<?> classLoadingStrategySR = mock(ServiceReference.class, "ClassLoadingStrategy");
         final ServiceReference<?> emptyServiceReference = mock(ServiceReference.class, "Empty");
 
-        Mockito.doNothing().when(mockedContext).addServiceListener(any(ServiceListener.class), Mockito.anyString());
-        Mockito.doNothing().when(mockedContext).removeServiceListener(any(ServiceListener.class));
+        Mockito.doNothing().when(this.mockedContext).addServiceListener(any(ServiceListener.class), Mockito.anyString());
+        Mockito.doNothing().when(this.mockedContext).removeServiceListener(any(ServiceListener.class));
 
-        Mockito.doNothing().when(mockedContext).addBundleListener(any(BundleListener.class));
-        Mockito.doNothing().when(mockedContext).removeBundleListener(any(BundleListener.class));
+        Mockito.doNothing().when(this.mockedContext).addBundleListener(any(BundleListener.class));
+        Mockito.doNothing().when(this.mockedContext).removeBundleListener(any(BundleListener.class));
 
-        Mockito.doReturn(new Bundle[] {}).when(mockedContext).getBundles();
+        Mockito.doReturn(new Bundle[] {}).when(this.mockedContext).getBundles();
 
-        Mockito.doReturn(new ServiceReference[] {}).when(mockedContext).getServiceReferences(Matchers.anyString(), Matchers.anyString());
+        Mockito.doReturn(new ServiceReference[] {}).when(this.mockedContext).getServiceReferences(Matchers.anyString(), Matchers.anyString());
 
         Mockito.doReturn("Class loading stategy reference").when(classLoadingStrategySR).toString();
         Mockito.doReturn("Empty reference").when(emptyServiceReference).toString();
 
-        Mockito.doReturn(emptyServiceReference).when(mockedContext).getServiceReference(any(Class.class));
-        Mockito.doReturn(classLoadingStrategySR).when(mockedContext).getServiceReference(GeneratedClassLoadingStrategy.class);
+        Mockito.doReturn(emptyServiceReference).when(this.mockedContext).getServiceReference(any(Class.class));
+        Mockito.doReturn(classLoadingStrategySR).when(this.mockedContext).getServiceReference(GeneratedClassLoadingStrategy.class);
         Mockito.doReturn(classLoadingStrategySR).when(this.mockedContext).getServiceReference(ClassLoadingStrategy.class);
 
-        Mockito.doReturn(GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy()).when(mockedContext).getService(classLoadingStrategySR);
-        Mockito.doReturn(null).when(mockedContext).getService(emptyServiceReference);
+        Mockito.doReturn(GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy()).when(this.mockedContext).getService(classLoadingStrategySR);
+        Mockito.doReturn(null).when(this.mockedContext).getService(emptyServiceReference);
 
         final SchemaContext context = parseYangStreams(getFilesAsStreams(getYangModelsPaths()));
         final SchemaService mockedSchemaService = mock(SchemaService.class);
         doReturn(context).when(mockedSchemaService).getGlobalContext();
-        doAnswer(new Answer<ListenerRegistration<SchemaContextListener>>() {
-            @Override
-            public ListenerRegistration<SchemaContextListener> answer(InvocationOnMock invocation) {
-                invocation.getArgumentAt(0, SchemaContextListener.class).onGlobalContextUpdated(context);
-                ListenerRegistration<SchemaContextListener> reg = mock(ListenerRegistration.class);
-                doNothing().when(reg).close();
-                return reg;
-            }
+        doAnswer(invocation -> {
+            invocation.getArgumentAt(0, SchemaContextListener.class).onGlobalContextUpdated(context);
+            ListenerRegistration<SchemaContextListener> reg = mock(ListenerRegistration.class);
+            doNothing().when(reg).close();
+            return reg;
         }).when(mockedSchemaService).registerSchemaContextListener(any(SchemaContextListener.class));
 
         setupMockService(SchemaService.class, mockedSchemaService);
@@ -184,11 +178,11 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
 
     protected void setupMockService(final Class<?> serviceInterface, final Object instance) throws Exception {
         final ServiceReference<?> mockServiceRef = mock(ServiceReference.class);
-        doReturn(new ServiceReference[]{mockServiceRef}).when(mockedContext).
+        doReturn(new ServiceReference[]{mockServiceRef}).when(this.mockedContext).
                 getServiceReferences(anyString(), contains(serviceInterface.getName()));
-        doReturn(new ServiceReference[]{mockServiceRef}).when(mockedContext).
+        doReturn(new ServiceReference[]{mockServiceRef}).when(this.mockedContext).
                 getServiceReferences(serviceInterface.getName(), null);
-        doReturn(instance).when(mockedContext).getService(mockServiceRef);
+        doReturn(instance).when(this.mockedContext).getService(mockServiceRef);
     }
 
     @After
@@ -315,14 +309,11 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
     @Override
     protected BundleContextServiceRegistrationHandler getBundleContextServiceRegistrationHandler(final Class<?> serviceType) {
         if (serviceType.equals(SchemaContextListener.class)) {
-            return new BundleContextServiceRegistrationHandler() {
-                @Override
-                public void handleServiceRegistration(final Class<?> clazz, final Object serviceInstance, final Dictionary<String, ?> props) {
-                    final SchemaContextListener listener = (SchemaContextListener) serviceInstance;
-                    final SchemaContext context = parseYangStreams(getFilesAsStreams(getYangModelsPaths()));
-                    listener.onGlobalContextUpdated(context);
-                    listener.onGlobalContextUpdated(context);
-                }
+            return (clazz, serviceInstance, props) -> {
+                final SchemaContextListener listener = (SchemaContextListener) serviceInstance;
+                final SchemaContext context = parseYangStreams(getFilesAsStreams(getYangModelsPaths()));
+                listener.onGlobalContextUpdated(context);
+                listener.onGlobalContextUpdated(context);
             };
         }
         return super.getBundleContextServiceRegistrationHandler(serviceType);
@@ -355,25 +346,6 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
         Assert.assertEquals("Some files were not found", Collections.emptyList(), failedToFind);
 
         return resources;
-    }
-
-    private static YangTextSchemaContextResolver newSchemaContextResolver(final List<String> paths) {
-        final YangTextSchemaContextResolver resolver = YangTextSchemaContextResolver.create("test");
-        final List<String> failedToFind = new ArrayList<>();
-        for (final String path : paths) {
-            final URL url = AbstractInstructionSchedulerTest.class.getResource(path);
-            if (url == null) {
-                failedToFind.add(path);
-            } else {
-                try {
-                    resolver.registerSource(url);
-                } catch (SchemaSourceException | IOException | YangSyntaxErrorException e) {
-                    Throwables.propagate(e);
-                }
-            }
-        }
-        Assert.assertEquals("Some files were not found", Collections.<String> emptyList(), failedToFind);
-        return resolver;
     }
 
     private static SchemaContext parseYangStreams(final List<InputStream> streams) {

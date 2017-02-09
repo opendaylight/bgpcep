@@ -22,7 +22,6 @@ import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopolo
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSession;
@@ -42,16 +41,17 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypesBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  *
  */
-final class ServerSessionManager implements PCEPSessionListenerFactory, AutoCloseable, TopologySessionRPCs, PCEPTopologyProviderRuntimeMXBean, PCEPPeerProposal {
+final class ServerSessionManager implements PCEPSessionListenerFactory, AutoCloseable, TopologySessionRPCs,
+    PCEPTopologyProviderRuntime, PCEPTopologyProviderRuntimeMXBean, PCEPPeerProposal {
     private static final Logger LOG = LoggerFactory.getLogger(ServerSessionManager.class);
     private static final long DEFAULT_HOLD_STATE_NANOS = TimeUnit.MINUTES.toNanos(5);
 
@@ -63,22 +63,30 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, AutoClos
     private final PCEPStatefulPeerProposal peerProposal;
     private Optional<PCEPTopologyProviderRuntimeRegistration> runtimeRootRegistration = Optional.absent();
     private final int rpcTimeout;
+    private ServiceRegistration<?> serviceRegistration;
 
     public ServerSessionManager(final DataBroker broker, final InstanceIdentifier<Topology> topology,
-            final TopologySessionListenerFactory listenerFactory, final int rpcTimeout) throws ReadFailedException, TransactionCommitFailedException {
+            final TopologySessionListenerFactory listenerFactory, final int rpcTimeout) {
         this.broker = Preconditions.checkNotNull(broker);
         this.topology = Preconditions.checkNotNull(topology);
         this.listenerFactory = Preconditions.checkNotNull(listenerFactory);
         this.peerProposal = PCEPStatefulPeerProposal.createStatefulPeerProposal(this.broker, this.topology);
         this.rpcTimeout = rpcTimeout;
+    }
 
-        // Now create the base topology
-        final TopologyKey k = InstanceIdentifier.keyOf(topology);
-        final WriteTransaction tx = broker.newWriteOnlyTransaction();
-        tx.put(LogicalDatastoreType.OPERATIONAL, topology, new TopologyBuilder().setKey(k).setTopologyId(k.getTopologyId()).setTopologyTypes(
+    /**
+     * Create Base Topology
+     *
+     * @throws TransactionCommitFailedException exception
+     */
+    public void instantiateServiceInstance() throws TransactionCommitFailedException {
+        final TopologyKey k = InstanceIdentifier.keyOf(this.topology);
+        final WriteTransaction tx = this.broker.newWriteOnlyTransaction();
+        tx.put(LogicalDatastoreType.OPERATIONAL, this.topology, new TopologyBuilder().setKey(k)
+            .setTopologyId(k.getTopologyId()).setTopologyTypes(
                 new TopologyTypesBuilder().addAugmentation(TopologyTypes1.class,
-                        new TopologyTypes1Builder().setTopologyPcep(new TopologyPcepBuilder().build()).build()).build()).setNode(
-                                new ArrayList<Node>()).build(), true);
+                    new TopologyTypes1Builder().setTopologyPcep(new TopologyPcepBuilder().build()).build()).build())
+            .setNode(new ArrayList<>()).build(), true);
         tx.submit().checkedGet();
     }
 
@@ -156,8 +164,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, AutoClos
         return (l != null) ? l.triggerSync(input) : OperationResults.UNSENT.future();
     }
 
-    @Override
-    public void close() throws TransactionCommitFailedException {
+    public void closeServiceInstance() throws TransactionCommitFailedException {
         if (this.runtimeRootRegistration.isPresent()) {
             this.runtimeRootRegistration.get().close();
         }
@@ -172,7 +179,16 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, AutoClos
         t.submit().checkedGet();
     }
 
-    public void registerRuntimeRootRegistartion(final PCEPTopologyProviderRuntimeRegistrator runtimeRootRegistrator) {
+    @Override
+    public void close() {
+        if (this.serviceRegistration != null) {
+            this.serviceRegistration.unregister();
+            this.serviceRegistration = null;
+        }
+    }
+
+    @Override
+    public void registerRuntimeRootRegistration(final PCEPTopologyProviderRuntimeRegistrator runtimeRootRegistrator) {
         this.runtimeRootRegistration = Optional.of(runtimeRootRegistrator.register(this));
     }
 
@@ -183,10 +199,14 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, AutoClos
     @Override
     public void setPeerSpecificProposal(final InetSocketAddress address, final TlvsBuilder openBuilder) {
         Preconditions.checkNotNull(address);
-        peerProposal.setPeerProposal(createNodeId(address.getAddress()), openBuilder);
+        this.peerProposal.setPeerProposal(createNodeId(address.getAddress()), openBuilder);
     }
 
     public int getRpcTimeout() {
         return this.rpcTimeout;
+    }
+
+    public void setServiceRegistration(final ServiceRegistration<?> serviceRegistration) {
+        this.serviceRegistration = serviceRegistration;
     }
 }
