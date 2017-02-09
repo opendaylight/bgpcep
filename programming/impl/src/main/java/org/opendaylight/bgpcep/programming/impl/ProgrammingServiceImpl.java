@@ -15,7 +15,6 @@ import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.SettableFuture;
 import io.netty.util.Timeout;
 import io.netty.util.Timer;
-import io.netty.util.TimerTask;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,7 +22,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import org.opendaylight.bgpcep.programming.NanotimeUtil;
 import org.opendaylight.bgpcep.programming.spi.ExecutionResult;
@@ -34,7 +32,7 @@ import org.opendaylight.bgpcep.programming.spi.SuccessfulRpcResult;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
+import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CancelInstructionInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CancelInstructionOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CancelInstructionOutputBuilder;
@@ -69,7 +67,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
 
     private final Map<InstructionId, InstructionImpl> insns = new HashMap<>();
     private final InstanceIdentifier<InstructionsQueue> qid;
-    private final NotificationProviderService notifs;
+    private final NotificationPublishService notifs;
     private final ListeningExecutorService executor;
     private final DataBroker dataProvider;
     private final Timer timer;
@@ -97,7 +95,12 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
                 t.submit();
             }
 
-            ProgrammingServiceImpl.this.notifs.publish(new InstructionStatusChangedBuilder().setId(this.builder.getId()).setStatus(status).setDetails(details).build());
+            try {
+                ProgrammingServiceImpl.this.notifs.putNotification(new InstructionStatusChangedBuilder()
+                    .setId(this.builder.getId()).setStatus(status).setDetails(details).build());
+            } catch (InterruptedException e) {
+                LOG.debug("Failed to publish notification", e);
+            }
         }
 
         @Override
@@ -110,7 +113,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
         }
     }
 
-    public ProgrammingServiceImpl(final DataBroker dataProvider, final NotificationProviderService notifs,
+    public ProgrammingServiceImpl(final DataBroker dataProvider, final NotificationPublishService notifs,
             final ListeningExecutorService executor, final Timer timer, final InstructionsQueueKey instructionsQueueKey) {
         this.dataProvider = Preconditions.checkNotNull(dataProvider);
         this.notifs = Preconditions.checkNotNull(notifs);
@@ -121,28 +124,18 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
         final WriteTransaction t = dataProvider.newWriteOnlyTransaction();
         t.put(LogicalDatastoreType.OPERATIONAL, this.qid,
                 new InstructionsQueueBuilder().setKey(instructionsQueueKey).setInstruction(
-                        Collections.<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.instruction.queue.Instruction> emptyList()).build());
+                        Collections.emptyList()).build());
         t.submit();
     }
 
     @Override
     public ListenableFuture<RpcResult<CancelInstructionOutput>> cancelInstruction(final CancelInstructionInput input) {
-        return this.executor.submit(new Callable<RpcResult<CancelInstructionOutput>>() {
-            @Override
-            public RpcResult<CancelInstructionOutput> call() {
-                return realCancelInstruction(input);
-            }
-        });
+        return this.executor.submit(() -> realCancelInstruction(input));
     }
 
     @Override
     public ListenableFuture<RpcResult<CleanInstructionsOutput>> cleanInstructions(final CleanInstructionsInput input) {
-        return this.executor.submit(new Callable<RpcResult<CleanInstructionsOutput>>() {
-            @Override
-            public RpcResult<CleanInstructionsOutput> call() {
-                return realCleanInstructions(input);
-            }
-        });
+        return this.executor.submit(() -> realCleanInstructions(input));
     }
 
     private synchronized RpcResult<CancelInstructionOutput> realCancelInstruction(final CancelInstructionInput input) {
@@ -276,12 +269,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
          */
 
         // Schedule a timeout for the instruction
-        final Timeout t = this.timer.newTimeout(new TimerTask() {
-            @Override
-            public void run(final Timeout timeout) {
-                timeoutInstruction(input.getId());
-            }
-        }, left.longValue(), TimeUnit.NANOSECONDS);
+        final Timeout t = this.timer.newTimeout(timeout -> timeoutInstruction(input.getId()), left.longValue(), TimeUnit.NANOSECONDS);
 
         // Put it into the instruction list
         final SettableFuture<Instruction> ret = SettableFuture.create();
@@ -299,12 +287,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
          * This task should be ingress-weighed, so we reinsert it into the
          * same execution service.
          */
-        this.executor.submit(new Runnable() {
-            @Override
-            public void run() {
-                tryScheduleInstruction(i);
-            }
-        });
+        this.executor.submit(() -> tryScheduleInstruction(i));
 
         return ret;
     }
