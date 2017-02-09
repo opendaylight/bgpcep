@@ -70,7 +70,7 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference impleme
 
         final ServerSessionManager manager = new ServerSessionManager(dataBroker, topology, listenerFactory, rpcTimeout);
         if (runtimeRootRegistrator.isPresent()) {
-            manager.registerRuntimeRootRegistartion(runtimeRootRegistrator.get());
+            manager.setRuntimeRootRegistartion(runtimeRootRegistrator.get());
         }
         final ChannelFuture f = dispatcher.createServer(address, keys, manager, manager);
         f.get();
@@ -96,17 +96,17 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference impleme
         }
 
         try {
-            PCEPTopologyProvider.this.network.close();
+            this.network.close();
         } catch (final Exception e) {
             LOG.error("Failed to unregister network-level RPCs", e);
         }
         try {
-            PCEPTopologyProvider.this.element.close();
+            this.element.close();
         } catch (final Exception e) {
             LOG.error("Failed to unregister element-level RPCs", e);
         }
         try {
-            PCEPTopologyProvider.this.manager.close();
+            this.manager.close();
         } catch (final Exception e) {
             LOG.error("Failed to shutdown session manager", e);
         }
