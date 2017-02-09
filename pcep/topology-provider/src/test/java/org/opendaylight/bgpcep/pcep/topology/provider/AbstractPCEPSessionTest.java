@@ -110,13 +110,10 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         this.receivedMsgs = new ArrayList<>();
-        doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(final InvocationOnMock invocation) {
-                final Object[] args = invocation.getArguments();
-                AbstractPCEPSessionTest.this.receivedMsgs.add((Notification) args[0]);
-                return channelFuture;
-            }
+        doAnswer(invocation -> {
+            final Object[] args = invocation.getArguments();
+            AbstractPCEPSessionTest.this.receivedMsgs.add((Notification) args[0]);
+            return AbstractPCEPSessionTest.this.channelFuture;
         }).when(this.clientListener).writeAndFlush(any(Notification.class));
         doReturn(null).when(this.channelFuture).addListener(Mockito.any());
         doReturn("TestingChannel").when(this.clientListener).toString();
@@ -125,15 +122,16 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
         doReturn(this.eventLoop).when(this.clientListener).eventLoop();
         doReturn(null).when(this.eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
         doReturn(true).when(this.clientListener).isActive();
-        final SocketAddress ra = new InetSocketAddress(testAddress, 4189);
+        final SocketAddress ra = new InetSocketAddress(this.testAddress, 4189);
         doReturn(ra).when(this.clientListener).remoteAddress();
-        final SocketAddress la = new InetSocketAddress(testAddress, InetSocketAddressUtil.getRandomPort());
+        final SocketAddress la = new InetSocketAddress(this.testAddress, InetSocketAddressUtil.getRandomPort());
         doReturn(la).when(this.clientListener).localAddress();
 
         doReturn(mock(ChannelFuture.class)).when(this.clientListener).close();
 
         this.listenerFactory = (T) ((Class)((ParameterizedType)this.getClass().getGenericSuperclass()).getActualTypeArguments()[0]).newInstance();
         this.manager = new ServerSessionManager(getDataBroker(), TOPO_IID, this.listenerFactory, RPC_TIMEOUT);
+        this.manager.instantiateServiceInstance();
 
         this.neg = new DefaultPCEPSessionNegotiator(mock(Promise.class), this.clientListener, this.manager.getSessionListener(), (short) 1, 5, this.localPrefs);
         this.topologyRpcs = new TopologyRPCs(this.manager);
@@ -141,6 +139,7 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
 
     @After
     public void tearDown() throws TransactionCommitFailedException {
+        this.manager.closeServiceInstance();
         this.manager.close();
     }
 
@@ -178,6 +177,6 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
     }
 
     protected final PCEPSession getPCEPSession(final Open localOpen, final Open remoteOpen) {
-        return neg.createSession(this.clientListener, localOpen, remoteOpen);
+        return this.neg.createSession(this.clientListener, localOpen, remoteOpen);
     }
 }
