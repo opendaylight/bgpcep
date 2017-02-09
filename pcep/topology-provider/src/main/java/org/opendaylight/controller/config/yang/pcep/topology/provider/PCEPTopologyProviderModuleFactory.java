@@ -16,10 +16,28 @@
  */
 package org.opendaylight.controller.config.yang.pcep.topology.provider;
 
-/**
-*
-*/
-public class PCEPTopologyProviderModuleFactory extends
-        org.opendaylight.controller.config.yang.pcep.topology.provider.AbstractPCEPTopologyProviderModuleFactory {
+import org.opendaylight.controller.config.api.DependencyResolver;
+import org.opendaylight.controller.config.api.DynamicMBeanWithInstance;
+import org.opendaylight.controller.config.spi.Module;
+import org.osgi.framework.BundleContext;
 
+/**
+ * @deprecated Replaced by blueprint wiring
+ */
+public class PCEPTopologyProviderModuleFactory extends
+    org.opendaylight.controller.config.yang.pcep.topology.provider.AbstractPCEPTopologyProviderModuleFactory {
+    @Override
+    public Module createModule(final String instanceName, final DependencyResolver dependencyResolver, final BundleContext bundleContext) {
+        final PCEPTopologyProviderModule module = (PCEPTopologyProviderModule) super.createModule(instanceName, dependencyResolver, bundleContext);
+        module.setBundleContext(bundleContext);
+        return module;
+    }
+
+    @Override
+    public Module createModule(final String instanceName, final DependencyResolver dependencyResolver,
+                               final DynamicMBeanWithInstance old, final BundleContext bundleContext) throws Exception {
+        final PCEPTopologyProviderModule module = (PCEPTopologyProviderModule) super.createModule(instanceName, dependencyResolver, old, bundleContext);
+        module.setBundleContext(bundleContext);
+        return module;
+    }
 }

@@ -16,79 +16,45 @@
  */
 package org.opendaylight.controller.config.yang.pcep.topology.provider;
 
+import static org.opendaylight.bgpcep.pcep.topology.provider.PCEPTopologyDeployerImpl.NATIVE_TRANSPORT_NOT_AVAILABLE;
+import static org.opendaylight.bgpcep.pcep.topology.provider.PCEPTopologyDeployerImpl.contructKeys;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
+import com.google.common.reflect.AbstractInvocationHandler;
+import com.google.common.reflect.Reflection;
 import io.netty.channel.epoll.Epoll;
+import java.lang.reflect.Method;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import org.opendaylight.bgpcep.pcep.topology.provider.PCEPTopologyProvider;
+import org.opendaylight.bgpcep.pcep.topology.provider.PCEPTopologyDeployer;
+import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
+import org.opendaylight.bgpcep.topology.TopologyReference;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.rfc2385.cfg.rev160324.Rfc2385Key;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
+import org.osgi.framework.BundleContext;
 /**
- *
+ * @deprecated Replaced by blueprint wiring
  */
 public final class PCEPTopologyProviderModule extends
-        org.opendaylight.controller.config.yang.pcep.topology.provider.AbstractPCEPTopologyProviderModule {
-    private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyProviderModule.class);
+    org.opendaylight.controller.config.yang.pcep.topology.provider.AbstractPCEPTopologyProviderModule {
 
     private static final String IS_NOT_SET = "is not set.";
+    private BundleContext bundleContext;
 
     public PCEPTopologyProviderModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+        final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
 
     public PCEPTopologyProviderModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, final PCEPTopologyProviderModule oldModule,
-            final java.lang.AutoCloseable oldInstance) {
+        final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
+        final PCEPTopologyProviderModule oldModule, final java.lang.AutoCloseable oldInstance) {
         super(identifier, dependencyResolver, oldModule, oldInstance);
     }
-
-    private Optional<KeyMapping> contructKeys() {
-        KeyMapping ret = null;
-        final List<Client> clients = getClient();
-
-        if (clients != null && !clients.isEmpty()) {
-            ret = KeyMapping.getKeyMapping();
-            for (final Client c : clients) {
-                if (c.getAddress() == null) {
-                    LOG.warn("Client {} does not have an address skipping it", c);
-                    continue;
-                }
-                final Rfc2385Key rfc2385KeyPassword = c.getPassword();
-                if (rfc2385KeyPassword != null && !rfc2385KeyPassword.getValue().isEmpty()) {
-                    final String s = getAddressString(c.getAddress());
-                    ret.put(InetAddresses.forString(s), rfc2385KeyPassword.getValue().getBytes(StandardCharsets.US_ASCII));
-                }
-            }
-        }
-        return Optional.fromNullable(ret);
-    }
-
-
-    private String getAddressString(final IpAddress address) {
-        Preconditions.checkArgument(address.getIpv4Address() != null || address.getIpv6Address() != null, "Address %s is invalid", address);
-        if (address.getIpv4Address() != null) {
-            return address.getIpv4Address().getValue();
-        }
-        return address.getIpv6Address().getValue();
-    }
-
 
     @Override
     public void customValidation() {
@@ -98,16 +64,17 @@ public final class PCEPTopologyProviderModule extends
         JmxAttributeValidationException.checkNotNull(getStatefulPlugin(), IS_NOT_SET, statefulPluginJmxAttribute);
         JmxAttributeValidationException.checkNotNull(getRpcTimeout(), IS_NOT_SET, rpcTimeoutJmxAttribute);
 
-        final Optional<KeyMapping> keys = contructKeys();
+        final Optional<KeyMapping> keys = contructKeys(getClient());
         if (keys.isPresent()) {
-            JmxAttributeValidationException.checkCondition(Epoll.isAvailable(),
-                    "client is configured with password but native transport is not available", clientJmxAttribute);
+            JmxAttributeValidationException.checkCondition(Epoll.isAvailable(), NATIVE_TRANSPORT_NOT_AVAILABLE,
+                clientJmxAttribute);
         }
     }
 
     private InetAddress listenAddress() {
         final IpAddress a = getListenAddress();
-        Preconditions.checkArgument(a.getIpv4Address() != null || a.getIpv6Address() != null, "Address %s not supported", a);
+        Preconditions.checkArgument(a.getIpv4Address() != null || a.getIpv6Address() != null,
+            "Address %s not supported", a);
         if (a.getIpv4Address() != null) {
             return InetAddresses.forString(a.getIpv4Address().getValue());
         }
@@ -116,17 +83,42 @@ public final class PCEPTopologyProviderModule extends
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        final InstanceIdentifier<Topology> topology = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
-                new TopologyKey(getTopologyId())).build();
-        final InetSocketAddress address = new InetSocketAddress(listenAddress(), getListenPort().getValue());
+        final WaitingServiceTracker<PCEPTopologyDeployer> pcepcTopologyDeployerTracker =
+            WaitingServiceTracker.create(PCEPTopologyDeployer.class, this.bundleContext);
+        final PCEPTopologyDeployer pcepcTopologyDeployer = pcepcTopologyDeployerTracker
+            .waitForService(WaitingServiceTracker.FIVE_MINUTES);
 
-        try {
-            return PCEPTopologyProvider.create(getDispatcherDependency(), address, contructKeys(), getSchedulerDependency(),
-                    getDataProviderDependency(), getRpcRegistryDependency(), topology, getStatefulPluginDependency(),
-                    Optional.of(getRootRuntimeBeanRegistratorWrapper()), getRpcTimeout());
-        } catch (InterruptedException | ExecutionException | TransactionCommitFailedException | ReadFailedException e) {
-            LOG.error("Failed to instantiate topology provider at {}", address, e);
-            throw new IllegalStateException("Failed to instantiate provider", e);
-        }
+        final TopologyId topologyID = getTopologyId();
+        pcepcTopologyDeployer.addRootRuntimeBeanRegistratorWrapper(topologyID, getRootRuntimeBeanRegistratorWrapper());
+        pcepcTopologyDeployer.createTopologyProvider(topologyID, listenAddress(), getListenPort().getValue(),
+            getRpcTimeout(), getClient(), getSchedulerDependency());
+
+        final WaitingServiceTracker<DefaultTopologyReference> defaultTopologyReferenceTracker =
+            WaitingServiceTracker.create(DefaultTopologyReference.class, this.bundleContext,
+                "(" + DefaultTopologyReference.class.getName() + "=" + topologyID.getValue() + ")");
+        final DefaultTopologyReference defaultTopologyReference = defaultTopologyReferenceTracker
+            .waitForService(WaitingServiceTracker.FIVE_MINUTES);
+
+        return Reflection.newProxy(PcepTopologyProviderCloseable.class, new AbstractInvocationHandler() {
+            @Override
+            protected Object handleInvocation(final Object proxy, final Method method, final Object[] args) throws Throwable {
+                if (method.getName().equals("close")) {
+                    pcepcTopologyDeployer.removeTopologyProvider(topologyID);
+                    pcepcTopologyDeployer.removeRootRuntimeBeanRegistratorWrapper(topologyID);
+                    pcepcTopologyDeployerTracker.close();
+                    return null;
+                } else {
+                    return method.invoke(defaultTopologyReference, args);
+                }
+            }
+        });
+    }
+
+    void setBundleContext(final BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
+    }
+
+    private interface PcepTopologyProviderCloseable extends TopologyReference, AutoCloseable {
+
     }
 }

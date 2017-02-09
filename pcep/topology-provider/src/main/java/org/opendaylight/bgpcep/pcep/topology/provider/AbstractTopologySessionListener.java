@@ -142,7 +142,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
          */
         final InetAddress peerAddress = session.getRemoteAddress();
 
-        syncOptimization  = new SyncOptimization(session);
+        this.syncOptimization = new SyncOptimization(session);
 
         final TopologyNodeState state = this.serverSessionManager.takeNodeState(peerAddress, this, isLspDbRetreived());
         // takeNodeState(..) may fail when the server session manager is being restarted due to configuration change
@@ -168,12 +168,13 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         final Node initialNodeState = state.getInitialNodeState();
         final boolean isNodePresent = isLspDbRetreived() && initialNodeState != null;
         if (isNodePresent) {
-            loadLspData(initialNodeState, lspData, lsps, isIncrementalSynchro());
+            loadLspData(initialNodeState, this.lspData, this.lsps, isIncrementalSynchro());
             pccBuilder.setReportedLsp(initialNodeState.getAugmentation(Node1.class).getPathComputationClient().getReportedLsp());
         }
         writeNode(pccBuilder, state, topologyAugment);
         this.listenerState.init(session);
-        this.serverSessionManager.registerRuntimeRootRegistration(this);
+        this.registration = this.serverSessionManager.registerRuntimeRootRegistration(this);
+
         LOG.info("Session with {} attached to topology node {}", session.getRemoteAddress(), state.getNodeId());
     }
 
@@ -189,13 +190,13 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         Futures.addCallback(trans.submit(), new FutureCallback<Void>() {
             @Override
             public void onSuccess(final Void result) {
-                LOG.trace("Internal state for session {} updated successfully", session);
+                LOG.trace("Internal state for session {} updated successfully", AbstractTopologySessionListener.this.session);
             }
 
             @Override
             public void onFailure(final Throwable t) {
-                LOG.error("Failed to update internal state for session {}, terminating it", session, t);
-                session.close(TerminationReason.UNKNOWN);
+                LOG.error("Failed to update internal state for session {}, terminating it", AbstractTopologySessionListener.this.session, t);
+                AbstractTopologySessionListener.this.session.close(TerminationReason.UNKNOWN);
             }
         });
     }
@@ -211,13 +212,13 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         Futures.addCallback(ctx.trans.submit(), new FutureCallback<Void>() {
             @Override
             public void onSuccess(final Void result) {
-                LOG.trace("Internal state for session {} updated successfully", session);
+                LOG.trace("Internal state for session {} updated successfully", AbstractTopologySessionListener.this.session);
             }
 
             @Override
             public void onFailure(final Throwable t) {
-                LOG.error("Failed to update internal state for session {}", session, t);
-                session.close(TerminationReason.UNKNOWN);
+                LOG.error("Failed to update internal state for session {}", AbstractTopologySessionListener.this.session, t);
+                AbstractTopologySessionListener.this.session.close(TerminationReason.UNKNOWN);
             }
         });
     }
@@ -227,7 +228,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     }
 
     @GuardedBy("this")
-    private void tearDown(final PCEPSession session) {
+    private synchronized void tearDown(final PCEPSession session) {
         this.serverSessionManager.releaseNodeState(this.nodeState, session, isLspDbPersisted());
         this.nodeState = null;
         this.session = null;
@@ -327,7 +328,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         this.listenerState.updateStatefulSentMsg(message);
         final PCEPRequest req = new PCEPRequest(metadata);
         this.requests.put(requestId, req);
-        final int rpcTimeout = serverSessionManager.getRpcTimeout();
+        final int rpcTimeout = this.serverSessionManager.getRpcTimeout();
         LOG.trace("RPC response timeout value is {} seconds", rpcTimeout);
         if (rpcTimeout > 0) {
             setupTimeoutHandler(requestId, req, rpcTimeout);
@@ -548,15 +549,15 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     protected abstract void loadLspData(final Node node, final Map<String, ReportedLsp> lspData, final Map<L, String> lsps, final boolean incrementalSynchro);
 
     protected final boolean isLspDbPersisted() {
-        if (syncOptimization != null) {
-            return syncOptimization.isSyncAvoidanceEnabled();
+        if (this.syncOptimization != null) {
+            return this.syncOptimization.isSyncAvoidanceEnabled();
         }
         return false;
     }
 
     protected final boolean isLspDbRetreived() {
-        if (syncOptimization != null) {
-            return syncOptimization.isDbVersionPresent();
+        if (this.syncOptimization != null) {
+            return this.syncOptimization.isDbVersionPresent();
         }
         return false;
     }
@@ -567,29 +568,29 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
      * @return
      */
     protected final boolean isIncrementalSynchro() {
-        if (syncOptimization != null) {
-            return syncOptimization.isSyncAvoidanceEnabled() && syncOptimization.isDeltaSyncEnabled();
+        if (this.syncOptimization != null) {
+            return this.syncOptimization.isSyncAvoidanceEnabled() && this.syncOptimization.isDeltaSyncEnabled();
         }
         return false;
     }
 
     protected final boolean isTriggeredInitialSynchro() {
-        if (syncOptimization != null) {
-            return syncOptimization.isTriggeredInitSyncEnabled();
+        if (this.syncOptimization != null) {
+            return this.syncOptimization.isTriggeredInitSyncEnabled();
         }
         return false;
     }
 
     protected final boolean isTriggeredReSyncEnabled() {
-        if (syncOptimization != null) {
-            return syncOptimization.isTriggeredReSyncEnabled();
+        if (this.syncOptimization != null) {
+            return this.syncOptimization.isTriggeredReSyncEnabled();
         }
         return false;
     }
 
     protected final boolean isSynchronized() {
-        if (syncOptimization != null) {
-            return syncOptimization.doesLspDbMatch();
+        if (this.syncOptimization != null) {
+            return this.syncOptimization.doesLspDbMatch();
         }
         return false;
     }
