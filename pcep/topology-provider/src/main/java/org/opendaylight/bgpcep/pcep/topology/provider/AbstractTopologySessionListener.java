@@ -23,7 +23,6 @@ import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
-
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.ListenerStateRuntimeMXBean;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.ListenerStateRuntimeRegistration;
@@ -146,6 +145,11 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         syncOptimization  = new SyncOptimization(session);
 
         final TopologyNodeState state = this.serverSessionManager.takeNodeState(peerAddress, this, isLspDbRetreived());
+        // takeNodeState(..) may fail when the server session manager is being restarted due to configuration change
+        if (state == null) {
+            this.onSessionDown(session, new RuntimeException("Unable to fetch topology node state for PCEP session with " + session.getRemoteAddress()));
+            return;
+        }
 
         this.session = session;
         this.nodeState = state;
@@ -169,9 +173,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         }
         writeNode(pccBuilder, state, topologyAugment);
         this.listenerState.init(session);
-        if (this.serverSessionManager.getRuntimeRootRegistration().isPresent()) {
-            this.registration = this.serverSessionManager.getRuntimeRootRegistration().get().register(this);
-        }
+        this.serverSessionManager.registerRuntimeRootRegistration(this);
         LOG.info("Session with {} attached to topology node {}", session.getRemoteAddress(), state.getNodeId());
     }
 
