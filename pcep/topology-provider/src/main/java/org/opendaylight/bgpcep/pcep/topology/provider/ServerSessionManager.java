@@ -19,13 +19,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.ListenerStateRuntimeMXBean;
+import org.opendaylight.controller.config.yang.pcep.topology.provider.ListenerStateRuntimeRegistration;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeMXBean;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistration;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistrator;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSession;
@@ -53,7 +53,8 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-final class ServerSessionManager implements PCEPSessionListenerFactory, AutoCloseable, TopologySessionRPCs, PCEPTopologyProviderRuntimeMXBean, PCEPPeerProposal {
+final class ServerSessionManager implements PCEPSessionListenerFactory, AutoCloseable, TopologySessionRPCs,
+    PCEPTopologyProviderRuntimeMXBean, PCEPPeerProposal {
     private static final Logger LOG = LoggerFactory.getLogger(ServerSessionManager.class);
     private static final long DEFAULT_HOLD_STATE_NANOS = TimeUnit.MINUTES.toNanos(5);
 
@@ -70,20 +71,27 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, AutoClos
     private final AtomicReference<PCEPTopologyProviderRuntimeRegistration> runtimeRootRegistration = new AtomicReference<>();
 
     public ServerSessionManager(final DataBroker broker, final InstanceIdentifier<Topology> topology,
-            final TopologySessionListenerFactory listenerFactory, final int rpcTimeout) throws ReadFailedException, TransactionCommitFailedException {
+            final TopologySessionListenerFactory listenerFactory, final int rpcTimeout) {
         this.broker = Preconditions.checkNotNull(broker);
         this.topology = Preconditions.checkNotNull(topology);
         this.listenerFactory = Preconditions.checkNotNull(listenerFactory);
         this.peerProposal = PCEPStatefulPeerProposal.createStatefulPeerProposal(this.broker, this.topology);
         this.rpcTimeout = rpcTimeout;
+    }
 
-        // Now create the base topology
-        final TopologyKey k = InstanceIdentifier.keyOf(topology);
-        final WriteTransaction tx = broker.newWriteOnlyTransaction();
-        tx.put(LogicalDatastoreType.OPERATIONAL, topology, new TopologyBuilder().setKey(k).setTopologyId(k.getTopologyId()).setTopologyTypes(
+    /**
+     * Create Base Topology
+     *
+     * @throws TransactionCommitFailedException exception
+     */
+    synchronized void instantiateServiceInstance() throws TransactionCommitFailedException {
+        final TopologyKey k = InstanceIdentifier.keyOf(this.topology);
+        final WriteTransaction tx = this.broker.newWriteOnlyTransaction();
+        tx.put(LogicalDatastoreType.OPERATIONAL, this.topology, new TopologyBuilder().setKey(k)
+            .setTopologyId(k.getTopologyId()).setTopologyTypes(
                 new TopologyTypesBuilder().addAugmentation(TopologyTypes1.class,
-                        new TopologyTypes1Builder().setTopologyPcep(new TopologyPcepBuilder().build()).build()).build()).setNode(
-                new ArrayList<>()).build(), true);
+                    new TopologyTypes1Builder().setTopologyPcep(new TopologyPcepBuilder().build()).build()).build())
+            .setNode(new ArrayList<>()).build(), true);
         tx.submit().checkedGet();
     }
 
@@ -165,8 +173,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, AutoClos
         return (l != null) ? l.triggerSync(input) : OperationResults.UNSENT.future();
     }
 
-    @Override
-    public synchronized void close() throws TransactionCommitFailedException {
+    synchronized void closeServiceInstance() throws TransactionCommitFailedException {
         if (this.isClosed.getAndSet(true)) {
             LOG.error("Session Manager has already been closed.");
             return;
@@ -188,27 +195,33 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, AutoClos
         t.submit().checkedGet();
     }
 
-    public void setRuntimeRootRegistartion(final PCEPTopologyProviderRuntimeRegistrator runtimeRootRegistrator) {
+    @Override
+    public void close() {
+
+    }
+
+    synchronized void setRuntimeRootRegistrator(final PCEPTopologyProviderRuntimeRegistrator runtimeRootRegistrator) {
         if (!this.runtimeRootRegistration.compareAndSet(null, runtimeRootRegistrator.register(this))) {
             LOG.error("Runtime root registration has been set before.");
         }
     }
 
-    public void registerRuntimeRootRegistration(final ListenerStateRuntimeMXBean bean) {
+    ListenerStateRuntimeRegistration registerRuntimeRootRegistration(final ListenerStateRuntimeMXBean bean) {
         final PCEPTopologyProviderRuntimeRegistration runtimeReg = this.runtimeRootRegistration.get();
-        if (runtimeReg != null) {
-            runtimeReg.register(bean);
-            LOG.trace("Bean {} is successfully registered.", bean.getPeerId());
+        if (runtimeReg == null) {
+            return null;
         }
+        LOG.trace("Bean {} is successfully registered.", bean.getPeerId());
+        return runtimeReg.register(bean);
     }
 
     @Override
     public void setPeerSpecificProposal(final InetSocketAddress address, final TlvsBuilder openBuilder) {
         Preconditions.checkNotNull(address);
-        peerProposal.setPeerProposal(createNodeId(address.getAddress()), openBuilder);
+        this.peerProposal.setPeerProposal(createNodeId(address.getAddress()), openBuilder);
     }
 
-    public int getRpcTimeout() {
+    int getRpcTimeout() {
         return this.rpcTimeout;
     }
 }

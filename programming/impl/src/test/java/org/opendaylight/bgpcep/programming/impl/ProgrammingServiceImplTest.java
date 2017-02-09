@@ -16,7 +16,6 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
 import io.netty.util.HashedWheelTimer;
@@ -24,6 +23,7 @@ import io.netty.util.Timer;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import org.junit.After;
 import org.junit.Before;
@@ -54,16 +54,15 @@ import org.opendaylight.yangtools.yang.model.parser.api.YangSyntaxErrorException
 
 public class ProgrammingServiceImplTest extends AbstractDataBrokerTest {
 
-    public static final int INSTRUCTION_DEADLINE_OFFSET_IN_SECONDS = 3;
+    private static final int INSTRUCTION_DEADLINE_OFFSET_IN_SECONDS = 3;
     private static final InstructionsQueueKey INSTRUCTIONS_QUEUE_KEY = new InstructionsQueueKey("test-instraction-queue");
-
+    private final Timer timer = new HashedWheelTimer();
     private MockedExecutorWrapper mockedExecutorWrapper;
     private MockedNotificationServiceWrapper mockedNotificationServiceWrapper;
     private ProgrammingServiceImpl testedProgrammingService;
-    private final Timer timer = new HashedWheelTimer();
 
     @Before
-    public void setUp() throws IOException, YangSyntaxErrorException {
+    public void setUp() throws IOException, YangSyntaxErrorException, InterruptedException {
         mockedExecutorWrapper = new MockedExecutorWrapper();
         mockedNotificationServiceWrapper = new MockedNotificationServiceWrapper();
 
@@ -164,7 +163,7 @@ public class ProgrammingServiceImplTest extends AbstractDataBrokerTest {
 
         final CleanInstructionsInputBuilder cleanInstructionsInputBuilder = new CleanInstructionsInputBuilder();
         final CleanInstructionsInput cleanInstructionsInput = cleanInstructionsInputBuilder.setId(
-                Lists.newArrayList(mockedSubmit1.getId(), mockedSubmit2.getId())).build();
+            Lists.newArrayList(mockedSubmit1.getId(), mockedSubmit2.getId())).build();
 
         ListenableFuture<RpcResult<CleanInstructionsOutput>> cleanedInstructionOutput = testedProgrammingService.cleanInstructions(cleanInstructionsInput);
 
@@ -180,7 +179,7 @@ public class ProgrammingServiceImplTest extends AbstractDataBrokerTest {
     }
 
     private void assertCleanInstructionOutput(final ListenableFuture<RpcResult<CleanInstructionsOutput>> cleanedInstructionOutput,
-            final int unflushedCount) throws InterruptedException, java.util.concurrent.ExecutionException {
+        final int unflushedCount) throws InterruptedException, java.util.concurrent.ExecutionException {
         if (unflushedCount == 0) {
             final List<InstructionId> unflushed = cleanedInstructionOutput.get().getResult().getUnflushed();
             assertTrue(unflushed == null || unflushed.isEmpty());
@@ -307,7 +306,7 @@ public class ProgrammingServiceImplTest extends AbstractDataBrokerTest {
     }
 
     private SubmitInstructionInput getMockedSubmitInstructionInput(final String id, final String... dependencyIds) {
-        return getMockedSubmitInstructionInput(id, Optional.<Nanotime> absent(), dependencyIds);
+        return getMockedSubmitInstructionInput(id, Optional.empty(), dependencyIds);
     }
 
     private SubmitInstructionInput getMockedSubmitInstructionInput(final String id, final Optional<Nanotime> deadline, final String... dependencyIds) {

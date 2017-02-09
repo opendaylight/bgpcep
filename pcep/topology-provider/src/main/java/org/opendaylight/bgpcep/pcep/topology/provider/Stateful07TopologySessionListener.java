@@ -205,8 +205,8 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     }
 
     private void markAllLspAsStale() {
-        for (final PlspId plspId : lsps.keySet()) {
-            staleLsps.add(plspId);
+        for (final PlspId plspId : this.lsps.keySet()) {
+            this.staleLsps.add(plspId);
         }
     }
 
@@ -229,7 +229,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             if (!staleLsp.getPath().isEmpty()) {
                 final Path1 path1 = staleLsp.getPath().get(0).getAugmentation(Path1.class);
                 if (path1 != null) {
-                    staleLsps.add(path1.getLsp().getPlspId());
+                    Stateful07TopologySessionListener.this.staleLsps.add(path1.getLsp().getPlspId());
                 }
             }
             updatePccState(PccSyncState.PcepTriggeredResync);
