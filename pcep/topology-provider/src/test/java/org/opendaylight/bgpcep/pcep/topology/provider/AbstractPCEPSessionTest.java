@@ -134,6 +134,7 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
 
         this.listenerFactory = (T) ((Class)((ParameterizedType)this.getClass().getGenericSuperclass()).getActualTypeArguments()[0]).newInstance();
         this.manager = new ServerSessionManager(getDataBroker(), TOPO_IID, this.listenerFactory, RPC_TIMEOUT);
+        this.manager.instantiateServiceInstance();
 
         this.neg = new DefaultPCEPSessionNegotiator(mock(Promise.class), this.clientListener, this.manager.getSessionListener(), (short) 1, 5, this.localPrefs);
         this.topologyRpcs = new TopologyRPCs(this.manager);
@@ -141,6 +142,7 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
 
     @After
     public void tearDown() throws TransactionCommitFailedException {
+        this.manager.closeServiceInstance();
         this.manager.close();
     }
 
