@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeMXBean;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistration;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistrator;
@@ -55,14 +57,17 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, AutoClos
     private static final Logger LOG = LoggerFactory.getLogger(ServerSessionManager.class);
     private static final long DEFAULT_HOLD_STATE_NANOS = TimeUnit.MINUTES.toNanos(5);
 
+    @GuardedBy("this")
     private final Map<NodeId, TopologySessionListener> nodes = new HashMap<>();
+    @GuardedBy("this")
     private final Map<NodeId, TopologyNodeState> state = new HashMap<>();
     private final TopologySessionListenerFactory listenerFactory;
     private final InstanceIdentifier<Topology> topology;
     private final DataBroker broker;
     private final PCEPStatefulPeerProposal peerProposal;
-    private Optional<PCEPTopologyProviderRuntimeRegistration> runtimeRootRegistration = Optional.absent();
+    private final AtomicBoolean isClosed = new AtomicBoolean(false);
     private final int rpcTimeout;
+    private Optional<PCEPTopologyProviderRuntimeRegistration> runtimeRootRegistration = Optional.absent();
 
     public ServerSessionManager(final DataBroker broker, final InstanceIdentifier<Topology> topology,
             final TopologySessionListenerFactory listenerFactory, final int rpcTimeout) throws ReadFailedException, TransactionCommitFailedException {
@@ -78,7 +83,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, AutoClos
         tx.put(LogicalDatastoreType.OPERATIONAL, topology, new TopologyBuilder().setKey(k).setTopologyId(k.getTopologyId()).setTopologyTypes(
                 new TopologyTypesBuilder().addAugmentation(TopologyTypes1.class,
                         new TopologyTypes1Builder().setTopologyPcep(new TopologyPcepBuilder().build()).build()).build()).setNode(
-                                new ArrayList<Node>()).build(), true);
+                new ArrayList<Node>()).build(), true);
         tx.submit().checkedGet();
     }
 
@@ -93,6 +98,9 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, AutoClos
     }
 
     synchronized TopologyNodeState takeNodeState(final InetAddress address, final TopologySessionListener sessionListener, final boolean retrieveNode) {
+        if (this.isClosed.get()) {
+            throw new RuntimeException("No node operation is allowed after the session manager is closed.");
+        }
         final NodeId id = createNodeId(address);
 
         LOG.debug("Node {} requested by listener {}", id, sessionListener);
@@ -157,22 +165,29 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, AutoClos
     }
 
     @Override
-    public void close() throws TransactionCommitFailedException {
+    public synchronized void close() throws TransactionCommitFailedException {
+        if (this.isClosed.getAndSet(true)) {
+            LOG.error("Session Manager has already been closed.");
+            return;
+        }
         if (this.runtimeRootRegistration.isPresent()) {
             this.runtimeRootRegistration.get().close();
+            this.runtimeRootRegistration = Optional.absent();
         }
         for (final TopologySessionListener sessionListener : this.nodes.values()) {
             sessionListener.close();
         }
+        this.nodes.clear();
         for (final TopologyNodeState nodeState : this.state.values()) {
             nodeState.close();
         }
+        this.state.clear();
         final WriteTransaction t = this.broker.newWriteOnlyTransaction();
         t.delete(LogicalDatastoreType.OPERATIONAL, this.topology);
         t.submit().checkedGet();
     }
 
-    public void registerRuntimeRootRegistartion(final PCEPTopologyProviderRuntimeRegistrator runtimeRootRegistrator) {
+    public synchronized void registerRuntimeRootRegistartion(final PCEPTopologyProviderRuntimeRegistrator runtimeRootRegistrator) {
         this.runtimeRootRegistration = Optional.of(runtimeRootRegistrator.register(this));
     }
 
