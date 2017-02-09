@@ -8,6 +8,7 @@
 package org.opendaylight.bgpcep.programming.spi;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.SubmitInstructionInput;
 
 public interface InstructionScheduler {
@@ -22,4 +23,11 @@ public interface InstructionScheduler {
      * @throws SchedulerException if a failure to schedule the instruction occurs.
      */
     ListenableFuture<Instruction> scheduleInstruction(SubmitInstructionInput input) throws SchedulerException;
+
+    /**
+     * Returns ServiceGroupIdentifier to be used on consumer side, ensuring they run on the same node.
+     *
+     * @return ServiceGroupIdentifier
+     */
+    ServiceGroupIdentifier getServiceGroupIdentifier();
 }

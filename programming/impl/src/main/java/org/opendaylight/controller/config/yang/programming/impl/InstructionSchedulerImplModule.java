@@ -16,33 +16,30 @@
  */
 package org.opendaylight.controller.config.yang.programming.impl;
 
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
-import java.util.concurrent.Executors;
-import org.opendaylight.bgpcep.programming.impl.ProgrammingServiceImpl;
-import org.opendaylight.bgpcep.programming.spi.Instruction;
+import com.google.common.reflect.AbstractInvocationHandler;
+import com.google.common.reflect.Reflection;
+import java.lang.reflect.Method;
+import org.opendaylight.bgpcep.programming.impl.IntructionDeployer;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
-import org.opendaylight.bgpcep.programming.spi.SchedulerException;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RpcRegistration;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.InstructionsQueueKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.ProgrammingService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.SubmitInstructionInput;
+import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
+import org.osgi.framework.BundleContext;
 
 /**
- *
+ * @deprecated Replaced by blueprint wiring
  */
 public final class InstructionSchedulerImplModule extends
-        org.opendaylight.controller.config.yang.programming.impl.AbstractInstructionSchedulerImplModule {
+    org.opendaylight.controller.config.yang.programming.impl.AbstractInstructionSchedulerImplModule {
+
+    private BundleContext bundleContext;
 
     public InstructionSchedulerImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+        final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
 
     public InstructionSchedulerImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
-            final InstructionSchedulerImplModule oldModule, final java.lang.AutoCloseable oldInstance) {
+        final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
+        final InstructionSchedulerImplModule oldModule, final java.lang.AutoCloseable oldInstance) {
         super(identifier, dependencyResolver, oldModule, oldInstance);
     }
 
@@ -53,33 +50,38 @@ public final class InstructionSchedulerImplModule extends
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        final ListeningExecutorService exec = MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
+        final WaitingServiceTracker<IntructionDeployer> intructionDeployerTracker =
+            WaitingServiceTracker.create(IntructionDeployer.class, this.bundleContext);
+        final IntructionDeployer intructionDeployer = intructionDeployerTracker
+            .waitForService(WaitingServiceTracker.FIVE_MINUTES);
 
-        final ProgrammingServiceImpl inst = new ProgrammingServiceImpl(getDataProviderDependency(), getNotificationServiceDependency(), exec, getTimerDependency(),
-                new InstructionsQueueKey(getInstructionQueueId() != null ? getInstructionQueueId() : getIdentifier().getInstanceName()));
+        final String instructionId = getInstructionQueueId() != null ? getInstructionQueueId() :
+            getIdentifier().getInstanceName();
+        intructionDeployer.createInstruction(instructionId);
+        final WaitingServiceTracker<InstructionScheduler> instructionSchedulerTracker = WaitingServiceTracker
+            .create(InstructionScheduler.class,
+            this.bundleContext, "(" + InstructionScheduler.class.getName() + "=" + instructionId + ")");
+        final InstructionScheduler instructionScheduler = instructionSchedulerTracker
+            .waitForService(WaitingServiceTracker.FIVE_MINUTES);
 
-        final RpcRegistration<ProgrammingService> reg = getRpcRegistryDependency().addRpcImplementation(ProgrammingService.class, inst);
-
-        final class ProgrammingServiceImplCloseable implements InstructionScheduler, AutoCloseable {
+        return Reflection.newProxy(ProgrammingServiceImplCloseable.class, new AbstractInvocationHandler() {
             @Override
-            public void close() {
-                try {
-                    reg.close();
-                } finally {
-                    try {
-                        inst.close();
-                    } finally {
-                        exec.shutdown();
-                    }
+            protected Object handleInvocation(final Object proxy, final Method method, final Object[] args) throws Throwable {
+                if (method.getName().equals("close")) {
+                    intructionDeployer.removeInstruction(instructionId);
+                    intructionDeployerTracker.close();
+                    return null;
+                } else {
+                    return method.invoke(instructionScheduler, args);
                 }
             }
+        });
+    }
 
-            @Override
-            public ListenableFuture<Instruction> scheduleInstruction(final SubmitInstructionInput input) throws SchedulerException {
-                return inst.scheduleInstruction(input);
-            }
-        }
+    void setBundleContext(final BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
+    }
 
-        return new ProgrammingServiceImplCloseable();
+    private interface ProgrammingServiceImplCloseable extends InstructionScheduler, AutoCloseable {
     }
 }
