@@ -36,7 +36,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
-import org.opendaylight.controller.md.sal.binding.test.DataBrokerTestCustomizer;
+import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTestCustomizer;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
@@ -107,8 +107,8 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
     }
 
     @Override
-    protected DataBrokerTestCustomizer createDataBrokerTestCustomizer() {
-        final DataBrokerTestCustomizer customizer = super.createDataBrokerTestCustomizer();
+    protected AbstractDataBrokerTestCustomizer createDataBrokerTestCustomizer() {
+        final AbstractDataBrokerTestCustomizer customizer = super.createDataBrokerTestCustomizer();
         this.codecFactory = customizer.getBindingToNormalized();
         this.schemaService = customizer.getSchemaService();
         return customizer;
