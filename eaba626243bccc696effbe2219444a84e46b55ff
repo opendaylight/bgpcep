@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9bcf337f",
+        "filename": "bgp/openconfig-state/src/main/java/org/opendaylight/protocol/bgp/state/StateProviderImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-02-13T14:23:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_950d4241",
+      "range": {
+        "startLine": 66,
+        "startChar": 17,
+        "endLine": 66,
+        "endChar": 45
+      },
+      "revId": "eaba626243bccc696effbe2219444a84e46b55ff",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_400e7635",
         "filename": "bgp/openconfig-state/src/main/java/org/opendaylight/protocol/bgp/state/StateProviderImpl.java",
         "patchSetId": 6
@@ -36,6 +60,30 @@
       "writtenOn": "2017-02-13T10:03:23Z",
       "side": 1,
       "message": "I am wondering if a delete op. submit future should not be returned here.",
+      "range": {
+        "startLine": 179,
+        "startChar": 15,
+        "endLine": 179,
+        "endChar": 45
+      },
+      "revId": "eaba626243bccc696effbe2219444a84e46b55ff",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bbc4b75f",
+        "filename": "bgp/openconfig-state/src/main/java/org/opendaylight/protocol/bgp/state/StateProviderImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-02-13T14:23:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_400e7635",
       "range": {
         "startLine": 179,
         "startChar": 15,
