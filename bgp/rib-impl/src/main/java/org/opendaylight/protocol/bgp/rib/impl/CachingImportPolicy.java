@@ -8,19 +8,23 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.base.Preconditions;
-import java.util.IdentityHashMap;
-import java.util.Map;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 /**
- * A caching decorator for {@link AbstractImportPolicy}. Performs caching of effective
- * attributes using an {@link IdentityHashMap} for fast lookup and reuse of resulting
- * objects.
+ * A caching decorator for {@link AbstractImportPolicy}. Performs caching of
+ * effective attributes using a {@link Cache} for fast lookup and reuse of
+ * resulting objects.
  */
 @NotThreadSafe
 final class CachingImportPolicy extends AbstractImportPolicy {
-    private final Map<ContainerNode, ContainerNode> cache = new IdentityHashMap<>();
+    // Restrict cache size to maximum 1000 entries,
+    // set to expire after 10 minutes of inactivity
+    private final Cache<ContainerNode, ContainerNode> cache = CacheBuilder.newBuilder().maximumSize(1000)
+            .expireAfterAccess(10, TimeUnit.MINUTES).build();
     private final AbstractImportPolicy delegate;
 
     CachingImportPolicy(final AbstractImportPolicy delegate) {
@@ -29,7 +33,7 @@ final class CachingImportPolicy extends AbstractImportPolicy {
 
     @Override
     ContainerNode effectiveAttributes(final ContainerNode attributes) {
-        ContainerNode ret = this.cache.get(attributes);
+        ContainerNode ret = this.cache.getIfPresent(attributes);
         if (ret == null) {
             ret = this.delegate.effectiveAttributes(attributes);
             if (ret != null) {
