@@ -67,43 +67,63 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
 
     private final Map<PathArgument, AbstractRouteEntry> routeEntries = new HashMap<>();
     private final YangInstanceIdentifier locRibTarget;
-    private final DOMTransactionChain chain;
+    private DOMTransactionChain chain;
+    private final YangInstanceIdentifier target;
     private final ExportPolicyPeerTracker peerPolicyTracker;
     private final NodeIdentifier attributesIdentifier;
     private final Long ourAs;
+    private final DOMDataTreeChangeService service;
     private final RIBSupport ribSupport;
     private final NodeIdentifierWithPredicates tableKey;
     private final TablesKey localTablesKey;
     private final RIBSupportContextRegistry registry;
-    private final ListenerRegistration<LocRibWriter> reg;
+    private ListenerRegistration<LocRibWriter> reg;
     private final CacheDisconnectedPeers cacheDisconnectedPeers;
 
     private LocRibWriter(final RIBSupportContextRegistry registry, final DOMTransactionChain chain, final YangInstanceIdentifier target, final Long ourAs,
         final DOMDataTreeChangeService service, final PolicyDatabase pd, final TablesKey tablesKey, final CacheDisconnectedPeers cacheDisconnectedPeers) {
         this.chain = Preconditions.checkNotNull(chain);
+        this.target = Preconditions.checkNotNull(target);
         this.tableKey = RibSupportUtils.toYangTablesKey(tablesKey);
         this.localTablesKey = tablesKey;
         this.locRibTarget = YangInstanceIdentifier.create(target.node(LocRib.QNAME).node(Tables.QNAME).node(this.tableKey).getPathArguments());
         this.ourAs = Preconditions.checkNotNull(ourAs);
+        this.service = Preconditions.checkNotNull(service);
         this.registry = registry;
         this.ribSupport = this.registry.getRIBSupportContext(tablesKey).getRibSupport();
         this.attributesIdentifier = this.ribSupport.routeAttributesIdentifier();
         this.peerPolicyTracker = new ExportPolicyPeerTracker(pd);
         this.cacheDisconnectedPeers = cacheDisconnectedPeers;
 
+        init();
+    }
+
+    private void init() {
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         tx.merge(LogicalDatastoreType.OPERATIONAL, this.locRibTarget.node(Routes.QNAME), this.ribSupport.emptyRoutes());
         tx.merge(LogicalDatastoreType.OPERATIONAL, this.locRibTarget.node(Attributes.QNAME).node(ATTRIBUTES_UPTODATE_TRUE.getNodeType()), ATTRIBUTES_UPTODATE_TRUE);
         tx.submit();
 
-        final YangInstanceIdentifier tableId = target.node(Peer.QNAME).node(Peer.QNAME);
+        final YangInstanceIdentifier tableId = this.target.node(Peer.QNAME).node(Peer.QNAME);
 
-        this.reg = service.registerDataTreeChangeListener(new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, tableId), this);
+        this.reg = this.service.registerDataTreeChangeListener(new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, tableId), this);
     }
 
     public static LocRibWriter create(@Nonnull final RIBSupportContextRegistry registry, @Nonnull final TablesKey tablesKey, @Nonnull final DOMTransactionChain chain, @Nonnull final YangInstanceIdentifier target,
         @Nonnull final AsNumber ourAs, @Nonnull final DOMDataTreeChangeService service, @Nonnull final PolicyDatabase pd, final CacheDisconnectedPeers cacheDisconnectedPeers) {
         return new LocRibWriter(registry, chain, target, ourAs.getValue(), service, pd, tablesKey, cacheDisconnectedPeers);
+    }
+
+    /**
+     * Re-initialize this LocRibWriter with new transaction chain.
+     *
+     * @param newChain new transaction chain
+     */
+    public void restart(@Nonnull final DOMTransactionChain newChain) {
+        Preconditions.checkNotNull(newChain);
+        this.close();
+        this.chain = newChain;
+        init();
     }
 
     @Override
