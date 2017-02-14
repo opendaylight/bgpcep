@@ -74,6 +74,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
     private final RIBSupport ribSupport;
     private final NodeIdentifierWithPredicates tableKey;
     private final TablesKey localTablesKey;
+    private final PolicyDatabase pd;
     private final RIBSupportContextRegistry registry;
     private final ListenerRegistration<LocRibWriter> reg;
     private final CacheDisconnectedPeers cacheDisconnectedPeers;
@@ -88,7 +89,8 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         this.registry = registry;
         this.ribSupport = this.registry.getRIBSupportContext(tablesKey).getRibSupport();
         this.attributesIdentifier = this.ribSupport.routeAttributesIdentifier();
-        this.peerPolicyTracker = new ExportPolicyPeerTracker(pd);
+        this.pd = pd;
+        this.peerPolicyTracker = new ExportPolicyPeerTracker(this.pd);
         this.cacheDisconnectedPeers = cacheDisconnectedPeers;
 
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
@@ -104,6 +106,14 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
     public static LocRibWriter create(@Nonnull final RIBSupportContextRegistry registry, @Nonnull final TablesKey tablesKey, @Nonnull final DOMTransactionChain chain, @Nonnull final YangInstanceIdentifier target,
         @Nonnull final AsNumber ourAs, @Nonnull final DOMDataTreeChangeService service, @Nonnull final PolicyDatabase pd, final CacheDisconnectedPeers cacheDisconnectedPeers) {
         return new LocRibWriter(registry, chain, target, ourAs.getValue(), service, pd, tablesKey, cacheDisconnectedPeers);
+    }
+
+    public TablesKey getTablesKey() {
+        return this.localTablesKey;
+    }
+
+    public PolicyDatabase getPolicyDatabase() {
+        return this.pd;
     }
 
     @Override

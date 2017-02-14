@@ -13,9 +13,10 @@ import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -102,7 +103,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private final RIBSupportContextRegistryImpl ribContextRegistry;
     private final CodecsRegistryImpl codecsRegistry;
     private final DOMDataBrokerExtension service;
-    private final List<LocRibWriter> locRibs = new ArrayList<>();
+    private final Map<TransactionChain, LocRibWriter> txChainToLocRibWriter = new HashMap<>();
     private final BGPConfigModuleTracker configModuleTracker;
     private final BGPOpenConfigProvider openConfigProvider;
     private final CacheDisconnectedPeers cacheDisconnectedPeers;
@@ -210,8 +211,15 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         } catch (final TransactionCommitFailedException e1) {
             LOG.error("Failed to initiate LocRIB for key {}", key, e1);
         }
-        this.locRibs.add(LocRibWriter.create(this.ribContextRegistry, key, createPeerChain(this), getYangRibId(), this.localAs, getService(), pd,
-            this.cacheDisconnectedPeers));
+        createLocRibWriter(key, pd);
+    }
+
+    private void createLocRibWriter(final TablesKey key, final PolicyDatabase pd) {
+        LOG.debug("Creating LocRIB writer for key {}", key);
+        final DOMTransactionChain txChain = createPeerChain(this);
+        final LocRibWriter locRibWriter = LocRibWriter.create(this.ribContextRegistry, key, txChain, getYangRibId(),
+                this.localAs, getService(), pd, this.cacheDisconnectedPeers);
+        this.txChainToLocRibWriter.put(txChain, locRibWriter);
     }
 
     @Override
@@ -229,7 +237,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         t.delete(LogicalDatastoreType.OPERATIONAL, getYangRibId());
         t.submit().get();
         this.domChain.close();
-        for (final LocRibWriter locRib : this.locRibs) {
+        for (final LocRibWriter locRib : this.txChainToLocRibWriter.values()) {
             try {
                 locRib.close();
             } catch (final Exception e) {
@@ -272,8 +280,16 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     }
 
     @Override
-    public void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction, final Throwable cause) {
+    public synchronized void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction, final Throwable cause) {
         LOG.error("Broken chain in RIB {} transaction {}", getInstanceIdentifier(), transaction != null ? transaction.getIdentifier() : null, cause);
+        if (this.txChainToLocRibWriter.containsKey(chain)) {
+            final LocRibWriter locRibWriter = this.txChainToLocRibWriter.get(chain);
+            final TablesKey key = locRibWriter.getTablesKey();
+            final PolicyDatabase pd = locRibWriter.getPolicyDatabase();
+            locRibWriter.close();
+            this.txChainToLocRibWriter.remove(chain);
+            createLocRibWriter(key, pd);
+        }
     }
 
     @Override
