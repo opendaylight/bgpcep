@@ -15,7 +15,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.ListenableFuture;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -109,7 +109,7 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
     private final BgpDeployer.WriteConfiguration configurationWriter;
     private ClusterSingletonServiceRegistration registration;
     private final DOMDataBrokerExtension service;
-    private final List<LocRibWriter> locRibs = new ArrayList<>();
+    private final Map<TransactionChain, LocRibWriter> txChainToLocRibWriter = new HashMap<>();
     private final BGPConfigModuleTracker configModuleTracker;
     private final BGPOpenConfigProvider openConfigProvider;
     private final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies;
@@ -199,14 +199,21 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
         } catch (final TransactionCommitFailedException e1) {
             LOG.error("Failed to initiate LocRIB for key {}", key, e1);
         }
+        createLocRibWriter(key);
+    }
 
+    private synchronized void createLocRibWriter(final TablesKey key) {
+        LOG.debug("Creating LocRIB writer for key {}", key);
+        final DOMTransactionChain txChain = createPeerChain(this);
         PathSelectionMode pathSelectionStrategy = this.bestPathSelectionStrategies.get(key);
         if (pathSelectionStrategy == null) {
             pathSelectionStrategy = BasePathSelectionModeFactory.createBestPathSelectionStrategy();
         }
 
-        this.locRibs.add(LocRibWriter.create(this.ribContextRegistry, key, createPeerChain(this), getYangRibId(), this.localAs, getService(),
-            this.exportPolicyPeerTrackerMap.get(key), pathSelectionStrategy, this.renderStats.getLocRibRouteCounter().init(key)));
+        final LocRibWriter locRibWriter = LocRibWriter.create(this.ribContextRegistry, key, txChain,
+            getYangRibId(), this.localAs, getService(), this.exportPolicyPeerTrackerMap.get(key),
+            pathSelectionStrategy, this.renderStats.getLocRibRouteCounter().init(key));
+        this.txChainToLocRibWriter.put(txChain, locRibWriter);
     }
 
     @Override
@@ -248,8 +255,14 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
     }
 
     @Override
-    public void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction, final Throwable cause) {
+    public synchronized void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction, final Throwable cause) {
         LOG.error("Broken chain in RIB {} transaction {}", getInstanceIdentifier(), transaction != null ? transaction.getIdentifier() : null, cause);
+        if (this.txChainToLocRibWriter.containsKey(chain)) {
+            final LocRibWriter locRibWriter = this.txChainToLocRibWriter.remove(chain);
+            final DOMTransactionChain newChain = createPeerChain(this);
+            locRibWriter.restart(newChain);
+            this.txChainToLocRibWriter.put(newChain, locRibWriter);
+        }
     }
 
     @Override
@@ -359,10 +372,10 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
     }
 
     @Override
-    public ListenableFuture<Void> closeServiceInstance() {
-        LOG.info("Close RIB Singleton Service {}", getIdentifier());
-        this.locRibs.forEach(LocRibWriter::close);
-        this.locRibs.clear();
+    public synchronized ListenableFuture<Void> closeServiceInstance() {
+        LOG.info("RIB {} closing instance", this.ribId.getValue());
+        this.txChainToLocRibWriter.values().forEach(LocRibWriter::close);
+        this.txChainToLocRibWriter.clear();
 
         this.renderStats.getLocRibRouteCounter().resetAll();
 
