@@ -68,12 +68,15 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
 
     private final Map<PathArgument, RouteEntry> routeEntries = new HashMap<>();
     private final YangInstanceIdentifier locRibTarget;
-    private final DOMTransactionChain chain;
+    private final NodeIdentifierWithPredicates tableKey;
+    private DOMTransactionChain chain;
     private final ExportPolicyPeerTracker exportPolicyPeerTracker;
     private final NodeIdentifier attributesIdentifier;
     private final Long ourAs;
     private final RIBSupport ribSupport;
     private final TablesKey localTablesKey;
+    private final YangInstanceIdentifier target;
+    private final DOMDataTreeChangeService service;
     private ListenerRegistration<LocRibWriter> reg;
     private final PathSelectionMode pathSelectionMode;
     private final LongAdder totalPathsCounter = new LongAdder();
@@ -84,23 +87,32 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
         final ExportPolicyPeerTracker exportPolicyPeerTracker, final TablesKey tablesKey,
         final PathSelectionMode pathSelectionMode) {
         this.chain = Preconditions.checkNotNull(chain);
+        this.target = Preconditions.checkNotNull(target);
         final NodeIdentifierWithPredicates tableKey = RibSupportUtils.toYangTablesKey(tablesKey);
         this.localTablesKey = tablesKey;
+        this.tableKey = tableKey;
         this.locRibTarget = YangInstanceIdentifier.create(target.node(LocRib.QNAME).node(Tables.QNAME).node(tableKey).getPathArguments());
         this.ourAs = Preconditions.checkNotNull(ourAs);
+        this.service = Preconditions.checkNotNull(service);
         this.ribSupport = registry.getRIBSupportContext(tablesKey).getRibSupport();
         this.attributesIdentifier = this.ribSupport.routeAttributesIdentifier();
         this.exportPolicyPeerTracker = exportPolicyPeerTracker;
         this.pathSelectionMode = pathSelectionMode;
 
+        init();
+    }
+
+    private synchronized void init() {
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         tx.merge(LogicalDatastoreType.OPERATIONAL, this.locRibTarget.node(Routes.QNAME), this.ribSupport.emptyRoutes());
-        tx.merge(LogicalDatastoreType.OPERATIONAL, this.locRibTarget.node(Attributes.QNAME).node(ATTRIBUTES_UPTODATE_TRUE.getNodeType()), ATTRIBUTES_UPTODATE_TRUE);
+        tx.merge(LogicalDatastoreType.OPERATIONAL, this.locRibTarget.node(Attributes.QNAME)
+            .node(ATTRIBUTES_UPTODATE_TRUE.getNodeType()), ATTRIBUTES_UPTODATE_TRUE);
         tx.submit();
 
-        final YangInstanceIdentifier tableId = target.node(Peer.QNAME).node(Peer.QNAME).node(EffectiveRibIn.QNAME).node(Tables.QNAME).node(tableKey);
+        final YangInstanceIdentifier tableId = this.target.node(Peer.QNAME).node(Peer.QNAME).node(EffectiveRibIn.QNAME)
+            .node(Tables.QNAME).node(this.tableKey);
         final DOMDataTreeIdentifier wildcard = new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, tableId);
-        this.reg = service.registerDataTreeChangeListener(wildcard, this);
+        this.reg = this.service.registerDataTreeChangeListener(wildcard, this);
     }
 
     public static LocRibWriter create(@Nonnull final RIBSupportContextRegistry registry, @Nonnull final TablesKey tablesKey,
@@ -111,11 +123,22 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
             pathSelectionStrategy);
     }
 
+    /**
+     * Re-initialize this LocRibWriter with new transaction chain.
+     *
+     * @param newChain new transaction chain
+     */
+    synchronized void restart(@Nonnull final DOMTransactionChain newChain) {
+        Preconditions.checkNotNull(newChain);
+        close();
+        this.chain = newChain;
+        init();
+    }
+
     @Override
     public synchronized void close() {
         this.reg.close();
         this.reg = null;
-        // FIXME: wait for the chain to close? unfortunately RIBImpl is the listener, so that may require some work
         this.chain.close();
     }
 
