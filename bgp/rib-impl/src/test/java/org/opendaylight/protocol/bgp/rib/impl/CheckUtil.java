@@ -11,18 +11,14 @@ import com.google.common.base.Stopwatch;
 import com.google.common.util.concurrent.Uninterruptibles;
 import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.protocol.bgp.rib.spi.State;
 
 public final class CheckUtil {
-    private static final int TIMEOUT = 40;
-    private static final int SLEEP_UNINTERRUPTIBLY = 50;
-
-    static void checkReceivedMessages(final SimpleSessionListener listener, final int numberOfMessages)
-        throws ReadFailedException {
+    public static void checkIdleState(final SimpleSessionListener listener) {
         final Stopwatch sw = Stopwatch.createStarted();
-        while (sw.elapsed(TimeUnit.SECONDS) <= TIMEOUT) {
-            if (listener.getListMsg().size() != numberOfMessages) {
-                Uninterruptibles.sleepUninterruptibly(SLEEP_UNINTERRUPTIBLY, TimeUnit.MILLISECONDS);
+        while (sw.elapsed(TimeUnit.SECONDS) <= 10) {
+            if (State.IDLE != listener.getState()) {
+                Uninterruptibles.sleepUninterruptibly(50, TimeUnit.MILLISECONDS);
             } else {
                 return;
             }

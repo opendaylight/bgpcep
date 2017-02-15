@@ -11,21 +11,18 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.checkReceivedMessages;
+import static org.opendaylight.protocol.util.CheckUtil.checkEquals;
+import static org.opendaylight.protocol.util.CheckUtil.checkReceivedMessages;
 import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
-import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.util.concurrent.Uninterruptibles;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
@@ -51,11 +48,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 public class AddPathAllPathsTest extends AbstractAddPathTest {
     private RIBImpl ribImpl;
     private Channel serverChannel;
-
-    @FunctionalInterface
-    private interface CheckEquals {
-        void check();
-    }
 
     @Before
     public void setUp() throws Exception {
@@ -302,21 +294,5 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         session3.close();
         session4.close();
         session5.close();
-    }
-
-    private static void checkEquals(final CheckEquals function) throws Exception {
-        AssertionError lastError = null;
-        final Stopwatch sw = Stopwatch.createStarted();
-        while (sw.elapsed(TimeUnit.SECONDS) <= 10) {
-            try {
-                function.check();
-                return;
-            } catch (final AssertionError e) {
-                lastError = e;
-                Uninterruptibles.sleepUninterruptibly(10, TimeUnit.MILLISECONDS);
-            }
-        }
-        Assert.fail(lastError.getMessage());
-        throw lastError;
     }
 }

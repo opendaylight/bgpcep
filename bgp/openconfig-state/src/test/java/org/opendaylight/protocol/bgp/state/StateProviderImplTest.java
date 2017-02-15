@@ -8,13 +8,12 @@
 
 package org.opendaylight.protocol.bgp.state;
 
-import static org.junit.Assert.assertFalse;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.opendaylight.protocol.util.CheckUtil.checkNull;
+import static org.opendaylight.protocol.util.CheckUtil.readData;
 
-import com.google.common.base.Stopwatch;
-import com.google.common.util.concurrent.Uninterruptibles;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -22,20 +21,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
-import java.util.function.Function;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
@@ -110,7 +103,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
@@ -402,49 +394,6 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
                 .addAugmentation(NeighborGracefulRestartStateAugmentation.class,
                         gracefulAugmentation.build()).build()).build();
         return gracefulRestart;
-    }
-
-    private static <T extends DataObject> void checkNull(final DataBroker dataBroker, final InstanceIdentifier<T> iid)
-        throws ReadFailedException {
-        AssertionError lastError = null;
-        final Stopwatch sw = Stopwatch.createStarted();
-        while (sw.elapsed(TimeUnit.SECONDS) <= 10) {
-            try (final ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction()) {
-                final com.google.common.base.Optional<T> data = tx.read(LogicalDatastoreType.OPERATIONAL, iid).checkedGet();
-                    try {
-                        assertFalse(data.isPresent());
-                        return;
-                    } catch (final AssertionError e) {
-                        lastError = e;
-                        Uninterruptibles.sleepUninterruptibly(10, TimeUnit.MILLISECONDS);
-                    }
-            }
-        }
-        Assert.fail(lastError.getMessage());
-        throw lastError;
-    }
-
-    private static <R, T extends DataObject> void readData(final DataBroker dataBroker, final InstanceIdentifier<T> iid,
-        final Function<T, R> function)
-        throws ReadFailedException {
-        AssertionError lastError = null;
-        final Stopwatch sw = Stopwatch.createStarted();
-        while (sw.elapsed(TimeUnit.SECONDS) <= 10) {
-            try (final ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction()) {
-                final com.google.common.base.Optional<T> data = tx.read(LogicalDatastoreType.OPERATIONAL, iid).checkedGet();
-                if (data.isPresent()) {
-                    try {
-                        function.apply(data.get());
-                        return;
-                    } catch (final AssertionError e) {
-                        lastError = e;
-                        Uninterruptibles.sleepUninterruptibly(10, TimeUnit.MILLISECONDS);
-                    }
-                }
-            }
-        }
-        Assert.fail(lastError.getMessage());
-        throw lastError;
     }
 
     private Global buildGlobalExpected(final long PrefixesAndPaths) {

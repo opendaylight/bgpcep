@@ -13,10 +13,8 @@ import static org.junit.Assert.assertNotNull;
 import com.google.common.base.Optional;
 import io.netty.channel.Channel;
 import java.math.BigInteger;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPSession;
@@ -25,16 +23,16 @@ import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCPeerProposal;
 
 public class PCCSyncAvoidanceProcedureTest extends PCCMockCommon {
     @Test
-    public void testSessionAvoidanceDesynchronizedEstablishment() throws UnknownHostException, InterruptedException, ExecutionException {
+    public void testSessionAvoidanceDesynchronizedEstablishment() throws Exception {
         final TestingSessionListenerFactory factory = new TestingSessionListenerFactory();
 
         final Channel channel = createServer(factory, this.remoteAddress, new PCCPeerProposal());
-        PCEPSession session = createPCCSession(BigInteger.TEN).get();
+        final PCEPSession session = createPCCSession(BigInteger.TEN).get();
         assertNotNull(session);
         final TestingSessionListener pceSessionListener = getListener(factory);
         assertNotNull(pceSessionListener);
         assertNotNull(pceSessionListener.getSession());
-        checkResyncSession(Optional.absent(), 11, null, BigInteger.valueOf(10), pceSessionListener);
+        checkResyncSession(Optional.absent(), 11, 11, null, BigInteger.valueOf(10), pceSessionListener);
         channel.close().get();
     }
 

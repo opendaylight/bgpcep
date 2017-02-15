@@ -39,7 +39,7 @@ import org.opendaylight.protocol.util.InetSocketAddressUtil;
 public class PCCDispatcherImplTest {
 
     private static final List<PCEPCapability> CAPS = new ArrayList<>();
-    private static final PCEPSessionProposalFactory PROPOSAL = new BasePCEPSessionProposalFactory(30, 120, CAPS);
+    private static final PCEPSessionProposalFactory PROPOSAL = new BasePCEPSessionProposalFactory(10, 40, CAPS);
     private final DefaultPCEPSessionNegotiatorFactory nf = new DefaultPCEPSessionNegotiatorFactory(PROPOSAL, 0);
     private PCCDispatcherImpl dispatcher;
     private PCEPDispatcher pcepDispatcher;
@@ -65,7 +65,7 @@ public class PCCDispatcherImplTest {
         closeEventLoopGroups();
     }
 
-    private void closeEventLoopGroups() throws ExecutionException, InterruptedException {
+    private void closeEventLoopGroups() {
         this.workerGroup.shutdownGracefully(0, 0, TimeUnit.SECONDS);
         this.bossGroup.shutdownGracefully(0, 0, TimeUnit.SECONDS);
     }

@@ -278,6 +278,7 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
             new InetSocketAddress(RIB_ID, PORT), RETRY_TIMER, true);
         Thread.sleep(200);
         waitFutureSuccess(future);
+        Thread.sleep(100);
         return future.getNow();
     }
 

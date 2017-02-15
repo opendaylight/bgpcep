@@ -71,7 +71,7 @@ public class PCCSessionListenerTest {
                 PCCSessionListenerTest.this.sendMessages.add((Message) invocation.getArguments()[0]);
                 return null;
             }
-        }).when(mockedSession).sendMessage(Mockito.any(Message.class));
+        }).when(this.mockedSession).sendMessage(Mockito.any(Message.class));
     }
 
     @After
@@ -81,65 +81,65 @@ public class PCCSessionListenerTest {
 
     @Test
     public void testOnMessage() {
-        final PCCSessionListener listener = new PCCSessionListener(1, tunnelManager, false);
-        listener.onMessage(mockedSession, createUpdMsg(true));
-        Mockito.verify(tunnelManager).onMessagePcupd(Mockito.any(Updates.class), Mockito.any(PCCSession.class));
-        Mockito.verify(tunnelManager, Mockito.never()).onMessagePcInitiate(Mockito.any(Requests.class), Mockito.any(PCCSession.class));
-        listener.onMessage(mockedSession, createUpdMsg(false));
-        Mockito.verify(tunnelManager, Mockito.times(2)).onMessagePcupd(Mockito.any(Updates.class), Mockito.any(PCCSession.class));
-        Mockito.verify(tunnelManager, Mockito.never()).onMessagePcInitiate(Mockito.any(Requests.class), Mockito.any(PCCSession.class));
+        final PCCSessionListener listener = new PCCSessionListener(1, this.tunnelManager, false);
+        listener.onMessage(this.mockedSession, createUpdMsg(true));
+        Mockito.verify(this.tunnelManager).onMessagePcupd(Mockito.any(Updates.class), Mockito.any(PCCSession.class));
+        Mockito.verify(this.tunnelManager, Mockito.never()).onMessagePcInitiate(Mockito.any(Requests.class), Mockito.any(PCCSession.class));
+        listener.onMessage(this.mockedSession, createUpdMsg(false));
+        Mockito.verify(this.tunnelManager, Mockito.times(2)).onMessagePcupd(Mockito.any(Updates.class), Mockito.any(PCCSession.class));
+        Mockito.verify(this.tunnelManager, Mockito.never()).onMessagePcInitiate(Mockito.any(Requests.class), Mockito.any(PCCSession.class));
 
-        listener.onMessage(mockedSession, createInitMsg(false, true));
-        Mockito.verify(tunnelManager, Mockito.times(2)).onMessagePcupd(Mockito.any(Updates.class), Mockito.any(PCCSession.class));
-        Mockito.verify(tunnelManager).onMessagePcInitiate(Mockito.any(Requests.class), Mockito.any(PCCSession.class));
-        listener.onMessage(mockedSession, createInitMsg(true, false));
-        Mockito.verify(tunnelManager, Mockito.times(2)).onMessagePcupd(Mockito.any(Updates.class), Mockito.any(PCCSession.class));
-        Mockito.verify(tunnelManager, Mockito.times(2)).onMessagePcInitiate(Mockito.any(Requests.class), Mockito.any(PCCSession.class));
-        listener.onMessage(mockedSession, createInitMsg(false, false));
-        Mockito.verify(tunnelManager, Mockito.times(2)).onMessagePcupd(Mockito.any(Updates.class), Mockito.any(PCCSession.class));
-        Mockito.verify(tunnelManager, Mockito.times(3)).onMessagePcInitiate(Mockito.any(Requests.class), Mockito.any(PCCSession.class));
+        listener.onMessage(this.mockedSession, createInitMsg(false, true));
+        Mockito.verify(this.tunnelManager, Mockito.times(2)).onMessagePcupd(Mockito.any(Updates.class), Mockito.any(PCCSession.class));
+        Mockito.verify(this.tunnelManager).onMessagePcInitiate(Mockito.any(Requests.class), Mockito.any(PCCSession.class));
+        listener.onMessage(this.mockedSession, createInitMsg(true, false));
+        Mockito.verify(this.tunnelManager, Mockito.times(2)).onMessagePcupd(Mockito.any(Updates.class), Mockito.any(PCCSession.class));
+        Mockito.verify(this.tunnelManager, Mockito.times(2)).onMessagePcInitiate(Mockito.any(Requests.class), Mockito.any(PCCSession.class));
+        listener.onMessage(this.mockedSession, createInitMsg(false, false));
+        Mockito.verify(this.tunnelManager, Mockito.times(2)).onMessagePcupd(Mockito.any(Updates.class), Mockito.any(PCCSession.class));
+        Mockito.verify(this.tunnelManager, Mockito.times(3)).onMessagePcInitiate(Mockito.any(Requests.class), Mockito.any(PCCSession.class));
     }
 
     @Test
     public void testOnMessageErrorMode() {
-        final PCCSessionListener listener = new PCCSessionListener(1, tunnelManager, true);
-        listener.onMessage(mockedSession, createUpdMsg(true));
-        Mockito.verify(mockedSession).sendMessage(Mockito.any(Message.class));
+        final PCCSessionListener listener = new PCCSessionListener(1, this.tunnelManager, true);
+        listener.onMessage(this.mockedSession, createUpdMsg(true));
+        Mockito.verify(this.mockedSession).sendMessage(Mockito.any(Message.class));
     }
 
     @Test
     public void testOnSessionUp() {
-        final PCCSessionListener listener = new PCCSessionListener(1, tunnelManager, false);
-        listener.onSessionUp(mockedSession);
-        Mockito.verify(tunnelManager).onSessionUp(Mockito.any(PCCSession.class));
+        final PCCSessionListener listener = new PCCSessionListener(1, this.tunnelManager, false);
+        listener.onSessionUp(this.mockedSession);
+        Mockito.verify(this.tunnelManager).onSessionUp(Mockito.any(PCCSession.class));
     }
 
     @Test
     public void testOnSessionDown() {
-        final PCCSessionListener listener = new PCCSessionListener(1, tunnelManager, false);
-        listener.onSessionDown(mockedSession, new Exception());
-        Mockito.verify(tunnelManager).onSessionDown(Mockito.any(PCCSession.class));
+        final PCCSessionListener listener = new PCCSessionListener(1, this.tunnelManager, false);
+        listener.onSessionDown(this.mockedSession, new Exception());
+        Mockito.verify(this.tunnelManager).onSessionDown(Mockito.any(PCCSession.class));
     }
 
     @Test
     public void testSendError() {
-        final PCCSessionListener listener = new PCCSessionListener(1, tunnelManager, false);
-        listener.onSessionUp(mockedSession);
+        final PCCSessionListener listener = new PCCSessionListener(1, this.tunnelManager, false);
+        listener.onSessionUp(this.mockedSession);
         listener.sendError(MsgBuilderUtil.createErrorMsg(PCEPErrors.ATTEMPT_2ND_SESSION, 0));
-        Mockito.verify(mockedSession).sendMessage(Mockito.any());
+        Mockito.verify(this.mockedSession).sendMessage(Mockito.any());
     }
 
     @Test
     public void testSendReport() {
-        final PCCSessionListener listener = new PCCSessionListener(1, tunnelManager, false);
-        listener.onSessionUp(mockedSession);
+        final PCCSessionListener listener = new PCCSessionListener(1, this.tunnelManager, false);
+        listener.onSessionUp(this.mockedSession);
         listener.sendReport(null);
-        Mockito.verify(mockedSession).sendMessage(Mockito.any());
+        Mockito.verify(this.mockedSession).sendMessage(Mockito.any());
     }
 
     @Test
     public void testGetId() {
-        final PCCSessionListener listener = new PCCSessionListener(1, tunnelManager, false);
+        final PCCSessionListener listener = new PCCSessionListener(1, this.tunnelManager, false);
         Assert.assertEquals(1, listener.getId());
     }
 
