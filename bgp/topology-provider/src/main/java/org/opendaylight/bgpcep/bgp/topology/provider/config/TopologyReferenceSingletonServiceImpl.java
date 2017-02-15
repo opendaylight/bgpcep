@@ -59,8 +59,7 @@ final class TopologyReferenceSingletonServiceImpl implements TopologyReferenceSi
     @Override
     public ListenableFuture<Void> closeServiceInstance() {
         LOG.info("Close Topology Singleton Service {}", getIdentifier());
-        this.topologyBuilder.close();
-        return Futures.immediateFuture(null);
+        return this.topologyBuilder.close();
     }
 
     @Override
