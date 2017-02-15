@@ -11,10 +11,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Interner;
 import com.google.common.collect.Interners;
 import com.google.common.collect.MapMaker;
-
-import java.util.IdentityHashMap;
 import java.util.concurrent.ConcurrentMap;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -25,7 +22,7 @@ import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 
 /**
  * A caching decorator for {@link AbstractImportPolicy}. Performs caching of effective
- * attributes using an {@link IdentityHashMap} for fast lookup and reuse of resulting
+ * attributes using an identity-and-hashCode-based map for fast lookup and reuse of resulting
  * objects.
  */
 @NotThreadSafe
