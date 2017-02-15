@@ -25,7 +25,6 @@ public final class CheckUtil {
     private static final int LATCH_TIMEOUT = 10;
     private static final int SLEEP_FOR = 200;
     private static final int TIMEOUT = 60;
-
     private CheckUtil() {
         throw new UnsupportedOperationException();
     }
@@ -55,5 +54,61 @@ public final class CheckUtil {
             }
         }
         throw lastError;
+    }
+
+    public static <T extends DataObject> void checkNull(final DataBroker dataBroker, final InstanceIdentifier<T> iid)
+        throws ReadFailedException {
+        AssertionError lastError = null;
+        final Stopwatch sw = Stopwatch.createStarted();
+        while (sw.elapsed(TimeUnit.SECONDS) <= 10) {
+            try (final ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction()) {
+                final com.google.common.base.Optional<T> data = tx.read(LogicalDatastoreType.OPERATIONAL, iid).checkedGet();
+                try {
+                    assert !data.isPresent();
+                    return;
+                } catch (final AssertionError e) {
+                    lastError = e;
+                    Uninterruptibles.sleepUninterruptibly(10, TimeUnit.MILLISECONDS);
+                }
+            }
+        }
+        throw lastError;
+    }
+
+    public static void checkEquals(final CheckEquals function) throws Exception {
+        AssertionError lastError = null;
+        final Stopwatch sw = Stopwatch.createStarted();
+        while (sw.elapsed(TimeUnit.SECONDS) <= TIMEOUT) {
+            try {
+                function.check();
+                return;
+            } catch (final AssertionError e) {
+                lastError = e;
+                Uninterruptibles.sleepUninterruptibly(10, TimeUnit.MILLISECONDS);
+            }
+        }
+        throw lastError;
+    }
+
+    public static void checkReceivedMessages(final ListenerCheck listener, final int numberOfMessages)
+        throws ReadFailedException {
+        final Stopwatch sw = Stopwatch.createStarted();
+        while (sw.elapsed(TimeUnit.SECONDS) <= TIMEOUT) {
+            if (listener.getListMessageSize() != numberOfMessages) {
+                Uninterruptibles.sleepUninterruptibly(SLEEP_FOR, TimeUnit.MILLISECONDS);
+            } else {
+                return;
+            }
+        }
+        throw new AssertionError("Expected " + numberOfMessages + " but received "
+            + listener.getListMessageSize());
+    }
+
+    public interface ListenerCheck {
+        int getListMessageSize();
+    }
+    @FunctionalInterface
+    public interface CheckEquals {
+        void check();
     }
 }

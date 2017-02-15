@@ -11,9 +11,7 @@ import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.Uninterruptibles;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
@@ -23,7 +21,6 @@ import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
@@ -32,7 +29,6 @@ import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
-import org.opendaylight.protocol.bgp.rib.spi.State;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -107,18 +103,6 @@ public class AbstractBGPDispatcherTest {
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
         final BgpId bgpId = new BgpId(new Ipv4Address(socketAddress.getAddress().getHostAddress()));
         return new BGPSessionPreferences(AS_NUMBER, HOLD_TIMER, bgpId, AS_NUMBER, tlvs, Optional.absent());
-    }
-
-    protected static void checkIdleState(final SimpleSessionListener listener) {
-        final Stopwatch sw = Stopwatch.createStarted();
-        while (sw.elapsed(TimeUnit.SECONDS) <= 10) {
-            if (State.IDLE != listener.getState()) {
-                Uninterruptibles.sleepUninterruptibly(50, TimeUnit.MILLISECONDS);
-            } else {
-                return;
-            }
-        }
-        Assert.fail();
     }
 
     protected Channel createServer(final InetSocketAddress serverAddress) throws InterruptedException {

@@ -12,6 +12,8 @@ import static org.junit.Assert.assertFalse;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.opendaylight.protocol.util.CheckUtil.checkNull;
+import static org.opendaylight.protocol.util.CheckUtil.readData;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.util.concurrent.Uninterruptibles;
@@ -402,49 +404,6 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
                 .addAugmentation(NeighborGracefulRestartStateAugmentation.class,
                         gracefulAugmentation.build()).build()).build();
         return gracefulRestart;
-    }
-
-    private static <T extends DataObject> void checkNull(final DataBroker dataBroker, final InstanceIdentifier<T> iid)
-        throws ReadFailedException {
-        AssertionError lastError = null;
-        final Stopwatch sw = Stopwatch.createStarted();
-        while (sw.elapsed(TimeUnit.SECONDS) <= 10) {
-            try (final ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction()) {
-                final com.google.common.base.Optional<T> data = tx.read(LogicalDatastoreType.OPERATIONAL, iid).checkedGet();
-                    try {
-                        assertFalse(data.isPresent());
-                        return;
-                    } catch (final AssertionError e) {
-                        lastError = e;
-                        Uninterruptibles.sleepUninterruptibly(10, TimeUnit.MILLISECONDS);
-                    }
-            }
-        }
-        Assert.fail(lastError.getMessage());
-        throw lastError;
-    }
-
-    private static <R, T extends DataObject> void readData(final DataBroker dataBroker, final InstanceIdentifier<T> iid,
-        final Function<T, R> function)
-        throws ReadFailedException {
-        AssertionError lastError = null;
-        final Stopwatch sw = Stopwatch.createStarted();
-        while (sw.elapsed(TimeUnit.SECONDS) <= 10) {
-            try (final ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction()) {
-                final com.google.common.base.Optional<T> data = tx.read(LogicalDatastoreType.OPERATIONAL, iid).checkedGet();
-                if (data.isPresent()) {
-                    try {
-                        function.apply(data.get());
-                        return;
-                    } catch (final AssertionError e) {
-                        lastError = e;
-                        Uninterruptibles.sleepUninterruptibly(10, TimeUnit.MILLISECONDS);
-                    }
-                }
-            }
-        }
-        Assert.fail(lastError.getMessage());
-        throw lastError;
     }
 
     private Global buildGlobalExpected(final long PrefixesAndPaths) {

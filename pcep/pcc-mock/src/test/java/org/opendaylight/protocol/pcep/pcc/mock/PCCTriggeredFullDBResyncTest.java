@@ -34,22 +34,21 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 public class PCCTriggeredFullDBResyncTest extends PCCMockCommon {
-    private Channel channel;
 
     @Test
     public void testSessionTriggeredFullDBReSync() throws Exception {
         final TestingSessionListenerFactory factory = new TestingSessionListenerFactory();
         final int lspQuantity = 3;
         final BigInteger numberOflspAndDBv = BigInteger.valueOf(lspQuantity);
-        this.channel = createServer(factory, this.remoteAddress, new PCCPeerProposal());
-        PCEPSession session = createPCCSession(numberOflspAndDBv).get();
+        final Channel channel = createServer(factory, this.remoteAddress, new PCCPeerProposal());
+        final PCEPSession session = createPCCSession(numberOflspAndDBv).get();
         assertNotNull(session);
         final TestingSessionListener pceSessionListener = getListener(factory);
         assertNotNull(pceSessionListener);
         checkSynchronizedSession(lspQuantity, pceSessionListener, numberOflspAndDBv);
-        pccSessionListener.onMessage(session, createTriggerLspResync());
+        this.pccSessionListener.onMessage(session, createTriggerLspResync());
         final TestingSessionListener sessionListenerAfterReconnect = getListener(factory);
-        checkResyncSession(Optional.of(lspQuantity), 4, null, numberOflspAndDBv, sessionListenerAfterReconnect);
+        checkResyncSession(Optional.of(lspQuantity), 4,8, null, numberOflspAndDBv, sessionListenerAfterReconnect);
         channel.close().get();
     }
 
