@@ -16,6 +16,24 @@
       "revId": "24a505b6342819e7a48b768baf174f88cafd1472",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_43b1528e",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/RIBImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2017-02-15T18:47:20Z",
+      "side": 1,
+      "message": "Removing entry from map during RIBImpl#close() to handle this scenario",
+      "parentUuid": "fafc7978_bd3b019b",
+      "revId": "24a505b6342819e7a48b768baf174f88cafd1472",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
