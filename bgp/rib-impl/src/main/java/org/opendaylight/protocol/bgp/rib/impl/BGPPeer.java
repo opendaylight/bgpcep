@@ -15,6 +15,8 @@ import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.net.InetAddresses;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -103,8 +105,8 @@ import org.slf4j.LoggerFactory;
  * Class representing a peer. We have a single instance for each peer, which provides translation from BGP events into
  * RIB actions.
  */
-public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Peer, AutoCloseable,
-    BGPPeerRuntimeMXBean, TransactionChainListener {
+public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Peer, BGPPeerRuntimeMXBean,
+    TransactionChainListener {
     private static final Logger LOG = LoggerFactory.getLogger(BGPPeer.class);
 
     @GuardedBy("this")
@@ -161,10 +163,12 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
         this.ribWriter = AdjRibInWriter.create(this.rib.getYangRibId(), this.peerRole, this.simpleRoutingPolicy, this.chain);
     }
 
+    // FIXME ListenableFuture<?> should be used once closeServiceInstance uses wildcard too
     @Override
-    public synchronized void close() {
-        releaseConnection();
+    public synchronized ListenableFuture<Void> close() {
+        final ListenableFuture<Void> future = releaseConnection();
         this.chain.close();
+        return future;
     }
 
     @Override
@@ -386,17 +390,18 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
         }
     }
 
-    private void cleanup() {
+    private ListenableFuture<Void> cleanup() {
         // FIXME: BUG-196: support graceful
         this.adjRibOutListenerSet.values().forEach(AdjRibOutListener::close);
         this.adjRibOutListenerSet.clear();
         if (this.effRibInWriter != null) {
             this.effRibInWriter.close();
         }
-        if(this.ribWriter != null) {
-            this.ribWriter.removePeer();
-        }
         this.tables.clear();
+        if (this.ribWriter != null) {
+            return this.ribWriter.removePeer();
+        }
+        return Futures.immediateFuture(null);
     }
 
     @Override
@@ -432,15 +437,15 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
     }
 
     @Override
-    @GuardedBy("this")
-    public synchronized void releaseConnection() {
+    public synchronized ListenableFuture<Void> releaseConnection() {
         if (this.rpcRegistration != null) {
             this.rpcRegistration.close();
         }
         closeRegistration();
-        cleanup();
+        final ListenableFuture<Void> future = cleanup();
         dropConnection();
         resetState();
+        return future;
     }
 
     private void closeRegistration() {

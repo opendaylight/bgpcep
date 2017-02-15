@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
+import com.google.common.util.concurrent.ListenableFuture;
 
 /**
  * Marker interface identifying a BGP peer.
@@ -24,4 +25,11 @@ public interface Peer {
      * @return byte[] raw identifier
      */
     byte[] getRawIdentifier();
+
+    /**
+     *  Close Peers and performs asynchronously DS clean up
+     *
+     * @return future
+     */
+    ListenableFuture<?> close();
 }

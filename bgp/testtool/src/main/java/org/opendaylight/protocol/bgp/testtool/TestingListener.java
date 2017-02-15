@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.testtool;
 
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 import java.util.concurrent.atomic.LongAdder;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl;
@@ -72,8 +74,9 @@ final class TestingListener implements BGPSessionListener {
     }
 
     @Override
-    public void releaseConnection() {
+    public ListenableFuture<?> releaseConnection() {
         LOG.info("Client Listener: Connection released.");
+        return Futures.immediateFuture(null);
     }
 
     void printCount(final String localAddress) {

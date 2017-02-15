@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.EventListener;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
@@ -54,5 +55,5 @@ public interface BGPSessionListener extends EventListener {
      */
     void onMessage(BGPSession session, Notification notification) throws BGPDocumentedException;
 
-    void releaseConnection();
+    ListenableFuture<?> releaseConnection();
 }
