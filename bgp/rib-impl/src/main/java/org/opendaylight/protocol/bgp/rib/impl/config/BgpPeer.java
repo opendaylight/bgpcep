@@ -273,11 +273,11 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer, BGPPeerRun
                 this.connection.cancel(true);
                 this.connection = null;
             }
-            this.bgpPeer.close();
+            final ListenableFuture<Void> future = this.bgpPeer.close();
             if(BgpPeer.this.currentConfiguration != null) {
                 this.dispatcher.getBGPPeerRegistry().removePeer(BgpPeer.this.currentConfiguration.getNeighborAddress());
             }
-            return Futures.immediateFuture(null);
+            return future;
         }
 
         @Override

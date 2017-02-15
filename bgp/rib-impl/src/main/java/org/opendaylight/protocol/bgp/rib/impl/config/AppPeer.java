@@ -140,8 +140,7 @@ public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
         @Override
         public ListenableFuture<Void> closeServiceInstance() {
             LOG.info("Application Peer Singleton Service {} instance closed", getIdentifier());
-            this.applicationPeer.close();
-            return Futures.immediateFuture(null);
+            return this.applicationPeer.close();
         }
 
         @Override

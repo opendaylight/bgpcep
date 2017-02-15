@@ -9,8 +9,10 @@ package org.opendaylight.bgpcep.bgp.topology.provider;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -41,15 +43,14 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypes;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCloseable, ClusteredDataTreeChangeListener<T>, TopologyReference, TransactionChainListener {
+public abstract class AbstractTopologyBuilder<T extends Route> implements ClusteredDataTreeChangeListener<T>,
+    TopologyReference, TransactionChainListener {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractTopologyBuilder.class);
     // we limit the listener reset interval to be 5 min at most
     private static final long LISTENER_RESET_LIMIT_IN_MILLSEC = 5 * 60 * 1000;
@@ -147,17 +148,17 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
         return this.topology;
     }
 
-    @Override
-    public final synchronized void close() {
+    public final synchronized ListenableFuture<Void> close() {
         if (this.closed) {
             LOG.trace("Transaction chain was already closed.");
-            return;
+            Futures.immediateFuture(null);
         }
         this.closed = true;
         LOG.info("Shutting down builder for {}", getInstanceIdentifier());
         unregisterDataChangeListener();
-        destroyOperationalTopology();
+        final ListenableFuture<Void> future = destroyOperationalTopology();
         destroyTransactionChain();
+        return future;
     }
 
     @Override
@@ -252,16 +253,25 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
      * Destroy the current operational topology data. Note a valid transaction must be provided
      * @throws TransactionCommitFailedException
      */
-    private synchronized void destroyOperationalTopology() {
+    private synchronized ListenableFuture<Void> destroyOperationalTopology() {
         Preconditions.checkNotNull(this.chain, "A valid transaction chain must be provided.");
         final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
         trans.delete(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier());
-        try {
-            trans.submit().checkedGet();
-        } catch (final TransactionCommitFailedException e) {
-            LOG.error("Unable to reset operational topology {} (transaction {})", this.topology, trans.getIdentifier(), e);
-        }
+        final CheckedFuture<Void, TransactionCommitFailedException> future = trans.submit();
+        Futures.addCallback(future, new FutureCallback<Void>() {
+            @Override
+            public void onSuccess(final Void result) {
+                LOG.trace("Operational topology removed {}", AbstractTopologyBuilder.this.topology);
+            }
+
+            @Override
+            public void onFailure(final Throwable t) {
+                LOG.error("Unable to reset operational topology {} (transaction {})",
+                    AbstractTopologyBuilder.this.topology, trans.getIdentifier(), t);
+            }
+        });
         clearTopology();
+        return future;
     }
 
     /**
