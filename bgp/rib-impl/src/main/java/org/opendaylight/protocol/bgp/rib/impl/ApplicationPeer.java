@@ -10,6 +10,8 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Verify;
 import com.google.common.net.InetAddresses;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -66,7 +68,7 @@ import org.slf4j.LoggerFactory;
  * For purposed of import policies such as Best Path Selection, application
  * peer needs to have a BGP-ID that is configurable.
  */
-public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol.bgp.rib.spi.Peer, ClusteredDOMDataTreeChangeListener, TransactionChainListener {
+public class ApplicationPeer implements org.opendaylight.protocol.bgp.rib.spi.Peer, ClusteredDOMDataTreeChangeListener, TransactionChainListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(ApplicationPeer.class);
 
@@ -248,8 +250,9 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
         return this.name;
     }
 
+    // FIXME ListenableFuture<?> should be used once closeServiceInstance uses wildcard too
     @Override
-    public synchronized void close() {
+    public synchronized ListenableFuture<Void> close() {
         if (this.registration != null) {
             this.registration.close();
             this.registration = null;
@@ -257,8 +260,11 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
         if (this.effectiveRibInWriter != null) {
             this.effectiveRibInWriter.close();
         }
+        final ListenableFuture<Void> future;
         if (this.adjRibInWriter != null) {
-            this.adjRibInWriter.removePeer();
+            future = this.adjRibInWriter.removePeer();
+        }else {
+            future = Futures.immediateFuture(null);
         }
         if (this.chain != null) {
             this.chain.close();
@@ -271,6 +277,7 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
         if (this.moduleTracker != null) {
             this.moduleTracker.onInstanceClose();
         }
+        return future;
     }
 
     @Override

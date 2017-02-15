@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.rib.impl.config;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Objects;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -124,8 +123,7 @@ public final class AppPeer implements PeerBean {
         @Override
         public ListenableFuture<Void> closeServiceInstance() {
             LOG.info("Application Peer Singleton Service {} instance closed", getIdentifier());
-            this.applicationPeer.close();
-            return Futures.immediateFuture(null);
+            return this.applicationPeer.close();
         }
 
         @Override

@@ -11,8 +11,10 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
+import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -247,17 +249,25 @@ final class AdjRibInWriter {
         return pb.build();
     }
 
-    void removePeer() {
+    ListenableFuture<Void> removePeer() {
         if(this.peerPath != null) {
             final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
             tx.delete(LogicalDatastoreType.OPERATIONAL, this.peerPath);
+            final CheckedFuture<Void, TransactionCommitFailedException> future = tx.submit();
+            Futures.addCallback(future, new FutureCallback<Void>() {
+                @Override
+                public void onSuccess(final Void result) {
+                    LOG.debug("Peer {} removed", AdjRibInWriter.this.peerPath);
+                }
 
-            try {
-                tx.submit().checkedGet();
-            } catch (final TransactionCommitFailedException e) {
-                LOG.debug("Failed to remove Peer {}", this.peerPath, e);
-            }
+                @Override
+                public void onFailure(final Throwable t) {
+                    LOG.warn("Failed to remove Peer {}", AdjRibInWriter.this.peerPath, t);
+                }
+            });
+            return future;
         }
+        return Futures.immediateFuture(null);
     }
 
     void markTableUptodate(final TablesKey tableTypes) {

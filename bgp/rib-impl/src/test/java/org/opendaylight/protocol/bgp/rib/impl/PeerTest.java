@@ -158,7 +158,7 @@ public class PeerTest extends AbstractRIBTestSetup {
         try {
             this.classic.onMessage(this.session, ub.build());
             fail();
-        } catch (BGPDocumentedException e) {
+        } catch (final BGPDocumentedException e) {
             assertEquals(BGPError.MANDATORY_ATTR_MISSING_MSG + "LOCAL_PREF", e.getMessage());
             assertEquals(BGPError.WELL_KNOWN_ATTR_MISSING.getCode(), e.getError().getCode());
             assertEquals(BGPError.WELL_KNOWN_ATTR_MISSING.getSubcode(), e.getError().getSubcode());
@@ -172,18 +172,17 @@ public class PeerTest extends AbstractRIBTestSetup {
         assertEquals(3, this.routes.size());
 
         //create new peer so that it gets advertized routes from RIB
-        try (final BGPPeer testingPeer = new BGPPeer("testingPeer", getRib(), PeerRole.Ibgp, null)) {
-            testingPeer.instantiateServiceInstance();
-            testingPeer.onSessionUp(this.session);
-            assertEquals(3, this.routes.size());
-            assertEquals(1, testingPeer.getBgpPeerState().getSessionEstablishedCount().getValue().intValue());
-            final List<RouteTable> routeTables = testingPeer.getBgpPeerState().getRouteTable();
-            assertEquals(1, routeTables.size());
-            final RouteTable routeTable = routeTables.get(0);
-            assertEquals(AFI_QNAME.toString(), routeTable.getAfi().getqNameOfIdentity());
-            assertEquals(SAFI_QNAME.toString(), routeTable.getSafi().getqNameOfIdentity());
-            assertNotNull(testingPeer.getBgpSessionState());
-        }
+        final BGPPeer testingPeer = new BGPPeer("testingPeer", getRib(), PeerRole.Ibgp, null);
+        testingPeer.instantiateServiceInstance();
+        testingPeer.onSessionUp(this.session);
+        assertEquals(3, this.routes.size());
+        assertEquals(1, testingPeer.getBgpPeerState().getSessionEstablishedCount().getValue().intValue());
+        final List<RouteTable> routeTables = testingPeer.getBgpPeerState().getRouteTable();
+        assertEquals(1, routeTables.size());
+        final RouteTable routeTable = routeTables.get(0);
+        assertEquals(AFI_QNAME.toString(), routeTable.getAfi().getqNameOfIdentity());
+        assertEquals(SAFI_QNAME.toString(), routeTable.getSafi().getqNameOfIdentity());
+        assertNotNull(testingPeer.getBgpSessionState());
 
         final List<Ipv4Prefix> prefs2 = Lists.newArrayList(new Ipv4Prefix("8.0.1.0/28"), new Ipv4Prefix("8.0.1.16/28"));
         ub.setNlri(new NlriBuilder().setNlri(prefs2).build());

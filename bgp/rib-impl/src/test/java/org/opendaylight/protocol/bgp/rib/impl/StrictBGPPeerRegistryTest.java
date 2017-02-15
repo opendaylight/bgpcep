@@ -14,6 +14,7 @@ import static org.junit.Assert.fail;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.Futures;
 import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.List;
@@ -67,7 +68,7 @@ public class StrictBGPPeerRegistryTest {
 
     private static BGPSessionListener getMockSession() {
         final BGPSessionListener mock = Mockito.mock(BGPSessionListener.class);
-        Mockito.doNothing().when(mock).releaseConnection();
+        Mockito.doReturn(Futures.immediateFuture(null)).when(mock).releaseConnection();
         return mock;
     }
 

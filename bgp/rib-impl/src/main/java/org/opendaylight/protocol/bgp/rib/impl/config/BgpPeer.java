@@ -15,7 +15,6 @@ import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUti
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
@@ -258,11 +257,11 @@ public final class BgpPeer implements PeerBean, BGPPeerRuntimeMXBean {
                 this.connection.cancel(true);
                 this.connection = null;
             }
-            this.bgpPeer.close();
+            final ListenableFuture<Void> future = this.bgpPeer.close();
             if(BgpPeer.this.currentConfiguration != null) {
                 BgpPeer.this.peerRegistry.removePeer(BgpPeer.this.currentConfiguration.getNeighborAddress());
             }
-            return Futures.immediateFuture(null);
+            return future;
         }
 
         @Override

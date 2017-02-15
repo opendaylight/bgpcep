@@ -8,6 +8,8 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.Uninterruptibles;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -67,7 +69,7 @@ public final class SimpleSessionListener implements BGPSessionListener {
     }
 
     @Override
-    public void releaseConnection() {
+    public ListenableFuture<Void> releaseConnection() {
         LOG.debug("Releasing connection");
         if (this.session != null) {
             try {
@@ -76,6 +78,7 @@ public final class SimpleSessionListener implements BGPSessionListener {
                 LOG.warn("Error closing session", e);
             }
         }
+        return Futures.immediateFuture(null);
     }
 
     BGPSessionImpl.State getState() {
