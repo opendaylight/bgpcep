@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_bed13459",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-02-16T13:09:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_cea289ad",
+      "range": {
+        "startLine": 264,
+        "startChar": 16,
+        "endLine": 265,
+        "endChar": 17
+      },
+      "revId": "dfddd189f64fac5dcfdbf08a85bc91115fc5d522",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_aea585b6",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2017-02-15T21:19:09Z",
       "side": 1,
       "message": "warn",
+      "range": {
+        "startLine": 269,
+        "startChar": 24,
+        "endLine": 269,
+        "endChar": 29
+      },
+      "revId": "dfddd189f64fac5dcfdbf08a85bc91115fc5d522",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9ed43048",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-02-16T13:09:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_aea585b6",
       "range": {
         "startLine": 269,
         "startChar": 24,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9e6270ab",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/ApplicationPeer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-02-16T13:09:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_2e919552",
+      "range": {
+        "startLine": 254,
+        "startChar": 4,
+        "endLine": 254,
+        "endChar": 54
+      },
+      "revId": "dfddd189f64fac5dcfdbf08a85bc91115fc5d522",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_2eca356e",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
         "patchSetId": 2
@@ -82,6 +154,30 @@
       "writtenOn": "2017-02-15T21:19:09Z",
       "side": 1,
       "message": "\u003c?\u003e, Void is an evil type :)",
+      "range": {
+        "startLine": 166,
+        "startChar": 40,
+        "endLine": 166,
+        "endChar": 46
+      },
+      "revId": "dfddd189f64fac5dcfdbf08a85bc91115fc5d522",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_314c5542",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-02-16T13:09:58Z",
+      "side": 1,
+      "message": "BUG under ClusterSingletonService Interface",
+      "parentUuid": "fafc7978_2eca356e",
       "range": {
         "startLine": 166,
         "startChar": 40,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3efa64bd",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-02-16T13:09:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_8ec9a17a",
+      "range": {
+        "startLine": 399,
+        "startChar": 9,
+        "endLine": 399,
+        "endChar": 11
+      },
+      "revId": "dfddd189f64fac5dcfdbf08a85bc91115fc5d522",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_6ec43d5f",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
         "patchSetId": 2
@@ -128,6 +248,30 @@
       "writtenOn": "2017-02-15T21:19:09Z",
       "side": 1,
       "message": "this annotation is incorrect. Public methods should never be @GuardedBy, as that indicates the caller has to already hold the lock.",
+      "range": {
+        "startLine": 441,
+        "startChar": 2,
+        "endLine": 441,
+        "endChar": 22
+      },
+      "revId": "dfddd189f64fac5dcfdbf08a85bc91115fc5d522",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1ef5e0ca",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 441,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-02-16T13:09:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_6ec43d5f",
       "range": {
         "startLine": 441,
         "startChar": 2,
