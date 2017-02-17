@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_408c9d7f",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/PCEPTopologyDeployerImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-02-17T15:01:22Z",
+      "side": 1,
+      "message": "used to unregister the service from bundle context.",
+      "parentUuid": "fafc7978_aabbaae3",
+      "range": {
+        "startLine": 71,
+        "startChar": 0,
+        "endLine": 72,
+        "endChar": 95
+      },
+      "revId": "2e9f09ace1b57b2822086b17baf5e415ffcc5ab3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_eade523e",
         "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/PCEPTopologyDeployerImpl.java",
         "patchSetId": 5
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_006e1596",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/PCEPTopologyDeployerImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-02-17T15:01:22Z",
+      "side": 1,
+      "message": "not final",
+      "parentUuid": "fafc7978_eade523e",
+      "range": {
+        "startLine": 185,
+        "startChar": 52,
+        "endLine": 185,
+        "endChar": 67
+      },
+      "revId": "2e9f09ace1b57b2822086b17baf5e415ffcc5ab3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_cae1ceff",
         "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/PCEPTopologyDeployerImpl.java",
         "patchSetId": 5
@@ -59,6 +107,30 @@
       "writtenOn": "2017-02-17T01:26:01Z",
       "side": 1,
       "message": "This does not belong to the constructor.",
+      "range": {
+        "startLine": 202,
+        "startChar": 0,
+        "endLine": 208,
+        "endChar": 13
+      },
+      "revId": "2e9f09ace1b57b2822086b17baf5e415ffcc5ab3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8030459f",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/PCEPTopologyDeployerImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-02-17T15:01:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_cae1ceff",
       "range": {
         "startLine": 202,
         "startChar": 0,
@@ -117,6 +189,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e0279162",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/PCEPTopologyDeployerImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-02-17T15:01:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_6af262d3",
+      "range": {
+        "startLine": 270,
+        "startChar": 17,
+        "endLine": 270,
+        "endChar": 52
+      },
+      "revId": "2e9f09ace1b57b2822086b17baf5e415ffcc5ab3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_2a217a4d",
         "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/PCEPTopologyDeployerImpl.java",
         "patchSetId": 5
@@ -128,6 +224,30 @@
       "writtenOn": "2017-02-17T01:26:01Z",
       "side": 1,
       "message": "Constant service group name forces to run all pcep-topology-provider instances on single node (i.e. it disables option for this kind of HA deployment: https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-18#section-5.7.4).\nAlso, is not the instruction scheduler service supposed to run on the same node as depending pcep-topology-provider?",
+      "range": {
+        "startLine": 279,
+        "startChar": 19,
+        "endLine": 279,
+        "endChar": 22
+      },
+      "revId": "2e9f09ace1b57b2822086b17baf5e415ffcc5ab3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c0b88de7",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/PCEPTopologyDeployerImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-02-17T15:01:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_2a217a4d",
       "range": {
         "startLine": 279,
         "startChar": 19,
@@ -163,6 +283,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_a083c954",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/controller/config/yang/pcep/topology/provider/PCEPTopologyProviderModule.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-02-17T15:01:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_cab8aee7",
+      "range": {
+        "startLine": 41,
+        "startChar": 4,
+        "endLine": 41,
+        "endChar": 14
+      },
+      "revId": "2e9f09ace1b57b2822086b17baf5e415ffcc5ab3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_0acab66d",
         "filename": "programming/impl/src/main/java/org/opendaylight/bgpcep/programming/impl/InstructionDeployedImpl.java",
         "patchSetId": 5
@@ -186,6 +330,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_00abb5d6",
+        "filename": "programming/impl/src/main/java/org/opendaylight/bgpcep/programming/impl/InstructionDeployedImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-02-17T15:01:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_0acab66d",
+      "range": {
+        "startLine": 44,
+        "startChar": 85,
+        "endLine": 44,
+        "endChar": 107
+      },
+      "revId": "2e9f09ace1b57b2822086b17baf5e415ffcc5ab3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_8aa506b7",
         "filename": "programming/impl/src/main/java/org/opendaylight/bgpcep/programming/impl/ProgrammingServiceImpl.java",
         "patchSetId": 5
@@ -197,6 +365,30 @@
       "writtenOn": "2017-02-17T01:26:01Z",
       "side": 1,
       "message": "This change is not relate to the \"bug fix\".",
+      "range": {
+        "startLine": 70,
+        "startChar": 18,
+        "endLine": 70,
+        "endChar": 44
+      },
+      "revId": "2e9f09ace1b57b2822086b17baf5e415ffcc5ab3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c0a9ade0",
+        "filename": "programming/impl/src/main/java/org/opendaylight/bgpcep/programming/impl/ProgrammingServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-02-17T15:01:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_8aa506b7",
       "range": {
         "startLine": 70,
         "startChar": 18,
