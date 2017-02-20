@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
@@ -126,6 +127,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
     private final String name;
     private BGPPeerRuntimeRegistrator registrator;
     private BGPPeerRuntimeRegistration runtimeReg;
+    @GuardedBy("this")
     private final Map<TablesKey, AdjRibOutListener> adjRibOutListenerSet = new HashMap<>();
     private final RpcProviderRegistry rpcRegistry;
     private RoutedRpcRegistration<BgpPeerRpcService> rpcRegistration;
@@ -134,6 +136,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
     private final BGPPeerStats peerStats;
     private YangInstanceIdentifier peerIId;
     private final Set<AbstractRegistration> tableRegistration = new HashSet<>();
+    private AtomicBoolean brokenChain = new AtomicBoolean(false);
 
     public BGPPeer(final String name, final RIB rib, final PeerRole role, final SimpleRoutingPolicy peerStatus,
         final RpcProviderRegistry rpcRegistry,
@@ -184,7 +187,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
         }
     }
 
-    private void onRouteRefreshMessage(final RouteRefresh message, final BGPSession session) {
+    private synchronized void onRouteRefreshMessage(final RouteRefresh message, final BGPSession session) {
         final Class<? extends AddressFamily> rrAfi = message.getAfi();
         final Class<? extends SubsequentAddressFamily> rrSafi = message.getSafi();
 
@@ -329,7 +332,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
             .node(IdentifierUtils.domPeerId(peerId));
 
         if(!announceNone) {
-            createAdjRibOutListener(peerId);
+            this.tables.forEach(key->createAdjRibOutListener(peerId, key, true));
         }
         this.tables.forEach(tablesKey -> {
             final ExportPolicyPeerTracker exportTracker = this.rib.getExportPolicyPeerTracker(tablesKey);
@@ -341,7 +344,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
         addBgp4Support(peerId, announceNone);
 
         if(!isLearnNone(this.simpleRoutingPolicy)) {
-            this.effRibInWriter = EffectiveRibInWriter.create(this.rib.getService(), this.rib.createPeerChain(this),
+            this.effRibInWriter = EffectiveRibInWriter.create(this.brokenChain, this.rib.getService(), this.rib.createPeerChain(this),
                 this.peerIId, this.rib.getImportPolicyPeerTracker(), this.rib.getRibSupportContext(), this.peerRole,
                 this.peerStats.getAdjRibInRouteCounters(), this.tables);
             registerPrefixesCounters(this.effRibInWriter, this.effRibInWriter);
@@ -364,19 +367,15 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
         this.rib.getRenderStats().getConnectedPeerCounter().increment();
     }
 
-    private void createAdjRibOutListener(final PeerId peerId) {
-        this.tables.forEach(key->createAdjRibOutListener(peerId, key, true));
-    }
-
     //try to add a support for old-school BGP-4, if peer did not advertise IPv4-Unicast MP capability
-    private void addBgp4Support(final PeerId peerId, final boolean announceNone) {
+    private synchronized void addBgp4Support(final PeerId peerId, final boolean announceNone) {
         final TablesKey key = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
         if (this.tables.add(key) && !announceNone) {
             createAdjRibOutListener(peerId, key, false);
         }
     }
 
-    private void createAdjRibOutListener(final PeerId peerId, final TablesKey key, final boolean mpSupport) {
+    private synchronized void createAdjRibOutListener(final PeerId peerId, final TablesKey key, final boolean mpSupport) {
         final RIBSupportContext context = this.rib.getRibSupportContext().getRIBSupportContext(key);
 
         // not particularly nice
@@ -390,7 +389,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
         }
     }
 
-    private ListenableFuture<Void> cleanup() {
+    private synchronized ListenableFuture<Void> cleanup() {
         // FIXME: BUG-196: support graceful
         this.adjRibOutListenerSet.values().forEach(AdjRibOutListener::close);
         this.adjRibOutListenerSet.clear();
@@ -448,14 +447,14 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
         return future;
     }
 
-    private void closeRegistration() {
+    private synchronized void closeRegistration() {
         for (final AbstractRegistration tableCloseable : this.tableRegistration) {
             tableCloseable.close();
         }
         this.tableRegistration.clear();
     }
 
-    private void dropConnection() {
+    private synchronized void dropConnection() {
         if (this.runtimeReg != null) {
             this.runtimeReg.close();
             this.runtimeReg = null;
@@ -503,11 +502,14 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
     }
 
     @Override
-    public void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction, final Throwable cause) {
+    public synchronized void onTransactionChainFailed(final TransactionChain<?, ?> chain,
+        final AsyncTransaction<?, ?> transaction, final Throwable cause) {
         LOG.error("Transaction chain failed.", cause);
+        this.brokenChain.set(true);
         this.chain.close();
         this.chain = this.rib.createPeerChain(this);
         this.ribWriter = AdjRibInWriter.create(this.rib.getYangRibId(), this.peerRole, this.simpleRoutingPolicy, this.chain);
+        this.brokenChain = new AtomicBoolean(false);
         releaseConnection();
     }
 

@@ -12,6 +12,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.opendaylight.protocol.bgp.rib.impl.config.AppPeer.APP_ID_QNAME;
 
 import com.google.common.collect.Lists;
 import io.netty.channel.Channel;
@@ -28,9 +29,12 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.RouteTable;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.LocalPreferenceAttributeParser;
@@ -62,6 +66,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.RouteRefreshBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.LocRib;
@@ -119,8 +124,13 @@ public class PeerTest extends AbstractRIBTestSetup {
         final Ipv4Prefix first = new Ipv4Prefix("127.0.0.2/32");
         final Ipv4Prefix second = new Ipv4Prefix("127.0.0.1/32");
         final Ipv4Prefix third = new Ipv4Prefix("127.0.0.3/32");
-        this.peer = new ApplicationPeer(new ApplicationRibId(this.neighborAddress.getValue()), this.neighborAddress, getRib());
-        this.peer.instantiateServiceInstance(null, null);
+        final YangInstanceIdentifier yangIId = YangInstanceIdentifier.builder().node(ApplicationRib.QNAME)
+            .nodeWithKey(ApplicationRib.QNAME, APP_ID_QNAME, this.neighborAddress.getValue()).node(Tables.QNAME)
+            .node(Tables.QNAME).build();
+        final DOMDataTreeIdentifier domDataTreeIdentifier = new DOMDataTreeIdentifier(LogicalDatastoreType.CONFIGURATION, yangIId);
+        this.peer = new ApplicationPeer(new ApplicationRibId(this.neighborAddress.getValue()),
+            this.neighborAddress, getRib(), this.service, domDataTreeIdentifier);
+        this.peer.instantiateServiceInstance();
         final YangInstanceIdentifier base = getRib().getYangRibId().node(LocRib.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(KEY));
         this.peer.onDataTreeChanged(ipv4Input(base, ModificationType.WRITE, first, second, third));
         assertEquals(3, this.routes.size());

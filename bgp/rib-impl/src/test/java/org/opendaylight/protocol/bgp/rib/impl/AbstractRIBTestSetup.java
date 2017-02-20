@@ -131,7 +131,7 @@ public class AbstractRIBTestSetup {
     private Optional<Rib> o;
 
     @Mock
-    private DOMDataTreeChangeService service;
+    protected DOMDataTreeChangeService service;
 
     @Mock
     private ClusterSingletonServiceProvider clusterSingletonServiceProvider;
