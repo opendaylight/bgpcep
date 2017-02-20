@@ -24,7 +24,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public final class CheckUtil {
     private static final int LATCH_TIMEOUT = 10;
     private static final int SLEEP_FOR = 200;
-    private static final int TIMEOUT = 60;
+    private static final int TIMEOUT = 30;
     private CheckUtil() {
         throw new UnsupportedOperationException();
     }
@@ -34,6 +34,7 @@ public final class CheckUtil {
         final CountDownLatch latch = new CountDownLatch(1);
         future.addListener(future1 -> latch.countDown());
         Uninterruptibles.awaitUninterruptibly(latch, LATCH_TIMEOUT, TimeUnit.SECONDS);
+        assert future.isSuccess();
     }
 
     public static <R, T extends DataObject> R readData(final DataBroker dataBroker, final InstanceIdentifier<T> iid,

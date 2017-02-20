@@ -47,7 +47,6 @@ public class BGPDispatcherImplTest extends AbstractBGPDispatcherTest {
         final InetSocketAddress serverAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
         final Future<Void> future = this.clientDispatcher.createReconnectingClient(serverAddress, RETRY_TIMER,
             Optional.absent(), this.clientAddress, true);
-        waitFutureSuccess(future);
         final Channel serverChannel = createServer(serverAddress);
         Assert.assertEquals(State.UP, this.serverListener.getState());
         Assert.assertTrue(serverChannel.isWritable());
