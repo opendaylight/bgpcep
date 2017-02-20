@@ -74,7 +74,6 @@ public class PCCDispatcherImplTest {
     public void testClientReconnect() throws Exception {
         final Future<PCEPSession> futureSession = this.dispatcher.createClient(this.serverAddress, 1, new TestingSessionListenerFactory(),
             this.nf, null, this.clientAddress);
-        waitFutureSuccess(futureSession);
         final TestingSessionListenerFactory slf = new TestingSessionListenerFactory();
         final ChannelFuture futureServer = this.pcepDispatcher.createServer(this.serverAddress, slf, null);
         waitFutureSuccess(futureServer);
