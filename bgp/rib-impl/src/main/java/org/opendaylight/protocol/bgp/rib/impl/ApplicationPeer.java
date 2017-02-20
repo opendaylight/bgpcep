@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
@@ -93,6 +94,7 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
     private ListenerRegistration<ApplicationPeer> registration;
     private final Set<NodeIdentifierWithPredicates> supportedTables = new HashSet<>();
     private final BGPSessionStateImpl bgpSessionState = new BGPSessionStateImpl();
+    private final AtomicBoolean brokenChain = new AtomicBoolean(false);
 
     @FunctionalInterface
     interface RegisterAppPeerListener {
@@ -144,7 +146,7 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
         this.adjRibInWriter = this.adjRibInWriter.transform(peerId, context, localTables, Collections.emptyMap(),
             registerAppPeerListener);
         final BGPPeerStats peerStats = new BGPPeerStatsImpl(this.name, localTables, this);
-        this.effectiveRibInWriter = EffectiveRibInWriter.create(this.rib.getService(), this.rib.createPeerChain(this), this.peerIId,
+        this.effectiveRibInWriter = EffectiveRibInWriter.create(this.brokenChain, this.rib.getService(), this.rib.createPeerChain(this), this.peerIId,
             this.rib.getImportPolicyPeerTracker(), context, PeerRole.Internal,
             peerStats.getAdjRibInRouteCounters(), localTables);
         this.bgpSessionState.registerMessagesCounter(this);
@@ -284,9 +286,10 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
     }
 
     @Override
-    public void onTransactionChainFailed(final TransactionChain<?, ?> chain,
+    public synchronized void onTransactionChainFailed(final TransactionChain<?, ?> chain,
         final AsyncTransaction<?, ?> transaction, final Throwable cause) {
         LOG.error("Transaction chain {} failed.", transaction != null ? transaction.getIdentifier() : null, cause);
+        this.brokenChain.set(true);
     }
 
     @Override
