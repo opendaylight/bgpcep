@@ -10,6 +10,8 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedInteger;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -96,7 +98,19 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         tx.merge(LogicalDatastoreType.OPERATIONAL, this.locRibTarget.node(Routes.QNAME), this.ribSupport.emptyRoutes());
         tx.merge(LogicalDatastoreType.OPERATIONAL, this.locRibTarget.node(Attributes.QNAME).node(ATTRIBUTES_UPTODATE_TRUE.getNodeType()), ATTRIBUTES_UPTODATE_TRUE);
-        tx.submit();
+        Futures.addCallback(tx.submit(), new FutureCallback<Void>() {
+            @Override
+            public void onSuccess(final Void result) {
+                LOG.trace("LocRib Empty structure successfully created for table key {}",
+                    LocRibWriter.this.localTablesKey);
+            }
+
+            @Override
+            public void onFailure(final Throwable t) {
+                LOG.error("Failed to create LocRib Empty structure for table key {}", LocRibWriter.this.localTablesKey,
+                    t);
+            }
+        });
 
         final YangInstanceIdentifier tableId = target.node(Peer.QNAME).node(Peer.QNAME).node(EffectiveRibIn.QNAME).node(Tables.QNAME).node(tableKey);
         final DOMDataTreeIdentifier wildcard = new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, tableId);
@@ -134,7 +148,7 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
      * @param changes on supported table
      */
     @Override
-    public void onDataTreeChanged(final Collection<DataTreeCandidate> changes) {
+    public synchronized void onDataTreeChanged(final Collection<DataTreeCandidate> changes) {
         LOG.trace("Received data change {} to LocRib {}", changes, this);
 
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();

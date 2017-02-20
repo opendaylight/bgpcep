@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 
 public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
     private static final Logger LOG = LoggerFactory.getLogger(AppPeer.class);
-    private static final QName APP_ID_QNAME = QName.create(ApplicationRib.QNAME, "id").intern();
+    public static final QName APP_ID_QNAME = QName.create(ApplicationRib.QNAME, "id").intern();
     private Neighbor currentConfiguration;
     private BgpAppPeerSingletonService bgpAppPeerSingletonService;
     private ServiceRegistration<?> serviceRegistration;
@@ -106,11 +106,16 @@ public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
 
         BgpAppPeerSingletonService(final RIB rib, final ApplicationRibId appRibId, final Ipv4Address neighborAddress,
             final WriteConfiguration configurationWriter) {
-            this.applicationPeer = new ApplicationPeer(appRibId, neighborAddress, rib);
             this.appRibId = appRibId;
             this.dataTreeChangeService = rib.getService();
             this.serviceGroupIdentifier = rib.getRibIServiceGroupIdentifier();
             this.configurationWriter = configurationWriter;
+            final YangInstanceIdentifier yangIId = YangInstanceIdentifier.builder().node(ApplicationRib.QNAME)
+                .nodeWithKey(ApplicationRib.QNAME, APP_ID_QNAME, this.appRibId.getValue()).node(Tables.QNAME)
+                .node(Tables.QNAME).build();
+            this.applicationPeer = new ApplicationPeer(appRibId, neighborAddress, rib, this.dataTreeChangeService,
+                new DOMDataTreeIdentifier(LogicalDatastoreType.CONFIGURATION, yangIId));
+
             LOG.info("Application Peer Singleton Service {} registered", getIdentifier());
             //this need to be always the last step
             this.singletonServiceRegistration = rib.registerClusterSingletonService(this);
@@ -130,10 +135,7 @@ public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
                 this.configurationWriter.apply();
             }
             LOG.info("Application Peer Singleton Service {} instantiated", getIdentifier());
-            final YangInstanceIdentifier yangIId = YangInstanceIdentifier.builder().node(ApplicationRib.QNAME)
-                .nodeWithKey(ApplicationRib.QNAME, APP_ID_QNAME, this.appRibId.getValue()).node(Tables.QNAME).node(Tables.QNAME).build();
-            this.applicationPeer.instantiateServiceInstance(this.dataTreeChangeService,
-                new DOMDataTreeIdentifier(LogicalDatastoreType.CONFIGURATION, yangIId));
+            this.applicationPeer.instantiateServiceInstance();
         }
 
         @Override

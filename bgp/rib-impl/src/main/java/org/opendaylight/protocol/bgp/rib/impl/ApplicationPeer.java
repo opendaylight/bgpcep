@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
@@ -86,6 +87,8 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
     private final Ipv4Address ipAddress;
     private final RIB rib;
     private final YangInstanceIdentifier peerIId;
+    private final DOMDataTreeChangeService dataTreeChangeService;
+    private final DOMDataTreeIdentifier appPeerDOMId;
     private DOMTransactionChain chain;
     private DOMTransactionChain writerChain;
     private EffectiveRibInWriter effectiveRibInWriter;
@@ -93,6 +96,8 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
     private ListenerRegistration<ApplicationPeer> registration;
     private final Set<NodeIdentifierWithPredicates> supportedTables = new HashSet<>();
     private final BGPSessionStateImpl bgpSessionState = new BGPSessionStateImpl();
+    private AtomicBoolean brokenChain = new AtomicBoolean(false);
+    private volatile boolean closingStatus;
 
     @FunctionalInterface
     interface RegisterAppPeerListener {
@@ -102,11 +107,14 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
         void register();
     }
 
-    public ApplicationPeer(final ApplicationRibId applicationRibId, final Ipv4Address ipAddress, final RIB rib) {
+    public ApplicationPeer(final ApplicationRibId applicationRibId, final Ipv4Address ipAddress, final RIB rib,
+        final DOMDataTreeChangeService dataTreeChangeService, final DOMDataTreeIdentifier appPeerDOMId) {
         super(rib.getInstanceIdentifier(), "application-peers", new IpAddress(ipAddress), rib.getLocalTablesKeys(),
             Collections.emptySet());
         this.name = applicationRibId.getValue();
         final RIB targetRib = Preconditions.checkNotNull(rib);
+        this.dataTreeChangeService = Preconditions.checkNotNull(dataTreeChangeService);
+        this.appPeerDOMId = Preconditions.checkNotNull(appPeerDOMId);
         this.rawIdentifier = InetAddresses.forString(ipAddress.getValue()).getAddress();
         final NodeIdentifierWithPredicates peerId = IdentifierUtils.domPeerId(RouterIds.createPeerId(ipAddress));
         this.peerIId = targetRib.getYangRibId().node(Peer.QNAME).node(peerId);
@@ -115,8 +123,7 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
         this.ipAddress = ipAddress;
     }
 
-    public synchronized void instantiateServiceInstance(final DOMDataTreeChangeService dataTreeChangeService,
-        final DOMDataTreeIdentifier appPeerDOMId) {
+    public synchronized void instantiateServiceInstance() {
         this.chain = this.rib.createPeerChain(this);
         this.writerChain = this.rib.createPeerChain(this);
 
@@ -137,14 +144,16 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
         final RegisterAppPeerListener registerAppPeerListener = () -> {
             synchronized (this) {
                 if(this.chain != null) {
-                    this.registration = dataTreeChangeService.registerDataTreeChangeListener(appPeerDOMId, this);
+                    this.registration = this.dataTreeChangeService
+                        .registerDataTreeChangeListener(this.appPeerDOMId, this);
                 }
             }
         };
         this.adjRibInWriter = this.adjRibInWriter.transform(peerId, context, localTables, Collections.emptyMap(),
             registerAppPeerListener);
         final BGPPeerStats peerStats = new BGPPeerStatsImpl(this.name, localTables, this);
-        this.effectiveRibInWriter = EffectiveRibInWriter.create(this.rib.getService(), this.rib.createPeerChain(this), this.peerIId,
+        this.effectiveRibInWriter = EffectiveRibInWriter.create(this.brokenChain, this.rib.getService(),
+            this.rib.createPeerChain(this), this.peerIId,
             this.rib.getImportPolicyPeerTracker(), context, PeerRole.Internal,
             peerStats.getAdjRibInRouteCounters(), localTables);
         this.bgpSessionState.registerMessagesCounter(this);
@@ -254,6 +263,7 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
     // FIXME ListenableFuture<?> should be used once closeServiceInstance uses wildcard too
     @Override
     public synchronized ListenableFuture<Void> close() {
+        this.closingStatus = true;
         if (this.registration != null) {
             this.registration.close();
             this.registration = null;
@@ -284,9 +294,21 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
     }
 
     @Override
-    public void onTransactionChainFailed(final TransactionChain<?, ?> chain,
+    public synchronized void onTransactionChainFailed(final TransactionChain<?, ?> chain,
         final AsyncTransaction<?, ?> transaction, final Throwable cause) {
         LOG.error("Transaction chain {} failed.", transaction != null ? transaction.getIdentifier() : null, cause);
+        this.brokenChain.set(true);
+        this.brokenChain = new AtomicBoolean(false);
+        restartApplicationPeer();
+    }
+
+    private synchronized void restartApplicationPeer() {
+        if (this.closingStatus) {
+            return;
+        }
+        close();
+        instantiateServiceInstance();
+        this.closingStatus = false;
     }
 
     @Override

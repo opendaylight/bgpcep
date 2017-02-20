@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.LongAdder;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -80,16 +81,17 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         private final RIBSupportContextRegistry registry;
         private final YangInstanceIdentifier peerIId;
         private final YangInstanceIdentifier effRibTables;
-        private final ListenerRegistration<?> reg;
+        private ListenerRegistration<?> reg;
         private final DOMTransactionChain chain;
         private final PerTableTypeRouteCounter adjRibInRouteCounters;
         private final Map<TablesKey, Set<YangInstanceIdentifier>> adjRibInRouteMap = new ConcurrentHashMap<>();
         private final Map<TablesKey, LongAdder> prefixesReceived;
         private final Map<TablesKey, LongAdder> prefixesInstalled;
+        private final AtomicBoolean brokenChain;
 
-        AdjInTracker(final DOMDataTreeChangeService service, final RIBSupportContextRegistry registry,
+        AdjInTracker(final AtomicBoolean brokenChain, final DOMDataTreeChangeService service, final RIBSupportContextRegistry registry,
             final DOMTransactionChain chain, final YangInstanceIdentifier peerIId,
-            @Nonnull final PerTableTypeRouteCounter adjRibInRouteCounters, @Nonnull Set<TablesKey> tables) {
+            @Nonnull final PerTableTypeRouteCounter adjRibInRouteCounters, @Nonnull final Set<TablesKey> tables) {
             this.registry = Preconditions.checkNotNull(registry);
             this.chain = Preconditions.checkNotNull(chain);
             this.peerIId = Preconditions.checkNotNull(peerIId);
@@ -97,6 +99,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             this.adjRibInRouteCounters = Preconditions.checkNotNull(adjRibInRouteCounters);
             this.prefixesInstalled = buildPrefixesTables(tables);
             this.prefixesReceived = buildPrefixesTables(tables);
+            this.brokenChain = brokenChain;
 
             final DOMDataTreeIdentifier treeId = new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL,
                 this.peerIId.node(AdjRibIn.QNAME).node(Tables.QNAME));
@@ -279,7 +282,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         }
 
         @Override
-        public void onDataTreeChanged(@Nonnull final Collection<DataTreeCandidate> changes) {
+        public synchronized void onDataTreeChanged(@Nonnull final Collection<DataTreeCandidate> changes) {
             LOG.trace("Data changed called to effective RIB. Change : {}", changes);
 
             // we have a lot of transactions created for 'nothing' because a lot of changes
@@ -291,6 +294,11 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                 final DataTreeCandidateNode root = tc.getRootNode();
                 for (final DataTreeCandidateNode table : root.getChildNodes()) {
                     if (tx == null) {
+                        if (this.brokenChain.get()) {
+                            LOG.trace("Chain broken, skipping changes : {}", changes);
+                            unregisterListener();
+                            return;
+                        }
                         tx = this.chain.newWriteOnlyTransaction();
                     }
                     changeDataTree(tx, rootPath, root, table);
@@ -336,9 +344,16 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             }
         }
 
+        private synchronized void unregisterListener() {
+            if (this.reg != null) {
+                this.reg.close();
+                this.reg = null;
+            }
+        }
+
         @Override
-        public void close() {
-            this.reg.close();
+        public synchronized void close() {
+            unregisterListener();
             this.prefixesReceived.values().forEach(LongAdder::reset);
             this.prefixesInstalled.values().forEach(LongAdder::reset);
         }
@@ -354,50 +369,59 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
         @Override
         public Set<TablesKey> getTableKeys() {
-            return ImmutableSet.copyOf(this.prefixesReceived.keySet());
+            synchronized (this.prefixesReceived) {
+                return ImmutableSet.copyOf(this.prefixesReceived.keySet());
+            }
         }
 
         @Override
         public boolean isSupported(final TablesKey tablesKey) {
-            return this.prefixesReceived.containsKey(tablesKey);
+            synchronized (this.prefixesReceived) {
+                return this.prefixesReceived.containsKey(tablesKey);
+            }
         }
 
         @Override
         public long getPrefixedInstalledCount(final TablesKey tablesKey) {
-            final LongAdder counter = this.prefixesInstalled.get(tablesKey);
-            if (counter == null) {
-                return 0;
+            synchronized (this.prefixesInstalled) {
+                final LongAdder counter = this.prefixesInstalled.get(tablesKey);
+                if (counter == null) {
+                    return 0;
+                }
+                return counter.longValue();
             }
-            return counter.longValue();
         }
 
         @Override
         public long getTotalPrefixesInstalled() {
-            return this.prefixesInstalled.values().stream().mapToLong(LongAdder::longValue).sum();
+            synchronized (this.prefixesInstalled) {
+                return this.prefixesInstalled.values().stream().mapToLong(LongAdder::longValue).sum();
+            }
         }
     }
 
     private final AdjInTracker adjInTracker;
     private final AbstractImportPolicy importPolicy;
 
-    static EffectiveRibInWriter create(@Nonnull final DOMDataTreeChangeService service, @Nonnull final DOMTransactionChain chain,
+    static EffectiveRibInWriter create(final AtomicBoolean brokenChain, @Nonnull final DOMDataTreeChangeService service, @Nonnull final DOMTransactionChain chain,
         @Nonnull final YangInstanceIdentifier peerIId, @Nonnull final ImportPolicyPeerTracker importPolicyPeerTracker,
         @Nonnull final RIBSupportContextRegistry registry, final PeerRole peerRole,
-        @Nonnull final PerTableTypeRouteCounter adjRibInRouteCounters, @Nonnull Set<TablesKey> tables) {
-        return new EffectiveRibInWriter(service, chain, peerIId, importPolicyPeerTracker, registry, peerRole,
+        @Nonnull final PerTableTypeRouteCounter adjRibInRouteCounters, @Nonnull final Set<TablesKey> tables) {
+        return new EffectiveRibInWriter(brokenChain, service, chain, peerIId, importPolicyPeerTracker, registry, peerRole,
             adjRibInRouteCounters, tables);
     }
 
-    private EffectiveRibInWriter(final DOMDataTreeChangeService service, final DOMTransactionChain chain, final YangInstanceIdentifier peerIId,
+    private EffectiveRibInWriter(final AtomicBoolean brokenChain, final DOMDataTreeChangeService service,
+        final DOMTransactionChain chain, final YangInstanceIdentifier peerIId,
         final ImportPolicyPeerTracker importPolicyPeerTracker, final RIBSupportContextRegistry registry, final PeerRole peerRole,
-        @Nonnull final PerTableTypeRouteCounter adjRibInRouteCounters, @Nonnull Set<TablesKey> tables) {
+        @Nonnull final PerTableTypeRouteCounter adjRibInRouteCounters, @Nonnull final Set<TablesKey> tables) {
         importPolicyPeerTracker.peerRoleChanged(peerIId, peerRole);
         this.importPolicy = importPolicyPeerTracker.policyFor(IdentifierUtils.peerId((NodeIdentifierWithPredicates) peerIId.getLastPathArgument()));
-        this.adjInTracker = new AdjInTracker(service, registry, chain, peerIId, adjRibInRouteCounters, tables);
+        this.adjInTracker = new AdjInTracker(brokenChain, service, registry, chain, peerIId, adjRibInRouteCounters, tables);
     }
 
     @Override
-    public void close() {
+    public synchronized void close() {
         this.adjInTracker.close();
     }
 

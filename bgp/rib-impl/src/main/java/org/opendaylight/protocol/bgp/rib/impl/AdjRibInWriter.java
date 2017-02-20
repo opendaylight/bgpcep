@@ -135,7 +135,7 @@ final class AdjRibInWriter {
         return transform(newPeerId, registry, tableTypes, addPathTablesType, null);
     }
 
-    AdjRibInWriter transform(final PeerId newPeerId, final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes,
+    synchronized AdjRibInWriter transform(final PeerId newPeerId, final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes,
         final Map<TablesKey, SendReceive> addPathTablesType, @Nullable final RegisterAppPeerListener registerAppPeerListener) {
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
 
@@ -254,7 +254,7 @@ final class AdjRibInWriter {
         return pb.build();
     }
 
-    ListenableFuture<Void> removePeer() {
+    synchronized ListenableFuture<Void> removePeer() {
         if(this.peerPath != null) {
             final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
             tx.delete(LogicalDatastoreType.OPERATIONAL, this.peerPath);
@@ -275,14 +275,14 @@ final class AdjRibInWriter {
         return Futures.immediateFuture(null);
     }
 
-    void markTableUptodate(final TablesKey tableTypes) {
+    synchronized void markTableUptodate(final TablesKey tableTypes) {
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         final TableContext ctx = this.tables.get(tableTypes);
         tx.merge(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(Attributes.QNAME).node(ATTRIBUTES_UPTODATE_TRUE.getNodeType()), ATTRIBUTES_UPTODATE_TRUE);
         tx.submit();
     }
 
-    void updateRoutes(final MpReachNlri nlri, final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes attributes) {
+    synchronized void updateRoutes(final MpReachNlri nlri, final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes attributes) {
         final TablesKey key = new TablesKey(nlri.getAfi(), nlri.getSafi());
         final TableContext ctx = this.tables.get(key);
         if (ctx == null) {
@@ -296,7 +296,7 @@ final class AdjRibInWriter {
         tx.submit();
     }
 
-    void removeRoutes(final MpUnreachNlri nlri) {
+    synchronized void removeRoutes(final MpUnreachNlri nlri) {
         final TablesKey key = new TablesKey(nlri.getAfi(), nlri.getSafi());
         final TableContext ctx = this.tables.get(key);
         if (ctx == null) {

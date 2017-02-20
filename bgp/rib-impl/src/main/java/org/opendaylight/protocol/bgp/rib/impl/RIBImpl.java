@@ -300,7 +300,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
     }
 
     @Override
-    public void instantiateServiceInstance() {
+    public synchronized void instantiateServiceInstance() {
         this.domChain = this.domDataBroker.createTransactionChain(this);
         if(this.configurationWriter != null) {
             this.configurationWriter.apply();
@@ -338,7 +338,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
     }
 
     @Override
-    public ListenableFuture<Void> closeServiceInstance() {
+    public synchronized ListenableFuture<Void> closeServiceInstance() {
         LOG.info("Close RIB Singleton Service {}", getIdentifier());
         this.locRibs.forEach(LocRibWriter::close);
         this.locRibs.clear();

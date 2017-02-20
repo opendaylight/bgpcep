@@ -138,12 +138,14 @@ public final class BgpTopologyDeployerImpl implements AutoCloseable, ClusteredDa
     @Override
     public void createInstance(final Topology topology) {
         final Function<Topology, Void> writeFunction = topology1 -> {
-            final WriteTransaction wTx = this.dataBroker.newWriteOnlyTransaction();
-            final KeyedInstanceIdentifier<Topology, TopologyKey> topologyIIdKeyed =
-                InstanceIdentifier.create(NetworkTopology.class).child(Topology.class, topology1.getKey());
-            wTx.put(LogicalDatastoreType.CONFIGURATION, topologyIIdKeyed, topology1, true);
-            wTx.submit();
-            return null;
+            synchronized (BgpTopologyDeployerImpl.this) {
+                final WriteTransaction wTx = this.dataBroker.newWriteOnlyTransaction();
+                final KeyedInstanceIdentifier<Topology, TopologyKey> topologyIIdKeyed =
+                    InstanceIdentifier.create(NetworkTopology.class).child(Topology.class, topology1.getKey());
+                wTx.put(LogicalDatastoreType.CONFIGURATION, topologyIIdKeyed, topology1, true);
+                wTx.submit();
+                return null;
+            }
         };
 
         filterTopologyBuilders(topology).forEach(provider -> provider.onTopologyBuilderCreated(topology, writeFunction));

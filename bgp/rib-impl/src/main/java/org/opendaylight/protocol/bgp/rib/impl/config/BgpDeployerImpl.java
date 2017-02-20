@@ -30,7 +30,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -134,7 +133,7 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
         this.closed = true;
     }
 
-    private static CheckedFuture<Void, TransactionCommitFailedException> initializeNetworkInstance(
+    private static synchronized CheckedFuture<Void, TransactionCommitFailedException> initializeNetworkInstance(
         final DataBroker dataBroker, final InstanceIdentifier<NetworkInstance> networkInstance) {
         final WriteTransaction wTx = dataBroker.newWriteOnlyTransaction();
         wTx.merge(LogicalDatastoreType.CONFIGURATION, networkInstance,
@@ -323,7 +322,7 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
     }
 
     @Override
-    public <T extends DataObject> ListenableFuture<Void> writeConfiguration(final T data,
+    public synchronized <T extends DataObject> ListenableFuture<Void> writeConfiguration(final T data,
         final InstanceIdentifier<T> identifier) {
         final WriteTransaction wTx = this.dataBroker.newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.CONFIGURATION, identifier, data, true);
@@ -331,7 +330,7 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
     }
 
     @Override
-    public <T extends DataObject> ListenableFuture<Void> removeConfiguration(
+    public synchronized <T extends DataObject> ListenableFuture<Void> removeConfiguration(
         final InstanceIdentifier<T> identifier) {
         final WriteTransaction wTx = this.dataBroker.newWriteOnlyTransaction();
         wTx.delete(LogicalDatastoreType.CONFIGURATION, identifier);

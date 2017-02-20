@@ -113,7 +113,7 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
         LOG.debug("DatastoreBaAbstractWrite closed successfully, chain {}", chain);
     }
 
-    private InstanceIdentifier<ApplicationRib> initTable(final String appRibId) {
+    private synchronized InstanceIdentifier<ApplicationRib> initTable(final String appRibId) {
         final Tables tables = new TablesBuilder()
                 .setAfi(Ipv4AddressFamily.class)
                 .setSafi(UnicastSubsequentAddressFamily.class)
@@ -186,7 +186,7 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
         return processRoutes(ipv4Prefix, count, batch, null);
     }
 
-    private long processRoutes(final Ipv4Prefix ipv4Prefix, final long count, final long batch, final Attributes attributes) {
+    private synchronized long processRoutes(final Ipv4Prefix ipv4Prefix, final long count, final long batch, final Attributes attributes) {
         WriteTransaction wTx = this.txChain.newWriteOnlyTransaction();
         String address = getAdddressFromPrefix(ipv4Prefix);
         final Stopwatch stopwatch = Stopwatch.createStarted();
