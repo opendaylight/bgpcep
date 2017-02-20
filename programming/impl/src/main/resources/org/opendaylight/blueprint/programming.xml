@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- vi: set et smarttab sw=4 tabstop=4: -->
+<!--
+      Copyright (c) 2017 Pantheon Technologies s.r.o. and others.  All rights reserved.
+
+ This program and the accompanying materials are made available under the
+ terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ and is available at http://www.eclipse.org/legal/epl-v10.html
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
+
+    <reference id="dataBroker" interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
+               odl:type="default"/>
+    <reference id="rpcRegistry" interface="org.opendaylight.controller.sal.binding.api.RpcProviderRegistry"/>
+    <reference id="notificationService"
+               interface="org.opendaylight.controller.sal.binding.api.NotificationProviderService" />
+    <reference id="timer" interface="io.netty.util.Timer" odl:type="global-timer"/>
+    <reference id="clusterSingletonServiceProvider"
+               interface="org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider"/>
+
+    <bean id="IntructionDeployerImpl" class="org.opendaylight.bgpcep.programming.impl.InstructionDeployedImpl"
+          destroy-method="close">
+        <argument ref="dataBroker"/>
+        <argument ref="rpcRegistry"/>
+        <argument ref="notificationService"/>
+        <argument ref="timer"/>
+        <argument ref="clusterSingletonServiceProvider"/>
+        <argument ref="blueprintBundleContext"/>
+    </bean>
+
+    <service ref="IntructionDeployerImpl" interface="org.opendaylight.bgpcep.programming.impl.IntructionDeployer"/>
+</blueprint>

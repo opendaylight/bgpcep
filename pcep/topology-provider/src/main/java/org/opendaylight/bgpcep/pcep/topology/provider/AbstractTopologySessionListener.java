@@ -227,7 +227,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     }
 
     @GuardedBy("this")
-    private void tearDown(final PCEPSession session) {
+    private synchronized void tearDown(final PCEPSession session) {
         this.serverSessionManager.releaseNodeState(this.nodeState, session, isLspDbPersisted());
         this.nodeState = null;
         this.session = null;

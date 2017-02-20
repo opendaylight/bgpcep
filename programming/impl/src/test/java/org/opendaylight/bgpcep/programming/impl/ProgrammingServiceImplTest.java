@@ -13,26 +13,36 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.opendaylight.bgpcep.programming.NanotimeUtil;
 import org.opendaylight.bgpcep.programming.spi.Instruction;
 import org.opendaylight.bgpcep.programming.spi.SchedulerException;
 import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RoutedRpcRegistration;
+import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CancelInstructionInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CancelInstructionInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CleanInstructionsInput;
@@ -43,6 +53,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.InstructionsQueue;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.InstructionsQueueKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.Nanotime;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.ProgrammingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.SubmitInstructionInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.instruction.queue.InstructionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.instruction.status.changed.Details;
@@ -50,30 +61,53 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev131030.PcepUpdateTunnelInput;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
-import org.opendaylight.yangtools.yang.model.parser.api.YangSyntaxErrorException;
 
 public class ProgrammingServiceImplTest extends AbstractDataBrokerTest {
 
-    public static final int INSTRUCTION_DEADLINE_OFFSET_IN_SECONDS = 3;
+    private static final int INSTRUCTION_DEADLINE_OFFSET_IN_SECONDS = 3;
     private static final InstructionsQueueKey INSTRUCTIONS_QUEUE_KEY = new InstructionsQueueKey("test-instraction-queue");
-
+    private final Timer timer = new HashedWheelTimer();
     private MockedExecutorWrapper mockedExecutorWrapper;
     private MockedNotificationServiceWrapper mockedNotificationServiceWrapper;
     private ProgrammingServiceImpl testedProgrammingService;
-    private final Timer timer = new HashedWheelTimer();
+    @Mock
+    private ClusterSingletonServiceProvider cssp;
+    @Mock
+    private ClusterSingletonServiceRegistration singletonServiceRegistration;
+    @Mock
+    private RpcProviderRegistry rpcRegistry;
+    @Mock
+    private RoutedRpcRegistration<ProgrammingService> registration;
+    private ClusterSingletonService singletonService;
 
     @Before
-    public void setUp() throws IOException, YangSyntaxErrorException {
-        mockedExecutorWrapper = new MockedExecutorWrapper();
-        mockedNotificationServiceWrapper = new MockedNotificationServiceWrapper();
+    public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
+        doAnswer(invocationOnMock -> {
+            this.singletonService = (ClusterSingletonService) invocationOnMock.getArguments()[0];
+            return this.singletonServiceRegistration;
+        }).when(this.cssp).registerClusterSingletonService(any(ClusterSingletonService.class));
 
-        testedProgrammingService = new ProgrammingServiceImpl(getDataBroker(),
-                mockedNotificationServiceWrapper.getMockedNotificationService(),
-                mockedExecutorWrapper.getMockedExecutor(), timer, INSTRUCTIONS_QUEUE_KEY);
+        doAnswer(invocationOnMock -> {
+            this.singletonService.closeServiceInstance();
+            return null;
+        }).when(this.singletonServiceRegistration).close();
+        doReturn(this.registration).when(this.rpcRegistry).addRpcImplementation(Mockito.any(),
+            Mockito.any(ProgrammingService.class));
+        doNothing().when(this.registration).close();
+        this.mockedExecutorWrapper = new MockedExecutorWrapper();
+        this.mockedNotificationServiceWrapper = new MockedNotificationServiceWrapper();
+
+        this.testedProgrammingService = new ProgrammingServiceImpl(getDataBroker(),
+            this.mockedNotificationServiceWrapper.getMockedNotificationService(),
+            this.mockedExecutorWrapper.getMockedExecutor(), this.rpcRegistry, this.cssp, this.timer, INSTRUCTIONS_QUEUE_KEY);
+        this.singletonService.instantiateServiceInstance();
     }
 
     @After
     public void tearDown() throws Exception {
+        this.singletonService.closeServiceInstance();
+        this.testedProgrammingService.close();
     }
 
     @Test
@@ -307,7 +341,7 @@ public class ProgrammingServiceImplTest extends AbstractDataBrokerTest {
     }
 
     private SubmitInstructionInput getMockedSubmitInstructionInput(final String id, final String... dependencyIds) {
-        return getMockedSubmitInstructionInput(id, Optional.absent(), dependencyIds);
+        return getMockedSubmitInstructionInput(id, Optional.empty(), dependencyIds);
     }
 
     private SubmitInstructionInput getMockedSubmitInstructionInput(final String id, final Optional<Nanotime> deadline, final String... dependencyIds) {

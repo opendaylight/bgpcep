@@ -64,6 +64,7 @@
     <feature name='odl-bgpcep-programming-api' version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-pcep-dependencies</feature>
         <feature version='${config.version}'>odl-config-api</feature>
+        <bundle>mvn:org.opendaylight.mdsal/mdsal-singleton-common-api/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/topology-api/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/topology-tunnel-api/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/programming-api/{{VERSION}}</bundle>
