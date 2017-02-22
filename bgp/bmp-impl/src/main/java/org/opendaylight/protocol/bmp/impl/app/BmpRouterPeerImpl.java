@@ -178,7 +178,7 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
         }
     }
 
-    private void onStatsReports(final StatsReportsMessage statsReports) {
+    private synchronized void onStatsReports(final StatsReportsMessage statsReports) {
         if (this.up) {
             final DOMDataWriteTransaction wTx = this.domTxChain.newWriteOnlyTransaction();
             wTx.merge(LogicalDatastoreType.OPERATIONAL, this.peerYangIId.node(Stats.QNAME),
@@ -187,7 +187,7 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
         }
     }
 
-    private void onRouteMirror(final RouteMirroringMessage mirror) {
+    private synchronized void onRouteMirror(final RouteMirroringMessage mirror) {
         final DOMDataWriteTransaction wTx = this.domTxChain.newWriteOnlyTransaction();
         wTx.merge(LogicalDatastoreType.OPERATIONAL, this.peerYangIId.node(Mirrors.QNAME),
                 createMirrors(mirror, mirror.getPeerHeader().getTimestampSec()));
@@ -195,7 +195,7 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
     }
 
 
-    private void onPeerDown() {
+    private synchronized void onPeerDown() {
         final DOMDataWriteTransaction wTx = this.domTxChain.newWriteOnlyTransaction();
         wTx.delete(LogicalDatastoreType.OPERATIONAL, this.peerYangIId);
         wTx.submit();
