@@ -126,6 +126,7 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
 
     @Override
     public synchronized void close() throws Exception {
+        LOG.info("Closing BGP Deployer.");
         this.registration.close();
         this.peers.values().forEach(PeerBean::close);
         this.peers.clear();
