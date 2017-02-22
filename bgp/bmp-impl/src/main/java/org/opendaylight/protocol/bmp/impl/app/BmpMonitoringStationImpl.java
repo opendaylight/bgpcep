@@ -125,7 +125,7 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation {
         wTx.merge(LogicalDatastoreType.OPERATIONAL, path, parentNode);
     }
 
-    private void createEmptyMonitor() {
+    private synchronized void createEmptyMonitor() {
         final DOMDataWriteTransaction wTx = this.domDataBroker.newWriteOnlyTransaction();
         ensureParentExists(wTx, YangInstanceIdentifier.of(BmpMonitor.QNAME));
         wTx.put(LogicalDatastoreType.OPERATIONAL,
@@ -143,7 +143,7 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation {
     }
 
     @Override
-    public void close() throws Exception {
+    public synchronized void close() throws Exception {
         this.channel.close().addListener((ChannelFutureListener) channelFuture -> BmpMonitoringStationImpl.this.sessionManager.close()).await();
 
         final DOMDataWriteTransaction wTx = this.domDataBroker.newWriteOnlyTransaction();

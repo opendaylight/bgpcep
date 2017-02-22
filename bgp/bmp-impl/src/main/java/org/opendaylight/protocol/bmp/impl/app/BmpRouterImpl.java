@@ -128,7 +128,7 @@ public class BmpRouterImpl implements BmpRouter, TransactionChainListener {
         if (this.session != null) {
             try {
                 this.session.close();
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 LOG.error("Fail to close session.", e);
             }
         }
@@ -186,7 +186,7 @@ public class BmpRouterImpl implements BmpRouter, TransactionChainListener {
         return (this.routerYangIId != null);
     }
 
-    private void createRouterEntry() {
+    private synchronized void createRouterEntry() {
         Preconditions.checkState(isDatastoreWritable());
         final DOMDataWriteTransaction wTx = this.domTxChain.newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.OPERATIONAL, this.routerYangIId,
@@ -198,7 +198,7 @@ public class BmpRouterImpl implements BmpRouter, TransactionChainListener {
         wTx.submit();
     }
 
-    private void onInitiate(final InitiationMessage initiation) {
+    private synchronized void onInitiate(final InitiationMessage initiation) {
         Preconditions.checkState(isDatastoreWritable());
         final DOMDataWriteTransaction wTx = this.domTxChain.newWriteOnlyTransaction();
         wTx.merge(LogicalDatastoreType.OPERATIONAL, this.routerYangIId,

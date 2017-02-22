@@ -142,7 +142,7 @@ final class BmpRibInWriter {
         return tb;
     }
 
-    private void addRoutes(final MpReachNlri nlri, final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+    private synchronized void addRoutes(final MpReachNlri nlri, final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
         .bgp.message.rev130919.path.attributes.Attributes attributes) {
         final TablesKey key = new TablesKey(nlri.getAfi(), nlri.getSafi());
         final TableContext ctx = this.tables.get(key);
@@ -158,7 +158,7 @@ final class BmpRibInWriter {
         tx.submit();
     }
 
-    private void removeRoutes(final MpUnreachNlri nlri) {
+    private synchronized void removeRoutes(final MpUnreachNlri nlri) {
         final TablesKey key = new TablesKey(nlri.getAfi(), nlri.getSafi());
         final TableContext ctx = this.tables.get(key);
 
@@ -253,7 +253,7 @@ final class BmpRibInWriter {
         return isEOR;
     }
 
-    private void markTableUptodated(final TablesKey tableTypes) {
+    private synchronized void markTableUptodated(final TablesKey tableTypes) {
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         final TableContext ctxPre = this.tables.get(tableTypes);
         tx.merge(LogicalDatastoreType.OPERATIONAL, ctxPre.getTableId().node(BMP_ATTRIBUTES_QNAME).node(ATTRIBUTES_UPTODATE_TRUE.getNodeType()),
