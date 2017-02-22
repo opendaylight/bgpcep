@@ -256,7 +256,7 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer, BGPPeerRun
             if(this.configurationWriter != null) {
                 this.configurationWriter.apply();
             }
-            LOG.info("Peer Singleton Service {} instantiated", getIdentifier().getValue());
+            LOG.info("Peer Singleton Service {} instantiated, Peer {}", getIdentifier().getValue(), this.neighborAddress);
             this.bgpPeer.instantiateServiceInstance();
             this.dispatcher.getBGPPeerRegistry().addPeer(this.neighborAddress, this.bgpPeer, this.prefs);
             if (this.activeConnection) {
@@ -266,7 +266,7 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer, BGPPeerRun
 
         @Override
         public ListenableFuture<Void> closeServiceInstance() {
-            LOG.info("Close Peer Singleton Service {}", getIdentifier().getValue());
+            LOG.info("Close Peer Singleton Service {}, Peer {}", getIdentifier().getValue(), this.neighborAddress);
             if (this.connection != null) {
                 this.connection.cancel(true);
                 this.connection = null;

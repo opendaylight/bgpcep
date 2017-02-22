@@ -111,7 +111,8 @@ public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
             this.dataTreeChangeService = rib.getService();
             this.serviceGroupIdentifier = rib.getRibIServiceGroupIdentifier();
             this.configurationWriter = configurationWriter;
-            LOG.info("Application Peer Singleton Service {} registered", getIdentifier());
+            LOG.info("Application Peer Singleton Service {} registered, Application peer {}",
+                getIdentifier().getValue(), this.appRibId.getValue());
             //this need to be always the last step
             this.singletonServiceRegistration = rib.registerClusterSingletonService(this);
         }
@@ -129,7 +130,8 @@ public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
             if(this.configurationWriter != null) {
                 this.configurationWriter.apply();
             }
-            LOG.info("Application Peer Singleton Service {} instantiated", getIdentifier());
+            LOG.info("Application Peer Singleton Service {} instantiated, Application peer {}",
+                getIdentifier().getValue(), this.appRibId.getValue());
             final YangInstanceIdentifier yangIId = YangInstanceIdentifier.builder().node(ApplicationRib.QNAME)
                 .nodeWithKey(ApplicationRib.QNAME, APP_ID_QNAME, this.appRibId.getValue()).node(Tables.QNAME).node(Tables.QNAME).build();
             this.applicationPeer.instantiateServiceInstance(this.dataTreeChangeService,
@@ -138,7 +140,8 @@ public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
 
         @Override
         public ListenableFuture<Void> closeServiceInstance() {
-            LOG.info("Application Peer Singleton Service {} instance closed", getIdentifier());
+            LOG.info("Application Peer Singleton Service {} instance closed, Application peer {}",
+                getIdentifier().getValue(), this.appRibId.getValue());
             return this.applicationPeer.close();
         }
 
