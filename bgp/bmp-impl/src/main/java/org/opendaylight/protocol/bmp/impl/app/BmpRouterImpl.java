@@ -94,7 +94,7 @@ public class BmpRouterImpl implements BmpRouter, TransactionChainListener {
         } else {
             this.routerYangIId = YangInstanceIdentifier.builder(this.sessionManager.getRoutersYangIId()).nodeWithKey(Router.QNAME,
                 ROUTER_ID_QNAME, this.routerIp).build();
-            this.peersYangIId = YangInstanceIdentifier.builder(routerYangIId).node(Peer.QNAME).build();
+            this.peersYangIId = YangInstanceIdentifier.builder(this.routerYangIId).node(Peer.QNAME).build();
             createRouterEntry();
             LOG.info("BMP session with remote router {} ({}) is up now.", this.routerIp, this.session);
         }
@@ -120,7 +120,7 @@ public class BmpRouterImpl implements BmpRouter, TransactionChainListener {
 
     @Override
     public RouterId getRouterId() {
-        return routerId;
+        return this.routerId;
     }
 
     @Override
@@ -128,7 +128,7 @@ public class BmpRouterImpl implements BmpRouter, TransactionChainListener {
         if (this.session != null) {
             try {
                 this.session.close();
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 LOG.error("Fail to close session.", e);
             }
         }
@@ -186,19 +186,19 @@ public class BmpRouterImpl implements BmpRouter, TransactionChainListener {
         return (this.routerYangIId != null);
     }
 
-    private void createRouterEntry() {
+    private synchronized void createRouterEntry() {
         Preconditions.checkState(isDatastoreWritable());
         final DOMDataWriteTransaction wTx = this.domTxChain.newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.OPERATIONAL, this.routerYangIId,
                 Builders.mapEntryBuilder()
                 .withNodeIdentifier(new NodeIdentifierWithPredicates(Router.QNAME, ROUTER_ID_QNAME, this.routerIp))
-                .withChild(ImmutableNodes.leafNode(ROUTER_ID_QNAME, routerIp))
+                .withChild(ImmutableNodes.leafNode(ROUTER_ID_QNAME, this.routerIp))
                 .withChild(ImmutableNodes.leafNode(ROUTER_STATUS_QNAME, DOWN))
                 .withChild(ImmutableNodes.mapNodeBuilder(Peer.QNAME).build()).build());
         wTx.submit();
     }
 
-    private void onInitiate(final InitiationMessage initiation) {
+    private synchronized void onInitiate(final InitiationMessage initiation) {
         Preconditions.checkState(isDatastoreWritable());
         final DOMDataWriteTransaction wTx = this.domTxChain.newWriteOnlyTransaction();
         wTx.merge(LogicalDatastoreType.OPERATIONAL, this.routerYangIId,
