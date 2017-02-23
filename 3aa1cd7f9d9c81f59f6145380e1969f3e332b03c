@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9f67f1b6",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2017-02-23T05:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_6f9434e2",
+      "range": {
+        "startLine": 111,
+        "startChar": 0,
+        "endLine": 117,
+        "endChar": 5
+      },
+      "revId": "3aa1cd7f9d9c81f59f6145380e1969f3e332b03c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_317d751d",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/RIBImpl.java",
         "patchSetId": 2
@@ -36,6 +60,24 @@
       "writtenOn": "2017-02-16T19:55:17Z",
       "side": 1,
       "message": "synchronized",
+      "revId": "3aa1cd7f9d9c81f59f6145380e1969f3e332b03c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ff071dc8",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/RIBImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2017-02-23T05:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_317d751d",
       "revId": "3aa1cd7f9d9c81f59f6145380e1969f3e332b03c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
