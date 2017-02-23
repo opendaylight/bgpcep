@@ -22,6 +22,30 @@
       "revId": "0c7993d14c9563a788d56ffcef1ba087d01b200f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d7a83d79",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/app/BmpRibInWriter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-02-23T13:50:47Z",
+      "side": 1,
+      "message": "basically trying to avoid any race condition between the tx creation and submit.",
+      "parentUuid": "fafc7978_d7c31d55",
+      "range": {
+        "startLine": 162,
+        "startChar": 12,
+        "endLine": 162,
+        "endChar": 24
+      },
+      "revId": "0c7993d14c9563a788d56ffcef1ba087d01b200f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
