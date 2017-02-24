@@ -13,6 +13,7 @@ import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUti
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.toTableTypes;
 
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -23,10 +24,6 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
-import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
@@ -61,7 +58,7 @@ import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
+public final class RibImpl implements RIB, BGPRIBStateConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(RibImpl.class);
 
@@ -73,17 +70,15 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
     private RIBImpl ribImpl;
     private ServiceRegistration<?> serviceRegistration;
     private ListenerRegistration<SchemaContextListener> schemaContextRegistration;
-    private final ClusterSingletonServiceProvider provider;
     private List<AfiSafi> afiSafi;
     private AsNumber asNumber;
     private Ipv4Address routerId;
 
     private ClusterIdentifier clusterId;
 
-    public RibImpl(final ClusterSingletonServiceProvider provider, final RIBExtensionConsumerContext contextProvider,
-        final BGPDispatcher dispatcher, final BindingCodecTreeFactory codecTreeFactory, final DOMDataBroker domBroker,
+    public RibImpl(final RIBExtensionConsumerContext contextProvider, final BGPDispatcher dispatcher,
+        final BindingCodecTreeFactory codecTreeFactory, final DOMDataBroker domBroker,
         final SchemaService schemaService) {
-        this.provider = Preconditions.checkNotNull(provider);
         this.extensions = contextProvider;
         this.dispatcher = dispatcher;
         this.codecTreeFactory = codecTreeFactory;
@@ -165,30 +160,6 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
         return this.ribImpl.getService();
     }
 
-    @Override
-    public void close() {
-        if (this.ribImpl != null) {
-            try {
-                this.ribImpl.close();
-            } catch (final Exception e) {
-                LOG.warn("Failed to close {} rib instance", this, e);
-            }
-            this.ribImpl = null;
-        }
-        if (this.schemaContextRegistration != null) {
-            this.schemaContextRegistration.close();
-            this.schemaContextRegistration = null;
-        }
-        if (this.serviceRegistration != null) {
-            try {
-                this.serviceRegistration.unregister();
-            } catch(final IllegalStateException e) {
-                LOG.warn("Failed to unregister {} service instance", this, e);
-            }
-            this.serviceRegistration = null;
-        }
-    }
-
     void setServiceRegistration(final ServiceRegistration<?> serviceRegistration) {
         this.serviceRegistration = serviceRegistration;
     }
@@ -214,11 +185,6 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
     }
 
     @Override
-    public ServiceGroupIdentifier getRibIServiceGroupIdentifier() {
-        return this.ribImpl.getRibIServiceGroupIdentifier();
-    }
-
-    @Override
     public String toString() {
         return this.ribImpl != null ? this.ribImpl.toString() : null;
     }
@@ -232,14 +198,31 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
         this.clusterId = getClusterIdentifier(globalConfig);
         final Map<TablesKey, PathSelectionMode> pathSelectionModes = OpenConfigMappingUtil.toPathSelectionMode(this.afiSafi, tableTypeRegistry).entrySet()
                 .stream().collect(Collectors.toMap(entry -> new TablesKey(entry.getKey().getAfi(), entry.getKey().getSafi()), Map.Entry::getValue));
-        return new RIBImpl(this.provider, new RibId(bgpInstanceName), this.asNumber, new BgpId(this.routerId), this.clusterId,
+        return new RIBImpl(new RibId(bgpInstanceName), this.asNumber, new BgpId(this.routerId), this.clusterId,
                 this.extensions, this.dispatcher, this.codecTreeFactory, this.domBroker, toTableTypes(this.afiSafi, tableTypeRegistry), pathSelectionModes,
                 this.extensions.getClassLoadingStrategy(), configurationWriter);
     }
 
-    @Override
-    public ClusterSingletonServiceRegistration registerClusterSingletonService(final ClusterSingletonService clusterSingletonService) {
-        return this.ribImpl.registerClusterSingletonService(clusterSingletonService);
+    public void instantiateServiceInstance() {
+        this.ribImpl.instantiateServiceInstance();
+    }
+
+    public ListenableFuture<Void> closeServiceInstance() {
+        final ListenableFuture<Void> futureClose = this.ribImpl.closeServiceInstance();
+        this.ribImpl = null;
+        if (this.schemaContextRegistration != null) {
+            this.schemaContextRegistration.close();
+            this.schemaContextRegistration = null;
+        }
+        if (this.serviceRegistration != null) {
+            try {
+                this.serviceRegistration.unregister();
+            } catch(final IllegalStateException e) {
+                LOG.warn("Failed to unregister {} service instance", this, e);
+            }
+            this.serviceRegistration = null;
+        }
+        return futureClose;
     }
 
     @Override

@@ -167,7 +167,10 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
     @Override
     public synchronized ListenableFuture<Void> close() {
         final ListenableFuture<Void> future = releaseConnection();
-        this.chain.close();
+        if (this.chain != null) {
+            this.chain.close();
+
+        }
         return future;
     }
 

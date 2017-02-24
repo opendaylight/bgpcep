@@ -8,10 +8,12 @@
 
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
+import static com.google.common.util.concurrent.Futures.transform;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getNeighborInstanceIdentifier;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getNeighborInstanceName;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getRibInstanceName;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
@@ -24,16 +26,21 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
+import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.InstanceType;
@@ -58,45 +65,101 @@ import org.osgi.service.blueprint.container.BlueprintContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChangeListener<Bgp>, AutoCloseable {
+public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChangeListener<Bgp>,
+    ClusterSingletonService, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(BgpDeployerImpl.class);
     private final InstanceIdentifier<NetworkInstance> networkInstanceIId;
     private final BlueprintContainer container;
     private final BundleContext bundleContext;
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
+    private final ServiceGroupIdentifier serviceGroupIdentifier = ServiceGroupIdentifier.create("bgp-deployer-service-group");
+    private final String networkInstanceName;
     private final ListenerRegistration<BgpDeployerImpl> registration;
     @GuardedBy("this")
     private final Map<InstanceIdentifier<Bgp>, RibImpl> ribs = new HashMap<>();
     @GuardedBy("this")
     private final Map<InstanceIdentifier<Neighbor>, PeerBean> peers = new HashMap<>();
     private final DataBroker dataBroker;
+    private ClusterSingletonServiceRegistration cssReg;
     @GuardedBy("this")
     private boolean closed;
+    @GuardedBy("this")
+    private boolean serviceInstantiated;
 
-    public BgpDeployerImpl(final String networkInstanceName, final BlueprintContainer container,
-        final BundleContext bundleContext, final DataBroker dataBroker,
+    public BgpDeployerImpl(final ClusterSingletonServiceProvider provider, final String networkInstanceName,
+        final BlueprintContainer container, final BundleContext bundleContext, final DataBroker dataBroker,
         final BGPTableTypeRegistryConsumer mappingService) {
+        this.networkInstanceName = Preconditions.checkNotNull(networkInstanceName);
         this.dataBroker = Preconditions.checkNotNull(dataBroker);
         this.container = Preconditions.checkNotNull(container);
         this.bundleContext = Preconditions.checkNotNull(bundleContext);
         this.tableTypeRegistry = Preconditions.checkNotNull(mappingService);
         this.networkInstanceIId = InstanceIdentifier.create(NetworkInstances.class)
-            .child(NetworkInstance.class, new NetworkInstanceKey(networkInstanceName));
-        Futures.addCallback(initializeNetworkInstance(dataBroker, this.networkInstanceIId), new FutureCallback<Void>() {
+            .child(NetworkInstance.class, new NetworkInstanceKey(this.networkInstanceName));
+        Futures.addCallback(initializeNetworkInstance(this.dataBroker, this.networkInstanceIId), new FutureCallback<Void>() {
             @Override
             public void onSuccess(final Void result) {
-                LOG.debug("Network Instance {} initialized successfully.", networkInstanceName);
+                LOG.debug("Network Instance {} initialized successfully.", BgpDeployerImpl.this.networkInstanceName);
             }
 
             @Override
             public void onFailure(final Throwable t) {
-                LOG.error("Failed to initialize Network Instance {}.", networkInstanceName, t);
+                LOG.error("Failed to initialize Network Instance {}.", BgpDeployerImpl.this.networkInstanceName, t);
             }
         });
-        this.registration = dataBroker.registerDataTreeChangeListener(
+        this.registration = this.dataBroker.registerDataTreeChangeListener(
             new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, this.networkInstanceIId.child(Protocols.class)
                 .child(Protocol.class).augmentation(Protocol1.class).child(Bgp.class)), this);
-        LOG.info("BGP Deployer {} started.", networkInstanceName);
+        LOG.info("BGP Deployer {} started.", this.networkInstanceName);
+        this.cssReg = Preconditions.checkNotNull(provider).registerClusterSingletonService(this);
+    }
+
+    @Override
+    public synchronized void instantiateServiceInstance() {
+        LOG.info("BGP Deployer {} started.", this.networkInstanceName);
+        this.ribs.values().forEach(RibImpl::instantiateServiceInstance);
+        this.peers.values().forEach(PeerBean::instantiateServiceInstance);
+        this.serviceInstantiated = true;
+    }
+
+    @Override
+    public synchronized ListenableFuture<Void> closeServiceInstance() {
+        final List<ListenableFuture<Void>> futurePeerCloseList = this.peers.values().stream()
+            .map(PeerBean::close).collect(Collectors.toList());
+        final ListenableFuture<List<Void>> futureOfRelevance = Futures.allAsList(futurePeerCloseList);
+        BgpDeployerImpl.this.peers.clear();
+
+        final ListenableFuture<ListenableFuture<List<Void>>> maxRelevanceFuture = transform(futureOfRelevance,
+            (Function<List<Void>, ListenableFuture<List<Void>>>) futurePeersClose -> {
+                final List<ListenableFuture<Void>> futureRIBCloseList = BgpDeployerImpl.this.ribs.values().stream()
+                    .map(RibImpl::closeServiceInstance).collect(Collectors.toList());
+                return Futures.allAsList(futureRIBCloseList);
+            });
+
+        final ListenableFuture<Void> ribFutureClose = transform(maxRelevanceFuture,
+            (Function<ListenableFuture<List<Void>>, Void>) futurePeersClose -> {
+                this.ribs.clear();
+                return null;
+            });
+        this.serviceInstantiated = false;
+
+        return ribFutureClose;
+    }
+
+    @Override
+    public synchronized void close() throws Exception {
+        this.closed = true;
+        this.registration.close();
+        if (this.cssReg != null) {
+            this.cssReg.close();
+            this.cssReg = null;
+        }
+    }
+
+    @Nonnull
+    @Override
+    public ServiceGroupIdentifier getIdentifier() {
+        return this.serviceGroupIdentifier;
     }
 
     @Override
@@ -122,16 +185,6 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
     @Override
     public InstanceIdentifier<NetworkInstance> getInstanceIdentifier() {
         return this.networkInstanceIId;
-    }
-
-    @Override
-    public synchronized void close() throws Exception {
-        this.registration.close();
-        this.peers.values().forEach(PeerBean::close);
-        this.peers.clear();
-        this.ribs.values().forEach(RibImpl::close);
-        this.ribs.clear();
-        this.closed = true;
     }
 
     private static CheckedFuture<Void, TransactionCommitFailedException> initializeNetworkInstance(
@@ -173,7 +226,11 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
         final List<PeerBean> filtered = new ArrayList<>();
         this.peers.entrySet().stream().filter(entry -> entry.getKey().firstIdentifierOf(Bgp.class)
             .contains(rootIdentifier)).forEach(entry -> {final PeerBean peer = entry.getValue();
-            peer.close();
+            try {
+                peer.close().get();
+            } catch (final Exception e) {
+                LOG.error("Failed to close peer", e);
+            }
             filtered.add(peer);
         });
         return filtered;
@@ -192,9 +249,16 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
         final RibImpl ribImpl, final WriteConfiguration configurationWriter) {
         LOG.debug("Modifying RIB instance with configuration: {}", global);
         final List<PeerBean> closedPeers = closeAllBindedPeers(rootIdentifier);
-        ribImpl.close();
+        try {
+            ribImpl.closeServiceInstance().get();
+        } catch (final Exception e) {
+            LOG.error("RIB instance failed to close service instance", e);
+        }
         initiateRibInstance(rootIdentifier, global, ribImpl, configurationWriter);
         closedPeers.forEach(peer -> peer.restart(ribImpl, this.tableTypeRegistry));
+        if (this.serviceInstantiated) {
+            closedPeers.forEach(PeerBean::instantiateServiceInstance);
+        }
         LOG.debug("RIB instance created: {}", ribImpl);
     }
 
@@ -204,7 +268,7 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
         final RibImpl ribImpl = this.ribs.remove(rootIdentifier);
         if (ribImpl != null) {
             LOG.debug("RIB instance removed {}", ribImpl);
-            ribImpl.close();
+            ribImpl.closeServiceInstance();
         }
     }
 
@@ -220,6 +284,9 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
         final RibImpl ribImpl, final WriteConfiguration configurationWriter) {
         final String ribInstanceName = getRibInstanceName(rootIdentifier);
         ribImpl.start(global, ribInstanceName, this.tableTypeRegistry, configurationWriter);
+        if(this.serviceInstantiated) {
+            ribImpl.instantiateServiceInstance();
+        }
         registerRibInstance(ribImpl, ribInstanceName);
     }
 
@@ -309,6 +376,9 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
         final RibImpl rib = this.ribs.get(rootIdentifier);
         if (rib != null) {
             bgpPeer.start(rib, neighbor, this.tableTypeRegistry, configurationWriter);
+            if (this.serviceInstantiated) {
+                bgpPeer.instantiateServiceInstance();
+            }
             if (bgpPeer instanceof BgpPeer) {
                 registerPeerInstance((BgpPeer) bgpPeer, peerInstanceName);
             } else if(bgpPeer instanceof AppPeer) {

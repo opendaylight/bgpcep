@@ -40,8 +40,6 @@ import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
@@ -53,7 +51,6 @@ import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Notify;
@@ -106,7 +103,6 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
     private static final AsNumber AS_NUMBER = new AsNumber(30L);
     private static final Ipv4Address BGP_ID = new Ipv4Address("1.1.1.2");
     private static final String LOCAL_IP = "1.1.1.4";
-    private final IpAddress neighbor = new IpAddress(new Ipv4Address(LOCAL_IP));
     private static final int LOCAL_PORT = 12345;
     private final BgpTableType ipv4tt = new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
     private Open classicOpen;
@@ -150,15 +146,12 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         doReturn(null).when(mock(ChannelFuture.class)).addListener(any());
         doReturn(this.eventLoop).when(this.speakerListener).eventLoop();
         doReturn(true).when(this.speakerListener).isActive();
-        doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(final InvocationOnMock invocation) throws Throwable {
-                final Runnable command = (Runnable) invocation.getArguments()[0];
-                final long delay = (long) invocation.getArguments()[1];
-                final TimeUnit unit = (TimeUnit) invocation.getArguments()[2];
-                GlobalEventExecutor.INSTANCE.schedule(command, delay, unit);
-                return null;
-            }
+        doAnswer(invocation -> {
+            final Runnable command = (Runnable) invocation.getArguments()[0];
+            final long delay = (long) invocation.getArguments()[1];
+            final TimeUnit unit = (TimeUnit) invocation.getArguments()[2];
+            GlobalEventExecutor.INSTANCE.schedule(command, delay, unit);
+            return null;
         }).when(this.eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
         doReturn("TestingChannel").when(this.speakerListener).toString();
         doReturn(true).when(this.speakerListener).isWritable();
@@ -187,13 +180,10 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
             any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         Mockito.doNothing().when(this.tx).delete(Mockito.any(LogicalDatastoreType.class), Mockito.any(YangInstanceIdentifier.class));
         final CheckedFuture future = mock(CheckedFuture.class);
-        Mockito.doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(final InvocationOnMock invocation) throws Throwable {
-                final Runnable callback = (Runnable) invocation.getArguments()[0];
-                callback.run();
-                return null;
-            }
+        Mockito.doAnswer(invocation -> {
+            final Runnable callback = (Runnable) invocation.getArguments()[0];
+            callback.run();
+            return null;
         }).when(future).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
         Mockito.doReturn(future).when(this.tx).submit();
         Mockito.doReturn(mock(Optional.class)).when(future).checkedGet();
@@ -203,8 +193,8 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
     public void testHandleMessageAfterException() throws InterruptedException {
         final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(TABLES_KEY,
             BasePathSelectionModeFactory.createBestPathSelectionStrategy());
-        final RIBImpl ribImpl = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(RIB_ID), AS_NUMBER,
-            new BgpId(RIB_ID), null, this.ribExtension, this.serverDispatcher, this.mappingService.getCodecFactory(),
+        final RIBImpl ribImpl = new RIBImpl(new RibId(RIB_ID), AS_NUMBER, new BgpId(RIB_ID), null,
+            this.ribExtension, this.serverDispatcher, this.mappingService.getCodecFactory(),
             this.domBroker, ImmutableList.of(this.ipv4tt), pathTables, this.ribExtension.getClassLoadingStrategy(),
             null);
         ribImpl.instantiateServiceInstance();
@@ -244,8 +234,8 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
     public void testUseCase1() throws InterruptedException {
         final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(TABLES_KEY,
             BasePathSelectionModeFactory.createBestPathSelectionStrategy());
-        final RIBImpl ribImpl = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(RIB_ID), AS_NUMBER,
-            new BgpId(RIB_ID), null, this.ribExtension, this.serverDispatcher, this.mappingService.getCodecFactory(),
+        final RIBImpl ribImpl = new RIBImpl(new RibId(RIB_ID), AS_NUMBER, new BgpId(RIB_ID), null,
+            this.ribExtension, this.serverDispatcher, this.mappingService.getCodecFactory(),
             this.domBroker, ImmutableList.of(this.ipv4tt), pathTables, this.ribExtension.getClassLoadingStrategy(),
             null);
         ribImpl.instantiateServiceInstance();

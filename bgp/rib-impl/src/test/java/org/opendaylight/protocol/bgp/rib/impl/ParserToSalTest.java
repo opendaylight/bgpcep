@@ -81,22 +81,13 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
     private BGPMock mock;
     private AbstractRIBExtensionProviderActivator baseact, lsact;
     private RIBExtensionProviderContext ext1, ext2;
-    private String localAddress = "127.0.0.1";
+    private final String localAddress = "127.0.0.1";
 
     @Mock
     private BGPDispatcher dispatcher;
-    @Mock
-    private ClusterSingletonServiceProvider clusterSingletonServiceProvider;
     private BindingCodecTreeFactory codecFactory;
 
     private SchemaService schemaService;
-
-    @Before
-    public void setUp() throws Exception {
-        super.setup();
-        doReturn(Mockito.mock(ClusterSingletonServiceRegistration.class)).when(this.clusterSingletonServiceProvider).
-            registerClusterSingletonService(any(ClusterSingletonService.class));
-    }
 
     @Override
     protected Iterable<YangModuleInfo> getModuleInfos() throws Exception {
@@ -150,7 +141,7 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
     public void testWithLinkstate() throws InterruptedException, ExecutionException, ReadFailedException {
         final List<BgpTableType> tables = ImmutableList.of(new BgpTableTypeImpl(LinkstateAddressFamily.class,
             LinkstateSubsequentAddressFamily.class));
-        final RIBImpl rib = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(TEST_RIB_ID),
+        final RIBImpl rib = new RIBImpl(new RibId(TEST_RIB_ID),
             AS_NUMBER, new BgpId("127.0.0.1"), null, this.ext2, this.dispatcher,
             this.codecFactory, getDomBroker(), tables, Collections.singletonMap(TABLE_KEY,
             BasePathSelectionModeFactory.createBestPathSelectionStrategy()),
@@ -169,7 +160,7 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
     public void testWithoutLinkstate() throws InterruptedException, ExecutionException, ReadFailedException {
         final List<BgpTableType> tables = ImmutableList.of(new BgpTableTypeImpl(Ipv4AddressFamily.class,
             UnicastSubsequentAddressFamily.class));
-        final RIBImpl rib = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(TEST_RIB_ID), AS_NUMBER, BGP_ID,
+        final RIBImpl rib = new RIBImpl(new RibId(TEST_RIB_ID), AS_NUMBER, BGP_ID,
             null, this.ext1, this.dispatcher, this.codecFactory, getDomBroker(), tables,
             Collections.singletonMap(TABLE_KEY, BasePathSelectionModeFactory.createBestPathSelectionStrategy()),
             GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), null);
