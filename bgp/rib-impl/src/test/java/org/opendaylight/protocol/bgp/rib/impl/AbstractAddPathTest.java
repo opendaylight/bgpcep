@@ -141,8 +141,6 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
     private BGPExtensionProviderContext context;
     private static final InstanceIdentifier<BgpRib> BGP_IID = InstanceIdentifier.create(BgpRib.class);
     protected SchemaContext schemaContext;
-    @Mock
-    protected ClusterSingletonServiceProvider clusterSingletonServiceProvider;
     BindingToNormalizedNodeCodec mappingService;
     BGPDispatcherImpl serverDispatcher;
     RIBExtensionProviderContext ribExtension;
@@ -188,8 +186,6 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
         this.serverRegistry = new StrictBGPPeerRegistry();
         this.serverDispatcher = new BGPDispatcherImpl(this.context.getMessageRegistry(), this.boss, this.worker,
             this.serverRegistry);
-        doReturn(Mockito.mock(ClusterSingletonServiceRegistration.class)).when(this.clusterSingletonServiceProvider)
-            .registerClusterSingletonService(any(ClusterSingletonService.class));
     }
 
     @After

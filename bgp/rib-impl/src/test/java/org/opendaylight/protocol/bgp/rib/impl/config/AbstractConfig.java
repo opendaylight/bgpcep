@@ -24,16 +24,11 @@ import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
-import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.AbstractImportPolicy;
@@ -68,11 +63,8 @@ import org.osgi.framework.ServiceRegistration;
 class AbstractConfig {
     static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
     protected static final AsNumber AS = new AsNumber(72L);
-    protected ClusterSingletonService singletonService;
     @Mock
     protected RIB rib;
-    @Mock
-    protected ClusterSingletonServiceRegistration singletonServiceRegistration;
     @Mock
     protected BGPTableTypeRegistryConsumer tableTypeRegistry;
     @Mock
@@ -102,10 +94,6 @@ class AbstractConfig {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        Mockito.doAnswer(invocationOnMock->{
-            this.singletonService = (ClusterSingletonService) invocationOnMock.getArguments()[0];
-            return this.singletonServiceRegistration;
-        }).when(this.rib).registerClusterSingletonService(any(ClusterSingletonService.class));
         Mockito.doReturn(new LongAdder()).when(this.render).getConfiguredPeerCounter();
         Mockito.doReturn(this.render).when(this.rib).getRenderStats();
         Mockito.doReturn(InstanceIdentifier.create(BgpRib.class).child(org.opendaylight.yang.gen.v1.urn.opendaylight
@@ -124,26 +112,18 @@ class AbstractConfig {
         Mockito.doNothing().when(this.domDW).delete(eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class));
         Mockito.doNothing().when(this.domDW).merge(eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         final CheckedFuture checkedFuture = mock(CheckedFuture.class);
-        Mockito.doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(final InvocationOnMock invocation) throws Throwable {
-                final Runnable callback = (Runnable) invocation.getArguments()[0];
-                callback.run();
-                return null;
-            }
+        Mockito.doAnswer(invocation -> {
+            final Runnable callback = (Runnable) invocation.getArguments()[0];
+            callback.run();
+            return null;
         }).when(checkedFuture).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
         Mockito.doReturn(checkedFuture).when(this.domDW).submit();
         Mockito.doReturn(null).when(checkedFuture).checkedGet();
         Mockito.doReturn(null).when(checkedFuture).get();
         Mockito.doReturn("checkedFuture").when(checkedFuture).toString();
-        Mockito.doAnswer(invocationOnMock->{
-            this.singletonService.closeServiceInstance();
-            return null;
-        }).when(this.singletonServiceRegistration).close();
         Mockito.doReturn(YangInstanceIdentifier.of(Rib.QNAME)).when(this.rib).getYangRibId();
         Mockito.doReturn(this.dataTreeChangeService).when(this.rib).getService();
         Mockito.doReturn(this.listener).when(this.dataTreeChangeService).registerDataTreeChangeListener(any(), any());
-        Mockito.doReturn(mock(ServiceGroupIdentifier.class)).when(this.rib).getRibIServiceGroupIdentifier();
         Mockito.doReturn(new BgpId("127.0.0.1")).when(this.rib).getBgpIdentifier();
         Mockito.doReturn(true).when(this.future).cancel(true);
         Mockito.doReturn(this.future).when(this.dispatcher)

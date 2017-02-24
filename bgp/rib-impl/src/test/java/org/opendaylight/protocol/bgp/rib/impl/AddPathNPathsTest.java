@@ -41,7 +41,7 @@ public class AddPathNPathsTest extends AbstractAddPathTest {
         final TablesKey tk = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
         final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(tk, new AddPathBestNPathSelection(2L));
 
-        this.ribImpl = new RIBImpl(this.clusterSingletonServiceProvider, new RibId("test-rib"),
+        this.ribImpl = new RIBImpl(new RibId("test-rib"),
             AS_NUMBER, new BgpId(RIB_ID), null, this.ribExtension, this.serverDispatcher,
             this.mappingService.getCodecFactory(), getDomBroker(), TABLES_TYPE, pathTables,
             this.ribExtension.getClassLoadingStrategy(), null);
