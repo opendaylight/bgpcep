@@ -119,6 +119,7 @@ public class BgpDeployerImplTest {
     private static final short SHORT = 0;
 
     @Mock
+    private
     DataObjectModification dObject;
     @Mock
     private BlueprintContainer blueprintContainer;
@@ -136,6 +137,13 @@ public class BgpDeployerImplTest {
     private ListenerRegistration dataTreeRegistration;
     @Mock
     private ServiceRegistration registration;
+    @Mock
+    private
+    ClusterSingletonServiceProvider singletonServiceProvider;
+    @Mock
+    private BGPDispatcher bgpDispatcher;
+    @Mock
+    private BGPPeerRegistry bgpPeerRegistry;
 
     private Collection<DataTreeModification<Bgp>> collection = Collections.singleton(this.modification);
 
@@ -181,18 +189,19 @@ public class BgpDeployerImplTest {
         final RIBExtensionConsumerContext extension = mock(RIBExtensionConsumerContext.class);
         Mockito.doReturn(mock(GeneratedClassLoadingStrategy.class)).when(extension).getClassLoadingStrategy();
 
-        final ClusterSingletonServiceProvider singletonServiceProvider = mock(ClusterSingletonServiceProvider.class);
         final ClusterSingletonServiceRegistration serviceRegistration = mock(ClusterSingletonServiceRegistration.class);
-        Mockito.doReturn(serviceRegistration).when(singletonServiceProvider).registerClusterSingletonService(any());
+        Mockito.doReturn(serviceRegistration).when(this.singletonServiceProvider).registerClusterSingletonService(any());
         Mockito.doNothing().when(serviceRegistration).close();
 
         final SchemaService schemaService = mock(SchemaService.class);
         Mockito.doNothing().when(this.dataTreeRegistration).close();
 
         Mockito.doReturn(this.dataTreeRegistration).when(schemaService).registerSchemaContextListener(any());
+        Mockito.doReturn(this.bgpPeerRegistry).when(this.bgpDispatcher).getBGPPeerRegistry();
+        Mockito.doNothing().when(this.bgpPeerRegistry).removePeer(any());
 
-        final RibImpl ribImpl = new RibImpl(singletonServiceProvider, extension,
-            mock(BGPDispatcher.class), mock(BindingCodecTreeFactory.class), domDataBroker, schemaService);
+        final RibImpl ribImpl = new RibImpl(extension,
+            this.bgpDispatcher, mock(BindingCodecTreeFactory.class), domDataBroker, schemaService);
         Mockito.doReturn(ribImpl).when(this.blueprintContainer).getComponentInstance(eq("ribImpl"));
 
         final BgpPeer bgpPeer = new BgpPeer(mock(RpcProviderRegistry.class));
@@ -203,7 +212,8 @@ public class BgpDeployerImplTest {
     @Test
     public void testDeployerRib() throws Exception {
         Mockito.doReturn(Global.class).when(this.dObject).getDataType();
-        final BgpDeployerImpl deployer = new BgpDeployerImpl(NETWORK_INSTANCE_NAME, this.blueprintContainer, this.bundleContext, this.dataBroker, this.tableTypeRegistry);
+        final BgpDeployerImpl deployer = new BgpDeployerImpl(this.singletonServiceProvider, NETWORK_INSTANCE_NAME,
+            this.blueprintContainer, this.bundleContext, this.dataBroker, this.tableTypeRegistry);
         final BgpDeployerImpl spyDeployer = spy(deployer);
         configureGlobal(IPV4UNICAST.class);
         Mockito.doReturn(WRITE).when(this.dObject).getModificationType();
@@ -302,7 +312,8 @@ public class BgpDeployerImplTest {
     @Test
     public void testDeployerCreateNeighbor() throws Exception {
 
-        final BgpDeployerImpl deployer = new BgpDeployerImpl(NETWORK_INSTANCE_NAME, this.blueprintContainer, this.bundleContext, this.dataBroker, this.tableTypeRegistry);
+        final BgpDeployerImpl deployer = new BgpDeployerImpl(this.singletonServiceProvider, NETWORK_INSTANCE_NAME,
+            this.blueprintContainer, this.bundleContext, this.dataBroker, this.tableTypeRegistry);
         final BgpDeployerImpl spyDeployer = spy(deployer);
 
         //First create Rib
@@ -364,6 +375,7 @@ public class BgpDeployerImplTest {
         //Update for existing rib
         configureNeighbor(IPV6UNICAST.class);
         spyDeployer.onDataTreeChanged(this.collection);
+        verify(this.bgpPeerRegistry).removePeer(any());
         verify(spyDeployer, times(4)).onDataTreeChanged(any(Collection.class));
         verifyPrivate(spyDeployer, times(3)).invoke("onNeighborsChanged", any(DataObjectModification.class), any(InstanceIdentifier.class));
         verify(spyDeployer, times(3)).onNeighborModified(any(InstanceIdentifier.class), any(Neighbor.class), any());

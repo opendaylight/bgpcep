@@ -13,6 +13,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -33,10 +34,6 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
-import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
@@ -51,7 +48,6 @@ import org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl.RIBImplRuntimeMXBea
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
-import org.opendaylight.protocol.bgp.rib.spi.util.ClusterSingletonServiceRegistrationHelper;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRib;
@@ -83,13 +79,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ThreadSafe
-public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonService, RIB, TransactionChainListener,
-    SchemaContextListener, AutoCloseable {
+public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionChainListener,
+    SchemaContextListener {
     private static final Logger LOG = LoggerFactory.getLogger(RIBImpl.class);
     private static final QName RIB_ID_QNAME = QName.create(Rib.QNAME, "id").intern();
     private static final ContainerNode EMPTY_TABLE_ATTRIBUTES = ImmutableNodes.containerNode(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Attributes.QNAME);
-    private static final int MAX_REGISTRATION_ATTEMPTS = 10;
-    private static final int SLEEP_TIME = MAX_REGISTRATION_ATTEMPTS;
 
     private final BGPDispatcher dispatcher;
     private final AsNumber localAs;
@@ -101,10 +95,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
     private final YangInstanceIdentifier yangRibId;
     private final RIBSupportContextRegistryImpl ribContextRegistry;
     private final CodecsRegistryImpl codecsRegistry;
-    private final ServiceGroupIdentifier serviceGroupIdentifier;
-    private final ClusterSingletonServiceProvider provider;
     private final BgpDeployer.WriteConfiguration configurationWriter;
-    private ClusterSingletonServiceRegistration registration;
     private final DOMDataBrokerExtension service;
     private final List<LocRibWriter> locRibs = new ArrayList<>();
     private final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies;
@@ -112,10 +103,9 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
     private final RIBImplRuntimeMXBeanImpl renderStats;
     private final RibId ribId;
     private final Map<TablesKey, ExportPolicyPeerTracker> exportPolicyPeerTrackerMap;
-
     private DOMTransactionChain domChain;
 
-    public RIBImpl(final ClusterSingletonServiceProvider provider, final RibId ribId, final AsNumber localAs, final BgpId localBgpId,
+    public RIBImpl(final RibId ribId, final AsNumber localAs, final BgpId localBgpId,
         final ClusterIdentifier clusterId, final RIBExtensionConsumerContext extensions, final BGPDispatcher dispatcher,
         final BindingCodecTreeFactory codecFactory, final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
         @Nonnull final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies, final GeneratedClassLoadingStrategy classStrategy,
@@ -139,9 +129,6 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
         this.ribId = ribId;
         final PolicyDatabase policyDatabase = new PolicyDatabase(this.localAs.getValue(), localBgpId, cId);
         this.importPolicyPeerTracker = new ImportPolicyPeerTrackerImpl(policyDatabase);
-        this.serviceGroupIdentifier = ServiceGroupIdentifier.create(this.ribId.getValue() + "-service-group");
-        Preconditions.checkNotNull(provider, "ClusterSingletonServiceProvider is null");
-        this.provider = provider;
         this.configurationWriter = configurationWriter;
 
         final ImmutableMap.Builder<TablesKey, ExportPolicyPeerTracker> exportPolicies = new ImmutableMap.Builder<>();
@@ -153,9 +140,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
         this.exportPolicyPeerTrackerMap = exportPolicies.build();
 
         this.renderStats = new RIBImplRuntimeMXBeanImpl(localBgpId, ribId, localAs, cId, this, this.localTablesKeys);
-        LOG.info("RIB Singleton Service {} registered", getIdentifier());
-        //this need to be always the last step
-        this.registration = registerClusterSingletonService(this);
+        LOG.info("RIB {} created", ribId.getValue());
     }
 
     private void startLocRib(final TablesKey key) {
@@ -203,14 +188,6 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
 
     protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
         return toStringHelper;
-    }
-
-    @Override
-    public synchronized void close() throws Exception {
-        if (this.registration != null) {
-            this.registration.close();
-            this.registration = null;
-        }
     }
 
     @Override
@@ -299,13 +276,12 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
         return this.exportPolicyPeerTrackerMap.get(tablesKey);
     }
 
-    @Override
-    public void instantiateServiceInstance() {
+    public synchronized void instantiateServiceInstance() {
         this.domChain = this.domDataBroker.createTransactionChain(this);
         if(this.configurationWriter != null) {
             this.configurationWriter.apply();
         }
-        LOG.info("RIB Singleton Service {} instantiated", getIdentifier());
+        LOG.info("RIB {} instantiated", this.ribId.getValue());
         LOG.debug("Instantiating RIB table {} at {}", this.ribId , this.yangRibId);
 
         final ContainerNode bgpRib = Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(BgpRib.QNAME))
@@ -337,33 +313,19 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
         this.localTablesKeys.forEach(this::startLocRib);
     }
 
-    @Override
-    public ListenableFuture<Void> closeServiceInstance() {
-        LOG.info("Close RIB Singleton Service {}", getIdentifier());
+    public synchronized ListenableFuture<Void> closeServiceInstance() {
+        LOG.info("RIB {} closeing instance", this.ribId.getValue());
         this.locRibs.forEach(LocRibWriter::close);
         this.locRibs.clear();
 
-        final DOMDataWriteTransaction t = this.domChain.newWriteOnlyTransaction();
-        t.delete(LogicalDatastoreType.OPERATIONAL, getYangRibId());
-        final CheckedFuture<Void, TransactionCommitFailedException> cleanFuture = t.submit();
+        if(this.domChain != null){
+            final DOMDataWriteTransaction t = this.domChain.newWriteOnlyTransaction();
+            t.delete(LogicalDatastoreType.OPERATIONAL, getYangRibId());
+            final CheckedFuture<Void, TransactionCommitFailedException> cleanFuture = t.submit();
+            this.domChain.close();
+            return cleanFuture;
+        }
 
-        this.domChain.close();
-        return cleanFuture;
-    }
-
-    @Override
-    public ServiceGroupIdentifier getIdentifier() {
-        return this.serviceGroupIdentifier;
-    }
-
-    @Override
-    public ClusterSingletonServiceRegistration registerClusterSingletonService(final ClusterSingletonService clusterSingletonService) {
-        return ClusterSingletonServiceRegistrationHelper.registerSingletonService(this.provider, clusterSingletonService, MAX_REGISTRATION_ATTEMPTS,
-                SLEEP_TIME);
-    }
-
-    @Override
-    public ServiceGroupIdentifier getRibIServiceGroupIdentifier() {
-        return getIdentifier();
+        return Futures.immediateFuture(null);
     }
 }

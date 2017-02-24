@@ -15,6 +15,7 @@ import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUti
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
@@ -27,9 +28,6 @@ import org.opendaylight.controller.config.yang.bgp.rib.impl.BGPPeerRuntimeMXBean
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpPeerState;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpSessionState;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
-import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.spi.MultiprotocolCapabilitiesUtil;
@@ -92,21 +90,22 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer, BGPPeerRun
     }
 
     @Override
-    public void close() {
-        closeSingletonService();
+    public ListenableFuture<Void> close() {
         if (this.serviceRegistration != null) {
             this.serviceRegistration.unregister();
             this.serviceRegistration = null;
         }
+        if (this.bgpPeerSingletonService == null) {
+            return Futures.immediateFuture(null);
+        }
+        final ListenableFuture<Void> peerClose = this.bgpPeerSingletonService.closeServiceInstance();
+        this.bgpPeerSingletonService = null;
+        return peerClose;
     }
 
-    private void closeSingletonService() {
-        try {
-            this.bgpPeerSingletonService.close();
-            this.bgpPeerSingletonService = null;
-        } catch (final Exception e) {
-            LOG.warn("Failed to close peer instance", e);
-        }
+    @Override
+    public void instantiateServiceInstance() {
+        this.bgpPeerSingletonService.instantiateServiceInstance();
     }
 
     @Override
@@ -203,16 +202,13 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer, BGPPeerRun
         this.serviceRegistration = serviceRegistration;
     }
 
-    private final class BgpPeerSingletonService implements BGPPeerStateConsumer, ClusterSingletonService,
-        AutoCloseable {
-        private final ServiceGroupIdentifier serviceGroupIdentifier;
+    private final class BgpPeerSingletonService implements BGPPeerStateConsumer {
         private final boolean activeConnection;
         private final BGPDispatcher dispatcher;
         private final InetSocketAddress inetAddress;
         private final int retryTimer;
         private final Optional<KeyMapping> key;
         private final WriteConfiguration configurationWriter;
-        private ClusterSingletonServiceRegistration registration;
         private final BGPPeer bgpPeer;
         private final IpAddress neighborAddress;
         private final BGPSessionPreferences prefs;
@@ -237,26 +233,14 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer, BGPPeerRun
             this.retryTimer = OpenConfigMappingUtil.getRetryTimer(neighbor);
             this.key = Optional.fromNullable(keyMapping);
             this.configurationWriter = configurationWriter;
-            this.serviceGroupIdentifier = rib.getRibIServiceGroupIdentifier();
-            LOG.info("Peer Singleton Service {} registered", this.serviceGroupIdentifier.getValue());
-            //this need to be always the last step
-            this.registration = rib.registerClusterSingletonService(this);
+            LOG.info("Peer service {} created", this.neighborAddress.toString());
         }
 
-        @Override
-        public void close() throws Exception {
-            if (this.registration != null) {
-                this.registration.close();
-                this.registration = null;
-            }
-        }
-
-        @Override
         public void instantiateServiceInstance() {
             if(this.configurationWriter != null) {
                 this.configurationWriter.apply();
             }
-            LOG.info("Peer Singleton Service {} instantiated", getIdentifier().getValue());
+            LOG.info("Peer {} service instantiated ", this.neighborAddress.toString());
             this.bgpPeer.instantiateServiceInstance();
             this.dispatcher.getBGPPeerRegistry().addPeer(this.neighborAddress, this.bgpPeer, this.prefs);
             if (this.activeConnection) {
@@ -264,9 +248,8 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer, BGPPeerRun
             }
         }
 
-        @Override
         public ListenableFuture<Void> closeServiceInstance() {
-            LOG.info("Close Peer Singleton Service {}", getIdentifier().getValue());
+            LOG.info("Peer {} close service instance ", this.neighborAddress.toString());
             if (this.connection != null) {
                 this.connection.cancel(true);
                 this.connection = null;
@@ -276,11 +259,6 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer, BGPPeerRun
                 this.dispatcher.getBGPPeerRegistry().removePeer(BgpPeer.this.currentConfiguration.getNeighborAddress());
             }
             return future;
-        }
-
-        @Override
-        public ServiceGroupIdentifier getIdentifier() {
-            return this.serviceGroupIdentifier;
         }
 
         BGPPeerRuntimeMXBean getPeer() {

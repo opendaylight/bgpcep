@@ -51,6 +51,7 @@
   <reference id="rpcRegistry" interface="org.opendaylight.controller.sal.binding.api.RpcProviderRegistry"/>
 
   <bean id="bgpDeployer" class="org.opendaylight.protocol.bgp.rib.impl.config.BgpDeployerImpl"  destroy-method="close">
+    <argument ref="clusterSingletonServiceProvider"/>
     <argument value="global-bgp"/>
     <argument ref="blueprintContainer"/>
     <argument ref="blueprintBundleContext"/>
@@ -61,7 +62,6 @@
   <service ref="bgpDeployer" interface="org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer"/>
 
   <bean id="ribImpl" class="org.opendaylight.protocol.bgp.rib.impl.config.RibImpl" scope="prototype">
-    <argument ref="clusterSingletonServiceProvider"/>
     <argument ref="globalBgpExtensions"/>
     <argument ref="BGPDispatcher"/>
     <argument ref="codecTreeFactory"/>
