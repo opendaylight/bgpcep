@@ -7,9 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
 import com.google.common.util.concurrent.CheckedFuture;
@@ -40,9 +37,6 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.protocol.bgp.inet.RIBActivator;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
@@ -133,9 +127,6 @@ public class AbstractRIBTestSetup {
     @Mock
     private DOMDataTreeChangeService service;
 
-    @Mock
-    private ClusterSingletonServiceProvider clusterSingletonServiceProvider;
-
     @Before
     public void setUp() throws Exception {
         mockRib();
@@ -152,9 +143,7 @@ public class AbstractRIBTestSetup {
         this.a1 = new RIBActivator();
         this.a1.startRIBExtensionProvider(context);
         mockedMethods();
-        doReturn(Mockito.mock(ClusterSingletonServiceRegistration.class)).when(this.clusterSingletonServiceProvider)
-            .registerClusterSingletonService(any(ClusterSingletonService.class));
-        this.rib = new RIBImpl(this.clusterSingletonServiceProvider, new RibId("test"), new AsNumber(5L), RIB_ID, CLUSTER_ID, context,
+        this.rib = new RIBImpl(new RibId("test"), new AsNumber(5L), RIB_ID, CLUSTER_ID, context,
             this.dispatcher, this.codecFactory, this.dom, localTables, Collections.singletonMap(new TablesKey(AFI, SAFI),
             BasePathSelectionModeFactory.createBestPathSelectionStrategy()), GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), null);
         this.rib.onGlobalContextUpdated(schemaContext);

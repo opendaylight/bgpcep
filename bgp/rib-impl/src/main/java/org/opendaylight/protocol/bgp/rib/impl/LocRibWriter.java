@@ -74,7 +74,7 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
     private final Long ourAs;
     private final RIBSupport ribSupport;
     private final TablesKey localTablesKey;
-    private final ListenerRegistration<LocRibWriter> reg;
+    private ListenerRegistration<LocRibWriter> reg;
     private final PathSelectionMode pathSelectionMode;
     private final LongAdder totalPathsCounter = new LongAdder();
     private final LongAdder totalPrefixesCounter = new LongAdder();
@@ -112,8 +112,9 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
     }
 
     @Override
-    public void close() {
+    public synchronized void close() {
         this.reg.close();
+        this.reg = null;
         // FIXME: wait for the chain to close? unfortunately RIBImpl is the listener, so that may require some work
         this.chain.close();
     }
@@ -134,7 +135,10 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
      * @param changes on supported table
      */
     @Override
-    public void onDataTreeChanged(final Collection<DataTreeCandidate> changes) {
+    public synchronized void onDataTreeChanged(final Collection<DataTreeCandidate> changes) {
+        if (this.reg == null) {
+            return;
+        }
         LOG.trace("Received data change {} to LocRib {}", changes, this);
 
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
