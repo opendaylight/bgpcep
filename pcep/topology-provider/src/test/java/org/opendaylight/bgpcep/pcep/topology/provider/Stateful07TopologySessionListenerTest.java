@@ -14,8 +14,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createLspTlvs;
-
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import java.net.UnknownHostException;
@@ -28,6 +29,7 @@ import java.util.concurrent.TimeoutException;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.SessionState;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.protocol.pcep.PCEPCloseTermination;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.TerminationReason;
@@ -275,9 +277,54 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
     @Test
     public void testOnSessionDown() throws InterruptedException, ExecutionException {
         this.listener.onSessionUp(this.session);
+        verify(this.listenerReg, times(0)).close();
         // send request
         final Future<RpcResult<AddLspOutput>> futureOutput = this.topologyRpcs.addLsp(createAddLspInput());
         this.listener.onSessionDown(this.session, new IllegalArgumentException());
+        verify(this.listenerReg, times(1)).close();
+        final AddLspOutput output = futureOutput.get().getResult();
+        // deal with unsent request after session down
+        assertEquals(FailureType.Unsent, output.getFailure());
+    }
+
+    /**
+     * All the pcep session registration should be closed when the session manager is closed
+     * @throws InterruptedException
+     * @throws ExecutionException
+     * @throws TransactionCommitFailedException
+     */
+    @Test
+    public void testOnServerSessionManagerDown() throws InterruptedException, ExecutionException, TransactionCommitFailedException {
+        this.listener.onSessionUp(this.session);
+        verify(this.listenerReg, times(0)).close();
+        // send request
+        final Future<RpcResult<AddLspOutput>> futureOutput = this.topologyRpcs.addLsp(createAddLspInput());
+        this.manager.close();
+        verify(this.listenerReg, times(1)).close();
+        final AddLspOutput output = futureOutput.get().getResult();
+        // deal with unsent request after session down
+        assertEquals(FailureType.Unsent, output.getFailure());
+    }
+
+    /**
+     * Verify the PCEP session should not be up when server session manager is down,
+     * otherwise it would be a problem when the session is up while it's not registered with session manager
+     * @throws InterruptedException
+     * @throws ExecutionException
+     * @throws TransactionCommitFailedException
+     */
+    @Test
+    public void testOnServerSessionManagerUnstarted() throws InterruptedException, ExecutionException, TransactionCommitFailedException {
+        this.manager.close();
+        // the registration should not be closed since it's never initialized
+        verify(this.listenerReg, times(0)).close();
+        this.listener.onSessionUp(this.session);
+        // verify the session was NOT added to topology
+        assertFalse(getTopology().isPresent());
+        // still, the session should not be registered and thus close() is never called
+        verify(this.listenerReg, times(0)).close();
+        // send request
+        final Future<RpcResult<AddLspOutput>> futureOutput = this.topologyRpcs.addLsp(createAddLspInput());
         final AddLspOutput output = futureOutput.get().getResult();
         // deal with unsent request after session down
         assertEquals(FailureType.Unsent, output.getFailure());
@@ -286,6 +333,7 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
     @Test
     public void testOnSessionTermination() throws UnknownHostException, InterruptedException, ExecutionException {
         this.listener.onSessionUp(this.session);
+        verify(this.listenerReg, times(0)).close();
 
         // create node
         this.topologyRpcs.addLsp(createAddLspInput());
@@ -300,6 +348,7 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
 
         // node should be removed after termination
         this.listener.onSessionTerminated(this.session, new PCEPCloseTermination(TerminationReason.UNKNOWN));
+        verify(this.listenerReg, times(1)).close();
         assertEquals(0, getTopology().get().getNode().size());
     }
 
