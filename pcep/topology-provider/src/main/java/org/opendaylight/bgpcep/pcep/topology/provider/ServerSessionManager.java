@@ -19,6 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.ListenerStateRuntimeMXBean;
+import org.opendaylight.controller.config.yang.pcep.topology.provider.ListenerStateRuntimeRegistration;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeMXBean;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistration;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistrator;
@@ -194,12 +195,14 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, AutoClos
         }
     }
 
-    public void registerRuntimeRootRegistration(final ListenerStateRuntimeMXBean bean) {
+    public ListenerStateRuntimeRegistration registerRuntimeRootRegistration(final ListenerStateRuntimeMXBean bean) {
         final PCEPTopologyProviderRuntimeRegistration runtimeReg = this.runtimeRootRegistration.get();
         if (runtimeReg != null) {
-            runtimeReg.register(bean);
+            final ListenerStateRuntimeRegistration reg = runtimeReg.register(bean);
             LOG.trace("Bean {} is successfully registered.", bean.getPeerId());
+            return reg;
         }
+        return null;
     }
 
     @Override
