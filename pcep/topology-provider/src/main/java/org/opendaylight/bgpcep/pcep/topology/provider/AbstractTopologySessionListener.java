@@ -151,6 +151,11 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
             return;
         }
 
+        if (this.session != null || this.nodeState != null) {
+            this.onSessionDown(session, new IllegalStateException("Session is already up with " + session.getRemoteAddress()));
+            return;
+        }
+
         this.session = session;
         this.nodeState = state;
 
@@ -173,7 +178,11 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         }
         writeNode(pccBuilder, state, topologyAugment);
         this.listenerState.init(session);
-        this.serverSessionManager.registerRuntimeRootRegistration(this);
+        this.registration = this.serverSessionManager.registerRuntimeRootRegistration(this);
+        if (this.registration == null) {
+            this.onSessionDown(session, new RuntimeException("PCEP Session with " + session.getRemoteAddress() + " fails to register."));
+            return;
+        }
         LOG.info("Session with {} attached to topology node {}", session.getRemoteAddress(), state.getNodeId());
     }
 
@@ -227,7 +236,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     }
 
     @GuardedBy("this")
-    private void tearDown(final PCEPSession session) {
+    private synchronized void tearDown(final PCEPSession session) {
         this.serverSessionManager.releaseNodeState(this.nodeState, session, isLspDbPersisted());
         this.nodeState = null;
         this.session = null;
@@ -240,6 +249,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
             switch (r.getState()) {
             case DONE:
                 // Done is done, nothing to do
+                LOG.trace("Request {} was done when session went down.", e.getKey());
                 break;
             case UNACKED:
                 // Peer has not acked: results in failure
@@ -308,7 +318,10 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     private synchronized void unregister() {
         if (this.registration != null) {
             this.registration.close();
+            LOG.trace("PCEP session {} unregistered successfully.", this.session);
             this.registration = null;
+        } else {
+            LOG.trace("PCEP session {} was not registered.", this.session);
         }
     }
 
