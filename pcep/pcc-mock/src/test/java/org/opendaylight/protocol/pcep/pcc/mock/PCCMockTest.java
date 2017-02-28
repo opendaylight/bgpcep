@@ -28,7 +28,7 @@ public final class PCCMockTest extends PCCMockCommon {
     public void testSessionEstablishment() throws Exception {
         final TestingSessionListenerFactory factory = new TestingSessionListenerFactory();
         final Channel channel = createServer(factory, this.remoteAddress);
-        Main.main(mainInput);
+        Main.main(this.mainInput);
         Thread.sleep(1000);
         //3 reported LSPs + syc
         final int numMessages = 4;
@@ -58,7 +58,7 @@ public final class PCCMockTest extends PCCMockCommon {
             "--pcc", "2"});
         Thread.sleep(1000);
         //PCE1
-        int numMessages = 2;
+        final int numMessages = 2;
         checkSessionListener(numMessages, channel, factory, this.localAddress.getHostString());
         checkSessionListener(numMessages, channel, factory, localAddress2);
         //PCE2

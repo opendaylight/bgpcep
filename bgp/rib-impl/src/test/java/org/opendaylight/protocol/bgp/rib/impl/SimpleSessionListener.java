@@ -14,10 +14,12 @@ import com.google.common.util.concurrent.Uninterruptibles;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.concurrent.GuardedBy;
 import org.junit.Assert;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
+import org.opendaylight.protocol.util.CheckUtil.ListenerCheck;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
@@ -26,17 +28,18 @@ import org.slf4j.LoggerFactory;
 /**
  * Listener for the client.
  */
-public final class SimpleSessionListener implements BGPSessionListener {
+public final class SimpleSessionListener implements BGPSessionListener, ListenerCheck {
 
     private static final Logger LOG = LoggerFactory.getLogger(SimpleSessionListener.class);
+    @GuardedBy("this")
     private final List<Notification> listMsg = Lists.newArrayList();
     private BGPSession session;
     private final CountDownLatch sessionLatch = new CountDownLatch(1);
 
-    SimpleSessionListener() {
+    public SimpleSessionListener() {
     }
 
-    List<Notification> getListMsg() {
+    synchronized List<Notification> getListMsg() {
         return this.listMsg;
     }
 
@@ -63,7 +66,7 @@ public final class SimpleSessionListener implements BGPSessionListener {
     }
 
     @Override
-    public void onMessage(final BGPSession session, final Notification message) {
+    public synchronized void onMessage(final BGPSession session, final Notification message) {
         this.listMsg.add(message);
         LOG.debug("Message received: {}", message);
     }
@@ -81,12 +84,17 @@ public final class SimpleSessionListener implements BGPSessionListener {
         return Futures.immediateFuture(null);
     }
 
-    BGPSessionImpl.State getState() {
+    public BGPSessionImpl.State getState() {
         return getSession().getState();
     }
 
     BGPSessionImpl getSession() {
         Assert.assertEquals("Session up", true, Uninterruptibles.awaitUninterruptibly(this.sessionLatch, 10, TimeUnit.SECONDS));
         return (BGPSessionImpl) this.session;
+    }
+
+    @Override
+    public int getListMessageSize() {
+        return this.listMsg.size();
     }
 }

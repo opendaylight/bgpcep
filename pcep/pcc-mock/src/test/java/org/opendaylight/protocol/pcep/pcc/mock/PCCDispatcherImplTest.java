@@ -9,7 +9,7 @@
 package org.opendaylight.protocol.pcep.pcc.mock;
 
 import static org.opendaylight.protocol.pcep.pcc.mock.PCCMockCommon.checkSessionListenerNotNull;
-import static org.opendaylight.protocol.pcep.pcc.mock.WaitForFutureSucces.waitFutureSuccess;
+import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -39,7 +39,7 @@ import org.opendaylight.protocol.util.InetSocketAddressUtil;
 public class PCCDispatcherImplTest {
 
     private static final List<PCEPCapability> CAPS = new ArrayList<>();
-    private static final PCEPSessionProposalFactory PROPOSAL = new BasePCEPSessionProposalFactory(30, 120, CAPS);
+    private static final PCEPSessionProposalFactory PROPOSAL = new BasePCEPSessionProposalFactory(10, 40, CAPS);
     private final DefaultPCEPSessionNegotiatorFactory nf = new DefaultPCEPSessionNegotiatorFactory(PROPOSAL, 0);
     private PCCDispatcherImpl dispatcher;
     private PCEPDispatcher pcepDispatcher;
@@ -65,7 +65,7 @@ public class PCCDispatcherImplTest {
         closeEventLoopGroups();
     }
 
-    private void closeEventLoopGroups() throws ExecutionException, InterruptedException {
+    private void closeEventLoopGroups() {
         this.workerGroup.shutdownGracefully(0, 0, TimeUnit.SECONDS);
         this.bossGroup.shutdownGracefully(0, 0, TimeUnit.SECONDS);
     }
@@ -74,7 +74,6 @@ public class PCCDispatcherImplTest {
     public void testClientReconnect() throws Exception {
         final Future<PCEPSession> futureSession = this.dispatcher.createClient(this.serverAddress, 1, new TestingSessionListenerFactory(),
             this.nf, null, this.clientAddress);
-        waitFutureSuccess(futureSession);
         final TestingSessionListenerFactory slf = new TestingSessionListenerFactory();
         final ChannelFuture futureServer = this.pcepDispatcher.createServer(this.serverAddress, slf, null);
         waitFutureSuccess(futureServer);

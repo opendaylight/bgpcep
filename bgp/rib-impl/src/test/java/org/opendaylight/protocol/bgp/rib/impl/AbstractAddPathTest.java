@@ -9,8 +9,8 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
-import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.readData;
-import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.waitFutureSuccess;
+import static org.opendaylight.protocol.util.CheckUtil.readData;
+import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;

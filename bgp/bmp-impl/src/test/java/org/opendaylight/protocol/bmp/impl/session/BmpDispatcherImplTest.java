@@ -32,7 +32,6 @@ import org.opendaylight.protocol.bmp.impl.BmpDispatcherImpl;
 import org.opendaylight.protocol.bmp.parser.BmpActivator;
 import org.opendaylight.protocol.bmp.spi.registry.BmpMessageRegistry;
 import org.opendaylight.protocol.bmp.spi.registry.SimpleBmpExtensionProviderContext;
-import org.opendaylight.protocol.concepts.KeyMapping;
 
 public class BmpDispatcherImplTest {
 
@@ -88,9 +87,9 @@ public class BmpDispatcherImplTest {
 
     @Test
     public void testCreateServer() throws Exception {
-        final Channel serverChannel = this.dispatcher.createServer(SERVER, this.mockedListenerFactory, Optional.<KeyMapping>absent()).await().channel();
+        final Channel serverChannel = this.dispatcher.createServer(SERVER, this.mockedListenerFactory, Optional.absent()).await().channel();
         Assert.assertTrue(serverChannel.isActive());
-        final Channel clientChannel = this.dispatcher.createClient(CLIENT_REMOTE, this.mockedListenerFactory, Optional.<KeyMapping>absent()).await().channel();
+        final Channel clientChannel = this.dispatcher.createClient(CLIENT_REMOTE, this.mockedListenerFactory, Optional.absent()).await().channel();
         Assert.assertTrue(clientChannel.isActive());
         Thread.sleep(500);
         Mockito.verify(this.mockedSession, Mockito.times(2)).handlerAdded(Mockito.any(ChannelHandlerContext.class));

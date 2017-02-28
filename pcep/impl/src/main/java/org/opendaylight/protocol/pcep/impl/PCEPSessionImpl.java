@@ -11,6 +11,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Ticker;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -55,6 +56,8 @@ import org.slf4j.LoggerFactory;
  */
 @VisibleForTesting
 public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implements PCEPSession {
+    private static final long MINUTE = TimeUnit.MINUTES.toNanos(1);
+    private static Ticker TICKER = Ticker.systemTicker();
     /**
      * System.nanoTime value about when was sent the last message Protected to be updated also in tests.
      */
@@ -99,7 +102,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
         this.channel = Preconditions.checkNotNull(channel);
         this.localOpen = Preconditions.checkNotNull(localOpen);
         this.remoteOpen = Preconditions.checkNotNull(remoteOpen);
-        this.lastMessageReceivedAt = System.nanoTime();
+        this.lastMessageReceivedAt = TICKER.read();
 
         if (maxUnknownMessages != 0) {
             this.maxUnknownMessages = maxUnknownMessages;
@@ -144,7 +147,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
      * state will become IDLE), that rescheduling won't occur.
      */
     private synchronized void handleDeadTimer() {
-        final long ct = System.nanoTime();
+        final long ct = TICKER.read();
 
         final long nextDead = this.lastMessageReceivedAt + TimeUnit.SECONDS.toNanos(getDeadTimerValue());
 
@@ -170,7 +173,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
      * starts to execute (the session state will become IDLE), that rescheduling won't occur.
      */
     private  void handleKeepaliveTimer() {
-        final long ct = System.nanoTime();
+        final long ct = TICKER.read();
 
         long nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(getKeepAliveTimerValue());
 
@@ -197,7 +200,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
     @Override
     public Future<Void> sendMessage(final Message msg) {
         final ChannelFuture f = this.channel.writeAndFlush(msg);
-        this.lastMessageSentAt = System.nanoTime();
+        this.lastMessageSentAt = TICKER.read();
         this.sessionState.updateLastSentMsg();
         if (!(msg instanceof KeepaliveMessage)) {
             LOG.debug("PCEP Message enqueued: {}", msg);
@@ -293,11 +296,11 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
      */
     @VisibleForTesting
     public void handleMalformedMessage(final PCEPErrors error) {
-        final long ct = System.nanoTime();
+        final long ct = TICKER.read();
         this.sendErrorMessage(error);
         if (error == PCEPErrors.CAPABILITY_NOT_SUPPORTED) {
             this.unknownMessagesTimes.add(ct);
-            while (ct - this.unknownMessagesTimes.peek() > TimeUnit.MINUTES.toNanos(1)) {
+            while ( ct - this.unknownMessagesTimes.peek() > MINUTE) {
                 this.unknownMessagesTimes.poll();
             }
             if (this.unknownMessagesTimes.size() > this.maxUnknownMessages) {
@@ -314,7 +317,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
      */
     public synchronized void handleMessage(final Message msg) {
         // Update last reception time
-        this.lastMessageReceivedAt = System.nanoTime();
+        this.lastMessageReceivedAt = TICKER.read();
         this.sessionState.updateLastReceivedMsg();
         if (!(msg instanceof KeepaliveMessage)) {
             LOG.debug("PCEP message {} received.", msg);
@@ -412,6 +415,11 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
 
     @Override
     public Tlvs localSessionCharacteristics() {
-        return localOpen.getTlvs();
+        return this.localOpen.getTlvs();
+    }
+
+    @VisibleForTesting
+    static void setTicker(final Ticker ticker) {
+        TICKER = ticker;
     }
 }

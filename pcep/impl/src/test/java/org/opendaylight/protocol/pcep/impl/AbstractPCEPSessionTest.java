@@ -29,8 +29,6 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.KeepaliveBuilder;
@@ -82,13 +80,10 @@ public class AbstractPCEPSessionTest {
     public final void setUp() {
         MockitoAnnotations.initMocks(this);
         final ChannelFuture future = new DefaultChannelPromise(this.channel);
-        doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(final InvocationOnMock invocation) {
-                final Object[] args = invocation.getArguments();
-                AbstractPCEPSessionTest.this.msgsSend.add((Notification) args[0]);
-                return future;
-            }
+        doAnswer(invocation -> {
+            final Object[] args = invocation.getArguments();
+            AbstractPCEPSessionTest.this.msgsSend.add((Notification) args[0]);
+            return future;
         }).when(this.channel).writeAndFlush(any(Notification.class));
         doReturn(this.channelFuture).when(this.channel).closeFuture();
         doReturn(this.channelFuture).when(this.channelFuture).addListener(any(GenericFutureListener.class));
@@ -103,8 +98,8 @@ public class AbstractPCEPSessionTest {
         doReturn(this.pipeline).when(this.pipeline).addFirst(any(ChannelHandler.class));
         doReturn(true).when(this.channel).isActive();
         doReturn(mock(ChannelFuture.class)).when(this.channel).close();
-        doReturn(new InetSocketAddress(ipAddress, port)).when(this.channel).remoteAddress();
-        doReturn(new InetSocketAddress(ipAddress, port)).when(this.channel).localAddress();
+        doReturn(new InetSocketAddress(this.ipAddress, this.port)).when(this.channel).remoteAddress();
+        doReturn(new InetSocketAddress(this.ipAddress, this.port)).when(this.channel).localAddress();
         this.openMsg = new OpenBuilder().setOpenMessage(
                 new OpenMessageBuilder().setOpen(
                         new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder().setDeadTimer(

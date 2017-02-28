@@ -21,8 +21,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -49,7 +47,7 @@ public class PCEPStatefulPeerProposalTest {
             .child(Topology.class, new TopologyKey(new TopologyId("topology")));
     private static final NodeId NODE_ID = new NodeId("node");
     private static final LspDbVersion LSP_DB_VERSION = new LspDbVersionBuilder().setLspDbVersionValue(
-            BigInteger.valueOf(1l)).build();
+            BigInteger.ONE).build();
 
     @Mock
     private DataBroker dataBroker;
@@ -68,45 +66,42 @@ public class PCEPStatefulPeerProposalTest {
                         new StatefulBuilder().addAugmentation(Stateful1.class, new Stateful1Builder().build()).build())
                         .build());
         final ReadOnlyTransaction rTxMock = Mockito.mock(ReadOnlyTransaction.class);
-        Mockito.doReturn(rTxMock).when(dataBroker).newReadOnlyTransaction();
-        Mockito.doReturn(listenableFutureMock).when(rTxMock)
+        Mockito.doReturn(rTxMock).when(this.dataBroker).newReadOnlyTransaction();
+        Mockito.doReturn(this.listenableFutureMock).when(rTxMock)
                 .read(Mockito.any(LogicalDatastoreType.class), Mockito.any(InstanceIdentifier.class));
 
-        Mockito.doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(final InvocationOnMock invocation) throws Throwable {
-                final Runnable runnable = (Runnable) invocation.getArguments()[0];
-                runnable.run();
-                return null;
-            }
-        }).when(listenableFutureMock).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
+        Mockito.doAnswer(invocation -> {
+            final Runnable runnable = (Runnable) invocation.getArguments()[0];
+            runnable.run();
+            return null;
+        }).when(this.listenableFutureMock).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
     }
 
     @Test
     public void testSetPeerProposalSuccess() throws InterruptedException, ExecutionException {
-        Mockito.doReturn(Optional.of(LSP_DB_VERSION)).when(listenableFutureMock).get();
-        final PCEPStatefulPeerProposal peerProposal = PCEPStatefulPeerProposal.createStatefulPeerProposal(dataBroker,
+        Mockito.doReturn(Optional.of(LSP_DB_VERSION)).when(this.listenableFutureMock).get();
+        final PCEPStatefulPeerProposal peerProposal = PCEPStatefulPeerProposal.createStatefulPeerProposal(this.dataBroker,
                 TOPOLOGY_IID);
-        peerProposal.setPeerProposal(NODE_ID, tlvsBuilder);
-        assertEquals(LSP_DB_VERSION, tlvsBuilder.getAugmentation(Tlvs3.class).getLspDbVersion());
+        peerProposal.setPeerProposal(NODE_ID, this.tlvsBuilder);
+        assertEquals(LSP_DB_VERSION, this.tlvsBuilder.getAugmentation(Tlvs3.class).getLspDbVersion());
     }
 
     @Test
     public void testSetPeerProposalAbsent() throws InterruptedException, ExecutionException {
-        Mockito.doReturn(Optional.absent()).when(listenableFutureMock).get();
-        final PCEPStatefulPeerProposal peerProposal = PCEPStatefulPeerProposal.createStatefulPeerProposal(dataBroker,
+        Mockito.doReturn(Optional.absent()).when(this.listenableFutureMock).get();
+        final PCEPStatefulPeerProposal peerProposal = PCEPStatefulPeerProposal.createStatefulPeerProposal(this.dataBroker,
                 TOPOLOGY_IID);
-        peerProposal.setPeerProposal(NODE_ID, tlvsBuilder);
-        assertNull(tlvsBuilder.getAugmentation(Tlvs3.class));
+        peerProposal.setPeerProposal(NODE_ID, this.tlvsBuilder);
+        assertNull(this.tlvsBuilder.getAugmentation(Tlvs3.class));
     }
 
     @Test
     public void testSetPeerProposalFailure() throws InterruptedException, ExecutionException {
-        Mockito.doThrow(new RuntimeException()).when(listenableFutureMock).get();
-        final PCEPStatefulPeerProposal peerProposal = PCEPStatefulPeerProposal.createStatefulPeerProposal(dataBroker,
+        Mockito.doThrow(new RuntimeException()).when(this.listenableFutureMock).get();
+        final PCEPStatefulPeerProposal peerProposal = PCEPStatefulPeerProposal.createStatefulPeerProposal(this.dataBroker,
                 TOPOLOGY_IID);
-        peerProposal.setPeerProposal(NODE_ID, tlvsBuilder);
-        assertNull(tlvsBuilder.getAugmentation(Tlvs3.class));
+        peerProposal.setPeerProposal(NODE_ID, this.tlvsBuilder);
+        assertNull(this.tlvsBuilder.getAugmentation(Tlvs3.class));
     }
 
 }
