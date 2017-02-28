@@ -9,6 +9,8 @@ package org.opendaylight.protocol.pcep.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.opendaylight.protocol.util.CheckUtil.checkEquals;
+
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import org.junit.After;
@@ -205,40 +207,32 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
 
     @Test
     @Ignore
-    public void testUnknownMessage() throws InterruptedException {
+    public void testUnknownMessage() throws Exception {
         final SimpleSessionListener client = new SimpleSessionListener();
         final PCEPSessionImpl s = new PCEPSessionImpl(client, 5, this.channel, this.openMsg.getOpenMessage().getOpen(), this.openMsg.getOpenMessage().getOpen());
         s.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        assertEquals(1, s.getUnknownMessagesTimes().size());
-        Thread.sleep(10000);
+        checkEquals(()-> assertEquals(1, s.getUnknownMessagesTimes().size()));
         s.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        assertEquals(2, s.getUnknownMessagesTimes().size());
-        Thread.sleep(10000);
+        checkEquals(()-> assertEquals(2, s.getUnknownMessagesTimes().size()));
         s.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        assertEquals(3, s.getUnknownMessagesTimes().size());
-        Thread.sleep(20000);
+        checkEquals(()-> assertEquals(3, s.getUnknownMessagesTimes().size()));
         s.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        assertEquals(4, s.getUnknownMessagesTimes().size());
-        Thread.sleep(30000);
+        checkEquals(()-> assertEquals(4, s.getUnknownMessagesTimes().size()));
         s.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        assertEquals(3, s.getUnknownMessagesTimes().size());
-        Thread.sleep(10000);
+        checkEquals(()-> assertEquals(5, s.getUnknownMessagesTimes().size()));
         s.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        assertEquals(3, s.getUnknownMessagesTimes().size());
-        Thread.sleep(5000);
+        checkEquals(()-> assertEquals(6, s.getUnknownMessagesTimes().size()));
         s.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        assertEquals(4, s.getUnknownMessagesTimes().size());
-        Thread.sleep(1000);
+        checkEquals(()-> assertEquals(7, s.getUnknownMessagesTimes().size()));
         s.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        assertEquals(5, s.getUnknownMessagesTimes().size());
-        Thread.sleep(1000);
+        checkEquals(()-> assertEquals(8, s.getUnknownMessagesTimes().size()));
         s.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
         synchronized (client) {
             while (client.up) {
                 client.wait();
             }
         }
-        assertTrue(!client.up);
+        checkEquals(()-> assertTrue(!client.up));
     }
 
     @After
