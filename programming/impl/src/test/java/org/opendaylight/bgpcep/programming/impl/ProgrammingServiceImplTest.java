@@ -252,8 +252,6 @@ public class ProgrammingServiceImplTest extends AbstractConcurrentDataBrokerTest
 
         future.get();
 
-        Thread.sleep(2 * INSTRUCTION_DEADLINE_OFFSET_IN_SECONDS * 1000);
-
         this.mockedNotificationServiceWrapper.assertNotificationsCount(2);
         this.mockedNotificationServiceWrapper.assertInstructionStatusChangedNotification(1, mockedSubmit1.getId(), InstructionStatus.Cancelled);
     }
@@ -273,8 +271,6 @@ public class ProgrammingServiceImplTest extends AbstractConcurrentDataBrokerTest
         final Instruction i = future.get();
         i.checkedExecutionStart();
         i.executionCompleted(InstructionStatus.Successful, getDetails());
-
-        Thread.sleep(2 * INSTRUCTION_DEADLINE_OFFSET_IN_SECONDS * 1000);
 
         this.mockedNotificationServiceWrapper.assertNotificationsCount(3);
         this.mockedNotificationServiceWrapper.assertInstructionStatusChangedNotification(1, mockedSubmit1.getId(), InstructionStatus.Executing);
@@ -299,8 +295,6 @@ public class ProgrammingServiceImplTest extends AbstractConcurrentDataBrokerTest
 
         final Instruction i = future.get();
         i.checkedExecutionStart();
-
-        Thread.sleep(2 * INSTRUCTION_DEADLINE_OFFSET_IN_SECONDS * 1000);
 
         this.mockedNotificationServiceWrapper.assertNotificationsCount(4);
         this.mockedNotificationServiceWrapper.assertInstructionStatusChangedNotification(1, mockedSubmit1.getId(), InstructionStatus.Executing);

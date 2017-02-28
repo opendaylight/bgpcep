@@ -40,6 +40,7 @@ import org.opendaylight.protocol.pcep.TerminationReason;
 import org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
+import org.opendaylight.protocol.util.CheckUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.topology.rev140113.NetworkTopologyRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Pcinitiate;
@@ -461,7 +462,7 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
     }
 
     @Test
-    public void testPccResponseTimeout() throws InterruptedException, ExecutionException {
+    public void testPccResponseTimeout() throws Exception {
         this.listener.onSessionUp(this.session);
         final Future<RpcResult<AddLspOutput>> addLspResult = this.topologyRpcs.addLsp(createAddLspInput());
         try {
@@ -471,9 +472,11 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
             assertTrue(e instanceof TimeoutException);
         }
         Thread.sleep(AbstractPCEPSessionTest.RPC_TIMEOUT);
-        final RpcResult<AddLspOutput> rpcResult = addLspResult.get();
-        assertNotNull(rpcResult);
-        assertEquals(rpcResult.getResult().getFailure(), FailureType.Unsent);
+        CheckUtil.checkEquals(()-> {
+            final RpcResult<AddLspOutput> rpcResult = addLspResult.get();
+            assertNotNull(rpcResult);
+            assertEquals(rpcResult.getResult().getFailure(), FailureType.Unsent);
+        });
     }
 
     @Override
