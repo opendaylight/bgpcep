@@ -9,14 +9,18 @@ package org.opendaylight.protocol.pcep.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.opendaylight.protocol.util.CheckUtil.checkEquals;
+
+import com.google.common.base.Ticker;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.GlobalEventExecutor;
+import java.util.Queue;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.impl.spi.Util;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
+import org.opendaylight.protocol.util.CheckUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.app.config.rev160707.pcep.dispatcher.config.TlsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Open;
@@ -31,14 +35,15 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
 
     private DefaultPCEPSessionNegotiator serverSession;
     private DefaultPCEPSessionNegotiator tlsSessionNegotiator;
+    protected final TestTicker ticker = new TestTicker();
 
     @Before
     public void setup() {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open localPrefs = new OpenBuilder().setKeepalive(
                 (short) 1).build();
-        this.serverSession = new DefaultPCEPSessionNegotiator(new DefaultPromise<PCEPSessionImpl>(GlobalEventExecutor.INSTANCE),
+        this.serverSession = new DefaultPCEPSessionNegotiator(new DefaultPromise<>(GlobalEventExecutor.INSTANCE),
                 this.channel, this.listener, (short) 1, 20, localPrefs);
-        this.tlsSessionNegotiator = new DefaultPCEPSessionNegotiator(new DefaultPromise<PCEPSessionImpl>(GlobalEventExecutor.INSTANCE),
+        this.tlsSessionNegotiator = new DefaultPCEPSessionNegotiator(new DefaultPromise<>(GlobalEventExecutor.INSTANCE),
                 this.channel, this.listener, (short) 1, 20, localPrefs, new TlsBuilder().build());
     }
 
@@ -65,7 +70,7 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
      */
     @Test
     public void testEstablishTLS() {
-        final DefaultPCEPSessionNegotiator negotiator = new DefaultPCEPSessionNegotiator(new DefaultPromise<PCEPSessionImpl>(GlobalEventExecutor.INSTANCE),
+        final DefaultPCEPSessionNegotiator negotiator = new DefaultPCEPSessionNegotiator(new DefaultPromise<>(GlobalEventExecutor.INSTANCE),
                 this.channel, this.listener, (short) 1, 20, new OpenBuilder().setKeepalive((short) 1).build(),
                 SslContextFactoryTest.createTlsConfig());
         negotiator.channelActive(null);
@@ -150,13 +155,15 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
         assertEquals(1, this.msgsSend.size());
         assertTrue(this.msgsSend.get(0) instanceof Open);
         this.serverSession.handleMessage(this.kaMsg);
-        for (final Notification m : this.msgsSend) {
-            if (m instanceof Pcerr) {
-                final Errors obj = ((Pcerr) m).getPcerrMessage().getErrors().get(0);
-                assertEquals(new Short((short) 1), obj.getErrorObject().getType());
-                assertEquals(new Short((short) 1), obj.getErrorObject().getValue());
+        checkEquals(()-> {
+            for (final Notification m : this.msgsSend) {
+                if (m instanceof Pcerr) {
+                    final Errors obj = ((Pcerr) m).getPcerrMessage().getErrors().get(0);
+                    assertEquals(new Short((short) 1), obj.getErrorObject().getType());
+                    assertEquals(new Short((short) 1), obj.getErrorObject().getValue());
+                }
             }
-        }
+        });
     }
 
     /**
@@ -170,17 +177,16 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
         assertEquals(1, this.msgsSend.size());
         assertTrue(this.msgsSend.get(0) instanceof Open);
         this.serverSession.handleMessage(this.openMsg);
-        Thread.sleep(1000);
-        for (final Notification m : this.msgsSend) {
-            if (m instanceof Pcerr) {
-                final Errors obj = ((Pcerr) m).getPcerrMessage().getErrors().get(0);
-                assertEquals(new Short((short) 1), obj.getErrorObject().getType());
-                assertEquals(new Short((short) 7), obj.getErrorObject().getValue());
+        checkEquals(() -> {
+            for (final Notification m : this.msgsSend) {
+                if (m instanceof Pcerr) {
+                    final Errors obj = ((Pcerr) m).getPcerrMessage().getErrors().get(0);
+                    assertEquals(new Short((short) 1), obj.getErrorObject().getType());
+                    assertEquals(new Short((short) 7), obj.getErrorObject().getValue());
+                }
             }
-        }
+        });
     }
-
-    /************* Tests commented because of their long duration (tested timers) **************/
 
     /**
      * OpenWait timer expired.
@@ -188,60 +194,74 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
      * @throws InterruptedException exception
      */
     @Test
-    @Ignore
-    public void testErrorOneTwo() throws InterruptedException {
+    public void testErrorOneTwo() throws Exception {
         this.serverSession.channelActive(null);
         assertEquals(1, this.msgsSend.size());
         assertTrue(this.msgsSend.get(0) instanceof OpenMessage);
-        Thread.sleep(60 * 1000);
-        for (final Notification m : this.msgsSend) {
-            if (m instanceof Pcerr) {
-                final Errors obj = ((Pcerr) m).getPcerrMessage().getErrors().get(0);
-                assertEquals(new Short((short) 1), obj.getErrorObject().getType());
-                assertEquals(new Short((short) 2), obj.getErrorObject().getValue());
+        checkEquals(() -> {
+            for (final Notification m : this.msgsSend) {
+                if (m instanceof Pcerr) {
+                    final Errors obj = ((Pcerr) m).getPcerrMessage().getErrors().get(0);
+                    assertEquals(new Short((short) 1), obj.getErrorObject().getType());
+                    assertEquals(new Short((short) 2), obj.getErrorObject().getValue());
+                }
             }
-        }
+        });
     }
 
+    /************* Tests commented because of their long duration (tested timers) **************/
+
     @Test
-    @Ignore
-    public void testUnknownMessage() throws InterruptedException {
+    public void testUnknownMessage() throws Exception {
         final SimpleSessionListener client = new SimpleSessionListener();
-        final PCEPSessionImpl s = new PCEPSessionImpl(client, 5, this.channel, this.openMsg.getOpenMessage().getOpen(), this.openMsg.getOpenMessage().getOpen());
-        s.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        assertEquals(1, s.getUnknownMessagesTimes().size());
-        Thread.sleep(10000);
-        s.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        assertEquals(2, s.getUnknownMessagesTimes().size());
-        Thread.sleep(10000);
-        s.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        assertEquals(3, s.getUnknownMessagesTimes().size());
-        Thread.sleep(20000);
-        s.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        assertEquals(4, s.getUnknownMessagesTimes().size());
-        Thread.sleep(30000);
-        s.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        assertEquals(3, s.getUnknownMessagesTimes().size());
-        Thread.sleep(10000);
-        s.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        assertEquals(3, s.getUnknownMessagesTimes().size());
-        Thread.sleep(5000);
-        s.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        assertEquals(4, s.getUnknownMessagesTimes().size());
-        Thread.sleep(1000);
-        s.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        assertEquals(5, s.getUnknownMessagesTimes().size());
-        Thread.sleep(1000);
-        s.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+        final PCEPSessionImpl session = new PCEPSessionImpl(client, 5, this.channel,
+            this.openMsg.getOpenMessage().getOpen(), this.openMsg.getOpenMessage().getOpen());
+        session.setTicker(this.ticker);
+        session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+        final Queue<Long> qeue = session.getUnknownMessagesTimes();
+        CheckUtil.checkEquals(()-> assertEquals(1, qeue.size()));
+        session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+        CheckUtil.checkEquals(()-> assertEquals(2, qeue.size()));
+        session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+        CheckUtil.checkEquals(()-> assertEquals(3, qeue.size()));
+        session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+        CheckUtil.checkEquals(()-> assertEquals(4, qeue.size()));
+        session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+        CheckUtil.checkEquals(()-> assertEquals(3, qeue.size()));
+        session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+        CheckUtil.checkEquals(()-> assertEquals(3, qeue.size()));
+        session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+        CheckUtil.checkEquals(()-> assertEquals(4, qeue.size()));
+        session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+        CheckUtil.checkEquals(()-> assertEquals(5, qeue.size()));
+        session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
         synchronized (client) {
             while (client.up) {
                 client.wait();
             }
         }
-        assertTrue(!client.up);
+        CheckUtil.checkEquals(()-> assertTrue(!client.up));
     }
 
     @After
     public void tearDown() {
+    }
+
+    private final class TestTicker extends Ticker {
+        private long counter = 0L;
+
+        TestTicker() {
+        }
+
+        public long read() {
+            if (this.counter == 8) {
+                this.counter++;
+                return 60000000003L;
+            } else if (this.counter == 10) {
+                this.counter++;
+                return 60000000006L;
+            }
+            return this.counter++;
+        }
     }
 }
