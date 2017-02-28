@@ -8,14 +8,20 @@
 
 package org.opendaylight.protocol.bmp.impl.session;
 
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
+import static org.mockito.internal.verification.VerificationModeFactory.times;
+import static org.opendaylight.protocol.util.CheckUtil.checkEquals;
+import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
+
 import com.google.common.base.Optional;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.nio.NioEventLoopGroup;
 import java.net.InetSocketAddress;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -47,8 +53,6 @@ public class BmpDispatcherImplTest {
     private BmpSession mockedSession;
     @Mock
     private BmpSessionListenerFactory mockedListenerFactory;
-    @Mock
-    private ChannelHandler mockedChannelHandler;
 
     @Before
     public void setUp() throws Exception {
@@ -69,7 +73,8 @@ public class BmpDispatcherImplTest {
         this.bmpActivator.start(ctx);
         final BmpMessageRegistry messageRegistry = ctx.getBmpMessageRegistry();
 
-        this.dispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(), messageRegistry, (channel, sessionListenerFactory) -> BmpDispatcherImplTest.this.mockedSession);
+        this.dispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(),
+            messageRegistry, (channel, sessionListenerFactory) -> BmpDispatcherImplTest.this.mockedSession);
     }
 
     @After
@@ -81,15 +86,23 @@ public class BmpDispatcherImplTest {
 
     @Test
     public void testCreateServer() throws Exception {
-        final Channel serverChannel = this.dispatcher.createServer(SERVER, this.mockedListenerFactory, Optional.absent()).await().channel();
-        Assert.assertTrue(serverChannel.isActive());
-        final Channel clientChannel = this.dispatcher.createClient(CLIENT_REMOTE, this.mockedListenerFactory, Optional.absent()).await().channel();
-        Assert.assertTrue(clientChannel.isActive());
-        Thread.sleep(500);
-        Mockito.verify(this.mockedSession, Mockito.times(2)).handlerAdded(Mockito.any(ChannelHandlerContext.class));
-        Mockito.verify(this.mockedSession, Mockito.times(2)).channelRegistered(Mockito.any(ChannelHandlerContext.class));
-        Mockito.verify(this.mockedSession, Mockito.times(2)).channelActive(Mockito.any(ChannelHandlerContext.class));
-        clientChannel.close().get();
-        serverChannel.close().get();
+        final ChannelFuture futureServer = this.dispatcher.createServer(SERVER,
+            this.mockedListenerFactory, Optional.absent());
+        waitFutureSuccess(futureServer);
+        final Channel serverChannel = futureServer.channel();
+        checkEquals(()-> assertTrue(serverChannel.isActive()));
+
+
+        final ChannelFuture futureClient = this.dispatcher.createClient(CLIENT_REMOTE,
+            this.mockedListenerFactory, Optional.absent());
+        waitFutureSuccess(futureClient);
+
+        final Channel clientChannel = futureClient.channel();
+        checkEquals(()-> assertTrue(clientChannel.isActive()));
+        verify(this.mockedSession, timeout(500).times(2)).handlerAdded(Mockito.any(ChannelHandlerContext.class));
+        verify(this.mockedSession, timeout(500).times(2)).channelRegistered(Mockito.any(ChannelHandlerContext.class));
+        verify(this.mockedSession, timeout(500).times(2)).channelActive(Mockito.any(ChannelHandlerContext.class));
+        waitFutureSuccess(clientChannel.close());
+        waitFutureSuccess(serverChannel.close());
     }
 }
