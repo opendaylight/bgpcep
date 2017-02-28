@@ -9,8 +9,8 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertEquals;
-import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.checkReceivedMessages;
-import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.waitFutureSuccess;
+import static org.opendaylight.protocol.util.CheckUtil.checkReceivedMessages;
+import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
 import com.google.common.collect.ImmutableMap;
 import io.netty.channel.Channel;

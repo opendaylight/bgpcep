@@ -23,8 +23,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 
 public class PCCEndPointIpv4ObjectParserTest {
 
-    private final static String ip1 = "1.2.3.4";
-    private final static String ip2 = "1.2.3.5";
+    private final static String IP1 = "1.2.3.4";
+    private final static String IP2 = "1.2.3.5";
 
     @Test(expected=PCEPDeserializerException.class)
     public void testParseEmptyObject() throws PCEPDeserializerException {
@@ -38,12 +38,12 @@ public class PCCEndPointIpv4ObjectParserTest {
     public void testParseObject() throws PCEPDeserializerException {
         final ObjectHeader header = new ObjectHeaderImpl(false, false);
         final ByteBuf bytes = Unpooled.buffer();
-        bytes.writeBytes(Ipv4Util.bytesForAddress(new Ipv4Address(this.ip1)));
-        bytes.writeBytes(Ipv4Util.bytesForAddress(new Ipv4Address(this.ip2)));
+        bytes.writeBytes(Ipv4Util.bytesForAddress(new Ipv4Address(IP1)));
+        bytes.writeBytes(Ipv4Util.bytesForAddress(new Ipv4Address(IP2)));
         final EndpointsObj output = (EndpointsObj) new PCCEndPointIpv4ObjectParser().parseObject(header, bytes);
 
-        assertEquals(this.ip1, ((Ipv4Case) output.getAddressFamily()).getIpv4().getSourceIpv4Address().getValue());
-        assertEquals(this.ip2, ((Ipv4Case) output.getAddressFamily()).getIpv4().getDestinationIpv4Address().getValue());
+        assertEquals(IP1, ((Ipv4Case) output.getAddressFamily()).getIpv4().getSourceIpv4Address().getValue());
+        assertEquals(IP2, ((Ipv4Case) output.getAddressFamily()).getIpv4().getDestinationIpv4Address().getValue());
         assertFalse(output.isIgnore());
         assertFalse(output.isProcessingRule());
     }

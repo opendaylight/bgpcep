@@ -33,22 +33,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 public class PCCTriggeredSyncTest extends PCCMockCommon {
-
-    private Channel channel;
-
     @Test
     public void testSessionTriggeredSync() throws Exception {
         final TestingSessionListenerFactory factory = new TestingSessionListenerFactory();
-        this.channel = createServer(factory, this.remoteAddress, new PCCPeerProposal());
+        final Channel channel = createServer(factory, this.remoteAddress, new PCCPeerProposal());
         final BigInteger numberOflspAndDBv = BigInteger.valueOf(3);
-        PCEPSession session = createPCCSession(numberOflspAndDBv).get();
+        final PCEPSession session = createPCCSession(numberOflspAndDBv).get();
         assertNotNull(session);
         final TestingSessionListener pceSessionListener = getListener(factory);
         assertNotNull(pceSessionListener);
         checkSynchronizedSession(0, pceSessionListener, BigInteger.ZERO);
-        pccSessionListener.onMessage(session, createTriggerMsg());
+        this.pccSessionListener.onMessage(session, createTriggerMsg());
         checkSynchronizedSession(3, pceSessionListener, numberOflspAndDBv);
-        this.channel.close().get();
+        channel.close().get();
     }
 
     private Message createTriggerMsg() {

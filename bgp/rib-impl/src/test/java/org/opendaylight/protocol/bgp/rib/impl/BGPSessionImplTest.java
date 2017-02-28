@@ -13,7 +13,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImplTest.checkIdleState;
+import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.checkIdleState;
 
 import com.google.common.collect.Lists;
 import io.netty.channel.Channel;

@@ -12,7 +12,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.opendaylight.protocol.pcep.pcc.mock.WaitForFutureSucces.waitFutureSuccess;
+import static org.opendaylight.protocol.util.CheckUtil.checkEquals;
+import static org.opendaylight.protocol.util.CheckUtil.checkReceivedMessages;
+import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
@@ -28,7 +30,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import org.junit.Assert;
 import org.junit.Before;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
@@ -43,6 +44,7 @@ import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
 import org.opendaylight.protocol.pcep.pcc.mock.api.PCCTunnelManager;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCDispatcherImpl;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCSessionListener;
+import org.opendaylight.protocol.pcep.spi.MessageRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsActivator;
@@ -56,50 +58,45 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 public abstract class PCCMockCommon {
-    private final static short KEEP_ALIVE = 30;
-    private final static short DEAD_TIMER = 120;
+    private static final short KEEP_ALIVE = 30;
+    private static final short DEAD_TIMER = 120;
     private static final long SLEEP_FOR = 50;
-    protected final int port = InetSocketAddressUtil.getRandomPort();
-    protected final InetSocketAddress remoteAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
-    protected final InetSocketAddress localAddress = new InetSocketAddress("127.0.0.1", port);
+    private final int port = InetSocketAddressUtil.getRandomPort();
+    protected final InetSocketAddress remoteAddress = InetSocketAddressUtil
+        .getRandomLoopbackInetSocketAddress(this.port);
+    protected final InetSocketAddress localAddress = new InetSocketAddress("127.0.0.1", this.port);
     protected PCCSessionListener pccSessionListener;
     private PCEPDispatcher pceDispatcher;
-    private PCCDispatcherImpl pccDispatcher;
+    private PCEPExtensionProviderContext extensionProvider;
+    private MessageRegistry messageRegistry;
 
     protected abstract List<PCEPCapability> getCapabilities();
 
     @Before
     public void setUp() {
-        final BasePCEPSessionProposalFactory proposal = new BasePCEPSessionProposalFactory(DEAD_TIMER, KEEP_ALIVE, getCapabilities());
+        final BasePCEPSessionProposalFactory proposal = new BasePCEPSessionProposalFactory(DEAD_TIMER, KEEP_ALIVE,
+            getCapabilities());
         final DefaultPCEPSessionNegotiatorFactory nf = new DefaultPCEPSessionNegotiatorFactory(proposal, 0);
-        this.pceDispatcher = new PCEPDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry(),
-            nf, new NioEventLoopGroup(), new NioEventLoopGroup());
+        this.extensionProvider  = ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance();
+        this.messageRegistry = this.extensionProvider.getMessageHandlerRegistry();
+        this.pceDispatcher = new PCEPDispatcherImpl(this.messageRegistry, nf, new NioEventLoopGroup(),
+            new NioEventLoopGroup());
     }
 
-    protected static TestingSessionListener checkSessionListener(final int numMessages, final Channel channel, final TestingSessionListenerFactory factory,
+    protected static TestingSessionListener checkSessionListener(final int numMessages, final Channel channel,
+        final TestingSessionListenerFactory factory,
         final String localAddress) throws
         Exception {
         final TestingSessionListener sessionListener = checkSessionListenerNotNull(factory, localAddress);
         assertTrue(sessionListener.isUp());
-        checkNumberOfMessages(numMessages, sessionListener);
+        checkReceivedMessages(sessionListener, numMessages);
         assertEquals(numMessages, sessionListener.messages().size());
         channel.close().get();
         return sessionListener;
     }
 
-    private static void checkNumberOfMessages(final int expectedNMessages, final TestingSessionListener listener) throws Exception {
-        final Stopwatch sw = Stopwatch.createStarted();
-        while (sw.elapsed(TimeUnit.SECONDS) <= 10) {
-            if (expectedNMessages != listener.messages().size()) {
-                Uninterruptibles.sleepUninterruptibly(SLEEP_FOR, TimeUnit.MILLISECONDS);
-            } else {
-                return;
-            }
-        }
-        Assert.assertEquals(expectedNMessages, listener.messages().size());
-    }
-
-    static TestingSessionListener checkSessionListenerNotNull(final TestingSessionListenerFactory factory, final String localAddress) {
+    static TestingSessionListener checkSessionListenerNotNull(final TestingSessionListenerFactory factory,
+        final String localAddress) {
         final Stopwatch sw = Stopwatch.createStarted();
         TestingSessionListener listener;
         final InetAddress address = InetAddresses.forString(localAddress);
@@ -114,73 +111,81 @@ public abstract class PCCMockCommon {
         throw new NullPointerException();
     }
 
-    protected Channel createServer(final TestingSessionListenerFactory factory, final InetSocketAddress serverAddress2) throws InterruptedException {
+    protected Channel createServer(final TestingSessionListenerFactory factory,
+        final InetSocketAddress serverAddress2) throws InterruptedException {
         return createServer(factory, serverAddress2, null);
     }
 
     protected Channel createServer(final TestingSessionListenerFactory factory, final InetSocketAddress
-        serverAddress2, final PCEPPeerProposal peerProposal) throws InterruptedException {
-        final PCEPExtensionProviderContext ctx = ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance();
+        serverAddress2, final PCEPPeerProposal peerProposal) {
         final StatefulActivator activator07 = new StatefulActivator();
         final SyncOptimizationsActivator optimizationsActivator = new SyncOptimizationsActivator();
-        activator07.start(ctx);
-        optimizationsActivator.start(ctx);
+        activator07.start(this.extensionProvider);
+        optimizationsActivator.start(this.extensionProvider);
         final ChannelFuture future = this.pceDispatcher.createServer(serverAddress2, factory, peerProposal);
         waitFutureSuccess(future);
         return future.channel();
     }
 
-    protected static void checkSynchronizedSession(final int numberOfLsp, final TestingSessionListener pceSessionListener, final BigInteger expectedeInitialDb) throws InterruptedException {
+    protected static void checkSynchronizedSession(final int numberOfLsp,
+        final TestingSessionListener pceSessionListener, final BigInteger expectedeInitialDb) throws Exception {
         assertTrue(pceSessionListener.isUp());
-        Thread.sleep(1000);
         //Send Open with LspDBV = 1
-        final List<Message> messages = pceSessionListener.messages();
         final int numberOfSyncMessage = 1;
         int numberOfLspExpected = numberOfLsp;
         if (!expectedeInitialDb.equals(BigInteger.ZERO)) {
-            checkSequequenceDBVersionSync(messages, expectedeInitialDb);
+            checkEquals(()-> checkSequequenceDBVersionSync(pceSessionListener, expectedeInitialDb));
             numberOfLspExpected += numberOfSyncMessage;
         }
-        assertEquals(numberOfLspExpected, messages.size());
+        checkReceivedMessages(pceSessionListener, numberOfLspExpected);
         final PCEPSession session = pceSessionListener.getSession();
         checkSession(session, DEAD_TIMER, KEEP_ALIVE);
 
-        assertTrue(session.getRemoteTlvs().getAugmentation(Tlvs1.class).getStateful().getAugmentation(Stateful1.class).isInitiation());
-        assertNull(session.localSessionCharacteristics().getAugmentation(Tlvs3.class).getLspDbVersion().getLspDbVersionValue());
+        assertTrue(session.getRemoteTlvs().getAugmentation(Tlvs1.class).getStateful()
+            .getAugmentation(Stateful1.class).isInitiation());
+        assertNull(session.localSessionCharacteristics().getAugmentation(Tlvs3.class)
+            .getLspDbVersion().getLspDbVersionValue());
     }
 
-    protected static void checkResyncSession(final Optional<Integer> startAtNumberLsp, final int expectedNumberOfLsp, final BigInteger startingDBVersion,
-        final BigInteger expectedDBVersion, final TestingSessionListener pceSessionListener) throws InterruptedException {
+    protected static void checkResyncSession(final Optional<Integer> startAtNumberLsp, final int expectedNumberOfLsp,
+        final int expectedTotalMessages, final BigInteger startingDBVersion, final BigInteger expectedDBVersion,
+        final TestingSessionListener pceSessionListener) throws Exception {
         assertNotNull(pceSessionListener.getSession());
         assertTrue(pceSessionListener.isUp());
-        Thread.sleep(50);
         final List<Message> messages;
+        checkReceivedMessages(pceSessionListener, expectedTotalMessages);
         if (startAtNumberLsp.isPresent()) {
-            messages = pceSessionListener.messages().subList(startAtNumberLsp.get(), startAtNumberLsp.get() + expectedNumberOfLsp);
+            messages = pceSessionListener.messages().subList(startAtNumberLsp.get(),
+                startAtNumberLsp.get() + expectedNumberOfLsp);
         } else {
             messages = pceSessionListener.messages();
         }
-        checkSequequenceDBVersionSync(messages, expectedDBVersion);
+        checkEquals(()-> checkSequequenceDBVersionSync(pceSessionListener, expectedDBVersion));
         assertEquals(expectedNumberOfLsp, messages.size());
         final PCEPSession session = pceSessionListener.getSession();
 
         checkSession(session, DEAD_TIMER, KEEP_ALIVE);
 
-        assertTrue(session.getRemoteTlvs().getAugmentation(Tlvs1.class).getStateful().getAugmentation(Stateful1.class).isInitiation());
-        final BigInteger pceDBVersion = session.localSessionCharacteristics().getAugmentation(Tlvs3.class).getLspDbVersion().getLspDbVersionValue();
+        assertTrue(session.getRemoteTlvs().getAugmentation(Tlvs1.class).getStateful()
+            .getAugmentation(Stateful1.class).isInitiation());
+        final BigInteger pceDBVersion = session.localSessionCharacteristics().getAugmentation(Tlvs3.class)
+            .getLspDbVersion().getLspDbVersionValue();
         assertEquals(startingDBVersion, pceDBVersion);
     }
 
-    protected static void checkSession(final PCEPSession session, final int expectedDeadTimer, final int expectedKeepAlive) {
+    protected static void checkSession(final PCEPSession session, final int expectedDeadTimer,
+        final int expectedKeepAlive) {
         assertNotNull(session);
         assertEquals(expectedDeadTimer, session.getPeerPref().getDeadtimer().shortValue());
         assertEquals(expectedKeepAlive, session.getPeerPref().getKeepalive().shortValue());
-        final Stateful1 stateful = session.getRemoteTlvs().getAugmentation(Tlvs1.class).getStateful().getAugmentation(Stateful1.class);
+        final Stateful1 stateful = session.getRemoteTlvs().getAugmentation(Tlvs1.class)
+            .getStateful().getAugmentation(Stateful1.class);
         assertTrue(stateful.isInitiation());
     }
 
-    protected static void checkSequequenceDBVersionSync(final List<Message> messages, final BigInteger expectedDbVersion) {
-        for (final Message msg : messages) {
+    protected static void checkSequequenceDBVersionSync(final TestingSessionListener pceSessionListener,
+        final BigInteger expectedDbVersion) {
+        for (final Message msg : pceSessionListener.messages()) {
             final List<Reports> pcrt = ((Pcrpt) msg).getPcrptMessage().getReports();
             for (final Reports report : pcrt) {
                 final Lsp lsp = report.getLsp();
@@ -189,28 +194,30 @@ public abstract class PCCMockCommon {
                 } else {
                     assertEquals(true, lsp.isSync().booleanValue());
                 }
-                final BigInteger actuaLspDBVersion = lsp.getTlvs().getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params
-                    .xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs1.class).getLspDbVersion().getLspDbVersionValue();
+                final BigInteger actuaLspDBVersion = lsp.getTlvs().getAugmentation(org.opendaylight.yang.gen
+                    .v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs1.class)
+                    .getLspDbVersion().getLspDbVersionValue();
                 assertEquals(expectedDbVersion, actuaLspDBVersion);
             }
         }
     }
 
-    protected Future<PCEPSession> createPCCSession(final BigInteger DBVersion) {
-        this.pccDispatcher = new PCCDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry());
+    protected Future<PCEPSession> createPCCSession(final BigInteger dbVersion) {
+        final PCCDispatcherImpl pccDispatcher = new PCCDispatcherImpl(this.messageRegistry);
         final PCEPSessionNegotiatorFactory<PCEPSessionImpl> snf = getSessionNegotiatorFactory();
-        final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(3, this.localAddress.getAddress(), 0, -1, new HashedWheelTimer(),
-            Optional.absent());
+        final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(3, this.localAddress.getAddress(),
+            0, -1, new HashedWheelTimer(), Optional.absent());
 
         return pccDispatcher.createClient(this.remoteAddress, -1,
-                () -> {
-                    pccSessionListener = new PCCSessionListener(1, tunnelManager, false);
-                    return pccSessionListener;
-                }, snf, null, this.localAddress, DBVersion);
+            () -> {
+                this.pccSessionListener = new PCCSessionListener(1, tunnelManager, false);
+                return this.pccSessionListener;
+            }, snf, null, this.localAddress, dbVersion);
     }
 
     private PCEPSessionNegotiatorFactory<PCEPSessionImpl> getSessionNegotiatorFactory() {
-        return new DefaultPCEPSessionNegotiatorFactory(new BasePCEPSessionProposalFactory(DEAD_TIMER, KEEP_ALIVE, getCapabilities()), 0);
+        return new DefaultPCEPSessionNegotiatorFactory(new BasePCEPSessionProposalFactory(DEAD_TIMER, KEEP_ALIVE,
+            getCapabilities()), 0);
     }
 
     protected TestingSessionListener getListener(final TestingSessionListenerFactory factory) {

@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.pcep.pcc.mock;
 
+import static org.mockito.Mockito.verify;
+
 import com.google.common.collect.Lists;
 import java.util.List;
 import org.junit.After;
@@ -17,8 +19,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.pcc.mock.api.PCCSession;
 import org.opendaylight.protocol.pcep.pcc.mock.api.PCCTunnelManager;
@@ -65,13 +65,10 @@ public class PCCSessionListenerTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        Mockito.doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(final InvocationOnMock invocation) throws Throwable {
-                PCCSessionListenerTest.this.sendMessages.add((Message) invocation.getArguments()[0]);
-                return null;
-            }
-        }).when(mockedSession).sendMessage(Mockito.any(Message.class));
+        Mockito.doAnswer(invocation -> {
+            PCCSessionListenerTest.this.sendMessages.add((Message) invocation.getArguments()[0]);
+            return null;
+        }).when(this.mockedSession).sendMessage(Mockito.any(Message.class));
     }
 
     @After
@@ -81,65 +78,72 @@ public class PCCSessionListenerTest {
 
     @Test
     public void testOnMessage() {
-        final PCCSessionListener listener = new PCCSessionListener(1, tunnelManager, false);
-        listener.onMessage(mockedSession, createUpdMsg(true));
-        Mockito.verify(tunnelManager).onMessagePcupd(Mockito.any(Updates.class), Mockito.any(PCCSession.class));
-        Mockito.verify(tunnelManager, Mockito.never()).onMessagePcInitiate(Mockito.any(Requests.class), Mockito.any(PCCSession.class));
-        listener.onMessage(mockedSession, createUpdMsg(false));
-        Mockito.verify(tunnelManager, Mockito.times(2)).onMessagePcupd(Mockito.any(Updates.class), Mockito.any(PCCSession.class));
-        Mockito.verify(tunnelManager, Mockito.never()).onMessagePcInitiate(Mockito.any(Requests.class), Mockito.any(PCCSession.class));
-
-        listener.onMessage(mockedSession, createInitMsg(false, true));
-        Mockito.verify(tunnelManager, Mockito.times(2)).onMessagePcupd(Mockito.any(Updates.class), Mockito.any(PCCSession.class));
-        Mockito.verify(tunnelManager).onMessagePcInitiate(Mockito.any(Requests.class), Mockito.any(PCCSession.class));
-        listener.onMessage(mockedSession, createInitMsg(true, false));
-        Mockito.verify(tunnelManager, Mockito.times(2)).onMessagePcupd(Mockito.any(Updates.class), Mockito.any(PCCSession.class));
-        Mockito.verify(tunnelManager, Mockito.times(2)).onMessagePcInitiate(Mockito.any(Requests.class), Mockito.any(PCCSession.class));
-        listener.onMessage(mockedSession, createInitMsg(false, false));
-        Mockito.verify(tunnelManager, Mockito.times(2)).onMessagePcupd(Mockito.any(Updates.class), Mockito.any(PCCSession.class));
-        Mockito.verify(tunnelManager, Mockito.times(3)).onMessagePcInitiate(Mockito.any(Requests.class), Mockito.any(PCCSession.class));
+        final PCCSessionListener listener = new PCCSessionListener(1, this.tunnelManager, false);
+        listener.onMessage(this.mockedSession, createUpdMsg(true));
+        verify(this.tunnelManager).onMessagePcupd(Mockito.any(Updates.class), Mockito.any(PCCSession.class));
+        verify(this.tunnelManager, Mockito.never())
+            .onMessagePcInitiate(Mockito.any(Requests.class), Mockito.any(PCCSession.class));
+        listener.onMessage(this.mockedSession, createUpdMsg(false));
+        verify(this.tunnelManager, Mockito.times(2))
+            .onMessagePcupd(Mockito.any(Updates.class), Mockito.any(PCCSession.class));
+        verify(this.tunnelManager, Mockito.never())
+            .onMessagePcInitiate(Mockito.any(Requests.class), Mockito.any(PCCSession.class));
+        listener.onMessage(this.mockedSession, createInitMsg(false, true));
+        verify(this.tunnelManager, Mockito.times(2))
+            .onMessagePcupd(Mockito.any(Updates.class), Mockito.any(PCCSession.class));
+        verify(this.tunnelManager).onMessagePcInitiate(Mockito.any(Requests.class), Mockito.any(PCCSession.class));
+        listener.onMessage(this.mockedSession, createInitMsg(true, false));
+        verify(this.tunnelManager, Mockito.times(2))
+            .onMessagePcupd(Mockito.any(Updates.class), Mockito.any(PCCSession.class));
+        verify(this.tunnelManager, Mockito.times(2))
+            .onMessagePcInitiate(Mockito.any(Requests.class), Mockito.any(PCCSession.class));
+        listener.onMessage(this.mockedSession, createInitMsg(false, false));
+        verify(this.tunnelManager, Mockito.times(2))
+            .onMessagePcupd(Mockito.any(Updates.class), Mockito.any(PCCSession.class));
+        verify(this.tunnelManager, Mockito.times(3))
+            .onMessagePcInitiate(Mockito.any(Requests.class), Mockito.any(PCCSession.class));
     }
 
     @Test
     public void testOnMessageErrorMode() {
-        final PCCSessionListener listener = new PCCSessionListener(1, tunnelManager, true);
-        listener.onMessage(mockedSession, createUpdMsg(true));
-        Mockito.verify(mockedSession).sendMessage(Mockito.any(Message.class));
+        final PCCSessionListener listener = new PCCSessionListener(1, this.tunnelManager, true);
+        listener.onMessage(this.mockedSession, createUpdMsg(true));
+        verify(this.mockedSession).sendMessage(Mockito.any(Message.class));
     }
 
     @Test
     public void testOnSessionUp() {
-        final PCCSessionListener listener = new PCCSessionListener(1, tunnelManager, false);
-        listener.onSessionUp(mockedSession);
-        Mockito.verify(tunnelManager).onSessionUp(Mockito.any(PCCSession.class));
+        final PCCSessionListener listener = new PCCSessionListener(1, this.tunnelManager, false);
+        listener.onSessionUp(this.mockedSession);
+        verify(this.tunnelManager).onSessionUp(Mockito.any(PCCSession.class));
     }
 
     @Test
     public void testOnSessionDown() {
-        final PCCSessionListener listener = new PCCSessionListener(1, tunnelManager, false);
-        listener.onSessionDown(mockedSession, new Exception());
-        Mockito.verify(tunnelManager).onSessionDown(Mockito.any(PCCSession.class));
+        final PCCSessionListener listener = new PCCSessionListener(1, this.tunnelManager, false);
+        listener.onSessionDown(this.mockedSession, new Exception());
+        verify(this.tunnelManager).onSessionDown(Mockito.any(PCCSession.class));
     }
 
     @Test
     public void testSendError() {
-        final PCCSessionListener listener = new PCCSessionListener(1, tunnelManager, false);
-        listener.onSessionUp(mockedSession);
+        final PCCSessionListener listener = new PCCSessionListener(1, this.tunnelManager, false);
+        listener.onSessionUp(this.mockedSession);
         listener.sendError(MsgBuilderUtil.createErrorMsg(PCEPErrors.ATTEMPT_2ND_SESSION, 0));
-        Mockito.verify(mockedSession).sendMessage(Mockito.<Message>any());
+        verify(this.mockedSession).sendMessage(Mockito.any());
     }
 
     @Test
     public void testSendReport() {
-        final PCCSessionListener listener = new PCCSessionListener(1, tunnelManager, false);
-        listener.onSessionUp(mockedSession);
+        final PCCSessionListener listener = new PCCSessionListener(1, this.tunnelManager, false);
+        listener.onSessionUp(this.mockedSession);
         listener.sendReport(null);
-        Mockito.verify(mockedSession).sendMessage(Mockito.<Message>any());
+        verify(this.mockedSession).sendMessage(Mockito.any());
     }
 
     @Test
     public void testGetId() {
-        final PCCSessionListener listener = new PCCSessionListener(1, tunnelManager, false);
+        final PCCSessionListener listener = new PCCSessionListener(1, this.tunnelManager, false);
         Assert.assertEquals(1, listener.getId());
     }
 
@@ -158,7 +162,8 @@ public class PCCSessionListenerTest {
         final List<Requests> requests = Lists.newArrayList();
         final RequestsBuilder reqBuilder = new RequestsBuilder()
             .setLsp(lspBuilder.build())
-            .setSrp(new SrpBuilder(MsgBuilderUtil.createSrp(123)).addAugmentation(Srp1.class, new Srp1Builder().setRemove(remove).build()).build());
+            .setSrp(new SrpBuilder(MsgBuilderUtil.createSrp(123)).addAugmentation(Srp1.class,
+                new Srp1Builder().setRemove(remove).build()).build());
         if (endpoint) {
             reqBuilder.setEndpointsObj(new EndpointsObjBuilder().build());
         }
@@ -173,10 +178,9 @@ public class PCCSessionListenerTest {
         final UpdatesBuilder updsBuilder = new UpdatesBuilder();
         updsBuilder.setLsp(new LspBuilder().setDelegate(delegation).setPlspId(new PlspId(1L)).build());
         final PathBuilder pathBuilder = new PathBuilder();
-        pathBuilder.setEro(
-                new EroBuilder()
-                    .setSubobject(Lists.newArrayList(new SubobjectBuilder().setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(
-                        new IpPrefixBuilder().setIpPrefix(new IpPrefix(new Ipv4Prefix("127.0.0.2/32"))).build()).build()).build())).build());
+        pathBuilder.setEro(new EroBuilder().setSubobject(Lists.newArrayList(new SubobjectBuilder()
+            .setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(new IpPrefixBuilder()
+                .setIpPrefix(new IpPrefix(new Ipv4Prefix("127.0.0.2/32"))).build()).build()).build())).build());
         updsBuilder.setPath(pathBuilder.build());
         updsBuilder.setSrp(new SrpBuilder().setOperationId(new SrpIdNumber(0L)).build());
         msgBuilder.setUpdates(Lists.newArrayList(updsBuilder.build()));

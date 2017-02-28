@@ -16,7 +16,7 @@ import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 
-public class TestingSessionListenerFactory implements PCEPSessionListenerFactory {
+class TestingSessionListenerFactory implements PCEPSessionListenerFactory {
 
     @GuardedBy("this")
     private final List<TestingSessionListener> sessionListeners = new ArrayList<>();

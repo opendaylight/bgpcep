@@ -9,15 +9,12 @@
 package org.opendaylight.protocol.data.change.counter;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.opendaylight.protocol.util.CheckUtil.checkNull;
+import static org.opendaylight.protocol.util.CheckUtil.checkPresent;
+import static org.opendaylight.protocol.util.CheckUtil.readData;
 
-import com.google.common.base.Optional;
-import java.util.concurrent.ExecutionException;
 import org.junit.Test;
-import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
 import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.data.change.counter.rev160315.DataChangeCounter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.data.change.counter.rev160315.data.change.counter.Counter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.data.change.counter.rev160315.data.change.counter.CounterKey;
@@ -27,65 +24,59 @@ public class TopologyDataChangeCounterTest extends AbstractDataBrokerTest {
 
     private static final String COUNTER_ID1 = "counter1";
     private static final String COUNTER_ID2 = "counter2";
+    private final InstanceIdentifier<Counter> counterInstanceId_1 = InstanceIdentifier.builder(DataChangeCounter.class)
+        .child(Counter.class, new CounterKey(COUNTER_ID1)).build();
+    private final InstanceIdentifier<Counter> counterInstanceId_2 = InstanceIdentifier.builder(DataChangeCounter.class)
+        .child(Counter.class, new CounterKey(COUNTER_ID2)).build();
 
     @Test
-    public void testDataChangeCounter() throws InterruptedException, ExecutionException {
+    public void testDataChangeCounter() throws Exception {
         final TopologyDataChangeCounter counter = new TopologyDataChangeCounter(getDataBroker(), COUNTER_ID1);
-        final Optional<Long> count = getCount(COUNTER_ID1);
-        assertTrue(count.isPresent());
-        assertEquals(0, count.get().longValue());
+        readData(getDataBroker(), this.counterInstanceId_1, count -> {
+            assertEquals(0, count.getCount().longValue());
+            return count;
+        });
 
         counter.onDataTreeChanged(null);
-        final Optional<Long> countAfterDataChange = getCount(COUNTER_ID1);
-        assertTrue(countAfterDataChange.isPresent());
-        assertEquals(1, countAfterDataChange.get().longValue());
+        readData(getDataBroker(), this.counterInstanceId_1, count -> {
+            assertEquals(1, count.getCount().longValue());
+            return count;
+        });
 
         counter.close();
-        final Optional<Long> countAfterClose = getCount(COUNTER_ID1);
-        assertFalse(countAfterClose.isPresent());
+        checkNull(getDataBroker(), this.counterInstanceId_1);
     }
 
     @Test
-    public void testDataChangeCounterTwoInstances() throws InterruptedException, ExecutionException {
+    public void testDataChangeCounterTwoInstances() throws Exception {
         final TopologyDataChangeCounter counter1 = new TopologyDataChangeCounter(getDataBroker(), COUNTER_ID1);
-        final Optional<Long> count1 = getCount(COUNTER_ID1);
-        assertTrue(count1.isPresent());
-        assertEquals(0, count1.get().longValue());
+        readData(getDataBroker(), this.counterInstanceId_1, count -> {
+            assertEquals(0, count.getCount().longValue());
+            return count;
+        });
 
         final TopologyDataChangeCounter counter2 = new TopologyDataChangeCounter(getDataBroker(), COUNTER_ID2);
-        final Optional<Long> count2 = getCount(COUNTER_ID2);
-        assertTrue(count2.isPresent());
-        assertEquals(0, count2.get().longValue());
+        readData(getDataBroker(), this.counterInstanceId_2, count -> {
+            assertEquals(0, count.getCount().longValue());
+            return count;
+        });
 
         counter1.onDataTreeChanged(null);
-        final Optional<Long> countAfterDataChange1 = getCount(COUNTER_ID1);
-        assertTrue(countAfterDataChange1.isPresent());
-        assertEquals(1, countAfterDataChange1.get().longValue());
-        // Check that counter2 does not get incremented
-        final Optional<Long> countAfterDataChange2 = getCount(COUNTER_ID2);
-        assertTrue(countAfterDataChange2.isPresent());
-        assertEquals(0, countAfterDataChange2.get().longValue());
+        readData(getDataBroker(), this.counterInstanceId_1, count -> {
+            assertEquals(1, count.getCount().longValue());
+            return count;
+        });
+        readData(getDataBroker(), this.counterInstanceId_2, count -> {
+            assertEquals(0, count.getCount().longValue());
+            return count;
+        });
 
         counter1.close();
-        final Optional<Long> countAfterClose1 = getCount(COUNTER_ID1);
-        assertFalse(countAfterClose1.isPresent());
+        checkNull(getDataBroker(), this.counterInstanceId_1);
         // Check that counter2 does not get deleted
-        final Optional<Long> countAfterClose2 = getCount(COUNTER_ID2);
-        assertTrue(countAfterClose2.isPresent());
+        checkPresent(getDataBroker(), this.counterInstanceId_2);
 
         counter2.close();
-        final Optional<Long> countAfterClose3 = getCount(COUNTER_ID2);
-        assertFalse(countAfterClose3.isPresent());
-    }
-
-    private Optional<Long> getCount(String counterId) throws InterruptedException, ExecutionException {
-        final ReadTransaction rTx = getDataBroker().newReadOnlyTransaction();
-        final InstanceIdentifier<Counter> counterInstanceId = InstanceIdentifier.builder(DataChangeCounter.class)
-                .child(Counter.class, new CounterKey(counterId)).build();
-        final Optional<Counter> dataMaybe = rTx.read(LogicalDatastoreType.OPERATIONAL, counterInstanceId).get();
-        if (dataMaybe.isPresent()) {
-            return Optional.of(dataMaybe.get().getCount());
-        }
-        return Optional.absent();
+        checkNull(getDataBroker(), this.counterInstanceId_2);
     }
 }
