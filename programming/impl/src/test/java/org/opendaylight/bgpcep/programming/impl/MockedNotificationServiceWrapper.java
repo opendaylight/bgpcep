@@ -12,6 +12,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.opendaylight.protocol.util.CheckUtil.checkEquals;
 
 import com.google.common.collect.Lists;
 import java.util.List;
@@ -41,8 +42,8 @@ final class MockedNotificationServiceWrapper {
         return mockedNotificationService;
     }
 
-    void assertNotificationsCount(final int count) {
-        assertEquals(count, this.publishedNotifications.size());
+    void assertNotificationsCount(final int count) throws Exception {
+        checkEquals(()-> assertEquals(count, this.publishedNotifications.size()));
     }
 
     void assertInstructionStatusChangedNotification(final int idx, final InstructionId id, final InstructionStatus status) {

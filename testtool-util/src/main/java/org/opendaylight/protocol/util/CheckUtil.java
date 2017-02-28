@@ -13,6 +13,7 @@ import com.google.common.base.Verify;
 import com.google.common.util.concurrent.Uninterruptibles;
 import io.netty.util.concurrent.Future;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -111,6 +112,6 @@ public final class CheckUtil {
     }
     @FunctionalInterface
     public interface CheckEquals {
-        void check();
+        void check() throws ExecutionException, InterruptedException;
     }
 }
