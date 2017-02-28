@@ -57,6 +57,7 @@ import org.opendaylight.protocol.bmp.parser.message.TestUtil;
 import org.opendaylight.protocol.bmp.spi.registry.BmpMessageRegistry;
 import org.opendaylight.protocol.bmp.spi.registry.SimpleBmpExtensionProviderContext;
 import org.opendaylight.protocol.concepts.KeyMapping;
+import org.opendaylight.protocol.util.CheckUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.bmp.monitor.monitor.router.peer.pre.policy.rib.tables.routes.Ipv4RoutesCase;
@@ -206,11 +207,10 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
         // we expect the connection to be closed
         final Channel channel3 = connectTestClient(REMOTE_ROUTER_ADDRESS_1, this.msgRegistry);
 
-        Thread.sleep(500);
 
         // channel 1 should still be open, while channel3 should be closed
-        assertTrue(channel1.isOpen());
-        assertFalse(channel3.isOpen());
+        CheckUtil.checkEquals(()-> assertTrue(channel1.isOpen()));
+        CheckUtil.checkEquals(()-> assertFalse(channel3.isOpen()));
 
         // now if we close the channel 1 and try it again, it should succeed
         waitFutureSuccess(channel1.close());
@@ -229,7 +229,6 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
 
         // close all channel altogether
         waitFutureSuccess(channel2.close());
-        Thread.sleep(500);
 
         // sleep for a while to avoid intermittent InMemoryDataTree modification conflict
         waitFutureSuccess(channel4.close());
