@@ -9,6 +9,8 @@ package org.opendaylight.protocol.pcep.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.opendaylight.protocol.util.CheckUtil.checkEquals;
+
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import org.junit.After;
@@ -36,9 +38,9 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
     public void setup() {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open localPrefs = new OpenBuilder().setKeepalive(
                 (short) 1).build();
-        this.serverSession = new DefaultPCEPSessionNegotiator(new DefaultPromise<PCEPSessionImpl>(GlobalEventExecutor.INSTANCE),
+        this.serverSession = new DefaultPCEPSessionNegotiator(new DefaultPromise<>(GlobalEventExecutor.INSTANCE),
                 this.channel, this.listener, (short) 1, 20, localPrefs);
-        this.tlsSessionNegotiator = new DefaultPCEPSessionNegotiator(new DefaultPromise<PCEPSessionImpl>(GlobalEventExecutor.INSTANCE),
+        this.tlsSessionNegotiator = new DefaultPCEPSessionNegotiator(new DefaultPromise<>(GlobalEventExecutor.INSTANCE),
                 this.channel, this.listener, (short) 1, 20, localPrefs, new TlsBuilder().build());
     }
 
@@ -150,13 +152,15 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
         assertEquals(1, this.msgsSend.size());
         assertTrue(this.msgsSend.get(0) instanceof Open);
         this.serverSession.handleMessage(this.kaMsg);
-        for (final Notification m : this.msgsSend) {
-            if (m instanceof Pcerr) {
-                final Errors obj = ((Pcerr) m).getPcerrMessage().getErrors().get(0);
-                assertEquals(new Short((short) 1), obj.getErrorObject().getType());
-                assertEquals(new Short((short) 1), obj.getErrorObject().getValue());
+        checkEquals(()-> {
+            for (final Notification m : this.msgsSend) {
+                if (m instanceof Pcerr) {
+                    final Errors obj = ((Pcerr) m).getPcerrMessage().getErrors().get(0);
+                    assertEquals(new Short((short) 1), obj.getErrorObject().getType());
+                    assertEquals(new Short((short) 1), obj.getErrorObject().getValue());
+                }
             }
-        }
+        });
     }
 
     /**
@@ -170,14 +174,15 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
         assertEquals(1, this.msgsSend.size());
         assertTrue(this.msgsSend.get(0) instanceof Open);
         this.serverSession.handleMessage(this.openMsg);
-        Thread.sleep(1000);
-        for (final Notification m : this.msgsSend) {
-            if (m instanceof Pcerr) {
-                final Errors obj = ((Pcerr) m).getPcerrMessage().getErrors().get(0);
-                assertEquals(new Short((short) 1), obj.getErrorObject().getType());
-                assertEquals(new Short((short) 7), obj.getErrorObject().getValue());
+        checkEquals(() -> {
+            for (final Notification m : this.msgsSend) {
+                if (m instanceof Pcerr) {
+                    final Errors obj = ((Pcerr) m).getPcerrMessage().getErrors().get(0);
+                    assertEquals(new Short((short) 1), obj.getErrorObject().getType());
+                    assertEquals(new Short((short) 7), obj.getErrorObject().getValue());
+                }
             }
-        }
+        });
     }
 
     /************* Tests commented because of their long duration (tested timers) **************/
