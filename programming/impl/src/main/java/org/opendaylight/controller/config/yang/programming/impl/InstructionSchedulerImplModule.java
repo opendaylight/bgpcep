@@ -23,12 +23,15 @@ import org.opendaylight.bgpcep.programming.impl.IntructionDeployer;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @deprecated Replaced by blueprint wiring
  */
 public final class InstructionSchedulerImplModule extends
     org.opendaylight.controller.config.yang.programming.impl.AbstractInstructionSchedulerImplModule {
+    private static final Logger LOG = LoggerFactory.getLogger(InstructionSchedulerImplModule.class);
 
     private BundleContext bundleContext;
 
@@ -57,10 +60,15 @@ public final class InstructionSchedulerImplModule extends
 
         final String instructionId = getInstructionQueueId() != null ? getInstructionQueueId() :
             getIdentifier().getInstanceName();
-        intructionDeployer.createInstruction(instructionId);
+        try {
+            intructionDeployer.writeConfiguration(instructionId).get();
+        } catch (final Exception e) {
+            LOG.error("Failed to instantiate Instruction at {}", instructionId, e);
+            throw new IllegalStateException("Failed to instantiate provider", e);
+        }
         final WaitingServiceTracker<InstructionScheduler> instructionSchedulerTracker = WaitingServiceTracker
             .create(InstructionScheduler.class,
-            this.bundleContext, "(" + InstructionScheduler.class.getName() + "=" + instructionId + ")");
+                this.bundleContext, "(" + InstructionScheduler.class.getName() + "=" + instructionId + ")");
         final InstructionScheduler instructionScheduler = instructionSchedulerTracker
             .waitForService(WaitingServiceTracker.FIVE_MINUTES);
 
@@ -68,7 +76,7 @@ public final class InstructionSchedulerImplModule extends
             @Override
             protected Object handleInvocation(final Object proxy, final Method method, final Object[] args) throws Throwable {
                 if (method.getName().equals("close")) {
-                    intructionDeployer.removeInstruction(instructionId);
+                    intructionDeployer.removeConfiguration(instructionId);
                     intructionDeployerTracker.close();
                     return null;
                 } else {

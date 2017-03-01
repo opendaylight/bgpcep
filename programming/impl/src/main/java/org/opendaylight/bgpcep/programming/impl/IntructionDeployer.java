@@ -7,21 +7,21 @@
  */
 package org.opendaylight.bgpcep.programming.impl;
 
-import javax.annotation.Nonnull;
+import com.google.common.util.concurrent.ListenableFuture;
 
 /**
  * Instruction Scheduler Deployer
  */
 public interface IntructionDeployer {
     /**
-     * Creates Instruction Scheduler
+     * Write instruction configuration on DS
      * @param instructionId Instruction Scheduler Id
      */
-    void createInstruction(@Nonnull String instructionId);
+    ListenableFuture<Void> writeConfiguration(String instructionId);
 
     /**
-     * Remove Instruction Scheduler
+     * Remove instruction configuration on DS
      * @param instructionId Instruction Scheduler Id
      */
-    void removeInstruction(@Nonnull String instructionId);
+    ListenableFuture<Void> removeConfiguration(String instructionId);
 }
