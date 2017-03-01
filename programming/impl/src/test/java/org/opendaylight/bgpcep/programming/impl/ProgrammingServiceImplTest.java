@@ -81,7 +81,7 @@ public class ProgrammingServiceImplTest extends AbstractDataBrokerTest {
 
         this.testedProgrammingService = new ProgrammingServiceImpl(getDataBroker(),
             this.mockedNotificationServiceWrapper.getMockedNotificationService(),
-            this.mockedExecutorWrapper.getMockedExecutor(), this.rpcRegistry, this.timer, INSTRUCTIONS_QUEUE_KEY);
+            this.mockedExecutorWrapper.getMockedExecutor(), this.rpcRegistry, this.timer, INSTRUCTIONS_QUEUE_KEY, null);
     }
 
     @After

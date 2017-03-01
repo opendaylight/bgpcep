@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.opendaylight.bgpcep.programming.NanotimeUtil;
+import org.opendaylight.bgpcep.programming.impl.IntructionDeployer.UpdateConfiguration;
 import org.opendaylight.bgpcep.programming.spi.ExecutionResult;
 import org.opendaylight.bgpcep.programming.spi.Instruction;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
@@ -77,6 +78,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
     private final DataBroker dataProvider;
     private final Timer timer;
     private final RpcRegistration<ProgrammingService> reg;
+    private final UpdateConfiguration updateConfiguration;
     private ServiceRegistration<?> serviceRegistration;
 
     private final class InstructionPusher implements QueueInstruction {
@@ -137,14 +139,17 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
 
     public ProgrammingServiceImpl(final DataBroker dataProvider, final NotificationProviderService notifs,
         final ListeningExecutorService executor, final RpcProviderRegistry rpcProviderRegistry,
-        final Timer timer, final InstructionsQueueKey instructionsQueueKey) {
+        final Timer timer, final InstructionsQueueKey instructionsQueueKey, final UpdateConfiguration updateConfiguration) {
         this.dataProvider = Preconditions.checkNotNull(dataProvider);
         this.notifs = Preconditions.checkNotNull(notifs);
         this.executor = Preconditions.checkNotNull(executor);
         this.timer = Preconditions.checkNotNull(timer);
         this.qid = KeyedInstanceIdentifier.builder(InstructionsQueue.class, instructionsQueueKey).build();
         this.reg = rpcProviderRegistry.addRpcImplementation(ProgrammingService.class, this);
-
+        this.updateConfiguration = updateConfiguration;
+        if (this.updateConfiguration != null) {
+            this.updateConfiguration.writeConfiguration();
+        }
         final WriteTransaction t = this.dataProvider.newWriteOnlyTransaction();
         t.put(LogicalDatastoreType.OPERATIONAL, this.qid, new InstructionsQueueBuilder()
             .setKey(instructionsQueueKey).setInstruction(Collections.emptyList()).build());
@@ -364,6 +369,9 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
     @Override
     public synchronized void close() {
         this.reg.close();
+        if (this.updateConfiguration != null) {
+            this.updateConfiguration.removeConfiguration();
+        }
         for (final InstructionImpl i : this.insns.values()) {
             i.tryCancel(null);
         }

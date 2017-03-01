@@ -20,6 +20,7 @@ import com.google.common.reflect.AbstractInvocationHandler;
 import com.google.common.reflect.Reflection;
 import java.lang.reflect.Method;
 import org.opendaylight.bgpcep.programming.impl.IntructionDeployer;
+import org.opendaylight.bgpcep.programming.impl.IntructionDeployer.UpdateConfiguration;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.osgi.framework.BundleContext;
@@ -57,10 +58,20 @@ public final class InstructionSchedulerImplModule extends
 
         final String instructionId = getInstructionQueueId() != null ? getInstructionQueueId() :
             getIdentifier().getInstanceName();
-        intructionDeployer.createInstruction(instructionId);
+        intructionDeployer.createInstruction(instructionId, new AbstractUpdateConfigurationHandler() {
+            @Override
+            public void writeConfiguration() {
+                intructionDeployer.writeConfiguration(instructionId);
+            }
+
+            @Override
+            public void removeConfiguration() {
+                intructionDeployer.removeConfiguration(instructionId);
+            }
+        });
         final WaitingServiceTracker<InstructionScheduler> instructionSchedulerTracker = WaitingServiceTracker
             .create(InstructionScheduler.class,
-            this.bundleContext, "(" + InstructionScheduler.class.getName() + "=" + instructionId + ")");
+                this.bundleContext, "(" + InstructionScheduler.class.getName() + "=" + instructionId + ")");
         final InstructionScheduler instructionScheduler = instructionSchedulerTracker
             .waitForService(WaitingServiceTracker.FIVE_MINUTES);
 
@@ -83,5 +94,9 @@ public final class InstructionSchedulerImplModule extends
     }
 
     private interface ProgrammingServiceImplCloseable extends InstructionScheduler, AutoCloseable {
+    }
+
+    private abstract class AbstractUpdateConfigurationHandler implements UpdateConfiguration {
+
     }
 }
