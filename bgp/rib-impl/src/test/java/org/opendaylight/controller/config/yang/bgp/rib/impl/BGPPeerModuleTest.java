@@ -23,6 +23,7 @@ import org.opendaylight.controller.config.api.ValidationException;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
 import org.opendaylight.controller.config.spi.ModuleFactory;
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
+import org.opendaylight.mdsal.binding.generator.util.BindingRuntimeContext;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
@@ -31,7 +32,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.MplsLabeledVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.rfc2385.cfg.rev160324.Rfc2385Key;
-import org.opendaylight.yangtools.sal.binding.generator.util.BindingRuntimeContext;
 
 public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
 

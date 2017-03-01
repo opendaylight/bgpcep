@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
 import com.google.common.util.concurrent.CheckedFuture;
@@ -21,7 +20,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
-import javassist.ClassPool;
 import org.junit.After;
 import org.junit.Before;
 import org.mockito.Mock;
@@ -40,6 +38,11 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
+import org.opendaylight.mdsal.binding.generator.api.ClassLoadingStrategy;
+import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
+import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
+import org.opendaylight.mdsal.binding.generator.util.BindingRuntimeContext;
+import org.opendaylight.mdsal.binding.generator.util.JavassistUtils;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
@@ -68,11 +71,6 @@ import org.opendaylight.yangtools.binding.data.codec.gen.impl.DataObjectSerializ
 import org.opendaylight.yangtools.binding.data.codec.gen.impl.StreamWriterGenerator;
 import org.opendaylight.yangtools.binding.data.codec.impl.BindingNormalizedNodeCodecRegistry;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
-import org.opendaylight.yangtools.sal.binding.generator.api.ClassLoadingStrategy;
-import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
-import org.opendaylight.yangtools.sal.binding.generator.impl.ModuleInfoBackedContext;
-import org.opendaylight.yangtools.sal.binding.generator.util.BindingRuntimeContext;
-import org.opendaylight.yangtools.sal.binding.generator.util.JavassistUtils;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
@@ -90,6 +88,7 @@ import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
+import javassist.ClassPool;
 
 public class AbstractRIBTestSetup {
 
