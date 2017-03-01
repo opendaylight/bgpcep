@@ -11,7 +11,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.opendaylight.protocol.util.CheckUtil.readData;
 import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
-
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -24,7 +23,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import javassist.ClassPool;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -33,6 +31,9 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
 import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
+import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
+import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
+import org.opendaylight.mdsal.binding.generator.util.JavassistUtils;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
@@ -102,13 +103,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
 import org.opendaylight.yangtools.binding.data.codec.gen.impl.StreamWriterGenerator;
 import org.opendaylight.yangtools.binding.data.codec.impl.BindingNormalizedNodeCodecRegistry;
-import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
-import org.opendaylight.yangtools.sal.binding.generator.impl.ModuleInfoBackedContext;
-import org.opendaylight.yangtools.sal.binding.generator.util.JavassistUtils;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
+import javassist.ClassPool;
 
 class AbstractAddPathTest extends AbstractDataBrokerTest {
     private static final int RETRY_TIMER = 10;
@@ -249,8 +248,8 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
 
     BGPSessionImpl createPeerSession(final Ipv4Address peer, final BgpParameters bgpParameters,
         final SimpleSessionListener sessionListener) throws InterruptedException {
-        StrictBGPPeerRegistry clientRegistry = new StrictBGPPeerRegistry();
-        BGPDispatcherImpl clientDispatcher = new BGPDispatcherImpl(this.context.getMessageRegistry(), this.boss,
+        final StrictBGPPeerRegistry clientRegistry = new StrictBGPPeerRegistry();
+        final BGPDispatcherImpl clientDispatcher = new BGPDispatcherImpl(this.context.getMessageRegistry(), this.boss,
             this.worker, clientRegistry);
         clientRegistry.addPeer(new IpAddress(new Ipv4Address(RIB_ID)), sessionListener,
             new BGPSessionPreferences(AS_NUMBER, HOLDTIMER, new BgpId(peer),
@@ -260,7 +259,7 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
     }
 
     protected static BGPPeer configurePeer(final Ipv4Address peerAddress, final RIBImpl ribImpl,
-        final BgpParameters bgpParameters, final PeerRole peerRole, BGPPeerRegistry bgpPeerRegistry) {
+        final BgpParameters bgpParameters, final PeerRole peerRole, final BGPPeerRegistry bgpPeerRegistry) {
         final IpAddress ipAddress = new IpAddress(peerAddress);
 
         final BGPPeer bgpPeer = new BGPPeer(peerAddress.getValue(), ribImpl, peerRole, null,
