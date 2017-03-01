@@ -1,0 +1,8 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+1: Ajay L <ajayl.bro@gmail.com>
+Code-Review+2: Claudio D. Gasparini <claudio.gasparini@pantheon.tech>
+Submitted-by: Claudio D. Gasparini <claudio.gasparini@pantheon.tech>
+Submitted-at: Wed, 01 Mar 2017 16:07:02 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/52330
+Project: bgpcep
+Branch: refs/heads/stable/beryllium
