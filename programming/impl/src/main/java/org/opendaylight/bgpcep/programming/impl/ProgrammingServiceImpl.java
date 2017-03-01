@@ -37,6 +37,10 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RpcRegistration;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
+import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CancelInstructionInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CancelInstructionOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CancelInstructionOutputBuilder;
@@ -67,7 +71,8 @@ import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class ProgrammingServiceImpl implements AutoCloseable, InstructionScheduler, ProgrammingService {
+public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingletonService, InstructionScheduler,
+    ProgrammingService {
     private static final Logger LOG = LoggerFactory.getLogger(ProgrammingServiceImpl.class);
 
     private final Map<InstructionId, InstructionImpl> insns = new HashMap<>();
@@ -76,7 +81,11 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
     private final ListeningExecutorService executor;
     private final DataBroker dataProvider;
     private final Timer timer;
-    private final RpcRegistration<ProgrammingService> reg;
+    private final String instructionId;
+    private final ServiceGroupIdentifier sgi;
+    private final ClusterSingletonServiceRegistration csspReg;
+    private final RpcProviderRegistry rpcProviderRegistry;
+    private RpcRegistration<ProgrammingService> reg;
     private ServiceRegistration<?> serviceRegistration;
 
     private final class InstructionPusher implements QueueInstruction {
@@ -109,7 +118,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
                     public void onFailure(final Throwable t) {
                         LOG.error("Failed to update Instruction Queue {}", ProgrammingServiceImpl.this.qid, t);
                     }
-                });;
+                });
             }
 
             ProgrammingServiceImpl.this.notifs.publish(new InstructionStatusChangedBuilder().setId(this.builder.getId()).setStatus(status).setDetails(details).build());
@@ -135,19 +144,29 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
         }
     }
 
-    public ProgrammingServiceImpl(final DataBroker dataProvider, final NotificationProviderService notifs,
+    ProgrammingServiceImpl(final DataBroker dataProvider, final NotificationProviderService notifs,
         final ListeningExecutorService executor, final RpcProviderRegistry rpcProviderRegistry,
-        final Timer timer, final InstructionsQueueKey instructionsQueueKey) {
+        final ClusterSingletonServiceProvider cssp, final Timer timer, final String instructionId) {
         this.dataProvider = Preconditions.checkNotNull(dataProvider);
+        this.instructionId = Preconditions.checkNotNull(instructionId);
         this.notifs = Preconditions.checkNotNull(notifs);
         this.executor = Preconditions.checkNotNull(executor);
+        this.rpcProviderRegistry = Preconditions.checkNotNull(rpcProviderRegistry);
         this.timer = Preconditions.checkNotNull(timer);
-        this.qid = KeyedInstanceIdentifier.builder(InstructionsQueue.class, instructionsQueueKey).build();
-        this.reg = rpcProviderRegistry.addRpcImplementation(ProgrammingService.class, this);
+        this.qid = KeyedInstanceIdentifier.builder(InstructionsQueue.class,  new InstructionsQueueKey(this.instructionId)).build();
+        this.sgi = ServiceGroupIdentifier.create("programming-"+ this.instructionId + "-service-group");
+        this.csspReg = cssp.registerClusterSingletonService(this);
+    }
+
+    @Override
+    public void instantiateServiceInstance() {
+        LOG.info("Instruction Queue service {} instantiated", this.sgi.getValue());
+
+        this.reg = this.rpcProviderRegistry.addRpcImplementation(ProgrammingService.class, this);
 
         final WriteTransaction t = this.dataProvider.newWriteOnlyTransaction();
         t.put(LogicalDatastoreType.OPERATIONAL, this.qid, new InstructionsQueueBuilder()
-            .setKey(instructionsQueueKey).setInstruction(Collections.emptyList()).build());
+            .setKey(new InstructionsQueueKey(this.instructionId)).setInstruction(Collections.emptyList()).build());
         Futures.addCallback(t.submit(), new FutureCallback<Void>() {
             @Override
             public void onSuccess(final Void result) {
@@ -159,6 +178,11 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
                 LOG.error("Failed to add Instruction Queue {}", ProgrammingServiceImpl.this.qid, t);
             }
         });
+    }
+
+    @Override
+    public ServiceGroupIdentifier getIdentifier() {
+        return this.sgi;
     }
 
     @Override
@@ -325,6 +349,10 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
         return ret;
     }
 
+    public String getInstructionID() {
+        return this.instructionId;
+    }
+
     private synchronized void timeoutInstruction(final InstructionId id) {
         final InstructionImpl i = this.insns.get(id);
         if (i == null) {
@@ -362,7 +390,9 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
     }
 
     @Override
-    public synchronized void close() {
+    public ListenableFuture<Void> closeServiceInstance() {
+        LOG.info("Closing Instruction Queue service {}", this.sgi.getValue());
+
         this.reg.close();
         for (final InstructionImpl i : this.insns.values()) {
             i.tryCancel(null);
@@ -382,6 +412,18 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
                 LOG.error("Failed to shutdown Instruction Queue {}", ProgrammingServiceImpl.this.qid, t);
             }
         });
+        return future;
+    }
+
+    @Override
+    public synchronized void close() {
+        if (this.csspReg != null) {
+            try {
+                this.csspReg.close();
+            } catch (final Exception e) {
+                LOG.debug("Failed to close Instruction Scheduler service");
+            }
+        }
         if (this.serviceRegistration != null) {
             this.serviceRegistration.unregister();
             this.serviceRegistration = null;
