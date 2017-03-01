@@ -10,6 +10,7 @@ package org.opendaylight.controller.config.yang.bgp.rib.impl;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doReturn;
+
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.ObjectName;
 import org.junit.Before;
@@ -21,10 +22,10 @@ import org.opendaylight.controller.config.api.jmx.CommitStatus;
 import org.opendaylight.controller.config.manager.impl.AbstractConfigTest;
 import org.opendaylight.controller.config.manager.impl.factoriesresolver.HardcodedModuleFactoriesResolver;
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
+import org.opendaylight.mdsal.binding.generator.util.BindingRuntimeContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.MplsLabeledVpnSubsequentAddressFamily;
-import org.opendaylight.yangtools.sal.binding.generator.util.BindingRuntimeContext;
 
 public class BGPTableTypeImplModuleTest extends AbstractConfigTest {
 

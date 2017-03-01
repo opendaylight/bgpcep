@@ -8,16 +8,15 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
 import com.google.common.base.Preconditions;
-
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
+import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
-import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
-import org.opendaylight.yangtools.sal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.yangtools.yang.binding.YangModuleInfo;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -53,7 +52,7 @@ public class SimpleRIBExtensionProviderContext implements RIBExtensionProviderCo
         final Set<YangModuleInfo> moduleInfos =
                 getModuleInfos(afi, safi, s.routesListClass(), s.routesContainerClass(), s.routesCaseClass());
         if(!moduleInfos.isEmpty()) {
-            classLoadingStrategy.addModuleInfos(moduleInfos);
+            this.classLoadingStrategy.addModuleInfos(moduleInfos);
         }
     }
 
@@ -81,11 +80,11 @@ public class SimpleRIBExtensionProviderContext implements RIBExtensionProviderCo
 
     @Override
     public GeneratedClassLoadingStrategy getClassLoadingStrategy() {
-        return classLoadingStrategy;
+        return this.classLoadingStrategy;
     }
 
     @Override
     public RIBSupport getRIBSupport(final NodeIdentifierWithPredicates key) {
-        return domSupports.get(key);
+        return this.domSupports.get(key);
     }
 }

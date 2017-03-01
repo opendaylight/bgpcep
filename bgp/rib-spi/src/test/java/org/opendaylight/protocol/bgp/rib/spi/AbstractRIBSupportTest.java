@@ -26,6 +26,9 @@ import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
+import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
+import org.opendaylight.mdsal.binding.generator.util.JavassistUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
@@ -49,9 +52,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
 import org.opendaylight.yangtools.binding.data.codec.gen.impl.StreamWriterGenerator;
 import org.opendaylight.yangtools.binding.data.codec.impl.BindingNormalizedNodeCodecRegistry;
-import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
-import org.opendaylight.yangtools.sal.binding.generator.impl.ModuleInfoBackedContext;
-import org.opendaylight.yangtools.sal.binding.generator.util.JavassistUtils;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
@@ -95,7 +95,7 @@ public abstract class AbstractRIBSupportTest {
             @Override
             public Object answer(final InvocationOnMock invocation) throws Throwable {
                 final Object[] args = invocation.getArguments();
-                AbstractRIBSupportTest.this.insertedRoutes.add(mappingService.fromNormalizedNode((YangInstanceIdentifier) args[1], (NormalizedNode<?, ?>) args[2]));
+                AbstractRIBSupportTest.this.insertedRoutes.add(AbstractRIBSupportTest.this.mappingService.fromNormalizedNode((YangInstanceIdentifier) args[1], (NormalizedNode<?, ?>) args[2]));
                 return args[1];
             }
         }).when(this.tx).put(Mockito.any(LogicalDatastoreType.class), Mockito.any(YangInstanceIdentifier.class), Mockito.any(NormalizedNode.class));
@@ -104,7 +104,7 @@ public abstract class AbstractRIBSupportTest {
             @Override
             public Object answer(final InvocationOnMock invocation) throws Throwable {
                 final Object[] args = invocation.getArguments();
-                AbstractRIBSupportTest.this.deletedRoutes.add(mappingService.fromYangInstanceIdentifier((YangInstanceIdentifier) args[1]));
+                AbstractRIBSupportTest.this.deletedRoutes.add(AbstractRIBSupportTest.this.mappingService.fromYangInstanceIdentifier((YangInstanceIdentifier) args[1]));
                 return args[1];
             }
         }).when(this.tx).delete(Mockito.any(LogicalDatastoreType.class), Mockito.any(YangInstanceIdentifier.class));
