@@ -13,6 +13,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -38,6 +40,9 @@ import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RoutedRpcRegistration;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CancelInstructionInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CancelInstructionInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CleanInstructionsInput;
@@ -66,13 +71,27 @@ public class ProgrammingServiceImplTest extends AbstractDataBrokerTest {
     private MockedNotificationServiceWrapper mockedNotificationServiceWrapper;
     private ProgrammingServiceImpl testedProgrammingService;
     @Mock
+    private ClusterSingletonServiceProvider cssp;
+    @Mock
+    private ClusterSingletonServiceRegistration singletonServiceRegistration;
+    @Mock
     private RpcProviderRegistry rpcRegistry;
     @Mock
     private RoutedRpcRegistration<ProgrammingService> registration;
+    private ClusterSingletonService singletonService;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+        doAnswer(invocationOnMock -> {
+            this.singletonService = (ClusterSingletonService) invocationOnMock.getArguments()[0];
+            return this.singletonServiceRegistration;
+        }).when(this.cssp).registerClusterSingletonService(any(ClusterSingletonService.class));
+
+        doAnswer(invocationOnMock -> {
+            this.singletonService.closeServiceInstance();
+            return null;
+        }).when(this.singletonServiceRegistration).close();
         doReturn(this.registration).when(this.rpcRegistry).addRpcImplementation(Mockito.any(),
             Mockito.any(ProgrammingService.class));
         doNothing().when(this.registration).close();
@@ -81,11 +100,14 @@ public class ProgrammingServiceImplTest extends AbstractDataBrokerTest {
 
         this.testedProgrammingService = new ProgrammingServiceImpl(getDataBroker(),
             this.mockedNotificationServiceWrapper.getMockedNotificationService(),
-            this.mockedExecutorWrapper.getMockedExecutor(), this.rpcRegistry, this.timer, INSTRUCTIONS_QUEUE_KEY, null);
+            this.mockedExecutorWrapper.getMockedExecutor(), this.rpcRegistry, this.cssp, this.timer,
+            INSTRUCTIONS_QUEUE_KEY, null);
+        this.singletonService.instantiateServiceInstance();
     }
 
     @After
     public void tearDown() throws Exception {
+        this.singletonService.closeServiceInstance();
         this.testedProgrammingService.close();
     }
 
