@@ -17,7 +17,6 @@ import com.google.common.util.concurrent.CheckedFuture;
 import io.netty.channel.nio.NioEventLoopGroup;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import javax.management.InstanceAlreadyExistsException;
@@ -51,14 +50,14 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
 import org.opendaylight.controller.sal.core.api.model.YangTextSourceProvider;
+import org.opendaylight.mdsal.binding.generator.api.ClassLoadingStrategy;
+import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
 import org.opendaylight.protocol.bmp.api.BmpDispatcher;
 import org.opendaylight.protocol.bmp.impl.BmpDispatcherImpl;
 import org.opendaylight.protocol.bmp.impl.session.DefaultBmpSessionFactory;
 import org.opendaylight.protocol.bmp.spi.registry.SimpleBmpMessageRegistry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
-import org.opendaylight.yangtools.sal.binding.generator.api.ClassLoadingStrategy;
-import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -140,9 +139,9 @@ public class BmpMonitorImplModuleTest extends AbstractBmpModuleTest {
         doReturn(context).when(mockedSchemaService).getGlobalContext();
         doAnswer(new Answer<ListenerRegistration<SchemaContextListener>>() {
             @Override
-            public ListenerRegistration<SchemaContextListener> answer(InvocationOnMock invocation) {
+            public ListenerRegistration<SchemaContextListener> answer(final InvocationOnMock invocation) {
                 invocation.getArgumentAt(0, SchemaContextListener.class).onGlobalContextUpdated(context);
-                ListenerRegistration<SchemaContextListener> reg = mock(ListenerRegistration.class);
+                final ListenerRegistration<SchemaContextListener> reg = mock(ListenerRegistration.class);
                 doNothing().when(reg).close();
                 return reg;
             }
@@ -152,12 +151,12 @@ public class BmpMonitorImplModuleTest extends AbstractBmpModuleTest {
         setupMockService(YangTextSourceProvider.class, mock(YangTextSourceProvider.class));
         Mockito.doReturn(mockedSchemaService).when(this.mockedContext).getService(schemaServiceReference);
 
-        BindingToNormalizedNodeCodec bindingCodec = BindingToNormalizedNodeCodecFactory.newInstance(
+        final BindingToNormalizedNodeCodec bindingCodec = BindingToNormalizedNodeCodecFactory.newInstance(
                 GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
         BindingToNormalizedNodeCodecFactory.registerInstance(bindingCodec, mockedSchemaService);
         setupMockService(BindingToNormalizedNodeCodec.class, bindingCodec);
 
-        BmpDispatcher bmpDispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(),
+        final BmpDispatcher bmpDispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(),
                 new SimpleBmpMessageRegistry(), new DefaultBmpSessionFactory());
         setupMockService(BmpDispatcher.class, bmpDispatcher);
     }
