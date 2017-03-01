@@ -8,6 +8,7 @@
 package org.opendaylight.bgpcep.programming.impl;
 
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -15,7 +16,6 @@ import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.SettableFuture;
 import io.netty.util.Timeout;
 import io.netty.util.Timer;
-import io.netty.util.TimerTask;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import org.opendaylight.bgpcep.programming.NanotimeUtil;
 import org.opendaylight.bgpcep.programming.spi.ExecutionResult;
@@ -34,7 +33,10 @@ import org.opendaylight.bgpcep.programming.spi.SuccessfulRpcResult;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RpcRegistration;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
+import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CancelInstructionInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CancelInstructionOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CancelInstructionOutputBuilder;
@@ -61,6 +63,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programm
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,6 +76,8 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
     private final ListeningExecutorService executor;
     private final DataBroker dataProvider;
     private final Timer timer;
+    private final RpcRegistration<ProgrammingService> reg;
+    private ServiceRegistration<?> serviceRegistration;
 
     private final class InstructionPusher implements QueueInstruction {
         private final InstructionBuilder builder = new InstructionBuilder();
@@ -94,7 +99,17 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
                         ProgrammingServiceImpl.this.qid.child(
                                 org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.instruction.queue.Instruction.class,
                                 new InstructionKey(this.builder.getId())), this.builder.build());
-                t.submit();
+                Futures.addCallback(t.submit(), new FutureCallback<Void>() {
+                    @Override
+                    public void onSuccess(final Void result) {
+                        LOG.debug("Instruction Queue {} updated", ProgrammingServiceImpl.this.qid);
+                    }
+
+                    @Override
+                    public void onFailure(final Throwable t) {
+                        LOG.error("Failed to update Instruction Queue {}", ProgrammingServiceImpl.this.qid, t);
+                    }
+                });;
             }
 
             ProgrammingServiceImpl.this.notifs.publish(new InstructionStatusChangedBuilder().setId(this.builder.getId()).setStatus(status).setDetails(details).build());
@@ -106,43 +121,54 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
             t.delete(LogicalDatastoreType.OPERATIONAL, ProgrammingServiceImpl.this.qid.child(
                     org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.instruction.queue.Instruction.class,
                     new InstructionKey(this.builder.getId())));
-            t.submit();
+            Futures.addCallback(t.submit(), new FutureCallback<Void>() {
+                @Override
+                public void onSuccess(final Void result) {
+                    LOG.debug("Instruction Queue {} removed", ProgrammingServiceImpl.this.qid);
+                }
+
+                @Override
+                public void onFailure(final Throwable t) {
+                    LOG.error("Failed to remove Instruction Queue {}", ProgrammingServiceImpl.this.qid, t);
+                }
+            });
         }
     }
 
     public ProgrammingServiceImpl(final DataBroker dataProvider, final NotificationProviderService notifs,
-            final ListeningExecutorService executor, final Timer timer, final InstructionsQueueKey instructionsQueueKey) {
+        final ListeningExecutorService executor, final RpcProviderRegistry rpcProviderRegistry,
+        final Timer timer, final InstructionsQueueKey instructionsQueueKey) {
         this.dataProvider = Preconditions.checkNotNull(dataProvider);
         this.notifs = Preconditions.checkNotNull(notifs);
         this.executor = Preconditions.checkNotNull(executor);
         this.timer = Preconditions.checkNotNull(timer);
         this.qid = KeyedInstanceIdentifier.builder(InstructionsQueue.class, instructionsQueueKey).build();
+        this.reg = rpcProviderRegistry.addRpcImplementation(ProgrammingService.class, this);
 
-        final WriteTransaction t = dataProvider.newWriteOnlyTransaction();
-        t.put(LogicalDatastoreType.OPERATIONAL, this.qid,
-                new InstructionsQueueBuilder().setKey(instructionsQueueKey).setInstruction(
-                        Collections.<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.instruction.queue.Instruction> emptyList()).build());
-        t.submit();
+        final WriteTransaction t = this.dataProvider.newWriteOnlyTransaction();
+        t.put(LogicalDatastoreType.OPERATIONAL, this.qid, new InstructionsQueueBuilder()
+            .setKey(instructionsQueueKey).setInstruction(Collections.emptyList()).build());
+        Futures.addCallback(t.submit(), new FutureCallback<Void>() {
+            @Override
+            public void onSuccess(final Void result) {
+                LOG.debug("Instruction Queue {} added", ProgrammingServiceImpl.this.qid);
+            }
+
+            @Override
+            public void onFailure(final Throwable t) {
+                LOG.error("Failed to add Instruction Queue {}", ProgrammingServiceImpl.this.qid, t);
+            }
+        });
     }
 
     @Override
     public ListenableFuture<RpcResult<CancelInstructionOutput>> cancelInstruction(final CancelInstructionInput input) {
-        return this.executor.submit(new Callable<RpcResult<CancelInstructionOutput>>() {
-            @Override
-            public RpcResult<CancelInstructionOutput> call() {
-                return realCancelInstruction(input);
-            }
-        });
+        return this.executor.submit(() -> realCancelInstruction(input));
     }
 
     @Override
     public ListenableFuture<RpcResult<CleanInstructionsOutput>> cleanInstructions(final CleanInstructionsInput input) {
-        return this.executor.submit(new Callable<RpcResult<CleanInstructionsOutput>>() {
-            @Override
-            public RpcResult<CleanInstructionsOutput> call() {
-                return realCleanInstructions(input);
-            }
-        });
+        return this.executor.submit(() -> realCleanInstructions(input));
     }
 
     private synchronized RpcResult<CancelInstructionOutput> realCancelInstruction(final CancelInstructionInput input) {
@@ -276,12 +302,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
          */
 
         // Schedule a timeout for the instruction
-        final Timeout t = this.timer.newTimeout(new TimerTask() {
-            @Override
-            public void run(final Timeout timeout) {
-                timeoutInstruction(input.getId());
-            }
-        }, left.longValue(), TimeUnit.NANOSECONDS);
+        final Timeout t = this.timer.newTimeout(timeout -> timeoutInstruction(input.getId()), left.longValue(), TimeUnit.NANOSECONDS);
 
         // Put it into the instruction list
         final SettableFuture<Instruction> ret = SettableFuture.create();
@@ -299,12 +320,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
          * This task should be ingress-weighed, so we reinsert it into the
          * same execution service.
          */
-        this.executor.submit(new Runnable() {
-            @Override
-            public void run() {
-                tryScheduleInstruction(i);
-            }
-        });
+        this.executor.submit(() -> tryScheduleInstruction(i));
 
         return ret;
     }
@@ -347,16 +363,32 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
 
     @Override
     public synchronized void close() {
-        try {
-            for (final InstructionImpl i : this.insns.values()) {
-                i.tryCancel(null);
-            }
-            // Workaround for BUG-2283
-            final WriteTransaction t = this.dataProvider.newWriteOnlyTransaction();
-            t.delete(LogicalDatastoreType.OPERATIONAL, this.qid);
-            t.submit().checkedGet();
-        } catch (final Exception e) {
-            LOG.error("Failed to shutdown Instruction Queue", e);
+        this.reg.close();
+        for (final InstructionImpl i : this.insns.values()) {
+            i.tryCancel(null);
         }
+        // Workaround for BUG-2283
+        final WriteTransaction t = this.dataProvider.newWriteOnlyTransaction();
+        t.delete(LogicalDatastoreType.OPERATIONAL, this.qid);
+        final CheckedFuture<Void, TransactionCommitFailedException> future = t.submit();
+        Futures.addCallback(future, new FutureCallback<Void>() {
+            @Override
+            public void onSuccess(final Void result) {
+                LOG.debug("Instruction Queue {} removed", ProgrammingServiceImpl.this.qid);
+            }
+
+            @Override
+            public void onFailure(final Throwable t) {
+                LOG.error("Failed to shutdown Instruction Queue {}", ProgrammingServiceImpl.this.qid, t);
+            }
+        });
+        if (this.serviceRegistration != null) {
+            this.serviceRegistration.unregister();
+            this.serviceRegistration = null;
+        }
+    }
+
+    void setServiceRegistration(final ServiceRegistration<?> serviceRegistration) {
+        this.serviceRegistration = serviceRegistration;
     }
 }
