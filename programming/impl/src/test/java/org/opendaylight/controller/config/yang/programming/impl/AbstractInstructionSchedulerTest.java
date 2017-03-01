@@ -16,8 +16,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
-import com.google.common.io.ByteSource;
-import com.google.common.io.Resources;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.Timer;
@@ -25,7 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.List;
@@ -72,9 +69,9 @@ import org.opendaylight.controller.md.sal.dom.api.DOMRpcProviderService;
 import org.opendaylight.controller.md.sal.dom.api.DOMRpcService;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
 import org.opendaylight.controller.sal.core.api.model.YangTextSourceProvider;
+import org.opendaylight.mdsal.binding.generator.api.ClassLoadingStrategy;
+import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
-import org.opendaylight.yangtools.sal.binding.generator.api.ClassLoadingStrategy;
-import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.opendaylight.yangtools.yang.model.api.SchemaContextListener;
@@ -111,7 +108,7 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
         MockitoAnnotations.initMocks(this);
 
         final List<ModuleFactory> moduleFactories = getModuleFactories();
-        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, moduleFactories.toArray(new ModuleFactory[moduleFactories.size()])));
+        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(this.mockedContext, moduleFactories.toArray(new ModuleFactory[moduleFactories.size()])));
 
         doAnswer(new Answer<Filter>() {
             @Override
@@ -121,41 +118,41 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
                 doReturn(str).when(mockFilter).toString();
                 return mockFilter;
             }
-        }).when(mockedContext).createFilter(anyString());
+        }).when(this.mockedContext).createFilter(anyString());
 
-        Mockito.doReturn(new ServiceReference[] {}).when(mockedContext).getServiceReferences(Matchers.anyString(), Matchers.anyString());
+        Mockito.doReturn(new ServiceReference[] {}).when(this.mockedContext).getServiceReferences(Matchers.anyString(), Matchers.anyString());
 
         final ServiceReference<?> classLoadingStrategySR = mock(ServiceReference.class, "ClassLoadingStrategy");
         final ServiceReference<?> emptyServiceReference = mock(ServiceReference.class, "Empty");
 
-        Mockito.doNothing().when(mockedContext).addServiceListener(any(ServiceListener.class), Mockito.anyString());
-        Mockito.doNothing().when(mockedContext).removeServiceListener(any(ServiceListener.class));
+        Mockito.doNothing().when(this.mockedContext).addServiceListener(any(ServiceListener.class), Mockito.anyString());
+        Mockito.doNothing().when(this.mockedContext).removeServiceListener(any(ServiceListener.class));
 
-        Mockito.doNothing().when(mockedContext).addBundleListener(any(BundleListener.class));
-        Mockito.doNothing().when(mockedContext).removeBundleListener(any(BundleListener.class));
+        Mockito.doNothing().when(this.mockedContext).addBundleListener(any(BundleListener.class));
+        Mockito.doNothing().when(this.mockedContext).removeBundleListener(any(BundleListener.class));
 
-        Mockito.doReturn(new Bundle[] {}).when(mockedContext).getBundles();
+        Mockito.doReturn(new Bundle[] {}).when(this.mockedContext).getBundles();
 
-        Mockito.doReturn(new ServiceReference[] {}).when(mockedContext).getServiceReferences(Matchers.anyString(), Matchers.anyString());
+        Mockito.doReturn(new ServiceReference[] {}).when(this.mockedContext).getServiceReferences(Matchers.anyString(), Matchers.anyString());
 
         Mockito.doReturn("Class loading stategy reference").when(classLoadingStrategySR).toString();
         Mockito.doReturn("Empty reference").when(emptyServiceReference).toString();
 
-        Mockito.doReturn(emptyServiceReference).when(mockedContext).getServiceReference(any(Class.class));
-        Mockito.doReturn(classLoadingStrategySR).when(mockedContext).getServiceReference(GeneratedClassLoadingStrategy.class);
+        Mockito.doReturn(emptyServiceReference).when(this.mockedContext).getServiceReference(any(Class.class));
+        Mockito.doReturn(classLoadingStrategySR).when(this.mockedContext).getServiceReference(GeneratedClassLoadingStrategy.class);
         Mockito.doReturn(classLoadingStrategySR).when(this.mockedContext).getServiceReference(ClassLoadingStrategy.class);
 
-        Mockito.doReturn(GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy()).when(mockedContext).getService(classLoadingStrategySR);
-        Mockito.doReturn(null).when(mockedContext).getService(emptyServiceReference);
+        Mockito.doReturn(GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy()).when(this.mockedContext).getService(classLoadingStrategySR);
+        Mockito.doReturn(null).when(this.mockedContext).getService(emptyServiceReference);
 
         final SchemaContext context = parseYangStreams(getFilesAsStreams(getYangModelsPaths()));
         final SchemaService mockedSchemaService = mock(SchemaService.class);
         doReturn(context).when(mockedSchemaService).getGlobalContext();
         doAnswer(new Answer<ListenerRegistration<SchemaContextListener>>() {
             @Override
-            public ListenerRegistration<SchemaContextListener> answer(InvocationOnMock invocation) {
+            public ListenerRegistration<SchemaContextListener> answer(final InvocationOnMock invocation) {
                 invocation.getArgumentAt(0, SchemaContextListener.class).onGlobalContextUpdated(context);
-                ListenerRegistration<SchemaContextListener> reg = mock(ListenerRegistration.class);
+                final ListenerRegistration<SchemaContextListener> reg = mock(ListenerRegistration.class);
                 doNothing().when(reg).close();
                 return reg;
             }
@@ -164,7 +161,7 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
         setupMockService(SchemaService.class, mockedSchemaService);
         setupMockService(YangTextSourceProvider.class, mock(YangTextSourceProvider.class));
 
-        BindingToNormalizedNodeCodec bindingCodec = BindingToNormalizedNodeCodecFactory.newInstance(
+        final BindingToNormalizedNodeCodec bindingCodec = BindingToNormalizedNodeCodecFactory.newInstance(
                 GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
         BindingToNormalizedNodeCodecFactory.registerInstance(bindingCodec, mockedSchemaService);
         setupMockService(BindingToNormalizedNodeCodec.class, bindingCodec);
@@ -184,11 +181,11 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
 
     protected void setupMockService(final Class<?> serviceInterface, final Object instance) throws Exception {
         final ServiceReference<?> mockServiceRef = mock(ServiceReference.class);
-        doReturn(new ServiceReference[]{mockServiceRef}).when(mockedContext).
+        doReturn(new ServiceReference[]{mockServiceRef}).when(this.mockedContext).
                 getServiceReferences(anyString(), contains(serviceInterface.getName()));
-        doReturn(new ServiceReference[]{mockServiceRef}).when(mockedContext).
+        doReturn(new ServiceReference[]{mockServiceRef}).when(this.mockedContext).
                 getServiceReferences(serviceInterface.getName(), null);
-        doReturn(instance).when(mockedContext).getService(mockServiceRef);
+        doReturn(instance).when(this.mockedContext).getService(mockServiceRef);
     }
 
     @After
