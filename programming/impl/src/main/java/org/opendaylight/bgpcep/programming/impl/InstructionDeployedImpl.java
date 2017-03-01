@@ -36,6 +36,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.programming.config.rev170301.OdlProgramming;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.programming.config.rev170301.OdlProgrammingBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.programming.config.rev170301.odl.programming.OdlProgrammingConfig;
@@ -63,14 +64,17 @@ public final class InstructionDeployedImpl implements IntructionDeployer,
     private final Map<String, ProgrammingServiceImpl> programmingServices = new HashMap<>();
     private final ListenerRegistration<InstructionDeployedImpl> registration;
     private final InstanceIdentifier<OdlProgramming> iid;
+    private final ClusterSingletonServiceProvider cssp;
 
     public InstructionDeployedImpl(final DataBroker dataProvider, final RpcProviderRegistry rpcProviderRegistry,
-        final NotificationProviderService notifs, final Timer timer, final BundleContext bundleContext) {
+        final NotificationProviderService notifs, final Timer timer, final ClusterSingletonServiceProvider cssp,
+        final BundleContext bundleContext) {
         this.dataProvider = Preconditions.checkNotNull(dataProvider);
         this.notifs = Preconditions.checkNotNull(notifs);
         this.timer = Preconditions.checkNotNull(timer);
         this.rpcProviderRegistry = Preconditions.checkNotNull(rpcProviderRegistry);
         this.bundleContext = Preconditions.checkNotNull(bundleContext);
+        this.cssp = Preconditions.checkNotNull(cssp);
         this.iid = InstanceIdentifier.create(OdlProgramming.class);
 
         final WriteTransaction wTx = dataProvider.newWriteOnlyTransaction();
@@ -99,8 +103,8 @@ public final class InstructionDeployedImpl implements IntructionDeployer,
         LOG.debug("Creating Instruction Scheduler {}.", instructionId);
 
         final ProgrammingServiceImpl programmingInst =
-            new ProgrammingServiceImpl(this.dataProvider, this.notifs, this.exec, this.rpcProviderRegistry,
-                this.timer, new InstructionsQueueKey(instructionId));
+            new ProgrammingServiceImpl(this.dataProvider, this.notifs, this.exec, this.rpcProviderRegistry, this.cssp,
+                this.timer, instructionId);
         this.programmingServices.put(instructionId, programmingInst);
         final Dictionary<String, String> properties = new Hashtable<>();
         properties.put(InstructionScheduler.class.getName(), instructionId);

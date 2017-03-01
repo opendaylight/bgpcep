@@ -13,6 +13,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -38,6 +40,9 @@ import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RoutedRpcRegistration;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CancelInstructionInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CancelInstructionInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CleanInstructionsInput;
@@ -60,19 +65,33 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 public class ProgrammingServiceImplTest extends AbstractDataBrokerTest {
 
     private static final int INSTRUCTION_DEADLINE_OFFSET_IN_SECONDS = 3;
-    private static final InstructionsQueueKey INSTRUCTIONS_QUEUE_KEY = new InstructionsQueueKey("test-instraction-queue");
+    private static final String INSTRUCTIONS_QUEUE_KEY = "test-instraction-queue";
     private final Timer timer = new HashedWheelTimer();
     private MockedExecutorWrapper mockedExecutorWrapper;
     private MockedNotificationServiceWrapper mockedNotificationServiceWrapper;
     private ProgrammingServiceImpl testedProgrammingService;
     @Mock
+    private ClusterSingletonServiceProvider cssp;
+    @Mock
+    private ClusterSingletonServiceRegistration singletonServiceRegistration;
+    @Mock
     private RpcProviderRegistry rpcRegistry;
     @Mock
     private RoutedRpcRegistration<ProgrammingService> registration;
+    private ClusterSingletonService singletonService;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+        doAnswer(invocationOnMock -> {
+            this.singletonService = (ClusterSingletonService) invocationOnMock.getArguments()[0];
+            return this.singletonServiceRegistration;
+        }).when(this.cssp).registerClusterSingletonService(any(ClusterSingletonService.class));
+
+        doAnswer(invocationOnMock -> {
+            this.singletonService.closeServiceInstance();
+            return null;
+        }).when(this.singletonServiceRegistration).close();
         doReturn(this.registration).when(this.rpcRegistry).addRpcImplementation(Mockito.any(),
             Mockito.any(ProgrammingService.class));
         doNothing().when(this.registration).close();
@@ -81,11 +100,14 @@ public class ProgrammingServiceImplTest extends AbstractDataBrokerTest {
 
         this.testedProgrammingService = new ProgrammingServiceImpl(getDataBroker(),
             this.mockedNotificationServiceWrapper.getMockedNotificationService(),
-            this.mockedExecutorWrapper.getMockedExecutor(), this.rpcRegistry, this.timer, INSTRUCTIONS_QUEUE_KEY);
+            this.mockedExecutorWrapper.getMockedExecutor(), this.rpcRegistry, this.cssp, this.timer,
+            INSTRUCTIONS_QUEUE_KEY);
+        this.singletonService.instantiateServiceInstance();
     }
 
     @After
     public void tearDown() throws Exception {
+        this.singletonService.closeServiceInstance();
         this.testedProgrammingService.close();
     }
 
@@ -350,7 +372,9 @@ public class ProgrammingServiceImplTest extends AbstractDataBrokerTest {
 
     private boolean assertInstructionExists(final InstructionId id) {
         try {
-            return getDataBroker().newReadOnlyTransaction().read(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.builder(InstructionsQueue.class, INSTRUCTIONS_QUEUE_KEY).build().child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.instruction.queue.Instruction.class,
+            return getDataBroker().newReadOnlyTransaction().read(LogicalDatastoreType.OPERATIONAL,
+                InstanceIdentifier.builder(InstructionsQueue.class, new InstructionsQueueKey(INSTRUCTIONS_QUEUE_KEY))
+                    .build().child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.instruction.queue.Instruction.class,
                     new InstructionKey(id))).get().isPresent();
         } catch (InterruptedException | ExecutionException e) {
             return false;
