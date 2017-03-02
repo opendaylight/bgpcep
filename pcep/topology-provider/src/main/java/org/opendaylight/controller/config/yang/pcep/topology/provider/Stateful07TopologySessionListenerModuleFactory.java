@@ -16,10 +16,32 @@
  */
 package org.opendaylight.controller.config.yang.pcep.topology.provider;
 
-/**
-*
-*/
-public class Stateful07TopologySessionListenerModuleFactory extends
-        org.opendaylight.controller.config.yang.pcep.topology.provider.AbstractStateful07TopologySessionListenerModuleFactory {
+import org.opendaylight.controller.config.api.DependencyResolver;
+import org.opendaylight.controller.config.api.DynamicMBeanWithInstance;
+import org.opendaylight.controller.config.spi.Module;
+import org.osgi.framework.BundleContext;
 
+/**
+ * @deprecated Replaced by blueprint wiring
+ */
+public class Stateful07TopologySessionListenerModuleFactory extends
+    AbstractStateful07TopologySessionListenerModuleFactory {
+
+    @Override
+    public Module createModule(final String instanceName, final DependencyResolver dependencyResolver,
+        final BundleContext bundleContext) {
+        final Stateful07TopologySessionListenerModule module = (Stateful07TopologySessionListenerModule)
+            super.createModule(instanceName, dependencyResolver, bundleContext);
+        module.setBundleContext(bundleContext);
+        return module;
+    }
+
+    @Override
+    public Module createModule(final String instanceName, final DependencyResolver dependencyResolver,
+        final DynamicMBeanWithInstance old, final BundleContext bundleContext) throws Exception {
+        final Stateful07TopologySessionListenerModule module = (Stateful07TopologySessionListenerModule)
+            super.createModule(instanceName, dependencyResolver, old, bundleContext);
+        module.setBundleContext(bundleContext);
+        return module;
+    }
 }

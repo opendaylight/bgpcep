@@ -16,13 +16,19 @@
  */
 package org.opendaylight.controller.config.yang.pcep.topology.provider;
 
-import org.opendaylight.bgpcep.pcep.topology.provider.Stateful07TopologySessionListenerFactory;
+import com.google.common.reflect.AbstractInvocationHandler;
+import com.google.common.reflect.Reflection;
+import java.lang.reflect.Method;
+import org.opendaylight.bgpcep.pcep.topology.provider.TopologySessionListenerFactory;
+import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
+import org.osgi.framework.BundleContext;
 
 /**
- *
+ * @deprecated Replaced by blueprint wiring
  */
 public final class Stateful07TopologySessionListenerModule extends
         org.opendaylight.controller.config.yang.pcep.topology.provider.AbstractStateful07TopologySessionListenerModule {
+    private BundleContext bundleContext;
 
     public Stateful07TopologySessionListenerModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
             final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
@@ -32,7 +38,6 @@ public final class Stateful07TopologySessionListenerModule extends
     public Stateful07TopologySessionListenerModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
             final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
             final Stateful07TopologySessionListenerModule oldModule, final java.lang.AutoCloseable oldInstance) {
-
         super(identifier, dependencyResolver, oldModule, oldInstance);
     }
 
@@ -43,14 +48,27 @@ public final class Stateful07TopologySessionListenerModule extends
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        return new AutoCloseableStateful07TopologySessionListenerFactory();
+        final WaitingServiceTracker<TopologySessionListenerFactory> tracker = WaitingServiceTracker
+            .create(TopologySessionListenerFactory.class, this.bundleContext);
+        final TopologySessionListenerFactory service = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
+
+        return Reflection.newProxy(AutoCloseableService.class, new AbstractInvocationHandler() {
+            @Override
+            protected Object handleInvocation(final Object proxy, final Method method, final Object[] args) throws Throwable {
+                if (method.getName().equals("close")) {
+                    tracker.close();
+                    return null;
+                } else {
+                    return method.invoke(service, args);
+                }
+            }
+        });
     }
 
-    private static final class AutoCloseableStateful07TopologySessionListenerFactory extends Stateful07TopologySessionListenerFactory
-            implements AutoCloseable {
-        @Override
-        public void close() {
-            // Nothing to do
-        }
+    void setBundleContext(final BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
+    }
+
+    private interface AutoCloseableService extends TopologySessionListenerFactory, AutoCloseable {
     }
 }
