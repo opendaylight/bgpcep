@@ -22,6 +22,6 @@ public class SchedulerException extends Exception {
     }
 
     public final Failure getFailure() {
-        return failure;
+        return this.failure;
     }
 }

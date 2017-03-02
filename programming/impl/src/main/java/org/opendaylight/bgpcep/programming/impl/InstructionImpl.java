@@ -56,7 +56,7 @@ final class InstructionImpl implements Instruction {
         return this.status;
     }
 
-    synchronized void setStatus(final InstructionStatus status, final Details details) {
+    private synchronized void setStatus(final InstructionStatus status, final Details details) {
         // Set the status
         this.status = status;
         LOG.debug("Instruction {} transitioned to status {}", this.id, status);
@@ -193,7 +193,7 @@ final class InstructionImpl implements Instruction {
             cancelTimeout();
 
             // We reuse the preconditions set down in this class
-            result = new ExecutionResult<Details>(status, details);
+            result = new ExecutionResult<>(status, details);
             setStatus(status, details);
         }
 
@@ -217,13 +217,13 @@ final class InstructionImpl implements Instruction {
     }
 
     synchronized void clean() {
-        for (final Iterator<InstructionImpl> it = this.dependencies.iterator(); it.hasNext();) {
-            it.next().removeDependant(this);
+        for (final InstructionImpl dependency : this.dependencies) {
+            dependency.removeDependant(this);
         }
         this.dependencies.clear();
 
-        for (final Iterator<InstructionImpl> it = this.dependants.iterator(); it.hasNext();) {
-            it.next().removeDependency(this);
+        for (final InstructionImpl dependant : this.dependants) {
+            dependant.removeDependency(this);
         }
         this.dependants.clear();
 

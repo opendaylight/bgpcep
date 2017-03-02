@@ -21,7 +21,7 @@ public final class SuccessfulRpcResult<T> implements RpcResult<T> {
     }
 
     public static <T> SuccessfulRpcResult<T> create(final T value) {
-        return new SuccessfulRpcResult<T>(value);
+        return new SuccessfulRpcResult<>(value);
     }
 
     @Override
@@ -31,7 +31,7 @@ public final class SuccessfulRpcResult<T> implements RpcResult<T> {
 
     @Override
     public T getResult() {
-        return value;
+        return this.value;
     }
 
     @Override
