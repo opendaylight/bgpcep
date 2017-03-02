@@ -22,6 +22,9 @@
     <artifactId>features-rsvp</artifactId>
     <groupId>org.opendaylight.bgpcep</groupId>
     <version>0.7.0-SNAPSHOT</version>
+    <!-- <name> formatting is used by autorelease to parse and notify projects on
+         build failure. Please do not modify this unless you have a good reason. -->
+    <name>ODL :: bgpcep :: ${project.artifactId}</name>
 
     <properties>
         <mdsal.binding.base>0.10.0-SNAPSHOT</mdsal.binding.base>

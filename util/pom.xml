@@ -27,7 +27,10 @@
     <artifactId>util</artifactId>
     <description>Protocol utilities</description>
     <packaging>bundle</packaging>
-    <name>${project.artifactId}</name>
+    <!-- <name> formatting is used by autorelease to parse and notify projects on
+         build failure. Please do not modify this unless you have a good reason. -->
+    <name>ODL :: bgpcep :: ${project.artifactId}</name>
+
     <prerequisites>
         <maven>3.0.4</maven>
     </prerequisites>
