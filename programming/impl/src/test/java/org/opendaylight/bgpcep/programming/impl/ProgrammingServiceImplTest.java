@@ -18,6 +18,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.opendaylight.protocol.util.CheckUtil.checkEquals;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -36,7 +37,7 @@ import org.mockito.MockitoAnnotations;
 import org.opendaylight.bgpcep.programming.NanotimeUtil;
 import org.opendaylight.bgpcep.programming.spi.Instruction;
 import org.opendaylight.bgpcep.programming.spi.SchedulerException;
-import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
+import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RoutedRpcRegistration;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
@@ -62,7 +63,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 
-public class ProgrammingServiceImplTest extends AbstractDataBrokerTest {
+public class ProgrammingServiceImplTest extends AbstractConcurrentDataBrokerTest {
 
     private static final int INSTRUCTION_DEADLINE_OFFSET_IN_SECONDS = 3;
     private static final String INSTRUCTIONS_QUEUE_KEY = "test-instraction-queue";
@@ -116,7 +117,7 @@ public class ProgrammingServiceImplTest extends AbstractDataBrokerTest {
         final SubmitInstructionInput mockedSubmit = getMockedSubmitInstructionInput("mockedSubmit");
         this.testedProgrammingService.scheduleInstruction(mockedSubmit);
 
-        assertTrue(assertInstructionExists(mockedSubmit.getId()));
+        checkEquals(()-> assertTrue(assertInstructionExists(mockedSubmit.getId())));
 
         // assert Schedule to executor
         this.mockedExecutorWrapper.assertSubmittedTasksSize(1);
@@ -155,7 +156,7 @@ public class ProgrammingServiceImplTest extends AbstractDataBrokerTest {
         final SubmitInstructionInput mockedSubmit = getMockedSubmitInstructionInput("mockedSubmit");
         this.testedProgrammingService.scheduleInstruction(mockedSubmit);
 
-        assertTrue(assertInstructionExists(mockedSubmit.getId()));
+        checkEquals(()-> assertTrue(assertInstructionExists(mockedSubmit.getId())));
 
         final CancelInstructionInput mockedCancel = getCancelInstruction("mockedSubmit");
         this.testedProgrammingService.cancelInstruction(mockedCancel);
@@ -185,9 +186,9 @@ public class ProgrammingServiceImplTest extends AbstractDataBrokerTest {
         this.mockedNotificationServiceWrapper.assertInstructionStatusChangedNotification(2, mockedSubmit2.getId(), InstructionStatus.Cancelled);
         this.mockedNotificationServiceWrapper.assertInstructionStatusChangedNotification(3, mockedSubmit3.getId(), InstructionStatus.Cancelled);
 
-        assertTrue(assertInstructionExists(mockedSubmit1.getId()));
-        assertTrue(assertInstructionExists(mockedSubmit2.getId()));
-        assertTrue(assertInstructionExists(mockedSubmit3.getId()));
+        checkEquals(()-> assertTrue(assertInstructionExists(mockedSubmit1.getId())));
+        checkEquals(()-> assertTrue(assertInstructionExists(mockedSubmit2.getId())));
+        checkEquals(()-> assertTrue(assertInstructionExists(mockedSubmit3.getId())));
     }
 
     @Test
@@ -210,8 +211,8 @@ public class ProgrammingServiceImplTest extends AbstractDataBrokerTest {
         cleanedInstructionOutput = this.testedProgrammingService.cleanInstructions(cleanInstructionsInput);
         assertCleanInstructionOutput(cleanedInstructionOutput, 0);
 
-        assertFalse(assertInstructionExists(mockedSubmit1.getId()));
-        assertFalse(assertInstructionExists(mockedSubmit2.getId()));
+        checkEquals(()-> assertFalse(assertInstructionExists(mockedSubmit1.getId())));
+        checkEquals(()-> assertFalse(assertInstructionExists(mockedSubmit2.getId())));
     }
 
     private void assertCleanInstructionOutput(final ListenableFuture<RpcResult<CleanInstructionsOutput>> cleanedInstructionOutput,
