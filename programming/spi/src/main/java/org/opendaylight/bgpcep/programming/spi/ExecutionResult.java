@@ -25,15 +25,15 @@ public final class ExecutionResult<T extends Details> {
     }
 
     public InstructionStatus getStatus() {
-        return status;
+        return this.status;
     }
 
     public T getDetails() {
-        return details;
+        return this.details;
     }
 
     @Override
     public String toString() {
-        return "ExecutionResult [status=" + status + ", details=" + details + "]";
+        return "ExecutionResult [status=" + this.status + ", details=" + this.details + "]";
     }
 }

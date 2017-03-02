@@ -14,7 +14,7 @@
                odl:type="default"/>
     <reference id="rpcRegistry" interface="org.opendaylight.controller.sal.binding.api.RpcProviderRegistry"/>
     <reference id="notificationService"
-               interface="org.opendaylight.controller.sal.binding.api.NotificationProviderService" />
+               interface="org.opendaylight.controller.md.sal.binding.api.NotificationPublishService"/>
     <reference id="timer" interface="io.netty.util.Timer" odl:type="global-timer"/>
     <reference id="clusterSingletonServiceProvider"
                interface="org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider"/>
