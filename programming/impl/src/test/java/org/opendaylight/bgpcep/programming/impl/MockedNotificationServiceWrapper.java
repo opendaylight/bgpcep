@@ -16,9 +16,7 @@ import static org.mockito.Mockito.mock;
 import com.google.common.collect.Lists;
 import java.util.List;
 import org.junit.Assert;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
+import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.InstructionId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.InstructionStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.InstructionStatusChanged;
@@ -31,18 +29,15 @@ final class MockedNotificationServiceWrapper {
         this.publishedNotifications = Lists.newArrayList();
     }
 
-    NotificationProviderService getMockedNotificationService() {
-        final NotificationProviderService mockedNotificationService = mock(NotificationProviderService.class);
+    NotificationPublishService getMockedNotificationService() throws InterruptedException {
+        final NotificationPublishService mockedNotificationService = mock(NotificationPublishService.class);
 
-        doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(final InvocationOnMock invocation) throws Throwable {
-                final Object notif = invocation.getArguments()[0];
-                assertTrue(Notification.class.isAssignableFrom(notif.getClass()));
-                MockedNotificationServiceWrapper.this.publishedNotifications.add((Notification) notif);
-                return null;
-            }
-        }).when(mockedNotificationService).publish(any(Notification.class));
+        doAnswer(invocation -> {
+            final Object notif = invocation.getArguments()[0];
+            assertTrue(Notification.class.isAssignableFrom(notif.getClass()));
+            MockedNotificationServiceWrapper.this.publishedNotifications.add((Notification) notif);
+            return null;
+        }).when(mockedNotificationService).putNotification(any(Notification.class));
         return mockedNotificationService;
     }
 
@@ -50,7 +45,7 @@ final class MockedNotificationServiceWrapper {
         assertEquals(count, this.publishedNotifications.size());
     }
 
-    public void assertInstructionStatusChangedNotification(final int idx, final InstructionId id, final InstructionStatus status) {
+    void assertInstructionStatusChangedNotification(final int idx, final InstructionId id, final InstructionStatus status) {
         assertTrue(InstructionStatusChanged.class.isAssignableFrom(this.publishedNotifications.get(idx).getClass()));
         final InstructionStatusChanged firstNotification = (InstructionStatusChanged) this.publishedNotifications.get(idx);
         assertInstructionStatusChangedNotification(id, status, firstNotification);
