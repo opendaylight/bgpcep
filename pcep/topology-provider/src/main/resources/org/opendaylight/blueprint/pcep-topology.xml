@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
+
+    <bean id="Stateful07TopologySessionListenerFactory"
+          class="org.opendaylight.bgpcep.pcep.topology.provider.Stateful07TopologySessionListenerFactory"/>
+    <service ref="Stateful07TopologySessionListenerFactory"
+             interface="org.opendaylight.bgpcep.pcep.topology.provider.TopologySessionListenerFactory">
+        <!-- The following service properties specify the config system module and instance that correspond to
+             this OSGi service which enables the config system module to be restarted when this blueprint
+             container is restarted. -->
+        <service-properties>
+            <entry key="config-module-namespace" value="urn:opendaylight:params:xml:ns:yang:controller:pcep:topology:provider"/>
+            <entry key="config-module-name" value="pcep-topology-stateful07"/>
+            <entry key="config-instance-name" value="global"/>
+        </service-properties>
+    </service>
+
+    <reference id="dataBroker" interface="org.opendaylight.controller.md.sal.binding.api.DataBroker" odl:type="pingpong"/>
+    <reference id="rpcRegistry" interface="org.opendaylight.controller.sal.binding.api.RpcProviderRegistry"/>
+    <reference id="pcepDispatcher" interface="org.opendaylight.protocol.pcep.PCEPDispatcher"/>
+
+    <bean id="pcepTopologyDeployer" class="org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyDeployerImpl"
+          destroy-method="close">
+        <argument ref="blueprintContainer"/>
+    </bean>
+    <service ref="pcepTopologyDeployer" interface="org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyDeployer"/>
+
+    <bean id="PcepTopologyProvider" class="org.opendaylight.bgpcep.pcep.topology.provider.config.PcepTopologyProvider"
+          scope="prototype">
+        <argument ref="blueprintBundleContext"/>
+        <argument ref="dataBroker"/>
+        <argument ref="pcepDispatcher"/>
+        <argument ref="rpcRegistry"/>
+        <argument ref="Stateful07TopologySessionListenerFactory"/>
+    </bean>
+</blueprint>
