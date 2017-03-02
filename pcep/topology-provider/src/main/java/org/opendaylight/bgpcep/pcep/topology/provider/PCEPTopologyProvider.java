@@ -28,8 +28,12 @@ import org.opendaylight.protocol.pcep.PCEPDispatcher;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.topology.rev140113.NetworkTopologyContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.NetworkTopologyPcepProgrammingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.NetworkTopologyPcepService;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +44,7 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference impleme
     private final BindingAwareBroker.RoutedRpcRegistration<NetworkTopologyPcepService> element;
     private final ServerSessionManager manager;
     private final Channel channel;
+    private ServiceRegistration<?> serviceRegistration;
 
     private PCEPTopologyProvider(final Channel channel, final InstanceIdentifier<Topology> topology, final ServerSessionManager manager,
             final BindingAwareBroker.RoutedRpcRegistration<NetworkTopologyPcepService> element,
@@ -51,12 +56,14 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference impleme
         this.network = Preconditions.checkNotNull(network);
     }
 
-    public static PCEPTopologyProvider create(final PCEPDispatcher dispatcher, final InetSocketAddress address, final Optional<KeyMapping> keys,
-            final InstructionScheduler scheduler, final DataBroker dataBroker, final RpcProviderRegistry rpcRegistry,
-            final InstanceIdentifier<Topology> topology, final TopologySessionListenerFactory listenerFactory,
-            final Optional<PCEPTopologyProviderRuntimeRegistrator> runtimeRootRegistrator, final int rpcTimeout) throws InterruptedException,
+    public static PCEPTopologyProvider create(final PCEPDispatcher dispatcher, final InetSocketAddress address,
+        final Optional<KeyMapping> keys, final InstructionScheduler scheduler, final DataBroker dataBroker,
+        final RpcProviderRegistry rpcRegistry, final TopologyId topologyId,
+        final TopologySessionListenerFactory listenerFactory,
+        final Optional<PCEPTopologyProviderRuntimeRegistrator> runtimeRootRegistrator, final int rpcTimeout)
+        throws InterruptedException,
             ExecutionException, ReadFailedException, TransactionCommitFailedException {
-        List<PCEPCapability> capabilities = dispatcher.getPCEPSessionNegotiatorFactory().getPCEPSessionProposalFactory().getCapabilities();
+        final List<PCEPCapability> capabilities = dispatcher.getPCEPSessionNegotiatorFactory().getPCEPSessionProposalFactory().getCapabilities();
         boolean statefulCapability = false;
         for (final PCEPCapability capability : capabilities) {
             if (capability.isStateful()) {
@@ -68,9 +75,11 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference impleme
             throw new IllegalStateException("Stateful capability not defined, aborting PCEP Topology Provider instantiation");
         }
 
+        final InstanceIdentifier<Topology> topology = InstanceIdentifier.builder(NetworkTopology.class)
+            .child(Topology.class, new TopologyKey(topologyId)).build();
         final ServerSessionManager manager = new ServerSessionManager(dataBroker, topology, listenerFactory, rpcTimeout);
-        if (runtimeRootRegistrator.isPresent()) {
-            manager.setRuntimeRootRegistartion(runtimeRootRegistrator.get());
+        if(runtimeRootRegistrator.isPresent()){
+            manager.setRuntimeRootRegistrator(runtimeRootRegistrator.get());
         }
         final ChannelFuture f = dispatcher.createServer(address, keys, manager, manager);
         f.get();
@@ -87,11 +96,11 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference impleme
     }
 
     @Override
-    public void close() throws InterruptedException {
+    public void close() {
         try {
             this.channel.close().sync();
             LOG.debug("Server channel {} closed", this.channel);
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             LOG.error("Failed to close channel {}", this.channel, e);
         }
 
@@ -110,5 +119,13 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference impleme
         } catch (final Exception e) {
             LOG.error("Failed to shutdown session manager", e);
         }
+        if (this.serviceRegistration != null) {
+            this.serviceRegistration.unregister();
+            this.serviceRegistration = null;
+        }
+    }
+
+    public synchronized void setServiceRegistration(final ServiceRegistration<?> serviceRegistration) {
+        this.serviceRegistration = serviceRegistration;
     }
 }

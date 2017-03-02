@@ -191,13 +191,13 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, AutoClos
         t.submit().checkedGet();
     }
 
-    public void setRuntimeRootRegistartion(final PCEPTopologyProviderRuntimeRegistrator runtimeRootRegistrator) {
+    synchronized void setRuntimeRootRegistrator(final PCEPTopologyProviderRuntimeRegistrator runtimeRootRegistrator) {
         if (!this.runtimeRootRegistration.compareAndSet(null, runtimeRootRegistrator.register(this))) {
             LOG.error("Runtime root registration has been set before.");
         }
     }
 
-    public ListenerStateRuntimeRegistration registerRuntimeRootRegistration(final ListenerStateRuntimeMXBean bean) {
+    ListenerStateRuntimeRegistration registerRuntimeRootRegistration(final ListenerStateRuntimeMXBean bean) {
         final PCEPTopologyProviderRuntimeRegistration runtimeReg = this.runtimeRootRegistration.get();
         if (runtimeReg != null) {
             final ListenerStateRuntimeRegistration reg = runtimeReg.register(bean);
@@ -210,7 +210,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, AutoClos
     @Override
     public void setPeerSpecificProposal(final InetSocketAddress address, final TlvsBuilder openBuilder) {
         Preconditions.checkNotNull(address);
-        peerProposal.setPeerProposal(createNodeId(address.getAddress()), openBuilder);
+        this.peerProposal.setPeerProposal(createNodeId(address.getAddress()), openBuilder);
     }
 
     public int getRpcTimeout() {
