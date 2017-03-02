@@ -9,11 +9,14 @@
         <version>1.8.0-SNAPSHOT</version>
         <relativePath/>
     </parent>
-    
+
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>features4-bgp</artifactId>
     <version>0.7.0-SNAPSHOT</version>
     <packaging>feature</packaging>
+    <!-- <name> formatting is used by autorelease to parse and notify projects on
+         build failure. Please do not modify this unless you have a good reason. -->
+    <name>ODL :: bgpcep :: ${project.artifactId}</name>
 
     <dependencyManagement>
         <!-- ODL-BGP-ARTIFACTS -->
