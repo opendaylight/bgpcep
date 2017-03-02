@@ -9,44 +9,68 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
 import com.google.common.net.InetAddresses;
+import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import io.netty.channel.epoll.Epoll;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
-import org.opendaylight.controller.config.yang.pcep.topology.provider.Client;
+import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistrator;
+import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
+import org.opendaylight.controller.md.sal.binding.api.DataObjectModification.ModificationType;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.rfc2385.cfg.rev160324.Rfc2385Key;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.pcep.topology.provider.config.rev170301.OdlPcepTopologyProvider;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.pcep.topology.provider.config.rev170301.OdlPcepTopologyProviderBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.pcep.topology.provider.config.rev170301.odl.pcep.topology.provider.OdlPcepTopologyProviderConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.pcep.topology.provider.config.rev170301.odl.pcep.topology.provider.OdlPcepTopologyProviderConfigBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.pcep.topology.provider.config.rev170301.odl.pcep.topology.provider.OdlPcepTopologyProviderConfigKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.pcep.topology.provider.config.rev170301.odl.pcep.topology.provider.odl.pcep.topology.provider.config.Client;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
+import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PCEPTopologyDeployerImpl implements PCEPTopologyDeployer, AutoCloseable {
-    private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyDeployerImpl.class);
-
+public class PCEPTopologyDeployerImpl implements PCEPTopologyDeployer,
+    ClusteredDataTreeChangeListener<OdlPcepTopologyProvider>, AutoCloseable {
     public static final String PCEP_TOPOLOGY_PROVIDER_BEAN = "pcep-topology-provider-bean";
     public static final String NATIVE_TRANSPORT_NOT_AVAILABLE = "Client is configured with password but native" +
         " transport is not available";
+    private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyDeployerImpl.class);
     private static final String STATEFUL_NOT_DEFINED = "Stateful capability not defined, aborting PCEP Topology " +
         "Deployer instantiation";
     private final BundleContext bundleContext;
@@ -58,6 +82,8 @@ public class PCEPTopologyDeployerImpl implements PCEPTopologyDeployer, AutoClose
     private final Map<TopologyId, PCEPTopologyProvider> pcepTopologyServices = new HashMap<>();
     @GuardedBy("this")
     private final Map<TopologyId, PCEPTopologyProviderRuntimeRegistrator> runtimeRegistrators = new HashMap<>();
+    private final InstanceIdentifier<OdlPcepTopologyProvider> iid;
+    private final ListenerRegistration<PCEPTopologyDeployerImpl> listenerRegistration;
 
     public PCEPTopologyDeployerImpl(final BundleContext bundleContext, final DataBroker dataBroker,
         final PCEPDispatcher pcepDispatcher, final RpcProviderRegistry rpcProviderRegistry,
@@ -73,9 +99,27 @@ public class PCEPTopologyDeployerImpl implements PCEPTopologyDeployer, AutoClose
         if (!statefulCapability) {
             throw new IllegalStateException(STATEFUL_NOT_DEFINED);
         }
+        this.iid = InstanceIdentifier.create(OdlPcepTopologyProvider.class);
+
+        final WriteTransaction wTx = dataBroker.newWriteOnlyTransaction();
+        wTx.merge(LogicalDatastoreType.CONFIGURATION, this.iid, new OdlPcepTopologyProviderBuilder().build());
+        Futures.addCallback(wTx.submit(), new FutureCallback<Void>() {
+            @Override
+            public void onSuccess(final Void result) {
+                LOG.debug("Instruction Instance {} initialized successfully.", PCEPTopologyDeployerImpl.this.iid);
+            }
+
+            @Override
+            public void onFailure(final Throwable t) {
+                LOG.error("Failed to initialize Instruction Instance {}.", PCEPTopologyDeployerImpl.this.iid, t);
+            }
+        });
+
+        this.listenerRegistration = this.dataBroker.registerDataTreeChangeListener(
+            new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, this.iid), this);
     }
 
-    public static Optional<KeyMapping> contructKeys(final List<Client> clients) {
+    private static Optional<KeyMapping> contructKeys(final List<Client> clients) {
         KeyMapping ret = null;
 
         if (clients != null && !clients.isEmpty()) {
@@ -95,7 +139,7 @@ public class PCEPTopologyDeployerImpl implements PCEPTopologyDeployer, AutoClose
         return Optional.fromNullable(ret);
     }
 
-    private static String getAddressString(final IpAddress address) {
+    public static String getAddressString(final IpAddress address) {
         Preconditions.checkArgument(address.getIpv4Address() != null || address.getIpv6Address() != null,
             "Address %s is invalid", address);
         if (address.getIpv4Address() != null) {
@@ -104,28 +148,19 @@ public class PCEPTopologyDeployerImpl implements PCEPTopologyDeployer, AutoClose
         return address.getIpv6Address().getValue();
     }
 
-    @Override
-    public synchronized void createTopologyProvider(final TopologyId topologyId, final InetAddress address,
-        final int port, final short rpcTimeout, final List<Client> clients,
+    private synchronized void createTopologyProvider(final TopologyId topologyId, final InetAddress address,
+        final int port, final short rpcTimeout, final Optional<KeyMapping> keys,
         final InstructionScheduler schedulerDependency) {
-        if (this.pcepTopologyServices.containsKey(topologyId)) {
-            LOG.warn("Topology Provider {} already exist. New instance won't be created", topologyId);
-            return;
-        }
         final InstanceIdentifier<Topology> topology = InstanceIdentifier.builder(NetworkTopology.class)
             .child(Topology.class, new TopologyKey(topologyId)).build();
         final InetSocketAddress inetSocketAddress = new InetSocketAddress(address, port);
 
-        final com.google.common.base.Optional<KeyMapping> keys = contructKeys(clients);
-        if (keys.isPresent() && !Epoll.isAvailable()) {
-            LOG.error(NATIVE_TRANSPORT_NOT_AVAILABLE);
-            return;
-        }
 
         try {
             final PCEPTopologyProvider pcepTopoProvider = PCEPTopologyProvider.create(this.pcepDispatcher,
                 inetSocketAddress, keys, schedulerDependency, this.dataBroker, this.rpcProviderRegistry, topology,
-                this.sessionListenerFactory, Optional.fromNullable(this.runtimeRegistrators.get(topologyId)), rpcTimeout);
+                this.sessionListenerFactory, Optional.fromNullable(this.runtimeRegistrators.get(topologyId)),
+                rpcTimeout);
             this.pcepTopologyServices.put(topologyId, pcepTopoProvider);
 
             final Dictionary<String, String> properties = new Hashtable<>();
@@ -139,10 +174,10 @@ public class PCEPTopologyDeployerImpl implements PCEPTopologyDeployer, AutoClose
 
     }
 
-    @Override
-    public synchronized void removeTopologyProvider(final TopologyId topologyID) {
+    private synchronized void removeTopologyProvider(final TopologyId topologyID) {
         final PCEPTopologyProvider service = this.pcepTopologyServices.remove(topologyID);
         if (service != null) {
+            LOG.trace("Removing and closing Topology provider {}.", topologyID.getValue());
             service.close();
         }
     }
@@ -162,7 +197,111 @@ public class PCEPTopologyDeployerImpl implements PCEPTopologyDeployer, AutoClose
     }
 
     @Override
+    public synchronized ListenableFuture<Void> writeConfiguration(@Nonnull final TopologyId topologyID, final String instructionID,
+        final InetAddress address, final PortNumber portNumber, final short rpcTimeout,
+        final List<Client> client) {
+        final OdlPcepTopologyProviderConfig instruction = new OdlPcepTopologyProviderConfigBuilder()
+            .setTopologyId(topologyID)
+            .setListenAddress(IetfInetUtil.INSTANCE.ipAddressFor(address))
+            .setListenPort(portNumber)
+            .setRpcTimeout(rpcTimeout)
+            .setSchedulerId(instructionID)
+            .setClient(client)
+            .build();
+        final WriteTransaction wTx = this.dataBroker.newWriteOnlyTransaction();
+        wTx.put(LogicalDatastoreType.CONFIGURATION, this.iid.child(OdlPcepTopologyProviderConfig.class,
+            new OdlPcepTopologyProviderConfigKey(topologyID)), instruction, true);
+        final CheckedFuture<Void, TransactionCommitFailedException> future = wTx.submit();
+        Futures.addCallback(future, new FutureCallback<Void>() {
+            @Override
+            public void onSuccess(final Void result) {
+                LOG.debug("Instruction Instance {} initialized successfully.", topologyID);
+            }
+
+            @Override
+            public void onFailure(final Throwable t) {
+                LOG.error("Failed to initialize Instruction Instance {}.", topologyID, t);
+            }
+        });
+        return future;
+    }
+
+    @Override
+    public synchronized ListenableFuture<Void> removeConfiguration(@Nonnull final TopologyId topologyID) {
+        final WriteTransaction wTx = this.dataBroker.newWriteOnlyTransaction();
+        wTx.delete(LogicalDatastoreType.CONFIGURATION, this.iid.child(OdlPcepTopologyProviderConfig.class,
+            new OdlPcepTopologyProviderConfigKey(topologyID)));
+        final CheckedFuture<Void, TransactionCommitFailedException> future = wTx.submit();
+        Futures.addCallback(future, new FutureCallback<Void>() {
+            @Override
+            public void onSuccess(final Void result) {
+                LOG.debug("Instruction Instance {} removed successfully.", topologyID);
+            }
+
+            @Override
+            public void onFailure(final Throwable t) {
+                LOG.error("Failed to remove Instruction Instance {}.", topologyID, t);
+            }
+        });
+        return future;
+    }
+
+    @Override
     public synchronized void close() throws Exception {
+        this.listenerRegistration.close();
         this.pcepTopologyServices.values().forEach(PCEPTopologyProvider::close);
+    }
+
+    @Override
+    public synchronized void onDataTreeChanged(@Nonnull final Collection<DataTreeModification<OdlPcepTopologyProvider>> changes) {
+        final DataTreeModification<OdlPcepTopologyProvider> dataTreeModification = Iterables.getOnlyElement(changes);
+        final DataObjectModification<OdlPcepTopologyProvider> rootNode = dataTreeModification.getRootNode();
+        rootNode.getModifiedChildren()
+            .forEach(config -> handleModification((DataObjectModification<OdlPcepTopologyProviderConfig>) config));
+    }
+
+    private void handleModification(final DataObjectModification<OdlPcepTopologyProviderConfig> config) {
+        final ModificationType modificationType = config.getModificationType();
+        LOG.trace("Pcep Topology Provider configuration has changed: {}, type modification {}", config, modificationType);
+        switch (modificationType) {
+            case DELETE:
+                removeTopologyProvider(config.getDataBefore().getTopologyId());
+                break;
+            case SUBTREE_MODIFIED:
+            case WRITE:
+                updateTopologyProvider(config.getDataAfter());
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void updateTopologyProvider(final OdlPcepTopologyProviderConfig configuration) {
+        final String schedulerID = configuration.getSchedulerId();
+
+        final WaitingServiceTracker<InstructionScheduler> instructionSchedulerTracker = WaitingServiceTracker
+            .create(InstructionScheduler.class,
+                this.bundleContext, "(" + InstructionScheduler.class.getName() + "=" + schedulerID + ")");
+        final InstructionScheduler instructionScheduler = instructionSchedulerTracker
+            .waitForService(WaitingServiceTracker.FIVE_MINUTES);
+
+        final Optional<KeyMapping> keys = contructKeys(configuration.getClient());
+        if (keys.isPresent() && !Epoll.isAvailable()) {
+            LOG.error(NATIVE_TRANSPORT_NOT_AVAILABLE);
+            return;
+        }
+
+        final Integer port = configuration.getListenPort().getValue();
+        final IpAddress ipAddress = configuration.getListenAddress();
+        final TopologyId topologyId = configuration.getTopologyId();
+        final InetAddress inetAddr = IetfInetUtil.INSTANCE.inetAddressFor(ipAddress);
+
+        if(this.pcepTopologyServices.containsKey(topologyId)) {
+            LOG.trace("Removing and closing Topology provider {}.", topologyId.getValue());
+            final PCEPTopologyProvider service = this.pcepTopologyServices.remove(topologyId);
+            service.close();
+        }
+        createTopologyProvider(topologyId, inetAddr, port, configuration.getRpcTimeout(),
+            keys, instructionScheduler);
     }
 }
