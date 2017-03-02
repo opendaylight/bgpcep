@@ -21,6 +21,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
+import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RoutedRpcRegistration;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPCapability;
@@ -44,8 +45,8 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference impleme
     private ServiceRegistration<?> serviceRegistration;
 
     private PCEPTopologyProvider(final Channel channel, final InstanceIdentifier<Topology> topology, final ServerSessionManager manager,
-            final BindingAwareBroker.RoutedRpcRegistration<NetworkTopologyPcepService> element,
-            final BindingAwareBroker.RoutedRpcRegistration<NetworkTopologyPcepProgrammingService> network) {
+        final RoutedRpcRegistration<NetworkTopologyPcepService> element,
+        final RoutedRpcRegistration<NetworkTopologyPcepProgrammingService> network) {
         super(topology);
         this.channel = Preconditions.checkNotNull(channel);
         this.manager = Preconditions.checkNotNull(manager);
@@ -53,10 +54,12 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference impleme
         this.network = Preconditions.checkNotNull(network);
     }
 
-    public static PCEPTopologyProvider create(final PCEPDispatcher dispatcher, final InetSocketAddress address, final Optional<KeyMapping> keys,
-            final InstructionScheduler scheduler, final DataBroker dataBroker, final RpcProviderRegistry rpcRegistry,
-            final InstanceIdentifier<Topology> topology, final TopologySessionListenerFactory listenerFactory,
-            final Optional<PCEPTopologyProviderRuntimeRegistrator> runtimeRootRegistrator, final int rpcTimeout) throws InterruptedException,
+    public static PCEPTopologyProvider create(final PCEPDispatcher dispatcher, final InetSocketAddress address,
+        final Optional<KeyMapping> keys, final InstructionScheduler scheduler, final DataBroker dataBroker,
+        final RpcProviderRegistry rpcRegistry, final InstanceIdentifier<Topology> topology,
+        final TopologySessionListenerFactory listenerFactory,
+        final Optional<PCEPTopologyProviderRuntimeRegistrator> runtimeRootRegistrator,
+        final int rpcTimeout) throws InterruptedException,
             ExecutionException, ReadFailedException, TransactionCommitFailedException {
         final List<PCEPCapability> capabilities = dispatcher.getPCEPSessionNegotiatorFactory().getPCEPSessionProposalFactory().getCapabilities();
         boolean statefulCapability = false;

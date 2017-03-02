@@ -7,39 +7,20 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import java.net.InetAddress;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
-import org.opendaylight.controller.config.yang.pcep.topology.provider.Client;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.pcep.topology.provider.config.rev170301.odl.pcep.topology.provider.odl.pcep.topology.provider.config.Client;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistrator;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 
 /**
  * The PCEPTopologyDeployer service is managing PcepTopologyProvider
  */
 public interface PCEPTopologyDeployer {
-    /**
-     * Creates and register topology provider instance
-     *
-     * @param topologyId topology ID
-     * @param address    ipAddress
-     * @param port       port
-     * @param rpcTimeout rpc Timeout
-     * @param client     List of clients password configuration
-     * @param scheduler  Instruction Scheduler
-     */
-    void createTopologyProvider(@Nonnull TopologyId topologyId, @Nonnull InetAddress address, int port,
-        short rpcTimeout, @Nullable List<Client> client, @Nonnull InstructionScheduler scheduler);
-
-    /**
-     * Closes and unregister topology provider instance
-     *
-     * @param topologyID topology ID
-     */
-    void removeTopologyProvider(@Nonnull TopologyId topologyID);
-
     /**
      * Register PCEP RootRuntimeBean
      *
@@ -55,4 +36,26 @@ public interface PCEPTopologyDeployer {
      * @param topologyID topology ID
      */
     void removeRootRuntimeBeanRegistratorWrapper(@Nonnull TopologyId topologyID);
+
+    /**
+     * Writes Topology Provider Config on DS
+     *
+     * @param topologyID    topology Id
+     * @param instructionID
+     * @param address
+     * @param portNumber
+     * @param rpcTimeout
+     * @param client
+     * @return
+     */
+    ListenableFuture<Void> writeConfiguration(@Nonnull TopologyId topologyID, @Nonnull String instructionID,
+        @Nonnull InetAddress address, @Nonnull PortNumber portNumber, short rpcTimeout, @Nullable List<Client> client);
+
+    /**
+     * Remove instruction configuration on DS
+     *
+     * @param topologyID topology Id
+     * @return
+     */
+    ListenableFuture<Void> removeConfiguration(@Nonnull TopologyId topologyID);
 }
