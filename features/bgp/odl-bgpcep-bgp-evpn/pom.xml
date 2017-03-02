@@ -15,7 +15,9 @@
     <version>0.7.0-SNAPSHOT</version>
     <packaging>feature</packaging>
 
-    <name>OpenDaylight :: BGP :: Evpn</name>
+    <!-- <name> formatting is used by autorelease to parse and notify projects on
+         build failure. Please do not modify this unless you have a good reason. -->
+    <name>ODL :: bgpcep :: ${project.artifactId}</name>
 
     <dependencyManagement>
         <!-- ODL-BGP-ARTIFACTS -->
@@ -77,5 +79,5 @@
             <url>${nexus.site.url}/${project.artifactId}/</url>
         </site>
     </distributionManagement>
-    
+
 </project>

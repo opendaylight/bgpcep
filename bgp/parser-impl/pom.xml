@@ -21,7 +21,9 @@
     <artifactId>bgp-parser-impl</artifactId>
     <packaging>bundle</packaging>
     <description>BGP Parser Implementation Updated to draft-02</description>
-    <name>${project.artifactId}</name>
+    <!-- <name> formatting is used by autorelease to parse and notify projects on
+       build failure. Please do not modify this unless you have a good reason. -->
+    <name>ODL :: bgpcep :: ${project.artifactId}</name>
 
     <dependencies>
         <dependency>
