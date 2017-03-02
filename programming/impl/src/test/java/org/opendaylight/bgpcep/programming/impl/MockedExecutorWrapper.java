@@ -25,38 +25,35 @@ import org.mockito.stubbing.Answer;
 
 final class MockedExecutorWrapper {
 
-    private List<Object> submittedTasksToExecutor;
+    private final List<Object> submittedTasksToExecutor;
 
     MockedExecutorWrapper() {
-        submittedTasksToExecutor = Lists.newArrayList();
+        this.submittedTasksToExecutor = Lists.newArrayList();
     }
 
     ListeningExecutorService getMockedExecutor() {
-        ListeningExecutorService mockedExecutor = mock(ListeningExecutorService.class);
-        Answer<ListenableFuture<?>> submitAnswer = new Answer<ListenableFuture<?>>() {
-            @Override
-            public ListenableFuture<?> answer(InvocationOnMock invocation) throws Throwable {
-                Object task = invocation.getArguments()[0];
-                submittedTasksToExecutor.add(task);
+        final ListeningExecutorService mockedExecutor = mock(ListeningExecutorService.class);
+        final Answer<ListenableFuture<?>> submitAnswer = invocation -> {
+            final Object task = invocation.getArguments()[0];
+            this.submittedTasksToExecutor.add(task);
 
-                Object result = null;
-                if (task instanceof Runnable) {
-                    ((Runnable) task).run();
-                } else if (task instanceof Callable) {
-                    result = ((Callable<?>) task).call();
-                }
-
-                ListenableFuture<?> mockedFuture = mock(ListenableFuture.class);
-                doReturn(result).when(mockedFuture).get();
-                return mockedFuture;
+            Object result = null;
+            if (task instanceof Runnable) {
+                ((Runnable) task).run();
+            } else if (task instanceof Callable) {
+                result = ((Callable<?>) task).call();
             }
+
+            final ListenableFuture<?> mockedFuture = mock(ListenableFuture.class);
+            doReturn(result).when(mockedFuture).get();
+            return mockedFuture;
         };
         doAnswer(submitAnswer).when(mockedExecutor).submit(any(Runnable.class));
         doAnswer(submitAnswer).when(mockedExecutor).submit(any(Callable.class));
         return mockedExecutor;
     }
 
-    void assertSubmittedTasksSize(int taskCount) {
-        assertEquals(taskCount, submittedTasksToExecutor.size());
+    void assertSubmittedTasksSize(final int taskCount) {
+        assertEquals(taskCount, this.submittedTasksToExecutor.size());
     }
 }

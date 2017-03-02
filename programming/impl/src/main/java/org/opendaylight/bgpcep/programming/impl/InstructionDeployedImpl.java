@@ -29,9 +29,9 @@ import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification.ModificationType;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
+import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.programming.config.rev170301.OdlProgramming;
@@ -54,7 +54,7 @@ public final class InstructionDeployedImpl implements IntructionDeployer,
     private final RpcProviderRegistry rpcProviderRegistry;
     private final ListeningExecutorService exec = MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
     private final DataBroker dataProvider;
-    private final NotificationProviderService notifs;
+    private final NotificationPublishService notifs;
     private final Timer timer;
     private final BundleContext bundleContext;
     @GuardedBy("this")
@@ -64,7 +64,7 @@ public final class InstructionDeployedImpl implements IntructionDeployer,
     private final ClusterSingletonServiceProvider cssp;
 
     public InstructionDeployedImpl(final DataBroker dataProvider, final RpcProviderRegistry rpcProviderRegistry,
-        final NotificationProviderService notifs, final Timer timer, final ClusterSingletonServiceProvider cssp,
+        final NotificationPublishService notifs, final Timer timer, final ClusterSingletonServiceProvider cssp,
         final BundleContext bundleContext) {
         this.dataProvider = Preconditions.checkNotNull(dataProvider);
         this.notifs = Preconditions.checkNotNull(notifs);

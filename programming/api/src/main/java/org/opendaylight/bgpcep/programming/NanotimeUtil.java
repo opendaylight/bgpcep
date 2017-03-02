@@ -50,7 +50,7 @@ public final class NanotimeUtil {
      * providing System.nanoTime(). This method should be called whenever there is a hint of the two diverging: either
      * when time shifts or periodically.
      */
-    public static void calibrate() {
+    private static void calibrate() {
         final long tm1 = System.currentTimeMillis();
         final long nt1 = System.nanoTime();
         final long tm2 = System.currentTimeMillis();
