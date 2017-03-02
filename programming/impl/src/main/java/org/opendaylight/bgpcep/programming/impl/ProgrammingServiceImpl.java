@@ -33,9 +33,9 @@ import org.opendaylight.bgpcep.programming.spi.SuccessfulRpcResult;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RpcRegistration;
-import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
@@ -77,7 +77,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
 
     private final Map<InstructionId, InstructionImpl> insns = new HashMap<>();
     private final InstanceIdentifier<InstructionsQueue> qid;
-    private final NotificationProviderService notifs;
+    private final NotificationPublishService notifs;
     private final ListeningExecutorService executor;
     private final DataBroker dataProvider;
     private final Timer timer;
@@ -121,7 +121,12 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
                 });
             }
 
-            ProgrammingServiceImpl.this.notifs.publish(new InstructionStatusChangedBuilder().setId(this.builder.getId()).setStatus(status).setDetails(details).build());
+            try {
+                ProgrammingServiceImpl.this.notifs.putNotification(new InstructionStatusChangedBuilder()
+                    .setId(this.builder.getId()).setStatus(status).setDetails(details).build());
+            } catch (final InterruptedException e) {
+                LOG.debug("Failed to publish notification", e);
+            }
         }
 
         @Override
@@ -144,7 +149,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
         }
     }
 
-    ProgrammingServiceImpl(final DataBroker dataProvider, final NotificationProviderService notifs,
+    ProgrammingServiceImpl(final DataBroker dataProvider, final NotificationPublishService notifs,
         final ListeningExecutorService executor, final RpcProviderRegistry rpcProviderRegistry,
         final ClusterSingletonServiceProvider cssp, final Timer timer, final String instructionId) {
         this.dataProvider = Preconditions.checkNotNull(dataProvider);
