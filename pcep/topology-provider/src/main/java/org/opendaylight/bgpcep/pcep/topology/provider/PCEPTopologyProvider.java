@@ -13,33 +13,37 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import java.net.InetSocketAddress;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
+import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyProviderDependenciesProvider;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistrator;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPCapability;
-import org.opendaylight.protocol.pcep.PCEPDispatcher;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.topology.rev140113.NetworkTopologyContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.NetworkTopologyPcepProgrammingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.NetworkTopologyPcepService;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class PCEPTopologyProvider extends DefaultTopologyReference implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyProvider.class);
+
+    private static final String STATEFUL_NOT_DEFINED = "Stateful capability not defined, aborting PCEP Topology" +
+        " Provider instantiation";
     private final BindingAwareBroker.RoutedRpcRegistration<NetworkTopologyPcepProgrammingService> network;
     private final BindingAwareBroker.RoutedRpcRegistration<NetworkTopologyPcepService> element;
     private final ServerSessionManager manager;
     private final Channel channel;
+    private ServiceRegistration<?> serviceRegistration;
 
     private PCEPTopologyProvider(final Channel channel, final InstanceIdentifier<Topology> topology, final ServerSessionManager manager,
             final BindingAwareBroker.RoutedRpcRegistration<NetworkTopologyPcepService> element,
@@ -51,12 +55,12 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference impleme
         this.network = Preconditions.checkNotNull(network);
     }
 
-    public static PCEPTopologyProvider create(final PCEPDispatcher dispatcher, final InetSocketAddress address, final Optional<KeyMapping> keys,
-            final InstructionScheduler scheduler, final DataBroker dataBroker, final RpcProviderRegistry rpcRegistry,
-            final InstanceIdentifier<Topology> topology, final TopologySessionListenerFactory listenerFactory,
-            final Optional<PCEPTopologyProviderRuntimeRegistrator> runtimeRootRegistrator, final int rpcTimeout) throws InterruptedException,
-            ExecutionException, ReadFailedException, TransactionCommitFailedException {
-        List<PCEPCapability> capabilities = dispatcher.getPCEPSessionNegotiatorFactory().getPCEPSessionProposalFactory().getCapabilities();
+    public static PCEPTopologyProvider create(final PCEPTopologyProviderDependenciesProvider dependenciesProvider,
+        final InetSocketAddress address, final Optional<KeyMapping> keys, final InstructionScheduler scheduler,
+        final TopologyId topologyId, final Optional<PCEPTopologyProviderRuntimeRegistrator> runtimeRootRegistrator,
+        final int rpcTimeout) throws Exception {
+        final List<PCEPCapability> capabilities = dependenciesProvider.getPCEPDispatcher()
+            .getPCEPSessionNegotiatorFactory().getPCEPSessionProposalFactory().getCapabilities();
         boolean statefulCapability = false;
         for (final PCEPCapability capability : capabilities) {
             if (capability.isStateful()) {
@@ -64,34 +68,41 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference impleme
                 break;
             }
         }
+
+        final TopologySessionListenerFactory listenerFactory = dependenciesProvider.getTopologySessionListenerFactory();
         if (!statefulCapability && listenerFactory != null) {
-            throw new IllegalStateException("Stateful capability not defined, aborting PCEP Topology Provider instantiation");
+            throw new IllegalStateException(STATEFUL_NOT_DEFINED);
         }
 
-        final ServerSessionManager manager = new ServerSessionManager(dataBroker, topology, listenerFactory, rpcTimeout);
-        if (runtimeRootRegistrator.isPresent()) {
-            manager.setRuntimeRootRegistartion(runtimeRootRegistrator.get());
+        final InstanceIdentifier<Topology> topology = InstanceIdentifier.builder(NetworkTopology.class)
+            .child(Topology.class, new TopologyKey(topologyId)).build();
+        final ServerSessionManager manager = new ServerSessionManager(dependenciesProvider.getDataBroker(), topology,
+            listenerFactory, rpcTimeout);
+        if(runtimeRootRegistrator.isPresent()){
+            manager.setRuntimeRootRegistrator(runtimeRootRegistrator.get());
         }
-        final ChannelFuture f = dispatcher.createServer(address, keys, manager, manager);
+        final ChannelFuture f = dependenciesProvider.getPCEPDispatcher().createServer(address, keys, manager, manager);
         f.get();
 
-        final BindingAwareBroker.RoutedRpcRegistration<NetworkTopologyPcepService> element = rpcRegistry.addRoutedRpcImplementation(
-                NetworkTopologyPcepService.class, new TopologyRPCs(manager));
+        final RpcProviderRegistry rpcRegistry = dependenciesProvider.getRpcProviderRegistry();
+        final BindingAwareBroker.RoutedRpcRegistration<NetworkTopologyPcepService> element = rpcRegistry
+            .addRoutedRpcImplementation(NetworkTopologyPcepService.class, new TopologyRPCs(manager));
         element.registerPath(NetworkTopologyContext.class, topology);
 
-        final BindingAwareBroker.RoutedRpcRegistration<NetworkTopologyPcepProgrammingService> network = rpcRegistry.addRoutedRpcImplementation(
-                NetworkTopologyPcepProgrammingService.class, new TopologyProgramming(scheduler, manager));
+        final BindingAwareBroker.RoutedRpcRegistration<NetworkTopologyPcepProgrammingService> network = rpcRegistry
+            .addRoutedRpcImplementation(NetworkTopologyPcepProgrammingService.class,
+                new TopologyProgramming(scheduler, manager));
         network.registerPath(NetworkTopologyContext.class, topology);
 
         return new PCEPTopologyProvider(f.channel(), topology, manager, element, network);
     }
 
     @Override
-    public void close() throws InterruptedException {
+    public void close() {
         try {
             this.channel.close().sync();
             LOG.debug("Server channel {} closed", this.channel);
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             LOG.error("Failed to close channel {}", this.channel, e);
         }
 
@@ -110,5 +121,13 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference impleme
         } catch (final Exception e) {
             LOG.error("Failed to shutdown session manager", e);
         }
+        if (this.serviceRegistration != null) {
+            this.serviceRegistration.unregister();
+            this.serviceRegistration = null;
+        }
+    }
+
+    public synchronized void setServiceRegistration(final ServiceRegistration<?> serviceRegistration) {
+        this.serviceRegistration = serviceRegistration;
     }
 }
