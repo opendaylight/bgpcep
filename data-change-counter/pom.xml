@@ -110,6 +110,11 @@
       <artifactId>config-manager</artifactId>
       <type>test-jar</type>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>testtool-util</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>

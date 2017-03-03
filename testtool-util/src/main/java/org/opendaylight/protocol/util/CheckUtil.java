@@ -27,6 +27,7 @@ public final class CheckUtil {
     private static final int LATCH_TIMEOUT = 10;
     private static final int SLEEP_FOR = 200;
     private static final int TIMEOUT = 30;
+
     private CheckUtil() {
         throw new UnsupportedOperationException();
     }
@@ -57,6 +58,11 @@ public final class CheckUtil {
             }
         }
         throw lastError;
+    }
+
+    public static <T extends DataObject> T checkPresent(final DataBroker dataBroker, final InstanceIdentifier<T> iid)
+        throws ReadFailedException {
+        return readData(dataBroker, iid, bgpRib -> bgpRib);
     }
 
     public static <T extends DataObject> void checkNull(final DataBroker dataBroker, final InstanceIdentifier<T> iid)
