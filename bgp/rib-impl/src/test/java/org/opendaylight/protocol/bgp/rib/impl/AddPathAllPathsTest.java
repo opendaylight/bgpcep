@@ -196,7 +196,6 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         checkReceivedMessages(listener6, 1);
         assertEquals(UPD_NA_100, listener6.getListMsg().get(0));
         causeBGPError(session6);
-        //session6.close();aca send wrong message
         checkEquals(()-> assertEquals(1L, peer6.getPeerState().getBGPPeerMessagesState().getNotificationMessagesSentCount()));
 
         checkPeersPresentOnDataStore(5);

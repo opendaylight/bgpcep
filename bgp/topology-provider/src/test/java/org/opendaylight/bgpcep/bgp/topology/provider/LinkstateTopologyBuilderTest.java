@@ -9,7 +9,6 @@
 package org.opendaylight.bgpcep.bgp.topology.provider;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -24,6 +23,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.opendaylight.protocol.util.CheckUtil.checkNull;
 import static org.opendaylight.protocol.util.CheckUtil.readData;
 
 import com.google.common.collect.Lists;
@@ -34,8 +34,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -113,19 +113,21 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
     private LinkstateTopologyBuilder linkstateTopoBuilder;
     private InstanceIdentifier<LinkstateRoute> linkstateRouteIID;
 
+    @Before
     @Override
-    protected void setupWithDataBroker(final DataBroker dataBroker) {
-        super.setupWithDataBroker(dataBroker);
-        this.linkstateTopoBuilder = new LinkstateTopologyBuilder(dataBroker, LOC_RIB_REF, TEST_TOPOLOGY_ID, LISTENER_RESTART_TIME, LISTENER_ENFORCE_COUNTER);
+    public void setUp() {
+        super.setUp();
+        this.linkstateTopoBuilder = new LinkstateTopologyBuilder(getDataBroker(), LOC_RIB_REF, TEST_TOPOLOGY_ID, LISTENER_RESTART_TIME, LISTENER_ENFORCE_COUNTER);
         this.linkstateTopoBuilder.start();
         final InstanceIdentifier<Tables> path = this.linkstateTopoBuilder.tableInstanceIdentifier(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
         this.linkstateRouteIID = path.builder().child((Class) LinkstateRoutes.class).child(LinkstateRoute.class, new LinkstateRouteKey(LINKSTATE_ROUTE_KEY)).build();
+
     }
 
     @After
     public void tearDown() throws Exception {
         this.linkstateTopoBuilder.close();
-        assertFalse(getTopology(this.linkstateTopoBuilder.getInstanceIdentifier()).isPresent());
+        checkNull(getDataBroker(), this.linkstateTopoBuilder.getInstanceIdentifier());
     }
 
     @Test
