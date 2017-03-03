@@ -8,10 +8,12 @@
 
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
+import static com.google.common.util.concurrent.Futures.transform;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getNeighborInstanceIdentifier;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getNeighborInstanceName;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getRibInstanceName;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
@@ -24,13 +26,13 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -128,11 +130,30 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
     public synchronized void close() throws Exception {
         LOG.info("Closing BGP Deployer.");
         this.registration.close();
-        this.peers.values().forEach(PeerBean::close);
-        this.peers.clear();
-        this.ribs.values().forEach(RibImpl::close);
-        this.ribs.clear();
         this.closed = true;
+
+        final List<ListenableFuture<Void>> futurePeerCloseList = this.peers.values().stream()
+            .map(PeerBean::closeServiceInstance).collect(Collectors.toList());
+        final ListenableFuture<List<Void>> futureOfRelevance = Futures.allAsList(futurePeerCloseList);
+
+        final ListenableFuture<ListenableFuture<List<Void>>> maxRelevanceFuture = transform(futureOfRelevance,
+            (Function<List<Void>, ListenableFuture<List<Void>>>) futurePeersClose -> {
+                this.peers.values().forEach(PeerBean::close);
+                BgpDeployerImpl.this.peers.clear();
+
+                final List<ListenableFuture<Void>> futureRIBCloseList = BgpDeployerImpl.this.ribs.values().stream()
+                    .map(RibImpl::closeServiceInstance).collect(Collectors.toList());
+                return Futures.allAsList(futureRIBCloseList);
+            });
+
+        final ListenableFuture<Void> ribFutureClose = transform(maxRelevanceFuture,
+            (Function<ListenableFuture<List<Void>>, Void>) futurePeersClose -> {
+                BgpDeployerImpl.this.ribs.values().forEach(RibImpl::close);
+                this.ribs.clear();
+                return null;
+            });
+
+        ribFutureClose.get();
     }
 
     private static CheckedFuture<Void, TransactionCommitFailedException> initializeNetworkInstance(
@@ -173,7 +194,13 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
     private synchronized List<PeerBean> closeAllBindedPeers(final InstanceIdentifier<Bgp> rootIdentifier) {
         final List<PeerBean> filtered = new ArrayList<>();
         this.peers.entrySet().stream().filter(entry -> entry.getKey().firstIdentifierOf(Bgp.class)
-            .contains(rootIdentifier)).forEach(entry -> {final PeerBean peer = entry.getValue();
+            .contains(rootIdentifier)).forEach(entry -> {
+            final PeerBean peer = entry.getValue();
+            try {
+                peer.closeServiceInstance().get();
+            } catch (final Exception e) {
+                LOG.error("Peer instance failed to close service instance", e);
+            }
             peer.close();
             filtered.add(peer);
         });
@@ -193,6 +220,11 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
         final RibImpl ribImpl, final WriteConfiguration configurationWriter) {
         LOG.debug("Modifying RIB instance with configuration: {}", global);
         final List<PeerBean> closedPeers = closeAllBindedPeers(rootIdentifier);
+        try {
+            ribImpl.closeServiceInstance().get();
+        } catch (final Exception e) {
+            LOG.error("RIB instance failed to close service instance", e);
+        }
         ribImpl.close();
         initiateRibInstance(rootIdentifier, global, ribImpl, configurationWriter);
         closedPeers.forEach(peer -> peer.restart(ribImpl, this.tableTypeRegistry));
@@ -205,6 +237,8 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
         final RibImpl ribImpl = this.ribs.remove(rootIdentifier);
         if (ribImpl != null) {
             LOG.debug("RIB instance removed {}", ribImpl);
+            closeAllBindedPeers(rootIdentifier);
+            ribImpl.closeServiceInstance();
             ribImpl.close();
         }
     }
