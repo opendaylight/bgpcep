@@ -56,7 +56,6 @@ import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegist
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.InstanceType;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
@@ -278,7 +277,7 @@ public class BgpDeployerImplTest {
         verifyPrivate(spyDeployer).invoke("onGlobalCreated", any(InstanceIdentifier.class), any(Global.class),
             any(BgpDeployer.WriteConfiguration.class));
         verifyPrivate(spyDeployer).invoke("onGlobalUpdated", any(InstanceIdentifier.class), any(Global.class), any(RibImpl.class), any(BgpDeployer.WriteConfiguration.class));
-        verifyPrivate(spyDeployer).invoke("closeAllBindedPeers", any(InstanceIdentifier.class));
+        verifyPrivate(spyDeployer, times(2)).invoke("closeAllBindedPeers", any(InstanceIdentifier.class));
         verifyPrivate(spyDeployer, times(2)).invoke("initiateRibInstance", any(InstanceIdentifier.class), any(Global.class), any(RibImpl.class), any
             (BgpDeployer.WriteConfiguration.class));
         verifyPrivate(spyDeployer, times(2)).invoke("registerRibInstance", any(RibImpl.class), anyString());
