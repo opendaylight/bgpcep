@@ -12,6 +12,8 @@ import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUti
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -165,6 +167,13 @@ public final class RibImpl implements RIB, AutoCloseable {
     @Override
     public DOMDataTreeChangeService getService() {
         return this.ribImpl.getService();
+    }
+
+    public ListenableFuture<Void> closeServiceInstance() {
+        if (this.ribImpl != null) {
+            return this.ribImpl.closeServiceInstance();
+        }
+        return Futures.immediateFuture(null);
     }
 
     @Override

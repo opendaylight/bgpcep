@@ -8,10 +8,12 @@
 
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
+import static com.google.common.util.concurrent.Futures.transform;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getNeighborInstanceIdentifier;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getNeighborInstanceName;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getRibInstanceName;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
@@ -24,6 +26,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -72,7 +75,8 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
     @GuardedBy("this")
     private boolean closed;
 
-    public BgpDeployerImpl(final String networkInstanceName, final BlueprintContainer container, final BundleContext bundleContext, final DataBroker dataBroker,
+    public BgpDeployerImpl(final String networkInstanceName, final BlueprintContainer container,
+        final BundleContext bundleContext, final DataBroker dataBroker,
         final BGPOpenConfigMappingService mappingService) {
         this.dataBroker = Preconditions.checkNotNull(dataBroker);
         this.container = Preconditions.checkNotNull(container);
@@ -91,8 +95,9 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
                 LOG.error("Failed to initialize Network Instance {}.", networkInstanceName, t);
             }
         });
-        this.registration = dataBroker.registerDataTreeChangeListener(new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION,
-            this.networkInstanceIId.child(Protocols.class).child(Protocol.class).augmentation(Protocol1.class).child(Bgp.class)), this);
+        this.registration = dataBroker.registerDataTreeChangeListener(
+            new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, this.networkInstanceIId.child(Protocols.class)
+                .child(Protocol.class).augmentation(Protocol1.class).child(Bgp.class)), this);
         LOG.info("BGP Deployer {} started.", networkInstanceName);
     }
 
@@ -123,12 +128,32 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
 
     @Override
     public synchronized void close() throws Exception {
+        LOG.info("Closing BGP Deployer.");
         this.registration.close();
-        this.peers.values().forEach(PeerBean::close);
-        this.peers.clear();
-        this.ribs.values().forEach(RibImpl::close);
-        this.ribs.clear();
         this.closed = true;
+
+        final List<ListenableFuture<Void>> futurePeerCloseList = this.peers.values().stream()
+            .map(PeerBean::closeServiceInstance).collect(Collectors.toList());
+        final ListenableFuture<List<Void>> futureOfRelevance = Futures.allAsList(futurePeerCloseList);
+
+        final ListenableFuture<ListenableFuture<List<Void>>> maxRelevanceFuture = transform(futureOfRelevance,
+            (Function<List<Void>, ListenableFuture<List<Void>>>) futurePeersClose -> {
+                this.peers.values().forEach(PeerBean::close);
+                BgpDeployerImpl.this.peers.clear();
+
+                final List<ListenableFuture<Void>> futureRIBCloseList = BgpDeployerImpl.this.ribs.values().stream()
+                    .map(RibImpl::closeServiceInstance).collect(Collectors.toList());
+                return Futures.allAsList(futureRIBCloseList);
+            });
+
+        final ListenableFuture<Void> ribFutureClose = transform(maxRelevanceFuture,
+            (Function<ListenableFuture<List<Void>>, Void>) futurePeersClose -> {
+                BgpDeployerImpl.this.ribs.values().forEach(RibImpl::close);
+                this.ribs.clear();
+                return null;
+            });
+
+        ribFutureClose.get();
     }
 
     private static CheckedFuture<Void, TransactionCommitFailedException> initializeNetworkInstance(
@@ -169,7 +194,13 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
     private synchronized List<PeerBean> closeAllBindedPeers(final InstanceIdentifier<Bgp> rootIdentifier) {
         final List<PeerBean> filtered = new ArrayList<>();
         this.peers.entrySet().stream().filter(entry -> entry.getKey().firstIdentifierOf(Bgp.class)
-            .contains(rootIdentifier)).forEach(entry -> {final PeerBean peer = entry.getValue();
+            .contains(rootIdentifier)).forEach(entry -> {
+            final PeerBean peer = entry.getValue();
+            try {
+                peer.closeServiceInstance().get();
+            } catch (final Exception e) {
+                LOG.error("Peer instance failed to close service instance", e);
+            }
             peer.close();
             filtered.add(peer);
         });
@@ -189,6 +220,11 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
         final RibImpl ribImpl, final WriteConfiguration configurationWriter) {
         LOG.debug("Modifying RIB instance with configuration: {}", global);
         final List<PeerBean> closedPeers = closeAllBindedPeers(rootIdentifier);
+        try {
+            ribImpl.closeServiceInstance().get();
+        } catch (final Exception e) {
+            LOG.error("RIB instance failed to close service instance", e);
+        }
         ribImpl.close();
         initiateRibInstance(rootIdentifier, global, ribImpl, configurationWriter);
         closedPeers.forEach(peer -> peer.restart(ribImpl, this.mappingService));
@@ -201,6 +237,8 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
         final RibImpl ribImpl = this.ribs.remove(rootIdentifier);
         if (ribImpl != null) {
             LOG.debug("RIB instance removed {}", ribImpl);
+            closeAllBindedPeers(rootIdentifier);
+            ribImpl.closeServiceInstance();
             ribImpl.close();
         }
     }
@@ -208,7 +246,8 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
     private synchronized void registerRibInstance(final RibImpl ribImpl, final String ribInstanceName) {
         final Dictionary<String, String> properties = new Hashtable<>();
         properties.put(InstanceType.RIB.getBeanName(), ribInstanceName);
-        final ServiceRegistration<?> serviceRegistration = this.bundleContext.registerService(InstanceType.RIB.getServices(), ribImpl, properties);
+        final ServiceRegistration<?> serviceRegistration = this.bundleContext.registerService(
+            InstanceType.RIB.getServices(), ribImpl, properties);
         ribImpl.setServiceRegistration(serviceRegistration);
     }
 
@@ -285,11 +324,21 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
     private synchronized void registerPeerInstance(final BgpPeer bgpPeer, final String peerInstanceName) {
         final Dictionary<String, String> properties = new Hashtable<>();
         properties.put(InstanceType.PEER.getBeanName(), peerInstanceName);
-        final ServiceRegistration<?> serviceRegistration = this.bundleContext.registerService(InstanceType.PEER.getServices(), bgpPeer, properties);
+        final ServiceRegistration<?> serviceRegistration = this.bundleContext
+            .registerService(InstanceType.PEER.getServices(), bgpPeer, properties);
         bgpPeer.setServiceRegistration(serviceRegistration);
     }
 
-    private synchronized void initiatePeerInstance(final InstanceIdentifier<Bgp> rootIdentifier, final InstanceIdentifier<Neighbor> neighborIdentifier, final Neighbor neighbor,
+    private synchronized void registerAppPeerInstance(final AppPeer appPeer, final String peerInstanceName) {
+        final Dictionary<String, String> properties = new Hashtable<>();
+        properties.put(InstanceType.PEER.getBeanName(), peerInstanceName);
+        final ServiceRegistration<?> serviceRegistration = this.bundleContext
+            .registerService(InstanceType.APP_PEER.getServices(), appPeer, properties);
+        appPeer.setServiceRegistration(serviceRegistration);
+    }
+
+    private synchronized void initiatePeerInstance(final InstanceIdentifier<Bgp> rootIdentifier,
+        final InstanceIdentifier<Neighbor> neighborIdentifier, final Neighbor neighbor,
         final PeerBean bgpPeer, final WriteConfiguration configurationWriter) {
         final String peerInstanceName = getNeighborInstanceName(neighborIdentifier);
         final RibImpl rib = this.ribs.get(rootIdentifier);
@@ -297,6 +346,8 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
             bgpPeer.start(rib, neighbor, this.mappingService, configurationWriter);
             if (bgpPeer instanceof BgpPeer) {
                 registerPeerInstance((BgpPeer) bgpPeer, peerInstanceName);
+            } else if(bgpPeer instanceof AppPeer) {
+                registerAppPeerInstance((AppPeer) bgpPeer, peerInstanceName);
             }
         }
     }

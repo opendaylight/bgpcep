@@ -299,7 +299,7 @@ public class BgpDeployerImplTest {
         verifyPrivate(spyDeployer).invoke("onGlobalCreated", any(InstanceIdentifier.class), any(Global.class),
             any(BgpDeployer.WriteConfiguration.class));
         verifyPrivate(spyDeployer).invoke("onGlobalUpdated", any(InstanceIdentifier.class), any(Global.class), any(RibImpl.class), any(BgpDeployer.WriteConfiguration.class));
-        verifyPrivate(spyDeployer).invoke("closeAllBindedPeers", any(InstanceIdentifier.class));
+        verifyPrivate(spyDeployer, times(2)).invoke("closeAllBindedPeers", any(InstanceIdentifier.class));
         verifyPrivate(spyDeployer, times(2)).invoke("initiateRibInstance", any(InstanceIdentifier.class), any(Global.class), any(RibImpl.class), any
             (BgpDeployer.WriteConfiguration.class));
         verifyPrivate(spyDeployer, times(2)).invoke("registerRibInstance", any(RibImpl.class), anyString());

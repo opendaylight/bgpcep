@@ -14,6 +14,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,6 +24,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -119,6 +121,8 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
     private final Map<TablesKey, ExportPolicyPeerTracker> exportPolicyPeerTrackerMap;
 
     private DOMTransactionChain domChain;
+    @GuardedBy("this")
+    private boolean isServiceInstantiated;
 
     public RIBImpl(final ClusterSingletonServiceProvider provider, final RibId ribId, final AsNumber localAs, final BgpId localBgpId,
         final ClusterIdentifier clusterId, final RIBExtensionConsumerContext extensions, final BGPDispatcher dispatcher,
@@ -161,7 +165,7 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
         }
         this.exportPolicyPeerTrackerMap = exportPolicies.build();
 
-        LOG.info("RIB Singleton Service {} registered", getIdentifier());
+        LOG.info("RIB Singleton Service {} registered, RIB {}", getIdentifier().getValue(), this.ribId.getValue());
         //this need to be always the last step
         this.registration = registerClusterSingletonService(this);
     }
@@ -331,12 +335,13 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
     }
 
     @Override
-    public void instantiateServiceInstance() {
+    public synchronized void instantiateServiceInstance() {
+        this.isServiceInstantiated = true;
         this.domChain = this.domDataBroker.createTransactionChain(this);
         if(this.configurationWriter != null) {
             this.configurationWriter.apply();
         }
-        LOG.info("RIB Singleton Service {} instantiated", getIdentifier());
+        LOG.info("RIB Singleton Service {} instantiated, RIB {}", getIdentifier().getValue(), this.ribId.getValue());
         LOG.debug("Instantiating RIB table {} at {}", this.ribId , this.yangRibId);
 
         final ContainerNode bgpRib = Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(BgpRib.QNAME))
@@ -373,7 +378,14 @@ public final class RIBImpl extends DefaultRibReference implements ClusterSinglet
 
     @Override
     public synchronized ListenableFuture<Void> closeServiceInstance() {
-        LOG.info("RIB {} closing instance", this.ribId.getValue());
+        if(!this.isServiceInstantiated) {
+            LOG.trace("RIB Singleton Service {} already closed, RIB {}", getIdentifier().getValue(),
+                this.ribId.getValue());
+            return Futures.immediateFuture(null);
+        }
+        LOG.info("Close RIB Singleton Service {}, RIB {}", getIdentifier().getValue(), this.ribId.getValue());
+        this.isServiceInstantiated = false;
+
         this.txChainToLocRibWriter.values().forEach(LocRibWriter::close);
         this.txChainToLocRibWriter.clear();
 

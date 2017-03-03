@@ -8,6 +8,7 @@
 
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer.WriteConfiguration;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
@@ -25,6 +26,8 @@ public interface PeerBean extends AutoCloseable {
 
     @Override
     void close();
+
+    ListenableFuture<Void> closeServiceInstance();
 
     Boolean containsEqualConfiguration(Neighbor neighbor);
 }

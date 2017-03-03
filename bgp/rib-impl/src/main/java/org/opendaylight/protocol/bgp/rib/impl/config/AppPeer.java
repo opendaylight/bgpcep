@@ -10,8 +10,10 @@ package org.opendaylight.protocol.bgp.rib.impl.config;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Objects;
+import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
@@ -30,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +42,7 @@ public final class AppPeer implements PeerBean {
     private Neighbor currentConfiguration;
     private BgpAppPeerSingletonService bgpAppPeerSingletonService;
     private BGPOpenConfigMappingService mappingService;
+    private ServiceRegistration<?> serviceRegistration;
 
     @Override
     public void start(final RIB rib, final Neighbor neighbor, final BGPOpenConfigMappingService mappingService,
@@ -64,6 +68,19 @@ public final class AppPeer implements PeerBean {
         } catch (final Exception e) {
             LOG.warn("Failed to close application peer instance", e);
         }
+        if (this.serviceRegistration != null) {
+            this.serviceRegistration.unregister();
+            this.serviceRegistration = null;
+        }
+    }
+
+    @Override
+    public ListenableFuture<Void> closeServiceInstance() {
+        if (this.bgpAppPeerSingletonService != null) {
+            return this.bgpAppPeerSingletonService.closeServiceInstance();
+        }
+
+        return Futures.immediateFuture(null);
     }
 
     @Override
@@ -80,13 +97,21 @@ public final class AppPeer implements PeerBean {
         return new ApplicationRibId(neighbor.getNeighborAddress().getIpv4Address().getValue());
     }
 
-    private final class BgpAppPeerSingletonService implements ClusterSingletonService, AutoCloseable {
+
+    void setServiceRegistration(final ServiceRegistration<?> serviceRegistration) {
+        this.serviceRegistration = serviceRegistration;
+    }
+
+    private final class BgpAppPeerSingletonService implements ClusterSingletonService,
+        AutoCloseable {
         private final ApplicationPeer applicationPeer;
         private final DOMDataTreeChangeService dataTreeChangeService;
         private final ApplicationRibId appRibId;
         private ClusterSingletonServiceRegistration singletonServiceRegistration;
         private final ServiceGroupIdentifier serviceGroupIdentifier;
         private final WriteConfiguration configurationWriter;
+        @GuardedBy("this")
+        private boolean isServiceInstantiated;
 
         BgpAppPeerSingletonService(final RIB rib, final ApplicationRibId appRibId, final Ipv4Address neighborAddress,
             final WriteConfiguration configurationWriter) {
@@ -95,7 +120,8 @@ public final class AppPeer implements PeerBean {
             this.dataTreeChangeService = rib.getService();
             this.serviceGroupIdentifier = rib.getRibIServiceGroupIdentifier();
             this.configurationWriter = configurationWriter;
-            LOG.info("Application Peer Singleton Service {} registered", getIdentifier());
+            LOG.info("Application Peer Singleton Service {} registered, Application peer {}",
+                getIdentifier().getValue(), this.appRibId.getValue());
             //this need to be always the last step
             this.singletonServiceRegistration = rib.registerClusterSingletonService(this);
         }
@@ -109,20 +135,30 @@ public final class AppPeer implements PeerBean {
         }
 
         @Override
-        public void instantiateServiceInstance() {
+        public synchronized void instantiateServiceInstance() {
+            this.isServiceInstantiated = true;
             if(this.configurationWriter != null) {
                 this.configurationWriter.apply();
             }
-            LOG.info("Application Peer Singleton Service {} instantiated", getIdentifier());
+            LOG.info("Application Peer Singleton Service {} instantiated, Application peer {}",
+                getIdentifier().getValue(), this.appRibId.getValue());
             final YangInstanceIdentifier yangIId = YangInstanceIdentifier.builder().node(ApplicationRib.QNAME)
-                .nodeWithKey(ApplicationRib.QNAME, APP_ID_QNAME, this.appRibId.getValue()).node(Tables.QNAME).node(Tables.QNAME).build();
+                .nodeWithKey(ApplicationRib.QNAME, APP_ID_QNAME, this.appRibId.getValue()).node(Tables.QNAME)
+                .node(Tables.QNAME).build();
             this.applicationPeer.instantiateServiceInstance(this.dataTreeChangeService,
                 new DOMDataTreeIdentifier(LogicalDatastoreType.CONFIGURATION, yangIId));
         }
 
         @Override
-        public ListenableFuture<Void> closeServiceInstance() {
-            LOG.info("Application Peer Singleton Service {} instance closed", getIdentifier());
+        public synchronized ListenableFuture<Void> closeServiceInstance() {
+            if(!this.isServiceInstantiated) {
+                LOG.trace("Application Peer Singleton Service {} instance already closed, Application peer {}",
+                    getIdentifier().getValue(), this.appRibId.getValue());
+                return Futures.immediateFuture(null);
+            }
+            LOG.info("Application Peer Singleton Service {} instance closed, Application peer {}",
+                getIdentifier().getValue(), this.appRibId.getValue());
+            this.isServiceInstantiated = false;
             return this.applicationPeer.close();
         }
 
