@@ -15,7 +15,6 @@ import static org.opendaylight.bgpcep.bgp.topology.provider.Ipv4ReachabilityTopo
 import static org.opendaylight.protocol.util.CheckUtil.readData;
 
 import org.junit.Test;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -49,9 +48,9 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
     private InstanceIdentifier<Ipv6Route> ipv6RouteIID;
 
     @Override
-    protected void setupWithDataBroker(final DataBroker dataBroker) {
-        super.setupWithDataBroker(dataBroker);
-        this.ipv6TopoBuilder = new Ipv6ReachabilityTopologyBuilder(dataBroker, LOC_RIB_REF, TEST_TOPOLOGY_ID);
+    protected void setupWithDataBroker() {
+        super.setupWithDataBroker();
+        this.ipv6TopoBuilder = new Ipv6ReachabilityTopologyBuilder(getDataBroker(), LOC_RIB_REF, TEST_TOPOLOGY_ID);
         this.ipv6TopoBuilder.start();
         final InstanceIdentifier<Tables> path = this.ipv6TopoBuilder
             .tableInstanceIdentifier(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class);

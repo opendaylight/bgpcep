@@ -32,7 +32,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
-import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
+import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
@@ -110,7 +110,7 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 
-class AbstractAddPathTest extends AbstractDataBrokerTest {
+class AbstractAddPathTest extends AbstractConcurrentDataBrokerTest {
     private static final int RETRY_TIMER = 10;
     static final String RIB_ID = "127.0.0.1";
     static final BgpId BGP_ID = new BgpId(RIB_ID);
@@ -249,8 +249,8 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
 
     BGPSessionImpl createPeerSession(final Ipv4Address peer, final BgpParameters bgpParameters,
         final SimpleSessionListener sessionListener) throws InterruptedException {
-        StrictBGPPeerRegistry clientRegistry = new StrictBGPPeerRegistry();
-        BGPDispatcherImpl clientDispatcher = new BGPDispatcherImpl(this.context.getMessageRegistry(), this.boss,
+        final StrictBGPPeerRegistry clientRegistry = new StrictBGPPeerRegistry();
+        final BGPDispatcherImpl clientDispatcher = new BGPDispatcherImpl(this.context.getMessageRegistry(), this.boss,
             this.worker, clientRegistry);
         clientRegistry.addPeer(new IpAddress(new Ipv4Address(RIB_ID)), sessionListener,
             new BGPSessionPreferences(AS_NUMBER, HOLDTIMER, new BgpId(peer),

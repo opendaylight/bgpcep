@@ -35,7 +35,6 @@ import java.util.Collections;
 import java.util.List;
 import org.junit.After;
 import org.junit.Test;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -114,9 +113,9 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
     private InstanceIdentifier<LinkstateRoute> linkstateRouteIID;
 
     @Override
-    protected void setupWithDataBroker(final DataBroker dataBroker) {
-        super.setupWithDataBroker(dataBroker);
-        this.linkstateTopoBuilder = new LinkstateTopologyBuilder(dataBroker, LOC_RIB_REF, TEST_TOPOLOGY_ID, LISTENER_RESTART_TIME, LISTENER_ENFORCE_COUNTER);
+    protected void setupWithDataBroker() {
+        super.setupWithDataBroker();
+        this.linkstateTopoBuilder = new LinkstateTopologyBuilder(getDataBroker(), LOC_RIB_REF, TEST_TOPOLOGY_ID, LISTENER_RESTART_TIME, LISTENER_ENFORCE_COUNTER);
         this.linkstateTopoBuilder.start();
         final InstanceIdentifier<Tables> path = this.linkstateTopoBuilder.tableInstanceIdentifier(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
         this.linkstateRouteIID = path.builder().child((Class) LinkstateRoutes.class).child(LinkstateRoute.class, new LinkstateRouteKey(LINKSTATE_ROUTE_KEY)).build();
