@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_c44fb732",
+        "filename": "bgp/bmp-impl/src/test/java/org/opendaylight/protocol/bmp/impl/app/BmpMonitorImplTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2017-03-03T07:59:05Z",
+      "side": 1,
+      "message": "why is this sleep necessary?",
+      "range": {
+        "startLine": 232,
+        "startChar": 8,
+        "endLine": 232,
+        "endChar": 26
+      },
+      "revId": "72eb806c9107da61b39a7a4cdfe668b43b9f10a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_246203ae",
+        "filename": "pcep/impl/src/test/java/org/opendaylight/protocol/pcep/impl/FiniteStateMachineTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2017-03-03T07:59:05Z",
+      "side": 1,
+      "message": "Why we need these huge sleeps? Can we get rid of them or make the test running in a reasonable time?",
+      "range": {
+        "startLine": 224,
+        "startChar": 8,
+        "endLine": 224,
+        "endChar": 28
+      },
+      "revId": "72eb806c9107da61b39a7a4cdfe668b43b9f10a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
