@@ -69,6 +69,30 @@
       "revId": "72eb806c9107da61b39a7a4cdfe668b43b9f10a3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1aa59ab5",
+        "filename": "pcep/impl/src/test/java/org/opendaylight/protocol/pcep/impl/FiniteStateMachineTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2017-03-03T11:24:48Z",
+      "side": 1,
+      "message": "Right... the way to get this working is to use a Guava Ticker instead of System.nanoTime() in PCEPSessionImpl and inject a mock ticker (which can be manipulated by the UT) in the test -- hence we can advance the time by a simple call instead of sleeping. See org.opendaylight.controller.cluster.common.actor.TestTicker and its usage for an example.",
+      "parentUuid": "fafc7978_57b41bf1",
+      "range": {
+        "startLine": 224,
+        "startChar": 8,
+        "endLine": 224,
+        "endChar": 28
+      },
+      "revId": "72eb806c9107da61b39a7a4cdfe668b43b9f10a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
