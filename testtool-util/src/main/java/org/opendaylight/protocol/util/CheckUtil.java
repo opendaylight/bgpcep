@@ -13,6 +13,7 @@ import com.google.common.base.Verify;
 import com.google.common.util.concurrent.Uninterruptibles;
 import io.netty.util.concurrent.Future;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -26,6 +27,7 @@ public final class CheckUtil {
     private static final int LATCH_TIMEOUT = 10;
     private static final int SLEEP_FOR = 200;
     private static final int TIMEOUT = 30;
+
     private CheckUtil() {
         throw new UnsupportedOperationException();
     }
@@ -56,6 +58,11 @@ public final class CheckUtil {
             }
         }
         throw lastError;
+    }
+
+    public static <T extends DataObject> T checkPresent(final DataBroker dataBroker, final InstanceIdentifier<T> iid)
+        throws ReadFailedException {
+        return readData(dataBroker, iid, bgpRib -> bgpRib);
     }
 
     public static <T extends DataObject> void checkNull(final DataBroker dataBroker, final InstanceIdentifier<T> iid)
@@ -111,6 +118,6 @@ public final class CheckUtil {
     }
     @FunctionalInterface
     public interface CheckEquals {
-        void check();
+        void check() throws ExecutionException, InterruptedException;
     }
 }
