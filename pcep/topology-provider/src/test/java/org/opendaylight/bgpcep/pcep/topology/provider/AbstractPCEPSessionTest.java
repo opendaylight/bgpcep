@@ -154,11 +154,6 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
         this.topologyRpcs = new TopologyRPCs(this.manager);
     }
 
-    @After
-    public void tearDown() throws TransactionCommitFailedException {
-        this.manager.close();
-    }
-
     protected Optional<Topology> getTopology() throws InterruptedException, ExecutionException {
         try (ReadOnlyTransaction t = getDataBroker().newReadOnlyTransaction()) {
             return t.read(LogicalDatastoreType.OPERATIONAL, TOPO_IID).get();

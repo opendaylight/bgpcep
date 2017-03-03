@@ -19,6 +19,8 @@
     <reference id="dataBroker" interface="org.opendaylight.controller.md.sal.binding.api.DataBroker" odl:type="pingpong"/>
     <reference id="rpcRegistry" interface="org.opendaylight.controller.sal.binding.api.RpcProviderRegistry"/>
     <reference id="pcepDispatcher" interface="org.opendaylight.protocol.pcep.PCEPDispatcher"/>
+    <reference id="clusterSingletonServiceProvider"
+               interface="org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider"/>
 
     <bean id="pcepTopologyDeployer" class="org.opendaylight.bgpcep.pcep.topology.provider.PCEPTopologyDeployerImpl"
           destroy-method="close">
@@ -27,6 +29,7 @@
         <argument ref="pcepDispatcher"/>
         <argument ref="rpcRegistry"/>
         <argument ref="Stateful07TopologySessionListenerFactory"/>
+        <argument ref="clusterSingletonServiceProvider"/>
     </bean>
     <service ref="pcepTopologyDeployer" interface="org.opendaylight.bgpcep.pcep.topology.provider.PCEPTopologyDeployer"/>
 

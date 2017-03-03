@@ -8,6 +8,9 @@
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -26,7 +29,6 @@ import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopolo
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSession;
@@ -54,7 +56,8 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-final class ServerSessionManager implements PCEPSessionListenerFactory, AutoCloseable, TopologySessionRPCs, PCEPTopologyProviderRuntimeMXBean, PCEPPeerProposal {
+final class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessionRPCs,
+    PCEPTopologyProviderRuntimeMXBean, PCEPPeerProposal {
     private static final Logger LOG = LoggerFactory.getLogger(ServerSessionManager.class);
     private static final long DEFAULT_HOLD_STATE_NANOS = TimeUnit.MINUTES.toNanos(5);
 
@@ -71,20 +74,27 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, AutoClos
     private final AtomicReference<PCEPTopologyProviderRuntimeRegistration> runtimeRootRegistration = new AtomicReference<>();
 
     public ServerSessionManager(final DataBroker broker, final InstanceIdentifier<Topology> topology,
-            final TopologySessionListenerFactory listenerFactory, final int rpcTimeout) throws ReadFailedException, TransactionCommitFailedException {
+        final TopologySessionListenerFactory listenerFactory, final int rpcTimeout) {
         this.broker = Preconditions.checkNotNull(broker);
         this.topology = Preconditions.checkNotNull(topology);
         this.listenerFactory = Preconditions.checkNotNull(listenerFactory);
         this.peerProposal = PCEPStatefulPeerProposal.createStatefulPeerProposal(this.broker, this.topology);
         this.rpcTimeout = rpcTimeout;
+    }
 
-        // Now create the base topology
-        final TopologyKey k = InstanceIdentifier.keyOf(topology);
-        final WriteTransaction tx = broker.newWriteOnlyTransaction();
-        tx.put(LogicalDatastoreType.OPERATIONAL, topology, new TopologyBuilder().setKey(k).setTopologyId(k.getTopologyId()).setTopologyTypes(
+    /**
+     * Create Base Topology
+     *
+     * @throws TransactionCommitFailedException exception
+     */
+    synchronized void instantiateServiceInstance() throws TransactionCommitFailedException {
+        final TopologyKey k = InstanceIdentifier.keyOf(this.topology);
+        final WriteTransaction tx = this.broker.newWriteOnlyTransaction();
+        tx.put(LogicalDatastoreType.OPERATIONAL, this.topology, new TopologyBuilder().setKey(k)
+            .setTopologyId(k.getTopologyId()).setTopologyTypes(
                 new TopologyTypesBuilder().addAugmentation(TopologyTypes1.class,
-                        new TopologyTypes1Builder().setTopologyPcep(new TopologyPcepBuilder().build()).build()).build()).setNode(
-                new ArrayList<>()).build(), true);
+                    new TopologyTypes1Builder().setTopologyPcep(new TopologyPcepBuilder().build()).build()).build())
+            .setNode(new ArrayList<>()).build(), true);
         tx.submit().checkedGet();
     }
 
@@ -168,11 +178,10 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, AutoClos
         return (l != null) ? l.triggerSync(input) : OperationResults.UNSENT.future();
     }
 
-    @Override
-    public synchronized void close() throws TransactionCommitFailedException {
+    synchronized ListenableFuture<Void> closeServiceInstance() {
         if (this.isClosed.getAndSet(true)) {
             LOG.error("Session Manager has already been closed.");
-            return;
+            Futures.immediateFuture(null);
         }
         final PCEPTopologyProviderRuntimeRegistration runtimeReg = this.runtimeRootRegistration.getAndSet(null);
         if (runtimeReg != null) {
@@ -188,7 +197,19 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, AutoClos
         this.state.clear();
         final WriteTransaction t = this.broker.newWriteOnlyTransaction();
         t.delete(LogicalDatastoreType.OPERATIONAL, this.topology);
-        t.submit().checkedGet();
+        final CheckedFuture<Void, TransactionCommitFailedException> future = t.submit();
+        Futures.addCallback(future, new FutureCallback<Void>() {
+            @Override
+            public void onSuccess(final Void result) {
+                LOG.debug("Topology {} removed", ServerSessionManager.this.topology);
+            }
+
+            @Override
+            public void onFailure(final Throwable t) {
+                LOG.warn("Failed to remove Topology {}", ServerSessionManager.this.topology, t);
+            }
+        });
+        return future;
     }
 
     synchronized void setRuntimeRootRegistrator(final PCEPTopologyProviderRuntimeRegistrator runtimeRootRegistrator) {
@@ -197,7 +218,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, AutoClos
         }
     }
 
-    ListenerStateRuntimeRegistration registerRuntimeRootRegistration(final ListenerStateRuntimeMXBean bean) {
+    public ListenerStateRuntimeRegistration registerRuntimeRootRegistration(final ListenerStateRuntimeMXBean bean) {
         final PCEPTopologyProviderRuntimeRegistration runtimeReg = this.runtimeRootRegistration.get();
         if (runtimeReg != null) {
             final ListenerStateRuntimeRegistration reg = runtimeReg.register(bean);
