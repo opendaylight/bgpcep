@@ -15,6 +15,7 @@ import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUti
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
@@ -23,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BGPPeerRuntimeMXBean;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpPeerState;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpSessionState;
@@ -98,6 +100,14 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer, BGPPeerRun
             this.serviceRegistration.unregister();
             this.serviceRegistration = null;
         }
+    }
+
+    @Override
+    public ListenableFuture<Void> closeServiceInstance() {
+        if (this.bgpPeerSingletonService != null) {
+            return this.bgpPeerSingletonService.closeServiceInstance();
+        }
+        return Futures.immediateFuture(null);
     }
 
     private void closeSingletonService() {
@@ -217,6 +227,8 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer, BGPPeerRun
         private final IpAddress neighborAddress;
         private final BGPSessionPreferences prefs;
         private Future<Void> connection;
+        @GuardedBy("this")
+        private boolean isServiceInstantiated;
 
         private BgpPeerSingletonService(final RIB rib, final Neighbor neighbor,
             final BGPTableTypeRegistryConsumer tableTypeRegistry, final WriteConfiguration configurationWriter) {
@@ -252,7 +264,8 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer, BGPPeerRun
         }
 
         @Override
-        public void instantiateServiceInstance() {
+        public synchronized void instantiateServiceInstance() {
+            this.isServiceInstantiated = true;
             if(this.configurationWriter != null) {
                 this.configurationWriter.apply();
             }
@@ -265,7 +278,12 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer, BGPPeerRun
         }
 
         @Override
-        public ListenableFuture<Void> closeServiceInstance() {
+        public synchronized ListenableFuture<Void> closeServiceInstance() {
+            if(!this.isServiceInstantiated) {
+                LOG.info("Peer Singleton Service {} already closed, Peer {}", getIdentifier().getValue(),
+                    this.neighborAddress);
+                return Futures.immediateFuture(null);
+            }
             LOG.info("Close Peer Singleton Service {}, Peer {}", getIdentifier().getValue(), this.neighborAddress);
             if (this.connection != null) {
                 this.connection.cancel(true);

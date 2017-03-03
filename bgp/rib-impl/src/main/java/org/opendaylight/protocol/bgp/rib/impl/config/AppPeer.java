@@ -10,8 +10,10 @@ package org.opendaylight.protocol.bgp.rib.impl.config;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Objects;
+import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
@@ -73,6 +75,15 @@ public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
     }
 
     @Override
+    public ListenableFuture<Void> closeServiceInstance() {
+        if (this.bgpAppPeerSingletonService != null) {
+            return this.bgpAppPeerSingletonService.closeServiceInstance();
+        }
+
+        return Futures.immediateFuture(null);
+    }
+
+    @Override
     public Boolean containsEqualConfiguration(final Neighbor neighbor) {
         return Objects.equals(this.currentConfiguration.getKey(), neighbor.getKey())
                 && OpenConfigMappingUtil.isApplicationPeer(neighbor);
@@ -103,6 +114,8 @@ public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
         private ClusterSingletonServiceRegistration singletonServiceRegistration;
         private final ServiceGroupIdentifier serviceGroupIdentifier;
         private final WriteConfiguration configurationWriter;
+        @GuardedBy("this")
+        private boolean isServiceInstantiated;
 
         BgpAppPeerSingletonService(final RIB rib, final ApplicationRibId appRibId, final Ipv4Address neighborAddress,
             final WriteConfiguration configurationWriter) {
@@ -126,7 +139,8 @@ public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
         }
 
         @Override
-        public void instantiateServiceInstance() {
+        public synchronized void instantiateServiceInstance() {
+            this.isServiceInstantiated = true;
             if(this.configurationWriter != null) {
                 this.configurationWriter.apply();
             }
@@ -139,7 +153,12 @@ public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
         }
 
         @Override
-        public ListenableFuture<Void> closeServiceInstance() {
+        public synchronized ListenableFuture<Void> closeServiceInstance() {
+            if(!this.isServiceInstantiated) {
+                LOG.trace("Application Peer Singleton Service {} instance already closed, Application peer {}",
+                    getIdentifier().getValue(), this.appRibId.getValue());
+                return Futures.immediateFuture(null);
+            }
             LOG.info("Application Peer Singleton Service {} instance closed, Application peer {}",
                 getIdentifier().getValue(), this.appRibId.getValue());
             return this.applicationPeer.close();
