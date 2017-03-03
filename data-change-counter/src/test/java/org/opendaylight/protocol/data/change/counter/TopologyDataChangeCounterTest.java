@@ -16,14 +16,14 @@ import com.google.common.base.Optional;
 import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
-import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
+import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.data.change.counter.rev160315.DataChangeCounter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.data.change.counter.rev160315.data.change.counter.Counter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.data.change.counter.rev160315.data.change.counter.CounterKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class TopologyDataChangeCounterTest extends AbstractDataBrokerTest {
+public class TopologyDataChangeCounterTest extends AbstractConcurrentDataBrokerTest {
 
     private static final String COUNTER_ID1 = "counter1";
     private static final String COUNTER_ID2 = "counter2";

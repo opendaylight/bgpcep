@@ -9,13 +9,13 @@
 package org.opendaylight.bgpcep.bgp.topology.provider;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.opendaylight.bgpcep.bgp.topology.provider.Ipv4ReachabilityTopologyBuilderTest.PATH_ID;
+import static org.opendaylight.protocol.util.CheckUtil.checkNull;
 import static org.opendaylight.protocol.util.CheckUtil.readData;
 
+import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -48,10 +48,11 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
     private Ipv6ReachabilityTopologyBuilder ipv6TopoBuilder;
     private InstanceIdentifier<Ipv6Route> ipv6RouteIID;
 
+    @Before
     @Override
-    protected void setupWithDataBroker(final DataBroker dataBroker) {
-        super.setupWithDataBroker(dataBroker);
-        this.ipv6TopoBuilder = new Ipv6ReachabilityTopologyBuilder(dataBroker, LOC_RIB_REF, TEST_TOPOLOGY_ID);
+    public void setUp() {
+        super.setUp();
+        this.ipv6TopoBuilder = new Ipv6ReachabilityTopologyBuilder(getDataBroker(), LOC_RIB_REF, TEST_TOPOLOGY_ID);
         this.ipv6TopoBuilder.start();
         final InstanceIdentifier<Tables> path = this.ipv6TopoBuilder
             .tableInstanceIdentifier(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class);
@@ -99,7 +100,7 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
         });
 
         this.ipv6TopoBuilder.close();
-        assertFalse(getTopology(this.ipv6TopoBuilder.getInstanceIdentifier()).isPresent());
+        checkNull(getDataBroker(), this.ipv6TopoBuilder.getInstanceIdentifier());
     }
 
     private void updateIpv6Route(final Ipv6Route data) {
