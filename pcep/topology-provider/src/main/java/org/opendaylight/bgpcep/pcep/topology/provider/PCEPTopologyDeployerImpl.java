@@ -41,6 +41,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
@@ -84,15 +85,17 @@ public class PCEPTopologyDeployerImpl implements PCEPTopologyDeployer,
     private final Map<TopologyId, PCEPTopologyProviderRuntimeRegistrator> runtimeRegistrators = new HashMap<>();
     private final InstanceIdentifier<OdlPcepTopologyProvider> iid;
     private final ListenerRegistration<PCEPTopologyDeployerImpl> listenerRegistration;
+    private final ClusterSingletonServiceProvider cssp;
 
     public PCEPTopologyDeployerImpl(final BundleContext bundleContext, final DataBroker dataBroker,
         final PCEPDispatcher pcepDispatcher, final RpcProviderRegistry rpcProviderRegistry,
-        final TopologySessionListenerFactory sessionListenerFactory) {
+        final TopologySessionListenerFactory sessionListenerFactory, final ClusterSingletonServiceProvider cssp) {
         this.bundleContext = Preconditions.checkNotNull(bundleContext);
         this.pcepDispatcher = Preconditions.checkNotNull(pcepDispatcher);
         this.dataBroker = Preconditions.checkNotNull(dataBroker);
         this.sessionListenerFactory = Preconditions.checkNotNull(sessionListenerFactory);
         this.rpcProviderRegistry = Preconditions.checkNotNull(rpcProviderRegistry);
+        this.cssp = Preconditions.checkNotNull(cssp);
         final List<PCEPCapability> capabilities = this.pcepDispatcher.getPCEPSessionNegotiatorFactory()
             .getPCEPSessionProposalFactory().getCapabilities();
         final boolean statefulCapability = capabilities.stream().anyMatch(PCEPCapability::isStateful);
@@ -160,7 +163,7 @@ public class PCEPTopologyDeployerImpl implements PCEPTopologyDeployer,
             final PCEPTopologyProvider pcepTopoProvider = PCEPTopologyProvider.create(this.pcepDispatcher,
                 inetSocketAddress, keys, schedulerDependency, this.dataBroker, this.rpcProviderRegistry, topology,
                 this.sessionListenerFactory, Optional.fromNullable(this.runtimeRegistrators.get(topologyId)),
-                rpcTimeout);
+                rpcTimeout, this.cssp);
             this.pcepTopologyServices.put(topologyId, pcepTopoProvider);
 
             final Dictionary<String, String> properties = new Hashtable<>();
