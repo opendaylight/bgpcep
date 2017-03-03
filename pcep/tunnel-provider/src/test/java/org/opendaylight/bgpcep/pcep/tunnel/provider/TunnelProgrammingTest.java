@@ -13,20 +13,17 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Future;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.opendaylight.bgpcep.programming.spi.Instruction;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.programming.spi.SchedulerException;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
+import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -97,7 +94,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 
-public class TunnelProgrammingTest extends AbstractDataBrokerTest {
+public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
 
     private static final TopologyId TOPOLOGY_ID = new TopologyId("tunnel-topo");
     private static final InstanceIdentifier<Topology> TOPO_IID = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class, new TopologyKey(TOPOLOGY_ID)).build();
@@ -142,64 +139,43 @@ public class TunnelProgrammingTest extends AbstractDataBrokerTest {
         MockitoAnnotations.initMocks(this);
         Mockito.doReturn(true).when(this.instruction).checkedExecutionStart();
         Mockito.doNothing().when(this.instruction).executionCompleted(InstructionStatus.Failed, null);
-        Mockito.doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(final InvocationOnMock invocation) throws Throwable {
-                final Runnable callback = (Runnable) invocation.getArguments()[0];
-                callback.run();
-                return null;
-            }
+        Mockito.doAnswer(invocation -> {
+            final Runnable callback = (Runnable) invocation.getArguments()[0];
+            callback.run();
+            return null;
         }).when(this.instructionFuture).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
-        Mockito.doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(final InvocationOnMock invocation) throws Throwable {
-                final Runnable callback = (Runnable) invocation.getArguments()[0];
-                callback.run();
-                return null;
-            }
+        Mockito.doAnswer(invocation -> {
+            final Runnable callback = (Runnable) invocation.getArguments()[0];
+            callback.run();
+            return null;
         }).when(this.futureAddLspOutput).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
-        Mockito.doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(final InvocationOnMock invocation) throws Throwable {
-                final Runnable callback = (Runnable) invocation.getArguments()[0];
-                callback.run();
-                return null;
-            }
+        Mockito.doAnswer(invocation -> {
+            final Runnable callback = (Runnable) invocation.getArguments()[0];
+            callback.run();
+            return null;
         }).when(this.futureUpdateLspOutput).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
-        Mockito.doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(final InvocationOnMock invocation) throws Throwable {
-                final Runnable callback = (Runnable) invocation.getArguments()[0];
-                callback.run();
-                return null;
-            }
+        Mockito.doAnswer(invocation -> {
+            final Runnable callback = (Runnable) invocation.getArguments()[0];
+            callback.run();
+            return null;
         }).when(this.futureRemoveLspOutput).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
-        Mockito.doAnswer(new Answer<Future<RpcResult<AddLspOutput>>>() {
-            @Override
-            public Future<RpcResult<AddLspOutput>> answer(final InvocationOnMock invocation) throws Throwable {
-                TunnelProgrammingTest.this.addLspInput = (AddLspInput) invocation.getArguments()[0];
-                return TunnelProgrammingTest.this.futureAddLspOutput;
-            }
+        Mockito.doAnswer(invocation -> {
+            TunnelProgrammingTest.this.addLspInput = (AddLspInput) invocation.getArguments()[0];
+            return TunnelProgrammingTest.this.futureAddLspOutput;
         }).when(this.topologyService).addLsp(Mockito.any(AddLspInput.class));
-        Mockito.doAnswer(new Answer<Future<RpcResult<UpdateLspOutput>>>() {
-            @Override
-            public Future<RpcResult<UpdateLspOutput>> answer(final InvocationOnMock invocation) throws Throwable {
-                TunnelProgrammingTest.this.updateLspInput = (UpdateLspInput) invocation.getArguments()[0];
-                return TunnelProgrammingTest.this.futureUpdateLspOutput;
-            }
+        Mockito.doAnswer(invocation -> {
+            TunnelProgrammingTest.this.updateLspInput = (UpdateLspInput) invocation.getArguments()[0];
+            return TunnelProgrammingTest.this.futureUpdateLspOutput;
         }).when(this.topologyService).updateLsp(Mockito.any(UpdateLspInput.class));
-        Mockito.doAnswer(new Answer<Future<RpcResult<RemoveLspOutput>>>() {
-            @Override
-            public Future<RpcResult<RemoveLspOutput>> answer(final InvocationOnMock invocation) throws Throwable {
-                TunnelProgrammingTest.this.removeLspInput = (RemoveLspInput) invocation.getArguments()[0];
-                return TunnelProgrammingTest.this.futureRemoveLspOutput;
-            }
+        Mockito.doAnswer(invocation -> {
+            TunnelProgrammingTest.this.removeLspInput = (RemoveLspInput) invocation.getArguments()[0];
+            return TunnelProgrammingTest.this.futureRemoveLspOutput;
         }).when(this.topologyService).removeLsp(Mockito.any(RemoveLspInput.class));
-        Mockito.doReturn(instruction).when(this.instructionFuture).get();
+        Mockito.doReturn(this.instruction).when(this.instructionFuture).get();
         Mockito.doReturn(this.instructionFuture).when(this.scheduler).scheduleInstruction(Mockito.any(SubmitInstructionInput.class));
 
         createInitialTopology();
-        this.tunnelProgramming = new TunnelProgramming(scheduler, getDataBroker(), topologyService);
+        this.tunnelProgramming = new TunnelProgramming(this.scheduler, getDataBroker(), this.topologyService);
     }
 
     @Test
