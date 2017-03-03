@@ -8,9 +8,9 @@
 
 package org.opendaylight.protocol.pcep.pcc.mock;
 
-import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Uninterruptibles;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.GuardedBy;
@@ -29,7 +29,7 @@ public class TestingSessionListener implements PCEPSessionListener, ListenerChec
     private final CountDownLatch sessionLatch = new CountDownLatch(1);
 
     @GuardedBy("this")
-    private final List<Message> messages = Lists.newArrayList();
+    private final List<Message> messages = new CopyOnWriteArrayList<>();
 
     private boolean up = false;
     private PCEPSession session = null;
