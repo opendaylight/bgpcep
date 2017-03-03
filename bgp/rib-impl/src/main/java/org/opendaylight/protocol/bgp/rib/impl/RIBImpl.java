@@ -13,6 +13,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,6 +22,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import javax.annotation.Nonnull;
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -114,6 +116,8 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
     private final Map<TablesKey, ExportPolicyPeerTracker> exportPolicyPeerTrackerMap;
 
     private DOMTransactionChain domChain;
+    @GuardedBy("this")
+    private boolean isServiceInstantiated;
 
     public RIBImpl(final ClusterSingletonServiceProvider provider, final RibId ribId, final AsNumber localAs, final BgpId localBgpId,
         final ClusterIdentifier clusterId, final RIBExtensionConsumerContext extensions, final BGPDispatcher dispatcher,
@@ -312,6 +316,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
 
     @Override
     public void instantiateServiceInstance() {
+        this.isServiceInstantiated = true;
         this.domChain = this.domDataBroker.createTransactionChain(this);
         if(this.configurationWriter != null) {
             this.configurationWriter.apply();
@@ -350,7 +355,14 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
 
     @Override
     public synchronized ListenableFuture<Void> closeServiceInstance() {
+        if(!this.isServiceInstantiated) {
+            LOG.trace("RIB Singleton Service {} already closed, RIB {}", getIdentifier().getValue(),
+                this.ribId.getValue());
+            return Futures.immediateFuture(null);
+        }
         LOG.info("Close RIB Singleton Service {}, RIB {}", getIdentifier().getValue(), this.ribId.getValue());
+        this.isServiceInstantiated = false;
+
         this.txChainToLocRibWriter.values().forEach(LocRibWriter::close);
         this.txChainToLocRibWriter.clear();
 
