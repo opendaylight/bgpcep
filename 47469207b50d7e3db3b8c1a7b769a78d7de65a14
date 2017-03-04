@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_08ab8d89",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2017-03-04T18:50:33Z",
+      "side": 1,
+      "message": "Can we get a getter explanation?",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 45
+      },
+      "revId": "47469207b50d7e3db3b8c1a7b769a78d7de65a14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
