@@ -8,14 +8,16 @@
 
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createLsp;
 import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createPath;
+import static org.opendaylight.protocol.util.CheckUtil.readData;
 
 import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.Collections;
-import java.util.concurrent.ExecutionException;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.PCEPSession;
@@ -34,22 +36,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.LspIdentifiersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.LspBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.Srp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.stateful.capability.tlv.StatefulBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.symbolic.path.name.tlv.SymbolicPathNameBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.Node1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.PccSyncState;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.PathComputationClient;
 
 public class PCETriggeredInitialSyncProcedureTest extends AbstractPCEPSessionTest<Stateful07TopologySessionListenerFactory> {
     private Stateful07TopologySessionListener listener;
-
-    private PCEPSession session;
 
     @Override
     @Before
@@ -62,32 +58,41 @@ public class PCETriggeredInitialSyncProcedureTest extends AbstractPCEPSessionTes
      * Test Triggered Initial Sync procedure
      **/
     @Test
-    public void testPcepTriggeredInitialSyncPerformed() throws InterruptedException, ExecutionException {
+    public void testPcepTriggeredInitialSyncPerformed() throws Exception {
         this.listener = (Stateful07TopologySessionListener) getSessionListener();
 
         //session up - expect triggered sync (LSP-DBs do not match)
-        final LspDbVersion localDbVersion = new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.valueOf(1L)).build();
+        final LspDbVersion localDbVersion = new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.ONE).build();
         final LspDbVersion localDbVersion2 = new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.valueOf(2L)).build();
-        this.session = getPCEPSession(getOpen(localDbVersion, Boolean.FALSE), getOpen(localDbVersion2, Boolean.FALSE));
+        final PCEPSession session = getPCEPSession(getOpen(localDbVersion, Boolean.FALSE), getOpen(localDbVersion2, Boolean.FALSE));
         this.listener.onSessionUp(session);
 
-        final PathComputationClient pcc2 = getTopology().get().getNode().get(0).getAugmentation(Node1.class).getPathComputationClient();
-        //check node - not synchronized and TriggeredInitialSync state
-        Assert.assertEquals(PccSyncState.TriggeredInitialSync, pcc2.getStateSync());
+        readData(getDataBroker(), this.pathComputationClientIId, pcc -> {
+            //check node - not synchronized and TriggeredInitialSync state
+            assertEquals(PccSyncState.TriggeredInitialSync, pcc.getStateSync());
+            return pcc;
+        });
+
         //sync rpt + LSP-DB
         final Pcrpt syncMsg = getsyncMsg();
         this.listener.onMessage(session, syncMsg);
-        final PathComputationClient pcc3 = getTopology().get().getNode().get(0).getAugmentation(Node1.class).getPathComputationClient();
-        //check node - synchronized
-        Assert.assertEquals(PccSyncState.Synchronized, pcc3.getStateSync());
-        //check reported LSP is empty, LSP state from previous session was purged
-        Assert.assertTrue(pcc3.getReportedLsp().isEmpty());
+        readData(getDataBroker(), this.pathComputationClientIId, pcc -> {
+            //check node - synchronized
+            assertEquals(PccSyncState.Synchronized, pcc.getStateSync());
+            //check reported LSP is empty, LSP state from previous session was purged
+            assertTrue(pcc.getReportedLsp().isEmpty());
+            return pcc;
+        });
 
         //report LSP + LSP-DB version number
         final Pcrpt pcRpt = getPcrpt();
         this.listener.onMessage(session, pcRpt);
-        final PathComputationClient pcc = getTopology().get().getNode().get(0).getAugmentation(Node1.class).getPathComputationClient();
-        Assert.assertFalse(pcc.getReportedLsp().isEmpty());
+
+        readData(getDataBroker(), this.pathComputationClientIId, pcc -> {
+            assertFalse(pcc.getReportedLsp().isEmpty());
+            return pcc;
+        });
+
     }
 
     private Open getOpen(final LspDbVersion dbVersion, final boolean incremental) {

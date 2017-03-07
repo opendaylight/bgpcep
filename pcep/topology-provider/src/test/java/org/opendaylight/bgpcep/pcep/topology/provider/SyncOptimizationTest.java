@@ -42,9 +42,9 @@ public class SyncOptimizationTest {
     @Test
     public void testDoesLspDbMatchPositive() {
         final Tlvs tlvs = createTlvs(1L, false, false);
-        Mockito.doReturn(tlvs).when(pcepSession).localSessionCharacteristics();
-        Mockito.doReturn(tlvs).when(pcepSession).getRemoteTlvs();
-        final SyncOptimization syncOpt = new SyncOptimization(pcepSession);
+        Mockito.doReturn(tlvs).when(this.pcepSession).localSessionCharacteristics();
+        Mockito.doReturn(tlvs).when(this.pcepSession).getRemoteTlvs();
+        final SyncOptimization syncOpt = new SyncOptimization(this.pcepSession);
         assertTrue(syncOpt.doesLspDbMatch());
     }
 
@@ -52,18 +52,18 @@ public class SyncOptimizationTest {
     public void testDoesLspDbMatchNegative() {
         final Tlvs localTlvs = createTlvs(1L, false, false);
         final Tlvs remoteTlvs = createTlvs(2L, false, false);
-        Mockito.doReturn(localTlvs).when(pcepSession).localSessionCharacteristics();
-        Mockito.doReturn(remoteTlvs).when(pcepSession).getRemoteTlvs();
-        final SyncOptimization syncOpt = new SyncOptimization(pcepSession);
+        Mockito.doReturn(localTlvs).when(this.pcepSession).localSessionCharacteristics();
+        Mockito.doReturn(remoteTlvs).when(this.pcepSession).getRemoteTlvs();
+        final SyncOptimization syncOpt = new SyncOptimization(this.pcepSession);
         assertFalse(syncOpt.doesLspDbMatch());
     }
 
     @Test
     public void testIsSyncAvoidanceEnabledPositive() {
         final Tlvs tlvs = createTlvs(1L, true, false);
-        Mockito.doReturn(tlvs).when(pcepSession).localSessionCharacteristics();
-        Mockito.doReturn(tlvs).when(pcepSession).getRemoteTlvs();
-        final SyncOptimization syncOpt = new SyncOptimization(pcepSession);
+        Mockito.doReturn(tlvs).when(this.pcepSession).localSessionCharacteristics();
+        Mockito.doReturn(tlvs).when(this.pcepSession).getRemoteTlvs();
+        final SyncOptimization syncOpt = new SyncOptimization(this.pcepSession);
         assertTrue(syncOpt.isSyncAvoidanceEnabled());
     }
 
@@ -71,18 +71,18 @@ public class SyncOptimizationTest {
     public void testIsSyncAvoidanceEnabledNegative() {
         final Tlvs localTlvs = createTlvs(1L, true, false);
         final Tlvs remoteTlvs = createTlvs(2L, false, false);
-        Mockito.doReturn(localTlvs).when(pcepSession).localSessionCharacteristics();
-        Mockito.doReturn(remoteTlvs).when(pcepSession).getRemoteTlvs();
-        final SyncOptimization syncOpt = new SyncOptimization(pcepSession);
+        Mockito.doReturn(localTlvs).when(this.pcepSession).localSessionCharacteristics();
+        Mockito.doReturn(remoteTlvs).when(this.pcepSession).getRemoteTlvs();
+        final SyncOptimization syncOpt = new SyncOptimization(this.pcepSession);
         assertFalse(syncOpt.isSyncAvoidanceEnabled());
     }
 
     @Test
     public void testIsDeltaSyncEnabledPositive() {
         final Tlvs tlvs = createTlvs(1L, true, true);
-        Mockito.doReturn(tlvs).when(pcepSession).localSessionCharacteristics();
-        Mockito.doReturn(tlvs).when(pcepSession).getRemoteTlvs();
-        final SyncOptimization syncOpt = new SyncOptimization(pcepSession);
+        Mockito.doReturn(tlvs).when(this.pcepSession).localSessionCharacteristics();
+        Mockito.doReturn(tlvs).when(this.pcepSession).getRemoteTlvs();
+        final SyncOptimization syncOpt = new SyncOptimization(this.pcepSession);
         assertTrue(syncOpt.isDeltaSyncEnabled());
     }
 
@@ -90,9 +90,9 @@ public class SyncOptimizationTest {
     public void testIsDeltaSyncEnabledNegative() {
         final Tlvs localTlvs = createTlvs(1L, true, true);
         final Tlvs remoteTlvs = createTlvs(2L, false, false);
-        Mockito.doReturn(localTlvs).when(pcepSession).localSessionCharacteristics();
-        Mockito.doReturn(remoteTlvs).when(pcepSession).getRemoteTlvs();
-        final SyncOptimization syncOpt = new SyncOptimization(pcepSession);
+        Mockito.doReturn(localTlvs).when(this.pcepSession).localSessionCharacteristics();
+        Mockito.doReturn(remoteTlvs).when(this.pcepSession).getRemoteTlvs();
+        final SyncOptimization syncOpt = new SyncOptimization(this.pcepSession);
         assertFalse(syncOpt.isDeltaSyncEnabled());
     }
 
@@ -100,18 +100,18 @@ public class SyncOptimizationTest {
     public void testIsDbVersionPresentPositive() {
         final Tlvs localTlvs = createTlvs(null, false, false);
         final Tlvs remoteTlvs = createTlvs(2L, false, false);
-        Mockito.doReturn(localTlvs).when(pcepSession).localSessionCharacteristics();
-        Mockito.doReturn(remoteTlvs).when(pcepSession).getRemoteTlvs();
-        final SyncOptimization syncOpt = new SyncOptimization(pcepSession);
+        Mockito.doReturn(localTlvs).when(this.pcepSession).localSessionCharacteristics();
+        Mockito.doReturn(remoteTlvs).when(this.pcepSession).getRemoteTlvs();
+        final SyncOptimization syncOpt = new SyncOptimization(this.pcepSession);
         assertTrue(syncOpt.isDbVersionPresent());
     }
 
     @Test
     public void testIsDbVersionPresentNegative() {
         final Tlvs tlvs = createTlvs(null, true, false);
-        Mockito.doReturn(tlvs).when(pcepSession).localSessionCharacteristics();
-        Mockito.doReturn(tlvs).when(pcepSession).getRemoteTlvs();
-        final SyncOptimization syncOpt = new SyncOptimization(pcepSession);
+        Mockito.doReturn(tlvs).when(this.pcepSession).localSessionCharacteristics();
+        Mockito.doReturn(tlvs).when(this.pcepSession).getRemoteTlvs();
+        final SyncOptimization syncOpt = new SyncOptimization(this.pcepSession);
         assertFalse(syncOpt.isDbVersionPresent());
     }
 
@@ -124,5 +124,4 @@ public class SyncOptimizationTest {
             .addAugmentation(Tlvs3.class, new Tlvs3Builder().setLspDbVersion(
                 new LspDbVersionBuilder().setLspDbVersionValue(lspDbVersion != null ? BigInteger.valueOf(lspDbVersion) : null).build()).build()).build();
     }
-
 }

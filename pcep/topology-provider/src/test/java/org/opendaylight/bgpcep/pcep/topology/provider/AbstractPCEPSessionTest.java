@@ -14,37 +14,29 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-import com.google.common.base.Optional;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoop;
-import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
 import io.netty.util.concurrent.Promise;
 import java.lang.reflect.ParameterizedType;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.ListenerStateRuntimeMXBean;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.ListenerStateRuntimeRegistration;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeMXBean;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistration;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistrator;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
@@ -62,18 +54,22 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.IpPrefixCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.ip.prefix._case.IpPrefixBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.NetworkTopologyPcepService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.Node1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.PathComputationClient;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
-public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerFactory> extends AbstractDataBrokerTest {
+public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerFactory> extends AbstractConcurrentDataBrokerTest {
 
     protected static final String TEST_TOPOLOGY_NAME = "testtopo";
-    protected static final InstanceIdentifier<Topology> TOPO_IID = InstanceIdentifier.builder(NetworkTopology.class).child(
+    static final InstanceIdentifier<Topology> TOPO_IID = InstanceIdentifier.builder(NetworkTopology.class).child(
             Topology.class, new TopologyKey(new TopologyId(TEST_TOPOLOGY_NAME))).build();
     protected static final String IPV4_MASK = "/32";
     protected static final short DEAD_TIMER = 30;
@@ -81,10 +77,12 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
     protected static final int RPC_TIMEOUT = 4;
 
     protected final String testAddress = InetSocketAddressUtil.getRandomLoopbackIpAddress();
-    protected final NodeId nodeId = new NodeId("pcc://" + testAddress);
-    protected final String eroIpPrefix = testAddress + IPV4_MASK;
+    protected final NodeId nodeId = new NodeId("pcc://" + this.testAddress);
+    protected final InstanceIdentifier<PathComputationClient> pathComputationClientIId = TOPO_IID.builder().child(Node.class,
+        new NodeKey(this.nodeId)).augmentation(Node1.class).child(PathComputationClient.class).build();
+    protected final String eroIpPrefix = this.testAddress + IPV4_MASK;
     protected final String newDestinationAddress = InetSocketAddressUtil.getRandomLoopbackIpAddress();
-    protected final String dstIpPrefix = newDestinationAddress + IPV4_MASK;
+    protected final String dstIpPrefix = this.newDestinationAddress + IPV4_MASK;
 
     protected List<Notification> receivedMsgs;
 
@@ -107,7 +105,7 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
 
     private final Open localPrefs = new OpenBuilder().setDeadTimer((short) 30).setKeepalive((short) 10).setSessionId((short) 0).build();
 
-    private final Open remotePrefs = localPrefs;
+    private final Open remotePrefs = this.localPrefs;
 
     protected ServerSessionManager manager;
 
@@ -119,13 +117,10 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         this.receivedMsgs = new ArrayList<>();
-        doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(final InvocationOnMock invocation) {
-                final Object[] args = invocation.getArguments();
-                AbstractPCEPSessionTest.this.receivedMsgs.add((Notification) args[0]);
-                return channelFuture;
-            }
+        doAnswer(invocation -> {
+            final Object[] args = invocation.getArguments();
+            AbstractPCEPSessionTest.this.receivedMsgs.add((Notification) args[0]);
+            return this.channelFuture;
         }).when(this.clientListener).writeAndFlush(any(Notification.class));
         doReturn(null).when(this.channelFuture).addListener(Mockito.any());
         doReturn("TestingChannel").when(this.clientListener).toString();
@@ -134,9 +129,9 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
         doReturn(this.eventLoop).when(this.clientListener).eventLoop();
         doReturn(null).when(this.eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
         doReturn(true).when(this.clientListener).isActive();
-        final SocketAddress ra = new InetSocketAddress(testAddress, 4189);
+        final SocketAddress ra = new InetSocketAddress(this.testAddress, 4189);
         doReturn(ra).when(this.clientListener).remoteAddress();
-        final SocketAddress la = new InetSocketAddress(testAddress, InetSocketAddressUtil.getRandomPort());
+        final SocketAddress la = new InetSocketAddress(this.testAddress, InetSocketAddressUtil.getRandomPort());
         doReturn(la).when(this.clientListener).localAddress();
 
         doReturn(mock(ChannelFuture.class)).when(this.clientListener).close();
@@ -161,14 +156,8 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
         this.manager.close();
     }
 
-    protected Optional<Topology> getTopology() throws InterruptedException, ExecutionException {
-        try (ReadOnlyTransaction t = getDataBroker().newReadOnlyTransaction()) {
-            return t.read(LogicalDatastoreType.OPERATIONAL, TOPO_IID).get();
-        }
-    }
-
     protected Ero createEroWithIpPrefixes(final List<String> ipPrefixes) {
-        final List<Subobject> subobjs = new ArrayList<Subobject>(ipPrefixes.size());
+        final List<Subobject> subobjs = new ArrayList<>(ipPrefixes.size());
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder();
         for (final String ipPrefix : ipPrefixes) {
             subobjBuilder.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(new IpPrefixBuilder().setIpPrefix(
@@ -195,6 +184,6 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
     }
 
     protected final PCEPSession getPCEPSession(final Open localOpen, final Open remoteOpen) {
-        return neg.createSession(this.clientListener, localOpen, remoteOpen);
+        return this.neg.createSession(this.clientListener, localOpen, remoteOpen);
     }
 }
