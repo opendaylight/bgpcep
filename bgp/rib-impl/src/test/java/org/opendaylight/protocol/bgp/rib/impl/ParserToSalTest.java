@@ -34,8 +34,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
+import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTestCustomizer;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
@@ -73,7 +72,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.YangModuleInfo;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 
-public class ParserToSalTest extends AbstractDataBrokerTest {
+public class ParserToSalTest extends AbstractConcurrentDataBrokerTest {
 
     private static final String TEST_RIB_ID = "testRib";
     private static final TablesKey TABLE_KEY = new TablesKey(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
@@ -94,28 +93,6 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
     @Before
     public void setUp() throws Exception {
         super.setup();
-        doReturn(Mockito.mock(ClusterSingletonServiceRegistration.class)).when(this.clusterSingletonServiceProvider).
-            registerClusterSingletonService(any(ClusterSingletonService.class));
-    }
-
-    @Override
-    protected Iterable<YangModuleInfo> getModuleInfos() throws Exception {
-        return ImmutableList.of(
-            BindingReflections.getModuleInfo(Ipv4Route.class),
-            BindingReflections.getModuleInfo(Ipv6Route.class),
-            BindingReflections.getModuleInfo(LinkstateRoute.class));
-    }
-
-    @Override
-    protected AbstractDataBrokerTestCustomizer createDataBrokerTestCustomizer() {
-        final AbstractDataBrokerTestCustomizer customizer = super.createDataBrokerTestCustomizer();
-        this.codecFactory = customizer.getBindingToNormalized();
-        this.schemaService = customizer.getSchemaService();
-        return customizer;
-    }
-
-    @Override
-    protected void setupWithDataBroker(final DataBroker dataBroker) {
         MockitoAnnotations.initMocks(this);
         final List<byte[]> bgpMessages;
         try {
@@ -138,6 +115,24 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
 
         this.baseact.startRIBExtensionProvider(this.ext1);
         this.lsact.startRIBExtensionProvider(this.ext2);
+        doReturn(Mockito.mock(ClusterSingletonServiceRegistration.class)).when(this.clusterSingletonServiceProvider).
+            registerClusterSingletonService(any(ClusterSingletonService.class));
+    }
+
+    @Override
+    protected Iterable<YangModuleInfo> getModuleInfos() throws Exception {
+        return ImmutableList.of(
+            BindingReflections.getModuleInfo(Ipv4Route.class),
+            BindingReflections.getModuleInfo(Ipv6Route.class),
+            BindingReflections.getModuleInfo(LinkstateRoute.class));
+    }
+
+    @Override
+    protected AbstractDataBrokerTestCustomizer createDataBrokerTestCustomizer() {
+        final AbstractDataBrokerTestCustomizer customizer = super.createDataBrokerTestCustomizer();
+        this.codecFactory = customizer.getBindingToNormalized();
+        this.schemaService = customizer.getSchemaService();
+        return customizer;
     }
 
     @After
