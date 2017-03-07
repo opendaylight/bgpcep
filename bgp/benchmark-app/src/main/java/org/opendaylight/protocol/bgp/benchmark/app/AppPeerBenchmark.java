@@ -10,6 +10,8 @@ package org.opendaylight.protocol.bgp.benchmark.app;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.net.InetAddresses;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
 import java.util.Collections;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -130,7 +132,17 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
                 new ApplicationRibKey(new ApplicationRibId(appRibId))).build();
         final WriteTransaction wTx = this.txChain.newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.CONFIGURATION, ribIID, appRib);
-        wTx.submit();
+        Futures.addCallback(wTx.submit(), new FutureCallback<Void>() {
+            @Override
+            public void onSuccess(final Void result) {
+                LOG.trace("Empty Structure created for Application Peer Benchmark {}", appRibId);
+            }
+
+            @Override
+            public void onFailure(final Throwable throwable) {
+                LOG.error("Failed to create Empty Structure for Application Peer Benchmark {}", appRibId, throwable);
+            }
+        });
         return ribIID;
     }
 
