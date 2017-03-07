@@ -18,9 +18,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
+import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RoutedRpcRegistration;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -43,7 +44,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 
-public class AppPeerBenchmarkTest extends AbstractDataBrokerTest {
+public class AppPeerBenchmarkTest extends AbstractConcurrentDataBrokerTest {
 
     private static final String PREFIX = "1.1.1.1/32";
     private static final String NH = "127.0.0.1";
@@ -63,7 +64,7 @@ public class AppPeerBenchmarkTest extends AbstractDataBrokerTest {
     private AppPeerBenchmark appPeerBenchmark;
 
     @Before
-    public void setUp() throws MalformedObjectNameException {
+    public void setUp() throws MalformedObjectNameException, TransactionCommitFailedException {
         MockitoAnnotations.initMocks(this);
         Mockito.doReturn(this.registration).when(this.rpcRegistry).addRpcImplementation(Mockito.any(),
                 Mockito.any(OdlBgpAppPeerBenchmarkService.class));
@@ -74,9 +75,7 @@ public class AppPeerBenchmarkTest extends AbstractDataBrokerTest {
     @Test
     public void testRpcs() throws InterruptedException, ExecutionException, ReadFailedException {
         final RpcResult<AddPrefixOutput> addRpcResult = this.appPeerBenchmark.addPrefix(new AddPrefixInputBuilder()
-            .setBatchsize(1L)
-            .setCount(1L)
-            .setNexthop(new Ipv4Address(NH))
+            .setBatchsize(1L).setCount(1L).setNexthop(new Ipv4Address(NH))
             .setPrefix(new Ipv4Prefix(PREFIX)).build()).get();
         final Result addResult = addRpcResult.getResult().getResult();
         Assert.assertEquals(1, addResult.getCount().intValue());

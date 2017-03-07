@@ -9,12 +9,12 @@
 package org.opendaylight.bgpcep.bgp.topology.provider;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.opendaylight.protocol.util.CheckUtil.checkNull;
 import static org.opendaylight.protocol.util.CheckUtil.readData;
 
+import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -48,10 +48,11 @@ public class Ipv4ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
     private Ipv4ReachabilityTopologyBuilder ipv4TopoBuilder;
     private InstanceIdentifier<Ipv4Route> ipv4RouteIID;
 
+    @Before
     @Override
-    protected void setupWithDataBroker(final DataBroker dataBroker) {
-        super.setupWithDataBroker(dataBroker);
-        this.ipv4TopoBuilder = new Ipv4ReachabilityTopologyBuilder(dataBroker, LOC_RIB_REF, TEST_TOPOLOGY_ID);
+    public void setUp() {
+        super.setUp();
+        this.ipv4TopoBuilder = new Ipv4ReachabilityTopologyBuilder(getDataBroker(), LOC_RIB_REF, TEST_TOPOLOGY_ID);
         this.ipv4TopoBuilder.start();
         final InstanceIdentifier<Tables> path = this.ipv4TopoBuilder.tableInstanceIdentifier(Ipv4AddressFamily.class,
             UnicastSubsequentAddressFamily.class);
@@ -98,7 +99,7 @@ public class Ipv4ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
         });
 
         this.ipv4TopoBuilder.close();
-        assertFalse(getTopology(this.ipv4TopoBuilder.getInstanceIdentifier()).isPresent());
+        checkNull(getDataBroker(), this.ipv4TopoBuilder.getInstanceIdentifier());
     }
 
     private void updateIpv4Route(final Ipv4Route data) {
