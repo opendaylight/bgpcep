@@ -78,7 +78,9 @@ public class PCEPDispatcherImplTest {
             eventLoopGroup, eventLoopGroup);
 
         Mockito.doReturn("mockChannel").when(this.mockChannel).toString();
-        final PCEPDispatcherImpl dispatcher2 = new PCEPDispatcherImpl(msgReg, new DefaultPCEPSessionNegotiatorFactory(sessionProposal, 0), eventLoopGroup, eventLoopGroup);
+        final PCEPDispatcherImpl dispatcher2 = new PCEPDispatcherImpl(msgReg,
+            new DefaultPCEPSessionNegotiatorFactory(sessionProposal, 0),
+            eventLoopGroup, eventLoopGroup);
         this.disp2Spy = Mockito.spy(dispatcher2);
 
         this.pccMock = new PCCMock(new DefaultPCEPSessionNegotiatorFactory(sessionProposal, 0),
@@ -120,8 +122,10 @@ public class PCEPDispatcherImplTest {
         final InetSocketAddress serverAddr = new InetSocketAddress("0.0.0.0", port);
         final InetSocketAddress clientAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
         waitFutureSuccess(this.dispatcher.createServer(serverAddr, SimpleSessionListener::new, null));
-        final PCEPSessionImpl session1 = (PCEPSessionImpl) this.pccMock.createClient(clientAddr,
-            RETRY_TIMER, CONNECT_TIMEOUT, SimpleSessionListener::new).get();
+        final Future<PCEPSession> futureClient = this.pccMock.createClient(clientAddr, RETRY_TIMER, CONNECT_TIMEOUT,
+            SimpleSessionListener::new);
+        waitFutureSuccess(futureClient);
+        final PCEPSessionImpl session1 = (PCEPSessionImpl) futureClient.get();
 
         try {
             this.pccMock.createClient(clientAddr, RETRY_TIMER, CONNECT_TIMEOUT,
@@ -201,8 +205,8 @@ public class PCEPDispatcherImplTest {
             });
         }
 
-        Future<PCEPSession> createClient(final InetSocketAddress address, final int retryTimer, final int connectTimeout,
-            final PCEPDispatcherImpl.ChannelPipelineInitializer initializer) {
+        Future<PCEPSession> createClient(final InetSocketAddress address, final int retryTimer,
+            final int connectTimeout, final PCEPDispatcherImpl.ChannelPipelineInitializer initializer) {
             final Bootstrap b = new Bootstrap();
             final PCEPProtocolSessionPromise p = new PCEPProtocolSessionPromise(this.executor, address, retryTimer,
                 connectTimeout, b);

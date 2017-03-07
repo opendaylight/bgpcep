@@ -8,16 +8,18 @@
 
 package org.opendaylight.protocol.pcep.segment.routing;
 
+import static org.opendaylight.protocol.util.CheckUtil.readData;
+
 import com.google.common.collect.Lists;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.bgpcep.pcep.topology.provider.AbstractPCEPSessionTest;
 import org.opendaylight.bgpcep.pcep.topology.provider.AbstractTopologySessionListener;
 import org.opendaylight.bgpcep.pcep.topology.provider.Stateful07TopologySessionListenerFactory;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -46,9 +48,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.SubobjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.setup.type.tlv.PathSetupTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.Node1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.ReportedLsp;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 
 public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07TopologySessionListenerFactory> {
 
@@ -65,42 +65,51 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07Topo
     }
 
     @Test
-    public void testOnReportMessage() throws InterruptedException, ExecutionException {
+    public void testOnReportMessage() throws ReadFailedException {
         this.listener.onSessionUp(this.session);
 
         Pcrpt pcRptMsg = createSrPcRpt("1.1.1.1", "sr-path1", 1L, true);
         this.listener.onMessage(this.session, pcRptMsg);
-        //check sr-path
-        Topology topology = getTopology().get();
-        List<ReportedLsp> reportedLsps = topology.getNode().get(0).getAugmentation(Node1.class).getPathComputationClient().getReportedLsp();
-        Assert.assertEquals(1, reportedLsps.size());
-        final ReportedLsp lsp = reportedLsps.get(0);
-        Assert.assertEquals("sr-path1", lsp.getName());
-        Assert.assertEquals(1, lsp.getPath().get(0).getAugmentation(Path1.class).getPathSetupType().getPst().intValue());
-        List<Subobject> subobjects = lsp.getPath().get(0).getEro().getSubobject();
-        Assert.assertEquals(1, subobjects.size());
-        Assert.assertEquals("1.1.1.1", ((IpNodeId)((SrEroType)subobjects.get(0).getSubobjectType()).getNai()).getIpAddress().getIpv4Address().getValue());
+        readData(getDataBroker(), this.pathComputationClientIId, pcc -> {
+            //check sr-path
+            final List<ReportedLsp> reportedLsps = pcc.getReportedLsp();
+            Assert.assertEquals(1, reportedLsps.size());
+            final ReportedLsp lsp = reportedLsps.get(0);
+            Assert.assertEquals("sr-path1", lsp.getName());
+            Assert.assertEquals(1, lsp.getPath().get(0).getAugmentation(Path1.class).getPathSetupType()
+                .getPst().intValue());
+            final List<Subobject> subobjects = lsp.getPath().get(0).getEro().getSubobject();
+            Assert.assertEquals(1, subobjects.size());
+            Assert.assertEquals("1.1.1.1", ((IpNodeId)((SrEroType)subobjects.get(0).getSubobjectType())
+                .getNai()).getIpAddress().getIpv4Address().getValue());
+            return pcc;
+        });
 
         pcRptMsg = createSrPcRpt("1.1.1.3", "sr-path2", 2L, false);
         this.listener.onMessage(this.session, pcRptMsg);
-        //check second lsp sr-path
-        topology = getTopology().get();
-        reportedLsps = topology.getNode().get(0).getAugmentation(Node1.class).getPathComputationClient().getReportedLsp();
-        Assert.assertEquals(2, reportedLsps.size());
+        readData(getDataBroker(), this.pathComputationClientIId, pcc -> {
+            //check second lsp sr-path
+            Assert.assertEquals(2, pcc.getReportedLsp().size());
+            return pcc;
+        });
+
 
         pcRptMsg = createSrPcRpt("1.1.1.2", "sr-path1", 1L, true);
         this.listener.onMessage(this.session, pcRptMsg);
-        //check updated sr-path
-        topology = getTopology().get();
-        reportedLsps = topology.getNode().get(0).getAugmentation(Node1.class).getPathComputationClient().getReportedLsp();
-        Assert.assertEquals(2, reportedLsps.size());
-        for (final ReportedLsp rlsp : reportedLsps) {
-            if (rlsp.getName().equals("sr-path1")) {
-                subobjects = rlsp.getPath().get(0).getEro().getSubobject();
-                Assert.assertEquals(1, subobjects.size());
-                Assert.assertEquals("1.1.1.2", ((IpNodeId)((SrEroType)subobjects.get(0).getSubobjectType()).getNai()).getIpAddress().getIpv4Address().getValue());
+        readData(getDataBroker(), this.pathComputationClientIId, pcc -> {
+            //check updated sr-path
+            final List<ReportedLsp> reportedLsps = pcc.getReportedLsp();
+            Assert.assertEquals(2, reportedLsps.size());
+            for (final ReportedLsp rlsp : reportedLsps) {
+                if (rlsp.getName().equals("sr-path1")) {
+                    final List<Subobject> subobjects = rlsp.getPath().get(0).getEro().getSubobject();
+                    Assert.assertEquals(1, subobjects.size());
+                    Assert.assertEquals("1.1.1.2", ((IpNodeId)((SrEroType)subobjects.get(0)
+                        .getSubobjectType()).getNai()).getIpAddress().getIpv4Address().getValue());
+                }
             }
-        }
+            return pcc;
+        });
     }
 
     private static Pcrpt createSrPcRpt(final String nai, final String pathName, final long plspId, final boolean hasLspIdTlv) {
