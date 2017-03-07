@@ -10,14 +10,11 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Future;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.opendaylight.bgpcep.pcep.topology.provider.TopologyProgrammingTest.MockedTopologySessionListenerFactory;
 import org.opendaylight.bgpcep.programming.spi.Instruction;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
@@ -83,161 +80,126 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest<MockedTopol
 
     private TopologyProgramming topologyProgramming;
 
-    private PCEPSession session;
-
     @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
         Mockito.doReturn(true).when(this.instruction).checkedExecutionStart();
         Mockito.doNothing().when(this.instruction).executionCompleted(InstructionStatus.Failed, null);
-        Mockito.doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(final InvocationOnMock invocation) throws Throwable {
-                final Runnable callback = (Runnable) invocation.getArguments()[0];
-                callback.run();
-                return null;
-            }
+        Mockito.doAnswer(invocation -> {
+            final Runnable callback = (Runnable) invocation.getArguments()[0];
+            callback.run();
+            return null;
         }).when(this.instructionFuture).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
-        Mockito.doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(final InvocationOnMock invocation) throws Throwable {
-                final Runnable callback = (Runnable) invocation.getArguments()[0];
-                callback.run();
-                return null;
-            }
+        Mockito.doAnswer(invocation -> {
+            final Runnable callback = (Runnable) invocation.getArguments()[0];
+            callback.run();
+            return null;
         }).when(this.futureAddLspOutput).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
-        Mockito.doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(final InvocationOnMock invocation) throws Throwable {
-                final Runnable callback = (Runnable) invocation.getArguments()[0];
-                callback.run();
-                return null;
-            }
+        Mockito.doAnswer(invocation -> {
+            final Runnable callback = (Runnable) invocation.getArguments()[0];
+            callback.run();
+            return null;
         }).when(this.futureUpdateLspOutput).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
-        Mockito.doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(final InvocationOnMock invocation) throws Throwable {
-                final Runnable callback = (Runnable) invocation.getArguments()[0];
-                callback.run();
-                return null;
-            }
+        Mockito.doAnswer(invocation -> {
+            final Runnable callback = (Runnable) invocation.getArguments()[0];
+            callback.run();
+            return null;
         }).when(this.futureRemoveLspOutput).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
-        Mockito.doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(final InvocationOnMock invocation) throws Throwable {
-                final Runnable callback = (Runnable) invocation.getArguments()[0];
-                callback.run();
-                return null;
-            }
+        Mockito.doAnswer(invocation -> {
+            final Runnable callback = (Runnable) invocation.getArguments()[0];
+            callback.run();
+            return null;
         }).when(this.futureTriggerSyncOutput).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
-        Mockito.doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(final InvocationOnMock invocation) throws Throwable {
-                final Runnable callback = (Runnable) invocation.getArguments()[0];
-                callback.run();
-                return null;
-            }
+        Mockito.doAnswer(invocation -> {
+            final Runnable callback = (Runnable) invocation.getArguments()[0];
+            callback.run();
+            return null;
         }).when(this.futureEnsureLspOutput).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
-        Mockito.doAnswer(new Answer<Future<RpcResult<AddLspOutput>>>() {
-            @Override
-            public Future<RpcResult<AddLspOutput>> answer(final InvocationOnMock invocation) throws Throwable {
-                TopologyProgrammingTest.this.addLspArgs = (AddLspArgs) invocation.getArguments()[0];
-                return TopologyProgrammingTest.this.futureAddLspOutput;
-            }
+        Mockito.doAnswer(invocation -> {
+            TopologyProgrammingTest.this.addLspArgs = (AddLspArgs) invocation.getArguments()[0];
+            return TopologyProgrammingTest.this.futureAddLspOutput;
         }).when(listener).addLsp(Mockito.any(AddLspInput.class));
-        Mockito.doAnswer(new Answer<Future<RpcResult<UpdateLspOutput>>>() {
-            @Override
-            public Future<RpcResult<UpdateLspOutput>> answer(final InvocationOnMock invocation) throws Throwable {
-                TopologyProgrammingTest.this.updateLspArgs = (UpdateLspArgs) invocation.getArguments()[0];
-                return TopologyProgrammingTest.this.futureUpdateLspOutput;
-            }
+        Mockito.doAnswer(invocation -> {
+            TopologyProgrammingTest.this.updateLspArgs = (UpdateLspArgs) invocation.getArguments()[0];
+            return TopologyProgrammingTest.this.futureUpdateLspOutput;
         }).when(listener).updateLsp(Mockito.any(UpdateLspInput.class));
-        Mockito.doAnswer(new Answer<Future<RpcResult<RemoveLspOutput>>>() {
-            @Override
-            public Future<RpcResult<RemoveLspOutput>> answer(final InvocationOnMock invocation) throws Throwable {
-                TopologyProgrammingTest.this.removeLspArgs = (RemoveLspArgs) invocation.getArguments()[0];
-                return TopologyProgrammingTest.this.futureRemoveLspOutput;
-            }
+        Mockito.doAnswer(invocation -> {
+            TopologyProgrammingTest.this.removeLspArgs = (RemoveLspArgs) invocation.getArguments()[0];
+            return TopologyProgrammingTest.this.futureRemoveLspOutput;
         }).when(listener).removeLsp(Mockito.any(RemoveLspInput.class));
-        Mockito.doAnswer(new Answer<Future<RpcResult<TriggerSyncOutput>>>() {
-            @Override
-            public Future<RpcResult<TriggerSyncOutput>> answer(final InvocationOnMock invocation) throws Throwable {
-                TopologyProgrammingTest.this.triggerSyncArgs = (TriggerSyncArgs) invocation.getArguments()[0];
-                return TopologyProgrammingTest.this.futureTriggerSyncOutput;
-            }
+        Mockito.doAnswer(invocation -> {
+            TopologyProgrammingTest.this.triggerSyncArgs = (TriggerSyncArgs) invocation.getArguments()[0];
+            return TopologyProgrammingTest.this.futureTriggerSyncOutput;
         }).when(listener).triggerSync(Mockito.any(TriggerSyncInput.class));
-        Mockito.doAnswer(new Answer<Future<RpcResult<EnsureLspOperationalOutput>>>() {
-            @Override
-            public Future<RpcResult<EnsureLspOperationalOutput>> answer(final InvocationOnMock invocation) throws Throwable {
-                TopologyProgrammingTest.this.ensureLspInput = (EnsureLspOperationalInput) invocation.getArguments()[0];
-                return TopologyProgrammingTest.this.futureEnsureLspOutput;
-            }
+        Mockito.doAnswer(invocation -> {
+            TopologyProgrammingTest.this.ensureLspInput = (EnsureLspOperationalInput) invocation.getArguments()[0];
+            return TopologyProgrammingTest.this.futureEnsureLspOutput;
         }).when(listener).ensureLspOperational(Mockito.any(EnsureLspOperationalInput.class));
         Mockito.doNothing().when(listener).close();
-        Mockito.doReturn(instruction).when(this.instructionFuture).get();
+        Mockito.doReturn(this.instruction).when(this.instructionFuture).get();
         Mockito.doNothing().when(this.instruction).executionCompleted(Mockito.any(InstructionStatus.class), Mockito.any(Details.class));
         Mockito.doReturn(this.instructionFuture).when(this.scheduler).scheduleInstruction(Mockito.any(SubmitInstructionInput.class));
         this.topologyProgramming = new TopologyProgramming(this.scheduler, this.manager);
-        this.session = getPCEPSession(getLocalPref(), getRemotePref());
-        listener.onSessionUp(this.session);
+        final PCEPSession session = getPCEPSession(getLocalPref(), getRemotePref());
+        listener.onSessionUp(session);
     }
 
     @Test
     public void testSubmitAddLsp() throws InterruptedException, ExecutionException {
         final SubmitAddLspInputBuilder inputBuilder = new SubmitAddLspInputBuilder();
         inputBuilder.setName(NAME);
-        inputBuilder.setNode(nodeId);
+        inputBuilder.setNode(this.nodeId);
         inputBuilder.setArguments(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.add.lsp.args.ArgumentsBuilder().build());
         this.topologyProgramming.submitAddLsp(inputBuilder.build());
         Assert.assertNotNull(this.addLspArgs);
         Assert.assertEquals(NAME, this.addLspArgs.getName());
-        Assert.assertEquals(nodeId, this.addLspArgs.getNode());
+        Assert.assertEquals(this.nodeId, this.addLspArgs.getNode());
     }
 
     @Test
     public void testSubmitUpdateLsp() {
         final SubmitUpdateLspInputBuilder inputBuilder = new SubmitUpdateLspInputBuilder();
         inputBuilder.setName(NAME);
-        inputBuilder.setNode(nodeId);
+        inputBuilder.setNode(this.nodeId);
         this.topologyProgramming.submitUpdateLsp(inputBuilder.build());
         Assert.assertNotNull(this.updateLspArgs);
         Assert.assertEquals(NAME, this.updateLspArgs.getName());
-        Assert.assertEquals(nodeId, this.updateLspArgs.getNode());
+        Assert.assertEquals(this.nodeId, this.updateLspArgs.getNode());
     }
 
     @Test
     public void testSubmitEnsureLsp() {
         final SubmitEnsureLspOperationalInputBuilder inputBuilder = new SubmitEnsureLspOperationalInputBuilder();
         inputBuilder.setName(NAME);
-        inputBuilder.setNode(nodeId);
+        inputBuilder.setNode(this.nodeId);
         inputBuilder.setArguments(new ArgumentsBuilder().build());
         this.topologyProgramming.submitEnsureLspOperational(inputBuilder.build());
         Assert.assertNotNull(this.ensureLspInput);
         Assert.assertEquals(NAME, this.ensureLspInput.getName());
-        Assert.assertEquals(nodeId, this.ensureLspInput.getNode());
+        Assert.assertEquals(this.nodeId, this.ensureLspInput.getNode());
     }
 
     @Test
     public void testSubmitRemoveLsp() {
         final SubmitRemoveLspInputBuilder inputBuilder = new SubmitRemoveLspInputBuilder();
         inputBuilder.setName(NAME);
-        inputBuilder.setNode(nodeId);
+        inputBuilder.setNode(this.nodeId);
         this.topologyProgramming.submitRemoveLsp(inputBuilder.build());
         Assert.assertNotNull(this.removeLspArgs);
         Assert.assertEquals(NAME, this.removeLspArgs.getName());
-        Assert.assertEquals(nodeId, this.removeLspArgs.getNode());
+        Assert.assertEquals(this.nodeId, this.removeLspArgs.getNode());
     }
 
     @Test
     public void testSubmitTriggerSync() {
         final SubmitTriggerSyncInputBuilder inputBuilder = new SubmitTriggerSyncInputBuilder();
         inputBuilder.setName(NAME);
-        inputBuilder.setNode(nodeId);
+        inputBuilder.setNode(this.nodeId);
         this.topologyProgramming.submitTriggerSync(inputBuilder.build());
         Assert.assertNotNull(this.triggerSyncArgs);
         Assert.assertEquals(NAME, this.triggerSyncArgs.getName());
-        Assert.assertEquals(nodeId, this.triggerSyncArgs.getNode());
+        Assert.assertEquals(this.nodeId, this.triggerSyncArgs.getNode());
     }
 
     protected static final class MockedTopologySessionListenerFactory implements TopologySessionListenerFactory {
