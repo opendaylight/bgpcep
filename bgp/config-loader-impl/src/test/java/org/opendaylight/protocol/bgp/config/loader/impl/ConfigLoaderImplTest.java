@@ -57,7 +57,6 @@ public class ConfigLoaderImplTest extends AbstractConfigLoader {
             "/META-INF/yang/openconfig-routing-policy.yang",
             "/META-INF/yang/openconfig-policy-types.yang",
             "/META-INF/yang/openconfig-extensions.yang",
-            "/META-INF/yang/openconfig-routing-policy.yang",
             "/META-INF/yang/openconfig-local-routing.yang",
             "/META-INF/yang/ietf-inet-types@2013-07-15.yang",
             "/META-INF/yang/ietf-yang-types@2013-07-15.yang"

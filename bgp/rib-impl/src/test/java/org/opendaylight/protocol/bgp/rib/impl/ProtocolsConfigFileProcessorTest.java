@@ -69,7 +69,6 @@ public class ProtocolsConfigFileProcessorTest extends AbstractConfigLoader {
             "/META-INF/yang/openconfig-network-instance.yang",
             "/META-INF/yang/openconfig-routing-policy.yang",
             "/META-INF/yang/openconfig-policy-types.yang",
-            "/META-INF/yang/openconfig-routing-policy.yang",
             "/META-INF/yang/openconfig-local-routing.yang",
             "/META-INF/yang/openconfig-bgp-operational.yang",
             "/META-INF/yang/openconfig-bgp-types.yang",
