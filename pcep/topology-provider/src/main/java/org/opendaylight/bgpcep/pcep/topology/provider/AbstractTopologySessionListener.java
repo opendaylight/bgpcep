@@ -346,7 +346,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         this.listenerState.updateStatefulSentMsg(message);
         final PCEPRequest req = new PCEPRequest(metadata);
         this.requests.put(requestId, req);
-        final int rpcTimeout = this.serverSessionManager.getRpcTimeout();
+        final short rpcTimeout = this.serverSessionManager.getRpcTimeout();
         LOG.trace("RPC response timeout value is {} seconds", rpcTimeout);
         if (rpcTimeout > 0) {
             setupTimeoutHandler(requestId, req, rpcTimeout);
@@ -368,7 +368,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         return req.getFuture();
     }
 
-    private void setupTimeoutHandler(final S requestId, final PCEPRequest req, final int timeout) {
+    private void setupTimeoutHandler(final S requestId, final PCEPRequest req, final short timeout) {
         final Timer timer = req.getTimer();
         timer.schedule(new TimerTask() {
             @Override
