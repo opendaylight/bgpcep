@@ -41,11 +41,12 @@ public class PCEPTopologyDeployerImpl implements PCEPTopologyDeployer, AutoClose
             LOG.warn("Topology Provider {} already exist. New instance won't be created", topologyId);
             return;
         }
-        final PCEPTopologyProviderBean PCEPTopologyProviderBean = (PCEPTopologyProviderBean) this.container
+        final PCEPTopologyProviderBean pcepTopologyProviderBean = (PCEPTopologyProviderBean) this.container
             .getComponentInstance(PCEPTopologyProviderBean.class.getSimpleName());
-        this.pcepTopologyServices.put(topologyId, PCEPTopologyProviderBean);
-        PCEPTopologyProviderBean.start(inetSocketAddress, keys, schedulerDependency, topologyId,
-            runtime, rpcTimeout);
+        this.pcepTopologyServices.put(topologyId, pcepTopologyProviderBean);
+        final PCEPTopologyConfigDependencies configDependencies = new PCEPTopologyConfigDependencies(inetSocketAddress,
+            keys, schedulerDependency, topologyId, runtime, rpcTimeout);
+        pcepTopologyProviderBean.start(configDependencies);
     }
 
     @Override
