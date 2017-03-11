@@ -44,7 +44,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.PccSyncState;
 
-public class IncrementalSynchronizationProcedureTest extends AbstractPCEPSessionTest<Stateful07TopologySessionListenerFactory> {
+public class IncrementalSynchronizationProcedureTest extends
+    AbstractPCEPSessionTest<Stateful07TopologySessionListenerFactory> {
 
     private Stateful07TopologySessionListener listener;
 
