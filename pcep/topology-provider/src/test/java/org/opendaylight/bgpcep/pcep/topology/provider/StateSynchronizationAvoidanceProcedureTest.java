@@ -100,7 +100,7 @@ public class StateSynchronizationAvoidanceProcedureTest extends
     @Test
     public void testStateSynchronizationPerformed() throws Exception {
         PCEPSession session = getPCEPSession(getOpen(null), getOpen(null));
-        this.listener.onSessionUp(session);
+         this.listener.onSessionUp(session);
         //report LSP + LSP-DB version number
         final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder().setPlspId(new PlspId(1L)).setTlvs(
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.
