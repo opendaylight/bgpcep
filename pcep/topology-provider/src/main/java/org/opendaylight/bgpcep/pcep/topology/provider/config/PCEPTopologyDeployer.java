@@ -8,7 +8,6 @@
 package org.opendaylight.bgpcep.pcep.topology.provider.config;
 
 import com.google.common.base.Optional;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
