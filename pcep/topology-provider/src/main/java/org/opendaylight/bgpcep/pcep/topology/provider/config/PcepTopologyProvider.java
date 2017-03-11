@@ -20,6 +20,7 @@ import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistrator;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
@@ -29,7 +30,7 @@ import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class PcepTopologyProvider implements AutoCloseable {
+public final class PcepTopologyProvider implements PCEPTopologyProviderDependenciesProvider, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(PcepTopologyProvider.class);
 
     private static final String STATEFUL_NOT_DEFINED = "Stateful capability not defined, aborting PCEP Topology " +
@@ -39,11 +40,13 @@ public final class PcepTopologyProvider implements AutoCloseable {
     private final TopologySessionListenerFactory sessionListenerFactory;
     private final RpcProviderRegistry rpcProviderRegistry;
     private final BundleContext bundleContext;
+    private final ClusterSingletonServiceProvider cssp;
     private PCEPTopologyProvider pcepTopoProvider;
 
-    public PcepTopologyProvider(final BundleContext bundleContext, final DataBroker dataBroker,
-        final PCEPDispatcher pcepDispatcher, final RpcProviderRegistry rpcProviderRegistry,
+    public PcepTopologyProvider(final ClusterSingletonServiceProvider cssp, final BundleContext bundleContext,
+        final DataBroker dataBroker, final PCEPDispatcher pcepDispatcher, final RpcProviderRegistry rpcProviderRegistry,
         final TopologySessionListenerFactory sessionListenerFactory) {
+        this.cssp = Preconditions.checkNotNull(cssp);
         this.bundleContext = Preconditions.checkNotNull(bundleContext);
         this.pcepDispatcher = Preconditions.checkNotNull(pcepDispatcher);
         this.dataBroker = Preconditions.checkNotNull(dataBroker);
@@ -70,9 +73,8 @@ public final class PcepTopologyProvider implements AutoCloseable {
         Preconditions.checkState(this.pcepTopoProvider == null,
             "Previous instance %s was not closed.", this);
         try {
-            this.pcepTopoProvider = PCEPTopologyProvider.create(this.pcepDispatcher,
-                inetSocketAddress, keys, schedulerDependency, this.dataBroker, this.rpcProviderRegistry, topologyId,
-                this.sessionListenerFactory, runtime, rpcTimeout);
+            this.pcepTopoProvider = PCEPTopologyProvider.create(this,
+                inetSocketAddress, keys, schedulerDependency, topologyId, runtime, rpcTimeout);
 
             final Dictionary<String, String> properties = new Hashtable<>();
             properties.put(PCEPTopologyProvider.class.getName(), topologyId.getValue());
@@ -82,5 +84,30 @@ public final class PcepTopologyProvider implements AutoCloseable {
         } catch (final Exception e) {
             LOG.debug("Failed to create PCEPTopologyProvider {}", topologyId.getValue());
         }
+    }
+
+    @Override
+    public PCEPDispatcher getPCEPDispatcher() {
+        return this.pcepDispatcher;
+    }
+
+    @Override
+    public ClusterSingletonServiceProvider getClusterSingletonServiceProvider() {
+        return this.cssp;
+    }
+
+    @Override
+    public RpcProviderRegistry getRpcProviderRegistry() {
+        return this.rpcProviderRegistry;
+    }
+
+    @Override
+    public DataBroker getDataBroker() {
+        return this.dataBroker;
+    }
+
+    @Override
+    public TopologySessionListenerFactory getTopologySessionListenerFactory() {
+        return this.sessionListenerFactory;
     }
 }
