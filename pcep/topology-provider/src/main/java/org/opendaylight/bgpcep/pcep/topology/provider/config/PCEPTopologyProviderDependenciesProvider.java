@@ -10,6 +10,7 @@ package org.opendaylight.bgpcep.pcep.topology.provider.config;
 import org.opendaylight.bgpcep.pcep.topology.provider.TopologySessionListenerFactory;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
 
 /**
@@ -21,6 +22,12 @@ public interface PCEPTopologyProviderDependenciesProvider {
      * @return PCEPDispatcher
      */
     PCEPDispatcher getPCEPDispatcher();
+
+    /**
+     *
+     * @return ClusterSingletonServiceProvider
+     */
+    ClusterSingletonServiceProvider getClusterSingletonServiceProvider();
 
     /**
      *

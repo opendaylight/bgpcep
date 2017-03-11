@@ -9,8 +9,10 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.ListenableFuture;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import java.net.InetSocketAddress;
 import java.util.List;
 import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyProviderDependenciesProvider;
@@ -19,6 +21,9 @@ import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistrator;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
+import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.topology.rev140113.NetworkTopologyContext;
@@ -33,7 +38,8 @@ import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class PCEPTopologyProvider extends DefaultTopologyReference implements AutoCloseable {
+public final class PCEPTopologyProvider extends DefaultTopologyReference
+    implements ClusterSingletonService, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyProvider.class);
 
@@ -42,18 +48,13 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference impleme
     private final BindingAwareBroker.RoutedRpcRegistration<NetworkTopologyPcepProgrammingService> network;
     private final BindingAwareBroker.RoutedRpcRegistration<NetworkTopologyPcepService> element;
     private final ServerSessionManager manager;
-    private final Channel channel;
+    private final InetSocketAddress address;
+    private final Optional<KeyMapping> keys;
+    private final InstructionScheduler scheduler;
+    private final PCEPTopologyProviderDependenciesProvider dependenciesProvider;
+    private ClusterSingletonServiceRegistration cssRegistration;
+    private Channel channel;
     private ServiceRegistration<?> serviceRegistration;
-
-    private PCEPTopologyProvider(final Channel channel, final InstanceIdentifier<Topology> topology, final ServerSessionManager manager,
-            final BindingAwareBroker.RoutedRpcRegistration<NetworkTopologyPcepService> element,
-            final BindingAwareBroker.RoutedRpcRegistration<NetworkTopologyPcepProgrammingService> network) {
-        super(topology);
-        this.channel = Preconditions.checkNotNull(channel);
-        this.manager = Preconditions.checkNotNull(manager);
-        this.element = Preconditions.checkNotNull(element);
-        this.network = Preconditions.checkNotNull(network);
-    }
 
     public static PCEPTopologyProvider create(final PCEPTopologyProviderDependenciesProvider dependenciesProvider,
         final InetSocketAddress address, final Optional<KeyMapping> keys, final InstructionScheduler scheduler,
@@ -81,30 +82,79 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference impleme
         if(runtimeRootRegistrator.isPresent()){
             manager.setRuntimeRootRegistrator(runtimeRootRegistrator.get());
         }
-        final ChannelFuture f = dependenciesProvider.getPCEPDispatcher().createServer(address, keys, manager, manager);
-        f.get();
 
-        final RpcProviderRegistry rpcRegistry = dependenciesProvider.getRpcProviderRegistry();
-        final BindingAwareBroker.RoutedRpcRegistration<NetworkTopologyPcepService> element = rpcRegistry
-            .addRoutedRpcImplementation(NetworkTopologyPcepService.class, new TopologyRPCs(manager));
-        element.registerPath(NetworkTopologyContext.class, topology);
+        return new PCEPTopologyProvider(address, keys, dependenciesProvider, topology, manager,  scheduler);
+    }
 
-        final BindingAwareBroker.RoutedRpcRegistration<NetworkTopologyPcepProgrammingService> network = rpcRegistry
+    private PCEPTopologyProvider(final InetSocketAddress address, final Optional<KeyMapping> keys,
+        final PCEPTopologyProviderDependenciesProvider dependenciesProvider,
+        final InstanceIdentifier<Topology> topology, final ServerSessionManager manager,
+        final InstructionScheduler scheduler) {
+        super(topology);
+        this.dependenciesProvider = Preconditions.checkNotNull(dependenciesProvider);
+        this.address = Preconditions.checkNotNull(address);
+        this.keys = Preconditions.checkNotNull(keys);
+        this.manager = Preconditions.checkNotNull(manager);
+        this.scheduler = Preconditions.checkNotNull(scheduler);
+
+        final RpcProviderRegistry rpcRegistry = this.dependenciesProvider.getRpcProviderRegistry();
+        this.element = Preconditions.checkNotNull(rpcRegistry
+            .addRoutedRpcImplementation(NetworkTopologyPcepService.class, new TopologyRPCs(manager)));
+        this.element.registerPath(NetworkTopologyContext.class, topology);
+
+        this.network = Preconditions.checkNotNull(rpcRegistry
             .addRoutedRpcImplementation(NetworkTopologyPcepProgrammingService.class,
-                new TopologyProgramming(scheduler, manager));
-        network.registerPath(NetworkTopologyContext.class, topology);
+                new TopologyProgramming(scheduler, manager)));
+        this.network.registerPath(NetworkTopologyContext.class, topology);
 
-        return new PCEPTopologyProvider(f.channel(), topology, manager, element, network);
+        LOG.info("PCEP Topology Provider service {} registered, RIB {}", getIdentifier().getValue());
+        this.cssRegistration = this.dependenciesProvider.getClusterSingletonServiceProvider()
+            .registerClusterSingletonService(this);
     }
 
     @Override
     public void close() {
-        try {
-            this.channel.close().sync();
-            LOG.debug("Server channel {} closed", this.channel);
-        } catch (final InterruptedException e) {
-            LOG.error("Failed to close channel {}", this.channel, e);
+        if (this.cssRegistration != null) {
+            try {
+                this.cssRegistration.close();
+            } catch (final Exception e) {
+                LOG.debug("Failed to close PCEP Topology Provider service {}", getInstanceIdentifier(), e);
+            }
+            this.cssRegistration = null;
         }
+        if (this.serviceRegistration != null) {
+            this.serviceRegistration.unregister();
+            this.serviceRegistration = null;
+        }
+    }
+
+    public synchronized void setServiceRegistration(final ServiceRegistration<?> serviceRegistration) {
+        this.serviceRegistration = serviceRegistration;
+    }
+
+    @Override
+    public void instantiateServiceInstance() {
+        LOG.info("RIB Singleton Service {} instantiated", getIdentifier().getValue());
+
+        try {
+            this.manager.instantiateServiceInstance().checkedGet();
+            final ChannelFuture channelFuture = this.dependenciesProvider.getPCEPDispatcher()
+                .createServer(this.address, this.keys, this.manager, this.manager);
+            channelFuture.get();
+            this.channel = channelFuture.channel();
+        } catch (final Exception e) {
+            LOG.error("Failed to instantiate PCEP Topology provider", e);
+        }
+
+    }
+
+    @Override
+    public ListenableFuture<Void> closeServiceInstance() {
+        LOG.info("Close Topology Provider Singleton Service {}", getIdentifier().getValue());
+
+        //FIXME return also channelClose once ListenableFuture implements wildcard
+        this.channel.close().addListener((ChannelFutureListener) future ->
+            Preconditions.checkArgument(future.isSuccess(), "Channel failed to close: %s", future.cause()));
 
         try {
             this.network.close();
@@ -116,18 +166,11 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference impleme
         } catch (final Exception e) {
             LOG.error("Failed to unregister element-level RPCs", e);
         }
-        try {
-            this.manager.close();
-        } catch (final Exception e) {
-            LOG.error("Failed to shutdown session manager", e);
-        }
-        if (this.serviceRegistration != null) {
-            this.serviceRegistration.unregister();
-            this.serviceRegistration = null;
-        }
+        return this.manager.closeServiceInstance();
     }
 
-    public synchronized void setServiceRegistration(final ServiceRegistration<?> serviceRegistration) {
-        this.serviceRegistration = serviceRegistration;
+    @Override
+    public ServiceGroupIdentifier getIdentifier() {
+        return this.scheduler.getIdentifier();
     }
 }
