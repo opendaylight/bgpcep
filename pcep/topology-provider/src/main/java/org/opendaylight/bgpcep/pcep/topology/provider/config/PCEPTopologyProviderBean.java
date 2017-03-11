@@ -9,10 +9,14 @@ package org.opendaylight.bgpcep.pcep.topology.provider.config;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.net.InetSocketAddress;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.bgpcep.pcep.topology.provider.PCEPTopologyProvider;
 import org.opendaylight.bgpcep.pcep.topology.provider.TopologySessionListenerFactory;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
@@ -20,6 +24,10 @@ import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistrator;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
+import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
@@ -39,11 +47,13 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
     private final TopologySessionListenerFactory sessionListenerFactory;
     private final RpcProviderRegistry rpcProviderRegistry;
     private final BundleContext bundleContext;
-    private PCEPTopologyProvider pcepTopoProvider;
+    private final ClusterSingletonServiceProvider cssp;
+    private PCEPTopologyProviderBeanCSS pcepTopoProviderCSS;
 
-    public PCEPTopologyProviderBean(final BundleContext bundleContext, final DataBroker dataBroker,
-        final PCEPDispatcher pcepDispatcher, final RpcProviderRegistry rpcProviderRegistry,
+    public PCEPTopologyProviderBean(final ClusterSingletonServiceProvider cssp, final BundleContext bundleContext,
+        final DataBroker dataBroker, final PCEPDispatcher pcepDispatcher, final RpcProviderRegistry rpcProviderRegistry,
         final TopologySessionListenerFactory sessionListenerFactory) {
+        this.cssp = Preconditions.checkNotNull(cssp);
         this.bundleContext = Preconditions.checkNotNull(bundleContext);
         this.pcepDispatcher = Preconditions.checkNotNull(pcepDispatcher);
         this.dataBroker = Preconditions.checkNotNull(dataBroker);
@@ -59,25 +69,19 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
 
     @Override
     public void close() {
-        if (this.pcepTopoProvider != null) {
-            this.pcepTopoProvider.close();
+        if (this.pcepTopoProviderCSS != null) {
+            this.pcepTopoProviderCSS.close();
         }
     }
 
     public void start(final InetSocketAddress inetSocketAddress, final Optional<KeyMapping> keys,
         final InstructionScheduler schedulerDependency, final TopologyId topologyId,
         final Optional<PCEPTopologyProviderRuntimeRegistrator> runtime, final short rpcTimeout) {
-        Preconditions.checkState(this.pcepTopoProvider == null,
+        Preconditions.checkState(this.pcepTopoProviderCSS == null,
             "Previous instance %s was not closed.", this);
         try {
-            this.pcepTopoProvider = PCEPTopologyProvider.create(this,
-                inetSocketAddress, keys, schedulerDependency, topologyId, runtime, rpcTimeout);
-
-            final Dictionary<String, String> properties = new Hashtable<>();
-            properties.put(PCEPTopologyProvider.class.getName(), topologyId.getValue());
-            final ServiceRegistration<?> serviceRegistration = this.bundleContext
-                .registerService(DefaultTopologyReference.class.getName(), this.pcepTopoProvider, properties);
-            this.pcepTopoProvider.setServiceRegistration(serviceRegistration);
+            this.pcepTopoProviderCSS = new PCEPTopologyProviderBeanCSS(inetSocketAddress, keys, schedulerDependency,
+                topologyId, runtime, rpcTimeout);
         } catch (final Exception e) {
             LOG.debug("Failed to create PCEPTopologyProvider {}", topologyId.getValue());
         }
@@ -86,6 +90,11 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
     @Override
     public PCEPDispatcher getPCEPDispatcher() {
         return this.pcepDispatcher;
+    }
+
+    @Override
+    public ClusterSingletonServiceProvider getClusterSingletonServiceProvider() {
+        return this.cssp;
     }
 
     @Override
@@ -101,5 +110,70 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
     @Override
     public TopologySessionListenerFactory getTopologySessionListenerFactory() {
         return this.sessionListenerFactory;
+    }
+
+    private class PCEPTopologyProviderBeanCSS implements ClusterSingletonService, AutoCloseable {
+        private final ServiceGroupIdentifier sgi;
+        private ServiceRegistration<?> serviceRegistration;
+        private ClusterSingletonServiceRegistration cssRegistration;
+        private final PCEPTopologyProvider pcepTopoProvider;
+        @GuardedBy("this")
+        private boolean serviceInstantiated;
+
+        PCEPTopologyProviderBeanCSS(final InetSocketAddress inetSocketAddress, final Optional<KeyMapping> keys,
+            final InstructionScheduler schedulerDependency, final TopologyId topologyId,
+            final Optional<PCEPTopologyProviderRuntimeRegistrator> runtime, final short rpcTimeout) throws Exception {
+                this.sgi = schedulerDependency.getIdentifier();
+                this.pcepTopoProvider = PCEPTopologyProvider.create(PCEPTopologyProviderBean.this,
+                    inetSocketAddress, keys, schedulerDependency, topologyId, runtime, rpcTimeout);
+
+                final Dictionary<String, String> properties = new Hashtable<>();
+                properties.put(PCEPTopologyProvider.class.getName(), topologyId.getValue());
+                this.serviceRegistration = PCEPTopologyProviderBean.this.bundleContext
+                    .registerService(DefaultTopologyReference.class.getName(), this.pcepTopoProvider, properties);
+            LOG.info("PCEP Topology Provider service {} registered, RIB {}", getIdentifier().getValue());
+            this.cssRegistration = PCEPTopologyProviderBean.this.cssp.registerClusterSingletonService(this);
+        }
+
+        @Override
+        public synchronized void instantiateServiceInstance() {
+            LOG.info("RIB Singleton Service {} instantiated", getIdentifier().getValue());
+            if (this.pcepTopoProvider != null) {
+                this.pcepTopoProvider.instantiateServiceInstance();
+                this.serviceInstantiated = true;
+            }
+        }
+
+        @Override
+        public synchronized ListenableFuture<Void> closeServiceInstance() {
+            LOG.info("Close Topology Provider Singleton Service {}", getIdentifier().getValue());
+            if (this.pcepTopoProvider != null && this.serviceInstantiated) {
+                this.serviceInstantiated = false;
+                return this.pcepTopoProvider.closeServiceInstance();
+            }
+            return Futures.immediateFuture(null);
+        }
+
+        @Nonnull
+        @Override
+        public ServiceGroupIdentifier getIdentifier() {
+            return this.sgi;
+        }
+
+        @Override
+        public void close() {
+            if (this.cssRegistration != null) {
+                try {
+                    this.cssRegistration.close();
+                } catch (final Exception e) {
+                    LOG.debug("Failed to close PCEP Topology Provider service {}", this.sgi.getValue(), e);
+                }
+                this.cssRegistration = null;
+            }
+            if (this.serviceRegistration != null) {
+                this.serviceRegistration.unregister();
+                this.serviceRegistration = null;
+            }
+        }
     }
 }
