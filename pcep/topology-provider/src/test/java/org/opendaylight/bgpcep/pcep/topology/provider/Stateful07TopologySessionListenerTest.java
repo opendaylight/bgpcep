@@ -323,7 +323,7 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         verify(this.listenerReg, times(0)).close();
         // send request
         final Future<RpcResult<AddLspOutput>> futureOutput = this.topologyRpcs.addLsp(createAddLspInput());
-        this.manager.close();
+        this.manager.closeServiceInstance();
         verify(this.listenerReg, times(1)).close();
         final AddLspOutput output = futureOutput.get().getResult();
         // deal with unsent request after session down
@@ -340,7 +340,7 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
     @Test
     public void testOnServerSessionManagerUnstarted() throws InterruptedException, ExecutionException,
         TransactionCommitFailedException, ReadFailedException {
-        this.manager.close();
+        this.manager.closeServiceInstance();
         // the registration should not be closed since it's never initialized
         verify(this.listenerReg, times(0)).close();
         this.listener.onSessionUp(this.session);
