@@ -20,6 +20,7 @@ import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistrator;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
@@ -39,11 +40,13 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
     private final TopologySessionListenerFactory sessionListenerFactory;
     private final RpcProviderRegistry rpcProviderRegistry;
     private final BundleContext bundleContext;
+    private final ClusterSingletonServiceProvider cssp;
     private PCEPTopologyProvider pcepTopoProvider;
 
-    public PCEPTopologyProviderBean(final BundleContext bundleContext, final DataBroker dataBroker,
-        final PCEPDispatcher pcepDispatcher, final RpcProviderRegistry rpcProviderRegistry,
+    public PCEPTopologyProviderBean(final ClusterSingletonServiceProvider cssp, final BundleContext bundleContext,
+        final DataBroker dataBroker, final PCEPDispatcher pcepDispatcher, final RpcProviderRegistry rpcProviderRegistry,
         final TopologySessionListenerFactory sessionListenerFactory) {
+        this.cssp = Preconditions.checkNotNull(cssp);
         this.bundleContext = Preconditions.checkNotNull(bundleContext);
         this.pcepDispatcher = Preconditions.checkNotNull(pcepDispatcher);
         this.dataBroker = Preconditions.checkNotNull(dataBroker);
@@ -86,6 +89,11 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
     @Override
     public PCEPDispatcher getPCEPDispatcher() {
         return this.pcepDispatcher;
+    }
+
+    @Override
+    public ClusterSingletonServiceProvider getClusterSingletonServiceProvider() {
+        return this.cssp;
     }
 
     @Override
