@@ -44,8 +44,9 @@ public class PCEPTopologyDeployerImpl implements PCEPTopologyDeployer, AutoClose
         final PCEPTopologyProviderBean PCEPTopologyProviderBean = (PCEPTopologyProviderBean) this.container
             .getComponentInstance(PCEPTopologyProviderBean.class.getSimpleName());
         this.pcepTopologyServices.put(topologyId, PCEPTopologyProviderBean);
-        PCEPTopologyProviderBean.start(inetSocketAddress, keys, schedulerDependency, topologyId,
-            runtime, rpcTimeout);
+        final PCEPTopologyConfigDependencies configDependencies = new PCEPTopologyConfigDependencies(inetSocketAddress,
+            keys, schedulerDependency, topologyId, runtime, rpcTimeout);
+        PCEPTopologyProviderBean.start(configDependencies);
     }
 
     @Override
