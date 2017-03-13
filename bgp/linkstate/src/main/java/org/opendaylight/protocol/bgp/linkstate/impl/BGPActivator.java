@@ -88,7 +88,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
     public BGPActivator() {
         super();
         this.ianaLinkstateAttributeType = true;
-        rsvpTeObjectRegistry = null;
+        this.rsvpTeObjectRegistry = null;
     }
 
     public BGPActivator(final boolean ianaLinkstateAttributeType, final RSVPTeObjectRegistry rsvpTeObjectRegistry) {

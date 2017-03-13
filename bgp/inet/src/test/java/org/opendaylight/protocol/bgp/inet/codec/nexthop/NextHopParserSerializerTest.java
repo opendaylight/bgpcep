@@ -45,42 +45,42 @@ public class NextHopParserSerializerTest {
 
     @Before
     public final void setUp() {
-        ipv4NextHopParserSerializer = new Ipv4NextHopParserSerializer();
-        ipv6NextHopParserSerializer = new Ipv6NextHopParserSerializer();
-        buffer = Unpooled.buffer();
+        this.ipv4NextHopParserSerializer = new Ipv4NextHopParserSerializer();
+        this.ipv6NextHopParserSerializer = new Ipv6NextHopParserSerializer();
+        this.buffer = Unpooled.buffer();
     }
 
     @Test
     public void testSerializeIpv4NextHopCase() throws BGPParsingException {
         final byte[] ipv4B = {42, 42, 42, 42};
-        hop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
+        this.hop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
             .setGlobal(new Ipv4Address("42.42.42.42")).build()).build();
 
-        ipv4NextHopParserSerializer.serializeNextHop(hop, buffer);
-        assertArrayEquals(ipv4B, ByteArray.readAllBytes(buffer));
+        this.ipv4NextHopParserSerializer.serializeNextHop(this.hop, this.buffer);
+        assertArrayEquals(ipv4B, ByteArray.readAllBytes(this.buffer));
 
-        final CNextHop parsedHop = ipv4NextHopParserSerializer.parseNextHop(Unpooled.wrappedBuffer(ipv4B));
-        assertTrue(hop instanceof Ipv4NextHopCase);
-        assertEquals(hop, parsedHop);
+        final CNextHop parsedHop = this.ipv4NextHopParserSerializer.parseNextHop(Unpooled.wrappedBuffer(ipv4B));
+        assertTrue(this.hop instanceof Ipv4NextHopCase);
+        assertEquals(this.hop, parsedHop);
     }
 
     @Test
     public void testSerializeIpv6LinkNextHopCase() throws BGPParsingException {
-        hop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder().setGlobal(ipv6).setLinkLocal(ipv6l).build()).build();
-        buffer.clear();
-        ipv6NextHopParserSerializer.serializeNextHop(hop, buffer);
-        assertArrayEquals(ipv6lB, ByteArray.readAllBytes(buffer));
+        this.hop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder().setGlobal(ipv6).setLinkLocal(ipv6l).build()).build();
+        this.buffer.clear();
+        this.ipv6NextHopParserSerializer.serializeNextHop(this.hop, this.buffer);
+        assertArrayEquals(ipv6lB, ByteArray.readAllBytes(this.buffer));
 
-        final CNextHop parsedHop = ipv6NextHopParserSerializer.parseNextHop(Unpooled.wrappedBuffer(ipv6lB));
+        final CNextHop parsedHop = this.ipv6NextHopParserSerializer.parseNextHop(Unpooled.wrappedBuffer(ipv6lB));
         assertTrue(parsedHop instanceof Ipv6NextHopCase);
-        assertEquals(hop, parsedHop);
+        assertEquals(this.hop, parsedHop);
     }
 
     @Test
     public void testSerializeIpv4NextHopEmpty() {
-        buffer.clear();
+        this.buffer.clear();
         try {
-            ipv4NextHopParserSerializer.serializeNextHop(() -> null, buffer);
+            this.ipv4NextHopParserSerializer.serializeNextHop(() -> null, this.buffer);
         } catch (final IllegalArgumentException e) {
             assertEquals("cNextHop is not a Ipv4 NextHop object.", e.getMessage());
         }
@@ -88,9 +88,9 @@ public class NextHopParserSerializerTest {
 
     @Test
     public void testSerializeIpv6NextHopEmpty() {
-        buffer.clear();
+        this.buffer.clear();
         try {
-            ipv6NextHopParserSerializer.serializeNextHop(() -> null, buffer);
+            this.ipv6NextHopParserSerializer.serializeNextHop(() -> null, this.buffer);
         } catch (final IllegalArgumentException e) {
             assertEquals("cNextHop is not a Ipv6 NextHop object.", e.getMessage());
         }

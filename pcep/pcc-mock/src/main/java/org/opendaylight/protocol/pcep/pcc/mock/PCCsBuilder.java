@@ -81,7 +81,7 @@ final class PCCsBuilder {
         for (int i = 0; i < this.pccCount; i++) {
             final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(this.lsps, currentAddress,
                 this.redelegationTimeout, this.stateTimeout, this.timer, timerHandler);
-            createPCC(new InetSocketAddress(currentAddress, localAddress.getPort()), tunnelManager, initialDBVersion);
+            createPCC(new InetSocketAddress(currentAddress, this.localAddress.getPort()), tunnelManager, initialDBVersion);
             currentAddress = InetAddresses.increment(currentAddress);
         }
     }
@@ -91,8 +91,8 @@ final class PCCsBuilder {
         final PCEPSessionNegotiatorFactory<PCEPSessionImpl> snf = getSessionNegotiatorFactory();
         for (final InetSocketAddress pceAddress : this.remoteAddress) {
             this.pccDispatcher.createClient(pceAddress, this.reconnectTime, () -> new PCCSessionListener(
-                remoteAddress.indexOf(pceAddress), tunnelManager, pcError), snf,
-                KeyMapping.getKeyMapping(pceAddress.getAddress(), password), localAddress, initialDBVersion);
+                    this.remoteAddress.indexOf(pceAddress), tunnelManager, this.pcError), snf,
+                KeyMapping.getKeyMapping(pceAddress.getAddress(), this.password), localAddress, initialDBVersion);
         }
     }
 

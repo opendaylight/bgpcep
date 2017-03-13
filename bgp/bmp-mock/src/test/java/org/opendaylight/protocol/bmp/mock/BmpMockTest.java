@@ -60,8 +60,8 @@ public class BmpMockTest {
     public void testMain() throws Exception {
         final InetSocketAddress serverAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
         final BmpSessionListenerFactory bmpSessionListenerFactory = () -> BmpMockTest.this.sessionListener;
-        final ChannelFuture futureServer = bmpDispatcher.createServer(serverAddr,
-            bmpSessionListenerFactory, Optional.<KeyMapping>absent());
+        final ChannelFuture futureServer = this.bmpDispatcher.createServer(serverAddr,
+            bmpSessionListenerFactory, Optional.absent());
         waitFutureComplete(futureServer);
         Channel serverChannel;
         int sessionUpWait;
@@ -93,8 +93,8 @@ public class BmpMockTest {
         // create a local server in passive mode instead
         BmpMock.main(new String[]{"--local_address", InetSocketAddressUtil.toHostAndPort(serverAddr).toString(),
             "--peers_count", "3", "--pre_policy_routes", "3", "--passive"});
-        final ChannelFuture futureServer = bmpDispatcher.createClient(serverAddr,
-            bmpSessionListenerFactory, Optional.<KeyMapping>absent());
+        final ChannelFuture futureServer = this.bmpDispatcher.createClient(serverAddr,
+            bmpSessionListenerFactory, Optional.absent());
         waitFutureComplete(futureServer);
         Channel serverChannel;
         int sessionUpWait;

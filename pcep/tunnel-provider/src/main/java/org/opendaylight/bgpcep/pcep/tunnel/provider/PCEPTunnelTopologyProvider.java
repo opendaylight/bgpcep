@@ -44,10 +44,10 @@ public final class PCEPTunnelTopologyProvider implements AutoCloseable {
 
     @Override
     public void close() {
-        reg.close();
+        this.reg.close();
     }
 
     public TopologyReference getTopologyReference() {
-        return ref;
+        return this.ref;
     }
 }

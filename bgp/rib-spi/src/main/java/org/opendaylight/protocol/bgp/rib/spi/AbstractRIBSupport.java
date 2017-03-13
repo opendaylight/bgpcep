@@ -144,13 +144,13 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     @Nonnull
     @Override
     public final Class<? extends AddressFamily> getAfi() {
-        return afiClass;
+        return this.afiClass;
     }
 
     @Nonnull
     @Override
     public final Class<? extends SubsequentAddressFamily> getSafi() {
-        return safiClass;
+        return this.safiClass;
     }
 
     /**
