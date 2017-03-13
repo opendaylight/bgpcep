@@ -168,7 +168,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         if (requests != null) {
             mBuilder.setRequests(requests);
         } else {
-            errors.add(createErrorMsg(PCEPErrors.RP_MISSING, Optional.<Rp>absent()));
+            errors.add(createErrorMsg(PCEPErrors.RP_MISSING, Optional.absent()));
         }
         if (!objects.isEmpty()) {
             throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
@@ -196,13 +196,13 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
             Rp rpObj = null;
             if (!(objects.get(0) instanceof Rp)) {
                 // if RP obj is missing return error only
-                errors.add(createErrorMsg(PCEPErrors.RP_MISSING, Optional.<Rp>absent()));
+                errors.add(createErrorMsg(PCEPErrors.RP_MISSING, Optional.absent()));
                 return null;
             }
             rpObj = (Rp) objects.get(0);
             objects.remove(0);
             if (!rpObj.isProcessingRule()) {
-                errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.<Rp>absent()));
+                errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.absent()));
             } else {
                 rBuilder.setRp(rpObj);
             }

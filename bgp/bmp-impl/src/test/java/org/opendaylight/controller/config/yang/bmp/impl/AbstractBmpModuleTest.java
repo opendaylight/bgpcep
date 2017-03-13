@@ -15,8 +15,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import org.junit.Before;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.config.manager.impl.AbstractConfigTest;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
@@ -38,14 +36,11 @@ import org.osgi.framework.ServiceReference;
 public class AbstractBmpModuleTest extends AbstractConfigTest {
     @Before
     public void setUp() throws Exception {
-        doAnswer(new Answer<Filter>() {
-            @Override
-            public Filter answer(final InvocationOnMock invocation) {
-                final String str = invocation.getArgumentAt(0, String.class);
-                final Filter mockFilter = mock(Filter.class);
-                doReturn(str).when(mockFilter).toString();
-                return mockFilter;
-            }
+        doAnswer(invocation -> {
+            final String str = invocation.getArgumentAt(0, String.class);
+            final Filter mockFilter = mock(Filter.class);
+            doReturn(str).when(mockFilter).toString();
+            return mockFilter;
         }).when(mockedContext).createFilter(anyString());
 
         Mockito.doNothing().when(this.mockedContext).addServiceListener(any(ServiceListener.class), Mockito.anyString());

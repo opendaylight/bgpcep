@@ -12,7 +12,6 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
@@ -86,7 +85,7 @@ public final class Main {
             } else if (args[argIdx].equals("--password")) {
                 password = args[++argIdx];
             } else if (args[argIdx].equals("--reconnect")) {
-                reconnectTime = Integer.valueOf(args[++argIdx]).intValue();
+                reconnectTime = Integer.valueOf(args[++argIdx]);
             } else if (args[argIdx].equals("--redelegation-timeout")) {
                 redelegationTimeout = Integer.valueOf(args[++argIdx]);
             } else if (args[argIdx].equals("--state-timeout")) {
@@ -140,11 +139,6 @@ public final class Main {
     }
 
     private static ch.qos.logback.classic.Logger getRootLogger(final LoggerContext lc) {
-        return Iterables.find(lc.getLoggerList(), new Predicate<Logger>() {
-            @Override
-            public boolean apply(final Logger input) {
-                return (input != null) ? input.getName().equals(Logger.ROOT_LOGGER_NAME) : false;
-            }
-        });
+        return Iterables.find(lc.getLoggerList(), input -> (input != null) ? input.getName().equals(Logger.ROOT_LOGGER_NAME) : false);
     }
 }

@@ -37,7 +37,7 @@ public final class PerTableTypeRouteCounter {
     }
 
     public final synchronized void init(@Nonnull Set<TablesKey> tablesKeySet) {
-        tablesKeySet.stream().forEach(tablesKey -> init(tablesKey));
+        tablesKeySet.stream().forEach(this::init);
     }
 
     public final synchronized UnsignedInt32Counter init(@Nonnull final TablesKey tablesKey) {
@@ -80,6 +80,6 @@ public final class PerTableTypeRouteCounter {
 
     public final void resetAll() {
         LOG.debug("Resetting all route counters..");
-        this.counters.values().stream().forEach(v -> v.resetCount());
+        this.counters.values().stream().forEach(UnsignedInt32Counter::resetCount);
     }
 }

@@ -114,7 +114,7 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
             if (obj instanceof Rp) {
                 final Rp rp = (Rp) obj;
                 if (rp.isProcessingRule()) {
-                    errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.<Rp>absent()));
+                    errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.absent()));
                     return null;
                 }
                 requestParameters.add(new RpsBuilder().setRp(rp).build());

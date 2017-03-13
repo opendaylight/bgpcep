@@ -96,7 +96,8 @@ public class BgpPeerTest extends AbstractConfig {
         Mockito.verify(this.render).getConfiguredPeerCounter();
         Mockito.verify(this.configurationWriter).apply();
         Mockito.verify(this.bgpPeerRegistry).addPeer(any(), any(), any());
-        Mockito.verify(this.dispatcher).createReconnectingClient(any(InetSocketAddress.class), any(BGPPeerRegistry.class), anyInt(), any(Optional.class));
+        Mockito.verify(this.dispatcher).createReconnectingClient(any(InetSocketAddress.class),
+            any(BGPPeerRegistry.class), anyInt(), any(Optional.class));
 
         try {
             this.bgpPeer.start(this.rib, neighbor, this.mappingService, this.configurationWriter);

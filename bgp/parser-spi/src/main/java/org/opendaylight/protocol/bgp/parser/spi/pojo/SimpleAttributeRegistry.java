@@ -58,7 +58,7 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
     private final HandlerRegistry<DataContainer, AttributeParser, AttributeSerializer> handlers = new HandlerRegistry<>();
     private final Map<AbstractRegistration, AttributeSerializer> serializers = new LinkedHashMap<>();
     private final AtomicReference<Iterable<AttributeSerializer>> roSerializers =
-        new AtomicReference<Iterable<AttributeSerializer>>(this.serializers.values());
+        new AtomicReference<>(this.serializers.values());
     private final List<UnrecognizedAttributes> unrecognizedAttributes = new ArrayList<>();
 
 

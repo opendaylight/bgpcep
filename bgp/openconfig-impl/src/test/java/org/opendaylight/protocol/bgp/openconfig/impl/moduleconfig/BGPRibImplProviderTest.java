@@ -103,7 +103,7 @@ public class BGPRibImplProviderTest {
 
     private Bgp createBgp() {
         final GlobalBuilder global = new GlobalBuilder();
-        final List<AfiSafi> families = new ArrayList<AfiSafi>();
+        final List<AfiSafi> families = new ArrayList<>();
         global.setAfiSafis(new AfiSafisBuilder().setAfiSafi(families).build())
             .setConfig(new ConfigBuilder()
                 .setRouterId(new Ipv4Address("1.1.1.1"))

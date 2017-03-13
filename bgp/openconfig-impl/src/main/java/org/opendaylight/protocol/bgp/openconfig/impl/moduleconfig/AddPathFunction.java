@@ -41,6 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controll
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.services.service.Instance;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 
+@SuppressWarnings("ALL")
 final class AddPathFunction {
 
     private AddPathFunction() {

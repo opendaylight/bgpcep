@@ -289,8 +289,8 @@ public class FlowspecL3vpnIpv6NlriParserTest {
 
     private FlowspecType createLabel() {
         final List<FlowLabel> labels = Lists.newArrayList();
-        labels.add(new FlowLabelBuilder().setOp(new NumericOperand(false, false, true, false, false)).setValue(new Long(16777222L)).build());
-        labels.add(new FlowLabelBuilder().setOp(new NumericOperand(false, true, true, false, false)).setValue(new Long(258L)).build());
+        labels.add(new FlowLabelBuilder().setOp(new NumericOperand(false, false, true, false, false)).setValue(16777222L).build());
+        labels.add(new FlowLabelBuilder().setOp(new NumericOperand(false, true, true, false, false)).setValue(258L).build());
         return new FlowLabelCaseBuilder().setFlowLabel(labels).build();
     }
 

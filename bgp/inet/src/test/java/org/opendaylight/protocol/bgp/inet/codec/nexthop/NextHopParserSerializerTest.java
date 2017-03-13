@@ -29,7 +29,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv6NextHopCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.ipv6.next.hop._case.Ipv6NextHopBuilder;
-import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 public class NextHopParserSerializerTest {
 
@@ -81,12 +80,7 @@ public class NextHopParserSerializerTest {
     public void testSerializeIpv4NextHopEmpty() {
         buffer.clear();
         try {
-            ipv4NextHopParserSerializer.serializeNextHop(new CNextHop() {
-                @Override
-                public Class<? extends DataContainer> getImplementedInterface() {
-                    return null;
-                }
-            }, buffer);
+            ipv4NextHopParserSerializer.serializeNextHop(() -> null, buffer);
         } catch (final IllegalArgumentException e) {
             assertEquals("cNextHop is not a Ipv4 NextHop object.", e.getMessage());
         }
@@ -96,12 +90,7 @@ public class NextHopParserSerializerTest {
     public void testSerializeIpv6NextHopEmpty() {
         buffer.clear();
         try {
-            ipv6NextHopParserSerializer.serializeNextHop(new CNextHop() {
-                @Override
-                public Class<? extends DataContainer> getImplementedInterface() {
-                    return null;
-                }
-            }, buffer);
+            ipv6NextHopParserSerializer.serializeNextHop(() -> null, buffer);
         } catch (final IllegalArgumentException e) {
             assertEquals("cNextHop is not a Ipv6 NextHop object.", e.getMessage());
         }
