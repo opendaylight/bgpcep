@@ -24,7 +24,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
-public class SimpleEvpnNlriRegistry implements EvpnRegistry {
+public final class SimpleEvpnNlriRegistry implements EvpnRegistry {
     private static final SimpleEvpnNlriRegistry SINGLETON = new SimpleEvpnNlriRegistry();
     private final HandlerRegistry<DataContainer, EvpnParser, EvpnSerializer> handlers = new HandlerRegistry<>();
     private final MultiRegistry<NodeIdentifier, EvpnSerializer> modelHandlers = new MultiRegistry<>();

@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
  * loss of user code.
  *
  */
-public class RouteDistinguisherBuilder {
+public final class RouteDistinguisherBuilder {
 
     private static final Pattern RD_TWO_OCTET_AS =
         Pattern.compile("0:"
