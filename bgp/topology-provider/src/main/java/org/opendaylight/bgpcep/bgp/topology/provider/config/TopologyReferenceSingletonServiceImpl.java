@@ -9,7 +9,6 @@
 package org.opendaylight.bgpcep.bgp.topology.provider.config;
 
 import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.function.Function;
 import org.opendaylight.bgpcep.bgp.topology.provider.AbstractTopologyBuilder;
