@@ -21,14 +21,14 @@ abstract class AbstractFamilyRegistry<C, N> {
     protected synchronized AutoCloseable registerFamily(final Class<? extends C> clazz, final N number) {
         Preconditions.checkNotNull(clazz);
 
-        final Class<?> c = numberToClass.get(number);
+        final Class<?> c = this.numberToClass.get(number);
         Preconditions.checkState(c == null, "Number " + number + " already registered to " + c);
 
-        final N n = classToNumber.get(clazz);
+        final N n = this.classToNumber.get(clazz);
         Preconditions.checkState(n == null, "Class " + clazz + " already registered to " + n);
 
-        numberToClass.put(number, clazz);
-        classToNumber.put(clazz, number);
+        this.numberToClass.put(number, clazz);
+        this.classToNumber.put(clazz, number);
 
         final Object lock = this;
         return new AbstractRegistration() {
@@ -36,18 +36,18 @@ abstract class AbstractFamilyRegistry<C, N> {
             @Override
             protected void removeRegistration() {
                 synchronized (lock) {
-                    classToNumber.remove(clazz);
-                    numberToClass.remove(number);
+                    AbstractFamilyRegistry.this.classToNumber.remove(clazz);
+                    AbstractFamilyRegistry.this.numberToClass.remove(number);
                 }
             }
         };
     }
 
     protected Class<? extends C> classForFamily(final N number) {
-        return numberToClass.get(number);
+        return this.numberToClass.get(number);
     }
 
     protected N numberForClass(final Class<? extends C> clazz) {
-        return classToNumber.get(clazz);
+        return this.classToNumber.get(clazz);
     }
 }

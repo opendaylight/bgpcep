@@ -40,33 +40,33 @@ final class PCEPRequest {
     }
 
     protected ListenableFuture<OperationResult> getFuture() {
-        return future;
+        return this.future;
     }
 
     public Metadata getMetadata() {
-        return metadata;
+        return this.metadata;
     }
 
     public State getState() {
-        return state;
+        return this.state;
     }
 
     Timer getTimer() {
-        return timer;
+        return this.timer;
     }
 
     synchronized void done(final OperationResult result) {
-        if (state != State.DONE) {
-            LOG.debug("Request went from {} to {}", state, State.DONE);
-            state = State.DONE;
-            timer.cancel();
-            future.set(result);
+        if (this.state != State.DONE) {
+            LOG.debug("Request went from {} to {}", this.state, State.DONE);
+            this.state = State.DONE;
+            this.timer.cancel();
+            this.future.set(result);
         }
     }
 
     synchronized void done() {
         OperationResult result;
-        switch (state) {
+        switch (this.state) {
         case UNSENT:
             result = OperationResults.UNSENT;
             break;
@@ -82,9 +82,9 @@ final class PCEPRequest {
     }
 
     synchronized void sent() {
-        if (state == State.UNSENT) {
-            LOG.debug("Request went from {} to {}", state, State.UNACKED);
-            state = State.UNACKED;
+        if (this.state == State.UNSENT) {
+            LOG.debug("Request went from {} to {}", this.state, State.UNACKED);
+            this.state = State.UNACKED;
         }
     }
 

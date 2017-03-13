@@ -32,18 +32,18 @@ public class SimplePCEPExtensionProviderContextActivator implements AutoCloseabl
     }
 
     public void start() {
-        LOG.debug("Starting {} PCEPExtensionProviderActivator instances", extensionActivators.size());
+        LOG.debug("Starting {} PCEPExtensionProviderActivator instances", this.extensionActivators.size());
 
-        for(final PCEPExtensionProviderActivator e : extensionActivators) {
-            e.start(providerContext);
+        for(final PCEPExtensionProviderActivator e : this.extensionActivators) {
+            e.start(this.providerContext);
         }
     }
 
     @Override
     public void close() {
-        LOG.debug("Stopping {} BGPExtensionProviderActivator instances", extensionActivators.size());
+        LOG.debug("Stopping {} BGPExtensionProviderActivator instances", this.extensionActivators.size());
 
-        for(final PCEPExtensionProviderActivator e : extensionActivators) {
+        for(final PCEPExtensionProviderActivator e : this.extensionActivators) {
             e.stop();
         }
     }

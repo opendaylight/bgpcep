@@ -63,7 +63,7 @@ public final class BmpSessionImpl extends SimpleChannelInboundHandler<Notificati
     @Override
     public void channelActive(final ChannelHandlerContext ctx) throws Exception {
         this.channel = ctx.channel();
-        LOG.info("Starting session {} <-> {}.", channel.localAddress(), channel.remoteAddress());
+        LOG.info("Starting session {} <-> {}.", this.channel.localAddress(), this.channel.remoteAddress());
         sessionUp();
     }
 
@@ -140,7 +140,7 @@ public final class BmpSessionImpl extends SimpleChannelInboundHandler<Notificati
     }
 
     private void sessionUp() {
-        Preconditions.checkArgument(State.IDLE == state);
+        Preconditions.checkArgument(State.IDLE == this.state);
         this.listener.onSessionUp(this);
         this.state = State.UP;
     }

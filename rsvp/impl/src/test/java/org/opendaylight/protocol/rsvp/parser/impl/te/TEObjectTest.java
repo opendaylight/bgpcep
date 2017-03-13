@@ -34,9 +34,9 @@ public class TEObjectTest {
 
     @Before
     public void setUp() {
-        act = new RSVPActivator();
-        context = new SimpleRSVPExtensionProviderContext();
-        act.start(context);
+        this.act = new RSVPActivator();
+        this.context = new SimpleRSVPExtensionProviderContext();
+        this.act.start(this.context);
     }
 
     @Test
@@ -97,7 +97,7 @@ public class TEObjectTest {
 
     @Test
     public void testExcludeRouteParser() throws RSVPParsingException {
-        final ExcludeRouteObjectParser parser = new ExcludeRouteObjectParser(context.getXROSubobjectHandlerRegistry());
+        final ExcludeRouteObjectParser parser = new ExcludeRouteObjectParser(this.context.getXROSubobjectHandlerRegistry());
         final RsvpTeObject obj = parser.parseObject(Unpooled.copiedBuffer(
             ByteArray.subByte(TEObjectUtil.TE_LSP_EXCLUDE_ROUTE, 4, TEObjectUtil.TE_LSP_EXCLUDE_ROUTE.length - 4)));
 
@@ -108,7 +108,7 @@ public class TEObjectTest {
 
     @Test
     public void testExplicitRouteParser() throws RSVPParsingException {
-        final ExplicitRouteObjectParser parser = new ExplicitRouteObjectParser(context.getEROSubobjectHandlerRegistry());
+        final ExplicitRouteObjectParser parser = new ExplicitRouteObjectParser(this.context.getEROSubobjectHandlerRegistry());
         final RsvpTeObject obj = parser.parseObject(Unpooled.copiedBuffer(ByteArray.subByte(TEObjectUtil.TE_LSP_EXPLICIT, 4,
             TEObjectUtil.TE_LSP_EXPLICIT.length - 4)));
 
@@ -141,7 +141,7 @@ public class TEObjectTest {
 
     @Test
     public void testPrimaryPathRouteParser() throws RSVPParsingException {
-        final PrimaryPathRouteObjectParser parser = new PrimaryPathRouteObjectParser(context.getEROSubobjectHandlerRegistry());
+        final PrimaryPathRouteObjectParser parser = new PrimaryPathRouteObjectParser(this.context.getEROSubobjectHandlerRegistry());
         final RsvpTeObject obj = parser.parseObject(Unpooled.copiedBuffer(
             ByteArray.subByte(TEObjectUtil.TE_LSP_PRIMARY_PATH_ROUTE, 4, TEObjectUtil.TE_LSP_PRIMARY_PATH_ROUTE
                 .length - 4)));
@@ -186,7 +186,7 @@ public class TEObjectTest {
 
     @Test
     public void testRecordRouteParser() throws RSVPParsingException {
-        final RecordRouteObjectParser parser = new RecordRouteObjectParser(context.getRROSubobjectHandlerRegistry());
+        final RecordRouteObjectParser parser = new RecordRouteObjectParser(this.context.getRROSubobjectHandlerRegistry());
         final RsvpTeObject obj = parser.parseObject(Unpooled.copiedBuffer(
             ByteArray.subByte(TEObjectUtil.TE_LSP_RECORD_ROUTE, 4, TEObjectUtil.TE_LSP_RECORD_ROUTE.length - 4)));
 
@@ -197,7 +197,7 @@ public class TEObjectTest {
 
     @Test
     public void testSecondaryExplicitRouteParser() throws RSVPParsingException {
-        final SecondaryExplicitRouteObjectParser parser = new SecondaryExplicitRouteObjectParser(context.getEROSubobjectHandlerRegistry());
+        final SecondaryExplicitRouteObjectParser parser = new SecondaryExplicitRouteObjectParser(this.context.getEROSubobjectHandlerRegistry());
         final RsvpTeObject obj = parser.parseObject(Unpooled.copiedBuffer(
             ByteArray.subByte(TEObjectUtil.TE_LSP_SECONDARY_EXPLICIT, 4, TEObjectUtil.TE_LSP_SECONDARY_EXPLICIT
                 .length - 4)));
@@ -209,7 +209,7 @@ public class TEObjectTest {
 
     @Test
     public void testSecondaryRecordRouteObjectParser() throws RSVPParsingException {
-        final SecondaryRecordRouteObjectParser parser = new SecondaryRecordRouteObjectParser(context.getRROSubobjectHandlerRegistry());
+        final SecondaryRecordRouteObjectParser parser = new SecondaryRecordRouteObjectParser(this.context.getRROSubobjectHandlerRegistry());
         final RsvpTeObject obj = parser.parseObject(Unpooled.copiedBuffer(
             ByteArray.subByte(TEObjectUtil.TE_LSP_SECONDARY_RECORD_ROUTE, 4, TEObjectUtil.TE_LSP_SECONDARY_RECORD_ROUTE
                 .length - 4)));

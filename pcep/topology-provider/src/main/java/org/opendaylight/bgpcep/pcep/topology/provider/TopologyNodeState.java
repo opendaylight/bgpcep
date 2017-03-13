@@ -57,23 +57,23 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
     }
 
     public KeyedInstanceIdentifier<Node, NodeKey> getNodeId() {
-        return nodeId;
+        return this.nodeId;
     }
 
     public synchronized Metadata getLspMetadata(final String name) {
-        return metadata.get(name);
+        return this.metadata.get(name);
     }
 
     public synchronized void setLspMetadata(final String name, final Metadata value) {
         if (value == null) {
-            metadata.remove(name);
+            this.metadata.remove(name);
         } else {
-            metadata.put(name, value);
+            this.metadata.put(name, value);
         }
     }
 
     public synchronized void cleanupExcept(final Collection<String> values) {
-        final Iterator<String> it = metadata.keySet().iterator();
+        final Iterator<String> it = this.metadata.keySet().iterator();
         while (it.hasNext()) {
             if (!values.contains(it.next())) {
                 it.remove();
@@ -90,29 +90,29 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
             Futures.addCallback(trans.submit(), new FutureCallback<Void>() {
                 @Override
                 public void onSuccess(final Void result) {
-                    LOG.trace("Internal state for node {} cleaned up successfully", nodeId);
+                    LOG.trace("Internal state for node {} cleaned up successfully", TopologyNodeState.this.nodeId);
                 }
 
                 @Override
                 public void onFailure(final Throwable t) {
-                    LOG.error("Failed to cleanup internal state for session {}", nodeId, t);
+                    LOG.error("Failed to cleanup internal state for session {}", TopologyNodeState.this.nodeId, t);
                 }
             });
         }
 
-        lastReleased = System.nanoTime();
+        this.lastReleased = System.nanoTime();
     }
 
     public synchronized void taken(final boolean retrieveNode) {
         final long now = System.nanoTime();
 
-        if (now - lastReleased > holdStateNanos) {
-            metadata.clear();
+        if (now - this.lastReleased > this.holdStateNanos) {
+            this.metadata.clear();
         }
 
         //try to get the topology's node
         if (retrieveNode) {
-            Futures.addCallback(readOperationalData(nodeId), new FutureCallback<Optional<Node>>() {
+            Futures.addCallback(readOperationalData(this.nodeId), new FutureCallback<Optional<Node>>() {
 
                 @Override
                 public void onSuccess(final Optional<Node> result) {
@@ -120,13 +120,13 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
                         putTopologyNode();
                     } else {
                         //cache retrieved node
-                        initialNodeState = result.get();
+                        TopologyNodeState.this.initialNodeState = result.get();
                     }
                 }
 
                 @Override
                 public void onFailure(final Throwable t) {
-                    LOG.error("Failed to get topology node {}", nodeId, t);
+                    LOG.error("Failed to get topology node {}", TopologyNodeState.this.nodeId, t);
                 }
             });
         } else {
@@ -135,19 +135,19 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
     }
 
     public synchronized Node getInitialNodeState() {
-        return initialNodeState;
+        return this.initialNodeState;
     }
 
     WriteTransaction beginTransaction() {
-        return chain.newWriteOnlyTransaction();
+        return this.chain.newWriteOnlyTransaction();
     }
 
     ReadWriteTransaction rwTransaction() {
-        return chain.newReadWriteTransaction();
+        return this.chain.newReadWriteTransaction();
     }
 
     <T extends DataObject> ListenableFuture<Optional<T>> readOperationalData(final InstanceIdentifier<T> id) {
-        try (final ReadOnlyTransaction t = chain.newReadOnlyTransaction()) {
+        try (final ReadOnlyTransaction t = this.chain.newReadOnlyTransaction()) {
             return t.read(LogicalDatastoreType.OPERATIONAL, id);
         }
     }
@@ -155,23 +155,23 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
     @Override
     public void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction, final Throwable cause) {
         // FIXME: flip internal state, so that the next attempt to update fails, triggering node reconnect
-        LOG.error("Unexpected transaction failure in node {} transaction {}", nodeId, transaction.getIdentifier(), cause);
+        LOG.error("Unexpected transaction failure in node {} transaction {}", this.nodeId, transaction.getIdentifier(), cause);
     }
 
     @Override
     public void onTransactionChainSuccessful(final TransactionChain<?, ?> chain) {
-        LOG.info("Node {} shutdown successfully", nodeId);
+        LOG.info("Node {} shutdown successfully", this.nodeId);
     }
 
     @Override
     public void close() {
-        chain.close();
+        this.chain.close();
     }
 
     private void putTopologyNode() {
-        final Node node = new NodeBuilder().setKey(nodeId.getKey()).setNodeId(nodeId.getKey().getNodeId()).build();
+        final Node node = new NodeBuilder().setKey(this.nodeId.getKey()).setNodeId(this.nodeId.getKey().getNodeId()).build();
         final WriteTransaction t = beginTransaction();
-        t.put(LogicalDatastoreType.OPERATIONAL, nodeId, node);
+        t.put(LogicalDatastoreType.OPERATIONAL, this.nodeId, node);
         t.submit();
     }
 
