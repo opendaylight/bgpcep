@@ -8,12 +8,13 @@
 
 package org.opendaylight.protocol.pcep.segment.routing;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.opendaylight.protocol.util.CheckUtil.readData;
 
 import com.google.common.collect.Lists;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.bgpcep.pcep.topology.provider.AbstractPCEPSessionTest;
@@ -73,14 +74,15 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07Topo
         readData(getDataBroker(), this.pathComputationClientIId, pcc -> {
             //check sr-path
             final List<ReportedLsp> reportedLsps = pcc.getReportedLsp();
-            Assert.assertEquals(1, reportedLsps.size());
+            assertNotNull(reportedLsps);
+            assertEquals(1, reportedLsps.size());
             final ReportedLsp lsp = reportedLsps.get(0);
-            Assert.assertEquals("sr-path1", lsp.getName());
-            Assert.assertEquals(1, lsp.getPath().get(0).getAugmentation(Path1.class).getPathSetupType()
+            assertEquals("sr-path1", lsp.getName());
+            assertEquals(1, lsp.getPath().get(0).getAugmentation(Path1.class).getPathSetupType()
                 .getPst().intValue());
             final List<Subobject> subobjects = lsp.getPath().get(0).getEro().getSubobject();
-            Assert.assertEquals(1, subobjects.size());
-            Assert.assertEquals("1.1.1.1", ((IpNodeId)((SrEroType)subobjects.get(0).getSubobjectType())
+            assertEquals(1, subobjects.size());
+            assertEquals("1.1.1.1", ((IpNodeId)((SrEroType)subobjects.get(0).getSubobjectType())
                 .getNai()).getIpAddress().getIpv4Address().getValue());
             return pcc;
         });
@@ -89,7 +91,9 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07Topo
         this.listener.onMessage(this.session, pcRptMsg);
         readData(getDataBroker(), this.pathComputationClientIId, pcc -> {
             //check second lsp sr-path
-            Assert.assertEquals(2, pcc.getReportedLsp().size());
+            final List<ReportedLsp> reportedLsps = pcc.getReportedLsp();
+            assertNotNull(reportedLsps);
+            assertEquals(2, reportedLsps.size());
             return pcc;
         });
 
@@ -99,12 +103,13 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07Topo
         readData(getDataBroker(), this.pathComputationClientIId, pcc -> {
             //check updated sr-path
             final List<ReportedLsp> reportedLsps = pcc.getReportedLsp();
-            Assert.assertEquals(2, reportedLsps.size());
+            assertNotNull(reportedLsps);
+            assertEquals(2, reportedLsps.size());
             for (final ReportedLsp rlsp : reportedLsps) {
                 if (rlsp.getName().equals("sr-path1")) {
                     final List<Subobject> subobjects = rlsp.getPath().get(0).getEro().getSubobject();
-                    Assert.assertEquals(1, subobjects.size());
-                    Assert.assertEquals("1.1.1.2", ((IpNodeId)((SrEroType)subobjects.get(0)
+                    assertEquals(1, subobjects.size());
+                    assertEquals("1.1.1.2", ((IpNodeId)((SrEroType)subobjects.get(0)
                         .getSubobjectType()).getNai()).getIpAddress().getIpv4Address().getValue());
                 }
             }
