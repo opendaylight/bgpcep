@@ -138,14 +138,11 @@ public class BmpMonitorImplModuleTest extends AbstractBmpModuleTest {
         final SchemaContext context = parseYangStreams(getFilesAsStreams(getYangModelsPaths()));
         final SchemaService mockedSchemaService = mock(SchemaService.class);
         doReturn(context).when(mockedSchemaService).getGlobalContext();
-        doAnswer(new Answer<ListenerRegistration<SchemaContextListener>>() {
-            @Override
-            public ListenerRegistration<SchemaContextListener> answer(final InvocationOnMock invocation) {
-                invocation.getArgumentAt(0, SchemaContextListener.class).onGlobalContextUpdated(context);
-                final ListenerRegistration<SchemaContextListener> reg = mock(ListenerRegistration.class);
-                doNothing().when(reg).close();
-                return reg;
-            }
+        doAnswer(invocation -> {
+            invocation.getArgumentAt(0, SchemaContextListener.class).onGlobalContextUpdated(context);
+            final ListenerRegistration<SchemaContextListener> reg = mock(ListenerRegistration.class);
+            doNothing().when(reg).close();
+            return reg;
         }).when(mockedSchemaService).registerSchemaContextListener(any(SchemaContextListener.class));
 
         setupMockService(SchemaService.class, mockedSchemaService);

@@ -94,12 +94,9 @@ public class PCEPSessionNegotiator extends AbstractSessionNegotiator {
                 }
             });
 
-            this.channel.closeFuture().addListener(new ChannelFutureListener() {
-                @Override
-                public void operationComplete(final ChannelFuture future) {
-                    synchronized (lock) {
-                        sessionReg.removeSessionReference(clientAddress);
-                    }
+            this.channel.closeFuture().addListener((ChannelFutureListener) future -> {
+                synchronized (lock) {
+                    sessionReg.removeSessionReference(clientAddress);
                 }
             });
 

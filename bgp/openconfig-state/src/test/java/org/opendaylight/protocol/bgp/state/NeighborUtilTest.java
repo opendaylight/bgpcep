@@ -62,20 +62,10 @@ public class NeighborUtilTest {
         doReturn(false).when(this.sessionState).isAsn32CapabilitySupported();
         doReturn(false).when(this.sessionState).isAddPathCapabilitySupported();
         doReturn(this.state).when(this.sessionState).getSessionState();
-        Mockito.doAnswer(new Answer<State>() {
-            @Override
-            public State answer(final InvocationOnMock invocation) throws Throwable {
-                return NeighborUtilTest.this.state;
-            }
-        }).when(this.sessionState).getSessionState();
+        Mockito.doAnswer(invocation -> NeighborUtilTest.this.state).when(this.sessionState).getSessionState();
         doReturn(Collections.singleton(TABLES_KEY)).when(this.bgpAfiSafiState).getAfiSafisAdvertized();
         doReturn(Collections.singleton(TABLES_KEY)).when(this.bgpAfiSafiState).getAfiSafisReceived();
-        Mockito.doAnswer(new Answer<Optional>() {
-            @Override
-            public Optional answer(final InvocationOnMock invocation) throws Throwable {
-                return NeighborUtilTest.this.afiSafi;
-            }
-        }).when(this.tableRegistry).getAfiSafiType(eq(TABLES_KEY));
+        Mockito.doAnswer(invocation -> NeighborUtilTest.this.afiSafi).when(this.tableRegistry).getAfiSafiType(eq(TABLES_KEY));
         doReturn(false).when(this.bgpAfiSafiState).isAfiSafiSupported(eq(TABLES_KEY));
         doReturn(false).when(this.bgpAfiSafiState).isGracefulRestartAdvertized(eq(TABLES_KEY));
         doReturn(false).when(this.bgpAfiSafiState).isGracefulRestartReceived(eq(TABLES_KEY));

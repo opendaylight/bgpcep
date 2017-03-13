@@ -38,14 +38,11 @@ import org.osgi.framework.ServiceReference;
 public class AbstractBmpModuleTest extends AbstractConfigTest {
     @Before
     public void setUp() throws Exception {
-        doAnswer(new Answer<Filter>() {
-            @Override
-            public Filter answer(final InvocationOnMock invocation) {
-                final String str = invocation.getArgumentAt(0, String.class);
-                final Filter mockFilter = mock(Filter.class);
-                doReturn(str).when(mockFilter).toString();
-                return mockFilter;
-            }
+        doAnswer(invocation -> {
+            final String str = invocation.getArgumentAt(0, String.class);
+            final Filter mockFilter = mock(Filter.class);
+            doReturn(str).when(mockFilter).toString();
+            return mockFilter;
         }).when(mockedContext).createFilter(anyString());
 
         Mockito.doNothing().when(this.mockedContext).addServiceListener(any(ServiceListener.class), Mockito.anyString());

@@ -82,13 +82,10 @@ public class AbstractPCEPSessionTest {
     public final void setUp() {
         MockitoAnnotations.initMocks(this);
         final ChannelFuture future = new DefaultChannelPromise(this.channel);
-        doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(final InvocationOnMock invocation) {
-                final Object[] args = invocation.getArguments();
-                AbstractPCEPSessionTest.this.msgsSend.add((Notification) args[0]);
-                return future;
-            }
+        doAnswer(invocation -> {
+            final Object[] args = invocation.getArguments();
+            AbstractPCEPSessionTest.this.msgsSend.add((Notification) args[0]);
+            return future;
         }).when(this.channel).writeAndFlush(any(Notification.class));
         doReturn(this.channelFuture).when(this.channel).closeFuture();
         doReturn(this.channelFuture).when(this.channelFuture).addListener(any(GenericFutureListener.class));

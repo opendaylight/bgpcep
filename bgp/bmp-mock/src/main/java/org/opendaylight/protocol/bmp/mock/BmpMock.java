@@ -58,13 +58,7 @@ public final class BmpMock {
         bmpActivator.start(ctx);
 
         return new BmpMockDispatcher(ctx.getBmpMessageRegistry(),
-            new BmpSessionFactory() {
-                @Override
-                public BmpSession getSession(final Channel channel,
-                    final BmpSessionListenerFactory sessionListenerFactory) {
-                    return new BmpMockSession(arguments.getPeersCount(), arguments.getPrePolicyRoutesCount(), arguments.getPostPolicyRoutesCount());
-                }
-            });
+            (channel, sessionListenerFactory) -> new BmpMockSession(arguments.getPeersCount(), arguments.getPrePolicyRoutesCount(), arguments.getPostPolicyRoutesCount()));
     }
 
     private static void deployClients(final BmpMockDispatcher dispatcher, final BmpMockArguments arguments) {

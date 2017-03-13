@@ -57,14 +57,11 @@ public final class PCEPByteToMessageDecoder extends ByteToMessageDecoder {
         if (!errors.isEmpty()) {
             // We have a bunch of messages, send them out
             for (final Object e : errors) {
-                ctx.channel().writeAndFlush(e).addListener(new ChannelFutureListener() {
-                    @Override
-                    public void operationComplete(final ChannelFuture f) {
-                        if (!f.isSuccess()) {
-                            LOG.warn("Failed to send message {} to socket {}", e, ctx.channel(), f.cause());
-                        } else {
-                            LOG.trace("Message {} sent to socket {}", e, ctx.channel());
-                        }
+                ctx.channel().writeAndFlush(e).addListener((ChannelFutureListener) f -> {
+                    if (!f.isSuccess()) {
+                        LOG.warn("Failed to send message {} to socket {}", e, ctx.channel(), f.cause());
+                    } else {
+                        LOG.trace("Message {} sent to socket {}", e, ctx.channel());
                     }
                 });
             }

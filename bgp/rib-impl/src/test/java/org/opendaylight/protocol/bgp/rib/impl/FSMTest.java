@@ -119,13 +119,10 @@ public class FSMTest {
         doReturn(null).when(f).addListener(any(GenericFutureListener.class));
 
         final InetAddress peerAddress = InetAddress.getByName("1.1.1.2");
-        doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(final InvocationOnMock invocation) {
-                final Object[] args = invocation.getArguments();
-                FSMTest.this.receivedMsgs.add((Notification) args[0]);
-                return f;
-            }
+        doAnswer(invocation -> {
+            final Object[] args = invocation.getArguments();
+            FSMTest.this.receivedMsgs.add((Notification) args[0]);
+            return f;
         }).when(this.speakerListener).writeAndFlush(any(Notification.class));
         doReturn(this.eventLoop).when(this.speakerListener).eventLoop();
         doReturn(null).when(this.eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));

@@ -90,12 +90,9 @@ public class RibImplTest extends AbstractConfig {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        Mockito.doAnswer(new Answer<ClusterSingletonServiceRegistration>() {
-            @Override
-            public ClusterSingletonServiceRegistration answer(final InvocationOnMock invocationOnMock) throws Throwable {
-                RibImplTest.this.singletonService = (ClusterSingletonService) invocationOnMock.getArguments()[0];
-                return RibImplTest.this.singletonServiceRegistration;
-            }
+        Mockito.doAnswer(invocationOnMock -> {
+            RibImplTest.this.singletonService = (ClusterSingletonService) invocationOnMock.getArguments()[0];
+            return RibImplTest.this.singletonServiceRegistration;
         }).when(this.clusterSingletonServiceProvider).registerClusterSingletonService(any(ClusterSingletonService.class));
 
         Mockito.doReturn(mock(GeneratedClassLoadingStrategy.class)).when(this.extension).getClassLoadingStrategy();

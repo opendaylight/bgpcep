@@ -140,11 +140,6 @@ public final class Main {
     }
 
     private static ch.qos.logback.classic.Logger getRootLogger(final LoggerContext lc) {
-        return Iterables.find(lc.getLoggerList(), new Predicate<Logger>() {
-            @Override
-            public boolean apply(final Logger input) {
-                return (input != null) ? input.getName().equals(Logger.ROOT_LOGGER_NAME) : false;
-            }
-        });
+        return Iterables.find(lc.getLoggerList(), input -> (input != null) ? input.getName().equals(Logger.ROOT_LOGGER_NAME) : false);
     }
 }

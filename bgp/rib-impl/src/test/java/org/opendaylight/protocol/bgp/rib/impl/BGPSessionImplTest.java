@@ -115,25 +115,19 @@ public class BGPSessionImplTest {
         final ChannelFuture f = mock(ChannelFuture.class);
         doReturn(null).when(f).addListener(Mockito.any());
 
-        doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(final InvocationOnMock invocation) {
-                final Object[] args = invocation.getArguments();
-                BGPSessionImplTest.this.receivedMsgs.add((Notification) args[0]);
-                return f;
-            }
+        doAnswer(invocation -> {
+            final Object[] args = invocation.getArguments();
+            BGPSessionImplTest.this.receivedMsgs.add((Notification) args[0]);
+            return f;
         }).when(this.speakerListener).writeAndFlush(Mockito.any(Notification.class));
         doReturn(this.eventLoop).when(this.speakerListener).eventLoop();
         doReturn(true).when(this.speakerListener).isActive();
-        doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(final InvocationOnMock invocation) throws Throwable {
-                final Runnable command = (Runnable) invocation.getArguments()[0];
-                final long delay = (long) invocation.getArguments()[1];
-                final TimeUnit unit = (TimeUnit) invocation.getArguments()[2];
-                GlobalEventExecutor.INSTANCE.schedule(command, delay, unit);
-                return null;
-            }
+        doAnswer(invocation -> {
+            final Runnable command = (Runnable) invocation.getArguments()[0];
+            final long delay = (long) invocation.getArguments()[1];
+            final TimeUnit unit = (TimeUnit) invocation.getArguments()[2];
+            GlobalEventExecutor.INSTANCE.schedule(command, delay, unit);
+            return null;
         }).when(this.eventLoop).schedule(Mockito.any(Runnable.class), Mockito.any(long.class), Mockito.any(TimeUnit.class));
         doReturn("TestingChannel").when(this.speakerListener).toString();
         doReturn(true).when(this.speakerListener).isWritable();

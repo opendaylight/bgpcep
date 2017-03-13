@@ -76,21 +76,15 @@ public class PCCTunnelManagerImplTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         Mockito.doNothing().when(this.session1).sendReport(Mockito.any(Pcrpt.class));
-        Mockito.doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(final InvocationOnMock invocation) throws Throwable {
-                PCCTunnelManagerImplTest.this.errorsSession1.add(getError((Pcerr) invocation.getArguments()[0]));
-                return null;
-            }
+        Mockito.doAnswer(invocation -> {
+            PCCTunnelManagerImplTest.this.errorsSession1.add(getError((Pcerr) invocation.getArguments()[0]));
+            return null;
         }).when(this.session1).sendError(Mockito.any(Pcerr.class));
         Mockito.doReturn(0).when(this.session1).getId();
         Mockito.doNothing().when(this.session2).sendReport(Mockito.any(Pcrpt.class));
-        Mockito.doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(final InvocationOnMock invocation) throws Throwable {
-                PCCTunnelManagerImplTest.this.errorsSession2.add(getError((Pcerr) invocation.getArguments()[0]));
-                return null;
-            }
+        Mockito.doAnswer(invocation -> {
+            PCCTunnelManagerImplTest.this.errorsSession2.add(getError((Pcerr) invocation.getArguments()[0]));
+            return null;
         }).when(this.session2).sendError(Mockito.any(Pcerr.class));
         Mockito.doReturn(1).when(this.session2).getId();
     }

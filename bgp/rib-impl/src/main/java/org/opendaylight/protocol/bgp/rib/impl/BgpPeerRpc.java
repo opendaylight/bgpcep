@@ -43,14 +43,11 @@ public class BgpPeerRpc implements BgpPeerRpcService {
     public Future<RpcResult<Void>> routeRefreshRequest(final RouteRefreshRequestInput input) {
         final ChannelFuture f = sendRRMessage(input);
         if (f != null) {
-            return Futures.transform(JdkFutureAdapters.listenInPoolThread(f), new Function<Void, RpcResult<Void>>() {
-                @Override
-                public RpcResult<Void> apply(final Void input) {
-                    if (f.isSuccess()) {
-                        return RpcResultBuilder.<Void>success().build();
-                    } else {
-                        return RpcResultBuilder.<Void>failed().withError(ErrorType.RPC, FAILURE_MSG).build();
-                    }
+            return Futures.transform(JdkFutureAdapters.listenInPoolThread(f), (Function<Void, RpcResult<Void>>) input1 -> {
+                if (f.isSuccess()) {
+                    return RpcResultBuilder.<Void>success().build();
+                } else {
+                    return RpcResultBuilder.<Void>failed().withError(ErrorType.RPC, FAILURE_MSG).build();
                 }
             });
         }

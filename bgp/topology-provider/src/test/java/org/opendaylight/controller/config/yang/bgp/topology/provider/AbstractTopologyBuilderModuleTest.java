@@ -22,12 +22,7 @@ public abstract class AbstractTopologyBuilderModuleTest extends AbstractRIBImplM
     @Override
     public final void setUp() throws Exception {
         super.setUp();
-        setupMockService(TopologyReference.class, new TopologyReference() {
-            @Override
-            public InstanceIdentifier<Topology> getInstanceIdentifier() {
-                return null;
-            }
-        });
+        setupMockService(TopologyReference.class, (TopologyReference) () -> null);
         setupMockService(BgpTopologyDeployer.class, new BgpTopologyDeployer() {
             @Override
             public AbstractRegistration registerTopologyProvider(final BgpTopologyProvider topologyBuilder) {

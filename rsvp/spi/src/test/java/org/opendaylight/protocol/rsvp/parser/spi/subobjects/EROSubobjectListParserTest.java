@@ -39,22 +39,16 @@ public class EROSubobjectListParserTest {
 
     @Before
     public void setUp() throws RSVPParsingException {
-        Mockito.doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(final InvocationOnMock invocation) throws Throwable {
-                if (((ByteBuf) invocation.getArguments()[1]).readableBytes() == 0) {
-                    return null;
-                }
-                return EROSubobjectListParserTest.this.subObj;
-            }
-        }).when(this.registry).parseSubobject(Mockito.anyInt(), Mockito.any(ByteBuf.class), Mockito.anyBoolean());
-        Mockito.doReturn("lala").when(this.subObj).toString();
-        Mockito.doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(final InvocationOnMock invocation) throws Throwable {
-                ((ByteBuf) invocation.getArguments()[1]).writeByte(1);
+        Mockito.doAnswer(invocation -> {
+            if (((ByteBuf) invocation.getArguments()[1]).readableBytes() == 0) {
                 return null;
             }
+            return EROSubobjectListParserTest.this.subObj;
+        }).when(this.registry).parseSubobject(Mockito.anyInt(), Mockito.any(ByteBuf.class), Mockito.anyBoolean());
+        Mockito.doReturn("lala").when(this.subObj).toString();
+        Mockito.doAnswer(invocation -> {
+            ((ByteBuf) invocation.getArguments()[1]).writeByte(1);
+            return null;
         }).when(this.registry).serializeSubobject(Mockito.any(SubobjectContainer.class), Mockito.any(ByteBuf.class));
     }
 

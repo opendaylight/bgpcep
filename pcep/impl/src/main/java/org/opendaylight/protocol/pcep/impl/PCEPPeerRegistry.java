@@ -73,23 +73,13 @@ final class PCEPPeerRegistry {
     }
 
     protected synchronized Short nextSession(final byte[] clientAddress) throws ExecutionException {
-        final PeerRecord peer = this.formerClients.get(new ByteArrayWrapper(clientAddress), new Callable<PeerRecord>() {
-            @Override
-            public PeerRecord call() {
-                return new PeerRecord(ID_CACHE_SECONDS, null);
-            }
-        });
+        final PeerRecord peer = this.formerClients.get(new ByteArrayWrapper(clientAddress), () -> new PeerRecord(ID_CACHE_SECONDS, null));
 
         return peer.allocId();
     }
 
     protected synchronized void releaseSession(final byte[] clientAddress, final short sessionId) throws ExecutionException {
-        this.formerClients.get(new ByteArrayWrapper(clientAddress), new Callable<PeerRecord>() {
-            @Override
-            public PeerRecord call() {
-                return new PeerRecord(ID_CACHE_SECONDS, sessionId);
-            }
-        });
+        this.formerClients.get(new ByteArrayWrapper(clientAddress), () -> new PeerRecord(ID_CACHE_SECONDS, sessionId));
     }
 
     private static final class ByteArrayWrapper {

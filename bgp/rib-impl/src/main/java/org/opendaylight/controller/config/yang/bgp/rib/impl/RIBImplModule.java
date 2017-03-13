@@ -114,7 +114,7 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
 
     private Map<TablesKey, PathSelectionMode> mapBestPathSelectionStrategyByFamily(final List<BGPBestPathSelection> bestPathSelectionDependency) {
         return Collections.unmodifiableMap(bestPathSelectionDependency.stream().collect(
-                Collectors.toMap(st -> new TablesKey(st.getAfi(), st.getSafi()), st -> st.getStrategy())));
+                Collectors.toMap(st -> new TablesKey(st.getAfi(), st.getSafi()), BGPBestPathSelection::getStrategy)));
     }
 
     private static interface AutoCloseableRIB extends RIB, AutoCloseable {

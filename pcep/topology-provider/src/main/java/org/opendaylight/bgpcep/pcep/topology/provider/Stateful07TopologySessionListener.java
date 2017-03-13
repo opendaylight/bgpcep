@@ -514,18 +514,15 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         if (f == null) {
             return OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future();
         }
-        return Futures.transform(f, new AsyncFunction<Optional<ReportedLsp>, OperationResult>() {
-            @Override
-            public ListenableFuture<OperationResult> apply(final Optional<ReportedLsp> rep) {
-                final Lsp reportedLsp = validateReportedLsp(rep, input);
-                if (reportedLsp == null) {
-                    return OperationResults.createUnsent(PCEPErrors.UNKNOWN_PLSP_ID).future();
-                }
-                final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(MESSAGE_HEADER);
-                final Requests rb = buildRequest(rep, reportedLsp);
-                ib.setRequests(Collections.singletonList(rb));
-                return sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(), rb.getSrp().getOperationId(), null);
+        return Futures.transform(f, (AsyncFunction<Optional<ReportedLsp>, OperationResult>) rep -> {
+            final Lsp reportedLsp = validateReportedLsp(rep, input);
+            if (reportedLsp == null) {
+                return OperationResults.createUnsent(PCEPErrors.UNKNOWN_PLSP_ID).future();
             }
+            final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(MESSAGE_HEADER);
+            final Requests rb = buildRequest(rep, reportedLsp);
+            ib.setRequests(Collections.singletonList(rb));
+            return sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(), rb.getSrp().getOperationId(), null);
         });
     }
 
@@ -659,26 +656,23 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     }
 
     private ListenableFuture<OperationResult> listenableFuture(final ListenableFuture<Optional<ReportedLsp>> f, final EnsureLspOperationalInput input, final OperationalStatus op) {
-        return Futures.transform(f, new Function<Optional<ReportedLsp>, OperationResult>() {
-            @Override
-            public OperationResult apply(final Optional<ReportedLsp> rep) {
-                if (!rep.isPresent()) {
-                    LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
-                    return OperationResults.UNSENT;
-                }
-                // check if at least one of the paths has the same status as requested
-                for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.Path p : rep.get().getPath()) {
-                    final Path1 p1 = p.getAugmentation(Path1.class);
-                    if (p1 == null) {
-                        LOG.warn("Node {} LSP {} does not contain data", input.getNode(), input.getName());
-                        return OperationResults.UNSENT;
-                    }
-                    if (op.equals(p1.getLsp().getOperational())) {
-                        return OperationResults.SUCCESS;
-                    }
-                }
+        return Futures.transform(f, (Function<Optional<ReportedLsp>, OperationResult>) rep -> {
+            if (!rep.isPresent()) {
+                LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
                 return OperationResults.UNSENT;
             }
+            // check if at least one of the paths has the same status as requested
+            for (final Path p : rep.get().getPath()) {
+                final Path1 p1 = p.getAugmentation(Path1.class);
+                if (p1 == null) {
+                    LOG.warn("Node {} LSP {} does not contain data", input.getNode(), input.getName());
+                    return OperationResults.UNSENT;
+                }
+                if (op.equals(p1.getLsp().getOperational())) {
+                    return OperationResults.SUCCESS;
+                }
+            }
+            return OperationResults.UNSENT;
         });
     }
 

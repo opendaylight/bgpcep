@@ -29,16 +29,13 @@ public final class BGPFileWatcher implements FileWatcher, AutoCloseable {
 
     public BGPFileWatcher() throws IOException {
         this.watchService = FileSystems.getDefault().newWatchService();
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                try {
-                    BGPFileWatcher.this.watchService.close();
-                } catch (final IOException e) {
-                    LOG.warn(INTERRUPTED, e);
-                }
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                BGPFileWatcher.this.watchService.close();
+            } catch (final IOException e) {
+                LOG.warn(INTERRUPTED, e);
             }
-        });
+        }));
         PATH.register(this.watchService, OVERFLOW, ENTRY_CREATE);
     }
 
