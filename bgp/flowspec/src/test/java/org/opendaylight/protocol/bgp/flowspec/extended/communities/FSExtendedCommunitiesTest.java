@@ -216,7 +216,7 @@ public class FSExtendedCommunitiesTest {
 
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(redirect).setTransitive(true).build();
 
-        final ExtendedCommunities parsed = registry.parseExtendedCommunity(Unpooled.copiedBuffer(REDIRECT_AS_4BYTES));
+        final ExtendedCommunities parsed = this.registry.parseExtendedCommunity(Unpooled.copiedBuffer(REDIRECT_AS_4BYTES));
         Assert.assertEquals(expected, parsed);
     }
 
@@ -228,7 +228,7 @@ public class FSExtendedCommunitiesTest {
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(redirect).setTransitive(true).build();
 
         final ByteBuf output = Unpooled.buffer(REDIRECT_AS_4BYTES.length);
-        registry.serializeExtendedCommunity(expected, output);
+        this.registry.serializeExtendedCommunity(expected, output);
         Assert.assertArrayEquals(REDIRECT_AS_4BYTES, output.array());
     }
 
@@ -239,7 +239,7 @@ public class FSExtendedCommunitiesTest {
 
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(redirect).setTransitive(true).build();
 
-        final ExtendedCommunities parsed = registry.parseExtendedCommunity(Unpooled.copiedBuffer(REDIRECT_IPV4));
+        final ExtendedCommunities parsed = this.registry.parseExtendedCommunity(Unpooled.copiedBuffer(REDIRECT_IPV4));
         Assert.assertEquals(expected, parsed);
     }
 
@@ -251,7 +251,7 @@ public class FSExtendedCommunitiesTest {
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(redirect).setTransitive(true).build();
 
         final ByteBuf output = Unpooled.buffer(REDIRECT_IPV4.length);
-        registry.serializeExtendedCommunity(expected, output);
+        this.registry.serializeExtendedCommunity(expected, output);
         Assert.assertArrayEquals(REDIRECT_IPV4, output.array());
     }
 
@@ -262,7 +262,7 @@ public class FSExtendedCommunitiesTest {
 
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(redirect).setTransitive(true).build();
 
-        final ExtendedCommunities parsed = registry.parseExtendedCommunity(Unpooled.copiedBuffer(REDIRECT_NH_IPV4));
+        final ExtendedCommunities parsed = this.registry.parseExtendedCommunity(Unpooled.copiedBuffer(REDIRECT_NH_IPV4));
         Assert.assertEquals(expected, parsed);
     }
 
@@ -274,7 +274,7 @@ public class FSExtendedCommunitiesTest {
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(redirect).setTransitive(true).build();
 
         final ByteBuf output = Unpooled.buffer(REDIRECT_NH_IPV4.length);
-        registry.serializeExtendedCommunity(expected, output);
+        this.registry.serializeExtendedCommunity(expected, output);
         Assert.assertArrayEquals(REDIRECT_NH_IPV4, output.array());
     }
 
@@ -285,7 +285,7 @@ public class FSExtendedCommunitiesTest {
 
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(redirect).setTransitive(true).build();
 
-        final ExtendedCommunities parsed = registry.parseExtendedCommunity(Unpooled.copiedBuffer(REDIRECT_NH_IPV6));
+        final ExtendedCommunities parsed = this.registry.parseExtendedCommunity(Unpooled.copiedBuffer(REDIRECT_NH_IPV6));
         Assert.assertEquals(expected, parsed);
     }
 
@@ -297,7 +297,7 @@ public class FSExtendedCommunitiesTest {
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(redirect).setTransitive(true).build();
 
         final ByteBuf output = Unpooled.buffer(REDIRECT_NH_IPV6.length);
-        registry.serializeExtendedCommunity(expected, output);
+        this.registry.serializeExtendedCommunity(expected, output);
         Assert.assertArrayEquals(REDIRECT_NH_IPV6, output.array());
     }
 

@@ -18,13 +18,13 @@ public final class BGPTerminationReason {
     }
 
     public String getErrorMessage() {
-        return error.toString();
+        return this.error.toString();
     }
 
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("error", error)
+                .add("error", this.error)
                 .toString();
     }
 }

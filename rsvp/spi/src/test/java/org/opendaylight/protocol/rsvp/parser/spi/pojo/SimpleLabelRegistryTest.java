@@ -39,7 +39,7 @@ public class SimpleLabelRegistryTest {
     @Before
     public void setUp() throws RSVPParsingException {
         MockitoAnnotations.initMocks(this);
-        this.simpleLabelRegistry.registerLabelParser(cTypeOne, this.labelParser);
+        this.simpleLabelRegistry.registerLabelParser(this.cTypeOne, this.labelParser);
         this.simpleLabelRegistry.registerLabelSerializer(MockLabel.class, this.labelSerializer);
         Mockito.doReturn(new MockLabel()).when(this.labelParser).parseLabel(this.input);
         final ArgumentCaptor<LabelType> tlvArg = ArgumentCaptor.forClass(LabelType.class);
@@ -49,7 +49,7 @@ public class SimpleLabelRegistryTest {
 
     @Test
     public void testParserRegistration() {
-        assertNotNull(this.simpleLabelRegistry.registerLabelParser(cTypeOne, this.labelParser));
+        assertNotNull(this.simpleLabelRegistry.registerLabelParser(this.cTypeOne, this.labelParser));
     }
 
     @Test
@@ -80,7 +80,7 @@ public class SimpleLabelRegistryTest {
 
     @Test
     public void testParseLabel() throws RSVPParsingException {
-        final LabelType output = this.simpleLabelRegistry.parseLabel(cTypeOne, this.input);
+        final LabelType output = this.simpleLabelRegistry.parseLabel(this.cTypeOne, this.input);
         assertNotNull(output);
         assertTrue(output instanceof MockLabel);
 

@@ -47,6 +47,6 @@ final class PolicyDatabase {
          *       - ability to share resulting attributes across import policies
          *       - ability to share resulting attributes with export policies
          */
-        return new CachingImportPolicy(importPolicies.get(peerRole));
+        return new CachingImportPolicy(this.importPolicies.get(peerRole));
     }
 }

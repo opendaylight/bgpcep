@@ -27,8 +27,8 @@ public abstract class AbstractRegistration implements AutoCloseable {
 
     @Override
     public final synchronized void close() {
-        if (!closed) {
-            closed = true;
+        if (!this.closed) {
+            this.closed = true;
             removeRegistration();
         }
     }

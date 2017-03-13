@@ -24,6 +24,6 @@ public class DefaultRibReference implements RibReference {
 
     @Override
     public final KeyedInstanceIdentifier<Rib, RibKey> getInstanceIdentifier() {
-        return instanceIdentifier;
+        return this.instanceIdentifier;
     }
 }

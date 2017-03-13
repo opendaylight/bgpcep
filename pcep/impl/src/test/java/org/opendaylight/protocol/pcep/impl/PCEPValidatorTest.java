@@ -735,7 +735,7 @@ public class PCEPValidatorTest {
         rBuilder = new RepliesBuilder();
         rBuilder.setRp(this.rpTrue);
         rBuilder.setMonitoring(this.monitoring);
-        rBuilder.setPccIdReq(pccIdReq);
+        rBuilder.setPccIdReq(this.pccIdReq);
         rBuilder.setMetricPce(Lists.newArrayList(new MetricPceBuilder().setPceId(this.pceId).build()));
         final List<Paths> paths = Lists.newArrayList();
         final PathsBuilder paBuilder = new PathsBuilder();

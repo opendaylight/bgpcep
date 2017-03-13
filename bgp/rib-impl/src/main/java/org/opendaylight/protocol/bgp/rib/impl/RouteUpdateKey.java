@@ -25,19 +25,19 @@ final class RouteUpdateKey {
     }
 
     PeerId getPeerId() {
-        return peerId;
+        return this.peerId;
     }
 
     PathArgument getRouteId() {
-        return routeId;
+        return this.routeId;
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + peerId.hashCode();
-        result = prime * result + routeId.hashCode();
+        result = prime * result + this.peerId.hashCode();
+        result = prime * result + this.routeId.hashCode();
         return result;
     }
 
@@ -50,10 +50,10 @@ final class RouteUpdateKey {
             return false;
         }
         RouteUpdateKey other = (RouteUpdateKey) obj;
-        if (!peerId.equals(other.peerId)) {
+        if (!this.peerId.equals(other.peerId)) {
             return false;
         }
-        if (!routeId.equals(other.routeId)) {
+        if (!this.routeId.equals(other.routeId)) {
             return false;
         }
         return true;

@@ -35,27 +35,27 @@ public class SimpleExtendedCommunityRegistryTest {
 
     @Before
     public void setup() throws BGPDocumentedException, BGPParsingException {
-        register = new SimpleExtendedCommunityRegistry();
-        register.registerExtendedCommunityParser(0, 0, parser);
-        register.registerExtendedCommunitySerializer(RouteTargetIpv4Case.class, serializer);
-        Mockito.doReturn(0).when(serializer).getType(Mockito.anyBoolean());
-        Mockito.doReturn(0).when(serializer).getSubType();
-        Mockito.doNothing().when(serializer).serializeExtendedCommunity(Mockito.any(ExtendedCommunity.class), Mockito.any(ByteBuf.class));
-        Mockito.doReturn(null).when(parser).parseExtendedCommunity(Mockito.any(ByteBuf.class));
+        this.register = new SimpleExtendedCommunityRegistry();
+        this.register.registerExtendedCommunityParser(0, 0, this.parser);
+        this.register.registerExtendedCommunitySerializer(RouteTargetIpv4Case.class, this.serializer);
+        Mockito.doReturn(0).when(this.serializer).getType(Mockito.anyBoolean());
+        Mockito.doReturn(0).when(this.serializer).getSubType();
+        Mockito.doNothing().when(this.serializer).serializeExtendedCommunity(Mockito.any(ExtendedCommunity.class), Mockito.any(ByteBuf.class));
+        Mockito.doReturn(null).when(this.parser).parseExtendedCommunity(Mockito.any(ByteBuf.class));
 
     }
 
     @Test
     public void testExtendedCommunityRegistry() throws BGPDocumentedException, BGPParsingException {
         final ByteBuf output = Unpooled.buffer();
-        register.serializeExtendedCommunity(
+        this.register.serializeExtendedCommunity(
                 new ExtendedCommunitiesBuilder().setTransitive(true).setExtendedCommunity(new RouteTargetIpv4CaseBuilder().setRouteTargetIpv4(new RouteTargetIpv4Builder().build()).build()).build(), output);
-        Mockito.verify(serializer).serializeExtendedCommunity(Mockito.any(ExtendedCommunity.class), Mockito.any(ByteBuf.class));
+        Mockito.verify(this.serializer).serializeExtendedCommunity(Mockito.any(ExtendedCommunity.class), Mockito.any(ByteBuf.class));
         //no value serialized, just header
         Assert.assertEquals(2, output.readableBytes());
 
-        final ExtendedCommunities parsedExtendedCommunity = register.parseExtendedCommunity(Unpooled.copiedBuffer(new byte[] {0, 0, 0, 0, 0, 0, 0, 0}));
-        Mockito.verify(parser).parseExtendedCommunity(Mockito.any(ByteBuf.class));
+        final ExtendedCommunities parsedExtendedCommunity = this.register.parseExtendedCommunity(Unpooled.copiedBuffer(new byte[] {0, 0, 0, 0, 0, 0, 0, 0}));
+        Mockito.verify(this.parser).parseExtendedCommunity(Mockito.any(ByteBuf.class));
         Assert.assertTrue(parsedExtendedCommunity.isTransitive());
         //no value parser
         Assert.assertNull(parsedExtendedCommunity.getExtendedCommunity());
@@ -64,26 +64,26 @@ public class SimpleExtendedCommunityRegistryTest {
     @Test
     public void testExtendedCommunityRegistryUnknown() throws BGPDocumentedException, BGPParsingException {
         final ByteBuf output = Unpooled.buffer();
-        register.serializeExtendedCommunity(
+        this.register.serializeExtendedCommunity(
                 new ExtendedCommunitiesBuilder().setTransitive(false).setExtendedCommunity(new RouteOriginIpv4CaseBuilder().build()).build(), output);
         //no ex. community was serialized
         Assert.assertEquals(0, output.readableBytes());
-        Mockito.verify(serializer, Mockito.never()).serializeExtendedCommunity(Mockito.any(ExtendedCommunity.class), Mockito.any(ByteBuf.class));
+        Mockito.verify(this.serializer, Mockito.never()).serializeExtendedCommunity(Mockito.any(ExtendedCommunity.class), Mockito.any(ByteBuf.class));
 
-        final ExtendedCommunities noExtCommunity = register.parseExtendedCommunity(Unpooled.copiedBuffer(new byte[] {0, 1, 0, 0, 0, 0, 0, 0}));
+        final ExtendedCommunities noExtCommunity = this.register.parseExtendedCommunity(Unpooled.copiedBuffer(new byte[] {0, 1, 0, 0, 0, 0, 0, 0}));
         //no ext. community was parsed
         Assert.assertNull(noExtCommunity);
-        Mockito.verify(parser, Mockito.never()).parseExtendedCommunity(Mockito.any(ByteBuf.class));
+        Mockito.verify(this.parser, Mockito.never()).parseExtendedCommunity(Mockito.any(ByteBuf.class));
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void testRegisterParserOutOfRangeType() {
-        register.registerExtendedCommunityParser(1234, 0, parser);
+        this.register.registerExtendedCommunityParser(1234, 0, this.parser);
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void testRegisterParserOutOfRangeSubType() {
-        register.registerExtendedCommunityParser(0, 1234, parser);
+        this.register.registerExtendedCommunityParser(0, 1234, this.parser);
     }
 
 }

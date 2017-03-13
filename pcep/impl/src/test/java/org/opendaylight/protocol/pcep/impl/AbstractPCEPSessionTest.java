@@ -100,8 +100,8 @@ public class AbstractPCEPSessionTest {
         doReturn(this.pipeline).when(this.pipeline).addFirst(any(ChannelHandler.class));
         doReturn(true).when(this.channel).isActive();
         doReturn(mock(ChannelFuture.class)).when(this.channel).close();
-        doReturn(new InetSocketAddress(ipAddress, port)).when(this.channel).remoteAddress();
-        doReturn(new InetSocketAddress(ipAddress, port)).when(this.channel).localAddress();
+        doReturn(new InetSocketAddress(this.ipAddress, this.port)).when(this.channel).remoteAddress();
+        doReturn(new InetSocketAddress(this.ipAddress, this.port)).when(this.channel).localAddress();
         this.openMsg = new OpenBuilder().setOpenMessage(
                 new OpenMessageBuilder().setOpen(
                         new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder().setDeadTimer(

@@ -29,10 +29,10 @@ public class PCCServerPeerProposal implements PCEPPeerProposal {
     public void setPeerSpecificProposal(@Nonnull final InetSocketAddress address, @Nonnull final TlvsBuilder openBuilder) {
         Preconditions.checkNotNull(address);
         final LspDbVersionBuilder lspDbVersionBuilder = new LspDbVersionBuilder();
-        if (isAfterReconnection) {
+        if (this.isAfterReconnection) {
             lspDbVersionBuilder.setLspDbVersionValue(this.dbVersion);
         } else {
-            isAfterReconnection = true;
+            this.isAfterReconnection = true;
         }
         openBuilder.addAugmentation(Tlvs3.class, new Tlvs3Builder().setLspDbVersion(lspDbVersionBuilder.build()).build());
     }
