@@ -27,12 +27,7 @@ public final class Ipv6BgpPrefixSidParserTest {
 
     @Test(expected=IllegalArgumentException.class)
     public void testWrongTlvType() {
-        this.handler.serializeBgpPrefixSidTlv(new BgpPrefixSidTlv() {
-            @Override
-            public Class<? extends DataContainer> getImplementedInterface() {
-                return BgpPrefixSidTlv.class;
-            }
-        }, Unpooled.EMPTY_BUFFER);
+        this.handler.serializeBgpPrefixSidTlv(() -> BgpPrefixSidTlv.class, Unpooled.EMPTY_BUFFER);
     }
 
     @Test

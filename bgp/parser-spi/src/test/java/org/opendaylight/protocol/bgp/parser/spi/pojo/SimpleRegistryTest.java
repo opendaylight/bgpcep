@@ -54,12 +54,7 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 
 public class SimpleRegistryTest {
 
-    private static final MultiPathSupport ADD_PATH_SUPPORT = new MultiPathSupport() {
-        @Override
-        public boolean isTableTypeSupported(final BgpTableType tableType) {
-            return true;
-        }
-    };
+    private static final MultiPathSupport ADD_PATH_SUPPORT = tableType -> true;
 
     private static final PeerSpecificParserConstraint CONSTRAINT = new PeerSpecificParserConstraint() {
         @Override

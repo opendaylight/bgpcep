@@ -67,12 +67,7 @@ final class DestroyTunnelInstructionExecutor extends AbstractInstructionExecutor
             ab.setNode(node.getSupportingNode().get(0).getKey().getNodeRef());
             return Futures.transform(
                 (ListenableFuture<RpcResult<RemoveLspOutput>>) this.topologyService.removeLsp(ab.build()),
-                new Function<RpcResult<RemoveLspOutput>, OperationResult>() {
-                    @Override
-                    public OperationResult apply(final RpcResult<RemoveLspOutput> input) {
-                        return input.getResult();
-                    }
-                });
+                (Function<RpcResult<RemoveLspOutput>, OperationResult>) RpcResult::getResult);
         }
     }
 }

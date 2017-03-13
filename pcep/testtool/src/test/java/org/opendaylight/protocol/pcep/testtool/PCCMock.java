@@ -37,12 +37,7 @@ public class PCCMock {
         final InetSocketAddress clientAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(0);
 
         try (final PCCDispatcherImpl pccDispatcher = new PCCDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry())) {
-            pccDispatcher.createClient(serverAddr, -1, new PCEPSessionListenerFactory() {
-                @Override
-                public PCEPSessionListener getSessionListener() {
-                    return new SimpleSessionListener();
-                }
-            }, snf, null, clientAddr).get();
+            pccDispatcher.createClient(serverAddr, -1, SimpleSessionListener::new, snf, null, clientAddr).get();
         }
     }
 }

@@ -404,15 +404,12 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
 
     private void startStateTimeout(final PCCTunnel tunnel, final PlspId plspId) {
         if (this.stateTimeout > -1) {
-            final Timeout newStateTimeout = this.timer.newTimeout(new TimerTask() {
-                @Override
-                public void run(final Timeout timeout) throws Exception {
-                    if (tunnel.getType() == LspType.PCE_LSP) {
-                        PCCTunnelManagerImpl.this.tunnels.remove(plspId);
-                        //report tunnel removal to all
-                        sendToAll(tunnel, plspId, Collections.emptyList(), createSrp(0), new PathBuilder().build(),
-                            createLsp(plspId.getValue(), false, Optional.absent(), false, true));
-                    }
+            final Timeout newStateTimeout = this.timer.newTimeout(timeout -> {
+                if (tunnel.getType() == LspType.PCE_LSP) {
+                    PCCTunnelManagerImpl.this.tunnels.remove(plspId);
+                    //report tunnel removal to all
+                    sendToAll(tunnel, plspId, Collections.emptyList(), createSrp(0), new PathBuilder().build(),
+                        createLsp(plspId.getValue(), false, Optional.absent(), false, true));
                 }
             }, this.stateTimeout, TimeUnit.SECONDS);
             tunnel.setStateTimeout(newStateTimeout);
@@ -420,29 +417,26 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
     }
 
     private void startRedelegationTimer(final PCCTunnel tunnel, final PlspId plspId, final PCCSession session) {
-        final Timeout newRedelegationTimeout = this.timer.newTimeout(new TimerTask() {
-            @Override
-            public void run(final Timeout timeout) throws Exception {
-                //remove delegation
-                PCCTunnelManagerImpl.this.setDelegation(plspId, null);
-                //delegate to another PCE
-                int index = session.getId();
-                for (int i = 1; i < PCCTunnelManagerImpl.this.sessions.size(); i++) {
-                    index++;
-                    if (index == PCCTunnelManagerImpl.this.sessions.size()) {
-                        index = 0;
-                    }
-                    final PCCSession nextSession = PCCTunnelManagerImpl.this.sessions.get(index);
-                    if (nextSession != null) {
-                        tunnel.cancelTimeouts();
-                        final Tlvs tlvs = buildTlvs(tunnel, plspId.getValue(), Optional.absent());
+        final Timeout newRedelegationTimeout = this.timer.newTimeout(timeout -> {
+            //remove delegation
+            PCCTunnelManagerImpl.this.setDelegation(plspId, null);
+            //delegate to another PCE
+            int index = session.getId();
+            for (int i = 1; i < PCCTunnelManagerImpl.this.sessions.size(); i++) {
+                index++;
+                if (index == PCCTunnelManagerImpl.this.sessions.size()) {
+                    index = 0;
+                }
+                final PCCSession nextSession = PCCTunnelManagerImpl.this.sessions.get(index);
+                if (nextSession != null) {
+                    tunnel.cancelTimeouts();
+                    final Tlvs tlvs = buildTlvs(tunnel, plspId.getValue(), Optional.absent());
 
-                        nextSession.sendReport(createPcRtpMessage(
-                            createLsp(plspId.getValue(), true, Optional.fromNullable(tlvs), true, false), NO_SRP,
-                            tunnel.getLspState()));
-                        tunnel.setDelegationHolder(nextSession.getId());
-                        break;
-                    }
+                    nextSession.sendReport(createPcRtpMessage(
+                        createLsp(plspId.getValue(), true, Optional.fromNullable(tlvs), true, false), NO_SRP,
+                        tunnel.getLspState()));
+                    tunnel.setDelegationHolder(nextSession.getId());
+                    break;
                 }
             }
         }, this.redelegationTimeout, TimeUnit.SECONDS);

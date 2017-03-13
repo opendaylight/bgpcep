@@ -69,13 +69,7 @@ public class BmpDispatcherImplTest {
         this.bmpActivator.start(ctx);
         final BmpMessageRegistry messageRegistry = ctx.getBmpMessageRegistry();
 
-        this.dispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(), messageRegistry, new BmpSessionFactory() {
-            @Override
-            public BmpSession getSession(final Channel channel,
-                    final BmpSessionListenerFactory sessionListenerFactory) {
-                return BmpDispatcherImplTest.this.mockedSession;
-            }
-        });
+        this.dispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(), messageRegistry, (channel, sessionListenerFactory) -> BmpDispatcherImplTest.this.mockedSession);
     }
 
     @After

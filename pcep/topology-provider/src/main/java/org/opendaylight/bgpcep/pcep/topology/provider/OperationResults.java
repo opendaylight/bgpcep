@@ -31,12 +31,7 @@ final class OperationResults implements OperationResult {
     static final OperationResults SUCCESS = new OperationResults((FailureType)null);
     static final OperationResults UNSENT = new OperationResults(FailureType.Unsent);
 
-    private static final Function<Errors, Error> CONVERT_ERRORS = new Function<Errors, Error>() {
-        @Override
-        public Error apply(final Errors input) {
-            return new ErrorBuilder(input).build();
-        }
-    };
+    private static final Function<Errors, Error> CONVERT_ERRORS = input -> new ErrorBuilder(input).build();
 
     private final FailureType failure;
     private final List<Error> error;

@@ -81,12 +81,7 @@ public class NextHopParserSerializerTest {
     public void testSerializeIpv4NextHopEmpty() {
         buffer.clear();
         try {
-            ipv4NextHopParserSerializer.serializeNextHop(new CNextHop() {
-                @Override
-                public Class<? extends DataContainer> getImplementedInterface() {
-                    return null;
-                }
-            }, buffer);
+            ipv4NextHopParserSerializer.serializeNextHop(() -> null, buffer);
         } catch (final IllegalArgumentException e) {
             assertEquals("cNextHop is not a Ipv4 NextHop object.", e.getMessage());
         }
@@ -96,12 +91,7 @@ public class NextHopParserSerializerTest {
     public void testSerializeIpv6NextHopEmpty() {
         buffer.clear();
         try {
-            ipv6NextHopParserSerializer.serializeNextHop(new CNextHop() {
-                @Override
-                public Class<? extends DataContainer> getImplementedInterface() {
-                    return null;
-                }
-            }, buffer);
+            ipv6NextHopParserSerializer.serializeNextHop(() -> null, buffer);
         } catch (final IllegalArgumentException e) {
             assertEquals("cNextHop is not a Ipv6 NextHop object.", e.getMessage());
         }

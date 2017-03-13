@@ -352,19 +352,16 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
             setupTimeoutHandler(requestId, req, rpcTimeout);
         }
 
-        f.addListener(new FutureListener<Void>() {
-            @Override
-            public void operationComplete(final io.netty.util.concurrent.Future<Void> future) {
-                if (!future.isSuccess()) {
-                    synchronized (AbstractTopologySessionListener.this) {
-                        AbstractTopologySessionListener.this.requests.remove(requestId);
-                    }
-                    req.done(OperationResults.UNSENT);
-                    LOG.info("Failed to send request {}, instruction cancelled", requestId, future.cause());
-                } else {
-                    req.sent();
-                    LOG.trace("Request {} sent to peer (object {})", requestId, req);
+        f.addListener((FutureListener<Void>) future -> {
+            if (!future.isSuccess()) {
+                synchronized (AbstractTopologySessionListener.this) {
+                    AbstractTopologySessionListener.this.requests.remove(requestId);
                 }
+                req.done(OperationResults.UNSENT);
+                LOG.info("Failed to send request {}, instruction cancelled", requestId, future.cause());
+            } else {
+                req.sent();
+                LOG.trace("Request {} sent to peer (object {})", requestId, req);
             }
         });
 

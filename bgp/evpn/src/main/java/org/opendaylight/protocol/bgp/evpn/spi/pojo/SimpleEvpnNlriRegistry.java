@@ -74,12 +74,12 @@ public class SimpleEvpnNlriRegistry implements EvpnRegistry {
 
     @Override
     public EvpnChoice serializeEvpnModel(final ChoiceNode evpnChoice) {
-        return getEvpnCase(evpnChoice, (serializer, cont) -> serializer.serializeEvpnModel(cont));
+        return getEvpnCase(evpnChoice, EvpnSerializer::serializeEvpnModel);
     }
 
     @Override
     public EvpnChoice serializeEvpnRouteKey(final ChoiceNode evpnChoice) {
-        return getEvpnCase(evpnChoice, (serializer, cont) -> serializer.createRouteKey(cont));
+        return getEvpnCase(evpnChoice, EvpnSerializer::createRouteKey);
     }
 
     private EvpnChoice getEvpnCase(final ChoiceNode evpnChoice, final SerializerInterface serializerInterface) {

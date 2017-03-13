@@ -101,25 +101,9 @@ public final class BmpMockArguments implements ArgumentsInput {
         parser.addArgument(toArgName(PRE_POLICY_ROUTES_COUNT_DST)).type(Integer.class).setDefault(0);
         parser.addArgument(toArgName(POST_POLICY_ROUTES_COUNT_DST)).type(Integer.class).setDefault(0);
         parser.addArgument(toArgName(PASSIVE_MODE_DST)).action(Arguments.storeTrue());
-        parser.addArgument(toArgName(LOCAL_ADDRESS_DST)).type(new ArgumentType<InetSocketAddress>() {
-            @Override
-            public InetSocketAddress convert(final ArgumentParser parser, final Argument arg, final String value)
-                    throws ArgumentParserException {
-                return getInetSocketAddress(value, DEFAULT_LOCAL_PORT);
-            }
-        }).setDefault(LOCAL_ADDRESS);
-        parser.addArgument(toArgName(REMOTE_ADDRESS_DST)).type(new ArgumentType<InetSocketAddress>() {
-            @Override
-            public InetSocketAddress convert(final ArgumentParser parser, final Argument arg, final String value)
-                    throws ArgumentParserException {
-                return getInetSocketAddress(value, DEFAULT_REMOTE_PORT);
-            }
-        }).setDefault(REMOTE_ADDRESS);
-        parser.addArgument(toArgName(LOG_LEVEL_DST)).type(new ArgumentType<Level>(){
-            @Override
-            public Level convert(final ArgumentParser parser, final Argument arg, final String value) throws ArgumentParserException {
-                return Level.toLevel(value);
-            }}).setDefault(Level.INFO);
+        parser.addArgument(toArgName(LOCAL_ADDRESS_DST)).type((parser13, arg, value) -> getInetSocketAddress(value, DEFAULT_LOCAL_PORT)).setDefault(LOCAL_ADDRESS);
+        parser.addArgument(toArgName(REMOTE_ADDRESS_DST)).type((parser12, arg, value) -> getInetSocketAddress(value, DEFAULT_REMOTE_PORT)).setDefault(REMOTE_ADDRESS);
+        parser.addArgument(toArgName(LOG_LEVEL_DST)).type((parser1, arg, value) -> Level.toLevel(value)).setDefault(Level.INFO);
         return parser;
     }
 
