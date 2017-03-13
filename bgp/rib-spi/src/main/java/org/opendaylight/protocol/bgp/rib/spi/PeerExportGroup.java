@@ -30,11 +30,11 @@ public interface PeerExportGroup {
         }
 
         public YangInstanceIdentifier getYii() {
-            return yii;
+            return this.yii;
         }
 
         public PeerRole getRole() {
-            return role;
+            return this.role;
         }
     }
 

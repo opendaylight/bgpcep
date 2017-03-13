@@ -44,7 +44,7 @@ public final class PCEPDispatcherImplModule extends AbstractPCEPDispatcherImplMo
     @Override
     public AutoCloseable createInstance() {
         final WaitingServiceTracker<PCEPDispatcher> tracker =
-                WaitingServiceTracker.create(PCEPDispatcher.class, bundleContext);
+                WaitingServiceTracker.create(PCEPDispatcher.class, this.bundleContext);
         final PCEPDispatcher service = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
 
         return Reflection.newProxy(AutoCloseablePCEPDispatcher.class, new AbstractInvocationHandler() {

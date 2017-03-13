@@ -188,7 +188,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
     }
 
     private void cancelTimers() {
-        failTimer.cancel(false);
+        this.failTimer.cancel(false);
     }
 
     private void startNegotiationWithOpen() {

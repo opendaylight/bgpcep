@@ -41,26 +41,26 @@ final class SyncOptimization {
     }
 
     public boolean doesLspDbMatch() {
-        return dbVersionMatch;
+        return this.dbVersionMatch;
     }
 
     public boolean isSyncAvoidanceEnabled() {
-        return isSyncAvoidanceEnabled;
+        return this.isSyncAvoidanceEnabled;
     }
 
     public boolean isDeltaSyncEnabled() {
-        return isDeltaSyncEnabled;
+        return this.isDeltaSyncEnabled;
     }
 
     public boolean isTriggeredInitSyncEnabled() {
-        return isTriggeredInitialSyncEnable;
+        return this.isTriggeredInitialSyncEnable;
     }
     public boolean isTriggeredReSyncEnabled() {
-        return isTriggeredReSyncEnable;
+        return this.isTriggeredReSyncEnable;
     }
 
     public boolean isDbVersionPresent() {
-        return isDbVersionPresent;
+        return this.isDbVersionPresent;
     }
 
     private static LspDbVersion getLspDbVersion(final Tlvs openTlvs) {

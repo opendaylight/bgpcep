@@ -30,10 +30,10 @@ public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
     @Override
     protected List<AutoCloseable> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context) {
         final List<AutoCloseable> regs = new ArrayList<>();
-        regs.add(context.registerRIBSupport(Ipv4AddressFamily.class, FlowspecSubsequentAddressFamily.class, FlowspecIpv4RIBSupport.getInstance(fsContext)));
-        regs.add(context.registerRIBSupport(Ipv6AddressFamily.class, FlowspecSubsequentAddressFamily.class, FlowspecIpv6RIBSupport.getInstance(fsContext)));
-        regs.add(context.registerRIBSupport(Ipv4AddressFamily.class, FlowspecL3vpnSubsequentAddressFamily.class, FlowspecL3vpnIpv4RIBSupport.getInstance(fsContext)));
-        regs.add(context.registerRIBSupport(Ipv6AddressFamily.class, FlowspecL3vpnSubsequentAddressFamily.class, FlowspecL3vpnIpv6RIBSupport.getInstance(fsContext)));
+        regs.add(context.registerRIBSupport(Ipv4AddressFamily.class, FlowspecSubsequentAddressFamily.class, FlowspecIpv4RIBSupport.getInstance(this.fsContext)));
+        regs.add(context.registerRIBSupport(Ipv6AddressFamily.class, FlowspecSubsequentAddressFamily.class, FlowspecIpv6RIBSupport.getInstance(this.fsContext)));
+        regs.add(context.registerRIBSupport(Ipv4AddressFamily.class, FlowspecL3vpnSubsequentAddressFamily.class, FlowspecL3vpnIpv4RIBSupport.getInstance(this.fsContext)));
+        regs.add(context.registerRIBSupport(Ipv6AddressFamily.class, FlowspecL3vpnSubsequentAddressFamily.class, FlowspecL3vpnIpv6RIBSupport.getInstance(this.fsContext)));
         return regs;
     }
 }
