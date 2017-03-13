@@ -29,7 +29,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 
 public class BgpPeerRpcTest {
 
-    private final Set<TablesKey> supportedFamilies = new HashSet<TablesKey>();
+    private final Set<TablesKey> supportedFamilies = new HashSet<>();
     private final BGPSessionImpl session = Mockito.mock(BGPSessionImpl.class);
     private final BgpPeerRpc rpc = new BgpPeerRpc(this.session, this.supportedFamilies);
     private final PeerRef peer = Mockito.mock(PeerRef.class);

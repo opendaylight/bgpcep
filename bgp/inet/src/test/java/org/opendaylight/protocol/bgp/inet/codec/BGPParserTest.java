@@ -59,7 +59,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 
 public class BGPParserTest {
 
-    private static int MAX_SIZE = 300;
+    private static final int MAX_SIZE = 300;
 
     private static MessageRegistry messageRegistry;
 
@@ -157,7 +157,7 @@ public class BGPParserTest {
         assertNull(message.getNlri());
 
         // attributes
-        final List<AsNumber> asNumbers = new ArrayList<AsNumber>();
+        final List<AsNumber> asNumbers = new ArrayList<>();
         asNumbers.add(new AsNumber(65001L));
         final List<Segments> asPath = Lists.newArrayList();
         asPath.add(new SegmentsBuilder().setAsSequence(asNumbers).build());
@@ -199,7 +199,7 @@ public class BGPParserTest {
         paBuilder.addAugmentation(Attributes1.class, new Attributes1Builder().setMpReachNlri(mpBuilder.build()).build());
         assertEquals(paBuilder.getAugmentation(Attributes1.class).getMpReachNlri(),
                 attrs.getAugmentation(Attributes1.class).getMpReachNlri());
-        paBuilder.setUnrecognizedAttributes(Collections.<UnrecognizedAttributes> emptyList());
+        paBuilder.setUnrecognizedAttributes(Collections.emptyList());
         // check API message
 
         builder.setAttributes(paBuilder.build());

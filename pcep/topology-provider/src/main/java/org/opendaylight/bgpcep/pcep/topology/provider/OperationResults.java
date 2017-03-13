@@ -31,12 +31,7 @@ final class OperationResults implements OperationResult {
     static final OperationResults SUCCESS = new OperationResults((FailureType)null);
     static final OperationResults UNSENT = new OperationResults(FailureType.Unsent);
 
-    private static final Function<Errors, Error> CONVERT_ERRORS = new Function<Errors, Error>() {
-        @Override
-        public Error apply(final Errors input) {
-            return new ErrorBuilder(input).build();
-        }
-    };
+    private static final Function<Errors, Error> CONVERT_ERRORS = input -> new ErrorBuilder(input).build();
 
     private final FailureType failure;
     private final List<Error> error;
@@ -52,16 +47,16 @@ final class OperationResults implements OperationResult {
     }
 
     ListenableFuture<OperationResult> future() {
-        return Futures.<OperationResult> immediateFuture(this);
+        return Futures.immediateFuture(this);
     }
 
     public static OperationResults createFailed(final List<Errors> errors) {
-        final List<Errors> e = errors != null ? errors : Collections.<Errors>emptyList();
+        final List<Errors> e = errors != null ? errors : Collections.emptyList();
         return new OperationResults(FailureType.Failed, Lists.transform(e, CONVERT_ERRORS));
     }
 
     public static OperationResults createUnsent(final PCEPErrors error) {
-        final List<Errors> e = error != null ? Collections.singletonList(getErrorFor(error)) : Collections.<Errors>emptyList();
+        final List<Errors> e = error != null ? Collections.singletonList(getErrorFor(error)) : Collections.emptyList();
         return new OperationResults(FailureType.Unsent, Lists.transform(e, CONVERT_ERRORS));
     }
 

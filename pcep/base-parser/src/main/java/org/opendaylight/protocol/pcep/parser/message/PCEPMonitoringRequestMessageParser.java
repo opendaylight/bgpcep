@@ -63,7 +63,7 @@ public class PCEPMonitoringRequestMessageParser extends PCEPRequestMessageParser
         }
         final MonitoringRequest monReq = getMonitoring(objects);
         if (monReq == null) {
-            errors.add(createErrorMsg(PCEPErrors.MONITORING_OBJECT_MISSING, Optional.<Rp>absent()));
+            errors.add(createErrorMsg(PCEPErrors.MONITORING_OBJECT_MISSING, Optional.absent()));
         }
         final PcreqMessageBuilder mBuilder = new PcreqMessageBuilder();
         mBuilder.setMonitoringRequest(monReq);

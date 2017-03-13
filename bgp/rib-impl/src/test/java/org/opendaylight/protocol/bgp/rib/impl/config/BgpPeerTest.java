@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.AddPaths;
@@ -95,7 +96,8 @@ public class BgpPeerTest extends AbstractConfig {
         Mockito.verify(this.render).getConfiguredPeerCounter();
         Mockito.verify(this.configurationWriter).apply();
         Mockito.verify(this.bgpPeerRegistry).addPeer(any(), any(), any());
-        Mockito.verify(this.dispatcher).createReconnectingClient(any(InetSocketAddress.class), any(BGPPeerRegistry.class), anyInt(), any(Optional.class));
+        Mockito.verify(this.dispatcher).createReconnectingClient(any(InetSocketAddress.class),
+            any(BGPPeerRegistry.class), anyInt(), any(Optional.class));
 
         try {
             this.bgpPeer.start(this.rib, neighbor, this.mappingService, this.configurationWriter);

@@ -138,14 +138,14 @@ public class Stateful07PCReportMessageParser extends AbstractMessageParser {
             final Lsp lsp = (Lsp) object;
             final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.Tlvs tlvs = lsp.getTlvs();
             if (!lspViaSR && lsp.getPlspId().getValue() != 0 && (tlvs == null || tlvs.getLspIdentifiers() == null)) {
-                final Message errorMsg = createErrorMsg(PCEPErrors.LSP_IDENTIFIERS_TLV_MISSING, Optional.<Rp>absent());
+                final Message errorMsg = createErrorMsg(PCEPErrors.LSP_IDENTIFIERS_TLV_MISSING, Optional.absent());
                 errors.add(errorMsg);
                 return false;
             } else {
                 builder.setLsp(lsp);
             }
         } else {
-            errors.add(createErrorMsg(PCEPErrors.LSP_MISSING, Optional.<Rp>absent()));
+            errors.add(createErrorMsg(PCEPErrors.LSP_MISSING, Optional.absent()));
             return false;
         }
         return true;
@@ -157,7 +157,7 @@ public class Stateful07PCReportMessageParser extends AbstractMessageParser {
         if (object instanceof Ero) {
             pBuilder.setEro((Ero) object);
         } else {
-            errors.add(createErrorMsg(PCEPErrors.ERO_MISSING, Optional.<Rp>absent()));
+            errors.add(createErrorMsg(PCEPErrors.ERO_MISSING, Optional.absent()));
             return false;
         }
         parsePath(objects, pBuilder);

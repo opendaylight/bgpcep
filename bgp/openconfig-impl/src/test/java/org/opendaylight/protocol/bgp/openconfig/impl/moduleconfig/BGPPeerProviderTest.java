@@ -92,7 +92,7 @@ public class BGPPeerProviderTest {
     }
 
     private Neighbor createNeighbor() {
-        final List<AfiSafi> families = new ArrayList<AfiSafi>();
+        final List<AfiSafi> families = new ArrayList<>();
         final AfiSafi afi = new AfiSafiBuilder().build();
         families.add(afi);
         return new NeighborBuilder()

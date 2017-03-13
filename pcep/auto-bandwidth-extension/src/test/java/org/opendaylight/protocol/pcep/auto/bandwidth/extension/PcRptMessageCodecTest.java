@@ -90,8 +90,8 @@ public class PcRptMessageCodecTest {
         final LspIdentifiers identifier = new LspIdentifiersBuilder().setAddressFamily(afiLsp).setLspId(lspId).setTunnelId(tunnelId).build();
         final Lsp lsp = new LspBuilder().setPlspId(new PlspId(1L)).setTlvs(new TlvsBuilder().setLspIdentifiers(identifier).build()).build();
         final Ero ero = new EroBuilder().build();
-        final List<Object> objects = Lists.<Object>newArrayList(lsp, ero, bw);
-        final Reports validReports = codec.getValidReports(objects, Collections.<Message>emptyList());
+        final List<Object> objects = Lists.newArrayList(lsp, ero, bw);
+        final Reports validReports = codec.getValidReports(objects, Collections.emptyList());
         assertNotNull(validReports.getPath().getBandwidth().getAugmentation(Bandwidth1.class));
         assertTrue(objects.isEmpty());
     }
@@ -125,7 +125,7 @@ public class PcRptMessageCodecTest {
     @Test
     public void testReportMsgWithRro() throws PCEPDeserializerException {
         final byte[] parseHexBinary = DatatypeConverter.parseHexBinary("2010003c0084a019001100106e79636e7932316372735f7432313231001200100a0000d2004008490a0000d40a0000d4001f0006000005dd700000000710001401080a000706200001080a0000d420000910001400000000000000000000000005050100051000084998968005500008513a43b70810002401080a0000d42020030801010000000001080a00070620000308010100000000");
-        final Pcrpt msg = (Pcrpt) this.ctx.getMessageHandlerRegistry().parseMessage(10, Unpooled.wrappedBuffer(parseHexBinary), Collections.<Message>emptyList());
+        final Pcrpt msg = (Pcrpt) this.ctx.getMessageHandlerRegistry().parseMessage(10, Unpooled.wrappedBuffer(parseHexBinary), Collections.emptyList());
         Assert.assertNotNull(msg.getPcrptMessage().getReports().get(0).getPath().getBandwidth().getAugmentation(Bandwidth1.class));
     }
 

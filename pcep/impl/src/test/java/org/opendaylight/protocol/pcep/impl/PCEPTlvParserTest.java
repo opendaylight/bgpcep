@@ -48,6 +48,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vs.tlv.vs.tlv.VendorPayload;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
+@SuppressWarnings("ALL")
 public class PCEPTlvParserTest {
 
     private static final byte[] noPathVectorBytes = { 0x00, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, (byte) 0xa7 };

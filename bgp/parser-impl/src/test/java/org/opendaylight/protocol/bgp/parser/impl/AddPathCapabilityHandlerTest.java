@@ -64,7 +64,7 @@ public class AddPathCapabilityHandlerTest {
 
     @Test
     public void testCapabilityHandler() throws BGPDocumentedException, BGPParsingException {
-        final List<AddressFamilies> family = new ArrayList<AddressFamilies>();
+        final List<AddressFamilies> family = new ArrayList<>();
         family.add(new AddressFamiliesBuilder().setAfi(this.afi).setSafi(this.safi).setSendReceive(SendReceive.forValue(1)).build());
 
         final CParameters capabilityToSerialize = new CParametersBuilder().addAugmentation(CParameters1.class, new CParameters1Builder().setAddPathCapability(
@@ -96,7 +96,7 @@ public class AddPathCapabilityHandlerTest {
     @Test
     public void testSendReceiveIgnored() throws BGPDocumentedException, BGPParsingException {
         final CParameters capabilityToSerialize = new CParametersBuilder().addAugmentation(CParameters1.class, new CParameters1Builder().setAddPathCapability(
-            new AddPathCapabilityBuilder().setAddressFamilies(new ArrayList<AddressFamilies>()).build()).build()).build();
+            new AddPathCapabilityBuilder().setAddressFamilies(new ArrayList<>()).build()).build()).build();
 
         final ByteBuf bytes = this.parseWrongBytes.copy();
         final AddPathCapabilityHandler handler = new AddPathCapabilityHandler(this.afiRegistry, this.safiRegistry);
@@ -106,7 +106,7 @@ public class AddPathCapabilityHandlerTest {
 
     @Test(expected=IllegalArgumentException.class)
     public void testUnhandledAfi() {
-        final List<AddressFamilies> family = new ArrayList<AddressFamilies>();
+        final List<AddressFamilies> family = new ArrayList<>();
         family.add(new AddressFamiliesBuilder().setAfi(this.afi).setSafi(this.safi).setSendReceive(SendReceive.forValue(2)).build());
 
         final CParameters capabilityToSerialize = new CParametersBuilder().addAugmentation(CParameters1.class, new CParameters1Builder().setAddPathCapability(
@@ -119,7 +119,7 @@ public class AddPathCapabilityHandlerTest {
 
     @Test(expected=IllegalArgumentException.class)
     public void testUnhandledSafi() {
-        final List<AddressFamilies> family = new ArrayList<AddressFamilies>();
+        final List<AddressFamilies> family = new ArrayList<>();
         family.add(new AddressFamiliesBuilder().setAfi(this.afi).setSafi(this.safi).setSendReceive(SendReceive.forValue(3)).build());
 
         final CParameters capabilityToSerialize = new CParametersBuilder().addAugmentation(CParameters1.class, new CParameters1Builder().setAddPathCapability(
@@ -132,7 +132,7 @@ public class AddPathCapabilityHandlerTest {
 
     @Test(expected=IllegalArgumentException.class)
     public void testUnhandledSendReceive() {
-        final List<AddressFamilies> family = new ArrayList<AddressFamilies>();
+        final List<AddressFamilies> family = new ArrayList<>();
         family.add(new AddressFamiliesBuilder().setAfi(this.afi).setSafi(this.safi).setSendReceive(SendReceive.forValue(4)).build());
 
         final CParameters capabilityToSerialize = new CParametersBuilder().addAugmentation(CParameters1.class, new CParameters1Builder().setAddPathCapability(

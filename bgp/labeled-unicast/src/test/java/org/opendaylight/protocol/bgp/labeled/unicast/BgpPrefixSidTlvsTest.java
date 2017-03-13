@@ -42,7 +42,7 @@ public final class BgpPrefixSidTlvsTest {
     @Test
     public void testOriginatorParser() {
         final OriginatorSrgbTlvParser parser = new OriginatorSrgbTlvParser();
-        final List<SrgbValue> list = new ArrayList<SrgbValue>();
+        final List<SrgbValue> list = new ArrayList<>();
 
         final Srgb srgb1 = new Srgb(1L);
         final Srgb srgb2 = new Srgb(2L);

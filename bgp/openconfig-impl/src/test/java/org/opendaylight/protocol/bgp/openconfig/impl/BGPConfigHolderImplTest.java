@@ -23,7 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controll
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.modules.ModuleKey;
 
 public class BGPConfigHolderImplTest {
-    private static final BGPConfigHolderImpl<Bgp> HOLDER = new BGPConfigHolderImpl<Bgp>(OpenConfigComparatorFactory.getComparator(Bgp.class));
+    private static final BGPConfigHolderImpl<Bgp> HOLDER = new BGPConfigHolderImpl<>(OpenConfigComparatorFactory.getComparator(Bgp.class));
 
     @Test
     public void test() {

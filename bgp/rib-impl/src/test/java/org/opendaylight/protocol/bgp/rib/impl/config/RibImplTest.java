@@ -24,15 +24,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.protocol.bgp.mode.impl.add.all.paths.AllPathSelection;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService;
@@ -95,12 +92,9 @@ public class RibImplTest extends AbstractConfig {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        Mockito.doAnswer(new Answer<ClusterSingletonServiceRegistration>() {
-            @Override
-            public ClusterSingletonServiceRegistration answer(final InvocationOnMock invocationOnMock) throws Throwable {
-                RibImplTest.this.singletonService = (ClusterSingletonService) invocationOnMock.getArguments()[0];
-                return RibImplTest.this.singletonServiceRegistration;
-            }
+        Mockito.doAnswer(invocationOnMock -> {
+            RibImplTest.this.singletonService = (ClusterSingletonService) invocationOnMock.getArguments()[0];
+            return RibImplTest.this.singletonServiceRegistration;
         }).when(this.clusterSingletonServiceProvider).registerClusterSingletonService(any(ClusterSingletonService.class));
 
         Mockito.doReturn(Collections.singletonMap(TABLE_TYPE, new AllPathSelection()))

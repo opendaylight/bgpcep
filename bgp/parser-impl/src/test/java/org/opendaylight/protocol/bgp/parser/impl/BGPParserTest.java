@@ -68,11 +68,11 @@ public class BGPParserTest {
     /**
      * Used by other tests as well
      */
-    static final List<byte[]> inputBytes = new ArrayList<byte[]>();
+    static final List<byte[]> inputBytes = new ArrayList<>();
 
-    private static int COUNTER = 7;
+    private static final int COUNTER = 7;
 
-    private static int MAX_SIZE = 300;
+    private static final int MAX_SIZE = 300;
 
     private static BGPUpdateMessageParser updateParser;
 
@@ -161,7 +161,7 @@ public class BGPParserTest {
         assertNull(message.getWithdrawnRoutes());
 
         // attributes
-        final List<AsNumber> asNumbers = new ArrayList<AsNumber>();
+        final List<AsNumber> asNumbers = new ArrayList<>();
         asNumbers.add(new AsNumber(65002L));
         final List<Segments> asPath = Lists.newArrayList();
         asPath.add(new SegmentsBuilder().setAsSequence(asNumbers).build());
@@ -214,7 +214,7 @@ public class BGPParserTest {
         paBuilder.setCommunities(comms);
         assertEquals(paBuilder.getCommunities(), attrs.getCommunities());
 
-        paBuilder.setUnrecognizedAttributes(Collections.<UnrecognizedAttributes> emptyList());
+        paBuilder.setUnrecognizedAttributes(Collections.emptyList());
 
         builder.setAttributes(paBuilder.build());
 
@@ -283,7 +283,7 @@ public class BGPParserTest {
         assertNull(message.getWithdrawnRoutes());
 
         // attributes
-        final List<AsNumber> asNumbers = new ArrayList<AsNumber>();
+        final List<AsNumber> asNumbers = new ArrayList<>();
         asNumbers.add(new AsNumber(30L));
         final List<Segments> asPath = Lists.newArrayList();
         asPath.add(new SegmentsBuilder().setAsSequence(asNumbers).build());
@@ -314,7 +314,7 @@ public class BGPParserTest {
 
         paBuilder.setAggregator(aggregator);
         assertEquals(paBuilder.getAggregator(), attrs.getAggregator());
-        paBuilder.setUnrecognizedAttributes(Collections.<UnrecognizedAttributes> emptyList());
+        paBuilder.setUnrecognizedAttributes(Collections.emptyList());
         builder.setAttributes(paBuilder.build());
 
         assertEquals(builder.build(), message);
@@ -416,7 +416,7 @@ public class BGPParserTest {
         paBuilder.setExtendedCommunities(comms);
         assertEquals(paBuilder.getExtendedCommunities(), attrs.getExtendedCommunities());
 
-        paBuilder.setUnrecognizedAttributes(Collections.<UnrecognizedAttributes> emptyList());
+        paBuilder.setUnrecognizedAttributes(Collections.emptyList());
         // check API message
         builder.setAttributes(paBuilder.build());
         assertEquals(builder.build(), message);

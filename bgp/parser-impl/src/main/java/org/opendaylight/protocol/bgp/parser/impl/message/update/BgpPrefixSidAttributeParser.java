@@ -51,7 +51,7 @@ public final class BgpPrefixSidAttributeParser implements AttributeParser, Attri
     @Override
     public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder) throws BGPDocumentedException, BGPParsingException {
         final BgpPrefixSidBuilder sid = new BgpPrefixSidBuilder();
-        final List<BgpPrefixSidTlvs> tlvList = new ArrayList<BgpPrefixSidTlvs>();
+        final List<BgpPrefixSidTlvs> tlvList = new ArrayList<>();
         while (buffer.isReadable()) {
             final BgpPrefixSidTlv tlv = this.reg.parseBgpPrefixSidTlv(buffer.readUnsignedByte(), buffer);
             tlvList.add(new BgpPrefixSidTlvsBuilder().setBgpPrefixSidTlv(tlv).build());

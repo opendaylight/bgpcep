@@ -205,7 +205,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             }
 
             // Re-generate termination points
-            this.nb.setTerminationPoint(Lists.newArrayList(Collections2.transform(this.tps.values(), input -> input.getTp())));
+            this.nb.setTerminationPoint(Lists.newArrayList(Collections2.transform(this.tps.values(), TpHolder::getTp)));
 
             // Re-generate prefixes
             this.inab.setPrefix(Lists.newArrayList(this.prefixes.values()));

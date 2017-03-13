@@ -38,7 +38,7 @@ public class UnrecognizedAttributesSerializerTest {
         final Attributes attrs = new AttributesBuilder().setUnrecognizedAttributes(unrecognizedAttrs).build();
 
         final ByteBuf buffer = Unpooled.buffer();
-        ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry().serializeAttribute((DataObject) attrs, buffer);
+        ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry().serializeAttribute(attrs, buffer);
         assertArrayEquals(unrecognizedBytes, ByteArray.readAllBytes(buffer));
     }
 }

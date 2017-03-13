@@ -100,7 +100,7 @@ public class GracefulCapabilityHandlerTest {
         };
         capaBuilder.setRestartFlags(new RestartFlags(false));
         capaBuilder.setRestartTime(0);
-        capaBuilder.setTables(Collections.<Tables>emptyList());
+        capaBuilder.setTables(Collections.emptyList());
         Assert.assertEquals( new CParametersBuilder().addAugmentation(CParameters1.class,
             new CParameters1Builder().setGracefulRestartCapability(capaBuilder.build()).build()).build(),
             handler.parseCapability(Unpooled.wrappedBuffer(capaBytes3).slice(2, capaBytes3.length - 2)));
@@ -122,7 +122,7 @@ public class GracefulCapabilityHandlerTest {
         Assert.assertArrayEquals(capaBytes5, b.array());
         Assert.assertEquals(new CParametersBuilder().addAugmentation(CParameters1.class, new CParameters1Builder()
             .setGracefulRestartCapability(new GracefulRestartCapabilityBuilder().setRestartFlags(new RestartFlags(Boolean.FALSE))
-                .setRestartTime(0).setTables(Collections.<Tables>emptyList()).build()).build()).build(),
+                .setRestartTime(0).setTables(Collections.emptyList()).build()).build()).build(),
             handler.parseCapability(Unpooled.wrappedBuffer(capaBytes5).slice(2, capaBytes5.length - 2)));
     }
 

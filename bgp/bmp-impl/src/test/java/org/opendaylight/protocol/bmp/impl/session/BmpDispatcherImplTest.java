@@ -26,7 +26,6 @@ import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
 import org.opendaylight.protocol.bmp.api.BmpDispatcher;
 import org.opendaylight.protocol.bmp.api.BmpSession;
-import org.opendaylight.protocol.bmp.api.BmpSessionFactory;
 import org.opendaylight.protocol.bmp.api.BmpSessionListenerFactory;
 import org.opendaylight.protocol.bmp.impl.BmpDispatcherImpl;
 import org.opendaylight.protocol.bmp.parser.BmpActivator;
@@ -69,13 +68,7 @@ public class BmpDispatcherImplTest {
         this.bmpActivator.start(ctx);
         final BmpMessageRegistry messageRegistry = ctx.getBmpMessageRegistry();
 
-        this.dispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(), messageRegistry, new BmpSessionFactory() {
-            @Override
-            public BmpSession getSession(final Channel channel,
-                    final BmpSessionListenerFactory sessionListenerFactory) {
-                return BmpDispatcherImplTest.this.mockedSession;
-            }
-        });
+        this.dispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(), messageRegistry, (channel, sessionListenerFactory) -> BmpDispatcherImplTest.this.mockedSession);
     }
 
     @After

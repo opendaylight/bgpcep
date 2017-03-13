@@ -111,7 +111,7 @@ public class Stateful07PCUpdateRequestMessageParser extends AbstractMessageParse
                 object = objects.remove(0);
             }
         } else {
-            errors.add(createErrorMsg(PCEPErrors.SRP_MISSING, Optional.<Rp>absent()));
+            errors.add(createErrorMsg(PCEPErrors.SRP_MISSING, Optional.absent()));
         }
 
         if (validateLsp(object, errors, builder)) {
@@ -130,7 +130,7 @@ public class Stateful07PCUpdateRequestMessageParser extends AbstractMessageParse
         if (object instanceof Lsp) {
             builder.setLsp((Lsp) object);
         } else {
-            errors.add(createErrorMsg(PCEPErrors.LSP_MISSING, Optional.<Rp>absent()));
+            errors.add(createErrorMsg(PCEPErrors.LSP_MISSING, Optional.absent()));
             return false;
         }
         return true;
@@ -142,7 +142,7 @@ public class Stateful07PCUpdateRequestMessageParser extends AbstractMessageParse
         if (object instanceof Ero) {
             pBuilder.setEro((Ero) object);
         } else {
-            errors.add(createErrorMsg(PCEPErrors.ERO_MISSING, Optional.<Rp>absent()));
+            errors.add(createErrorMsg(PCEPErrors.ERO_MISSING, Optional.absent()));
             return false;
         }
         parsePath(objects, pBuilder);

@@ -469,7 +469,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     protected final String stringNlri(final List<Flowspec> flows) {
         final StringBuilder buffer = new StringBuilder("all packets ");
         final Joiner joiner = Joiner.on(FLOW_SEPARATOR);
-        joiner.appendTo(buffer, Iterables.transform(flows, fs -> encodeFlow(fs)));
+        joiner.appendTo(buffer, Iterables.transform(flows, this::encodeFlow));
         return buffer.toString().replace("  ", " ");
     }
 
