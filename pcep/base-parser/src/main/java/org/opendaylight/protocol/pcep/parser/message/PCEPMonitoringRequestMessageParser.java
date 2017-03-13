@@ -26,7 +26,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.MonitoringRequest;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.Requests;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.Svec;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.Rp;
 
 /**
  * Parser for {@link Pcmonreq}
@@ -64,7 +63,7 @@ public class PCEPMonitoringRequestMessageParser extends PCEPRequestMessageParser
         }
         final MonitoringRequest monReq = getMonitoring(objects);
         if (monReq == null) {
-            errors.add(createErrorMsg(PCEPErrors.MONITORING_OBJECT_MISSING, Optional.<Rp>absent()));
+            errors.add(createErrorMsg(PCEPErrors.MONITORING_OBJECT_MISSING, Optional.absent()));
         }
         final PcreqMessageBuilder mBuilder = new PcreqMessageBuilder();
         mBuilder.setMonitoringRequest(monReq);

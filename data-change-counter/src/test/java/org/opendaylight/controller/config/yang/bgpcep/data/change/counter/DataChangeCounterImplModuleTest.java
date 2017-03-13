@@ -8,6 +8,8 @@
 
 package org.opendaylight.controller.config.yang.bgpcep.data.change.counter;
 
+import static org.mockito.Mockito.*;
+
 import java.util.Collections;
 import java.util.Set;
 import javax.management.ObjectName;
@@ -15,7 +17,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.opendaylight.controller.config.api.DependencyResolver;
 import org.opendaylight.controller.config.api.DependencyResolverFactory;
 import org.opendaylight.controller.config.api.DynamicMBeanWithInstance;
@@ -36,7 +37,6 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.data.change.counter.rev160315.DataChangeCounter;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.osgi.framework.BundleContext;
 
 public class DataChangeCounterImplModuleTest extends AbstractConfigTest {
@@ -61,16 +61,16 @@ public class DataChangeCounterImplModuleTest extends AbstractConfigTest {
 
     @Before
     public void setUp() throws Exception {
-        Mockito.doNothing().when(this.registration).close();
-        Mockito.doReturn(null).when(this.wTx).submit();
-        Mockito.doNothing().when(this.wTx).put(Mockito.any(LogicalDatastoreType.class), Mockito.<InstanceIdentifier<DataChangeCounter>>any(), Mockito.any(DataChangeCounter.class));
-        Mockito.doReturn(this.registration).when(this.dataBroker).registerDataTreeChangeListener(Mockito.any(DataTreeIdentifier.class), Mockito.any(ClusteredDataTreeChangeListener.class));
-        Mockito.doNothing().when(this.wTx).delete(Mockito.any(LogicalDatastoreType.class), Mockito.<InstanceIdentifier<?>>any());
-        Mockito.doReturn(this.chain).when(this.dataBroker).createTransactionChain(Mockito.any(TransactionChainListener.class));
-        Mockito.doReturn(this.wTx).when(this.chain).newWriteOnlyTransaction();
-        Mockito.doReturn(this.wTx).when(this.dataBroker).newWriteOnlyTransaction();
-        Mockito.doNothing().when(this.chain).close();
-        Mockito.doNothing().when(this.dataBroker).close();
+        doNothing().when(this.registration).close();
+        doReturn(null).when(this.wTx).submit();
+        doNothing().when(this.wTx).put(any(LogicalDatastoreType.class), any(), any(DataChangeCounter.class));
+        doReturn(this.registration).when(this.dataBroker).registerDataTreeChangeListener(any(DataTreeIdentifier.class), any(ClusteredDataTreeChangeListener.class));
+        doNothing().when(this.wTx).delete(any(LogicalDatastoreType.class), any());
+        doReturn(this.chain).when(this.dataBroker).createTransactionChain(any(TransactionChainListener.class));
+        doReturn(this.wTx).when(this.chain).newWriteOnlyTransaction();
+        doReturn(this.wTx).when(this.dataBroker).newWriteOnlyTransaction();
+        doNothing().when(this.chain).close();
+        doNothing().when(this.dataBroker).close();
         super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(this.mockedContext, new DataChangeCounterImplModuleFactory(), new MockDataBrokerModuleFct()));
     }
 
