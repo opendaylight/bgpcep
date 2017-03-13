@@ -30,7 +30,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.PcrepMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.RepliesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.Rp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.objects.VendorInformationObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.objects.VendorInformationObjectBuilder;
 
@@ -66,11 +65,11 @@ public class AbstractMessageParserTest {
             } else if (objects.get(0) instanceof ErrorObject) {
                 final short errorType = ((ErrorObject) objects.get(0)).getType();
                 final short errorValue = ((ErrorObject) objects.get(0)).getValue();
-                return createErrorMsg(PCEPErrors.forValue(errorType, errorValue), Optional.<Rp>absent());
+                return createErrorMsg(PCEPErrors.forValue(errorType, errorValue), Optional.absent());
             }
             return null;
         }
-    };
+    }
 
     @Before
     public void setUp() throws PCEPDeserializerException {
