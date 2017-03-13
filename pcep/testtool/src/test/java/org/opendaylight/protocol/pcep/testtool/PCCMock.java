@@ -14,8 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.protocol.pcep.PCEPCapability;
-import org.opendaylight.protocol.pcep.PCEPSessionListener;
-import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
@@ -37,12 +35,7 @@ public class PCCMock {
         final InetSocketAddress clientAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(0);
 
         try (final PCCDispatcherImpl pccDispatcher = new PCCDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry())) {
-            pccDispatcher.createClient(serverAddr, -1, new PCEPSessionListenerFactory() {
-                @Override
-                public PCEPSessionListener getSessionListener() {
-                    return new SimpleSessionListener();
-                }
-            }, snf, null, clientAddr).get();
+            pccDispatcher.createClient(serverAddr, -1, SimpleSessionListener::new, snf, null, clientAddr).get();
         }
     }
 }

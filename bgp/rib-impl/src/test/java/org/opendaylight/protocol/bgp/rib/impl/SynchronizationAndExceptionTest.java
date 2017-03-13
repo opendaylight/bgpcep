@@ -40,8 +40,6 @@ import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
@@ -148,15 +146,12 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         doReturn(null).when(mock(ChannelFuture.class)).addListener(any());
         doReturn(this.eventLoop).when(this.speakerListener).eventLoop();
         doReturn(true).when(this.speakerListener).isActive();
-        doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(final InvocationOnMock invocation) throws Throwable {
-                final Runnable command = (Runnable) invocation.getArguments()[0];
-                final long delay = (long) invocation.getArguments()[1];
-                final TimeUnit unit = (TimeUnit) invocation.getArguments()[2];
-                GlobalEventExecutor.INSTANCE.schedule(command, delay, unit);
-                return null;
-            }
+        doAnswer(invocation -> {
+            final Runnable command = (Runnable) invocation.getArguments()[0];
+            final long delay = (long) invocation.getArguments()[1];
+            final TimeUnit unit = (TimeUnit) invocation.getArguments()[2];
+            GlobalEventExecutor.INSTANCE.schedule(command, delay, unit);
+            return null;
         }).when(this.eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
         doReturn("TestingChannel").when(this.speakerListener).toString();
         doReturn(true).when(this.speakerListener).isWritable();
@@ -185,13 +180,10 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
             any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         Mockito.doNothing().when(this.tx).delete(Mockito.any(LogicalDatastoreType.class), Mockito.any(YangInstanceIdentifier.class));
         final CheckedFuture future = mock(CheckedFuture.class);
-        Mockito.doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(final InvocationOnMock invocation) throws Throwable {
-                final Runnable callback = (Runnable) invocation.getArguments()[0];
-                callback.run();
-                return null;
-            }
+        Mockito.doAnswer(invocation -> {
+            final Runnable callback = (Runnable) invocation.getArguments()[0];
+            callback.run();
+            return null;
         }).when(future).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
         Mockito.doReturn(future).when(this.tx).submit();
         Mockito.doReturn(mock(Optional.class)).when(future).checkedGet();

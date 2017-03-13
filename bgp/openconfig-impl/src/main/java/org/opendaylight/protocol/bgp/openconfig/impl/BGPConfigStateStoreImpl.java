@@ -27,7 +27,7 @@ final class BGPConfigStateStoreImpl implements BGPConfigStateStore {
 
     @Override
     public <T extends DataObject> void registerBGPConfigHolder(final Class<T> clazz) {
-        configHolderMap.put(clazz, new BGPConfigHolderImpl<T>(OpenConfigComparatorFactory.getComparator(clazz)));
+        configHolderMap.put(clazz, new BGPConfigHolderImpl<>(OpenConfigComparatorFactory.getComparator(clazz)));
     }
 
 

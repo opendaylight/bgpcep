@@ -21,8 +21,6 @@ import java.util.Map;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
@@ -131,32 +129,26 @@ public class AbstractRouteEntryTest {
     }
 
     private void mockTransactionChain() {
-        Mockito.doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(final InvocationOnMock invocation) throws Throwable {
-                final Object[] args = invocation.getArguments();
-                yIIChanges.add((YangInstanceIdentifier) args[1]);
-                return args[1];
-            }
+        Mockito.doAnswer(invocation -> {
+            final Object[] args = invocation.getArguments();
+            yIIChanges.add((YangInstanceIdentifier) args[1]);
+            return args[1];
         }).when(this.tx).put(Mockito.any(LogicalDatastoreType.class), Mockito.any(YangInstanceIdentifier.class), Mockito.any(NormalizedNode.class));
 
-        Mockito.doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(final InvocationOnMock invocation) throws Throwable {
-                final Object[] args = invocation.getArguments();
-                if (routePaYii.equals(args[1])) {
-                    yIIChanges.remove(routePaYii);
-                } else if (routePaAddPathYii.equals(args[1])) {
-                    yIIChanges.remove(routePaAddPathYii);
-                } else if (routeRiboutYii.equals(args[1])) {
-                    yIIChanges.remove(routeRiboutYii);
-                    yIIChanges.remove(routeAddRiboutAttYii);
-                } else if (routeAddRiboutYii.equals(args[1])) {
-                    yIIChanges.remove(routeAddRiboutYii);
-                    yIIChanges.remove(routeAddRiboutAttYii);
-                }
-                return args[1];
+        Mockito.doAnswer(invocation -> {
+            final Object[] args = invocation.getArguments();
+            if (routePaYii.equals(args[1])) {
+                yIIChanges.remove(routePaYii);
+            } else if (routePaAddPathYii.equals(args[1])) {
+                yIIChanges.remove(routePaAddPathYii);
+            } else if (routeRiboutYii.equals(args[1])) {
+                yIIChanges.remove(routeRiboutYii);
+                yIIChanges.remove(routeAddRiboutAttYii);
+            } else if (routeAddRiboutYii.equals(args[1])) {
+                yIIChanges.remove(routeAddRiboutYii);
+                yIIChanges.remove(routeAddRiboutAttYii);
             }
+            return args[1];
         }).when(this.tx).delete(Mockito.any(LogicalDatastoreType.class), Mockito.any(YangInstanceIdentifier.class));
     }
 
@@ -177,17 +169,14 @@ public class AbstractRouteEntryTest {
     private void mockExportPolicies() {
         Mockito.doReturn(true).when(this.peerPT).isTableSupported(PEER_ID);
         Mockito.doReturn(false).when(this.peerPT).isTableSupported(PEER_ID2);
-        Mockito.doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(final InvocationOnMock invocation) throws Throwable {
-                final Object[] args = invocation.getArguments();
-                if (PeerRole.Ibgp.equals(args[0])) {
-                    return peg;
-                } else if (PeerRole.Ebgp.equals(args[0])) {
-                    return pegNot;
-                } else {
-                    return null;
-                }
+        Mockito.doAnswer(invocation -> {
+            final Object[] args = invocation.getArguments();
+            if (PeerRole.Ibgp.equals(args[0])) {
+                return peg;
+            } else if (PeerRole.Ebgp.equals(args[0])) {
+                return pegNot;
+            } else {
+                return null;
             }
         }).when(this.peerPT).getPeerGroup(Mockito.any(PeerRole.class));
 
@@ -199,32 +188,29 @@ public class AbstractRouteEntryTest {
         Mockito.doReturn(ROUTE_ATTRIBUTES_IDENTIFIER).when(this.ribSupport).routeAttributesIdentifier();
         Mockito.doReturn(ROUTE_ID_PA_ADD_PATH).when(this.ribSupport).getRouteIdAddPath(Mockito.any(Long.class), Mockito.eq(ROUTE_ID_PA_ADD_PATH));
         Mockito.doReturn(null).when(this.ribSupport).getRouteIdAddPath(Mockito.any(Long.class), Mockito.eq(ROUTE_ID_PA));
-        Mockito.doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(final InvocationOnMock invocation) throws Throwable {
-                final Object[] args = invocation.getArguments();
-                final YangInstanceIdentifier yii = (YangInstanceIdentifier) args[0];
-                final PathArgument paa = (PathArgument) args[1];
+        Mockito.doAnswer(invocation -> {
+            final Object[] args = invocation.getArguments();
+            final YangInstanceIdentifier yii = (YangInstanceIdentifier) args[0];
+            final PathArgument paa = (PathArgument) args[1];
 
-                if (ROUTE_ID_PA.equals(paa)) {
-                    if (yii.equals(locRibTargetYii)) {
-                        return routePaYii;
-                    } else if (yii.equals(locRibOutTargetYii)) {
-                        return routeRiboutYii;
-                    } else if (yii.equals(locRibOutTargetYiiPeer2)) {
-                        return routeRiboutYiiPeer2;
-                    }
-                } else if (ROUTE_ID_PA_ADD_PATH.equals(paa)) {
-                    if (yii.equals(locRibTargetYii)) {
-                        return routePaAddPathYii;
-                    } else if (yii.equals(locRibOutTargetYii)) {
-                        return routeAddRiboutYii;
-                    } else if (yii.equals(locRibOutTargetYiiPeer2)) {
-                        return routeAddRiboutYiiPeer2;
-                    }
+            if (ROUTE_ID_PA.equals(paa)) {
+                if (yii.equals(locRibTargetYii)) {
+                    return routePaYii;
+                } else if (yii.equals(locRibOutTargetYii)) {
+                    return routeRiboutYii;
+                } else if (yii.equals(locRibOutTargetYiiPeer2)) {
+                    return routeRiboutYiiPeer2;
                 }
-                return null;
+            } else if (ROUTE_ID_PA_ADD_PATH.equals(paa)) {
+                if (yii.equals(locRibTargetYii)) {
+                    return routePaAddPathYii;
+                } else if (yii.equals(locRibOutTargetYii)) {
+                    return routeAddRiboutYii;
+                } else if (yii.equals(locRibOutTargetYiiPeer2)) {
+                    return routeAddRiboutYiiPeer2;
+                }
             }
+            return null;
         }).when(this.ribSupport).routePath(Mockito.any(YangInstanceIdentifier.class), Mockito.any(PathArgument.class));
     }
 

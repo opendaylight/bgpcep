@@ -34,6 +34,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.osgi.framework.BundleContext;
 
+@SuppressWarnings("ALL")
 public final class BackwardsCssTopologyProvider {
 
     public static TopologyReferenceSingletonService createBackwardsCssInstance(final TopologyTypes topologyTypes, final TopologyId topologyId, final DataBroker dataBroker, final BundleContext bundleContext,
