@@ -10,6 +10,7 @@ package org.opendaylight.protocol.integration.pcep;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -23,7 +24,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.lang.reflect.Method;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareConsumer;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
@@ -32,8 +32,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.NetworkTopologyPcepProgrammingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitAddLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitAddLspInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitEnsureLspOperationalInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitRemoveLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitTriggerSyncInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitTriggerSyncInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitUpdateLspInput;
@@ -44,16 +42,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.EnsureLspOperationalInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.EnsureLspOperationalInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.NetworkTopologyPcepService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.RemoveLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerSyncInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerSyncInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerSyncOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.UpdateLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev131030.PcepCreateP2pTunnelInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev131030.PcepCreateP2pTunnelInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev131030.PcepDestroyTunnelInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev131030.PcepDestroyTunnelInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev131030.PcepUpdateTunnelInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev131030.TopologyTunnelPcepProgrammingService;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
@@ -142,7 +137,7 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
             }
         };
 
-        broker.registerProvider(provider1);
+        this.broker.registerProvider(provider1);
 
         final InstanceIdentifier<Topology> topology2 = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
                 new TopologyKey(getTopologyId("Topo2"))).build();
@@ -158,7 +153,7 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
             }
         };
 
-        broker.registerProvider(provider2);
+        this.broker.registerProvider(provider2);
 
         final BindingAwareConsumer consumer = new BindingAwareConsumer() {
             @Override
@@ -222,7 +217,7 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
                 verify(pcepService2).ensureLspOperational(ensureInput);
             }
         };
-        broker.registerConsumer(consumer);
+        this.broker.registerConsumer(consumer);
     }
 
     @SuppressWarnings("unchecked")
@@ -231,11 +226,11 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
         final ListenableFuture future = Futures.immediateFuture(RpcResultBuilder.<AddLspOutput>success().build());
         final ListenableFuture futureSyncTrigger = Futures.immediateFuture(RpcResultBuilder.<TriggerSyncOutput>success().build());
 
-        when(pcepService.addLsp(Mockito.<AddLspInput>any())).thenReturn(future);
-        when(pcepService.removeLsp(Mockito.<RemoveLspInput>any())).thenReturn(future);
-        when(pcepService.triggerSync(Mockito.<TriggerSyncInput>any())).thenReturn(futureSyncTrigger);
-        when(pcepService.ensureLspOperational(Mockito.<EnsureLspOperationalInput>any())).thenReturn(future);
-        when(pcepService.updateLsp(Mockito.<UpdateLspInput>any())).thenReturn(future);
+        when(pcepService.addLsp(any())).thenReturn(future);
+        when(pcepService.removeLsp(any())).thenReturn(future);
+        when(pcepService.triggerSync(any())).thenReturn(futureSyncTrigger);
+        when(pcepService.ensureLspOperational(any())).thenReturn(future);
+        when(pcepService.updateLsp(any())).thenReturn(future);
 
     }
 
@@ -265,7 +260,7 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
             }
         };
 
-        broker.registerProvider(provider1);
+        this.broker.registerProvider(provider1);
 
         final InstanceIdentifier<Topology> topology2 = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
                 new TopologyKey(getTopologyId("Topo2"))).build();
@@ -280,7 +275,7 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
             }
         };
 
-        broker.registerProvider(provider2);
+        this.broker.registerProvider(provider2);
 
         final BindingAwareConsumer consumer = new BindingAwareConsumer() {
             @Override
@@ -345,7 +340,7 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
                 verify(pcepService2).submitTriggerSync(submitTriggerSyncInput);
             }
         };
-        broker.registerConsumer(consumer);
+        this.broker.registerConsumer(consumer);
     }
 
     @SuppressWarnings("unchecked")
@@ -353,11 +348,11 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
         @SuppressWarnings("rawtypes")
         final ListenableFuture future = Futures.immediateFuture(RpcResultBuilder.<AddLspOutput>success().build());
         final ListenableFuture futureTriggerSync = Futures.immediateFuture(RpcResultBuilder.<TriggerSyncOutput>success().build());
-        when(pcepService.submitAddLsp(Mockito.<SubmitAddLspInput>any())).thenReturn(future);
-        when(pcepService.submitRemoveLsp(Mockito.<SubmitRemoveLspInput>any())).thenReturn(future);
-        when(pcepService.submitTriggerSync(Mockito.<SubmitTriggerSyncInput>any())).thenReturn(futureTriggerSync);
-        when(pcepService.submitEnsureLspOperational(Mockito.<SubmitEnsureLspOperationalInput>any())).thenReturn(future);
-        when(pcepService.submitUpdateLsp(Mockito.<SubmitUpdateLspInput>any())).thenReturn(future);
+        when(pcepService.submitAddLsp(any())).thenReturn(future);
+        when(pcepService.submitRemoveLsp(any())).thenReturn(future);
+        when(pcepService.submitTriggerSync(any())).thenReturn(futureTriggerSync);
+        when(pcepService.submitEnsureLspOperational(any())).thenReturn(future);
+        when(pcepService.submitUpdateLsp(any())).thenReturn(future);
     }
 
     @Test
@@ -386,7 +381,7 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
             }
         };
 
-        broker.registerProvider(provider1);
+        this.broker.registerProvider(provider1);
 
         final InstanceIdentifier<Topology> topology2 = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
                 new TopologyKey(getTopologyId("Topo2"))).build();
@@ -401,7 +396,7 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
             }
         };
 
-        broker.registerProvider(provider2);
+        this.broker.registerProvider(provider2);
 
         final BindingAwareConsumer consumer = new BindingAwareConsumer() {
             @Override
@@ -448,15 +443,15 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
                 verify(pcepService2).pcepDestroyTunnel(addLspInput);
             }
         };
-        broker.registerConsumer(consumer);
+        this.broker.registerConsumer(consumer);
     }
 
     private void initMock(final TopologyTunnelPcepProgrammingService pcepService) {
         @SuppressWarnings("rawtypes")
-        final ListenableFuture future = Futures.immediateFuture(RpcResultBuilder.<AddLspOutput>success().build());
-        when(pcepService.pcepCreateP2pTunnel(Mockito.<PcepCreateP2pTunnelInput>any())).thenReturn(future);
-        when(pcepService.pcepDestroyTunnel(Mockito.<PcepDestroyTunnelInput>any())).thenReturn(future);
-        when(pcepService.pcepUpdateTunnel(Mockito.<PcepUpdateTunnelInput>any())).thenReturn(future);
+        final ListenableFuture future = Futures.immediateFuture(RpcResultBuilder.success().build());
+        when(pcepService.pcepCreateP2pTunnel(any())).thenReturn(future);
+        when(pcepService.pcepDestroyTunnel(any())).thenReturn(future);
+        when(pcepService.pcepUpdateTunnel(any())).thenReturn(future);
     }
 
 }
