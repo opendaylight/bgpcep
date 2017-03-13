@@ -45,7 +45,7 @@ public class DataChangeCounterImplModule extends org.opendaylight.controller.con
         final InstanceIdentifier<Topology> topoIId = InstanceIdentifier.builder(NetworkTopology.class)
                 .child(Topology.class, new TopologyKey(new TopologyId(getTopologyName()))).build();
         final ListenerRegistration<TopologyDataChangeCounter> registration = getDataProviderDependency().registerDataTreeChangeListener(
-                new DataTreeIdentifier<Topology>(LogicalDatastoreType.OPERATIONAL, topoIId), counter);
+            new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL, topoIId), counter);
         return new DataChangeCounterCloseable(counter, registration);
     }
 

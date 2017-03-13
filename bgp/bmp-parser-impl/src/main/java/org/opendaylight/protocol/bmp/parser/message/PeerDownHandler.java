@@ -47,7 +47,7 @@ public class PeerDownHandler extends AbstractBmpPerPeerMessageParser<PeerDownNot
         if (peerDown.isLocalSystemClosed()) {
             if (peerDown.getData() instanceof FsmEventCode) {
                 ByteBufWriteUtil.writeUnsignedByte(REASON_TWO.getValue(), buffer);
-                ByteBufWriteUtil.writeUnsignedShort(((FsmEventCode) peerDown.getData()).getFsmEventCode().intValue(), buffer);
+                ByteBufWriteUtil.writeUnsignedShort(((FsmEventCode) peerDown.getData()).getFsmEventCode(), buffer);
             } else if (peerDown.getData() instanceof
                 org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.down.data.Notification) {
                 ByteBufWriteUtil.writeUnsignedByte(REASON_ONE.getValue(), buffer);

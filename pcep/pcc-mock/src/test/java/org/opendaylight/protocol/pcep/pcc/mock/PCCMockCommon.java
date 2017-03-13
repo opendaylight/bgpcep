@@ -190,9 +190,9 @@ public abstract class PCCMockCommon {
             for (final Reports report : pcrt) {
                 final Lsp lsp = report.getLsp();
                 if (lsp.getPlspId().getValue() == 0) {
-                    assertEquals(false, lsp.isSync().booleanValue());
+                    assertEquals(false, lsp.isSync());
                 } else {
-                    assertEquals(true, lsp.isSync().booleanValue());
+                    assertEquals(true, lsp.isSync());
                 }
                 final BigInteger actuaLspDBVersion = lsp.getTlvs().getAugmentation(org.opendaylight.yang.gen
                     .v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs1.class)

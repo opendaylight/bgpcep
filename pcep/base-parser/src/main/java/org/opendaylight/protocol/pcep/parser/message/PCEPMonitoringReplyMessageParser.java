@@ -96,7 +96,7 @@ public class PCEPMonitoringReplyMessageParser extends AbstractMessageParser {
             throw new PCEPDeserializerException("Pcmonrep message cannot be empty.");
         }
         if (!(objects.get(0) instanceof Monitoring)) {
-            errors.add(createErrorMsg(PCEPErrors.MONITORING_OBJECT_MISSING, Optional.<Rp>absent()));
+            errors.add(createErrorMsg(PCEPErrors.MONITORING_OBJECT_MISSING, Optional.absent()));
             return null;
         }
         final PcmonrepMessageBuilder builder = new PcmonrepMessageBuilder();

@@ -167,7 +167,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
     protected Replies getValidReply(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
         Object object = objects.remove(0);
         if (!(object instanceof Rp)) {
-            errors.add(createErrorMsg(PCEPErrors.RP_MISSING, Optional.<Rp>absent()));
+            errors.add(createErrorMsg(PCEPErrors.RP_MISSING, Optional.absent()));
             return null;
         }
         final Rp rp = (Rp) object;

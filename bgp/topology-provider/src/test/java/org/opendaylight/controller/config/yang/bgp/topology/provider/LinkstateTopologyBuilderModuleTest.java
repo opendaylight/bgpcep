@@ -29,6 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
+@SuppressWarnings("ALL")
 public class LinkstateTopologyBuilderModuleTest extends AbstractRIBImplModuleTest {
 
     private static final String FACTORY_NAME = LinkstateTopologyBuilderModuleFactory.NAME;

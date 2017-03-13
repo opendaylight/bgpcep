@@ -144,12 +144,7 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation {
 
     @Override
     public void close() throws Exception {
-        this.channel.close().addListener(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(final ChannelFuture channelFuture) throws Exception {
-                BmpMonitoringStationImpl.this.sessionManager.close();
-            }
-        }).await();
+        this.channel.close().addListener((ChannelFutureListener) channelFuture -> BmpMonitoringStationImpl.this.sessionManager.close()).await();
 
         final DOMDataWriteTransaction wTx = this.domDataBroker.newWriteOnlyTransaction();
         wTx.delete(LogicalDatastoreType.OPERATIONAL, this.yangMonitorId);

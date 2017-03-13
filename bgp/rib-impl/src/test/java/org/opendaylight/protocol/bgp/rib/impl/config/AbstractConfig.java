@@ -23,8 +23,6 @@ import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
@@ -116,13 +114,10 @@ class AbstractConfig {
         Mockito.doNothing().when(this.domDW).delete(eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class));
         Mockito.doNothing().when(this.domDW).merge(eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         final CheckedFuture checkedFuture = mock(CheckedFuture.class);
-        Mockito.doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(final InvocationOnMock invocation) throws Throwable {
-                final Runnable callback = (Runnable) invocation.getArguments()[0];
-                callback.run();
-                return null;
-            }
+        Mockito.doAnswer(invocation -> {
+            final Runnable callback = (Runnable) invocation.getArguments()[0];
+            callback.run();
+            return null;
         }).when(checkedFuture).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
         Mockito.doReturn(checkedFuture).when(this.domDW).submit();
         Mockito.doReturn(null).when(checkedFuture).checkedGet();

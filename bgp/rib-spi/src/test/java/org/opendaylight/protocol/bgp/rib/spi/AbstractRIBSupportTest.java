@@ -21,8 +21,6 @@ import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
@@ -91,22 +89,16 @@ public abstract class AbstractRIBSupportTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        Mockito.doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(final InvocationOnMock invocation) throws Throwable {
-                final Object[] args = invocation.getArguments();
-                AbstractRIBSupportTest.this.insertedRoutes.add(mappingService.fromNormalizedNode((YangInstanceIdentifier) args[1], (NormalizedNode<?, ?>) args[2]));
-                return args[1];
-            }
+        Mockito.doAnswer(invocation -> {
+            final Object[] args = invocation.getArguments();
+            AbstractRIBSupportTest.this.insertedRoutes.add(AbstractRIBSupportTest.this.mappingService.fromNormalizedNode((YangInstanceIdentifier) args[1], (NormalizedNode<?, ?>) args[2]));
+            return args[1];
         }).when(this.tx).put(Mockito.any(LogicalDatastoreType.class), Mockito.any(YangInstanceIdentifier.class), Mockito.any(NormalizedNode.class));
 
-        Mockito.doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(final InvocationOnMock invocation) throws Throwable {
-                final Object[] args = invocation.getArguments();
-                AbstractRIBSupportTest.this.deletedRoutes.add(mappingService.fromYangInstanceIdentifier((YangInstanceIdentifier) args[1]));
-                return args[1];
-            }
+        Mockito.doAnswer(invocation -> {
+            final Object[] args = invocation.getArguments();
+            AbstractRIBSupportTest.this.deletedRoutes.add(AbstractRIBSupportTest.this.mappingService.fromYangInstanceIdentifier((YangInstanceIdentifier) args[1]));
+            return args[1];
         }).when(this.tx).delete(Mockito.any(LogicalDatastoreType.class), Mockito.any(YangInstanceIdentifier.class));
         this.deletedRoutes = new ArrayList<>();
         this.insertedRoutes = new ArrayList<>();

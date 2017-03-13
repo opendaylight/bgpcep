@@ -90,7 +90,7 @@ public class PcRptMessageCodecTest {
         final LspIdentifiers identifier = new LspIdentifiersBuilder().setAddressFamily(afiLsp).setLspId(lspId).setTunnelId(tunnelId).build();
         final Lsp lsp = new LspBuilder().setPlspId(new PlspId(1L)).setTlvs(new TlvsBuilder().setLspIdentifiers(identifier).build()).build();
         final Ero ero = new EroBuilder().build();
-        final List<Object> objects = Lists.<Object>newArrayList(lsp, ero, bw);
+        final List<Object> objects = Lists.newArrayList(lsp, ero, bw);
         final Reports validReports = codec.getValidReports(objects, Collections.emptyList());
         assertNotNull(validReports.getPath().getBandwidth().getAugmentation(Bandwidth1.class));
         assertTrue(objects.isEmpty());
