@@ -29,9 +29,7 @@ public abstract class AbstractStatsCommandProvider extends OsgiCommandSupport {
     @Override
     protected final Object doExecute() throws Exception {
         final PrintStream out = this.session.getConsole();
-        getObjectNames().forEach(objectName -> {
-            onExecution(out, getRuntimeMXBean(objectName), objectName);
-        });
+        getObjectNames().forEach(objectName -> onExecution(out, getRuntimeMXBean(objectName), objectName));
         return null;
     }
 

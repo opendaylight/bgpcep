@@ -24,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controll
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.md.sal.dom.rev131028.DomAsyncDataBroker;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 
+@SuppressWarnings("ALL")
 public final class DataBrokerFunction {
     private DataBrokerFunction() {
         throw new UnsupportedOperationException();

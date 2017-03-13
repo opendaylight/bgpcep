@@ -8,7 +8,9 @@
 
 package org.opendaylight.controller.config.yang.bgpcep.data.change.counter;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 
 import java.util.Collections;
 import java.util.Set;
@@ -149,7 +151,7 @@ public class DataChangeCounterImplModuleTest extends AbstractConfigTest {
 
         @Override
         public Set<Class<? extends AbstractServiceInterface>> getImplementedServiceIntefaces() {
-            final java.util.Set<Class<? extends org.opendaylight.controller.config.api.annotations.AbstractServiceInterface>> serviceIfcs2 = new java.util.HashSet<Class<? extends org.opendaylight.controller.config.api.annotations.AbstractServiceInterface>>();
+            final java.util.Set<Class<? extends org.opendaylight.controller.config.api.annotations.AbstractServiceInterface>> serviceIfcs2 = new java.util.HashSet<>();
             return java.util.Collections.unmodifiableSet(serviceIfcs2);
         }
 

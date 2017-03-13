@@ -29,7 +29,7 @@ public enum InstanceType {
     InstanceType(final String beanName, final List<Class<?>> services) {
         this.beanName = beanName;
         this.services = new String[services.size()];
-        services.stream().map(clazz -> clazz.getName()).collect(Collectors.toList()).toArray(this.services);
+        services.stream().map(Class::getName).collect(Collectors.toList()).toArray(this.services);
     }
 
     public String getBeanName() {

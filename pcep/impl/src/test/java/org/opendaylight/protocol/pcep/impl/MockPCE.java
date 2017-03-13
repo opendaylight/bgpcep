@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 public class MockPCE implements PCEPSessionListener {
 
-    private final List<Message> listMsg = new ArrayList<Message>();
+    private final List<Message> listMsg = new ArrayList<>();
 
     private PCEPSessionImpl session = null;
 
