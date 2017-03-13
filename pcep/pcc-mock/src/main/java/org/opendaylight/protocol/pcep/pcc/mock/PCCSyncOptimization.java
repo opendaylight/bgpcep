@@ -36,7 +36,7 @@ final class PCCSyncOptimization {
         final Tlvs local = session.localSessionCharacteristics();
         this.localLspDbVersion = getLspDbVersion(local);
         this.remoteLspDbVersion = getLspDbVersion(remote);
-        this.dbVersionMatch = compareLspDbVersion(localLspDbVersion, remoteLspDbVersion);
+        this.dbVersionMatch = compareLspDbVersion(this.localLspDbVersion, this.remoteLspDbVersion);
         this.isSyncAvoidanceEnabled = isSyncAvoidance(local) && isSyncAvoidance(remote);
         this.isDeltaSyncEnabled = isDeltaSync(local) && isDeltaSync(remote);
         this.isTriggeredInitialSynEnable = isTriggeredInitialSync(local) && isTriggeredInitialSync(remote) &&
@@ -45,23 +45,23 @@ final class PCCSyncOptimization {
     }
 
     public boolean doesLspDbMatch() {
-        return dbVersionMatch;
+        return this.dbVersionMatch;
     }
 
     public boolean isSyncAvoidanceEnabled() {
-        return isSyncAvoidanceEnabled;
+        return this.isSyncAvoidanceEnabled;
     }
 
     public boolean isDeltaSyncEnabled() {
-        return isDeltaSyncEnabled;
+        return this.isDeltaSyncEnabled;
     }
 
     public boolean isTriggeredInitSyncEnabled() {
-        return isTriggeredInitialSynEnable;
+        return this.isTriggeredInitialSynEnable;
     }
 
     public boolean isTriggeredReSyncEnabled() {
-        return isTriggeredReSyncEnable;
+        return this.isTriggeredReSyncEnable;
     }
 
     public BigInteger getLocalLspDbVersionValue() {

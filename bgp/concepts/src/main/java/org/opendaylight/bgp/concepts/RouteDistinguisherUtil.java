@@ -40,7 +40,7 @@ public final class RouteDistinguisherUtil {
         public final int value;
 
         RD_TYPE(int val) {
-            value = val;
+            this.value = val;
         }
 
         public static RD_TYPE valueOf(final int value) {

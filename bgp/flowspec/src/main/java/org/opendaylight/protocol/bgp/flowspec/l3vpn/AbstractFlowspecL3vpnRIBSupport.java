@@ -61,7 +61,7 @@ public abstract class AbstractFlowspecL3vpnRIBSupport<T extends AbstractFlowspec
         final PathId pathId = PathIdUtil.buildPathId(routesCont, routePathIdNid());
             final RouteDistinguisher rd = extractRouteDistinguisher(routesCont, this.routeDistinguisherNID);
         return this.nlriParser.createWithdrawnDestinationType(
-            new Object[] {rd, nlriParser.extractFlowspec(Iterables.getOnlyElement(routes))},
+            new Object[] {rd, this.nlriParser.extractFlowspec(Iterables.getOnlyElement(routes))},
             pathId
         );
     }

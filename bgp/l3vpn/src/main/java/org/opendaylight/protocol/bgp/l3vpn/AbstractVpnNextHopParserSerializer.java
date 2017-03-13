@@ -29,14 +29,14 @@ public abstract class AbstractVpnNextHopParserSerializer implements NextHopParse
 
     @Override
     public CNextHop parseNextHop(final ByteBuf buffer) throws BGPParsingException {
-        Preconditions.checkArgument(buffer.readableBytes() == (ipAddrLength + RouteDistinguisherUtil.RD_LENGTH), "Length of byte array for NEXT_HOP should be %s, but is %s", ipAddrLength + RouteDistinguisherUtil.RD_LENGTH, buffer.readableBytes());
+        Preconditions.checkArgument(buffer.readableBytes() == (this.ipAddrLength + RouteDistinguisherUtil.RD_LENGTH), "Length of byte array for NEXT_HOP should be %s, but is %s", this.ipAddrLength + RouteDistinguisherUtil.RD_LENGTH, buffer.readableBytes());
         buffer.readBytes(RouteDistinguisherUtil.RD_LENGTH);
-        return NextHopUtil.parseNextHop(buffer.readBytes(ipAddrLength));
+        return NextHopUtil.parseNextHop(buffer.readBytes(this.ipAddrLength));
     }
 
     @Override
     public void serializeNextHop(final CNextHop cNextHop, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(ipNextHopCaseClazz.isInstance(cNextHop), "cNextHop is not a VPN %s NextHop object.", ipNextHopCaseClazz.getSimpleName());
+        Preconditions.checkArgument(this.ipNextHopCaseClazz.isInstance(cNextHop), "cNextHop is not a VPN %s NextHop object.", this.ipNextHopCaseClazz.getSimpleName());
         byteAggregator.writeZero(RouteDistinguisherUtil.RD_LENGTH);
         NextHopUtil.serializeNextHop(cNextHop, byteAggregator);
     }

@@ -26,12 +26,12 @@ final class PeerExportGroupImpl implements PeerExportGroup {
 
     @Override
     public ContainerNode effectiveAttributes(final PeerRole role, final ContainerNode attributes) {
-        return attributes == null || role == null ? null : policy.effectiveAttributes(role, attributes);
+        return attributes == null || role == null ? null : this.policy.effectiveAttributes(role, attributes);
     }
 
     @Override
     public Collection<Map.Entry<PeerId, PeerExporTuple>> getPeers() {
-        return peers.entrySet();
+        return this.peers.entrySet();
     }
 
     @Override
