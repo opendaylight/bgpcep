@@ -37,7 +37,7 @@ public class SrEroSubobjectParser extends AbstractSrSubobjectParser implements E
 
         final SrSubobject srSubobject = (SrSubobject) subobject.getSubobjectType();
         final ByteBuf body = serializeSubobject(srSubobject);
-        EROSubobjectUtil.formatSubobject(type, subobject.isLoose(), body, buffer);
+        EROSubobjectUtil.formatSubobject(this.type, subobject.isLoose(), body, buffer);
     }
 
     @Override

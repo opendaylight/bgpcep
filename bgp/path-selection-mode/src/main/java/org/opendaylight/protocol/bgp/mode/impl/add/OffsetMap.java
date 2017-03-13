@@ -94,13 +94,13 @@ public final class OffsetMap {
 
     public <T> T getValue(final T[] array, final int offset) {
         Preconditions.checkArgument(offset >= 0, NEGATIVEOFFSET, offset);
-        Preconditions.checkArgument(offset < routeKeys.length, INVALIDOFFSET, offset, routeKeys.length);
+        Preconditions.checkArgument(offset < this.routeKeys.length, INVALIDOFFSET, offset, this.routeKeys.length);
         return array[offset];
     }
 
     public <T> void setValue(final T[] array, final int offset, final T value) {
         Preconditions.checkArgument(offset >= 0, NEGATIVEOFFSET, offset);
-        Preconditions.checkArgument(offset < routeKeys.length, INVALIDOFFSET, offset, routeKeys.length);
+        Preconditions.checkArgument(offset < this.routeKeys.length, INVALIDOFFSET, offset, this.routeKeys.length);
         array[offset] = value;
     }
 
@@ -118,7 +118,7 @@ public final class OffsetMap {
     public <T> T[] removeValue(final T[] oldArray, final int offset) {
         final int length = oldArray.length;
         Preconditions.checkArgument(offset >= 0, NEGATIVEOFFSET, offset);
-        Preconditions.checkArgument(offset < routeKeys.length, INVALIDOFFSET, offset, length);
+        Preconditions.checkArgument(offset < this.routeKeys.length, INVALIDOFFSET, offset, length);
 
         final T[] ret = (T[]) Array.newInstance(oldArray.getClass().getComponentType(), length - 1);
         System.arraycopy(oldArray, 0, ret, 0, offset);

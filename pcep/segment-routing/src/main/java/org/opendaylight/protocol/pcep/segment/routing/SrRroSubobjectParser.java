@@ -38,7 +38,7 @@ public class SrRroSubobjectParser extends AbstractSrSubobjectParser implements R
                         .getClass());
         final SrSubobject srSubobject = (SrSubobject) subobject.getSubobjectType();
         final ByteBuf body = serializeSubobject(srSubobject);
-        RROSubobjectUtil.formatSubobject(type, body, buffer);
+        RROSubobjectUtil.formatSubobject(this.type, body, buffer);
     }
 
     @Override

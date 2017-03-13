@@ -26,7 +26,7 @@ public class BmpTestSessionListener implements BmpSessionListener {
     private boolean up = false;
 
     public boolean isUp () {
-        return up;
+        return this.up;
     }
 
     public List<Notification> getListMsg() {

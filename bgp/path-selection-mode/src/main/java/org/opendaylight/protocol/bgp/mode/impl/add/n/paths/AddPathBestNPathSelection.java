@@ -33,6 +33,6 @@ public class AddPathBestNPathSelection implements PathSelectionMode {
     }
 
     public Long getNBestPaths() {
-        return nBestPaths;
+        return this.nBestPaths;
     }
 }

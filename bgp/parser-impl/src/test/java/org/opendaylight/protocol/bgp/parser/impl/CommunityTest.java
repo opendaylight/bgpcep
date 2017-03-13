@@ -21,8 +21,8 @@ public class CommunityTest {
 
     @Test
     public void testCommunity() {
-        util.create(10, 222);
-        final Community c = util.create(12, 12);
+        this.util.create(10, 222);
+        final Community c = this.util.create(12, 12);
         assertEquals(12, c.getAsNumber().getValue().intValue());
         assertEquals(12, c.getSemantics().intValue());
     }
@@ -30,13 +30,13 @@ public class CommunityTest {
     @Test
     public void testOverflows() {
         try {
-            util.create(10, -2);
+            this.util.create(10, -2);
             fail("Semantics under range.");
         } catch (final IllegalArgumentException e) {
             assertEquals("Invalid range: -2, expected: [[0‥65535]].", e.getMessage());
         }
         try {
-            util.create(10, 65536);
+            this.util.create(10, 65536);
             fail("Semantics above range.");
         } catch (final IllegalArgumentException e) {
             assertEquals("Invalid range: 65536, expected: [[0‥65535]].", e.getMessage());
@@ -45,13 +45,13 @@ public class CommunityTest {
 
     @Test
     public void testToString() {
-        final Community c = util.create(10, 222);
+        final Community c = this.util.create(10, 222);
         assertNotNull(c.toString());
     }
 
     @Test
     public void testValueOf() {
-        final Community comm = util.valueOf("12:50");
+        final Community comm = this.util.valueOf("12:50");
         assertEquals(12, comm.getAsNumber().getValue().intValue());
         assertEquals(50, comm.getSemantics().intValue());
     }

@@ -86,14 +86,14 @@ final class ExportPolicyPeerTrackerImpl implements ExportPolicyPeerTracker {
             @Override
             protected void removeRegistration() {
                 synchronized (lock) {
-                    final SendReceive sendReceiveValue = peerAddPathTables.remove(peerId);
+                    final SendReceive sendReceiveValue = ExportPolicyPeerTrackerImpl.this.peerAddPathTables.remove(peerId);
                     if (sendReceiveValue != null) {
                         LOG.debug("Supported Add BestPath table {} removed to peer {}", sendReceiveValue, peerId);
                     }
-                    peerTables.remove(peerId);
-                    LOG.debug("Removed peer {} from supported table {}", peerId, localTableKey);
-                    peerRoles.remove(peerPath);
-                    createGroups(peerRoles);
+                    ExportPolicyPeerTrackerImpl.this.peerTables.remove(peerId);
+                    LOG.debug("Removed peer {} from supported table {}", peerId, ExportPolicyPeerTrackerImpl.this.localTableKey);
+                    ExportPolicyPeerTrackerImpl.this.peerRoles.remove(peerPath);
+                    createGroups(ExportPolicyPeerTrackerImpl.this.peerRoles);
                 }
             }
         };

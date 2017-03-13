@@ -161,13 +161,13 @@ public class FlowspecL3vpnIpv4NlriParserTest {
     };
 
     private final SimpleFlowspecExtensionProviderContext flowspecContext = new SimpleFlowspecExtensionProviderContext();
-    private final FlowspecActivator fsa = new FlowspecActivator(flowspecContext);
-    private final FlowspecL3vpnIpv4NlriParser FS_PARSER = new FlowspecL3vpnIpv4NlriParser(flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN));
+    private final FlowspecActivator fsa = new FlowspecActivator(this.flowspecContext);
+    private final FlowspecL3vpnIpv4NlriParser FS_PARSER = new FlowspecL3vpnIpv4NlriParser(this.flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN));
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        Mockito.doReturn(Optional.of(this.muliPathSupport)).when(constraint).getPeerConstraint(Mockito.any());
+        Mockito.doReturn(Optional.of(this.muliPathSupport)).when(this.constraint).getPeerConstraint(Mockito.any());
         Mockito.doReturn(true).when(this.muliPathSupport).isTableTypeSupported(Mockito.any());
     }
 
@@ -200,7 +200,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         builder.setFlowspecType(sps);
         fs.add(builder.build());
 
-        final FlowspecL3vpnIpv4NlriParser parser = new FlowspecL3vpnIpv4NlriParser(flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN));
+        final FlowspecL3vpnIpv4NlriParser parser = new FlowspecL3vpnIpv4NlriParser(this.flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN));
 
         final MpReachNlriBuilder result = new MpReachNlriBuilder();
         result.setAfi(Ipv4AddressFamily.class);
@@ -230,7 +230,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         parser.serializeAttribute(new AttributesBuilder().addAugmentation(Attributes1.class, new Attributes1Builder().setMpReachNlri(mp.setAfi(Ipv4AddressFamily.class).build()).build()).build(), buffer);
         assertArrayEquals(REACHED_NLRI, ByteArray.readAllBytes(buffer));
 
-        assertEquals("all packets to 10.0.1.0/32 AND from 1.2.3.4/32 AND where IP protocol equals to 6 AND where port is greater than or equals to 137 and is less than or equals to 139 or equals to 8080 AND where destination port is greater than 4089 or equals to 179 AND where source port equals to 8080 ", FS_PARSER.stringNlri(flows));
+        assertEquals("all packets to 10.0.1.0/32 AND from 1.2.3.4/32 AND where IP protocol equals to 6 AND where port is greater than or equals to 137 and is less than or equals to 139 or equals to 8080 AND where destination port is greater than 4089 or equals to 179 AND where source port equals to 8080 ", this.FS_PARSER.stringNlri(flows));
     }
 
     private void testFlows(
@@ -298,7 +298,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         builder.setFlowspecType(sps);
         fs.add(builder.build());
 
-        final FlowspecL3vpnIpv4NlriParser parser = new FlowspecL3vpnIpv4NlriParser(flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN));
+        final FlowspecL3vpnIpv4NlriParser parser = new FlowspecL3vpnIpv4NlriParser(this.flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN));
 
         final MpReachNlriBuilder result = new MpReachNlriBuilder();
         result.setAfi(Ipv4AddressFamily.class);
@@ -329,7 +329,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         parser.serializeAttribute(new AttributesBuilder().addAugmentation(Attributes1.class, new Attributes1Builder().setMpReachNlri(mp.setAfi(Ipv4AddressFamily.class).build()).build()).build(), buffer);
         assertArrayEquals(REACHED_NLRI_ADD_PATH, ByteArray.readAllBytes(buffer));
 
-        assertEquals("all packets to 10.0.1.0/32 AND from 1.2.3.4/32 AND where IP protocol equals to 6 AND where port is greater than or equals to 137 and is less than or equals to 139 or equals to 8080 AND where destination port is greater than 4089 or equals to 179 AND where source port equals to 8080 ", FS_PARSER.stringNlri(flows));
+        assertEquals("all packets to 10.0.1.0/32 AND from 1.2.3.4/32 AND where IP protocol equals to 6 AND where port is greater than or equals to 137 and is less than or equals to 139 or equals to 8080 AND where destination port is greater than 4089 or equals to 179 AND where source port equals to 8080 ", this.FS_PARSER.stringNlri(flows));
     }
 
     private PortCase createPorts() {
@@ -371,7 +371,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         builder.setFlowspecType(fragment);
         fs.add(builder.build());
 
-        final FlowspecL3vpnIpv4NlriParser parser = new FlowspecL3vpnIpv4NlriParser(flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN));
+        final FlowspecL3vpnIpv4NlriParser parser = new FlowspecL3vpnIpv4NlriParser(this.flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN));
 
         final MpUnreachNlriBuilder result = new MpUnreachNlriBuilder();
         result.setAfi(Ipv4AddressFamily.class);
@@ -403,7 +403,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         parser.serializeAttribute(new AttributesBuilder().addAugmentation(Attributes2.class, new Attributes2Builder().setMpUnreachNlri(mp.build()).build()).build(), buffer);
         assertArrayEquals(UNREACHED_NLRI, ByteArray.readAllBytes(buffer));
 
-        assertEquals("all packets where ICMP type is less than 2 or is less than 3 AND where ICMP code is less than 4 or 5 AND where TCP flags is not 1025 or does match 22193 AND where packet length is less than 57005 AND where DSCP is greater than 42 AND where fragment does match 'IS FIRST' 'IS LAST' 'IS A' ", FS_PARSER.stringNlri(flows));
+        assertEquals("all packets where ICMP type is less than 2 or is less than 3 AND where ICMP code is less than 4 or 5 AND where TCP flags is not 1025 or does match 22193 AND where packet length is less than 57005 AND where DSCP is greater than 42 AND where fragment does match 'IS FIRST' 'IS LAST' 'IS A' ", this.FS_PARSER.stringNlri(flows));
 
     }
 
@@ -483,7 +483,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         builder.setFlowspecType(fragment);
         fs.add(builder.build());
 
-        final FlowspecL3vpnIpv4NlriParser parser = new FlowspecL3vpnIpv4NlriParser(flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN));
+        final FlowspecL3vpnIpv4NlriParser parser = new FlowspecL3vpnIpv4NlriParser(this.flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN));
 
         final MpUnreachNlriBuilder result = new MpUnreachNlriBuilder();
         result.setAfi(Ipv4AddressFamily.class);
@@ -516,7 +516,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         parser.serializeAttribute(new AttributesBuilder().addAugmentation(Attributes2.class, new Attributes2Builder().setMpUnreachNlri(mp.build()).build()).build(), buffer);
         assertArrayEquals(UNREACHED_NLRI_ADD_PATH, ByteArray.readAllBytes(buffer));
 
-        assertEquals("all packets where ICMP type is less than 2 or is less than 3 AND where ICMP code is less than 4 or 5 AND where TCP flags is not 1025 or does match 22193 AND where packet length is less than 57005 AND where DSCP is greater than 42 AND where fragment does match 'IS FIRST' 'IS LAST' 'IS A' ", FS_PARSER.stringNlri(flows));
+        assertEquals("all packets where ICMP type is less than 2 or is less than 3 AND where ICMP code is less than 4 or 5 AND where TCP flags is not 1025 or does match 22193 AND where packet length is less than 57005 AND where DSCP is greater than 42 AND where fragment does match 'IS FIRST' 'IS LAST' 'IS A' ", this.FS_PARSER.stringNlri(flows));
 
     }
 
@@ -536,7 +536,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         expectedFS.setFlowspecType(new DestinationPrefixCaseBuilder().setDestinationPrefix(new Ipv4Prefix("127.0.0.5/32")).build());
         final List<Flowspec> expected = new ArrayList<>();
         expected.add(expectedFS.build());
-        assertEquals(expected, FS_PARSER.extractFlowspec(entry.build()));
+        assertEquals(expected, this.FS_PARSER.extractFlowspec(entry.build()));
     }
 
     @Test
@@ -555,7 +555,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         expectedFS.setFlowspecType(new SourcePrefixCaseBuilder().setSourcePrefix(new Ipv4Prefix("127.0.0.6/32")).build());
         final List<Flowspec> expected = new ArrayList<>();
         expected.add(expectedFS.build());
-        assertEquals(expected, FS_PARSER.extractFlowspec(entry.build()));
+        assertEquals(expected, this.FS_PARSER.extractFlowspec(entry.build()));
     }
 
     @Test
@@ -587,7 +587,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
             new ProtocolIpsBuilder().setValue((short) 240).setOp(new NumericOperand(true, true, true, false, false)).build())).build());
         final List<Flowspec> expected = new ArrayList<>();
         expected.add(expectedFS.build());
-        assertEquals(expected, FS_PARSER.extractFlowspec(entry.build()));
+        assertEquals(expected, this.FS_PARSER.extractFlowspec(entry.build()));
     }
 
     @Test
@@ -610,7 +610,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         expectedFS.setFlowspecType(new PortCaseBuilder().setPorts(Lists.newArrayList(new PortsBuilder().setValue(100).setOp(new NumericOperand(true, true, false, false, true)).build())).build());
         final List<Flowspec> expected = new ArrayList<>();
         expected.add(expectedFS.build());
-        assertEquals(expected, FS_PARSER.extractFlowspec(entry.build()));
+        assertEquals(expected, this.FS_PARSER.extractFlowspec(entry.build()));
     }
 
     @Test
@@ -632,7 +632,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         expectedFS.setFlowspecType(new DestinationPortCaseBuilder().setDestinationPorts(Lists.newArrayList(new DestinationPortsBuilder().setValue(1024).setOp(new NumericOperand(false, true, true, false, false)).build())).build());
         final List<Flowspec> expected = new ArrayList<>();
         expected.add(expectedFS.build());
-        assertEquals(expected, FS_PARSER.extractFlowspec(entry.build()));
+        assertEquals(expected, this.FS_PARSER.extractFlowspec(entry.build()));
     }
 
     @Test
@@ -654,7 +654,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         expectedFS.setFlowspecType(new SourcePortCaseBuilder().setSourcePorts(Lists.newArrayList(new SourcePortsBuilder().setValue(8080).setOp(new NumericOperand(true, true, true, true, true)).build())).build());
         final List<Flowspec> expected = new ArrayList<>();
         expected.add(expectedFS.build());
-        assertEquals(expected, FS_PARSER.extractFlowspec(entry.build()));
+        assertEquals(expected, this.FS_PARSER.extractFlowspec(entry.build()));
     }
 
     @Test
@@ -676,7 +676,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         expectedFS.setFlowspecType(new IcmpTypeCaseBuilder().setTypes(Lists.newArrayList(new TypesBuilder().setValue((short) 22).setOp(new NumericOperand(true, true, true, true, true)).build())).build());
         final List<Flowspec> expected = new ArrayList<>();
         expected.add(expectedFS.build());
-        assertEquals(expected, FS_PARSER.extractFlowspec(entry.build()));
+        assertEquals(expected, this.FS_PARSER.extractFlowspec(entry.build()));
     }
 
     @Test
@@ -698,7 +698,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         expectedFS.setFlowspecType(new IcmpCodeCaseBuilder().setCodes(Lists.newArrayList(new CodesBuilder().setValue((short) 23).setOp(new NumericOperand(false, false, false, false, false)).build())).build());
         final List<Flowspec> expected = new ArrayList<>();
         expected.add(expectedFS.build());
-        assertEquals(expected, FS_PARSER.extractFlowspec(entry.build()));
+        assertEquals(expected, this.FS_PARSER.extractFlowspec(entry.build()));
     }
 
     @Test
@@ -720,7 +720,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         expectedFS.setFlowspecType(new TcpFlagsCaseBuilder().setTcpFlags(Lists.newArrayList(new TcpFlagsBuilder().setValue(99).setOp(new BitmaskOperand(true, true, false, false)).build())).build());
         final List<Flowspec> expected = new ArrayList<>();
         expected.add(expectedFS.build());
-        assertEquals(expected, FS_PARSER.extractFlowspec(entry.build()));
+        assertEquals(expected, this.FS_PARSER.extractFlowspec(entry.build()));
     }
 
     @Test
@@ -742,7 +742,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         expectedFS.setFlowspecType(new PacketLengthCaseBuilder().setPacketLengths(Lists.newArrayList(new PacketLengthsBuilder().setValue(101).setOp(new NumericOperand(true, false, false, true, false)).build())).build());
         final List<Flowspec> expected = new ArrayList<>();
         expected.add(expectedFS.build());
-        assertEquals(expected, FS_PARSER.extractFlowspec(entry.build()));
+        assertEquals(expected, this.FS_PARSER.extractFlowspec(entry.build()));
     }
 
     @Test
@@ -764,7 +764,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         expectedFS.setFlowspecType(new DscpCaseBuilder().setDscps(Lists.newArrayList(new DscpsBuilder().setValue(new Dscp((short) 15)).setOp(new NumericOperand(true, true, false, true, false)).build())).build());
         final List<Flowspec> expected = new ArrayList<>();
         expected.add(expectedFS.build());
-        assertEquals(expected, FS_PARSER.extractFlowspec(entry.build()));
+        assertEquals(expected, this.FS_PARSER.extractFlowspec(entry.build()));
     }
 
     @Test
@@ -786,7 +786,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         expectedFS.setFlowspecType(new FragmentCaseBuilder().setFragments(Lists.newArrayList(new FragmentsBuilder().setValue(new Fragment(true, true, true, true)).setOp(new BitmaskOperand(true, true, true, true)).build())).build());
         final List<Flowspec> expected = new ArrayList<>();
         expected.add(expectedFS.build());
-        assertEquals(expected, FS_PARSER.extractFlowspec(entry.build()));
+        assertEquals(expected, this.FS_PARSER.extractFlowspec(entry.build()));
     }
 
     @Test
@@ -802,7 +802,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         );
 
         RouteDistinguisher rd = RouteDistinguisherBuilder.getDefaultInstance(ROUTE_DISTINGUISHER);
-        assertEquals(rd, extractRouteDistinguisher(entry.build(), FS_PARSER.RD_NID));
+        assertEquals(rd, extractRouteDistinguisher(entry.build(), this.FS_PARSER.RD_NID));
     }
 }
 

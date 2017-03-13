@@ -49,7 +49,7 @@ final class RouterSessionManager implements BmpSessionListenerFactory, AutoClose
 
     private synchronized boolean isSessionExist(final BmpRouter sessionListener) {
         Preconditions.checkNotNull(sessionListener);
-        return sessionListeners.containsKey(Preconditions.checkNotNull(sessionListener.getRouterId()));
+        return this.sessionListeners.containsKey(Preconditions.checkNotNull(sessionListener.getRouterId()));
     }
 
     synchronized boolean addSessionListener(final BmpRouter sessionListener) {
@@ -85,7 +85,7 @@ final class RouterSessionManager implements BmpSessionListenerFactory, AutoClose
     }
 
     RIBExtensionConsumerContext getExtensions() {
-        return extensions;
+        return this.extensions;
     }
 
     BindingCodecTree getCodecTree() {

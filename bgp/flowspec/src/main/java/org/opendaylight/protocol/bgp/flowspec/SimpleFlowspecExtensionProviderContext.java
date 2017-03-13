@@ -15,7 +15,7 @@ public class SimpleFlowspecExtensionProviderContext {
         public final int index;
 
         AFI(int i) {
-            index = i;
+            this.index = i;
         }
     }
 
@@ -26,7 +26,7 @@ public class SimpleFlowspecExtensionProviderContext {
         public final int index;
 
         SAFI(int i) {
-            index = i;
+            this.index = i;
         }
     }
 
@@ -35,12 +35,12 @@ public class SimpleFlowspecExtensionProviderContext {
     public SimpleFlowspecExtensionProviderContext() {
         for (AFI afi : AFI.values()) {
             for (SAFI safi : SAFI.values()) {
-                flowspecTypeRegistries[afi.index][safi.index] = new SimpleFlowspecTypeRegistry();
+                this.flowspecTypeRegistries[afi.index][safi.index] = new SimpleFlowspecTypeRegistry();
             }
         }
     }
 
     public SimpleFlowspecTypeRegistry getFlowspecTypeRegistry(AFI afi, SAFI safi) {
-        return flowspecTypeRegistries[afi.index][safi.index];
+        return this.flowspecTypeRegistries[afi.index][safi.index];
     }
 }
