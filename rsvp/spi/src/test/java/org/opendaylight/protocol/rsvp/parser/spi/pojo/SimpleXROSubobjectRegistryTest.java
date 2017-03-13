@@ -19,8 +19,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.protocol.rsvp.parser.spi.XROSubobjectParser;
 import org.opendaylight.protocol.rsvp.parser.spi.XROSubobjectSerializer;
@@ -47,13 +45,10 @@ public class SimpleXROSubobjectRegistryTest {
             .input, false);
         final ArgumentCaptor<SubobjectContainer> arg = ArgumentCaptor.forClass(SubobjectContainer.class);
         final ArgumentCaptor<ByteBuf> bufArg = ArgumentCaptor.forClass(ByteBuf.class);
-        Mockito.doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(final InvocationOnMock invocation) throws Throwable {
-                final Object[] args = invocation.getArguments();
-                ((ByteBuf) args[1]).writeBoolean(Boolean.TRUE);
-                return null;
-            }
+        Mockito.doAnswer(invocation -> {
+            final Object[] args = invocation.getArguments();
+            ((ByteBuf) args[1]).writeBoolean(Boolean.TRUE);
+            return null;
         }).when(this.rroSubobjectSerializer).serializeSubobject(arg.capture(), bufArg.capture());
     }
 

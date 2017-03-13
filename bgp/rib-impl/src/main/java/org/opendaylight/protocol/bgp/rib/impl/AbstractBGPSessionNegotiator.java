@@ -11,7 +11,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -117,17 +116,14 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
                 preferences.getBgpId()).setBgpParameters(preferences.getParams()).build());
             if (this.state != State.FINISHED) {
                 this.state = State.OPEN_SENT;
-                this.pending = this.channel.eventLoop().schedule(new Runnable() {
-                    @Override
-                    public void run() {
-                        synchronized (AbstractBGPSessionNegotiator.this) {
-                            AbstractBGPSessionNegotiator.this.pending = null;
-                            if (AbstractBGPSessionNegotiator.this.state != State.FINISHED) {
-                                AbstractBGPSessionNegotiator.this
-                                    .sendMessage(buildErrorNotify(BGPError.HOLD_TIMER_EXPIRED));
-                                negotiationFailed(new BGPDocumentedException("HoldTimer expired", BGPError.FSM_ERROR));
-                                AbstractBGPSessionNegotiator.this.state = State.FINISHED;
-                            }
+                this.pending = this.channel.eventLoop().schedule(() -> {
+                    synchronized (AbstractBGPSessionNegotiator.this) {
+                        AbstractBGPSessionNegotiator.this.pending = null;
+                        if (AbstractBGPSessionNegotiator.this.state != State.FINISHED) {
+                            AbstractBGPSessionNegotiator.this
+                                .sendMessage(buildErrorNotify(BGPError.HOLD_TIMER_EXPIRED));
+                            negotiationFailed(new BGPDocumentedException("HoldTimer expired", BGPError.FSM_ERROR));
+                            AbstractBGPSessionNegotiator.this.state = State.FINISHED;
                         }
                     }
                 }, INITIAL_HOLDTIMER, TimeUnit.MINUTES);
@@ -266,15 +262,12 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
     }
 
     private void sendMessage(final Notification msg) {
-        this.channel.writeAndFlush(msg).addListener(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(final ChannelFuture f) {
-                if (!f.isSuccess()) {
-                    LOG.warn("Failed to send message {} to channel {}", msg,  AbstractBGPSessionNegotiator.this.channel, f.cause());
-                    negotiationFailedCloseChannel(f.cause());
-                } else {
-                    LOG.trace("Message {} sent to channel {}", msg, AbstractBGPSessionNegotiator.this.channel);
-                }
+        this.channel.writeAndFlush(msg).addListener((ChannelFutureListener) f -> {
+            if (!f.isSuccess()) {
+                LOG.warn("Failed to send message {} to channel {}", msg,  AbstractBGPSessionNegotiator.this.channel, f.cause());
+                negotiationFailedCloseChannel(f.cause());
+            } else {
+                LOG.trace("Message {} sent to channel {}", msg, AbstractBGPSessionNegotiator.this.channel);
             }
         });
     }

@@ -15,8 +15,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.opendaylight.protocol.rsvp.parser.spi.RROSubobjectRegistry;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.RsvpTeObject;
@@ -34,22 +32,16 @@ public class RROSubobjectListParserTest {
 
     @Before
     public void setUp() throws RSVPParsingException {
-        Mockito.doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(final InvocationOnMock invocation) throws Throwable {
-                if (((ByteBuf) invocation.getArguments()[1]).readableBytes() == 0) {
-                    return null;
-                }
-                return RROSubobjectListParserTest.this.subObj;
-            }
-        }).when(this.registry).parseSubobject(Mockito.anyInt(), Mockito.any(ByteBuf.class));
-        Mockito.doReturn("lala").when(this.subObj).toString();
-        Mockito.doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(final InvocationOnMock invocation) throws Throwable {
-                ((ByteBuf) invocation.getArguments()[1]).writeByte(1);
+        Mockito.doAnswer(invocation -> {
+            if (((ByteBuf) invocation.getArguments()[1]).readableBytes() == 0) {
                 return null;
             }
+            return RROSubobjectListParserTest.this.subObj;
+        }).when(this.registry).parseSubobject(Mockito.anyInt(), Mockito.any(ByteBuf.class));
+        Mockito.doReturn("lala").when(this.subObj).toString();
+        Mockito.doAnswer(invocation -> {
+            ((ByteBuf) invocation.getArguments()[1]).writeByte(1);
+            return null;
         }).when(this.registry).serializeSubobject(Mockito.any(SubobjectContainer.class), Mockito.any(ByteBuf.class));
     }
 

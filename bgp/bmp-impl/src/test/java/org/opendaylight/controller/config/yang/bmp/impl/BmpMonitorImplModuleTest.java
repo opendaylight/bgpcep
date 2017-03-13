@@ -32,8 +32,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
 import org.opendaylight.controller.config.manager.impl.factoriesresolver.HardcodedModuleFactoriesResolver;
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
@@ -142,26 +140,23 @@ public class BmpMonitorImplModuleTest extends AbstractBmpModuleTest {
         final SchemaContext context = parseYangStreams(getFilesAsByteSources(getYangModelsPaths()));
         final SchemaService mockedSchemaService = mock(SchemaService.class);
         doReturn(context).when(mockedSchemaService).getGlobalContext();
-        doAnswer(new Answer<ListenerRegistration<SchemaContextListener>>() {
-            @Override
-            public ListenerRegistration<SchemaContextListener> answer(InvocationOnMock invocation) {
-                invocation.getArgumentAt(0, SchemaContextListener.class).onGlobalContextUpdated(context);
-                ListenerRegistration<SchemaContextListener> reg = mock(ListenerRegistration.class);
-                doNothing().when(reg).close();
-                return reg;
-            }
+        doAnswer(invocation -> {
+            invocation.getArgumentAt(0, SchemaContextListener.class).onGlobalContextUpdated(context);
+            final ListenerRegistration<SchemaContextListener> reg = mock(ListenerRegistration.class);
+            doNothing().when(reg).close();
+            return reg;
         }).when(mockedSchemaService).registerSchemaContextListener(any(SchemaContextListener.class));
 
         setupMockService(SchemaService.class, mockedSchemaService);
         setupMockService(YangTextSourceProvider.class, mock(YangTextSourceProvider.class));
         Mockito.doReturn(mockedSchemaService).when(this.mockedContext).getService(schemaServiceReference);
 
-        BindingToNormalizedNodeCodec bindingCodec = BindingToNormalizedNodeCodecFactory.newInstance(
+        final BindingToNormalizedNodeCodec bindingCodec = BindingToNormalizedNodeCodecFactory.newInstance(
                 GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
         BindingToNormalizedNodeCodecFactory.registerInstance(bindingCodec, mockedSchemaService);
         setupMockService(BindingToNormalizedNodeCodec.class, bindingCodec);
 
-        BmpDispatcher bmpDispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(),
+        final BmpDispatcher bmpDispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(),
                 new SimpleBmpMessageRegistry(), new DefaultBmpSessionFactory());
         setupMockService(BmpDispatcher.class, bmpDispatcher);
     }

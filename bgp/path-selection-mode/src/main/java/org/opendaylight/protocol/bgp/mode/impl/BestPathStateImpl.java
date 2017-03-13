@@ -17,7 +17,6 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.protocol.bgp.mode.api.BestPathState;
@@ -115,12 +114,7 @@ public final class BestPathStateImpl implements BestPathState {
     public BestPathStateImpl(final ContainerNode attributes) {
         final NamespaceSpecificIds col;
         try {
-            col = PATH_CACHE.get(attributes.getNodeType().getModule(), new Callable<NamespaceSpecificIds>() {
-                @Override
-                public NamespaceSpecificIds call() {
-                    return new NamespaceSpecificIds(attributes.getNodeType());
-                }
-            });
+            col = PATH_CACHE.get(attributes.getNodeType().getModule(), () -> new NamespaceSpecificIds(attributes.getNodeType()));
         } catch (final ExecutionException e) {
             LOG.error("Error creating namespace-specific attributes collection.", e);
             throw new IllegalStateException("Error creating namespace-specific attributes collection.", e);
