@@ -329,14 +329,6 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
         bgpPeer.setServiceRegistration(serviceRegistration);
     }
 
-    private synchronized void registerAppPeerInstance(final AppPeer appPeer, final String peerInstanceName) {
-        final Dictionary<String, String> properties = new Hashtable<>();
-        properties.put(InstanceType.PEER.getBeanName(), peerInstanceName);
-        final ServiceRegistration<?> serviceRegistration = this.bundleContext
-            .registerService(InstanceType.APP_PEER.getServices(), appPeer, properties);
-        appPeer.setServiceRegistration(serviceRegistration);
-    }
-
     private synchronized void initiatePeerInstance(final InstanceIdentifier<Bgp> rootIdentifier,
         final InstanceIdentifier<Neighbor> neighborIdentifier, final Neighbor neighbor,
         final PeerBean bgpPeer, final WriteConfiguration configurationWriter) {
@@ -346,8 +338,6 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
             bgpPeer.start(rib, neighbor, this.mappingService, configurationWriter);
             if (bgpPeer instanceof BgpPeer) {
                 registerPeerInstance((BgpPeer) bgpPeer, peerInstanceName);
-            } else if(bgpPeer instanceof AppPeer) {
-                registerAppPeerInstance((AppPeer) bgpPeer, peerInstanceName);
             }
         }
     }
