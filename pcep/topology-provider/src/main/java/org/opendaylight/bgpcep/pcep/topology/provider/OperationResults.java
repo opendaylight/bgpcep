@@ -68,12 +68,12 @@ final class OperationResults implements OperationResult {
 
     @Override
     public FailureType getFailure() {
-        return failure;
+        return this.failure;
     }
 
     @Override
     public List<Error> getError() {
-        return error;
+        return this.error;
 
     }
     @Override

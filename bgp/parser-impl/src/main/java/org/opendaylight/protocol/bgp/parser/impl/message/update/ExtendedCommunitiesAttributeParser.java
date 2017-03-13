@@ -38,7 +38,7 @@ public final class ExtendedCommunitiesAttributeParser implements AttributeParser
     public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder) throws BGPDocumentedException, BGPParsingException {
         final List<ExtendedCommunities> set = new ArrayList<>();
         while (buffer.isReadable()) {
-            final ExtendedCommunities exComm = ecReg.parseExtendedCommunity(buffer);
+            final ExtendedCommunities exComm = this.ecReg.parseExtendedCommunity(buffer);
             if (exComm != null) {
                 set.add(exComm);
             }

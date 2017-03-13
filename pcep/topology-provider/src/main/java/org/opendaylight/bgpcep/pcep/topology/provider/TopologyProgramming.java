@@ -51,7 +51,7 @@ final class TopologyProgramming implements NetworkTopologyPcepProgrammingService
         Preconditions.checkArgument(input.getName() != null);
 
         final SubmitAddLspOutputBuilder b = new SubmitAddLspOutputBuilder();
-        b.setResult(AbstractInstructionExecutor.schedule(scheduler, new AbstractInstructionExecutor(input) {
+        b.setResult(AbstractInstructionExecutor.schedule(this.scheduler, new AbstractInstructionExecutor(input) {
             @Override
             protected ListenableFuture<OperationResult> invokeOperation() {
                 return TopologyProgramming.this.manager.addLsp(input);
@@ -68,7 +68,7 @@ final class TopologyProgramming implements NetworkTopologyPcepProgrammingService
         Preconditions.checkArgument(input.getName() != null);
 
         final SubmitRemoveLspOutputBuilder b = new SubmitRemoveLspOutputBuilder();
-        b.setResult(AbstractInstructionExecutor.schedule(scheduler, new AbstractInstructionExecutor(input) {
+        b.setResult(AbstractInstructionExecutor.schedule(this.scheduler, new AbstractInstructionExecutor(input) {
             @Override
             protected ListenableFuture<OperationResult> invokeOperation() {
                 return TopologyProgramming.this.manager.removeLsp(input);
@@ -85,7 +85,7 @@ final class TopologyProgramming implements NetworkTopologyPcepProgrammingService
         Preconditions.checkArgument(input.getName() != null);
 
         final SubmitUpdateLspOutputBuilder b = new SubmitUpdateLspOutputBuilder();
-        b.setResult(AbstractInstructionExecutor.schedule(scheduler, new AbstractInstructionExecutor(input) {
+        b.setResult(AbstractInstructionExecutor.schedule(this.scheduler, new AbstractInstructionExecutor(input) {
             @Override
             protected ListenableFuture<OperationResult> invokeOperation() {
                 return TopologyProgramming.this.manager.updateLsp(input);
@@ -107,7 +107,7 @@ final class TopologyProgramming implements NetworkTopologyPcepProgrammingService
         // Preconditions.checkArgument(input.getArguments().getOperational() != null);
 
         final SubmitEnsureLspOperationalOutputBuilder b = new SubmitEnsureLspOperationalOutputBuilder();
-        b.setResult(AbstractInstructionExecutor.schedule(scheduler, new AbstractInstructionExecutor(input) {
+        b.setResult(AbstractInstructionExecutor.schedule(this.scheduler, new AbstractInstructionExecutor(input) {
             @Override
             protected ListenableFuture<OperationResult> invokeOperation() {
                 EnsureLspOperationalInputBuilder ensureLspOperationalInputBuilder = new EnsureLspOperationalInputBuilder();
@@ -126,7 +126,7 @@ final class TopologyProgramming implements NetworkTopologyPcepProgrammingService
         Preconditions.checkArgument(input.getNode() != null);
 
         final SubmitTriggerSyncOutputBuilder b = new SubmitTriggerSyncOutputBuilder();
-        b.setResult(AbstractInstructionExecutor.schedule(scheduler, new AbstractInstructionExecutor(input) {
+        b.setResult(AbstractInstructionExecutor.schedule(this.scheduler, new AbstractInstructionExecutor(input) {
             @Override
             protected ListenableFuture<OperationResult> invokeOperation() {
                 return TopologyProgramming.this.manager.triggerSync(input);

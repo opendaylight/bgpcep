@@ -137,7 +137,7 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
             }
         };
 
-        broker.registerProvider(provider1);
+        this.broker.registerProvider(provider1);
 
         final InstanceIdentifier<Topology> topology2 = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
                 new TopologyKey(getTopologyId("Topo2"))).build();
@@ -153,7 +153,7 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
             }
         };
 
-        broker.registerProvider(provider2);
+        this.broker.registerProvider(provider2);
 
         final BindingAwareConsumer consumer = new BindingAwareConsumer() {
             @Override
@@ -217,7 +217,7 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
                 verify(pcepService2).ensureLspOperational(ensureInput);
             }
         };
-        broker.registerConsumer(consumer);
+        this.broker.registerConsumer(consumer);
     }
 
     @SuppressWarnings("unchecked")
@@ -260,7 +260,7 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
             }
         };
 
-        broker.registerProvider(provider1);
+        this.broker.registerProvider(provider1);
 
         final InstanceIdentifier<Topology> topology2 = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
                 new TopologyKey(getTopologyId("Topo2"))).build();
@@ -275,7 +275,7 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
             }
         };
 
-        broker.registerProvider(provider2);
+        this.broker.registerProvider(provider2);
 
         final BindingAwareConsumer consumer = new BindingAwareConsumer() {
             @Override
@@ -340,7 +340,7 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
                 verify(pcepService2).submitTriggerSync(submitTriggerSyncInput);
             }
         };
-        broker.registerConsumer(consumer);
+        this.broker.registerConsumer(consumer);
     }
 
     @SuppressWarnings("unchecked")
@@ -381,7 +381,7 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
             }
         };
 
-        broker.registerProvider(provider1);
+        this.broker.registerProvider(provider1);
 
         final InstanceIdentifier<Topology> topology2 = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
                 new TopologyKey(getTopologyId("Topo2"))).build();
@@ -396,7 +396,7 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
             }
         };
 
-        broker.registerProvider(provider2);
+        this.broker.registerProvider(provider2);
 
         final BindingAwareConsumer consumer = new BindingAwareConsumer() {
             @Override
@@ -443,7 +443,7 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
                 verify(pcepService2).pcepDestroyTunnel(addLspInput);
             }
         };
-        broker.registerConsumer(consumer);
+        this.broker.registerConsumer(consumer);
     }
 
     private void initMock(final TopologyTunnelPcepProgrammingService pcepService) {

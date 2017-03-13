@@ -68,10 +68,10 @@ public class BmpMockSessionTest {
         this.session.channelActive(this.context);
 
         assertEquals(REMOTE_ADDRESS.getAddress(), this.session.getRemoteAddress());
-        assertTrue(messages.get(0) instanceof InitiationMessage);
-        assertTrue(messages.get(1) instanceof PeerUp);
-        assertTrue(messages.get(2) instanceof RouteMonitoringMessage);
-        assertTrue(messages.get(3) instanceof RouteMonitoringMessage);
+        assertTrue(this.messages.get(0) instanceof InitiationMessage);
+        assertTrue(this.messages.get(1) instanceof PeerUp);
+        assertTrue(this.messages.get(2) instanceof RouteMonitoringMessage);
+        assertTrue(this.messages.get(3) instanceof RouteMonitoringMessage);
 
         this.session.close();
         assertFalse(this.channel.isWritable());

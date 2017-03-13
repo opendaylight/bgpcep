@@ -31,6 +31,6 @@ public final class PCEPHandlerFactory {
     }
 
     public ChannelHandler[] getDecoders() {
-        return new ChannelHandler[] { new PCEPMessageHeaderDecoder(), new PCEPByteToMessageDecoder(registry), };
+        return new ChannelHandler[] { new PCEPMessageHeaderDecoder(), new PCEPByteToMessageDecoder(this.registry), };
     }
 }

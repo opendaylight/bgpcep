@@ -70,12 +70,12 @@ final class SimpleExtendedCommunityRegistry implements ExtendedCommunityRegistry
     synchronized AutoCloseable registerExtendedCommunitySerializer(
             final Class<? extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.ExtendedCommunity> extendedCommunityClass,
             final ExtendedCommunitySerializer serializer) {
-        return handlers.registerSerializer(extendedCommunityClass, serializer);
+        return this.handlers.registerSerializer(extendedCommunityClass, serializer);
     }
 
     synchronized AutoCloseable registerExtendedCommunityParser(final int type, final int subtype, final ExtendedCommunityParser parser) {
         checkTypes(type, subtype);
-        return handlers.registerParser(createKey(type, subtype), parser);
+        return this.handlers.registerParser(createKey(type, subtype), parser);
     }
 
     private static void checkTypes(final int type, final int subtype) {

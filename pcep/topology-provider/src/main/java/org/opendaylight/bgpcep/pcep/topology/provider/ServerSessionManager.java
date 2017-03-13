@@ -210,7 +210,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, AutoClos
     @Override
     public void setPeerSpecificProposal(final InetSocketAddress address, final TlvsBuilder openBuilder) {
         Preconditions.checkNotNull(address);
-        peerProposal.setPeerProposal(createNodeId(address.getAddress()), openBuilder);
+        this.peerProposal.setPeerProposal(createNodeId(address.getAddress()), openBuilder);
     }
 
     public int getRpcTimeout() {

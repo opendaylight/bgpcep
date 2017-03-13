@@ -87,11 +87,11 @@ final class TableContext {
 
     void createTable(final DOMDataWriteTransaction tx) {
         final DataContainerNodeBuilder<YangInstanceIdentifier.NodeIdentifierWithPredicates, MapEntryNode> tb = ImmutableNodes.mapEntryBuilder();
-        tb.withNodeIdentifier((YangInstanceIdentifier.NodeIdentifierWithPredicates)tableId.getLastPathArgument());
+        tb.withNodeIdentifier((YangInstanceIdentifier.NodeIdentifierWithPredicates) this.tableId.getLastPathArgument());
         tb.withChild(EMPTY_TABLE_ATTRIBUTES);
 
         // tableId is keyed, but that fact is not directly visible from YangInstanceIdentifier, see BUG-2796
-        final YangInstanceIdentifier.NodeIdentifierWithPredicates tableKey = (YangInstanceIdentifier.NodeIdentifierWithPredicates) tableId.getLastPathArgument();
+        final YangInstanceIdentifier.NodeIdentifierWithPredicates tableKey = (YangInstanceIdentifier.NodeIdentifierWithPredicates) this.tableId.getLastPathArgument();
         for (final Map.Entry<QName, Object> e : tableKey.getKeyValues().entrySet()) {
             tb.withChild(ImmutableNodes.leafNode(e.getKey(), e.getValue()));
         }

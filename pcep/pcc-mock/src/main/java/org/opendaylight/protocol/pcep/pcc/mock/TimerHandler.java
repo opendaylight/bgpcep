@@ -38,10 +38,10 @@ public class TimerHandler {
     final class DisconnectTask implements TimerTask {
         @Override
         public void run(final Timeout timeout) throws Exception {
-            LOG.debug("Disconnects PCCs, reconnect after {} seconds", reconnectAfter);
-            pccDispatcher.close();
-            if (reconnectAfter > 0) {
-                timer.newTimeout(new ReconnectTask(), reconnectAfter, TimeUnit.SECONDS);
+            LOG.debug("Disconnects PCCs, reconnect after {} seconds", TimerHandler.this.reconnectAfter);
+            TimerHandler.this.pccDispatcher.close();
+            if (TimerHandler.this.reconnectAfter > 0) {
+                TimerHandler.this.timer.newTimeout(new ReconnectTask(), TimerHandler.this.reconnectAfter, TimeUnit.SECONDS);
             }
         }
     }
@@ -50,14 +50,14 @@ public class TimerHandler {
         @Override
         public void run(final Timeout timeout) throws Exception {
             LOG.debug("Reconnecting PCCs}");
-            pcCsBuilder.createPCCs(syncOptDBVersion.isPresent() ? syncOptDBVersion.get() : BigInteger.ONE, Optional.absent());
+            TimerHandler.this.pcCsBuilder.createPCCs(TimerHandler.this.syncOptDBVersion.isPresent() ? TimerHandler.this.syncOptDBVersion.get() : BigInteger.ONE, Optional.absent());
         }
     }
 
     protected void createDisconnectTask() {
-        if (this.disconnectAfter > 0 && !reconnectActive && syncOptDBVersion.isPresent()) {
-            timer.newTimeout(new DisconnectTask(), this.disconnectAfter, TimeUnit.SECONDS);
-            reconnectActive = true;
+        if (this.disconnectAfter > 0 && !this.reconnectActive && this.syncOptDBVersion.isPresent()) {
+            this.timer.newTimeout(new DisconnectTask(), this.disconnectAfter, TimeUnit.SECONDS);
+            this.reconnectActive = true;
         }
     }
 

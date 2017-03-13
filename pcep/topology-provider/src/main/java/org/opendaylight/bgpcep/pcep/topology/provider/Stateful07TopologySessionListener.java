@@ -205,8 +205,8 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     }
 
     private void markAllLspAsStale() {
-        for (final PlspId plspId : lsps.keySet()) {
-            staleLsps.add(plspId);
+        for (final PlspId plspId : this.lsps.keySet()) {
+            this.staleLsps.add(plspId);
         }
     }
 
@@ -229,7 +229,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             if (!staleLsp.getPath().isEmpty()) {
                 final Path1 path1 = staleLsp.getPath().get(0).getAugmentation(Path1.class);
                 if (path1 != null) {
-                    staleLsps.add(path1.getLsp().getPlspId());
+                    Stateful07TopologySessionListener.this.staleLsps.add(path1.getLsp().getPlspId());
                 }
             }
             updatePccState(PccSyncState.PcepTriggeredResync);
@@ -735,7 +735,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
                 if (path1 != null) {
                     final PlspId plspId = path1.getLsp().getPlspId();
                     if (!incrementalSynchro) {
-                        staleLsps.add(plspId);
+                        this.staleLsps.add(plspId);
                     }
                     lsps.put(plspId, lspName);
                 }
@@ -750,7 +750,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
      * @param plspId
      */
     private synchronized void unmarkStaleLsp(final PlspId plspId) {
-        staleLsps.remove(plspId);
+        this.staleLsps.remove(plspId);
     }
 
     /**
@@ -758,9 +758,9 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
      * @param ctx
      */
     private synchronized void purgeStaleLsps(final MessageContext ctx) {
-        for (final PlspId plspId : staleLsps) {
+        for (final PlspId plspId : this.staleLsps) {
             removeLsp(ctx, plspId);
         }
-        staleLsps.clear();
+        this.staleLsps.clear();
     }
 }

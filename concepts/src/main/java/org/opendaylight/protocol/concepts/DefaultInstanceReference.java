@@ -24,6 +24,6 @@ public class DefaultInstanceReference<T extends DataObject> implements InstanceR
 
     @Override
     public final InstanceIdentifier<T> getInstanceIdentifier() {
-        return instanceIdentifier;
+        return this.instanceIdentifier;
     }
 }

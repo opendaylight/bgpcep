@@ -22,21 +22,21 @@ public class RouterIdsTest {
 
     @Test
     public void testRouterIdForAddress() throws Exception {
-        assertEquals(unsignedRouterId, RouterIds.routerIdForAddress("42.42.42.42"));
+        assertEquals(this.unsignedRouterId, RouterIds.routerIdForAddress("42.42.42.42"));
     }
 
     @Test
     public void testRouterIdForPeerId() throws Exception {
-        assertEquals(unsignedRouterId, RouterIds.routerIdForPeerId(peerID));
+        assertEquals(this.unsignedRouterId, RouterIds.routerIdForPeerId(this.peerID));
     }
 
     @Test
     public void testCreatePeerId() throws Exception {
-        assertEquals(peerID, RouterIds.createPeerId(new Ipv4Address("42.42.42.42")));
+        assertEquals(this.peerID, RouterIds.createPeerId(new Ipv4Address("42.42.42.42")));
     }
 
     @Test
     public void testCreatePeerId1() throws Exception {
-        assertEquals(peerID, RouterIds.createPeerId(unsignedRouterId));
+        assertEquals(this.peerID, RouterIds.createPeerId(this.unsignedRouterId));
     }
 }
