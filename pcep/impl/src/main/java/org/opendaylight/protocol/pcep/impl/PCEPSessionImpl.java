@@ -69,7 +69,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
      */
     private long lastMessageReceivedAt;
 
-    private final Queue<Long> unknownMessagesTimes = new LinkedList<Long>();
+    private final Queue<Long> unknownMessagesTimes = new LinkedList<>();
 
     private final PCEPSessionListener listener;
 
@@ -110,21 +110,11 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
 
 
         if (getDeadTimerValue() != 0) {
-            channel.eventLoop().schedule(new Runnable() {
-                @Override
-                public void run() {
-                    handleDeadTimer();
-                }
-            }, getDeadTimerValue(), TimeUnit.SECONDS);
+            channel.eventLoop().schedule(this::handleDeadTimer, getDeadTimerValue(), TimeUnit.SECONDS);
         }
 
         if (getKeepAliveTimerValue() != 0) {
-            channel.eventLoop().schedule(new Runnable() {
-                @Override
-                public void run() {
-                    handleKeepaliveTimer();
-                }
-            }, getKeepAliveTimerValue(), TimeUnit.SECONDS);
+            channel.eventLoop().schedule(this::handleKeepaliveTimer, getKeepAliveTimerValue(), TimeUnit.SECONDS);
         }
 
         LOG.info("Session {}[{}] <-> {}[{}] started", channel.localAddress(), localOpen.getSessionId(), channel.remoteAddress(),
@@ -156,12 +146,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
                 LOG.debug("DeadTimer expired. {}", new Date());
                 this.terminate(TerminationReason.EXP_DEADTIMER);
             } else {
-                this.channel.eventLoop().schedule(new Runnable() {
-                    @Override
-                    public void run() {
-                        handleDeadTimer();
-                    }
-                }, nextDead - ct, TimeUnit.NANOSECONDS);
+                this.channel.eventLoop().schedule(this::handleDeadTimer, nextDead - ct, TimeUnit.NANOSECONDS);
             }
         }
     }
@@ -183,12 +168,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
                 nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(getKeepAliveTimerValue());
             }
 
-            this.channel.eventLoop().schedule(new Runnable() {
-                @Override
-                public void run() {
-                    handleKeepaliveTimer();
-                }
-            }, nextKeepalive - ct, TimeUnit.NANOSECONDS);
+            this.channel.eventLoop().schedule(this::handleKeepaliveTimer, nextKeepalive - ct, TimeUnit.NANOSECONDS);
         }
     }
 
@@ -209,18 +189,21 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
             this.sessionState.setLastSentError(msg);
         }
 
-        f.addListener(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(final ChannelFuture arg) {
-                if (arg.isSuccess()) {
-                    LOG.trace("Message sent to socket: {}", msg);
-                } else {
-                    LOG.debug("Message not sent: {}", msg, arg.cause());
-                }
+        f.addListener((ChannelFutureListener) arg -> {
+            if (arg.isSuccess()) {
+                LOG.trace("Message sent to socket: {}", msg);
+            } else {
+                LOG.debug("Message not sent: {}", msg, arg.cause());
             }
         });
 
         return f;
+    }
+
+    @VisibleForTesting
+    ChannelFuture closeChannel() {
+        LOG.info("Closing PCEP session: {}", this);
+        return this.channel.close();
     }
 
     /**
@@ -229,7 +212,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
     @Override
     public void close() {
         LOG.info("Closing PCEP session: {}", this);
-        this.channel.close();
+        closeChannel();
     }
 
     /**
