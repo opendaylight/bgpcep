@@ -223,13 +223,19 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
         return f;
     }
 
+    @VisibleForTesting
+    ChannelFuture closeChannel() {
+        LOG.info("Closing PCEP session: {}", this);
+        return this.channel.close();
+    }
+
     /**
      * Closes PCEP session without sending a Close message, as the channel is no longer active.
      */
     @Override
     public void close() {
         LOG.info("Closing PCEP session: {}", this);
-        this.channel.close();
+        closeChannel();
     }
 
     /**
