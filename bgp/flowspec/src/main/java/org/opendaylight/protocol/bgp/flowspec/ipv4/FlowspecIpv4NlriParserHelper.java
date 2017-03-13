@@ -34,7 +34,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 /**
  * @author Kevin Wang
  */
-public class FlowspecIpv4NlriParserHelper {
+public final class FlowspecIpv4NlriParserHelper {
 
     private static final NodeIdentifier PROTOCOL_IP_NID = new NodeIdentifier(ProtocolIps.QNAME);
 
