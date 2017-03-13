@@ -87,7 +87,7 @@ public class BGPOpenConfigListenerTest {
 
         final Global global = Mockito.mock(Global.class);
         final Neighbors neighbors = Mockito.mock(Neighbors.class);
-        final ArrayList<Neighbor> neighbor = new ArrayList<Neighbor>();
+        final ArrayList<Neighbor> neighbor = new ArrayList<>();
         neighbor.add(createNeighbor());
         Mockito.doReturn(neighbor).when(neighbors).getNeighbor();
         Mockito.doReturn(neighbors).when(this.modif1).getDataAfter();

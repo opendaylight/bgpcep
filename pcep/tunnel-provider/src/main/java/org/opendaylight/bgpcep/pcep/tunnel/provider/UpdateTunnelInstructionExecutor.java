@@ -74,12 +74,7 @@ final class UpdateTunnelInstructionExecutor extends AbstractInstructionExecutor 
             }
             return Futures.transform(
                 (ListenableFuture<RpcResult<UpdateLspOutput>>) this.topologyService.updateLsp(buildUpdateInput(link, node)),
-                new Function<RpcResult<UpdateLspOutput>, OperationResult>() {
-                    @Override
-                    public OperationResult apply(final RpcResult<UpdateLspOutput> input) {
-                        return input.getResult();
-                    }
-                });
+                (Function<RpcResult<UpdateLspOutput>, OperationResult>) RpcResult::getResult);
         }
     }
 

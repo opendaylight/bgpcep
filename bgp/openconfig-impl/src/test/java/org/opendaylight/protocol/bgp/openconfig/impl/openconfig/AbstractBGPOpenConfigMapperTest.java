@@ -25,6 +25,7 @@ import org.opendaylight.yangtools.concepts.Identifier;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
+@SuppressWarnings("ALL")
 public class AbstractBGPOpenConfigMapperTest {
 
     private static final InstanceConfigurationIdentifier IDENTIFIER = new InstanceConfigurationIdentifier("instanceName");

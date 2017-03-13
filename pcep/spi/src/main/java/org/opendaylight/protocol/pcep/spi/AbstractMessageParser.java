@@ -12,7 +12,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -114,9 +113,9 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
                     rp.get()).build())).build()).build();
         }
         return new PcerrBuilder().setPcerrMessage(
-                msgBuilder.setErrors(Arrays.asList(new ErrorsBuilder().setErrorObject(
-                        new ErrorObjectBuilder().setType(e.getErrorType()).setValue(
-                                e.getErrorValue()).build()).build())).build()).build();
+                msgBuilder.setErrors(Collections.singletonList(new ErrorsBuilder().setErrorObject(
+                    new ErrorObjectBuilder().setType(e.getErrorType()).setValue(
+                        e.getErrorValue()).build()).build())).build()).build();
     }
 
     protected abstract Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException;

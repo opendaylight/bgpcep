@@ -163,7 +163,7 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
         mxBean2.setAddressFamily(AddPathImplModuleTest.createAddressFamily(transaction, "add-path-inst-2"));
         mxBean2.setSendReceive(SendReceive.Receive);
 
-        final List<ObjectName> ret = new ArrayList<ObjectName>();
+        final List<ObjectName> ret = new ArrayList<>();
         ret.add(name1);
         ret.add(name2);
         return ret;

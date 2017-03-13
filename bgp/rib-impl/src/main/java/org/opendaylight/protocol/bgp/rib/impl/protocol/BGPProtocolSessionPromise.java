@@ -69,7 +69,7 @@ public final class BGPProtocolSessionPromise<S extends BGPSession> extends Defau
 
         final BGPProtocolSessionPromise lock = this;
         try {
-            LOG.debug("Promise {} attempting connect for {}ms", lock, Integer.valueOf(CONNECT_TIMEOUT));
+            LOG.debug("Promise {} attempting connect for {}ms", lock, CONNECT_TIMEOUT);
             if (this.address.isUnresolved()) {
                 this.address = new InetSocketAddress(this.address.getHostName(), this.address.getPort());
             }

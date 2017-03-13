@@ -90,7 +90,7 @@ public class AbstractMessageParserTest {
 
         Mockito.verify(this.registry, Mockito.only()).serializeObject(Mockito.any(Object.class), Mockito.any(ByteBuf.class));
 
-        final Message b = a.parseMessage(Unpooled.wrappedBuffer(new byte[] {0x0D, 0x13, 0, 0x08, 0, 0, 1, 1 }), Collections.<Message> emptyList());
+        final Message b = a.parseMessage(Unpooled.wrappedBuffer(new byte[] {0x0D, 0x13, 0, 0x08, 0, 0, 1, 1 }), Collections.emptyList());
 
         assertEquals(this.object, ((Pcerr) b).getPcerrMessage().getErrors().get(0).getErrorObject());
     }
@@ -103,7 +103,7 @@ public class AbstractMessageParserTest {
         parser.serializeVendorInformationObjects(Lists.newArrayList(this.viObject), buffer);
         Mockito.verify(this.registry, Mockito.only()).serializeVendorInformationObject(Mockito.any(VendorInformationObject.class), Mockito.any(ByteBuf.class));
 
-        final Message msg = parser.parseMessage(Unpooled.wrappedBuffer(new byte[] {0x22, 0x13, 0x00, 0x08, 0, 0, 0, 0 }), Collections.<Message> emptyList());
+        final Message msg = parser.parseMessage(Unpooled.wrappedBuffer(new byte[] {0x22, 0x13, 0x00, 0x08, 0, 0, 0, 0 }), Collections.emptyList());
 
         assertEquals(this.viObject, ((Pcrep)msg).getPcrepMessage().getReplies().get(0).getVendorInformationObject().get(0));
     }

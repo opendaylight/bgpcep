@@ -10,7 +10,6 @@ package org.opendaylight.protocol.pcep.impl;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.util.concurrent.Promise;
@@ -148,31 +147,28 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
     }
 
     private void scheduleFailTimer() {
-        this.failTimer = this.channel.eventLoop().schedule(new Runnable() {
-            @Override
-            public void run() {
-                switch (AbstractPCEPSessionNegotiator.this.state) {
-                case FINISHED:
-                case IDLE:
-                    break;
-                case START_TLS_WAIT:
-                    sendErrorMessage(PCEPErrors.STARTTLS_TIMER_EXP);
-                    negotiationFailed(new TimeoutException("StartTLSWait timer expired"));
-                    AbstractPCEPSessionNegotiator.this.state = State.FINISHED;
-                    break;
-                case KEEP_WAIT:
-                    sendErrorMessage(PCEPErrors.NO_MSG_BEFORE_EXP_KEEPWAIT);
-                    negotiationFailed(new TimeoutException("KeepWait timer expired"));
-                    AbstractPCEPSessionNegotiator.this.state = State.FINISHED;
-                    break;
-                case OPEN_WAIT:
-                    sendErrorMessage(PCEPErrors.NO_OPEN_BEFORE_EXP_OPENWAIT);
-                    negotiationFailed(new TimeoutException("OpenWait timer expired"));
-                    AbstractPCEPSessionNegotiator.this.state = State.FINISHED;
-                    break;
-                default:
-                    break;
-                }
+        this.failTimer = this.channel.eventLoop().schedule((Runnable) () -> {
+            switch (AbstractPCEPSessionNegotiator.this.state) {
+            case FINISHED:
+            case IDLE:
+                break;
+            case START_TLS_WAIT:
+                sendErrorMessage(PCEPErrors.STARTTLS_TIMER_EXP);
+                negotiationFailed(new TimeoutException("StartTLSWait timer expired"));
+                AbstractPCEPSessionNegotiator.this.state = State.FINISHED;
+                break;
+            case KEEP_WAIT:
+                sendErrorMessage(PCEPErrors.NO_MSG_BEFORE_EXP_KEEPWAIT);
+                negotiationFailed(new TimeoutException("KeepWait timer expired"));
+                AbstractPCEPSessionNegotiator.this.state = State.FINISHED;
+                break;
+            case OPEN_WAIT:
+                sendErrorMessage(PCEPErrors.NO_OPEN_BEFORE_EXP_OPENWAIT);
+                negotiationFailed(new TimeoutException("OpenWait timer expired"));
+                AbstractPCEPSessionNegotiator.this.state = State.FINISHED;
+                break;
+            default:
+                break;
             }
         }, FAIL_TIMER_VALUE, TimeUnit.SECONDS);
     }
@@ -188,12 +184,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
         } else {
             startNegotiationWithOpen();
         }
-        this.channel.closeFuture().addListener(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(final ChannelFuture f) {
-                cancelTimers();
-            }
-        });
+        this.channel.closeFuture().addListener((ChannelFutureListener) f -> cancelTimers());
     }
 
     private void cancelTimers() {

@@ -183,7 +183,7 @@ public class RegistryTest {
         this.ctx.getObjectHandlerRegistry().parseObject(4, 1, new ObjectHeaderImpl(true, false), buffer);
         this.ctx.getObjectHandlerRegistry().serializeObject(new OpenBuilder().build(), buffer);
 
-        this.ctx.getMessageHandlerRegistry().parseMessage(6, buffer, Collections.<Message> emptyList());
+        this.ctx.getMessageHandlerRegistry().parseMessage(6, buffer, Collections.emptyList());
         this.ctx.getMessageHandlerRegistry().serializeMessage(new KeepaliveBuilder().build(), buffer);
 
         this.ctx.getVendorInformationObjectRegistry().parseVendorInformationObject(new EnterpriseNumber(10L), new ObjectHeaderImpl(true, false), buffer);

@@ -49,7 +49,7 @@ public class BandwidthTest {
 
     @Test
     public void testHashCode() {
-        final Set<Bandwidth> set = new HashSet<Bandwidth>();
+        final Set<Bandwidth> set = new HashSet<>();
 
         set.add(this.b1);
         assertEquals(1, set.size());

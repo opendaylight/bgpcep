@@ -23,8 +23,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.InitiationMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.PeerUp;
@@ -51,12 +49,9 @@ public class BmpMockSessionTest {
         Mockito.doReturn(LOCAL_ADDRESS).when(this.channel).localAddress();
         final ChannelPipeline pipeline = Mockito.mock(ChannelPipeline.class);
         Mockito.doReturn(pipeline).when(this.channel).pipeline();
-        Mockito.doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(final InvocationOnMock invocation) throws Throwable {
-                messages.add((Notification) invocation.getArguments()[0]);
-                return null;
-            }
+        Mockito.doAnswer(invocation -> {
+            messages.add((Notification) invocation.getArguments()[0]);
+            return null;
         }).when(this.channel).writeAndFlush(Mockito.any());
         final ChannelFuture channelFuture = Mockito.mock(ChannelFuture.class);
         Mockito.doReturn(null).when(channelFuture).addListener(Mockito.any());

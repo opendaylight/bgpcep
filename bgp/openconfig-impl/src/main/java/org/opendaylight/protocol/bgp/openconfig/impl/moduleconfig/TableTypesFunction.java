@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.openconfig.impl.moduleconfig;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
@@ -32,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controll
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.services.service.Instance;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 
+@SuppressWarnings("ALL")
 final class TableTypesFunction {
     private TableTypesFunction() {
         throw new UnsupportedOperationException();
@@ -54,17 +54,7 @@ final class TableTypesFunction {
                 }
 
                 final ImmutableList<Module> modules = FluentIterable.from(maybeModules)
-                    .filter(new Predicate<Optional<Module>>() {
-                        @Override
-                        public boolean apply(final Optional<Module> input) {
-                            return input.isPresent();
-                        }
-                    }).transform(new Function<Optional<Module>, Module>() {
-                        @Override
-                        public Module apply(final Optional<Module> input) {
-                            return input.get();
-                        }
-                    }).toList();
+                    .filter(Optional::isPresent).transform(Optional::get).toList();
 
                 return toServices(function, afiSafis, afiSafiToModuleName(afiSafis, modules), moduleNameToService);
             }

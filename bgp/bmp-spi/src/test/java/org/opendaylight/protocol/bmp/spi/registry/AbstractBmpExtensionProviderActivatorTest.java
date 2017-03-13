@@ -32,7 +32,7 @@ public class AbstractBmpExtensionProviderActivatorTest {
     private static class SimpleAbstractBmpExtensionProviderActivator extends AbstractBmpExtensionProviderActivator {
         @Override
         protected List<AutoCloseable> startImpl(final BmpExtensionProviderContext context) {
-            final List<AutoCloseable> reg = new ArrayList<AutoCloseable>();
+            final List<AutoCloseable> reg = new ArrayList<>();
             reg.add(context.registerBmpMessageParser(1, new SimpleBmpMessageRegistry()));
             return reg;
         }

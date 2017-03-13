@@ -111,14 +111,11 @@ public final class PCEPProtocolSessionPromise<S extends PCEPSession> extends Def
                     }
 
                     final EventLoop loop = cf.channel().eventLoop();
-                    loop.schedule(new Runnable() {
-                        @Override
-                        public void run() {
-                            PCEPProtocolSessionPromise.LOG.debug("Attempting to connect to {}", PCEPProtocolSessionPromise.this.address);
-                            final Future reconnectFuture = PCEPProtocolSessionPromise.this.b.connect();
-                            reconnectFuture.addListener(PCEPProtocolSessionPromise.BootstrapConnectListener.this);
-                            PCEPProtocolSessionPromise.this.pending = reconnectFuture;
-                        }
+                    loop.schedule(() -> {
+                        PCEPProtocolSessionPromise.LOG.debug("Attempting to connect to {}", PCEPProtocolSessionPromise.this.address);
+                        final Future reconnectFuture = PCEPProtocolSessionPromise.this.b.connect();
+                        reconnectFuture.addListener(BootstrapConnectListener.this);
+                        PCEPProtocolSessionPromise.this.pending = reconnectFuture;
                     }, PCEPProtocolSessionPromise.this.retryTimer, TimeUnit.SECONDS);
                     PCEPProtocolSessionPromise.LOG.debug("Next reconnection attempt in {}s", PCEPProtocolSessionPromise.this.retryTimer);
                 }

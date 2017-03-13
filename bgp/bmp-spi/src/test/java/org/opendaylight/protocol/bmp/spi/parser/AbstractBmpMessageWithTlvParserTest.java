@@ -33,22 +33,16 @@ public class AbstractBmpMessageWithTlvParserTest {
     private static final byte[] DATA = { 0, 1, 0, 4, 't', 'e', 's', 't' };
     private static final int TYPE = 1;
 
-    public static final BmpTlvSerializer DESCRIPTION_TLV_SERIALIZER = new BmpTlvSerializer() {
-        @Override
-        public void serializeTlv(final Tlv tlv, final ByteBuf output) {
-            Preconditions.checkArgument(tlv instanceof DescriptionTlv, "DescriptionTlv is mandatory.");
-            TlvUtil.formatTlvAscii(TYPE, ((DescriptionTlv) tlv).getDescription(), output);
-        }
+    public static final BmpTlvSerializer DESCRIPTION_TLV_SERIALIZER = (tlv, output) -> {
+        Preconditions.checkArgument(tlv instanceof DescriptionTlv, "DescriptionTlv is mandatory.");
+        TlvUtil.formatTlvAscii(TYPE, ((DescriptionTlv) tlv).getDescription(), output);
     };
 
-    public static final BmpTlvParser DESCRIPTION_TLV_PARSER = new BmpTlvParser() {
-        @Override
-        public Tlv parseTlv(final ByteBuf buffer) throws BmpDeserializationException {
-            if (buffer == null) {
-                return null;
-            }
-            return new DescriptionTlvBuilder().setDescription(buffer.toString(StandardCharsets.US_ASCII)).build();
+    public static final BmpTlvParser DESCRIPTION_TLV_PARSER = buffer -> {
+        if (buffer == null) {
+            return null;
         }
+        return new DescriptionTlvBuilder().setDescription(buffer.toString(StandardCharsets.US_ASCII)).build();
     };
 
     @Before
