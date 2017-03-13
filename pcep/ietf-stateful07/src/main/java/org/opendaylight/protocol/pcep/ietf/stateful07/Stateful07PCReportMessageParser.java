@@ -39,7 +39,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.Lspa;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.metric.object.Metric;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.Rro;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.Rp;
 
 /**
  * Parser for {@link Pcrpt}
@@ -139,14 +138,14 @@ public class Stateful07PCReportMessageParser extends AbstractMessageParser {
             final Lsp lsp = (Lsp) object;
             final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.Tlvs tlvs = lsp.getTlvs();
             if (!lspViaSR && lsp.getPlspId().getValue() != 0 && (tlvs == null || tlvs.getLspIdentifiers() == null)) {
-                final Message errorMsg = createErrorMsg(PCEPErrors.LSP_IDENTIFIERS_TLV_MISSING, Optional.<Rp>absent());
+                final Message errorMsg = createErrorMsg(PCEPErrors.LSP_IDENTIFIERS_TLV_MISSING, Optional.absent());
                 errors.add(errorMsg);
                 return false;
             } else {
                 builder.setLsp(lsp);
             }
         } else {
-            errors.add(createErrorMsg(PCEPErrors.LSP_MISSING, Optional.<Rp>absent()));
+            errors.add(createErrorMsg(PCEPErrors.LSP_MISSING, Optional.absent()));
             return false;
         }
         return true;
@@ -154,11 +153,11 @@ public class Stateful07PCReportMessageParser extends AbstractMessageParser {
 
     private boolean validatePath(final List<Object> objects, final List<Message> errors, final ReportsBuilder builder) {
         final PathBuilder pBuilder = new PathBuilder();
-        Object object = objects.remove(0);
+        final Object object = objects.remove(0);
         if (object instanceof Ero) {
             pBuilder.setEro((Ero) object);
         } else {
-            errors.add(createErrorMsg(PCEPErrors.ERO_MISSING, Optional.<Rp>absent()));
+            errors.add(createErrorMsg(PCEPErrors.ERO_MISSING, Optional.absent()));
             return false;
         }
         parsePath(objects, pBuilder);
