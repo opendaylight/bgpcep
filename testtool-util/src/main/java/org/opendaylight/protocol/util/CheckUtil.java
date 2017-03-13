@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.util;
 
+import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Verify;
@@ -42,11 +44,16 @@ public final class CheckUtil {
 
     public static <R, T extends DataObject> R readData(final DataBroker dataBroker, final InstanceIdentifier<T> iid,
         final Function<T, R> function) throws ReadFailedException {
+        return readData(dataBroker, OPERATIONAL, iid, function);
+    }
+
+    public static <R, T extends DataObject> R readData(final DataBroker dataBroker, final LogicalDatastoreType ldt,
+        final InstanceIdentifier<T> iid, final Function<T, R> function) throws ReadFailedException {
         AssertionError lastError = null;
         final Stopwatch sw = Stopwatch.createStarted();
         while (sw.elapsed(TimeUnit.SECONDS) <= TIMEOUT) {
             try (final ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction()) {
-                final Optional<T> data = tx.read(LogicalDatastoreType.OPERATIONAL, iid).checkedGet();
+                final Optional<T> data = tx.read(ldt, iid).checkedGet();
                 if (data.isPresent()) {
                     try {
                         return function.apply(data.get());
@@ -65,13 +72,18 @@ public final class CheckUtil {
         return readData(dataBroker, iid, bgpRib -> bgpRib);
     }
 
+    public static <T extends DataObject> T checkPresent(final DataBroker dataBroker, final LogicalDatastoreType ldt,
+        final InstanceIdentifier<T> iid) throws ReadFailedException {
+        return readData(dataBroker, ldt, iid, bgpRib -> bgpRib);
+    }
+
     public static <T extends DataObject> void checkNull(final DataBroker dataBroker, final InstanceIdentifier<T> iid)
         throws ReadFailedException {
         AssertionError lastError = null;
         final Stopwatch sw = Stopwatch.createStarted();
         while (sw.elapsed(TimeUnit.SECONDS) <= 10) {
             try (final ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction()) {
-                final com.google.common.base.Optional<T> data = tx.read(LogicalDatastoreType.OPERATIONAL, iid).checkedGet();
+                final com.google.common.base.Optional<T> data = tx.read(OPERATIONAL, iid).checkedGet();
                 try {
                     assert !data.isPresent();
                     return;

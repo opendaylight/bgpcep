@@ -15,6 +15,7 @@
         binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.app.peer.benchmark.config.rev161129.Config"/>
 
     <bean id="bgpBenchmark" class="org.opendaylight.protocol.bgp.benchmark.app.AppPeerBenchmark"
+          init-method="start"
           destroy-method="close">
         <argument ref="dataBroker"/>
         <argument ref="rpcRegistry"/>
