@@ -52,7 +52,7 @@ public final class RIBExtensionsImplModule extends org.opendaylight.controller.c
         // The RIBExtensionProviderContext instance is created and advertised as an OSGi service via blueprint
         // so obtain it here (waiting if necessary).
         final WaitingServiceTracker<RIBExtensionProviderContext> tracker =
-                WaitingServiceTracker.create(RIBExtensionProviderContext.class, bundleContext);
+                WaitingServiceTracker.create(RIBExtensionProviderContext.class, this.bundleContext);
         final RIBExtensionProviderContext service = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
 
         // Create a proxy to override close to close the ServiceTracker. The actual RIBExtensionProviderContext

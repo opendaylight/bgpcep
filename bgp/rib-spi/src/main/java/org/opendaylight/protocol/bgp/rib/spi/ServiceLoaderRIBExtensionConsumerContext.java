@@ -38,7 +38,7 @@ public final class ServiceLoaderRIBExtensionConsumerContext extends SimpleRIBExt
 
     @Override
     public void close() {
-        for (RIBExtensionProviderActivator a : loader) {
+        for (RIBExtensionProviderActivator a : this.loader) {
             try {
                 a.stopRIBExtensionProvider();
             } catch (RuntimeException e) {

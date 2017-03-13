@@ -36,10 +36,10 @@ enum TunnelType {
     }
 
     public Class<? extends TunnelIdentifier> getClazz() {
-        return clazz;
+        return this.clazz;
     }
 
     public int getIntValue() {
-        return value;
+        return this.value;
     }
 }

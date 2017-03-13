@@ -23,7 +23,7 @@ final class ToExternalExportPolicy extends AbstractExportPolicy {
 
     @Override
     ContainerNode effectiveAttributes(final PeerRole sourceRole, final ContainerNode attributes) {
-        final ContainerNode ret = AttributeOperations.getInstance(attributes).exportedAttributes(attributes, localAs);
+        final ContainerNode ret = AttributeOperations.getInstance(attributes).exportedAttributes(attributes, this.localAs);
 
         switch (sourceRole) {
         case Ebgp:

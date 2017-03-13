@@ -91,7 +91,7 @@ final class BmpMockDispatcher {
         serverBootstrap.option(ChannelOption.SO_BACKLOG, MAX_CONNECTIONS_COUNT);
         serverBootstrap.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
         serverBootstrap.channel(NioServerSocketChannel.class);
-        serverBootstrap.group(bossGroup, workerGroup);
+        serverBootstrap.group(this.bossGroup, this.workerGroup);
         return serverBootstrap;
     }
 

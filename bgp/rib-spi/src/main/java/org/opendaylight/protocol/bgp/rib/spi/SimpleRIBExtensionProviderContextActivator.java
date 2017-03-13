@@ -30,18 +30,18 @@ public final class SimpleRIBExtensionProviderContextActivator implements AutoClo
     }
 
     public void start() {
-        LOG.info("Starting {} RIBExtensionProviderActivator instances", extensionActivators.size());
+        LOG.info("Starting {} RIBExtensionProviderActivator instances", this.extensionActivators.size());
 
-        for(final RIBExtensionProviderActivator e : extensionActivators) {
-            e.startRIBExtensionProvider(providerContext);
+        for(final RIBExtensionProviderActivator e : this.extensionActivators) {
+            e.startRIBExtensionProvider(this.providerContext);
         }
     }
 
     @Override
     public void close() {
-        LOG.info("Stopping {} RIBExtensionProviderActivator instances", extensionActivators.size());
+        LOG.info("Stopping {} RIBExtensionProviderActivator instances", this.extensionActivators.size());
 
-        for(final RIBExtensionProviderActivator e : extensionActivators) {
+        for(final RIBExtensionProviderActivator e : this.extensionActivators) {
             e.stopRIBExtensionProvider();
         }
     }

@@ -76,15 +76,15 @@ final class CachingImportPolicy extends AbstractImportPolicy {
          * again. If the reference is the same, we have just populated the interner
          * and thus are on the path to create a new cache entry.
          */
-        final ContainerNode interned = interner.intern(attributes);
+        final ContainerNode interned = this.interner.intern(attributes);
         if (interned != attributes) {
-            final ContainerNode retry = cache.get(interned);
+            final ContainerNode retry = this.cache.get(interned);
             if (retry != null) {
                 return unmaskNull(retry);
             }
         }
 
-        final ContainerNode effective = delegate.effectiveAttributes(interned);
+        final ContainerNode effective = this.delegate.effectiveAttributes(interned);
 
         /*
          * Populate the cache. Note that this may have raced with another thread,
@@ -94,7 +94,7 @@ final class CachingImportPolicy extends AbstractImportPolicy {
          * but that's fine, as they have not leaked to heap yet and will be GC'd
          * quickly.
          */
-        final ContainerNode existing = cache.putIfAbsent(interned, maskNull(effective));
+        final ContainerNode existing = this.cache.putIfAbsent(interned, maskNull(effective));
         return existing != null ? unmaskNull(existing) : effective;
 
     }

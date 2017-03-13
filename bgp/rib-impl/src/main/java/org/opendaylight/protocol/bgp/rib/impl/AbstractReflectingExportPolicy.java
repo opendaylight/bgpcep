@@ -33,7 +33,7 @@ abstract class AbstractReflectingExportPolicy extends AbstractExportPolicy {
      * @return Modified (reflected) attributes.
      */
     @Nonnull protected final ContainerNode reflectedAttributes(@Nonnull final ContainerNode attributes) {
-        return AttributeOperations.getInstance(attributes).reflectedAttributes(attributes, originatorId, clusterId);
+        return AttributeOperations.getInstance(attributes).reflectedAttributes(attributes, this.originatorId, this.clusterId);
     }
 
     /**
