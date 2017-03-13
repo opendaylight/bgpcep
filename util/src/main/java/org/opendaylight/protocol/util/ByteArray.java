@@ -17,7 +17,6 @@ import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.BitSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

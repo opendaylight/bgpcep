@@ -8,10 +8,8 @@
 
 package org.opendaylight.protocol.util;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import java.math.BigInteger;
-import java.util.BitSet;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
