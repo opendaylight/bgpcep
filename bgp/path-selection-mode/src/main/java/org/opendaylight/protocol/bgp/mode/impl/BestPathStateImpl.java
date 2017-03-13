@@ -34,7 +34,6 @@ import org.opendaylight.yangtools.yang.common.QNameModule;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.LeafNode;
 import org.opendaylight.yangtools.yang.data.api.schema.LeafSetEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.LeafSetNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
@@ -152,21 +151,21 @@ public final class BestPathStateImpl implements BestPathState {
 
         final Optional<NormalizedNode<?, ?>> maybeLocalPref = NormalizedNodes.findNode(this.attributes, this.ids.getLocPref());
         if (maybeLocalPref.isPresent()) {
-            this.localPref = (Long) ((LeafNode<?>)maybeLocalPref.get()).getValue();
+            this.localPref = (Long) (maybeLocalPref.get()).getValue();
         } else {
             this.localPref = null;
         }
 
         final Optional<NormalizedNode<?, ?>> maybeMultiExitDisc = NormalizedNodes.findNode(this.attributes, this.ids.getMed());
         if (maybeMultiExitDisc.isPresent()) {
-            this.multiExitDisc = (Long) ((LeafNode<?>)maybeMultiExitDisc.get()).getValue();
+            this.multiExitDisc = (Long) (maybeMultiExitDisc.get()).getValue();
         } else {
             this.multiExitDisc = null;
         }
 
         final Optional<NormalizedNode<?, ?>> maybeOrigin = NormalizedNodes.findNode(this.attributes, this.ids.getOrig());
         if (maybeOrigin.isPresent()) {
-            this.origin = fromString((String) ((LeafNode<?>)maybeOrigin.get()).getValue());
+            this.origin = fromString((String) (maybeOrigin.get()).getValue());
         } else {
             this.origin = null;
         }
