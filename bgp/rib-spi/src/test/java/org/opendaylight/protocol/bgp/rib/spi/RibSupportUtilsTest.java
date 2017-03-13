@@ -64,8 +64,8 @@ public class RibSupportUtilsTest {
         final Map<QName, Object> m = p.getKeyValues();
         assertFalse(m.isEmpty());
         assertEquals(Tables.QNAME, p.getNodeType());
-        assertTrue(m.containsValue(BindingReflections.findQName(AFI)));
-        assertTrue(m.containsValue(BindingReflections.findQName(SAFI)));
+        assertTrue(m.containsValue(BindingReflections.findQName(this.AFI)));
+        assertTrue(m.containsValue(BindingReflections.findQName(this.SAFI)));
     }
 
     @Test
@@ -74,13 +74,13 @@ public class RibSupportUtilsTest {
         final Map<QName, Object> m = p.getKeyValues();
         assertFalse(m.isEmpty());
         assertEquals(SupportedTables.QNAME, p.getNodeType());
-        assertTrue(m.containsValue(BindingReflections.findQName(AFI)));
-        assertTrue(m.containsValue(BindingReflections.findQName(SAFI)));
+        assertTrue(m.containsValue(BindingReflections.findQName(this.AFI)));
+        assertTrue(m.containsValue(BindingReflections.findQName(this.SAFI)));
     }
 
     @Test
     public void toYangPathKey() {
-        final NodeIdentifierWithPredicates result = RibSupportUtils.toYangPathKey(SupportedTables.QNAME, AFI, SAFI);
+        final NodeIdentifierWithPredicates result = RibSupportUtils.toYangPathKey(SupportedTables.QNAME, this.AFI, this.SAFI);
         assertEquals(NII_PATH.toString(), result.toString());
 
     }

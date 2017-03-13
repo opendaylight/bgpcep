@@ -41,7 +41,7 @@ public class AbstractBmpModuleTest extends AbstractConfigTest {
             final Filter mockFilter = mock(Filter.class);
             doReturn(str).when(mockFilter).toString();
             return mockFilter;
-        }).when(mockedContext).createFilter(anyString());
+        }).when(this.mockedContext).createFilter(anyString());
 
         Mockito.doNothing().when(this.mockedContext).addServiceListener(any(ServiceListener.class), Mockito.anyString());
         Mockito.doNothing().when(this.mockedContext).removeServiceListener(any(ServiceListener.class));
@@ -59,10 +59,10 @@ public class AbstractBmpModuleTest extends AbstractConfigTest {
 
     void setupMockService(final Class<?> serviceInterface, final Object instance) throws Exception {
         final ServiceReference<?> mockServiceRef = mock(ServiceReference.class);
-        doReturn(new ServiceReference[]{mockServiceRef}).when(mockedContext).
+        doReturn(new ServiceReference[]{mockServiceRef}).when(this.mockedContext).
                 getServiceReferences(anyString(), contains(serviceInterface.getName()));
-        doReturn(new ServiceReference[]{mockServiceRef}).when(mockedContext).
+        doReturn(new ServiceReference[]{mockServiceRef}).when(this.mockedContext).
                 getServiceReferences(serviceInterface.getName(), null);
-        doReturn(instance).when(mockedContext).getService(mockServiceRef);
+        doReturn(instance).when(this.mockedContext).getService(mockServiceRef);
     }
 }

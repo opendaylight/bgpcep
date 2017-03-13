@@ -30,18 +30,18 @@ public class SimpleBmpExtensionProviderContextActivator implements AutoCloseable
     }
 
     public void start() {
-        LOG.debug("Starting {} BmpExtensionProviderActivator instances", extensionActivators.size());
+        LOG.debug("Starting {} BmpExtensionProviderActivator instances", this.extensionActivators.size());
 
-        for(final BmpExtensionProviderActivator e : extensionActivators) {
-            e.start(providerContext);
+        for(final BmpExtensionProviderActivator e : this.extensionActivators) {
+            e.start(this.providerContext);
         }
     }
 
     @Override
     public void close() {
-        LOG.debug("Stopping {} BmpExtensionProviderActivator instances", extensionActivators.size());
+        LOG.debug("Stopping {} BmpExtensionProviderActivator instances", this.extensionActivators.size());
 
-        for(final BmpExtensionProviderActivator e : extensionActivators) {
+        for(final BmpExtensionProviderActivator e : this.extensionActivators) {
             e.stop();
         }
     }

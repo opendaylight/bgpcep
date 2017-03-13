@@ -220,7 +220,7 @@ public class LUNlriParserTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        Mockito.doReturn(Optional.of(this.muliPathSupport)).when(constraint).getPeerConstraint(Mockito.any());
+        Mockito.doReturn(Optional.of(this.muliPathSupport)).when(this.constraint).getPeerConstraint(Mockito.any());
         Mockito.doReturn(true).when(this.muliPathSupport).isTableTypeSupported(Mockito.any());
     }
 

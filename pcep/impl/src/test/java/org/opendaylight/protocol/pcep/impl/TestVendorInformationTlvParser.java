@@ -47,7 +47,7 @@ public class TestVendorInformationTlvParser extends AbstractVendorInformationTlv
         }
 
         public int getValue() {
-            return value;
+            return this.value;
         }
 
         @Override
@@ -59,7 +59,7 @@ public class TestVendorInformationTlvParser extends AbstractVendorInformationTlv
         public int hashCode() {
             final int prime = 31;
             int result = 1;
-            result = prime * result + value;
+            result = prime * result + this.value;
             return result;
         }
 
@@ -75,7 +75,7 @@ public class TestVendorInformationTlvParser extends AbstractVendorInformationTlv
                 return false;
             }
             TestEnterpriseSpecificInformation other = (TestEnterpriseSpecificInformation) obj;
-            if (value != other.value) {
+            if (this.value != other.value) {
                 return false;
             }
             return true;

@@ -26,12 +26,12 @@ public class AbstractPcepOsgiTest extends AbstractMdsalTestBase {
     BindingAwareBroker broker = null;
 
     public BindingAwareBroker getBroker() {
-        if (broker == null) {
-            ServiceReference<BindingAwareBroker> serviceReference = bundleContext.getServiceReference(BindingAwareBroker.class);
+        if (this.broker == null) {
+            ServiceReference<BindingAwareBroker> serviceReference = this.bundleContext.getServiceReference(BindingAwareBroker.class);
             if (serviceReference == null) {
                 throw new RuntimeException("BindingAwareBroker not found");
             }
-            broker = bundleContext.getService(serviceReference);
+            this.broker = this.bundleContext.getService(serviceReference);
         }
         return this.broker;
     }

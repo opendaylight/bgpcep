@@ -47,7 +47,7 @@ public final class BGPDispatcherImplModule extends org.opendaylight.controller.c
         // The BGPDispatcher instance is created and advertised as an OSGi service via blueprint
         // so obtain it here (waiting if necessary).
         final WaitingServiceTracker<BGPDispatcher> tracker =
-                WaitingServiceTracker.create(BGPDispatcher.class, bundleContext);
+                WaitingServiceTracker.create(BGPDispatcher.class, this.bundleContext);
         final BGPDispatcher service = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
 
         // Create a proxy to override close to close the ServiceTracker. The actual BGPDispatcher

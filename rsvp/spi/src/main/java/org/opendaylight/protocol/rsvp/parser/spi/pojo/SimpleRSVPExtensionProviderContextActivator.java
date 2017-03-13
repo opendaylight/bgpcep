@@ -32,18 +32,18 @@ public class SimpleRSVPExtensionProviderContextActivator implements AutoCloseabl
     }
 
     public void start() {
-        LOG.debug("Starting {} RSVPExtensionProviderActivator instances", extensionActivators.size());
+        LOG.debug("Starting {} RSVPExtensionProviderActivator instances", this.extensionActivators.size());
 
-        for(final RSVPExtensionProviderActivator e : extensionActivators) {
-            e.start(providerContext);
+        for(final RSVPExtensionProviderActivator e : this.extensionActivators) {
+            e.start(this.providerContext);
         }
     }
 
     @Override
     public void close() {
-        LOG.debug("Stopping {} RSVPExtensionProviderActivator instances", extensionActivators.size());
+        LOG.debug("Stopping {} RSVPExtensionProviderActivator instances", this.extensionActivators.size());
 
-        for(final RSVPExtensionProviderActivator e : extensionActivators) {
+        for(final RSVPExtensionProviderActivator e : this.extensionActivators) {
             e.stop();
         }
     }
