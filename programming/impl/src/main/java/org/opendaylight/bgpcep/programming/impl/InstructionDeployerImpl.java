@@ -7,6 +7,7 @@
  */
 package org.opendaylight.bgpcep.programming.impl;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.CheckedFuture;
@@ -17,6 +18,7 @@ import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import io.netty.util.Timer;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -43,15 +45,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.prog
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.programming.config.rev170301.odl.programming.OdlProgrammingConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.programming.config.rev170301.odl.programming.OdlProgrammingConfigKey;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class InstructionDeployedImpl implements IntructionDeployer,
+public final class InstructionDeployerImpl implements IntructionDeployer,
     ClusteredDataTreeChangeListener<OdlProgramming>, AutoCloseable {
-    private static final Logger LOG = LoggerFactory.getLogger(InstructionDeployedImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(InstructionDeployerImpl.class);
 
     private final RpcProviderRegistry rpcProviderRegistry;
     private final ListeningExecutorService exec = MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
@@ -61,11 +64,11 @@ public final class InstructionDeployedImpl implements IntructionDeployer,
     private final BundleContext bundleContext;
     @GuardedBy("this")
     private final Map<String, ProgrammingServiceImpl> programmingServices = new HashMap<>();
-    private final ListenerRegistration<InstructionDeployedImpl> registration;
+    private final ListenerRegistration<InstructionDeployerImpl> registration;
     private final InstanceIdentifier<OdlProgramming> iid;
     private final ClusterSingletonServiceProvider cssp;
 
-    public InstructionDeployedImpl(final DataBroker dataProvider, final RpcProviderRegistry rpcProviderRegistry,
+    public InstructionDeployerImpl(final DataBroker dataProvider, final RpcProviderRegistry rpcProviderRegistry,
         final NotificationPublishService notifs, final Timer timer, final ClusterSingletonServiceProvider cssp,
         final BundleContext bundleContext) {
         this.dataProvider = Preconditions.checkNotNull(dataProvider);
@@ -77,22 +80,29 @@ public final class InstructionDeployedImpl implements IntructionDeployer,
         this.iid = InstanceIdentifier.create(OdlProgramming.class);
 
         final WriteTransaction wTx = dataProvider.newWriteOnlyTransaction();
-        wTx.merge(LogicalDatastoreType.CONFIGURATION, this.iid, new OdlProgrammingBuilder().build());
+        wTx.merge(LogicalDatastoreType.CONFIGURATION, this.iid, new OdlProgrammingBuilder()
+            .setOdlProgrammingConfig(Collections.emptyList()).build());
         Futures.addCallback(wTx.submit(), new FutureCallback<Void>() {
             @Override
             public void onSuccess(final Void result) {
-                LOG.debug("Instruction Instance {} initialized successfully.", InstructionDeployedImpl.this.iid);
+                LOG.debug("Instruction Instance {} initialized successfully.", InstructionDeployerImpl.this.iid);
             }
 
             @Override
             public void onFailure(final Throwable t) {
-                LOG.error("Failed to initialize Instruction Instance {}.", InstructionDeployedImpl.this.iid, t);
+                LOG.error("Failed to initialize Instruction Instance {}.", InstructionDeployerImpl.this.iid, t);
             }
         });
 
         this.registration = dataProvider.registerDataTreeChangeListener(
             new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, this.iid), this);
     }
+
+    @VisibleForTesting
+    InstanceIdentifier<OdlProgramming> getInstructionIID(){
+        return this.iid;
+    }
+
 
     private synchronized void createInstruction(final String instructionId) {
         if (this.programmingServices.containsKey(instructionId)) {
@@ -172,9 +182,12 @@ public final class InstructionDeployedImpl implements IntructionDeployer,
     @Override
     public synchronized void onDataTreeChanged(@Nonnull final Collection<DataTreeModification<OdlProgramming>> changes) {
         final DataTreeModification<OdlProgramming> dataTreeModification = Iterables.getOnlyElement(changes);
-        final DataObjectModification<OdlProgramming> rootNode = dataTreeModification.getRootNode();
-        rootNode.getModifiedChildren()
-            .forEach(dto->handleModification((DataObjectModification<OdlProgrammingConfig>) dto));
+        final Collection<DataObjectModification<? extends DataObject>> rootNode = dataTreeModification.getRootNode()
+            .getModifiedChildren();
+        if(rootNode.isEmpty()) {
+            return;
+        }
+        rootNode.forEach(dto->handleModification((DataObjectModification<OdlProgrammingConfig>) dto));
     }
 
     private void handleModification(final DataObjectModification<OdlProgrammingConfig> config) {

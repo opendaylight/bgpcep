@@ -17,6 +17,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.MockitoAnnotations.initMocks;
 import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentOperational;
 import static org.opendaylight.protocol.util.CheckUtil.checkPresentOperational;
 
@@ -82,7 +83,7 @@ public class ProgrammingServiceImplTest extends AbstractConcurrentDataBrokerTest
 
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+        initMocks(this);
         doAnswer(invocationOnMock -> {
             this.singletonService = (ClusterSingletonService) invocationOnMock.getArguments()[0];
             return this.singletonServiceRegistration;
