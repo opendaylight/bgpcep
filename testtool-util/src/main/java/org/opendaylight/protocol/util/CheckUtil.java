@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.util;
 
+import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
 
 import com.google.common.base.Optional;
@@ -42,12 +43,17 @@ public final class CheckUtil {
         Verify.verify(future.isSuccess());
     }
 
-    public static <R, T extends DataObject> R readData(final DataBroker dataBroker, final InstanceIdentifier<T> iid,
+    public static <R, T extends DataObject> R readDataOperational(final DataBroker dataBroker, final InstanceIdentifier<T> iid,
         final Function<T, R> function) throws ReadFailedException {
         return readData(dataBroker, OPERATIONAL, iid, function);
     }
 
-    public static <R, T extends DataObject> R readData(final DataBroker dataBroker, final LogicalDatastoreType ldt,
+    public static <R, T extends DataObject> R readDataConfiguration(final DataBroker dataBroker, final InstanceIdentifier<T> iid,
+        final Function<T, R> function) throws ReadFailedException {
+        return readData(dataBroker, CONFIGURATION, iid, function);
+    }
+
+    private static <R, T extends DataObject> R readData(final DataBroker dataBroker, final LogicalDatastoreType ldt,
         final InstanceIdentifier<T> iid, final Function<T, R> function) throws ReadFailedException {
         AssertionError lastError = null;
         final Stopwatch sw = Stopwatch.createStarted();
@@ -67,23 +73,33 @@ public final class CheckUtil {
         throw lastError;
     }
 
-    public static <T extends DataObject> T checkPresent(final DataBroker dataBroker, final InstanceIdentifier<T> iid)
+    public static <T extends DataObject> T checkPresentOperational(final DataBroker dataBroker, final InstanceIdentifier<T> iid)
         throws ReadFailedException {
-        return readData(dataBroker, iid, bgpRib -> bgpRib);
+        return readData(dataBroker, OPERATIONAL, iid, bgpRib -> bgpRib);
     }
 
-    public static <T extends DataObject> T checkPresent(final DataBroker dataBroker, final LogicalDatastoreType ldt,
+    public static <T extends DataObject> T checkPresentConfiguration(final DataBroker dataBroker,
         final InstanceIdentifier<T> iid) throws ReadFailedException {
-        return readData(dataBroker, ldt, iid, bgpRib -> bgpRib);
+        return readData(dataBroker, CONFIGURATION, iid, bgpRib -> bgpRib);
     }
 
-    public static <T extends DataObject> void checkNull(final DataBroker dataBroker, final InstanceIdentifier<T> iid)
-        throws ReadFailedException {
+    public static <T extends DataObject> void checkNotPresentOperational(final DataBroker dataBroker,
+        final InstanceIdentifier<T> iid) throws ReadFailedException {
+        checkNotPresent(dataBroker, OPERATIONAL, iid);
+    }
+
+    public static <T extends DataObject> void checkNotPresentConfiguration(final DataBroker dataBroker,
+        final InstanceIdentifier<T> iid) throws ReadFailedException {
+        checkNotPresent(dataBroker, OPERATIONAL, iid);
+    }
+
+    private static <T extends DataObject> void checkNotPresent(final DataBroker dataBroker,
+        final LogicalDatastoreType ldt, final InstanceIdentifier<T> iid) throws ReadFailedException {
         AssertionError lastError = null;
         final Stopwatch sw = Stopwatch.createStarted();
         while (sw.elapsed(TimeUnit.SECONDS) <= 10) {
             try (final ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction()) {
-                final com.google.common.base.Optional<T> data = tx.read(OPERATIONAL, iid).checkedGet();
+                final com.google.common.base.Optional<T> data = tx.read(ldt, iid).checkedGet();
                 try {
                     assert !data.isPresent();
                     return;

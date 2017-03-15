@@ -9,9 +9,9 @@
 package org.opendaylight.protocol.data.change.counter;
 
 import static org.junit.Assert.assertEquals;
-import static org.opendaylight.protocol.util.CheckUtil.checkNull;
-import static org.opendaylight.protocol.util.CheckUtil.checkPresent;
-import static org.opendaylight.protocol.util.CheckUtil.readData;
+import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentOperational;
+import static org.opendaylight.protocol.util.CheckUtil.checkPresentOperational;
+import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 
 import org.junit.Test;
 import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
@@ -32,51 +32,51 @@ public class TopologyDataChangeCounterTest extends AbstractConcurrentDataBrokerT
     @Test
     public void testDataChangeCounter() throws Exception {
         final TopologyDataChangeCounter counter = new TopologyDataChangeCounter(getDataBroker(), COUNTER_ID1);
-        readData(getDataBroker(), this.counterInstanceId_1, count -> {
+        readDataOperational(getDataBroker(), this.counterInstanceId_1, count -> {
             assertEquals(0, count.getCount().longValue());
             return count;
         });
 
         counter.onDataTreeChanged(null);
-        readData(getDataBroker(), this.counterInstanceId_1, count -> {
+        readDataOperational(getDataBroker(), this.counterInstanceId_1, count -> {
             assertEquals(1, count.getCount().longValue());
             return count;
         });
 
         counter.close();
-        checkNull(getDataBroker(), this.counterInstanceId_1);
+        checkNotPresentOperational(getDataBroker(), this.counterInstanceId_1);
     }
 
     @Test
     public void testDataChangeCounterTwoInstances() throws Exception {
         final TopologyDataChangeCounter counter1 = new TopologyDataChangeCounter(getDataBroker(), COUNTER_ID1);
-        readData(getDataBroker(), this.counterInstanceId_1, count -> {
+        readDataOperational(getDataBroker(), this.counterInstanceId_1, count -> {
             assertEquals(0, count.getCount().longValue());
             return count;
         });
 
         final TopologyDataChangeCounter counter2 = new TopologyDataChangeCounter(getDataBroker(), COUNTER_ID2);
-        readData(getDataBroker(), this.counterInstanceId_2, count -> {
+        readDataOperational(getDataBroker(), this.counterInstanceId_2, count -> {
             assertEquals(0, count.getCount().longValue());
             return count;
         });
 
         counter1.onDataTreeChanged(null);
-        readData(getDataBroker(), this.counterInstanceId_1, count -> {
+        readDataOperational(getDataBroker(), this.counterInstanceId_1, count -> {
             assertEquals(1, count.getCount().longValue());
             return count;
         });
-        readData(getDataBroker(), this.counterInstanceId_2, count -> {
+        readDataOperational(getDataBroker(), this.counterInstanceId_2, count -> {
             assertEquals(0, count.getCount().longValue());
             return count;
         });
 
         counter1.close();
-        checkNull(getDataBroker(), this.counterInstanceId_1);
+        checkNotPresentOperational(getDataBroker(), this.counterInstanceId_1);
         // Check that counter2 does not get deleted
-        checkPresent(getDataBroker(), this.counterInstanceId_2);
+        checkPresentOperational(getDataBroker(), this.counterInstanceId_2);
 
         counter2.close();
-        checkNull(getDataBroker(), this.counterInstanceId_2);
+        checkNotPresentOperational(getDataBroker(), this.counterInstanceId_2);
     }
 }

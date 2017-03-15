@@ -13,7 +13,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.opendaylight.protocol.bgp.rib.impl.AbstractAddPathTest.AS_NUMBER;
 import static org.opendaylight.protocol.bgp.rib.impl.AbstractAddPathTest.BGP_ID;
-import static org.opendaylight.protocol.util.CheckUtil.readData;
+import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
@@ -190,7 +190,7 @@ public class ParserToSalTest extends AbstractConcurrentDataBrokerTest {
 
     private void assertTablesExists(final List<BgpTableType> expectedTables)
         throws InterruptedException, ExecutionException, ReadFailedException {
-        readData(getDataBroker(), BGP_IID, bgpRib -> {
+        readDataOperational(getDataBroker(), BGP_IID, bgpRib -> {
             final List<Tables> tables = bgpRib.getRib().get(0).getLocRib().getTables();
             assertFalse(tables.isEmpty());
 

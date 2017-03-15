@@ -11,8 +11,8 @@ package org.opendaylight.bgpcep.bgp.topology.provider;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.opendaylight.bgpcep.bgp.topology.provider.Ipv4ReachabilityTopologyBuilderTest.PATH_ID;
-import static org.opendaylight.protocol.util.CheckUtil.checkNull;
-import static org.opendaylight.protocol.util.CheckUtil.readData;
+import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentOperational;
+import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -66,7 +66,7 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
         // create route
         updateIpv6Route(createIpv6Route(NEXT_HOP));
 
-        readData(getDataBroker(), this.ipv6TopoBuilder.getInstanceIdentifier(), topology -> {
+        readDataOperational(getDataBroker(), this.ipv6TopoBuilder.getInstanceIdentifier(), topology -> {
             final TopologyTypes1 topologyType = topology.getTopologyTypes().getAugmentation(TopologyTypes1.class);
             assertNotNull(topologyType);
             assertNotNull(topologyType.getBgpIpv6ReachabilityTopology());
@@ -81,7 +81,7 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
         // update route
         updateIpv6Route(createIpv6Route(NEW_NEXT_HOP));
 
-        readData(getDataBroker(), this.ipv6TopoBuilder.getInstanceIdentifier(), topology -> {
+        readDataOperational(getDataBroker(), this.ipv6TopoBuilder.getInstanceIdentifier(), topology -> {
             assertEquals(1, topology.getNode().size());
             final Node nodeUpdated = topology.getNode().get(0);
             assertEquals(NEW_NEXT_HOP, nodeUpdated.getNodeId().getValue());
@@ -94,13 +94,13 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.delete(LogicalDatastoreType.OPERATIONAL, this.ipv6RouteIID);
         wTx.submit();
-        readData(getDataBroker(), this.ipv6TopoBuilder.getInstanceIdentifier(), topology -> {
+        readDataOperational(getDataBroker(), this.ipv6TopoBuilder.getInstanceIdentifier(), topology -> {
             assertEquals(0, topology.getNode().size());
             return topology;
         });
 
         this.ipv6TopoBuilder.close();
-        checkNull(getDataBroker(), this.ipv6TopoBuilder.getInstanceIdentifier());
+        checkNotPresentOperational(getDataBroker(), this.ipv6TopoBuilder.getInstanceIdentifier());
     }
 
     private void updateIpv6Route(final Ipv6Route data) {

@@ -14,7 +14,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.opendaylight.protocol.util.CheckUtil.readData;
+import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
 import com.google.common.base.Optional;
@@ -162,7 +162,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
                 MONITOR_ID, new InetSocketAddress(InetAddresses.forString(MONITOR_LOCAL_ADDRESS), MONITOR_LOCAL_PORT), Optional.of(keys),
                 this.mappingService.getCodecFactory(), this.moduleInfoBackedContext.getSchemaContext(), null);
 
-        readData(getDataBroker(), BMP_II, monitor -> {
+        readDataOperational(getDataBroker(), BMP_II, monitor -> {
             Assert.assertEquals(1, monitor.getMonitor().size());
             final Monitor bmpMonitor = monitor.getMonitor().get(0);
             Assert.assertEquals(MONITOR_ID, bmpMonitor.getMonitorId());
@@ -182,7 +182,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         this.bmpApp.close();
         this.mappingService.close();
 
-        readData(getDataBroker(), BMP_II, monitor -> {
+        readDataOperational(getDataBroker(), BMP_II, monitor -> {
             assertTrue(monitor.getMonitor().isEmpty());
             return monitor;
         });
@@ -192,13 +192,13 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
     public void testRouterMonitoring() throws Exception {
         // first test if a single router monitoring is working
         final Channel channel1 = testMonitoringStation(REMOTE_ROUTER_ADDRESS_1);
-        readData(getDataBroker(), MONITOR_IID, monitor -> {
+        readDataOperational(getDataBroker(), MONITOR_IID, monitor -> {
             assertEquals(1, monitor.getRouter().size());
             return monitor;
         });
 
         final Channel channel2 = testMonitoringStation(REMOTE_ROUTER_ADDRESS_2);
-        readData(getDataBroker(), MONITOR_IID, monitor -> {
+        readDataOperational(getDataBroker(), MONITOR_IID, monitor -> {
             assertEquals(2, monitor.getRouter().size());
             return monitor;
         });
@@ -216,13 +216,13 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         waitFutureSuccess(channel1.close());
 
         // channel 2 is still open
-        readData(getDataBroker(), MONITOR_IID, monitor -> {
+        readDataOperational(getDataBroker(), MONITOR_IID, monitor -> {
             assertEquals(1, monitor.getRouter().size());
             return monitor;
         });
 
         final Channel channel4 = testMonitoringStation(REMOTE_ROUTER_ADDRESS_1);
-        readData(getDataBroker(), MONITOR_IID, monitor -> {
+        readDataOperational(getDataBroker(), MONITOR_IID, monitor -> {
             assertEquals(2, monitor.getRouter().size());
             return monitor;
         });
@@ -234,7 +234,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         // sleep for a while to avoid intermittent InMemoryDataTree modification conflict
         waitFutureSuccess(channel4.close());
 
-        readData(getDataBroker(), MONITOR_IID, monitor -> {
+        readDataOperational(getDataBroker(), MONITOR_IID, monitor -> {
             assertEquals(0, monitor.getRouter().size());
             return monitor;
         });
@@ -248,7 +248,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         final Channel channel = connectTestClient(remoteRouterIpAddr, this.msgRegistry);
         final RouterId routerId = getRouterId(remoteRouterIpAddr);
         try {
-            readData(getDataBroker(), MONITOR_IID, monitor -> {
+            readDataOperational(getDataBroker(), MONITOR_IID, monitor -> {
                 assertFalse(monitor.getRouter().isEmpty());
                 // now find the current router instance
                 Router router = null;
@@ -266,7 +266,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
 
             waitWriteAndFlushSuccess(channel.writeAndFlush(TestUtil.createInitMsg("description", "name", "some info")));
 
-            readData(getDataBroker(), MONITOR_IID, monitor -> {
+            readDataOperational(getDataBroker(), MONITOR_IID, monitor -> {
                 assertFalse(monitor.getRouter().isEmpty());
                 Router retRouter = null;
                 for (final Router r : monitor.getRouter()) {
@@ -288,7 +288,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
             waitWriteAndFlushSuccess(channel.writeAndFlush(TestUtil.createPeerUpNotification(PEER1, true)));
             final KeyedInstanceIdentifier<Router, RouterKey> routerIId = MONITOR_IID.child(Router.class, new RouterKey(routerId));
 
-            readData(getDataBroker(), routerIId, router -> {
+            readDataOperational(getDataBroker(), routerIId, router -> {
                 final List<Peer> peers = router.getPeer();
                 assertEquals(1, peers.size());
                 final Peer peer = peers.get(0);
@@ -332,7 +332,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
             waitWriteAndFlushSuccess(channel.writeAndFlush(statsMsg));
             final KeyedInstanceIdentifier<Peer, PeerKey> peerIId = routerIId.child(Peer.class, new PeerKey(PEER_ID));
 
-            readData(getDataBroker(), peerIId.child(Stats.class), peerStats -> {
+            readDataOperational(getDataBroker(), peerIId.child(Stats.class), peerStats -> {
                 assertNotNull(peerStats.getTimestampSec());
                 final Tlvs tlvs = statsMsg.getTlvs();
                 assertEquals(tlvs.getAdjRibsInRoutesTlv().getCount(), peerStats.getAdjRibsInRoutes());
@@ -353,7 +353,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
             final RouteMirroringMessage routeMirrorMsg = TestUtil.createRouteMirrorMsg(PEER1);
             waitWriteAndFlushSuccess(channel.writeAndFlush(routeMirrorMsg));
 
-            readData(getDataBroker(), peerIId.child(Mirrors.class), routeMirrors -> {
+            readDataOperational(getDataBroker(), peerIId.child(Mirrors.class), routeMirrors -> {
                 assertNotNull(routeMirrors.getTimestampSec());
                 return routeMirrors;
             });
@@ -361,7 +361,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
             waitWriteAndFlushSuccess(channel.writeAndFlush(TestUtil.createRouteMonitMsg(false, PEER1, AdjRibInType.PrePolicy)));
             waitWriteAndFlushSuccess(channel.writeAndFlush(TestUtil.createRouteMonMsgWithEndOfRibMarker(PEER1, AdjRibInType.PrePolicy)));
 
-            readData(getDataBroker(), peerIId.child(PrePolicyRib.class), prePolicyRib -> {
+            readDataOperational(getDataBroker(), peerIId.child(PrePolicyRib.class), prePolicyRib -> {
                 assertTrue(!prePolicyRib.getTables().isEmpty());
                 final Tables tables = prePolicyRib.getTables().get(0);
                 assertTrue(tables.getAttributes().isUptodate());
@@ -372,7 +372,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
             waitWriteAndFlushSuccess(channel.writeAndFlush(TestUtil.createRouteMonitMsg(false, PEER1, AdjRibInType.PostPolicy)));
             waitWriteAndFlushSuccess(channel.writeAndFlush(TestUtil.createRouteMonMsgWithEndOfRibMarker(PEER1, AdjRibInType.PostPolicy)));
 
-            readData(getDataBroker(), peerIId.child(PostPolicyRib.class), postPolicyRib -> {
+            readDataOperational(getDataBroker(), peerIId.child(PostPolicyRib.class), postPolicyRib -> {
                 assertTrue(!postPolicyRib.getTables().isEmpty());
                 final Tables tables = postPolicyRib.getTables().get(0);
                 assertTrue(tables.getAttributes().isUptodate());
@@ -383,7 +383,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
 
             waitWriteAndFlushSuccess(channel.writeAndFlush(TestUtil.createPeerDownNotification(PEER1)));
 
-            readData(getDataBroker(), routerIId, router -> {
+            readDataOperational(getDataBroker(), routerIId, router -> {
                 final List<Peer> peersAfterDown = router.getPeer();
                 assertTrue(peersAfterDown.isEmpty());
                 return router;
@@ -405,7 +405,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
                 new MonitorId("monitor2"), new InetSocketAddress(InetAddresses.forString(MONITOR_LOCAL_ADDRESS_2), MONITOR_LOCAL_PORT), Optional.of(KeyMapping.getKeyMapping()),
                 this.mappingService.getCodecFactory(), this.moduleInfoBackedContext.getSchemaContext(), null);
 
-        readData(getDataBroker(), BMP_II, monitor -> {
+        readDataOperational(getDataBroker(), BMP_II, monitor -> {
             Assert.assertEquals(2, monitor.getMonitor().size());
             return monitor;
         });
