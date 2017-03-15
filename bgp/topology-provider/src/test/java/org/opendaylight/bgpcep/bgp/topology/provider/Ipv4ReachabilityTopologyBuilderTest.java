@@ -10,8 +10,8 @@ package org.opendaylight.bgpcep.bgp.topology.provider;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.opendaylight.protocol.util.CheckUtil.checkNull;
-import static org.opendaylight.protocol.util.CheckUtil.readData;
+import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentOperational;
+import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -66,7 +66,7 @@ public class Ipv4ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
         // create route
         updateIpv4Route(createIpv4Route(NEXT_HOP));
 
-        readData(getDataBroker(), this.ipv4TopoBuilder.getInstanceIdentifier(), topology -> {
+        readDataOperational(getDataBroker(), this.ipv4TopoBuilder.getInstanceIdentifier(), topology -> {
             final TopologyTypes1 topologyTypes = topology.getTopologyTypes().getAugmentation(TopologyTypes1.class);
             assertNotNull(topologyTypes);
             assertNotNull(topologyTypes.getBgpIpv4ReachabilityTopology());
@@ -80,7 +80,7 @@ public class Ipv4ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
 
         // update route
         updateIpv4Route(createIpv4Route(NEW_NEXT_HOP));
-        readData(getDataBroker(), this.ipv4TopoBuilder.getInstanceIdentifier(), topology -> {
+        readDataOperational(getDataBroker(), this.ipv4TopoBuilder.getInstanceIdentifier(), topology -> {
             assertEquals(1, topology.getNode().size());
             final Node nodeUpdated = topology.getNode().get(0);
             assertEquals(NEW_NEXT_HOP, nodeUpdated.getNodeId().getValue());
@@ -93,13 +93,13 @@ public class Ipv4ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.delete(LogicalDatastoreType.OPERATIONAL, this.ipv4RouteIID);
         wTx.submit();
-        readData(getDataBroker(), this.ipv4TopoBuilder.getInstanceIdentifier(), topology -> {
+        readDataOperational(getDataBroker(), this.ipv4TopoBuilder.getInstanceIdentifier(), topology -> {
             assertEquals(0, topology.getNode().size());
             return topology;
         });
 
         this.ipv4TopoBuilder.close();
-        checkNull(getDataBroker(), this.ipv4TopoBuilder.getInstanceIdentifier());
+        checkNotPresentOperational(getDataBroker(), this.ipv4TopoBuilder.getInstanceIdentifier());
     }
 
     private void updateIpv4Route(final Ipv4Route data) {

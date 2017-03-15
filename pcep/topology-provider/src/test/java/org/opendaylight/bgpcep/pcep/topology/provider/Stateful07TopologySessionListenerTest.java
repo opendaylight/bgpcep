@@ -17,8 +17,8 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createLspTlvs;
-import static org.opendaylight.protocol.util.CheckUtil.checkNull;
-import static org.opendaylight.protocol.util.CheckUtil.readData;
+import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentOperational;
+import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
@@ -146,7 +146,7 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         final Pcrpt esm = MsgBuilderUtil.createPcRtpMessage(new LspBuilder().setSync(false).build(),
             Optional.of(MsgBuilderUtil.createSrp(0L)), null);
         this.listener.onMessage(this.session, esm);
-        readData(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
             assertEquals(this.testAddress, pcc.getIpAddress().getIpv4Address().getValue());
             // reported lsp so far empty, has not received response (PcRpt) yet
             assertTrue(pcc.getReportedLsp().isEmpty());
@@ -155,7 +155,7 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
 
         this.listener.onMessage(this.session, pcRpt);
         // check created lsp
-        readData(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
             assertEquals(1, pcc.getReportedLsp().size());
             final ReportedLsp reportedLsp = pcc.getReportedLsp().get(0);
             assertEquals(this.TUNNEL_NAME, reportedLsp.getName());
@@ -200,7 +200,7 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         this.listener.onMessage(this.session, pcRpt2);
 
         //check updated lsp
-        readData(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
             assertEquals(1, pcc.getReportedLsp().size());
             final ReportedLsp reportedLsp = pcc.getReportedLsp().get(0);
             assertEquals(this.TUNNEL_NAME, reportedLsp.getName());
@@ -254,7 +254,7 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         this.listener.onMessage(this.session, pcRpt3);
 
         // check if lsp was removed
-        readData(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
             assertEquals(0, pcc.getReportedLsp().size());
             return pcc;
         });
@@ -345,7 +345,7 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         verify(this.listenerReg, times(0)).close();
         this.listener.onSessionUp(this.session);
         // verify the session was NOT added to topology
-        checkNull(getDataBroker(), TOPO_IID);
+        checkNotPresentOperational(getDataBroker(), TOPO_IID);
         // still, the session should not be registered and thus close() is never called
         verify(this.listenerReg, times(0)).close();
         // send request
@@ -371,7 +371,7 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
             .setRemove(false).setOperational(OperationalStatus.Active).build(),
             Optional.of(MsgBuilderUtil.createSrp(srpId)), MsgBuilderUtil.createPath(req.getEro().getSubobject()));
         this.listener.onMessage(this.session, pcRpt);
-        readData(getDataBroker(), TOPO_IID, topology -> {
+        readDataOperational(getDataBroker(), TOPO_IID, topology -> {
             assertEquals(1, topology.getNode().size());
             return topology;
         });
@@ -379,7 +379,7 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         // node should be removed after termination
         this.listener.onSessionTerminated(this.session, new PCEPCloseTermination(TerminationReason.UNKNOWN));
         verify(this.listenerReg, times(1)).close();
-        checkNull(getDataBroker(), this.pathComputationClientIId);
+        checkNotPresentOperational(getDataBroker(), this.pathComputationClientIId);
     }
 
     @Test
@@ -395,7 +395,7 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
             .build();
         this.listener.onSessionUp(this.session);
         this.listener.onMessage(this.session, rptmsg);
-        readData(getDataBroker(), TOPO_IID, node -> {
+        readDataOperational(getDataBroker(), TOPO_IID, node -> {
             assertFalse(node.getNode().isEmpty());
             return node;
         });

@@ -23,8 +23,8 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.opendaylight.protocol.util.CheckUtil.checkNull;
-import static org.opendaylight.protocol.util.CheckUtil.readData;
+import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentOperational;
+import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 
 import com.google.common.collect.Lists;
 import io.netty.buffer.Unpooled;
@@ -127,12 +127,12 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
     @After
     public void tearDown() throws Exception {
         this.linkstateTopoBuilder.close();
-        checkNull(getDataBroker(), this.linkstateTopoBuilder.getInstanceIdentifier());
+        checkNotPresentOperational(getDataBroker(), this.linkstateTopoBuilder.getInstanceIdentifier());
     }
 
     @Test
     public void testLinkstateTopologyBuilderTopologyTypes() throws ReadFailedException {
-        readData(getDataBroker(), this.linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
+        readDataOperational(getDataBroker(), this.linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
             assertNotNull(topology.getTopologyTypes().getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.TopologyTypes1.class));
             assertNotNull(topology.getTopologyTypes().getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.TopologyTypes1.class).getBgpLinkstateTopology());
             return topology;
@@ -143,7 +143,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
     public void testIsisLinkstateTopologyBuilder() throws TransactionCommitFailedException, ReadFailedException {
         // create node
         updateLinkstateRoute(createLinkstateNodeRoute(ProtocolId.IsisLevel2, "node1", NODE_1_AS, ROUTER_1_ID));
-        readData(getDataBroker(), this.linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
+        readDataOperational(getDataBroker(), this.linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
             assertEquals(1, topology.getNode().size());
             final Node node1 = topology.getNode().get(0);
             assertEquals(NODE_1_ISIS_ID, node1.getNodeId().getValue());
@@ -161,7 +161,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
 
         // create link
         updateLinkstateRoute(createLinkstateLinkRoute(ProtocolId.IsisLevel2, NODE_1_AS, NODE_2_AS, "link1"));
-        readData(getDataBroker(), this.linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
+        readDataOperational(getDataBroker(), this.linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
             assertEquals(1, topology.getLink().size());
             final Link link1 = topology.getLink().get(0);
             assertEquals(2, topology.getNode().size());
@@ -180,7 +180,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
 
         // update node
         updateLinkstateRoute(createLinkstateNodeRoute(ProtocolId.IsisLevel2, "updated-node", NODE_1_AS, ROUTER_2_ID));
-        readData(getDataBroker(), this.linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
+        readDataOperational(getDataBroker(), this.linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
             assertEquals(1, topology.getNode().size());
             final IgpNodeAttributes igpNode2 = topology.getNode().get(0).getAugmentation(Node1.class).getIgpNodeAttributes();
             assertEquals(ROUTER_2_ID, igpNode2.getRouterId().get(0).getIpv4Address().getValue());
@@ -192,7 +192,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.delete(LogicalDatastoreType.OPERATIONAL, this.linkstateRouteIID);
         wTx.submit();
-        readData(getDataBroker(), this.linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
+        readDataOperational(getDataBroker(), this.linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
             assertEquals(0, topology.getNode().size());
             assertEquals(0, topology.getLink().size());
             return topology;
@@ -203,7 +203,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
     public void testOspfLinkstateTopologyBuilder() throws TransactionCommitFailedException, ReadFailedException {
         // create node
         updateLinkstateRoute(createLinkstateNodeRoute(ProtocolId.Ospf, "node1", NODE_1_AS, ROUTER_1_ID));
-        readData(getDataBroker(), this.linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
+        readDataOperational(getDataBroker(), this.linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
             assertEquals(1, topology.getNode().size());
             final Node node1 = topology.getNode().get(0);
             assertEquals(NODE_1_OSPF_ID, node1.getNodeId().getValue());
@@ -217,7 +217,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
 
         // update node with prefix
         updateLinkstateRoute(createLinkstatePrefixRoute(ProtocolId.Ospf, NODE_1_AS, NODE_1_PREFIX, 500L, ROUTER_1_ID));
-        readData(getDataBroker(), this.linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
+        readDataOperational(getDataBroker(), this.linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
             final IgpNodeAttributes igpNode2 = topology.getNode().get(0).getAugmentation(Node1.class).getIgpNodeAttributes();
             assertEquals(1, igpNode2.getPrefix().size());
             final Prefix prefix = igpNode2.getPrefix().get(0);
@@ -229,7 +229,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
 
         // create link
         updateLinkstateRoute(createLinkstateLinkRoute(ProtocolId.Ospf, NODE_1_AS, NODE_2_AS, "link1"));
-        readData(getDataBroker(), this.linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
+        readDataOperational(getDataBroker(), this.linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
             assertEquals(1, topology.getLink().size());
             final Link link1 = topology.getLink().get(0);
             assertEquals(2, topology.getNode().size());
