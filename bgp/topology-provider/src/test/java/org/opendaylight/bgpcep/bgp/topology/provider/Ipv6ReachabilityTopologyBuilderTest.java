@@ -9,16 +9,16 @@
 package org.opendaylight.bgpcep.bgp.topology.provider;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.opendaylight.bgpcep.bgp.topology.provider.Ipv4ReachabilityTopologyBuilderTest.PATH_ID;
+import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentOperational;
+import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 
-import com.google.common.base.Optional;
+import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
@@ -34,7 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv6NextHopCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.ipv6.next.hop._case.Ipv6NextHopBuilder;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.TopologyTypes1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.Node1;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -48,47 +48,59 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
     private Ipv6ReachabilityTopologyBuilder ipv6TopoBuilder;
     private InstanceIdentifier<Ipv6Route> ipv6RouteIID;
 
+    @Before
     @Override
-    protected void setupWithDataBroker(final DataBroker dataBroker) {
-        super.setupWithDataBroker(dataBroker);
-        this.ipv6TopoBuilder = new Ipv6ReachabilityTopologyBuilder(dataBroker, LOC_RIB_REF, TEST_TOPOLOGY_ID);
+    public void setUp() {
+        super.setUp();
+        this.ipv6TopoBuilder = new Ipv6ReachabilityTopologyBuilder(getDataBroker(), LOC_RIB_REF, TEST_TOPOLOGY_ID);
         this.ipv6TopoBuilder.start();
-        final InstanceIdentifier<Tables> path = this.ipv6TopoBuilder.tableInstanceIdentifier(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class);
-        this.ipv6RouteIID = path.builder().child((Class) Ipv6Routes.class).child(Ipv6Route.class, new Ipv6RouteKey(new PathId(PATH_ID),
-            new Ipv6Prefix(ROUTE_IP6PREFIX))).build();
+        final InstanceIdentifier<Tables> path = this.ipv6TopoBuilder
+            .tableInstanceIdentifier(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class);
+        this.ipv6RouteIID = path.builder().child((Class) Ipv6Routes.class)
+            .child(Ipv6Route.class, new Ipv6RouteKey(new PathId(PATH_ID),
+                new Ipv6Prefix(ROUTE_IP6PREFIX))).build();
     }
 
     @Test
-    public void testIpv6ReachabilityTopologyBuilder() throws TransactionCommitFailedException {
+    public void testIpv6ReachabilityTopologyBuilder() throws TransactionCommitFailedException, ReadFailedException {
         // create route
         updateIpv6Route(createIpv6Route(NEXT_HOP));
-        final Optional<Topology> topologyMaybe = getTopology(this.ipv6TopoBuilder.getInstanceIdentifier());
-        assertTrue(topologyMaybe.isPresent());
-        final Topology topology = topologyMaybe.get();
-        assertNotNull(topology.getTopologyTypes().getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.TopologyTypes1.class));
-        assertNotNull(topology.getTopologyTypes().getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.TopologyTypes1.class).getBgpIpv6ReachabilityTopology());
-        assertEquals(1, topology.getNode().size());
-        final Node node = topology.getNode().get(0);
-        assertEquals(NEXT_HOP, node.getNodeId().getValue());
-        assertEquals(ROUTE_IP6PREFIX, node.getAugmentation(Node1.class).getIgpNodeAttributes().getPrefix().get(0).getPrefix().getIpv6Prefix().getValue());
+
+        readDataOperational(getDataBroker(), this.ipv6TopoBuilder.getInstanceIdentifier(), topology -> {
+            final TopologyTypes1 topologyType = topology.getTopologyTypes().getAugmentation(TopologyTypes1.class);
+            assertNotNull(topologyType);
+            assertNotNull(topologyType.getBgpIpv6ReachabilityTopology());
+            assertEquals(1, topology.getNode().size());
+            final Node node = topology.getNode().get(0);
+            assertEquals(NEXT_HOP, node.getNodeId().getValue());
+            assertEquals(ROUTE_IP6PREFIX, node.getAugmentation(Node1.class).getIgpNodeAttributes().getPrefix()
+                .get(0).getPrefix().getIpv6Prefix().getValue());
+            return topology;
+        });
 
         // update route
         updateIpv6Route(createIpv6Route(NEW_NEXT_HOP));
-        final Topology topologyUpdated = getTopology(this.ipv6TopoBuilder.getInstanceIdentifier()).get();
-        assertEquals(1, topologyUpdated.getNode().size());
-        final Node nodeUpdated = topologyUpdated.getNode().get(0);
-        assertEquals(NEW_NEXT_HOP, nodeUpdated.getNodeId().getValue());
-        assertEquals(ROUTE_IP6PREFIX, nodeUpdated.getAugmentation(Node1.class).getIgpNodeAttributes().getPrefix().get(0).getPrefix().getIpv6Prefix().getValue());
+
+        readDataOperational(getDataBroker(), this.ipv6TopoBuilder.getInstanceIdentifier(), topology -> {
+            assertEquals(1, topology.getNode().size());
+            final Node nodeUpdated = topology.getNode().get(0);
+            assertEquals(NEW_NEXT_HOP, nodeUpdated.getNodeId().getValue());
+            assertEquals(ROUTE_IP6PREFIX, nodeUpdated.getAugmentation(Node1.class).getIgpNodeAttributes().getPrefix()
+                .get(0).getPrefix().getIpv6Prefix().getValue());
+            return topology;
+        });
 
         // delete route
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.delete(LogicalDatastoreType.OPERATIONAL, this.ipv6RouteIID);
         wTx.submit();
-        final Topology topologyDeleted = getTopology(this.ipv6TopoBuilder.getInstanceIdentifier()).get();
-        assertEquals(0, topologyDeleted.getNode().size());
+        readDataOperational(getDataBroker(), this.ipv6TopoBuilder.getInstanceIdentifier(), topology -> {
+            assertEquals(0, topology.getNode().size());
+            return topology;
+        });
 
         this.ipv6TopoBuilder.close();
-        assertFalse(getTopology(this.ipv6TopoBuilder.getInstanceIdentifier()).isPresent());
+        checkNotPresentOperational(getDataBroker(), this.ipv6TopoBuilder.getInstanceIdentifier());
     }
 
     private void updateIpv6Route(final Ipv6Route data) {
@@ -97,10 +109,10 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
         wTx.submit();
     }
 
-    public Ipv6Route createIpv6Route(final String netxHop) {
+    private Ipv6Route createIpv6Route(final String netxHop) {
         final Attributes attribute = new AttributesBuilder()
-            .setCNextHop(new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder().setGlobal(new Ipv6Address(netxHop)).build()).build())
-            .build();
+            .setCNextHop(new Ipv6NextHopCaseBuilder().setIpv6NextHop(
+                new Ipv6NextHopBuilder().setGlobal(new Ipv6Address(netxHop)).build()).build()).build();
         return new Ipv6RouteBuilder().setKey(new Ipv6RouteKey(new PathId(PATH_ID), new Ipv6Prefix(ROUTE_IP6PREFIX)))
             .setPrefix(new Ipv6Prefix(ROUTE_IP6PREFIX)).setAttributes(attribute).build();
     }

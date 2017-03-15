@@ -9,7 +9,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
-import static org.opendaylight.protocol.util.CheckUtil.readData;
+import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
 import com.google.common.base.Optional;
@@ -219,7 +219,7 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
 
     private void checkLocRib(final int expectedRoutesOnDS) throws Exception {
         Thread.sleep(100);
-        readData(getDataBroker(), BGP_IID, bgpRib -> {
+        readDataOperational(getDataBroker(), BGP_IID, bgpRib -> {
             final Ipv4RoutesCase routes = ((Ipv4RoutesCase) bgpRib.getRib().get(0).getLocRib().getTables().get(0)
                 .getRoutes());
             final List<Ipv4Route> routeList = routes.getIpv4Routes().getIpv4Route();
@@ -229,7 +229,7 @@ class AbstractAddPathTest extends AbstractDataBrokerTest {
     }
 
     void checkPeersPresentOnDataStore(final int numberOfPeers) throws Exception {
-        readData(getDataBroker(), BGP_IID, bgpRib -> {
+        readDataOperational(getDataBroker(), BGP_IID, bgpRib -> {
             Assert.assertEquals(numberOfPeers, bgpRib.getRib().get(0).getPeer().size());
             return bgpRib;
         });
