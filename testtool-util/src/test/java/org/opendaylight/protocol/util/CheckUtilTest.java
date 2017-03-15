@@ -12,6 +12,11 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
+import static org.opendaylight.protocol.util.CheckUtil.checkEquals;
+import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentOperational;
+import static org.opendaylight.protocol.util.CheckUtil.checkReceivedMessages;
+import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
+import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
 import com.google.common.base.Optional;
 import com.google.common.base.VerifyException;
@@ -68,60 +73,60 @@ public class CheckUtilTest {
     }
 
     @Test(expected = VerifyException.class)
-    public void waitFutureSuccessFail() throws Exception {
+    public void testWaitFutureSuccessFail() throws Exception {
         when(this.future.isDone()).thenReturn(false);
         doReturn(this.future).when(this.future).addListener(any());
-        CheckUtil.waitFutureSuccess(this.future);
+        waitFutureSuccess(this.future);
     }
 
     @Test
-    public void waitFutureSuccess() throws Exception {
+    public void testWaitFutureSuccess() throws Exception {
         when(this.future.isSuccess()).thenReturn(true);
         doAnswer(invocation -> {
             invocation.getArgumentAt(0, GenericFutureListener.class).operationComplete(CheckUtilTest.this.future);
             return CheckUtilTest.this.future;
         }).when(this.future).addListener(any());
-        CheckUtil.waitFutureSuccess(this.future);
+        waitFutureSuccess(this.future);
     }
 
     @Test(expected = NullPointerException.class)
-    public void readDataNull() throws Exception {
+    public void testReadDataNull() throws Exception {
         doReturn(false).when(this.opt).isPresent();
         final InstanceIdentifier instanceIdentifier = null;
-        CheckUtil.readData(this.dataBroker, instanceIdentifier, test -> false);
+        readDataOperational(this.dataBroker, instanceIdentifier, test -> false);
     }
 
     @Test(expected = AssertionError.class)
-    public void readDataNotEquall() throws Exception {
+    public void testReadDataNotEquall() throws Exception {
         doReturn(true).when(this.opt).isPresent();
         doReturn(false).when(this.mockInterface).getResult();
-        CheckUtil.readData(this.dataBroker, this.instanceIdentifier, test -> {
+        readDataOperational(this.dataBroker, this.instanceIdentifier, test -> {
             assertTrue(test.getResult());
             return test;
         });
     }
 
     @Test(expected = AssertionError.class)
-    public void checkNull() throws Exception {
+    public void testCheckNotPresent() throws Exception {
         doReturn(true).when(this.opt).isPresent();
-        CheckUtil.checkNull(this.dataBroker, this.instanceIdentifier);
+        checkNotPresentOperational(this.dataBroker, this.instanceIdentifier);
     }
 
     @Test(expected = AssertionError.class)
-    public void checkEquals() throws Exception {
-        CheckUtil.checkEquals(()-> assertTrue(false));
+    public void testCheckEquals() throws Exception {
+        checkEquals(()-> assertTrue(false));
     }
 
     @Test(expected = AssertionError.class)
-    public void checkReceivedMessagesNotEqual() throws Exception {
+    public void testCheckReceivedMessagesNotEqual() throws Exception {
         doReturn(0).when(this.listenerCheck).getListMessageSize();
-        CheckUtil.checkReceivedMessages(this.listenerCheck, 1);
+        checkReceivedMessages(this.listenerCheck, 1);
     }
 
     @Test
-    public void checkReceivedMessagesEqual() throws Exception {
+    public void testCheckReceivedMessagesEqual() throws Exception {
         doReturn(1).when(this.listenerCheck).getListMessageSize();
-        CheckUtil.checkReceivedMessages(this.listenerCheck, 1);
+        checkReceivedMessages(this.listenerCheck, 1);
     }
 
     private interface MockInterface extends DataObject {

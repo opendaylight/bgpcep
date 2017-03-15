@@ -146,6 +146,11 @@
 
         <!-- Testing dependencies -->
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>testtool-util</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
