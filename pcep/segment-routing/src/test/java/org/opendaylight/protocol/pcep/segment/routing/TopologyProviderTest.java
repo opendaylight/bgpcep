@@ -10,7 +10,7 @@ package org.opendaylight.protocol.pcep.segment.routing;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.opendaylight.protocol.util.CheckUtil.readData;
+import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 
 import com.google.common.collect.Lists;
 import java.nio.charset.StandardCharsets;
@@ -71,7 +71,7 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07Topo
 
         Pcrpt pcRptMsg = createSrPcRpt("1.1.1.1", "sr-path1", 1L, true);
         this.listener.onMessage(this.session, pcRptMsg);
-        readData(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
             //check sr-path
             final List<ReportedLsp> reportedLsps = pcc.getReportedLsp();
             assertNotNull(reportedLsps);
@@ -89,7 +89,7 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07Topo
 
         pcRptMsg = createSrPcRpt("1.1.1.3", "sr-path2", 2L, false);
         this.listener.onMessage(this.session, pcRptMsg);
-        readData(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
             //check second lsp sr-path
             final List<ReportedLsp> reportedLsps = pcc.getReportedLsp();
             assertNotNull(reportedLsps);
@@ -100,7 +100,7 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07Topo
 
         pcRptMsg = createSrPcRpt("1.1.1.2", "sr-path1", 1L, true);
         this.listener.onMessage(this.session, pcRptMsg);
-        readData(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
             //check updated sr-path
             final List<ReportedLsp> reportedLsps = pcc.getReportedLsp();
             assertNotNull(reportedLsps);
