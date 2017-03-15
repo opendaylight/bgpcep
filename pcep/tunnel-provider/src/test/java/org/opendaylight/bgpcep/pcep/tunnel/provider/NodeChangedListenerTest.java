@@ -10,7 +10,7 @@ package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.opendaylight.protocol.util.CheckUtil.readData;
+import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 
 import com.google.common.collect.Lists;
 import java.util.Collections;
@@ -103,7 +103,7 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
     public void testNodeChangedListener() throws ReadFailedException, TransactionCommitFailedException {
         // add node -> create two nodes with TPs and link
         createNode(NODE1_ID, NODE1_IPV4, LSP1_NAME, LSP1_ID, NODE2_IPV4);
-        final Topology tunnelTopo = readData(getDataBroker(), TUNNEL_TOPO_IID, tunnelTopo1 -> {
+        final Topology tunnelTopo = readDataOperational(getDataBroker(), TUNNEL_TOPO_IID, tunnelTopo1 -> {
             assertNotNull(tunnelTopo1.getNode());
             assertEquals(2, tunnelTopo1.getNode().size());
             return tunnelTopo1;
@@ -149,7 +149,7 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
 
         // update second node -> adds supporting node and second link
         createNode(NODE2_ID, NODE2_IPV4, LSP2_NAME, LSP2_ID, NODE1_IPV4);
-        readData(getDataBroker(), TUNNEL_TOPO_IID, updatedNodeTopo -> {
+        readDataOperational(getDataBroker(), TUNNEL_TOPO_IID, updatedNodeTopo -> {
             assertNotNull(updatedNodeTopo.getNode());
             Assert.assertEquals(2, updatedNodeTopo.getNode().size());
             final Node updatedNode;
@@ -168,7 +168,7 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
 
         });
 
-        readData(getDataBroker(), TUNNEL_TOPO_IID, updatedNodeTopo -> {
+        readDataOperational(getDataBroker(), TUNNEL_TOPO_IID, updatedNodeTopo -> {
             final Link link2;
             if (updatedNodeTopo.getLink().get(0).getSource().getSourceNode().equals(srcId)) {
                 link2 = updatedNodeTopo.getLink().get(1);
@@ -185,7 +185,7 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
         // remove nodes -> remove link
         removeNode(NODE1_ID);
         removeNode(NODE2_ID);
-        readData(getDataBroker(), TUNNEL_TOPO_IID, removedNodeTopo -> {
+        readDataOperational(getDataBroker(), TUNNEL_TOPO_IID, removedNodeTopo -> {
             assertEquals(0, removedNodeTopo.getNode().size());
             assertEquals(0, removedNodeTopo.getLink().size());
             return removedNodeTopo;

@@ -13,9 +13,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
-import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
 import static org.opendaylight.protocol.util.CheckUtil.checkEquals;
-import static org.opendaylight.protocol.util.CheckUtil.readData;
+import static org.opendaylight.protocol.util.CheckUtil.readDataConfiguration;
 
 import javax.management.MalformedObjectNameException;
 import org.junit.Before;
@@ -74,7 +73,7 @@ public class AppPeerBenchmarkTest extends AbstractConcurrentDataBrokerTest {
         checkEquals(()-> assertEquals(1, addResult.getCount().intValue()));
         checkEquals(()-> assertEquals(1, addResult.getRate().intValue()));
 
-        readData(getDataBroker(), CONFIGURATION, routesIID, routes -> {
+        readDataConfiguration(getDataBroker(), routesIID, routes -> {
             assertNotNull(routes.getIpv4Route());
             assertEquals(1, routes.getIpv4Route().size());
             return routes;
@@ -87,7 +86,7 @@ public class AppPeerBenchmarkTest extends AbstractConcurrentDataBrokerTest {
         final Result deleteResult = deleteRpcResult.getResult().getResult();
         checkEquals(()-> assertEquals(1, deleteResult.getCount().intValue()));
         checkEquals(()-> assertEquals(1, deleteResult.getRate().intValue()));
-        readData(getDataBroker(), CONFIGURATION, routesIID, routes -> {
+        readDataConfiguration(getDataBroker(), routesIID, routes -> {
             assertNotNull(routes.getIpv4Route());
             assertTrue(routes.getIpv4Route().isEmpty());
             return routes;

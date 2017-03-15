@@ -11,8 +11,8 @@ package org.opendaylight.protocol.bgp.state;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
-import static org.opendaylight.protocol.util.CheckUtil.checkNull;
-import static org.opendaylight.protocol.util.CheckUtil.readData;
+import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentOperational;
+import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -260,7 +260,7 @@ public class StateProviderImplTest extends AbstractConcurrentDataBrokerTest {
 
         final Global globalExpected = buildGlobalExpected(0);
         this.bgpRibStates.add(this.bgpRibState);
-        readData(getDataBroker(), this.bgpInstanceIdentifier, bgpRib -> {
+        readDataOperational(getDataBroker(), this.bgpInstanceIdentifier, bgpRib -> {
             final Global global = bgpRib.getGlobal();
             Assert.assertEquals(globalExpected, global);
             return bgpRib;
@@ -270,7 +270,7 @@ public class StateProviderImplTest extends AbstractConcurrentDataBrokerTest {
         this.totalPrefixesCounter.increment();
 
         final Global globalExpected2 = buildGlobalExpected(1);
-        readData(getDataBroker(), this.bgpInstanceIdentifier, bgpRib -> {
+        readDataOperational(getDataBroker(), this.bgpInstanceIdentifier, bgpRib -> {
             final Global global = bgpRib.getGlobal();
             Assert.assertEquals(globalExpected2, global);
             return bgpRib;
@@ -280,7 +280,7 @@ public class StateProviderImplTest extends AbstractConcurrentDataBrokerTest {
         this.totalPrefixesCounter.decrement();
 
         final Global globalExpected3 = buildGlobalExpected(0);
-        readData(getDataBroker(), this.bgpInstanceIdentifier, bgpRib -> {
+        readDataOperational(getDataBroker(), this.bgpInstanceIdentifier, bgpRib -> {
             final Global global = bgpRib.getGlobal();
             Assert.assertEquals(globalExpected3, global);
             Assert.assertNull(bgpRib.getNeighbors());
@@ -301,7 +301,7 @@ public class StateProviderImplTest extends AbstractConcurrentDataBrokerTest {
         final Timers expectedTimers = buildTimers();
         final BgpNeighborStateAugmentation expectedBgpNeighborState = buildBgpNeighborStateAugmentation();
 
-        readData(getDataBroker(), this.bgpInstanceIdentifier, bgpRib -> {
+        readDataOperational(getDataBroker(), this.bgpInstanceIdentifier, bgpRib -> {
             final Neighbors neighbors = bgpRib.getNeighbors();
             Assert.assertNotNull(neighbors);
             Assert.assertEquals(peerGroupExpected, bgpRib.getPeerGroups().getPeerGroup().get(0));
@@ -324,7 +324,7 @@ public class StateProviderImplTest extends AbstractConcurrentDataBrokerTest {
         });
 
         this.bgpRibStates.clear();
-        checkNull(getDataBroker(), this.bgpInstanceIdentifier);
+        checkNotPresentOperational(getDataBroker(), this.bgpInstanceIdentifier);
 
         stateProvider.close();
     }

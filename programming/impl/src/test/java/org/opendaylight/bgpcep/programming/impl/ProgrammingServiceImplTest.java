@@ -17,8 +17,8 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.opendaylight.protocol.util.CheckUtil.checkPresent;
-import static org.opendaylight.protocol.util.CheckUtil.checkNull;
+import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentOperational;
+import static org.opendaylight.protocol.util.CheckUtil.checkPresentOperational;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -116,7 +116,7 @@ public class ProgrammingServiceImplTest extends AbstractConcurrentDataBrokerTest
         final SubmitInstructionInput mockedSubmit = getMockedSubmitInstructionInput("mockedSubmit");
         this.testedProgrammingService.scheduleInstruction(mockedSubmit);
 
-        checkPresent(getDataBroker(), buildInstructionIID(mockedSubmit.getId()));
+        checkPresentOperational(getDataBroker(), buildInstructionIID(mockedSubmit.getId()));
 
         // assert Schedule to executor
         this.mockedExecutorWrapper.assertSubmittedTasksSize(1);
@@ -157,12 +157,12 @@ public class ProgrammingServiceImplTest extends AbstractConcurrentDataBrokerTest
     public void testCancelInstruction() throws Exception {
         final SubmitInstructionInput mockedSubmit = getMockedSubmitInstructionInput("mockedSubmit");
         this.testedProgrammingService.scheduleInstruction(mockedSubmit);
-        checkPresent(getDataBroker(), buildInstructionIID(mockedSubmit.getId()));
+        checkPresentOperational(getDataBroker(), buildInstructionIID(mockedSubmit.getId()));
 
         final CancelInstructionInput mockedCancel = getCancelInstruction("mockedSubmit");
         this.testedProgrammingService.cancelInstruction(mockedCancel);
 
-        checkPresent(getDataBroker(), buildInstructionIID(mockedSubmit.getId()));
+        checkPresentOperational(getDataBroker(), buildInstructionIID(mockedSubmit.getId()));
         this.mockedExecutorWrapper.assertSubmittedTasksSize(2);
 
         this.mockedNotificationServiceWrapper.assertNotificationsCount(2);
@@ -193,9 +193,9 @@ public class ProgrammingServiceImplTest extends AbstractConcurrentDataBrokerTest
         this.mockedNotificationServiceWrapper.assertInstructionStatusChangedNotification(3, mockedSubmit3.getId(),
             InstructionStatus.Cancelled);
 
-        checkPresent(getDataBroker(), buildInstructionIID(mockedSubmit1.getId()));
-        checkPresent(getDataBroker(), buildInstructionIID(mockedSubmit2.getId()));
-        checkPresent(getDataBroker(), buildInstructionIID(mockedSubmit3.getId()));
+        checkPresentOperational(getDataBroker(), buildInstructionIID(mockedSubmit1.getId()));
+        checkPresentOperational(getDataBroker(), buildInstructionIID(mockedSubmit2.getId()));
+        checkPresentOperational(getDataBroker(), buildInstructionIID(mockedSubmit3.getId()));
     }
 
     @Test
@@ -220,8 +220,8 @@ public class ProgrammingServiceImplTest extends AbstractConcurrentDataBrokerTest
         cleanedInstructionOutput = this.testedProgrammingService.cleanInstructions(cleanInstructionsInput);
         assertCleanInstructionOutput(cleanedInstructionOutput, 0);
 
-        checkNull(getDataBroker(), buildInstructionIID(mockedSubmit1.getId()));
-        checkNull(getDataBroker(), buildInstructionIID(mockedSubmit2.getId()));
+        checkNotPresentOperational(getDataBroker(), buildInstructionIID(mockedSubmit1.getId()));
+        checkNotPresentOperational(getDataBroker(), buildInstructionIID(mockedSubmit2.getId()));
     }
 
     private void assertCleanInstructionOutput(final ListenableFuture<RpcResult<CleanInstructionsOutput>>
