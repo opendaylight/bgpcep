@@ -9,15 +9,15 @@
 package org.opendaylight.bgpcep.bgp.topology.provider;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentOperational;
+import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 
-import com.google.common.base.Optional;
 import org.junit.Test;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
@@ -35,7 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.TopologyTypes1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.Node1;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -53,44 +53,54 @@ public class Ipv4ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
     @Override
     protected void setupWithDataBroker(final DataBroker dataBroker) {
         super.setupWithDataBroker(dataBroker);
-        this.ipv4TopoBuilder = new Ipv4ReachabilityTopologyBuilder(dataBroker, LOC_RIB_REF, TEST_TOPOLOGY_ID);
+        this.ipv4TopoBuilder = new Ipv4ReachabilityTopologyBuilder(getDataBroker(), LOC_RIB_REF, TEST_TOPOLOGY_ID);
         this.ipv4TopoBuilder.start();
-        final InstanceIdentifier<Tables> path = this.ipv4TopoBuilder.tableInstanceIdentifier(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
-        this.ipv4RouteIID = path.builder().child((Class) Ipv4Routes.class).child(Ipv4Route.class, new Ipv4RouteKey(new PathId(PATH_ID),
-            new Ipv4Prefix(ROUTE_IP4PREFIX))).build();
+        final InstanceIdentifier<Tables> path = this.ipv4TopoBuilder.tableInstanceIdentifier(Ipv4AddressFamily.class,
+            UnicastSubsequentAddressFamily.class);
+        this.ipv4RouteIID = path.builder().child((Class) Ipv4Routes.class)
+            .child(Ipv4Route.class, new Ipv4RouteKey(new PathId(PATH_ID),
+                new Ipv4Prefix(ROUTE_IP4PREFIX))).build();
     }
 
     @Test
-    public void testIpv4ReachabilityTopologyBuilder() throws TransactionCommitFailedException {
+    public void testIpv4ReachabilityTopologyBuilder() throws TransactionCommitFailedException, ReadFailedException {
         // create route
         updateIpv4Route(createIpv4Route(NEXT_HOP));
-        final Optional<Topology> topologyMaybe = getTopology(this.ipv4TopoBuilder.getInstanceIdentifier());
-        assertTrue(topologyMaybe.isPresent());
-        final Topology topology = topologyMaybe.get();
-        assertNotNull(topology.getTopologyTypes().getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.TopologyTypes1.class));
-        assertNotNull(topology.getTopologyTypes().getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.TopologyTypes1.class).getBgpIpv4ReachabilityTopology());
-        assertEquals(1, topology.getNode().size());
-        final Node node = topology.getNode().get(0);
-        assertEquals(NEXT_HOP, node.getNodeId().getValue());
-        assertEquals(ROUTE_IP4PREFIX, node.getAugmentation(Node1.class).getIgpNodeAttributes().getPrefix().get(0).getPrefix().getIpv4Prefix().getValue());
+
+        readDataOperational(getDataBroker(), this.ipv4TopoBuilder.getInstanceIdentifier(), topology -> {
+            final TopologyTypes1 topologyTypes = topology.getTopologyTypes().getAugmentation(TopologyTypes1.class);
+            assertNotNull(topologyTypes);
+            assertNotNull(topologyTypes.getBgpIpv4ReachabilityTopology());
+            assertEquals(1, topology.getNode().size());
+            final Node node = topology.getNode().get(0);
+            assertEquals(NEXT_HOP, node.getNodeId().getValue());
+            assertEquals(ROUTE_IP4PREFIX, node.getAugmentation(Node1.class).getIgpNodeAttributes().getPrefix().get(0)
+                .getPrefix().getIpv4Prefix().getValue());
+            return topology;
+        });
 
         // update route
         updateIpv4Route(createIpv4Route(NEW_NEXT_HOP));
-        final Topology topologyUpdated = getTopology(this.ipv4TopoBuilder.getInstanceIdentifier()).get();
-        assertEquals(1, topologyUpdated.getNode().size());
-        final Node nodeUpdated = topologyUpdated.getNode().get(0);
-        assertEquals(NEW_NEXT_HOP, nodeUpdated.getNodeId().getValue());
-        assertEquals(ROUTE_IP4PREFIX, nodeUpdated.getAugmentation(Node1.class).getIgpNodeAttributes().getPrefix().get(0).getPrefix().getIpv4Prefix().getValue());
+        readDataOperational(getDataBroker(), this.ipv4TopoBuilder.getInstanceIdentifier(), topology -> {
+            assertEquals(1, topology.getNode().size());
+            final Node nodeUpdated = topology.getNode().get(0);
+            assertEquals(NEW_NEXT_HOP, nodeUpdated.getNodeId().getValue());
+            assertEquals(ROUTE_IP4PREFIX, nodeUpdated.getAugmentation(Node1.class).getIgpNodeAttributes()
+                .getPrefix().get(0).getPrefix().getIpv4Prefix().getValue());
+            return topology;
+        });
 
         // delete route
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.delete(LogicalDatastoreType.OPERATIONAL, this.ipv4RouteIID);
         wTx.submit();
-        final Topology topologyDeleted = getTopology(this.ipv4TopoBuilder.getInstanceIdentifier()).get();
-        assertEquals(0, topologyDeleted.getNode().size());
+        readDataOperational(getDataBroker(), this.ipv4TopoBuilder.getInstanceIdentifier(), topology -> {
+            assertEquals(0, topology.getNode().size());
+            return topology;
+        });
 
         this.ipv4TopoBuilder.close();
-        assertFalse(getTopology(this.ipv4TopoBuilder.getInstanceIdentifier()).isPresent());
+        checkNotPresentOperational(getDataBroker(), this.ipv4TopoBuilder.getInstanceIdentifier());
     }
 
     private void updateIpv4Route(final Ipv4Route data) {
