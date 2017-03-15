@@ -8,6 +8,7 @@
 
 package org.opendaylight.protocol.bgp.benchmark.app;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import com.google.common.net.InetAddresses;
 import java.util.Collections;
@@ -168,6 +169,11 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
         }
         this.txChain.close();
         LOG.info("BGP Application Peer Benchmark Application closed.");
+    }
+
+    @VisibleForTesting
+    InstanceIdentifier<Ipv4Routes> getIpv4RoutesIID() {
+        return this.routesIId;
     }
 
     private long addRoute(final Ipv4Prefix ipv4Prefix, final Ipv4Address nextHop, final long count, final long batch) {
