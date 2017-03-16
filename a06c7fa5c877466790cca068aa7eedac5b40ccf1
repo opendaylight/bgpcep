@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9a877fd7",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/config/PCEPTopologyConfigDependencies.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2017-03-16T09:08:15Z",
+      "side": 1,
+      "message": "also return type of the getter method",
+      "parentUuid": "fafc7978_7a03bb76",
+      "range": {
+        "startLine": 25,
+        "startChar": 18,
+        "endLine": 25,
+        "endChar": 21
+      },
+      "revId": "a06c7fa5c877466790cca068aa7eedac5b40ccf1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9a5c9fef",
         "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/config/PCEPTopologyConfigDependencies.java",
         "patchSetId": 10
