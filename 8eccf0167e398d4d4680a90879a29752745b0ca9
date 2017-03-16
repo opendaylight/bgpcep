@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_6f301b08",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/config/PCEPTopologyProviderBean.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-03-16T08:59:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_43a9b623",
+      "range": {
+        "startLine": 77,
+        "startChar": 22,
+        "endLine": 79,
+        "endChar": 94
+      },
+      "revId": "8eccf0167e398d4d4680a90879a29752745b0ca9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c36c860b",
         "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/config/PCEPTopologyProviderBean.java",
         "patchSetId": 9
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_8f5e1f75",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/config/PCEPTopologyProviderBean.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-03-16T08:59:05Z",
+      "side": 1,
+      "message": "final is not required since its already a private class inside a final class.\nwith static I wont be able to reference to parent (PCEPTopologyProviderBean.this)",
+      "parentUuid": "fafc7978_c36c860b",
+      "range": {
+        "startLine": 110,
+        "startChar": 4,
+        "endLine": 110,
+        "endChar": 17
+      },
+      "revId": "8eccf0167e398d4d4680a90879a29752745b0ca9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_23a63254",
         "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/config/PCEPTopologyProviderBean.java",
         "patchSetId": 9
@@ -59,6 +107,30 @@
       "writtenOn": "2017-03-15T15:57:09Z",
       "side": 1,
       "message": "typo",
+      "range": {
+        "startLine": 129,
+        "startChar": 68,
+        "endLine": 129,
+        "endChar": 71
+      },
+      "revId": "8eccf0167e398d4d4680a90879a29752745b0ca9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0f1cefc0",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/config/PCEPTopologyProviderBean.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-03-16T08:59:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_23a63254",
       "range": {
         "startLine": 129,
         "startChar": 68,
