@@ -24,6 +24,7 @@ class ExaStorage(dict):
       "counters": { <msg type>: count, ...}
       "messages": { <msg type>: [hex_string1, ]}
     """
+
     def __init__(self):
         """Thread safe dictionary init"""
         super(ExaStorage, self).__init__()

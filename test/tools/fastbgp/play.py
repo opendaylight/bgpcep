@@ -376,7 +376,7 @@ class MessageGenerator(object):
                     self.prefix_count_to_add_default + 1)
         s2_slots = ((self.remaining_prefixes_threshold - 1) /
                     (self.prefix_count_to_add_default -
-                    self.prefix_count_to_del_default) + 1)
+                     self.prefix_count_to_del_default) + 1)
         # S1_First_Index = 0
         # S1_Last_Index = s1_slots * self.prefix_count_to_add_default - 1
         s2_first_index = s1_slots * self.prefix_count_to_add_default
@@ -1854,6 +1854,7 @@ def job(arguments, inqueue, storage):
 
 class Rpcs:
     '''Handler for SimpleXMLRPCServer'''
+
     def __init__(self, sendqueue, storage):
         '''Init method
 
