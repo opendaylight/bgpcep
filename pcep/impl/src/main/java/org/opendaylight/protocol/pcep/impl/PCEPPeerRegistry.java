@@ -14,7 +14,6 @@ import com.google.common.cache.CacheBuilder;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.GuardedBy;

@@ -245,12 +245,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
         }
 
         private void addTp(final TerminationPoint tp, final LinkId link, final boolean isRemote) {
-            TpHolder h = this.tps.get(tp.getTpId());
-            if (h == null) {
-                h = new TpHolder(tp);
-                this.tps.put(tp.getTpId(), h);
-            }
-
+            final TpHolder h = this.tps.computeIfAbsent(tp.getTpId(), k -> new TpHolder(tp));
             h.addLink(link, isRemote);
         }
 
@@ -276,7 +271,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             LOG.debug("Node {} is advertized", nb.getNodeId());
         }
 
-        private Object getNodeId() {
+        private NodeId getNodeId() {
             return this.nb.getNodeId();
         }
     }

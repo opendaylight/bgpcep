@@ -426,7 +426,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
             try {
                 this.csspReg.close();
             } catch (final Exception e) {
-                LOG.debug("Failed to close Instruction Scheduler service");
+                LOG.debug("Failed to close Instruction Scheduler service", e);
             }
         }
         if (this.serviceRegistration != null) {

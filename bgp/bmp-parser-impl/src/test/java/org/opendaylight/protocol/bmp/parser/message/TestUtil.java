@@ -307,7 +307,7 @@ public final class TestUtil {
             .setMultiExitDisc(new MultiExitDiscBuilder().setMed(123L).build())
             .setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build())
             .setOriginatorId(new OriginatorIdBuilder().setOriginator(IPV4_ADDRESS_12).build())
-            .setUnrecognizedAttributes(new ArrayList<UnrecognizedAttributes>());
+            .setUnrecognizedAttributes(new ArrayList<>());
         return attribBuilder.build();
     }
 

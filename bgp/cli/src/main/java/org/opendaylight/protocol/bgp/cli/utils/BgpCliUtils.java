@@ -21,6 +21,9 @@ public final class BgpCliUtils {
     private static final String PEER_PREFERENCES_LABEL = "PeerPreferences.";
     private static final String SPEAKER_PREFERENCES_LABEL = "SpeakerPreferences.";
 
+    private BgpCliUtils() {
+        throw new UnsupportedOperationException();
+    }
     public static void displayAll(final ObjectName objectName, final BgpSessionState bgpSessionState, final PrintStream printStream) {
         if (bgpSessionState == null) {
             printStream.println(String.format("No BgpSessionState found for [%s]", objectName));

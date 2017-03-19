@@ -68,7 +68,7 @@ public class BGPParserTest {
     /**
      * Used by other tests as well
      */
-    static final List<byte[]> inputBytes = new ArrayList<byte[]>();
+    static final List<byte[]> inputBytes = new ArrayList<>();
 
     private static int COUNTER = 7;
 
@@ -161,7 +161,7 @@ public class BGPParserTest {
         assertNull(message.getWithdrawnRoutes());
 
         // attributes
-        final List<AsNumber> asNumbers = new ArrayList<AsNumber>();
+        final List<AsNumber> asNumbers = new ArrayList<>();
         asNumbers.add(new AsNumber(65002L));
         final List<Segments> asPath = Lists.newArrayList();
         asPath.add(new SegmentsBuilder().setAsSequence(asNumbers).build());
@@ -283,7 +283,7 @@ public class BGPParserTest {
         assertNull(message.getWithdrawnRoutes());
 
         // attributes
-        final List<AsNumber> asNumbers = new ArrayList<AsNumber>();
+        final List<AsNumber> asNumbers = new ArrayList<>();
         asNumbers.add(new AsNumber(30L));
         final List<Segments> asPath = Lists.newArrayList();
         asPath.add(new SegmentsBuilder().setAsSequence(asNumbers).build());

@@ -36,8 +36,6 @@ import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
@@ -138,7 +136,7 @@ public class FSMTest {
         final BGPPeerRegistry peerRegistry = new StrictBGPPeerRegistry();
         peerRegistry.addPeer(new IpAddress(new Ipv4Address(peerAddress.getHostAddress())), new SimpleSessionListener(), prefs);
 
-        this.clientSession = new BGPClientSessionNegotiator(new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE), this.speakerListener, peerRegistry);
+        this.clientSession = new BGPClientSessionNegotiator(new DefaultPromise<>(GlobalEventExecutor.INSTANCE), this.speakerListener, peerRegistry);
 
         this.classicOpen = new OpenBuilder().setMyAsNumber(30).setHoldTimer(3).setVersion(new ProtocolVersion((short) 4)).setBgpParameters(
             tlvs).setBgpIdentifier(new Ipv4Address("1.1.1.2")).build();
@@ -146,7 +144,7 @@ public class FSMTest {
 
     @Test
     public void testDenyPeer() {
-        this.clientSession = new BGPClientSessionNegotiator(new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE), this.speakerListener, new StrictBGPPeerRegistry());
+        this.clientSession = new BGPClientSessionNegotiator(new DefaultPromise<>(GlobalEventExecutor.INSTANCE), this.speakerListener, new StrictBGPPeerRegistry());
         this.clientSession.channelActive(null);
         assertEquals(1, this.receivedMsgs.size());
         assertTrue(this.receivedMsgs.get(0) instanceof Notify);

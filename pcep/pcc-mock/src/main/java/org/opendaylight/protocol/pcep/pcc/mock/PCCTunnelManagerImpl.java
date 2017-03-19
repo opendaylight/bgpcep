@@ -22,7 +22,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
 import io.netty.util.Timeout;
 import io.netty.util.Timer;
-import io.netty.util.TimerTask;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.util.Collections;

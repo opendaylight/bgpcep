@@ -73,12 +73,7 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
     }
 
     public synchronized void cleanupExcept(final Collection<String> values) {
-        final Iterator<String> it = this.metadata.keySet().iterator();
-        while (it.hasNext()) {
-            if (!values.contains(it.next())) {
-                it.remove();
-            }
-        }
+        this.metadata.keySet().removeIf(s -> !values.contains(s));
     }
 
     public synchronized void released(final boolean persist) {

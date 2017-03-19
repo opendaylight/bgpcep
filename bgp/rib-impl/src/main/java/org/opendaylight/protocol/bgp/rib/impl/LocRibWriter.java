@@ -88,10 +88,10 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
         final PathSelectionMode pathSelectionMode) {
         this.chain = Preconditions.checkNotNull(chain);
         this.target = Preconditions.checkNotNull(target);
-        final NodeIdentifierWithPredicates tableKey = RibSupportUtils.toYangTablesKey(tablesKey);
+        this.tableKey  = RibSupportUtils.toYangTablesKey(tablesKey);
         this.localTablesKey = tablesKey;
-        this.tableKey = tableKey;
-        this.locRibTarget = YangInstanceIdentifier.create(target.node(LocRib.QNAME).node(Tables.QNAME).node(tableKey).getPathArguments());
+        this.locRibTarget = YangInstanceIdentifier.create(target.node(LocRib.QNAME).node(Tables.QNAME)
+            .node(this.tableKey).getPathArguments());
         this.ourAs = Preconditions.checkNotNull(ourAs);
         this.service = Preconditions.checkNotNull(service);
         this.ribSupport = registry.getRIBSupportContext(tablesKey).getRibSupport();

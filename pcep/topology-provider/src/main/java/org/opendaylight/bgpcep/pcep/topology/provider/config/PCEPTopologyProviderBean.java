@@ -74,7 +74,7 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
         try {
             this.pcepTopoProviderCSS = new PCEPTopologyProviderBeanCSS(configDependencies);
         } catch (final Exception e) {
-            LOG.debug("Failed to create PCEPTopologyProvider {}", configDependencies.getTopologyId().getValue());
+            LOG.debug("Failed to create PCEPTopologyProvider {}", configDependencies.getTopologyId().getValue(), e);
         }
     }
 

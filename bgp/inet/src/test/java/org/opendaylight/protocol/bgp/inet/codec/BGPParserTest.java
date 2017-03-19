@@ -157,7 +157,7 @@ public class BGPParserTest {
         assertNull(message.getNlri());
 
         // attributes
-        final List<AsNumber> asNumbers = new ArrayList<AsNumber>();
+        final List<AsNumber> asNumbers = new ArrayList<>();
         asNumbers.add(new AsNumber(65001L));
         final List<Segments> asPath = Lists.newArrayList();
         asPath.add(new SegmentsBuilder().setAsSequence(asNumbers).build());

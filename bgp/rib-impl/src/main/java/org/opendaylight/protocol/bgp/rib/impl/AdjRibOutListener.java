@@ -82,7 +82,7 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
 
     static AdjRibOutListener create(@Nonnull final PeerId peerId, @Nonnull final TablesKey tablesKey, @Nonnull final YangInstanceIdentifier ribId,
         @Nonnull final CodecsRegistry registry, @Nonnull final RIBSupport support, @Nonnull final DOMDataTreeChangeService service,
-        @Nonnull final ChannelOutputLimiter session, @Nonnull final boolean mpSupport, @Nonnull final LongAdder routeCounter
+        @Nonnull final ChannelOutputLimiter session, final boolean mpSupport, @Nonnull final LongAdder routeCounter
     ) {
         return new AdjRibOutListener(peerId, tablesKey, ribId, registry, support, service, session, mpSupport, routeCounter);
     }

@@ -66,7 +66,7 @@ public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsume
         this.maximumCachedObjects = maximumCachedObjects;
 
         final Cache<Object, Object> cache = CacheBuilder.newBuilder().maximumSize(maximumCachedObjects).build();
-        this.cacheRef = new AtomicReference<Cache<Object,Object>>(cache);
+        this.cacheRef = new AtomicReference<>(cache);
     }
 
     @Override

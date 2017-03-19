@@ -12,7 +12,6 @@ import static org.opendaylight.protocol.util.Ipv4Util.incrementIpv4Address;
 import static org.opendaylight.protocol.util.Ipv4Util.incrementIpv4Prefix;
 
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;

@@ -282,9 +282,7 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
         this.bestPath.forEach(oldBest -> {
             final Optional<AddPathBestPath> present = newBestPathList.stream()
                 .filter(newBest -> newBest.getPathId() == oldBest.getPathId() && newBest.getRouteKey() == oldBest.getRouteKey()).findAny();
-            if(present.isPresent()) {
-                this.bestPathRemoved.remove(oldBest);
-            }
+            present.ifPresent(addPathBestPath -> this.bestPathRemoved.remove(oldBest));
         });
     }
 }

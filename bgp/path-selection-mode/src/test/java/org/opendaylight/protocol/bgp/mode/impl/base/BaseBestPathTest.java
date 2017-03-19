@@ -51,7 +51,7 @@ public class BaseBestPathTest {
     public void testHashCodeAndEqual() throws Exception {
         assertTrue(this.baseBestPath.equals(this.baseBestPathCopy) && this.baseBestPathCopy.equals(this.baseBestPath));
         assertTrue(this.baseBestPath.hashCode() == this.baseBestPathCopy.hashCode());
-        assertFalse(this.baseBestPath.equals(PATH_ID));
+        assertTrue(this.baseBestPath.getPathId() == PATH_ID);
     }
 
     @Test
