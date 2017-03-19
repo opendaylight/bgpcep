@@ -61,7 +61,7 @@ public final class BGPMock implements Closeable {
 
                 final byte[] body = ByteArray.cutBytes(b, 1);
 
-                messages.add(registry.parseMessage(Unpooled.copiedBuffer(body)));
+                messages.add(registry.parseMessage(Unpooled.copiedBuffer(body), null));
             }
         } catch (final BGPDocumentedException | BGPParsingException e) {
             LOG.warn("Failed to parse message {}", e.getMessage(), e);

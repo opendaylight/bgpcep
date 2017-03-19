@@ -120,8 +120,7 @@ public final class BmpSessionImpl extends SimpleChannelInboundHandler<Notificati
             }
             break;
         case IDLE:
-            new IllegalStateException("Received message " + msg + " while BMP Session " + this + " was not active.");
-            break;
+            throw new IllegalStateException("Received message " + msg + " while BMP Session " + this + " was not active.");
         default:
             break;
         }

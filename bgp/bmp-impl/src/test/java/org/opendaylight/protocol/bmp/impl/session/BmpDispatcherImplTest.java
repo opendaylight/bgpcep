@@ -9,9 +9,10 @@
 package org.opendaylight.protocol.bmp.impl.session;
 
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
-import static org.mockito.internal.verification.VerificationModeFactory.times;
 import static org.opendaylight.protocol.util.CheckUtil.checkEquals;
 import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
@@ -25,14 +26,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.bgp.parser.impl.BGPActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
 import org.opendaylight.protocol.bmp.api.BmpDispatcher;
 import org.opendaylight.protocol.bmp.api.BmpSession;
-import org.opendaylight.protocol.bmp.api.BmpSessionFactory;
 import org.opendaylight.protocol.bmp.api.BmpSessionListenerFactory;
 import org.opendaylight.protocol.bmp.impl.BmpDispatcherImpl;
 import org.opendaylight.protocol.bmp.parser.BmpActivator;
@@ -57,13 +56,13 @@ public class BmpDispatcherImplTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        Mockito.doNothing().when(this.mockedSession).handlerRemoved(Mockito.any(ChannelHandlerContext.class));
-        Mockito.doNothing().when(this.mockedSession).handlerAdded(Mockito.any(ChannelHandlerContext.class));
-        Mockito.doNothing().when(this.mockedSession).channelRegistered(Mockito.any(ChannelHandlerContext.class));
-        Mockito.doNothing().when(this.mockedSession).channelActive(Mockito.any(ChannelHandlerContext.class));
-        Mockito.doNothing().when(this.mockedSession).channelInactive(Mockito.any(ChannelHandlerContext.class));
-        Mockito.doNothing().when(this.mockedSession).channelUnregistered(Mockito.any(ChannelHandlerContext.class));
-        Mockito.doNothing().when(this.mockedSession).channelReadComplete(Mockito.any(ChannelHandlerContext.class));
+        doNothing().when(this.mockedSession).handlerRemoved(any(ChannelHandlerContext.class));
+        doNothing().when(this.mockedSession).handlerAdded(any(ChannelHandlerContext.class));
+        doNothing().when(this.mockedSession).channelRegistered(any(ChannelHandlerContext.class));
+        doNothing().when(this.mockedSession).channelActive(any(ChannelHandlerContext.class));
+        doNothing().when(this.mockedSession).channelInactive(any(ChannelHandlerContext.class));
+        doNothing().when(this.mockedSession).channelUnregistered(any(ChannelHandlerContext.class));
+        doNothing().when(this.mockedSession).channelReadComplete(any(ChannelHandlerContext.class));
 
         this.bgpActivator = new BGPActivator();
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
@@ -99,9 +98,9 @@ public class BmpDispatcherImplTest {
 
         final Channel clientChannel = futureClient.channel();
         checkEquals(()-> assertTrue(clientChannel.isActive()));
-        verify(this.mockedSession, timeout(500).times(2)).handlerAdded(Mockito.any(ChannelHandlerContext.class));
-        verify(this.mockedSession, timeout(500).times(2)).channelRegistered(Mockito.any(ChannelHandlerContext.class));
-        verify(this.mockedSession, timeout(500).times(2)).channelActive(Mockito.any(ChannelHandlerContext.class));
+        verify(this.mockedSession, timeout(500).times(2)).handlerAdded(any(ChannelHandlerContext.class));
+        verify(this.mockedSession, timeout(500).times(2)).channelRegistered(any(ChannelHandlerContext.class));
+        verify(this.mockedSession, timeout(500).times(2)).channelActive(any(ChannelHandlerContext.class));
         waitFutureSuccess(clientChannel.close());
         waitFutureSuccess(serverChannel.close());
     }

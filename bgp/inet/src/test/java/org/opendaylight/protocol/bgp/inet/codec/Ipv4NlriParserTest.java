@@ -95,7 +95,7 @@ public class Ipv4NlriParserTest {
                 new DestinationIpv4Builder().setIpv4Prefixes(this.prefixes).build()).build();
         this.ip4caseAD = new DestinationIpv4CaseBuilder().setDestinationIpv4(new DestinationIpv4Builder().setIpv4Prefixes(this.prefixes).build()).build();
 
-        final ArrayList<Ipv4Prefixes> fakePrefixes = new ArrayList<Ipv4Prefixes>(this.prefixes);
+        final ArrayList<Ipv4Prefixes> fakePrefixes = new ArrayList<>(this.prefixes);
         fakePrefixes.add(new Ipv4PrefixesBuilder().setPrefix(wrongPrefix).build());
         this.ip4caseWDWrong = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4CaseBuilder().setDestinationIpv4(
                 new DestinationIpv4Builder().setIpv4Prefixes(fakePrefixes).build()).build();

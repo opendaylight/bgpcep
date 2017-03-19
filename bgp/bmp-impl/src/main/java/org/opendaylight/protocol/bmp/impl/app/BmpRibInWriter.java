@@ -116,12 +116,11 @@ final class BmpRibInWriter {
      * @param tableTypes
      * @param yangTableRootIId
      * @param tx
-     * @param registry
      * @return
      */
     private ImmutableMap.Builder<TablesKey, TableContext> createTableInstance(final Set<TablesKey> tableTypes,
-            final YangInstanceIdentifier yangTableRootIId, final DOMDataWriteTransaction tx, final RIBExtensionConsumerContext ribExtensions,
-            final BindingCodecTree tree) {
+        final YangInstanceIdentifier yangTableRootIId, final DOMDataWriteTransaction tx,
+        final RIBExtensionConsumerContext ribExtensions, final BindingCodecTree tree) {
 
         final ImmutableMap.Builder<TablesKey, TableContext> tb = ImmutableMap.builder();
         for (final TablesKey k : tableTypes) {

@@ -115,8 +115,7 @@ public class ByteArrayTest {
         ByteArray.cutBytes(this.before, 0);
     }
 
-    private final byte[] inBytes = { (byte) 0x03, (byte) 0xFF, (byte) 0x01, (byte) 0x80 };
-    final BitSet inBitSet = new BitSet();
+    private final BitSet inBitSet = new BitSet();
 
     @Before
     public void generateBitSet() {

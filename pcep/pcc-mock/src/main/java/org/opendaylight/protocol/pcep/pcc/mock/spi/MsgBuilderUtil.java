@@ -162,7 +162,7 @@ public final class MsgBuilderUtil {
         return Optional.of(tlvs);
     }
 
-    public static Pcerr createErrorMsg(@Nonnull final PCEPErrors e, @Nonnull final long srpId) {
+    public static Pcerr createErrorMsg(@Nonnull final PCEPErrors e, final long srpId) {
         final PcerrMessageBuilder msgBuilder = new PcerrMessageBuilder();
         return new PcerrBuilder().setPcerrMessage(
             msgBuilder

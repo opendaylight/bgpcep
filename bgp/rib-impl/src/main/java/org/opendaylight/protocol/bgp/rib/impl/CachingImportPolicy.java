@@ -77,7 +77,7 @@ final class CachingImportPolicy extends AbstractImportPolicy {
          * and thus are on the path to create a new cache entry.
          */
         final ContainerNode interned = this.interner.intern(attributes);
-        if (interned != attributes) {
+        if (!interned.equals(attributes)) {
             final ContainerNode retry = this.cache.get(interned);
             if (retry != null) {
                 return unmaskNull(retry);
