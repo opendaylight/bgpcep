@@ -61,14 +61,22 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
         }
     }
 
+    synchronized ListenableFuture<Void> closeServiceInstance() {
+        if (this.pcepTopoProviderCSS != null) {
+            return this.pcepTopoProviderCSS.closeServiceInstance();
+        }
+        return Futures.immediateFuture(null);
+    }
+
     @Override
-    public void close() {
+    public synchronized void close() {
         if (this.pcepTopoProviderCSS != null) {
             this.pcepTopoProviderCSS.close();
+            this.pcepTopoProviderCSS = null;
         }
     }
 
-    public void start(final PCEPTopologyConfigDependencies configDependencies) {
+    synchronized void start(final PCEPTopologyConfigDependencies configDependencies) {
         Preconditions.checkState(this.pcepTopoProviderCSS == null,
             "Previous instance %s was not closed.", this);
         try {
@@ -120,7 +128,7 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
 
         @Override
         public synchronized void instantiateServiceInstance() {
-            LOG.info("Topology Provider Singleton Service {} instantiated", getIdentifier().getValue());
+            LOG.info("PCEP Topology Provider Singleton Service {} instantiated", getIdentifier().getValue());
             if (this.pcepTopoProvider != null) {
                 this.pcepTopoProvider.instantiateServiceInstance();
                 this.serviceInstantiated = true;
@@ -129,7 +137,7 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
 
         @Override
         public synchronized ListenableFuture<Void> closeServiceInstance() {
-            LOG.info("Close Topology Provider Singleton Service {}", getIdentifier().getValue());
+            LOG.info("Close PCEP Topology Provider Singleton Service {}", getIdentifier().getValue());
             if (this.pcepTopoProvider != null && this.serviceInstantiated) {
                 this.serviceInstantiated = false;
                 return this.pcepTopoProvider.closeServiceInstance();
@@ -144,7 +152,7 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
         }
 
         @Override
-        public void close() {
+        public synchronized void close() {
             if (this.cssRegistration != null) {
                 try {
                     this.cssRegistration.close();
