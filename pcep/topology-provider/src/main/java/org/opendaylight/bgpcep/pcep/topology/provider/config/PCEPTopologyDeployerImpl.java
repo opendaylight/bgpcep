@@ -12,6 +12,9 @@ import com.google.common.base.Preconditions;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistrator;
@@ -23,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 public class PCEPTopologyDeployerImpl implements PCEPTopologyDeployer, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyDeployerImpl.class);
+    private static final long TIMEOUT = 500;
 
     @GuardedBy("this")
     private final Map<TopologyId, PCEPTopologyProviderBean> pcepTopologyServices = new HashMap<>();
@@ -53,12 +57,19 @@ public class PCEPTopologyDeployerImpl implements PCEPTopologyDeployer, AutoClose
     public synchronized void removeTopologyProvider(final TopologyId topologyID) {
         final PCEPTopologyProviderBean service = this.pcepTopologyServices.remove(topologyID);
         if (service != null) {
+            try {
+                service.closeServiceInstance().get(TIMEOUT, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                LOG.error("Failed to close Topology Provider {}.", topologyID.getValue(), e);
+            }
+
             service.close();
         }
     }
 
     @Override
     public synchronized void close() throws Exception {
+        this.pcepTopologyServices.values().forEach(PCEPTopologyProviderBean::closeServiceInstance);
         this.pcepTopologyServices.values().forEach(PCEPTopologyProviderBean::close);
     }
 }
