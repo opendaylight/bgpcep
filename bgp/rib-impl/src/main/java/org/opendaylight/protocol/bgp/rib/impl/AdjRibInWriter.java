@@ -90,7 +90,7 @@ final class AdjRibInWriter {
     private static final ContainerNode EMPTY_EFFRIBIN = Builders.containerBuilder().withNodeIdentifier(EFFRIBIN).addChild(ImmutableNodes.mapNodeBuilder(Tables.QNAME).build()).build();
     private static final ContainerNode EMPTY_ADJRIBOUT = Builders.containerBuilder().withNodeIdentifier(ADJRIBOUT).addChild(ImmutableNodes.mapNodeBuilder(Tables.QNAME).build()).build();
 
-    private final Map<TablesKey, TableContext> tables;
+    private final Map<TablesKey, TableContext> tableContextMap;
     private final YangInstanceIdentifier peerPath;
     private final YangInstanceIdentifier ribPath;
     private final DOMTransactionChain chain;
@@ -98,10 +98,11 @@ final class AdjRibInWriter {
     private final Optional<SimpleRoutingPolicy> simpleRoutingPolicy;
 
     private AdjRibInWriter(final YangInstanceIdentifier ribPath, final DOMTransactionChain chain, final PeerRole role,
-        final Optional<SimpleRoutingPolicy> simpleRoutingPolicy, final YangInstanceIdentifier peerPath, final Map<TablesKey, TableContext> tables) {
+        final Optional<SimpleRoutingPolicy> simpleRoutingPolicy, final YangInstanceIdentifier peerPath,
+        final Map<TablesKey, TableContext> tableContextMap) {
         this.ribPath = Preconditions.checkNotNull(ribPath);
         this.chain = Preconditions.checkNotNull(chain);
-        this.tables = Preconditions.checkNotNull(tables);
+        this.tableContextMap = Preconditions.checkNotNull(tableContextMap);
         this.role = Preconditions.checkNotNull(role);
         this.simpleRoutingPolicy = simpleRoutingPolicy;
         this.peerPath = peerPath;
@@ -277,14 +278,14 @@ final class AdjRibInWriter {
 
     void markTableUptodate(final TablesKey tableTypes) {
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
-        final TableContext ctx = this.tables.get(tableTypes);
+        final TableContext ctx = this.tableContextMap.get(tableTypes);
         tx.merge(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(Attributes.QNAME).node(ATTRIBUTES_UPTODATE_TRUE.getNodeType()), ATTRIBUTES_UPTODATE_TRUE);
         tx.submit();
     }
 
     void updateRoutes(final MpReachNlri nlri, final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes attributes) {
         final TablesKey key = new TablesKey(nlri.getAfi(), nlri.getSafi());
-        final TableContext ctx = this.tables.get(key);
+        final TableContext ctx = this.tableContextMap.get(key);
         if (ctx == null) {
             LOG.debug("No table for {}, not accepting NLRI {}", key, nlri);
             return;
@@ -298,7 +299,7 @@ final class AdjRibInWriter {
 
     void removeRoutes(final MpUnreachNlri nlri) {
         final TablesKey key = new TablesKey(nlri.getAfi(), nlri.getSafi());
-        final TableContext ctx = this.tables.get(key);
+        final TableContext ctx = this.tableContextMap.get(key);
         if (ctx == null) {
             LOG.debug("No table for {}, not accepting NLRI {}", key, nlri);
             return;

@@ -64,7 +64,7 @@ public interface ExportPolicyPeerTracker {
 
     /**
      * Check whether Peer supports Add Path
-     * @param peerId
+     * @param peerId of peer
      * @return true if add-path is supported
      */
     boolean isAddPathSupportedByPeer(@Nonnull PeerId peerId);
@@ -78,4 +78,19 @@ public interface ExportPolicyPeerTracker {
     @Deprecated
     default void peerRoleChanged(@Nonnull YangInstanceIdentifier peerPath,  @Nullable PeerRole role) {
     }
+
+    /**
+     * Flags peers once empty structure has been created, then changes under it can
+     * be applied
+     *
+     * @param peerId of peer
+     */
+    void registerPeerAsInitialized(PeerId peerId);
+
+    /**
+     * check whether the peer supports the table
+     * @param peerId of peer
+     * @return true if peer supports table
+     */
+    boolean isTableStructureInitialized(@Nonnull PeerId peerId);
 }

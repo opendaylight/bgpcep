@@ -168,6 +168,7 @@ public abstract class AbstractRouteEntryTest {
     }
 
     private void mockExportPolicies() {
+        doReturn(true).when(this.peerPT).isTableStructureInitialized(any(PeerId.class));
         doReturn(true).when(this.peerPT).isTableSupported(PEER_ID);
         doReturn(false).when(this.peerPT).isTableSupported(PEER_ID2);
         doAnswer(invocation -> {
