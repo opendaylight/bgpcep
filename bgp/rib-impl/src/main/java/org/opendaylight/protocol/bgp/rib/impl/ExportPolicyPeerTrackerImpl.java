@@ -45,6 +45,8 @@ final class ExportPolicyPeerTrackerImpl implements ExportPolicyPeerTracker {
     private final Map<PeerId, SendReceive> peerAddPathTables = new HashMap<>();
     @GuardedBy("this")
     private final Set<PeerId> peerTables = new HashSet<>();
+    @GuardedBy("this")
+    private final Set<PeerId> peerTablesInitialized = new HashSet<>();
     private final PolicyDatabase policyDatabase;
     private final TablesKey localTableKey;
     private volatile Map<PeerRole, PeerExportGroup> groups = Collections.emptyMap();
@@ -94,6 +96,7 @@ final class ExportPolicyPeerTrackerImpl implements ExportPolicyPeerTracker {
                     LOG.debug("Removed peer {} from supported table {}", peerId, ExportPolicyPeerTrackerImpl.this.localTableKey);
                     ExportPolicyPeerTrackerImpl.this.peerRoles.remove(peerPath);
                     createGroups(ExportPolicyPeerTrackerImpl.this.peerRoles);
+                    ExportPolicyPeerTrackerImpl.this.peerTablesInitialized.remove(peerId);
                 }
             }
         };
@@ -120,4 +123,13 @@ final class ExportPolicyPeerTrackerImpl implements ExportPolicyPeerTracker {
         return sendReceive != null && (sendReceive.equals(SendReceive.Both) || sendReceive.equals(SendReceive.Receive));
     }
 
+    @Override
+    public synchronized void registerPeerAsInitialized(final PeerId peerId) {
+        this.peerTablesInitialized.add(peerId);
+    }
+
+    @Override
+    public synchronized boolean isTableStructureInitialized(final PeerId peerId) {
+        return this.peerTablesInitialized.contains(peerId);
+    }
 }
