@@ -68,11 +68,11 @@ public abstract class AbstractRouteEntry implements RouteEntry {
     }
 
     protected final boolean filterRoutes(final PeerId rootPeer, final PeerId destPeer, final ExportPolicyPeerTracker peerPT,        final TablesKey localTK, final PeerRole destPeerRole) {
-        return !rootPeer.equals(destPeer) && isTableSupported(destPeer, peerPT, localTK) && !PeerRole.Internal.equals(destPeerRole);
+        return !rootPeer.equals(destPeer) && isTableSupportedAndReady(destPeer, peerPT, localTK) && !PeerRole.Internal.equals(destPeerRole);
     }
 
-    private boolean isTableSupported(final PeerId destPeer, final ExportPolicyPeerTracker peerPT, final TablesKey localTK) {
-        if (!peerPT.isTableSupported(destPeer)) {
+    private boolean isTableSupportedAndReady(final PeerId destPeer, final ExportPolicyPeerTracker peerPT, final TablesKey localTK) {
+        if (!peerPT.isTableSupported(destPeer) || !peerPT.isTableStructureInitialized(destPeer)) {
             LOG.trace("Route rejected, peer {} does not support this table type {}", destPeer, localTK);
             return false;
         }

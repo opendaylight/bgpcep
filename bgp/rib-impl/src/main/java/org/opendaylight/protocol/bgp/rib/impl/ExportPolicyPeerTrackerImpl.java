@@ -10,10 +10,8 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import com.google.common.base.Preconditions;
 import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.protocol.bgp.rib.impl.spi.PeerExportGroupRegistry;
@@ -30,6 +28,15 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * There is one ExportPolicyPeerTracker per table
+ *  - peerTables: keep track of registered peers, the ones which support this table.
+ *  - peerTables: flag indicates whether the structure of the peer has been created, and therefore it can start
+ *  to be updated.
+ *  - peerAddPathTables: keeps track of peer which supports Additional Path for this table and which Add Path
+ *  configuration they are using.
+ *  - groups: Contains peers grouped by peerRole and therefore sharing the same export policy.
+ */
 @ThreadSafe
 final class ExportPolicyPeerTrackerImpl implements ExportPolicyPeerTracker {
     private static final Logger LOG = LoggerFactory.getLogger(ExportPolicyPeerTrackerImpl.class);
@@ -38,7 +45,7 @@ final class ExportPolicyPeerTrackerImpl implements ExportPolicyPeerTracker {
     @GuardedBy("this")
     private final Map<PeerId, SendReceive> peerAddPathTables = new HashMap<>();
     @GuardedBy("this")
-    private final Set<PeerId> peerTables = new HashSet<>();
+    private final Map<PeerId, Boolean> peerTables = new HashMap<>();
     private final PolicyDatabase policyDatabase;
     private final TablesKey localTableKey;
     @GuardedBy("this")
@@ -54,13 +61,13 @@ final class ExportPolicyPeerTrackerImpl implements ExportPolicyPeerTracker {
         final PeerExportGroupRegistry peerExp = this.groups.computeIfAbsent(peerRole,
             k -> new PeerExportGroupImpl(this.policyDatabase.exportPolicyForRole(peerRole)));
 
-        final AbstractRegistration registration =  peerExp.registerPeer(peerId, new PeerExporTuple(peerPath, peerRole));
+        final AbstractRegistration registration = peerExp.registerPeer(peerId, new PeerExporTuple(peerPath, peerRole));
 
         return new AbstractRegistration() {
             @Override
             protected void removeRegistration() {
                 registration.close();
-                if(ExportPolicyPeerTrackerImpl.this.groups.get(peerRole).isEmpty()) {
+                if (ExportPolicyPeerTrackerImpl.this.groups.get(peerRole).isEmpty()) {
                     ExportPolicyPeerTrackerImpl.this.groups.remove(peerRole);
                 }
             }
@@ -77,7 +84,7 @@ final class ExportPolicyPeerTrackerImpl implements ExportPolicyPeerTracker {
         }
         final SimpleRoutingPolicy simpleRoutingPolicy = optSimpleRoutingPolicy.orElse(null);
         if (SimpleRoutingPolicy.AnnounceNone != simpleRoutingPolicy) {
-            this.peerTables.add(peerId);
+            this.peerTables.put(peerId, false);
         }
         this.peerRoles.put(peerPath, peerRole);
         LOG.debug("Supported table {} added to peer {} role {}", this.localTableKey, peerId, peerRole);
@@ -108,7 +115,7 @@ final class ExportPolicyPeerTrackerImpl implements ExportPolicyPeerTracker {
 
     @Override
     public synchronized boolean isTableSupported(final PeerId peerId) {
-        return this.peerTables.contains(peerId);
+        return this.peerTables.containsKey(peerId);
     }
 
     @Override
@@ -120,5 +127,15 @@ final class ExportPolicyPeerTrackerImpl implements ExportPolicyPeerTracker {
     public synchronized boolean isAddPathSupportedByPeer(final PeerId peerId) {
         final SendReceive sendReceive = this.peerAddPathTables.get(peerId);
         return sendReceive != null && (sendReceive.equals(SendReceive.Both) || sendReceive.equals(SendReceive.Receive));
+    }
+
+    @Override
+    public synchronized void registerPeerAsInitialized(final PeerId peerId) {
+        this.peerTables.computeIfPresent(peerId, (k, v) -> true);
+    }
+
+    @Override
+    public synchronized boolean isTableStructureInitialized(final PeerId peerId) {
+        return this.peerTables.get(peerId);
     }
 }

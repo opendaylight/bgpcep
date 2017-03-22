@@ -12,7 +12,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
 import static org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectorTest.ATTRS_EXTENSION_Q;
 import static org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectorTest.SEGMENTS_NID;
 
@@ -112,7 +111,6 @@ public abstract class AbstractRouteEntryTest {
     protected void setUp() {
         MockitoAnnotations.initMocks(this);
         this.yIIChanges = new ArrayList<>();
-        this.peerPT = mock(ExportPolicyPeerTracker.class);
         this.attributes = createAttr();
         this.locRibTargetYii = LOC_RIB_TARGET.node(ROUTES_IDENTIFIER);
         this.locRibOutTargetYii = PEER_YII.node(AdjRibOut.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(TABLES_KEY)).node(ROUTES_IDENTIFIER);
@@ -182,6 +180,7 @@ public abstract class AbstractRouteEntryTest {
     }
 
     private void mockExportPolicies() {
+        doReturn(true).when(this.peerPT).isTableStructureInitialized(any(PeerId.class));
         doReturn(true).when(this.peerPT).isTableSupported(PEER_ID);
         doReturn(false).when(this.peerPT).isTableSupported(PEER_ID2);
         doAnswer(invocation -> {
