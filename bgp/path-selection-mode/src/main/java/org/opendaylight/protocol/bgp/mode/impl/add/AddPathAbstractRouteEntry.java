@@ -195,19 +195,18 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
             final PeerExportGroup peerGroup = peerPT.getPeerGroup(role);
             if (peerGroup != null) {
                 final ContainerNode effectiveAttributes = peerGroup.effectiveAttributes(getRoutePeerIdRole(peerPT, routePeerId), attributes);
-                for (final Map.Entry<PeerId, PeerExporTuple> pid : peerGroup.getPeers()) {
-                    final PeerId destPeer = pid.getKey();
+                peerGroup.forEach((destPeer, rootPath) -> {
                     final boolean destPeerSupAddPath = peerPT.isAddPathSupportedByPeer(destPeer);
                     if (filterRoutes(routePeerId, destPeer, peerPT, localTK, role) &&
                         peersSupportsAddPathOrIsFirstBestPath(destPeerSupAddPath, isFirstBestPath)) {
                         if (destPeerSupAddPath) {
-                            update(destPeer, getAdjRibOutYII(ribSup, pid.getValue().getYii(), routeIdAddPath, localTK), effectiveAttributes,
+                            update(destPeer, getAdjRibOutYII(ribSup, rootPath, routeIdAddPath, localTK), effectiveAttributes,
                                 addPathValue, ribSup, tx);
                         } else if(!this.oldNonAddPathBestPathTheSame){
-                            update(destPeer, getAdjRibOutYII(ribSup, pid.getValue().getYii(), routeId, localTK), effectiveAttributes, value, ribSup, tx);
+                            update(destPeer, getAdjRibOutYII(ribSup, rootPath, routeId, localTK), effectiveAttributes, value, ribSup, tx);
                         }
                     }
-                }
+                });
             }
         }
     }

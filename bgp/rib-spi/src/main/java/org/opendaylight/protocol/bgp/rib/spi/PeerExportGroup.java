@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.spi;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -48,8 +49,22 @@ public interface PeerExportGroup {
 
     /**
      * @return map of peer
+     * @deprecated Use {@link #forEach}
      */
+    @Deprecated
     Collection<Map.Entry<PeerId, PeerExporTuple>> getPeers();
 
+    /**
+     *
+     * @param routePeerId PeerId
+     * @return true if peer is present on this export group
+     */
     boolean containsPeer(PeerId routePeerId);
+
+    /**
+     * Applies the given action for each entry in this PeerExportGroup on synchronized mode
+     *
+     * @param action action to be applied
+     */
+    void forEach(BiConsumer<PeerId, YangInstanceIdentifier> action);
 }
