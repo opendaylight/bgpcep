@@ -163,8 +163,8 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
 
     @VisibleForTesting
     private void fillAdjRibsOut(final ContainerNode attributes, final NormalizedNode<?, ?> value,
-        final PathArgument routeId, final PeerId routePeerId, final ExportPolicyPeerTracker peerPT, final TablesKey localTK, final RIBSupport ribSup,
-        final DOMDataWriteTransaction tx) {
+        final PathArgument routeId, final PeerId routePeerId, final ExportPolicyPeerTracker peerPT,
+        final TablesKey localTK, final RIBSupport ribSup, final DOMDataWriteTransaction tx) {
         /*
          * We need to keep track of routers and populate adj-ribs-out, too. If we do not, we need to
          * expose from which client a particular route was learned from in the local RIB, and have
@@ -177,10 +177,14 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
         for (final PeerRole role : PeerRole.values()) {
             final PeerExportGroup peerGroup = peerPT.getPeerGroup(role);
             if (peerGroup != null) {
-                final ContainerNode effAttrib = peerGroup.effectiveAttributes(getRoutePeerIdRole(peerPT, routePeerId), attributes);
-                peerGroup.getPeers().stream()
-                    .filter(pid -> filterRoutes(routePeerId, pid.getKey(), peerPT, localTK, getRoutePeerIdRole(peerPT, pid.getKey())))
-                    .forEach(pid -> update(pid.getKey(), getAdjRibOutYII(ribSup, pid.getValue().getYii(), routeId, localTK), effAttrib, value, ribSup, tx));
+                final ContainerNode effAttrib = peerGroup.effectiveAttributes(getRoutePeerIdRole(peerPT, routePeerId),
+                    attributes);
+                peerGroup.forEach((destPeer, rootPath) -> {
+                    if (!filterRoutes(routePeerId, destPeer, peerPT, localTK, getRoutePeerIdRole(peerPT, destPeer))) {
+                        return;
+                    }
+                    update(destPeer, getAdjRibOutYII(ribSup, rootPath, routeId, localTK), effAttrib, value, ribSup, tx);
+                });
             }
         }
     }
