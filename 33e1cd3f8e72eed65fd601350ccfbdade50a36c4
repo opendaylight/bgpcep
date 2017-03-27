@@ -2,6 +2,69 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_07d65627",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2017-03-27T23:01:41Z",
+      "side": 1,
+      "message": "a",
+      "range": {
+        "startLine": 9,
+        "startChar": 12,
+        "endLine": 9,
+        "endChar": 13
+      },
+      "revId": "33e1cd3f8e72eed65fd601350ccfbdade50a36c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_67dda242",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2017-03-27T23:01:41Z",
+      "side": 1,
+      "message": ", a",
+      "range": {
+        "startLine": 12,
+        "startChar": 30,
+        "endLine": 12,
+        "endChar": 33
+      },
+      "revId": "33e1cd3f8e72eed65fd601350ccfbdade50a36c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_47e05efa",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2017-03-27T23:01:41Z",
+      "side": 1,
+      "message": "I think we need an explanation around the use of registrations introduced by this patch",
+      "revId": "33e1cd3f8e72eed65fd601350ccfbdade50a36c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e7199223",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/PeerExportGroupImpl.java",
         "patchSetId": 3
