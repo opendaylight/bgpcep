@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_87e1a6fe",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2017-03-27T23:06:46Z",
+      "side": 1,
+      "message": "Next paragraph needs to start with:\n\nWe fix this race by ...",
+      "range": {
+        "startLine": 12,
+        "startChar": 25,
+        "endLine": 12,
+        "endChar": 36
+      },
+      "revId": "ebef9523b87f9eb7c5290a03b90c15c01576d7b8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e7f072cb",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/config/PCEPTopologyDeployerImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2017-03-27T23:06:46Z",
+      "side": 1,
+      "message": "TIMEOUT_MS? Units should always be reflected somehow",
+      "range": {
+        "startLine": 29,
+        "startChar": 30,
+        "endLine": 29,
+        "endChar": 38
+      },
+      "revId": "ebef9523b87f9eb7c5290a03b90c15c01576d7b8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c7ebaeda",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/config/PCEPTopologyDeployerImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2017-03-27T23:06:46Z",
+      "side": 1,
+      "message": "not that it particularly matters in this case, but as a matter of best practices: get() converts the timeout to nanos, so having TIMEOUT in nanos will be faster due to not performing the coversion",
+      "range": {
+        "startLine": 61,
+        "startChar": 51,
+        "endLine": 61,
+        "endChar": 81
+      },
+      "revId": "ebef9523b87f9eb7c5290a03b90c15c01576d7b8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
