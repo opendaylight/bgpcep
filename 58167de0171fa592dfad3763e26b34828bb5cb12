@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_9f828efe",
+        "filename": "bgp/path-selection-mode/src/main/java/org/opendaylight/protocol/bgp/mode/spi/AbstractRouteEntry.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2017-03-28T10:32:17Z",
+      "side": 1,
+      "message": "Probably I\u0027m missing something, but since we are fixing a race condition, when the peer is not ready to receive routes, do we really want to reject the route? Will the route get re-advertised?",
+      "revId": "58167de0171fa592dfad3763e26b34828bb5cb12",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
