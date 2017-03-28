@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_3fd60228",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-03-28T10:23:17Z",
+      "side": 1,
+      "message": "The fix bypass the actual modus operandis of Cluster Singleton Service. Not sure if its a bug or it need more thought under mdsal side, since when ClusterSingletonServiceGroupImpl#unregistering the service and calling the closeServiceInstance its not done sync, which will ends on the same issue to everyone how maybe restarting the instance and causing different kind of possible race conditions.",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 54
+      },
+      "revId": "0bff544749370b1f6b843e09d9aabfc13ae6f0d7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
