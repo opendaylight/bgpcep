@@ -22,6 +22,30 @@
       "revId": "ebce6a9d81f5fe389a9017cecb3c09a3f521ba62",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bfc83276",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/spi/PeerExportGroupRegistry.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-03-28T10:28:02Z",
+      "side": 1,
+      "message": "good catch, but its under API Freeze so too late to fix it.",
+      "parentUuid": "fafc7978_7f29aa36",
+      "range": {
+        "startLine": 28,
+        "startChar": 53,
+        "endLine": 28,
+        "endChar": 67
+      },
+      "revId": "ebce6a9d81f5fe389a9017cecb3c09a3f521ba62",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
