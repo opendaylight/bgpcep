@@ -16,6 +16,24 @@
       "revId": "58167de0171fa592dfad3763e26b34828bb5cb12",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bff2f298",
+        "filename": "bgp/path-selection-mode/src/main/java/org/opendaylight/protocol/bgp/mode/spi/AbstractRouteEntry.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-03-28T10:44:16Z",
+      "side": 1,
+      "message": "once session is established, peer structure is created.\nOnce LocRib is notified that the structures is created,\nall announced routes are notified to peer, and then all\nroutes announced per peer are processed and best path selected and updated if required.\n\nSo basically 2 steps on LocRib\n1- Initialize new peers when new structure is detected\n2- Process routes, select best path etc...",
+      "parentUuid": "fafc7978_9f828efe",
+      "revId": "58167de0171fa592dfad3763e26b34828bb5cb12",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
