@@ -34,6 +34,24 @@
       "revId": "58167de0171fa592dfad3763e26b34828bb5cb12",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5f2b06eb",
+        "filename": "bgp/path-selection-mode/src/main/java/org/opendaylight/protocol/bgp/mode/spi/AbstractRouteEntry.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-03-28T10:45:42Z",
+      "side": 1,
+      "message": "so yes, they will be re-advertized.",
+      "parentUuid": "fafc7978_bff2f298",
+      "revId": "58167de0171fa592dfad3763e26b34828bb5cb12",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
