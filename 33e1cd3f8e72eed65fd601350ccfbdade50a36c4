@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_2d825b52",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-03-28T08:25:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_07d65627",
+      "range": {
+        "startLine": 9,
+        "startChar": 12,
+        "endLine": 9,
+        "endChar": 13
+      },
+      "revId": "33e1cd3f8e72eed65fd601350ccfbdade50a36c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_67dda242",
         "filename": "/COMMIT_MSG",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2017-03-27T23:01:41Z",
       "side": 1,
       "message": ", a",
+      "range": {
+        "startLine": 12,
+        "startChar": 30,
+        "endLine": 12,
+        "endChar": 33
+      },
+      "revId": "33e1cd3f8e72eed65fd601350ccfbdade50a36c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0d85d758",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-03-28T08:25:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_67dda242",
       "range": {
         "startLine": 12,
         "startChar": 30,
@@ -65,6 +113,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_4d7fdf66",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-03-28T08:25:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_47e05efa",
+      "revId": "33e1cd3f8e72eed65fd601350ccfbdade50a36c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e7199223",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/PeerExportGroupImpl.java",
         "patchSetId": 3
@@ -88,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b2f7ca8b",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/PeerExportGroupImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-03-28T08:25:33Z",
+      "side": 1,
+      "message": "based on Doc, ConcurrentHashMap will lead to the same issue since it can be updated meanwhile we are adtvertizing to peers, allowing peer to be removed. Using syncMap peer removal will have to wait until routes advertiment ends and therefore the DS updates.\n\n\"Retrieval operations (including get) generally do not block, so may overlap with update operations (including put and remove). Retrievals reflect the results of the most recently completed update operations holding upon their onset.\"",
+      "parentUuid": "fafc7978_e7199223",
+      "range": {
+        "startLine": 22,
+        "startChar": 54,
+        "endLine": 22,
+        "endChar": 121
+      },
+      "revId": "33e1cd3f8e72eed65fd601350ccfbdade50a36c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c7144eeb",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/spi/PeerExportGroupRegistry.java",
         "patchSetId": 3
@@ -99,6 +189,30 @@
       "writtenOn": "2017-03-27T22:59:39Z",
       "side": 1,
       "message": "javadocs, please",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 22
+      },
+      "revId": "33e1cd3f8e72eed65fd601350ccfbdade50a36c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cde10f2c",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/spi/PeerExportGroupRegistry.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-03-28T08:25:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_c7144eeb",
       "range": {
         "startLine": 21,
         "startChar": 0,
