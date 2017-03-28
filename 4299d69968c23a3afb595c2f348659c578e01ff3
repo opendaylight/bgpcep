@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_4deb5f78",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-03-28T09:18:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_07bdb6d7",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 52
+      },
+      "revId": "4299d69968c23a3afb595c2f348659c578e01ff3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_67b482f2",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/ExportPolicyPeerTrackerImpl.java",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2017-03-27T23:12:58Z",
       "side": 1,
       "message": "at this point we need some documentation around tables and sets. Most notably peerTables and peerTablesInitialized look like they could be tracked by a single collection -- note how HashSet is implemented on top of HashMap.\n\nSo are the two sets really:\n\nMap\u003cPeerId, Boolean\u003e peerTables \u003d new HashMap\u003c\u003e();\n\nwith true/false indicating whether the table is initilized?",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 70
+      },
+      "revId": "4299d69968c23a3afb595c2f348659c578e01ff3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cdec6fbe",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/ExportPolicyPeerTrackerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-03-28T09:18:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_67b482f2",
       "range": {
         "startLine": 44,
         "startChar": 0,
