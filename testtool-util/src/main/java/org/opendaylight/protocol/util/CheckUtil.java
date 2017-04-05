@@ -70,7 +70,11 @@ public final class CheckUtil {
                 }
             }
         }
-        throw lastError;
+        if (lastError != null) {
+            throw lastError;
+        } else {
+            throw new RuntimeException("Reading data from data store times out after "+ TIMEOUT +" sec.");
+        }
     }
 
     public static <T extends DataObject> T checkPresentOperational(final DataBroker dataBroker, final InstanceIdentifier<T> iid)
@@ -109,7 +113,11 @@ public final class CheckUtil {
                 }
             }
         }
-        throw lastError;
+        if (lastError != null) {
+            throw lastError;
+        } else {
+            throw new RuntimeException("Reading data from data store times out after "+ TIMEOUT +" sec.");
+        }
     }
 
     public static void checkEquals(final CheckEquals function) throws Exception {
