@@ -17,6 +17,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.createLspTlvs;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import java.net.UnknownHostException;
@@ -30,7 +31,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.SessionState;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.protocol.pcep.PCEPCloseTermination;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.TerminationReason;
 import org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil;
@@ -275,12 +275,15 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
     }
 
     @Test
-    public void testOnSessionDown() throws InterruptedException, ExecutionException {
+    public void testOnSessionDown() throws ExecutionException, InterruptedException {
         this.listener.onSessionUp(this.session);
         verify(this.listenerReg, times(0)).close();
         // send request
         final Future<RpcResult<AddLspOutput>> futureOutput = this.topologyRpcs.addLsp(createAddLspInput());
+        assertFalse(this.session.isClosed());
         this.listener.onSessionDown(this.session, new IllegalArgumentException());
+        // .onSessionDown() doesn't invoke session.close()
+        assertFalse(this.session.isClosed());
         verify(this.listenerReg, times(1)).close();
         final AddLspOutput output = futureOutput.get().getResult();
         // deal with unsent request after session down
@@ -294,8 +297,11 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
      * @throws TransactionCommitFailedException
      */
     @Test
-    public void testOnServerSessionManagerDown() throws InterruptedException, ExecutionException, TransactionCommitFailedException {
+    public void testOnServerSessionManagerDown()
+        throws TransactionCommitFailedException, ExecutionException, InterruptedException {
         this.listener.onSessionUp(this.session);
+        // the session should not be closed when session manager is up
+        assertFalse(this.session.isClosed());
         verify(this.listenerReg, times(0)).close();
         // send request
         final Future<RpcResult<AddLspOutput>> futureOutput = this.topologyRpcs.addLsp(createAddLspInput());
@@ -304,6 +310,8 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         final AddLspOutput output = futureOutput.get().getResult();
         // deal with unsent request after session down
         assertEquals(FailureType.Unsent, output.getFailure());
+        // verify the session is closed after server session manager is closed
+        assertTrue(this.session.isClosed());
     }
 
     /**
@@ -318,11 +326,14 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         this.manager.close();
         // the registration should not be closed since it's never initialized
         verify(this.listenerReg, times(0)).close();
+        assertFalse(this.session.isClosed());
         this.listener.onSessionUp(this.session);
         // verify the session was NOT added to topology
         assertFalse(getTopology().isPresent());
         // still, the session should not be registered and thus close() is never called
         verify(this.listenerReg, times(0)).close();
+        // verify the session is closed due to server session manager is closed
+        assertTrue(this.session.isClosed());
         // send request
         final Future<RpcResult<AddLspOutput>> futureOutput = this.topologyRpcs.addLsp(createAddLspInput());
         final AddLspOutput output = futureOutput.get().getResult();
@@ -346,8 +357,9 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         this.listener.onMessage(this.session, pcRpt);
         assertEquals(1, getTopology().get().getNode().size());
 
-        // node should be removed after termination
-        this.listener.onSessionTerminated(this.session, new PCEPCloseTermination(TerminationReason.UNKNOWN));
+        assertFalse(this.session.isClosed());
+        this.session.terminate(TerminationReason.UNKNOWN);
+        assertTrue(this.session.isClosed());
         verify(this.listenerReg, times(1)).close();
         assertEquals(0, getTopology().get().getNode().size());
     }
