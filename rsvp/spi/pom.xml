@@ -13,7 +13,7 @@
     <parent>
         <artifactId>rsvp-parent</artifactId>
         <groupId>org.opendaylight.bgpcep</groupId>
-        <version>0.6.3-SNAPSHOT</version>
+        <version>0.6.3-Boron-SR3</version>
     </parent>
 
 

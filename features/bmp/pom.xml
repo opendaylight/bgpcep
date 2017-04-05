@@ -3,19 +3,19 @@
   <parent>
     <groupId>org.opendaylight.odlparent</groupId>
     <artifactId>features-parent</artifactId>
-    <version>1.7.3-SNAPSHOT</version>
+    <version>1.7.3-Boron-SR3</version>
     <relativePath/>
   </parent>
   <artifactId>features-bmp</artifactId>
   <groupId>org.opendaylight.bgpcep</groupId>
-  <version>0.6.3-SNAPSHOT</version>
+  <version>0.6.3-Boron-SR3</version>
 
     <properties>
-        <yangtools.version>1.0.3-SNAPSHOT</yangtools.version>
-        <controller.mdsal.version>1.4.3-SNAPSHOT</controller.mdsal.version>
-        <mdsal.model.version>0.9.3-SNAPSHOT</mdsal.model.version>
-        <config.version>0.5.3-SNAPSHOT</config.version>
-        <commons.opendaylight.version>1.7.3-SNAPSHOT</commons.opendaylight.version>
+        <yangtools.version>1.0.3-Boron-SR3</yangtools.version>
+        <controller.mdsal.version>1.4.3-Boron-SR3</controller.mdsal.version>
+        <mdsal.model.version>0.9.3-Boron-SR3</mdsal.model.version>
+        <config.version>0.5.3-Boron-SR3</config.version>
+        <commons.opendaylight.version>1.7.3-Boron-SR3</commons.opendaylight.version>
     </properties>
 
       <dependencyManagement>

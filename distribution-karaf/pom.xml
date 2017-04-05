@@ -10,13 +10,13 @@
   <parent>
     <groupId>org.opendaylight.odlparent</groupId>
     <artifactId>karaf-parent</artifactId>
-    <version>1.7.3-SNAPSHOT</version>
+    <version>1.7.3-Boron-SR3</version>
     <relativePath />
   </parent>
 
   <artifactId>distribution-karaf</artifactId>
   <groupId>org.opendaylight.bgpcep</groupId>
-  <version>0.6.3-SNAPSHOT</version>
+  <version>0.6.3-Boron-SR3</version>
   <packaging>pom</packaging>
 
   <prerequisites>
@@ -24,7 +24,7 @@
   </prerequisites>
 
   <properties>
-    <restconfVersion>1.4.3-SNAPSHOT</restconfVersion>
+    <restconfVersion>1.4.3-Boron-SR3</restconfVersion>
   </properties>
 
   <dependencyManagement>
