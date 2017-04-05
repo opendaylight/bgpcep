@@ -69,7 +69,7 @@ public class StateSynchronizationAvoidanceProcedureTest extends
                             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs1Builder().setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.ONE).build()).build()).build()).setPlspId(new PlspId(1L)).setSync(false).setRemove(false).setOperational(OperationalStatus.Active).build(), Optional.of(MsgBuilderUtil.createSrp(1L)), null);
         this.listener.onMessage(session, pcRpt);
         //check topology
-        readDataOperational(getDataBroker(), this.pathComputationClientIId.builder().augmentation(PathComputationClient1.class)
+        readDataOperational(getDataBroker(), this.PCC_IID.builder().augmentation(PathComputationClient1.class)
             .child(LspDbVersion.class).build(), dbVersion -> {
             assertEquals(1L, dbVersion.getLspDbVersionValue().longValue());
             return dbVersion;
@@ -91,7 +91,7 @@ public class StateSynchronizationAvoidanceProcedureTest extends
         final PCEPSession session = getPCEPSession(getOpen(lspDbVersion), getOpen(lspDbVersion));
         this.listener.onSessionUp(session);
         //check node - synchronized
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), this.PCC_IID, pcc -> {
             assertEquals(PccSyncState.Synchronized, pcc.getStateSync());
             return pcc;
         });
@@ -114,7 +114,7 @@ public class StateSynchronizationAvoidanceProcedureTest extends
             .setPlspId(new PlspId(1L)).setSync(true).setRemove(false).setOperational(OperationalStatus.Active)
             .build(), Optional.absent(), createPath(Collections.emptyList()));
         this.listener.onMessage(session, pcRpt);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), this.PCC_IID, pcc -> {
             assertFalse(pcc.getReportedLsp().isEmpty());
             return pcc;
         });
@@ -128,7 +128,7 @@ public class StateSynchronizationAvoidanceProcedureTest extends
         session = getPCEPSession(getOpen(localDbVersion), getOpen(null));
         this.listener.onSessionUp(session);
 
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), this.PCC_IID, pcc -> {
             //check node - not synchronized
             assertEquals(PccSyncState.InitialResync, pcc.getStateSync());
             //check reported LSP - persisted from previous session
@@ -147,7 +147,7 @@ public class StateSynchronizationAvoidanceProcedureTest extends
             true, false), Optional.absent(),
                 createPath(Collections.emptyList()));
         this.listener.onMessage(session, syncMsg);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), this.PCC_IID, pcc -> {
             //check node - synchronized
             assertEquals(PccSyncState.Synchronized, pcc.getStateSync());
             //check reported LSP is empty, LSP state from previous session was purged

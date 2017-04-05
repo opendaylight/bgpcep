@@ -31,7 +31,11 @@ public interface PCEPSession extends AutoCloseable, PcepSessionState {
      */
     Future<Void> sendMessage(Message message);
 
+    boolean isClosed();
+
     void close(TerminationReason reason);
+
+    void terminate(TerminationReason reason);
 
     Tlvs getRemoteTlvs();
 

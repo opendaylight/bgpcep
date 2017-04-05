@@ -62,7 +62,7 @@ public class IncrementalSynchronizationProcedureTest extends AbstractPCEPSession
         //report LSP + LSP-DB version number
         final Pcrpt pcRpt = getPcrpt(1L, "test");
         this.listener.onMessage(session, pcRpt);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), this.PCC_IID, pcc -> {
             assertFalse(pcc.getReportedLsp().isEmpty());
             return pcc;
         });
@@ -74,7 +74,7 @@ public class IncrementalSynchronizationProcedureTest extends AbstractPCEPSession
         final LspDbVersion localDbVersion = new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.valueOf(2L)).build();
         session = getPCEPSession(getOpen(localDbVersion), getOpen(null));
         this.listener.onSessionUp(session);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), this.PCC_IID, pcc -> {
             //check node - IncrementalSync state
             assertEquals(PccSyncState.IncrementalSync, pcc.getStateSync());
             //check reported LSP - persisted from previous session
@@ -85,7 +85,7 @@ public class IncrementalSynchronizationProcedureTest extends AbstractPCEPSession
         //report LSP2 + LSP-DB version number 2
         final Pcrpt pcRpt2 = getPcrpt(2L,"testsecond");
         this.listener.onMessage(session, pcRpt2);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), this.PCC_IID, pcc -> {
             //check node - synchronized
             assertEquals(PccSyncState.IncrementalSync, pcc.getStateSync());
             //check reported LSP is not empty
@@ -96,7 +96,7 @@ public class IncrementalSynchronizationProcedureTest extends AbstractPCEPSession
         //sync rpt + LSP-DB
         final Pcrpt syncMsg = getSyncPcrt();
         this.listener.onMessage(session, syncMsg);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), this.PCC_IID, pcc -> {
             //check node - synchronized
             assertEquals(PccSyncState.Synchronized, pcc.getStateSync());
             //check reported LSP is empty, LSP state from previous session was purged
@@ -107,7 +107,7 @@ public class IncrementalSynchronizationProcedureTest extends AbstractPCEPSession
         //report LSP3 + LSP-DB version number 4
         final Pcrpt pcRpt3 = getPcrpt(3L,"testthird");
         this.listener.onMessage(session, pcRpt3);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), this.PCC_IID, pcc -> {
             //check node - synchronized
             assertEquals(PccSyncState.Synchronized, pcc.getStateSync());
             assertEquals(3,pcc.getReportedLsp().size());

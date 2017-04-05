@@ -71,7 +71,7 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07Topo
 
         Pcrpt pcRptMsg = createSrPcRpt("1.1.1.1", "sr-path1", 1L, true);
         this.listener.onMessage(this.session, pcRptMsg);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), this.PCC_IID, pcc -> {
             //check sr-path
             final List<ReportedLsp> reportedLsps = pcc.getReportedLsp();
             assertNotNull(reportedLsps);
@@ -89,7 +89,7 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07Topo
 
         pcRptMsg = createSrPcRpt("1.1.1.3", "sr-path2", 2L, false);
         this.listener.onMessage(this.session, pcRptMsg);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), this.PCC_IID, pcc -> {
             //check second lsp sr-path
             final List<ReportedLsp> reportedLsps = pcc.getReportedLsp();
             assertNotNull(reportedLsps);
@@ -100,7 +100,7 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07Topo
 
         pcRptMsg = createSrPcRpt("1.1.1.2", "sr-path1", 1L, true);
         this.listener.onMessage(this.session, pcRptMsg);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), this.PCC_IID, pcc -> {
             //check updated sr-path
             final List<ReportedLsp> reportedLsps = pcc.getReportedLsp();
             assertNotNull(reportedLsps);
