@@ -157,7 +157,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
      * KeepAlive timer to the time at which the message was sent. If the session was closed by the time this method
      * starts to execute (the session state will become IDLE), that rescheduling won't occur.
      */
-    private  void handleKeepaliveTimer() {
+    private void handleKeepaliveTimer() {
         final long ct = TICKER.read();
 
         long nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(getKeepAliveTimerValue());
@@ -178,7 +178,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
      * @param msg to be sent
      */
     @Override
-    public Future<Void> sendMessage(final Message msg) {
+    public synchronized Future<Void> sendMessage(final Message msg) {
         final ChannelFuture f = this.channel.writeAndFlush(msg);
         this.lastMessageSentAt = TICKER.read();
         this.sessionState.updateLastSentMsg();
@@ -202,31 +202,37 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
 
     @VisibleForTesting
     ChannelFuture closeChannel() {
-        LOG.info("Closing PCEP session: {}", this);
+        LOG.info("Closing PCEP session channel: {}", this.channel);
         return this.channel.close();
+    }
+
+    @Override
+    public boolean isClosed() {
+        return this.closed;
     }
 
     /**
      * Closes PCEP session without sending a Close message, as the channel is no longer active.
      */
     @Override
-    public void close() {
+    public synchronized void close() {
+        if (isClosed()) {
+            return;
+        }
         LOG.info("Closing PCEP session: {}", this);
+        this.closed = true;
         closeChannel();
     }
 
-    /**
-     * Closes PCEP session, cancels all timers, returns to state Idle, sends the Close Message. KeepAlive and DeadTimer
-     * are cancelled if the state of the session changes to IDLE. This method is used to close the PCEP session from
-     * inside the session or from the listener, therefore the parent of this session should be informed.
-     */
     @Override
     public synchronized void close(final TerminationReason reason) {
-        LOG.info("Closing PCEP session: {}", this);
-        this.closed = true;
-        this.sendMessage(new CloseBuilder().setCCloseMessage(
+        if (isClosed()) {
+            return;
+        }
+        LOG.info("Closing PCEP session with reason {}: {}", reason, this);
+        sendMessage(new CloseBuilder().setCCloseMessage(
             new CCloseMessageBuilder().setCClose(new CCloseBuilder().setReason(reason.getShortValue()).build()).build()).build());
-        this.close();
+        close();
     }
 
     @Override
@@ -239,18 +245,19 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
         return ((InetSocketAddress) this.channel.remoteAddress()).getAddress();
     }
 
-    private synchronized void terminate(final TerminationReason reason) {
-        LOG.info("Local PCEP session termination : {}", reason);
+    @Override
+    public synchronized void terminate(final TerminationReason reason) {
+        if (isClosed()) {
+            return;
+        }
+        LOG.info("Terminating local PCEP session with reason {}: {}", reason, this);
         this.listener.onSessionTerminated(this, new PCEPCloseTermination(reason));
-        this.closed = true;
-        this.sendMessage(new CloseBuilder().setCCloseMessage(
-            new CCloseMessageBuilder().setCClose(new CCloseBuilder().setReason(reason.getShortValue()).build()).build()).build());
-        this.close();
+        close(reason);
     }
 
     public synchronized void endOfInput() {
-        if (!this.closed) {
-            this.listener.onSessionDown(this, new IOException("End of input detected. Close the session."));
+        if (!isClosed()) {
+            this.listener.onSessionDown(this, new IOException("End of input detected. Close the session " + this));
             this.closed = true;
         }
     }
