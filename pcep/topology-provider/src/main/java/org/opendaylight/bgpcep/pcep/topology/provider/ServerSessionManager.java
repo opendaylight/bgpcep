@@ -70,7 +70,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
     private final InstanceIdentifier<Topology> topology;
     private final DataBroker broker;
     private final PCEPStatefulPeerProposal peerProposal;
-    private final AtomicBoolean isClosed = new AtomicBoolean(false);
+    private final AtomicBoolean isClosed = new AtomicBoolean(true);
     private final short rpcTimeout;
     private final AtomicReference<PCEPTopologyProviderRuntimeRegistration> runtimeRootRegistration = new AtomicReference<>();
 
@@ -101,7 +101,8 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
         Futures.addCallback(future, new FutureCallback<Void>() {
             @Override
             public void onSuccess(final Void result) {
-                LOG.debug("PCEP Topology {} created successfully.", topologyId.getValue());
+                LOG.info("PCEP Topology {} created successfully.", topologyId.getValue());
+                ServerSessionManager.this.isClosed.set(false);
             }
 
             @Override
@@ -116,8 +117,17 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
         return new NodeId("pcc://" + addr.getHostAddress());
     }
 
+    public boolean isClosed() {
+        return this.isClosed.get();
+    }
+
     synchronized void releaseNodeState(final TopologyNodeState nodeState, final PCEPSession session, final boolean persistNode) {
-        this.nodes.remove(createNodeId(session.getRemoteAddress()));
+        final NodeId id = createNodeId(session.getRemoteAddress());
+        if (this.isClosed.get()) {
+            LOG.debug("Server Session Manager is closed. No need to release topology node {}", id);
+            return;
+        }
+        this.nodes.remove(id);
         if (nodeState != null) {
             LOG.debug("Node {} unbound", nodeState.getNodeId());
             nodeState.released(persistNode);
@@ -215,7 +225,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
         Futures.addCallback(future, new FutureCallback<Void>() {
             @Override
             public void onSuccess(final Void result) {
-                LOG.debug("Topology {} removed", ServerSessionManager.this.topology);
+                LOG.info("Topology {} removed", ServerSessionManager.this.topology);
             }
 
             @Override
@@ -226,20 +236,14 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
         return future;
     }
 
+    PCEPTopologyProviderRuntimeRegistration getRuntimeRootRegistration() {
+        return runtimeRootRegistration.get();
+    }
+
     synchronized void setRuntimeRootRegistrator(final PCEPTopologyProviderRuntimeRegistrator runtimeRootRegistrator) {
         if (!this.runtimeRootRegistration.compareAndSet(null, runtimeRootRegistrator.register(this))) {
             LOG.error("Runtime root registration has been set before.");
         }
-    }
-
-    ListenerStateRuntimeRegistration registerRuntimeRootRegistration(final ListenerStateRuntimeMXBean bean) {
-        final PCEPTopologyProviderRuntimeRegistration runtimeReg = this.runtimeRootRegistration.get();
-        if (runtimeReg != null) {
-            final ListenerStateRuntimeRegistration reg = runtimeReg.register(bean);
-            LOG.trace("Bean {} is successfully registered.", bean.getPeerId());
-            return reg;
-        }
-        return null;
     }
 
     @Override
