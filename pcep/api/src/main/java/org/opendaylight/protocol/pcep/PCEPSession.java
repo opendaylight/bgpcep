@@ -31,7 +31,26 @@ public interface PCEPSession extends AutoCloseable, PcepSessionState {
      */
     Future<Void> sendMessage(Message message);
 
+    /**
+     * If the PCEP session has already been closed
+     * @return True if the session is closed
+     */
+    boolean isClosed();
+
+    /**
+     * Closes PCEP session, cancels all timers, returns to state Idle, sends the Close Message. KeepAlive and DeadTimer
+     * are cancelled if the state of the session changes to IDLE. This method is used to close the PCEP session from
+     * inside the session or from the listener, therefore the parent of this session should be informed.
+     * @param reason
+     */
     void close(TerminationReason reason);
+
+    /**
+     * Terminate a PCEP session.  Internally it invokes {@link #close(TerminationReason)} method. The only difference is,
+     * it triggers onSessionTerminated(TerminationReason) before closing.
+     * @param reason
+     */
+    void terminate(TerminationReason reason);
 
     Tlvs getRemoteTlvs();
 

@@ -110,6 +110,8 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
 
     protected ServerSessionManager manager;
 
+    private PCEPSessionListener sessionListener;
+
     protected NetworkTopologyPcepService topologyRpcs;
 
     private DefaultPCEPSessionNegotiator neg;
@@ -150,8 +152,9 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
         this.listenerFactory = (T) ((Class) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[0]).newInstance();
         this.manager = new ServerSessionManager(getDataBroker(), TOPO_IID, this.listenerFactory, RPC_TIMEOUT);
         this.manager.setRuntimeRootRegistartion(registrator);
+        this.sessionListener = this.manager.getSessionListener();
 
-        this.neg = new DefaultPCEPSessionNegotiator(mock(Promise.class), this.clientListener, this.manager.getSessionListener(), (short) 1, 5, this.localPrefs);
+        this.neg = new DefaultPCEPSessionNegotiator(mock(Promise.class), this.clientListener, this.sessionListener, (short) 1, 5, this.localPrefs);
         this.topologyRpcs = new TopologyRPCs(this.manager);
     }
 
@@ -190,7 +193,7 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
     }
 
     protected PCEPSessionListener getSessionListener() {
-        return this.manager.getSessionListener();
+        return this.sessionListener;
     }
 
     protected final PCEPSession getPCEPSession(final Open localOpen, final Open remoteOpen) {
