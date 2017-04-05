@@ -103,12 +103,17 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
     @Mock
     ListenerStateRuntimeRegistration listenerReg;
 
+    @Mock
+    private PCEPTopologyProviderRuntimeRegistrator registrator;
+
     private final Open localPrefs = new OpenBuilder().setDeadTimer((short) 30).setKeepalive((short) 10)
         .setSessionId((short) 0).build();
 
     private final Open remotePrefs = this.localPrefs;
 
     ServerSessionManager manager;
+
+    private PCEPSessionListener sessionListener;
 
     NetworkTopologyPcepService topologyRpcs;
 
@@ -140,25 +145,34 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
         doReturn(mock(ChannelFuture.class)).when(this.clientListener).close();
 
         doNothing().when(this.listenerReg).close();
+        doReturn("listenerReg").when(this.listenerReg).toString();
         final PCEPTopologyProviderRuntimeRegistration topologyReg = mock(PCEPTopologyProviderRuntimeRegistration.class);
         doReturn(this.listenerReg).when(topologyReg).register(any(ListenerStateRuntimeMXBean.class));
         doNothing().when(topologyReg).close();
-        final PCEPTopologyProviderRuntimeRegistrator registrator = mock(PCEPTopologyProviderRuntimeRegistrator.class);
-        doReturn(topologyReg).when(registrator).register(any(PCEPTopologyProviderRuntimeMXBean.class));
+        doReturn(topologyReg).when(this.registrator).register(any(PCEPTopologyProviderRuntimeMXBean.class));
 
         final T listenerFactory = (T) ((Class) ((ParameterizedType) this.getClass().getGenericSuperclass())
             .getActualTypeArguments()[0]).newInstance();
         this.manager = new ServerSessionManager(getDataBroker(), TOPO_IID, listenerFactory, RPC_TIMEOUT);
-        this.manager.setRuntimeRootRegistrator(registrator);
-        this.manager.instantiateServiceInstance().checkedGet();
+        startSessionManager();
+        this.sessionListener = this.manager.getSessionListener();
         this.neg = new DefaultPCEPSessionNegotiator(mock(Promise.class), this.clientListener,
-            this.manager.getSessionListener(), (short) 1, 5, this.localPrefs);
+            this.sessionListener, (short) 1, 5, this.localPrefs);
         this.topologyRpcs = new TopologyRPCs(this.manager);
     }
 
     @After
     public void tearDown() throws TransactionCommitFailedException {
-        this.manager.closeServiceInstance();
+        stopSessionManager();
+    }
+
+    protected void startSessionManager() throws TransactionCommitFailedException {
+        this.manager.setRuntimeRootRegistrator(this.registrator);
+        this.manager.instantiateServiceInstance().checkedGet();
+    }
+
+    protected void stopSessionManager() throws TransactionCommitFailedException {
+        this.manager.closeServiceInstance().checkedGet();
     }
 
     Ero createEroWithIpPrefixes(final List<String> ipPrefixes) {
@@ -186,7 +200,7 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
     }
 
     protected PCEPSessionListener getSessionListener() {
-        return this.manager.getSessionListener();
+        return this.sessionListener;
     }
 
     protected final PCEPSession getPCEPSession(final Open localOpen, final Open remoteOpen) {
