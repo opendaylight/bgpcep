@@ -220,13 +220,29 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
         return f;
     }
 
+    @VisibleForTesting
+    ChannelFuture closeChannel() {
+        LOG.info("Closing PCEP session channel: {}", this.channel);
+        return this.channel.close();
+    }
+
     /**
      * Closes PCEP session without sending a Close message, as the channel is no longer active.
      */
     @Override
-    public void close() {
-        LOG.info("Closing PCEP session: {}", this);
-        this.channel.close();
+    public synchronized void close() {
+        if (isClosed()) {
+            LOG.warn("PCEP session has already been closed: {}", this);
+        } else {
+            LOG.info("Closing PCEP session: {}", this);
+            this.closed = true;
+            closeChannel();
+        }
+    }
+
+    @Override
+    public boolean isClosed() {
+        return this.closed;
     }
 
     /**
@@ -236,11 +252,19 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
      */
     @Override
     public synchronized void close(final TerminationReason reason) {
-        LOG.info("Closing PCEP session: {}", this);
-        this.closed = true;
-        this.sendMessage(new CloseBuilder().setCCloseMessage(
-            new CCloseMessageBuilder().setCClose(new CCloseBuilder().setReason(reason.getShortValue()).build()).build()).build());
-        this.close();
+        if (isClosed()) {
+            LOG.warn("Trying to close PCEP session with reason {} but it has already been closed. {}", reason, this);
+        } else {
+            LOG.info("Closing PCEP session with reason {}: {}", reason, this);
+            this.sendMessage(
+                new CloseBuilder().setCCloseMessage(
+                    new CCloseMessageBuilder().setCClose(
+                        new CCloseBuilder().setReason(reason.getShortValue()).build()
+                    ).build()
+                ).build()
+            );
+            this.close();
+        }
     }
 
     @Override
@@ -253,18 +277,25 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
         return ((InetSocketAddress) this.channel.remoteAddress()).getAddress();
     }
 
-    private synchronized void terminate(final TerminationReason reason) {
-        LOG.info("Local PCEP session termination : {}", reason);
-        this.listener.onSessionTerminated(this, new PCEPCloseTermination(reason));
-        this.closed = true;
-        this.sendMessage(new CloseBuilder().setCCloseMessage(
-            new CCloseMessageBuilder().setCClose(new CCloseBuilder().setReason(reason.getShortValue()).build()).build()).build());
-        this.close();
+    /**
+     * Terminate a PCEP session.  Internally it invokes {@link #close(TerminationReason)} method. The only difference is,
+     * it triggers onSessionTerminated(TerminationReason) before closing.
+     * @param reason
+     */
+    @Override
+    public synchronized void terminate(final TerminationReason reason) {
+        if (isClosed()) {
+            LOG.warn("Trying to terminate PCEP session with reason {} but it has already been closed. {}", reason, this);
+        } else {
+            LOG.info("Terminating local PCEP session with reason {}: {}", reason, this);
+            this.listener.onSessionTerminated(this, new PCEPCloseTermination(reason));
+            this.close(reason);
+        }
     }
 
     public synchronized void endOfInput() {
-        if (!this.closed) {
-            this.listener.onSessionDown(this, new IOException("End of input detected. Close the session."));
+        if (!isClosed()) {
+            this.listener.onSessionDown(this, new IOException("End of input detected. Close the session " + this));
             this.closed = true;
         }
     }

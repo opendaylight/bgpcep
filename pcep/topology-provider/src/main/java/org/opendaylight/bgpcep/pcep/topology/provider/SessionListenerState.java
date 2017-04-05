@@ -54,6 +54,14 @@ final class SessionListenerState {
         this.sessionUpDuration.start();
     }
 
+    public void destroy() {
+        this.localPref = null;
+        this.peerPref = null;
+        this.sessionUpDuration.reset();
+        this.capa = new PeerCapabilities();
+        resetStats();
+    }
+
     public void processRequestStats(final long duration) {
         if (this.minReplyTime == 0) {
             this.minReplyTime = duration;
@@ -78,8 +86,7 @@ final class SessionListenerState {
         return msgs;
     }
 
-    public void resetStats(final PCEPSession session) {
-        Preconditions.checkNotNull(session);
+    private void resetStats() {
         this.receivedRptMsgCount = 0;
         this.sentInitMsgCount = 0;
         this.sentUpdMsgCount = 0;
@@ -88,6 +95,11 @@ final class SessionListenerState {
         this.minReplyTime = 0;
         this.totalTime = 0;
         this.reqCount = 0;
+    }
+
+    public void resetStats(final PCEPSession session) {
+        Preconditions.checkNotNull(session);
+        resetStats();
         session.resetStats();
     }
 
