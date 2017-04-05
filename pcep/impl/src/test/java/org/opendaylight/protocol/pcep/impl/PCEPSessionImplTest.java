@@ -55,10 +55,12 @@ public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
         Assert.assertTrue(this.listener.messages.get(0) instanceof Pcreq);
         Assert.assertEquals(2, this.session.getMessages().getReceivedMsgCount().intValue());
 
+        Assert.assertTrue(this.listener.up);
         this.session.handleMessage(new CloseBuilder().build());
         Assert.assertEquals(3, this.session.getMessages().getReceivedMsgCount().intValue());
         Assert.assertEquals(1, this.listener.messages.size());
         Assert.assertTrue(this.channel.isActive());
+        Assert.assertFalse(this.listener.up);
         Mockito.verify(this.channel, Mockito.times(1)).close();
 
         this.session.resetStats();
