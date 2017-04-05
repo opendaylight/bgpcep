@@ -70,7 +70,7 @@ public class PCEPTriggeredReSynchronizationProcedureTest extends AbstractPCEPSes
         final Pcrpt pcRpt = getPcrt();
         this.listener.onMessage(this.session, pcRpt);
 
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), this.PCC_IID, pcc -> {
             assertEquals(PccSyncState.Synchronized, pcc.getStateSync());
             assertFalse(pcc.getReportedLsp().isEmpty());
             return pcc;
@@ -78,7 +78,7 @@ public class PCEPTriggeredReSynchronizationProcedureTest extends AbstractPCEPSes
 
         //PCEP Trigger Full Resync
         this.listener.triggerSync(new TriggerSyncInputBuilder().setNode(this.nodeId).build());
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), this.PCC_IID, pcc -> {
             assertEquals(PccSyncState.PcepTriggeredResync, pcc.getStateSync());
             return pcc;
         });
@@ -86,14 +86,14 @@ public class PCEPTriggeredReSynchronizationProcedureTest extends AbstractPCEPSes
         //end of sync
         final Pcrpt syncMsg = getSyncMsg();
         this.listener.onMessage(this.session, syncMsg);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), this.PCC_IID, pcc -> {
             //check node - synchronized
             assertEquals(PccSyncState.Synchronized, pcc.getStateSync());
             return pcc;
         });
 
         this.listener.onMessage(this.session, pcRpt);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), this.PCC_IID, pcc -> {
             assertEquals(1, pcc.getReportedLsp().size());
             return pcc;
         });
@@ -103,7 +103,7 @@ public class PCEPTriggeredReSynchronizationProcedureTest extends AbstractPCEPSes
         this.listener.onMessage(this.session, pcRpt);
         //end of sync
         this.listener.onMessage(this.session, syncMsg);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), this.PCC_IID, pcc -> {
             //check node - synchronized
             assertEquals(PccSyncState.Synchronized, pcc.getStateSync());
             //check reported LSP is not empty, Stale LSP state were purged
@@ -122,7 +122,7 @@ public class PCEPTriggeredReSynchronizationProcedureTest extends AbstractPCEPSes
         //report LSP + LSP-DB version number
         final Pcrpt pcRpt = getPcrt();
         this.listener.onMessage(this.session, pcRpt);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), this.PCC_IID, pcc -> {
             assertEquals(PccSyncState.Synchronized, pcc.getStateSync());
             final List<ReportedLsp> reportedLspPcc = pcc.getReportedLsp();
             assertFalse(reportedLspPcc.isEmpty());
@@ -131,14 +131,14 @@ public class PCEPTriggeredReSynchronizationProcedureTest extends AbstractPCEPSes
 
         //Trigger Full Resync
         this.listener.triggerSync(new TriggerSyncInputBuilder().setNode(this.nodeId).setName("test").build());
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), this.PCC_IID, pcc -> {
             assertEquals(PccSyncState.PcepTriggeredResync, pcc.getStateSync());
             assertFalse(pcc.getReportedLsp().isEmpty());
             return pcc;
         });
 
         this.listener.onMessage(this.session, pcRpt);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), this.PCC_IID, pcc -> {
             assertFalse(pcc.getReportedLsp().isEmpty());
             return pcc;
         });
@@ -146,7 +146,7 @@ public class PCEPTriggeredReSynchronizationProcedureTest extends AbstractPCEPSes
         //sync rpt + LSP-DB
         final Pcrpt syncMsg = getSyncMsg();
         this.listener.onMessage(this.session, syncMsg);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), this.PCC_IID, pcc -> {
             //check node - synchronized
             assertEquals(PccSyncState.Synchronized, pcc.getStateSync());
             //check reported LSP
@@ -157,7 +157,7 @@ public class PCEPTriggeredReSynchronizationProcedureTest extends AbstractPCEPSes
         //Trigger Full Resync
         this.listener.triggerSync(new TriggerSyncInputBuilder().setNode(this.nodeId).setName("test").build());
         this.listener.onMessage(this.session, syncMsg);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), this.PCC_IID, pcc -> {
             //check node - synchronized
             assertEquals(PccSyncState.Synchronized, pcc.getStateSync());
             //check reported LSP

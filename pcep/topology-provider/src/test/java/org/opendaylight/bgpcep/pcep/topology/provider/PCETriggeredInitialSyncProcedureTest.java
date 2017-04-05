@@ -67,7 +67,7 @@ public class PCETriggeredInitialSyncProcedureTest extends AbstractPCEPSessionTes
         final PCEPSession session = getPCEPSession(getOpen(localDbVersion, Boolean.FALSE), getOpen(localDbVersion2, Boolean.FALSE));
         this.listener.onSessionUp(session);
 
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), this.PCC_IID, pcc -> {
             //check node - not synchronized and TriggeredInitialSync state
             assertEquals(PccSyncState.TriggeredInitialSync, pcc.getStateSync());
             return pcc;
@@ -76,7 +76,7 @@ public class PCETriggeredInitialSyncProcedureTest extends AbstractPCEPSessionTes
         //sync rpt + LSP-DB
         final Pcrpt syncMsg = getsyncMsg();
         this.listener.onMessage(session, syncMsg);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), this.PCC_IID, pcc -> {
             //check node - synchronized
             assertEquals(PccSyncState.Synchronized, pcc.getStateSync());
             //check reported LSP is empty, LSP state from previous session was purged
@@ -88,7 +88,7 @@ public class PCETriggeredInitialSyncProcedureTest extends AbstractPCEPSessionTes
         final Pcrpt pcRpt = getPcrpt();
         this.listener.onMessage(session, pcRpt);
 
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), this.PCC_IID, pcc -> {
             assertFalse(pcc.getReportedLsp().isEmpty());
             return pcc;
         });
