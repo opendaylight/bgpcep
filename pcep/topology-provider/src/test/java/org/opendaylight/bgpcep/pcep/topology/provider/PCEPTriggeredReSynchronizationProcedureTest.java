@@ -151,7 +151,6 @@ public class PCEPTriggeredReSynchronizationProcedureTest extends AbstractPCEPSes
         Assert.assertEquals(PccSyncState.Synchronized, pcc3.getStateSync());
         //check reported LSP
         Assert.assertEquals(0, pcc3.getReportedLsp().size());
-
     }
 
     private Open getOpen(final LspDbVersion dbVersion) {
