@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "da01753e_0b097e31",
+        "filename": "pcep/api/src/main/java/org/opendaylight/protocol/pcep/PCEPSession.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2017-04-06T21:00:17Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "da01753e_93b00ef6",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 45
+      },
+      "revId": "f31b19fda8a1f96deab58af36223674403f327ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_f394fa45",
         "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPSessionImpl.java",
         "patchSetId": 2
@@ -94,6 +118,30 @@
     },
     {
       "key": {
+        "uuid": "da01753e_2b0c4242",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPSessionImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2017-04-06T21:00:17Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "da01753e_139c1e69",
+      "range": {
+        "startLine": 260,
+        "startChar": 0,
+        "endLine": 264,
+        "endChar": 7
+      },
+      "revId": "f31b19fda8a1f96deab58af36223674403f327ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_538d0631",
         "filename": "pcep/segment-routing/src/test/java/org/opendaylight/protocol/pcep/segment/routing/TopologyProviderTest.java",
         "patchSetId": 2
@@ -128,6 +176,30 @@
       "writtenOn": "2017-04-06T06:49:07Z",
       "side": 1,
       "message": "Closing session {}.",
+      "range": {
+        "startLine": 150,
+        "startChar": 77,
+        "endLine": 150,
+        "endChar": 116
+      },
+      "revId": "f31b19fda8a1f96deab58af36223674403f327ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_4b2c26ac",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractTopologySessionListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2017-04-06T21:00:17Z",
+      "side": 1,
+      "message": "ok.",
+      "parentUuid": "da01753e_f37b5a27",
       "range": {
         "startLine": 150,
         "startChar": 77,
@@ -232,6 +304,30 @@
     },
     {
       "key": {
+        "uuid": "da01753e_ab183285",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractTopologySessionListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2017-04-06T21:00:17Z",
+      "side": 1,
+      "message": "This is required for a few unit tests. In these tests the session listener was reused. onSessionUp() was invoked more than once with one session listener. If the listenerState was not resetted, an exception will be thrown \"stopWatch cannot be started again\" when we try to init() a PCEP session again",
+      "parentUuid": "da01753e_13737e4e",
+      "range": {
+        "startLine": 278,
+        "startChar": 26,
+        "endLine": 278,
+        "endChar": 36
+      },
+      "revId": "f31b19fda8a1f96deab58af36223674403f327ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_b399d270",
         "filename": "pcep/topology-provider/src/test/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractPCEPSessionTest.java",
         "patchSetId": 2
@@ -243,6 +339,30 @@
       "writtenOn": "2017-04-06T06:49:07Z",
       "side": 1,
       "message": "naming convention -\u003e static",
+      "range": {
+        "startLine": 81,
+        "startChar": 62,
+        "endLine": 81,
+        "endChar": 69
+      },
+      "revId": "f31b19fda8a1f96deab58af36223674403f327ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_eb123a61",
+        "filename": "pcep/topology-provider/src/test/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractPCEPSessionTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2017-04-06T21:00:17Z",
+      "side": 1,
+      "message": "I just notice that this IID is not static as the testAddress is not static.  I have reverted the change",
+      "parentUuid": "da01753e_b399d270",
       "range": {
         "startLine": 81,
         "startChar": 62,
@@ -289,6 +409,30 @@
       "writtenOn": "2017-04-06T06:49:07Z",
       "side": 1,
       "message": "do all the changes of this test into a different patch.\nso we can differentiate bug-fixing from code clean up.",
+      "range": {
+        "startLine": 162,
+        "startChar": 0,
+        "endLine": 170,
+        "endChar": 5
+      },
+      "revId": "f31b19fda8a1f96deab58af36223674403f327ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_cb177650",
+        "filename": "pcep/topology-provider/src/test/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractPCEPSessionTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2017-04-06T21:00:17Z",
+      "side": 1,
+      "message": "this is the code rearrange change I did for this fixing. I think it\u0027s unnecessary to start a new patch just for this.",
+      "parentUuid": "da01753e_9303ee72",
       "range": {
         "startLine": 162,
         "startChar": 0,
@@ -358,6 +502,30 @@
       "writtenOn": "2017-04-06T06:49:07Z",
       "side": 1,
       "message": "methods shouldn\u0027t be called using this.",
+      "range": {
+        "startLine": 325,
+        "startChar": 8,
+        "endLine": 325,
+        "endChar": 33
+      },
+      "revId": "f31b19fda8a1f96deab58af36223674403f327ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_6b2f6aa2",
+        "filename": "pcep/topology-provider/src/test/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful07TopologySessionListenerTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2017-04-06T21:00:17Z",
+      "side": 1,
+      "message": "reverted. but notice \"this.method()\" is used a lot of other places. I won\u0027t fix the other appearances.",
+      "parentUuid": "da01753e_53bb46c4",
       "range": {
         "startLine": 325,
         "startChar": 8,
