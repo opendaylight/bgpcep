@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.opendaylight.bgpcep</groupId>
         <artifactId>bgp-parent</artifactId>
-        <version>0.6.3-SNAPSHOT</version>
+        <version>0.6.4-SNAPSHOT</version>
     </parent>
     <artifactId>bgp-path-selection-mode</artifactId>
     <description>BGP Path Selection Mode</description>

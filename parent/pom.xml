@@ -19,14 +19,14 @@
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>odlparent</artifactId>
-        <version>1.7.3-SNAPSHOT</version>
+        <version>1.7.4-SNAPSHOT</version>
         <relativePath></relativePath>
     </parent>
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>bgpcep-parent</artifactId>
     <name>BGPCEP common parent</name>
-    <version>0.6.3-SNAPSHOT</version>
+    <version>0.6.4-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <licenses>
@@ -43,24 +43,24 @@
         <maven.info.reports.version>2.7</maven.info.reports.version>
 
         <!-- YANG tools artifacts -->
-        <yangtools.version>1.0.3-SNAPSHOT</yangtools.version>
+        <yangtools.version>1.0.4-SNAPSHOT</yangtools.version>
 
         <!-- MD-SAL artifacts -->
-        <mdsal.version>2.1.3-SNAPSHOT</mdsal.version>
-        <mdsal.model.version>0.9.3-SNAPSHOT</mdsal.model.version>
+        <mdsal.version>2.1.4-SNAPSHOT</mdsal.version>
+        <mdsal.model.version>0.9.4-SNAPSHOT</mdsal.model.version>
 
         <!-- Controller artifacts -->
-        <controller.config.version>0.5.3-SNAPSHOT</controller.config.version>
-        <controller.framework.version>0.8.3-SNAPSHOT</controller.framework.version>
-        <controller.mdsal.version>1.4.3-SNAPSHOT</controller.mdsal.version>
+        <controller.config.version>0.5.4-SNAPSHOT</controller.config.version>
+        <controller.framework.version>0.8.4-SNAPSHOT</controller.framework.version>
+        <controller.mdsal.version>1.4.4-SNAPSHOT</controller.mdsal.version>
 
         <!-- Netconf artifacts -->
-        <netconf.version>1.1.3-SNAPSHOT</netconf.version>
+        <netconf.version>1.1.4-SNAPSHOT</netconf.version>
 
         <!-- EPOLL artifacts -->
         <os.detected.classifier>linux-x86_64</os.detected.classifier>
 
-        <bgpcep.version>0.6.3-SNAPSHOT</bgpcep.version>
+        <bgpcep.version>0.6.4-SNAPSHOT</bgpcep.version>
     </properties>
 
     <dependencyManagement>
