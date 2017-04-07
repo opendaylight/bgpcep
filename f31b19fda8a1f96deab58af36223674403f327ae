@@ -376,6 +376,30 @@
     },
     {
       "key": {
+        "uuid": "da01753e_5c818e8e",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractTopologySessionListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-04-07T08:11:34Z",
+      "side": 1,
+      "message": "I see, I agree with you, in addition I think when session down we should always \"destroy\" statistics, we could keep only resetStats which will do the task done by destroy method.",
+      "parentUuid": "da01753e_c172b7e4",
+      "range": {
+        "startLine": 278,
+        "startChar": 26,
+        "endLine": 278,
+        "endChar": 36
+      },
+      "revId": "f31b19fda8a1f96deab58af36223674403f327ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_b399d270",
         "filename": "pcep/topology-provider/src/test/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractPCEPSessionTest.java",
         "patchSetId": 2
