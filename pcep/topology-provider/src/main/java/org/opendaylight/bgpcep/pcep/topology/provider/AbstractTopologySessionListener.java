@@ -120,6 +120,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     private InstanceIdentifier<PathComputationClient> pccIdentifier;
     private TopologyNodeState nodeState;
     private boolean synced = false;
+    @GuardedBy("this")
     private PCEPSession session;
     private SyncOptimization syncOptimization;
     private boolean triggeredResyncInProcess;
@@ -314,7 +315,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     }
 
     @Override
-    public void close() {
+    public synchronized void close() {
         unregister();
         if (this.session != null) {
             this.session.close(TerminationReason.UNKNOWN);
