@@ -76,7 +76,7 @@ public class BmpMonitorImplModule extends org.opendaylight.controller.config.yan
     public void customValidation() {
         JmxAttributeValidationException.checkNotNull(getBindingPort(), bindingPortJmxAttribute);
         // check if unix root user
-        if (!PlatformDependent.isWindows() && !PlatformDependent.isRoot() && getBindingPort().getValue() < PRIVILEGED_PORTS) {
+        if (!PlatformDependent.isWindows() && !PlatformDependent.maybeSuperUser() && getBindingPort().getValue() < PRIVILEGED_PORTS) {
             throw new AccessControlException("Unable to bind port " + getBindingPort().getValue() + " while running as non-root user.");
         }
     }
