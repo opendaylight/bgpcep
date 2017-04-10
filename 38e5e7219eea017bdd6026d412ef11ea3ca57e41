@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_59c1922d",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractTopologySessionListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-04-10T15:18:38Z",
+      "side": 1,
+      "message": "also I think this method should be sync and this.session set to null. Do you mind take a look if this is correct.\nThanks",
+      "range": {
+        "startLine": 325,
+        "startChar": 0,
+        "endLine": 330,
+        "endChar": 5
+      },
+      "revId": "38e5e7219eea017bdd6026d412ef11ea3ca57e41",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
