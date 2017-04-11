@@ -15,13 +15,13 @@
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>odlparent-lite</artifactId>
-        <version>1.8.0-SNAPSHOT</version>
+        <version>1.9.0-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
     <artifactId>features-aggregator-rsvp</artifactId>
     <groupId>org.opendaylight.bgpcep</groupId>
-    <version>0.7.0-SNAPSHOT</version>
+    <version>0.8.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>

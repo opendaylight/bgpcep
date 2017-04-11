@@ -6,20 +6,20 @@
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>single-feature-parent</artifactId>
-        <version>1.8.0-SNAPSHOT</version>
+        <version>1.9.0-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>odl-bgpcep-bgp-parser</artifactId>
-    <version>0.7.0-SNAPSHOT</version>
+    <version>0.8.0-SNAPSHOT</version>
     <packaging>feature</packaging>
 
     <name>OpenDaylight :: BGP :: Parser</name>
 
     <properties>
-        <config.version>0.6.0-SNAPSHOT</config.version>
-        <yangtools.version>1.1.0-SNAPSHOT</yangtools.version>
+        <config.version>0.7.0-SNAPSHOT</config.version>
+        <yangtools.version>1.2.0-SNAPSHOT</yangtools.version>
     </properties>
 
     <dependencyManagement>

@@ -13,20 +13,20 @@
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>features-parent</artifactId>
-        <version>1.8.0-SNAPSHOT</version>
+        <version>1.9.0-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>features-extras</artifactId>
-    <version>0.7.0-SNAPSHOT</version>
+    <version>0.8.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <properties>
-        <yangtools.version>1.1.0-SNAPSHOT</yangtools.version>
-        <controller.mdsal.version>1.5.0-SNAPSHOT</controller.mdsal.version>
-        <config.version>0.6.0-SNAPSHOT</config.version>
-        <mdsal.model.version>0.10.0-SNAPSHOT</mdsal.model.version>
+        <yangtools.version>1.2.0-SNAPSHOT</yangtools.version>
+        <controller.mdsal.version>1.6.0-SNAPSHOT</controller.mdsal.version>
+        <config.version>0.7.0-SNAPSHOT</config.version>
+        <mdsal.model.version>0.11.0-SNAPSHOT</mdsal.model.version>
     </properties>
 
     <dependencyManagement>
