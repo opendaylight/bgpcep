@@ -67,7 +67,7 @@ public class BGPPeerAcceptorModuleTest extends AbstractRIBImplModuleTest {
             assertStatus(status, 3, 0, 0);
             verify(dispatcher).createServer(any(BGPPeerRegistry.class), any(InetSocketAddress.class));
         } catch (final ValidationException e) {
-            if(!PlatformDependent.isWindows() && !PlatformDependent.isRoot()) {
+            if(!PlatformDependent.isWindows() && !PlatformDependent.maybeSuperUser()) {
                 Assert.assertTrue(e.getMessage().contains("Unable to bind port"));
             } else {
                 fail();
