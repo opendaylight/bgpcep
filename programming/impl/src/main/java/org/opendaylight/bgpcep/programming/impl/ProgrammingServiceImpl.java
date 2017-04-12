@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.opendaylight.bgpcep.programming.NanotimeUtil;
+import org.opendaylight.bgpcep.programming.impl.InstructionDeployerImpl.WriteConfiguration;
 import org.opendaylight.bgpcep.programming.spi.ExecutionResult;
 import org.opendaylight.bgpcep.programming.spi.Instruction;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
@@ -85,6 +86,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
     private final ServiceGroupIdentifier sgi;
     private final ClusterSingletonServiceRegistration csspReg;
     private final RpcProviderRegistry rpcProviderRegistry;
+    private final WriteConfiguration writeConfiguration;
     private RpcRegistration<ProgrammingService> reg;
     private ServiceRegistration<?> serviceRegistration;
 
@@ -151,7 +153,8 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
 
     ProgrammingServiceImpl(final DataBroker dataProvider, final NotificationPublishService notifs,
         final ListeningExecutorService executor, final RpcProviderRegistry rpcProviderRegistry,
-        final ClusterSingletonServiceProvider cssp, final Timer timer, final String instructionId) {
+        final ClusterSingletonServiceProvider cssp, final Timer timer, final String instructionId,
+        final WriteConfiguration writeConfiguration) {
         this.dataProvider = Preconditions.checkNotNull(dataProvider);
         this.instructionId = Preconditions.checkNotNull(instructionId);
         this.notifs = Preconditions.checkNotNull(notifs);
@@ -159,6 +162,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
         this.rpcProviderRegistry = Preconditions.checkNotNull(rpcProviderRegistry);
         this.timer = Preconditions.checkNotNull(timer);
         this.qid = KeyedInstanceIdentifier.builder(InstructionsQueue.class,  new InstructionsQueueKey(this.instructionId)).build();
+        this.writeConfiguration = writeConfiguration;
         this.sgi = ServiceGroupIdentifier.create("programming-"+ this.instructionId + "-service-group");
         this.csspReg = cssp.registerClusterSingletonService(this);
     }
@@ -167,6 +171,9 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
     public void instantiateServiceInstance() {
         LOG.info("Instruction Queue service {} instantiated", this.sgi.getValue());
 
+        if (this.writeConfiguration != null) {
+            this.writeConfiguration.create();
+        }
         this.reg = this.rpcProviderRegistry.addRpcImplementation(ProgrammingService.class, this);
 
         final WriteTransaction t = this.dataProvider.newWriteOnlyTransaction();
@@ -398,6 +405,9 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
     public ListenableFuture<Void> closeServiceInstance() {
         LOG.info("Closing Instruction Queue service {}", this.sgi.getValue());
 
+        if (this.writeConfiguration != null) {
+            this.writeConfiguration.remove();
+        }
         this.reg.close();
         for (final InstructionImpl i : this.insns.values()) {
             i.tryCancel(null);

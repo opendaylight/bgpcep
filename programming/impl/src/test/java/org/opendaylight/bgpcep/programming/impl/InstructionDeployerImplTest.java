@@ -8,11 +8,10 @@
 package org.opendaylight.bgpcep.programming.impl;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
-import static org.mockito.MockitoAnnotations.initMocks;
 import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentConfiguration;
 import static org.opendaylight.protocol.util.CheckUtil.checkPresentConfiguration;
 
@@ -21,51 +20,39 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
-import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
-import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.programming.config.rev170301.odl.programming.OdlProgrammingConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.programming.config.rev170301.odl.programming.OdlProgrammingConfigKey;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
-public class InstructionDeployerImplTest extends AbstractDataBrokerTest {
-    @Mock
-    private RpcProviderRegistry rpcRegistry;
+public class InstructionDeployerImplTest extends AbstractProgrammingTest {
     @Mock
     private NotificationPublishService notifs;
     @Mock
     private Timer timer;
-    @Mock
-    private ClusterSingletonServiceProvider cssp;
-    @Mock
-    private ClusterSingletonServiceRegistration singletonServiceRegistration;
     @Mock
     private BundleContext bundleContext;
     @Mock
     private ServiceRegistration serviceRegistration;
 
     @Before
+    @Override
     public void setUp() throws Exception {
-        initMocks(this);
-        doAnswer(invocationOnMock -> this.singletonServiceRegistration).when(this.cssp)
-            .registerClusterSingletonService(any(ClusterSingletonService.class));
-
+        super.setUp();
         doReturn(this.serviceRegistration).when(this.bundleContext).registerService(any(String.class), any(), any());
+        doNothing().when(this.serviceRegistration).unregister();
     }
 
     @Test
     public void testInstructionDeployer() throws Exception {
         final InstructionDeployerImpl deployer = new InstructionDeployerImpl(getDataBroker(), this.rpcRegistry,
             this.notifs, this.timer, this.cssp, this.bundleContext);
-
         checkPresentConfiguration(getDataBroker(), deployer.getInstructionIID());
 
         final String instructionId = "newInstruction";
         deployer.writeConfiguration(instructionId);
+        this.singletonService.instantiateServiceInstance();
         final KeyedInstanceIdentifier<OdlProgrammingConfig, OdlProgrammingConfigKey> intructionIID =
             deployer.getInstructionIID().child(OdlProgrammingConfig.class, new OdlProgrammingConfigKey(instructionId));
         checkPresentConfiguration(getDataBroker(), intructionIID);
