@@ -76,7 +76,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.IsisNodeCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.isis.node._case.IsisNodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.OriginBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IgpMetric;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
@@ -316,6 +318,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
         return createBaseBuilder(protocolId)
             .setObjectType(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.NodeCaseBuilder().setNodeDescriptors(new NodeDescriptorsBuilder().setCRouterIdentifier(new IsisNodeCaseBuilder().setIsisNode(new IsisNodeBuilder().setIsoSystemId(new IsoSystemIdentifier(new byte[]{ 0, 0, 1, 2, 3, 4 })).build()).build()).setAsNumber(asNumber).build()).build())
             .setAttributes(new AttributesBuilder()
+                .setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build())
                 .addAugmentation(Attributes1.class, new Attributes1Builder().setLinkStateAttribute(new NodeAttributesCaseBuilder().setNodeAttributes(new NodeAttributesBuilder()
                     .setDynamicHostname(nodeName)
                     .setIpv4RouterId(new Ipv4RouterIdentifier(ipv4RouterId))
@@ -329,6 +332,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
                 .setPrefixDescriptors(new PrefixDescriptorsBuilder().setIpReachabilityInformation(new IpPrefix(new Ipv4Prefix(ipv4Prefix))).build())
                 .build())
             .setAttributes(new AttributesBuilder()
+                .setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build())
                 .addAugmentation(Attributes1.class, new Attributes1Builder().setLinkStateAttribute(new PrefixAttributesCaseBuilder().setPrefixAttributes(new PrefixAttributesBuilder().setOspfForwardingAddress(new IpAddress(new Ipv4Address(ospfFwdAddress))).setPrefixMetric(new IgpMetric(igpMetric)).build()).build()).build()).build())
              .build();
     }
@@ -341,6 +345,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
                 .setLinkDescriptors(new LinkDescriptorsBuilder().setMultiTopologyId(new TopologyIdentifier(1)).build())
                 .build())
             .setAttributes(new AttributesBuilder()
+                .setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build())
                 .addAugmentation(Attributes1.class, new Attributes1Builder().setLinkStateAttribute(new LinkAttributesCaseBuilder().setLinkAttributes(
                     new LinkAttributesBuilder().setSharedRiskLinkGroups(Lists.newArrayList(new SrlgId(5L), new SrlgId(15L))).setAdminGroup(new AdministrativeGroup(0L))
                         .setMaxLinkBandwidth(new Bandwidth(new byte[]{0x00, 0x00, (byte) 0xff, (byte) 0xff}))
