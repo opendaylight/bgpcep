@@ -60,12 +60,7 @@ public final class InstructionSchedulerImplModule extends
 
         final String instructionId = getInstructionQueueId() != null ? getInstructionQueueId() :
             getIdentifier().getInstanceName();
-        try {
-            intructionDeployer.writeConfiguration(instructionId).get();
-        } catch (final Exception e) {
-            LOG.error("Failed to instantiate Instruction at {}", instructionId, e);
-            throw new IllegalStateException("Failed to instantiate provider", e);
-        }
+        intructionDeployer.writeConfiguration(instructionId);
         final WaitingServiceTracker<InstructionScheduler> instructionSchedulerTracker = WaitingServiceTracker
             .create(InstructionScheduler.class,
                 this.bundleContext, "(" + InstructionScheduler.class.getName() + "=" + instructionId + ")");
