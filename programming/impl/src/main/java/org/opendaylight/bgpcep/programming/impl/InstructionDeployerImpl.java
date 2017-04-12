@@ -13,7 +13,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import io.netty.util.Timer;
@@ -68,6 +67,53 @@ public final class InstructionDeployerImpl implements IntructionDeployer,
     private final InstanceIdentifier<OdlProgramming> iid;
     private final ClusterSingletonServiceProvider cssp;
 
+
+    class WriteConfiguration {
+        private final String instructionId;
+
+        WriteConfiguration(final String instructionId) {
+            this.instructionId = instructionId;
+        }
+
+        void create() {
+            final OdlProgrammingConfig instruction = new OdlProgrammingConfigBuilder()
+                .setInstructionQueueId(this.instructionId).build();
+            final WriteTransaction wTx = InstructionDeployerImpl.this.dataProvider.newWriteOnlyTransaction();
+            wTx.put(LogicalDatastoreType.CONFIGURATION, InstructionDeployerImpl.this.iid.child(
+                OdlProgrammingConfig.class, new OdlProgrammingConfigKey(this.instructionId)), instruction, true);
+            final CheckedFuture<Void, TransactionCommitFailedException> future = wTx.submit();
+            Futures.addCallback(future, new FutureCallback<Void>() {
+                @Override
+                public void onSuccess(final Void result) {
+                    LOG.debug("Instruction Instance {} initialized successfully.", WriteConfiguration.this.instructionId);
+                }
+
+                @Override
+                public void onFailure(final Throwable t) {
+                    LOG.error("Failed to initialize Instruction Instance {}.", WriteConfiguration.this.instructionId, t);
+                }
+            });
+        }
+
+        void remove() {
+            final WriteTransaction wTx = InstructionDeployerImpl.this.dataProvider.newWriteOnlyTransaction();
+            wTx.delete(LogicalDatastoreType.CONFIGURATION, InstructionDeployerImpl.this.iid.child(
+                OdlProgrammingConfig.class, new OdlProgrammingConfigKey(this.instructionId)));
+            final CheckedFuture<Void, TransactionCommitFailedException> future = wTx.submit();
+            Futures.addCallback(future, new FutureCallback<Void>() {
+                @Override
+                public void onSuccess(final Void result) {
+                    LOG.debug("Instruction Instance {} removed successfully.", WriteConfiguration.this.instructionId);
+                }
+
+                @Override
+                public void onFailure(final Throwable t) {
+                    LOG.error("Failed to remove Instruction Instance {}.", WriteConfiguration.this.instructionId, t);
+                }
+            });
+        }
+    }
+
     public InstructionDeployerImpl(final DataBroker dataProvider, final RpcProviderRegistry rpcProviderRegistry,
         final NotificationPublishService notifs, final Timer timer, final ClusterSingletonServiceProvider cssp,
         final BundleContext bundleContext) {
@@ -104,7 +150,8 @@ public final class InstructionDeployerImpl implements IntructionDeployer,
     }
 
 
-    private synchronized void createInstruction(final String instructionId) {
+    private synchronized void createInstruction(final String instructionId,
+        final WriteConfiguration writeConfiguration) {
         if (this.programmingServices.containsKey(instructionId)) {
             LOG.warn("Instruction Scheduler {} already exist. New instance won't be created", instructionId);
             return;
@@ -113,7 +160,7 @@ public final class InstructionDeployerImpl implements IntructionDeployer,
 
         final ProgrammingServiceImpl programmingInst =
             new ProgrammingServiceImpl(this.dataProvider, this.notifs, this.exec, this.rpcProviderRegistry, this.cssp,
-                this.timer, instructionId);
+                this.timer, instructionId, writeConfiguration);
         this.programmingServices.put(instructionId, programmingInst);
         final Dictionary<String, String> properties = new Hashtable<>();
         properties.put(InstructionScheduler.class.getName(), instructionId);
@@ -131,45 +178,13 @@ public final class InstructionDeployerImpl implements IntructionDeployer,
     }
 
     @Override
-    public ListenableFuture<Void> writeConfiguration(final String instructionId) {
-        final OdlProgrammingConfig instruction = new OdlProgrammingConfigBuilder()
-            .setInstructionQueueId(instructionId).build();
-        final WriteTransaction wTx = this.dataProvider.newWriteOnlyTransaction();
-        wTx.put(LogicalDatastoreType.CONFIGURATION, this.iid.child(OdlProgrammingConfig.class,
-            new OdlProgrammingConfigKey(instructionId)), instruction, true);
-        final CheckedFuture<Void, TransactionCommitFailedException> future = wTx.submit();
-        Futures.addCallback(future, new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(final Void result) {
-                LOG.debug("Instruction Instance {} initialized successfully.", instructionId);
-            }
-
-            @Override
-            public void onFailure(final Throwable t) {
-                LOG.error("Failed to initialize Instruction Instance {}.", instructionId, t);
-            }
-        });
-        return future;
+    public void writeConfiguration(final String instructionId) {
+        createInstruction(instructionId, new WriteConfiguration(instructionId));
     }
 
     @Override
-    public ListenableFuture<Void> removeConfiguration(final String instructionId) {
-        final WriteTransaction wTx = this.dataProvider.newWriteOnlyTransaction();
-        wTx.delete(LogicalDatastoreType.CONFIGURATION, this.iid.child(OdlProgrammingConfig.class,
-            new OdlProgrammingConfigKey(instructionId)));
-        final CheckedFuture<Void, TransactionCommitFailedException> future = wTx.submit();
-        Futures.addCallback(future, new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(final Void result) {
-                LOG.debug("Instruction Instance {} removed successfully.", instructionId);
-            }
-
-            @Override
-            public void onFailure(final Throwable t) {
-                LOG.error("Failed to remove Instruction Instance {}.", instructionId, t);
-            }
-        });
-        return future;
+    public void removeConfiguration(final String instructionId) {
+        removeInstruction(instructionId);
     }
 
     @Override
@@ -199,7 +214,7 @@ public final class InstructionDeployerImpl implements IntructionDeployer,
                 break;
             case SUBTREE_MODIFIED:
             case WRITE:
-                createInstruction(config.getDataAfter().getInstructionQueueId());
+                createInstruction(config.getDataAfter().getInstructionQueueId(), null);
                 break;
             default:
                 break;

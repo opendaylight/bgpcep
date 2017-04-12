@@ -7,8 +7,6 @@
  */
 package org.opendaylight.bgpcep.programming.impl;
 
-import com.google.common.util.concurrent.ListenableFuture;
-
 /**
  * Instruction Scheduler Deployer
  */
@@ -17,11 +15,11 @@ public interface IntructionDeployer {
      * Write instruction configuration on DS
      * @param instructionId Instruction Scheduler Id
      */
-    ListenableFuture<Void> writeConfiguration(String instructionId);
+    void writeConfiguration(String instructionId);
 
     /**
      * Remove instruction configuration on DS
      * @param instructionId Instruction Scheduler Id
      */
-    ListenableFuture<Void> removeConfiguration(String instructionId);
+    void removeConfiguration(String instructionId);
 }
