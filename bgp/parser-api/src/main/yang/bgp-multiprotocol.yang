@@ -82,7 +82,6 @@ module bgp-multiprotocol {
                         position 0;
                         }
                     }
-                mandatory true;
             }
 
             leaf restart-time {
@@ -90,7 +89,6 @@ module bgp-multiprotocol {
                     range 0..4095;
                 }
                 units seconds;
-                mandatory true;
             }
 
             list tables {
@@ -103,7 +101,6 @@ module bgp-multiprotocol {
                             position 0;
                         }
                     }
-                    mandatory true;
                 }
             }
         }
