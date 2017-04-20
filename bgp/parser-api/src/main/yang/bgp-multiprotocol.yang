@@ -74,6 +74,8 @@ module bgp-multiprotocol {
             uses bgp-table-type;
         }
         container graceful-restart-capability {
+            presence "indicates a graceful restart capability";
+
             reference "http://tools.ietf.org/html/rfc4724#section-3";
 
             leaf restart-flags {
