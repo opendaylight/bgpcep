@@ -91,9 +91,19 @@ public class IPAddressesAndPrefixesTest {
 
     @Test
     public void testPrefixForByteBuf() {
-        final ByteBuf bb = Unpooled.wrappedBuffer(new byte[] { 0x0e, 123, 122, 0x40, 0x20, (byte) 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 } );
+        final ByteBuf bb = Unpooled.wrappedBuffer(new byte[] {
+            0x0e, 123, 122,
+            0x40, 0x20, (byte) 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00,
+            0x00,
+            (byte) 0x80, 0x20, 0x01, 0x48, 0x60, 0x48, 0x60, 0x00, 0x01, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00, (byte)0x88, (byte)0x89
+        });
         assertEquals(new Ipv4Prefix("123.122.0.0/14"), Ipv4Util.prefixForByteBuf(bb));
         assertEquals(new Ipv6Prefix("2001::/64"), Ipv6Util.prefixForByteBuf(bb));
+        assertEquals(new Ipv4Prefix("0.0.0.0/0"), Ipv4Util.prefixForByteBuf(bb));
+        assertEquals(new Ipv6Prefix("::/0"), Ipv6Util.prefixForByteBuf(bb));
+        // test prefix length 128, as its signed byte value is -128
+        assertEquals(new Ipv6Prefix("2001:4860:4860:1:20::8889/128"), Ipv6Util.prefixForByteBuf(bb));
     }
 
     @Test

@@ -125,7 +125,7 @@ public final class Ipv6Util {
      * @return Ipv6Prefix object
      */
     public static Ipv6Prefix prefixForByteBuf(final ByteBuf buf) {
-        final int prefixLength = buf.readByte();
+        final int prefixLength = UnsignedBytes.toInt(buf.readByte());
         final int size = prefixLength / Byte.SIZE + ((prefixLength % Byte.SIZE == 0) ? 0 : 1);
         final int readable = buf.readableBytes();
         Preconditions.checkArgument(size <= readable, "Illegal length of IP prefix: %s/%s", size, readable);
