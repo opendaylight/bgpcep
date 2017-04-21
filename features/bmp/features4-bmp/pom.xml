@@ -33,7 +33,6 @@
             <artifactId>odl-bgpcep-bmp</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
-            <scope>runtime</scope>
         </dependency>
     </dependencies>
 

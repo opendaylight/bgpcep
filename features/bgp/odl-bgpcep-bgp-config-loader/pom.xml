@@ -33,10 +33,10 @@
             </dependency>
             <dependency>
                 <groupId>org.opendaylight.mdsal</groupId>
-                <artifactId>features-mdsal</artifactId>
+                <artifactId>mdsal-artifacts</artifactId>
                 <version>${mdsal.common.version}</version>
-                <classifier>features</classifier>
-                <type>xml</type>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -55,7 +55,12 @@
             <artifactId>odl-bgpcep-config-files</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
-            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.mdsal</groupId>
+            <artifactId>odl-mdsal-binding-runtime</artifactId>
+            <type>xml</type>
+            <classifier>features</classifier>
         </dependency>
     </dependencies>
 
