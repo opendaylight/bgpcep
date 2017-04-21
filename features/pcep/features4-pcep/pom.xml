@@ -33,84 +33,72 @@
             <artifactId>odl-bgpcep-pcep</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-pcep-dependencies</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-pcep-api</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-pcep-impl</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-programming-api</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-programming-impl</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-pcep-topology</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-pcep-stateful07</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-pcep-topology-provider</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-pcep-tunnel-provider</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-pcep-segment-routing</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-pcep-auto-bandwidth</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
-            <scope>runtime</scope>
         </dependency>
     </dependencies>
 
