@@ -14,6 +14,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.PathComputationClient1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Stateful1;
@@ -51,7 +52,8 @@ public final class PCEPStatefulPeerProposal {
 
     void setPeerProposal(final NodeId nodeId, final TlvsBuilder openTlvsBuilder) {
         if (isSynOptimizationEnabled(openTlvsBuilder)) {
-            final ListenableFuture<Optional<LspDbVersion>> future = this.dataBroker.newReadOnlyTransaction().read(
+            final ReadOnlyTransaction rTx = this.dataBroker.newReadOnlyTransaction();
+            final ListenableFuture<Optional<LspDbVersion>> future = rTx.read(
                     LogicalDatastoreType.OPERATIONAL,
                     this.topologyId.child(Node.class, new NodeKey(nodeId)).augmentation(Node1.class)
                             .child(PathComputationClient.class).augmentation(PathComputationClient1.class)
@@ -70,6 +72,7 @@ public final class PCEPStatefulPeerProposal {
                     LOG.warn("Failed to read toplogy {}.", InstanceIdentifier.keyOf(PCEPStatefulPeerProposal.this.topologyId), t);
                 }
             });
+            rTx.close();
         }
     }
 
