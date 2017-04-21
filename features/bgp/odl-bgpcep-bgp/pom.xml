@@ -36,112 +36,96 @@
             <artifactId>odl-bgpcep-bgp-parser</artifactId>
             <classifier>features</classifier>
             <type>xml</type>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-bgp-rib-api</artifactId>
             <classifier>features</classifier>
             <type>xml</type>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-bgp-openconfig</artifactId>
             <classifier>features</classifier>
             <type>xml</type>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-bgp-rib-impl</artifactId>
             <classifier>features</classifier>
             <type>xml</type>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-bgp-openconfig-state</artifactId>
             <classifier>features</classifier>
             <type>xml</type>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-bgp-path-selection-mode</artifactId>
             <classifier>features</classifier>
             <type>xml</type>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-bgp-topology</artifactId>
             <classifier>features</classifier>
             <type>xml</type>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-bgp-cli</artifactId>
             <classifier>features</classifier>
             <type>xml</type>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-config-files</artifactId>
             <classifier>features</classifier>
             <type>xml</type>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-bgp-inet</artifactId>
             <classifier>features</classifier>
             <type>xml</type>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-bgp-linkstate</artifactId>
             <classifier>features</classifier>
             <type>xml</type>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-bgp-flowspec</artifactId>
             <classifier>features</classifier>
             <type>xml</type>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-bgp-labeled-unicast</artifactId>
             <classifier>features</classifier>
             <type>xml</type>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-bgp-l3vpn</artifactId>
             <classifier>features</classifier>
             <type>xml</type>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-bgp-evpn</artifactId>
             <classifier>features</classifier>
             <type>xml</type>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>bgp-controller-config</artifactId>
             <type>xml</type>
             <classifier>config</classifier>
-            <scope>runtime</scope>
         </dependency>
     </dependencies>
 
