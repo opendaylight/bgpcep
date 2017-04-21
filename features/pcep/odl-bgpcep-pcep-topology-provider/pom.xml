@@ -52,28 +52,24 @@
             <artifactId>odl-bgpcep-programming-impl</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-pcep-stateful07</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>odl-mdsal-broker</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>pcep-controller-config</artifactId>
             <type>xml</type>
             <classifier>config-provider</classifier>
-            <scope>runtime</scope>
         </dependency>
     </dependencies>
     <!--
