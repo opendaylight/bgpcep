@@ -60,28 +60,24 @@
             <artifactId>odl-bgpcep-extras-dependencies</artifactId>
             <classifier>features</classifier>
             <type>xml</type>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>odl-mdsal-broker</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
-            <artifactId>odl-config-api</artifactId>
+            <artifactId>odl-config-core</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>data-change-counter-controller-config</artifactId>
             <type>xml</type>
             <classifier>config</classifier>
-            <scope>runtime</scope>
         </dependency>
     </dependencies>
 </project>

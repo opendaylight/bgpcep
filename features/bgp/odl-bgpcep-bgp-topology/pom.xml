@@ -56,28 +56,24 @@
             <artifactId>odl-bgpcep-bgp-inet</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-bgp-linkstate</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-bgp-config-loader</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>odl-mdsal-broker</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
-            <scope>runtime</scope>
         </dependency>
     </dependencies>
 

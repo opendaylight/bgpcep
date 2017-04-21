@@ -40,7 +40,6 @@
             <artifactId>odl-bgpcep-pcep-topology-provider</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
-            <scope>runtime</scope>
         </dependency>
     </dependencies>
     <!--

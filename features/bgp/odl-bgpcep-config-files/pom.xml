@@ -36,14 +36,12 @@
             <artifactId>bgp-controller-config</artifactId>
             <type>xml</type>
             <classifier>bgp-initial-config</classifier>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>bgp-controller-config</artifactId>
             <type>xml</type>
             <classifier>network-topology-initial-config</classifier>
-            <scope>runtime</scope>
         </dependency>
     </dependencies>
 

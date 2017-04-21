@@ -61,23 +61,22 @@
             <artifactId>util</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-common</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-buffer</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.opendaylight.controller</groupId>
-            <artifactId>config-api</artifactId>
+            <artifactId>odl-config-core</artifactId>
+            <type>xml</type>
+            <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.mdsal.model</groupId>
             <artifactId>odl-mdsal-models</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
-            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.odlparent</groupId>
+            <artifactId>odl4-netty-4</artifactId>
+            <type>xml</type>
+            <classifier>features</classifier>
         </dependency>
     </dependencies>
 
