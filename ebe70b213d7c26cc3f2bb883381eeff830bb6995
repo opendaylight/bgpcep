@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_13a4c355",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/PCEPStatefulPeerProposal.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2017-04-21T23:34:52Z",
+      "side": 1,
+      "message": "can you enclose this a try() { } block? that way close() will be executed even in face of exceptions...",
+      "range": {
+        "startLine": 75,
+        "startChar": 12,
+        "endLine": 75,
+        "endChar": 24
+      },
+      "revId": "ebe70b213d7c26cc3f2bb883381eeff830bb6995",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
