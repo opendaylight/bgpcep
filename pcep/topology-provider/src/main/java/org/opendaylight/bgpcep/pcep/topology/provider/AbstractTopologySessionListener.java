@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.ListenerStateRuntimeMXBean;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.ListenerStateRuntimeRegistration;
+import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistration;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PeerCapabilities;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.ReplyTime;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.SessionState;
@@ -147,11 +148,13 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         final TopologyNodeState state = this.serverSessionManager.takeNodeState(peerAddress, this, isLspDbRetreived());
         // takeNodeState(..) may fail when the server session manager is being restarted due to configuration change
         if (state == null) {
+            LOG.error("Unable to fetch topology node state for PCEP session. Closing session {}", session);
             this.onSessionDown(session, new RuntimeException("Unable to fetch topology node state for PCEP session with " + session.getRemoteAddress()));
             return;
         }
 
         if (this.session != null || this.nodeState != null) {
+            LOG.error("PCEP session is already up. Closing session {}", session);
             this.onSessionDown(session, new IllegalStateException("Session is already up with " + session.getRemoteAddress()));
             return;
         }
@@ -177,12 +180,13 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
             pccBuilder.setReportedLsp(initialNodeState.getAugmentation(Node1.class).getPathComputationClient().getReportedLsp());
         }
         writeNode(pccBuilder, state, topologyAugment);
-        this.listenerState.init(session);
-        this.registration = this.serverSessionManager.registerRuntimeRootRegistration(this);
+        register();
         if (this.registration == null) {
+            LOG.error("PCEP session fails to register. Closing session {}", session);
             this.onSessionDown(session, new RuntimeException("PCEP Session with " + session.getRemoteAddress() + " fails to register."));
             return;
         }
+        this.listenerState.init(session);
         LOG.info("Session with {} attached to topology node {}", session.getRemoteAddress(), state.getNodeId());
     }
 
@@ -288,10 +292,14 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
     @Override
     public final synchronized void onMessage(final PCEPSession session, final Message message) {
+        if (this.nodeState == null) {
+            LOG.warn("Topology node state is null. Unhandled message {} on session {}", message, session);
+            return;
+        }
         final MessageContext ctx = new MessageContext(this.nodeState.beginTransaction());
 
         if (onMessage(ctx, message)) {
-            LOG.info("Unhandled message {} on session {}", message, session);
+            LOG.warn("Unhandled message {} on session {}", message, session);
             //cancel not supported, submit empty transaction
             ctx.trans.submit();
             return;
@@ -321,13 +329,22 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         }
     }
 
-    private synchronized void unregister() {
+    private final synchronized void unregister() {
         if (this.registration != null) {
             this.registration.close();
-            LOG.trace("PCEP session {} unregistered successfully.", this.session);
+            LOG.debug("PCEP session {} is unregistered successfully.", this.session);
             this.registration = null;
         } else {
-            LOG.trace("PCEP session {} was not registered.", this.session);
+            LOG.debug("PCEP session {} was not registered.", this.session);
+        }
+    }
+
+    private final synchronized void register() {
+        Preconditions.checkState(this.registration == null);
+        final PCEPTopologyProviderRuntimeRegistration runtimeReg = this.serverSessionManager.getRuntimeRootRegistration();
+        if (runtimeReg != null) {
+            this.registration = runtimeReg.register(this);
+            LOG.debug("PCEP session {} is successfully registered.", this.session);
         }
     }
 
@@ -617,7 +634,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         return false;
     }
 
-    protected SessionListenerState getSessionListenerState() {
+    protected synchronized SessionListenerState getSessionListenerState() {
         return this.listenerState;
     }
 
@@ -642,12 +659,12 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     }
 
     @Override
-    public ReplyTime getReplyTime() {
+    public synchronized ReplyTime getReplyTime() {
         return this.listenerState.getReplyTime();
     }
 
     @Override
-    public PeerCapabilities getPeerCapabilities() {
+    public synchronized PeerCapabilities getPeerCapabilities() {
         return this.listenerState.getPeerCapabilities();
     }
 

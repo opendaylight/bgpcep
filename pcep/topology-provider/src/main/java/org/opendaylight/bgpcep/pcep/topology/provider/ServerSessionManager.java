@@ -18,8 +18,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.concurrent.GuardedBy;
-import org.opendaylight.controller.config.yang.pcep.topology.provider.ListenerStateRuntimeMXBean;
-import org.opendaylight.controller.config.yang.pcep.topology.provider.ListenerStateRuntimeRegistration;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeMXBean;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistration;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistrator;
@@ -192,20 +190,14 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, AutoClos
         t.submit().checkedGet();
     }
 
+    PCEPTopologyProviderRuntimeRegistration getRuntimeRootRegistration() {
+        return this.runtimeRootRegistration.get();
+    }
+
     public void setRuntimeRootRegistartion(final PCEPTopologyProviderRuntimeRegistrator runtimeRootRegistrator) {
         if (!this.runtimeRootRegistration.compareAndSet(null, runtimeRootRegistrator.register(this))) {
             LOG.error("Runtime root registration has been set before.");
         }
-    }
-
-    public ListenerStateRuntimeRegistration registerRuntimeRootRegistration(final ListenerStateRuntimeMXBean bean) {
-        final PCEPTopologyProviderRuntimeRegistration runtimeReg = this.runtimeRootRegistration.get();
-        if (runtimeReg != null) {
-            final ListenerStateRuntimeRegistration reg = runtimeReg.register(bean);
-            LOG.trace("Bean {} is successfully registered.", bean.getPeerId());
-            return reg;
-        }
-        return null;
     }
 
     @Override
