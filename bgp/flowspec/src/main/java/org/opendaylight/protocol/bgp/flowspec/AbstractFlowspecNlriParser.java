@@ -125,17 +125,14 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     @VisibleForTesting
     public static final NodeIdentifier VALUE_NID = new NodeIdentifier(QName.create(Flowspec.QNAME.getNamespace(), Flowspec.QNAME.getRevision(), "value"));
 
-    protected static final int NLRI_LENGTH = 1;
-    protected static final int NLRI_LENGTH_EXTENDED = 2;
-
     protected SimpleFlowspecTypeRegistry flowspecTypeRegistry;
 
     /**
      * Add this constant to length value to achieve all ones in the leftmost nibble.
      */
     protected static final int LENGTH_MAGIC = 61440;
-    protected static final int MAX_NLRI_LENGTH = 4095;
-    protected static final int MAX_NLRI_LENGTH_ONE_BYTE = 240;
+    protected static final int MAX_NLRI_LENGTH = 0xFFF;
+    protected static final int MAX_NLRI_LENGTH_ONE_BYTE = 0xF0;
 
     @VisibleForTesting
     static final String DO_NOT_VALUE = "do-not";
@@ -565,6 +562,16 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
         return buffer.toString();
     }
 
+    public static final int readNlriLength(@Nonnull final ByteBuf nlri) {
+        Preconditions.checkNotNull(nlri);
+        Preconditions.checkState(nlri.isReadable());
+        int length = nlri.readUnsignedByte();
+        if (length >= MAX_NLRI_LENGTH_ONE_BYTE) {
+            length = (length << Byte.SIZE | nlri.readUnsignedByte()) & MAX_NLRI_LENGTH;
+        }
+        return length;
+    }
+
     /**
      * Parses Flowspec NLRI into list of Flowspec.
      *
@@ -578,34 +585,15 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
         final List<Flowspec> fss = new ArrayList<>();
 
         while (nlri.isReadable()) {
+            final int length = readNlriLength(nlri);
+            final int readableLength = nlri.readableBytes();
+            Preconditions.checkState(length <= readableLength,
+                    "NLRI length read from message bigger than actual buffer length. Length read from NLRI is %s, length readable in buffer is %s", length, readableLength);
             final FlowspecBuilder builder = new FlowspecBuilder();
             builder.setFlowspecType(this.flowspecTypeRegistry.parseFlowspecType(nlri));
             fss.add(builder.build());
         }
         return fss;
-    }
-
-    /**
-     * This step is used to verify the NLRI length we read from BGP message
-     *
-     * @param nlri
-     */
-    private static final void verifyNlriLength(@Nonnull final ByteBuf nlri) {
-        // length field can be one or two bytes (if needed)
-        // check the length of nlri to see how many bytes we can skip
-        int readableLength = nlri.readableBytes();
-        // read the length from field
-        final int expectedLength;
-        if (readableLength > MAX_NLRI_LENGTH_ONE_BYTE) {
-            expectedLength = nlri.readUnsignedShort();
-            // deduct the two bytes of the NLRI length field
-            readableLength -= NLRI_LENGTH_EXTENDED;
-        } else {
-            expectedLength = nlri.readUnsignedByte();
-            // deduct the one byte of the NLRI length field
-            readableLength -= NLRI_LENGTH;
-        }
-        Preconditions.checkState(readableLength == expectedLength, "NLRI length read from message doesn't match. Length expected (read from NLRI) is %s, length readable is %s", expectedLength, readableLength);
     }
 
     /**
@@ -626,7 +614,6 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
             return;
         }
         final PathId pathId = readPathId(nlri, builder.getAfi(), builder.getSafi(), constraint);
-        verifyNlriLength(nlri);
         final Object[] nlriFields = parseNlri(nlri);
         builder.setAdvertizedRoutes(
             new AdvertizedRoutesBuilder()
@@ -652,7 +639,6 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
             return;
         }
         final PathId pathId = readPathId(nlri, builder.getAfi(), builder.getSafi(), constraint);
-        verifyNlriLength(nlri);
         final Object[] nlriFields = parseNlri(nlri);
         builder.setWithdrawnRoutes(
             new WithdrawnRoutesBuilder()
