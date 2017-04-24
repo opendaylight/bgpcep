@@ -11,13 +11,14 @@ import static org.opendaylight.bgp.concepts.RouteDistinguisherUtil.extractRouteD
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
+import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nonnull;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.protocol.bgp.flowspec.AbstractFlowspecNlriParser;
 import org.opendaylight.protocol.bgp.flowspec.SimpleFlowspecTypeRegistry;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.Flowspec;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.FlowspecBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.RouteDistinguisher;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -57,7 +58,7 @@ public abstract class AbstractFlowspecL3vpnNlriParser extends AbstractFlowspecNl
     }
 
     @Override
-    protected void serializeNlri(@Nonnull final Object[] nlriFields, @Nonnull final ByteBuf buffer) {
+    protected void serializeNlri(final Object[] nlriFields, final ByteBuf buffer) {
         final RouteDistinguisher rd = Preconditions.checkNotNull((RouteDistinguisher) nlriFields[0]);
         RouteDistinguisherUtil.serializeRouteDistinquisher(rd, buffer);
         final List<Flowspec> flowspecList = (List<Flowspec>) nlriFields[1];
@@ -65,12 +66,27 @@ public abstract class AbstractFlowspecL3vpnNlriParser extends AbstractFlowspecNl
     }
 
     @Override
-    @Nonnull
-    protected Object[] parseNlri(@Nonnull final ByteBuf nlri) throws BGPParsingException {
+    protected Object[] parseNlri(final ByteBuf nlri) throws BGPParsingException {
+        readNlriLength(nlri);
         return new Object[] {
             Preconditions.checkNotNull(readRouteDistinguisher(nlri)),
-            parseNlriFlowspecList(nlri)
+            parseL3vpnNlriFlowspecList(nlri)
         };
+    }
+
+    protected final List<Flowspec> parseL3vpnNlriFlowspecList(final ByteBuf nlri) throws BGPParsingException {
+        if (!nlri.isReadable()) {
+            return null;
+        }
+        final List<Flowspec> fss = new ArrayList<>();
+
+        while (nlri.isReadable()) {
+            final FlowspecBuilder builder = new FlowspecBuilder();
+            builder.setFlowspecType(this.flowspecTypeRegistry.parseFlowspecType(nlri));
+            fss.add(builder.build());
+        }
+
+        return fss;
     }
 }
 
