@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.flowspec;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -77,12 +78,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.group.ipv4.flowspec.flowspec.type.protocol.ip._case.ProtocolIpsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.ipv4.DestinationFlowspecBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.ipv4.route.FlowspecRoute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes2Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
@@ -123,6 +126,12 @@ public class SimpleFlowspecIpv4NlriParserTest {
         04, 03, (byte) 0x89, 0x45, (byte) 0x8b, (byte) 0x91, 0x1f, (byte) 0x90,
         05, 0x12, 0x0f, (byte) 0xf9, (byte) 0x81, (byte) 0xb3,
         06, (byte) 0x91, 0x1f, (byte) 0x90
+    };
+
+    private static final byte[] REACHED_NLRI_BATCHED = new byte[] {
+        0x06, 0x01, 0x20, (byte) 0xd8, 0x3a, (byte) 0xf5, 0x65,
+        0x06, 0x01, 0x20, (byte) 0xd8, 0x3a, (byte) 0xda, (byte) 0xc4,
+        0x06, 0x01, 0x20, (byte) 0xd8, 0x3a, (byte) 0xd8, (byte) 0xc3
     };
 
     private static final byte[] UNREACHED_NLRI = new byte[] {
@@ -753,5 +762,25 @@ public class SimpleFlowspecIpv4NlriParserTest {
         expected.add(expectedFS.build());
         assertEquals(expected, this.FS_PARSER.extractFlowspec(entry.build()));
     }
+
+    @Test
+    public void testBatchedFlowspecNlri() throws Exception {
+        final SimpleFlowspecIpv4NlriParser parser = new SimpleFlowspecIpv4NlriParser(flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
+
+        final MpReachNlriBuilder result = new MpReachNlriBuilder();
+        result.setAfi(Ipv4AddressFamily.class);
+        result.setSafi(FlowspecSubsequentAddressFamily.class);
+
+        parser.parseNlri(Unpooled.wrappedBuffer(REACHED_NLRI_BATCHED), result);
+        final MpReachNlri nlri = result.build();
+
+        final List<Flowspec> flowspecList = ((DestinationFlowspecCase) nlri.getAdvertizedRoutes().getDestinationType())
+                .getDestinationFlowspec().getFlowspec();
+        assertEquals(3, flowspecList.size());
+        assertEquals("216.58.245.101/32", ((DestinationPrefixCase) flowspecList.get(0).getFlowspecType()).getDestinationPrefix().getValue());
+        assertEquals("216.58.218.196/32", ((DestinationPrefixCase) flowspecList.get(1).getFlowspecType()).getDestinationPrefix().getValue());
+        assertEquals("216.58.216.195/32", ((DestinationPrefixCase) flowspecList.get(2).getFlowspecType()).getDestinationPrefix().getValue());
+    }
+
 }
 
