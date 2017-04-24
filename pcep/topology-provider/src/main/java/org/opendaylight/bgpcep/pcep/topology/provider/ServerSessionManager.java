@@ -21,8 +21,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.concurrent.GuardedBy;
-import org.opendaylight.controller.config.yang.pcep.topology.provider.ListenerStateRuntimeMXBean;
-import org.opendaylight.controller.config.yang.pcep.topology.provider.ListenerStateRuntimeRegistration;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeMXBean;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistration;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistrator;
@@ -232,17 +230,10 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
         }
     }
 
-    ListenerStateRuntimeRegistration registerRuntimeRootRegistration(final ListenerStateRuntimeMXBean bean) {
-        final PCEPTopologyProviderRuntimeRegistration runtimeReg = this.runtimeRootRegistration.get();
-        if (runtimeReg != null) {
-            final ListenerStateRuntimeRegistration reg = runtimeReg.register(bean);
-            LOG.trace("Bean {} is successfully registered.", bean.getPeerId());
-            return reg;
-        }
-        return null;
+    PCEPTopologyProviderRuntimeRegistration getRuntimeRootRegistration() {
+        return this.runtimeRootRegistration.get();
     }
 
-    @Override
     public void setPeerSpecificProposal(final InetSocketAddress address, final TlvsBuilder openBuilder) {
         Preconditions.checkNotNull(address);
         this.peerProposal.setPeerProposal(createNodeId(address.getAddress()), openBuilder);
