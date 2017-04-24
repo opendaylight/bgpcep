@@ -11,6 +11,7 @@ import static org.opendaylight.bgp.concepts.RouteDistinguisherUtil.extractRouteD
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
+import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
@@ -18,6 +19,7 @@ import org.opendaylight.protocol.bgp.flowspec.AbstractFlowspecNlriParser;
 import org.opendaylight.protocol.bgp.flowspec.SimpleFlowspecTypeRegistry;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.Flowspec;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.FlowspecBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.RouteDistinguisher;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -67,10 +69,28 @@ public abstract class AbstractFlowspecL3vpnNlriParser extends AbstractFlowspecNl
     @Override
     @Nonnull
     protected Object[] parseNlri(@Nonnull final ByteBuf nlri) throws BGPParsingException {
+        final int nlriLength = readNlriLength(nlri);
+        Preconditions.checkState(nlriLength > 0 && nlriLength <= nlri.readableBytes(), "Invalid flowspec NLRI length %s", nlriLength);
+        LOG.trace("Flowspec NLRI length is {}", nlriLength);
         return new Object[] {
             Preconditions.checkNotNull(readRouteDistinguisher(nlri)),
-            parseNlriFlowspecList(nlri)
+            parseL3vpnNlriFlowspecList(nlri)
         };
+    }
+
+    protected final List<Flowspec> parseL3vpnNlriFlowspecList(@Nonnull final ByteBuf nlri) throws BGPParsingException {
+        if (!nlri.isReadable()) {
+            return null;
+        }
+        final List<Flowspec> fss = new ArrayList<>();
+
+        while (nlri.isReadable()) {
+            final FlowspecBuilder builder = new FlowspecBuilder();
+            builder.setFlowspecType(this.flowspecTypeRegistry.parseFlowspecType(nlri));
+            fss.add(builder.build());
+        }
+
+        return fss;
     }
 }
 
