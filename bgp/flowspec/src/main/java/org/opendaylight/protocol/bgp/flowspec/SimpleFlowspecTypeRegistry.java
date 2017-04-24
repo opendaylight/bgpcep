@@ -9,13 +9,17 @@ package org.opendaylight.protocol.bgp.flowspec;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
+import javax.annotation.Nonnull;
 import org.opendaylight.protocol.bgp.flowspec.handlers.FlowspecTypeParser;
 import org.opendaylight.protocol.bgp.flowspec.handlers.FlowspecTypeSerializer;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.flowspec.FlowspecType;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SimpleFlowspecTypeRegistry {
+    private static final Logger LOG = LoggerFactory.getLogger(SimpleFlowspecTypeRegistry.class);
     private final HandlerRegistry<DataContainer, FlowspecTypeParser, FlowspecTypeSerializer> handlers = new HandlerRegistry<>();
 
     public FlowspecTypeParser getFlowspecTypeParser(final short type) {
@@ -32,8 +36,9 @@ public class SimpleFlowspecTypeRegistry {
         serializer.serializeType(fsType, output);
     }
 
-    public FlowspecType parseFlowspecType(ByteBuf buffer) {
+    public FlowspecType parseFlowspecType(final @Nonnull ByteBuf buffer) {
         final short type = buffer.readUnsignedByte();
+        LOG.trace("Flowspec type is {}", type);
         final FlowspecTypeParser parser = getFlowspecTypeParser(type);
         Preconditions.checkNotNull(parser, "parser for flowspec type %s is not registered", type);
         return parser.parseType(buffer);
