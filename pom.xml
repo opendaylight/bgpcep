@@ -59,7 +59,6 @@
         <!--Test tools -->
         <module>data-change-counter</module>
         <module>testtool-util</module>
-        <module>data-change-counter-controller-config</module>
 
         <module>distribution-karaf</module>
 

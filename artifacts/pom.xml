@@ -235,13 +235,6 @@
                 <artifactId>data-change-counter</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>data-change-counter-controller-config</artifactId>
-                <version>${project.version}</version>
-                <type>xml</type>
-                <classifier>config</classifier>
-            </dependency>
 
             <dependency>
                 <groupId>${project.groupId}</groupId>

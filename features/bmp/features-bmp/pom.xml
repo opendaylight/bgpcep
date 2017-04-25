@@ -147,13 +147,6 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>data-change-counter-controller-config</artifactId>
-            <type>xml</type>
-            <classifier>config</classifier>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>rsvp-api</artifactId>
         </dependency>
         <dependency>
