@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ This program and the accompanying materials are made available under the
+  ~ terms of the Eclipse Public License v1.0 which accompanies this distribution,
+  ~ and is available at http://www.eclipse.org/legal/epl-v10.html
+  -->
+  
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
+  <reference id="dataBroker" interface="org.opendaylight.controller.md.sal.binding.api.DataBroker" odl:type="pingpong"/>
+
+<odl:clustered-app-config id="dataChangeCounterConfig"
+        binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgpcep.data.change.counter.config.rev170424.DataChangeCounterConfig"/>
+
+
+  <bean id="data-change-counter" class="org.opendaylight.protocol.data.change.counter.TopologyDataChangeCounter" destroy-method="close">
+    <argument ref="dataBroker"/>
+    <argument>
+        <bean factory-ref="dataChangeCounterConfig" factory-method="getTopologyName"/>
+    </argument>
+    <argument>
+        <bean factory-ref="dataChangeCounterConfig" factory-method="getCounterId"/>
+    </argument>
+  </bean>
+</blueprint>
