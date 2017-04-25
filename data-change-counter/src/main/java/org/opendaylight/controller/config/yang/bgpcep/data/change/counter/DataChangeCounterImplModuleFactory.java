@@ -15,6 +15,10 @@
 *
 * Do not modify this file unless it is present under src/main directory
 */
+/**
+ * @deprecated Replaced by blueprint wiring but remains for backwards compatibility until downstream users
+ *             of the provided config system service are converted to blueprint.
+ */
 package org.opendaylight.controller.config.yang.bgpcep.data.change.counter;
 
 public class DataChangeCounterImplModuleFactory extends org.opendaylight.controller.config.yang.bgpcep.data.change.counter.AbstractDataChangeCounterImplModuleFactory {
