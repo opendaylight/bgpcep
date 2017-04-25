@@ -9,7 +9,7 @@
         <version>2.0.1</version>
         <relativePath/>
     </parent>
-    
+
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>features-bgp</artifactId>
     <version>0.8.0-SNAPSHOT</version>
