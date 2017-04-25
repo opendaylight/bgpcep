@@ -24,6 +24,7 @@ public class TopologyDataChangeCounterTest extends AbstractConcurrentDataBrokerT
 
     private static final String COUNTER_ID1 = "counter1";
     private static final String COUNTER_ID2 = "counter2";
+    private static final String TOPOLOGY_NAME = "example-linkstate-topology";
     private final InstanceIdentifier<Counter> counterInstanceId_1 = InstanceIdentifier.builder(DataChangeCounter.class)
         .child(Counter.class, new CounterKey(COUNTER_ID1)).build();
     private final InstanceIdentifier<Counter> counterInstanceId_2 = InstanceIdentifier.builder(DataChangeCounter.class)
@@ -31,7 +32,7 @@ public class TopologyDataChangeCounterTest extends AbstractConcurrentDataBrokerT
 
     @Test
     public void testDataChangeCounter() throws Exception {
-        final TopologyDataChangeCounter counter = new TopologyDataChangeCounter(getDataBroker(), COUNTER_ID1);
+        final TopologyDataChangeCounter counter = new TopologyDataChangeCounter(getDataBroker(), COUNTER_ID1, TOPOLOGY_NAME);
         readDataOperational(getDataBroker(), this.counterInstanceId_1, count -> {
             assertEquals(0, count.getCount().longValue());
             return count;
@@ -49,13 +50,13 @@ public class TopologyDataChangeCounterTest extends AbstractConcurrentDataBrokerT
 
     @Test
     public void testDataChangeCounterTwoInstances() throws Exception {
-        final TopologyDataChangeCounter counter1 = new TopologyDataChangeCounter(getDataBroker(), COUNTER_ID1);
+        final TopologyDataChangeCounter counter1 = new TopologyDataChangeCounter(getDataBroker(), COUNTER_ID1, TOPOLOGY_NAME);
         readDataOperational(getDataBroker(), this.counterInstanceId_1, count -> {
             assertEquals(0, count.getCount().longValue());
             return count;
         });
 
-        final TopologyDataChangeCounter counter2 = new TopologyDataChangeCounter(getDataBroker(), COUNTER_ID2);
+        final TopologyDataChangeCounter counter2 = new TopologyDataChangeCounter(getDataBroker(), COUNTER_ID2, TOPOLOGY_NAME);
         readDataOperational(getDataBroker(), this.counterInstanceId_2, count -> {
             assertEquals(0, count.getCount().longValue());
             return count;
