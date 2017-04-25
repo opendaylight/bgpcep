@@ -15,8 +15,30 @@
 *
 * Do not modify this file unless it is present under src/main directory
 */
+/**
+ * @deprecated Replaced by blueprint wiring but remains for backwards compatibility until downstream users
+ *             of the provided config system service are converted to blueprint.
+ */
 package org.opendaylight.controller.config.yang.bgpcep.data.change.counter;
 
-public class DataChangeCounterImplModuleFactory extends org.opendaylight.controller.config.yang.bgpcep.data.change.counter.AbstractDataChangeCounterImplModuleFactory {
+import org.opendaylight.controller.config.api.DependencyResolver;
+import org.opendaylight.controller.config.api.DynamicMBeanWithInstance;
+import org.opendaylight.controller.config.spi.Module;
+import org.osgi.framework.BundleContext;
 
+public class DataChangeCounterImplModuleFactory extends org.opendaylight.controller.config.yang.bgpcep.data.change.counter.AbstractDataChangeCounterImplModuleFactory {
+    @Override
+    public Module createModule(final String instanceName, final DependencyResolver dependencyResolver, final BundleContext bundleContext) {
+        final DataChangeCounterImplModule module = (DataChangeCounterImplModule) super.createModule(instanceName, dependencyResolver, bundleContext);
+        module.setBundleContext(bundleContext);
+        return module;
+    }
+
+    @Override
+    public Module createModule(final String instanceName, final DependencyResolver dependencyResolver,
+                               final DynamicMBeanWithInstance old, final BundleContext bundleContext) throws Exception {
+        final DataChangeCounterImplModule module = (DataChangeCounterImplModule)  super.createModule(instanceName, dependencyResolver, old, bundleContext);
+        module.setBundleContext(bundleContext);
+        return module;
+    }
 }
