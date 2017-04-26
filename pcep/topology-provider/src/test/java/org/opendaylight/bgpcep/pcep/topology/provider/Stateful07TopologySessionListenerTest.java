@@ -17,6 +17,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createLspTlvs;
+import static org.opendaylight.protocol.util.CheckUtil.checkEquals;
 import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentOperational;
 import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 
@@ -167,13 +168,13 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         });
 
         // check stats
-        assertEquals(1, this.listener.getDelegatedLspsCount().intValue());
-        assertTrue(this.listener.getSynchronized());
-        assertTrue(this.listener.getStatefulMessages().getLastReceivedRptMsgTimestamp() > 0);
-        assertEquals(2, this.listener.getStatefulMessages().getReceivedRptMsgCount().intValue());
-        assertEquals(1, this.listener.getStatefulMessages().getSentInitMsgCount().intValue());
-        assertEquals(0, this.listener.getStatefulMessages().getSentUpdMsgCount().intValue());
-        assertNotNull(this.listener.getSessionState());
+        checkEquals(()->assertEquals(1, this.listener.getDelegatedLspsCount().intValue()));
+        checkEquals(()->assertTrue(this.listener.getSynchronized()));
+        checkEquals(()->assertTrue(this.listener.getStatefulMessages().getLastReceivedRptMsgTimestamp() > 0));
+        checkEquals(()->assertEquals(2, this.listener.getStatefulMessages().getReceivedRptMsgCount().intValue()));
+        checkEquals(()->assertEquals(1, this.listener.getStatefulMessages().getSentInitMsgCount().intValue()));
+        checkEquals(()->assertEquals(0, this.listener.getStatefulMessages().getSentUpdMsgCount().intValue()));
+        checkEquals(()->assertNotNull(this.listener.getSessionState()));
 
         // update-lsp
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.update.lsp.args
@@ -212,17 +213,17 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         });
 
         // check stats
-        assertEquals(1, this.listener.getDelegatedLspsCount().intValue());
-        assertTrue(this.listener.getSynchronized());
-        assertTrue(this.listener.getStatefulMessages().getLastReceivedRptMsgTimestamp() > 0);
-        assertEquals(3, this.listener.getStatefulMessages().getReceivedRptMsgCount().intValue());
-        assertEquals(1, this.listener.getStatefulMessages().getSentInitMsgCount().intValue());
-        assertEquals(1, this.listener.getStatefulMessages().getSentUpdMsgCount().intValue());
-        assertTrue(this.listener.getReplyTime().getAverageTime() > 0);
-        assertTrue(this.listener.getReplyTime().getMaxTime() > 0);
-        assertFalse(this.listener.getPeerCapabilities().getActive());
-        assertTrue(this.listener.getPeerCapabilities().getInstantiation());
-        assertTrue(this.listener.getPeerCapabilities().getStateful());
+        checkEquals(()->assertEquals(1, this.listener.getDelegatedLspsCount().intValue()));
+        checkEquals(()-> assertTrue(this.listener.getSynchronized()));
+        checkEquals(()-> assertTrue(this.listener.getStatefulMessages().getLastReceivedRptMsgTimestamp() > 0));
+        checkEquals(()->assertEquals(3, this.listener.getStatefulMessages().getReceivedRptMsgCount().intValue()));
+        checkEquals(()->assertEquals(1, this.listener.getStatefulMessages().getSentInitMsgCount().intValue()));
+        checkEquals(()->assertEquals(1, this.listener.getStatefulMessages().getSentUpdMsgCount().intValue()));
+        checkEquals(()->assertTrue(this.listener.getReplyTime().getAverageTime() > 0));
+        checkEquals(()->assertTrue(this.listener.getReplyTime().getMaxTime() > 0));
+        checkEquals(()->assertFalse(this.listener.getPeerCapabilities().getActive()));
+        checkEquals(()->assertTrue(this.listener.getPeerCapabilities().getInstantiation()));
+        checkEquals(()->assertTrue(this.listener.getPeerCapabilities().getStateful()));
 
         // ensure-operational
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.ensure.lsp.
@@ -259,20 +260,20 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
             return pcc;
         });
         // check stats
-        assertEquals(0, this.listener.getDelegatedLspsCount().intValue());
-        assertTrue(this.listener.getSynchronized());
-        assertTrue(this.listener.getStatefulMessages().getLastReceivedRptMsgTimestamp() > 0);
-        assertEquals(4, this.listener.getStatefulMessages().getReceivedRptMsgCount().intValue());
-        assertEquals(2, this.listener.getStatefulMessages().getSentInitMsgCount().intValue());
-        assertEquals(1, this.listener.getStatefulMessages().getSentUpdMsgCount().intValue());
-        this.listener.resetStats();
-        assertEquals(0, this.listener.getStatefulMessages().getLastReceivedRptMsgTimestamp().longValue());
-        assertEquals(0, this.listener.getStatefulMessages().getReceivedRptMsgCount().intValue());
-        assertEquals(0, this.listener.getStatefulMessages().getSentInitMsgCount().intValue());
-        assertEquals(0, this.listener.getStatefulMessages().getSentUpdMsgCount().intValue());
-        assertEquals(0, this.listener.getReplyTime().getAverageTime().longValue());
-        assertEquals(0, this.listener.getReplyTime().getMaxTime().longValue());
-        assertEquals(0, this.listener.getReplyTime().getMinTime().longValue());
+        checkEquals(()->assertEquals(0, this.listener.getDelegatedLspsCount().intValue()));
+        checkEquals(()->assertTrue(this.listener.getSynchronized()));
+        checkEquals(()->assertTrue(this.listener.getStatefulMessages().getLastReceivedRptMsgTimestamp() > 0));
+        checkEquals(()->assertEquals(4, this.listener.getStatefulMessages().getReceivedRptMsgCount().intValue()));
+        checkEquals(()->assertEquals(2, this.listener.getStatefulMessages().getSentInitMsgCount().intValue()));
+        checkEquals(()->assertEquals(1, this.listener.getStatefulMessages().getSentUpdMsgCount().intValue()));
+        checkEquals(()->this.listener.resetStats());
+        checkEquals(()->assertEquals(0, this.listener.getStatefulMessages().getLastReceivedRptMsgTimestamp().longValue()));
+        checkEquals(()->assertEquals(0, this.listener.getStatefulMessages().getReceivedRptMsgCount().intValue()));
+        checkEquals(()->assertEquals(0, this.listener.getStatefulMessages().getSentInitMsgCount().intValue()));
+        checkEquals(()->assertEquals(0, this.listener.getStatefulMessages().getSentUpdMsgCount().intValue()));
+        checkEquals(()->assertEquals(0, this.listener.getReplyTime().getAverageTime().longValue()));
+        checkEquals(()->assertEquals(0, this.listener.getReplyTime().getMaxTime().longValue()));
+        checkEquals(()->assertEquals(0, this.listener.getReplyTime().getMinTime().longValue()));
     }
 
     @Test
