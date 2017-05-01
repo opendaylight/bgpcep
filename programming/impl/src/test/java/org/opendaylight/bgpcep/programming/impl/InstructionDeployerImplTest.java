@@ -45,6 +45,7 @@ public class InstructionDeployerImplTest extends AbstractProgrammingTest {
     }
 
     @Test
+    @Ignore
     public void testInstructionDeployer() throws Exception {
         final InstructionDeployerImpl deployer = new InstructionDeployerImpl(getDataBroker(), this.rpcRegistry,
             this.notifs, this.timer, this.cssp, this.bundleContext);
