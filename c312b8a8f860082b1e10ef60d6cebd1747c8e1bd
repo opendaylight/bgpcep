@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_1f79cf93",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/AbstractFlowspecNlriParser.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 596,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2017-05-02T11:32:40Z",
+      "side": 1,
+      "message": "use the variable nlriLenght, assignment to a new variable is unnecessary",
+      "revId": "c312b8a8f860082b1e10ef60d6cebd1747c8e1bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_5f7357b1",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/AbstractFlowspecNlriParser.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 603,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2017-05-02T11:32:40Z",
+      "side": 1,
+      "message": "...this is where remainLength variable should be declared.",
+      "revId": "c312b8a8f860082b1e10ef60d6cebd1747c8e1bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
