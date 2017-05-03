@@ -23,7 +23,9 @@ public class RouteDistinguisherUtilTest {
     private static final String IP_PORT = "10";
     private static final String ADMIN = "55";
     private static final String ASSIGNED_NUMBER = "65535";
+    private static final String ASSIGNED_NUMBER_BIG = "4294967295";
     private static final byte[] AS_2B_BYTES = { 0, 0, 0, 55, 0, 0, (byte)0xff, (byte)0xff};
+    private static final byte[] AS_2B_BYTES_BIG = { 0, 0, 0, 55, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff};
     private static final byte[] IP_BYTES = { 0, 1, 1, 2, 3, 4, 0, 10 };
     private static final byte[] AS_4B_BYTES = { 0, 2, 0, 0, 0, 55, (byte)0xff, (byte)0xff};
     private static final byte[] INVALID_RD_TYPE_BYTES = { 0, 3, 0, 0, 0, 55, (byte)0xff, (byte)0xff};
@@ -38,6 +40,17 @@ public class RouteDistinguisherUtilTest {
         RouteDistinguisherUtil.serializeRouteDistinquisher(expected, byteAggregator);
         assertArrayEquals(AS_2B_BYTES, byteAggregator.array());
         assertEquals("0" + SEPARATOR + ADMIN + SEPARATOR + ASSIGNED_NUMBER, parsed.getRdTwoOctetAs().getValue());
+    }
+
+    @Test
+    public void testAs2BLongRouteDistinguisher() {
+        final RouteDistinguisher expected = createRouteDistinguisher(0, ADMIN, ASSIGNED_NUMBER_BIG);
+        final RouteDistinguisher parsed = RouteDistinguisherUtil.parseRouteDistinguisher(Unpooled.copiedBuffer(AS_2B_BYTES_BIG));
+        assertEquals(expected.getRdTwoOctetAs(), parsed.getRdTwoOctetAs());
+        final ByteBuf byteAggregator = Unpooled.buffer(AS_2B_BYTES_BIG.length);
+        RouteDistinguisherUtil.serializeRouteDistinquisher(expected, byteAggregator);
+        assertArrayEquals(AS_2B_BYTES_BIG, byteAggregator.array());
+        assertEquals("0" + SEPARATOR + ADMIN + SEPARATOR + ASSIGNED_NUMBER_BIG, parsed.getRdTwoOctetAs().getValue());
     }
 
     @Test
