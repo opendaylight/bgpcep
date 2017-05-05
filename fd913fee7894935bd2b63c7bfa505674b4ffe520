@@ -1,0 +1,234 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_372f88a3",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/AbstractFlowspecNlriParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-05-05T15:55:55Z",
+      "side": 1,
+      "message": "this method is called\n\nwhile (nlri.isReadable()) {\n            int nlriLength \u003d readNlriLength(nlri);\n\nso it this checks are unnecessaries",
+      "range": {
+        "startLine": 570,
+        "startChar": 0,
+        "endLine": 571,
+        "endChar": 89
+      },
+      "revId": "fd913fee7894935bd2b63c7bfa505674b4ffe520",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_d708bc2f",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/AbstractFlowspecNlriParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 593,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-05-05T15:55:55Z",
+      "side": 1,
+      "message": "since you are reading the length on previous method, you can do the check there, to keep everything togheter",
+      "range": {
+        "startLine": 593,
+        "startChar": 12,
+        "endLine": 593,
+        "endChar": 137
+      },
+      "revId": "fd913fee7894935bd2b63c7bfa505674b4ffe520",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_a9ffa000",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/AbstractFlowspecNlriParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 594,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-05-05T15:55:55Z",
+      "side": 1,
+      "message": "please try to avoid inserting unnecessaries comments. It can overload logs at the time of debug.",
+      "range": {
+        "startLine": 594,
+        "startChar": 12,
+        "endLine": 594,
+        "endChar": 64
+      },
+      "revId": "fd913fee7894935bd2b63c7bfa505674b4ffe520",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_89045c16",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/SimpleFlowspecTypeRegistry.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-05-05T15:55:55Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 39,
+        "startChar": 48,
+        "endLine": 39,
+        "endChar": 56
+      },
+      "revId": "fd913fee7894935bd2b63c7bfa505674b4ffe520",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_e909a82d",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/SimpleFlowspecTypeRegistry.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-05-05T15:55:55Z",
+      "side": 1,
+      "message": "non necessary",
+      "range": {
+        "startLine": 41,
+        "startChar": 8,
+        "endLine": 41,
+        "endChar": 47
+      },
+      "revId": "fd913fee7894935bd2b63c7bfa505674b4ffe520",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_691db866",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/l3vpn/AbstractFlowspecL3vpnNlriParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-05-05T15:55:55Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 70,
+        "startChar": 4,
+        "endLine": 70,
+        "endChar": 12
+      },
+      "revId": "fd913fee7894935bd2b63c7bfa505674b4ffe520",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_491a746f",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/l3vpn/AbstractFlowspecL3vpnNlriParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-05-05T15:55:55Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 71,
+        "startChar": 33,
+        "endLine": 71,
+        "endChar": 42
+      },
+      "revId": "fd913fee7894935bd2b63c7bfa505674b4ffe520",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_e920889d",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/l3vpn/AbstractFlowspecL3vpnNlriParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-05-05T15:55:55Z",
+      "side": 1,
+      "message": "as commented before, move inside readNlriLenght",
+      "range": {
+        "startLine": 73,
+        "startChar": 8,
+        "endLine": 73,
+        "endChar": 108
+      },
+      "revId": "fd913fee7894935bd2b63c7bfa505674b4ffe520",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_892bbc81",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/l3vpn/AbstractFlowspecL3vpnNlriParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-05-05T15:55:55Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 74,
+        "startChar": 8,
+        "endLine": 74,
+        "endChar": 60
+      },
+      "revId": "fd913fee7894935bd2b63c7bfa505674b4ffe520",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_a92680b8",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/l3vpn/AbstractFlowspecL3vpnNlriParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-05-05T15:55:55Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 81,
+        "startChar": 62,
+        "endLine": 81,
+        "endChar": 71
+      },
+      "revId": "fd913fee7894935bd2b63c7bfa505674b4ffe520",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
