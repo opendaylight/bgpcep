@@ -17,7 +17,6 @@ import static org.opendaylight.protocol.util.CheckUtil.checkPresentConfiguration
 
 import io.netty.util.Timer;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
@@ -27,7 +26,6 @@ import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
-@Ignore("Hangs frequently in autorelease")
 public class InstructionDeployerImplTest extends AbstractProgrammingTest {
     @Mock
     private NotificationPublishService notifs;
@@ -36,7 +34,7 @@ public class InstructionDeployerImplTest extends AbstractProgrammingTest {
     @Mock
     private BundleContext bundleContext;
     @Mock
-    private ServiceRegistration serviceRegistration;
+    private ServiceRegistration<?> serviceRegistration;
 
     @Before
     @Override
@@ -46,7 +44,7 @@ public class InstructionDeployerImplTest extends AbstractProgrammingTest {
         doNothing().when(this.serviceRegistration).unregister();
     }
 
-    @Test
+    @Test(timeout = 300000)
     public void testInstructionDeployer() throws Exception {
         final InstructionDeployerImpl deployer = new InstructionDeployerImpl(getDataBroker(), this.rpcRegistry,
             this.notifs, this.timer, this.cssp, this.bundleContext);
