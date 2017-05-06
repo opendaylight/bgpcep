@@ -13,13 +13,11 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
-
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-
 import org.mockito.stubbing.Answer;
 
 final class MockedExecutorWrapper {
@@ -27,7 +25,7 @@ final class MockedExecutorWrapper {
     private final List<Object> submittedTasksToExecutor;
 
     MockedExecutorWrapper() {
-        this.submittedTasksToExecutor = Lists.newArrayList();
+        this.submittedTasksToExecutor = new ArrayList<>();
     }
 
     ListeningExecutorService getMockedExecutor() {

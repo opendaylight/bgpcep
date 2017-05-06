@@ -34,6 +34,10 @@ abstract class AbstractProgrammingTest extends AbstractConcurrentDataBrokerTest 
     private RoutedRpcRegistration<ProgrammingService> registration;
     ClusterSingletonService singletonService;
 
+    AbstractProgrammingTest() {
+        super(true);
+    }
+
     @Before
     public void setUp() throws Exception {
         initMocks(this);
