@@ -34,6 +34,10 @@ abstract class AbstractProgrammingTest extends AbstractConcurrentDataBrokerTest 
     private RoutedRpcRegistration<ProgrammingService> registration;
     ClusterSingletonService singletonService;
 
+    AbstractProgrammingTest() {
+        super(true);
+    }
+
     @Before
     public void setUp() throws Exception {
         initMocks(this);
@@ -42,7 +46,7 @@ abstract class AbstractProgrammingTest extends AbstractConcurrentDataBrokerTest 
             return this.singletonServiceRegistration;
         }).when(this.cssp).registerClusterSingletonService(any(ClusterSingletonService.class));
         doAnswer(invocationOnMock -> {
-            this.singletonService.closeServiceInstance();
+            this.singletonService.closeServiceInstance().get();
             return null;
         }).when(this.singletonServiceRegistration).close();
 

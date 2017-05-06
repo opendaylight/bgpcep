@@ -10,9 +10,9 @@ package org.opendaylight.bgpcep.programming.impl;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
-import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import io.netty.util.Timer;
@@ -22,6 +22,7 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
@@ -35,7 +36,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.programming.config.rev170301.OdlProgramming;
@@ -81,26 +81,20 @@ public final class InstructionDeployerImpl implements IntructionDeployer,
             final WriteTransaction wTx = InstructionDeployerImpl.this.dataProvider.newWriteOnlyTransaction();
             wTx.put(LogicalDatastoreType.CONFIGURATION, InstructionDeployerImpl.this.iid.child(
                 OdlProgrammingConfig.class, new OdlProgrammingConfigKey(this.instructionId)), instruction, true);
-            final CheckedFuture<Void, TransactionCommitFailedException> future = wTx.submit();
-            Futures.addCallback(future, new FutureCallback<Void>() {
-                @Override
-                public void onSuccess(final Void result) {
-                    LOG.debug("Instruction Instance {} initialized successfully.", WriteConfiguration.this.instructionId);
-                }
-
-                @Override
-                public void onFailure(final Throwable t) {
-                    LOG.error("Failed to initialize Instruction Instance {}.", WriteConfiguration.this.instructionId, t);
-                }
-            }, MoreExecutors.directExecutor());
+            try {
+                wTx.submit().get();
+                LOG.debug("Instruction Instance {} initialized successfully.", WriteConfiguration.this.instructionId);
+            } catch (final ExecutionException |InterruptedException e) {
+                LOG.error("Failed to initialize Instruction Instance {}.", WriteConfiguration.this.instructionId, e);
+            }
         }
 
-        void remove() {
+        ListenableFuture<Void> remove() {
             final WriteTransaction wTx = InstructionDeployerImpl.this.dataProvider.newWriteOnlyTransaction();
             wTx.delete(LogicalDatastoreType.CONFIGURATION, InstructionDeployerImpl.this.iid.child(
                 OdlProgrammingConfig.class, new OdlProgrammingConfigKey(this.instructionId)));
-            final CheckedFuture<Void, TransactionCommitFailedException> future = wTx.submit();
-            Futures.addCallback(future, new FutureCallback<Void>() {
+            ListenableFuture<Void> futureRemove = wTx.submit();
+            Futures.addCallback(futureRemove, new FutureCallback<Void>() {
                 @Override
                 public void onSuccess(final Void result) {
                     LOG.debug("Instruction Instance {} removed successfully.", WriteConfiguration.this.instructionId);
@@ -111,6 +105,7 @@ public final class InstructionDeployerImpl implements IntructionDeployer,
                     LOG.error("Failed to remove Instruction Instance {}.", WriteConfiguration.this.instructionId, t);
                 }
             }, MoreExecutors.directExecutor());
+            return futureRemove;
         }
     }
 
@@ -158,9 +153,8 @@ public final class InstructionDeployerImpl implements IntructionDeployer,
         }
         LOG.debug("Creating Instruction Scheduler {}.", instructionId);
 
-        final ProgrammingServiceImpl programmingInst =
-            new ProgrammingServiceImpl(this.dataProvider, this.notifs, this.exec, this.rpcProviderRegistry, this.cssp,
-                this.timer, instructionId, writeConfiguration);
+        final ProgrammingServiceImpl programmingInst = new ProgrammingServiceImpl(this.dataProvider, this.notifs,
+            this.exec, this.rpcProviderRegistry, this.cssp, this.timer, instructionId, writeConfiguration);
         this.programmingServices.put(instructionId, programmingInst);
         final Dictionary<String, String> properties = new Hashtable<>();
         properties.put(InstructionScheduler.class.getName(), instructionId);
@@ -199,7 +193,7 @@ public final class InstructionDeployerImpl implements IntructionDeployer,
         final DataTreeModification<OdlProgramming> dataTreeModification = Iterables.getOnlyElement(changes);
         final Collection<DataObjectModification<? extends DataObject>> rootNode = dataTreeModification.getRootNode()
             .getModifiedChildren();
-        if(rootNode.isEmpty()) {
+        if (rootNode.isEmpty()) {
             return;
         }
         rootNode.forEach(dto->handleModification((DataObjectModification<OdlProgrammingConfig>) dto));

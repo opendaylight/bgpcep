@@ -8,7 +8,6 @@
 package org.opendaylight.bgpcep.programming.impl;
 
 import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -33,10 +32,9 @@ import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.programming.spi.SchedulerException;
 import org.opendaylight.bgpcep.programming.spi.SuccessfulRpcResult;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RpcRegistration;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
@@ -108,9 +106,10 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
 
                 final WriteTransaction t = ProgrammingServiceImpl.this.dataProvider.newWriteOnlyTransaction();
                 t.put(LogicalDatastoreType.OPERATIONAL,
-                        ProgrammingServiceImpl.this.qid.child(
-                                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.instruction.queue.Instruction.class,
-                                new InstructionKey(this.builder.getId())), this.builder.build());
+                    ProgrammingServiceImpl.this.qid.child(
+                        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming
+                            .rev150720.instruction.queue.Instruction.class,
+                        new InstructionKey(this.builder.getId())), this.builder.build());
                 Futures.addCallback(t.submit(), new FutureCallback<Void>() {
                     @Override
                     public void onSuccess(final Void result) {
@@ -136,8 +135,9 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
         public void instructionRemoved() {
             final WriteTransaction t = ProgrammingServiceImpl.this.dataProvider.newWriteOnlyTransaction();
             t.delete(LogicalDatastoreType.OPERATIONAL, ProgrammingServiceImpl.this.qid.child(
-                    org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.instruction.queue.Instruction.class,
-                    new InstructionKey(this.builder.getId())));
+                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.instruction
+                    .queue.Instruction.class,
+                new InstructionKey(this.builder.getId())));
             Futures.addCallback(t.submit(), new FutureCallback<Void>() {
                 @Override
                 public void onSuccess(final Void result) {
@@ -162,9 +162,10 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
         this.executor = Preconditions.checkNotNull(executor);
         this.rpcProviderRegistry = Preconditions.checkNotNull(rpcProviderRegistry);
         this.timer = Preconditions.checkNotNull(timer);
-        this.qid = KeyedInstanceIdentifier.builder(InstructionsQueue.class,  new InstructionsQueueKey(this.instructionId)).build();
+        this.qid = KeyedInstanceIdentifier.builder(InstructionsQueue.class,
+            new InstructionsQueueKey(this.instructionId)).build();
         this.writeConfiguration = writeConfiguration;
-        this.sgi = ServiceGroupIdentifier.create("programming-"+ this.instructionId + "-service-group");
+        this.sgi = ServiceGroupIdentifier.create("programming-" + this.instructionId + "-service-group");
         this.csspReg = cssp.registerClusterSingletonService(this);
     }
 
@@ -213,7 +214,8 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
         if (i == null) {
             LOG.debug("Instruction {} not present in the graph", input.getId());
 
-            final CancelInstructionOutput out = new CancelInstructionOutputBuilder().setFailure(UnknownInstruction.class).build();
+            final CancelInstructionOutput out = new CancelInstructionOutputBuilder()
+                .setFailure(UnknownInstruction.class).build();
             return SuccessfulRpcResult.create(out);
         }
 
@@ -234,19 +236,19 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
 
             // Check its status
             switch (i.getStatus()) {
-            case Cancelled:
-            case Failed:
-            case Successful:
-                break;
-            case Executing:
-            case Queued:
-            case Scheduled:
-            case Unknown:
-                LOG.debug("Instruction {} cannot be cleaned because of it's in state {}", id, i.getStatus());
-                failed.add(id);
-                continue;
-            default:
-                break;
+                case Cancelled:
+                case Failed:
+                case Successful:
+                    break;
+                case Executing:
+                case Queued:
+                case Scheduled:
+                case Unknown:
+                    LOG.debug("Instruction {} cannot be cleaned because of it's in state {}", id, i.getStatus());
+                    failed.add(id);
+                    continue;
+                default:
+                    break;
             }
 
             // The instruction is in a terminal state, we need to just unlink
@@ -272,8 +274,8 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
          *  and fail the operation.
          */
         if (!unmet.isEmpty()) {
-            throw new SchedulerException("Instruction's dependencies are already unsuccessful", new FailureBuilder().setType(
-                    DeadOnArrival.class).setFailedPreconditions(unmet).build());
+            throw new SchedulerException("Instruction's dependencies are already unsuccessful", new FailureBuilder()
+                .setType(DeadOnArrival.class).setFailedPreconditions(unmet).build());
         }
         return dependencies;
     }
@@ -284,40 +286,43 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
             final InstructionImpl i = this.insns.get(pid);
             if (i == null) {
                 LOG.info("Instruction {} depends on {}, which is not a known instruction", input.getId(), pid);
-                throw new SchedulerException("Unknown dependency ID specified", new FailureBuilder().setType(UnknownPreconditionId.class).build());
+                throw new SchedulerException("Unknown dependency ID specified",
+                    new FailureBuilder().setType(UnknownPreconditionId.class).build());
             }
             dependencies.add(i);
         }
         return dependencies;
     }
 
-    private List<InstructionId> checkIfUnfailed(final List<InstructionImpl> dependencies) {
+    private static List<InstructionId> checkIfUnfailed(final List<InstructionImpl> dependencies) {
         final List<InstructionId> unmet = new ArrayList<>();
         for (final InstructionImpl d : dependencies) {
             switch (d.getStatus()) {
-            case Cancelled:
-            case Failed:
-            case Unknown:
-                unmet.add(d.getId());
-                break;
-            case Executing:
-            case Queued:
-            case Scheduled:
-            case Successful:
-                break;
-            default:
-                break;
+                case Cancelled:
+                case Failed:
+                case Unknown:
+                    unmet.add(d.getId());
+                    break;
+                case Executing:
+                case Queued:
+                case Scheduled:
+                case Successful:
+                    break;
+                default:
+                    break;
             }
         }
         return unmet;
     }
 
     @Override
-    public synchronized ListenableFuture<Instruction> scheduleInstruction(final SubmitInstructionInput input) throws SchedulerException {
+    public synchronized ListenableFuture<Instruction> scheduleInstruction(final SubmitInstructionInput input) throws
+        SchedulerException {
         final InstructionId id = input.getId();
         if (this.insns.get(id) != null) {
             LOG.info("Instruction ID {} already present", id);
-            throw new SchedulerException("Instruction ID currently in use", new FailureBuilder().setType(DuplicateInstructionId.class).build());
+            throw new SchedulerException("Instruction ID currently in use",
+                new FailureBuilder().setType(DuplicateInstructionId.class).build());
         }
 
         // First things first: check the deadline
@@ -326,7 +331,8 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
 
         if (left.compareTo(BigInteger.ZERO) <= 0) {
             LOG.debug("Instruction {} deadline has already passed by {}ns", id, left);
-            throw new SchedulerException("Instruction arrived after specified deadline", new FailureBuilder().setType(DeadOnArrival.class).build());
+            throw new SchedulerException("Instruction arrived after specified deadline",
+                new FailureBuilder().setType(DeadOnArrival.class).build());
         }
 
         // Resolve dependencies
@@ -339,11 +345,13 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
          */
 
         // Schedule a timeout for the instruction
-        final Timeout t = this.timer.newTimeout(timeout -> timeoutInstruction(input.getId()), left.longValue(), TimeUnit.NANOSECONDS);
+        final Timeout t = this.timer.newTimeout(timeout -> timeoutInstruction(input.getId()), left.longValue(),
+            TimeUnit.NANOSECONDS);
 
         // Put it into the instruction list
         final SettableFuture<Instruction> ret = SettableFuture.create();
-        final InstructionImpl i = new InstructionImpl(new InstructionPusher(id, input.getDeadline()), ret, id, dependencies, t);
+        final InstructionImpl i = new InstructionImpl(new InstructionPusher(id, input.getDeadline()), ret, id,
+            dependencies, t);
         this.insns.put(id, i);
 
         // Attach it into its dependencies
@@ -362,6 +370,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
         return ret;
     }
 
+    @Override
     public String getInstructionID() {
         return this.instructionId;
     }
@@ -403,11 +412,12 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
     }
 
     @Override
-    public ListenableFuture<Void> closeServiceInstance() {
+    public synchronized ListenableFuture<Void> closeServiceInstance() {
         LOG.info("Closing Instruction Queue service {}", this.sgi.getValue());
 
+        ListenableFuture<Void> writeConfigurationFuture = null;
         if (this.writeConfiguration != null) {
-            this.writeConfiguration.remove();
+            writeConfigurationFuture = this.writeConfiguration.remove();
         }
         this.reg.close();
         for (final InstructionImpl i : this.insns.values()) {
@@ -416,19 +426,33 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
         // Workaround for BUG-2283
         final WriteTransaction t = this.dataProvider.newWriteOnlyTransaction();
         t.delete(LogicalDatastoreType.OPERATIONAL, this.qid);
-        final CheckedFuture<Void, TransactionCommitFailedException> future = t.submit();
+
+        final SettableFuture<Void> future = SettableFuture.create();
+
+        if (writeConfigurationFuture != null) {
+            writeConfigurationFuture.addListener(() -> submitRemoval(t, future), executor);
+        } else {
+            submitRemoval(t, future);
+        }
+
+        return future;
+    }
+
+    private void submitRemoval(WriteTransaction t, SettableFuture<Void> futureSetable) {
+        final ListenableFuture<Void> future = t.submit();
         Futures.addCallback(future, new FutureCallback<Void>() {
             @Override
             public void onSuccess(final Void result) {
                 LOG.debug("Instruction Queue {} removed", ProgrammingServiceImpl.this.qid);
+                futureSetable.set(null);
             }
 
             @Override
             public void onFailure(final Throwable t) {
                 LOG.error("Failed to shutdown Instruction Queue {}", ProgrammingServiceImpl.this.qid, t);
+                futureSetable.setException(t);
             }
         }, MoreExecutors.directExecutor());
-        return future;
     }
 
     @Override
