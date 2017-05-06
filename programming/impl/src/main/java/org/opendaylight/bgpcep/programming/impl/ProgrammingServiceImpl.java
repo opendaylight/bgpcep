@@ -8,11 +8,11 @@
 package org.opendaylight.bgpcep.programming.impl;
 
 import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
 import io.netty.util.Timeout;
 import io.netty.util.Timer;
@@ -32,10 +32,9 @@ import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.programming.spi.SchedulerException;
 import org.opendaylight.bgpcep.programming.spi.SuccessfulRpcResult;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RpcRegistration;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
@@ -120,7 +119,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
                     public void onFailure(final Throwable t) {
                         LOG.error("Failed to update Instruction Queue {}", ProgrammingServiceImpl.this.qid, t);
                     }
-                });
+                }, MoreExecutors.directExecutor());
             }
 
             try {
@@ -147,7 +146,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
                 public void onFailure(final Throwable t) {
                     LOG.error("Failed to remove Instruction Queue {}", ProgrammingServiceImpl.this.qid, t);
                 }
-            });
+            }, MoreExecutors.directExecutor());
         }
     }
 
@@ -189,7 +188,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
             public void onFailure(final Throwable t) {
                 LOG.error("Failed to add Instruction Queue {}", ProgrammingServiceImpl.this.qid, t);
             }
-        });
+        }, MoreExecutors.directExecutor());
     }
 
     @Override
@@ -290,7 +289,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
         return dependencies;
     }
 
-    private List<InstructionId> checkIfUnfailed(final List<InstructionImpl> dependencies) {
+    private static List<InstructionId> checkIfUnfailed(final List<InstructionImpl> dependencies) {
         final List<InstructionId> unmet = new ArrayList<>();
         for (final InstructionImpl d : dependencies) {
             switch (d.getStatus()) {
@@ -361,6 +360,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
         return ret;
     }
 
+    @Override
     public String getInstructionID() {
         return this.instructionId;
     }
@@ -396,7 +396,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
                 public void onFailure(final Throwable t) {
                     LOG.error("Instruction {} failed to execute", i.getId(), t);
                 }
-            });
+            }, MoreExecutors.directExecutor());
         }
 
     }
@@ -415,7 +415,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
         // Workaround for BUG-2283
         final WriteTransaction t = this.dataProvider.newWriteOnlyTransaction();
         t.delete(LogicalDatastoreType.OPERATIONAL, this.qid);
-        final CheckedFuture<Void, TransactionCommitFailedException> future = t.submit();
+        final ListenableFuture<Void> future = t.submit();
         Futures.addCallback(future, new FutureCallback<Void>() {
             @Override
             public void onSuccess(final Void result) {
@@ -426,7 +426,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
             public void onFailure(final Throwable t) {
                 LOG.error("Failed to shutdown Instruction Queue {}", ProgrammingServiceImpl.this.qid, t);
             }
-        });
+        }, MoreExecutors.directExecutor());
         return future;
     }
 

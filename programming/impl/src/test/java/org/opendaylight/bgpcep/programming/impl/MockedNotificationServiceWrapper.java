@@ -52,8 +52,8 @@ final class MockedNotificationServiceWrapper {
         assertInstructionStatusChangedNotification(id, status, firstNotification);
     }
 
-    private void assertInstructionStatusChangedNotification(final InstructionId id, final InstructionStatus status,
-            final InstructionStatusChanged firstNotification) {
+    private static void assertInstructionStatusChangedNotification(final InstructionId id,
+            final InstructionStatus status, final InstructionStatusChanged firstNotification) {
         Assert.assertEquals(id, firstNotification.getId());
         Assert.assertEquals(status, firstNotification.getStatus());
     }

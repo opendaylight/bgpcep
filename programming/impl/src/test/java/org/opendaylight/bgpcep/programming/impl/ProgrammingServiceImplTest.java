@@ -191,7 +191,7 @@ public class ProgrammingServiceImplTest extends AbstractProgrammingTest {
         checkNotPresentOperational(getDataBroker(), buildInstructionIID(mockedSubmit2.getId()));
     }
 
-    private void assertCleanInstructionOutput(final ListenableFuture<RpcResult<CleanInstructionsOutput>>
+    private static void assertCleanInstructionOutput(final ListenableFuture<RpcResult<CleanInstructionsOutput>>
         cleanedInstructionOutput, final int unflushedCount) throws InterruptedException,
         java.util.concurrent.ExecutionException {
         if (unflushedCount == 0) {
@@ -326,42 +326,39 @@ public class ProgrammingServiceImplTest extends AbstractProgrammingTest {
             InstructionStatus.Successful);
     }
 
-    private Details getDetails() {
+    private static Details getDetails() {
         return new DetailsBuilder().build();
     }
 
-    private SubmitInstructionInput getMockedSubmitInstructionInput(final String id, final String... dependencyIds) {
+    private static SubmitInstructionInput getMockedSubmitInstructionInput(final String id,
+            final String... dependencyIds) {
         return getMockedSubmitInstructionInput(id, Optional.empty(), dependencyIds);
     }
 
-    private SubmitInstructionInput getMockedSubmitInstructionInput(final String id, final Optional<Nanotime> deadline,
-        final String... dependencyIds) {
+    private static SubmitInstructionInput getMockedSubmitInstructionInput(final String id,
+            final Optional<Nanotime> deadline, final String... dependencyIds) {
         final SubmitInstructionInput mockedSubmitInstruction = mock(SubmitInstructionInput.class);
 
         doReturn(PcepUpdateTunnelInput.class).when(mockedSubmitInstruction).getImplementedInterface();
         final List<InstructionId> dependencies = Lists.newArrayList();
         for (final String dependencyId : dependencyIds) {
-            dependencies.add(getInstructionId(dependencyId));
+            dependencies.add(new InstructionId(dependencyId));
         }
 
         doReturn(dependencies).when(mockedSubmitInstruction).getPreconditions();
-        doReturn(getInstructionId(id)).when(mockedSubmitInstruction).getId();
+        doReturn(new InstructionId(id)).when(mockedSubmitInstruction).getId();
         doReturn(deadline.isPresent() ? deadline.get() : new Nanotime(BigInteger.valueOf(Long.MAX_VALUE)))
             .when(mockedSubmitInstruction).getDeadline();
         return mockedSubmitInstruction;
     }
 
-    private CancelInstructionInput getCancelInstruction(final String instructionId) {
+    private static CancelInstructionInput getCancelInstruction(final String instructionId) {
         final CancelInstructionInputBuilder builder = new CancelInstructionInputBuilder();
-        builder.setId(getInstructionId(instructionId));
+        builder.setId(new InstructionId(instructionId));
         return builder.build();
     }
 
-    private InstructionId getInstructionId(final String id) {
-        return new InstructionId(id);
-    }
-
-    private KeyedInstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.
+    private static KeyedInstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.
         rev150720.instruction.queue.Instruction, InstructionKey> buildInstructionIID(final InstructionId id) {
         return InstanceIdentifier.builder(InstructionsQueue.class, new InstructionsQueueKey(INSTRUCTIONS_QUEUE_KEY))
             .build().child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720
