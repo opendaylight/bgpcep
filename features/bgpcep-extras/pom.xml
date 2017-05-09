@@ -18,13 +18,13 @@
     </parent>
 
     <groupId>org.opendaylight.bgpcep</groupId>
-    <artifactId>features-aggregator-extras</artifactId>
+    <artifactId>features-aggregator-bgpcep-extras</artifactId>
     <version>0.8.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
         <module>features-extras</module>
-        <module>features4-extras</module>
+        <module>features4-bgpcep-extras</module>
         <module>odl-bgpcep-extras-dependencies</module>
         <module>odl-bgpcep-data-change-counter</module>
     </modules>

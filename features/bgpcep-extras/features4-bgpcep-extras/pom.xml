@@ -11,7 +11,7 @@
     </parent>
 
     <groupId>org.opendaylight.bgpcep</groupId>
-    <artifactId>features4-extras</artifactId>
+    <artifactId>features4-bgpcep-extras</artifactId>
     <version>0.8.0-SNAPSHOT</version>
     <packaging>feature</packaging>
 
