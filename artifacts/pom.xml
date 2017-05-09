@@ -672,7 +672,7 @@
             </dependency>
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
-                <artifactId>features4-extras</artifactId>
+                <artifactId>features4-bgpcep-extras</artifactId>
                 <classifier>features</classifier>
                 <type>xml</type>
                 <version>${project.version}</version>
