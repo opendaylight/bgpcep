@@ -21,9 +21,10 @@ import java.util.regex.Pattern;
 import javax.annotation.concurrent.GuardedBy;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
+import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
+import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.protocol.bgp.config.loader.spi.ConfigFileProcessor;
 import org.opendaylight.protocol.bgp.config.loader.spi.ConfigLoader;
-import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.stream.NormalizedNodeStreamWriter;
@@ -35,7 +36,6 @@ import org.opendaylight.yangtools.yang.model.api.SchemaNode;
 import org.opendaylight.yangtools.yang.model.util.SchemaContextUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigLoaderImpl.class);
     private static final String INTERRUPTED = "InterruptedException";

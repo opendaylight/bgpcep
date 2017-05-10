@@ -71,6 +71,7 @@ public abstract class AbstractConfigLoader {
         }).when(this.processor).loadConfiguration(any());
         final SchemaContext schemaContext = YangParserTestUtils.parseYangStreams(
             getFilesAsStreams(getYangModelsPaths()));
+
         this.configLoader = new ConfigLoaderImpl(schemaContext, this.mappingService, getResourceFolder(), this.watchService);
     }
 
