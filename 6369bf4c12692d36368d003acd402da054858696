@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ba068154_363f7927",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractTopologySessionListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2017-05-10T21:42:34Z",
+      "side": 1,
+      "message": "I think this should be consistent in unregister() and register() at line #347. I can move both to trace to both to debug.",
+      "parentUuid": "ba068154_4931d4eb",
+      "range": {
+        "startLine": 335,
+        "startChar": 16,
+        "endLine": 335,
+        "endChar": 21
+      },
+      "revId": "6369bf4c12692d36368d003acd402da054858696",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_0937cce4",
         "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractTopologySessionListener.java",
         "patchSetId": 1
