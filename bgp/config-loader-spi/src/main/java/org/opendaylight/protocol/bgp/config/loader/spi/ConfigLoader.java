@@ -9,19 +9,21 @@
 package org.opendaylight.protocol.bgp.config.loader.spi;
 
 import javax.annotation.Nonnull;
-import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
+import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 
 public interface ConfigLoader {
     /**
      * Register object model handler
+     *
      * @param config Config File Processor
      */
-    @Nonnull AbstractRegistration registerConfigFile(@Nonnull ConfigFileProcessor config);
+    @Nonnull
+    AbstractRegistration registerConfigFile(@Nonnull ConfigFileProcessor config);
 
     /**
-     *
      * @return Binding Normalized node serializer
      */
-    @Nonnull BindingNormalizedNodeSerializer getBindingNormalizedNodeSerializer();
+    @Nonnull
+    BindingNormalizedNodeSerializer getBindingNormalizedNodeSerializer();
 }

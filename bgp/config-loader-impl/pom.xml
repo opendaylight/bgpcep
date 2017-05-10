@@ -31,6 +31,10 @@
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>yang-data-codec-xml</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.opendaylight.mdsal</groupId>
+            <artifactId>mdsal-dom-api</artifactId>
+        </dependency>
         <!-- test scope dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
