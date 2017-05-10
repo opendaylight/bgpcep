@@ -30,6 +30,7 @@ import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCo
 import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
 import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.mdsal.binding.generator.util.JavassistUtils;
+import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.protocol.bgp.config.loader.spi.ConfigFileProcessor;
 import org.opendaylight.protocol.bgp.config.loader.spi.ConfigLoader;
 import org.opendaylight.yangtools.binding.data.codec.gen.impl.StreamWriterGenerator;
@@ -50,6 +51,8 @@ public abstract class AbstractConfigLoader {
     private WatchEvent<?> watchEvent;
     @Mock
     protected ConfigFileProcessor processor;
+    @Mock
+    private DOMSchemaService domSchemaService;
 
     @Before
     public void setUp() throws Exception {
@@ -71,7 +74,9 @@ public abstract class AbstractConfigLoader {
         }).when(this.processor).loadConfiguration(any());
         final SchemaContext schemaContext = YangParserTestUtils.parseYangStreams(
             getFilesAsStreams(getYangModelsPaths()));
-        this.configLoader = new ConfigLoaderImpl(schemaContext, this.mappingService, getResourceFolder(), this.watchService);
+        doReturn(schemaContext).when(this.domSchemaService).getGlobalContext();
+
+        this.configLoader = new ConfigLoaderImpl(this.domSchemaService, this.mappingService, getResourceFolder(), this.watchService);
     }
 
     private synchronized void clearEvent() {
