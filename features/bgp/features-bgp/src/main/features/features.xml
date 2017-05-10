@@ -182,6 +182,7 @@
     <feature name="odl-bgpcep-bgp-config-loader" version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-config-files</feature>
         <feature version='${mdsal.common.version}'>odl-mdsal-binding-runtime</feature>
+        <feature version='${mdsal.common.version}'>odl-mdsal-dom-api</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-config-loader-spi/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-config-loader-impl/{{VERSION}}</bundle>
    </feature>
