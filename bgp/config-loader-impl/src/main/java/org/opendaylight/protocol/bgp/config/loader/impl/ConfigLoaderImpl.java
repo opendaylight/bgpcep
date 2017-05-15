@@ -11,7 +11,9 @@ package org.opendaylight.protocol.bgp.config.loader.impl;
 import com.google.common.base.Preconditions;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
@@ -19,7 +21,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 import javax.annotation.concurrent.GuardedBy;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.config.loader.spi.ConfigFileProcessor;
@@ -35,6 +39,8 @@ import org.opendaylight.yangtools.yang.model.api.SchemaNode;
 import org.opendaylight.yangtools.yang.model.util.SchemaContextUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
+
 public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigLoaderImpl.class);
     private static final String INTERRUPTED = "InterruptedException";
@@ -56,21 +62,7 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
         this.watcherThread = new Thread(() -> {
             try {
                 while (!Thread.currentThread().isInterrupted()) {
-                    try {
-                        final WatchKey key = watchService.take();
-                        if (key != null) {
-                            for (final WatchEvent event : key.pollEvents()) {
-                                handleEvent(event.context().toString());
-                            }
-                            final boolean reset = key.reset();
-                            if (!reset) {
-                                LOG.warn("Could not reset the watch key.");
-                                return;
-                            }
-                        }
-                    } catch (final InterruptedException e) {
-                        LOG.warn(INTERRUPTED, e);
-                    }
+                    handleChanges(watchService);
                 }
             } catch (final Exception e) {
                 LOG.warn(INTERRUPTED, e);
@@ -78,6 +70,23 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
         });
         this.watcherThread.start();
         LOG.info("Config Loader service initiated");
+    }
+
+    private synchronized void handleChanges(final WatchService watchService) {
+        try {
+            final WatchKey key = watchService.take();
+            if (key != null) {
+                for (final WatchEvent event : key.pollEvents()) {
+                    handleEvent(event.context().toString());
+                }
+                final boolean reset = key.reset();
+                if (!reset) {
+                    LOG.warn("Could not reset the watch key.");
+                }
+            }
+        } catch (final InterruptedException e) {
+            LOG.warn(INTERRUPTED, e);
+        }
     }
 
     private void handleConfigFile(final ConfigFileProcessor config, final String filename) {
@@ -92,7 +101,8 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
         config.loadConfiguration(dto);
     }
 
-    private NormalizedNode<?, ?> parseDefaultConfigFile(final ConfigFileProcessor config, final String filename) throws Exception {
+    private NormalizedNode<?, ?> parseDefaultConfigFile(final ConfigFileProcessor config, final String filename)
+        throws IOException, XMLStreamException, ParserConfigurationException, SAXException, URISyntaxException {
         final NormalizedNodeResult result = new NormalizedNodeResult();
         final NormalizedNodeStreamWriter streamWriter = ImmutableNormalizedNodeStreamWriter.from(result);
 
