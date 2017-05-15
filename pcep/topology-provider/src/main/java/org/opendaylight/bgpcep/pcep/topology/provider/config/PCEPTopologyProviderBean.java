@@ -115,7 +115,7 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
         @GuardedBy("this")
         private boolean serviceInstantiated;
 
-        PCEPTopologyProviderBeanCSS(final PCEPTopologyConfigDependencies configDependencies) throws Exception {
+        PCEPTopologyProviderBeanCSS(final PCEPTopologyConfigDependencies configDependencies) {
                 this.sgi = configDependencies.getSchedulerDependency().getIdentifier();
                 this.pcepTopoProvider = PCEPTopologyProvider.create(PCEPTopologyProviderBean.this, configDependencies);
 
