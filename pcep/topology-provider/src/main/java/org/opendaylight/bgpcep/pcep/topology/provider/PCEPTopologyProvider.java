@@ -52,7 +52,7 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference {
     private Channel channel;
 
     public static PCEPTopologyProvider create(final PCEPTopologyProviderDependenciesProvider dependenciesProvider,
-        final PCEPTopologyConfigDependencies configDependencies) throws Exception {
+        final PCEPTopologyConfigDependencies configDependencies) {
         final List<PCEPCapability> capabilities = dependenciesProvider.getPCEPDispatcher()
             .getPCEPSessionNegotiatorFactory().getPCEPSessionProposalFactory().getCapabilities();
         boolean statefulCapability = false;
