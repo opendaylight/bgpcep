@@ -11,7 +11,6 @@ package org.opendaylight.protocol.bgp.rib.impl.config;
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -88,7 +87,6 @@ public class BgpPeerTest extends AbstractConfig {
         Mockito.verify(this.rib).registerClusterSingletonService(any(ClusterSingletonService.class));
 
         this.singletonService.instantiateServiceInstance();
-        Mockito.verify(this.render).getConfiguredPeerCounter();
         Mockito.verify(this.configurationWriter).apply();
         Mockito.verify(this.bgpPeerRegistry).addPeer(any(), any(), any());
         Mockito.verify(this.dispatcher).createReconnectingClient(any(InetSocketAddress.class),
@@ -112,11 +110,6 @@ public class BgpPeerTest extends AbstractConfig {
         Mockito.verify(this.rib, times(2)).getRibIServiceGroupIdentifier();
         Mockito.verify(this.rib, times(2)).registerClusterSingletonService(any(ClusterSingletonService.class));
         this.singletonService.instantiateServiceInstance();
-        Mockito.verify(this.render, times(2)).getConfiguredPeerCounter();
-        assertNotNull(this.bgpPeer.getBgpPeerState());
-        assertNotNull(this.bgpPeer.getBgpSessionState());
-        this.bgpPeer.resetStats();
-        this.bgpPeer.resetSession();
 
         final Neighbor neighborExpected = createNeighborExpected(NEIGHBOR_ADDRESS);
         assertTrue(this.bgpPeer.containsEqualConfiguration(neighborExpected));

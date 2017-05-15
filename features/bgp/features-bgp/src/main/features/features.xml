@@ -38,7 +38,6 @@
         <feature version='${project.version}'>odl-bgpcep-bgp-evpn</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-path-selection-mode</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-topology</feature>
-        <feature version='${project.version}'>odl-bgpcep-bgp-cli</feature>
         <feature version='${project.version}'>odl-bgpcep-config-files</feature>
         <configfile finalname="etc/opendaylight/karaf/31-bgp.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/{{VERSION}}/xml/config</configfile>
     </feature>
@@ -172,11 +171,6 @@
         <feature version='${project.version}'>odl-bgpcep-bgp-inet</feature>
         <feature version='${controller.mdsal.version}'>odl-mdsal-broker</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-benchmark-app/{{VERSION}}</bundle>
-    </feature>
-
-    <feature name='odl-bgpcep-bgp-cli' version='${project.version}'>
-        <feature version='${project.version}'>odl-bgpcep-bgp-rib-impl</feature>
-        <bundle>mvn:org.opendaylight.bgpcep/bgp-cli/{{VERSION}}</bundle>
     </feature>
 
     <feature name="odl-bgpcep-bgp-config-loader" version='${project.version}'>

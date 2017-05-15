@@ -25,9 +25,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import javax.annotation.concurrent.GuardedBy;
-import org.opendaylight.controller.config.yang.bgp.rib.impl.BGPPeerRuntimeMXBean;
-import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpPeerState;
-import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpSessionState;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
@@ -66,7 +63,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public final class BgpPeer implements PeerBean, BGPPeerStateConsumer, BGPPeerRuntimeMXBean {
+public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(BgpPeer.class);
 
@@ -182,26 +179,6 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer, BGPPeerRun
     }
 
     @Override
-    public BgpPeerState getBgpPeerState() {
-        return this.bgpPeerSingletonService.getPeer().getBgpPeerState();
-    }
-
-    @Override
-    public BgpSessionState getBgpSessionState() {
-        return this.bgpPeerSingletonService.getPeer().getBgpSessionState();
-    }
-
-    @Override
-    public void resetSession() {
-        this.bgpPeerSingletonService.getPeer().resetSession();
-    }
-
-    @Override
-    public void resetStats() {
-        this.bgpPeerSingletonService.getPeer().resetStats();
-    }
-
-    @Override
     public BGPPeerState getPeerState() {
         if (this.bgpPeerSingletonService == null) {
             return null;
@@ -300,10 +277,6 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer, BGPPeerRun
         @Override
         public ServiceGroupIdentifier getIdentifier() {
             return this.serviceGroupIdentifier;
-        }
-
-        BGPPeerRuntimeMXBean getPeer() {
-            return this.bgpPeer;
         }
 
         @Override
