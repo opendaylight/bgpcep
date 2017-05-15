@@ -11,7 +11,6 @@ import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
@@ -19,7 +18,6 @@ import org.opendaylight.protocol.bgp.mode.api.BestPath;
 import org.opendaylight.protocol.bgp.mode.spi.AbstractRouteEntry;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
-import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup.PeerExporTuple;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
@@ -269,8 +267,16 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
     }
 
     private boolean isNonAddPathBestPathTheSame(final List<AddPathBestPath> newBestPathList) {
-        return !(this.bestPath == null || newBestPathList == null || this.bestPath.isEmpty() || newBestPathList.isEmpty()) &&
+        return !(isBestPathEmptyOrNull() || isNewBestPathEmptyOrNull(newBestPathList)) &&
             this.bestPath.get(0).equals(newBestPathList.get(0));
+    }
+
+    private boolean isNewBestPathEmptyOrNull(final List<AddPathBestPath> newBestPathList) {
+        return newBestPathList == null || newBestPathList.isEmpty();
+    }
+
+    private boolean isBestPathEmptyOrNull() {
+        return this.bestPath == null || this.bestPath.isEmpty();
     }
 
     private void filterRemovedPaths(final List<AddPathBestPath> newBestPathList) {
