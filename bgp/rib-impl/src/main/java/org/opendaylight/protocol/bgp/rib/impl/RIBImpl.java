@@ -49,8 +49,6 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.ImportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPRIBStateImpl;
-import org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl.BGPRenderStats;
-import org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl.RIBImplRuntimeMXBeanImpl;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
@@ -111,7 +109,6 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
     private final Map<TransactionChain, LocRibWriter> txChainToLocRibWriter = new HashMap<>();
     private final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies;
     private final ImportPolicyPeerTracker importPolicyPeerTracker;
-    private final RIBImplRuntimeMXBeanImpl renderStats;
     private final RibId ribId;
     private final Map<TablesKey, ExportPolicyPeerTracker> exportPolicyPeerTrackerMap;
 
@@ -156,7 +153,6 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
         }
         this.exportPolicyPeerTrackerMap = exportPolicies.build();
 
-        this.renderStats = new RIBImplRuntimeMXBeanImpl(localBgpId, ribId, localAs, cId, this, this.localTablesKeys);
         LOG.info("RIB Singleton Service {} registered, RIB {}", getIdentifier().getValue(), this.ribId.getValue());
         //this need to be always the last step
         this.registration = registerClusterSingletonService(this);
@@ -267,11 +263,6 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
     @Override
     public DOMDataTreeChangeService getService() {
         return (DOMDataTreeChangeService) this.service;
-    }
-
-    @Override
-    public BGPRenderStats getRenderStats() {
-        return this.renderStats;
     }
 
     @Override

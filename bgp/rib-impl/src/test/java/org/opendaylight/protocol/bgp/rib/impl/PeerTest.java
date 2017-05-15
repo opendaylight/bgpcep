@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 
@@ -29,7 +28,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.opendaylight.controller.config.yang.bgp.rib.impl.RouteTable;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
@@ -137,7 +135,6 @@ public class PeerTest extends AbstractRIBTestSetup {
         this.mockSession();
         assertEquals(this.neighborAddress.getValue(), this.classic.getName());
         this.classic.onSessionUp(this.session);
-        assertEquals(1, this.classic.getBgpPeerState().getSessionEstablishedCount().getValue().intValue());
         Assert.assertArrayEquals(new byte[]{1, 1, 1, 1}, this.classic.getRawIdentifier());
         assertEquals("BGPPeer{name=127.0.0.1, tables=[TablesKey [_afi=class org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily, _safi=class org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily]]}", this.classic.toString());
 
@@ -171,13 +168,6 @@ public class PeerTest extends AbstractRIBTestSetup {
         testingPeer.instantiateServiceInstance();
         testingPeer.onSessionUp(this.session);
         assertEquals(3, this.routes.size());
-        assertEquals(1, testingPeer.getBgpPeerState().getSessionEstablishedCount().getValue().intValue());
-        final List<RouteTable> routeTables = testingPeer.getBgpPeerState().getRouteTable();
-        assertEquals(1, routeTables.size());
-        final RouteTable routeTable = routeTables.get(0);
-        assertEquals(AFI_QNAME.toString(), routeTable.getAfi().getqNameOfIdentity());
-        assertEquals(SAFI_QNAME.toString(), routeTable.getSafi().getqNameOfIdentity());
-        assertNotNull(testingPeer.getBgpSessionState());
 
         final List<Ipv4Prefix> prefs2 = Lists.newArrayList(new Ipv4Prefix("8.0.1.0/28"), new Ipv4Prefix("8.0.1.16/28"));
         ub.setNlri(new NlriBuilder().setNlri(prefs2).build());

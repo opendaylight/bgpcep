@@ -15,7 +15,6 @@ import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.protocol.bgp.rib.RibReference;
-import org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl.BGPRenderStats;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
@@ -81,8 +80,6 @@ public interface RIB  extends RibReference, ClusterSingletonServiceProvider {
      * @return DOMDataTreeChangeService
      */
     DOMDataTreeChangeService getService();
-
-    BGPRenderStats getRenderStats();
 
     ImportPolicyPeerTracker getImportPolicyPeerTracker();
 
