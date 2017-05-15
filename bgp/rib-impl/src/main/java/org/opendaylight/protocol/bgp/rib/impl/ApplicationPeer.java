@@ -31,8 +31,6 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPPeerStateImpl;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPSessionStateImpl;
-import org.opendaylight.protocol.bgp.rib.impl.stats.peer.BGPPeerStats;
-import org.opendaylight.protocol.bgp.rib.impl.stats.peer.BGPPeerStatsImpl;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
@@ -143,10 +141,9 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
         };
         this.adjRibInWriter = this.adjRibInWriter.transform(peerId, context, localTables, Collections.emptyMap(),
             registerAppPeerListener);
-        final BGPPeerStats peerStats = new BGPPeerStatsImpl(this.name, localTables, this);
         this.effectiveRibInWriter = EffectiveRibInWriter.create(this.rib.getService(), this.rib.createPeerChain(this), this.peerIId,
             this.rib.getImportPolicyPeerTracker(), context, PeerRole.Internal,
-            peerStats.getAdjRibInRouteCounters(), localTables);
+            localTables);
         this.bgpSessionState.registerMessagesCounter(this);
     }
 

@@ -203,7 +203,7 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
             final BGPSessionListener peer = this.registry.getPeer(remoteIp, getSourceId(openObj, preferences), getDestinationId(openObj, preferences), openObj);
             sendMessage(new KeepaliveBuilder().build());
             this.state = State.OPEN_CONFIRM;
-            this.session = new BGPSessionImpl(peer, this.channel, openObj, preferences, this.registry);
+            this.session = new BGPSessionImpl(peer, this.channel, openObj, preferences.getHoldTime(), this.registry);
             this.session.setChannelExtMsgCoder(openObj);
             LOG.debug("Channel {} moved to OPEN_CONFIRM state with remote proposal {}", this.channel, openObj);
         } catch (final BGPDocumentedException e) {
