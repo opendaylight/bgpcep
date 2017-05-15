@@ -18,10 +18,6 @@
     <repository>mvn:org.opendaylight.mdsal.model/features-mdsal-model/{{VERSION}}/xml/features</repository>
     <repository>mvn:org.opendaylight.odlparent/features-odlparent/{{VERSION}}/xml/features</repository>
 
-    <feature name='odl-bgpcep-pcep-all' version='${project.version}'>
-        <feature version='${project.version}'>odl-bgpcep-pcep</feature>
-    </feature>
-
     <feature name='odl-bgpcep-pcep' version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-pcep-api</feature>
         <feature version='${project.version}'>odl-bgpcep-pcep-impl</feature>
