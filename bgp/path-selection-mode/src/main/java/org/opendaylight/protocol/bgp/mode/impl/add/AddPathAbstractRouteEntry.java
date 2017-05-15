@@ -267,8 +267,12 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
     }
 
     private boolean isNonAddPathBestPathTheSame(final List<AddPathBestPath> newBestPathList) {
-        return !(this.bestPath == null || newBestPathList == null || this.bestPath.isEmpty() || newBestPathList.isEmpty()) &&
+        return !(isNewBestPathEmptyOrNull(this.bestPath) || isNewBestPathEmptyOrNull(newBestPathList)) &&
             this.bestPath.get(0).equals(newBestPathList.get(0));
+    }
+
+    private boolean isNewBestPathEmptyOrNull(final List<AddPathBestPath> newBestPathList) {
+        return newBestPathList == null || newBestPathList.isEmpty();
     }
 
     private void filterRemovedPaths(final List<AddPathBestPath> newBestPathList) {
