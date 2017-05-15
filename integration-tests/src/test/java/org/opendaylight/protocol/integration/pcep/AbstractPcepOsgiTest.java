@@ -54,7 +54,7 @@ public class AbstractPcepOsgiTest extends AbstractMdsalTestBase {
 
     @Override
     public String getFeatureName() {
-        return "odl-bgpcep-pcep-all";
+        return "odl-bgpcep-pcep";
     }
 
     TopologyKey getTopologyId(final String id) {

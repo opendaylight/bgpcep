@@ -19,11 +19,6 @@
     <repository>mvn:org.opendaylight.bgpcep/features-rsvp/{{VERSION}}/xml/features</repository>
     <repository>mvn:org.opendaylight.odlparent/features-odlparent/{{VERSION}}/xml/features</repository>
 
-
-    <feature name='odl-bgpcep-bgp-all' version='${project.version}'>
-        <feature version='${project.version}'>odl-bgpcep-bgp</feature>
-    </feature>
-
     <feature name='odl-bgpcep-bgp' version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-bgp-parser</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-rib-api</feature>
