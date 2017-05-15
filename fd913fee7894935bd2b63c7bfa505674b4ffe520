@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "ba068154_d8b6288a",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/AbstractFlowspecNlriParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 593,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2017-05-15T09:00:33Z",
+      "side": 1,
+      "message": "This check is moved outside on purpose in order to run unit test on readNlriLength()",
+      "parentUuid": "ba068154_d708bc2f",
+      "range": {
+        "startLine": 593,
+        "startChar": 12,
+        "endLine": 593,
+        "endChar": 137
+      },
+      "revId": "fd913fee7894935bd2b63c7bfa505674b4ffe520",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_a9ffa000",
         "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/AbstractFlowspecNlriParser.java",
         "patchSetId": 6
@@ -174,6 +198,30 @@
       "writtenOn": "2017-05-05T15:55:55Z",
       "side": 1,
       "message": "as commented before, move inside readNlriLenght",
+      "range": {
+        "startLine": 73,
+        "startChar": 8,
+        "endLine": 73,
+        "endChar": 108
+      },
+      "revId": "fd913fee7894935bd2b63c7bfa505674b4ffe520",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_98bca06e",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/l3vpn/AbstractFlowspecL3vpnNlriParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2017-05-15T09:00:33Z",
+      "side": 1,
+      "message": "This check is moved outside on purpose in order to run unit test on readNlriLength()",
+      "parentUuid": "ba068154_e920889d",
       "range": {
         "startLine": 73,
         "startChar": 8,
