@@ -12,7 +12,6 @@ import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.opendaylight.controller.config.yang.bgp.rib.impl.BGPPeerRuntimeMXBean;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerStateConsumer;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPRIBStateConsumer;
@@ -21,7 +20,7 @@ public enum InstanceType {
 
     RIB("ribImpl", ImmutableList.of(RIB.class, RibReference.class, BGPRIBStateConsumer.class)),
 
-    PEER("bgpPeer", ImmutableList.of(BGPPeerRuntimeMXBean.class, BGPPeerStateConsumer.class)),
+    PEER("bgpPeer", ImmutableList.of(BGPPeerStateConsumer.class)),
 
     APP_PEER("appPeer", Collections.singletonList(BGPPeerStateConsumer.class));
 

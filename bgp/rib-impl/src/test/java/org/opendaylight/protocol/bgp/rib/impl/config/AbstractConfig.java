@@ -19,7 +19,6 @@ import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.LongAdder;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -42,7 +41,6 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ImportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
-import org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl.BGPRenderStats;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -78,8 +76,6 @@ class AbstractConfig {
     @Mock
     protected DOMTransactionChain domTx;
     @Mock
-    protected BGPRenderStats render;
-    @Mock
     protected BGPDispatcher dispatcher;
     @Mock
     protected ServiceRegistration serviceRegistration;
@@ -104,8 +100,6 @@ class AbstractConfig {
             this.singletonService = (ClusterSingletonService) invocationOnMock.getArguments()[0];
             return this.singletonServiceRegistration;
         }).when(this.rib).registerClusterSingletonService(any(ClusterSingletonService.class));
-        Mockito.doReturn(new LongAdder()).when(this.render).getConfiguredPeerCounter();
-        Mockito.doReturn(this.render).when(this.rib).getRenderStats();
         Mockito.doReturn(InstanceIdentifier.create(BgpRib.class).child(org.opendaylight.yang.gen.v1.urn.opendaylight
             .params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib.class, new RibKey(RIB_ID))).when(this.rib)
             .getInstanceIdentifier();
