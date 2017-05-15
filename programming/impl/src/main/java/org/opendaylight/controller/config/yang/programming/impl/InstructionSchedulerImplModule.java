@@ -23,15 +23,12 @@ import org.opendaylight.bgpcep.programming.impl.IntructionDeployer;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.osgi.framework.BundleContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @deprecated Replaced by blueprint wiring
  */
 public final class InstructionSchedulerImplModule extends
     org.opendaylight.controller.config.yang.programming.impl.AbstractInstructionSchedulerImplModule {
-    private static final Logger LOG = LoggerFactory.getLogger(InstructionSchedulerImplModule.class);
 
     private BundleContext bundleContext;
 
