@@ -17,11 +17,6 @@
 
     <name>OpenDaylight :: BGP :: Parser</name>
 
-    <properties>
-        <config.version>0.7.0-SNAPSHOT</config.version>
-        <yangtools.version>1.2.0-SNAPSHOT</yangtools.version>
-    </properties>
-
     <dependencyManagement>
         <!-- ODL-BGP-ARTIFACTS -->
         <dependencies>
@@ -32,21 +27,12 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <!-- YANG TOOLS ARTIFACTS -->
             <dependency>
-                <groupId>org.opendaylight.yangtools</groupId>
-                <artifactId>yangtools-artifacts</artifactId>
-                <version>${yangtools.version}</version>
-                <scope>import</scope>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>dependency-version-managment</artifactId>
+                <version>${project.version}</version>
                 <type>pom</type>
-            </dependency>
-            <!-- ODL-CONTROLLER-ARTIFACTS -->
-            <dependency>
-                <groupId>org.opendaylight.controller</groupId>
-                <artifactId>config-artifacts</artifactId>
-                <version>${config.version}</version>
                 <scope>import</scope>
-                <type>pom</type>
             </dependency>
         </dependencies>
     </dependencyManagement>
