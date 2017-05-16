@@ -17,10 +17,6 @@
 
     <name>OpenDaylight :: PCEP :: Topology Provider</name>
 
-    <properties>
-        <controller.mdsal.version>1.6.0-SNAPSHOT</controller.mdsal.version>
-    </properties>
-
     <dependencyManagement>
         <dependencies>
             <!-- ODL-BGP-ARTIFACTS -->
@@ -31,13 +27,12 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <!-- ODL-CONTROLLER-ARTIFACTS -->
             <dependency>
-                <groupId>org.opendaylight.controller</groupId>
-                <artifactId>mdsal-artifacts</artifactId>
-                <version>${controller.mdsal.version}</version>
-                <scope>import</scope>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>dependency-version-management</artifactId>
+                <version>${project.version}</version>
                 <type>pom</type>
+                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
