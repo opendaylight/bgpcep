@@ -17,12 +17,6 @@
 
     <name>OpenDaylight :: BGP :: Dependencies</name>
 
-    <properties>
-        <mdsal.model.version>0.11.0-SNAPSHOT</mdsal.model.version>
-        <yangtools.version>1.2.0-SNAPSHOT</yangtools.version>
-        <odlparent.version>1.9.0-SNAPSHOT</odlparent.version>
-    </properties>
-
     <dependencyManagement>
         <!-- ODL-BGP-ARTIFACTS -->
         <dependencies>
@@ -33,27 +27,10 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <!-- ODL-PARENT ARTIFACTS-->
             <dependency>
-                <groupId>org.opendaylight.odlparent</groupId>
-                <artifactId>odlparent-artifacts</artifactId>
-                <version>${odlparent.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
-            <!-- YANG TOOLS ARTIFACTS -->
-            <dependency>
-                <groupId>org.opendaylight.yangtools</groupId>
-                <artifactId>yangtools-artifacts</artifactId>
-                <version>${yangtools.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
-            <!-- ODL-MDSAL-ARTIFACTS -->
-            <dependency>
-                <groupId>org.opendaylight.mdsal.model</groupId>
-                <artifactId>mdsal-model-artifacts</artifactId>
-                <version>${mdsal.model.version}</version>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>dependency-version-management</artifactId>
+                <version>${project.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

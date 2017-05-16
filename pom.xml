@@ -62,6 +62,7 @@
         <module>data-change-counter-controller-config</module>
 
         <module>distribution-karaf</module>
+        <module>dependency-version-management</module>
 
     </modules>
 
