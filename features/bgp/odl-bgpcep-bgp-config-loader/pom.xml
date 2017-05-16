@@ -17,10 +17,6 @@
 
     <name>OpenDaylight :: BGP :: Config Loader</name>
 
-    <properties>
-        <mdsal.common.version>2.3.0-SNAPSHOT</mdsal.common.version>
-    </properties>
-
     <dependencyManagement>
         <!-- ODL-BGP-ARTIFACTS -->
         <dependencies>
@@ -32,9 +28,9 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>org.opendaylight.mdsal</groupId>
-                <artifactId>mdsal-artifacts</artifactId>
-                <version>${mdsal.common.version}</version>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>dependency-version-managment</artifactId>
+                <version>${project.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
