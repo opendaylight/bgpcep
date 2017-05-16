@@ -17,11 +17,6 @@
 
     <name>OpenDaylight :: RSVP :: Dependencies</name>
 
-    <properties>
-        <config.version>0.7.0-SNAPSHOT</config.version>
-        <mdsal.binding.base>0.11.0-SNAPSHOT</mdsal.binding.base>
-    </properties>
-
     <dependencyManagement>
         <dependencies>
             <!-- ODL-BGP-ARTIFACTS -->
@@ -32,19 +27,10 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <!-- ODL-CONTROLLER-ARTIFACTS -->
             <dependency>
-                <groupId>org.opendaylight.controller</groupId>
-                <artifactId>config-artifacts</artifactId>
-                <version>${config.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
-            <!-- ODL-MD-SAL-ARTIFACTS -->
-            <dependency>
-                <groupId>org.opendaylight.mdsal.model</groupId>
-                <artifactId>mdsal-model-artifacts</artifactId>
-                <version>${mdsal.binding.base}</version>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>dependency-version-management</artifactId>
+                <version>${project.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
