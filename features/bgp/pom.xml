@@ -23,7 +23,6 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>features-bgp</module>
         <module>odl-bgpcep-bgp</module>
         <module>odl-bgpcep-bgp-dependencies</module>
         <module>odl-bgpcep-config-files</module>
@@ -40,7 +39,6 @@
         <module>odl-bgpcep-bgp-rib-impl</module>
         <module>odl-bgpcep-bgp-topology</module>
         <module>odl-bgpcep-bgp-benchmark</module>
-        <module>odl-bgpcep-bgp-cli</module>
         <module>odl-bgpcep-bgp-config-loader</module>
         <module>odl-bgpcep-bgp-openconfig-state</module>
     </modules>
