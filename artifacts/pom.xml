@@ -621,13 +621,6 @@
             </dependency>
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
-                <artifactId>odl-bgpcep-bgp-cli</artifactId>
-                <classifier>features</classifier>
-                <type>xml</type>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.bgpcep</groupId>
                 <artifactId>odl-bgpcep-bgp-config-loader</artifactId>
                 <classifier>features</classifier>
                 <type>xml</type>
