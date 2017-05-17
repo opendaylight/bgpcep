@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
 
   <reference id="bmpExtensionContext" interface="org.opendaylight.protocol.bmp.spi.registry.BmpExtensionConsumerContext"/>
   <reference id="globalBossGroup" interface="io.netty.channel.EventLoopGroup" odl:type="global-boss-group"/>
@@ -27,4 +26,26 @@
       <entry key="config-instance-name" value="global-bmp-dispatcher"/>
     </service-properties>
   </service>
+
+  <reference id="dataBroker" interface="org.opendaylight.controller.md.sal.binding.api.DataBroker" odl:type="default"/>
+  <reference id="domPingPongDataBroker" interface="org.opendaylight.controller.md.sal.dom.api.DOMDataBroker"
+             odl:type="pingpong"/>
+  <reference id="globalBgpExtensions" interface="org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext"/>
+  <reference id="codecTreeFactory" interface="org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory"/>
+  <odl:static-reference id="domSchemaService" interface="org.opendaylight.mdsal.dom.api.DOMSchemaService"/>
+
+  <bean id="bmpDeployer" class="org.opendaylight.protocol.bmp.impl.config.BmpDeployerImpl"
+        init-method="register" destroy-method="close">
+    <argument ref="bmpDispatcher"/>
+    <argument ref="dataBroker"/>
+    <argument ref="domPingPongDataBroker"/>
+    <argument ref="globalBgpExtensions"/>
+    <argument ref="codecTreeFactory"/>
+    <argument>
+      <bean factory-ref="domSchemaService" factory-method="getGlobalContext"/>
+    </argument>
+  </bean>
+
+  <service ref="bmpDeployer" interface="org.opendaylight.protocol.bmp.impl.spi.BmpDeployer"/>
+
 </blueprint>

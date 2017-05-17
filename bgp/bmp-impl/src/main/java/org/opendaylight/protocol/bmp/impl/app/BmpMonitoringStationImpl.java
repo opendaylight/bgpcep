@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.bmp.impl.app;
 
+import static org.opendaylight.protocol.bmp.impl.app.KeyConstructorUtil.constructKeys;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
@@ -17,19 +19,17 @@ import io.netty.channel.ChannelFutureListener;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.List;
-import org.opendaylight.controller.config.yang.bmp.impl.MonitoredRouter;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTree;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
-import org.opendaylight.mdsal.binding.generator.util.BindingRuntimeContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bmp.api.BmpDispatcher;
 import org.opendaylight.protocol.bmp.impl.spi.BmpMonitoringStation;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.util.Ipv4Util;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.config.rev170517.odl.bmp.monitors.bmp.monitor.config.MonitoredRouter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev150512.BmpMonitor;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev150512.MonitorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev150512.bmp.monitor.Monitor;
@@ -41,7 +41,6 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
-import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,45 +77,36 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation {
     private void connectMonitoredRouters(final BmpDispatcher dispatcher) {
         if (this.monitoredRouters != null) {
             for (final MonitoredRouter mr : this.monitoredRouters) {
-                if (mr.getActive()) {
+                if (mr.isActive()) {
                     Preconditions.checkNotNull(mr.getAddress());
                     Preconditions.checkNotNull(mr.getPort());
                     final String s = mr.getAddress().getIpv4Address().getValue();
                     final InetAddress addr = InetAddresses.forString(s);
-                    KeyMapping ret = null;
+                    final KeyMapping ret;
                     final Rfc2385Key rfc2385KeyPassword = mr.getPassword();
                     ret = KeyMapping.getKeyMapping(addr, rfc2385KeyPassword.getValue());
-                    dispatcher.createClient(
-                        Ipv4Util.toInetSocketAddress(mr.getAddress(), mr.getPort()),
+                    dispatcher.createClient(Ipv4Util.toInetSocketAddress(mr.getAddress(), mr.getPort()),
                         this.sessionManager, Optional.fromNullable(ret));
                 }
             }
         }
     }
 
-    public static BmpMonitoringStation createBmpMonitorInstance(final RIBExtensionConsumerContext ribExtensions, final BmpDispatcher dispatcher,
-            final DOMDataBroker domDataBroker, final MonitorId monitorId, final InetSocketAddress address,
-            final Optional<KeyMapping> keys, final BindingCodecTreeFactory codecFactory, final SchemaContext schemaContext,
-            final List<MonitoredRouter> mrs ) throws InterruptedException {
-        Preconditions.checkNotNull(ribExtensions);
-        Preconditions.checkNotNull(dispatcher);
-        Preconditions.checkNotNull(domDataBroker);
-        Preconditions.checkNotNull(monitorId);
-        Preconditions.checkNotNull(address);
+    public static BmpMonitoringStation createBmpMonitorInstance(final RIBExtensionConsumerContext ribExtensions,
+        final BmpDispatcher dispatcher, final DOMDataBroker domDataBroker, final BindingCodecTree tree,
+        final MonitorId monitorId, final InetSocketAddress address, final List<MonitoredRouter> mrs)
+        throws InterruptedException {
 
         final YangInstanceIdentifier yangMonitorId = YangInstanceIdentifier.builder()
-                .node(BmpMonitor.QNAME)
-                .node(Monitor.QNAME)
-                .nodeWithKey(Monitor.QNAME, MONITOR_ID_QNAME, monitorId.getValue())
-                .build();
+            .node(BmpMonitor.QNAME).node(Monitor.QNAME)
+            .nodeWithKey(Monitor.QNAME, MONITOR_ID_QNAME, monitorId.getValue()).build();
 
-        final BindingRuntimeContext runtimeContext = BindingRuntimeContext.create(ribExtensions.getClassLoadingStrategy(),
-                schemaContext);
-        final BindingCodecTree tree  = codecFactory.create(runtimeContext);
-        final RouterSessionManager sessionManager = new RouterSessionManager(yangMonitorId, domDataBroker, ribExtensions, tree);
-        final ChannelFuture channelFuture = dispatcher.createServer(address, sessionManager, keys);
+        final RouterSessionManager sessionManager = new RouterSessionManager(yangMonitorId, domDataBroker,
+            ribExtensions, tree);
+        final ChannelFuture channelFuture = dispatcher.createServer(address, sessionManager, constructKeys(mrs));
 
-        return new BmpMonitoringStationImpl(domDataBroker, yangMonitorId, channelFuture.sync().channel(), sessionManager, monitorId, dispatcher, mrs);
+        return new BmpMonitoringStationImpl(domDataBroker, yangMonitorId, channelFuture.sync().channel(),
+            sessionManager, monitorId, dispatcher, mrs);
     }
 
     private static void ensureParentExists(final DOMDataWriteTransaction wTx, final YangInstanceIdentifier path) {
@@ -151,5 +141,4 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation {
         wTx.submit().checkedGet();
         LOG.info("BMP monitoring station {} closed.", this.monitorId.getValue());
     }
-
 }

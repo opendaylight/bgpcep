@@ -1,0 +1,176 @@
+/*
+ * Copyright (c) 2017 Pantheon Technologies s.r.o. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+package org.opendaylight.protocol.bmp.impl.config;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
+import java.net.InetSocketAddress;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.GuardedBy;
+import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
+import org.opendaylight.controller.md.sal.binding.api.DataObjectModification.ModificationType;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTree;
+import org.opendaylight.protocol.bmp.api.BmpDispatcher;
+import org.opendaylight.protocol.bmp.impl.app.BmpMonitoringStationImpl;
+import org.opendaylight.protocol.bmp.impl.spi.BmpDeployer;
+import org.opendaylight.protocol.bmp.impl.spi.BmpMonitoringStation;
+import org.opendaylight.protocol.util.Ipv4Util;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
+import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.config.rev170517.OdlBmpMonitors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.config.rev170517.odl.bmp.monitors.BmpMonitorConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.config.rev170517.odl.bmp.monitors.BmpMonitorConfigKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev150512.BmpMonitor;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev150512.MonitorId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev150512.bmp.monitor.Monitor;
+import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
+import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
+import org.opendaylight.yangtools.yang.model.api.SchemaContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
+
+public class BmpDeployerImpl implements BmpDeployer, ClusteredDataTreeChangeListener<OdlBmpMonitors>, AutoCloseable {
+    private static final Logger LOG = LoggerFactory.getLogger(BmpDeployerImpl.class);
+
+    private static final InstanceIdentifier<OdlBmpMonitors> ODL_BMP_MONITORS_IID =
+        InstanceIdentifier.create(OdlBmpMonitors.class);
+    private static final YangInstanceIdentifier BMP_MONITOR_YII =
+        YangInstanceIdentifier.of(BmpMonitor.QNAME);
+    private final static ContainerNode EMPTY_PARENT_NODE = Builders.containerBuilder().withNodeIdentifier(
+        new NodeIdentifier(BmpMonitor.QNAME)).addChild(ImmutableNodes.mapNodeBuilder(Monitor.QNAME).build()).build();
+    private final DataBroker dataBroker;
+    private final BmpDispatcher dispatcher;
+    private final RIBExtensionConsumerContext extensions;
+    private final BindingCodecTree tree;
+    @GuardedBy("this")
+    private final Map<MonitorId, BmpMonitoringStation> bmpMonitorServices = new HashMap<>();
+    private final DOMDataBroker domDataBroker;
+    private ListenerRegistration<BmpDeployerImpl> registration;
+
+    public BmpDeployerImpl(final BmpDispatcher dispatcher, final DataBroker dataBroker, final DOMDataBroker domDataBroker,
+        final RIBExtensionConsumerContext extensions, final BindingCodecTreeFactory codecTreeFactory,
+        final SchemaContext schemaContext) {
+        this.dataBroker = Preconditions.checkNotNull(dataBroker);
+        this.domDataBroker = Preconditions.checkNotNull(domDataBroker);
+        this.dispatcher = Preconditions.checkNotNull(dispatcher);
+        this.extensions = Preconditions.checkNotNull(extensions);
+        this.tree = Preconditions.checkNotNull(codecTreeFactory).create(schemaContext);
+
+    }
+
+    public synchronized void register() {
+        final DOMDataWriteTransaction wTx = this.domDataBroker.newWriteOnlyTransaction();
+        wTx.merge(LogicalDatastoreType.OPERATIONAL, BMP_MONITOR_YII, EMPTY_PARENT_NODE);
+        wTx.submit();
+        this.registration = this.dataBroker.registerDataTreeChangeListener(
+            new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, ODL_BMP_MONITORS_IID), this);
+    }
+
+    @Override
+    public synchronized void onDataTreeChanged(final Collection<DataTreeModification<OdlBmpMonitors>> changes) {
+        final DataTreeModification<OdlBmpMonitors> dataTreeModification = Iterables.getOnlyElement(changes);
+        final Collection<DataObjectModification<? extends DataObject>> rootNode = dataTreeModification.getRootNode()
+            .getModifiedChildren();
+        if (rootNode.isEmpty()) {
+            return;
+        }
+        rootNode.forEach(dto -> handleModification((DataObjectModification<BmpMonitorConfig>) dto));
+    }
+
+    private void handleModification(final DataObjectModification<BmpMonitorConfig> config) {
+        final ModificationType modificationType = config.getModificationType();
+        LOG.trace("Bmp Monitor configuration has changed: {}, type modification {}", config, modificationType);
+        switch (modificationType) {
+            case DELETE:
+                removeBmpMonitor(config.getDataBefore().getMonitorId());
+                break;
+            case SUBTREE_MODIFIED:
+            case WRITE:
+                updateBmpMonitor(config.getDataAfter());
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void updateBmpMonitor(final BmpMonitorConfig bmpConfig) {
+        final MonitorId monitorId = bmpConfig.getMonitorId();
+        final BmpMonitoringStation oldService = this.bmpMonitorServices.remove(monitorId);
+        try {
+            if (oldService != null) {
+                oldService.close();
+            }
+
+            final InetSocketAddress inetAddress =
+                Ipv4Util.toInetSocketAddress(bmpConfig.getBindingAddress(), bmpConfig.getBindingPort());
+            final BmpMonitoringStation monitor = BmpMonitoringStationImpl.createBmpMonitorInstance(this.extensions,
+                this.dispatcher, this.domDataBroker, this.tree, monitorId, inetAddress, bmpConfig.getMonitoredRouter());
+            this.bmpMonitorServices.put(monitorId, monitor);
+        } catch (final Exception e) {
+            LOG.error("Failed to create Bmp Monitor {}.", monitorId, e);
+        }
+
+    }
+
+    private void removeBmpMonitor(final MonitorId monitorId) {
+        final BmpMonitoringStation service = this.bmpMonitorServices.remove(monitorId);
+        if (service != null) {
+            LOG.debug("Closing Bmp Monitor {}.", monitorId);
+            try {
+                service.close();
+            } catch (final Exception e) {
+                LOG.error("Failed to close Bmp Monitor {}.", monitorId, e);
+            }
+        }
+    }
+
+    @Override
+    public void writeBmpMonitor(final BmpMonitorConfig bmpConfig) {
+        final KeyedInstanceIdentifier<BmpMonitorConfig, BmpMonitorConfigKey> iid = InstanceIdentifier
+            .create(OdlBmpMonitors.class).child(BmpMonitorConfig.class, bmpConfig.getKey());
+
+        final WriteTransaction wTx = this.dataBroker.newWriteOnlyTransaction();
+        wTx.put(LogicalDatastoreType.CONFIGURATION, iid, bmpConfig, true);
+        wTx.submit();
+    }
+
+    @Override
+    public void deleteBmpMonitor(final MonitorId monitorId) {
+        final KeyedInstanceIdentifier<BmpMonitorConfig, BmpMonitorConfigKey> iid = InstanceIdentifier
+            .create(OdlBmpMonitors.class).child(BmpMonitorConfig.class, new BmpMonitorConfigKey(monitorId));
+
+        final WriteTransaction wTx = this.dataBroker.newWriteOnlyTransaction();
+        wTx.delete(LogicalDatastoreType.CONFIGURATION, iid);
+        wTx.submit();
+    }
+
+    @Override
+    public synchronized void close() throws Exception {
+        if (this.registration != null) {
+            this.registration.close();
+        }
+    }
+}
