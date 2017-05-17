@@ -17,7 +17,6 @@ import static org.junit.Assert.fail;
 import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
-import com.google.common.base.Optional;
 import com.google.common.net.InetAddresses;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -35,14 +34,17 @@ import java.net.InetSocketAddress;
 import java.util.List;
 import javassist.ClassPool;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
 import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTree;
 import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
 import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
+import org.opendaylight.mdsal.binding.generator.util.BindingRuntimeContext;
 import org.opendaylight.mdsal.binding.generator.util.JavassistUtils;
 import org.opendaylight.protocol.bgp.inet.RIBActivator;
 import org.opendaylight.protocol.bgp.parser.impl.BGPActivator;
@@ -101,6 +103,11 @@ import org.opendaylight.yangtools.binding.data.codec.impl.BindingNormalizedNodeC
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
+import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 
 public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
     // the local port and address where the monitor (ODL) will listen for incoming BMP request
@@ -112,9 +119,9 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
     private static final String REMOTE_ROUTER_ADDRESS_2 = "127.0.0.13";
     private static final Ipv4Address PEER1 = new Ipv4Address("20.20.20.20");
     private static final MonitorId MONITOR_ID = new MonitorId("monitor");
-    private static final KeyedInstanceIdentifier<Monitor, MonitorKey> MONITOR_IID = InstanceIdentifier.create(BmpMonitor.class).child(Monitor.class, new MonitorKey(MONITOR_ID));
+    private static final KeyedInstanceIdentifier<Monitor, MonitorKey> MONITOR_IID = InstanceIdentifier
+        .create(BmpMonitor.class).child(Monitor.class, new MonitorKey(MONITOR_ID));
     private static final PeerId PEER_ID = new PeerId(PEER1.getValue());
-    private static final String MD5_PASSWORD = "abcdef";
     private static final InstanceIdentifier<BmpMonitor> BMP_II = InstanceIdentifier.create(BmpMonitor.class);
     private BindingToNormalizedNodeCodec mappingService;
     private RIBActivator ribActivator;
@@ -123,7 +130,8 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
     private BmpDispatcher dispatcher;
     private BmpMonitoringStation bmpApp;
     private BmpMessageRegistry msgRegistry;
-    private ModuleInfoBackedContext moduleInfoBackedContext;
+    private BindingCodecTree tree;
+    private RIBExtensionProviderContext ribExtension;
 
 
     @Before
@@ -131,21 +139,19 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         MockitoAnnotations.initMocks(this);
         this.mappingService = new BindingToNormalizedNodeCodec(GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(),
                 new BindingNormalizedNodeCodecRegistry(StreamWriterGenerator.create(JavassistUtils.forClassPool(ClassPool.getDefault()))));
-        this.moduleInfoBackedContext = ModuleInfoBackedContext.create();
-        this.moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(InitiationMessage.class));
-        this.moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(CParameters1.class));
-        this.moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(BgpParameters.class));
-        this.moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(MultiprotocolCapability.class));
-        this.moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(DestinationIpv4Case.class));
-        this.moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(AdvertizedRoutes.class));
-        this.moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(SentOpen.class));
-        this.moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(ReceivedOpen.class));
-        this.mappingService.onGlobalContextUpdated(this.moduleInfoBackedContext.tryToCreateSchemaContext().get());
-
-        final KeyMapping keys = KeyMapping.getKeyMapping(InetAddresses.forString(MONITOR_LOCAL_ADDRESS), MD5_PASSWORD);
+        final ModuleInfoBackedContext moduleInfoBackedContext = ModuleInfoBackedContext.create();
+        moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(InitiationMessage.class));
+        moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(CParameters1.class));
+        moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(BgpParameters.class));
+        moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(MultiprotocolCapability.class));
+        moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(DestinationIpv4Case.class));
+        moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(AdvertizedRoutes.class));
+        moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(SentOpen.class));
+        moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(ReceivedOpen.class));
+        this.mappingService.onGlobalContextUpdated(moduleInfoBackedContext.tryToCreateSchemaContext().get());
         this.ribActivator = new RIBActivator();
-        final RIBExtensionProviderContext ribExtension = new SimpleRIBExtensionProviderContext();
-        this.ribActivator.startRIBExtensionProvider(ribExtension);
+         this.ribExtension = new SimpleRIBExtensionProviderContext();
+        this.ribActivator.startRIBExtensionProvider(this.ribExtension);
 
         this.bgpActivator = new BGPActivator();
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
@@ -156,19 +162,31 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         this.msgRegistry = ctx.getBmpMessageRegistry();
 
         this.dispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(),
-                ctx.getBmpMessageRegistry(), new DefaultBmpSessionFactory());
+            ctx.getBmpMessageRegistry(), new DefaultBmpSessionFactory());
 
-        this.bmpApp = BmpMonitoringStationImpl.createBmpMonitorInstance(ribExtension, this.dispatcher, getDomBroker(),
-                MONITOR_ID, new InetSocketAddress(InetAddresses.forString(MONITOR_LOCAL_ADDRESS), MONITOR_LOCAL_PORT), Optional.of(keys),
-                this.mappingService.getCodecFactory(), this.moduleInfoBackedContext.getSchemaContext(), null);
+        final BindingRuntimeContext runtimeContext = BindingRuntimeContext.create(this.ribExtension
+            .getClassLoadingStrategy(), this.getSchemaContext());
+        this.tree = this.mappingService.getCodecFactory().create(runtimeContext);
+
+        final InetSocketAddress inetAddress = new InetSocketAddress(InetAddresses.forString(MONITOR_LOCAL_ADDRESS),
+            MONITOR_LOCAL_PORT);
+
+        final DOMDataWriteTransaction wTx = getDomBroker().newWriteOnlyTransaction();
+        final ContainerNode parentNode = Builders.containerBuilder().withNodeIdentifier(
+            new NodeIdentifier(BmpMonitor.QNAME)).addChild(ImmutableNodes.mapNodeBuilder(Monitor.QNAME).build()).build();
+        wTx.merge(LogicalDatastoreType.OPERATIONAL, YangInstanceIdentifier.of(BmpMonitor.QNAME), parentNode);
+        wTx.submit();
+
+        this.bmpApp = BmpMonitoringStationImpl.createBmpMonitorInstance(this.ribExtension, this.dispatcher, getDomBroker(),
+            this.tree, MONITOR_ID, inetAddress, null);
 
         readDataOperational(getDataBroker(), BMP_II, monitor -> {
-            Assert.assertEquals(1, monitor.getMonitor().size());
+            assertEquals(1, monitor.getMonitor().size());
             final Monitor bmpMonitor = monitor.getMonitor().get(0);
-            Assert.assertEquals(MONITOR_ID, bmpMonitor.getMonitorId());
-            Assert.assertEquals(0, bmpMonitor.getRouter().size());
-            Assert.assertEquals(MONITOR_ID, bmpMonitor.getMonitorId());
-            Assert.assertEquals(0, bmpMonitor.getRouter().size());
+            assertEquals(MONITOR_ID, bmpMonitor.getMonitorId());
+            assertEquals(0, bmpMonitor.getRouter().size());
+            assertEquals(MONITOR_ID, bmpMonitor.getMonitorId());
+            assertEquals(0, bmpMonitor.getRouter().size());
             return monitor;
         });
     }
@@ -209,8 +227,8 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
 
 
         // channel 1 should still be open, while channel3 should be closed
-        CheckUtil.checkEquals(()-> assertTrue(channel1.isOpen()));
-        CheckUtil.checkEquals(()-> assertFalse(channel3.isOpen()));
+        CheckUtil.checkEquals(() -> assertTrue(channel1.isOpen()));
+        CheckUtil.checkEquals(() -> assertFalse(channel3.isOpen()));
 
         // now if we close the channel 1 and try it again, it should succeed
         waitFutureSuccess(channel1.close());
@@ -377,7 +395,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
                 final Tables tables = postPolicyRib.getTables().get(0);
                 assertTrue(tables.getAttributes().isUptodate());
                 assertEquals(3, ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.bmp.monitor.monitor.router.peer.post.policy.rib.tables.routes.Ipv4RoutesCase)
-                        tables.getRoutes()).getIpv4Routes().getIpv4Route().size());
+                    tables.getRoutes()).getIpv4Routes().getIpv4Route().size());
                 return tables;
             });
 
@@ -389,10 +407,10 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
                 return router;
             });
         } catch (final Exception e) {
-            final StringBuffer ex = new StringBuffer();
+            final StringBuilder ex = new StringBuilder();
             ex.append(e.getMessage()).append("\n");
             for (final StackTraceElement element : e.getStackTrace()) {
-                ex.append(element.toString() + "\n");
+                ex.append(element.toString()).append("\n");
             }
             fail(ex.toString());
         }
@@ -401,12 +419,13 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
 
     @Test
     public void deploySecondInstance() throws Exception {
-        final BmpMonitoringStation monitoringStation2 = BmpMonitoringStationImpl.createBmpMonitorInstance(new SimpleRIBExtensionProviderContext(), this.dispatcher, getDomBroker(),
-                new MonitorId("monitor2"), new InetSocketAddress(InetAddresses.forString(MONITOR_LOCAL_ADDRESS_2), MONITOR_LOCAL_PORT), Optional.of(KeyMapping.getKeyMapping()),
-                this.mappingService.getCodecFactory(), this.moduleInfoBackedContext.getSchemaContext(), null);
+        final BmpMonitoringStation monitoringStation2 = BmpMonitoringStationImpl
+            .createBmpMonitorInstance(this.ribExtension, this.dispatcher, getDomBroker(), this.tree,
+                new MonitorId("monitor2"), new InetSocketAddress(InetAddresses.forString(MONITOR_LOCAL_ADDRESS_2),
+                    MONITOR_LOCAL_PORT),null);
 
         readDataOperational(getDataBroker(), BMP_II, monitor -> {
-            Assert.assertEquals(2, monitor.getMonitor().size());
+            assertEquals(2, monitor.getMonitor().size());
             return monitor;
         });
 
@@ -417,9 +436,9 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         final BmpHandlerFactory hf = new BmpHandlerFactory(msgRegistry);
         final Bootstrap b = new Bootstrap();
         final EventLoopGroup workerGroup;
-        if(Epoll.isAvailable()){
+        if (Epoll.isAvailable()) {
             b.channel(EpollSocketChannel.class);
-            workerGroup =new EpollEventLoopGroup();
+            workerGroup = new EpollEventLoopGroup();
         } else {
             b.channel(NioSocketChannel.class);
             workerGroup = new NioEventLoopGroup();
