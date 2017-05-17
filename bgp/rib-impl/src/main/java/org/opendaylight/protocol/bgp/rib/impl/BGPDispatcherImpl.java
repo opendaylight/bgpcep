@@ -7,8 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import static org.opendaylight.protocol.concepts.KeyMapping.getKeyMapping;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import io.netty.bootstrap.Bootstrap;
@@ -76,7 +74,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
 
     @Override
     public synchronized Future<BGPSessionImpl> createClient(final InetSocketAddress remoteAddress, final int retryTimer) {
-        return createClient(remoteAddress, retryTimer, createClientBootStrap(getKeyMapping(), false));
+        return createClient(remoteAddress, retryTimer, createClientBootStrap(KeyMapping.getKeyMapping(), false));
     }
 
     private synchronized Future<BGPSessionImpl> createClient(final InetSocketAddress remoteAddress,
@@ -95,7 +93,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     @VisibleForTesting
     public synchronized Future<BGPSessionImpl> createClient(final InetSocketAddress localAddress,
         final InetSocketAddress remoteAddress, final int retryTimer, final boolean reuseAddress) {
-        final Bootstrap clientBootStrap = createClientBootStrap(getKeyMapping(), reuseAddress);
+        final Bootstrap clientBootStrap = createClientBootStrap(KeyMapping.getKeyMapping(), reuseAddress);
         clientBootStrap.localAddress(localAddress);
         return createClient(remoteAddress, retryTimer, clientBootStrap);
     }

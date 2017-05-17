@@ -16,13 +16,10 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Created by cgasparini on 21.5.2015.
- */
 public class BmpTestSessionListener implements BmpSessionListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(BmpTestSessionListener.class);
-    private List<Notification> messages = Lists.newArrayList();
+    private final List<Notification> messages = Lists.newArrayList();
     private boolean up = false;
 
     public boolean isUp () {
