@@ -8,23 +8,20 @@
 
 package org.opendaylight.controller.config.yang.bmp.impl;
 
-import com.google.common.base.Preconditions;
-import com.google.common.net.InetAddresses;
 import io.netty.util.internal.PlatformDependent;
-import java.nio.charset.StandardCharsets;
 import java.security.AccessControlException;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
-import org.opendaylight.controller.sal.core.api.model.SchemaService;
-import org.opendaylight.protocol.bmp.impl.app.BmpMonitoringStationImpl;
-import org.opendaylight.protocol.concepts.KeyMapping;
-import org.opendaylight.protocol.util.Ipv4Util;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.protocol.bmp.impl.api.BmpDeployer;
+import org.opendaylight.protocol.bmp.impl.spi.BmpMonitoringStation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.config.rev170517.odl.bmp.monitors.BmpMonitorConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.config.rev170517.odl.bmp.monitors.BmpMonitorConfigBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.config.rev170517.server.config.ServerBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev150512.MonitorId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.rfc2385.cfg.rev160324.Rfc2385Key;
-import org.opendaylight.yangtools.yang.model.api.SchemaContext;
-import org.opendaylight.yangtools.yang.model.api.SchemaContextProvider;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,33 +41,6 @@ public class BmpMonitorImplModule extends org.opendaylight.controller.config.yan
         super(identifier, dependencyResolver, oldModule, oldInstance);
     }
 
-    private String getAddressString(final IpAddress address) {
-        Preconditions.checkArgument(address.getIpv4Address() != null || address.getIpv6Address() != null, "Address %s is invalid", address);
-        if (address.getIpv4Address() != null) {
-            return address.getIpv4Address().getValue();
-        }
-        return address.getIpv6Address().getValue();
-    }
-
-    private KeyMapping constructKeys() {
-        final KeyMapping ret = KeyMapping.getKeyMapping();
-        if (getMonitoredRouter() != null) {
-            for (final MonitoredRouter mr : getMonitoredRouter()) {
-                if (mr.getAddress() == null) {
-                    LOG.warn("Monitored router {} does not have an address skipping it", mr);
-                    continue;
-                }
-                final Rfc2385Key rfc2385KeyPassword = mr.getPassword();
-                if (rfc2385KeyPassword != null && !rfc2385KeyPassword.getValue().isEmpty()) {
-                    final String s = getAddressString(mr.getAddress());
-                    ret.put(InetAddresses.forString(s), rfc2385KeyPassword.getValue().getBytes(StandardCharsets.US_ASCII));
-                }
-            }
-        }
-
-        return ret;
-    }
-
     @Override
     public void customValidation() {
         JmxAttributeValidationException.checkNotNull(getBindingPort(), bindingPortJmxAttribute);
@@ -82,26 +52,45 @@ public class BmpMonitorImplModule extends org.opendaylight.controller.config.yan
 
     @Override
     public java.lang.AutoCloseable createInstance() {
+        final WaitingServiceTracker<BmpDeployer> bgpDeployerTracker = WaitingServiceTracker
+            .create(BmpDeployer.class, this.bundleContext);
+        final BmpDeployer bgpDeployer = bgpDeployerTracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
+
+        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.config.rev170517.odl.
+            bmp.monitors.bmp.monitor.config.MonitoredRouter> monitoredRouters = convertBackwarCSS(getMonitoredRouter());
+
+        final BmpMonitorConfig monitorConfig = new BmpMonitorConfigBuilder()
+            .setServer(new ServerBuilder()
+                .setBindingAddress(getBindingAddress())
+                .setBindingPort(getBindingPort()).build())
+            .setMonitorId(new MonitorId(getIdentifier().getInstanceName()))
+            .setMonitoredRouter(monitoredRouters)
+            .build();
         try {
-            return BmpMonitoringStationImpl.createBmpMonitorInstance(getExtensionsDependency(), getBmpDispatcherDependency(),
-                    getDomDataProviderDependency(), new MonitorId(getIdentifier().getInstanceName()),
-                    Ipv4Util.toInetSocketAddress(getBindingAddress(), getBindingPort()),
-                    constructKeys(), getCodecTreeFactoryDependency(), getSchemaProvider(), getMonitoredRouter());
-        } catch(final InterruptedException e) {
-            throw new IllegalStateException("Failed to istantiate BMP application.", e);
+            bgpDeployer.writeBmpMonitor(monitorConfig);
+        } catch (final TransactionCommitFailedException e) {
+            LOG.error("Failed to create BMP Monitor {}.", monitorConfig, e);
         }
+
+        return (BmpMonitoringStation) () -> {
+            bgpDeployer.deleteBmpMonitor(monitorConfig.getMonitorId());
+            bgpDeployerTracker.close();
+        };
     }
 
-    private SchemaContext getSchemaProvider() {
-        if (getDomDataProviderDependency() instanceof SchemaContextProvider) {
-            return ((SchemaContextProvider) getDomDataProviderDependency()).getSchemaContext();
-        }
-        final ServiceReference<SchemaService> serviceRef = this.bundleContext.getServiceReference(SchemaService.class);
-        return this.bundleContext.getService(serviceRef).getGlobalContext();
+    private List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.config.rev170517.odl.
+        bmp.monitors.bmp.monitor.config.MonitoredRouter> convertBackwarCSS(final List<MonitoredRouter> monitoredRouter) {
+        return monitoredRouter.stream().map(this::convert).collect(Collectors.toList());
+    }
+
+    private org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.config.rev170517.odl.
+        bmp.monitors.bmp.monitor.config.MonitoredRouter convert(final MonitoredRouter mr) {
+        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.config.rev170517.odl.
+            bmp.monitors.bmp.monitor.config.MonitoredRouterBuilder().setActive(mr.getActive())
+            .setAddress(mr.getAddress()).setPort(mr.getPort()).setPassword(mr.getPassword()).build();
     }
 
     public void setBundleContext(final BundleContext bundleContext) {
         this.bundleContext = bundleContext;
     }
-
 }
