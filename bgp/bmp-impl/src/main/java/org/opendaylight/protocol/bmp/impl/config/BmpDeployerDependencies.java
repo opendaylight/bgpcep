@@ -12,6 +12,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTree;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 
@@ -20,14 +21,16 @@ public class BmpDeployerDependencies {
     private final RIBExtensionConsumerContext extensions;
     private final BindingCodecTree tree;
     private final DOMDataBroker domDataBroker;
+    private final ClusterSingletonServiceProvider singletonProvider;
 
     public BmpDeployerDependencies(final DataBroker dataBroker, final DOMDataBroker domDataBroker,
     final RIBExtensionConsumerContext extensions, final BindingCodecTreeFactory codecTreeFactory,
-    final SchemaContext schemaContext) {
+    final SchemaContext schemaContext, final ClusterSingletonServiceProvider singletonProvider) {
         this.dataBroker = Preconditions.checkNotNull(dataBroker);
         this.domDataBroker = Preconditions.checkNotNull(domDataBroker);
         this.extensions = Preconditions.checkNotNull(extensions);
         this.tree = Preconditions.checkNotNull(codecTreeFactory).create(schemaContext);
+        this.singletonProvider = Preconditions.checkNotNull(singletonProvider);
     }
 
     public DataBroker getDataBroker() {
@@ -44,5 +47,9 @@ public class BmpDeployerDependencies {
 
     public DOMDataBroker getDomDataBroker() {
         return this.domDataBroker;
+    }
+
+    public ClusterSingletonServiceProvider getClusterSingletonProvider() {
+        return this.singletonProvider;
     }
 }
