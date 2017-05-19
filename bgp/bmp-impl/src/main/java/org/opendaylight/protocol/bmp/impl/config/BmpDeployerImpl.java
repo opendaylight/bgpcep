@@ -13,7 +13,6 @@ import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
@@ -59,7 +58,7 @@ public class BmpDeployerImpl implements BmpDeployer, ClusteredDataTreeChangeList
         new NodeIdentifier(BmpMonitor.QNAME)).addChild(ImmutableNodes.mapNodeBuilder(Monitor.QNAME).build()).build();
     private final BmpDispatcher dispatcher;
     @GuardedBy("this")
-    private final Map<MonitorId, BmpMonitoringStation> bmpMonitorServices = new HashMap<>();
+    private final Map<MonitorId, BmpMonitoringStationImpl> bmpMonitorServices = new HashMap<>();
     private final BmpDeployerDependencies bmpDeployerDependencies;
     @GuardedBy("this")
     private ListenerRegistration<BmpDeployerImpl> registration;
@@ -75,7 +74,6 @@ public class BmpDeployerImpl implements BmpDeployer, ClusteredDataTreeChangeList
         wTx.submit();
         this.registration = this.bmpDeployerDependencies.getDataBroker().registerDataTreeChangeListener(
             new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, ODL_BMP_MONITORS_IID), this);
-
     }
 
     @Override
@@ -107,17 +105,18 @@ public class BmpDeployerImpl implements BmpDeployer, ClusteredDataTreeChangeList
 
     private void updateBmpMonitor(final BmpMonitorConfig bmpConfig) {
         final MonitorId monitorId = bmpConfig.getMonitorId();
-        final BmpMonitoringStation oldService = this.bmpMonitorServices.remove(monitorId);
+        final BmpMonitoringStationImpl oldService = this.bmpMonitorServices.remove(monitorId);
         try {
             if (oldService != null) {
+                oldService.closeServiceInstance().get();
                 oldService.close();
             }
 
             final Server server = bmpConfig.getServer();
             final InetSocketAddress inetAddress =
                 Ipv4Util.toInetSocketAddress(server.getBindingAddress(), server.getBindingPort());
-            final BmpMonitoringStation monitor = BmpMonitoringStationImpl.createBmpMonitorInstance(
-                this.bmpDeployerDependencies, this.dispatcher, monitorId, inetAddress, bmpConfig.getMonitoredRouter());
+            final BmpMonitoringStationImpl monitor = new BmpMonitoringStationImpl(this.bmpDeployerDependencies,
+                this.dispatcher, monitorId, inetAddress, bmpConfig.getMonitoredRouter());
             this.bmpMonitorServices.put(monitorId, monitor);
         } catch (final Exception e) {
             LOG.error("Failed to create Bmp Monitor {}.", monitorId, e);

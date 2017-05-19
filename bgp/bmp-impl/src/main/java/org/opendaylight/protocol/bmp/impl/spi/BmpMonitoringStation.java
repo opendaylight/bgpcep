@@ -8,7 +8,6 @@
 
 package org.opendaylight.protocol.bmp.impl.spi;
 
-
 public interface BmpMonitoringStation extends AutoCloseable {
 
 }
