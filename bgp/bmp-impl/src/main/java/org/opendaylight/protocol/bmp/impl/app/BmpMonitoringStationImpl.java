@@ -13,12 +13,18 @@ import static org.opendaylight.protocol.bmp.impl.app.KeyConstructorUtil.construc
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
+import com.google.common.util.concurrent.ListenableFuture;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.List;
+import javax.annotation.Nonnull;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
+import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
@@ -37,41 +43,87 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.moni
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.rfc2385.cfg.rev160324.Rfc2385Key;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
-import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class BmpMonitoringStationImpl implements BmpMonitoringStation {
+public final class BmpMonitoringStationImpl implements BmpMonitoringStation, ClusterSingletonService {
 
     private static final Logger LOG = LoggerFactory.getLogger(BmpMonitoringStationImpl.class);
 
     private static final QName MONITOR_ID_QNAME = QName.create(Monitor.QNAME, "monitor-id").intern();
-
+    private final static ServiceGroupIdentifier SERVICE_GROUP_IDENTIFIER =
+        ServiceGroupIdentifier.create("bmp-monitors-service-group");
     private final DOMDataBroker domDataBroker;
-    private final YangInstanceIdentifier yangMonitorId;
-    private final RouterSessionManager sessionManager;
-    private final Channel channel;
+    private final InetSocketAddress address;
     private final MonitorId monitorId;
     private final List<MonitoredRouter> monitoredRouters;
+    private final BmpDispatcher dispatcher;
+    private final RouterSessionManager sessionManager;
+    private final YangInstanceIdentifier yangMonitorId;
+    private Channel channel;
+    private ClusterSingletonServiceRegistration singletonServiceRegistration;
 
-    private BmpMonitoringStationImpl(final DOMDataBroker domDataBroker, final YangInstanceIdentifier yangMonitorId,
-            final Channel channel, final RouterSessionManager sessionManager, final MonitorId monitorId,
-            final BmpDispatcher dispatcher, final List<MonitoredRouter> mrs) {
+    public BmpMonitoringStationImpl(final ClusterSingletonServiceProvider singletonProvider,
+        final RIBExtensionConsumerContext ribExtensions, final BmpDispatcher dispatcher,
+        final DOMDataBroker domDataBroker, final BindingCodecTree tree, final MonitorId monitorId,
+        final InetSocketAddress address, final List<MonitoredRouter> mrs) {
         this.domDataBroker = Preconditions.checkNotNull(domDataBroker);
-        this.yangMonitorId = Preconditions.checkNotNull(yangMonitorId);
-        this.channel = Preconditions.checkNotNull(channel);
-        this.sessionManager = Preconditions.checkNotNull(sessionManager);
+        this.dispatcher = Preconditions.checkNotNull(dispatcher);
         this.monitorId = monitorId;
         this.monitoredRouters = mrs;
+        this.address = Preconditions.checkNotNull(address);
 
-        createEmptyMonitor();
-        LOG.info("BMP Monitoring station {} started", this.monitorId.getValue());
+        this.yangMonitorId = YangInstanceIdentifier.builder()
+            .node(BmpMonitor.QNAME).node(Monitor.QNAME)
+            .nodeWithKey(Monitor.QNAME, MONITOR_ID_QNAME, monitorId.getValue()).build();
 
-        connectMonitoredRouters(dispatcher);
-        LOG.info("Connecting to monitored routers completed.");
+        this.sessionManager = new RouterSessionManager(this.yangMonitorId, domDataBroker, ribExtensions, tree);
+
+        LOG.info("BMP Monitor Singleton Service {} registered, Monitor Id {}",
+            getIdentifier().getValue(), this.monitorId.getValue());
+        this.singletonServiceRegistration = singletonProvider.registerClusterSingletonService(this);
+    }
+
+    @Override
+    public synchronized void instantiateServiceInstance() {
+        LOG.info("BMP Monitor Singleton Service {} instantiated, Monitor Id {}",
+            getIdentifier().getValue(), this.monitorId.getValue());
+
+        final ChannelFuture channelFuture = this.dispatcher.createServer(this.address, this.sessionManager,
+            constructKeys(this.monitoredRouters));
+        try {
+            this.channel = channelFuture.sync().channel();
+            createEmptyMonitor();
+            LOG.info("BMP Monitoring station {} started", this.monitorId.getValue());
+
+            connectMonitoredRouters(this.dispatcher);
+            LOG.info("Connecting to monitored routers completed.");
+        } catch (final InterruptedException e) {
+            LOG.error("Failed to instantiate BMP Monitor Singleton {}", this.monitorId.getValue(), e);
+        }
+
+    }
+
+    @Override
+    public synchronized ListenableFuture<Void> closeServiceInstance() {
+        LOG.info("BMP Monitor Singleton Service {} instance closed, Monitor Id {}",
+            getIdentifier().getValue(), this.monitorId.getValue());
+        this.channel.close().addListener((ChannelFutureListener) future -> {
+            Preconditions.checkArgument(future.isSuccess(), "Channel failed to close: %s", future.cause());
+            BmpMonitoringStationImpl.this.sessionManager.close();
+        });
+
+        final DOMDataWriteTransaction wTx = this.domDataBroker.newWriteOnlyTransaction();
+        wTx.delete(LogicalDatastoreType.OPERATIONAL, this.yangMonitorId);
+        LOG.info("BMP monitoring station {} closed.", this.monitorId.getValue());
+        return wTx.submit();
+    }
+
+    @Nonnull
+    @Override
+    public ServiceGroupIdentifier getIdentifier() {
+        return SERVICE_GROUP_IDENTIFIER;
     }
 
     private void connectMonitoredRouters(final BmpDispatcher dispatcher) {
@@ -92,39 +144,15 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation {
         }
     }
 
-    public static BmpMonitoringStation createBmpMonitorInstance(final RIBExtensionConsumerContext ribExtensions,
-        final BmpDispatcher dispatcher, final DOMDataBroker domDataBroker, final BindingCodecTree tree,
-        final MonitorId monitorId, final InetSocketAddress address, final List<MonitoredRouter> mrs)
-        throws InterruptedException {
-
-        final YangInstanceIdentifier yangMonitorId = YangInstanceIdentifier.builder()
-            .node(BmpMonitor.QNAME).node(Monitor.QNAME)
-            .nodeWithKey(Monitor.QNAME, MONITOR_ID_QNAME, monitorId.getValue()).build();
-
-        final RouterSessionManager sessionManager = new RouterSessionManager(yangMonitorId, domDataBroker,
-            ribExtensions, tree);
-        final ChannelFuture channelFuture = dispatcher.createServer(address, sessionManager, constructKeys(mrs));
-
-        return new BmpMonitoringStationImpl(domDataBroker, yangMonitorId, channelFuture.sync().channel(),
-            sessionManager, monitorId, dispatcher, mrs);
-    }
-
-    private static void ensureParentExists(final DOMDataWriteTransaction wTx, final YangInstanceIdentifier path) {
-        final ContainerNode parentNode = Builders.containerBuilder().withNodeIdentifier(
-                new NodeIdentifier(BmpMonitor.QNAME)).addChild(ImmutableNodes.mapNodeBuilder(Monitor.QNAME).build()).build();
-        wTx.merge(LogicalDatastoreType.OPERATIONAL, path, parentNode);
-    }
-
     private synchronized void createEmptyMonitor() {
         final DOMDataWriteTransaction wTx = this.domDataBroker.newWriteOnlyTransaction();
-        ensureParentExists(wTx, YangInstanceIdentifier.of(BmpMonitor.QNAME));
         wTx.put(LogicalDatastoreType.OPERATIONAL,
-                YangInstanceIdentifier.builder().node(BmpMonitor.QNAME).node(Monitor.QNAME)
-                    .nodeWithKey(Monitor.QNAME, MONITOR_ID_QNAME, this.monitorId.getValue()).build(),
-                ImmutableNodes.mapEntryBuilder(Monitor.QNAME, MONITOR_ID_QNAME, this.monitorId.getValue())
-                    .addChild(ImmutableNodes.leafNode(MONITOR_ID_QNAME, this.monitorId.getValue()))
-                    .addChild(ImmutableNodes.mapNodeBuilder(Router.QNAME).build())
-                    .build());
+            YangInstanceIdentifier.builder().node(BmpMonitor.QNAME).node(Monitor.QNAME)
+                .nodeWithKey(Monitor.QNAME, MONITOR_ID_QNAME, this.monitorId.getValue()).build(),
+            ImmutableNodes.mapEntryBuilder(Monitor.QNAME, MONITOR_ID_QNAME, this.monitorId.getValue())
+                .addChild(ImmutableNodes.leafNode(MONITOR_ID_QNAME, this.monitorId.getValue()))
+                .addChild(ImmutableNodes.mapNodeBuilder(Router.QNAME).build())
+                .build());
         try {
             wTx.submit().checkedGet();
         } catch (final TransactionCommitFailedException e) {
@@ -134,11 +162,9 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation {
 
     @Override
     public synchronized void close() throws Exception {
-        this.channel.close().addListener((ChannelFutureListener) channelFuture -> BmpMonitoringStationImpl.this.sessionManager.close()).await();
-
-        final DOMDataWriteTransaction wTx = this.domDataBroker.newWriteOnlyTransaction();
-        wTx.delete(LogicalDatastoreType.OPERATIONAL, this.yangMonitorId);
-        wTx.submit().checkedGet();
-        LOG.info("BMP monitoring station {} closed.", this.monitorId.getValue());
+        if (this.singletonServiceRegistration != null) {
+            this.singletonServiceRegistration.close();
+            this.singletonServiceRegistration = null;
+        }
     }
 }

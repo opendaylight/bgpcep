@@ -25,6 +25,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTree;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.protocol.bmp.api.BmpDispatcher;
 import org.opendaylight.protocol.bmp.impl.app.BmpMonitoringStationImpl;
 import org.opendaylight.protocol.bmp.impl.spi.BmpDeployer;
@@ -66,17 +67,19 @@ public class BmpDeployerImpl implements BmpDeployer, ClusteredDataTreeChangeList
     private final RIBExtensionConsumerContext extensions;
     private final BindingCodecTree tree;
     @GuardedBy("this")
-    private final Map<MonitorId, BmpMonitoringStation> bmpMonitorServices = new HashMap<>();
+    private final Map<MonitorId, BmpMonitoringStationImpl> bmpMonitorServices = new HashMap<>();
     private final DOMDataBroker domDataBroker;
+    private final ClusterSingletonServiceProvider singletonProvider;
     private ListenerRegistration<BmpDeployerImpl> registration;
 
     public BmpDeployerImpl(final BmpDispatcher dispatcher, final DataBroker dataBroker, final DOMDataBroker domDataBroker,
         final RIBExtensionConsumerContext extensions, final BindingCodecTreeFactory codecTreeFactory,
-        final SchemaContext schemaContext) {
+        final SchemaContext schemaContext, final ClusterSingletonServiceProvider singletonProvider) {
         this.dataBroker = Preconditions.checkNotNull(dataBroker);
         this.domDataBroker = Preconditions.checkNotNull(domDataBroker);
         this.dispatcher = Preconditions.checkNotNull(dispatcher);
         this.extensions = Preconditions.checkNotNull(extensions);
+        this.singletonProvider = Preconditions.checkNotNull(singletonProvider);
         this.tree = Preconditions.checkNotNull(codecTreeFactory).create(schemaContext);
 
     }
@@ -118,16 +121,18 @@ public class BmpDeployerImpl implements BmpDeployer, ClusteredDataTreeChangeList
 
     private void updateBmpMonitor(final BmpMonitorConfig bmpConfig) {
         final MonitorId monitorId = bmpConfig.getMonitorId();
-        final BmpMonitoringStation oldService = this.bmpMonitorServices.remove(monitorId);
+        final BmpMonitoringStationImpl oldService = this.bmpMonitorServices.remove(monitorId);
         try {
             if (oldService != null) {
+                oldService.closeServiceInstance().get();
                 oldService.close();
             }
 
             final InetSocketAddress inetAddress =
                 Ipv4Util.toInetSocketAddress(bmpConfig.getBindingAddress(), bmpConfig.getBindingPort());
-            final BmpMonitoringStation monitor = BmpMonitoringStationImpl.createBmpMonitorInstance(this.extensions,
-                this.dispatcher, this.domDataBroker, this.tree, monitorId, inetAddress, bmpConfig.getMonitoredRouter());
+            final BmpMonitoringStationImpl monitor = new BmpMonitoringStationImpl(this.singletonProvider,
+                this.extensions, this.dispatcher, this.domDataBroker, this.tree, monitorId, inetAddress,
+                bmpConfig.getMonitoredRouter());
             this.bmpMonitorServices.put(monitorId, monitor);
         } catch (final Exception e) {
             LOG.error("Failed to create Bmp Monitor {}.", monitorId, e);
