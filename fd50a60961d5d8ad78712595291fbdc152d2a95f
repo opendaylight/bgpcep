@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_c99aa76d",
+        "filename": "dependency-version-managment/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2017-05-19T09:24:25Z",
+      "side": 1,
+      "message": "u sure?",
+      "parentUuid": "ba068154_7713a2b8",
+      "revId": "fd50a60961d5d8ad78712595291fbdc152d2a95f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_57865e66",
         "filename": "dependency-version-managment/pom.xml",
         "patchSetId": 1
