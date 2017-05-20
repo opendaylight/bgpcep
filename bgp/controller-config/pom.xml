@@ -53,6 +53,7 @@
                     <includes>
                         <include>**/network-topology-config.xml</include>
                         <include>**/protocols-config.xml</include>
+                        <include>**/odl-bmp-monitors-config.xml</include>
                     </includes>
                 </configuration>
             </plugin>
@@ -74,16 +75,6 @@
                                     <classifier>config</classifier>
                                 </artifact>
                                 <artifact>
-                                    <file>${project.build.directory}/classes/initial/32-bmp.xml</file>
-                                    <type>xml</type>
-                                    <classifier>bmp-config</classifier>
-                                </artifact>
-                                <artifact>
-                                    <file>${project.build.directory}/classes/initial/42-bmp-example.xml</file>
-                                    <type>xml</type>
-                                    <classifier>bmp-config-example</classifier>
-                                </artifact>
-                                <artifact>
                                     <file>${project.build.directory}/classes/initial/protocols-config.xml</file>
                                     <type>xml</type>
                                     <classifier>bgp-initial-config</classifier>
@@ -92,6 +83,11 @@
                                     <file>${project.build.directory}/classes/initial/network-topology-config.xml</file>
                                     <type>xml</type>
                                     <classifier>network-topology-initial-config</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>${project.build.directory}/classes/initial/odl-bmp-monitors-config.xml</file>
+                                    <type>xml</type>
+                                    <classifier>odl-bmp-monitors-config</classifier>
                                 </artifact>
                             </artifacts>
                         </configuration>
