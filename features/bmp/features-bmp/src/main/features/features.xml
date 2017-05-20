@@ -18,10 +18,13 @@
     <repository>mvn:org.opendaylight.bgpcep/features-bgp/{{VERSION}}/xml/features</repository>
 
     <feature name='odl-bgpcep-bmp' version='${project.version}'>
+        <configfile finalname="etc/opendaylight/karaf/31-bgp.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/{{VERSION}}/xml/config</configfile>
+        <configfile finalname="etc/opendaylight/bgp/odl-bmp-monitors-config.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/{{VERSION}}/xml/odl-bmp-monitors-config</configfile>
         <feature version='${project.version}'>odl-bgpcep-bgp-dependencies</feature>
         <feature version='${controller.mdsal.version}'>odl-mdsal-broker</feature>
         <feature version='${config.version}'>odl-config-netty</feature>
         <feature version='${config.version}'>odl-config-netty-config-api</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-config-loader</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-parser</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-rib-api</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-rib-impl</feature>
@@ -35,8 +38,5 @@
         <bundle>mvn:org.opendaylight.bgpcep/bgp-bmp-spi/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-bmp-parser-impl/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-bmp-impl/{{VERSION}}</bundle>
-        <configfile finalname="etc/opendaylight/karaf/31-bgp.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/{{VERSION}}/xml/config</configfile>
-        <configfile finalname="etc/opendaylight/karaf/32-bmp.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/{{VERSION}}/xml/bmp-config</configfile>
-        <configfile finalname="etc/opendaylight/karaf/42-bmp-example.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/{{VERSION}}/xml/bmp-config-example</configfile>
     </feature>
 </features>

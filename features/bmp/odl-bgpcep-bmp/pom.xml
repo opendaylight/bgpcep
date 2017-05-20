@@ -69,6 +69,12 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>odl-bgpcep-bgp-config-loader</artifactId>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-bgp-dependencies</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
@@ -155,13 +161,7 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>bgp-controller-config</artifactId>
             <type>xml</type>
-            <classifier>bmp-config</classifier>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-controller-config</artifactId>
-            <type>xml</type>
-            <classifier>bmp-config-example</classifier>
+            <classifier>odl-bmp-monitors-config</classifier>
         </dependency>
     </dependencies>
 
