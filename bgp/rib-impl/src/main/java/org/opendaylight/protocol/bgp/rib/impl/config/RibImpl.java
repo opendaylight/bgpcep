@@ -23,7 +23,7 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListen
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
-import org.opendaylight.controller.sal.core.api.model.SchemaService;
+import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
@@ -71,7 +71,7 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
     private final BGPDispatcher dispatcher;
     private final BindingCodecTreeFactory codecTreeFactory;
     private final DOMDataBroker domBroker;
-    private final SchemaService schemaService;
+    private final DOMSchemaService domSchemaService;
     private RIBImpl ribImpl;
     private ServiceRegistration<?> serviceRegistration;
     private ListenerRegistration<SchemaContextListener> schemaContextRegistration;
@@ -84,20 +84,20 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
 
     public RibImpl(final ClusterSingletonServiceProvider provider, final RIBExtensionConsumerContext contextProvider,
         final BGPDispatcher dispatcher, final BindingCodecTreeFactory codecTreeFactory, final DOMDataBroker domBroker,
-        final SchemaService schemaService) {
+        final DOMSchemaService domSchemaService) {
         this.provider = Preconditions.checkNotNull(provider);
         this.extensions = contextProvider;
         this.dispatcher = dispatcher;
         this.codecTreeFactory = codecTreeFactory;
         this.domBroker = domBroker;
-        this.schemaService = schemaService;
+        this.domSchemaService = domSchemaService;
     }
 
     void start(final Global global, final String instanceName, final BGPTableTypeRegistryConsumer tableTypeRegistry,
         final BgpDeployer.WriteConfiguration configurationWriter) {
         Preconditions.checkState(this.ribImpl == null, "Previous instance %s was not closed.", this);
         this.ribImpl = createRib(global, instanceName, tableTypeRegistry, configurationWriter);
-        this.schemaContextRegistration = this.schemaService.registerSchemaContextListener(this.ribImpl);
+        this.schemaContextRegistration = this.domSchemaService.registerSchemaContextListener(this.ribImpl);
     }
 
     Boolean isGlobalEqual(final Global global) {
