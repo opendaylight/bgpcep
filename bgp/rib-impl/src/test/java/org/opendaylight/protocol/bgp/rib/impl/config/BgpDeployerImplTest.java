@@ -49,9 +49,9 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBrokerExtension;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
-import org.opendaylight.controller.sal.core.api.model.SchemaService;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
+import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
@@ -185,7 +185,7 @@ public class BgpDeployerImplTest {
         Mockito.doReturn(serviceRegistration).when(singletonServiceProvider).registerClusterSingletonService(any());
         Mockito.doNothing().when(serviceRegistration).close();
 
-        final SchemaService schemaService = mock(SchemaService.class);
+        final DOMSchemaService schemaService = mock(DOMSchemaService.class);
         Mockito.doNothing().when(this.dataTreeRegistration).close();
 
         Mockito.doReturn(this.dataTreeRegistration).when(schemaService).registerSchemaContextListener(any());

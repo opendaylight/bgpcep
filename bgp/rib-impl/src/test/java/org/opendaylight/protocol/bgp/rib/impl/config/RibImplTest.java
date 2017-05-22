@@ -25,9 +25,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
-import org.opendaylight.controller.sal.core.api.model.SchemaService;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
+import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
@@ -73,7 +73,7 @@ public class RibImplTest extends AbstractConfig {
     @Mock
     private DOMDataBroker domDataBroker;
     @Mock
-    private SchemaService schemaService;
+    private DOMSchemaService domSchemaService;
     @Mock
     private ClusterSingletonServiceProvider clusterSingletonServiceProvider;
     @Mock
@@ -105,7 +105,7 @@ public class RibImplTest extends AbstractConfig {
         final DOMDataTreeChangeService dOMDataTreeChangeService = mock(DOMDataTreeChangeService.class);
         Mockito.doReturn(Collections.singletonMap(DOMDataTreeChangeService.class, dOMDataTreeChangeService))
             .when(this.domDataBroker).getSupportedExtensions();
-        Mockito.doReturn(this.dataTreeRegistration).when(this.schemaService).registerSchemaContextListener(any());
+        Mockito.doReturn(this.dataTreeRegistration).when(this.domSchemaService).registerSchemaContextListener(any());
         Mockito.doNothing().when(this.dataTreeRegistration).close();
         Mockito.doReturn(mock(ListenerRegistration.class)).when(dOMDataTreeChangeService).registerDataTreeChangeListener(any(), any());
         Mockito.doNothing().when(this.serviceRegistration).unregister();
@@ -114,13 +114,13 @@ public class RibImplTest extends AbstractConfig {
     @Test
     public void testRibImpl() throws Exception {
         final RibImpl ribImpl = new RibImpl(this.clusterSingletonServiceProvider, this.extension, this.dispatcher,
-            this.bindingCodecTreeFactory, this.domDataBroker, this.schemaService);
+            this.bindingCodecTreeFactory, this.domDataBroker, this.domSchemaService);
         ribImpl.setServiceRegistration(this.serviceRegistration);
         ribImpl.start(createGlobal(), "rib-test", this.tableTypeRegistry, this.configurationWriter);
         verify(this.extension).getClassLoadingStrategy();
         verify(this.domDataBroker).getSupportedExtensions();
         verify(this.clusterSingletonServiceProvider).registerClusterSingletonService(any());
-        verify(this.schemaService).registerSchemaContextListener(any(RIBImpl.class));
+        verify(this.domSchemaService).registerSchemaContextListener(any(RIBImpl.class));
         this.singletonService.instantiateServiceInstance();
         Mockito.verify(this.configurationWriter).apply();
         assertEquals("RIBImpl{}", ribImpl.toString());
