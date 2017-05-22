@@ -20,13 +20,13 @@
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>odlparent-lite</artifactId>
-        <version>1.8.0-SNAPSHOT</version>
+        <version>1.8.0-Carbon</version>
         <relativePath/>
     </parent>
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>pcep-parent</artifactId>
-    <version>0.7.0-SNAPSHOT</version>
+    <version>0.7.0-Carbon</version>
     <description>PCEP protocol parent</description>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>

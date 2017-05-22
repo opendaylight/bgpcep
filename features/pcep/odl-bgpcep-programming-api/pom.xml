@@ -6,19 +6,19 @@
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>single-feature-parent</artifactId>
-        <version>1.8.0-SNAPSHOT</version>
+        <version>1.8.0-Carbon</version>
         <relativePath/>
     </parent>
     
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>odl-bgpcep-programming-api</artifactId>
-    <version>0.7.0-SNAPSHOT</version>
+    <version>0.7.0-Carbon</version>
     <packaging>feature</packaging>
 
     <name>OpenDaylight :: PCEP :: Programming Api</name>
 
     <properties>
-        <config.version>0.6.0-SNAPSHOT</config.version>
+        <config.version>0.6.0-Carbon</config.version>
     </properties>
 
     <dependencyManagement>
@@ -42,7 +42,7 @@
             <dependency>
                 <groupId>org.opendaylight.controller</groupId>
                 <artifactId>mdsal-artifacts</artifactId>
-                <version>1.5.0-SNAPSHOT</version>
+                <version>1.5.0-Carbon</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>

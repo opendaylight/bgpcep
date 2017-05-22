@@ -6,19 +6,19 @@
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>single-feature-parent</artifactId>
-        <version>1.8.0-SNAPSHOT</version>
+        <version>1.8.0-Carbon</version>
         <relativePath/>
     </parent>
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>odl-bgpcep-bgp-path-selection-mode</artifactId>
-    <version>0.7.0-SNAPSHOT</version>
+    <version>0.7.0-Carbon</version>
     <packaging>feature</packaging>
 
     <name>OpenDaylight :: BGP :: Path Selection</name>
 
     <properties>
-        <config.version>0.6.0-SNAPSHOT</config.version>
+        <config.version>0.6.0-Carbon</config.version>
     </properties>
 
     <dependencyManagement>

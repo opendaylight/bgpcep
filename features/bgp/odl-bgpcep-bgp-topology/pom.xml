@@ -6,19 +6,19 @@
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>single-feature-parent</artifactId>
-        <version>1.8.0-SNAPSHOT</version>
+        <version>1.8.0-Carbon</version>
         <relativePath/>
     </parent>
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>odl-bgpcep-bgp-topology</artifactId>
-    <version>0.7.0-SNAPSHOT</version>
+    <version>0.7.0-Carbon</version>
     <packaging>feature</packaging>
 
     <name>OpenDaylight :: BGP :: Topology</name>
 
     <properties>
-        <controller.mdsal.version>1.5.0-SNAPSHOT</controller.mdsal.version>
+        <controller.mdsal.version>1.5.0-Carbon</controller.mdsal.version>
     </properties>
 
     <dependencyManagement>

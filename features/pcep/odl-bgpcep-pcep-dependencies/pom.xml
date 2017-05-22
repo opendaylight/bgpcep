@@ -6,20 +6,20 @@
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>single-feature-parent</artifactId>
-        <version>1.8.0-SNAPSHOT</version>
+        <version>1.8.0-Carbon</version>
         <relativePath/>
     </parent>
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>odl-bgpcep-pcep-dependencies</artifactId>
-    <version>0.7.0-SNAPSHOT</version>
+    <version>0.7.0-Carbon</version>
     <packaging>feature</packaging>
 
     <name>OpenDaylight :: PCEP :: Dependencies</name>
 
     <properties>
-        <mdsal.binding.base>0.10.0-SNAPSHOT</mdsal.binding.base>
-        <odlparent.version>1.8.0-SNAPSHOT</odlparent.version>
+        <mdsal.binding.base>0.10.0-Carbon</mdsal.binding.base>
+        <odlparent.version>1.8.0-Carbon</odlparent.version>
     </properties>
 
     <dependencyManagement>

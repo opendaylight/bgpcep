@@ -6,19 +6,19 @@
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>single-feature-parent</artifactId>
-        <version>1.8.0-SNAPSHOT</version>
+        <version>1.8.0-Carbon</version>
         <relativePath/>
     </parent>
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>odl-bgpcep-bgp-config-loader</artifactId>
-    <version>0.7.0-SNAPSHOT</version>
+    <version>0.7.0-Carbon</version>
     <packaging>feature</packaging>
 
     <name>OpenDaylight :: BGP :: Config Loader</name>
 
     <properties>
-        <mdsal.common.version>2.2.0-SNAPSHOT</mdsal.common.version>
+        <mdsal.common.version>2.2.0-Carbon</mdsal.common.version>
     </properties>
 
     <dependencyManagement>
