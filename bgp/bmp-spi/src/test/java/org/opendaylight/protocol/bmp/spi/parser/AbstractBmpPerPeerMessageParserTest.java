@@ -27,26 +27,20 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.RdTwoOctetAs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.RouteDistinguisher;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.AdjRibInType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.DistinguisherType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.Peer.PeerDistinguisher;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.PeerType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.PeerUpNotification;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.PeerUpNotificationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.Distinguisher;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.DistinguisherBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.header.PeerHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.header.PeerHeaderBuilder;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
-/**
- * Created by cgasparini on 18.5.2015.
- */
 public class AbstractBmpPerPeerMessageParserTest {
     private static final String RD = "5:3";
     protected BGPExtensionProviderContext ctx;
     private AbstractBmpPerPeerMessageParser<?> parser;
-    final byte[] ipv6MsgWithDistinguishergBytes = {
+    private final byte[] ipv6MsgWithDistinguishergBytes = {
         (byte) 0x01, (byte) 0xc0,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x05, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x03, //Distinguisher
         (byte) 0x20, (byte) 0x01, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, //IPV6
@@ -110,8 +104,6 @@ public class AbstractBmpPerPeerMessageParserTest {
 
         final PeerHeaderBuilder phBuilder = new PeerHeaderBuilder();
         phBuilder.setType(PeerType.L3vpn);
-        final Distinguisher dist = new DistinguisherBuilder().setDistinguisher(RD).setDistinguisherType(DistinguisherType.Type0).build();
-        phBuilder.setDistinguisher(dist);
         phBuilder.setPeerDistinguisher(new PeerDistinguisher(new RouteDistinguisher(new RdTwoOctetAs("0:" + RD))));
         phBuilder.setAdjRibInType(AdjRibInType.forValue(1));
         phBuilder.setIpv4(false);

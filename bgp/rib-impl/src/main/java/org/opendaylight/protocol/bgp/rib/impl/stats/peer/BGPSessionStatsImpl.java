@@ -170,9 +170,6 @@ public final class BGPSessionStatsImpl implements BGPSessionStats {
                                 pref.setGrCapability(true);
                             }
                             if (capabilities.getAddPathCapability() != null) {
-                                // FIXME: add path capability is deprecated, replaced by addPathTableTypes
-                                pref.setAddPathCapability(true);
-
                                 final List<AdvertisedAddPathTableTypes> addPathTableTypeList = capabilities.getAddPathCapability()
                                     .getAddressFamilies()
                                     .stream()
@@ -226,10 +223,6 @@ public final class BGPSessionStatsImpl implements BGPSessionStats {
                     if (capabilities != null) {
                         if (capabilities.getGracefulRestartCapability() != null) {
                             pref.setGrCapability(true);
-                        }
-                        // FIXME: add-path-capability is deprecated in Boron
-                        if (capabilities.getAddPathCapability() != null) {
-                            pref.setAddPathCapability(true);
                         }
                         if (capabilities.getRouteRefreshCapability() != null) {
                             pref.setRouteRefreshCapability(true);
@@ -302,7 +295,7 @@ public final class BGPSessionStatsImpl implements BGPSessionStats {
         Preconditions.checkNotNull(error);
         final List<ErrorReceived> errList = this.errMsgs.getErrorReceived();
         ErrorReceived received = null;
-        for (ErrorReceived err : errList) {
+        for (final ErrorReceived err : errList) {
             if (err.getErrorCode().equals(error.getErrorCode()) && err.getErrorSubcode().equals(error.getErrorSubcode())) {
                 received = err;
                 break;
@@ -326,7 +319,7 @@ public final class BGPSessionStatsImpl implements BGPSessionStats {
         Preconditions.checkNotNull(error);
         final List<ErrorSent> errList = this.errMsgs.getErrorSent();
         ErrorSent sent = null;
-        for (ErrorSent err : errList) {
+        for (final ErrorSent err : errList) {
             if (err.getErrorCode().equals(error.getErrorCode()) && err.getErrorSubcode().equals(error.getErrorSubcode())) {
                 sent = err;
                 break;
@@ -365,7 +358,7 @@ public final class BGPSessionStatsImpl implements BGPSessionStats {
         initMsgs();
     }
 
-    public void updateReceivedMsg(Notification msg) {
+    public void updateReceivedMsg(final Notification msg) {
         LOG.trace("Updating received BGP session message count..");
         this.updateReceivedMsgTotal();
         if (msg instanceof Notify) {
@@ -379,7 +372,7 @@ public final class BGPSessionStatsImpl implements BGPSessionStats {
         }
     }
 
-    public void updateSentMsg(Notification msg) {
+    public void updateSentMsg(final Notification msg) {
         LOG.trace("Updating sent BGP session message count..");
         this.updateSentMsgTotal();
         if (msg instanceof Update) {
