@@ -77,16 +77,6 @@ module odl-pcep-ietf-stateful07 {
         reference "https://tools.ietf.org/html/draft-sivabalan-pce-binding-label-sid-01#section-3";
         container path-binding {
             uses pcep:tlv;
-            leaf binding-type {
-                status deprecated;
-                type uint8;
-            }
-            leaf binding-value {
-                status deprecated;
-                type binary {
-                    length 0..255;
-                }
-            }
             choice binding-type-value {
                 case mpls-label {
                     leaf mpls-label {

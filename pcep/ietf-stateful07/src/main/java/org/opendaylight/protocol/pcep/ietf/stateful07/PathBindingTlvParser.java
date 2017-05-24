@@ -58,7 +58,7 @@ public final class PathBindingTlvParser implements TlvParser, TlvSerializer {
         final MplsLabelEntryCodec mplsLabelEntryCodec = new MplsLabelEntryCodec();
         final Builder<Integer, PathBindingTlvCodec> parsers = ImmutableMap.builder();
         final Builder<Class<? extends BindingTypeValue>, PathBindingTlvCodec> serializers =
-                ImmutableMap.builder();
+            ImmutableMap.builder();
 
         parsers.put(mplsLabelCodec.getBindingType(), mplsLabelCodec);
         serializers.put(MplsLabel.class, mplsLabelCodec);
@@ -70,21 +70,30 @@ public final class PathBindingTlvParser implements TlvParser, TlvSerializer {
         BT_SERIALIZERS = serializers.build();
     }
 
+    private static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel getMplsLabel(
+        final long mplsStackEntry) {
+        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel(
+            (mplsStackEntry >> LABEL_SHIFT) & LABEL_MASK);
+    }
+
+    private static long getMplsStackEntry(
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel mplsLabel) {
+        return mplsLabel.getValue() << LABEL_SHIFT;
+    }
+
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
         Preconditions.checkArgument(tlv instanceof PathBinding, "The TLV must be PathBinding type, but was %s", tlv.getClass());
         final PathBinding pTlv = (PathBinding) tlv;
         final BindingTypeValue bindingTypeValue = pTlv.getBindingTypeValue();
-        Preconditions.checkArgument((pTlv.getBindingValue() != null && pTlv.getBindingType() != null) || bindingTypeValue != null, "Missing Binding Value in Path Bidning TLV: %s", pTlv);
+        Preconditions.checkArgument(bindingTypeValue != null, "Missing Binding Value in Path Bidning TLV: %s", pTlv);
         final ByteBuf body = Unpooled.buffer(MPLS_BINDING_LENGTH);
-        if (bindingTypeValue == null) {
-            backwardsSerializer(pTlv, body);
-        } else {
-            final PathBindingTlvCodec codec = BT_SERIALIZERS.get(bindingTypeValue.getImplementedInterface());
-            Preconditions.checkArgument(codec != null, "Unsupported Path Binding Type: %s", bindingTypeValue.getImplementedInterface());
-            ByteBufWriteUtil.writeUnsignedShort(codec.getBindingType(), body);
-            body.writeBytes(codec.serialize(bindingTypeValue));
-        }
+
+        final PathBindingTlvCodec codec = BT_SERIALIZERS.get(bindingTypeValue.getImplementedInterface());
+        Preconditions.checkArgument(codec != null, "Unsupported Path Binding Type: %s", bindingTypeValue.getImplementedInterface());
+        ByteBufWriteUtil.writeUnsignedShort(codec.getBindingType(), body);
+        body.writeBytes(codec.serialize(bindingTypeValue));
+
         TlvUtil.formatTlv(TYPE, body, buffer);
     }
 
@@ -99,21 +108,11 @@ public final class PathBindingTlvParser implements TlvParser, TlvSerializer {
             throw new PCEPDeserializerException("Unsupported Path Binding Type: " + type);
         }
         final PathBindingBuilder builder = new PathBindingBuilder();
-        backwardsParser(type, buffer, builder);
         return builder.setBindingTypeValue(codec.deserialize(buffer)).build();
     }
 
-    private void backwardsParser(final int type, final ByteBuf buffer, final PathBindingBuilder builder) {
-        builder.setBindingType((short) type);
-        final byte[] value = new byte[buffer.readableBytes()];
-        //codec will do the reading from buffer
-        buffer.getBytes(0, value);
-        builder.setBindingValue(value);
-    }
-
-    private void backwardsSerializer(final PathBinding pTlv, final ByteBuf body) {
-        ByteBufWriteUtil.writeUnsignedShort((int)pTlv.getBindingType(), body);
-        body.writeBytes(pTlv.getBindingValue());
+    private interface PathBindingTlvCodec extends Codec<ByteBuf, BindingTypeValue> {
+        int getBindingType();
     }
 
     private static final class MplsLabelCodec implements PathBindingTlvCodec {
@@ -146,9 +145,9 @@ public final class PathBindingTlvParser implements TlvParser, TlvSerializer {
             final MplsLabelEntry mplsEntry = ((MplsLabelEntry) bindingValue);
             final ByteBuf value = Unpooled.buffer(MPLS_ENTRY_LENGTH);
             final long entry = getMplsStackEntry(mplsEntry.getLabel())
-                    | mplsEntry.getTrafficClass() << TC_SHIFT
-                    | (mplsEntry.isBottomOfStack() ? 1 : 0) << S_SHIFT
-                    | mplsEntry.getTimeToLive();
+                | mplsEntry.getTrafficClass() << TC_SHIFT
+                | (mplsEntry.isBottomOfStack() ? 1 : 0) << S_SHIFT
+                | mplsEntry.getTimeToLive();
             ByteBufWriteUtil.writeUnsignedInt(entry, value);
             return value;
         }
@@ -168,21 +167,6 @@ public final class PathBindingTlvParser implements TlvParser, TlvSerializer {
         public int getBindingType() {
             return MPLS_STACK_ENTRY;
         }
-    }
-
-    private interface PathBindingTlvCodec extends Codec<ByteBuf, BindingTypeValue> {
-        int getBindingType();
-    }
-
-    private static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel getMplsLabel(
-            final long mplsStackEntry) {
-        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel(
-                (mplsStackEntry >> LABEL_SHIFT) & LABEL_MASK);
-    }
-
-    private static long getMplsStackEntry(
-            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel mplsLabel) {
-        return mplsLabel.getValue() << LABEL_SHIFT;
     }
 
 }

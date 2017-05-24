@@ -99,21 +99,6 @@ module bmp-message {
         }
     }
 
-    typedef distinguisher-type {
-        type enumeration {
-            enum type0 {
-                value 0;
-            }
-            enum type1 {
-                value 1;
-            }
-            enum type2 {
-                value 2;
-            }
-        }
-        status deprecated;
-    }
-
     typedef mirror-information-code {
         type enumeration {
             enum errored-pdu {
@@ -386,22 +371,6 @@ module bmp-message {
         leaf type {
             type peer-type;
             mandatory true;
-        }
-        container distinguisher {
-            leaf distinguisher-type {
-                type distinguisher-type;
-            }
-            leaf distinguisher {
-                type string;
-            }
-            description
-                "Routers today can have multiple
-                 instances (example L3VPNs).  This field is present to distinguish
-                 peers that belong to one address domain from the other.
-                 If the peer is a L3VPN Instance Peer, it is set to the
-                 route distinguisher of the particular L3VPN instance that the peer
-                 belongs to.";
-            status deprecated;
         }
         leaf peer-distinguisher {
             type union {
