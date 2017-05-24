@@ -52,8 +52,6 @@ public final class BGPPeerStatsImpl implements BGPPeerStats {
     private RouteTable createRouteTable(@Nonnull final TablesKey tablesKey) {
         Preconditions.checkNotNull(tablesKey);
         final RouteTable routeTable = new RouteTable();
-        // FIXME: setTableType() is DEPRECATED, use setAfi() and setSafi() instead
-        routeTable.setTableType("afi=" + tablesKey.getAfi().getSimpleName() + ",safi=" + tablesKey.getSafi().getSimpleName());
 
         final QName afiQName = BindingReflections.findQName(tablesKey.getAfi()).intern();
         final QName safiQName = BindingReflections.findQName(tablesKey.getSafi()).intern();

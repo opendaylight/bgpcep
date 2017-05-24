@@ -268,9 +268,6 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
                         .withChild(
                                 Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(PostPolicyRib.QNAME))
                                 .withChild(ImmutableNodes.mapNodeBuilder(BMP_TABLES_QNAME).build()).build());
-        if (peerHeader.getDistinguisher() != null) {
-            mapEntryBuilder.withChild(ImmutableNodes.leafNode(PEER_DISTINGUISHER_QNAME, peerHeader.getDistinguisher().getDistinguisher()));
-        }
         return mapEntryBuilder.build();
     }
 

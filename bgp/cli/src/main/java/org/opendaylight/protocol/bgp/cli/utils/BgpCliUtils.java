@@ -54,7 +54,6 @@ public final class BgpCliUtils {
         //Peer Preferences
         final LocalPeerPreferences peerPreferences = bgpSessionState.getLocalPeerPreferences();
         if (peerPreferences != null) {
-            table.addRow().addContent(PEER_PREFERENCES_LABEL + "AddPathCapability", peerPreferences.getAddPathCapability());
             table.addRow().addContent(PEER_PREFERENCES_LABEL + "AS", peerPreferences.getAs());
             table.addRow().addContent(PEER_PREFERENCES_LABEL + "BgpExtendedMessageCapability", peerPreferences.getBgpExtendedMessageCapability());
             table.addRow().addContent(PEER_PREFERENCES_LABEL + "BgpId", peerPreferences.getBgpId());
@@ -67,7 +66,6 @@ public final class BgpCliUtils {
         //Speaker Preferences
         final RemotePeerPreferences speakerPreferences = bgpSessionState.getRemotePeerPreferences();
         if (speakerPreferences != null) {
-            table.addRow().addContent(SPEAKER_PREFERENCES_LABEL + "AddPathCapability", speakerPreferences.getAddPathCapability());
             table.addRow().addContent(SPEAKER_PREFERENCES_LABEL + "AS", speakerPreferences.getAs());
             table.addRow().addContent(SPEAKER_PREFERENCES_LABEL + "BgpExtendedMessageCapability", speakerPreferences.getBgpExtendedMessageCapability());
             table.addRow().addContent(SPEAKER_PREFERENCES_LABEL + "BgpId", speakerPreferences.getBgpId());

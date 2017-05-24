@@ -45,8 +45,6 @@ public final class BgpCliUtilsTests{
         newlist.add(errorReceived);
 
         when(bgpSessionState.getMessagesStats()).thenReturn(msgStats);
-        when(speakerPref.getAddPathCapability()).thenReturn(true);
-        when(peerPref.getAddPathCapability()).thenReturn(true);
         when(errorReceived.getCount()).thenReturn(new ZeroBasedCounter32(5L));
 
         when(errorMsgs.getErrorReceived()).thenReturn(newlist);

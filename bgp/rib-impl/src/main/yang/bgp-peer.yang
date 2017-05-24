@@ -120,12 +120,6 @@ module bgp-peer {
             default "false";
         }
 
-        leaf add-path-capability {
-            type boolean;
-            default "false";
-            status deprecated;
-        }
-
         leaf route-refresh-capability {
             reference "https://tools.ietf.org/html/rfc2918";
             type boolean;

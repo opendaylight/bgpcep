@@ -66,7 +66,6 @@ public abstract class AbstractBmpPerPeerMessageParser<T  extends Builder<?>> ext
         phBuilder.setIpv4(!flags.get(V_FLAG_POS));
         switch (peerType) {
         case L3vpn:
-            phBuilder.setDistinguisher(PeerDistinguisherUtil.parsePeerDistingisher(bytes.slice()));
             phBuilder.setPeerDistinguisher(new PeerDistinguisher(RouteDistinguisherUtil.parseRouteDistinguisher(bytes)));
             break;
         case Local:
@@ -101,11 +100,7 @@ public abstract class AbstractBmpPerPeerMessageParser<T  extends Builder<?>> ext
         final PeerDistinguisher peerDistinguisher = peerHeader.getPeerDistinguisher();
         switch (peerType) {
         case L3vpn:
-            if (peerDistinguisher.getRouteDistinguisher() != null) {
-                RouteDistinguisherUtil.serializeRouteDistinquisher(peerDistinguisher.getRouteDistinguisher(), output);
-            } else {
-                PeerDistinguisherUtil.serializePeerDistinguisher(peerHeader.getDistinguisher(), output);
-            }
+            RouteDistinguisherUtil.serializeRouteDistinquisher(peerDistinguisher.getRouteDistinguisher(), output);
             break;
         case Local:
             output.writeBytes(peerDistinguisher.getBinary());
