@@ -46,8 +46,8 @@ public class CommunitiesAttributeParserTest {
         ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry()
             .serializeAttribute(paBuilder.build(), actual);
         assertArrayEquals(CommunitiesBytes, ByteArray.getAllBytes(actual));
-        final Attributes attributeOut = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry()
-            .parseAttributes(actual);
+        final Attributes attributeOut = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance()
+            .getAttributeRegistry().parseAttributes(actual, null);
         assertEquals(comms, attributeOut.getCommunities());
     }
 

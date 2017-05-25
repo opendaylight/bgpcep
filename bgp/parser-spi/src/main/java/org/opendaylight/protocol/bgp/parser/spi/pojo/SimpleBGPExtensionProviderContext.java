@@ -101,16 +101,6 @@ public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsume
         return this.getMessageRegistry().registerMessageSerializer(messageClass, serializer);
     }
 
-    /**
-     * Each extension requires a specific NextHop handler. Therefore this method has been deprecated  for
-     * the method which enforce user to register it.
-     */
-    @Deprecated
-    @Override
-    public AutoCloseable registerNlriParser(final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi, final NlriParser parser) {
-        return this.getNlriRegistry().registerNlriParser(afi, safi, parser, null, null);
-    }
-
     @Override
     public AutoCloseable registerNlriParser(final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi,
         final NlriParser parser, final NextHopParserSerializer nextHopParserSerializer, final Class<? extends

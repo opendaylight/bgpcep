@@ -75,18 +75,12 @@ public class IPAddressesAndPrefixesTest {
     public void testBytesForPrefix4Begin() {
         byte[] bytes = new byte[] { 123, 122, 4, 5 };
         assertEquals(new Ipv4Prefix("123.122.4.5/8"), Ipv4Util.prefixForBytes(bytes, 8));
-        assertArrayEquals(new byte[] { 8, 102 }, Ipv4Util.bytesForPrefixBegin(new Ipv4Prefix("102.0.0.0/8")));
 
         bytes = new byte[] { (byte) 255, (byte) 255, 0, 0 };
         assertEquals(new Ipv4Prefix("255.255.0.0/16"), Ipv4Util.prefixForBytes(bytes, 16));
 
-        assertArrayEquals(new byte[] { 16, (byte) 255, (byte) 255 }, Ipv4Util.bytesForPrefixBegin(new Ipv4Prefix("255.255.0.0/16")));
-
         bytes = new byte[] { (byte) 0, (byte) 0, (byte) 0, (byte) 0 };
         assertEquals(new Ipv4Prefix("0.0.0.0/0"), Ipv4Util.prefixForBytes(bytes, 0));
-
-        bytes = new byte[] { (byte) 0 };
-        assertArrayEquals(bytes, Ipv4Util.bytesForPrefixBegin(new Ipv4Prefix("0.0.0.0/0")));
     }
 
     @Test
@@ -149,11 +143,9 @@ public class IPAddressesAndPrefixesTest {
     public void testBytesForPrefix6Begin() {
         byte[] bytes = new byte[] { 0x20, 0x01, 0x0d, (byte) 0xb8, 0x00, 0x01, 0x00, 0x02 };
         assertEquals(new Ipv6Prefix("2001:db8:1:2::/64"), Ipv6Util.prefixForBytes(bytes, 64));
-        assertArrayEquals(new byte[] { 0x40, 0x20, (byte) 0x01, 0x0d, (byte) 0xb8, 0x00, 0x01, 0x00, 0x02 }, Ipv6Util.bytesForPrefixBegin(new Ipv6Prefix("2001:db8:1:2::/64")));
 
         bytes = new byte[] { (byte) 0 };
         assertEquals(new Ipv6Prefix("::/0"), Ipv6Util.prefixForBytes(bytes, 0));
-        assertArrayEquals(bytes, Ipv6Util.bytesForPrefixBegin(new Ipv6Prefix("::/0")));
     }
 
     @Test

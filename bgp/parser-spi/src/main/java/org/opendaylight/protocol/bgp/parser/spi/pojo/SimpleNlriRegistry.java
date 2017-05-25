@@ -141,11 +141,6 @@ final class SimpleNlriRegistry implements NlriRegistry {
     }
 
     @Override
-    public MpUnreachNlri parseMpUnreach(final ByteBuf buffer) throws BGPParsingException {
-        return parseMpUnreach(buffer, null);
-    }
-
-    @Override
     public MpUnreachNlri parseMpUnreach(final ByteBuf buffer, final PeerSpecificParserConstraint constraint)
             throws BGPParsingException {
         final MpUnreachNlriBuilder builder = new MpUnreachNlriBuilder();
@@ -176,13 +171,7 @@ final class SimpleNlriRegistry implements NlriRegistry {
                 new BgpTableTypeImpl(afi, safi));
             final NextHopParserSerializer nextHopSerializer = this.nextHopSerializers.get(key);
             final ByteBuf nextHopBuffer = Unpooled.buffer();
-            if (nextHopSerializer == null) {
-                //TODO Remove once deprecated registerNlriParser is removed
-                LOG.warn("NexHop Parser/Serializer for AFI/SAFI ({},{}) not bound", afi, safi);
-                NextHopUtil.serializeNextHop(cNextHop, nextHopBuffer);
-            } else {
-                nextHopSerializer.serializeNextHop(cNextHop, nextHopBuffer);
-            }
+            nextHopSerializer.serializeNextHop(cNextHop, nextHopBuffer);
             byteAggregator.writeByte(nextHopBuffer.writerIndex());
             byteAggregator.writeBytes(nextHopBuffer);
 
@@ -201,11 +190,6 @@ final class SimpleNlriRegistry implements NlriRegistry {
     @Override
     public Iterable<NlriSerializer> getSerializers() {
         return Iterables.unmodifiableIterable(this.serializers.values());
-    }
-
-    @Override
-    public MpReachNlri parseMpReach(final ByteBuf buffer) throws BGPParsingException {
-        return parseMpReach(buffer, null);
     }
 
     @Override

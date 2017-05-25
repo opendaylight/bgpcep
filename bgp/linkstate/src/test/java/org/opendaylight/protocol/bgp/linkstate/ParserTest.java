@@ -108,7 +108,8 @@ public class ParserTest {
 
     @Before
     public void setUp() throws Exception {
-        updateParser = new BGPUpdateMessageParser(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry());
+        updateParser = new BGPUpdateMessageParser(ServiceLoaderBGPExtensionProviderContext
+            .getSingletonInstance().getAttributeRegistry());
         for (int i = 1; i <= COUNTER; i++) {
             final String name = "/up" + i + ".bin";
             try (final InputStream is = ParserTest.class.getResourceAsStream(name)){
@@ -152,11 +153,14 @@ public class ParserTest {
     @Test
     public void testEORLS() throws Exception {
         final byte[] body = ByteArray.cutBytes(inputBytes.get(0), MessageUtil.COMMON_HEADER_LENGTH);
-        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(0), MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
+        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(0),
+            MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
         final Update message = ParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength);
 
-        final Class<? extends AddressFamily> afi = message.getAttributes().getAugmentation(Attributes2.class).getMpUnreachNlri().getAfi();
-        final Class<? extends SubsequentAddressFamily> safi = message.getAttributes().getAugmentation(Attributes2.class).getMpUnreachNlri().getSafi();
+        final Class<? extends AddressFamily> afi = message.getAttributes()
+            .getAugmentation(Attributes2.class).getMpUnreachNlri().getAfi();
+        final Class<? extends SubsequentAddressFamily> safi = message.getAttributes()
+            .getAugmentation(Attributes2.class).getMpUnreachNlri().getSafi();
 
         assertEquals(LinkstateAddressFamily.class, afi);
         assertEquals(LinkstateSubsequentAddressFamily.class, safi);
@@ -318,7 +322,8 @@ public class ParserTest {
     @Test
     public void testBGPLink() throws Exception {
         final byte[] body = ByteArray.cutBytes(inputBytes.get(1), MessageUtil.COMMON_HEADER_LENGTH);
-        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(1), MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
+        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(1),
+            MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
         final Update message = ParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength);
 
         final UpdateBuilder builder = new UpdateBuilder();
@@ -330,10 +335,12 @@ public class ParserTest {
         final Ipv4NextHopCase nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(
             new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("25.25.25.1")).build()).build();
 
-        final LocalNodeDescriptorsBuilder ndBuilder = new LocalNodeDescriptorsBuilder().setAsNumber(new AsNumber((long) 100)).setDomainId(
+        final LocalNodeDescriptorsBuilder ndBuilder = new LocalNodeDescriptorsBuilder()
+            .setAsNumber(new AsNumber((long) 100)).setDomainId(
             new DomainIdentifier(0x19191901L)).setAreaId(new AreaIdentifier(0L));
 
-        final RemoteNodeDescriptorsBuilder rdBuilder = new RemoteNodeDescriptorsBuilder().setAsNumber(new AsNumber((long) 100)).setDomainId(
+        final RemoteNodeDescriptorsBuilder rdBuilder = new RemoteNodeDescriptorsBuilder()
+            .setAsNumber(new AsNumber((long) 100)).setDomainId(
             new DomainIdentifier(0x19191901L)).setAreaId(new AreaIdentifier(0L));
 
         final CLinkstateDestinationBuilder clBuilder = new CLinkstateDestinationBuilder();
@@ -349,23 +356,29 @@ public class ParserTest {
         final List<CLinkstateDestination> linkstates = Lists.newArrayList();
         final LinkCaseBuilder lCase = new LinkCaseBuilder().setLocalNodeDescriptors(ndBuilder.setCRouterIdentifier(
             new OspfPseudonodeCaseBuilder().setOspfPseudonode(
-                new OspfPseudonodeBuilder().setOspfRouterId(0x03030304L).setLanInterface(new OspfInterfaceIdentifier(0x0b0b0b03L)).build()).build()).build());
+                new OspfPseudonodeBuilder().setOspfRouterId(0x03030304L)
+                    .setLanInterface(new OspfInterfaceIdentifier(0x0b0b0b03L)).build()).build()).build());
         lCase.setRemoteNodeDescriptors(rdBuilder.setCRouterIdentifier(
-            new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(0x03030304L).build()).build()).build());
+            new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder()
+                .setOspfRouterId(0x03030304L).build()).build()).build());
         lCase.setLinkDescriptors(new LinkDescriptorsBuilder().setIpv4InterfaceAddress(
             new Ipv4InterfaceIdentifier(new Ipv4Address("11.11.11.3"))).build());
         linkstates.add(clBuilder.setObjectType(lCase.build()).build());
 
         lCase.setRemoteNodeDescriptors(rdBuilder.setCRouterIdentifier(
-            new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(0x01010102L).build()).build()).build());
+            new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder()
+                .setOspfRouterId(0x01010102L).build()).build()).build());
         lCase.setLinkDescriptors(new LinkDescriptorsBuilder().setIpv4InterfaceAddress(
             new Ipv4InterfaceIdentifier(new Ipv4Address("11.11.11.1"))).build());
         linkstates.add(clBuilder.setObjectType(lCase.build()).build());
 
         lCase.setLocalNodeDescriptors(ndBuilder.setCRouterIdentifier(
-            new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(0x01010102L).build()).build()).build());
+            new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder()
+                .setOspfRouterId(0x01010102L).build()).build()).build());
         lCase.setRemoteNodeDescriptors(rdBuilder.setCRouterIdentifier(
-            new OspfPseudonodeCaseBuilder().setOspfPseudonode(new OspfPseudonodeBuilder().setOspfRouterId(0x03030304L).setLanInterface(new OspfInterfaceIdentifier(0x0b0b0b03L)).build()).build()).build());
+            new OspfPseudonodeCaseBuilder().setOspfPseudonode(new OspfPseudonodeBuilder()
+                .setOspfRouterId(0x03030304L)
+                .setLanInterface(new OspfInterfaceIdentifier(0x0b0b0b03L)).build()).build()).build());
         linkstates.add(clBuilder.setObjectType(lCase.build()).build());
 
         lsBuilder.setMpReachNlri(mpBuilder.build());
@@ -398,10 +411,13 @@ public class ParserTest {
 
         paBuilder.addAugmentation(Attributes1.class, lsBuilder.build());
 
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.Attributes1Builder lsAttrBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.Attributes1Builder();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.
+            Attributes1Builder lsAttrBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.
+            bgp.linkstate.rev150210.Attributes1Builder();
 
         lsAttrBuilder.setLinkStateAttribute(
-            new LinkAttributesCaseBuilder().setLinkAttributes(new LinkAttributesBuilder().setMetric(new Metric(1L)).build()).build());
+            new LinkAttributesCaseBuilder().setLinkAttributes(new LinkAttributesBuilder()
+                .setMetric(new Metric(1L)).build()).build());
         paBuilder.addAugmentation(
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.Attributes1.class,
             lsAttrBuilder.build());
@@ -409,10 +425,11 @@ public class ParserTest {
 
         assertEquals(
             lsAttrBuilder.build(),
-            attrs.getAugmentation(
-                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.Attributes1.class));
+            attrs.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
+                .linkstate.rev150210.Attributes1.class));
 
-        final List<CLinkstateDestination> dests = ((DestinationLinkstateCase) mp.getAdvertizedRoutes().getDestinationType()).getDestinationLinkstate().getCLinkstateDestination();
+        final List<CLinkstateDestination> dests = ((DestinationLinkstateCase) mp.getAdvertizedRoutes()
+            .getDestinationType()).getDestinationLinkstate().getCLinkstateDestination();
 
         assertEquals(linkstates.size(), dests.size());
 
@@ -512,7 +529,8 @@ public class ParserTest {
     @Test
     public void testBGPNode() throws Exception {
         final byte[] body = ByteArray.cutBytes(inputBytes.get(2), MessageUtil.COMMON_HEADER_LENGTH);
-        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(2), MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
+        final int messageLength = ByteArray
+            .bytesToInt(ByteArray.subByte(inputBytes.get(2), MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
         final Update message = ParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength);
 
         final UpdateBuilder builder = new UpdateBuilder();
@@ -531,21 +549,25 @@ public class ParserTest {
         clBuilder.setProtocolId(ProtocolId.Ospf);
 
         final NodeDescriptorsBuilder n = new NodeDescriptorsBuilder();
-        n.setAsNumber(new AsNumber((long) 100)).setDomainId(new DomainIdentifier(0x19191901L)).setAreaId(new AreaIdentifier(0L));
+        n.setAsNumber(new AsNumber((long) 100)).setDomainId(new DomainIdentifier(0x19191901L))
+            .setAreaId(new AreaIdentifier(0L));
 
         final List<CLinkstateDestination> linkstates = Lists.newArrayList();
         final NodeCaseBuilder nCase = new NodeCaseBuilder();
         nCase.setNodeDescriptors(n.setCRouterIdentifier(
             new OspfPseudonodeCaseBuilder().setOspfPseudonode(
-                new OspfPseudonodeBuilder().setOspfRouterId(0x03030304L).setLanInterface(new OspfInterfaceIdentifier(0x0b0b0b03L)).build()).build()).build());
+                new OspfPseudonodeBuilder().setOspfRouterId(0x03030304L)
+                    .setLanInterface(new OspfInterfaceIdentifier(0x0b0b0b03L)).build()).build()).build());
         linkstates.add(clBuilder.setObjectType(nCase.build()).build());
 
         nCase.setNodeDescriptors(n.setCRouterIdentifier(
-            new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(0x03030304L).build()).build()).build());
+            new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder()
+                .setOspfRouterId(0x03030304L).build()).build()).build());
         linkstates.add(clBuilder.setObjectType(nCase.build()).build());
 
         nCase.setNodeDescriptors(n.setCRouterIdentifier(
-            new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(0x01010102L).build()).build()).build());
+            new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder()
+                .setOspfRouterId(0x01010102L).build()).build()).build());
         linkstates.add(clBuilder.setObjectType(nCase.build()).build());
 
         final Attributes1Builder lsBuilder = new Attributes1Builder();
@@ -583,7 +605,8 @@ public class ParserTest {
         assertEquals(mpBuilder.getSafi(), mp.getSafi());
         assertEquals(mpBuilder.getCNextHop(), mp.getCNextHop());
 
-        final List<CLinkstateDestination> dests = ((DestinationLinkstateCase) mp.getAdvertizedRoutes().getDestinationType()).getDestinationLinkstate().getCLinkstateDestination();
+        final List<CLinkstateDestination> dests = ((DestinationLinkstateCase) mp.getAdvertizedRoutes()
+            .getDestinationType()).getDestinationLinkstate().getCLinkstateDestination();
 
         assertEquals(linkstates.size(), dests.size());
 
@@ -630,8 +653,9 @@ public class ParserTest {
      */
     @Test
     public void testOpenMessage() throws Exception {
-        final MessageRegistry msgReg = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry();
-        final Notification o = msgReg.parseMessage(Unpooled.copiedBuffer(inputBytes.get(3)));
+        final MessageRegistry msgReg = ServiceLoaderBGPExtensionProviderContext
+            .getSingletonInstance().getMessageRegistry();
+        final Notification o = msgReg.parseMessage(Unpooled.copiedBuffer(inputBytes.get(3)), null);
         final Open open = (Open) o;
         final Set<BgpTableType> types = Sets.newHashSet();
         for (final BgpParameters param : open.getBgpParameters()) {
@@ -639,7 +663,8 @@ public class ParserTest {
                 final CParameters cParam = optCapa.getCParameters();
                 if(cParam != null && cParam.getAugmentation(CParameters1.class) != null && cParam.getAugmentation
                     (CParameters1.class).getMultiprotocolCapability() != null) {
-                    final MultiprotocolCapability mp = cParam.getAugmentation(CParameters1.class).getMultiprotocolCapability();
+                    final MultiprotocolCapability mp = cParam
+                        .getAugmentation(CParameters1.class).getMultiprotocolCapability();
                     final BgpTableType type = new BgpTableTypeImpl(mp.getAfi(), mp.getSafi());
                     types.add(type);
                 }
