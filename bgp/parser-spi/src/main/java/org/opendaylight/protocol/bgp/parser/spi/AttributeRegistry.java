@@ -19,13 +19,6 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
  *
  */
 public interface AttributeRegistry {
-
-    /**
-     * @deprecated Use {@link #parseAttributes(ByteBuf, PeerSpecificParserConstraint)}
-     */
-    @Deprecated
-    Attributes parseAttributes(ByteBuf buffer) throws BGPDocumentedException, BGPParsingException;
-
     /**
      * Parse BGP Attribute from buffer.
      * @param buffer Input buffer.

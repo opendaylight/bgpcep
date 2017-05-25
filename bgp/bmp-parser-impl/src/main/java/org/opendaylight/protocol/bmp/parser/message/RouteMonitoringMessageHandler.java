@@ -21,15 +21,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.RouteMonitoringMessageBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
-/**
- * Created by cgasparini on 13.5.2015.
- */
 public class RouteMonitoringMessageHandler extends AbstractBmpPerPeerMessageParser<RouteMonitoringMessageBuilder> {
 
     private static final int MESSAGE_TYPE = 0;
+    private final MessageRegistry msgRegistry;
 
     public RouteMonitoringMessageHandler(final MessageRegistry bgpMssageRegistry) {
         super(bgpMssageRegistry);
+        this.msgRegistry = getBgpMessageRegistry();
     }
 
     @Override
@@ -37,14 +36,14 @@ public class RouteMonitoringMessageHandler extends AbstractBmpPerPeerMessagePars
         super.serializeMessageBody(message, buffer);
         Preconditions.checkArgument(message instanceof RouteMonitoringMessage, "An instance of RouteMonitoringMessage is required");
         final RouteMonitoringMessage routeMonitor = (RouteMonitoringMessage) message;
-        getBgpMessageRegistry().serializeMessage(new UpdateBuilder(routeMonitor.getUpdate()).build(), buffer);
+        this.msgRegistry.serializeMessage(new UpdateBuilder(routeMonitor.getUpdate()).build(), buffer);
     }
 
     @Override
     public Notification parseMessageBody(final ByteBuf bytes) throws BmpDeserializationException {
         final RouteMonitoringMessageBuilder routeMonitor = new RouteMonitoringMessageBuilder().setPeerHeader(parsePerPeerHeader(bytes));
         try {
-            final Notification message = getBgpMessageRegistry().parseMessage(bytes);
+            final Notification message = this.msgRegistry.parseMessage(bytes, null);
             Preconditions.checkNotNull(message, "UpdateMessage may not be null");
             Preconditions.checkArgument(message instanceof UpdateMessage, "An instance of UpdateMessage is required");
             final UpdateMessage updateMessage = (UpdateMessage) message;

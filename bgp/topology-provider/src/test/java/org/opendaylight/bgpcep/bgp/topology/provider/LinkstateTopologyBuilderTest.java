@@ -78,7 +78,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.isis.node._case.IsisNodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.OriginBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.LocRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IgpMetric;
@@ -98,7 +100,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
 
-    private static final byte[] LINKSTATE_ROUTE_KEY = Unpooled.wrappedBuffer(StandardCharsets.UTF_8.encode("linkstate-route")).array();
+    private static final byte[] LINKSTATE_ROUTE_KEY = Unpooled.wrappedBuffer(
+        StandardCharsets.UTF_8.encode("linkstate-route")).array();
     private static final String ROUTER_1_ID = "127.0.0.1";
     private static final String ROUTER_2_ID = "127.0.0.2";
     private static final String NODE_1_PREFIX = "127.0.1.1/32";
@@ -119,10 +122,14 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
     @Override
     public void setUp() {
         super.setUp();
-        this.linkstateTopoBuilder = new LinkstateTopologyBuilder(getDataBroker(), LOC_RIB_REF, TEST_TOPOLOGY_ID, LISTENER_RESTART_TIME, LISTENER_ENFORCE_COUNTER);
+        this.linkstateTopoBuilder = new LinkstateTopologyBuilder(getDataBroker(), LOC_RIB_REF, TEST_TOPOLOGY_ID,
+            LISTENER_RESTART_TIME, LISTENER_ENFORCE_COUNTER);
         this.linkstateTopoBuilder.start();
-        final InstanceIdentifier<Tables> path = this.linkstateTopoBuilder.tableInstanceIdentifier(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
-        this.linkstateRouteIID = path.builder().child((Class) LinkstateRoutes.class).child(LinkstateRoute.class, new LinkstateRouteKey(LINKSTATE_ROUTE_KEY)).build();
+        final InstanceIdentifier<Tables> path = LOC_RIB_REF.getInstanceIdentifier().builder().child(LocRib.class)
+            .child(Tables.class, new TablesKey(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class))
+            .build();
+        this.linkstateRouteIID = path.builder().child((Class) LinkstateRoutes.class)
+            .child(LinkstateRoute.class, new LinkstateRouteKey(LINKSTATE_ROUTE_KEY)).build();
 
     }
 

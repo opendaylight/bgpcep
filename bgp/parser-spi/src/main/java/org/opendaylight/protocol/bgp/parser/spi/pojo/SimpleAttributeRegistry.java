@@ -115,11 +115,6 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
     }
 
     @Override
-    public Attributes parseAttributes(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
-        return parseAttributes(buffer, null);
-    }
-
-    @Override
     public Attributes parseAttributes(final ByteBuf buffer, final PeerSpecificParserConstraint constraint)
             throws BGPDocumentedException, BGPParsingException {
         final Map<Integer, RawAttribute> attributes = new TreeMap<>();

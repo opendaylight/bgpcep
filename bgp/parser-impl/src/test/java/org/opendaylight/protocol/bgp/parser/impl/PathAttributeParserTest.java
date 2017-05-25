@@ -37,7 +37,7 @@ public class PathAttributeParserTest {
     public void testOriginParser() {
         try {
             ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry().parseAttributes(
-                    Unpooled.copiedBuffer(new byte[] { 0x40, 0x01, 0x01, 0x04 }));
+                    Unpooled.copiedBuffer(new byte[] { 0x40, 0x01, 0x01, 0x04 }), null);
             fail("This needs to fail.");
         } catch (final BGPDocumentedException e) {
             assertEquals("Unknown Origin type.", e.getMessage());
@@ -52,15 +52,19 @@ public class PathAttributeParserTest {
         final byte[] value = new byte[] { 1, 0, 11, 0, 0, 0, 0, 0, 0, 0, 8 };
         final ByteBuf buffer = Unpooled.buffer();
 
-        AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL, AigpAttributeParser.TYPE, Unpooled.copiedBuffer(value), buffer);
+        AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL, AigpAttributeParser.TYPE,
+            Unpooled.copiedBuffer(value), buffer);
 
-        final BGPExtensionProviderContext providerContext = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance();
-        final Attributes pathAttributes = providerContext.getAttributeRegistry().parseAttributes(buffer);
+        final BGPExtensionProviderContext providerContext = ServiceLoaderBGPExtensionProviderContext
+            .getSingletonInstance();
+        final Attributes pathAttributes = providerContext.getAttributeRegistry()
+            .parseAttributes(buffer, null);
         final Aigp aigp = pathAttributes.getAigp();
         final AigpTlv tlv = aigp.getAigpTlv();
 
         assertNotNull("Tlv should not be null.", tlv);
-        assertEquals("Aigp tlv should have metric with value 8.", 8, tlv.getMetric().getValue().intValue());
+        assertEquals("Aigp tlv should have metric with value 8.", 8,
+            tlv.getMetric().getValue().intValue());
     }
 
     @Test
@@ -69,10 +73,13 @@ public class PathAttributeParserTest {
         final ByteBuf inputData = Unpooled.buffer();
         final ByteBuf testBuffer = Unpooled.buffer();
 
-        AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL, AigpAttributeParser.TYPE, Unpooled.copiedBuffer(value), inputData);
+        AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL, AigpAttributeParser.TYPE,
+            Unpooled.copiedBuffer(value), inputData);
 
-        final BGPExtensionProviderContext providerContext = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance();
-        final Attributes pathAttributes = providerContext.getAttributeRegistry().parseAttributes(inputData);
+        final BGPExtensionProviderContext providerContext = ServiceLoaderBGPExtensionProviderContext
+            .getSingletonInstance();
+        final Attributes pathAttributes = providerContext.getAttributeRegistry()
+            .parseAttributes(inputData, null);
         final Aigp aigp = pathAttributes.getAigp();
 
         final AttributesBuilder pathAttributesBuilder = new AttributesBuilder();

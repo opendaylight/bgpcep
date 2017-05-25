@@ -20,19 +20,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
  *
  */
 public interface NlriRegistry {
-
-    /**
-     * @deprecated Use {@link #parseMpReach(ByteBuf, PeerSpecificParserConstraint)}
-     */
-    @Deprecated
-    MpReachNlri parseMpReach(ByteBuf buffer) throws BGPParsingException;
-
-    /**
-     * @deprecated Use {@link #parseMpUnreach(ByteBuf, PeerSpecificParserConstraint)}
-     */
-    @Deprecated
-    MpUnreachNlri parseMpUnreach(ByteBuf buffer) throws BGPParsingException;
-
     /**
      * Decode MP REACH NLRI Attribute.
      * @param buffer Input buffer.

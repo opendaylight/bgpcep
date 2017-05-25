@@ -82,22 +82,6 @@ public final class Ipv6Util {
     }
 
     /**
-     * Converts Ipv6Prefix to byte array. Prefix length at the beginning.
-     * Prefix bytes are trimmed from the end to match prefix length.
-     *
-     * @param prefix Ipv6Prefix to be converted
-     * @return byte array with the prefix length at the beginning
-     *
-     * @deprecated This is inefficient, refactor code to use {@link #bytesForAddress(Ipv6Address)} or
-     *             {@link ByteBufWriteUtil#writeMinimalPrefix(Ipv6Prefix, ByteBuf)}.
-     */
-    @Deprecated
-    public static byte[] bytesForPrefixBegin(final Ipv6Prefix prefix) {
-        final byte[] addrWithPrefix = bytesForPrefix(prefix);
-        return Ipv4Util.prefixedBytes(addrWithPrefix[IPV6_LENGTH], addrWithPrefix);
-    }
-
-    /**
      * Creates an Ipv6Prefix object from given byte array.
      *
      * @param bytes IPv6 address
