@@ -1,0 +1,257 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7af0899e_4479c792",
+        "filename": "bgp/bmp-api/src/main/yang/odl-bmp-monitor-config.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2017-05-25T08:41:32Z",
+      "side": 1,
+      "message": "May be, it should be grouped to container as this is a server configuration.",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 13
+      },
+      "revId": "e3afe4813a880c46ad946d88a1b6d39822b0099a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_c43db7bd",
+        "filename": "bgp/bmp-api/src/main/yang/odl-bmp-monitor-config.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2017-05-25T08:41:32Z",
+      "side": 1,
+      "message": "Not needed, false by default.\nAlso port configuration makes sense when a session is active - should be modeled right way to avoid misconfiguration from user side.",
+      "range": {
+        "startLine": 58,
+        "startChar": 20,
+        "endLine": 58,
+        "endChar": 36
+      },
+      "revId": "e3afe4813a880c46ad946d88a1b6d39822b0099a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_69ee5e8d",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/app/KeyConstructorUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2017-05-25T08:41:32Z",
+      "side": 1,
+      "message": "Let\u0027s improve this piece of code a little bit:\n-makes not much sense to return optional as the KeyMapping is a map, simply return empty one.",
+      "range": {
+        "startLine": 28,
+        "startChar": 18,
+        "endLine": 28,
+        "endChar": 38
+      },
+      "revId": "e3afe4813a880c46ad946d88a1b6d39822b0099a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_499a8215",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/app/KeyConstructorUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2017-05-25T08:41:32Z",
+      "side": 1,
+      "message": "-optionally convert to stream",
+      "range": {
+        "startLine": 31,
+        "startChar": 12,
+        "endLine": 31,
+        "endChar": 48
+      },
+      "revId": "e3afe4813a880c46ad946d88a1b6d39822b0099a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_e901ae3a",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/app/KeyConstructorUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2017-05-25T08:41:32Z",
+      "side": 1,
+      "message": "-is not there some utility to convert IpAddress to InetAddress?",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 54
+      },
+      "revId": "e3afe4813a880c46ad946d88a1b6d39822b0099a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_c95af24f",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/config/BmpDeployerImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2017-05-25T08:41:32Z",
+      "side": 1,
+      "message": "parameter list length is too large, better to use parameter object",
+      "range": {
+        "startLine": 73,
+        "startChar": 59,
+        "endLine": 75,
+        "endChar": 41
+      },
+      "revId": "e3afe4813a880c46ad946d88a1b6d39822b0099a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_491d6273",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/config/BmpDeployerImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2017-05-25T08:41:32Z",
+      "side": 1,
+      "message": "What is the reason for synchronizing this method?",
+      "range": {
+        "startLine": 84,
+        "startChar": 11,
+        "endLine": 84,
+        "endChar": 23
+      },
+      "revId": "e3afe4813a880c46ad946d88a1b6d39822b0099a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_642683bc",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/config/BmpDeployerImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2017-05-25T08:41:32Z",
+      "side": 1,
+      "message": "I do not think this is responsibility for deplpoyer.",
+      "range": {
+        "startLine": 85,
+        "startChar": 0,
+        "endLine": 87,
+        "endChar": 21
+      },
+      "revId": "e3afe4813a880c46ad946d88a1b6d39822b0099a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_041a1f6e",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/config/BmpDeployerImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2017-05-25T08:41:32Z",
+      "side": 1,
+      "message": "looks like #removeBmpMonitor is doing the same job",
+      "range": {
+        "startLine": 121,
+        "startChar": 0,
+        "endLine": 125,
+        "endChar": 13
+      },
+      "revId": "e3afe4813a880c46ad946d88a1b6d39822b0099a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_c40f772d",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/config/BmpDeployerImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2017-05-25T08:41:32Z",
+      "side": 1,
+      "message": "I thing the data modification conflict might happen here if write/delete is invoked consequently (fast enough).",
+      "range": {
+        "startLine": 150,
+        "startChar": 0,
+        "endLine": 168,
+        "endChar": 5
+      },
+      "revId": "e3afe4813a880c46ad946d88a1b6d39822b0099a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_a457cb01",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/spi/BmpDeployer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2017-05-25T08:41:32Z",
+      "side": 1,
+      "message": "It\u0027s API more than SPI.",
+      "range": {
+        "startLine": 8,
+        "startChar": 43,
+        "endLine": 8,
+        "endChar": 46
+      },
+      "revId": "e3afe4813a880c46ad946d88a1b6d39822b0099a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
