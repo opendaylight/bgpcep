@@ -34,21 +34,16 @@ public class BGPMessageParserMock implements MessageRegistry {
     }
 
     @Override
-    public Notification parseMessage(final ByteBuf buffer) throws BGPParsingException, BGPDocumentedException {
-        final Notification ret = this.messages.get(buffer);
-        Preconditions.checkArgument(ret != null, "Undefined message encountered");
-        return ret;
-    }
-
-    @Override
     public void serializeMessage(final Notification msg, final ByteBuf buffer) {
         // no action needed, it's a mock for parsing, not serializing
         return;
     }
 
     @Override
-    public Notification parseMessage(final ByteBuf bytes, final PeerSpecificParserConstraint constraint)
+    public Notification parseMessage(final ByteBuf buffer, final PeerSpecificParserConstraint constraint)
             throws BGPDocumentedException, BGPParsingException {
-        return parseMessage(bytes);
+        final Notification ret = this.messages.get(buffer);
+        Preconditions.checkArgument(ret != null, "Undefined message encountered");
+        return ret;
     }
 }

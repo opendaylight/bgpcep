@@ -39,16 +39,19 @@ public class UnrecognizedAttributesTest {
     public void testUnrecognizedAttributesWithoutOptionalFlag() throws BGPDocumentedException, BGPParsingException {
         this.expException.expect(BGPDocumentedException.class);
         this.expException.expectMessage("Well known attribute not recognized.");
-        simpleAttrReg.parseAttributes(Unpooled.wrappedBuffer(new byte[] { 0x03, 0x00, 0x05, 0x01, 0x02, 0x03, 0x04, 0x05 }));
+        simpleAttrReg.parseAttributes(
+            Unpooled.wrappedBuffer(new byte[] { 0x03, 0x00, 0x05, 0x01, 0x02, 0x03, 0x04, 0x05 }), null);
     }
 
     @Test
     public void testUnrecognizedAttributes() throws BGPDocumentedException, BGPParsingException {
         final byte[] attributeBytes = { (byte)0xe0, 0x00, 0x05, 0x01, 0x02, 0x03, 0x04, 0x05 };
-        final List<UnrecognizedAttributes> unrecogAttribs = simpleAttrReg.parseAttributes(Unpooled.wrappedBuffer(attributeBytes)).getUnrecognizedAttributes();
+        final List<UnrecognizedAttributes> unrecogAttribs = simpleAttrReg
+            .parseAttributes(Unpooled.wrappedBuffer(attributeBytes), null).getUnrecognizedAttributes();
         assertEquals(UNRECOGNIZED_ATTRIBUTE_COUNT, unrecogAttribs.size());
         final UnrecognizedAttributes unrecogAttrib = unrecogAttribs.get(FIRST_ATTRIBUTE);
-        final UnrecognizedAttributesKey expectedAttribKey = new UnrecognizedAttributesKey(unrecogAttrib.getType().shortValue());
+        final UnrecognizedAttributesKey expectedAttribKey =
+            new UnrecognizedAttributesKey(unrecogAttrib.getType().shortValue());
 
         assertTrue(unrecogAttrib.isPartial());
         assertTrue(unrecogAttrib.isTransitive());

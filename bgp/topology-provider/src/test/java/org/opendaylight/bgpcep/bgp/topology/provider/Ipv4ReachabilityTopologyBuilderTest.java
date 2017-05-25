@@ -29,7 +29,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.OriginBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.LocRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
@@ -56,11 +58,11 @@ public class Ipv4ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
         super.setUp();
         this.ipv4TopoBuilder = new Ipv4ReachabilityTopologyBuilder(getDataBroker(), LOC_RIB_REF, TEST_TOPOLOGY_ID);
         this.ipv4TopoBuilder.start();
-        final InstanceIdentifier<Tables> path = this.ipv4TopoBuilder.tableInstanceIdentifier(Ipv4AddressFamily.class,
-            UnicastSubsequentAddressFamily.class);
+        final InstanceIdentifier<Tables> path = LOC_RIB_REF.getInstanceIdentifier().builder().child(LocRib.class)
+            .child(Tables.class, new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class)).build();
+
         this.ipv4RouteIID = path.builder().child((Class) Ipv4Routes.class)
-            .child(Ipv4Route.class, new Ipv4RouteKey(new PathId(PATH_ID),
-                new Ipv4Prefix(ROUTE_IP4PREFIX))).build();
+            .child(Ipv4Route.class, new Ipv4RouteKey(new PathId(PATH_ID), new Ipv4Prefix(ROUTE_IP4PREFIX))).build();
     }
 
     @Test

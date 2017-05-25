@@ -106,12 +106,6 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
         registerDataChangeListener();
     }
 
-    @Deprecated
-    public final InstanceIdentifier<Tables> tableInstanceIdentifier(final Class<? extends AddressFamily> afi,
-            final Class<? extends SubsequentAddressFamily> safi) {
-        return this.locRibReference.getInstanceIdentifier().builder().child(LocRib.class).child(Tables.class, new TablesKey(afi, safi)).build();
-    }
-
     /**
      * Register to data tree change listener
      */

@@ -48,13 +48,6 @@ public interface PeerExportGroup {
     ContainerNode effectiveAttributes(PeerRole role, ContainerNode attributes);
 
     /**
-     * @return map of peer
-     * @deprecated Use {@link #forEach}
-     */
-    @Deprecated
-    Collection<Map.Entry<PeerId, PeerExporTuple>> getPeers();
-
-    /**
      *
      * @param routePeerId PeerId
      * @return true if peer is present on this export group

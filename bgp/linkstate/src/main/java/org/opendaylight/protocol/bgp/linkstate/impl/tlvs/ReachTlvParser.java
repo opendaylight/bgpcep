@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.linkstate.impl.tlvs;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.linkstate.spi.LinkstateTlvParser;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
@@ -58,7 +59,8 @@ public final class ReachTlvParser implements LinkstateTlvParser.LinkstateTlvSeri
         if (prefixDesc.getChild(IP_REACH_NID).isPresent()) {
             final String prefix = (String) prefixDesc.getChild(IP_REACH_NID).get().getValue();
             try {
-                Ipv4Util.bytesForPrefixBegin(new Ipv4Prefix(prefix));
+                final ByteBuf buffer = Unpooled.buffer(5);
+                ByteBufWriteUtil.writeMinimalPrefix(new Ipv4Prefix(prefix), buffer);
                 return new IpPrefix(new Ipv4Prefix(prefix));
             } catch (final IllegalArgumentException e) {
                 LOG.debug("Creating Ipv6 prefix because", e);

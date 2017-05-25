@@ -45,13 +45,6 @@ public interface BGPExtensionProviderContext extends BGPExtensionConsumerContext
 
     AutoCloseable registerBgpPrefixSidTlvSerializer(Class<? extends BgpPrefixSidTlv> tlvClass, BgpPrefixSidTlvSerializer serializer);
 
-    /**
-     * Each extension requires a specific NextHop handler. Therefore this method has been deprecated  for
-     * the method which enforce user to register it.
-     */
-    @Deprecated
-    AutoCloseable registerNlriParser(Class<? extends AddressFamily> afi, Class<? extends SubsequentAddressFamily> safi, NlriParser parser);
-
     AutoCloseable registerNlriParser(Class<? extends AddressFamily> afi, Class<? extends SubsequentAddressFamily> safi,
         NlriParser parser, final NextHopParserSerializer nextHopHandler, final Class<? extends CNextHop> cNextHopClass,
         final Class<? extends CNextHop>... cNextHopClassList);

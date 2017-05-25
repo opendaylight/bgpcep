@@ -32,11 +32,6 @@ public abstract class AbstractMessageRegistry implements MessageRegistry {
     }
 
     @Override
-    public final Notification parseMessage(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
-        return parseMessage(buffer, null);
-    }
-
-    @Override
     public Notification parseMessage(final ByteBuf buffer, final PeerSpecificParserConstraint constraint)
             throws BGPDocumentedException, BGPParsingException {
         Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes cannot be null or empty.");

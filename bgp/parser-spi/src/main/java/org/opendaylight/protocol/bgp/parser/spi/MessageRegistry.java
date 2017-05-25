@@ -19,13 +19,6 @@ import org.opendaylight.yangtools.yang.binding.Notification;
  * to encode/decode messages.
  */
 public interface MessageRegistry {
-
-    /**
-     * @deprecated Use {@link #parseMessage(ByteBuf, PeerSpecificParserConstraint)}
-     */
-    @Deprecated
-    Notification parseMessage(ByteBuf bytes) throws BGPDocumentedException, BGPParsingException;
-
     /**
      * Decode input buffer to BGP Message.
      * @param bytes Input buffer with encoded message.

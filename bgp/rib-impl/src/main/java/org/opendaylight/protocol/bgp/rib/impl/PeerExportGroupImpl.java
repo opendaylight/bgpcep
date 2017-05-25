@@ -35,13 +35,6 @@ final class PeerExportGroupImpl implements PeerExportGroupRegistry {
     }
 
     @Override
-    public Collection<Map.Entry<PeerId, PeerExporTuple>> getPeers() {
-        synchronized (this.peers) {
-            return this.peers.entrySet();
-        }
-    }
-
-    @Override
     public boolean containsPeer(final PeerId routePeerId) {
         synchronized (this.peers) {
             return this.peers.containsKey(routePeerId);

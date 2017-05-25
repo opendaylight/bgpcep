@@ -97,9 +97,9 @@ public class BGPMessageParserMockTest {
         final BGPMessageParserMock mockParser = new BGPMessageParserMock(updateMap);
 
         for (int i = 0; i < this.inputBytes.length; i++) {
-            assertEquals(this.messages.get(i), mockParser.parseMessage(Unpooled.copiedBuffer(this.inputBytes[i])));
+            assertEquals(this.messages.get(i), mockParser.parseMessage(Unpooled.copiedBuffer(this.inputBytes[i]), null));
         }
-        assertNotSame(this.messages.get(3), mockParser.parseMessage(Unpooled.copiedBuffer(this.inputBytes[8])));
+        assertNotSame(this.messages.get(3), mockParser.parseMessage(Unpooled.copiedBuffer(this.inputBytes[8]), null));
     }
 
     /**
@@ -116,7 +116,7 @@ public class BGPMessageParserMockTest {
             updateMap.put(Unpooled.copiedBuffer(this.inputBytes[i]), this.messages.get(i));
         }
         final BGPMessageParserMock mockParser = new BGPMessageParserMock(updateMap);
-        mockParser.parseMessage(Unpooled.copiedBuffer(new byte[] { 7, 4, 6 }));
+        mockParser.parseMessage(Unpooled.copiedBuffer(new byte[] { 7, 4, 6 }), null);
     }
 
     /**
@@ -194,13 +194,13 @@ public class BGPMessageParserMockTest {
 
         final byte[] input = new byte[] { 5, 8, 13, 21 };
 
-        openMap.put(Unpooled.copiedBuffer(input), new OpenBuilder().setMyAsNumber(30).setHoldTimer(30).setBgpParameters(params).setVersion(
-            new ProtocolVersion((short) 4)).build());
+        openMap.put(Unpooled.copiedBuffer(input), new OpenBuilder().setMyAsNumber(30).setHoldTimer(30)
+            .setBgpParameters(params).setVersion(new ProtocolVersion((short) 4)).build());
 
         final BGPMessageParserMock mockParser = new BGPMessageParserMock(openMap);
 
         final Set<BgpTableType> result = Sets.newHashSet();
-        for (final BgpParameters p : ((Open) mockParser.parseMessage(Unpooled.copiedBuffer(input))).getBgpParameters()) {
+        for (final BgpParameters p : ((Open) mockParser.parseMessage(Unpooled.copiedBuffer(input), null)).getBgpParameters()) {
             for (final OptionalCapabilities capa : p.getOptionalCapabilities()) {
                 final CParameters cp = capa.getCParameters();
                 if (cp.getAugmentation(CParameters1.class) != null && cp.getAugmentation(CParameters1.class).getMultiprotocolCapability() != null) {

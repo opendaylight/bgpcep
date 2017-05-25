@@ -28,7 +28,7 @@ import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupport;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
-import org.opendaylight.protocol.util.Ipv4Util;
+import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.prefixes.DestinationIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.prefixes.destination.ipv4.Ipv4Prefixes;
@@ -101,8 +101,13 @@ public class Ipv4NlriParserTest {
                 new DestinationIpv4Builder().setIpv4Prefixes(fakePrefixes).build()).build();
         this.ip4caseADWrong = new DestinationIpv4CaseBuilder().setDestinationIpv4(new DestinationIpv4Builder().setIpv4Prefixes(fakePrefixes).build()).build();
 
-        this.inputBytes.writeBytes(Ipv4Util.bytesForPrefixBegin(prefix1));
-        this.inputBytes.writeBytes(Ipv4Util.bytesForPrefixBegin(prefix2));
+        final ByteBuf buffer1 = Unpooled.buffer(5);
+        ByteBufWriteUtil.writeMinimalPrefix(prefix1, buffer1);
+        this.inputBytes.writeBytes(buffer1.array());
+
+        final ByteBuf buffer2 = Unpooled.buffer(5);
+        ByteBufWriteUtil.writeMinimalPrefix(prefix2, buffer2);
+        this.inputBytes.writeBytes(buffer2.array());
 
         Mockito.doReturn(Optional.of(this.muliPathSupport)).when(this.constraint).getPeerConstraint(Mockito.any());
         Mockito.doReturn(true).when(this.muliPathSupport).isTableTypeSupported(Mockito.any());

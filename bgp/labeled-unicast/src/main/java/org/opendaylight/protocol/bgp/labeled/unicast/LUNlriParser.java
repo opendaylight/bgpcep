@@ -24,6 +24,7 @@ import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.protocol.util.MplsLabelUtil;
@@ -85,11 +86,15 @@ public class LUNlriParser implements NlriParser, NlriSerializer {
             if (mpUnreachNlri.getWithdrawnRoutes() != null) {
                 final DestinationType destinationType = mpUnreachNlri.getWithdrawnRoutes().getDestinationType();
                 if (destinationType instanceof DestinationLabeledUnicastCase) {
-                    final DestinationLabeledUnicastCase labeledUnicastCase = (DestinationLabeledUnicastCase) mpUnreachNlri.getWithdrawnRoutes().getDestinationType();
-                    serializeNlri(labeledUnicastCase.getDestinationLabeledUnicast().getCLabeledUnicastDestination(), true, byteAggregator);
+                    final DestinationLabeledUnicastCase labeledUnicastCase = (DestinationLabeledUnicastCase)
+                        mpUnreachNlri.getWithdrawnRoutes().getDestinationType();
+                    serializeNlri(labeledUnicastCase.getDestinationLabeledUnicast().getCLabeledUnicastDestination(),
+                        true, byteAggregator);
                 } else if(destinationType instanceof DestinationIpv6LabeledUnicastCase) {
-                    final DestinationIpv6LabeledUnicastCase labeledUnicastCase = (DestinationIpv6LabeledUnicastCase) mpUnreachNlri.getWithdrawnRoutes().getDestinationType();
-                    serializeNlri(labeledUnicastCase.getDestinationIpv6LabeledUnicast().getCLabeledUnicastDestination(), true, byteAggregator);
+                    final DestinationIpv6LabeledUnicastCase labeledUnicastCase = (DestinationIpv6LabeledUnicastCase)
+                        mpUnreachNlri.getWithdrawnRoutes().getDestinationType();
+                    serializeNlri(labeledUnicastCase.getDestinationIpv6LabeledUnicast().getCLabeledUnicastDestination(),
+                        true, byteAggregator);
                 }
             }
         }
@@ -143,10 +148,14 @@ public class LUNlriParser implements NlriParser, NlriSerializer {
     }
 
     private static byte[] getPrefixBytes(final IpPrefix prefix) {
+        final ByteBuf buffer = Unpooled.buffer();
+
         if (prefix.getIpv4Prefix() != null) {
-            return Ipv4Util.bytesForPrefixBegin(prefix.getIpv4Prefix());
+            ByteBufWriteUtil.writeMinimalPrefix(prefix.getIpv4Prefix(), buffer);
+        } else {
+            ByteBufWriteUtil.writeMinimalPrefix(prefix.getIpv6Prefix(), buffer);
         }
-        return Ipv6Util.bytesForPrefixBegin(prefix.getIpv6Prefix());
+        return ByteArray.readAllBytes(buffer);
     }
 
     @Override
@@ -210,12 +219,14 @@ public class LUNlriParser implements NlriParser, NlriSerializer {
     }
 
     @Override
-    public void parseNlri(@Nonnull final ByteBuf nlri, @Nonnull final MpReachNlriBuilder builder, @Nullable final PeerSpecificParserConstraint constraint) throws BGPParsingException {
+    public void parseNlri(final ByteBuf nlri, final MpReachNlriBuilder builder,
+        final PeerSpecificParserConstraint constraint) throws BGPParsingException {
         if (!nlri.isReadable()) {
             return;
         }
         final Class<? extends AddressFamily> afi = builder.getAfi();
-        final boolean mPathSupported = MultiPathSupportUtil.isTableTypeSupported(constraint, new BgpTableTypeImpl(builder.getAfi(), builder.getSafi()));
+        final boolean mPathSupported = MultiPathSupportUtil.isTableTypeSupported(constraint,
+            new BgpTableTypeImpl(builder.getAfi(), builder.getSafi()));
         final List<CLabeledUnicastDestination> dst = parseNlri(nlri, afi, mPathSupported);
 
         DestinationType destination = null;

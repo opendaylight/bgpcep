@@ -51,7 +51,7 @@ public class AbstractMessageRegistryTest {
         this.registry.serializeMessage(keepAlive, buffer);
         assertArrayEquals(keepAliveBMsg, ByteArray.getAllBytes(buffer));
 
-        final Notification not = this.registry.parseMessage(Unpooled.copiedBuffer(keepAliveBMsg));
+        final Notification not = this.registry.parseMessage(Unpooled.copiedBuffer(keepAliveBMsg), null);
         assertTrue(not instanceof Keepalive);
     }
 
@@ -61,7 +61,7 @@ public class AbstractMessageRegistryTest {
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0x00, (byte) 0x13, (byte) 0x04 };
         try {
-            this.registry.parseMessage(Unpooled.copiedBuffer(testBytes));
+            this.registry.parseMessage(Unpooled.copiedBuffer(testBytes), null);
             Assert.fail();
         } catch (BGPDocumentedException | BGPParsingException e) {
             assertTrue(e instanceof BGPDocumentedException);
@@ -75,7 +75,7 @@ public class AbstractMessageRegistryTest {
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0x00, (byte) 0x12, (byte) 0x04 };
         try {
-            this.registry.parseMessage(Unpooled.copiedBuffer(testBytes));
+            this.registry.parseMessage(Unpooled.copiedBuffer(testBytes), null);
             Assert.fail();
         } catch (BGPDocumentedException | BGPParsingException e) {
             assertTrue(e instanceof BGPDocumentedException);
@@ -89,7 +89,7 @@ public class AbstractMessageRegistryTest {
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0x00, (byte) 0x13, (byte) 0x04, (byte) 0x04 };
         try {
-            this.registry.parseMessage(Unpooled.copiedBuffer(testBytes));
+            this.registry.parseMessage(Unpooled.copiedBuffer(testBytes), null);
             Assert.fail();
         } catch (BGPDocumentedException | BGPParsingException e) {
             assertTrue(e instanceof BGPParsingException);
@@ -101,7 +101,7 @@ public class AbstractMessageRegistryTest {
     public void testBGPHeaderParser() throws Exception {
         final MessageRegistry msgReg = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry();
         try {
-            msgReg.parseMessage(Unpooled.copiedBuffer(new byte[] { (byte) 0, (byte) 0 }));
+            msgReg.parseMessage(Unpooled.copiedBuffer(new byte[] { (byte) 0, (byte) 0 }), null);
             fail("Exception should have occured.");
         } catch (final IllegalArgumentException e) {
             assertEquals("Too few bytes in passed array. Passed: 2. Expected: >= 19.", e.getMessage());

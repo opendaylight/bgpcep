@@ -34,9 +34,11 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 public class PeerDownHandler extends AbstractBmpPerPeerMessageParser<PeerDownNotificationBuilder> {
 
     private static final int MESSAGE_TYPE = 2;
+    private final MessageRegistry msgRegistry;
 
     public PeerDownHandler(final MessageRegistry bgpMssageRegistry) {
         super(bgpMssageRegistry);
+        this.msgRegistry = getBgpMessageRegistry();
     }
 
     @Override
@@ -67,7 +69,7 @@ public class PeerDownHandler extends AbstractBmpPerPeerMessageParser<PeerDownNot
     private void serializePDU(final Data data, final ByteBuf buffer) {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.down.data.Notification notification
             = (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.down.data.Notification) data;
-        this.getBgpMessageRegistry().serializeMessage(new NotifyBuilder(notification.getNotification()).build(), buffer);
+        this.msgRegistry.serializeMessage(new NotifyBuilder(notification.getNotification()).build(), buffer);
     }
 
     @Override
@@ -110,7 +112,7 @@ public class PeerDownHandler extends AbstractBmpPerPeerMessageParser<PeerDownNot
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.down.data.notification.NotificationBuilder notificationBuilder
             = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.down.data.notification.NotificationBuilder();
         try {
-            final Notification not = this.getBgpMessageRegistry().parseMessage(bytes);
+            final Notification not = this.msgRegistry.parseMessage(bytes, null);
             Preconditions.checkNotNull(not, "Notify message may not be null.");
             Preconditions.checkArgument(not instanceof NotifyMessage, "An instance of NotifyMessage is required");
             notificationBuilder.fieldsFrom((NotifyMessage) not);

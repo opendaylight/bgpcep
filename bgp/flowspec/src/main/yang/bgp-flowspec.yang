@@ -109,7 +109,7 @@ module bgp-flowspec {
             bit not {
                 position 6;
             }
-            bit match op{
+            bit match {
                 position 7;
             }
         }

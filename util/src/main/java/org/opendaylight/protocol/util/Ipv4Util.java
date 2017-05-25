@@ -94,34 +94,6 @@ public final class Ipv4Util {
     }
 
     /**
-     * Converts Ipv4Prefix to byte array. Prefix length at the beginning.
-     * Prefix bytes are trimmed from the end to match prefix length.
-     *
-     * @param prefix Ipv4Prefix to be converted
-     * @return byte array with the prefix length at the beginning
-     *
-     * @deprecated This is inefficient, refactor code to use {@link #bytesForAddress(Ipv4Address)} or
-     *             {@link ByteBufWriteUtil#writeMinimalPrefix(Ipv4Prefix, ByteBuf)}.
-     */
-    @Deprecated
-    public static byte[] bytesForPrefixBegin(final Ipv4Prefix prefix) {
-        final byte[] addrWithPrefix = bytesForPrefix(prefix);
-        return prefixedBytes(addrWithPrefix[IP4_LENGTH], addrWithPrefix);
-    }
-
-    static byte[] prefixedBytes(final byte prefixBits, final byte[] address) {
-        if (prefixBits != 0) {
-            final int prefixBytes = prefixBitsToBytes(Byte.toUnsignedInt(prefixBits));
-            final byte[] ret = new byte[prefixBytes + 1];
-            ret[0] = prefixBits;
-            System.arraycopy(address, 0, ret, 1, prefixBytes);
-            return ret;
-        } else {
-            return new byte[] { 0 };
-        }
-    }
-
-    /**
      * Creates an Ipv4Prefix object from given byte array.
      *
      * @param bytes  IPv4 address

@@ -24,14 +24,6 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNod
  */
 public interface ExportPolicyPeerTracker {
     /**
-     * Update set with supported tables per peer
-     * @param peerId which receveid the change
-     * @param node data change
-     */
-    @Deprecated
-    default void onTablesChanged(PeerId peerId, DataTreeCandidateNode node) {}
-
-    /**
      * Register Peer
      * @param peerId Peer Id
      * @param sendReceive send receive add ath configuration of the peer
@@ -68,16 +60,6 @@ public interface ExportPolicyPeerTracker {
      * @return true if add-path is supported
      */
     boolean isAddPathSupportedByPeer(@Nonnull PeerId peerId);
-
-    /**
-     * Invoked whenever a peer role changes.
-     *
-     * @param peerPath Peer's path
-     * @param role Peer's new role, null indicates the peer has disappeared.
-     */
-    @Deprecated
-    default void peerRoleChanged(@Nonnull YangInstanceIdentifier peerPath,  @Nullable PeerRole role) {
-    }
 
     /**
      * Flags peers once empty structure has been created, then changes under it can
