@@ -67,13 +67,4 @@ final class IncMultEthTagRParser extends AbstractEvpnNlri {
         builder.setOrigRouteIp(extractOrigRouteIp(evpn));
         return new IncMultiEthernetTagResCaseBuilder().setIncMultiEthernetTagRes(builder.build()).build();
     }
-
-    private static ByteBuf serializeBody(final IncMultiEthernetTagRes evpn) {
-        final ByteBuf body = Unpooled.buffer();
-        ByteBufWriteUtil.writeUnsignedInt(evpn.getEthernetTagId().getVlanId(), body);
-        final ByteBuf orig = EthSegRParser.serializeOrigRouteIp(evpn.getOrigRouteIp());
-        Preconditions.checkArgument(orig.readableBytes() > 0);
-        body.writeBytes(orig);
-        return body;
-    }
 }

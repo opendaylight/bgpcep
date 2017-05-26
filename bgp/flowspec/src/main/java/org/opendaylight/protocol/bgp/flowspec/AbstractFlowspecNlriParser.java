@@ -535,19 +535,6 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
         return buffer.toString();
     }
 
-    private static String stringFragment(final List<Fragments> fragments) {
-        final StringBuilder buffer = new StringBuilder("where fragment ");
-        boolean isFirst = true;
-        for (final Fragments item : fragments) {
-            buffer.append(BitmaskOperandParser.INSTANCE.toString(item.getOp(), isFirst));
-            buffer.append(stringFragment(item.getValue()));
-            if (isFirst) {
-                isFirst = false;
-            }
-        }
-        return buffer.toString();
-    }
-
     private static String stringFragment(final Fragment fragment) {
         final StringBuilder buffer = new StringBuilder();
         if (fragment.isDoNot()) {

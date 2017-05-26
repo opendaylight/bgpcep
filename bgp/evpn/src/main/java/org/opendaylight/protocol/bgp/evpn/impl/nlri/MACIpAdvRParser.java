@@ -97,50 +97,6 @@ final class MACIpAdvRParser extends AbstractEvpnNlri {
         return builder;
     }
 
-    private static ByteBuf serializeBody(final MacIpAdvRouteCase evpnCase) {
-        final ByteBuf body = Unpooled.buffer();
-        final MacIpAdvRoute evpn = evpnCase.getMacIpAdvRoute();
-        final Esi esi = evpn.getEsi();
-        if (esi != null) {
-            SimpleEsiTypeRegistry.getInstance().serializeEsi(evpn.getEsi(), body);
-        }
-        ByteBufWriteUtil.writeUnsignedInt(evpn.getEthernetTagId().getVlanId(), body);
-
-        final MacAddress mac = evpn.getMacAddress();
-        body.writeByte(MAC_ADDRESS_LENGTH * BITS_SIZE);
-        body.writeBytes(IetfYangUtil.INSTANCE.bytesFor(mac));
-        final ByteBuf ipAddress = serializeIp(evpn.getIpAddress());
-        Preconditions.checkArgument(ipAddress.readableBytes() > 0);
-        body.writeBytes(ipAddress);
-        final MplsLabel mpls1 = evpn.getMplsLabel1();
-        if (mpls1 != null) {
-            body.writeBytes(byteBufForMplsLabel(mpls1));
-        }
-        final MplsLabel mpls2 = evpn.getMplsLabel2();
-        if (mpls2 != null) {
-            body.writeBytes(byteBufForMplsLabel(mpls2));
-        }
-        return body;
-    }
-
-    private static ByteBuf serializeIp(final IpAddress ipAddress) {
-        final ByteBuf body = Unpooled.buffer();
-        if (ipAddress != null) {
-            if (ipAddress.getIpv4Address() != null) {
-                body.writeByte(Ipv4Util.IP4_BITS_LENGTH);
-                body.writeBytes(Ipv4Util.bytesForAddress(ipAddress.getIpv4Address()));
-            } else if (ipAddress.getIpv6Address() != null) {
-                body.writeByte(Ipv6Util.IPV6_BITS_LENGTH);
-                body.writeBytes(Ipv6Util.bytesForAddress(ipAddress.getIpv6Address()));
-            } else {
-                body.writeZero(ZERO_BYTE);
-            }
-        } else {
-            body.writeZero(ZERO_BYTE);
-        }
-        return body;
-    }
-
     private static IpAddress parseIp(final ByteBuf buffer) {
         final int ipLength = buffer.readUnsignedByte();
         if (ipLength == Ipv6Util.IPV6_BITS_LENGTH) {

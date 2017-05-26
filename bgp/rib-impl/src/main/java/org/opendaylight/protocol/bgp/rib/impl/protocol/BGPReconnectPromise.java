@@ -86,7 +86,7 @@ public class BGPReconnectPromise<S extends BGPSession> extends DefaultPromise<Vo
     /**
      * @return true if initial connection was established successfully, false if initial connection failed due to e.g. Connection refused, Negotiation failed
      */
-    private  synchronized boolean isInitialConnectFinished() {
+    private synchronized boolean isInitialConnectFinished() {
         Preconditions.checkNotNull(this.pending);
         return this.pending.isDone() && this.pending.isSuccess();
     }

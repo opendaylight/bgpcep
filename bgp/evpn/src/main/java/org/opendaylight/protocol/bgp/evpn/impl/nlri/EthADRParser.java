@@ -74,16 +74,4 @@ final class EthADRParser extends AbstractEvpnNlri {
         builder.setEthernetTagId(extractETI(evpn));
         return builder;
     }
-
-    private static ByteBuf serializeBody(final EthernetADRoute evpn) {
-        final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
-        SimpleEsiTypeRegistry.getInstance().serializeEsi(evpn.getEsi(), body);
-        ByteBufWriteUtil.writeUnsignedInt(evpn.getEthernetTagId().getVlanId(), body);
-
-        final MplsLabel mpls = evpn.getMplsLabel();
-        if (mpls != null) {
-            body.writeBytes(byteBufForMplsLabel(evpn.getMplsLabel()));
-        }
-        return body;
-    }
 }

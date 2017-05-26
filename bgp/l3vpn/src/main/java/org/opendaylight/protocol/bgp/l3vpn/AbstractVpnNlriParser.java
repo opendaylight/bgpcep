@@ -75,28 +75,6 @@ public abstract class AbstractVpnNlriParser implements NlriParser, NlriSerialize
         nlriByteBuf.writeByte((labelStackLenght + prefixLenght + RouteDistinguisherUtil.RD_LENGTH) * Byte.SIZE);
     }
 
-
-    private static List<VpnDestination> parseNlri(final ByteBuf nlri, final Class<? extends AddressFamily> afi) {
-        if (!nlri.isReadable()) {
-            return null;
-        }
-        final List<VpnDestination> dests = new ArrayList<>();
-
-        while (nlri.isReadable()) {
-            final VpnDestinationBuilder builder = new VpnDestinationBuilder();
-            final short length = nlri.readUnsignedByte();
-            final List<LabelStack> labels = LUNlriParser.parseLabel(nlri);
-            builder.setLabelStack(labels);
-            final int labelNum = labels != null ? labels.size() : 1;
-            final int prefixLen = length - (LUNlriParser.LABEL_LENGTH * Byte.SIZE * labelNum) - (RouteDistinguisherUtil.RD_LENGTH * Byte.SIZE);
-            builder.setRouteDistinguisher(RouteDistinguisherUtil.parseRouteDistinguisher(nlri));
-            Preconditions.checkState(prefixLen > 0, "A valid VPN IP prefix is required.");
-            builder.setPrefix(LUNlriParser.parseIpPrefix(nlri, prefixLen, afi));
-            dests.add(builder.build());
-        }
-        return dests;
-    }
-
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
         Preconditions.checkArgument(attribute instanceof Attributes, "Attribute parameter is not a Attributes object");
