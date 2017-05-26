@@ -85,9 +85,6 @@ public class PeerDownHandler extends AbstractBmpPerPeerMessageParser<PeerDownNot
                 peerDown.setData(new FsmEventCodeBuilder().setFsmEventCode(bytes.readUnsignedShort()).build());
                 break;
             case REASON_THREE:
-                peerDown.setLocalSystemClosed(false);
-                peerDown.setData(parseBgpNotificationMessage(bytes));
-                break;
             case REASON_FOUR:
                 peerDown.setLocalSystemClosed(false);
                 peerDown.setData(parseBgpNotificationMessage(bytes));
