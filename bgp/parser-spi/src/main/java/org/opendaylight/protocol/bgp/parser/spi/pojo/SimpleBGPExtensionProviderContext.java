@@ -56,15 +56,12 @@ public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsume
             return ret;
         }
     };
-    private final int maximumCachedObjects;
 
     public SimpleBGPExtensionProviderContext() {
         this(DEFAULT_MAXIMUM_CACHED_OBJECTS);
     }
 
     public SimpleBGPExtensionProviderContext(final int maximumCachedObjects) {
-        this.maximumCachedObjects = maximumCachedObjects;
-
         final Cache<Object, Object> cache = CacheBuilder.newBuilder().maximumSize(maximumCachedObjects).build();
         this.cacheRef = new AtomicReference<>(cache);
     }
