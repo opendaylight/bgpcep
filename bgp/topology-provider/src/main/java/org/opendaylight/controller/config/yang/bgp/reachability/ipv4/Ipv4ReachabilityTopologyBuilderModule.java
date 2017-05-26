@@ -48,7 +48,7 @@ public final class Ipv4ReachabilityTopologyBuilderModule extends AbstractIpv4Rea
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        return BackwardsCssTopologyProvider.createBackwardsCssInstance(Ipv4ReachabilityTopologyBuilder.IPV4_TOPOLOGY_TYPE, getTopologyId(), getDataProviderDependency(), this.bundleContext,
+        return BackwardsCssTopologyProvider.createBackwardsCssInstance(Ipv4ReachabilityTopologyBuilder.IPV4_TOPOLOGY_TYPE, getTopologyId(), this.bundleContext,
                 getLocalRibDependency().getInstanceIdentifier());
     }
     public void setBundleContext(final BundleContext bundleContext) {
