@@ -78,7 +78,7 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
                 WaitingServiceTracker.create(BgpDeployer.class, this.bundleContext);
         final BgpDeployer bgpDeployer = bgpDeployerTracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
         //map configuration to OpenConfig BGP
-        final Global global = OpenConfigMappingUtil.fromRib(getBgpRibId(), getClusterId(), getRibId(),
+        final Global global = OpenConfigMappingUtil.fromRib(getBgpRibId(), getClusterId(),
             new AsNumber(getLocalAs()), getLocalTableDependency(),
                 mapBestPathSelectionStrategyByFamily(getRibPathSelectionModeDependency()), bgpDeployer.getTableTypeRegistry());
         final InstanceIdentifier<Bgp> bgpIID = bgpDeployer.getInstanceIdentifier().child(Protocols.class)

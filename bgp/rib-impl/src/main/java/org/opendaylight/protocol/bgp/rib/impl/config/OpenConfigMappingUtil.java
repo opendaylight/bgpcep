@@ -266,7 +266,7 @@ public final class OpenConfigMappingUtil {
         return SendReceive.Receive;
     }
 
-    public static Global fromRib(final BgpId bgpId, final ClusterIdentifier clusterIdentifier, final RibId ribId,
+    public static Global fromRib(final BgpId bgpId, final ClusterIdentifier clusterIdentifier,
         final AsNumber localAs, final List<BgpTableType> localTables,
         final Map<TablesKey, PathSelectionMode> pathSelectionStrategies, final BGPTableTypeRegistryConsumer bgpTableTypeRegistryConsumer) {
         return toGlobalConfiguration(bgpId, clusterIdentifier, localAs, localTables, pathSelectionStrategies, bgpTableTypeRegistryConsumer);

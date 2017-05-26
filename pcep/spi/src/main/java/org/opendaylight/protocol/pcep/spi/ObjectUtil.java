@@ -32,7 +32,7 @@ public final class ObjectUtil {
         flags.set(IGNORED, ignore);
         flags.set(PROCESSED, processingRule);
         final byte flagB = flags.toByte();
-        final int typeByte = objectType << FLAGS_SIZE | flagB;
+        final int typeByte = objectType << FLAGS_SIZE | (flagB & 0xff);
         out.writeByte(typeByte);
         out.writeShort(body.writerIndex() + HEADER_SIZE);
         out.writeBytes(body);

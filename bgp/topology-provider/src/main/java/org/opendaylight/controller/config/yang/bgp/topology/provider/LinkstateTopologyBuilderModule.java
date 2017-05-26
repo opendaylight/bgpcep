@@ -48,7 +48,7 @@ public final class LinkstateTopologyBuilderModule extends AbstractLinkstateTopol
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        return BackwardsCssTopologyProvider.createBackwardsCssInstance(LinkstateTopologyBuilder.LINKSTATE_TOPOLOGY_TYPE, getTopologyId(), getDataProviderDependency(), this.bundleContext,
+        return BackwardsCssTopologyProvider.createBackwardsCssInstance(LinkstateTopologyBuilder.LINKSTATE_TOPOLOGY_TYPE, getTopologyId(), this.bundleContext,
                 getLocalRibDependency().getInstanceIdentifier());
     }
     public void setBundleContext(final BundleContext bundleContext) {

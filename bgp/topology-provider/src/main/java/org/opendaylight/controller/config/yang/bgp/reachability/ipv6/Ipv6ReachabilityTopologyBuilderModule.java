@@ -49,7 +49,7 @@ public final class Ipv6ReachabilityTopologyBuilderModule extends AbstractIpv6Rea
 
     @Override
     public AutoCloseable createInstance() {
-        return BackwardsCssTopologyProvider.createBackwardsCssInstance(Ipv6ReachabilityTopologyBuilder.IPV6_TOPOLOGY_TYPE, getTopologyId(), getDataProviderDependency(), this.bundleContext,
+        return BackwardsCssTopologyProvider.createBackwardsCssInstance(Ipv6ReachabilityTopologyBuilder.IPV6_TOPOLOGY_TYPE, getTopologyId(), this.bundleContext,
                 getLocalRibDependency().getInstanceIdentifier());
     }
 
