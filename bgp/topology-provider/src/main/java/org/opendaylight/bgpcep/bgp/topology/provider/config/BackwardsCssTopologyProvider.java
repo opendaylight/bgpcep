@@ -35,7 +35,7 @@ public final class BackwardsCssTopologyProvider {
         throw new UnsupportedOperationException();
     }
 
-    public static TopologyReferenceSingletonService createBackwardsCssInstance(final TopologyTypes topologyTypes, final TopologyId topologyId, final DataBroker dataBroker, final BundleContext bundleContext,
+    public static TopologyReferenceSingletonService createBackwardsCssInstance(final TopologyTypes topologyTypes, final TopologyId topologyId, final BundleContext bundleContext,
             final KeyedInstanceIdentifier<Rib, RibKey> ribIId) {
         //map configuration to topology
         final Topology topology = createConfiguration(topologyTypes, topologyId, ribIId.getKey().getId());
