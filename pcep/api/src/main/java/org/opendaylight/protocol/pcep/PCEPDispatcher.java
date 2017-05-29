@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.pcep;
 
-import com.google.common.base.Optional;
 import io.netty.channel.ChannelFuture;
 import java.net.InetSocketAddress;
+import java.util.Optional;
 import org.opendaylight.protocol.concepts.KeyMapping;
 
 /**
@@ -24,7 +24,8 @@ public interface PCEPDispatcher {
      * @param peerProposal information used in our Open message
      * @return instance of PCEPServer
      */
-    ChannelFuture createServer(InetSocketAddress address, PCEPSessionListenerFactory listenerFactory, final PCEPPeerProposal peerProposal);
+    ChannelFuture createServer(InetSocketAddress address, PCEPSessionListenerFactory listenerFactory,
+        PCEPPeerProposal peerProposal);
 
     /**
      * Creates server. Each server needs three factories to pass their instances to client sessions.
@@ -35,7 +36,26 @@ public interface PCEPDispatcher {
      * @param peerProposal information used in our Open message
      * @return instance of PCEPServer
      */
-    ChannelFuture createServer(InetSocketAddress address, Optional<KeyMapping> keys, PCEPSessionListenerFactory listenerFactory, PCEPPeerProposal peerProposal);
+    @Deprecated
+    default ChannelFuture createServer(InetSocketAddress address, Optional<KeyMapping> keys,
+        PCEPSessionListenerFactory listenerFactory, PCEPPeerProposal peerProposal) {
+        if(keys.isPresent()) {
+            return createServer(address, keys.get(), listenerFactory, peerProposal);
+        }
+        return createServer(address, KeyMapping.EMPTY_KEY_MAPPING, listenerFactory, peerProposal);
+    }
+
+    /**
+     * Creates server. Each server needs three factories to pass their instances to client sessions.
+     *
+     * @param address to be bound with the server
+     * @param keys RFC2385 key mapping
+     * @param listenerFactory to create listeners for clients
+     * @param peerProposal information used in our Open message
+     * @return instance of PCEPServer
+     */
+    ChannelFuture createServer(InetSocketAddress address, KeyMapping keys, PCEPSessionListenerFactory listenerFactory,
+        PCEPPeerProposal peerProposal);
 
     PCEPSessionNegotiatorFactory getPCEPSessionNegotiatorFactory();
 }

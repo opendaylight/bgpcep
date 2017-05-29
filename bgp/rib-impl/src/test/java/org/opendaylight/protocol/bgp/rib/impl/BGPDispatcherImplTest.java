@@ -11,7 +11,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.checkIdleState;
 import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.Future;
@@ -20,6 +19,7 @@ import java.util.concurrent.ExecutionException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.rib.spi.State;
+import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 
 public class BGPDispatcherImplTest extends AbstractBGPDispatcherTest {
@@ -46,7 +46,7 @@ public class BGPDispatcherImplTest extends AbstractBGPDispatcherTest {
     public void testCreateReconnectingClient() throws Exception {
         final InetSocketAddress serverAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
         final Future<Void> future = this.clientDispatcher.createReconnectingClient(serverAddress, RETRY_TIMER,
-            Optional.absent(), this.clientAddress, true);
+            KeyMapping.EMPTY_KEY_MAPPING, this.clientAddress, true);
         final Channel serverChannel = createServer(serverAddress);
         Assert.assertEquals(State.UP, this.serverListener.getState());
         Assert.assertTrue(serverChannel.isWritable());

@@ -8,7 +8,6 @@
 
 package org.opendaylight.protocol.bmp.impl.app;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
 import io.netty.channel.Channel;
@@ -88,7 +87,7 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation {
                     ret = KeyMapping.getKeyMapping(addr, rfc2385KeyPassword.getValue());
                     dispatcher.createClient(
                         Ipv4Util.toInetSocketAddress(mr.getAddress(), mr.getPort()),
-                        this.sessionManager, Optional.fromNullable(ret));
+                        this.sessionManager, ret);
                 }
             }
         }
@@ -96,7 +95,7 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation {
 
     public static BmpMonitoringStation createBmpMonitorInstance(final RIBExtensionConsumerContext ribExtensions, final BmpDispatcher dispatcher,
             final DOMDataBroker domDataBroker, final MonitorId monitorId, final InetSocketAddress address,
-            final Optional<KeyMapping> keys, final BindingCodecTreeFactory codecFactory, final SchemaContext schemaContext,
+            final KeyMapping keys, final BindingCodecTreeFactory codecFactory, final SchemaContext schemaContext,
             final List<MonitoredRouter> mrs ) throws InterruptedException {
         Preconditions.checkNotNull(ribExtensions);
         Preconditions.checkNotNull(dispatcher);
