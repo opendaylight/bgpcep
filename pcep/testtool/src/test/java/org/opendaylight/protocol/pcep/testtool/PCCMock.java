@@ -13,6 +13,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
@@ -34,8 +35,10 @@ public class PCCMock {
             .getPortOrDefault(12345));
         final InetSocketAddress clientAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(0);
 
-        try (final PCCDispatcherImpl pccDispatcher = new PCCDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry())) {
-            pccDispatcher.createClient(serverAddr, -1, SimpleSessionListener::new, snf, null, clientAddr).get();
+        try (final PCCDispatcherImpl pccDispatcher = new PCCDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext
+            .getSingletonInstance().getMessageHandlerRegistry())) {
+            pccDispatcher.createClient(serverAddr, -1, SimpleSessionListener::new, snf,
+                KeyMapping.EMPTY_KEY_MAPPING, clientAddr).get();
         }
     }
 }

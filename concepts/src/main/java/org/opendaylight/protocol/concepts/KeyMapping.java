@@ -16,6 +16,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public final class KeyMapping extends HashMap<InetAddress, byte[]> {
+    public static final KeyMapping EMPTY_KEY_MAPPING = new KeyMapping();
+
     private static final long serialVersionUID = 1L;
 
     private KeyMapping() {
@@ -23,16 +25,14 @@ public final class KeyMapping extends HashMap<InetAddress, byte[]> {
     }
 
     public static KeyMapping getKeyMapping(@Nonnull final InetAddress inetAddress, @Nullable final String password){
+        final KeyMapping keyMapping = new KeyMapping();
         if (!isNullOrEmpty(password)) {
-            final KeyMapping keyMapping = new KeyMapping();
             keyMapping.put(inetAddress, password.getBytes(StandardCharsets.US_ASCII));
-            return keyMapping;
         }
-        return null;
+        return keyMapping;
     }
 
     public static KeyMapping getKeyMapping(){
-        final KeyMapping keyMapping = new KeyMapping();
-        return keyMapping;
+        return new KeyMapping();
     }
 }
