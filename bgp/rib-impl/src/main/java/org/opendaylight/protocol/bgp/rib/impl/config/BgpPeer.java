@@ -220,7 +220,7 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer, BGPPeerRun
         private final BGPDispatcher dispatcher;
         private final InetSocketAddress inetAddress;
         private final int retryTimer;
-        private final Optional<KeyMapping> key;
+        private final KeyMapping keys;
         private final WriteConfiguration configurationWriter;
         private ClusterSingletonServiceRegistration registration;
         private final BGPPeer bgpPeer;
@@ -247,7 +247,7 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer, BGPPeerRun
             this.dispatcher = rib.getDispatcher();
             this.inetAddress = Ipv4Util.toInetSocketAddress(this.neighborAddress, OpenConfigMappingUtil.getPort(neighbor));
             this.retryTimer = OpenConfigMappingUtil.getRetryTimer(neighbor);
-            this.key = Optional.fromNullable(keyMapping);
+            this.keys = keyMapping;
             this.configurationWriter = configurationWriter;
             this.serviceGroupIdentifier = rib.getRibIServiceGroupIdentifier();
             LOG.info("Peer Singleton Service {} registered", this.serviceGroupIdentifier.getValue());
@@ -273,7 +273,7 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer, BGPPeerRun
             this.bgpPeer.instantiateServiceInstance();
             this.dispatcher.getBGPPeerRegistry().addPeer(this.neighborAddress, this.bgpPeer, this.prefs);
             if (this.activeConnection) {
-                this.connection = this.dispatcher.createReconnectingClient(this.inetAddress, this.retryTimer, this.key);
+                this.connection = this.dispatcher.createReconnectingClient(this.inetAddress, this.retryTimer, this.keys);
             }
         }
 
