@@ -16,7 +16,6 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.CheckedFuture;
 import io.netty.channel.EventLoopGroup;
@@ -96,6 +95,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl.BGPRenderStats;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
+import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4UNICAST;
@@ -260,7 +260,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
 
         setupMockService(BGPDispatcher.class, this.mockedBGPDispatcher);
         doReturn(new SucceededFuture<>(ImmediateEventExecutor.INSTANCE, null)).when(this.mockedBGPDispatcher)
-            .createReconnectingClient(any(InetSocketAddress.class), anyInt(), any(Optional.class));
+            .createReconnectingClient(any(InetSocketAddress.class), anyInt(), any(KeyMapping.class));
 
         setupMockService(BgpDeployer.class, this.bgpDeployer);
         final Global global = mock(Global.class);

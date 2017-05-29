@@ -53,7 +53,7 @@ public class BmpMonitorImplModule extends org.opendaylight.controller.config.yan
         return address.getIpv6Address().getValue();
     }
 
-    private Optional<KeyMapping> constructKeys() {
+    private KeyMapping constructKeys() {
         final KeyMapping ret = KeyMapping.getKeyMapping();
         if (getMonitoredRouter() != null) {
             for (final MonitoredRouter mr : getMonitoredRouter()) {
@@ -69,7 +69,7 @@ public class BmpMonitorImplModule extends org.opendaylight.controller.config.yan
             }
         }
 
-        return ret.isEmpty() ? Optional.absent() : Optional.of(ret);
+        return ret;
     }
 
     @Override
