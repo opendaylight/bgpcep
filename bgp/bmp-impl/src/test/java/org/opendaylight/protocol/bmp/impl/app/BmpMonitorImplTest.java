@@ -17,7 +17,6 @@ import static org.junit.Assert.fail;
 import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
-import com.google.common.base.Optional;
 import com.google.common.net.InetAddresses;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -159,7 +158,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
                 ctx.getBmpMessageRegistry(), new DefaultBmpSessionFactory());
 
         this.bmpApp = BmpMonitoringStationImpl.createBmpMonitorInstance(ribExtension, this.dispatcher, getDomBroker(),
-                MONITOR_ID, new InetSocketAddress(InetAddresses.forString(MONITOR_LOCAL_ADDRESS), MONITOR_LOCAL_PORT), Optional.of(keys),
+                MONITOR_ID, new InetSocketAddress(InetAddresses.forString(MONITOR_LOCAL_ADDRESS), MONITOR_LOCAL_PORT), keys,
                 this.mappingService.getCodecFactory(), this.moduleInfoBackedContext.getSchemaContext(), null);
 
         readDataOperational(getDataBroker(), BMP_II, monitor -> {
@@ -402,7 +401,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
     @Test
     public void deploySecondInstance() throws Exception {
         final BmpMonitoringStation monitoringStation2 = BmpMonitoringStationImpl.createBmpMonitorInstance(new SimpleRIBExtensionProviderContext(), this.dispatcher, getDomBroker(),
-                new MonitorId("monitor2"), new InetSocketAddress(InetAddresses.forString(MONITOR_LOCAL_ADDRESS_2), MONITOR_LOCAL_PORT), Optional.of(KeyMapping.getKeyMapping()),
+                new MonitorId("monitor2"), new InetSocketAddress(InetAddresses.forString(MONITOR_LOCAL_ADDRESS_2), MONITOR_LOCAL_PORT), KeyMapping.getKeyMapping(),
                 this.mappingService.getCodecFactory(), this.moduleInfoBackedContext.getSchemaContext(), null);
 
         readDataOperational(getDataBroker(), BMP_II, monitor -> {
