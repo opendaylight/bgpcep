@@ -8,7 +8,6 @@
 
 package org.opendaylight.controller.config.yang.bmp.impl;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
 import io.netty.util.internal.PlatformDependent;
@@ -53,7 +52,7 @@ public class BmpMonitorImplModule extends org.opendaylight.controller.config.yan
         return address.getIpv6Address().getValue();
     }
 
-    private Optional<KeyMapping> constructKeys() {
+    private KeyMapping constructKeys() {
         final KeyMapping ret = KeyMapping.getKeyMapping();
         if (getMonitoredRouter() != null) {
             for (final MonitoredRouter mr : getMonitoredRouter()) {
@@ -69,7 +68,7 @@ public class BmpMonitorImplModule extends org.opendaylight.controller.config.yan
             }
         }
 
-        return ret.isEmpty() ? Optional.absent() : Optional.of(ret);
+        return ret;
     }
 
     @Override
