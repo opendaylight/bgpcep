@@ -36,7 +36,23 @@ public interface BGPDispatcher{
      * @param keys for TCPMD5
      * @return Future promising a client session
      */
-    Future<Void> createReconnectingClient(InetSocketAddress remoteAddress, int retryTimer, Optional<KeyMapping> keys);
+    @Deprecated
+    default Future<Void> createReconnectingClient(InetSocketAddress remoteAddress, int retryTimer, Optional<KeyMapping> keys) {
+        if(keys.isPresent()) {
+            return createReconnectingClient(remoteAddress, retryTimer, keys.get());
+        }
+        return createReconnectingClient(remoteAddress, retryTimer, KeyMapping.EMPTY_KEY_MAPPING);
+    }
+
+    /**
+     * Creates Reconnecting client.
+     *
+     * @param remoteAddress remote Peer Address
+     * @param retryTimer Retry timer
+     * @param keys for TCPMD5
+     * @return Future promising a client session
+     */
+    Future<Void> createReconnectingClient(InetSocketAddress remoteAddress, int retryTimer, KeyMapping keys);
 
     /**
      * Create new BGP server to accept incoming bgp connections (bound to provided socket localAddress).

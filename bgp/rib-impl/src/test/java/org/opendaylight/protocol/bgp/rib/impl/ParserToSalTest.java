@@ -15,7 +15,6 @@ import static org.opendaylight.protocol.bgp.rib.impl.AbstractAddPathTest.AS_NUMB
 import static org.opendaylight.protocol.bgp.rib.impl.AbstractAddPathTest.BGP_ID;
 import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
@@ -53,6 +52,7 @@ import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivat
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.util.HexDumpBGPFileParser;
+import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.ipv4.routes.Ipv4Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv6.routes.ipv6.routes.Ipv6Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateAddressFamily;
@@ -106,7 +106,7 @@ public class ParserToSalTest extends AbstractConcurrentDataBrokerTest {
 
         Mockito.doReturn(GlobalEventExecutor.INSTANCE.newSucceededFuture(null)).when(this.dispatcher)
             .createReconnectingClient(Mockito.any(InetSocketAddress.class), Mockito.anyInt(),
-                Mockito.any(Optional.class));
+                Mockito.any(KeyMapping.class));
 
         this.ext1 = new SimpleRIBExtensionProviderContext();
         this.ext2 = new SimpleRIBExtensionProviderContext();

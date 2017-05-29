@@ -68,8 +68,8 @@ public final class PCEPTopologyProviderModule extends
         JmxAttributeValidationException.checkNotNull(getStatefulPlugin(), IS_NOT_SET, statefulPluginJmxAttribute);
         JmxAttributeValidationException.checkNotNull(getRpcTimeout(), IS_NOT_SET, rpcTimeoutJmxAttribute);
 
-        final Optional<KeyMapping> keys = contructKeys(getClient());
-        if (keys.isPresent()) {
+        final KeyMapping keys = contructKeys(getClient());
+        if (!keys.isEmpty()) {
             JmxAttributeValidationException.checkCondition(Epoll.isAvailable(), NATIVE_TRANSPORT_NOT_AVAILABLE,
                 clientJmxAttribute);
         }
@@ -93,7 +93,7 @@ public final class PCEPTopologyProviderModule extends
             .waitForService(WaitingServiceTracker.FIVE_MINUTES);
 
         final TopologyId topologyID = getTopologyId();
-        final com.google.common.base.Optional<KeyMapping> keys = contructKeys(getClient());
+        final KeyMapping keys = contructKeys(getClient());
 
         final InetSocketAddress inetSocketAddress = new InetSocketAddress(listenAddress(), getListenPort().getValue());
 
