@@ -26,7 +26,13 @@ public interface BmpDispatcher extends AutoCloseable {
      * @param keys    RFC2385 key mapping
      * @return instance of BmpServer
      */
-    ChannelFuture createServer(InetSocketAddress address, BmpSessionListenerFactory slf, Optional<KeyMapping> keys);
+    @Deprecated
+    default ChannelFuture createServer(InetSocketAddress address, BmpSessionListenerFactory slf, Optional<KeyMapping> keys) {
+        if(keys.isPresent()) {
+            return createServer(address, slf, keys.get());
+        }
+        return createServer(address, slf, KeyMapping.getKeyMapping());
+    }
 
      /**
      * Creates reconnect clients. Make connection to all active monitored-routers.
@@ -36,5 +42,31 @@ public interface BmpDispatcher extends AutoCloseable {
      * @param keys    RFC2385 key mapping
      * @return        void
      */
-    ChannelFuture createClient(InetSocketAddress address, BmpSessionListenerFactory slf, Optional<KeyMapping> keys) ;
+     @Deprecated
+     default ChannelFuture createClient(InetSocketAddress address, BmpSessionListenerFactory slf, Optional<KeyMapping> keys) {
+         if(keys.isPresent()) {
+             return createClient(address, slf, keys.get());
+         }
+         return createClient(address, slf, KeyMapping.getKeyMapping());
+     }
+
+    /**
+     * Creates server. Each server needs three factories to pass their instances to client sessions.
+     *
+     * @param address to be bound with the server
+     * @param slf     bmp session listener factory
+     * @param keys    RFC2385 key mapping
+     * @return instance of BmpServer
+     */
+    ChannelFuture createServer(InetSocketAddress address, BmpSessionListenerFactory slf, KeyMapping keys);
+
+    /**
+     * Creates reconnect clients. Make connection to all active monitored-routers.
+     *
+     * @param address bmp client to connect to
+     * @param slf     bmp session listener factory
+     * @param keys    RFC2385 key mapping
+     * @return        void
+     */
+    ChannelFuture createClient(InetSocketAddress address, BmpSessionListenerFactory slf, KeyMapping keys) ;
 }

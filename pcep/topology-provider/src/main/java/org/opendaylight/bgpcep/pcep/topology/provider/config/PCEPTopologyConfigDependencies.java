@@ -18,13 +18,13 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 
 public final class PCEPTopologyConfigDependencies {
     private final InetSocketAddress address;
-    private final Optional<KeyMapping> keys;
+    private final KeyMapping keys;
     private final InstructionScheduler scheduler;
     private final TopologyId topologyId;
     private final Optional<PCEPTopologyProviderRuntimeRegistrator> runtime;
     private final short rpcTimeout;
 
-    public PCEPTopologyConfigDependencies(final InetSocketAddress address, final Optional<KeyMapping> keys,
+    public PCEPTopologyConfigDependencies(final InetSocketAddress address, final KeyMapping keys,
         final InstructionScheduler scheduler, final TopologyId topologyId,
         final Optional<PCEPTopologyProviderRuntimeRegistrator> runtime, final short rpcTimeout) {
         this.address = checkNotNull(address);
@@ -55,7 +55,7 @@ public final class PCEPTopologyConfigDependencies {
         return this.address;
     }
 
-    public Optional<KeyMapping> getKeys() {
+    public KeyMapping getKeys() {
         return this.keys;
     }
 }

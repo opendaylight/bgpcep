@@ -25,11 +25,30 @@ public interface PCEPTopologyDeployer {
      *  @param topologyId topology ID
      * @param inetSocketAddress inetSocketAddress
      * @param rpcTimeout rpc Timeout
+     * @param keys List of clients password configuration
+     * @param scheduler  Instruction Scheduler
+     */
+    @Deprecated
+    default void createTopologyProvider(@Nonnull TopologyId topologyId, @Nonnull InetSocketAddress inetSocketAddress,
+        short rpcTimeout, @Nullable Optional<KeyMapping> keys, @Nonnull InstructionScheduler scheduler,
+        Optional<PCEPTopologyProviderRuntimeRegistrator> runtime) {
+        if(keys.isPresent()) {
+            createTopologyProvider(topologyId, inetSocketAddress, rpcTimeout, keys.get(), scheduler, runtime);
+        }
+        createTopologyProvider(topologyId, inetSocketAddress, rpcTimeout, KeyMapping.getKeyMapping(),
+            scheduler, runtime);
+    }
+
+    /**
+     * Creates and register topology provider instance
+     *  @param topologyId topology ID
+     * @param inetSocketAddress inetSocketAddress
+     * @param rpcTimeout rpc Timeout
      * @param client List of clients password configuration
      * @param scheduler  Instruction Scheduler
      */
     void createTopologyProvider(@Nonnull TopologyId topologyId, @Nonnull InetSocketAddress inetSocketAddress,
-        short rpcTimeout, @Nullable Optional<KeyMapping> client, @Nonnull InstructionScheduler scheduler,
+        short rpcTimeout, @Nonnull KeyMapping client, @Nonnull InstructionScheduler scheduler,
         Optional<PCEPTopologyProviderRuntimeRegistrator> runtime);
 
     /**
