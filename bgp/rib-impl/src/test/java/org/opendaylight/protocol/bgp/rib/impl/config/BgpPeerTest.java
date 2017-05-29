@@ -17,7 +17,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.times;
 
-import com.google.common.base.Optional;
 import java.math.BigDecimal;
 import java.net.InetSocketAddress;
 import java.util.Collections;
@@ -27,6 +26,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
+import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.AddPaths;
@@ -92,7 +92,7 @@ public class BgpPeerTest extends AbstractConfig {
         Mockito.verify(this.configurationWriter).apply();
         Mockito.verify(this.bgpPeerRegistry).addPeer(any(), any(), any());
         Mockito.verify(this.dispatcher).createReconnectingClient(any(InetSocketAddress.class),
-            anyInt(), any(Optional.class));
+            anyInt(), any(KeyMapping.class));
 
         try {
             this.bgpPeer.start(this.rib, neighbor, this.tableTypeRegistry, this.configurationWriter);

@@ -38,7 +38,7 @@ public class PCEPTopologyDeployerImpl implements PCEPTopologyDeployer, AutoClose
 
     @Override
     public synchronized void createTopologyProvider(final TopologyId topologyId,
-        final InetSocketAddress inetSocketAddress, final short rpcTimeout, final Optional<KeyMapping> keys,
+        final InetSocketAddress inetSocketAddress, final short rpcTimeout, final KeyMapping keys,
         final InstructionScheduler schedulerDependency,
         final Optional<PCEPTopologyProviderRuntimeRegistrator> runtime) {
         if (this.pcepTopologyServices.containsKey(topologyId)) {
