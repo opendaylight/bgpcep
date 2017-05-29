@@ -44,7 +44,7 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference {
     private final InstanceIdentifier<Topology> topology;
     private final ServerSessionManager manager;
     private final InetSocketAddress address;
-    private final Optional<KeyMapping> keys;
+    private final KeyMapping keys;
     private final InstructionScheduler scheduler;
     private final PCEPTopologyProviderDependenciesProvider dependenciesProvider;
     private RoutedRpcRegistration<NetworkTopologyPcepProgrammingService> network;
@@ -81,7 +81,7 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference {
             dependenciesProvider, topology, manager,  configDependencies.getSchedulerDependency());
     }
 
-    private PCEPTopologyProvider(final InetSocketAddress address, final Optional<KeyMapping> keys,
+    private PCEPTopologyProvider(final InetSocketAddress address, final KeyMapping keys,
         final PCEPTopologyProviderDependenciesProvider dependenciesProvider,
         final InstanceIdentifier<Topology> topology, final ServerSessionManager manager,
         final InstructionScheduler scheduler) {

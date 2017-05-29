@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -53,7 +52,7 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     private final EventLoopGroup workerGroup;
     private final EventExecutor executor;
     @GuardedBy("this")
-    private Optional<KeyMapping> keys;
+    private KeyMapping keys;
 
     /**
      * Creates an instance of PCEPDispatcherImpl, gets the default selector and opens it.
@@ -81,11 +80,11 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     @Override
     public final synchronized ChannelFuture createServer(final InetSocketAddress address,
         final PCEPSessionListenerFactory listenerFactory, final PCEPPeerProposal peerProposal) {
-        return createServer(address, Optional.absent(), listenerFactory, peerProposal);
+        return createServer(address, KeyMapping.EMPTY_KEY_MAPPING, listenerFactory, peerProposal);
     }
 
     @Override
-    public final synchronized ChannelFuture createServer(final InetSocketAddress address, final Optional<KeyMapping> keys,
+    public final synchronized ChannelFuture createServer(final InetSocketAddress address, final KeyMapping keys,
         final PCEPSessionListenerFactory listenerFactory, final PCEPPeerProposal peerProposal) {
         this.keys = keys;
 
@@ -99,7 +98,7 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
         final ChannelFuture f = b.bind(address);
         LOG.debug("Initiated server {} at {}.", f, address);
 
-        this.keys = Optional.absent();
+        this.keys = KeyMapping.EMPTY_KEY_MAPPING;
         return f;
     }
 
@@ -121,9 +120,9 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
         } else {
             b.channel(NioServerSocketChannel.class);
         }
-        if (this.keys.isPresent()) {
+        if (!this.keys.isEmpty()) {
             if (Epoll.isAvailable()) {
-                b.option(EpollChannelOption.TCP_MD5SIG, this.keys.get());
+                b.option(EpollChannelOption.TCP_MD5SIG, this.keys);
             } else {
                 throw new UnsupportedOperationException(Epoll.unavailabilityCause().getCause());
             }

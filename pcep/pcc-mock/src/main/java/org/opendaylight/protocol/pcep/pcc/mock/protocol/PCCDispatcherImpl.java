@@ -67,11 +67,11 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
     @Override
     public Future<PCEPSession> createClient(@Nonnull final InetSocketAddress remoteAddress, final long reconnectTime,
         @Nonnull final PCEPSessionListenerFactory listenerFactory, @Nonnull final PCEPSessionNegotiatorFactory negotiatorFactory,
-        @Nullable final KeyMapping keys, @Nonnull final InetSocketAddress localAddress, @Nonnull final BigInteger dbVersion) {
+        @Nonnull final KeyMapping keys, @Nonnull final InetSocketAddress localAddress, @Nonnull final BigInteger dbVersion) {
         final Bootstrap b = new Bootstrap();
         b.group(this.workerGroup);
         b.localAddress(localAddress);
-        final Optional<KeyMapping> optionalKey = Optional.fromNullable(keys);
+        final KeyMapping optionalKey = keys;
         setChannelFactory(b, optionalKey);
         b.option(ChannelOption.SO_KEEPALIVE, true);
         b.option(ChannelOption.SO_REUSEADDR, true);
@@ -107,16 +107,16 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
         return promise;
     }
 
-    private static void setChannelFactory(final Bootstrap bootstrap, final Optional<KeyMapping> keys) {
+    private static void setChannelFactory(final Bootstrap bootstrap, final KeyMapping keys) {
         if (Epoll.isAvailable()) {
             bootstrap.channel(EpollSocketChannel.class);
             bootstrap.option(EpollChannelOption.EPOLL_MODE, EpollMode.LEVEL_TRIGGERED);
         } else {
             bootstrap.channel(NioSocketChannel.class);
         }
-        if (keys.isPresent()) {
+        if (!keys.isEmpty()) {
             if (Epoll.isAvailable()) {
-                bootstrap.option(EpollChannelOption.TCP_MD5SIG, keys.get());
+                bootstrap.option(EpollChannelOption.TCP_MD5SIG, keys);
             } else {
                 throw new UnsupportedOperationException(Epoll.unavailabilityCause().getCause());
             }

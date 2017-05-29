@@ -31,6 +31,7 @@ import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.Before;
+import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
@@ -212,7 +213,7 @@ public abstract class PCCMockCommon {
             () -> {
                 this.pccSessionListener = new PCCSessionListener(1, tunnelManager, false);
                 return this.pccSessionListener;
-            }, snf, null, this.localAddress, dbVersion);
+            }, snf, KeyMapping.EMPTY_KEY_MAPPING, this.localAddress, dbVersion);
     }
 
     private PCEPSessionNegotiatorFactory<PCEPSessionImpl> getSessionNegotiatorFactory() {

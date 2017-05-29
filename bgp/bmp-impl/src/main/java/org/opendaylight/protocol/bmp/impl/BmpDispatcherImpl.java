@@ -8,7 +8,6 @@
 
 package org.opendaylight.protocol.bmp.impl;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
@@ -68,7 +67,7 @@ public class BmpDispatcherImpl implements BmpDispatcher {
     }
 
     @Override
-    public ChannelFuture createClient(final InetSocketAddress address, final BmpSessionListenerFactory slf, final Optional<KeyMapping> keys) {
+    public ChannelFuture createClient(final InetSocketAddress address, final BmpSessionListenerFactory slf, final KeyMapping keys) {
 
         final Bootstrap b = new Bootstrap();
 
@@ -79,9 +78,9 @@ public class BmpDispatcherImpl implements BmpDispatcher {
         } else {
             b.channel(NioSocketChannel.class);
         }
-        if (keys.isPresent()) {
+        if (!keys.isEmpty()) {
             if (Epoll.isAvailable()) {
-                b.option(EpollChannelOption.TCP_MD5SIG, keys.get());
+                b.option(EpollChannelOption.TCP_MD5SIG, keys);
             } else {
                 throw new UnsupportedOperationException (Epoll.unavailabilityCause().getCause());
             }
@@ -105,7 +104,7 @@ public class BmpDispatcherImpl implements BmpDispatcher {
     }
 
     @Override
-    public ChannelFuture createServer(final InetSocketAddress address, final BmpSessionListenerFactory slf, final Optional<KeyMapping> keys) {
+    public ChannelFuture createServer(final InetSocketAddress address, final BmpSessionListenerFactory slf, final KeyMapping keys) {
         Preconditions.checkNotNull(address);
         Preconditions.checkNotNull(slf);
 
@@ -127,9 +126,9 @@ public class BmpDispatcherImpl implements BmpDispatcher {
             b.channel(NioServerSocketChannel.class);
         }
 
-        if (keys.isPresent()) {
+        if (!keys.isEmpty()) {
             if (Epoll.isAvailable()) {
-                b.option(EpollChannelOption.TCP_MD5SIG, keys.get());
+                b.option(EpollChannelOption.TCP_MD5SIG, keys);
             } else {
                 throw new UnsupportedOperationException (Epoll.unavailabilityCause().getCause());
             }

@@ -25,6 +25,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
 import org.opendaylight.protocol.pcep.PCEPSession;
@@ -73,7 +74,7 @@ public class PCCDispatcherImplTest {
     @Test
     public void testClientReconnect() throws Exception {
         final Future<PCEPSession> futureSession = this.dispatcher.createClient(this.serverAddress, 1, new TestingSessionListenerFactory(),
-            this.nf, null, this.clientAddress);
+            this.nf, KeyMapping.EMPTY_KEY_MAPPING, this.clientAddress);
         final TestingSessionListenerFactory slf = new TestingSessionListenerFactory();
         final ChannelFuture futureServer = this.pcepDispatcher.createServer(this.serverAddress, slf, null);
         waitFutureSuccess(futureServer);
