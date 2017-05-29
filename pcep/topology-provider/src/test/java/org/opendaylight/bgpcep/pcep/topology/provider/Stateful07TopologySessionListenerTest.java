@@ -209,21 +209,19 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
             final Path path = reportedLsp.getPath().get(0);
             assertEquals(2, path.getEro().getSubobject().size());
             assertEquals(this.dstIpPrefix, getLastEroIpPrefix(path.getEro()));
+            assertEquals(1, this.listener.getDelegatedLspsCount().intValue());
+            assertTrue(this.listener.getSynchronized());
+            assertTrue(this.listener.getStatefulMessages().getLastReceivedRptMsgTimestamp() > 0);
+            assertEquals(3, this.listener.getStatefulMessages().getReceivedRptMsgCount().intValue());
+            assertEquals(1, this.listener.getStatefulMessages().getSentInitMsgCount().intValue());
+            assertEquals(1, this.listener.getStatefulMessages().getSentUpdMsgCount().intValue());
+            assertTrue(this.listener.getReplyTime().getAverageTime() > 0);
+            assertTrue(this.listener.getReplyTime().getMaxTime() > 0);
+            assertFalse(this.listener.getPeerCapabilities().getActive());
+            assertTrue(this.listener.getPeerCapabilities().getInstantiation());
+            assertTrue(this.listener.getPeerCapabilities().getStateful());
             return pcc;
         });
-
-        // check stats
-        checkEquals(()->assertEquals(1, this.listener.getDelegatedLspsCount().intValue()));
-        checkEquals(()-> assertTrue(this.listener.getSynchronized()));
-        checkEquals(()-> assertTrue(this.listener.getStatefulMessages().getLastReceivedRptMsgTimestamp() > 0));
-        checkEquals(()->assertEquals(3, this.listener.getStatefulMessages().getReceivedRptMsgCount().intValue()));
-        checkEquals(()->assertEquals(1, this.listener.getStatefulMessages().getSentInitMsgCount().intValue()));
-        checkEquals(()->assertEquals(1, this.listener.getStatefulMessages().getSentUpdMsgCount().intValue()));
-        checkEquals(()->assertTrue(this.listener.getReplyTime().getAverageTime() > 0));
-        checkEquals(()->assertTrue(this.listener.getReplyTime().getMaxTime() > 0));
-        checkEquals(()->assertFalse(this.listener.getPeerCapabilities().getActive()));
-        checkEquals(()->assertTrue(this.listener.getPeerCapabilities().getInstantiation()));
-        checkEquals(()->assertTrue(this.listener.getPeerCapabilities().getStateful()));
 
         // ensure-operational
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.ensure.lsp.
