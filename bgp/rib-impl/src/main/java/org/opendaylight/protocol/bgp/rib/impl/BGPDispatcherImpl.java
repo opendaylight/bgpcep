@@ -7,8 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static org.opendaylight.protocol.concepts.KeyMapping.getKeyMapping;
+
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
@@ -75,7 +76,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
 
     @Override
     public synchronized Future<BGPSessionImpl> createClient(final InetSocketAddress remoteAddress, final int retryTimer) {
-        return createClient(remoteAddress, retryTimer, createClientBootStrap(Optional.absent(), false));
+        return createClient(remoteAddress, retryTimer, createClientBootStrap(getKeyMapping(), false));
     }
 
     private synchronized Future<BGPSessionImpl> createClient(final InetSocketAddress remoteAddress,
@@ -94,12 +95,12 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     @VisibleForTesting
     public synchronized Future<BGPSessionImpl> createClient(final InetSocketAddress localAddress,
         final InetSocketAddress remoteAddress, final int retryTimer, final boolean reuseAddress) {
-        final Bootstrap clientBootStrap = createClientBootStrap(Optional.absent(), reuseAddress);
+        final Bootstrap clientBootStrap = createClientBootStrap(getKeyMapping(), reuseAddress);
         clientBootStrap.localAddress(localAddress);
         return createClient(remoteAddress, retryTimer, clientBootStrap);
     }
 
-    private synchronized Bootstrap createClientBootStrap(final Optional<KeyMapping> keys, final boolean reuseAddress) {
+    private synchronized Bootstrap createClientBootStrap(final KeyMapping keys, final boolean reuseAddress) {
         final Bootstrap bootstrap = new Bootstrap();
         if (Epoll.isAvailable()) {
             bootstrap.channel(EpollSocketChannel.class);
@@ -107,9 +108,9 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         } else {
             bootstrap.channel(NioSocketChannel.class);
         }
-        if (keys.isPresent()) {
+        if (!keys.isEmpty()) {
             if (Epoll.isAvailable()) {
-                bootstrap.option(EpollChannelOption.TCP_MD5SIG, keys.get());
+                bootstrap.option(EpollChannelOption.TCP_MD5SIG, keys);
             } else {
                 throw new UnsupportedOperationException(Epoll.unavailabilityCause().getCause());
             }
@@ -140,13 +141,13 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
 
     @Override
     public synchronized Future<Void> createReconnectingClient(final InetSocketAddress remoteAddress,
-            final int retryTimer, final Optional<KeyMapping> keys) {
+            final int retryTimer, final KeyMapping keys) {
         return createReconnectingClient(remoteAddress, retryTimer, keys, null, false);
     }
 
     @VisibleForTesting
     protected synchronized Future<Void> createReconnectingClient(final InetSocketAddress remoteAddress,
-        final int retryTimer, final Optional<KeyMapping> keys, final InetSocketAddress localAddress,
+        final int retryTimer, final KeyMapping keys, final InetSocketAddress localAddress,
         final boolean reuseAddress) {
         final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(this.bgpPeerRegistry);
         final Bootstrap bootstrap = createClientBootStrap(keys, reuseAddress);
