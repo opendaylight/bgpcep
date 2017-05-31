@@ -115,7 +115,7 @@ public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsume
     public AutoCloseable registerNlriParser(final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi,
         final NlriParser parser, final NextHopParserSerializer nextHopParserSerializer, final Class<? extends
             CNextHop> cNextHopClass, final Class<? extends CNextHop>... cNextHopClassList) {
-        return this.getNlriRegistry().registerNlriParser(afi, safi, parser, nextHopParserSerializer, cNextHopClass);
+        return this.getNlriRegistry().registerNlriParser(afi, safi, parser, nextHopParserSerializer, cNextHopClass, cNextHopClassList);
     }
 
     @Override
