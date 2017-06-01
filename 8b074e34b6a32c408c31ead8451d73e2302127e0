@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3afa9182_7da45857",
+        "filename": "bgp/path-selection-mode/src/main/java/org/opendaylight/protocol/bgp/mode/impl/add/AddPathAbstractRouteEntry.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2017-06-01T12:54:46Z",
+      "side": 1,
+      "message": "IMHO this method is sufficient, for the other use, just call it with arg this.bestPath",
+      "revId": "8b074e34b6a32c408c31ead8451d73e2302127e0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
