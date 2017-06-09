@@ -11,7 +11,7 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 
 public enum TerminationReason {
-    UNKNOWN((short) 1), EXP_DEADTIMER((short) 2), MALFORMED_MSG((short) 3), TOO_MANY_UNKNWN_REQS((short) 4), TOO_MANY_UNKNOWN_MSGS((short) 5);
+    UNKNOWN((short) 1), EXP_DEADTIMER((short) 2), MALFORMED_MSG((short) 3), TOO_MANY_UNKNWN_REQS((short) 4), TOO_MANY_UNKNOWN_MSGS((short) 5), CLOSED_BY_PEER((short) 6);
 
     private short value;
     private static final Map<Short, TerminationReason> VALUE_MAP;

@@ -239,6 +239,13 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
         return ((InetSocketAddress) this.channel.remoteAddress()).getAddress();
     }
 
+    private synchronized void closeWithoutMessage(final TerminationReason reason) {
+        LOG.info("Closing PCEP session: {}", this);
+        this.listener.onSessionTerminated(this, new PCEPCloseTermination(reason));
+        this.closed = true;
+        this.close();
+    }
+
     private synchronized void terminate(final TerminationReason reason) {
         LOG.info("Local PCEP session termination : {}", reason);
         this.listener.onSessionTerminated(this, new PCEPCloseTermination(reason));
@@ -316,7 +323,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
              * exception is CLOSE message, which needs to be converted into a
              * session DOWN event.
              */
-            this.close();
+            this.closeWithoutMessage(TerminationReason.CLOSED_BY_PEER);
         } else {
             // This message needs to be handled by the user
             if (msg instanceof PcerrMessage) {
