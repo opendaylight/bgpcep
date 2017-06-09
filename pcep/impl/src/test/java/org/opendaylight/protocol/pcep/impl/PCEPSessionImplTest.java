@@ -77,6 +77,12 @@ public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
     }
 
     @Test
+    public void testClosedByNode() {
+        this.session.handleMessage(this.closeMsg);
+        Mockito.verify(this.channel, Mockito.times(1)).close();
+    }
+
+    @Test
     public void testCapabilityNotSupported() {
         this.session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
         Assert.assertEquals(2, this.msgsSend.size());
