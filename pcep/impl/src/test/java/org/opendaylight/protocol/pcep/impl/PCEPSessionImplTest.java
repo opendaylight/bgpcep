@@ -55,7 +55,7 @@ public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
         Assert.assertTrue(this.listener.messages.get(0) instanceof Pcreq);
         Assert.assertEquals(2, this.session.getMessages().getReceivedMsgCount().intValue());
 
-        this.session.handleMessage(new CloseBuilder().build());
+        this.session.handleMessage(this.closeMsg);
         Assert.assertEquals(3, this.session.getMessages().getReceivedMsgCount().intValue());
         Assert.assertEquals(1, this.listener.messages.size());
         Assert.assertTrue(this.channel.isActive());
@@ -74,6 +74,12 @@ public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
         final Pcerr pcErr = (Pcerr) this.msgsSend.get(0);
         final ErrorObject errorObj = pcErr.getPcerrMessage().getErrors().get(0).getErrorObject();
         Assert.assertEquals(PCEPErrors.ATTEMPT_2ND_SESSION, PCEPErrors.forValue(errorObj.getType(), errorObj.getValue()));
+    }
+
+    @Test
+    public void testClosedByNode() {
+        this.session.handleMessage(this.closeMsg);
+        Mockito.verify(this.channel).close();
     }
 
     @Test
