@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "1af78d9a_1abba1c5",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPSessionImpl.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 7108
+      },
+      "writtenOn": "2017-06-12T16:35:20Z",
+      "side": 1,
+      "message": "About this part,\nIf you close a pcepSession for one node with this function and try to reopen with the same node you will have \nio.netty.channel.ChannelPipelineException: org.opendaylight.protocol.pcep.impl.PCEPSessionImpl.handlerAdded() has thrown an exception; removed.\n\nmaybe it is something normal for this function",
+      "range": {
+        "startLine": 231,
+        "startChar": 0,
+        "endLine": 237,
+        "endChar": 16
+      },
+      "revId": "4a7f99150b589710f67695b3ab86e3c954dcddc6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3afa9182_386e3002",
         "filename": "testtool-util/src/main/java/org/opendaylight/protocol/util/CheckUtil.java",
         "patchSetId": 13
