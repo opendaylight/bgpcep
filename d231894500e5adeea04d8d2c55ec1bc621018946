@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3afa9182_fe679fe8",
+        "filename": "bgp/topology-provider/src/test/java/org/opendaylight/bgpcep/bgp/topology/provider/config/Ipv4TopologyProviderTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 7108
+      },
+      "writtenOn": "2017-06-12T18:11:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3afa9182_3dbf70d2",
+      "range": {
+        "startLine": 47,
+        "startChar": 8,
+        "endLine": 47,
+        "endChar": 23
+      },
+      "revId": "d231894500e5adeea04d8d2c55ec1bc621018946",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3afa9182_fdede8f0",
         "filename": "bgp/topology-provider/src/test/java/org/opendaylight/bgpcep/bgp/topology/provider/config/Ipv4TopologyProviderTest.java",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "3afa9182_de6463e7",
+        "filename": "bgp/topology-provider/src/test/java/org/opendaylight/bgpcep/bgp/topology/provider/config/Ipv4TopologyProviderTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 7108
+      },
+      "writtenOn": "2017-06-12T18:11:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3afa9182_fdede8f0",
+      "range": {
+        "startLine": 63,
+        "startChar": 8,
+        "endLine": 63,
+        "endChar": 18
+      },
+      "revId": "d231894500e5adeea04d8d2c55ec1bc621018946",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3afa9182_9db4a4f3",
         "filename": "bgp/topology-provider/src/test/java/org/opendaylight/bgpcep/bgp/topology/provider/config/Ipv4TopologyProviderTest.java",
         "patchSetId": 1
@@ -59,6 +107,30 @@
       "writtenOn": "2017-06-01T11:45:55Z",
       "side": 1,
       "message": "you can use methods inside tool CheckUtil for check if info has been stored on DS",
+      "range": {
+        "startLine": 67,
+        "startChar": 16,
+        "endLine": 67,
+        "endChar": 54
+      },
+      "revId": "d231894500e5adeea04d8d2c55ec1bc621018946",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_455eeeea",
+        "filename": "bgp/topology-provider/src/test/java/org/opendaylight/bgpcep/bgp/topology/provider/config/Ipv4TopologyProviderTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 7108
+      },
+      "writtenOn": "2017-06-12T18:11:45Z",
+      "side": 1,
+      "message": "I try to but I have some difficulties about getting the instance. Could you take a look ?",
+      "parentUuid": "3afa9182_9db4a4f3",
       "range": {
         "startLine": 67,
         "startChar": 16,
