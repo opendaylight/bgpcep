@@ -72,8 +72,8 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
                 new DefaultCompositeOption(
                         // Repository required to load harmcrest (OSGi-fied version).
                         // Mockito
-                        mavenBundle("org.mockito", "mockito-core", "1.10.19"),
-                        mavenBundle("org.objenesis", "objenesis", "2.2"),
+                        mavenBundle("org.mockito", "mockito-core").versionAsInProject(),
+                        mavenBundle("org.objenesis", "objenesis").versionAsInProject(),
                         junitBundles(),
 
                 /*
