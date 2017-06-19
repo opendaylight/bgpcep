@@ -26,9 +26,6 @@
     <description>BGPCEP integration tests</description>
     <packaging>bundle</packaging>
     <name>${project.artifactId}</name>
-    <prerequisites>
-        <maven>3.0.4</maven>
-    </prerequisites>
 
     <properties>
         <skipITs>false</skipITs>

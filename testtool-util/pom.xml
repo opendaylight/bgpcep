@@ -20,9 +20,6 @@
 
     <artifactId>testtool-util</artifactId>
     <packaging>bundle</packaging>
-    <prerequisites>
-        <maven>3.0.4</maven>
-    </prerequisites>
     <dependencies>
         <dependency>
             <groupId>com.google.guava</groupId>
