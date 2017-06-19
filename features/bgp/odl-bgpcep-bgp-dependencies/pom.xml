@@ -63,6 +63,12 @@
             <classifier>features</classifier>
         </dependency>
         <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>odl-bgpcep-extras-dependencies</artifactId>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
             <groupId>org.opendaylight.odlparent</groupId>
             <artifactId>odl4-netty-4</artifactId>
             <type>xml</type>
