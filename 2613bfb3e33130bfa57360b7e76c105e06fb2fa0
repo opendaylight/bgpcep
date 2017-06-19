@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_32d29700",
+        "filename": "bgp/flowspec/src/test/java/org/opendaylight/protocol/bgp/flowspec/AbstractFlowspecNlriParserTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-06-19T17:28:51Z",
+      "side": 1,
+      "message": "fix",
+      "range": {
+        "startLine": 10,
+        "startChar": 31,
+        "endLine": 10,
+        "endChar": 32
+      },
+      "revId": "2613bfb3e33130bfa57360b7e76c105e06fb2fa0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
