@@ -19,9 +19,6 @@
   <description>Controller Configuration files for data-change-counter module.</description>
   <packaging>jar</packaging>
   <name>${project.artifactId}</name>
-  <prerequisites>
-    <maven>3.0.4</maven>
-  </prerequisites>
 
   <build>
     <plugins>
