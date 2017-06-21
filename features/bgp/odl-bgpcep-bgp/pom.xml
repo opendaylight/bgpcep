@@ -121,12 +121,6 @@
             <classifier>features</classifier>
             <type>xml</type>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-controller-config</artifactId>
-            <type>xml</type>
-            <classifier>config</classifier>
-        </dependency>
     </dependencies>
 
     <!--
