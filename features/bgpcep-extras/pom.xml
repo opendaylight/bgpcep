@@ -13,7 +13,7 @@
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>odlparent-lite</artifactId>
-        <version>1.9.0</version>
+        <version>2.0.0</version>
         <relativePath/>
     </parent>
 
@@ -23,7 +23,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>features4-bgpcep-extras</module>
+        <module>features-bgpcep-extras</module>
         <module>odl-bgpcep-extras-dependencies</module>
         <module>odl-bgpcep-data-change-counter</module>
     </modules>
