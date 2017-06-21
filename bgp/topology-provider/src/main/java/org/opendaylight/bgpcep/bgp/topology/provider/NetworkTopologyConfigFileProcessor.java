@@ -22,6 +22,7 @@ import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
@@ -55,7 +56,10 @@ public final class NetworkTopologyConfigFileProcessor implements ConfigFileProce
 
     @Override
     public void loadConfiguration(@Nonnull final NormalizedNode<?, ?> dto) {
-        final Collection<MapEntryNode> networkTopology = ((MapNode) dto).getValue();
+        final ContainerNode networkTopologyContainer = (ContainerNode) dto;
+        final MapNode topologyList = (MapNode) networkTopologyContainer.getChild(
+                topologyYii.getLastPathArgument()).get();
+        final Collection<MapEntryNode> networkTopology = topologyList.getValue();
         for (final MapEntryNode topology : networkTopology) {
             final Map.Entry<InstanceIdentifier<?>, DataObject> bi = this.bindingSerializer.fromNormalizedNode(this.topologyYii , topology);
             if (bi != null) {
