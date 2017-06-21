@@ -25,7 +25,6 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>features-rsvp</module>
         <module>features4-rsvp</module>
         <module>odl-bgpcep-rsvp</module>
         <module>odl-bgpcep-rsvp-dependencies</module>

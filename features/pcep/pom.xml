@@ -24,7 +24,6 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>features-pcep</module>
         <module>features4-pcep</module>
         <module>odl-bgpcep-pcep</module>
         <module>odl-bgpcep-pcep-dependencies</module>
