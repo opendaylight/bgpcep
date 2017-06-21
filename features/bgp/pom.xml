@@ -23,7 +23,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>features4-bgp</module>
+        <module>features-bgp</module>
         <module>odl-bgpcep-bgp</module>
         <module>odl-bgpcep-bgp-dependencies</module>
         <module>odl-bgpcep-config-files</module>

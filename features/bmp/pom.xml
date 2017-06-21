@@ -14,7 +14,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>features4-bmp</module>
+        <module>features-bmp</module>
         <module>odl-bgpcep-bmp</module>
     </modules>
 
