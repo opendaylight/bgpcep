@@ -32,6 +32,7 @@ import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
@@ -61,7 +62,9 @@ public final class ProtocolsConfigFileProcessor implements ConfigFileProcessor, 
 
     @Override
     public void loadConfiguration(@Nonnull final NormalizedNode<?, ?> dto) {
-        final Collection<MapEntryNode> protocolsCollection = ((MapNode) dto).getValue();
+        final ContainerNode protocolsContainer = (ContainerNode) dto;
+        final MapNode protocolList = (MapNode) protocolsContainer.getChild(protocolYIId.getLastPathArgument()).get();
+        final Collection<MapEntryNode> protocolsCollection = protocolList.getValue();
         for (final MapEntryNode protocolEntry : protocolsCollection) {
             final Map.Entry<InstanceIdentifier<?>, DataObject> bi = this.bindingSerializer.fromNormalizedNode(this.protocolYIId, protocolEntry);
             if (bi != null) {
