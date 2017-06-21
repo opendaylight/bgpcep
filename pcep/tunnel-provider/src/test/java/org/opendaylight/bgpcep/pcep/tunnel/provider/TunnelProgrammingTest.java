@@ -172,6 +172,7 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
             return TunnelProgrammingTest.this.futureRemoveLspOutput;
         }).when(this.topologyService).removeLsp(Mockito.any(RemoveLspInput.class));
         Mockito.doReturn(this.instruction).when(this.instructionFuture).get();
+        Mockito.doReturn(true).when(this.instructionFuture).isDone();
         Mockito.doReturn(this.instructionFuture).when(this.scheduler).scheduleInstruction(Mockito.any(SubmitInstructionInput.class));
 
         createInitialTopology();

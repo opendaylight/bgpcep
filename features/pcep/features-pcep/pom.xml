@@ -6,17 +6,16 @@
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>feature-repo-parent</artifactId>
-        <version>1.9.0</version>
+        <version>2.0.0</version>
         <relativePath/>
     </parent>
-    
+
     <groupId>org.opendaylight.bgpcep</groupId>
-    <artifactId>features4-bgp</artifactId>
+    <artifactId>features-pcep</artifactId>
     <version>0.8.0-SNAPSHOT</version>
     <packaging>feature</packaging>
 
     <dependencyManagement>
-        <!-- ODL-BGP-ARTIFACTS -->
         <dependencies>
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
@@ -31,115 +30,73 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp</artifactId>
+            <artifactId>odl-bgpcep-pcep</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-config-files</artifactId>
+            <artifactId>odl-bgpcep-pcep-dependencies</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-openconfig</artifactId>
+            <artifactId>odl-bgpcep-pcep-api</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-dependencies</artifactId>
+            <artifactId>odl-bgpcep-pcep-impl</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-inet</artifactId>
+            <artifactId>odl-bgpcep-programming-api</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-parser</artifactId>
+            <artifactId>odl-bgpcep-programming-impl</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-rib-api</artifactId>
+            <artifactId>odl-bgpcep-pcep-topology</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-linkstate</artifactId>
+            <artifactId>odl-bgpcep-pcep-stateful07</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-flowspec</artifactId>
+            <artifactId>odl-bgpcep-pcep-topology-provider</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-labeled-unicast</artifactId>
+            <artifactId>odl-bgpcep-pcep-tunnel-provider</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-l3vpn</artifactId>
+            <artifactId>odl-bgpcep-pcep-segment-routing</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-evpn</artifactId>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-path-selection-mode</artifactId>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-rib-impl</artifactId>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-topology</artifactId>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-benchmark</artifactId>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-cli</artifactId>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-config-loader</artifactId>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-openconfig-state</artifactId>
+            <artifactId>odl-bgpcep-pcep-auto-bandwidth</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>

@@ -130,6 +130,7 @@ class AbstractConfig {
         Mockito.doReturn(checkedFuture).when(this.domDW).submit();
         Mockito.doReturn(null).when(checkedFuture).checkedGet();
         Mockito.doReturn(null).when(checkedFuture).get();
+        Mockito.doReturn(true).when(checkedFuture).isDone();
         Mockito.doReturn("checkedFuture").when(checkedFuture).toString();
         Mockito.doAnswer(invocationOnMock->{
             this.singletonService.closeServiceInstance();

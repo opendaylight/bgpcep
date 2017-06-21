@@ -31,7 +31,7 @@ public class PCCMock {
         final PCEPSessionProposalFactory proposal = new BasePCEPSessionProposalFactory((short) 120, (short) 30, caps);
         final PCEPSessionNegotiatorFactory snf = new DefaultPCEPSessionNegotiatorFactory(proposal, 0);
         final HostAndPort serverHostAndPort = HostAndPort.fromString(args[0]);
-        final InetSocketAddress serverAddr = new InetSocketAddress(serverHostAndPort.getHostText(), serverHostAndPort
+        final InetSocketAddress serverAddr = new InetSocketAddress(serverHostAndPort.getHost(), serverHostAndPort
             .getPortOrDefault(12345));
         final InetSocketAddress clientAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(0);
 

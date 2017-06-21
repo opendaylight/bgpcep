@@ -163,7 +163,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         if (f == null) {
             return OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future();
         }
-        return Futures.transform(f, new ResyncLspFunction(input));
+        return Futures.transformAsync(f, new ResyncLspFunction(input));
     }
 
     private ListenableFuture<OperationResult> triggerResyncronization(final TriggerSyncArgs input) {
@@ -501,7 +501,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         if (f == null) {
             return OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future();
         }
-        return Futures.transform(f, new AddFunction(input, lsp));
+        return Futures.transformAsync(f, new AddFunction(input, lsp));
     }
 
     @Override
@@ -514,7 +514,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         if (f == null) {
             return OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future();
         }
-        return Futures.transform(f, (AsyncFunction<Optional<ReportedLsp>, OperationResult>) rep -> {
+        return Futures.transformAsync(f, rep -> {
             final Lsp reportedLsp = validateReportedLsp(rep, input);
             if (reportedLsp == null) {
                 return OperationResults.createUnsent(PCEPErrors.UNKNOWN_PLSP_ID).future();
@@ -631,7 +631,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         if (f == null) {
             return OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future();
         }
-        return Futures.transform(f, new UpdateFunction(input));
+        return Futures.transformAsync(f, new UpdateFunction(input));
     }
 
     @Override
