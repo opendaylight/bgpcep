@@ -70,7 +70,7 @@ public class PCEPStatefulPeerProposalTest {
         doNothing().when(this.rTxMock).close();
         doReturn(this.listenableFutureMock).when(this.rTxMock)
                 .read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
-
+        doReturn(true).when(this.listenableFutureMock).isDone();
         doAnswer(invocation -> {
             final Runnable runnable = (Runnable) invocation.getArguments()[0];
             runnable.run();

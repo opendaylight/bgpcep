@@ -39,9 +39,9 @@ public final class InetSocketAddressUtil {
     public static InetSocketAddress getInetSocketAddress(final String hostPortString, final Integer defaultPort) {
         final HostAndPort hostAndPort = HostAndPort.fromString(hostPortString);
         if (defaultPort != null) {
-            return new InetSocketAddress(hostAndPort.getHostText(), hostAndPort.getPortOrDefault(defaultPort));
+            return new InetSocketAddress(hostAndPort.getHost(), hostAndPort.getPortOrDefault(defaultPort));
         }
-        return new InetSocketAddress(hostAndPort.getHostText(), hostAndPort.getPort());
+        return new InetSocketAddress(hostAndPort.getHost(), hostAndPort.getPort());
     }
 
     public static InetSocketAddress getRandomLoopbackInetSocketAddress(final int port) {

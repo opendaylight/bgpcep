@@ -138,6 +138,7 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest<MockedTopol
         }).when(listener).ensureLspOperational(Mockito.any(EnsureLspOperationalInput.class));
         Mockito.doNothing().when(listener).close();
         Mockito.doReturn(this.instruction).when(this.instructionFuture).get();
+        Mockito.doReturn(true).when(this.instructionFuture).isDone();
         Mockito.doNothing().when(this.instruction).executionCompleted(Mockito.any(InstructionStatus.class), Mockito.any(Details.class));
         Mockito.doReturn(this.instructionFuture).when(this.scheduler).scheduleInstruction(Mockito.any(SubmitInstructionInput.class));
         this.topologyProgramming = new TopologyProgramming(this.scheduler, this.manager);

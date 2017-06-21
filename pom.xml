@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>odlparent-lite</artifactId>
-        <version>1.9.0</version>
+        <version>2.0.0</version>
         <relativePath/>
     </parent>
 
@@ -44,6 +44,7 @@
 
         <!-- Common infra -->
         <module>concepts</module>
+        <module>dependency-version-management</module>
         <module>util</module>
 
         <!-- Subsystems -->
@@ -61,9 +62,8 @@
         <module>testtool-util</module>
         <module>data-change-counter-controller-config</module>
 
-        <module>distribution-karaf</module>
-        <module>dependency-version-management</module>
-
+        <!-- FIXME: re-enable this:
+        <module>distribution-karaf</module-->
     </modules>
 
     <build>
