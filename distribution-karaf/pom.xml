@@ -47,7 +47,7 @@
     <!-- Project local feautures -->
     <dependency>
       <groupId>org.opendaylight.bgpcep</groupId>
-      <artifactId>features4-bgp</artifactId>
+      <artifactId>features-bgp</artifactId>
       <classifier>features</classifier>
       <version>${project.version}</version>
       <type>xml</type>
@@ -55,7 +55,7 @@
     </dependency>
     <dependency>
       <groupId>org.opendaylight.bgpcep</groupId>
-      <artifactId>features4-bmp</artifactId>
+      <artifactId>features-bmp</artifactId>
       <classifier>features</classifier>
       <version>${project.version}</version>
       <type>xml</type>
@@ -63,7 +63,7 @@
     </dependency>
     <dependency>
       <groupId>org.opendaylight.bgpcep</groupId>
-      <artifactId>features4-bgpcep-extras</artifactId>
+      <artifactId>features-bgpcep-extras</artifactId>
       <classifier>features</classifier>
       <version>${project.version}</version>
       <type>xml</type>
@@ -71,7 +71,7 @@
     </dependency>
     <dependency>
       <groupId>org.opendaylight.bgpcep</groupId>
-      <artifactId>features4-pcep</artifactId>
+      <artifactId>features-pcep</artifactId>
       <classifier>features</classifier>
       <version>${project.version}</version>
       <type>xml</type>
@@ -79,7 +79,7 @@
     </dependency>
     <dependency>
       <groupId>org.opendaylight.bgpcep</groupId>
-      <artifactId>features4-rsvp</artifactId>
+      <artifactId>features-rsvp</artifactId>
       <classifier>features</classifier>
       <version>${project.version}</version>
       <type>xml</type>
@@ -87,7 +87,7 @@
     </dependency>
     <dependency>
       <groupId>org.opendaylight.netconf</groupId>
-      <artifactId>features4-restconf</artifactId>
+      <artifactId>features-restconf</artifactId>
       <classifier>features</classifier>
       <version>${restconfVersion}</version>
       <type>xml</type>

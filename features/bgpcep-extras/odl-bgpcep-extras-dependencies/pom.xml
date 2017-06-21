@@ -59,7 +59,7 @@
         </dependency>
         <dependency>
             <groupId>org.opendaylight.odlparent</groupId>
-            <artifactId>odl4-netty-4</artifactId>
+            <artifactId>odl-netty-4</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>

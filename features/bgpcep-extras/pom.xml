@@ -23,7 +23,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>features4-bgpcep-extras</module>
+        <module>features-bgpcep-extras</module>
         <module>odl-bgpcep-extras-dependencies</module>
         <module>odl-bgpcep-data-change-counter</module>
     </modules>
