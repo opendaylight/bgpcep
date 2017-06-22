@@ -166,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "fa2559ec_84261a67",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPSessionImpl.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2017-06-22T00:27:03Z",
+      "side": 1,
+      "message": "I have switched these two lines in the latest patch.  close(TerminationReason) will be invoked first to send the CLOSE message, then onSessionTerminated(..) will be invoked",
+      "parentUuid": "1af78d9a_5bd86a1d",
+      "range": {
+        "startLine": 257,
+        "startChar": 8,
+        "endLine": 257,
+        "endChar": 21
+      },
+      "revId": "4a7f99150b589710f67695b3ab86e3c954dcddc6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3afa9182_386e3002",
         "filename": "testtool-util/src/main/java/org/opendaylight/protocol/util/CheckUtil.java",
         "patchSetId": 13
