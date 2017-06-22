@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa2559ec_7f41f30a",
+        "filename": "distribution-karaf/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-06-22T07:24:05Z",
+      "side": 1,
+      "message": "should we update this also?",
+      "range": {
+        "startLine": 12,
+        "startChar": 16,
+        "endLine": 12,
+        "endChar": 22
+      },
+      "revId": "48c0a85cfc2db4903ca98d40bad5ae852d483d48",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
