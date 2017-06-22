@@ -1,0 +1,268 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa2559ec_27d5ad43",
+        "filename": "pcep/api/src/main/java/org/opendaylight/protocol/pcep/PCEPSession.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-06-22T14:59:33Z",
+      "side": 1,
+      "message": "@Nullable  and add please info that in case reason is null no message will be sent",
+      "revId": "6167e450e8800ada4e3444e9823114cccdec6820",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_e7ff15a9",
+        "filename": "pcep/api/src/main/java/org/opendaylight/protocol/pcep/PCEPSession.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-06-22T14:59:33Z",
+      "side": 1,
+      "message": "@NonNull",
+      "revId": "6167e450e8800ada4e3444e9823114cccdec6820",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_c7dc9177",
+        "filename": "pcep/api/src/main/java/org/opendaylight/protocol/pcep/TerminationReason.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-06-22T14:59:33Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 46,
+        "startChar": 10,
+        "endLine": 46,
+        "endChar": 16
+      },
+      "revId": "6167e450e8800ada4e3444e9823114cccdec6820",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_e5942d46",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPSessionImpl.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-06-22T14:59:33Z",
+      "side": 1,
+      "message": "remove, no longer need, this info will be printed by close(tesminationReason)",
+      "range": {
+        "startLine": 257,
+        "startChar": 8,
+        "endLine": 257,
+        "endChar": 84
+      },
+      "revId": "6167e450e8800ada4e3444e9823114cccdec6820",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_2a4f3494",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractTopologySessionListener.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-06-22T14:59:33Z",
+      "side": 1,
+      "message": "rename for something more intuitive meaning",
+      "range": {
+        "startLine": 317,
+        "startChar": 56,
+        "endLine": 317,
+        "endChar": 68
+      },
+      "revId": "6167e450e8800ada4e3444e9823114cccdec6820",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_4a31c80a",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/ServerSessionManager.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-06-22T14:59:33Z",
+      "side": 1,
+      "message": "keep it as debug",
+      "range": {
+        "startLine": 102,
+        "startChar": 20,
+        "endLine": 102,
+        "endChar": 24
+      },
+      "revId": "6167e450e8800ada4e3444e9823114cccdec6820",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_ea023c0a",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/ServerSessionManager.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-06-22T14:59:33Z",
+      "side": 1,
+      "message": "trace",
+      "range": {
+        "startLine": 128,
+        "startChar": 16,
+        "endLine": 128,
+        "endChar": 21
+      },
+      "revId": "6167e450e8800ada4e3444e9823114cccdec6820",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_059ce168",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/ServerSessionManager.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-06-22T14:59:33Z",
+      "side": 1,
+      "message": "debug",
+      "range": {
+        "startLine": 232,
+        "startChar": 20,
+        "endLine": 232,
+        "endChar": 24
+      },
+      "revId": "6167e450e8800ada4e3444e9823114cccdec6820",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_055fc10f",
+        "filename": "pcep/topology-provider/src/test/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful07TopologySessionListenerTest.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-06-22T14:59:33Z",
+      "side": 1,
+      "message": "does it make sense? I dont see what can cause the session to go up, better will be if possible some verify on onSessionDown method, or otherway",
+      "range": {
+        "startLine": 310,
+        "startChar": 8,
+        "endLine": 310,
+        "endChar": 44
+      },
+      "revId": "6167e450e8800ada4e3444e9823114cccdec6820",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_65e95d1a",
+        "filename": "pcep/topology-provider/src/test/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful07TopologySessionListenerTest.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-06-22T14:59:33Z",
+      "side": 1,
+      "message": "remove change",
+      "range": {
+        "startLine": 323,
+        "startChar": 49,
+        "endLine": 323,
+        "endChar": 132
+      },
+      "revId": "6167e450e8800ada4e3444e9823114cccdec6820",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_a5dd1545",
+        "filename": "pcep/topology-provider/src/test/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful07TopologySessionListenerTest.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-06-22T14:59:33Z",
+      "side": 1,
+      "message": "check via some verify?",
+      "range": {
+        "startLine": 336,
+        "startChar": 7,
+        "endLine": 336,
+        "endChar": 44
+      },
+      "revId": "6167e450e8800ada4e3444e9823114cccdec6820",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_e5dc2d77",
+        "filename": "pcep/topology-provider/src/test/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful07TopologySessionListenerTest.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-06-22T14:59:33Z",
+      "side": 1,
+      "message": "remove change",
+      "range": {
+        "startLine": 345,
+        "startChar": 12,
+        "endLine": 346,
+        "endChar": 7
+      },
+      "revId": "6167e450e8800ada4e3444e9823114cccdec6820",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
