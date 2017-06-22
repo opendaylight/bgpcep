@@ -14,19 +14,15 @@
     <relativePath />
   </parent>
 
-  <artifactId>distribution-karaf</artifactId>
   <groupId>org.opendaylight.bgpcep</groupId>
+  <artifactId>distribution-karaf</artifactId>
   <version>0.8.0-SNAPSHOT</version>
   <packaging>pom</packaging>
-
-  <properties>
-    <restconfVersion>1.6.0-SNAPSHOT</restconfVersion>
-  </properties>
 
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>${project.groupId}</groupId>
+        <groupId>org.opendaylight.bgpcep</groupId>
         <artifactId>bgpcep-artifacts</artifactId>
         <version>${project.version}</version>
         <type>pom</type>
@@ -49,7 +45,6 @@
       <groupId>org.opendaylight.bgpcep</groupId>
       <artifactId>features-bgp</artifactId>
       <classifier>features</classifier>
-      <version>${project.version}</version>
       <type>xml</type>
       <scope>runtime</scope>
     </dependency>
@@ -57,7 +52,6 @@
       <groupId>org.opendaylight.bgpcep</groupId>
       <artifactId>features-bmp</artifactId>
       <classifier>features</classifier>
-      <version>${project.version}</version>
       <type>xml</type>
       <scope>runtime</scope>
     </dependency>
@@ -65,7 +59,6 @@
       <groupId>org.opendaylight.bgpcep</groupId>
       <artifactId>features-bgpcep-extras</artifactId>
       <classifier>features</classifier>
-      <version>${project.version}</version>
       <type>xml</type>
       <scope>runtime</scope>
     </dependency>
@@ -73,7 +66,6 @@
       <groupId>org.opendaylight.bgpcep</groupId>
       <artifactId>features-pcep</artifactId>
       <classifier>features</classifier>
-      <version>${project.version}</version>
       <type>xml</type>
       <scope>runtime</scope>
     </dependency>
@@ -81,7 +73,6 @@
       <groupId>org.opendaylight.bgpcep</groupId>
       <artifactId>features-rsvp</artifactId>
       <classifier>features</classifier>
-      <version>${project.version}</version>
       <type>xml</type>
       <scope>runtime</scope>
     </dependency>
@@ -89,7 +80,7 @@
       <groupId>org.opendaylight.netconf</groupId>
       <artifactId>features-restconf</artifactId>
       <classifier>features</classifier>
-      <version>${restconfVersion}</version>
+      <version>1.6.0-SNAPSHOT</version>
       <type>xml</type>
       <scope>runtime</scope>
     </dependency>
