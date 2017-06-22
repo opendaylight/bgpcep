@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa2559ec_3b878863",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPSessionImpl.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-06-22T19:45:43Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 228,
+        "startChar": 35,
+        "endLine": 228,
+        "endChar": 45
+      },
+      "revId": "4cb925f80eeb9b99cf40f1e1b858439507c9291a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_9b7cb474",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPSessionImpl.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-06-22T19:45:43Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 255,
+        "startChar": 39,
+        "endLine": 255,
+        "endChar": 48
+      },
+      "revId": "4cb925f80eeb9b99cf40f1e1b858439507c9291a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_7b81004a",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPSessionImpl.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-06-22T19:45:43Z",
+      "side": 1,
+      "message": "no need it, interface already state that should be non null",
+      "range": {
+        "startLine": 259,
+        "startChar": 8,
+        "endLine": 259,
+        "endChar": 43
+      },
+      "revId": "4cb925f80eeb9b99cf40f1e1b858439507c9291a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
