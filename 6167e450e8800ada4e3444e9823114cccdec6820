@@ -197,6 +197,30 @@
     },
     {
       "key": {
+        "uuid": "fa2559ec_a03b43ea",
+        "filename": "pcep/topology-provider/src/test/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful07TopologySessionListenerTest.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2017-06-23T17:27:58Z",
+      "side": 1,
+      "message": "The session should be closed. Corrected that.",
+      "parentUuid": "fa2559ec_055fc10f",
+      "range": {
+        "startLine": 310,
+        "startChar": 8,
+        "endLine": 310,
+        "endChar": 44
+      },
+      "revId": "6167e450e8800ada4e3444e9823114cccdec6820",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa2559ec_65e95d1a",
         "filename": "pcep/topology-provider/src/test/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful07TopologySessionListenerTest.java",
         "patchSetId": 18
