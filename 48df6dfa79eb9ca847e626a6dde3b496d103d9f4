@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_57c7af12",
+        "filename": "pcep/api/src/main/java/org/opendaylight/protocol/pcep/TerminationReason.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 7108
+      },
+      "writtenOn": "2017-06-29T14:06:19Z",
+      "side": 1,
+      "message": "I use  the reason in the message instead.",
+      "parentUuid": "1af78d9a_113c032f",
+      "range": {
+        "startLine": 14,
+        "startChar": 142,
+        "endLine": 14,
+        "endChar": 167
+      },
+      "revId": "48df6dfa79eb9ca847e626a6dde3b496d103d9f4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1af78d9a_9130f357",
         "filename": "pcep/impl/src/test/java/org/opendaylight/protocol/pcep/impl/PCEPSessionImplTest.java",
         "patchSetId": 8
@@ -36,6 +60,30 @@
       "writtenOn": "2017-06-20T14:41:19Z",
       "side": 1,
       "message": "remove",
+      "range": {
+        "startLine": 82,
+        "startChar": 35,
+        "endLine": 82,
+        "endChar": 53
+      },
+      "revId": "48df6dfa79eb9ca847e626a6dde3b496d103d9f4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_37ccbb35",
+        "filename": "pcep/impl/src/test/java/org/opendaylight/protocol/pcep/impl/PCEPSessionImplTest.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 7108
+      },
+      "writtenOn": "2017-06-29T14:06:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af78d9a_9130f357",
       "range": {
         "startLine": 82,
         "startChar": 35,
