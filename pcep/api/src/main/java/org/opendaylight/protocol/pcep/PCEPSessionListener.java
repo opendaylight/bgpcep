@@ -31,8 +31,7 @@ public interface PCEPSessionListener extends EventListener {
     void onSessionDown(PCEPSession session, Exception e);
 
     /**
-     * Fired when the session is terminated locally or upon a CLOSE message from remote peer is received.
-     * The session has already been closed and transitioned to IDLE state.
+     * Fired when the session is terminated locally. The session has already been closed and transitioned to IDLE state.
      * Any outstanding queued messages were not sent. The user should not attempt to make any use of the session.
      *
      * @param reason the cause why the session went down

@@ -7,12 +7,23 @@
  */
 package org.opendaylight.protocol.pcep;
 
+import com.google.common.collect.Maps;
+import java.util.Map;
+
 public enum TerminationReason {
     UNKNOWN((short) 1), EXP_DEADTIMER((short) 2), MALFORMED_MSG((short) 3), TOO_MANY_UNKNWN_REQS((short) 4), TOO_MANY_UNKNOWN_MSGS((short) 5);
 
-    private final short value;
+    private short value;
+    private static final Map<Short, TerminationReason> VALUE_MAP;
 
-    TerminationReason(final short value) {
+    static {
+        VALUE_MAP = Maps.newHashMap();
+        for (final TerminationReason enumItem : TerminationReason.values()) {
+            VALUE_MAP.put(enumItem.value, enumItem);
+        }
+    }
+
+    private TerminationReason(final short value) {
         this.value = value;
     }
 
@@ -32,18 +43,6 @@ public enum TerminationReason {
      * @return corresponding TerminationReason item
      */
     public static TerminationReason forValue(final short valueArg) {
-        for (final TerminationReason reason : values()) {
-            if (reason.value == valueArg) {
-                return reason;
-            }
-        }
-        return null;
-    }
-
-    public static TerminationReason forValue(final Short valueArg) {
-        if (valueArg == null) {
-            return null;
-        }
-        return forValue(valueArg.shortValue());
+        return VALUE_MAP.get(valueArg);
     }
 }

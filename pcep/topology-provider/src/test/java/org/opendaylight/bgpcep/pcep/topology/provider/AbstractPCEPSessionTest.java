@@ -8,17 +8,12 @@
 
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-import com.google.common.util.concurrent.CheckedFuture;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
@@ -30,9 +25,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.Nullable;
 import org.junit.After;
 import org.junit.Before;
 import org.mockito.Mock;
@@ -45,9 +38,9 @@ import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopolo
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistrator;
 import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiator;
-import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
@@ -110,17 +103,12 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
     @Mock
     ListenerStateRuntimeRegistration listenerReg;
 
-    @Mock
-    private PCEPTopologyProviderRuntimeRegistrator registrator;
-
     private final Open localPrefs = new OpenBuilder().setDeadTimer((short) 30).setKeepalive((short) 10)
         .setSessionId((short) 0).build();
 
     private final Open remotePrefs = this.localPrefs;
 
     ServerSessionManager manager;
-
-    private PCEPSessionListener sessionListener;
 
     NetworkTopologyPcepService topologyRpcs;
 
@@ -152,50 +140,25 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
         doReturn(mock(ChannelFuture.class)).when(this.clientListener).close();
 
         doNothing().when(this.listenerReg).close();
-        doReturn("listenerReg").when(this.listenerReg).toString();
         final PCEPTopologyProviderRuntimeRegistration topologyReg = mock(PCEPTopologyProviderRuntimeRegistration.class);
         doReturn(this.listenerReg).when(topologyReg).register(any(ListenerStateRuntimeMXBean.class));
         doNothing().when(topologyReg).close();
-        doReturn(topologyReg).when(this.registrator).register(any(PCEPTopologyProviderRuntimeMXBean.class));
+        final PCEPTopologyProviderRuntimeRegistrator registrator = mock(PCEPTopologyProviderRuntimeRegistrator.class);
+        doReturn(topologyReg).when(registrator).register(any(PCEPTopologyProviderRuntimeMXBean.class));
 
         final T listenerFactory = (T) ((Class) ((ParameterizedType) this.getClass().getGenericSuperclass())
             .getActualTypeArguments()[0]).newInstance();
         this.manager = new ServerSessionManager(getDataBroker(), TOPO_IID, listenerFactory, RPC_TIMEOUT);
-        startSessionManager();
-        this.sessionListener = this.manager.getSessionListener();
+        this.manager.setRuntimeRootRegistrator(registrator);
+        this.manager.instantiateServiceInstance().checkedGet();
         this.neg = new DefaultPCEPSessionNegotiator(mock(Promise.class), this.clientListener,
-            this.sessionListener, (short) 1, 5, this.localPrefs);
+            this.manager.getSessionListener(), (short) 1, 5, this.localPrefs);
         this.topologyRpcs = new TopologyRPCs(this.manager);
     }
 
     @After
     public void tearDown() throws TransactionCommitFailedException {
-        stopSessionManager();
-    }
-
-    protected void startSessionManager() throws TransactionCommitFailedException, InterruptedException {
-        this.manager.setRuntimeRootRegistrator(this.registrator);
-        final CheckedFuture<Void, TransactionCommitFailedException> future = this.manager.instantiateServiceInstance();
-        final CountDownLatch lock = new CountDownLatch(1);
-        Futures.addCallback(future, new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(@Nullable final Void aVoid) {
-                lock.countDown();
-            }
-
-            @Override
-            public void onFailure(final Throwable throwable) {
-                // the test cannot continue
-                fail();
-            }
-        });
-        future.checkedGet();
-        lock.await(5000, TimeUnit.MILLISECONDS);
-        assertFalse(this.manager.isClosed());
-    }
-
-    protected void stopSessionManager() throws TransactionCommitFailedException {
-        this.manager.closeServiceInstance().checkedGet();
+        this.manager.closeServiceInstance();
     }
 
     Ero createEroWithIpPrefixes(final List<String> ipPrefixes) {
@@ -223,10 +186,10 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
     }
 
     protected PCEPSessionListener getSessionListener() {
-        return this.sessionListener;
+        return this.manager.getSessionListener();
     }
 
-    protected final PCEPSessionImpl getPCEPSession(final Open localOpen, final Open remoteOpen) {
+    protected final PCEPSession getPCEPSession(final Open localOpen, final Open remoteOpen) {
         return this.neg.createSession(this.clientListener, localOpen, remoteOpen);
     }
 }
