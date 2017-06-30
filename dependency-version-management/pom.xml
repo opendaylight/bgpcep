@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>odlparent-lite</artifactId>
-        <version>2.0.0</version>
+        <version>2.0.1</version>
         <relativePath/>
     </parent>
 
@@ -25,6 +25,7 @@
         <yangtools.version>1.2.0-SNAPSHOT</yangtools.version>
         <odlparent.version>1.9.0</odlparent.version>
         <config.version>0.7.0-SNAPSHOT</config.version>
+        <netconf.version>1.6.0-SNAPSHOT</netconf.version>
     </properties>
 
     <dependencyManagement>
@@ -72,6 +73,13 @@
                 <groupId>org.opendaylight.mdsal.model</groupId>
                 <artifactId>mdsal-model-artifacts</artifactId>
                 <version>${mdsal.model.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.netconf</groupId>
+                <artifactId>restconf-artifacts</artifactId>
+                <version>${netconf.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

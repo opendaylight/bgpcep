@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>odlparent-lite</artifactId>
-        <version>2.0.0</version>
+        <version>2.0.1</version>
         <relativePath/>
     </parent>
 
@@ -62,8 +62,8 @@
         <module>testtool-util</module>
         <module>data-change-counter-controller-config</module>
 
-        <!-- FIXME: re-enable this:
-        <module>distribution-karaf</module-->
+        <!-- Minimal complete distribution -->
+        <module>distribution-karaf</module>
     </modules>
 
     <build>
