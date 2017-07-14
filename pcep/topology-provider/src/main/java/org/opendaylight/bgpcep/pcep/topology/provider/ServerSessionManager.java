@@ -68,7 +68,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
     private final InstanceIdentifier<Topology> topology;
     private final DataBroker broker;
     private final PCEPStatefulPeerProposal peerProposal;
-    private final AtomicBoolean isClosed = new AtomicBoolean(false);
+    private final AtomicBoolean isClosed = new AtomicBoolean(true);
     private final short rpcTimeout;
     private final AtomicReference<PCEPTopologyProviderRuntimeRegistration> runtimeRootRegistration = new AtomicReference<>();
 
@@ -100,6 +100,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
             @Override
             public void onSuccess(final Void result) {
                 LOG.debug("PCEP Topology {} created successfully.", topologyId.getValue());
+                ServerSessionManager.this.isClosed.set(false);
             }
 
             @Override
@@ -114,8 +115,19 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
         return new NodeId("pcc://" + addr.getHostAddress());
     }
 
+    boolean isClosed() {
+        return this.isClosed.get();
+    }
+
     synchronized void releaseNodeState(final TopologyNodeState nodeState, final PCEPSession session, final boolean persistNode) {
-        this.nodes.remove(createNodeId(session.getRemoteAddress()));
+        final NodeId id = createNodeId(session.getRemoteAddress());
+        this.nodes.remove(id);
+        if (isClosed()) {
+            // Since the whole pcep topology is going to be removed by ServerSessionManager, we do not need to remove each single
+            // node separately. Besides, it could cause Optismic Lock on DataStore when operating on the same topology
+            LOG.trace("Server Session Manager is closed. No need to release topology node {}", id);
+            return;
+        }
         if (nodeState != null) {
             LOG.debug("Node {} unbound", nodeState.getNodeId());
             nodeState.released(persistNode);
@@ -124,7 +136,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
 
     synchronized TopologyNodeState takeNodeState(final InetAddress address, final TopologySessionListener sessionListener, final boolean retrieveNode) {
         final NodeId id = createNodeId(address);
-        if (this.isClosed.get()) {
+        if (isClosed()) {
             LOG.error("Server Session Manager is closed. Unable to create topology node {} with listener {}", id, sessionListener);
             return null;
         }
@@ -137,8 +149,12 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
             LOG.debug("Created topology node {} for id {} at {}", ret, id, ret.getNodeId());
             this.state.put(id, ret);
         }
-        // FIXME: else check for conflicting session
 
+        final TopologySessionListener conflictingSessionListener = this.nodes.get(id);
+        if (conflictingSessionListener != null && !sessionListener.equals(conflictingSessionListener)) {
+            LOG.error("Existing session {} is conflict with new session {} on node {}, closing the existing one.", conflictingSessionListener, sessionListener, id);
+            conflictingSessionListener.close();
+        }
         ret.taken(retrieveNode);
         this.nodes.put(id, sessionListener);
         LOG.debug("Node {} bound to listener {}", id, sessionListener);
@@ -190,7 +206,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
         return (l != null) ? l.triggerSync(input) : OperationResults.UNSENT.future();
     }
 
-    synchronized ListenableFuture<Void> closeServiceInstance() {
+    synchronized CheckedFuture<Void, TransactionCommitFailedException> closeServiceInstance() {
         if (this.isClosed.getAndSet(true)) {
             LOG.error("Session Manager has already been closed.");
             Futures.immediateFuture(null);
@@ -234,6 +250,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
         return this.runtimeRootRegistration.get();
     }
 
+    @Override
     public void setPeerSpecificProposal(final InetSocketAddress address, final TlvsBuilder openBuilder) {
         Preconditions.checkNotNull(address);
         this.peerProposal.setPeerProposal(createNodeId(address.getAddress()), openBuilder);
