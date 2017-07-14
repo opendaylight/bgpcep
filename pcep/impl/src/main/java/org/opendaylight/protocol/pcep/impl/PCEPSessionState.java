@@ -51,7 +51,7 @@ final class PCEPSessionState {
         this.msgsBuilder = new MessagesBuilder();
     }
 
-    public Messages getMessages(final int unknownMessagesCount) {
+    public synchronized Messages getMessages(final int unknownMessagesCount) {
         this.errorsBuilder.setReceivedErrorMsgCount(this.receivedErrMsgCount);
         this.errorsBuilder.setSentErrorMsgCount(this.sentErrMsgCount);
         this.errorsBuilder.setLastReceivedError(this.lastReceivedErrorBuilder.build());
@@ -64,7 +64,7 @@ final class PCEPSessionState {
         return this.msgsBuilder.build();
     }
 
-    public void reset() {
+    public synchronized void reset() {
         this.receivedMsgCount = 0;
         this.sentMsgCount = 0;
         this.receivedErrMsgCount = 0;
@@ -84,25 +84,25 @@ final class PCEPSessionState {
         return this.peerPref;
     }
 
-    public void setLastSentError(final Message msg) {
+    public synchronized void setLastSentError(final Message msg) {
         this.sentErrMsgCount++;
         final ErrorObject errObj = getErrorObject(msg);
         this.lastSentErrorBuilder.setErrorType(errObj.getType());
         this.lastSentErrorBuilder.setErrorValue(errObj.getValue());
     }
 
-    public void setLastReceivedError(final Message msg) {
+    public synchronized void setLastReceivedError(final Message msg) {
         final ErrorObject errObj = getErrorObject(msg);
         this.receivedErrMsgCount++;
         this.lastReceivedErrorBuilder.setErrorType(errObj.getType());
         this.lastReceivedErrorBuilder.setErrorValue(errObj.getValue());
     }
 
-    public void updateLastReceivedMsg() {
+    public synchronized void updateLastReceivedMsg() {
         this.receivedMsgCount++;
     }
 
-    public void updateLastSentMsg() {
+    public synchronized void updateLastSentMsg() {
         this.lastSentMsgTimestamp = StatisticsUtil.getCurrentTimestampInSeconds();
         this.sentMsgCount++;
     }
