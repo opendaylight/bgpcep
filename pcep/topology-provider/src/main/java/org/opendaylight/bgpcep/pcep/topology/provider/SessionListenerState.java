@@ -47,11 +47,34 @@ final class SessionListenerState {
         this.capa = new PeerCapabilities();
     }
 
+    /**
+     * Initialize the listenerState with a PCEP session
+     * @param session PCEP session that is bind to this listenerState
+     */
     public void init(final PCEPSession session) {
         Preconditions.checkNotNull(session);
         this.localPref = getLocalPref(session.getLocalPref());
         this.peerPref = getPeerPref(session.getPeerPref());
         this.sessionUpDuration.start();
+    }
+
+    /**
+     * Reset this listenerState instance to it's initial state
+     * This isn't necessary in most case, as a PCEP session listener
+     * is tightly bind to a particular PCEP session
+     * However, it is required in unit test. Because we are reusing
+     * PCEP session listener in a single test, the listenerState
+     * will not be killed when the session is down. So if later
+     * we want to {@link #init(PCEPSession)} a session with the same session listener
+     * again, an exception saying "stopWatch cannot be started again"
+     * will be thrown, and all the statistical counter won't be correct
+     */
+    public void destroy() {
+        this.localPref = null;
+        this.peerPref = null;
+        this.sessionUpDuration.reset();
+        this.capa = new PeerCapabilities();
+        resetStats();
     }
 
     public void processRequestStats(final long duration) {
@@ -78,8 +101,10 @@ final class SessionListenerState {
         return msgs;
     }
 
-    public void resetStats(final PCEPSession session) {
-        Preconditions.checkNotNull(session);
+    /**
+     * Reset statistic counters
+     */
+    private void resetStats() {
         this.receivedRptMsgCount = 0;
         this.sentInitMsgCount = 0;
         this.sentUpdMsgCount = 0;
@@ -88,6 +113,11 @@ final class SessionListenerState {
         this.minReplyTime = 0;
         this.totalTime = 0;
         this.reqCount = 0;
+    }
+
+    public void resetStats(final PCEPSession session) {
+        Preconditions.checkNotNull(session);
+        resetStats();
         session.resetStats();
     }
 
