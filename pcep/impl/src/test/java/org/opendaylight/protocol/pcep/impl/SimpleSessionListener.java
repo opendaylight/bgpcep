@@ -55,5 +55,6 @@ public class SimpleSessionListener implements PCEPSessionListener {
     @Override
     public void onSessionTerminated(final PCEPSession session, final PCEPTerminationReason cause) {
         LOG.debug("Session terminated. Cause : {}", cause.toString());
+        this.up = false;
     }
 }
