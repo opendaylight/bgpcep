@@ -6,21 +6,21 @@
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>single-feature-parent</artifactId>
-        <version>1.8.1-SNAPSHOT</version>
+        <version>1.8.2-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>odl-bgpcep-bgp-dependencies</artifactId>
-    <version>0.7.1-SNAPSHOT</version>
+    <version>0.7.2-SNAPSHOT</version>
     <packaging>feature</packaging>
 
     <name>OpenDaylight :: BGP :: Dependencies</name>
 
     <properties>
-        <mdsal.model.version>0.10.1-SNAPSHOT</mdsal.model.version>
-        <yangtools.version>1.1.1-SNAPSHOT</yangtools.version>
-        <odlparent.version>1.8.1-SNAPSHOT</odlparent.version>
+        <mdsal.model.version>0.10.2-SNAPSHOT</mdsal.model.version>
+        <yangtools.version>1.1.2-SNAPSHOT</yangtools.version>
+        <odlparent.version>1.8.2-SNAPSHOT</odlparent.version>
     </properties>
 
     <dependencyManagement>

@@ -7,19 +7,19 @@
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>single-feature-parent</artifactId>
-        <version>1.8.1-SNAPSHOT</version>
+        <version>1.8.2-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>odl-bgpcep-extras-dependencies</artifactId>
-    <version>0.7.1-SNAPSHOT</version>
+    <version>0.7.2-SNAPSHOT</version>
     <packaging>feature</packaging>
 
     <name>OpenDaylight :: Extras :: Dependencies</name>
 
     <properties>
-        <mdsal.model.version>0.10.1-SNAPSHOT</mdsal.model.version>
+        <mdsal.model.version>0.10.2-SNAPSHOT</mdsal.model.version>
     </properties>
 
     <dependencyManagement>
