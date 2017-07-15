@@ -6,18 +6,21 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.policy.definitions.policy.definition.statements.statement.actions.bgp.actions.set.ext.community.set.ext.community.method;
+package org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009;
 
-import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.policy.definitions.policy.definition.statements.statement.actions.bgp.actions.set.ext.community.set.ext.community.method.Inline.Communities;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.policy.definitions.policy.definition.statements.statement.actions.bgp.actions.set.ext.community.set.ext.community.method.InlineCommunitiesBuilder;
 
-public class InlineCommunitiesBuilderTest {
+// This test is not in the appropriate package to work around file name limitations
+public class ExtInlineCommunitiesBuilderTest {
 
     @Test
     public void testValid() {
         final Communities communities = InlineCommunitiesBuilder.getDefaultInstance("route-origin:12.34.56.78:123");
-        Assert.assertEquals("route-origin:12.34.56.78:123", communities.getBgpExtCommunityType().getString());
+        assertEquals("route-origin:12.34.56.78:123", communities.getBgpExtCommunityType().getString());
     }
 
     @Test(expected=IllegalArgumentException.class)

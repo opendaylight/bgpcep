@@ -6,23 +6,25 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.policy.definitions.policy.definition.statements.statement.actions.bgp.actions.set.community.set.community.method;
+package org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009;
 
-import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.policy.definitions.policy.definition.statements.statement.actions.bgp.actions.set.community.set.community.method.Inline.Communities;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.policy.definitions.policy.definition.statements.statement.actions.bgp.actions.set.community.set.community.method.InlineCommunitiesBuilder;
 
+// This test is not in the appropriate package to work around file name limitations
 public class InlineCommunitiesBuilderTest {
 
     @Test
     public void testValid() {
         final Communities communities = InlineCommunitiesBuilder.getDefaultInstance("123");
-        Assert.assertEquals(123L, communities.getBgpStdCommunityType().getUint32().longValue());
+        assertEquals(123L, communities.getBgpStdCommunityType().getUint32().longValue());
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void testInvalid() {
         InlineCommunitiesBuilder.getDefaultInstance("abc");
     }
-
 }
