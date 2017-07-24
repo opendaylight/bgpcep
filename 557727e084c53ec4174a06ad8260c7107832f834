@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_d0ba3622",
+        "filename": "pcep/api/src/main/java/org/opendaylight/protocol/pcep/PCEPSessionListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2017-07-24T08:49:10Z",
+      "side": 1,
+      "message": "This is an API-incompatible change. This further muddles state management, as the source of termination is not clear.",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 80
+      },
+      "revId": "557727e084c53ec4174a06ad8260c7107832f834",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_70ab8ad6",
+        "filename": "pcep/api/src/main/java/org/opendaylight/protocol/pcep/TerminationReason.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2017-07-24T08:49:10Z",
+      "side": 1,
+      "message": "This is an unrelated change. Why are we changing this?",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 5
+      },
+      "revId": "557727e084c53ec4174a06ad8260c7107832f834",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_30aab2d4",
+        "filename": "pcep/api/src/main/java/org/opendaylight/protocol/pcep/TerminationReason.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2017-07-24T08:49:10Z",
+      "side": 1,
+      "message": "Multiple things wrong with this:\n- the caller should take care of checking for null\n- no javadoc",
+      "range": {
+        "startLine": 43,
+        "startChar": 0,
+        "endLine": 48,
+        "endChar": 5
+      },
+      "revId": "557727e084c53ec4174a06ad8260c7107832f834",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_507e466c",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractTopologySessionListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2017-07-24T08:49:10Z",
+      "side": 1,
+      "message": "This is wrong, as we are piggy-backing local errors (which we know the cause of) on top of remote-reported errors (i.e. defined by the protocol).",
+      "range": {
+        "startLine": 161,
+        "startChar": 0,
+        "endLine": 161,
+        "endChar": 57
+      },
+      "revId": "557727e084c53ec4174a06ad8260c7107832f834",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_b08ce280",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/SessionListenerState.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2017-07-24T08:49:10Z",
+      "side": 1,
+      "message": "Production code should not reference unit tests. Unit tests should mimic production use, and as far as I can tell we are not reusing state there.",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 71,
+        "endChar": 7
+      },
+      "revId": "557727e084c53ec4174a06ad8260c7107832f834",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
