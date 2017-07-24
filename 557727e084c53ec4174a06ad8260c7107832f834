@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_134cd89d",
+        "filename": "pcep/api/src/main/java/org/opendaylight/protocol/pcep/PCEPSessionListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2017-07-24T21:39:18Z",
+      "side": 1,
+      "message": "There are a couple reasons for this comment change:\n1. Currently there is no difference between the implementation of onSessionDown(..) and onSessionTerminated(..) code-wise, both invokes tearDown(session) internally. So the state management was kind of obscure in the first place.  I don\u0027t know what\u0027s the initial motivation for creating two different interface with the same implementation.\n2. As the comment on onSessionDown(..) clearly says \"Fired when the session went down because of an IO error\", we cannot really change this API anyway.  And as the second parameter is an Exception, I suppose this method should only be invoked when there is an exception thrown and cause the session down.  On the other side, onSessionTerminated(..) is invoked with a reason.  In my understanding this handles the part an exception is not happening, but the session is closed due to a legit reason.  So distinguish these two interface by source of termination is not proper, we should only differentiate them by telling if the termination is caused by an exception or a valid reason.\n3. The change of this comment is due to a bug in current implementation of PCEPSessionImpl#handleMessage(..).  Right now we do not handle PCEP Close message correctly and the remote PCEP session remained in bad state.  I added a onSessionTerminated(..) there to close local session properly.  And due to above reasons, I cannot really use onSessionDown(..). onSessionTerminated(..) is a better option, since the termination reason is provided by remote peer.",
+      "parentUuid": "da2a55be_d0ba3622",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 80
+      },
+      "revId": "557727e084c53ec4174a06ad8260c7107832f834",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_70ab8ad6",
         "filename": "pcep/api/src/main/java/org/opendaylight/protocol/pcep/TerminationReason.java",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2017-07-24T08:49:10Z",
       "side": 1,
       "message": "This is an unrelated change. Why are we changing this?",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 5
+      },
+      "revId": "557727e084c53ec4174a06ad8260c7107832f834",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_735a7451",
+        "filename": "pcep/api/src/main/java/org/opendaylight/protocol/pcep/TerminationReason.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2017-07-24T21:39:18Z",
+      "side": 1,
+      "message": "In the original code, the value is not final, and the map is not necessary.  I can disregard this change as it\u0027s not critical to the bug fixing.",
+      "parentUuid": "da2a55be_70ab8ad6",
       "range": {
         "startLine": 13,
         "startChar": 0,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_d359a05b",
+        "filename": "pcep/api/src/main/java/org/opendaylight/protocol/pcep/TerminationReason.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2017-07-24T21:39:18Z",
+      "side": 1,
+      "message": "this part can actually be removed",
+      "parentUuid": "da2a55be_30aab2d4",
+      "range": {
+        "startLine": 43,
+        "startChar": 0,
+        "endLine": 48,
+        "endChar": 5
+      },
+      "revId": "557727e084c53ec4174a06ad8260c7107832f834",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_507e466c",
         "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractTopologySessionListener.java",
         "patchSetId": 1
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_36aaaad4",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractTopologySessionListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2017-07-24T21:39:18Z",
+      "side": 1,
+      "message": "session.terminate(..) is different than onSessionTerminated(..).  session.terminate(..) actively terminates a PCEP session and sends a CLOSE message to remote peer. While onSessionTerminated(..) is invoked after a session is terminated on session listener, it doesn\u0027t send out any message to peer.  Similar applies to onSessionDown(..).\n\nThe termination reason here is to be sent to the remote peer to inform them to close the session.  The reason is defined by RFC.  There is no such reason to better describe this kind of internal error, so we have to send \"Unknown\" reason here.",
+      "parentUuid": "da2a55be_507e466c",
+      "range": {
+        "startLine": 161,
+        "startChar": 0,
+        "endLine": 161,
+        "endChar": 57
+      },
+      "revId": "557727e084c53ec4174a06ad8260c7107832f834",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_b08ce280",
         "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/SessionListenerState.java",
         "patchSetId": 1
@@ -105,6 +201,30 @@
       "writtenOn": "2017-07-24T08:49:10Z",
       "side": 1,
       "message": "Production code should not reference unit tests. Unit tests should mimic production use, and as far as I can tell we are not reusing state there.",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 71,
+        "endChar": 7
+      },
+      "revId": "557727e084c53ec4174a06ad8260c7107832f834",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_96b0b644",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/SessionListenerState.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2017-07-24T21:39:18Z",
+      "side": 1,
+      "message": "I can remove this javadoc.  But this method is still needed in order to have a complete and valid unit test.",
+      "parentUuid": "da2a55be_b08ce280",
       "range": {
         "startLine": 61,
         "startChar": 0,
