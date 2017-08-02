@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_14e7f141",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractTopologySessionListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2017-08-02T20:08:51Z",
+      "side": 1,
+      "message": "I can remove this keyword here once the review comments are final for this patch, just to avoid unnecessary build/test for this patch.  It doesn\u0027t impact any function anyway.",
+      "parentUuid": "ba1f61a0_c86ca439",
+      "range": {
+        "startLine": 319,
+        "startChar": 12,
+        "endLine": 319,
+        "endChar": 17
+      },
+      "revId": "bf6c1c78976eb524c3fecff34e91d9bf43548b2e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_d46719e9",
         "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/ServerSessionManager.java",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2017-08-02T19:18:39Z",
       "side": 1,
       "message": "Please do not proliferate CheckedFuture, it is going away.",
+      "range": {
+        "startLine": 209,
+        "startChar": 17,
+        "endLine": 209,
+        "endChar": 24
+      },
+      "revId": "bf6c1c78976eb524c3fecff34e91d9bf43548b2e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_145531c6",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/ServerSessionManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2017-08-02T20:08:51Z",
+      "side": 1,
+      "message": "The reason to use checked future here is:\n1. This is not a public API, we are not encourage anyone to use CheckedFuture by doing this.\n2. The implementation is still using CheckedFuture, I don\u0027t see much difference by converting the return type to ListenableFuture here.  Unless we are changing the implementation to use ListenableFuture as well, I don\u0027t see the point.\n3. The main reason to change this is, in unit test the checkedGet() is invoked to make sure there is no concurrency problem during the test.  I can of course change the test to use get() with multiple exception catchers.  But as mentioned above, the method is implemented with CheckedFuture, I don\u0027t see point in restricting the return type and making code more complicated.  If we want to deprecate the usage of CheckedFuture, either fix the implementation to avoid it, or put a comment suggesting the change instead.  Type conversion without explanation doesn\u0027t help here.",
+      "parentUuid": "ba1f61a0_d46719e9",
       "range": {
         "startLine": 209,
         "startChar": 17,
