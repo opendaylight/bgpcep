@@ -30,6 +30,7 @@
         <module>odl-bgpcep-bgp-openconfig</module>
         <module>odl-bgpcep-bgp-inet</module>
         <module>odl-bgpcep-bgp-parser</module>
+        <module>odl-bgpcep-bgp-parser-api</module>
         <module>odl-bgpcep-bgp-rib-api</module>
         <module>odl-bgpcep-bgp-linkstate</module>
         <module>odl-bgpcep-bgp-flowspec</module>

@@ -542,6 +542,13 @@
             </dependency>
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>odl-bgpcep-bgp-parser-api</artifactId>
+                <classifier>features</classifier>
+                <type>xml</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
                 <artifactId>odl-bgpcep-bgp-rib-api</artifactId>
                 <classifier>features</classifier>
                 <type>xml</type>
