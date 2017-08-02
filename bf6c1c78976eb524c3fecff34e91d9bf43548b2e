@@ -22,6 +22,29 @@
       "revId": "bf6c1c78976eb524c3fecff34e91d9bf43548b2e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_d46719e9",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/ServerSessionManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2017-08-02T19:18:39Z",
+      "side": 1,
+      "message": "Please do not proliferate CheckedFuture, it is going away.",
+      "range": {
+        "startLine": 209,
+        "startChar": 17,
+        "endLine": 209,
+        "endChar": 24
+      },
+      "revId": "bf6c1c78976eb524c3fecff34e91d9bf43548b2e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
