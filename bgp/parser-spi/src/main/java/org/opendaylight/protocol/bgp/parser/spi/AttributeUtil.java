@@ -33,7 +33,7 @@ public final class AttributeUtil {
      */
     public static void formatAttribute(final int flags, final int type, final ByteBuf value, final ByteBuf buffer) {
         final int length = value.writerIndex();
-        final boolean extended = (length > MAX_ATTR_LENGTH_FOR_SINGLE_BYTE) ? true : false;
+        final boolean extended = length > MAX_ATTR_LENGTH_FOR_SINGLE_BYTE;
         buffer.writeByte((extended) ? (flags | EXTENDED) : flags);
         buffer.writeByte(type);
         if (extended) {

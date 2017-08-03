@@ -74,7 +74,7 @@ final class UpdateTunnelInstructionExecutor extends AbstractInstructionExecutor 
             }
             return Futures.transform(
                 (ListenableFuture<RpcResult<UpdateLspOutput>>) this.topologyService.updateLsp(buildUpdateInput(link, node)),
-                (Function<RpcResult<UpdateLspOutput>, OperationResult>) RpcResult::getResult);
+                    RpcResult::getResult);
         }
     }
 
@@ -93,7 +93,7 @@ final class UpdateTunnelInstructionExecutor extends AbstractInstructionExecutor 
         final AdministrativeStatus adminStatus = this.updateTunnelInput.getAugmentation(PcepUpdateTunnelInput1.class).getAdministrativeStatus();
         if (adminStatus != null) {
             args.addAugmentation(Arguments3.class, new Arguments3Builder().setLsp(new LspBuilder().
-                setAdministrative((adminStatus == AdministrativeStatus.Active) ? true : false).build()).build());
+                setAdministrative(adminStatus == AdministrativeStatus.Active).build()).build());
         }
         ab.setArguments(args.build());
         return ab.build();
