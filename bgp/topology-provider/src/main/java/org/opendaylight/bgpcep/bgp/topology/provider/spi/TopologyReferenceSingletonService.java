@@ -15,7 +15,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 public interface TopologyReferenceSingletonService extends TopologyReference, AutoCloseable, ClusterSingletonService  {
 
     @Override
-    public void close();
+    void close();
 
     Topology getConfiguration();
 

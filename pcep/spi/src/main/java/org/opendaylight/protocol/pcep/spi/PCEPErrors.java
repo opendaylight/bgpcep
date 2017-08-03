@@ -362,7 +362,7 @@ public enum PCEPErrors {
         return VALUE_MAP.get(new PCEPErrorIdentifier(errorType, errorValue));
     }
 
-    private PCEPErrors(final int type, final int value) {
+    PCEPErrors(final int type, final int value) {
         this.errorId = new PCEPErrorIdentifier((short) type, (short) value);
     }
 

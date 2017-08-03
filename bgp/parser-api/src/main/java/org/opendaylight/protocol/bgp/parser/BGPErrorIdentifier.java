@@ -48,10 +48,7 @@ final class BGPErrorIdentifier implements Serializable {
             return false;
         }
         final BGPErrorIdentifier other = (BGPErrorIdentifier) obj;
-        if (this.code != other.code || this.subcode != other.subcode) {
-            return false;
-        }
-        return true;
+        return this.code == other.code && this.subcode == other.subcode;
     }
 
     @Override

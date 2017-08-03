@@ -137,21 +137,21 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
         final ListenableFuture<List<Void>> futureOfRelevance = Futures.allAsList(futurePeerCloseList);
 
         final ListenableFuture<ListenableFuture<List<Void>>> maxRelevanceFuture = transform(futureOfRelevance,
-            (Function<List<Void>, ListenableFuture<List<Void>>>) futurePeersClose -> {
-                this.peers.values().forEach(PeerBean::close);
-                BgpDeployerImpl.this.peers.clear();
+                futurePeersClose -> {
+                    this.peers.values().forEach(PeerBean::close);
+                    BgpDeployerImpl.this.peers.clear();
 
-                final List<ListenableFuture<Void>> futureRIBCloseList = BgpDeployerImpl.this.ribs.values().stream()
-                    .map(RibImpl::closeServiceInstance).collect(Collectors.toList());
-                return Futures.allAsList(futureRIBCloseList);
-            });
+                    final List<ListenableFuture<Void>> futureRIBCloseList = BgpDeployerImpl.this.ribs.values().stream()
+                        .map(RibImpl::closeServiceInstance).collect(Collectors.toList());
+                    return Futures.allAsList(futureRIBCloseList);
+                });
 
         final ListenableFuture<Void> ribFutureClose = transform(maxRelevanceFuture,
-            (Function<ListenableFuture<List<Void>>, Void>) futurePeersClose -> {
-                BgpDeployerImpl.this.ribs.values().forEach(RibImpl::close);
-                this.ribs.clear();
-                return null;
-            });
+                futurePeersClose -> {
+                    BgpDeployerImpl.this.ribs.values().forEach(RibImpl::close);
+                    this.ribs.clear();
+                    return null;
+                });
 
         ribFutureClose.get();
     }

@@ -130,7 +130,7 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         this.bundleContext = bundleContext;
     }
 
-    private static interface AutoCloseablePeer extends RIB, AutoCloseable {
+    private interface AutoCloseablePeer extends RIB, AutoCloseable {
     }
 
 }

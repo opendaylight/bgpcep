@@ -297,11 +297,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
             if (!this.from.equals(bGPSessionId.from) && !this.from.equals(bGPSessionId.to)) {
                 return false;
             }
-            if (!this.to.equals(bGPSessionId.to) && !this.to.equals(bGPSessionId.from)) {
-                return false;
-            }
-
-            return true;
+            return this.to.equals(bGPSessionId.to) || this.to.equals(bGPSessionId.from);
         }
 
         @Override

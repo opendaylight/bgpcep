@@ -53,9 +53,6 @@ final class RouteUpdateKey {
         if (!this.peerId.equals(other.peerId)) {
             return false;
         }
-        if (!this.routeId.equals(other.routeId)) {
-            return false;
-        }
-        return true;
+        return this.routeId.equals(other.routeId);
     }
 }

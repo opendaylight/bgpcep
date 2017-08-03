@@ -314,9 +314,6 @@ public final class BestPathStateImpl implements BestPathState {
         } else if (!this.multiExitDisc.equals(other.multiExitDisc)) {
             return false;
         }
-        if (this.origin != other.origin) {
-            return false;
-        }
-        return true;
+        return this.origin == other.origin;
     }
 }
