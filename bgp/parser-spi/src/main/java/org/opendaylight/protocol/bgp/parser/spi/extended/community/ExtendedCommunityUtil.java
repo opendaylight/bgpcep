@@ -36,7 +36,7 @@ public final class ExtendedCommunityUtil {
      * @return True if input type is transitive, false if the type is non-transitive
      */
     public static boolean isTransitive(final int type) {
-        return (type & NON_TRANS) == 0 ? true : false;
+        return (type & NON_TRANS) == 0;
     }
 
     private static int toNonTransitiveType(final int type) {

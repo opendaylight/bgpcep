@@ -95,7 +95,7 @@ public abstract class AbstractBmpPerPeerMessageParser<T  extends Builder<?>> ext
         final PeerType peerType = peerHeader.getType();
         output.writeByte(peerType.getIntValue());
         final BitArray flags = new BitArray(FLAGS_SIZE);
-        flags.set(L_FLAG_POS, peerHeader.getAdjRibInType().getIntValue() == 0 ? false : true);
+        flags.set(L_FLAG_POS, peerHeader.getAdjRibInType().getIntValue() != 0);
         flags.set(V_FLAG_POS, !peerHeader.isIpv4());
         flags.toByteBuf(output);
         final PeerDistinguisher peerDistinguisher = peerHeader.getPeerDistinguisher();

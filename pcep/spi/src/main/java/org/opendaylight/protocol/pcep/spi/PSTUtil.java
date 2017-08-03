@@ -21,9 +21,6 @@ public final class PSTUtil {
      * @return  true if setup is via RSVP-TE signaling protocol
      */
     public static boolean isDefaultPST(final PathSetupType pst) {
-        if (pst != null && pst.getPst() != null && pst.getPst().shortValue() != 0) {
-            return false;
-        }
-        return true;
+        return pst == null || pst.getPst() == null || pst.getPst().shortValue() == 0;
     }
 }

@@ -38,7 +38,7 @@ public abstract class AbstractEROWithSubobjectsParser implements ObjectParser, O
         Preconditions.checkArgument(buffer != null, "Array of bytes is mandatory. Can't be null.");
         final List<Subobject> subs = new ArrayList<>();
         while (buffer.isReadable()) {
-            final boolean loose = ((buffer.getUnsignedByte(buffer.readerIndex()) & (1 << Values.FIRST_BIT_OFFSET)) != 0) ? true : false;
+            final boolean loose = (buffer.getUnsignedByte(buffer.readerIndex()) & (1 << Values.FIRST_BIT_OFFSET)) != 0;
             final int type = (buffer.readUnsignedByte() & Values.BYTE_MAX_VALUE_BYTES) & ~(1 << Values.FIRST_BIT_OFFSET);
             final int length = buffer.readUnsignedByte() - HEADER_LENGTH;
             if (length > buffer.readableBytes()) {
