@@ -105,6 +105,7 @@
                             org.opendaylight.protocol.bgp.mode.*,
                             org.opendaylight.controller.config.yang.bgp.path.selection.mode.*,
                             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.path.selection.mode.*
+                            ;-split-package:=error
                         </Export-Package>
                     </instructions>
                 </configuration>

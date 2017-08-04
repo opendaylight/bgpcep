@@ -176,6 +176,7 @@
                         <Export-Package>
                             org.opendaylight.protocol.pcep.impl.*,
                             org.opendaylight.controller.config.yang.pcep.impl.*
+                            ;-split-package:=error
                         </Export-Package>
                     </instructions>
                 </configuration>

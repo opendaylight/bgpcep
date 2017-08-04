@@ -187,6 +187,7 @@
                        <Export-Package>
                             org.opendaylight.bgpcep.programming.impl,
                             org.opendaylight.controller.config.yang.programming.impl
+                            ;-split-package:=error
                         </Export-Package>
                    </instructions>
                </configuration>

@@ -239,6 +239,7 @@
                             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.*,
                             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.stats.peer.rev160606.*,
                             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.stats.rib.impl.rev160606.*
+                            ;-split-package:=error
                         </Export-Package>
                     </instructions>
                 </configuration>
