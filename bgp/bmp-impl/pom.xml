@@ -256,10 +256,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
-                        <Export-Package>
-                            org.opendaylight.protocol.bmp.impl.*,
-                            ;-split-package:=error
-                        </Export-Package>
+                        <Export-Package>{local-packages};-split-package:=error</Export-Package>
                     </instructions>
                 </configuration>
             </plugin>
