@@ -79,6 +79,7 @@
                         <Export-Package>
                             org.opendaylight.protocol.bgp.state.impl.*,
                             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.state.config.rev161107.*,
+                            ;-split-package:=error
                         </Export-Package>
                     </instructions>
                 </configuration>
