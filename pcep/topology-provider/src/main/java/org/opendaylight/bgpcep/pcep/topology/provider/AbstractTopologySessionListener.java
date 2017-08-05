@@ -34,8 +34,8 @@ import org.opendaylight.controller.config.yang.pcep.topology.provider.StatefulMe
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.protocol.pcep.PCEPCloseTermination;
 import org.opendaylight.protocol.pcep.PCEPSession;
-import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPTerminationReason;
 import org.opendaylight.protocol.pcep.TerminationReason;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
@@ -70,7 +70,7 @@ import org.slf4j.LoggerFactory;
  * @param <S> identifier type of requests
  * @param <L> identifier type for LSPs
  */
-public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessionListener, TopologySessionListener, ListenerStateRuntimeMXBean {
+public abstract class AbstractTopologySessionListener<S, L> implements TopologySessionListener, ListenerStateRuntimeMXBean {
     protected static final class MessageContext {
         private final Collection<PCEPRequest> requests = new ArrayList<>();
         private final WriteTransaction trans;
@@ -150,13 +150,15 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         // takeNodeState(..) may fail when the server session manager is being restarted due to configuration change
         if (state == null) {
             LOG.error("Unable to fetch topology node state for PCEP session. Closing session {}", session);
-            this.onSessionDown(session, new RuntimeException("Unable to fetch topology node state for PCEP session with " + session.getRemoteAddress()));
+            session.close(TerminationReason.UNKNOWN);
+            this.onSessionTerminated(session, new PCEPCloseTermination(TerminationReason.UNKNOWN));
             return;
         }
 
         if (this.session != null || this.nodeState != null) {
-            LOG.error("PCEP session is already up. Closing session {}", session);
-            this.onSessionDown(session, new IllegalStateException("Session is already up with " + session.getRemoteAddress()));
+            LOG.error("PCEP session is already up with {}. Closing session {}", session.getRemoteAddress(), session);
+            session.close(TerminationReason.UNKNOWN);
+            this.onSessionTerminated(session, new PCEPCloseTermination(TerminationReason.UNKNOWN));
             return;
         }
 
@@ -184,7 +186,8 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         register();
         if (this.registration == null) {
             LOG.error("PCEP session fails to register. Closing session {}", session);
-            this.onSessionDown(session, new RuntimeException("PCEP Session with " + session.getRemoteAddress() + " fails to register."));
+            session.close(TerminationReason.UNKNOWN);
+            this.onSessionTerminated(session, new PCEPCloseTermination(TerminationReason.UNKNOWN));
             return;
         }
         this.listenerState.init(session);
@@ -250,6 +253,14 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         Preconditions.checkNotNull(session);
         this.serverSessionManager.releaseNodeState(this.nodeState, session, isLspDbPersisted());
         this.nodeState = null;
+        try {
+            if (this.session != null) {
+                this.session.close();
+            }
+            session.close();
+        } catch (Exception e) {
+            LOG.error("Session {} cannot be closed.", session, e);
+        }
         this.session = null;
         this.syncOptimization = null;
         unregister();
