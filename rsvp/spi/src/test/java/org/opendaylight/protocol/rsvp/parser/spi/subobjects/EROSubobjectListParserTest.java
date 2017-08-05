@@ -11,6 +11,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Arrays;
@@ -79,13 +80,13 @@ public class EROSubobjectListParserTest {
     public void testAbstractRSVPObjParser() throws RSVPParsingException {
         final ByteBuf byteAggregator = Unpooled.buffer(4);
         byte[] output = new byte[] {0, 1, 2, 3};
-        this.parser.serializeAttributeHeader(1, (short) 2, (short) 3, byteAggregator);
+        EroListParser.serializeAttributeHeader(1, (short) 2, (short) 3, byteAggregator);
         assertArrayEquals(output, byteAggregator.array());
 
         final ByteBuf body = Unpooled.buffer(4);
         output = new byte[] {0, 0, 0, 1};
         final AttributeFilter filter = new AttributeFilter(1L);
-        this.parser.writeAttributeFilter(filter, body);
+        EroListParser.writeAttributeFilter(filter, body);
         assertArrayEquals(output, body.array());
 
         final ByteBuf parseTeObj = Unpooled.buffer(1);

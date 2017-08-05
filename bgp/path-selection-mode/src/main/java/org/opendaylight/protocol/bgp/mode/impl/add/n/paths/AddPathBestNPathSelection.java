@@ -25,11 +25,7 @@ public class AddPathBestNPathSelection implements PathSelectionMode {
 
     @Override
     public RouteEntry createRouteEntry(final boolean isComplex) {
-        if (isComplex) {
-            return new ComplexRouteEntry(this.getNBestPaths());
-        } else {
-            return new SimpleRouteEntry(this.getNBestPaths());
-        }
+        return isComplex ? new ComplexRouteEntry(this.getNBestPaths()) : new SimpleRouteEntry(this.getNBestPaths());
     }
 
     public Long getNBestPaths() {

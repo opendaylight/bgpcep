@@ -8,11 +8,13 @@
 
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import static org.mockito.Mockito.any;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 import static org.opendaylight.protocol.bgp.rib.impl.AdjRibInWriter.ATTRIBUTES_UPTODATE_FALSE;
 
@@ -39,7 +41,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
@@ -128,6 +129,7 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         .node(RibSupportUtils.toYangTablesKey(new TablesKey(Ipv4AddressFamily.class,
             UnicastSubsequentAddressFamily.class))).node(Attributes.QNAME).node(QName.create(Attributes.QNAME, "uptodate"));
 
+    @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -170,25 +172,25 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         doReturn(this.domChain).when(this.domBroker).createTransactionChain(any());
         doReturn(this.tx).when(this.domChain).newWriteOnlyTransaction();
         final DOMDataTreeChangeService dOMDataTreeChangeService = mock(DOMDataTreeChangeService.class);
-        final ListenerRegistration listener = mock(ListenerRegistration.class);
-        Mockito.doReturn(listener).when(dOMDataTreeChangeService).registerDataTreeChangeListener(any(), any());
-        Mockito.doNothing().when(listener).close();
+        final ListenerRegistration<?> listener = mock(ListenerRegistration.class);
+        doReturn(listener).when(dOMDataTreeChangeService).registerDataTreeChangeListener(any(), any());
+        doNothing().when(listener).close();
 
-        Mockito.doReturn(Collections.singletonMap(DOMDataTreeChangeService.class, dOMDataTreeChangeService))
+        doReturn(Collections.singletonMap(DOMDataTreeChangeService.class, dOMDataTreeChangeService))
             .when(this.domBroker).getSupportedExtensions();
-        Mockito.doNothing().when(this.tx).merge(eq(LogicalDatastoreType.OPERATIONAL),
+        doNothing().when(this.tx).merge(eq(LogicalDatastoreType.OPERATIONAL),
             any(YangInstanceIdentifier.class), any(NormalizedNode.class));
-        Mockito.doNothing().when(this.tx).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL),
+        doNothing().when(this.tx).put(eq(LogicalDatastoreType.OPERATIONAL),
             any(YangInstanceIdentifier.class), any(NormalizedNode.class));
-        Mockito.doNothing().when(this.tx).delete(Mockito.any(LogicalDatastoreType.class), Mockito.any(YangInstanceIdentifier.class));
-        final CheckedFuture future = mock(CheckedFuture.class);
-        Mockito.doAnswer(invocation -> {
+        doNothing().when(this.tx).delete(any(LogicalDatastoreType.class), any(YangInstanceIdentifier.class));
+        final CheckedFuture<?, ?> future = mock(CheckedFuture.class);
+        doAnswer(invocation -> {
             final Runnable callback = (Runnable) invocation.getArguments()[0];
             callback.run();
             return null;
-        }).when(future).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
-        Mockito.doReturn(future).when(this.tx).submit();
-        Mockito.doReturn(mock(Optional.class)).when(future).checkedGet();
+        }).when(future).addListener(any(Runnable.class), any(Executor.class));
+        doReturn(future).when(this.tx).submit();
+        doReturn(mock(Optional.class)).when(future).checkedGet();
     }
 
     @Test
@@ -222,13 +224,13 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         correct.setAttributes(ab.setLocalPref(new LocalPrefBuilder().setPref((long) 100).build()).build());
 
         bgpSession.handleMessage(correct.build());
-        Mockito.verify(this.tx, times(4)).merge(eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class), any(NormalizedNode.class));
+        verify(this.tx, times(4)).merge(eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         bgpSession.handleMessage(wrongMessage.build());
-        Mockito.verify(this.tx, times(4)).merge(eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class), any(NormalizedNode.class));
+        verify(this.tx, times(4)).merge(eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         bgpSession.handleMessage(new UpdateBuilder().build());
-        Mockito.verify(this.tx, times(4)).merge(eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class), any(NormalizedNode.class));
-        Mockito.verify(this.tx).delete(eq(LogicalDatastoreType.OPERATIONAL), eq(PEER_PATH));
-        Mockito.verify(this.tx, times(0)).merge(eq(LogicalDatastoreType.OPERATIONAL), eq(TABLE_PATH),
+        verify(this.tx, times(4)).merge(eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class), any(NormalizedNode.class));
+        verify(this.tx).delete(eq(LogicalDatastoreType.OPERATIONAL), eq(PEER_PATH));
+        verify(this.tx, times(0)).merge(eq(LogicalDatastoreType.OPERATIONAL), eq(TABLE_PATH),
             eq(ImmutableNodes.leafNode(ATTRIBUTES_UPTODATE_FALSE.getNodeType(), Boolean.TRUE)));
     }
 
@@ -263,12 +265,12 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         correct.setAttributes(ab.setLocalPref(new LocalPrefBuilder().setPref((long) 100).build()).build());
 
         bgpSession.handleMessage(correct.build());
-        Mockito.verify(this.tx, times(4)).merge(eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class), any(NormalizedNode.class));
+        verify(this.tx, times(4)).merge(eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         bgpSession.handleMessage(new UpdateBuilder().build());
-        Mockito.verify(this.tx, times(5)).merge(eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class), any(NormalizedNode.class));
+        verify(this.tx, times(5)).merge(eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class), any(NormalizedNode.class));
 
-        Mockito.verify(this.tx).merge(eq(LogicalDatastoreType.OPERATIONAL), eq(TABLE_PATH),
+        verify(this.tx).merge(eq(LogicalDatastoreType.OPERATIONAL), eq(TABLE_PATH),
             eq(ImmutableNodes.leafNode(ATTRIBUTES_UPTODATE_FALSE.getNodeType(), Boolean.TRUE)));
-        Mockito.verify(this.tx, times(0)).delete(eq(LogicalDatastoreType.OPERATIONAL), eq(PEER_PATH));
+        verify(this.tx, times(0)).delete(eq(LogicalDatastoreType.OPERATIONAL), eq(PEER_PATH));
     }
 }

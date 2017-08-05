@@ -14,6 +14,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -131,7 +132,7 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
                 LOG.error("Failed to create Empty Structure for Application Peer Benchmark {}",
                     AppPeerBenchmark.this.appRibId, throwable);
             }
-        });
+        }, MoreExecutors.directExecutor());
     }
 
     @Override

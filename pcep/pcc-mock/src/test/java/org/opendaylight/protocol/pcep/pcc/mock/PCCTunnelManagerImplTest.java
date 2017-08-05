@@ -291,11 +291,12 @@ public class PCCTunnelManagerImplTest {
         Mockito.verify(this.session1, Mockito.times(3)).sendReport(Mockito.any(Pcrpt.class));
         Mockito.verify(this.session2, Mockito.times(2)).sendReport(Mockito.any(Pcrpt.class));
     }
-    private Updates createUpdateDelegate(final long plspId) {
-        return createUpdate(plspId, Optional.of(true));
+
+    private static Updates createUpdateDelegate(final long plspId) {
+        return createUpdate(plspId, Optional.of(Boolean.TRUE));
     }
 
-    private Updates createUpdate(final long plspId) {
+    private static Updates createUpdate(final long plspId) {
         return createUpdate(plspId, Optional.absent());
     }
 
@@ -303,7 +304,7 @@ public class PCCTunnelManagerImplTest {
         final UpdatesBuilder updsBuilder = new UpdatesBuilder();
         final LspBuilder lsp = new LspBuilder().setPlspId(new PlspId(plspId));
         if (delegate.isPresent()) {
-            lsp.setDelegate(true);
+            lsp.setDelegate(Boolean.TRUE);
         }
         updsBuilder.setLsp(lsp.build());
         final PathBuilder pathBuilder = new PathBuilder();
@@ -319,24 +320,24 @@ public class PCCTunnelManagerImplTest {
         final LspBuilder lsp = new LspBuilder().setTlvs(new TlvsBuilder().setSymbolicPathName(new SymbolicPathNameBuilder().setPathName(
             new SymbolicPathName(SYMBOLIC_NAME)).build()).build()).setPlspId(new PlspId(plspId));
         if (delegate.isPresent()) {
-            lsp.setDelegate(true);
+            lsp.setDelegate(Boolean.TRUE);
         }
 
         reqBuilder.setLsp(lsp.build());
         final SrpBuilder srpBuilder = new SrpBuilder();
         if (remove.isPresent()) {
-            srpBuilder.addAugmentation(Srp1.class, new Srp1Builder().setRemove(true).build());
+            srpBuilder.addAugmentation(Srp1.class, new Srp1Builder().setRemove(Boolean.TRUE).build());
         }
         reqBuilder.setSrp(srpBuilder.setOperationId(new SrpIdNumber(0L)).build());
         return reqBuilder.build();
     }
 
     private static Requests createRequestsRemove(final long plspId) {
-        return createRequests(plspId, Optional.of(true), Optional.absent());
+        return createRequests(plspId, Optional.of(Boolean.TRUE), Optional.absent());
     }
 
     private static Requests createRequestsDelegate(final long plspId) {
-        return createRequests(plspId, Optional.absent(), Optional.of(true));
+        return createRequests(plspId, Optional.absent(), Optional.of(Boolean.TRUE));
     }
 
     private static Requests createRequests(final long plspId) {

@@ -361,7 +361,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 
     @Override
     protected void negotiationFailed(final Throwable cause) {
-        this.LOG.debug("Negotiation on channel {} failed", this.channel, cause);
+        LOG.debug("Negotiation on channel {} failed", this.channel, cause);
         this.channel.close();
         this.promise.setFailure(cause);
     }

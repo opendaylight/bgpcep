@@ -106,7 +106,8 @@ public class CInitiated00PCInitiateMessageParser extends AbstractMessageParser {
         return builder.build();
     }
 
-    private State insertObject(final State state, final Object obj, final RequestsBuilder builder, final List<Metrics> metrics) {
+    private static State insertObject(final State state, final Object obj, final RequestsBuilder builder,
+            final List<Metrics> metrics) {
         switch (state) {
         case INIT:
             if (obj instanceof EndpointsObj) {

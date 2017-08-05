@@ -329,7 +329,7 @@ public class StateProviderImplTest extends AbstractConcurrentDataBrokerTest {
         stateProvider.close();
     }
 
-    private BgpNeighborStateAugmentation buildBgpNeighborStateAugmentation() {
+    private static BgpNeighborStateAugmentation buildBgpNeighborStateAugmentation() {
         final BgpNeighborStateAugmentation augmentation = new BgpNeighborStateAugmentationBuilder()
                 .setMessages(new MessagesBuilder().setReceived(new ReceivedBuilder()
                         .setNOTIFICATION(BigInteger.ONE).setUPDATE(BigInteger.ONE).build())
@@ -338,7 +338,7 @@ public class StateProviderImplTest extends AbstractConcurrentDataBrokerTest {
         return augmentation;
     }
 
-    private AfiSafis buildAfiSafis() {
+    private static AfiSafis buildAfiSafis() {
         final NeighborAfiSafiStateAugmentationBuilder neighborAfiSafiStateAugmentation =
                 new NeighborAfiSafiStateAugmentationBuilder().setActive(true).setPrefixes(
                         new PrefixesBuilder().setSent(1L).setReceived(2L).setInstalled(1L).build());
@@ -358,7 +358,7 @@ public class StateProviderImplTest extends AbstractConcurrentDataBrokerTest {
         return new AfiSafisBuilder().setAfiSafi(Collections.singletonList(afiSafi)).build();
     }
 
-    private ErrorHandling buildErrorHandling() {
+    private static ErrorHandling buildErrorHandling() {
         final ErrorHandling errorHandling = new ErrorHandlingBuilder().setState(
                 new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.error.handling.
                         StateBuilder().setTreatAsWithdraw(false)
@@ -368,7 +368,7 @@ public class StateProviderImplTest extends AbstractConcurrentDataBrokerTest {
         return errorHandling;
     }
 
-    private Timers buildTimers() {
+    private static Timers buildTimers() {
         final Timers timers = new TimersBuilder().setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.
                 bgp.rev151009.bgp.neighbor.group.timers.StateBuilder()
                 .setConnectRetry(BigDecimal.valueOf(30))
@@ -424,7 +424,7 @@ public class StateProviderImplTest extends AbstractConcurrentDataBrokerTest {
                 .build()).build();
     }
 
-    private PeerGroup buildGroupExpected() {
+    private static PeerGroup buildGroupExpected() {
         return new PeerGroupBuilder().setPeerGroupName("test-group").setState(new org.opendaylight.yang.gen.v1.http
             .openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.StateBuilder()
             .setSendCommunity(CommunityType.NONE)

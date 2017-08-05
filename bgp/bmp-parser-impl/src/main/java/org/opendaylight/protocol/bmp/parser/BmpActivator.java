@@ -127,7 +127,7 @@ public final class BmpActivator extends AbstractBmpExtensionProviderActivator {
 
     }
 
-    private void registerBmpTlvHandlers(final List<AutoCloseable> regs, final BmpExtensionProviderContext context) {
+    private static void registerBmpTlvHandlers(final List<AutoCloseable> regs, final BmpExtensionProviderContext context) {
         final DescriptionTlvHandler descriptionTlvHandler = new DescriptionTlvHandler();
         regs.add(context.registerBmpInitiationTlvParser(DescriptionTlvHandler.TYPE, descriptionTlvHandler));
         regs.add(context.registerBmpInitiationTlvSerializer(DescriptionTlv.class, descriptionTlvHandler));

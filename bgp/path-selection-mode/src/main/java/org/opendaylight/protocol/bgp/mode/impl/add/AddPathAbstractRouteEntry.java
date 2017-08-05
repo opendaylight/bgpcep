@@ -243,11 +243,12 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
         return selector.result();
     }
 
-    private boolean isFirstBestPath(final int bestPathPosition) {
+    private static boolean isFirstBestPath(final int bestPathPosition) {
         return bestPathPosition == 0;
     }
 
-    private boolean peersSupportsAddPathOrIsFirstBestPath(final boolean peerSupportsAddPath, final boolean isFirstBestPath) {
+    private static boolean peersSupportsAddPathOrIsFirstBestPath(final boolean peerSupportsAddPath,
+            final boolean isFirstBestPath) {
         return !(!peerSupportsAddPath && !isFirstBestPath);
     }
 
@@ -271,7 +272,7 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
             this.bestPath.get(0).equals(newBestPathList.get(0));
     }
 
-    private boolean isEmptyOrNull(final List<AddPathBestPath> pathList) {
+    private static boolean isEmptyOrNull(final List<AddPathBestPath> pathList) {
         return pathList == null || pathList.isEmpty();
     }
 

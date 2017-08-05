@@ -23,6 +23,7 @@ public class BaseRouteEntryTest extends AbstractRouteEntryTest {
 
     private BaseSimpleRouteEntry testBARE;
 
+    @Override
     @Before
     public void setUp() {
         super.setUp();
@@ -40,7 +41,7 @@ public class BaseRouteEntryTest extends AbstractRouteEntryTest {
 
     private void testRemoveRoute() {
         Map<YangInstanceIdentifier, Long> yiiCount = this.yIIChanges.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-        assertEquals(8, (long) yiiCount.size());
+        assertEquals(8, yiiCount.size());
         assertEquals(1, (long) yiiCount.get(this.routePaYii));
         this.testBARE.removeRoute(ROUTER_ID, REMOTE_PATH_ID);
         this.testBARE.selectBest(AS);

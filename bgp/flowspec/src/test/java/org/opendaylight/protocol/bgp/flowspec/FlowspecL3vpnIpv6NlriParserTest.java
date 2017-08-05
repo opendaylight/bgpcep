@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.flowspec;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.opendaylight.protocol.bgp.flowspec.SimpleFlowspecIpv4NlriParserTest.PATH_ID;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import io.netty.buffer.ByteBuf;
@@ -148,7 +149,7 @@ public class FlowspecL3vpnIpv6NlriParserTest {
         result.setSafi(FlowspecL3vpnSubsequentAddressFamily.class);
         this.FS_PARSER.parseNlri(Unpooled.wrappedBuffer(REACHED_NLRI), result);
 
-        DestinationFlowspecL3vpnIpv6 flowspecDst = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecL3vpnIpv6Case) (result.getAdvertizedRoutes().getDestinationType()))
+        DestinationFlowspecL3vpnIpv6 flowspecDst = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecL3vpnIpv6Case) result.getAdvertizedRoutes().getDestinationType())
             .getDestinationFlowspecL3vpnIpv6();
         final List<Flowspec> flows = flowspecDst.getFlowspec();
 
@@ -203,7 +204,7 @@ public class FlowspecL3vpnIpv6NlriParserTest {
         result.setSafi(FlowspecL3vpnSubsequentAddressFamily.class);
         this.FS_PARSER.parseNlri(Unpooled.wrappedBuffer(REACHED_NLRI_ADD_PATH), result, this.constraint);
 
-        final DestinationFlowspecL3vpnIpv6 flowspecDst = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecL3vpnIpv6Case) (result.getAdvertizedRoutes().getDestinationType()))
+        final DestinationFlowspecL3vpnIpv6 flowspecDst = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecL3vpnIpv6Case) result.getAdvertizedRoutes().getDestinationType())
             .getDestinationFlowspecL3vpnIpv6();
         final List<Flowspec> flows = flowspecDst.getFlowspec();
         final RouteDistinguisher rd = flowspecDst.getRouteDistinguisher();
@@ -253,7 +254,7 @@ public class FlowspecL3vpnIpv6NlriParserTest {
         result.setSafi(FlowspecL3vpnSubsequentAddressFamily.class);
         this.FS_PARSER.parseNlri(Unpooled.wrappedBuffer(UNREACHED_NLRI), result);
 
-        final DestinationFlowspecL3vpnIpv6 flowspecDst = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecL3vpnIpv6Case) (result.getWithdrawnRoutes().getDestinationType()))
+        final DestinationFlowspecL3vpnIpv6 flowspecDst = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecL3vpnIpv6Case) result.getWithdrawnRoutes().getDestinationType())
             .getDestinationFlowspecL3vpnIpv6();
         final List<Flowspec> flows = flowspecDst.getFlowspec();
         final RouteDistinguisher rd = flowspecDst.getRouteDistinguisher();
@@ -282,13 +283,13 @@ public class FlowspecL3vpnIpv6NlriParserTest {
         assertEquals("all packets where fragment does match 'IS FIRST' 'IS LAST' 'IS A' AND where flow label equals to 16777222 or equals to 258 ", this.FS_PARSER.stringNlri(flows));
     }
 
-    private FragmentCase createFragment() {
+    private static FragmentCase createFragment() {
         final List<Fragments> fragments = Lists.newArrayList(new FragmentsBuilder().setOp(new BitmaskOperand(false, true, true, false)).setValue(new Fragment(false, true, true, true)).build());
         return new FragmentCaseBuilder().setFragments(fragments).build();
     }
 
-    private FlowspecType createLabel() {
-        final List<FlowLabel> labels = Lists.newArrayList();
+    private static FlowspecType createLabel() {
+        final List<FlowLabel> labels = new ArrayList<>(2);
         labels.add(new FlowLabelBuilder().setOp(new NumericOperand(false, false, true, false, false)).setValue(new Long(16777222L)).build());
         labels.add(new FlowLabelBuilder().setOp(new NumericOperand(false, true, true, false, false)).setValue(new Long(258L)).build());
         return new FlowLabelCaseBuilder().setFlowLabel(labels).build();
@@ -314,7 +315,7 @@ public class FlowspecL3vpnIpv6NlriParserTest {
         result.setSafi(FlowspecL3vpnSubsequentAddressFamily.class);
         this.FS_PARSER.parseNlri(Unpooled.wrappedBuffer(UNREACHED_NLRI_ADD_PATH), result, this.constraint);
 
-        final DestinationFlowspecL3vpnIpv6 flowspecDst = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecL3vpnIpv6Case) (result.getWithdrawnRoutes().getDestinationType()))
+        final DestinationFlowspecL3vpnIpv6 flowspecDst = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecL3vpnIpv6Case) result.getWithdrawnRoutes().getDestinationType())
             .getDestinationFlowspecL3vpnIpv6();
         final List<Flowspec> flows = flowspecDst.getFlowspec();
         final RouteDistinguisher rd = flowspecDst.getRouteDistinguisher();
