@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.protocol.pcep.PCEPCloseTermination;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
@@ -88,6 +89,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
     private int maxUnknownMessages;
 
     // True if the listener should not be notified about events
+    @GuardedBy("this")
     private boolean closed = false;
 
     private final Channel channel;
@@ -206,12 +208,18 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
         return this.channel.close();
     }
 
+    @VisibleForTesting
+    public synchronized boolean isClosed() {
+        return this.closed;
+    }
+
     /**
      * Closes PCEP session without sending a Close message, as the channel is no longer active.
      */
     @Override
-    public void close() {
-        LOG.info("Closing PCEP session: {}", this);
+    public synchronized void close() {
+        LOG.info("Closing PCEP session channel: {}", this);
+        this.closed = true;
         closeChannel();
     }
 
@@ -222,6 +230,10 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
      */
     @Override
     public synchronized void close(final TerminationReason reason) {
+        if (this.closed) {
+            LOG.info("Session is already closed.");
+            return;
+        }
         LOG.info("Closing PCEP session: {}", this);
         this.closed = true;
         this.sendMessage(new CloseBuilder().setCCloseMessage(
@@ -241,18 +253,22 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
 
     private synchronized void closeWithoutMessage(final TerminationReason reason) {
         LOG.info("Closing PCEP session without sending msg: {}", reason);
-        this.listener.onSessionTerminated(this, new PCEPCloseTermination(reason));
         this.closed = true;
         this.close();
+        this.listener.onSessionTerminated(this, new PCEPCloseTermination(reason));
     }
 
     private synchronized void terminate(final TerminationReason reason) {
+        if (this.closed) {
+            LOG.debug("Session {} is already closed.", this);
+            return;
+        }
         LOG.info("Local PCEP session termination : {}", reason);
-        this.listener.onSessionTerminated(this, new PCEPCloseTermination(reason));
         this.closed = true;
         this.sendMessage(new CloseBuilder().setCCloseMessage(
             new CCloseMessageBuilder().setCClose(new CCloseBuilder().setReason(reason.getShortValue()).build()).build()).build());
         this.close();
+        this.listener.onSessionTerminated(this, new PCEPCloseTermination(reason));
     }
 
     public synchronized void endOfInput() {
@@ -306,6 +322,10 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
      * @param msg incoming message
      */
     public synchronized void handleMessage(final Message msg) {
+        if (this.closed) {
+            LOG.debug("PCEP Session {} is already closed, skip handling incoming message {}", this, msg);
+            return;
+        }
         // Update last reception time
         this.lastMessageReceivedAt = TICKER.read();
         this.sessionState.updateLastReceivedMsg();
