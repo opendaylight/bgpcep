@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.protocol.pcep.PCEPCloseTermination;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
@@ -88,6 +89,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
     private int maxUnknownMessages;
 
     // True if the listener should not be notified about events
+    @GuardedBy("this")
     private boolean closed = false;
 
     private final Channel channel;
@@ -202,17 +204,21 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
 
     @VisibleForTesting
     ChannelFuture closeChannel() {
-        LOG.info("Closing PCEP session: {}", this);
+        LOG.info("Closing PCEP session channel: {}", this.channel);
         return this.channel.close();
+    }
+
+    @VisibleForTesting
+    public synchronized boolean isClosed() {
+        return this.closed;
     }
 
     /**
      * Closes PCEP session without sending a Close message, as the channel is no longer active.
      */
     @Override
-    public void close() {
-        LOG.info("Closing PCEP session: {}", this);
-        closeChannel();
+    public synchronized void close() {
+        close(null);
     }
 
     /**
@@ -222,11 +228,20 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
      */
     @Override
     public synchronized void close(final TerminationReason reason) {
-        LOG.info("Closing PCEP session: {}", this);
+        if (this.closed) {
+            LOG.debug("Session is already closed.");
+            return;
+        }
         this.closed = true;
-        this.sendMessage(new CloseBuilder().setCCloseMessage(
-            new CCloseMessageBuilder().setCClose(new CCloseBuilder().setReason(reason.getShortValue()).build()).build()).build());
-        this.close();
+        // only send close message when the reason is provided
+        if (reason != null) {
+            LOG.info("Closing PCEP session with reason {}: {}", reason, this);
+            sendMessage(new CloseBuilder().setCCloseMessage(
+                    new CCloseMessageBuilder().setCClose(new CCloseBuilder().setReason(reason.getShortValue()).build()).build()).build());
+        } else {
+            LOG.info("Closing PCEP session: {}", this);
+        }
+        closeChannel();
     }
 
     @Override
@@ -240,12 +255,12 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
     }
 
     private synchronized void terminate(final TerminationReason reason) {
-        LOG.info("Local PCEP session termination : {}", reason);
+        if (this.closed) {
+            LOG.debug("Session {} is already closed.", this);
+            return;
+        }
+        close(reason);
         this.listener.onSessionTerminated(this, new PCEPCloseTermination(reason));
-        this.closed = true;
-        this.sendMessage(new CloseBuilder().setCCloseMessage(
-            new CCloseMessageBuilder().setCClose(new CCloseBuilder().setReason(reason.getShortValue()).build()).build()).build());
-        this.close();
     }
 
     public synchronized void endOfInput() {
@@ -299,6 +314,10 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
      * @param msg incoming message
      */
     public synchronized void handleMessage(final Message msg) {
+        if (this.closed) {
+            LOG.debug("PCEP Session {} is already closed, skip handling incoming message {}", this, msg);
+            return;
+        }
         // Update last reception time
         this.lastMessageReceivedAt = TICKER.read();
         this.sessionState.updateLastReceivedMsg();
@@ -316,7 +335,8 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
              * exception is CLOSE message, which needs to be converted into a
              * session DOWN event.
              */
-            this.close();
+            close();
+            this.listener.onSessionTerminated(this, new PCEPCloseTermination(TerminationReason.forValue(((CloseMessage) msg).getCCloseMessage().getCClose().getReason())));
         } else {
             // This message needs to be handled by the user
             if (msg instanceof PcerrMessage) {
