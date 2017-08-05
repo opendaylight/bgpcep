@@ -36,8 +36,8 @@ import org.opendaylight.controller.config.yang.pcep.topology.provider.SessionSta
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.protocol.pcep.PCEPCloseTermination;
-import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.TerminationReason;
+import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
 import org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
@@ -105,7 +105,7 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
 
     private Stateful07TopologySessionListener listener;
 
-    private PCEPSession session;
+    private PCEPSessionImpl session;
 
     @Override
     @Before
@@ -352,6 +352,38 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         final AddLspOutput output = futureOutput.get().getResult();
         // deal with unsent request after session down
         assertEquals(FailureType.Unsent, output.getFailure());
+    }
+
+    /**
+     * When a session is somehow duplicated in controller, the controller should drop existing session
+     */
+    @Test
+    public void testDuplicatedSession() throws ReadFailedException {
+        this.listener.onSessionUp(this.session);
+        verify(this.listenerReg, times(0)).close();
+
+        // create node
+        this.topologyRpcs.addLsp(createAddLspInput());
+        final Pcinitiate pcinitiate = (Pcinitiate) this.receivedMsgs.get(0);
+        final Requests req = pcinitiate.getPcinitiateMessage().getRequests().get(0);
+        final long srpId = req.getSrp().getOperationId().getValue();
+        final Tlvs tlvs = createLspTlvs(req.getLsp().getPlspId().getValue(), true,
+            this.testAddress, this.testAddress, this.testAddress, Optional.absent());
+        final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(req.getLsp()).setTlvs(tlvs).setSync(true)
+                .setRemove(false).setOperational(OperationalStatus.Active).build(),
+            Optional.of(MsgBuilderUtil.createSrp(srpId)), MsgBuilderUtil.createPath(req.getEro().getSubobject()));
+        this.listener.onMessage(this.session, pcRpt);
+        readDataOperational(getDataBroker(), TOPO_IID, topology -> {
+            assertEquals(1, topology.getNode().size());
+            return topology;
+        });
+
+        // now we do session up again
+        this.listener.onSessionUp(this.session);
+        assertTrue(this.session.isClosed());
+        verify(this.listenerReg, times(1)).close();
+        // node should be removed after termination
+        checkNotPresentOperational(getDataBroker(), this.pathComputationClientIId);
     }
 
     @Test
