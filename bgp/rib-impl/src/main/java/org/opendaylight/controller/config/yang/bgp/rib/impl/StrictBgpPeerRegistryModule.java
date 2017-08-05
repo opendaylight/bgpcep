@@ -48,9 +48,9 @@ public class StrictBgpPeerRegistryModule extends org.opendaylight.controller.con
                 if (method.getName().equals("close")) {
                     tracker.close();
                     return null;
-                } else {
-                    return method.invoke(service, args);
                 }
+
+                return method.invoke(service, args);
             }
         });
     }

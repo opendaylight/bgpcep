@@ -95,7 +95,7 @@ public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSer
         }
     }
 
-    private UserCase parseUserError(final ByteBuf buffer) {
+    private static UserCase parseUserError(final ByteBuf buffer) {
         final UserErrorBuilder error = new UserErrorBuilder();
         error.setEnterprise(new EnterpriseNumber(buffer.readUnsignedInt()));
         error.setSubOrg(buffer.readUnsignedByte());
@@ -106,8 +106,8 @@ public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSer
         return new UserCaseBuilder().setUserError(error.build()).build();
     }
 
-    private void serializerUserError(final UserError ue, final ByteBuf body) {
-        final byte[] desc = (ue.getDescription() == null) ? new byte[0] : ue.getDescription().getBytes(StandardCharsets.UTF_8);
+    private static void serializerUserError(final UserError ue, final ByteBuf body) {
+        final byte[] desc = ue.getDescription() == null ? new byte[0] : ue.getDescription().getBytes(StandardCharsets.UTF_8);
         final ByteBuf userErrorBuf = Unpooled.buffer();
         Preconditions.checkArgument(ue.getEnterprise() != null, "EnterpriseNumber is mandatory");
         writeUnsignedInt(ue.getEnterprise().getValue(), userErrorBuf);
@@ -120,7 +120,7 @@ public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSer
         formatRSVPObject(USER_ERROR_CLASS_NUM, USER_ERROR_CLASS_TYPE, userErrorBuf, body);
     }
 
-    private RsvpCase parseRsvp(final int classType, final ByteBuf buffer) {
+    private static RsvpCase parseRsvp(final int classType, final ByteBuf buffer) {
         final RsvpErrorBuilder builder = new RsvpErrorBuilder();
         if (classType == RSVP_IPV4_ERROR_CLASS_TYPE) {
             builder.setNode(new IpAddress(Ipv4Util.addressForByteBuf(buffer)));
@@ -136,7 +136,7 @@ public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSer
         return new RsvpCaseBuilder().setRsvpError(builder.build()).build();
     }
 
-    private void serializeRsvp(final RsvpError rsvp, final ByteBuf body) {
+    private static void serializeRsvp(final RsvpError rsvp, final ByteBuf body) {
         final BitArray flags = new BitArray(FLAGS_SIZE);
         flags.set(IN_PLACE, rsvp.getFlags().isInPlace());
         flags.set(NOT_GUILTY, rsvp.getFlags().isNotGuilty());

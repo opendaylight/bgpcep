@@ -136,8 +136,8 @@ public class ExportPolicyTest {
         final ClusterIdentifier cluster1 = new ClusterIdentifier(new Ipv4Address("1.1.1.1"));
         final ClusterIdentifier cluster2 = new ClusterIdentifier(new Ipv4Address("1.1.1.2"));
         return Builders.containerBuilder().withNodeIdentifier(clusterContNid).addChild(Builders.orderedLeafSetBuilder().withNodeIdentifier(clusterNid)
-                .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(clusterQName, cluster2.getValue())).withValue(cluster2.getValue()).build())
-                .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(clusterQName, cluster1.getValue())).withValue(cluster1.getValue()).build())
+                .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue<>(clusterQName, cluster2.getValue())).withValue(cluster2.getValue()).build())
+                .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue<>(clusterQName, cluster1.getValue())).withValue(cluster1.getValue()).build())
                 .build()).build();
     }
 
@@ -151,9 +151,9 @@ public class ExportPolicyTest {
         final ClusterIdentifier cluster2 = new ClusterIdentifier(new Ipv4Address("1.1.1.2"));
         return Builders.containerBuilder().withNodeIdentifier(clusterContNid).addChild(
             Builders.orderedLeafSetBuilder().withNodeIdentifier(clusterNid)
-                .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(clusterQName, CLUSTER.getValue())).withValue(CLUSTER.getValue()).build())
-                .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(clusterQName, cluster2.getValue())).withValue(cluster2.getValue()).build())
-                .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(clusterQName, cluster1.getValue())).withValue(cluster1.getValue()).build())
+                .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue<>(clusterQName, CLUSTER.getValue())).withValue(CLUSTER.getValue()).build())
+                .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue<>(clusterQName, cluster2.getValue())).withValue(cluster2.getValue()).build())
+                .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue<>(clusterQName, cluster1.getValue())).withValue(cluster1.getValue()).build())
                 .build()).build();
     }
 
@@ -167,8 +167,8 @@ public class ExportPolicyTest {
         final ClusterIdentifier cluster2 = new ClusterIdentifier(new Ipv4Address("1.1.1.2"));
         return Builders.containerBuilder().withNodeIdentifier(clusterContNid).addChild(
             Builders.orderedLeafSetBuilder().withNodeIdentifier(clusterNid)
-            .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(clusterQName, cluster2.getValue())).withValue(cluster2.getValue()).build())
-            .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(clusterQName, cluster1.getValue())).withValue(cluster1.getValue()).build())
+            .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue<>(clusterQName, cluster2.getValue())).withValue(cluster2.getValue()).build())
+            .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue<>(clusterQName, cluster1.getValue())).withValue(cluster1.getValue()).build())
             .build()).build();
     }
 
@@ -204,7 +204,7 @@ public class ExportPolicyTest {
     private static UnkeyedListEntryNode createSequenceWithLocalAs() {
         return Builders.unkeyedListEntryBuilder().withNodeIdentifier(SEGMENTS_NID)
             .addChild(Builders.orderedLeafSetBuilder().withNodeIdentifier(SEQ_LEAFLIST_NID)
-                .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(AS_NUMBER_Q, LOCAL_AS)).withValue(LOCAL_AS).build())
+                .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue<>(AS_NUMBER_Q, LOCAL_AS)).withValue(LOCAL_AS).build())
                 .build()).build();
     }
 }

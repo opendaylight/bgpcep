@@ -259,9 +259,9 @@ public abstract class AbstractRIBSupport implements RIBSupport {
                         final DataContainerChild<? extends PathArgument, ?> ret = maybeRet.get();
                         if (ret instanceof ContainerNode) {
                             return (ContainerNode)ret;
-                        } else {
-                            LOG.debug("Specified node {} is not a container, ignoring it", ret);
                         }
+
+                        LOG.debug("Specified node {} is not a container, ignoring it", ret);
                     } else {
                         LOG.debug("Specified container {} is not present in destination {}", destinationId, destination);
                     }

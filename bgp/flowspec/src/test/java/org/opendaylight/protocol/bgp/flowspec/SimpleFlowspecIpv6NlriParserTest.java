@@ -152,7 +152,7 @@ public class SimpleFlowspecIpv6NlriParserTest {
         result.setSafi(FlowspecSubsequentAddressFamily.class);
         this.FS_PARSER.parseNlri(Unpooled.wrappedBuffer(REACHED_NLRI), result);
 
-        final List<Flowspec> flows = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecIpv6Case) (result.getAdvertizedRoutes().getDestinationType()))
+        final List<Flowspec> flows = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecIpv6Case) result.getAdvertizedRoutes().getDestinationType())
             .getDestinationFlowspec().getFlowspec();
         assertEquals(3, flows.size());
         assertEquals(destinationPrefix, flows.get(0).getFlowspecType());
@@ -202,7 +202,7 @@ public class SimpleFlowspecIpv6NlriParserTest {
         result.setSafi(FlowspecSubsequentAddressFamily.class);
         this.FS_PARSER.parseNlri(Unpooled.wrappedBuffer(REACHED_NLRI_ADD_PATH), result, this.constraint);
 
-        final List<Flowspec> flows = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecIpv6Case) (result.getAdvertizedRoutes().getDestinationType()))
+        final List<Flowspec> flows = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecIpv6Case) result.getAdvertizedRoutes().getDestinationType())
             .getDestinationFlowspec().getFlowspec();
         assertEquals(3, flows.size());
         assertEquals(destinationPrefix, flows.get(0).getFlowspecType());
@@ -246,7 +246,7 @@ public class SimpleFlowspecIpv6NlriParserTest {
         result.setSafi(FlowspecSubsequentAddressFamily.class);
         this.FS_PARSER.parseNlri(Unpooled.wrappedBuffer(UNREACHED_NLRI), result);
 
-        final List<Flowspec> flows = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecIpv6Case) (result.getWithdrawnRoutes().getDestinationType()))
+        final List<Flowspec> flows = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecIpv6Case) result.getWithdrawnRoutes().getDestinationType())
             .getDestinationFlowspec().getFlowspec();
         assertEquals(2, flows.size());
         assertEquals(fragment, flows.get(0).getFlowspecType());
@@ -260,13 +260,13 @@ public class SimpleFlowspecIpv6NlriParserTest {
         assertEquals("all packets where fragment does match 'IS FIRST' 'IS LAST' 'IS A' AND where flow label equals to 16777222 or equals to 258 ", this.FS_PARSER.stringNlri(flows));
     }
 
-    private FragmentCase createFragment() {
+    private static FragmentCase createFragment() {
         final List<Fragments> fragments = Lists.newArrayList(new FragmentsBuilder().setOp(new BitmaskOperand(false, true, true, false)).setValue(new Fragment(false, true, true, true)).build());
         return new FragmentCaseBuilder().setFragments(fragments).build();
     }
 
-    private FlowspecType createLabel() {
-        final List<FlowLabel> labels = Lists.newArrayList();
+    private static FlowspecType createLabel() {
+        final List<FlowLabel> labels = new ArrayList<>(2);
         labels.add(new FlowLabelBuilder().setOp(new NumericOperand(false, false, true, false, false)).setValue(new Long(16777222L)).build());
         labels.add(new FlowLabelBuilder().setOp(new NumericOperand(false, true, true, false, false)).setValue(new Long(258L)).build());
         return new FlowLabelCaseBuilder().setFlowLabel(labels).build();
@@ -303,7 +303,7 @@ public class SimpleFlowspecIpv6NlriParserTest {
         result.setSafi(FlowspecSubsequentAddressFamily.class);
         this.FS_PARSER.parseNlri(Unpooled.wrappedBuffer(UNREACHED_NLRI_ADD_PATH), result, this.constraint);
 
-        final List<Flowspec> flows = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecIpv6Case) (result.getWithdrawnRoutes().getDestinationType()))
+        final List<Flowspec> flows = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecIpv6Case) result.getWithdrawnRoutes().getDestinationType())
             .getDestinationFlowspec().getFlowspec();
         assertEquals(2, flows.size());
         assertEquals(fragment, flows.get(0).getFlowspecType());

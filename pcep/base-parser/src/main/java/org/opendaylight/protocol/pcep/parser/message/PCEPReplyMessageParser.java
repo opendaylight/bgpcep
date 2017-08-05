@@ -82,7 +82,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
             return;
         }
         if (reply.getResult() instanceof FailureCase) {
-            final FailureCase f = ((FailureCase) reply.getResult());
+            final FailureCase f = (FailureCase) reply.getResult();
             serializeFailure(f, buffer);
             return;
         }
@@ -249,7 +249,8 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         }
     }
 
-    private State insertObject(final State state, final Object obj, final FailureCaseBuilder builder, final List<Metrics> pathMetrics) {
+    private static State insertObject(final State state, final Object obj, final FailureCaseBuilder builder,
+            final List<Metrics> pathMetrics) {
         switch (state) {
         case INIT:
             if (obj instanceof Lspa) {
@@ -296,7 +297,8 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         }
     }
 
-    private State insertObject(final State state, final Object obj, final PathsBuilder builder, final List<Metrics> pathMetrics) {
+    private static State insertObject(final State state, final Object obj, final PathsBuilder builder,
+            final List<Metrics> pathMetrics) {
         switch (state) {
         case INIT:
             if (obj instanceof Lspa) {

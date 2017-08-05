@@ -129,7 +129,7 @@ public class PeerUpHandler extends AbstractBmpPerPeerMessageParser<InformationBu
     @Override
     protected void addTlv(final InformationBuilder builder, final Tlv tlv) {
         if (tlv instanceof StringTlv) {
-            final ImmutableList.Builder stringInfoListBuilder = ImmutableList.<StringInformation>builder();
+            final ImmutableList.Builder<StringInformation> stringInfoListBuilder = ImmutableList.builder();
             if ( builder.getStringInformation() != null ) {
                 stringInfoListBuilder.addAll(builder.getStringInformation());
             }

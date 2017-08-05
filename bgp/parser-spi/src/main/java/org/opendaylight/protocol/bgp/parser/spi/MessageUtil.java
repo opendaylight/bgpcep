@@ -60,8 +60,8 @@ public final class MessageUtil {
             return false;
         }
         final Nlri nlri = message.getNlri();
-        return (nlri != null && nlri.getNlri() != null && !nlri.getNlri().isEmpty())
-            || (getMpReachNlri(message.getAttributes()) != null);
+        return nlri != null && nlri.getNlri() != null && !nlri.getNlri().isEmpty()
+            || getMpReachNlri(message.getAttributes()) != null;
     }
 
     /**
@@ -73,9 +73,9 @@ public final class MessageUtil {
     public static MpReachNlri getMpReachNlri(final Attributes attrs) {
         if (attrs != null && attrs.getAugmentation(Attributes1.class) != null) {
             return attrs.getAugmentation(Attributes1.class).getMpReachNlri();
-        } else {
-            return null;
         }
+
+        return null;
     }
 
     /**
@@ -87,8 +87,8 @@ public final class MessageUtil {
     public static MpUnreachNlri getMpUnreachNlri(final Attributes attrs) {
         if (attrs != null && attrs.getAugmentation(Attributes2.class) != null) {
             return attrs.getAugmentation(Attributes2.class).getMpUnreachNlri();
-        } else {
-            return null;
         }
+
+        return null;
     }
 }

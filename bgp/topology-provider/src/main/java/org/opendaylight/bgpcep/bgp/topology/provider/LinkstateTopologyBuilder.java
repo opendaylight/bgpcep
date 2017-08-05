@@ -580,7 +580,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             putNode(trans, snh);
         } else {
             snh.addTp(srcTp, lb.getLinkId(), false);
-            final InstanceIdentifier<Node> nid = getNodeInstanceIdentifier(new NodeKey((NodeId) snh.getNodeId()));
+            final InstanceIdentifier<Node> nid = getNodeInstanceIdentifier(new NodeKey(snh.getNodeId()));
             trans.put(LogicalDatastoreType.OPERATIONAL, nid.child(TerminationPoint.class, srcTp.getKey()), srcTp);
         }
 
@@ -594,7 +594,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             dnh.addTp(dstTp, lb.getLinkId(), true);
             final InstanceIdentifier<Node> nid = getInstanceIdentifier().child(
                     org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node.class,
-                    new NodeKey((NodeId) dnh.getNodeId()));
+                    new NodeKey(dnh.getNodeId()));
             trans.put(LogicalDatastoreType.OPERATIONAL, nid.child(TerminationPoint.class, dstTp.getKey()), dstTp);
         }
 
@@ -609,7 +609,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             final LinkId link, final boolean isRemote) {
         final NodeHolder nh = this.nodes.get(node);
         if (nh != null) {
-            final InstanceIdentifier<Node> nid = getNodeInstanceIdentifier(new NodeKey((NodeId) nh.getNodeId()));
+            final InstanceIdentifier<Node> nid = getNodeInstanceIdentifier(new NodeKey(nh.getNodeId()));
             trans.delete(LogicalDatastoreType.OPERATIONAL, nid.child(TerminationPoint.class, new TerminationPointKey(tp)));
             nh.removeTp(tp, link, isRemote);
             checkNodeForRemoval(trans, nh);
@@ -865,7 +865,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             putNode(trans, nh);
         } else {
             nh.addPrefix(pfx);
-            final InstanceIdentifier<Node> nid = getNodeInstanceIdentifier(new NodeKey((NodeId) nh.getNodeId()));
+            final InstanceIdentifier<Node> nid = getNodeInstanceIdentifier(new NodeKey(nh.getNodeId()));
             final InstanceIdentifier<IgpNodeAttributes> inaId = nid.builder().augmentation(Node1.class).child(IgpNodeAttributes.class).build();
             trans.put(LogicalDatastoreType.OPERATIONAL, inaId.child(Prefix.class, pk), pfx);
         }
@@ -876,7 +876,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
         final NodeHolder nh = this.nodes.get(node);
         if (nh != null) {
             LOG.debug("Removed prefix {}", p);
-            final InstanceIdentifier<Node> nid = getNodeInstanceIdentifier(new NodeKey((NodeId) nh.getNodeId()));
+            final InstanceIdentifier<Node> nid = getNodeInstanceIdentifier(new NodeKey(nh.getNodeId()));
             final InstanceIdentifier<IgpNodeAttributes> inaId = nid.builder().augmentation(Node1.class).child(IgpNodeAttributes.class).build();
             final IpPrefix ippfx = p.getPrefixDescriptors().getIpReachabilityInformation();
             if (ippfx == null) {

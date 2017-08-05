@@ -63,12 +63,11 @@ final class PCCReconnectPromise extends DefaultPromise<PCEPSession> {
         if (super.cancel(mayInterruptIfRunning)) {
             this.pending.cancel(mayInterruptIfRunning);
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public synchronized Promise<PCEPSession> setSuccess(final PCEPSession result) {
         final Promise<PCEPSession> promise = super.setSuccess(result);
@@ -113,7 +112,7 @@ final class PCCReconnectPromise extends DefaultPromise<PCEPSession> {
                     loop.schedule(() -> {
                         synchronized (PCCReconnectPromise.this) {
                             PCCReconnectPromise.LOG.debug("Attempting to connect to {}", PCCReconnectPromise.this.address);
-                            final Future reconnectFuture = PCCReconnectPromise.this.b.connect();
+                            final Future<Void> reconnectFuture = PCCReconnectPromise.this.b.connect();
                             reconnectFuture.addListener(this);
                             PCCReconnectPromise.this.pending = reconnectFuture;
                         }

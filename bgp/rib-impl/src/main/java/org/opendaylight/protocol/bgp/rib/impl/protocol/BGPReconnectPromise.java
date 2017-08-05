@@ -31,12 +31,12 @@ public class BGPReconnectPromise<S extends BGPSession> extends DefaultPromise<Vo
     private final int retryTimer;
     private final Bootstrap bootstrap;
     private final BGPPeerRegistry peerRegistry;
-    private final ChannelPipelineInitializer initializer;
+    private final ChannelPipelineInitializer<S> initializer;
     private BGPProtocolSessionPromise<S> pending;
 
     public BGPReconnectPromise(@Nonnull final EventExecutor executor, @Nonnull final InetSocketAddress address,
         final int retryTimer, @Nonnull final Bootstrap bootstrap, @Nonnull final BGPPeerRegistry peerRegistry,
-        @Nonnull final ChannelPipelineInitializer initializer) {
+        @Nonnull final ChannelPipelineInitializer<S> initializer) {
         super(executor);
         this.bootstrap = bootstrap;
         this.initializer = Preconditions.checkNotNull(initializer);
@@ -67,9 +67,11 @@ public class BGPReconnectPromise<S extends BGPSession> extends DefaultPromise<Vo
         });
     }
 
-    private BGPProtocolSessionPromise<S> connectSessionPromise(final InetSocketAddress address, final int retryTimer, final Bootstrap bootstrap,
-            final BGPPeerRegistry peerRegistry, final ChannelPipelineInitializer initializer) {
-        final BGPProtocolSessionPromise sessionPromise = new BGPProtocolSessionPromise(address, retryTimer, bootstrap, peerRegistry);
+    private BGPProtocolSessionPromise<S> connectSessionPromise(final InetSocketAddress address, final int retryTimer,
+            final Bootstrap bootstrap, final BGPPeerRegistry peerRegistry,
+            final ChannelPipelineInitializer<S> initializer) {
+        final BGPProtocolSessionPromise<S> sessionPromise = new BGPProtocolSessionPromise<>(address, retryTimer,
+                bootstrap, peerRegistry);
         final ChannelHandler chInit = new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(final SocketChannel channel) {
@@ -84,7 +86,8 @@ public class BGPReconnectPromise<S extends BGPSession> extends DefaultPromise<Vo
     }
 
     /**
-     * @return true if initial connection was established successfully, false if initial connection failed due to e.g. Connection refused, Negotiation failed
+     * @return true if initial connection was established successfully, false if initial connection failed due
+     *         to e.g. Connection refused, Negotiation failed
      */
     private  synchronized boolean isInitialConnectFinished() {
         Preconditions.checkNotNull(this.pending);
@@ -111,9 +114,9 @@ public class BGPReconnectPromise<S extends BGPSession> extends DefaultPromise<Vo
      * Only if the promise was not canceled.
      */
     private static final class ClosedChannelHandler extends ChannelInboundHandlerAdapter {
-        private final BGPReconnectPromise promise;
+        private final BGPReconnectPromise<?> promise;
 
-        ClosedChannelHandler(final BGPReconnectPromise promise) {
+        ClosedChannelHandler(final BGPReconnectPromise<?> promise) {
             this.promise = promise;
         }
 

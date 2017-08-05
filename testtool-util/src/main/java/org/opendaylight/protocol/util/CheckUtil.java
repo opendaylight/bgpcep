@@ -35,8 +35,7 @@ public final class CheckUtil {
         throw new UnsupportedOperationException();
     }
 
-    @SuppressWarnings("unchecked")
-    public static <T extends Future> void waitFutureSuccess(final T future) {
+    public static <T extends Future<?>> void waitFutureSuccess(final T future) {
         final CountDownLatch latch = new CountDownLatch(1);
         future.addListener(future1 -> latch.countDown());
         Uninterruptibles.awaitUninterruptibly(latch, LATCH_TIMEOUT, TimeUnit.SECONDS);

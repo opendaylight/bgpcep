@@ -11,10 +11,10 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
-import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -24,7 +24,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.ApplicationPeer.RegisterAppPeerListener;
@@ -162,7 +161,7 @@ final class AdjRibInWriter {
                     LOG.error("Failed to create Empty Structure", throwable);
                 }
             }
-        });
+        }, MoreExecutors.directExecutor());
         return new AdjRibInWriter(this.ribPath, this.chain, this.role, this.simpleRoutingPolicy, newPeerPath, tb);
     }
 
@@ -194,8 +193,9 @@ final class AdjRibInWriter {
         return tb.build();
     }
 
-    private void installAdjRibInTables(final YangInstanceIdentifier newPeerPath, final TablesKey tableKey, final RIBSupportContext rs,
-        final NodeIdentifierWithPredicates instanceIdentifierKey, final DOMDataWriteTransaction tx, final Builder<TablesKey, TableContext> tb) {
+    private static void installAdjRibInTables(final YangInstanceIdentifier newPeerPath, final TablesKey tableKey,
+            final RIBSupportContext rs, final NodeIdentifierWithPredicates instanceIdentifierKey,
+            final DOMDataWriteTransaction tx, final Builder<TablesKey, TableContext> tb) {
         // We will use table keys very often, make sure they are optimized
         final InstanceIdentifierBuilder idb = YangInstanceIdentifier.builder(newPeerPath.node(EMPTY_ADJRIBIN.getIdentifier()).node(TABLES));
         idb.nodeWithKey(instanceIdentifierKey.getNodeType(), instanceIdentifierKey.getKeyValues());
@@ -258,7 +258,7 @@ final class AdjRibInWriter {
         if(this.peerPath != null) {
             final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
             tx.delete(LogicalDatastoreType.OPERATIONAL, this.peerPath);
-            final CheckedFuture<Void, TransactionCommitFailedException> future = tx.submit();
+            final ListenableFuture<Void> future = tx.submit();
             Futures.addCallback(future, new FutureCallback<Void>() {
                 @Override
                 public void onSuccess(final Void result) {
@@ -269,7 +269,7 @@ final class AdjRibInWriter {
                 public void onFailure(final Throwable t) {
                     LOG.warn("Failed to remove Peer {}", AdjRibInWriter.this.peerPath, t);
                 }
-            });
+            }, MoreExecutors.directExecutor());
             return future;
         }
         return Futures.immediateFuture(null);

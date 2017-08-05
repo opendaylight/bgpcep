@@ -48,7 +48,7 @@ public class PCCTriggeredSyncTest extends PCCMockCommon {
         channel.close().get();
     }
 
-    private Message createTriggerMsg() {
+    private static Message createTriggerMsg() {
         final UpdatesBuilder rb = new UpdatesBuilder();
         // create PCUpd with mandatory objects and LSP object set to 1
         final SrpBuilder srpBuilder = new SrpBuilder();

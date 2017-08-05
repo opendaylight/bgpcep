@@ -77,7 +77,7 @@ public class BGPMessageParserMockTest {
         // Creating input bytes and update messages
         for (int i = 0; i < this.inputBytes.length; i++) {
             this.inputBytes[i] = this.fillInputBytes(i);
-            this.messages.add(this.fillMessages(i));
+            this.messages.add(fillMessages(i));
         }
     }
 
@@ -143,7 +143,7 @@ public class BGPMessageParserMockTest {
      *
      * @param asn this parameter is passed to ASNumber constructor
      */
-    private Update fillMessages(final long asn) throws UnknownHostException {
+    private static Update fillMessages(final long asn) throws UnknownHostException {
 
         final UpdateBuilder builder = new UpdateBuilder();
 

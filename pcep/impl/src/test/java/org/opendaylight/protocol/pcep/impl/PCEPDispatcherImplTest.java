@@ -190,7 +190,7 @@ public class PCEPDispatcherImplTest {
         private final EventExecutor executor;
         private final EventLoopGroup workerGroup;
 
-        PCCMock(final PCEPSessionNegotiatorFactory negotiatorFactory, final PCEPHandlerFactory factory) {
+        PCCMock(final PCEPSessionNegotiatorFactory<?> negotiatorFactory, final PCEPHandlerFactory factory) {
             this.workerGroup = Preconditions.checkNotNull(new NioEventLoopGroup());
             this.negotiatorFactory = Preconditions.checkNotNull(negotiatorFactory);
             this.factory = Preconditions.checkNotNull(factory);
@@ -210,9 +210,9 @@ public class PCEPDispatcherImplTest {
         Future<PCEPSession> createClient(final InetSocketAddress address, final int retryTimer,
             final int connectTimeout, final PCEPDispatcherImpl.ChannelPipelineInitializer initializer) {
             final Bootstrap b = new Bootstrap();
-            final PCEPProtocolSessionPromise p = new PCEPProtocolSessionPromise(this.executor, address, retryTimer,
+            final PCEPProtocolSessionPromise p = new PCEPProtocolSessionPromise<>(this.executor, address, retryTimer,
                 connectTimeout, b);
-            (b.option(ChannelOption.SO_KEEPALIVE, Boolean.TRUE)).handler(new ChannelInitializer<SocketChannel>() {
+            b.option(ChannelOption.SO_KEEPALIVE, Boolean.TRUE).handler(new ChannelInitializer<SocketChannel>() {
                 @Override
                 protected void initChannel(final SocketChannel ch) {
                     initializer.initializeChannel(ch, p);
@@ -225,12 +225,11 @@ public class PCEPDispatcherImplTest {
             return p;
         }
 
-        private void setChannelFactory(final Bootstrap b) {
+        private static void setChannelFactory(final Bootstrap b) {
             try {
                 b.channel(NioSocketChannel.class);
             } catch (final IllegalStateException ignored) {
             }
-
         }
 
         private void setWorkerGroup(final Bootstrap b) {

@@ -69,7 +69,7 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
         super(dataProvider, locRibReference, topologyId, topologyTypes, afi, safi);
     }
 
-    private NodeId advertizingNode(final Attributes attrs) {
+    private static NodeId advertizingNode(final Attributes attrs) {
         final CNextHop nh = attrs.getCNextHop();
         if (nh == null) {
             LOG.warn("Next hop value is null");

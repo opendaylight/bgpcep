@@ -101,7 +101,7 @@ public final class LinkstateRIBSupport extends AbstractRIBSupport {
         }
     }
 
-    private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode linkstate) {
+    private static NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode linkstate) {
         final ByteBuf buffer = Unpooled.buffer();
         final CLinkstateDestination cLinkstateDestination = LinkstateNlriParser.extractLinkstateDestination(linkstate);
         SimpleNlriTypeRegistry.getInstance().serializeNlriType(cLinkstateDestination, buffer);
@@ -124,7 +124,7 @@ public final class LinkstateRIBSupport extends AbstractRIBSupport {
                 setCLinkstateDestination(extractRoutes(routes)).build()).build();
     }
 
-    private List<CLinkstateDestination> extractRoutes(final Collection<MapEntryNode> routes) {
+    private static List<CLinkstateDestination> extractRoutes(final Collection<MapEntryNode> routes) {
         return routes.stream().map(LinkstateNlriParser::extractLinkstateDestination).collect(Collectors.toList());
     }
 }

@@ -17,6 +17,7 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.WriteBufferWaterMark;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollChannelOption;
 import io.netty.channel.epoll.EpollEventLoopGroup;
@@ -50,9 +51,9 @@ import org.slf4j.LoggerFactory;
 public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(BGPDispatcherImpl.class);
     private static final int SOCKET_BACKLOG_SIZE = 128;
-    private static final int HIGH_WATER_MARK = 256 * 1024;
-    private static final int LOW_WATER_MARK = 128 * 1024;
     private static final long TIMEOUT = 10;
+
+    private static final WriteBufferWaterMark WATER_MARK = new WriteBufferWaterMark(128 * 1024, 256 * 1024);
 
     private final BGPHandlerFactory handlerFactory;
     private final EventLoopGroup bossGroup;
@@ -80,10 +81,11 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     private synchronized Future<BGPSessionImpl> createClient(final InetSocketAddress remoteAddress,
         final int retryTimer, final Bootstrap clientBootStrap) {
         final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(this.bgpPeerRegistry);
-        final ChannelPipelineInitializer initializer = BGPChannel.createChannelPipelineInitializer(this.handlerFactory, snf);
+        final ChannelPipelineInitializer<BGPSessionImpl> initializer = BGPChannel.createChannelPipelineInitializer(
+            this.handlerFactory, snf);
 
-        final BGPProtocolSessionPromise sessionPromise = new BGPProtocolSessionPromise(remoteAddress, retryTimer,
-            clientBootStrap, this.bgpPeerRegistry);
+        final BGPProtocolSessionPromise<BGPSessionImpl> sessionPromise = new BGPProtocolSessionPromise<>(remoteAddress,
+                retryTimer, clientBootStrap, this.bgpPeerRegistry);
         clientBootStrap.handler(BGPChannel.createClientChannelHandler(initializer, sessionPromise));
         sessionPromise.connect();
         LOG.debug("Client created.");
@@ -117,8 +119,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         // Make sure we are doing round-robin processing
         bootstrap.option(ChannelOption.MAX_MESSAGES_PER_READ, 1);
         bootstrap.option(ChannelOption.SO_KEEPALIVE, Boolean.TRUE);
-        bootstrap.option(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, HIGH_WATER_MARK);
-        bootstrap.option(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, LOW_WATER_MARK);
+        bootstrap.option(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK);
         bootstrap.option(ChannelOption.SO_REUSEADDR, reuseAddress);
 
         if (bootstrap.group() == null) {
@@ -150,7 +151,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(this.bgpPeerRegistry);
         final Bootstrap bootstrap = createClientBootStrap(keys, reuseAddress);
         bootstrap.localAddress(localAddress);
-        final BGPReconnectPromise reconnectPromise = new BGPReconnectPromise(GlobalEventExecutor.INSTANCE,
+        final BGPReconnectPromise<?> reconnectPromise = new BGPReconnectPromise<>(GlobalEventExecutor.INSTANCE,
             remoteAddress, retryTimer, bootstrap, this.bgpPeerRegistry,
             BGPChannel.createChannelPipelineInitializer(this.handlerFactory, snf));
         reconnectPromise.connect();
@@ -160,7 +161,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     @Override
     public synchronized ChannelFuture createServer(final InetSocketAddress serverAddress) {
         final BGPServerSessionNegotiatorFactory snf = new BGPServerSessionNegotiatorFactory(this.bgpPeerRegistry);
-        final ChannelPipelineInitializer initializer = BGPChannel.createChannelPipelineInitializer(this.handlerFactory, snf);
+        final ChannelPipelineInitializer<?> initializer = BGPChannel.createChannelPipelineInitializer(this.handlerFactory, snf);
         final ServerBootstrap serverBootstrap = createServerBootstrap(initializer);
         final ChannelFuture channelFuture = serverBootstrap.bind(serverAddress);
         LOG.debug("Initiated server {} at {}.", channelFuture, serverAddress);
@@ -185,8 +186,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
 
         serverBootstrap.option(ChannelOption.SO_BACKLOG, SOCKET_BACKLOG_SIZE);
         serverBootstrap.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
-        serverBootstrap.childOption(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, HIGH_WATER_MARK);
-        serverBootstrap.childOption(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, LOW_WATER_MARK);
+        serverBootstrap.childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK);
 
         // Make sure we are doing round-robin processing
         serverBootstrap.option(ChannelOption.MAX_MESSAGES_PER_READ, 1);
@@ -204,7 +204,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
 
         }
 
-        static <T extends BGPSessionNegotiatorFactory> ChannelPipelineInitializer
+        static <S extends BGPSession, T extends BGPSessionNegotiatorFactory<S>> ChannelPipelineInitializer<S>
         createChannelPipelineInitializer(final BGPHandlerFactory hf, final T snf) {
             return (channel, promise) -> {
                 channel.pipeline().addLast(hf.getDecoders());
@@ -213,7 +213,8 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
             };
         }
 
-        static <S extends BGPSession> ChannelHandler createClientChannelHandler(final ChannelPipelineInitializer initializer, final Promise<S> promise) {
+        static <S extends BGPSession> ChannelHandler createClientChannelHandler(
+                final ChannelPipelineInitializer<S> initializer, final Promise<S> promise) {
             return new ChannelInitializer<SocketChannel>() {
                 @Override
                 protected void initChannel(final SocketChannel channel) {

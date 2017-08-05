@@ -150,7 +150,7 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
             .getActualTypeArguments()[0]).newInstance();
         this.manager = new ServerSessionManager(getDataBroker(), TOPO_IID, listenerFactory, RPC_TIMEOUT);
         this.manager.setRuntimeRootRegistrator(registrator);
-        this.manager.instantiateServiceInstance().checkedGet();
+        this.manager.instantiateServiceInstance().get();
         this.neg = new DefaultPCEPSessionNegotiator(mock(Promise.class), this.clientListener,
             this.manager.getSessionListener(), (short) 1, 5, this.localPrefs);
         this.topologyRpcs = new TopologyRPCs(this.manager);

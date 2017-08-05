@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -160,19 +161,19 @@ public abstract class AbstractRouteEntryTest {
 
         final Map<PeerId, PeerExportGroup.PeerExporTuple> peers = new HashMap<>();
         doAnswer(invocation -> {
-            final BiConsumer action = (BiConsumer) invocation.getArguments()[0];
-            for (final Map.Entry<PeerId, PeerExporTuple> pid : peers.entrySet()) {
+            final BiConsumer<PeerId, YangInstanceIdentifier> action = (BiConsumer) invocation.getArguments()[0];
+            for (final Entry<PeerId, PeerExporTuple> pid : peers.entrySet()) {
                 action.accept(pid.getKey(), pid.getValue().getYii());
             }
             return null;
         }).when(this.pegNot).forEach(any());
-        doReturn(true).when(this.pegNot).containsPeer(any(PeerId.class));
+        doReturn(Boolean.TRUE).when(this.pegNot).containsPeer(any(PeerId.class));
 
         peers.put(PEER_ID, new PeerExportGroup.PeerExporTuple(PEER_YII, PeerRole.Ibgp));
         peers.put(PEER_ID2, new PeerExportGroup.PeerExporTuple(PEER_YII2, PeerRole.Ibgp));
         doAnswer(invocation -> {
-            final BiConsumer action = (BiConsumer) invocation.getArguments()[0];
-            for (final Map.Entry<PeerId, PeerExporTuple> pid : peers.entrySet()) {
+            final BiConsumer<PeerId, YangInstanceIdentifier> action = (BiConsumer) invocation.getArguments()[0];
+            for (final Entry<PeerId, PeerExporTuple> pid : peers.entrySet()) {
                 action.accept(pid.getKey(), pid.getValue().getYii());
             }
             return null;
@@ -180,9 +181,9 @@ public abstract class AbstractRouteEntryTest {
     }
 
     private void mockExportPolicies() {
-        doReturn(true).when(this.peerPT).isTableStructureInitialized(any(PeerId.class));
-        doReturn(true).when(this.peerPT).isTableSupported(PEER_ID);
-        doReturn(false).when(this.peerPT).isTableSupported(PEER_ID2);
+        doReturn(Boolean.TRUE).when(this.peerPT).isTableStructureInitialized(any(PeerId.class));
+        doReturn(Boolean.TRUE).when(this.peerPT).isTableSupported(PEER_ID);
+        doReturn(Boolean.FALSE).when(this.peerPT).isTableSupported(PEER_ID2);
         doAnswer(invocation -> {
             final Object[] args = invocation.getArguments();
             if (PeerRole.Ibgp.equals(args[0])) {
@@ -194,8 +195,8 @@ public abstract class AbstractRouteEntryTest {
             }
         }).when(this.peerPT).getPeerGroup(any(PeerRole.class));
 
-        doReturn(true).when(this.peerPT).isAddPathSupportedByPeer(PEER_ID);
-        doReturn(false).when(this.peerPT).isAddPathSupportedByPeer(PEER_ID2);
+        doReturn(Boolean.TRUE).when(this.peerPT).isAddPathSupportedByPeer(PEER_ID);
+        doReturn(Boolean.FALSE).when(this.peerPT).isAddPathSupportedByPeer(PEER_ID2);
     }
 
     private void mockRibSupport() {
@@ -228,7 +229,7 @@ public abstract class AbstractRouteEntryTest {
         }).when(this.ribSupport).routePath(any(YangInstanceIdentifier.class), any(PathArgument.class));
     }
 
-    private NormalizedNode<?, ?> createAttr() {
+    private static NormalizedNode<?, ?> createAttr() {
         final ContainerNode attributes = Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(ATTRS_EXTENSION_Q))
             .addChild(Builders.containerBuilder().withNodeIdentifier(ORIGIN_NID)
                 .addChild(Builders.leafBuilder().withNodeIdentifier(ORIGIN_VALUE_NID).withValue("igp").build()).build())

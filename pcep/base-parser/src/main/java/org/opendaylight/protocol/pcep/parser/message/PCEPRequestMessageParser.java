@@ -271,7 +271,9 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         return new SegmentComputationBuilder().setP2p(builder.build()).build();
     }
 
-    private State insertObject(final State state, final List<Object> objects, final List<VendorInformationObject> viObjects, final P2pBuilder builder, final List<Metrics> metrics, final List<Message> errors, final Rp rp) {
+    private static State insertObject(final State state, final List<Object> objects,
+            final List<VendorInformationObject> viObjects, final P2pBuilder builder, final List<Metrics> metrics,
+            final List<Message> errors, final Rp rp) {
         final Object obj = objects.get(0);
         switch (state) {
         case INIT:
@@ -352,7 +354,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         INIT, REPORTED_IN, VENDOR_INFO_LIST, LOAD_BIN, LSPA_IN, BANDWIDTH_IN, METRIC_IN, IRO_IN, RRO_IN, XRO_IN, OF_IN, CT_IN, END
     }
 
-    private Svec getValidSvec(final SvecBuilder builder, final List<Object> objects) {
+    private static Svec getValidSvec(final SvecBuilder builder, final List<Object> objects) {
         Preconditions.checkArgument(objects != null && !objects.isEmpty(), "Passed list can't be null or empty.");
 
         if (objects.get(0) instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.svec.object.Svec) {
@@ -380,7 +382,8 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         return builder.build();
     }
 
-    private SvecState insertObject(final SvecState state, final Object obj, final SvecBuilder builder, final List<Metrics> metrics, final List<VendorInformationObject> viObjects) {
+    private static SvecState insertObject(final SvecState state, final Object obj, final SvecBuilder builder,
+            final List<Metrics> metrics, final List<VendorInformationObject> viObjects) {
         switch (state) {
         case INIT:
             if (obj instanceof Of) {

@@ -114,7 +114,7 @@ public class RSVPActivator extends AbstractRSVPExtensionProviderActivator {
         return regs;
     }
 
-    private void registerRSVPTEParsers(final RSVPExtensionProviderContext context) {
+    private static void registerRSVPTEParsers(final RSVPExtensionProviderContext context) {
         final DetourObjectIpv4Parser detourIpv4 = new DetourObjectIpv4Parser();
         context.registerRsvpObjectParser(DetourObjectIpv4Parser.CLASS_NUM, DetourObjectIpv4Parser.CTYPE, detourIpv4);
         context.registerRsvpObjectSerializer(Ipv4DetourObject.class, detourIpv4);
@@ -211,7 +211,7 @@ public class RSVPActivator extends AbstractRSVPExtensionProviderActivator {
         context.registerRsvpObjectSerializer(SecondaryRecordRouteObject.class, srroTypeParser);
     }
 
-    private void registerLabelParsers(final List<AutoCloseable> regs, final RSVPExtensionProviderContext context) {
+    private static void registerLabelParsers(final List<AutoCloseable> regs, final RSVPExtensionProviderContext context) {
         final Type1LabelParser type1Parser = new Type1LabelParser();
         regs.add(context.registerLabelParser(Type1LabelParser.CTYPE, type1Parser));
         regs.add(context.registerLabelSerializer(Type1LabelCase.class, type1Parser));
@@ -225,7 +225,8 @@ public class RSVPActivator extends AbstractRSVPExtensionProviderActivator {
         regs.add(context.registerLabelSerializer(WavebandSwitchingLabelCase.class, wavebandParser));
     }
 
-    private void registerRROParsers(final List<AutoCloseable> regs, final RSVPExtensionProviderContext context, final LabelRegistry labelReg) {
+    private static void registerRROParsers(final List<AutoCloseable> regs, final RSVPExtensionProviderContext context,
+            final LabelRegistry labelReg) {
         final RROIpv4PrefixSubobjectParser ipv4prefixParser = new RROIpv4PrefixSubobjectParser();
         regs.add(context.registerRROSubobjectParser(RROIpv4PrefixSubobjectParser.TYPE, ipv4prefixParser));
         regs.add(context.registerRROSubobjectSerializer(
@@ -259,7 +260,7 @@ public class RSVPActivator extends AbstractRSVPExtensionProviderActivator {
         regs.add(context.registerRROSubobjectSerializer(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary.record.route.object.secondary.record.route.object.subobject.container.subobject.type.DynamicControlProtectionCase.class, srroDynamicParser));
     }
 
-    private void registerXROParsers(final List<AutoCloseable> regs, final RSVPExtensionProviderContext context) {
+    private static void registerXROParsers(final List<AutoCloseable> regs, final RSVPExtensionProviderContext context) {
         final XROIpv4PrefixSubobjectParser ipv4prefixParser = new XROIpv4PrefixSubobjectParser();
         regs.add(context.registerXROSubobjectParser(XROIpv4PrefixSubobjectParser.TYPE, ipv4prefixParser));
         regs.add(context.registerXROSubobjectSerializer(IpPrefixCase.class, ipv4prefixParser));
@@ -283,7 +284,8 @@ public class RSVPActivator extends AbstractRSVPExtensionProviderActivator {
         regs.add(context.registerXROSubobjectSerializer(PathKeyCase.class, pathKeyParser));
     }
 
-    private void registerEROParsers(final List<AutoCloseable> regs, final RSVPExtensionProviderContext context, final LabelRegistry labelReg) {
+    private static void registerEROParsers(final List<AutoCloseable> regs, final RSVPExtensionProviderContext context,
+            final LabelRegistry labelReg) {
         final EROIpv4PrefixSubobjectParser ipv4prefixParser = new EROIpv4PrefixSubobjectParser();
         regs.add(context.registerEROSubobjectParser(EROIpv4PrefixSubobjectParser.TYPE, ipv4prefixParser));
         regs.add(context.registerEROSubobjectSerializer(IpPrefixCase.class, ipv4prefixParser));

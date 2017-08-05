@@ -193,7 +193,7 @@ public final class BaseParserExtensionActivator extends AbstractPCEPExtensionPro
         return regs;
     }
 
-    private void registerObjectParsers(final List<AutoCloseable> regs, final PCEPExtensionProviderContext context) {
+    private static void registerObjectParsers(final List<AutoCloseable> regs, final PCEPExtensionProviderContext context) {
         final TlvRegistry tlvReg = context.getTlvHandlerRegistry();
         final VendorInformationTlvRegistry viTlvReg = context.getVendorInformationTlvRegistry();
         final PCEPOpenObjectParser openParser = new PCEPOpenObjectParser(tlvReg, viTlvReg);
@@ -266,8 +266,9 @@ public final class BaseParserExtensionActivator extends AbstractPCEPExtensionPro
         registerExtensionsObjectParsers(regs, context, tlvReg, viTlvReg, eroSubReg);
     }
 
-    private void registerExtensionsObjectParsers(final List<AutoCloseable> regs, final PCEPExtensionProviderContext context,
-        final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg, final EROSubobjectRegistry eroSubReg) {
+    private static void registerExtensionsObjectParsers(final List<AutoCloseable> regs,
+            final PCEPExtensionProviderContext context, final TlvRegistry tlvReg,
+            final VendorInformationTlvRegistry viTlvReg, final EROSubobjectRegistry eroSubReg) {
         final PCEPPathKeyObjectParser pathKeyParser = new PCEPPathKeyObjectParser(eroSubReg);
         regs.add(context.registerObjectParser(PCEPPathKeyObjectParser.CLASS, PCEPPathKeyObjectParser.TYPE, pathKeyParser));
         regs.add(context.registerObjectSerializer(
@@ -293,7 +294,8 @@ public final class BaseParserExtensionActivator extends AbstractPCEPExtensionPro
         registerMonitoringExtensionParsers(regs, context, tlvReg, viTlvReg);
     }
 
-    private void registerEROParsers(final List<AutoCloseable> regs, final PCEPExtensionProviderContext context, final LabelRegistry labelReg) {
+    private static void registerEROParsers(final List<AutoCloseable> regs, final PCEPExtensionProviderContext context,
+            final LabelRegistry labelReg) {
         final EROIpv4PrefixSubobjectParser ipv4prefixParser = new EROIpv4PrefixSubobjectParser();
         regs.add(context.registerEROSubobjectParser(EROIpv4PrefixSubobjectParser.TYPE, ipv4prefixParser));
         regs.add(context.registerEROSubobjectSerializer(IpPrefixCase.class, ipv4prefixParser));
@@ -317,7 +319,8 @@ public final class BaseParserExtensionActivator extends AbstractPCEPExtensionPro
         regs.add(context.registerEROSubobjectSerializer(LabelCase.class, labelParser));
     }
 
-    private void registerRROParsers(final List<AutoCloseable> regs, final PCEPExtensionProviderContext context, final LabelRegistry labelReg) {
+    private static void registerRROParsers(final List<AutoCloseable> regs, final PCEPExtensionProviderContext context,
+            final LabelRegistry labelReg) {
         final RROIpv4PrefixSubobjectParser ipv4prefixParser = new RROIpv4PrefixSubobjectParser();
         regs.add(context.registerRROSubobjectParser(RROIpv4PrefixSubobjectParser.TYPE, ipv4prefixParser));
         regs.add(context.registerRROSubobjectSerializer(
@@ -345,7 +348,7 @@ public final class BaseParserExtensionActivator extends AbstractPCEPExtensionPro
             labelParser));
     }
 
-    private void registerXROParsers(final List<AutoCloseable> regs, final PCEPExtensionProviderContext context) {
+    private static void registerXROParsers(final List<AutoCloseable> regs, final PCEPExtensionProviderContext context) {
         final XROIpv4PrefixSubobjectParser ipv4prefixParser = new XROIpv4PrefixSubobjectParser();
         regs.add(context.registerXROSubobjectParser(XROIpv4PrefixSubobjectParser.TYPE, ipv4prefixParser));
         regs.add(context.registerXROSubobjectSerializer(IpPrefixCase.class, ipv4prefixParser));
@@ -369,7 +372,7 @@ public final class BaseParserExtensionActivator extends AbstractPCEPExtensionPro
         regs.add(context.registerXROSubobjectSerializer(PathKeyCase.class, pathKeyParser));
     }
 
-    private void registerLabelParsers(final List<AutoCloseable> regs, final PCEPExtensionProviderContext context) {
+    private static void registerLabelParsers(final List<AutoCloseable> regs, final PCEPExtensionProviderContext context) {
         final Type1LabelParser type1Parser = new Type1LabelParser();
         regs.add(context.registerLabelParser(Type1LabelParser.CTYPE, type1Parser));
         regs.add(context.registerLabelSerializer(Type1LabelCase.class, type1Parser));
@@ -383,7 +386,7 @@ public final class BaseParserExtensionActivator extends AbstractPCEPExtensionPro
         regs.add(context.registerLabelSerializer(WavebandSwitchingLabelCase.class, wavebandParser));
     }
 
-    private void registerTlvParsers(final List<AutoCloseable> regs, final PCEPExtensionProviderContext context) {
+    private static void registerTlvParsers(final List<AutoCloseable> regs, final PCEPExtensionProviderContext context) {
         final NoPathVectorTlvParser noPathParser = new NoPathVectorTlvParser();
         regs.add(context.registerTlvParser(NoPathVectorTlvParser.TYPE, noPathParser));
         regs.add(context.registerTlvSerializer(NoPathVector.class, noPathParser));
@@ -409,8 +412,9 @@ public final class BaseParserExtensionActivator extends AbstractPCEPExtensionPro
         regs.add(context.registerTlvSerializer(PathSetupType.class, pstParser));
     }
 
-    private void registerMonitoringExtensionParsers(final List<AutoCloseable> regs, final PCEPExtensionProviderContext context,
-            final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
+    private static void registerMonitoringExtensionParsers(final List<AutoCloseable> regs,
+            final PCEPExtensionProviderContext context, final TlvRegistry tlvReg,
+            final VendorInformationTlvRegistry viTlvReg) {
         final PCEPMonitoringObjectParser monParser = new PCEPMonitoringObjectParser(tlvReg, viTlvReg);
         regs.add(context.registerObjectParser(PCEPMonitoringObjectParser.CLASS, PCEPMonitoringObjectParser.TYPE, monParser));
         regs.add(context.registerObjectSerializer(Monitoring.class, monParser));

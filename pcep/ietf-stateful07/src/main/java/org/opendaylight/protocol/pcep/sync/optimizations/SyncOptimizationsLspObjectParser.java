@@ -7,12 +7,10 @@
  */
 package org.opendaylight.protocol.pcep.sync.optimizations;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.pcep.ietf.initiated00.CInitiated00LspObjectParser;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.LspDbVersionTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.lsp.db.version.tlv.LspDbVersion;
@@ -35,12 +33,9 @@ public class SyncOptimizationsLspObjectParser extends CInitiated00LspObjectParse
     }
 
     private void serializeAugmentation(final Tlvs1 tlv, final ByteBuf body) {
-        if (tlv == null) {
-            return;
+        if (tlv != null) {
+            serializeTlv(tlv.getLspDbVersion(), body);
         }
-        Preconditions.checkArgument(tlv instanceof LspDbVersionTlv, "TLV object is not instance of LspDbVersionTlv.");
-        final LspDbVersionTlv dbVersion = tlv;
-        serializeTlv(dbVersion.getLspDbVersion(), body);
     }
 
     @Override

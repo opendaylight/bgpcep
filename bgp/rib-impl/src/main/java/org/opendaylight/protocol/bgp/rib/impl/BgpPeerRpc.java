@@ -11,6 +11,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
+import com.google.common.util.concurrent.MoreExecutors;
 import io.netty.channel.ChannelFuture;
 import java.util.Set;
 import java.util.concurrent.Future;
@@ -46,10 +47,9 @@ public class BgpPeerRpc implements BgpPeerRpcService {
             return Futures.transform(JdkFutureAdapters.listenInPoolThread(f), (Function<Void, RpcResult<Void>>) input1 -> {
                 if (f.isSuccess()) {
                     return RpcResultBuilder.<Void>success().build();
-                } else {
-                    return RpcResultBuilder.<Void>failed().withError(ErrorType.RPC, FAILURE_MSG).build();
                 }
-            });
+                return RpcResultBuilder.<Void>failed().withError(ErrorType.RPC, FAILURE_MSG).build();
+            }, MoreExecutors.directExecutor());
         }
         return RpcResultBuilder.<Void>failed().withError(ErrorType.RPC, FAILURE_MSG + " due to unsupported address families.").buildFuture();
     }
