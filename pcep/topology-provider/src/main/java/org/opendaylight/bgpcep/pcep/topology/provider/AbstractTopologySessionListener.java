@@ -251,6 +251,11 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         this.serverSessionManager.releaseNodeState(this.nodeState, session, isLspDbPersisted());
         this.nodeState = null;
         this.session = null;
+        try {
+            session.close();
+        } catch (Exception e1) {
+            LOG.error("Session {} cannot be closed.", session, e1);
+        }
         this.syncOptimization = null;
         unregister();
 

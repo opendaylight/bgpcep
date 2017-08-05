@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
+ import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.protocol.pcep.PCEPCloseTermination;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
@@ -88,6 +89,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
     private int maxUnknownMessages;
 
     // True if the listener should not be notified about events
+    @GuardedBy("this")
     private boolean closed = false;
 
     private final Channel channel;
@@ -206,12 +208,18 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
         return this.channel.close();
     }
 
+    @VisibleForTesting
+    public boolean isClosed() {
+        return this.closed;
+    }
+
     /**
      * Closes PCEP session without sending a Close message, as the channel is no longer active.
      */
     @Override
     public void close() {
         LOG.info("Closing PCEP session: {}", this);
+        this.closed = true;
         closeChannel();
     }
 
