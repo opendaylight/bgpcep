@@ -62,7 +62,7 @@ public class SimpleBmpMessageRegistry implements BmpMessageRegistry {
         serializer.serializeMessage(message, buffer);
     }
 
-    private int parseMessageHeader(final ByteBuf buffer) throws BmpDeserializationException {
+    private static int parseMessageHeader(final ByteBuf buffer) throws BmpDeserializationException {
         Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes cannot be null or empty.");
         Preconditions.checkArgument(buffer.readableBytes() >= COMMON_HEADER_LENGTH,
             "Too few bytes in passed array. Passed: %s. Expected: >= %s.", buffer.readableBytes(), COMMON_HEADER_LENGTH);

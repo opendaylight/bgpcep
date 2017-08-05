@@ -113,7 +113,7 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
         wTx.submit();
     }
 
-    private Ipv6Route createIpv6Route(final String netxHop) {
+    private static Ipv6Route createIpv6Route(final String netxHop) {
         final Attributes attribute = new AttributesBuilder()
             .setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build())
             .setCNextHop(new Ipv6NextHopCaseBuilder().setIpv6NextHop(

@@ -8,7 +8,6 @@
 
 package org.opendaylight.protocol.pcep.pcc.mock.protocol;
 
-import com.google.common.base.Optional;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -59,7 +58,7 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
 
     @Override
     public Future<PCEPSession> createClient(@Nonnull final InetSocketAddress remoteAddress, final long reconnectTime,
-        @Nonnull final PCEPSessionListenerFactory listenerFactory, @Nonnull final PCEPSessionNegotiatorFactory negotiatorFactory,
+        @Nonnull final PCEPSessionListenerFactory listenerFactory, @Nonnull final PCEPSessionNegotiatorFactory<? extends PCEPSession> negotiatorFactory,
         @Nullable final KeyMapping keys, @Nonnull final InetSocketAddress localAddress) {
         return createClient(remoteAddress, reconnectTime, listenerFactory, negotiatorFactory, keys, localAddress, BigInteger.ONE);
     }

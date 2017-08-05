@@ -126,7 +126,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         return regs;
     }
 
-    private void registerCapabilityParsers(final List<AutoCloseable> regs, final BGPExtensionProviderContext context) {
+    private static void registerCapabilityParsers(final List<AutoCloseable> regs, final BGPExtensionProviderContext context) {
         final AddressFamilyRegistry afiReg = context.getAddressFamilyRegistry();
         final SubsequentAddressFamilyRegistry safiReg = context.getSubsequentAddressFamilyRegistry();
 
@@ -159,7 +159,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerCapabilitySerializer(BgpExtendedMessageCapability.class, bgpextmessage));
     }
 
-    private void registerAttributeParsers(final List<AutoCloseable> regs, final BGPExtensionProviderContext context) {
+    private static void registerAttributeParsers(final List<AutoCloseable> regs, final BGPExtensionProviderContext context) {
         final BgpPrefixSidAttributeParser prefixSidAttributeParser = new BgpPrefixSidAttributeParser(context.getBgpPrefixSidTlvRegistry());
         regs.add(context.registerAttributeSerializer(BgpPrefixSid.class, prefixSidAttributeParser));
         regs.add(context.registerAttributeParser(BgpPrefixSidAttributeParser.TYPE, prefixSidAttributeParser));
@@ -228,7 +228,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerAttributeSerializer(UnrecognizedAttributes.class, new UnrecognizedAttributesSerializer()));
     }
 
-    private void registerMessageParsers(final List<AutoCloseable> regs, final BGPExtensionProviderContext context) {
+    private static void registerMessageParsers(final List<AutoCloseable> regs, final BGPExtensionProviderContext context) {
         final BGPOpenMessageParser omp = new BGPOpenMessageParser(context.getParameterRegistry());
         regs.add(context.registerMessageParser(BGPOpenMessageParser.TYPE, omp));
         regs.add(context.registerMessageSerializer(Open.class, omp));
@@ -252,7 +252,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerMessageSerializer(RouteRefresh.class, rrmp));
     }
 
-    private void registerExtendedCommunities(final List<AutoCloseable> regs, final BGPExtensionProviderContext context) {
+    private static void registerExtendedCommunities(final List<AutoCloseable> regs, final BGPExtensionProviderContext context) {
         final AsTwoOctetSpecificEcHandler twoOctetSpecificEcHandler = new AsTwoOctetSpecificEcHandler();
         regs.add(context.registerExtendedCommunityParser(twoOctetSpecificEcHandler.getType(true), twoOctetSpecificEcHandler.getSubType(),
                 twoOctetSpecificEcHandler));

@@ -11,11 +11,11 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Throwables;
 import com.google.common.util.concurrent.CheckedFuture;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EventListener;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -165,8 +165,10 @@ public class AbstractRIBTestSetup {
         final ModuleInfoBackedContext ctx = ModuleInfoBackedContext.create();
         try {
             ctx.registerModuleInfo(BindingReflections.getModuleInfo(Ipv4Route.class));
+        } catch (final RuntimeException e) {
+            throw e;
         } catch (final Exception e) {
-            throw Throwables.propagate(e);
+            throw new RuntimeException(e);
         }
         return ctx;
     }
@@ -190,7 +192,7 @@ public class AbstractRIBTestSetup {
         Mockito.doNothing().when(this.domTransWrite).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(YangInstanceIdentifier.class), Mockito.any(NormalizedNode.class));
         Mockito.doNothing().when(this.domTransWrite).delete(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(YangInstanceIdentifier.class));
         Mockito.doNothing().when(this.domTransWrite).merge(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(YangInstanceIdentifier.class), Mockito.any(NormalizedNode.class));
-        Mockito.doReturn(Optional.<DataObject>absent()).when(readFuture).checkedGet();
+        Mockito.doReturn(Optional.absent()).when(readFuture).checkedGet();
         Mockito.doReturn(readFuture).when(readTx).read(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(InstanceIdentifier.class));
         Mockito.doNothing().when(this.domChain).close();
         Mockito.doReturn(this.domTransWrite).when(this.domChain).newWriteOnlyTransaction();
@@ -256,9 +258,9 @@ public class AbstractRIBTestSetup {
         this.a1.close();
     }
 
-    private class listenerRegistration implements ListenerRegistration {
+    private class listenerRegistration implements ListenerRegistration<EventListener> {
         @Override
-        public Object getInstance() {
+        public EventListener getInstance() {
             return null;
         }
 

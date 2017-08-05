@@ -11,6 +11,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import org.opendaylight.bgpcep.programming.spi.Instruction;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.programming.spi.SchedulerException;
@@ -76,7 +77,7 @@ public abstract class AbstractInstructionExecutor implements FutureCallback<Inst
             LOG.info("Instuction {} failed to schedule", e.getMessage(), e);
             return new FailureCaseBuilder().setFailure(e.getFailure()).build();
         }
-        Futures.addCallback(s, fwd);
+        Futures.addCallback(s, fwd, MoreExecutors.directExecutor());
         return null;
     }
 
@@ -86,7 +87,7 @@ public abstract class AbstractInstructionExecutor implements FutureCallback<Inst
     public void onSuccess(final Instruction insn) {
         if (insn.checkedExecutionStart()) {
             final ListenableFuture<OperationResult> s = invokeOperation();
-            Futures.addCallback(s, new InstructionCallback(insn));
+            Futures.addCallback(s, new InstructionCallback(insn), MoreExecutors.directExecutor());
         }
     }
 

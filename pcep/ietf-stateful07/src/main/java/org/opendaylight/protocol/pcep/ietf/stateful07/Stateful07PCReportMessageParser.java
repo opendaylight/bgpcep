@@ -133,7 +133,8 @@ public class Stateful07PCReportMessageParser extends AbstractMessageParser {
         return null;
     }
 
-    private boolean validateLsp(final Object object, final boolean lspViaSR, final List<Message> errors, final ReportsBuilder builder) {
+    private static boolean validateLsp(final Object object, final boolean lspViaSR, final List<Message> errors,
+            final ReportsBuilder builder) {
         if (object instanceof Lsp) {
             final Lsp lsp = (Lsp) object;
             final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.Tlvs tlvs = lsp.getTlvs();
@@ -141,17 +142,18 @@ public class Stateful07PCReportMessageParser extends AbstractMessageParser {
                 final Message errorMsg = createErrorMsg(PCEPErrors.LSP_IDENTIFIERS_TLV_MISSING, Optional.absent());
                 errors.add(errorMsg);
                 return false;
-            } else {
-                builder.setLsp(lsp);
             }
-        } else {
-            errors.add(createErrorMsg(PCEPErrors.LSP_MISSING, Optional.absent()));
-            return false;
+
+            builder.setLsp(lsp);
+            return true;
         }
-        return true;
+
+        errors.add(createErrorMsg(PCEPErrors.LSP_MISSING, Optional.absent()));
+        return false;
     }
 
-    private boolean validatePath(final List<Object> objects, final List<Message> errors, final ReportsBuilder builder) {
+    private static boolean validatePath(final List<Object> objects, final List<Message> errors,
+            final ReportsBuilder builder) {
         final PathBuilder pBuilder = new PathBuilder();
         Object object = objects.remove(0);
         if (object instanceof Ero) {
@@ -165,7 +167,7 @@ public class Stateful07PCReportMessageParser extends AbstractMessageParser {
         return true;
     }
 
-    private void parsePath(final List<Object> objects, final PathBuilder builder) {
+    private static void parsePath(final List<Object> objects, final PathBuilder builder) {
         final List<Metrics> pathMetrics = Lists.newArrayList();
         Object obj;
         State state = State.INIT;
@@ -181,7 +183,8 @@ public class Stateful07PCReportMessageParser extends AbstractMessageParser {
         }
     }
 
-    private State insertObject(final State state, final Object obj, final PathBuilder builder, final List<Metrics> pathMetrics) {
+    private static State insertObject(final State state, final Object obj, final PathBuilder builder,
+            final List<Metrics> pathMetrics) {
         switch (state) {
         case INIT:
             if (obj instanceof Lspa) {

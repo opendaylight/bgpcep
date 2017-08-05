@@ -224,8 +224,8 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.update.lsp.args.Arguments updArgs = this.updateLspInput.getArguments();
         Assert.assertEquals(2, updArgs.getEro().getSubobject().size());
         final List<Subobject> subObjects = updArgs.getEro().getSubobject();
-        final IpPrefixCase prefix1 = ((IpPrefixCase)subObjects.get(0).getSubobjectType());
-        final IpPrefixCase prefix2 = ((IpPrefixCase)subObjects.get(1).getSubobjectType());
+        final IpPrefixCase prefix1 = (IpPrefixCase)subObjects.get(0).getSubobjectType();
+        final IpPrefixCase prefix2 = (IpPrefixCase)subObjects.get(1).getSubobjectType();
         Assert.assertEquals(IPV4_PREFIX1, prefix1.getIpPrefix().getIpPrefix().getIpv4Prefix().getValue());
         Assert.assertEquals(IPV4_PREFIX2, prefix2.getIpPrefix().getIpPrefix().getIpv4Prefix().getValue());
 
@@ -250,7 +250,7 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
         wTx.submit().checkedGet();
     }
 
-    private Node createNode(final NodeId nodeId, final TpId tpId, final String ipv4Address) {
+    private static Node createNode(final NodeId nodeId, final TpId tpId, final String ipv4Address) {
         final TerminationPointBuilder tpBuilder = new TerminationPointBuilder();
         tpBuilder.setTpId(tpId);
         tpBuilder.setKey(new TerminationPointKey(tpId));
@@ -264,7 +264,7 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
         return nodeBuilder.build();
     }
 
-    private ExplicitHops createExplicitHop(final String ipv4Prefix) {
+    private static ExplicitHops createExplicitHop(final String ipv4Prefix) {
         final ExplicitHopsBuilder explcitHopsBuilder = new ExplicitHopsBuilder();
         explcitHopsBuilder.addAugmentation(ExplicitHops1.class, new ExplicitHops1Builder().setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(new IpPrefixBuilder().setIpPrefix(new IpPrefix(new Ipv4Prefix(ipv4Prefix))).build()).build()).build());
         return explcitHopsBuilder.build();

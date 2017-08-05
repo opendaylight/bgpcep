@@ -8,8 +8,6 @@
 
 package org.opendaylight.protocol.bgp.rib.spi;
 
-import java.util.Collection;
-import java.util.Map;
 import java.util.function.BiConsumer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;

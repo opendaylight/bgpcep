@@ -44,14 +44,14 @@ public class FromExternalImportPolicyTest {
 
     @Test
     public void testEffectiveAttributes() {
-        DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder = createContBuilder(this.DATA_QNAME);
+        DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder = createContBuilder(DATA_QNAME);
         // local pref
         dataContBuilder.addChild(createContBuilder(LOCALPREF).addChild(createValueBuilder(100L, LOCALPREF, "pref").build()).build());
 
         // cluster pref
         String s = "404.40.40.40";
         LeafSetEntryNode<Object> entry1 = ImmutableLeafSetEntryNodeBuilder.create().withNodeIdentifier(
-            new NodeWithValue(CLUSTER, s)).withValue(s).build();
+            new NodeWithValue<>(CLUSTER, s)).withValue(s).build();
 
         dataContBuilder.addChild(createContBuilder(CLUSTERID).addChild(ImmutableLeafSetNodeBuilder.create().withNodeIdentifier(
             new NodeIdentifier(QName.create(CLUSTER, "cluster"))).withChild(entry1).build()).build());
@@ -83,7 +83,7 @@ public class FromExternalImportPolicyTest {
         FromExternalImportPolicy importPol = new FromExternalImportPolicy();
         final ContainerNode result = importPol.effectiveAttributes(dataContBuilder.build());
 
-        DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContExpected = createContBuilder(this.DATA_QNAME);
+        DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContExpected = createContBuilder(DATA_QNAME);
 
         dataContExpected.addChild(asPath);
         dataContExpected.addChild(resultNextHop);
@@ -92,14 +92,13 @@ public class FromExternalImportPolicyTest {
         assertEquals(dataContExpected.build(), result);
     }
 
-    private DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> createContBuilder(final QName qname) {
+    private static DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> createContBuilder(final QName qname) {
         return ImmutableContainerNodeSchemaAwareBuilder.create().withNodeIdentifier(new NodeIdentifier(qname));
     }
 
-    private <T> ImmutableLeafNodeBuilder<T> createValueBuilder(final T value, final QName qname, final String localName) {
+    private static <T> ImmutableLeafNodeBuilder<T> createValueBuilder(final T value, final QName qname, final String localName) {
         final ImmutableLeafNodeBuilder<T> valueBuilder = new ImmutableLeafNodeBuilder<>();
         valueBuilder.withNodeIdentifier(new NodeIdentifier(QName.create(qname, localName))).withValue(value);
         return valueBuilder;
     }
-
 }

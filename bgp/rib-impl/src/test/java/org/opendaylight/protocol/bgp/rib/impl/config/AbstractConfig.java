@@ -82,13 +82,13 @@ class AbstractConfig {
     @Mock
     protected BGPDispatcher dispatcher;
     @Mock
-    protected ServiceRegistration serviceRegistration;
+    protected ServiceRegistration<?> serviceRegistration;
     @Mock
     protected BGPPeerRegistry bgpPeerRegistry;
     @Mock
-    protected ListenerRegistration listener;
+    protected ListenerRegistration<?> listener;
     @Mock
-    protected Future future;
+    protected Future<?> future;
     @Mock
     protected DOMDataWriteTransaction domDW;
     @Mock
@@ -121,7 +121,7 @@ class AbstractConfig {
         Mockito.doNothing().when(this.domDW).put(eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class), any(MapEntryNode.class));
         Mockito.doNothing().when(this.domDW).delete(eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class));
         Mockito.doNothing().when(this.domDW).merge(eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class), any(NormalizedNode.class));
-        final CheckedFuture checkedFuture = mock(CheckedFuture.class);
+        final CheckedFuture<?, ?> checkedFuture = mock(CheckedFuture.class);
         Mockito.doAnswer(invocation -> {
             final Runnable callback = (Runnable) invocation.getArguments()[0];
             callback.run();

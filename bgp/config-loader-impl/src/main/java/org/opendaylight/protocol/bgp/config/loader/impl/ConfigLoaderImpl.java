@@ -152,7 +152,7 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
             try {
                 final WatchKey key = watchService.take();
                 if (key != null) {
-                    for (final WatchEvent event : key.pollEvents()) {
+                    for (final WatchEvent<?> event : key.pollEvents()) {
                         handleEvent(event.context().toString());
                     }
                     final boolean reset = key.reset();

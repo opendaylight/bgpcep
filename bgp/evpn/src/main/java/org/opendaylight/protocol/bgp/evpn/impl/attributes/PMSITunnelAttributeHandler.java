@@ -53,7 +53,7 @@ public final class PMSITunnelAttributeHandler implements AttributeParser, Attrib
         builder.addAugmentation(PmsiTunnelAugmentation.class, new PmsiTunnelAugmentationBuilder().setPmsiTunnel(pmsiTunnelBuilder.build()).build());
     }
 
-    private void parseMpls(final PmsiTunnelBuilder pmsiTunnelBuilder, final ByteBuf buffer) {
+    private static void parseMpls(final PmsiTunnelBuilder pmsiTunnelBuilder, final ByteBuf buffer) {
         final MplsLabel mpls = MplsLabelUtil.mplsLabelForByteBuf(buffer);
         if(mpls.getValue() != 0) {
             pmsiTunnelBuilder.setMplsLabel(mpls);
@@ -84,14 +84,14 @@ public final class PMSITunnelAttributeHandler implements AttributeParser, Attrib
         AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL, getType(), body, byteAggregator);
     }
 
-    private void serializeMpls(final MplsLabel mplsLabel, final ByteBuf body) {
+    private static void serializeMpls(final MplsLabel mplsLabel, final ByteBuf body) {
         if(mplsLabel == null) {
             body.writeZero(MPLS_LENGTH);
         }
         body.writeBytes(MplsLabelUtil.byteBufForMplsLabel(mplsLabel));
     }
 
-    private void serializeFlag(final PmsiTunnel pmsiTunnelAttribute, final ByteBuf body) {
+    private static void serializeFlag(final PmsiTunnel pmsiTunnelAttribute, final ByteBuf body) {
         body.writeBoolean(pmsiTunnelAttribute.isLeafInformationRequired());
     }
 

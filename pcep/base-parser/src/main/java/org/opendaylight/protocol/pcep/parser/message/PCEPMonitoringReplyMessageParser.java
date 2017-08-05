@@ -113,7 +113,8 @@ public class PCEPMonitoringReplyMessageParser extends AbstractMessageParser {
         return new PcmonrepBuilder().setPcmonrepMessage(builder.build()).build();
     }
 
-    private void validateSpecificMetrics(final List<Object> objects, final PcmonrepMessageBuilder builder) throws PCEPDeserializerException {
+    private static void validateSpecificMetrics(final List<Object> objects, final PcmonrepMessageBuilder builder)
+            throws PCEPDeserializerException {
         final List<SpecificMetrics> specificMetrics = new ArrayList<>();
         while (!objects.isEmpty()) {
             final SpecificMetricsBuilder smb = new SpecificMetricsBuilder();

@@ -118,7 +118,7 @@ public class BgpDeployerImplTest {
     private static final short SHORT = 0;
 
     @Mock
-    DataObjectModification dObject;
+    DataObjectModification<?> dObject;
     @Mock
     private BlueprintContainer blueprintContainer;
     @Mock
@@ -132,9 +132,9 @@ public class BgpDeployerImplTest {
     @Mock
     private DataTreeModification<Bgp> modification;
     @Mock
-    private ListenerRegistration dataTreeRegistration;
+    private ListenerRegistration<?> dataTreeRegistration;
     @Mock
-    private ServiceRegistration registration;
+    private ServiceRegistration<?> registration;
 
     private Collection<DataTreeModification<Bgp>> collection = Collections.singleton(this.modification);
 
@@ -160,7 +160,7 @@ public class BgpDeployerImplTest {
 
 
         Mockito.doNothing().when(this.wTx).merge(any(LogicalDatastoreType.class), any(InstanceIdentifier.class), any(NetworkInstance.class));
-        final CheckedFuture future = mock(CheckedFuture.class);
+        final CheckedFuture<?, ?> future = mock(CheckedFuture.class);
         Mockito.doReturn(future).when(this.wTx).submit();
         Mockito.doNothing().when(future).addListener(any(), any());
         Mockito.doReturn(this.dataTreeRegistration).when(this.dataBroker).registerDataTreeChangeListener(any(), any());
@@ -398,7 +398,7 @@ public class BgpDeployerImplTest {
     }
 
 
-   private Neighbor createNeighborExpected(final Class<? extends AfiSafiType> afi) {
+   private static Neighbor createNeighborExpected(final Class<? extends AfiSafiType> afi) {
         return new NeighborBuilder()
             .setAfiSafis(createAfiSafi(afi))
             .setConfig(createConfig())

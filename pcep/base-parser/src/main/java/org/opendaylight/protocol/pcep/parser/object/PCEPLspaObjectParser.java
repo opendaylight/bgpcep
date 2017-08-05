@@ -101,7 +101,7 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
         serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
     }
 
-    private void writeAttributeFilter(final AttributeFilter attributeFilter, final ByteBuf body) {
+    private static void writeAttributeFilter(final AttributeFilter attributeFilter, final ByteBuf body) {
         writeUnsignedInt(attributeFilter != null ? attributeFilter.getValue() : null, body);
     }
 

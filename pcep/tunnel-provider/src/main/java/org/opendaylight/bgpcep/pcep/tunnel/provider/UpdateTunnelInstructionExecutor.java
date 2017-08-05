@@ -8,10 +8,10 @@
 
 package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import org.opendaylight.bgpcep.pcep.topology.spi.AbstractInstructionExecutor;
 import org.opendaylight.bgpcep.programming.topology.TopologyProgrammingUtil;
 import org.opendaylight.bgpcep.programming.tunnel.TunnelProgrammingUtil;
@@ -74,7 +74,7 @@ final class UpdateTunnelInstructionExecutor extends AbstractInstructionExecutor 
             }
             return Futures.transform(
                 (ListenableFuture<RpcResult<UpdateLspOutput>>) this.topologyService.updateLsp(buildUpdateInput(link, node)),
-                (Function<RpcResult<UpdateLspOutput>, OperationResult>) RpcResult::getResult);
+                RpcResult::getResult, MoreExecutors.directExecutor());
         }
     }
 
@@ -93,7 +93,7 @@ final class UpdateTunnelInstructionExecutor extends AbstractInstructionExecutor 
         final AdministrativeStatus adminStatus = this.updateTunnelInput.getAugmentation(PcepUpdateTunnelInput1.class).getAdministrativeStatus();
         if (adminStatus != null) {
             args.addAugmentation(Arguments3.class, new Arguments3Builder().setLsp(new LspBuilder().
-                setAdministrative((adminStatus == AdministrativeStatus.Active) ? true : false).build()).build());
+                setAdministrative(adminStatus == AdministrativeStatus.Active ? true : false).build()).build());
         }
         ab.setArguments(args.build());
         return ab.build();

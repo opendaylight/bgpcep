@@ -53,13 +53,13 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         return regs;
     }
 
-    private void registerAttributesHandler(final BGPExtensionProviderContext context, final List<AutoCloseable> regs) {
+    private static void registerAttributesHandler(final BGPExtensionProviderContext context, final List<AutoCloseable> regs) {
         final PMSITunnelAttributeHandler pmsiParser = new PMSITunnelAttributeHandler(context.getAddressFamilyRegistry());
         regs.add(context.registerAttributeParser(pmsiParser.getType(), pmsiParser));
         regs.add(context.registerAttributeSerializer(pmsiParser.getClazz(), pmsiParser));
     }
 
-    private void registerNlriHandler(final BGPExtensionProviderContext context, final List<AutoCloseable> regs) {
+    private static void registerNlriHandler(final BGPExtensionProviderContext context, final List<AutoCloseable> regs) {
         final NextHopParserSerializer nextHopParser = new NextHopParserSerializer() {};
         final EvpnNlriParser nlriHandler = new EvpnNlriParser();
         regs.add(context.registerNlriParser(L2vpnAddressFamily.class, EvpnSubsequentAddressFamily.class,
@@ -67,7 +67,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerNlriSerializer(EvpnRoutes.class, nlriHandler));
     }
 
-    private void registerExtendedCommunities(final BGPExtensionProviderContext context, final List<AutoCloseable> regs) {
+    private static void registerExtendedCommunities(final BGPExtensionProviderContext context, final List<AutoCloseable> regs) {
         final DefaultGatewayExtCom defGEC = new DefaultGatewayExtCom();
         regs.add(context.registerExtendedCommunityParser(defGEC.getType(true), defGEC.getSubType(), defGEC));
         regs.add(context.registerExtendedCommunitySerializer(DefaultGatewayExtendedCommunityCase.class, defGEC));
@@ -88,6 +88,4 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerExtendedCommunityParser(l2a.getType(false), l2a.getSubType(), l2a));
         regs.add(context.registerExtendedCommunitySerializer(Layer2AttributesExtendedCommunityCase.class, l2a));
     }
-
-
 }

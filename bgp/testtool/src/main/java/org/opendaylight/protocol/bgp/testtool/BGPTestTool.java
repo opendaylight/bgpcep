@@ -75,7 +75,7 @@ final class BGPTestTool {
         } while (numberOfSpeakers > 0);
     }
 
-    private BGPDispatcher initializeActivator() {
+    private static BGPDispatcher initializeActivator() {
         final BGPActivator activator = new BGPActivator();
         final BGPExtensionProviderContext ctx = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance();
         activator.start(ctx);

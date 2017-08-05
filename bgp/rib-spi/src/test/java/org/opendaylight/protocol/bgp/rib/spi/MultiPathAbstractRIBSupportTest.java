@@ -123,9 +123,9 @@ public class MultiPathAbstractRIBSupportTest {
             .getLocalName().intern()))).build();
         final ContainerNode destination = Mockito.mock(ContainerNode.class);
         final ContainerNode route = Mockito.mock(ContainerNode.class);
-        final Optional optional = Mockito.mock(Optional.class);
-        final Optional destinationOptional = Mockito.mock(Optional.class);
-        final Optional destinationsOptional = Mockito.mock(Optional.class);
+        final Optional<?> optional = Mockito.mock(Optional.class);
+        final Optional<?> destinationOptional = Mockito.mock(Optional.class);
+        final Optional<?> destinationsOptional = Mockito.mock(Optional.class);
         final ChoiceNode destinations = Mockito.mock(ChoiceNode.class);
 
         doReturn(optional).when(this.nlri).getChild(new NodeIdentifier(WithdrawnRoutes.QNAME));

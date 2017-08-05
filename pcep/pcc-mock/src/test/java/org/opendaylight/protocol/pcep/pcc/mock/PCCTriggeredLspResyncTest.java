@@ -52,7 +52,7 @@ public class PCCTriggeredLspResyncTest extends PCCMockCommon {
         channel.close().get();
     }
 
-    private Message createTriggerLspResync() {
+    private static Message createTriggerLspResync() {
         final SrpBuilder srpBuilder = new SrpBuilder();
         srpBuilder.setOperationId(new SrpIdNumber(1L));
         srpBuilder.setProcessingRule(Boolean.TRUE);

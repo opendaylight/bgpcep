@@ -123,7 +123,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         return regs;
     }
 
-    private void registerBindingSubTlvs(final List<AutoCloseable> regs) {
+    private static void registerBindingSubTlvs(final List<AutoCloseable> regs) {
         final SimpleBindingSubTlvsRegistry simpleReg = SimpleBindingSubTlvsRegistry.getInstance();
 
         final SIDParser sidParser = new SIDParser();
@@ -167,7 +167,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(simpleReg.registerBindingSubTlvsSerializer(UnnumberedInterfaceIdBackupEroCase.class, backupUnnumberedParser));
     }
 
-    private void registerNlriCodecs(final List<AutoCloseable> regs, final SimpleNlriTypeRegistry nlriTypeReg) {
+    private static void registerNlriCodecs(final List<AutoCloseable> regs, final SimpleNlriTypeRegistry nlriTypeReg) {
 
         final NodeNlriParser nodeParser = new NodeNlriParser();
         regs.add(nlriTypeReg.registerNlriParser(nodeParser.getNlriType(), nodeParser));
@@ -191,7 +191,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
 
     }
 
-    private void registerNlriTlvCodecs(final List<AutoCloseable> regs, final SimpleNlriTypeRegistry nlriTypeReg) {
+    private static void registerNlriTlvCodecs(final List<AutoCloseable> regs, final SimpleNlriTypeRegistry nlriTypeReg) {
 
         final LocalNodeDescriptorTlvParser localParser = new LocalNodeDescriptorTlvParser();
         regs.add(nlriTypeReg.registerTlvParser(localParser.getType(), localParser));

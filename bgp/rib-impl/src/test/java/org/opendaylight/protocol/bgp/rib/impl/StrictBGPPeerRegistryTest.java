@@ -51,7 +51,7 @@ public class StrictBGPPeerRegistryTest {
     private StrictBGPPeerRegistry peerRegistry;
     private BGPSessionPreferences mockPreferences;
 
-    private Open createOpen(final Ipv4Address bgpId, final AsNumber as) {
+    private static Open createOpen(final Ipv4Address bgpId, final AsNumber as) {
         final List<BgpParameters> params = Lists.newArrayList(new BgpParametersBuilder()
         .setOptionalCapabilities(Lists.newArrayList(new OptionalCapabilitiesBuilder()
         .setCParameters(new CParametersBuilder()

@@ -107,7 +107,7 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
         b.childHandler(new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(final SocketChannel ch) {
-                initializer.initializeChannel(ch, new DefaultPromise(PCEPDispatcherImpl.this.executor));
+                initializer.initializeChannel(ch, new DefaultPromise<>(PCEPDispatcherImpl.this.executor));
             }
         });
         b.option(ChannelOption.SO_BACKLOG, SOCKET_BACKLOG_SIZE);
@@ -151,7 +151,7 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     }
 
     @Override
-    public final PCEPSessionNegotiatorFactory getPCEPSessionNegotiatorFactory() {
+    public final PCEPSessionNegotiatorFactory<?> getPCEPSessionNegotiatorFactory() {
         return this.snf;
     }
 }

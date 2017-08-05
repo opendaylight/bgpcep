@@ -8,10 +8,10 @@
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -86,7 +86,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
      *
      * @throws TransactionCommitFailedException exception
      */
-    synchronized CheckedFuture<Void, TransactionCommitFailedException> instantiateServiceInstance() {
+    synchronized ListenableFuture<Void> instantiateServiceInstance() {
         final TopologyKey key = InstanceIdentifier.keyOf(this.topology);
         final TopologyId topologyId = key.getTopologyId();
         final WriteTransaction tx = this.broker.newWriteOnlyTransaction();
@@ -95,7 +95,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
                 .addAugmentation(TopologyTypes1.class, new TopologyTypes1Builder().setTopologyPcep(
                     new TopologyPcepBuilder().build()).build()).build())
             .setNode(new ArrayList<>()).build(), true);
-        final CheckedFuture<Void, TransactionCommitFailedException> future = tx.submit();
+        final ListenableFuture<Void> future = tx.submit();
         Futures.addCallback(future, new FutureCallback<Void>() {
             @Override
             public void onSuccess(final Void result) {
@@ -106,7 +106,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
             public void onFailure(final Throwable t) {
                 LOG.error("Failed to create PCEP Topology {}.", topologyId.getValue(), t);
             }
-        });
+        }, MoreExecutors.directExecutor());
         return future;
     }
 
@@ -163,31 +163,31 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
     @Override
     public synchronized ListenableFuture<OperationResult> addLsp(final AddLspArgs input) {
         final TopologySessionListener l = checkSessionPresence(input.getNode());
-        return (l != null) ? l.addLsp(input) : OperationResults.UNSENT.future();
+        return l != null ? l.addLsp(input) : OperationResults.UNSENT.future();
     }
 
     @Override
     public synchronized ListenableFuture<OperationResult> removeLsp(final RemoveLspArgs input) {
         final TopologySessionListener l = checkSessionPresence(input.getNode());
-        return (l != null) ? l.removeLsp(input) : OperationResults.UNSENT.future();
+        return l != null ? l.removeLsp(input) : OperationResults.UNSENT.future();
     }
 
     @Override
     public synchronized ListenableFuture<OperationResult> updateLsp(final UpdateLspArgs input) {
         final TopologySessionListener l = checkSessionPresence(input.getNode());
-        return (l != null) ? l.updateLsp(input) : OperationResults.UNSENT.future();
+        return l != null ? l.updateLsp(input) : OperationResults.UNSENT.future();
     }
 
     @Override
     public synchronized ListenableFuture<OperationResult> ensureLspOperational(final EnsureLspOperationalInput input) {
         final TopologySessionListener l = checkSessionPresence(input.getNode());
-        return (l != null) ? l.ensureLspOperational(input) : OperationResults.UNSENT.future();
+        return l != null ? l.ensureLspOperational(input) : OperationResults.UNSENT.future();
     }
 
     @Override
     public synchronized ListenableFuture<OperationResult> triggerSync(final TriggerSyncArgs input) {
         final TopologySessionListener l = checkSessionPresence(input.getNode());
-        return (l != null) ? l.triggerSync(input) : OperationResults.UNSENT.future();
+        return l != null ? l.triggerSync(input) : OperationResults.UNSENT.future();
     }
 
     synchronized ListenableFuture<Void> closeServiceInstance() {
@@ -209,7 +209,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
         this.state.clear();
         final WriteTransaction t = this.broker.newWriteOnlyTransaction();
         t.delete(LogicalDatastoreType.OPERATIONAL, this.topology);
-        final CheckedFuture<Void, TransactionCommitFailedException> future = t.submit();
+        final ListenableFuture<Void> future = t.submit();
         Futures.addCallback(future, new FutureCallback<Void>() {
             @Override
             public void onSuccess(final Void result) {
@@ -220,7 +220,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
             public void onFailure(final Throwable t) {
                 LOG.warn("Failed to remove Topology {}", ServerSessionManager.this.topology, t);
             }
-        });
+        }, MoreExecutors.directExecutor());
         return future;
     }
 
@@ -234,6 +234,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
         return this.runtimeRootRegistration.get();
     }
 
+    @Override
     public void setPeerSpecificProposal(final InetSocketAddress address, final TlvsBuilder openBuilder) {
         Preconditions.checkNotNull(address);
         this.peerProposal.setPeerProposal(createNodeId(address.getAddress()), openBuilder);

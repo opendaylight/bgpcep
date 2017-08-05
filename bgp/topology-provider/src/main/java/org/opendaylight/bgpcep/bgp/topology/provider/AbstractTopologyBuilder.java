@@ -9,10 +9,10 @@ package org.opendaylight.bgpcep.bgp.topology.provider;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -201,7 +201,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
                 // we do nothing but print out the log. Transaction chain restart will be done in #onTransactionChainFailed()
                 LOG.error("Failed to propagate change (transaction {}) by listener {}", trans.getIdentifier(), AbstractTopologyBuilder.this, t);
             }
-        });
+        }, MoreExecutors.directExecutor());
     }
 
     @VisibleForTesting
@@ -240,7 +240,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
                 LOG.error("Failed to initialize topology {} (transaction {}) by listener {}", AbstractTopologyBuilder.this.topology,
                     trans.getIdentifier(), AbstractTopologyBuilder.this, t);
             }
-        });
+        }, MoreExecutors.directExecutor());
     }
 
     /**
@@ -251,7 +251,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
         Preconditions.checkNotNull(this.chain, "A valid transaction chain must be provided.");
         final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
         trans.delete(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier());
-        final CheckedFuture<Void, TransactionCommitFailedException> future = trans.submit();
+        final ListenableFuture<Void> future = trans.submit();
         Futures.addCallback(future, new FutureCallback<Void>() {
             @Override
             public void onSuccess(final Void result) {
@@ -263,7 +263,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
                 LOG.error("Unable to reset operational topology {} (transaction {})",
                     AbstractTopologyBuilder.this.topology, trans.getIdentifier(), t);
             }
-        });
+        }, MoreExecutors.directExecutor());
         clearTopology();
         return future;
     }
@@ -356,9 +356,9 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
                 this.listenerScheduledRestartEnforceCounter = 0;
                 resetListener();
                 return true;
-            } else {
-                resetTransactionChain();
             }
+
+            resetTransactionChain();
         }
         return false;
     }

@@ -47,7 +47,7 @@ public class BGPBinaryFileParserTest {
 
     }
 
-    private List<byte[]> extractFromFile(final String fileName) throws IOException {
+    private static List<byte[]> extractFromFile(final String fileName) throws IOException {
         final InputStream is = BGPBinaryFileParserTest.class.getResourceAsStream(fileName);
         assertNotNull("File not found - " + fileName);
         if (is == null) {

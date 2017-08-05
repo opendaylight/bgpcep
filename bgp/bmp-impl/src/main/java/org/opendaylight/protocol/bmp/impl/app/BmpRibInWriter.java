@@ -118,7 +118,7 @@ final class BmpRibInWriter {
      * @param tx
      * @return
      */
-    private ImmutableMap.Builder<TablesKey, TableContext> createTableInstance(final Set<TablesKey> tableTypes,
+    private static ImmutableMap.Builder<TablesKey, TableContext> createTableInstance(final Set<TablesKey> tableTypes,
         final YangInstanceIdentifier yangTableRootIId, final DOMDataWriteTransaction tx,
         final RIBExtensionConsumerContext ribExtensions, final BindingCodecTree tree) {
 
@@ -178,7 +178,7 @@ final class BmpRibInWriter {
      * @param message Update message containing prefixes in NLRI
      * @return MpReachNlri with prefixes from the nlri field
      */
-    private MpReachNlri prefixesToMpReach(final UpdateMessage message) {
+    private static MpReachNlri prefixesToMpReach(final UpdateMessage message) {
         final List<Ipv4Prefixes> prefixes = new ArrayList<>();
         for (final Ipv4Prefix p : message.getNlri().getNlri()) {
             prefixes.add(new Ipv4PrefixesBuilder().setPrefix(p).build());
@@ -200,7 +200,7 @@ final class BmpRibInWriter {
      * @param message Update message containing withdrawn routes
      * @return MpUnreachNlri with prefixes from the withdrawn routes field
      */
-    private MpUnreachNlri prefixesToMpUnreach(final UpdateMessage message) {
+    private static MpUnreachNlri prefixesToMpUnreach(final UpdateMessage message) {
         final List<Ipv4Prefixes> prefixes = new ArrayList<>();
         for (final Ipv4Prefix p : message.getWithdrawnRoutes().getWithdrawnRoutes()) {
             prefixes.add(new Ipv4PrefixesBuilder().setPrefix(p).build());

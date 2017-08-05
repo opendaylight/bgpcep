@@ -215,7 +215,7 @@ public class SrAttributeParserTest {
         assertArrayEquals(tested, ByteArray.getAllBytes(serializedRange));
     }
 
-    private void addSubTlvs(final List<SubTlvs> rangeSubTlvs) {
+    private static void addSubTlvs(final List<SubTlvs> rangeSubTlvs) {
         rangeSubTlvs.add(new SubTlvsBuilder().setRangeSubTlv(
             new SidLabelTlvCaseBuilder()
                 .setSidLabelIndex(new SidCaseBuilder().setSid(16909060L).build()).build()).build());
@@ -233,7 +233,7 @@ public class SrAttributeParserTest {
                 .setBindingSubTlvs(bindingSubTlvs).build()).build());
     }
 
-    private void addBindingSubTlvs(final List<BindingSubTlvs> bindingSubTlvs) {
+    private static void addBindingSubTlvs(final List<BindingSubTlvs> bindingSubTlvs) {
         bindingSubTlvs.add(new BindingSubTlvsBuilder().setBindingSubTlv(
             new PrefixSidCaseBuilder()
                 .setFlags(ISIS_PREFIX_FLAGS)

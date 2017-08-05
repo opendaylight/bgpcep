@@ -279,7 +279,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-remote-resources-plugin</artifactId>
-                <version>1.5</version>
                 <configuration>
                     <attachToMain>false</attachToMain>
                     <resourceBundles>

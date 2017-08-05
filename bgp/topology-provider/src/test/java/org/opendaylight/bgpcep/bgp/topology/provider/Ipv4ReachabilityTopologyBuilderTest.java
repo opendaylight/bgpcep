@@ -112,7 +112,7 @@ public class Ipv4ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
         wTx.submit();
     }
 
-    private Ipv4Route createIpv4Route(final String nextHop) {
+    private static Ipv4Route createIpv4Route(final String nextHop) {
         final Attributes attribute = new AttributesBuilder()
             .setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build())
             .setCNextHop(new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()

@@ -46,7 +46,7 @@ abstract class AbstractPrefixNlriParser extends AbstractNlriTypeCodec {
         serializePrefixDescriptor(prefix.getPrefixDescriptors(), buffer);
     }
 
-    private PrefixDescriptors parsePrefixDescriptor(final ByteBuf buffer) {
+    private static PrefixDescriptors parsePrefixDescriptor(final ByteBuf buffer) {
         final Map<QName, Object> tlvs = SimpleNlriTypeRegistry.getInstance().parseSubTlvs(buffer);
         final PrefixDescriptorsBuilder builder = new PrefixDescriptorsBuilder();
         builder.setMultiTopologyId((TopologyIdentifier) tlvs.get(MultiTopoIdTlvParser.MULTI_TOPOLOGY_ID_QNAME));
@@ -55,7 +55,7 @@ abstract class AbstractPrefixNlriParser extends AbstractNlriTypeCodec {
         return builder.build();
     }
 
-    private void serializePrefixDescriptor(final PrefixDescriptors tlv, final ByteBuf buffer) {
+    private static void serializePrefixDescriptor(final PrefixDescriptors tlv, final ByteBuf buffer) {
         final SimpleNlriTypeRegistry reg = SimpleNlriTypeRegistry.getInstance();
         reg.serializeTlv(MultiTopoIdTlvParser.MULTI_TOPOLOGY_ID_QNAME, tlv.getMultiTopologyId(), buffer);
         reg.serializeTlv(OspfRouteTlvParser.OSPF_ROUTE_TYPE_QNAME, tlv.getOspfRouteType(), buffer);

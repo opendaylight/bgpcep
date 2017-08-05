@@ -8,10 +8,10 @@
 
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import static org.mockito.Mockito.any;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 import static org.opendaylight.protocol.bgp.rib.impl.AdjRibInWriter.ATTRIBUTES_UPTODATE_FALSE;
@@ -128,6 +128,7 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         .node(RibSupportUtils.toYangTablesKey(new TablesKey(Ipv4AddressFamily.class,
             UnicastSubsequentAddressFamily.class))).node(Attributes.QNAME).node(QName.create(Attributes.QNAME, "uptodate"));
 
+    @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -170,7 +171,7 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         doReturn(this.domChain).when(this.domBroker).createTransactionChain(any());
         doReturn(this.tx).when(this.domChain).newWriteOnlyTransaction();
         final DOMDataTreeChangeService dOMDataTreeChangeService = mock(DOMDataTreeChangeService.class);
-        final ListenerRegistration listener = mock(ListenerRegistration.class);
+        final ListenerRegistration<?> listener = mock(ListenerRegistration.class);
         Mockito.doReturn(listener).when(dOMDataTreeChangeService).registerDataTreeChangeListener(any(), any());
         Mockito.doNothing().when(listener).close();
 
@@ -181,7 +182,7 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         Mockito.doNothing().when(this.tx).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL),
             any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         Mockito.doNothing().when(this.tx).delete(Mockito.any(LogicalDatastoreType.class), Mockito.any(YangInstanceIdentifier.class));
-        final CheckedFuture future = mock(CheckedFuture.class);
+        final CheckedFuture<?, ?> future = mock(CheckedFuture.class);
         Mockito.doAnswer(invocation -> {
             final Runnable callback = (Runnable) invocation.getArguments()[0];
             callback.run();
