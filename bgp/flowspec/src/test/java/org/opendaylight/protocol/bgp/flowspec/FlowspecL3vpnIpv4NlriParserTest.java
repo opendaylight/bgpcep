@@ -26,6 +26,7 @@ import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.bgp.flowspec.handlers.AbstractNumericOperandParser;
 import org.opendaylight.protocol.bgp.flowspec.handlers.AbstractOperandParser;
 import org.opendaylight.protocol.bgp.flowspec.handlers.BitmaskOperandParser;
+import org.opendaylight.protocol.bgp.flowspec.l3vpn.AbstractFlowspecL3vpnNlriParser;
 import org.opendaylight.protocol.bgp.flowspec.l3vpn.ipv4.FlowspecL3vpnIpv4NlriParser;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupport;
@@ -207,7 +208,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         result.setSafi(FlowspecL3vpnSubsequentAddressFamily.class);
         parser.parseNlri(Unpooled.wrappedBuffer(REACHED_NLRI), result);
 
-        final DestinationFlowspecL3vpnIpv4 flowspecDst = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecL3vpnIpv4Case) (result.getAdvertizedRoutes().getDestinationType()))
+        final DestinationFlowspecL3vpnIpv4 flowspecDst = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecL3vpnIpv4Case) result.getAdvertizedRoutes().getDestinationType())
             .getDestinationFlowspecL3vpnIpv4();
         final List<Flowspec> flows = flowspecDst.getFlowspec();
         final RouteDistinguisher rd = flowspecDst.getRouteDistinguisher();
@@ -233,7 +234,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         assertEquals("all packets to 10.0.1.0/32 AND from 1.2.3.4/32 AND where IP protocol equals to 6 AND where port is greater than or equals to 137 and is less than or equals to 139 or equals to 8080 AND where destination port is greater than 4089 or equals to 179 AND where source port equals to 8080 ", this.FS_PARSER.stringNlri(flows));
     }
 
-    private void testFlows(
+    private static void testFlows(
         final List<Flowspec> flows,
         final DestinationPrefixCase destinationPrefix,
         final SourcePrefixCase sourcePrefix,
@@ -253,17 +254,17 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         assertEquals(sps, flows.get(5).getFlowspecType());
     }
 
-    private FlowspecType createSps() {
+    private static FlowspecType createSps() {
         final List<SourcePorts> sports = Lists.newArrayList(new SourcePortsBuilder().setOp(new NumericOperand(false, true, true, false, false)).setValue(8080).build());
         return new SourcePortCaseBuilder().setSourcePorts(sports).build();
     }
 
-    private FlowspecType createProts() {
+    private static FlowspecType createProts() {
         final List<ProtocolIps> protocols = Lists.newArrayList(new ProtocolIpsBuilder().setOp(new NumericOperand(false, true, true, false, false)).setValue((short) 6).build());
         return new ProtocolIpCaseBuilder().setProtocolIps(protocols).build();
     }
 
-    private FlowspecType createDps() {
+    private static FlowspecType createDps() {
         final List<DestinationPorts> destports = Lists.newArrayList(new DestinationPortsBuilder().setOp(new NumericOperand(false, false, false, true, false)).setValue(4089).build(),
             new DestinationPortsBuilder().setOp(new NumericOperand(false, true, true, false, false)).setValue(179).build());
         return new DestinationPortCaseBuilder().setDestinationPorts(destports).build();
@@ -305,7 +306,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         result.setSafi(FlowspecL3vpnSubsequentAddressFamily.class);
         parser.parseNlri(Unpooled.wrappedBuffer(REACHED_NLRI_ADD_PATH), result, this.constraint);
 
-        final DestinationFlowspecL3vpnIpv4 flowspecDst = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecL3vpnIpv4Case) (result.getAdvertizedRoutes().getDestinationType()))
+        final DestinationFlowspecL3vpnIpv4 flowspecDst = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecL3vpnIpv4Case) result.getAdvertizedRoutes().getDestinationType())
             .getDestinationFlowspecL3vpnIpv4();
         final List<Flowspec> flows = flowspecDst.getFlowspec();
         final RouteDistinguisher rd = flowspecDst.getRouteDistinguisher();
@@ -332,7 +333,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         assertEquals("all packets to 10.0.1.0/32 AND from 1.2.3.4/32 AND where IP protocol equals to 6 AND where port is greater than or equals to 137 and is less than or equals to 139 or equals to 8080 AND where destination port is greater than 4089 or equals to 179 AND where source port equals to 8080 ", this.FS_PARSER.stringNlri(flows));
     }
 
-    private PortCase createPorts() {
+    private static PortCase createPorts() {
         final List<Ports> ports = Lists.newArrayList(new PortsBuilder().setOp(new NumericOperand(false, false, true, true, false)).setValue(137).build(),
             new PortsBuilder().setOp(new NumericOperand(true, false, true, false, true)).setValue(139).build(),
             new PortsBuilder().setOp(new NumericOperand(false, true, true, false, false)).setValue(8080).build());
@@ -378,7 +379,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         result.setSafi(FlowspecL3vpnSubsequentAddressFamily.class);
         parser.parseNlri(Unpooled.wrappedBuffer(UNREACHED_NLRI), result);
 
-        DestinationFlowspecL3vpnIpv4 flowspecDst = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecL3vpnIpv4Case) (result.getWithdrawnRoutes().getDestinationType()))
+        DestinationFlowspecL3vpnIpv4 flowspecDst = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecL3vpnIpv4Case) result.getWithdrawnRoutes().getDestinationType())
             .getDestinationFlowspecL3vpnIpv4();
         final List<Flowspec> flows = flowspecDst.getFlowspec();
         checkUnreachFlows(flows, icmpType, icmpCode, tcp, packet, dscp, fragment);
@@ -407,42 +408,43 @@ public class FlowspecL3vpnIpv4NlriParserTest {
 
     }
 
-    private FlowspecType createFragment() {
+    private static FlowspecType createFragment() {
         final List<Fragments> fragments = Lists.newArrayList(new FragmentsBuilder().setOp(new BitmaskOperand(false, true, true, false)).setValue(new Fragment(false, true, true, true)).build());
         return new FragmentCaseBuilder().setFragments(fragments).build();
     }
 
-    private FlowspecType createDscp() {
+    private static FlowspecType createDscp() {
         final List<Dscps> dscps = Lists.newArrayList(new DscpsBuilder().setOp(new NumericOperand(false, true, false, true, false)).setValue(new Dscp((short) 42)).build());
         return new DscpCaseBuilder().setDscps(dscps).build();
     }
 
-    private PacketLengthCase createPackets() {
+    private static PacketLengthCase createPackets() {
         final List<PacketLengths> packets = Lists.newArrayList(new PacketLengthsBuilder().setOp(new NumericOperand(false, true, false, false, true))
             .setValue(57005).build());
         return new PacketLengthCaseBuilder().setPacketLengths(packets).build();
     }
 
-    private TcpFlagsCase createTcp() {
+    private static TcpFlagsCase createTcp() {
         final List<TcpFlags> flags = Lists.newArrayList(new TcpFlagsBuilder().setOp(new BitmaskOperand(false, false, false, true)).setValue(1025).build(),
             new TcpFlagsBuilder().setOp(new BitmaskOperand(false, true, true, false)).setValue(22193).build());
         return new TcpFlagsCaseBuilder().setTcpFlags(flags).build();
     }
 
-    private FlowspecType createIcmpCode() {
+    private static FlowspecType createIcmpCode() {
         final List<Codes> codes = Lists.newArrayList(new CodesBuilder().setOp(new NumericOperand(false, false, false, false, true)).setValue((short) 4).build(),
             new CodesBuilder().setOp(new NumericOperand(false, true, false, false, false)).setValue((short) 5).build());
         return new IcmpCodeCaseBuilder().setCodes(codes).build();
     }
 
-    private FlowspecType createIcmpType() {
+    private static FlowspecType createIcmpType() {
         final List<Types> types = Lists.newArrayList(new TypesBuilder().setOp(new NumericOperand(false, false, false, false, true)).setValue((short) 2).build(),
             new TypesBuilder().setOp(new NumericOperand(false, true, false, false, true)).setValue((short) 3).build());
         return new IcmpTypeCaseBuilder().setTypes(types).build();
     }
 
-    private void checkUnreachFlows(final List<Flowspec> flows, final FlowspecType icmpType, final FlowspecType icmpCode, final TcpFlagsCase tcp,
-                                   final PacketLengthCase packet, final FlowspecType dscp, final FlowspecType fragment) {
+    private static void checkUnreachFlows(final List<Flowspec> flows, final FlowspecType icmpType,
+            final FlowspecType icmpCode, final TcpFlagsCase tcp,
+            final PacketLengthCase packet, final FlowspecType dscp, final FlowspecType fragment) {
         assertEquals(6, flows.size());
         assertEquals(icmpType, flows.get(0).getFlowspecType());
         assertEquals(icmpCode, flows.get(1).getFlowspecType());
@@ -490,7 +492,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         result.setSafi(FlowspecL3vpnSubsequentAddressFamily.class);
         parser.parseNlri(Unpooled.wrappedBuffer(UNREACHED_NLRI_ADD_PATH), result, this.constraint);
 
-        DestinationFlowspecL3vpnIpv4 flowspecDst = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecL3vpnIpv4Case) (result.getWithdrawnRoutes().getDestinationType()))
+        DestinationFlowspecL3vpnIpv4 flowspecDst = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecL3vpnIpv4Case) result.getWithdrawnRoutes().getDestinationType())
             .getDestinationFlowspecL3vpnIpv4();
         final List<Flowspec> flows = flowspecDst.getFlowspec();
         checkUnreachFlows(flows, icmpType, icmpCode, tcp, packet, dscp, fragment);
@@ -802,7 +804,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         );
 
         RouteDistinguisher rd = RouteDistinguisherBuilder.getDefaultInstance(ROUTE_DISTINGUISHER);
-        assertEquals(rd, extractRouteDistinguisher(entry.build(), this.FS_PARSER.RD_NID));
+        assertEquals(rd, extractRouteDistinguisher(entry.build(), AbstractFlowspecL3vpnNlriParser.RD_NID));
     }
 }
 

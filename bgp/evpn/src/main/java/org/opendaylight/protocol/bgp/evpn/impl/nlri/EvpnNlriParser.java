@@ -101,7 +101,7 @@ public final class EvpnNlriParser implements NlriParser, NlriSerializer {
     }
 
     @Nullable
-    private List<EvpnDestination> parseNlri(final ByteBuf nlri) {
+    private static List<EvpnDestination> parseNlri(final ByteBuf nlri) {
         if (!nlri.isReadable()) {
             return null;
         }
@@ -126,8 +126,8 @@ public final class EvpnNlriParser implements NlriParser, NlriSerializer {
         final Attributes1 pathAttributes1 = pathAttributes.getAugmentation(Attributes1.class);
         final Attributes2 pathAttributes2 = pathAttributes.getAugmentation(Attributes2.class);
         if (pathAttributes1 != null) {
-            final AdvertizedRoutes routes = (pathAttributes1.getMpReachNlri()).getAdvertizedRoutes();
-            if ((routes != null) && (routes.getDestinationType() instanceof DestinationEvpnCase)) {
+            final AdvertizedRoutes routes = pathAttributes1.getMpReachNlri().getAdvertizedRoutes();
+            if (routes != null && routes.getDestinationType() instanceof DestinationEvpnCase) {
                 final DestinationEvpnCase evpnCase = (DestinationEvpnCase) routes.getDestinationType();
                 serializeNlri(evpnCase.getDestinationEvpn().getEvpnDestination(), byteAggregator);
             }

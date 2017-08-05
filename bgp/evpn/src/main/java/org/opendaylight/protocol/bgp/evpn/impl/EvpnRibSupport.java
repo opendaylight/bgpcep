@@ -91,7 +91,7 @@ final class EvpnRibSupport extends AbstractRIBSupport {
         return new DestinationEvpnCaseBuilder().setDestinationEvpn(new DestinationEvpnBuilder().setEvpnDestination(extractRoutes(routes)).build()).build();
     }
 
-    private List<EvpnDestination> extractRoutes(final Collection<MapEntryNode> routes) {
+    private static List<EvpnDestination> extractRoutes(final Collection<MapEntryNode> routes) {
         return routes.stream().map(EvpnNlriParser::extractEvpnDestination).collect(Collectors.toList());
     }
 

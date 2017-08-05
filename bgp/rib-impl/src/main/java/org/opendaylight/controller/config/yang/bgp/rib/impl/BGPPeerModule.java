@@ -115,9 +115,9 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
                     bgpDeployerTracker.close();
                     peerTracker.close();
                     return null;
-                } else {
-                    return method.invoke(peer, args);
                 }
+
+                return method.invoke(peer, args);
             }
         });
     }

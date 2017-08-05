@@ -149,7 +149,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
 
     private static final String FLOW_SEPARATOR = " AND ";
 
-    protected AbstractFlowspecNlriParser(SimpleFlowspecTypeRegistry flowspecTypeRegistry) {
+    protected AbstractFlowspecNlriParser(final SimpleFlowspecTypeRegistry flowspecTypeRegistry) {
         this.flowspecTypeRegistry = Preconditions.checkNotNull(flowspecTypeRegistry);
     }
 
@@ -187,7 +187,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
         final Attributes2 pathAttributes2 = pathAttributes.getAugmentation(Attributes2.class);
 
         if (pathAttributes1 != null) {
-            final AdvertizedRoutes routes = (pathAttributes1.getMpReachNlri()).getAdvertizedRoutes();
+            final AdvertizedRoutes routes = pathAttributes1.getMpReachNlri().getAdvertizedRoutes();
             if (routes != null) {
                 serializeMpReachNlri(routes.getDestinationType(), byteAggregator);
             }
@@ -636,8 +636,8 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     }
 
     @Nullable
-    protected final PathId readPathId(@Nonnull final ByteBuf nlri, final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi,
-        final PeerSpecificParserConstraint constraint) {
+    protected static final PathId readPathId(@Nonnull final ByteBuf nlri, final Class<? extends AddressFamily> afi,
+            final Class<? extends SubsequentAddressFamily> safi, final PeerSpecificParserConstraint constraint) {
         if (MultiPathSupportUtil.isTableTypeSupported(constraint, new BgpTableTypeImpl(afi, safi))) {
             return PathIdUtil.readPathId(nlri);
         }
@@ -645,7 +645,8 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     }
 
     @Override
-    public final void parseNlri(@Nonnull final ByteBuf nlri, @Nonnull final MpUnreachNlriBuilder builder, @Nullable final PeerSpecificParserConstraint constraint)
+    public final void parseNlri(@Nonnull final ByteBuf nlri, @Nonnull final MpUnreachNlriBuilder builder,
+            @Nullable final PeerSpecificParserConstraint constraint)
         throws BGPParsingException {
         if (!nlri.isReadable()) {
             return;

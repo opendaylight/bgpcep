@@ -29,7 +29,7 @@ public final class PerTableTypeRouteCounter {
     public PerTableTypeRouteCounter() {
     }
 
-    private synchronized void init(@Nonnull Set<TablesKey> tablesKeySet) {
+    private synchronized void init(@Nonnull final Set<TablesKey> tablesKeySet) {
         tablesKeySet.forEach(this::init);
     }
 
@@ -49,7 +49,6 @@ public final class PerTableTypeRouteCounter {
      * NOTE: the created empty counter won't be put into the original map
      *
      * @param tablesKey
-     * @return
      */
     @Nonnull public final LongAdder getCounterOrDefault(@Nonnull final TablesKey tablesKey) {
         return this.counters.getOrDefault(Preconditions.checkNotNull(tablesKey), new LongAdder());
@@ -60,14 +59,13 @@ public final class PerTableTypeRouteCounter {
      * This method will put the created empty counter back to map
      *
      * @param tablesKey
-     * @return
      */
     public final LongAdder getCounterOrSetDefault(@Nonnull final TablesKey tablesKey) {
         if (!this.counters.containsKey(tablesKey)) {
             return init(tablesKey);
-        } else {
-            return this.counters.get(Preconditions.checkNotNull(tablesKey));
         }
+
+        return this.counters.get(Preconditions.checkNotNull(tablesKey));
     }
 
     public final Map<TablesKey, LongAdder> getCounters() {

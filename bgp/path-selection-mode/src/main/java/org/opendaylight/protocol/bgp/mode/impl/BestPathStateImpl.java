@@ -245,7 +245,7 @@ public final class BestPathStateImpl implements BestPathState {
         return extracted;
     }
 
-    private List<AsNumber> extractAsList(final UnkeyedListEntryNode segment, final NodeIdentifier nid) {
+    private static List<AsNumber> extractAsList(final UnkeyedListEntryNode segment, final NodeIdentifier nid) {
         final List<AsNumber> ases = new ArrayList<>();
         final Optional<NormalizedNode<?, ?>> maybeAsList = NormalizedNodes.findNode(segment, nid);
         if (maybeAsList.isPresent()) {
@@ -282,9 +282,9 @@ public final class BestPathStateImpl implements BestPathState {
         final int prime = 31;
         int result = 1;
         result = prime * result + this.attributes.hashCode();
-        result = prime * result + ((this.localPref == null) ? 0 : this.localPref.hashCode());
-        result = prime * result + ((this.multiExitDisc == null) ? 0 : this.multiExitDisc.hashCode());
-        result = prime * result + ((this.origin == null) ? 0 : this.origin.hashCode());
+        result = prime * result + (this.localPref == null ? 0 : this.localPref.hashCode());
+        result = prime * result + (this.multiExitDisc == null ? 0 : this.multiExitDisc.hashCode());
+        result = prime * result + (this.origin == null ? 0 : this.origin.hashCode());
         return result;
     }
 

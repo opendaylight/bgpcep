@@ -62,11 +62,7 @@ public class PathSetupTypeTlvParser implements TlvParser, TlvSerializer {
         return new PathSetupTypeBuilder().setPst(pst).build();
     }
 
-    private boolean checkPST(final Short pst) {
-        if (pst != null) {
-            return PSTS.contains(pst);
-        }
-        return false;
+    private static boolean checkPST(final Short pst) {
+        return pst != null && PSTS.contains(pst);
     }
-
 }

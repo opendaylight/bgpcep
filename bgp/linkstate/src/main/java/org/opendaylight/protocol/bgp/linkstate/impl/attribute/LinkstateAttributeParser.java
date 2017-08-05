@@ -58,7 +58,7 @@ public final class LinkstateAttributeParser implements AttributeParser, Attribut
     private final RSVPTeObjectRegistry rsvpTeObjectRegistry;
 
     public LinkstateAttributeParser(final boolean isIanaAssignedType, final RSVPTeObjectRegistry rsvpTeObjectRegistry) {
-        this.type = (isIanaAssignedType) ? TYPE : LEGACY_TYPE;
+        this.type = isIanaAssignedType ? TYPE : LEGACY_TYPE;
         this.rsvpTeObjectRegistry = rsvpTeObjectRegistry;
     }
 
@@ -93,7 +93,7 @@ public final class LinkstateAttributeParser implements AttributeParser, Attribut
         builder.addAugmentation(Attributes1.class, a);
     }
 
-    private CLinkstateDestination getNlriType(final AttributesBuilder pab) {
+    private static CLinkstateDestination getNlriType(final AttributesBuilder pab) {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1 mpr = pab.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1.class);
         if (mpr != null && mpr.getMpReachNlri() != null) {
             final DestinationType dt = mpr.getMpReachNlri().getAdvertizedRoutes().getDestinationType();

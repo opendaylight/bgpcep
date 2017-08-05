@@ -49,18 +49,18 @@ public final class PCEPDispatcherImplModule extends AbstractPCEPDispatcherImplMo
 
         return Reflection.newProxy(AutoCloseablePCEPDispatcher.class, new AbstractInvocationHandler() {
             @Override
-            protected Object handleInvocation(Object proxy, Method method, Object[] args) throws Throwable {
+            protected Object handleInvocation(final Object proxy, final Method method, final Object[] args) throws Throwable {
                 if (method.getName().equals("close")) {
                     tracker.close();
                     return null;
-                } else {
-                    return method.invoke(service, args);
                 }
+
+                return method.invoke(service, args);
             }
         });
     }
 
-    void setBundleContext(BundleContext bundleContext) {
+    void setBundleContext(final BundleContext bundleContext) {
         this.bundleContext = bundleContext;
     }
 

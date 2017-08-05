@@ -208,7 +208,7 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
         this.up = false;
     }
 
-    private Set<TablesKey> setPeerTables(final ReceivedOpen open) {
+    private static Set<TablesKey> setPeerTables(final ReceivedOpen open) {
         final Set<TablesKey> tables = Sets.newHashSet(DEFAULT_TABLE);
         for (final BgpParameters param : open.getBgpParameters()) {
             for (final OptionalCapabilities optCapa : param.getOptionalCapabilities()) {
@@ -274,7 +274,7 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
         return mapEntryBuilder.build();
     }
 
-    private ContainerNode createStats(final Stat stat, final Timestamp timestamp) {
+    private static ContainerNode createStats(final Stat stat, final Timestamp timestamp) {
         final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> builder =
                 Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(Stats.QNAME));
         builder.withChild(ImmutableNodes.leafNode(PEER_STATS_TIMESTAMP_QNAME, timestamp.getValue()));
@@ -340,7 +340,7 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
         }
     }
 
-    private ContainerNode createMirrors(final Mirror mirror, final Timestamp timestamp) {
+    private static ContainerNode createMirrors(final Mirror mirror, final Timestamp timestamp) {
         final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> builder =
                 Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(Mirrors.QNAME));
         builder.withChild(ImmutableNodes.leafNode(PEER_MIRROR_INFORMATION_QNAME, toDom(MirrorInformationCode.forValue(

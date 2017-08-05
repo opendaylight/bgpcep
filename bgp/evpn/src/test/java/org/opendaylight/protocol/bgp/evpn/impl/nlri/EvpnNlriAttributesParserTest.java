@@ -56,7 +56,7 @@ public class EvpnNlriAttributesParserTest {
         assertArrayEquals(IncMultEthTagRParserTest.RESULT, ByteArray.getAllBytes(buffer));
     }
 
-    private MpReachNlri createReach() {
+    private static MpReachNlri createReach() {
         final MpReachNlriBuilder mpReachExpected = new MpReachNlriBuilder();
         final AdvertizedRoutes wd = new AdvertizedRoutesBuilder().setDestinationType(new DestinationEvpnCaseBuilder()
             .setDestinationEvpn(new DestinationEvpnBuilder().setEvpnDestination(Collections.singletonList(new EvpnDestinationBuilder()
@@ -73,7 +73,7 @@ public class EvpnNlriAttributesParserTest {
         assertArrayEquals(IncMultEthTagRParserTest.RESULT, ByteArray.getAllBytes(buffer));
     }
 
-    private MpUnreachNlri createUnreach() {
+    private static MpUnreachNlri createUnreach() {
         final MpUnreachNlriBuilder mpReachExpected = new MpUnreachNlriBuilder();
         final WithdrawnRoutes wd = new WithdrawnRoutesBuilder().setDestinationType(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationEvpnCaseBuilder()
             .setDestinationEvpn(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.evpn._case.DestinationEvpnBuilder().setEvpnDestination(Collections.singletonList(new EvpnDestinationBuilder()

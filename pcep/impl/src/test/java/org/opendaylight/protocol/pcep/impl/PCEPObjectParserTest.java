@@ -489,7 +489,7 @@ public class PCEPObjectParserTest {
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result.slice(4, result.readableBytes() - 4)));
         final ByteBuf buf = Unpooled.buffer();
-        parser.serializeObject(builder.build(), buf);
+        PCEPEndPointsIpv6ObjectParser.serializeObject(builder.build(), buf);
         assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
 
         try {

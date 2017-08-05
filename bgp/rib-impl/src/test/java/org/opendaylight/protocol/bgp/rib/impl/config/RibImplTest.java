@@ -77,11 +77,11 @@ public class RibImplTest extends AbstractConfig {
     @Mock
     private ClusterSingletonServiceProvider clusterSingletonServiceProvider;
     @Mock
-    private ListenerRegistration dataTreeRegistration;
+    private ListenerRegistration<?> dataTreeRegistration;
     @Mock
     private RIBSupport ribSupport;
     @Mock
-    private ServiceRegistration serviceRegistration;
+    private ServiceRegistration<?> serviceRegistration;
 
     @Override
     @Before
@@ -143,7 +143,7 @@ public class RibImplTest extends AbstractConfig {
         verify(this.serviceRegistration).unregister();
     }
 
-    private Global createGlobal() {
+    private static Global createGlobal() {
         return new GlobalBuilder()
             .setAfiSafis(new AfiSafisBuilder().setAfiSafi(AFISAFIS).build())
             .setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base

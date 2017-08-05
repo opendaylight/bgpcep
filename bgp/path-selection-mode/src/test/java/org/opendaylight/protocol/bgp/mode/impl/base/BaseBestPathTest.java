@@ -9,7 +9,6 @@
 package org.opendaylight.protocol.bgp.mode.impl.base;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.primitives.UnsignedInteger;

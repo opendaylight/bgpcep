@@ -16,8 +16,8 @@ import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.Ipv6InterfaceTlvParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.Ipv6NeighborTlvParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.MultiTopoIdTlvParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.AbstractNlriTypeCodec;
-import org.opendaylight.protocol.bgp.linkstate.spi.pojo.SimpleNlriTypeRegistry;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
+import org.opendaylight.protocol.bgp.linkstate.spi.pojo.SimpleNlriTypeRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.Ipv4InterfaceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.Ipv6InterfaceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkLrIdentifiers;
@@ -74,7 +74,7 @@ public final class LinkNlriParser extends AbstractNlriTypeCodec {
         }
     }
 
-    private LinkDescriptors parseLinkDescriptor(final ByteBuf buffer) {
+    private static LinkDescriptors parseLinkDescriptor(final ByteBuf buffer) {
         final Map<QName, Object> tlvs = SimpleNlriTypeRegistry.getInstance().parseSubTlvs(buffer);
         final LinkDescriptorsBuilder builder = new LinkDescriptorsBuilder();
 
@@ -114,7 +114,7 @@ public final class LinkNlriParser extends AbstractNlriTypeCodec {
         serializeLinkDescriptor(linkNlri.getLinkDescriptors(), buffer);
     }
 
-    private void serializeLinkDescriptor(final LinkDescriptors linkDescriptor, final ByteBuf body) {
+    private static void serializeLinkDescriptor(final LinkDescriptors linkDescriptor, final ByteBuf body) {
         final SimpleNlriTypeRegistry reg = SimpleNlriTypeRegistry.getInstance();
         if (linkDescriptor.getLinkLocalIdentifier() != null && linkDescriptor.getLinkRemoteIdentifier() != null) {
             reg.serializeTlv(LinkLrIdentifiers.QNAME, linkDescriptor, body);

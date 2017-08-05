@@ -65,7 +65,7 @@ public final class BGPPeerAcceptorImpl implements AutoCloseable {
         });
     }
 
-    private InetSocketAddress getAddress(final IpAddress ipAddress, final PortNumber portNumber) {
+    private static InetSocketAddress getAddress(final IpAddress ipAddress, final PortNumber portNumber) {
         final InetAddress inetAddr;
         try {
             inetAddr = InetAddress.getByName(ipAddress.getIpv4Address() != null ?

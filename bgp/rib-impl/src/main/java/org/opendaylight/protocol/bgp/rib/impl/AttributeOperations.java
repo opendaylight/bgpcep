@@ -145,7 +145,8 @@ final class AttributeOperations {
 
             final ListNodeBuilder<Object,LeafSetEntryNode<Object>> asSequenceBuilder = Builders.orderedLeafSetBuilder();
             // add local AS
-            asSequenceBuilder.withNodeIdentifier(this.asPathSequence).addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(this.asNumberQname, localAs)).withValue(localAs).build());
+            asSequenceBuilder.withNodeIdentifier(this.asPathSequence).addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(
+                new NodeWithValue<>(this.asNumberQname, localAs)).withValue(localAs).build());
 
             final Iterator<UnkeyedListEntryNode> oldAsSegments = ((UnkeyedListNode) maybeOldAsSegments.get()).getValue().iterator();
             final UnkeyedListEntryNode firstSegment = oldAsSegments.next();
@@ -153,7 +154,8 @@ final class AttributeOperations {
             // first segment contains as-sequence with less then 255 elements and it's append to local AS
             if (reusableAsSeq != null) {
                 for (final LeafSetEntryNode<?> child : reusableAsSeq.getValue())  {
-                    asSequenceBuilder.withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(this.asNumberQname, child.getValue())).withValue(child.getValue()).build());
+                    asSequenceBuilder.withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue<>(
+                            this.asNumberQname, child.getValue())).withValue(child.getValue()).build());
                 }
             }
             // Add the new first segment
@@ -173,7 +175,8 @@ final class AttributeOperations {
             // a single entry
             segmentsBuilder.withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(this.asPathSegments).withChild(
                 Builders.orderedLeafSetBuilder().withNodeIdentifier(this.asPathSequence).addChild(
-                    Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(this.asNumberQname, localAs)).withValue(localAs).build()).build()).build());
+                    Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue<>(this.asNumberQname, localAs))
+                    .withValue(localAs).build()).build()).build());
         }
 
         containerBuilder.withChild(Builders.containerBuilder().withNodeIdentifier(this.asPathContainer).withChild(segmentsBuilder.build()).build());
@@ -214,8 +217,8 @@ final class AttributeOperations {
         clusterBuilder.withNodeIdentifier(this.clusterListLeaf);
 
         // prepend local CLUSTER_ID
-        clusterBuilder.withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(this.clusterQname, clusterId.getValue())).
-            withValue(clusterId.getValue()).build());
+        clusterBuilder.withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue<>(
+                this.clusterQname, clusterId.getValue())).withValue(clusterId.getValue()).build());
 
         // if there was a CLUSTER_LIST attribute, add all other entries
         final Optional<NormalizedNode<?, ?>> maybeClusterList = NormalizedNodes.findNode(attributes, this.clusterListPath);

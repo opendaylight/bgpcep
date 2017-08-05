@@ -13,6 +13,7 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -414,7 +415,7 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
             public void onFailure(final Throwable t) {
                 LOG.error("Failed to propagate a topology change, target topology became inconsistent", t);
             }
-        });
+        }, MoreExecutors.directExecutor());
     }
 
     private void handleChangedNode(final DataObjectModification<?> changedNode, final InstanceIdentifier<?> iid,

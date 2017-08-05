@@ -15,7 +15,6 @@ import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyDeployer;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.TopologyReferenceSingletonService;
 import org.opendaylight.bgpcep.topology.TopologyReference;
 import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.RibKey;
@@ -55,9 +54,9 @@ public final class BackwardsCssTopologyProvider {
                     deployerTracker.close();
                     topologyTracker.close();
                     return null;
-                } else {
-                    return method.invoke(topologyService, args);
                 }
+
+                return method.invoke(topologyService, args);
             }
         });
     }

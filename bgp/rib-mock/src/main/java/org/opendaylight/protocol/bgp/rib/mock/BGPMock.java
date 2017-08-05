@@ -7,17 +7,13 @@
  */
 package org.opendaylight.protocol.bgp.rib.mock;
 
-import com.google.common.collect.Lists;
 import com.google.common.eventbus.EventBus;
-
 import io.netty.buffer.Unpooled;
-
 import java.io.Closeable;
+import java.util.ArrayList;
 import java.util.List;
-
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -46,16 +42,16 @@ public final class BGPMock implements Closeable {
     private final EventBus eventBus;
 
     @GuardedBy("this")
-    private final List<EventBusRegistration> openRegistrations = Lists.newLinkedList();
+    private final List<EventBusRegistration> openRegistrations = new ArrayList<>();
 
     public BGPMock(final EventBus eventBus, final MessageRegistry registry, final List<byte[]> bgpMessages) {
-        this.allPreviousByteMessages = Lists.newLinkedList(bgpMessages);
+        this.allPreviousByteMessages = new ArrayList<>(bgpMessages);
         this.eventBus = eventBus;
-        this.allPreviousBGPMessages = this.parsePrevious(registry, this.allPreviousByteMessages);
+        this.allPreviousBGPMessages = parsePrevious(registry, this.allPreviousByteMessages);
     }
 
-    private List<Notification> parsePrevious(final MessageRegistry registry, final List<byte[]> msgs) {
-        final List<Notification> messages = Lists.newArrayList();
+    private static List<Notification> parsePrevious(final MessageRegistry registry, final List<byte[]> msgs) {
+        final List<Notification> messages = new ArrayList<>();
         try {
             for (final byte[] b : msgs) {
 

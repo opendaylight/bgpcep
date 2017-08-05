@@ -11,8 +11,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.AbstractMap;
-import java.util.Map;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import org.opendaylight.bgp.concepts.NextHopUtil;
@@ -48,7 +48,7 @@ final class SimpleNlriRegistry implements NlriRegistry {
     private final ConcurrentMap<BgpTableType, NlriParser> handlers = new ConcurrentHashMap<>();
     private final ConcurrentMap<Class<? extends DataObject>, NlriSerializer> serializers = new ConcurrentHashMap<>();
     private final ConcurrentMap<BgpTableType, NextHopParserSerializer> nextHopParsers = new ConcurrentHashMap<>();
-    private final ConcurrentMap<Map.Entry<Class<? extends CNextHop>, BgpTableType>, NextHopParserSerializer> nextHopSerializers = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Entry<Class<? extends CNextHop>, BgpTableType>, NextHopParserSerializer> nextHopSerializers = new ConcurrentHashMap<>();
     private final SubsequentAddressFamilyRegistry safiReg;
     private final AddressFamilyRegistry afiReg;
 
@@ -94,10 +94,10 @@ final class SimpleNlriRegistry implements NlriRegistry {
         this.nextHopParsers.put(key,nextHopSerializer);
 
         if (cNextHopClass != null) {
-            final Map.Entry<Class<? extends CNextHop>, BgpTableType> nhKey = new AbstractMap.SimpleEntry(cNextHopClass, key);
+            final Entry<Class<? extends CNextHop>, BgpTableType> nhKey = new SimpleEntry<>(cNextHopClass, key);
             this.nextHopSerializers.put(nhKey, nextHopSerializer);
             for (final Class<? extends CNextHop> cNextHop : cNextHopClassList) {
-                final Map.Entry<Class<? extends CNextHop>, BgpTableType> nhKeys = new AbstractMap.SimpleEntry(cNextHop, key);
+                final Entry<Class<? extends CNextHop>, BgpTableType> nhKeys = new SimpleEntry<>(cNextHop, key);
                 this.nextHopSerializers.put(nhKeys, nextHopSerializer);
             }
         }
@@ -110,10 +110,10 @@ final class SimpleNlriRegistry implements NlriRegistry {
                     SimpleNlriRegistry.this.handlers.remove(key);
                     SimpleNlriRegistry.this.nextHopParsers.remove(key);
                     if (cNextHopClass != null) {
-                        final Map.Entry<Class<? extends CNextHop>, BgpTableType> nhKey = new AbstractMap.SimpleEntry(cNextHopClass, key);
+                        final Entry<Class<? extends CNextHop>, BgpTableType> nhKey = new SimpleEntry<>(cNextHopClass, key);
                         SimpleNlriRegistry.this.nextHopSerializers.remove(nhKey);
                         for (final Class<? extends CNextHop> cNextHop : cNextHopClassList) {
-                            final Map.Entry<Class<? extends CNextHop>, BgpTableType> nhKeys = new AbstractMap.SimpleEntry(cNextHop, key);
+                            final Entry<Class<? extends CNextHop>, BgpTableType> nhKeys = new SimpleEntry<>(cNextHop, key);
                             SimpleNlriRegistry.this.nextHopSerializers.remove(nhKeys);
                         }
                     }
@@ -167,8 +167,8 @@ final class SimpleNlriRegistry implements NlriRegistry {
 
         final CNextHop cNextHop = mpReachNlri.getCNextHop();
         if (cNextHop != null) {
-            final Map.Entry<Class<? extends CNextHop>, BgpTableType> key = new AbstractMap.SimpleEntry(cNextHop.getImplementedInterface(),
-                new BgpTableTypeImpl(afi, safi));
+            final Entry<Class<? extends CNextHop>, BgpTableType> key = new SimpleEntry(
+                    cNextHop.getImplementedInterface(), new BgpTableTypeImpl(afi, safi));
             final NextHopParserSerializer nextHopSerializer = this.nextHopSerializers.get(key);
             final ByteBuf nextHopBuffer = Unpooled.buffer();
             nextHopSerializer.serializeNextHop(cNextHop, nextHopBuffer);
