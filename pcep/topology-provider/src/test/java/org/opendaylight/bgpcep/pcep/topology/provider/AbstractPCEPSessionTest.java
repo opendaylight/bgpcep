@@ -46,9 +46,9 @@ import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopolo
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistrator;
 import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiator;
+import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
@@ -224,7 +224,7 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
         return this.manager.getSessionListener();
     }
 
-    protected final PCEPSession getPCEPSession(final Open localOpen, final Open remoteOpen) {
+    protected final PCEPSessionImpl getPCEPSession(final Open localOpen, final Open remoteOpen) {
         return this.neg.createSession(this.clientListener, localOpen, remoteOpen);
     }
 }
