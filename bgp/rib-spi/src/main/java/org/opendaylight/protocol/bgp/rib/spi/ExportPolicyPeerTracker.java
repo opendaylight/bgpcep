@@ -17,7 +17,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.SimpleRoutingPolicy;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 
 /**
  * Tracks peers for adj-rib-out writeout.
@@ -31,7 +30,8 @@ public interface ExportPolicyPeerTracker {
      * @param peerRole Role of the peer
      * @param simpleRoutingPolicy
      */
-    AbstractRegistration registerPeer(@Nonnull PeerId peerId, @Nullable SendReceive sendReceive, @Nonnull YangInstanceIdentifier peerPath, @Nonnull PeerRole peerRole,
+    AbstractRegistration registerPeer(@Nonnull PeerId peerId, @Nullable SendReceive sendReceive,
+            @Nonnull YangInstanceIdentifier peerPath, @Nonnull PeerRole peerRole,
         @Nonnull Optional<SimpleRoutingPolicy> simpleRoutingPolicy);
 
     /**

@@ -15,7 +15,6 @@ import static org.opendaylight.protocol.bgp.rib.impl.AbstractAddPathTest.AS_NUMB
 import static org.opendaylight.protocol.bgp.rib.impl.AbstractAddPathTest.BGP_ID;
 import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 
-import com.google.common.base.Throwables;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -36,9 +35,9 @@ import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTestCustomizer;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.sal.core.api.model.SchemaService;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
+import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
@@ -88,7 +87,7 @@ public class ParserToSalTest extends AbstractConcurrentDataBrokerTest {
     private ClusterSingletonServiceProvider clusterSingletonServiceProvider;
     private BindingCodecTreeFactory codecFactory;
 
-    private SchemaService schemaService;
+    private DOMSchemaService schemaService;
 
     @Before
     public void setUp() throws Exception {
@@ -99,7 +98,7 @@ public class ParserToSalTest extends AbstractConcurrentDataBrokerTest {
             final String hexMessages = "/bgp_hex.txt";
             bgpMessages = HexDumpBGPFileParser.parseMessages(ParserToSalTest.class.getResourceAsStream(hexMessages));
         } catch (final IOException e) {
-            throw Throwables.propagate(e);
+            throw new RuntimeException(e);
         }
         this.mock = new BGPMock(new EventBus("test"), ServiceLoaderBGPExtensionProviderContext
             .getSingletonInstance().getMessageRegistry(), Lists.newArrayList(fixMessages(bgpMessages)));

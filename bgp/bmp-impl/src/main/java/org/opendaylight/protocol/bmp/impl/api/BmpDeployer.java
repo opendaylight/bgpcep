@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bmp.impl.api;
 
 import com.google.common.annotations.Beta;
-import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.config.rev170517.odl.bmp.monitors.BmpMonitorConfig;

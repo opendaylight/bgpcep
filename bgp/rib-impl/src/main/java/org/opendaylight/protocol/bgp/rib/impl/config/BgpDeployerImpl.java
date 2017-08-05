@@ -13,12 +13,11 @@ import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUti
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getNeighborInstanceName;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getRibInstanceName;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Dictionary;
@@ -35,7 +34,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.InstanceType;
@@ -94,7 +92,7 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
             public void onFailure(final Throwable t) {
                 LOG.error("Failed to initialize Network Instance {}.", networkInstanceName, t);
             }
-        });
+        }, MoreExecutors.directExecutor());
         this.registration = dataBroker.registerDataTreeChangeListener(
             new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, this.networkInstanceIId.child(Protocols.class)
                 .child(Protocol.class).augmentation(Protocol1.class).child(Bgp.class)), this);
@@ -137,26 +135,25 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
         final ListenableFuture<List<Void>> futureOfRelevance = Futures.allAsList(futurePeerCloseList);
 
         final ListenableFuture<ListenableFuture<List<Void>>> maxRelevanceFuture = transform(futureOfRelevance,
-            (Function<List<Void>, ListenableFuture<List<Void>>>) futurePeersClose -> {
+            futurePeersClose -> {
                 this.peers.values().forEach(PeerBean::close);
                 BgpDeployerImpl.this.peers.clear();
 
                 final List<ListenableFuture<Void>> futureRIBCloseList = BgpDeployerImpl.this.ribs.values().stream()
                     .map(RibImpl::closeServiceInstance).collect(Collectors.toList());
                 return Futures.allAsList(futureRIBCloseList);
-            });
+            }, MoreExecutors.directExecutor());
 
-        final ListenableFuture<Void> ribFutureClose = transform(maxRelevanceFuture,
-            (Function<ListenableFuture<List<Void>>, Void>) futurePeersClose -> {
-                BgpDeployerImpl.this.ribs.values().forEach(RibImpl::close);
-                this.ribs.clear();
-                return null;
-            });
+        final ListenableFuture<Void> ribFutureClose = transform(maxRelevanceFuture, futurePeersClose -> {
+            BgpDeployerImpl.this.ribs.values().forEach(RibImpl::close);
+            this.ribs.clear();
+            return null;
+        }, MoreExecutors.directExecutor());
 
         ribFutureClose.get();
     }
 
-    private static CheckedFuture<Void, TransactionCommitFailedException> initializeNetworkInstance(
+    private static ListenableFuture<Void> initializeNetworkInstance(
         final DataBroker dataBroker, final InstanceIdentifier<NetworkInstance> networkInstance) {
         final WriteTransaction wTx = dataBroker.newWriteOnlyTransaction();
         wTx.merge(LogicalDatastoreType.CONFIGURATION, networkInstance,

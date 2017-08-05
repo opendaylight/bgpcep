@@ -33,12 +33,12 @@ public final class Util {
         final PcerrBuilder errMessageBuilder = new PcerrBuilder();
         final ErrorObject err = new ErrorObjectBuilder().setType(e.getErrorType()).setValue(e.getErrorValue()).build();
         if (t == null) {
-            return errMessageBuilder.setPcerrMessage(
-                    new PcerrMessageBuilder().setErrors(Collections.singletonList(new ErrorsBuilder().setErrorObject(err).build())).build()).build();
-        } else {
-            final ErrorType type = new SessionCaseBuilder().setSession(new SessionBuilder().setOpen(t).build()).build();
-            return errMessageBuilder.setPcerrMessage(
-                    new PcerrMessageBuilder().setErrors(Collections.singletonList(new ErrorsBuilder().setErrorObject(err).build())).setErrorType(type).build()).build();
+            return errMessageBuilder.setPcerrMessage(new PcerrMessageBuilder().setErrors(Collections.singletonList(
+                new ErrorsBuilder().setErrorObject(err).build())).build()).build();
         }
+
+        final ErrorType type = new SessionCaseBuilder().setSession(new SessionBuilder().setOpen(t).build()).build();
+        return errMessageBuilder.setPcerrMessage(
+            new PcerrMessageBuilder().setErrors(Collections.singletonList(new ErrorsBuilder().setErrorObject(err).build())).setErrorType(type).build()).build();
     }
 }

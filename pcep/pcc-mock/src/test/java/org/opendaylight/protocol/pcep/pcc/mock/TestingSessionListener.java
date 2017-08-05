@@ -30,7 +30,7 @@ public class TestingSessionListener implements PCEPSessionListener, ListenerChec
     private final CountDownLatch sessionLatch = new CountDownLatch(1);
 
     @GuardedBy("this")
-    private final List<Message> messages = new ArrayList();
+    private final List<Message> messages = new ArrayList<>();
 
     private boolean up = false;
     private PCEPSession session = null;

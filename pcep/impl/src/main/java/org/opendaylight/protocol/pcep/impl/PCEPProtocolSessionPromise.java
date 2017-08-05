@@ -19,10 +19,8 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
-
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
-
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +45,7 @@ public final class PCEPProtocolSessionPromise<S extends PCEPSession> extends Def
     }
 
     synchronized void connect() {
-        final PCEPProtocolSessionPromise lock = this;
+        final PCEPProtocolSessionPromise<?> lock = this;
 
         try {
             LOG.debug("Promise {} attempting connect for {}ms", lock, Integer.valueOf(this.connectTimeout));
@@ -58,7 +56,7 @@ public final class PCEPProtocolSessionPromise<S extends PCEPSession> extends Def
             this.b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, this.connectTimeout);
             this.b.remoteAddress(this.address);
             final ChannelFuture connectFuture = this.b.connect();
-            connectFuture.addListener(new PCEPProtocolSessionPromise.BootstrapConnectListener(lock));
+            connectFuture.addListener(new BootstrapConnectListener(lock));
             this.pending = connectFuture;
         } catch (Exception e) {
             LOG.info("Failed to connect to {}", this.address, e);
@@ -71,9 +69,9 @@ public final class PCEPProtocolSessionPromise<S extends PCEPSession> extends Def
         if (super.cancel(mayInterruptIfRunning)) {
             this.pending.cancel(mayInterruptIfRunning);
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     @Override
@@ -113,7 +111,7 @@ public final class PCEPProtocolSessionPromise<S extends PCEPSession> extends Def
                     final EventLoop loop = cf.channel().eventLoop();
                     loop.schedule(() -> {
                         PCEPProtocolSessionPromise.LOG.debug("Attempting to connect to {}", PCEPProtocolSessionPromise.this.address);
-                        final Future reconnectFuture = PCEPProtocolSessionPromise.this.b.connect();
+                        final Future<Void> reconnectFuture = PCEPProtocolSessionPromise.this.b.connect();
                         reconnectFuture.addListener(BootstrapConnectListener.this);
                         PCEPProtocolSessionPromise.this.pending = reconnectFuture;
                     }, PCEPProtocolSessionPromise.this.retryTimer, TimeUnit.SECONDS);

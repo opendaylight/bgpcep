@@ -9,6 +9,7 @@ package org.opendaylight.protocol.rsvp.parser.spi.subobjects;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Test;
@@ -28,23 +29,23 @@ public class CUISubobjectParserTest {
         final ByteBuf input = Unpooled.buffer(8);
         input.writeInt(this.routerId.intValue());
         input.writeInt(this.interfaceId.intValue());
-        final UnnumberedCase output = this.parser.parseUnnumeredInterface(input);
+        final UnnumberedCase output = CommonUnnumberedInterfaceSubobjectParser.parseUnnumeredInterface(input);
         assertEquals(this.routerId, output.getUnnumbered().getRouterId());
         assertEquals(this.interfaceId, output.getUnnumbered().getInterfaceId());
 
         final ByteBuf bytebuf = Unpooled.buffer(8);
-        this.parser.serializeUnnumeredInterface(output.getUnnumbered(), bytebuf);
+        CommonUnnumberedInterfaceSubobjectParser.serializeUnnumeredInterface(output.getUnnumbered(), bytebuf);
         assertArrayEquals(input.array(), bytebuf.array());
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void testException1() {
-        this.parser.serializeUnnumeredInterface(this.unnumbered1, Unpooled.EMPTY_BUFFER);
+        CommonUnnumberedInterfaceSubobjectParser.serializeUnnumeredInterface(this.unnumbered1, Unpooled.EMPTY_BUFFER);
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void testException2() {
-        this.parser.serializeUnnumeredInterface(this.unnumbered2, Unpooled.buffer(4));
+        CommonUnnumberedInterfaceSubobjectParser.serializeUnnumeredInterface(this.unnumbered2, Unpooled.buffer(4));
     }
 
 }

@@ -20,7 +20,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.subobject.type.path.key._case.PathKeyBuilder;
 
 public class CommonPathKeyParserTest {
-    private final CommonPathKeyParser parser = new CommonPathKeyParser();
     private PathKey key1;
     private PathKey key2;
     private PathKey key3;
@@ -40,22 +39,22 @@ public class CommonPathKeyParserTest {
 
     @Test(expected=IllegalArgumentException.class)
     public void testSerializationExcption1() {
-        this.parser.serializePathKey(this.key1);
+        CommonPathKeyParser.serializePathKey(this.key1);
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void testSerializationExcption2() {
-        this.parser.serializePathKey(this.key2);
+        CommonPathKeyParser.serializePathKey(this.key2);
     }
 
     @Test
     public void testSerialization() {
-        final ByteBuf output = this.parser.serializePathKey(this.key3);
+        final ByteBuf output = CommonPathKeyParser.serializePathKey(this.key3);
         assertArrayEquals(this.bytes, ByteArray.readAllBytes(output));
     }
 
     @Test
     public void testParsing() {
-        assertEquals(this.key3, this.parser.parsePathKey(2, Unpooled.copiedBuffer(this.bytes)));
+        assertEquals(this.key3, CommonPathKeyParser.parsePathKey(2, Unpooled.copiedBuffer(this.bytes)));
     }
 }

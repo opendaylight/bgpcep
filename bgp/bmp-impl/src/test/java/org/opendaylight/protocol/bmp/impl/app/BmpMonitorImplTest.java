@@ -284,7 +284,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         });
     }
 
-    private void waitWriteAndFlushSuccess(final ChannelFuture channelFuture) throws InterruptedException {
+    private static void waitWriteAndFlushSuccess(final ChannelFuture channelFuture) {
         waitFutureSuccess(channelFuture);
     }
 
@@ -460,7 +460,8 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         monitoringStation2.close();
     }
 
-    private Channel connectTestClient(final String routerIp, final BmpMessageRegistry msgRegistry) throws InterruptedException {
+    private static Channel connectTestClient(final String routerIp, final BmpMessageRegistry msgRegistry)
+            throws InterruptedException {
         final BmpHandlerFactory hf = new BmpHandlerFactory(msgRegistry);
         final Bootstrap b = new Bootstrap();
         final EventLoopGroup workerGroup;
@@ -487,7 +488,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         return future.channel();
     }
 
-    private RouterId getRouterId(final String routerIp) {
+    private static RouterId getRouterId(final String routerIp) {
         return new RouterId(new IpAddress(new Ipv4Address(routerIp)));
     }
 }

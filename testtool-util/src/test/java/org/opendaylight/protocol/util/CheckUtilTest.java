@@ -44,9 +44,9 @@ public class CheckUtilTest {
     @Mock
     private ReadOnlyTransaction readOnlyTransaction;
     @Mock
-    private CheckedFuture checkedFuture;
+    private CheckedFuture<?, ?> checkedFuture;
     @Mock
-    private Optional opt;
+    private Optional<?> opt;
     @Mock
     private MockInterface mockInterface;
     @Mock
@@ -91,15 +91,15 @@ public class CheckUtilTest {
 
     @Test(expected = NullPointerException.class)
     public void testReadDataNull() throws Exception {
-        doReturn(false).when(this.opt).isPresent();
-        final InstanceIdentifier instanceIdentifier = null;
+        doReturn(Boolean.FALSE).when(this.opt).isPresent();
+        final InstanceIdentifier<?> instanceIdentifier = null;
         readDataOperational(this.dataBroker, instanceIdentifier, test -> false);
     }
 
     @Test(expected = AssertionError.class)
     public void testReadDataNotEquall() throws Exception {
-        doReturn(true).when(this.opt).isPresent();
-        doReturn(false).when(this.mockInterface).getResult();
+        doReturn(Boolean.TRUE).when(this.opt).isPresent();
+        doReturn(Boolean.FALSE).when(this.mockInterface).getResult();
         readDataOperational(this.dataBroker, this.instanceIdentifier, test -> {
             assertTrue(test.getResult());
             return test;
@@ -108,7 +108,7 @@ public class CheckUtilTest {
 
     @Test(expected = AssertionError.class)
     public void testCheckNotPresent() throws Exception {
-        doReturn(true).when(this.opt).isPresent();
+        doReturn(Boolean.TRUE).when(this.opt).isPresent();
         checkNotPresentOperational(this.dataBroker, this.instanceIdentifier);
     }
 

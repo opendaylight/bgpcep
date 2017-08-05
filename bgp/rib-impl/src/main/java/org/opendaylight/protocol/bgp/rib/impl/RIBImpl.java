@@ -108,7 +108,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
     private final BgpDeployer.WriteConfiguration configurationWriter;
     private ClusterSingletonServiceRegistration registration;
     private final DOMDataBrokerExtension service;
-    private final Map<TransactionChain, LocRibWriter> txChainToLocRibWriter = new HashMap<>();
+    private final Map<TransactionChain<?, ?>, LocRibWriter> txChainToLocRibWriter = new HashMap<>();
     private final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies;
     private final ImportPolicyPeerTracker importPolicyPeerTracker;
     private final RIBImplRuntimeMXBeanImpl renderStats;
@@ -139,7 +139,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
         final InstanceIdentifierBuilder yangRibIdBuilder = YangInstanceIdentifier.builder().node(BgpRib.QNAME).node(Rib.QNAME);
         this.yangRibId = yangRibIdBuilder.nodeWithKey(Rib.QNAME, RIB_ID_QNAME, ribId.getValue()).build();
         this.bestPathSelectionStrategies = Preconditions.checkNotNull(bestPathSelectionStrategies);
-        final ClusterIdentifier cId = (clusterId == null) ? new ClusterIdentifier(localBgpId) : clusterId;
+        final ClusterIdentifier cId = clusterId == null ? new ClusterIdentifier(localBgpId) : clusterId;
         this.ribId = ribId;
         final PolicyDatabase policyDatabase = new PolicyDatabase(this.localAs.getValue(), localBgpId, cId);
         this.importPolicyPeerTracker = new ImportPolicyPeerTrackerImpl(policyDatabase);

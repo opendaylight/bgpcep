@@ -177,7 +177,7 @@ public class RROSubobjectParserTest {
         subs.setSubobjectType(new PathKeyCaseBuilder().setPathKey(pBuilder.build()).build());
         assertEquals(subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(pathKey128Bytes, 2))));
         final ByteBuf buff = Unpooled.buffer();
-        parser.serializeSubobject(subs.build(), buff);
+        RROPathKey128SubobjectParser.serializeSubobject(subs.build(), buff);
         Assert.assertArrayEquals(pathKey128Bytes, ByteArray.getAllBytes(buff));
 
         try {

@@ -126,7 +126,7 @@ public class Stateful07PCUpdateRequestMessageParser extends AbstractMessageParse
         return null;
     }
 
-    private boolean validateLsp(final Object object, final List<Message> errors, final UpdatesBuilder builder) {
+    private static boolean validateLsp(final Object object, final List<Message> errors, final UpdatesBuilder builder) {
         if (object instanceof Lsp) {
             builder.setLsp((Lsp) object);
         } else {
@@ -136,7 +136,8 @@ public class Stateful07PCUpdateRequestMessageParser extends AbstractMessageParse
         return true;
     }
 
-    private boolean validatePath(final List<Object> objects, final List<Message> errors, final UpdatesBuilder builder) {
+    private static boolean validatePath(final List<Object> objects, final List<Message> errors,
+            final UpdatesBuilder builder) {
         final PathBuilder pBuilder = new PathBuilder();
         Object object = objects.remove(0);
         if (object instanceof Ero) {
@@ -150,7 +151,7 @@ public class Stateful07PCUpdateRequestMessageParser extends AbstractMessageParse
         return true;
     }
 
-    private void parsePath(final List<Object> objects, final PathBuilder pBuilder) {
+    private static void parsePath(final List<Object> objects, final PathBuilder pBuilder) {
         final List<Metrics> pathMetrics = Lists.newArrayList();
         Object obj;
         State state = State.INIT;
@@ -166,7 +167,8 @@ public class Stateful07PCUpdateRequestMessageParser extends AbstractMessageParse
         }
     }
 
-    private State insertObject(final State state, final Object obj, final PathBuilder pBuilder, final List<Metrics> pathMetrics) {
+    private static State insertObject(final State state, final Object obj, final PathBuilder pBuilder,
+            final List<Metrics> pathMetrics) {
         switch (state) {
         case INIT:
             if (obj instanceof Lspa) {

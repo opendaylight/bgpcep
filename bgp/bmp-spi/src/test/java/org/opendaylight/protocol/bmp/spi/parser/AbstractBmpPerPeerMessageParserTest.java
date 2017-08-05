@@ -85,7 +85,7 @@ public class AbstractBmpPerPeerMessageParserTest {
             (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, // Timestamp
         };
 
-        final PeerHeader perHeader = this.parser.parsePerPeerHeader(Unpooled.wrappedBuffer(msgBytes));
+        final PeerHeader perHeader = AbstractBmpPerPeerMessageParser.parsePerPeerHeader(Unpooled.wrappedBuffer(msgBytes));
 
         final PeerHeaderBuilder phBuilder = new PeerHeaderBuilder();
         phBuilder.setType(PeerType.forValue(0));
@@ -106,7 +106,7 @@ public class AbstractBmpPerPeerMessageParserTest {
     @Test
     public void testPerPeerHeaderIpv6() {
 
-        final PeerHeader perHeader = this.parser.parsePerPeerHeader(Unpooled.wrappedBuffer(this.ipv6MsgWithDistinguishergBytes));
+        final PeerHeader perHeader = AbstractBmpPerPeerMessageParser.parsePerPeerHeader(Unpooled.wrappedBuffer(this.ipv6MsgWithDistinguishergBytes));
 
         final PeerHeaderBuilder phBuilder = new PeerHeaderBuilder();
         phBuilder.setType(PeerType.L3vpn);
@@ -138,7 +138,7 @@ public class AbstractBmpPerPeerMessageParserTest {
 
     @Test
     public void testSerializeMessageBody() {
-        final PeerHeader perHeader = this.parser.parsePerPeerHeader(Unpooled.wrappedBuffer(this.ipv6MsgWithDistinguishergBytes));
+        final PeerHeader perHeader = AbstractBmpPerPeerMessageParser.parsePerPeerHeader(Unpooled.wrappedBuffer(this.ipv6MsgWithDistinguishergBytes));
 
         final PeerUpNotification peerNotif = new PeerUpNotificationBuilder().setPeerHeader(perHeader).build();
 

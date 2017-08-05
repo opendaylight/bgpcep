@@ -8,9 +8,9 @@
 
 package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
-import com.google.common.base.Function;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import org.opendaylight.bgpcep.pcep.topology.spi.AbstractInstructionExecutor;
 import org.opendaylight.bgpcep.programming.topology.TopologyProgrammingUtil;
 import org.opendaylight.bgpcep.programming.tunnel.TunnelProgrammingUtil;
@@ -67,7 +67,7 @@ final class DestroyTunnelInstructionExecutor extends AbstractInstructionExecutor
             ab.setNode(node.getSupportingNode().get(0).getKey().getNodeRef());
             return Futures.transform(
                 (ListenableFuture<RpcResult<RemoveLspOutput>>) this.topologyService.removeLsp(ab.build()),
-                (Function<RpcResult<RemoveLspOutput>, OperationResult>) RpcResult::getResult);
+                RpcResult::getResult, MoreExecutors.directExecutor());
         }
     }
 }

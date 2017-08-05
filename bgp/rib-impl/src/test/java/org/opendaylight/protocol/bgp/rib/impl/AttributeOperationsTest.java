@@ -119,7 +119,7 @@ public class AttributeOperationsTest {
         assertFalse(exportedAttributes.getChild(ATOMIC_NID).isPresent());
     }
 
-    private LeafSetNode<?> checkFirstLeafList(final ContainerNode exportedAttributes) {
+    private static LeafSetNode<?> checkFirstLeafList(final ContainerNode exportedAttributes) {
         assertTrue(NormalizedNodes.findNode(exportedAttributes, AS_PATH_NID, SEGMENTS_NID).isPresent());
         final UnkeyedListNode segments = (UnkeyedListNode) NormalizedNodes.findNode(exportedAttributes, AS_PATH_NID, SEGMENTS_NID).get();
         final UnkeyedListEntryNode seg = segments.getValue().iterator().next();
@@ -164,8 +164,10 @@ public class AttributeOperationsTest {
             .build())
             .addChild(Builders.containerBuilder().withNodeIdentifier(CLUSTER_C_NID)
                 .addChild(Builders.orderedLeafSetBuilder().withNodeIdentifier(CLUSTER_NID)
-                    .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(CLUSTER_NID.getNodeType(), clusterId1.getValue())).withValue(clusterId1.getValue()).build())
-                    .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(CLUSTER_NID.getNodeType(), clusterId2.getValue())).withValue(clusterId2.getValue()).build())
+                    .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(
+                        new NodeWithValue<>(CLUSTER_NID.getNodeType(), clusterId1.getValue())).withValue(clusterId1.getValue()).build())
+                    .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(
+                        new NodeWithValue<>(CLUSTER_NID.getNodeType(), clusterId2.getValue())).withValue(clusterId2.getValue()).build())
                 .build())
             .build())
             .build();
@@ -191,7 +193,7 @@ public class AttributeOperationsTest {
         assertEquals(originatorId.getValue(), ((ContainerNode)reflectedAttributes.getChild(ORIGINATOR_C_NID).get()).getChild(ORIGINATOR_NID).get().getValue());
     }
 
-    private LeafSetNode<?> checkCluster(final ContainerNode reflectedAttributes) {
+    private static LeafSetNode<?> checkCluster(final ContainerNode reflectedAttributes) {
         assertTrue(reflectedAttributes.getChild(CLUSTER_C_NID).isPresent());
         final ContainerNode clusterContainer = (ContainerNode) reflectedAttributes.getChild(CLUSTER_C_NID).get();
         final LeafSetNode<?> clusters = (LeafSetNode<?>) clusterContainer.getChild(CLUSTER_NID).get();

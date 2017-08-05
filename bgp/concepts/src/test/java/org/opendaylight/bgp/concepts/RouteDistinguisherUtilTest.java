@@ -9,6 +9,7 @@ package org.opendaylight.bgp.concepts;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.lang.reflect.Constructor;
@@ -110,7 +111,8 @@ public class RouteDistinguisherUtilTest {
      * @param assignedNumberSubfield
      * @return
      */
-    private RouteDistinguisher createRouteDistinguisher(final int type, final String administratorSubfield, final String assignedNumberSubfield) {
+    private static RouteDistinguisher createRouteDistinguisher(final int type, final String administratorSubfield,
+            final String assignedNumberSubfield) {
         final StringBuffer routeDistiguisher = new StringBuffer();
         if (type == 0) {
             routeDistiguisher.append(type).append(SEPARATOR);

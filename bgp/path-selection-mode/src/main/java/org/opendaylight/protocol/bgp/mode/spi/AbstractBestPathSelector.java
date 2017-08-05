@@ -46,9 +46,9 @@ public class AbstractBestPathSelector {
         final Optional<NormalizedNode<?, ?>> maybeOriginatorId = NormalizedNodes.findNode(attrs, ORIGINATOR_ID);
         if (maybeOriginatorId.isPresent()) {
             return RouterIds.routerIdForAddress((String) maybeOriginatorId.get().getValue());
-        } else {
-            return routerId;
         }
+
+        return routerId;
     }
 
     /**

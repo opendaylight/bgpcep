@@ -112,7 +112,7 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
         this.bundleContext = bundleContext;
     }
 
-    private Map<TablesKey, PathSelectionMode> mapBestPathSelectionStrategyByFamily(final List<BGPBestPathSelection> bestPathSelectionDependency) {
+    private static Map<TablesKey, PathSelectionMode> mapBestPathSelectionStrategyByFamily(final List<BGPBestPathSelection> bestPathSelectionDependency) {
         return Collections.unmodifiableMap(bestPathSelectionDependency.stream().collect(
                 Collectors.toMap(st -> new TablesKey(st.getAfi(), st.getSafi()), BGPBestPathSelection::getStrategy)));
     }

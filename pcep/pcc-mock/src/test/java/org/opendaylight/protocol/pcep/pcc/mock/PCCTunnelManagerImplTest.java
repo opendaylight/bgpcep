@@ -291,11 +291,11 @@ public class PCCTunnelManagerImplTest {
         Mockito.verify(this.session1, Mockito.times(3)).sendReport(Mockito.any(Pcrpt.class));
         Mockito.verify(this.session2, Mockito.times(2)).sendReport(Mockito.any(Pcrpt.class));
     }
-    private Updates createUpdateDelegate(final long plspId) {
-        return createUpdate(plspId, Optional.of(true));
+    private static Updates createUpdateDelegate(final long plspId) {
+        return createUpdate(plspId, Optional.of(Boolean.TRUE));
     }
 
-    private Updates createUpdate(final long plspId) {
+    private static Updates createUpdate(final long plspId) {
         return createUpdate(plspId, Optional.absent());
     }
 

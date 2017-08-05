@@ -72,7 +72,7 @@ public class AdjRibsInWriterTest {
         MockitoAnnotations.initMocks(this);
         Mockito.doReturn("MockedTrans").when(this.tx).toString();
         Mockito.doReturn(this.tx).when(this.chain).newWriteOnlyTransaction();
-        final CheckedFuture checkedFuture =  Mockito.mock(CheckedFuture.class);
+        final CheckedFuture<?, ?> checkedFuture =  Mockito.mock(CheckedFuture.class);
         Mockito.doNothing().when(checkedFuture).addListener(any(), any());
         Mockito.doReturn(checkedFuture).when(this.tx).submit();
         Mockito.doNothing().when(this.tx).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(YangInstanceIdentifier.class), Mockito.any(NormalizedNode.class));

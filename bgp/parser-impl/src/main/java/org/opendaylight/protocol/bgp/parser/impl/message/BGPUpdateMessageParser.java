@@ -153,7 +153,7 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
      * @param message Update message
      * @throws BGPDocumentedException
      */
-    private void checkMandatoryAttributesPresence(final Update message) throws BGPDocumentedException {
+    private static void checkMandatoryAttributesPresence(final Update message) throws BGPDocumentedException {
         Preconditions.checkNotNull(message, "Update message cannot be null");
 
         final Attributes attrs = message.getAttributes();

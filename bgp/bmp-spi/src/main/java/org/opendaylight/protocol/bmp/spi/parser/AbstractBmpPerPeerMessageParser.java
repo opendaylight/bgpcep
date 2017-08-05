@@ -56,7 +56,7 @@ public abstract class AbstractBmpPerPeerMessageParser<T  extends Builder<?>> ext
         }
     }
 
-    protected final PeerHeader parsePerPeerHeader(final ByteBuf bytes) {
+    protected static final PeerHeader parsePerPeerHeader(final ByteBuf bytes) {
         Preconditions.checkArgument(bytes.readableBytes() >= PER_PEER_HEADER_SIZE);
         final PeerHeaderBuilder phBuilder = new PeerHeaderBuilder();
         final PeerType peerType = PeerType.forValue(bytes.readByte());

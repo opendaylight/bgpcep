@@ -37,8 +37,8 @@ public interface PCEPDispatcher {
      * @return instance of PCEPServer
      */
     @Deprecated
-    default ChannelFuture createServer(InetSocketAddress address, Optional<KeyMapping> keys,
-        PCEPSessionListenerFactory listenerFactory, PCEPPeerProposal peerProposal) {
+    default ChannelFuture createServer(final InetSocketAddress address, final Optional<KeyMapping> keys,
+        final PCEPSessionListenerFactory listenerFactory, final PCEPPeerProposal peerProposal) {
         if(keys.isPresent()) {
             return createServer(address, keys.get(), listenerFactory, peerProposal);
         }
@@ -57,5 +57,5 @@ public interface PCEPDispatcher {
     ChannelFuture createServer(InetSocketAddress address, KeyMapping keys, PCEPSessionListenerFactory listenerFactory,
         PCEPPeerProposal peerProposal);
 
-    PCEPSessionNegotiatorFactory getPCEPSessionNegotiatorFactory();
+    PCEPSessionNegotiatorFactory<?> getPCEPSessionNegotiatorFactory();
 }
