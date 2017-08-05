@@ -7,24 +7,39 @@
  */
 package org.opendaylight.protocol.pcep;
 
-import com.google.common.collect.Maps;
-import java.util.Map;
+import static com.google.common.base.Verify.verify;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public enum TerminationReason {
-    UNKNOWN((short) 1), EXP_DEADTIMER((short) 2), MALFORMED_MSG((short) 3), TOO_MANY_UNKNWN_REQS((short) 4), TOO_MANY_UNKNOWN_MSGS((short) 5);
+    UNKNOWN(1),
+    EXP_DEADTIMER(2),
+    MALFORMED_MSG(3),
+    TOO_MANY_UNKNWN_REQS(4),
+    TOO_MANY_UNKNOWN_MSGS(5);
 
-    private short value;
-    private static final Map<Short, TerminationReason> VALUE_MAP;
+    private static final TerminationReason[] REASONS;
 
     static {
-        VALUE_MAP = Maps.newHashMap();
-        for (final TerminationReason enumItem : TerminationReason.values()) {
-            VALUE_MAP.put(enumItem.value, enumItem);
+        // We are not making many assumptions here
+        final TerminationReason[] reasons = TerminationReason.values();
+        verify(reasons.length > 0);
+
+        final short highest = Arrays.stream(reasons).map(TerminationReason::getShortValue)
+            .collect(Collectors.maxBy(Short::compareTo)).get().shortValue();
+        final TerminationReason[] init = new TerminationReason[highest + 1];
+        for (TerminationReason reason : reasons) {
+            init[reason.getShortValue()] = reason;
         }
+
+        REASONS = init;
     }
 
-    private TerminationReason(final short value) {
-        this.value = value;
+    private short value;
+
+    private TerminationReason(final int value) {
+        this.value = (short) value;
     }
 
     /**
@@ -33,7 +48,7 @@ public enum TerminationReason {
      * @return short value
      */
     public short getShortValue() {
-        return this.value;
+        return value;
     }
 
     /**
@@ -43,6 +58,6 @@ public enum TerminationReason {
      * @return corresponding TerminationReason item
      */
     public static TerminationReason forValue(final short valueArg) {
-        return VALUE_MAP.get(valueArg);
+        return valueArg < 0 || valueArg >= REASONS.length ? null : REASONS[valueArg];
     }
 }
