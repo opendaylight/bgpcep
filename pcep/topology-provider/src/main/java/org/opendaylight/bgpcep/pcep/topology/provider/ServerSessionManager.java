@@ -7,6 +7,7 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
@@ -68,9 +69,11 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
     private final InstanceIdentifier<Topology> topology;
     private final DataBroker broker;
     private final PCEPStatefulPeerProposal peerProposal;
-    private final AtomicBoolean isClosed = new AtomicBoolean(false);
     private final short rpcTimeout;
     private final AtomicReference<PCEPTopologyProviderRuntimeRegistration> runtimeRootRegistration = new AtomicReference<>();
+
+    @VisibleForTesting
+    public final AtomicBoolean isClosed = new AtomicBoolean(false);
 
     public ServerSessionManager(final DataBroker broker, final InstanceIdentifier<Topology> topology,
         final TopologySessionListenerFactory listenerFactory, final short rpcTimeout) {
@@ -100,11 +103,13 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
             @Override
             public void onSuccess(final Void result) {
                 LOG.debug("PCEP Topology {} created successfully.", topologyId.getValue());
+                ServerSessionManager.this.isClosed.set(false);
             }
 
             @Override
             public void onFailure(final Throwable t) {
                 LOG.error("Failed to create PCEP Topology {}.", topologyId.getValue(), t);
+                ServerSessionManager.this.isClosed.set(true);
             }
         });
         return future;
@@ -234,6 +239,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
         return this.runtimeRootRegistration.get();
     }
 
+    @Override
     public void setPeerSpecificProposal(final InetSocketAddress address, final TlvsBuilder openBuilder) {
         Preconditions.checkNotNull(address);
         this.peerProposal.setPeerProposal(createNodeId(address.getAddress()), openBuilder);
