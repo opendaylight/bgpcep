@@ -450,6 +450,15 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
     }
 
     @Test
+    public void testConflictingListeners() throws Exception {
+        this.listener.onSessionUp(this.session);
+        assertFalse(this.session.isClosed());
+        Stateful07TopologySessionListener conflictingListener = (Stateful07TopologySessionListener) getSessionListener();
+        conflictingListener.onSessionUp(this.session);
+        assertTrue(this.session.isClosed());
+    }
+
+    @Test
     public void testOnSessionTermination() throws Exception {
         this.listener.onSessionUp(this.session);
         verify(this.listenerReg, times(0)).close();
