@@ -146,8 +146,12 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
             LOG.debug("Created topology node {} for id {} at {}", ret, id, ret.getNodeId());
             this.state.put(id, ret);
         }
-        // FIXME: else check for conflicting session
-
+        // if another listener requests the same session, close it
+        final TopologySessionListener existingSessionListener = this.nodes.get(id);
+        if (existingSessionListener != null && !sessionListener.equals(existingSessionListener)) {
+            LOG.error("New session listener {} is in conflict with existing session listener {} on node {}, closing the existing one.", existingSessionListener, sessionListener, id);
+            existingSessionListener.close();
+        }
         ret.taken(retrieveNode);
         this.nodes.put(id, sessionListener);
         LOG.debug("Node {} bound to listener {}", id, sessionListener);
