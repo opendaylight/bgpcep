@@ -389,6 +389,58 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
     }
 
     @Test
+    public void testOnServerSessionManagerRestartAndSessionRecovery() throws Exception {
+        // close server session manager first
+        stopSessionManager();
+        // the registration should not be closed since it's never initialized
+        verify(this.listenerReg, times(0)).close();
+        assertFalse(this.session.isClosed());
+        this.listener.onSessionUp(this.session);
+        // verify the session was NOT added to topology
+        checkNotPresentOperational(getDataBroker(), TOPO_IID);
+        // still, the session should not be registered and thus close() is never called
+        verify(this.listenerReg, times(0)).close();
+        // verify the session is closed due to server session manager is closed
+        assertTrue(this.session.isClosed());
+        // send request
+        final Future<RpcResult<AddLspOutput>> futureOutput = this.topologyRpcs.addLsp(createAddLspInput());
+        final AddLspOutput output = futureOutput.get().getResult();
+        // deal with unsent request after session down
+        assertEquals(FailureType.Unsent, output.getFailure());
+        // PCC client is not there
+        checkNotPresentOperational(getDataBroker(), this.pathComputationClientIId);
+
+        // reset received message queue
+        this.receivedMsgs.clear();
+        // now we restart the session manager
+        startSessionManager();
+        // try to start the session again
+        // notice since the session was terminated before, it is not usable anymore.
+        // we need to get a new session instance. the new session will have the same local / remote preference
+        this.session = getPCEPSession(getLocalPref(), getRemotePref());
+        verify(this.listenerReg, times(0)).close();
+        assertFalse(this.session.isClosed());
+        this.listener.onSessionUp(this.session);
+        assertFalse(this.session.isClosed());
+
+        // create node
+        this.topologyRpcs.addLsp(createAddLspInput());
+        final Pcinitiate pcinitiate = (Pcinitiate) this.receivedMsgs.get(0);
+        final Requests req = pcinitiate.getPcinitiateMessage().getRequests().get(0);
+        final long srpId = req.getSrp().getOperationId().getValue();
+        final Tlvs tlvs = createLspTlvs(req.getLsp().getPlspId().getValue(), true,
+            this.testAddress, this.testAddress, this.testAddress, Optional.absent());
+        final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(req.getLsp()).setTlvs(tlvs).setSync(true)
+                .setRemove(false).setOperational(OperationalStatus.Active).build(),
+            Optional.of(MsgBuilderUtil.createSrp(srpId)), MsgBuilderUtil.createPath(req.getEro().getSubobject()));
+        this.listener.onMessage(this.session, pcRpt);
+        readDataOperational(getDataBroker(), TOPO_IID, topology -> {
+            assertEquals(1, topology.getNode().size());
+            return topology;
+        });
+    }
+
+    @Test
     public void testOnSessionTermination() throws Exception {
         this.listener.onSessionUp(this.session);
         verify(this.listenerReg, times(0)).close();

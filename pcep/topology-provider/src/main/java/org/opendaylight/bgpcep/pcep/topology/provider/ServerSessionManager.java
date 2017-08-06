@@ -7,6 +7,7 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
@@ -68,7 +69,8 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
     private final InstanceIdentifier<Topology> topology;
     private final DataBroker broker;
     private final PCEPStatefulPeerProposal peerProposal;
-    private final AtomicBoolean isClosed = new AtomicBoolean(false);
+    @VisibleForTesting
+    public final AtomicBoolean isClosed = new AtomicBoolean(false);
     private final short rpcTimeout;
     private final AtomicReference<PCEPTopologyProviderRuntimeRegistration> runtimeRootRegistration = new AtomicReference<>();
 
@@ -100,6 +102,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
             @Override
             public void onSuccess(final Void result) {
                 LOG.debug("PCEP Topology {} created successfully.", topologyId.getValue());
+                ServerSessionManager.this.isClosed.set(false);
             }
 
             @Override
@@ -234,7 +237,8 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
         return this.runtimeRootRegistration.get();
     }
 
-    public void setPeerSpecificProposal(final InetSocketAddress address, final TlvsBuilder openBuilder) {
+    @Override
+	public void setPeerSpecificProposal(final InetSocketAddress address, final TlvsBuilder openBuilder) {
         Preconditions.checkNotNull(address);
         this.peerProposal.setPeerProposal(createNodeId(address.getAddress()), openBuilder);
     }
