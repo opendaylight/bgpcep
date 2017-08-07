@@ -20,29 +20,29 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.subobject.type.path.key._case.PathKeyBuilder;
 
 public class CommonPathKeyParserTest {
+    private final byte[] bytes = new byte[]{0, 1, 2, 3};
     private PathKey key1;
     private PathKey key2;
     private PathKey key3;
-    private final byte[] bytes = new byte[] {0,1,2,3};
 
     @Before
     public void setUp() {
         this.key1 = new PathKeyBuilder().build();
-        this.key2 = new PathKeyBuilder()
-            .setPathKey(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.PathKey(1))
+        this.key2 = new PathKeyBuilder().setPathKey(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
+            .yang.rsvp.rev150820.PathKey(1))
             .build();
-        this.key3 = new PathKeyBuilder()
-            .setPathKey(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.PathKey(1))
-            .setPceId(new PceId(new byte[] {2, 3}))
+        this.key3 = new PathKeyBuilder().setPathKey(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
+            .yang.rsvp.rev150820.PathKey(1))
+            .setPceId(new PceId(new byte[]{2, 3}))
             .build();
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testSerializationExcption1() {
         CommonPathKeyParser.serializePathKey(this.key1);
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testSerializationExcption2() {
         CommonPathKeyParser.serializePathKey(this.key2);
     }

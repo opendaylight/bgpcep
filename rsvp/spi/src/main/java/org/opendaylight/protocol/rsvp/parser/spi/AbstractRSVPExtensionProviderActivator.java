@@ -31,6 +31,7 @@ public abstract class AbstractRSVPExtensionProviderActivator implements AutoClos
     }
 
     @Override
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public final synchronized void stop() {
         if (this.registrations == null) {
             return;

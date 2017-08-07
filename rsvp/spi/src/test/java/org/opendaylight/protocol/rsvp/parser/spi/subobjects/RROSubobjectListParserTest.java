@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.rsvp.parser.spi.subobjects;
 
 import static org.junit.Assert.assertEquals;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Arrays;
@@ -25,9 +26,9 @@ public class RROSubobjectListParserTest {
     private final RROSubobjectRegistry registry = Mockito.mock(RROSubobjectRegistry.class);
     private final SubobjectContainer subObj = Mockito.mock(SubobjectContainer.class);
     private final RroListParser parser = new RroListParser(this.registry);
-    private final byte[] inputList = new byte[] {1, 3, 1, 2, 4, 1, 2};
-    private final byte[] emptyInput = new byte[] {1, 2};
-    private final byte[] wrongInput = new byte[] {1, 3};
+    private final byte[] inputList = new byte[]{1, 3, 1, 2, 4, 1, 2};
+    private final byte[] emptyInput = new byte[]{1, 2};
+    private final byte[] wrongInput = new byte[]{1, 3};
     private final List<SubobjectContainer> subobjects = Arrays.asList(this.subObj, this.subObj);
 
     @Before
@@ -45,12 +46,12 @@ public class RROSubobjectListParserTest {
         }).when(this.registry).serializeSubobject(Mockito.any(SubobjectContainer.class), Mockito.any(ByteBuf.class));
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testParsingException() throws RSVPParsingException {
         this.parser.parseList(null);
     }
 
-    @Test(expected=RSVPParsingException.class)
+    @Test(expected = RSVPParsingException.class)
     public void testWrongInput() throws RSVPParsingException {
         this.parser.parseList(Unpooled.copiedBuffer(this.wrongInput));
     }
@@ -71,12 +72,14 @@ public class RROSubobjectListParserTest {
     }
 
     private class RroListParser extends RROSubobjectListParser {
-        public RroListParser(final RROSubobjectRegistry subobjReg) {
+        RroListParser(final RROSubobjectRegistry subobjReg) {
             super(subobjReg);
         }
+
         @Override
         protected void localSerializeObject(final RsvpTeObject rsvpTeObject, final ByteBuf output) {
         }
+
         @Override
         protected RsvpTeObject localParseObject(final ByteBuf byteBuf) throws RSVPParsingException {
             return null;

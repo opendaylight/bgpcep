@@ -27,11 +27,11 @@ public abstract class AbstractRSVPObjectParser implements RSVPTeObjectSerializer
     protected static final int TOKEN_BUCKET_TSPEC = 127;
     protected static final int FLAGS_SIZE = 8;
 
-    protected static void serializeAttributeHeader(final Integer valueLength, final short classNum, final short cType,
-                                                   final ByteBuf byteAggregator) {
+    protected static void serializeAttributeHeader(final Integer valueLength, final short classNum,
+        final short ctype, final ByteBuf byteAggregator) {
         byteAggregator.writeShort(valueLength);
         byteAggregator.writeByte(classNum);
-        byteAggregator.writeByte(cType);
+        byteAggregator.writeByte(ctype);
     }
 
     protected static void writeAttributeFilter(final AttributeFilter attributeFilter, final ByteBuf body) {
@@ -54,7 +54,7 @@ public abstract class AbstractRSVPObjectParser implements RSVPTeObjectSerializer
         localSerializeObject(rsvpTeObject, output);
     }
 
-    protected abstract void localSerializeObject(final RsvpTeObject rsvpTeObject, final ByteBuf output);
+    protected abstract void localSerializeObject(RsvpTeObject rsvpTeObject, ByteBuf output);
 
-    protected abstract RsvpTeObject localParseObject(final ByteBuf byteBuf) throws RSVPParsingException;
+    protected abstract RsvpTeObject localParseObject(ByteBuf byteBuf) throws RSVPParsingException;
 }

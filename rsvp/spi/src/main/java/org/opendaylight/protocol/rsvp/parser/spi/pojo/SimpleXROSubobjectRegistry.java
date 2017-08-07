@@ -21,7 +21,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 public class SimpleXROSubobjectRegistry implements XROSubobjectRegistry {
-    private final HandlerRegistry<DataContainer, XROSubobjectParser, XROSubobjectSerializer> handlers = new HandlerRegistry<>();
+    private final HandlerRegistry<DataContainer, XROSubobjectParser, XROSubobjectSerializer> handlers =
+        new HandlerRegistry<>();
 
     public AutoCloseable registerSubobjectParser(final int subobjectType, final XROSubobjectParser parser) {
         Preconditions.checkArgument(subobjectType >= 0 && subobjectType <= Values.UNSIGNED_SHORT_MAX_VALUE);
@@ -29,12 +30,13 @@ public class SimpleXROSubobjectRegistry implements XROSubobjectRegistry {
     }
 
     public AutoCloseable registerSubobjectSerializer(final Class<? extends SubobjectType> subobjectClass,
-                                                     final XROSubobjectSerializer serializer) {
+        final XROSubobjectSerializer serializer) {
         return this.handlers.registerSerializer(subobjectClass, serializer);
     }
 
     @Override
-    public SubobjectContainer parseSubobject(final int type, final ByteBuf buffer, final boolean mandatory) throws RSVPParsingException {
+    public SubobjectContainer parseSubobject(final int type, final ByteBuf buffer, final boolean mandatory) 
+      throws RSVPParsingException {
         Preconditions.checkArgument(type >= 0 && type <= Values.UNSIGNED_SHORT_MAX_VALUE);
         final XROSubobjectParser parser = this.handlers.getParser(type);
         if (parser == null) {
@@ -45,7 +47,8 @@ public class SimpleXROSubobjectRegistry implements XROSubobjectRegistry {
 
     @Override
     public void serializeSubobject(final SubobjectContainer subobject, final ByteBuf buffer) {
-        final XROSubobjectSerializer serializer = this.handlers.getSerializer(subobject.getSubobjectType().getImplementedInterface());
+        final XROSubobjectSerializer serializer = this.handlers.getSerializer(subobject.getSubobjectType()
+            .getImplementedInterface());
         if (serializer == null) {
             return;
         }
