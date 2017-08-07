@@ -13,6 +13,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
 import io.netty.util.Timeout;
 import io.netty.util.Timer;
@@ -120,7 +121,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
                     public void onFailure(final Throwable t) {
                         LOG.error("Failed to update Instruction Queue {}", ProgrammingServiceImpl.this.qid, t);
                     }
-                });
+                }, MoreExecutors.directExecutor());
             }
 
             try {
@@ -147,7 +148,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
                 public void onFailure(final Throwable t) {
                     LOG.error("Failed to remove Instruction Queue {}", ProgrammingServiceImpl.this.qid, t);
                 }
-            });
+            }, MoreExecutors.directExecutor());
         }
     }
 
@@ -189,7 +190,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
             public void onFailure(final Throwable t) {
                 LOG.error("Failed to add Instruction Queue {}", ProgrammingServiceImpl.this.qid, t);
             }
-        });
+        }, MoreExecutors.directExecutor());
     }
 
     @Override
@@ -396,7 +397,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
                 public void onFailure(final Throwable t) {
                     LOG.error("Instruction {} failed to execute", i.getId(), t);
                 }
-            });
+            }, MoreExecutors.directExecutor());
         }
 
     }
@@ -426,7 +427,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
             public void onFailure(final Throwable t) {
                 LOG.error("Failed to shutdown Instruction Queue {}", ProgrammingServiceImpl.this.qid, t);
             }
-        });
+        }, MoreExecutors.directExecutor());
         return future;
     }
 

@@ -13,6 +13,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -72,7 +73,7 @@ public final class PCEPStatefulPeerProposal {
                         LOG.warn("Failed to read toplogy {}.", InstanceIdentifier.keyOf(
                             PCEPStatefulPeerProposal.this.topologyId), t);
                     }
-                });
+                }, MoreExecutors.directExecutor());
             }
         }
     }

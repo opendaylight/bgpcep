@@ -12,6 +12,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -91,7 +92,7 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
                 public void onFailure(final Throwable t) {
                     LOG.error("Failed to cleanup internal state for session {}", TopologyNodeState.this.nodeId, t);
                 }
-            });
+            }, MoreExecutors.directExecutor());
         }
 
         this.lastReleased = System.nanoTime();
@@ -122,7 +123,7 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
                 public void onFailure(final Throwable t) {
                     LOG.error("Failed to get topology node {}", TopologyNodeState.this.nodeId, t);
                 }
-            });
+            }, MoreExecutors.directExecutor());
         } else {
             putTopologyNode();
         }

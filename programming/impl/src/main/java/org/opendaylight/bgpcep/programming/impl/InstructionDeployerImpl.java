@@ -92,7 +92,7 @@ public final class InstructionDeployerImpl implements IntructionDeployer,
                 public void onFailure(final Throwable t) {
                     LOG.error("Failed to initialize Instruction Instance {}.", WriteConfiguration.this.instructionId, t);
                 }
-            });
+            }, MoreExecutors.directExecutor());
         }
 
         void remove() {
@@ -110,7 +110,7 @@ public final class InstructionDeployerImpl implements IntructionDeployer,
                 public void onFailure(final Throwable t) {
                     LOG.error("Failed to remove Instruction Instance {}.", WriteConfiguration.this.instructionId, t);
                 }
-            });
+            }, MoreExecutors.directExecutor());
         }
     }
 
@@ -138,7 +138,7 @@ public final class InstructionDeployerImpl implements IntructionDeployer,
             public void onFailure(final Throwable t) {
                 LOG.error("Failed to initialize Instruction Instance {}.", InstructionDeployerImpl.this.iid, t);
             }
-        });
+        }, MoreExecutors.directExecutor());
 
         this.registration = dataProvider.registerDataTreeChangeListener(
             new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, this.iid), this);

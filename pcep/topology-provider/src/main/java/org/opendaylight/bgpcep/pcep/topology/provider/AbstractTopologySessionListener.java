@@ -12,6 +12,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import io.netty.util.concurrent.FutureListener;
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -211,7 +212,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
                 LOG.error("Failed to update internal state for session {}, terminating it", AbstractTopologySessionListener.this.session, t);
                 AbstractTopologySessionListener.this.session.close(TerminationReason.UNKNOWN);
             }
-        });
+        }, MoreExecutors.directExecutor());
     }
 
     protected void updatePccState(final PccSyncState pccSyncState) {
@@ -233,7 +234,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
                 LOG.error("Failed to update internal state for session {}", AbstractTopologySessionListener.this.session, t);
                 AbstractTopologySessionListener.this.session.close(TerminationReason.UNKNOWN);
             }
-        });
+        }, MoreExecutors.directExecutor());
     }
 
     protected boolean isTriggeredSyncInProcess() {
@@ -319,7 +320,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
                 ctx.notifyRequests();
                 session.close(TerminationReason.UNKNOWN);
             }
-        });
+        }, MoreExecutors.directExecutor());
     }
 
     @Override
