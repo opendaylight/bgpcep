@@ -26,7 +26,7 @@ public class SimpleRSVPExtensionProviderContextActivator implements AutoCloseabl
     private final List<RSVPExtensionProviderActivator> extensionActivators;
 
     public SimpleRSVPExtensionProviderContextActivator(final RSVPExtensionProviderContext providerContext,
-            final List<RSVPExtensionProviderActivator> extensionActivators) {
+        final List<RSVPExtensionProviderActivator> extensionActivators) {
         this.providerContext = Preconditions.checkNotNull(providerContext);
         this.extensionActivators = Preconditions.checkNotNull(extensionActivators);
     }
@@ -34,7 +34,7 @@ public class SimpleRSVPExtensionProviderContextActivator implements AutoCloseabl
     public void start() {
         LOG.debug("Starting {} RSVPExtensionProviderActivator instances", this.extensionActivators.size());
 
-        for(final RSVPExtensionProviderActivator e : this.extensionActivators) {
+        for (final RSVPExtensionProviderActivator e : this.extensionActivators) {
             e.start(this.providerContext);
         }
     }
@@ -43,7 +43,7 @@ public class SimpleRSVPExtensionProviderContextActivator implements AutoCloseabl
     public void close() {
         LOG.debug("Stopping {} RSVPExtensionProviderActivator instances", this.extensionActivators.size());
 
-        for(final RSVPExtensionProviderActivator e : this.extensionActivators) {
+        for (final RSVPExtensionProviderActivator e : this.extensionActivators) {
             e.stop();
         }
     }

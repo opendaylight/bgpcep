@@ -21,7 +21,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 public final class SimpleRROSubobjectRegistry implements RROSubobjectRegistry {
-    private final HandlerRegistry<DataContainer, RROSubobjectParser, RROSubobjectSerializer> handlers = new HandlerRegistry<>();
+    private final HandlerRegistry<DataContainer, RROSubobjectParser, RROSubobjectSerializer> handlers = new
+        HandlerRegistry<>();
 
     public AutoCloseable registerSubobjectParser(final int subobjectType, final RROSubobjectParser parser) {
         Preconditions.checkArgument(subobjectType >= 0 && subobjectType <= Values.UNSIGNED_SHORT_MAX_VALUE);
@@ -29,7 +30,7 @@ public final class SimpleRROSubobjectRegistry implements RROSubobjectRegistry {
     }
 
     public AutoCloseable registerSubobjectSerializer(final Class<? extends SubobjectType> subobjectClass,
-                                                     final RROSubobjectSerializer serializer) {
+        final RROSubobjectSerializer serializer) {
         return this.handlers.registerSerializer(subobjectClass, serializer);
     }
 
@@ -45,7 +46,8 @@ public final class SimpleRROSubobjectRegistry implements RROSubobjectRegistry {
 
     @Override
     public void serializeSubobject(final SubobjectContainer subobject, final ByteBuf buffer) {
-        final RROSubobjectSerializer serializer = this.handlers.getSerializer(subobject.getSubobjectType().getImplementedInterface());
+        final RROSubobjectSerializer serializer = this.handlers.getSerializer(subobject.getSubobjectType()
+            .getImplementedInterface());
         if (serializer == null) {
             return;
         }

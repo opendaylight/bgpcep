@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.rsvp.parser.spi.subobjects;
 
 import static org.junit.Assert.assertEquals;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Arrays;
@@ -25,9 +26,9 @@ public class XROSubobjectListParserTest {
     private final XROSubobjectRegistry registry = Mockito.mock(XROSubobjectRegistry.class);
     private final SubobjectContainer subObj = Mockito.mock(SubobjectContainer.class);
     private final XroListParser parser = new XroListParser(this.registry);
-    private final byte[] inputList = new byte[] {1, 3, 1, 2, 4, 1, 2};
-    private final byte[] emptyInput = new byte[] {1, 2};
-    private final byte[] wrongInput = new byte[] {1, 3};
+    private final byte[] inputList = new byte[]{1, 3, 1, 2, 4, 1, 2};
+    private final byte[] emptyInput = new byte[]{1, 2};
+    private final byte[] wrongInput = new byte[]{1, 3};
     private final List<SubobjectContainer> subobjects = Arrays.asList(this.subObj, this.subObj);
 
     @Before
@@ -45,7 +46,7 @@ public class XROSubobjectListParserTest {
         }).when(this.registry).serializeSubobject(Mockito.any(SubobjectContainer.class), Mockito.any(ByteBuf.class));
     }
 
-    @Test(expected=RSVPParsingException.class)
+    @Test(expected = RSVPParsingException.class)
     public void testWrongInput() throws RSVPParsingException {
         this.parser.parseList(Unpooled.copiedBuffer(this.wrongInput));
     }
@@ -66,12 +67,14 @@ public class XROSubobjectListParserTest {
     }
 
     private class XroListParser extends XROSubobjectListParser {
-        public XroListParser(final XROSubobjectRegistry subobjReg) {
+        XroListParser(final XROSubobjectRegistry subobjReg) {
             super(subobjReg);
         }
+
         @Override
         protected void localSerializeObject(final RsvpTeObject rsvpTeObject, final ByteBuf output) {
         }
+
         @Override
         protected RsvpTeObject localParseObject(final ByteBuf byteBuf) throws RSVPParsingException {
             return null;

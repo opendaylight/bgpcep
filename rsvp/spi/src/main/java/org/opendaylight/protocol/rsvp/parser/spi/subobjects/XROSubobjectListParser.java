@@ -33,11 +33,14 @@ public abstract class XROSubobjectListParser extends AbstractRSVPObjectParser {
     public List<SubobjectContainer> parseList(final ByteBuf byteBuf) throws RSVPParsingException {
         final List<SubobjectContainer> subs = new ArrayList<>();
         while (byteBuf.isReadable()) {
-            final boolean mandatory = ((byteBuf.getUnsignedByte(byteBuf.readerIndex()) & (1 << Values.FIRST_BIT_OFFSET)) != 0) ? true : false;
-            final int type = UnsignedBytes.checkedCast((byteBuf.readUnsignedByte() & Values.BYTE_MAX_VALUE_BYTES) & ~(1 << Values.FIRST_BIT_OFFSET));
+            final boolean mandatory = (byteBuf.getUnsignedByte(byteBuf.readerIndex()) & (1 << Values
+                .FIRST_BIT_OFFSET)) != 0;
+            final int type = UnsignedBytes.checkedCast((byteBuf.readUnsignedByte() & Values.BYTE_MAX_VALUE_BYTES) & ~
+                (1 << Values.FIRST_BIT_OFFSET));
             final int length = byteBuf.readUnsignedByte() - HEADER_LENGHT;
             if (length > byteBuf.readableBytes()) {
-                throw new RSVPParsingException("Wrong length specified. Passed: " + length + "; Expected: <= " + byteBuf.readableBytes());
+                throw new RSVPParsingException("Wrong length specified. Passed: " + length
+                    + "; Expected: <= " + byteBuf.readableBytes());
             }
             LOG.debug("Attempt to parse subobject from bytes: {}", ByteBufUtil.hexDump(byteBuf));
             final SubobjectContainer sub = this.subobjReg.parseSubobject(type, byteBuf.readSlice(length), mandatory);
@@ -53,7 +56,8 @@ public abstract class XROSubobjectListParser extends AbstractRSVPObjectParser {
     }
 
     public void serializeList(final List<SubobjectContainer> subobjects, final ByteBuf buffer) {
-        Preconditions.checkArgument(subobjects != null && !subobjects.isEmpty(), "XRO must contain at least one subobject.");
+        Preconditions.checkArgument(subobjects != null && !subobjects.isEmpty(),
+            "XRO must contain at least one subobject.");
         for (final SubobjectContainer subobject : subobjects) {
             this.subobjReg.serializeSubobject(subobject, buffer);
         }

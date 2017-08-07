@@ -12,6 +12,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Before;
@@ -40,9 +41,12 @@ public class SimpleRSVPObjectRegistryTest {
     @Before
     public void setUp() throws RSVPParsingException {
         MockitoAnnotations.initMocks(this);
-        this.simpleRSVPObjectRegistry.registerRsvpObjectParser(this.subObjectTypeOne, this.subObjectCTypeOne, this.rsvpTeObjectParser);
-        this.simpleRSVPObjectRegistry.registerRsvpObjectSerializer(SecondaryExplicitRouteObject.class, this.rsvpTeObjectSerializer);
-        Mockito.doReturn(new SecondaryExplicitRouteObjectBuilder().build()).when(this.rsvpTeObjectParser).parseObject(this.input);
+        this.simpleRSVPObjectRegistry.registerRsvpObjectParser(this.subObjectTypeOne, this.subObjectCTypeOne,
+            this.rsvpTeObjectParser);
+        this.simpleRSVPObjectRegistry.registerRsvpObjectSerializer(SecondaryExplicitRouteObject.class, this
+            .rsvpTeObjectSerializer);
+        Mockito.doReturn(new SecondaryExplicitRouteObjectBuilder().build()).when(this.rsvpTeObjectParser)
+            .parseObject(this.input);
         final ArgumentCaptor<RsvpTeObject> arg = ArgumentCaptor.forClass(RsvpTeObject.class);
         final ArgumentCaptor<ByteBuf> bufArg = ArgumentCaptor.forClass(ByteBuf.class);
         Mockito.doNothing().when(this.rsvpTeObjectSerializer).serializeObject(arg.capture(), bufArg.capture());
@@ -50,12 +54,14 @@ public class SimpleRSVPObjectRegistryTest {
 
     @Test
     public void testParserRegistration() {
-        this.simpleRSVPObjectRegistry.registerRsvpObjectParser(this.subObjectTypeOne, this.subObjectCTypeOne, this.rsvpTeObjectParser);
+        this.simpleRSVPObjectRegistry.registerRsvpObjectParser(this.subObjectTypeOne, this.subObjectCTypeOne,
+            this.rsvpTeObjectParser);
     }
 
     @Test
     public void testSerializerRegistration() {
-        this.simpleRSVPObjectRegistry.registerRsvpObjectSerializer(SecondaryExplicitRouteObject.class, this.rsvpTeObjectSerializer);
+        this.simpleRSVPObjectRegistry.registerRsvpObjectSerializer(SecondaryExplicitRouteObject.class,
+            this.rsvpTeObjectSerializer);
     }
 
     @Test
@@ -75,7 +81,8 @@ public class SimpleRSVPObjectRegistryTest {
 
     @Test
     public void testParseRSVP() throws RSVPParsingException {
-        final RsvpTeObject output = this.simpleRSVPObjectRegistry.parseRSPVTe(this.subObjectTypeOne, this.subObjectCTypeOne, this.input);
+        final RsvpTeObject output = this.simpleRSVPObjectRegistry.parseRSPVTe(this.subObjectTypeOne,
+            this.subObjectCTypeOne, this.input);
         assertNotNull(output);
         assertTrue(output instanceof SecondaryExplicitRouteObject);
 
@@ -94,7 +101,8 @@ public class SimpleRSVPObjectRegistryTest {
     @Test(expected = IllegalArgumentException.class)
     public void testRegisterWrongType() {
         final int wrongType = 65536;
-        this.simpleRSVPObjectRegistry.registerRsvpObjectParser(wrongType, this.subObjectCTypeOne, this.rsvpTeObjectParser);
+        this.simpleRSVPObjectRegistry.registerRsvpObjectParser(wrongType, this.subObjectCTypeOne,
+            this.rsvpTeObjectParser);
     }
 
 }

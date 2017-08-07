@@ -12,7 +12,7 @@ import io.netty.buffer.ByteBuf;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.RsvpTeObject;
 
 public interface RSVPTeObjectRegistry {
-    RsvpTeObject parseRSPVTe(int classNum, int cType, ByteBuf buffer) throws RSVPParsingException;
+    RsvpTeObject parseRSPVTe(int classNum, int ctype, ByteBuf buffer) throws RSVPParsingException;
 
     void serializeRSPVTe(RsvpTeObject parameter, ByteBuf bytes);
 }

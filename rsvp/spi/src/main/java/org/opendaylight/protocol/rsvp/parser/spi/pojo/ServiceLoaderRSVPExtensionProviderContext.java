@@ -8,7 +8,6 @@
 
 package org.opendaylight.protocol.rsvp.parser.spi.pojo;
 
-
 import java.util.ServiceLoader;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPExtensionProviderActivator;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPExtensionProviderContext;
@@ -21,8 +20,8 @@ public final class ServiceLoaderRSVPExtensionProviderContext {
     public static RSVPExtensionProviderContext create() {
         final RSVPExtensionProviderContext ctx = new SimpleRSVPExtensionProviderContext();
 
-        final ServiceLoader<RSVPExtensionProviderActivator> loader = ServiceLoader.load(RSVPExtensionProviderActivator
-            .class);
+        final ServiceLoader<RSVPExtensionProviderActivator> loader = ServiceLoader
+            .load(RSVPExtensionProviderActivator.class);
         for (final RSVPExtensionProviderActivator a : loader) {
             a.start(ctx);
         }
@@ -38,11 +37,7 @@ public final class ServiceLoaderRSVPExtensionProviderContext {
         private static final RSVPExtensionProviderContext INSTANCE;
 
         static {
-            try {
-                INSTANCE = create();
-            } catch (final Exception e) {
-                throw new ExceptionInInitializerError(e);
-            }
+            INSTANCE = create();
         }
 
         private Holder() {

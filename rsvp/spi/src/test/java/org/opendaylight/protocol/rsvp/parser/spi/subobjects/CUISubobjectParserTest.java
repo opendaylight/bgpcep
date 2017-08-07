@@ -20,9 +20,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 public class CUISubobjectParserTest {
     private final Long routerId = 3735928559L;
     private final Long interfaceId = 3736059631L;
-    final CommonUnnumberedInterfaceSubobjectParser parser = new CommonUnnumberedInterfaceSubobjectParser();
-    final Unnumbered unnumbered1 = new UnnumberedBuilder().setRouterId(null).build();
-    final Unnumbered unnumbered2 = new UnnumberedBuilder().setRouterId(1L).setInterfaceId(null).build();
+    private final Unnumbered unnumbered1 = new UnnumberedBuilder().setRouterId(null).build();
+    private final Unnumbered unnumbered2 = new UnnumberedBuilder().setRouterId(1L).setInterfaceId(null).build();
 
     @Test
     public void testProcessing() {
@@ -38,12 +37,12 @@ public class CUISubobjectParserTest {
         assertArrayEquals(input.array(), bytebuf.array());
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testException1() {
         CommonUnnumberedInterfaceSubobjectParser.serializeUnnumeredInterface(this.unnumbered1, Unpooled.EMPTY_BUFFER);
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testException2() {
         CommonUnnumberedInterfaceSubobjectParser.serializeUnnumeredInterface(this.unnumbered2, Unpooled.buffer(4));
     }

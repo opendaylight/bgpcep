@@ -26,19 +26,21 @@ public final class SimpleRSVPObjectRegistry implements RSVPTeObjectRegistry {
     private final Table<Integer, Integer, RSVPTeObjectParser> parserHandler = HashBasedTable.create();
     private final Map<Class<? extends RsvpTeObject>, RSVPTeObjectSerializer> serializerHandler = new HashMap<>();
 
-    public void registerRsvpObjectParser(final int classNum, final int cType, final RSVPTeObjectParser parser) {
+    public void registerRsvpObjectParser(final int classNum, final int ctype, final RSVPTeObjectParser parser) {
         Preconditions.checkArgument(classNum >= 0 && classNum <= Values.UNSIGNED_BYTE_MAX_VALUE);
-        Preconditions.checkArgument(cType >= 0 && cType <= Values.UNSIGNED_BYTE_MAX_VALUE);
-        this.parserHandler.put(classNum, cType, parser);
+        Preconditions.checkArgument(ctype >= 0 && ctype <= Values.UNSIGNED_BYTE_MAX_VALUE);
+        this.parserHandler.put(classNum, ctype, parser);
     }
 
-    public void registerRsvpObjectSerializer(final Class<? extends RsvpTeObject> objectClass, final RSVPTeObjectSerializer serializer) {
+    public void registerRsvpObjectSerializer(final Class<? extends RsvpTeObject> objectClass,
+        final RSVPTeObjectSerializer serializer) {
         this.serializerHandler.put(objectClass, serializer);
     }
 
     @Override
-    public RsvpTeObject parseRSPVTe(final int classNum, final int cType, final ByteBuf buffer) throws RSVPParsingException {
-        final RSVPTeObjectParser parser = this.parserHandler.get(classNum, cType);
+    public RsvpTeObject parseRSPVTe(final int classNum, final int ctype, final ByteBuf buffer)
+        throws RSVPParsingException {
+        final RSVPTeObjectParser parser = this.parserHandler.get(classNum, ctype);
         if (parser == null) {
             return null;
         }

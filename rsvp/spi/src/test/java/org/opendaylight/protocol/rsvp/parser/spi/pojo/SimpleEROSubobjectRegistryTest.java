@@ -11,6 +11,7 @@ package org.opendaylight.protocol.rsvp.parser.spi.pojo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Before;
@@ -41,7 +42,8 @@ public class SimpleEROSubobjectRegistryTest {
     public void setUp() throws RSVPParsingException {
         MockitoAnnotations.initMocks(this);
         this.simpleEROSubobjectRegistry.registerSubobjectParser(this.subObjectTypeOne, this.rroSubobjectParser);
-        Mockito.doReturn(new SubobjectContainerBuilder().build()).when(this.rroSubobjectParser).parseSubobject(this.input, false);
+        Mockito.doReturn(new SubobjectContainerBuilder().build()).when(this.rroSubobjectParser).parseSubobject(this
+            .input, false);
         final ArgumentCaptor<SubobjectContainer> arg = ArgumentCaptor.forClass(SubobjectContainer.class);
         final ArgumentCaptor<ByteBuf> bufArg = ArgumentCaptor.forClass(ByteBuf.class);
         Mockito.doAnswer(invocation -> {
