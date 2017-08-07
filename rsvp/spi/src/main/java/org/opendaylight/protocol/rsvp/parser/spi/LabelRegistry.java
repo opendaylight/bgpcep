@@ -15,12 +15,12 @@ public interface LabelRegistry {
     /**
      * Finds parser for given label C-type in the registry. Delegates parsing to found parser.
      *
-     * @param cType  label type, key in parser registry
+     * @param ctype  label type, key in parser registry
      * @param buffer label wrapped in ByteBuf
      * @return null if the parser for this label could not be found
      * @throws RSVPParsingException if the parsing did not succeed
      */
-    LabelType parseLabel(int cType, ByteBuf buffer) throws RSVPParsingException;
+    LabelType parseLabel(int ctype, ByteBuf buffer) throws RSVPParsingException;
 
     /**
      * Find serializer for given label. Delegates parsing to found serializer.
