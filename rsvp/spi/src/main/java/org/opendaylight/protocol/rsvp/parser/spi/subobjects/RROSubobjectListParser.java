@@ -29,7 +29,8 @@ public abstract class RROSubobjectListParser extends AbstractRSVPObjectParser {
     }
 
     public List<SubobjectContainer> parseList(final ByteBuf buffer) throws RSVPParsingException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
+            "Array of bytes is mandatory. Can't be null or empty.");
         final List<SubobjectContainer> subs = new ArrayList<>();
         while (buffer.isReadable()) {
             final int type = buffer.readUnsignedByte();
@@ -51,7 +52,8 @@ public abstract class RROSubobjectListParser extends AbstractRSVPObjectParser {
     }
 
     public final void serializeList(final List<SubobjectContainer> subobjects, final ByteBuf buffer) {
-        Preconditions.checkArgument(subobjects != null && !subobjects.isEmpty(), "RRO must contain at least one subobject.");
+        Preconditions.checkArgument(subobjects != null && !subobjects.isEmpty(),
+            "RRO must contain at least one subobject.");
         for (final SubobjectContainer subobject : subobjects) {
             this.subobjReg.serializeSubobject(subobject, buffer);
         }
