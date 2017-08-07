@@ -27,7 +27,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.SubobjectType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.LabelType;
 
-public class SimpleRSVPExtensionProviderContext extends SimpleRSVPExtensionConsumerContext implements RSVPExtensionProviderContext {
+public class SimpleRSVPExtensionProviderContext extends SimpleRSVPExtensionConsumerContext implements
+    RSVPExtensionProviderContext {
 
     private static final int DEFAULT_MAXIMUM_CACHED_OBJECTS = 100000;
 
@@ -37,8 +38,7 @@ public class SimpleRSVPExtensionProviderContext extends SimpleRSVPExtensionConsu
         public <T> T getSharedReference(final T object) {
             final Cache<Object, Object> cache = SimpleRSVPExtensionProviderContext.this.cacheRef.get();
 
-            @SuppressWarnings("unchecked")
-            final T ret = (T) cache.getIfPresent(object);
+            @SuppressWarnings("unchecked") final T ret = (T) cache.getIfPresent(object);
             if (ret == null) {
                 cache.put(object, object);
                 return object;
@@ -64,17 +64,19 @@ public class SimpleRSVPExtensionProviderContext extends SimpleRSVPExtensionConsu
 
 
     @Override
-    public void registerRsvpObjectParser(final int classNum, final int cType, final RSVPTeObjectParser parser) {
-        this.getRsvpRegistry().registerRsvpObjectParser(classNum, cType, parser);
+    public void registerRsvpObjectParser(final int classNum, final int ctype, final RSVPTeObjectParser parser) {
+        this.getRsvpRegistry().registerRsvpObjectParser(classNum, ctype, parser);
     }
 
     @Override
-    public void registerRsvpObjectSerializer(final Class<? extends RsvpTeObject> objectClass, final RSVPTeObjectSerializer serializer) {
+    public void registerRsvpObjectSerializer(final Class<? extends RsvpTeObject> objectClass,
+        final RSVPTeObjectSerializer serializer) {
         this.getRsvpRegistry().registerRsvpObjectSerializer(objectClass, serializer);
     }
 
     @Override
-    public AutoCloseable registerXROSubobjectSerializer(final Class<? extends SubobjectType> subobjectClass, final XROSubobjectSerializer serializer) {
+    public AutoCloseable registerXROSubobjectSerializer(final Class<? extends SubobjectType> subobjectClass,
+        final XROSubobjectSerializer serializer) {
         return this.getXROSubobjectHandlerRegistry().registerSubobjectSerializer(subobjectClass, serializer);
     }
 
@@ -84,7 +86,9 @@ public class SimpleRSVPExtensionProviderContext extends SimpleRSVPExtensionConsu
     }
 
     @Override
-    public AutoCloseable registerRROSubobjectSerializer(final Class<? extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.SubobjectType> subobjectClass, final RROSubobjectSerializer serializer) {
+    public AutoCloseable registerRROSubobjectSerializer(final Class<? extends org.opendaylight.yang.gen.v1.urn
+        .opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.SubobjectType> subobjectClass,
+        final RROSubobjectSerializer serializer) {
         return this.getRROSubobjectHandlerRegistry().registerSubobjectSerializer(subobjectClass, serializer);
     }
 
@@ -94,7 +98,9 @@ public class SimpleRSVPExtensionProviderContext extends SimpleRSVPExtensionConsu
     }
 
     @Override
-    public AutoCloseable registerEROSubobjectSerializer(final Class<? extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.SubobjectType> subobjectClass, final EROSubobjectSerializer serializer) {
+    public AutoCloseable registerEROSubobjectSerializer(final Class<? extends org.opendaylight.yang.gen.v1.urn
+        .opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.SubobjectType>
+        subobjectClass, final EROSubobjectSerializer serializer) {
         return this.getEROSubobjectHandlerRegistry().registerSubobjectSerializer(subobjectClass, serializer);
     }
 
@@ -104,12 +110,13 @@ public class SimpleRSVPExtensionProviderContext extends SimpleRSVPExtensionConsu
     }
 
     @Override
-    public AutoCloseable registerLabelSerializer(final Class<? extends LabelType> labelClass, final LabelSerializer serializer) {
+    public AutoCloseable registerLabelSerializer(final Class<? extends LabelType> labelClass,
+        final LabelSerializer serializer) {
         return this.getLabelHandlerRegistry().registerLabelSerializer(labelClass, serializer);
     }
 
     @Override
-    public AutoCloseable registerLabelParser(final int cType, final LabelParser parser) {
-        return this.getLabelHandlerRegistry().registerLabelParser(cType, parser);
+    public AutoCloseable registerLabelParser(final int ctype, final LabelParser parser) {
+        return this.getLabelHandlerRegistry().registerLabelParser(ctype, parser);
     }
 }
