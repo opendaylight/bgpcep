@@ -28,7 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 public class SimpleLabelRegistryTest {
-    final short cTypeOne = 1;
+    private final short ctype = 1;
     private final SimpleLabelRegistry simpleLabelRegistry = new SimpleLabelRegistry();
     private final ByteBuf input = Unpooled.wrappedBuffer(new byte[]{1, 2, 3});
     @Mock
@@ -39,17 +39,18 @@ public class SimpleLabelRegistryTest {
     @Before
     public void setUp() throws RSVPParsingException {
         MockitoAnnotations.initMocks(this);
-        this.simpleLabelRegistry.registerLabelParser(this.cTypeOne, this.labelParser);
+        this.simpleLabelRegistry.registerLabelParser(this.ctype, this.labelParser);
         this.simpleLabelRegistry.registerLabelSerializer(MockLabel.class, this.labelSerializer);
         Mockito.doReturn(new MockLabel()).when(this.labelParser).parseLabel(this.input);
         final ArgumentCaptor<LabelType> tlvArg = ArgumentCaptor.forClass(LabelType.class);
         final ArgumentCaptor<ByteBuf> bufArg = ArgumentCaptor.forClass(ByteBuf.class);
-        Mockito.doNothing().when(this.labelSerializer).serializeLabel(Mockito.anyBoolean(), Mockito.anyBoolean(), tlvArg.capture(), bufArg.capture());
+        Mockito.doNothing().when(this.labelSerializer).serializeLabel(Mockito.anyBoolean(), Mockito.anyBoolean(),
+            tlvArg.capture(), bufArg.capture());
     }
 
     @Test
     public void testParserRegistration() {
-        assertNotNull(this.simpleLabelRegistry.registerLabelParser(this.cTypeOne, this.labelParser));
+        assertNotNull(this.simpleLabelRegistry.registerLabelParser(this.ctype, this.labelParser));
     }
 
     @Test
@@ -80,7 +81,7 @@ public class SimpleLabelRegistryTest {
 
     @Test
     public void testParseLabel() throws RSVPParsingException {
-        final LabelType output = this.simpleLabelRegistry.parseLabel(this.cTypeOne, this.input);
+        final LabelType output = this.simpleLabelRegistry.parseLabel(this.ctype, this.input);
         assertNotNull(output);
         assertTrue(output instanceof MockLabel);
 
