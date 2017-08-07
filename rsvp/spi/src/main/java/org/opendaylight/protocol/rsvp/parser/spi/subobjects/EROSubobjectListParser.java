@@ -8,8 +8,8 @@
 
 package org.opendaylight.protocol.rsvp.parser.spi.subobjects;
 
-
 import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import java.util.ArrayList;
@@ -35,8 +35,10 @@ public abstract class EROSubobjectListParser extends AbstractRSVPObjectParser {
         Preconditions.checkArgument(buffer != null, "Array of bytes is mandatory. Can't be null.");
         final List<SubobjectContainer> subs = new ArrayList<>();
         while (buffer.isReadable()) {
-            final boolean loose = ((buffer.getUnsignedByte(buffer.readerIndex()) & (1 << Values.FIRST_BIT_OFFSET)) != 0) ? true : false;
-            final int type = (buffer.readUnsignedByte() & Values.BYTE_MAX_VALUE_BYTES) & ~(1 << Values.FIRST_BIT_OFFSET);
+            final boolean loose = (buffer.getUnsignedByte(buffer.readerIndex()) & (1 << Values.FIRST_BIT_OFFSET))
+                != 0;
+            final int type = (buffer.readUnsignedByte() & Values.BYTE_MAX_VALUE_BYTES) & ~(1 << Values
+                .FIRST_BIT_OFFSET);
             final int length = buffer.readUnsignedByte() - HEADER_LENGTH;
             if (length > buffer.readableBytes()) {
                 throw new RSVPParsingException("Wrong length specified. Passed: " + length + "; Expected: <= "
@@ -55,7 +57,8 @@ public abstract class EROSubobjectListParser extends AbstractRSVPObjectParser {
     }
 
     public final void serializeList(final List<SubobjectContainer> subobjects, final ByteBuf buffer) {
-        Preconditions.checkArgument(subobjects != null && !subobjects.isEmpty(), "RRO must contain at least one subobject.");
+        Preconditions.checkArgument(subobjects != null && !subobjects.isEmpty(),
+            "RRO must contain at least one subobject.");
         for (final SubobjectContainer subobject : subobjects) {
             this.subobjReg.serializeSubobject(subobject, buffer);
         }

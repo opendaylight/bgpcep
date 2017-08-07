@@ -11,6 +11,7 @@ package org.opendaylight.protocol.rsvp.parser.spi.pojo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Before;
@@ -41,7 +42,8 @@ public class SimpleEROSubobjectRegistryTest {
     public void setUp() throws RSVPParsingException {
         MockitoAnnotations.initMocks(this);
         this.simpleEROSubobjectRegistry.registerSubobjectParser(this.subObjectTypeOne, this.rroSubobjectParser);
-        Mockito.doReturn(new SubobjectContainerBuilder().build()).when(this.rroSubobjectParser).parseSubobject(this.input, false);
+        Mockito.doReturn(new SubobjectContainerBuilder().build()).when(this.rroSubobjectParser)
+            .parseSubobject(this.input, false);
         final ArgumentCaptor<SubobjectContainer> arg = ArgumentCaptor.forClass(SubobjectContainer.class);
         final ArgumentCaptor<ByteBuf> bufArg = ArgumentCaptor.forClass(ByteBuf.class);
         Mockito.doAnswer(invocation -> {
@@ -56,8 +58,8 @@ public class SimpleEROSubobjectRegistryTest {
         final int wrongType = 99;
         assertNull(this.simpleEROSubobjectRegistry.parseSubobject(wrongType, this.input, false));
         final ByteBuf output = Unpooled.EMPTY_BUFFER;
-        final SubobjectContainer container = new SubobjectContainerBuilder().setSubobjectType(new
-            LabelCaseBuilder().build()).build();
+        final SubobjectContainer container = new SubobjectContainerBuilder()
+            .setSubobjectType(new LabelCaseBuilder().build()).build();
         this.simpleEROSubobjectRegistry.serializeSubobject(container, output);
         assertEquals(0, output.readableBytes());
     }
@@ -76,8 +78,8 @@ public class SimpleEROSubobjectRegistryTest {
 
     @Test
     public void testParserRegistration() throws RSVPParsingException {
-        assertNotNull(this.simpleEROSubobjectRegistry.registerSubobjectParser(this.subObjectTypeOne, this
-            .rroSubobjectParser));
+        assertNotNull(this.simpleEROSubobjectRegistry.registerSubobjectParser(this.subObjectTypeOne,
+            this.rroSubobjectParser));
         assertNotNull(this.simpleEROSubobjectRegistry.parseSubobject(this.subObjectTypeOne, this.input, false));
     }
 
@@ -85,8 +87,8 @@ public class SimpleEROSubobjectRegistryTest {
     public void testSerializerRegistration() {
         assertNotNull(this.simpleEROSubobjectRegistry.registerSubobjectSerializer(LabelCase.class, this
             .rroSubobjectSerializer));
-        final SubobjectContainer container = new SubobjectContainerBuilder().setSubobjectType(new
-            LabelCaseBuilder().build()).build();
+        final SubobjectContainer container = new SubobjectContainerBuilder().setSubobjectType(
+            new LabelCaseBuilder().build()).build();
         final ByteBuf output = Unpooled.buffer();
         this.simpleEROSubobjectRegistry.serializeSubobject(container, output);
         assertEquals(1, output.readableBytes());

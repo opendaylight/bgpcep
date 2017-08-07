@@ -31,9 +31,9 @@ public class EROSubobjectListParserTest {
     private final SubobjectContainer subObj = Mockito.mock(SubobjectContainer.class);
     private final RsvpTeObject rsvpTeObj = Mockito.mock(RsvpTeObject.class);
     private final EroListParser parser = new EroListParser(this.registry);
-    private final byte[] inputList = new byte[] {1, 3, 1, 2, 4, 1, 2};
-    private final byte[] emptyInput = new byte[] {1, 2};
-    private final byte[] wrongInput = new byte[] {1, 3};
+    private final byte[] inputList = new byte[]{1, 3, 1, 2, 4, 1, 2};
+    private final byte[] emptyInput = new byte[]{1, 2};
+    private final byte[] wrongInput = new byte[]{1, 3};
     private final List<SubobjectContainer> subobjects = Arrays.asList(this.subObj, this.subObj);
 
     @Before
@@ -51,12 +51,12 @@ public class EROSubobjectListParserTest {
         }).when(this.registry).serializeSubobject(Mockito.any(SubobjectContainer.class), Mockito.any(ByteBuf.class));
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testParsingException() throws RSVPParsingException {
         this.parser.parseList(null);
     }
 
-    @Test(expected=RSVPParsingException.class)
+    @Test(expected = RSVPParsingException.class)
     public void testWrongInput() throws RSVPParsingException {
         this.parser.parseList(Unpooled.copiedBuffer(this.wrongInput));
     }
@@ -79,12 +79,12 @@ public class EROSubobjectListParserTest {
     @Test
     public void testAbstractRSVPObjParser() throws RSVPParsingException {
         final ByteBuf byteAggregator = Unpooled.buffer(4);
-        byte[] output = new byte[] {0, 1, 2, 3};
+        byte[] output = new byte[]{0, 1, 2, 3};
         EroListParser.serializeAttributeHeader(1, (short) 2, (short) 3, byteAggregator);
         assertArrayEquals(output, byteAggregator.array());
 
         final ByteBuf body = Unpooled.buffer(4);
-        output = new byte[] {0, 0, 0, 1};
+        output = new byte[]{0, 0, 0, 1};
         final AttributeFilter filter = new AttributeFilter(1L);
         EroListParser.writeAttributeFilter(filter, body);
         assertArrayEquals(output, body.array());
@@ -102,13 +102,15 @@ public class EROSubobjectListParserTest {
     }
 
     private class EroListParser extends EROSubobjectListParser {
-        public EroListParser(final EROSubobjectRegistry subobjReg) {
+        EroListParser(final EROSubobjectRegistry subobjReg) {
             super(subobjReg);
         }
+
         @Override
         protected void localSerializeObject(final RsvpTeObject rsvpTeObject, final ByteBuf output) {
             output.writeByte(3);
         }
+
         @Override
         protected RsvpTeObject localParseObject(final ByteBuf byteBuf) throws RSVPParsingException {
             return EROSubobjectListParserTest.this.rsvpTeObj;
