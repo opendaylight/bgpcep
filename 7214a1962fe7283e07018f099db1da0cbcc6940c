@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_ca600338",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractTopologySessionListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2017-08-08T07:06:26Z",
+      "side": 1,
+      "message": "so, in this case onSessionDown(..) will also send out a CLOSE message to remote peer?  The java doc of onSessionDown(..) is saying \"Fired when the session went down because of an IO error. Implementation should take care of closing underlying session.\"  I suppose when the IO error happens (which is channel inactive), it is not able to (or expected to) try to send out another PCEP message, correct?\n\nI can see this avoid the API change publicly, but we are doing this by changing the underlying implementation here.",
+      "revId": "7214a1962fe7283e07018f099db1da0cbcc6940c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
