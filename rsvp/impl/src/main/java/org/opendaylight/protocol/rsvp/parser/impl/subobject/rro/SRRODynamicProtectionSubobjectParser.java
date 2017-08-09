@@ -23,8 +23,8 @@ public class SRRODynamicProtectionSubobjectParser extends ProtectionCommonParser
 
     @Override
     public void serializeSubobject(final SubobjectContainer subobject, final ByteBuf buffer) {
-        Preconditions.checkArgument(subobject.getSubobjectType() instanceof DynamicControlProtectionCase, "Unknown " +
-            "subobject instance. Passed %s. Needed UnnumberedCase.", subobject.getSubobjectType());
+        Preconditions.checkArgument(subobject.getSubobjectType() instanceof DynamicControlProtectionCase,
+            "Unknown subobject instance. Passed %s. Needed UnnumberedCase.", subobject.getSubobjectType());
         final ProtectionSubobject protObj = ((DynamicControlProtectionCase) subobject.getSubobjectType())
             .getDynamicControlProtection().getProtectionSubobject();
         final ByteBuf body = Unpooled.buffer();

@@ -53,7 +53,8 @@ public final class AttributesObjectParser extends AbstractRSVPObjectParser {
         }
     }
 
-    protected static void serializeTLV(final int tlvType, final int lenght, final ByteBuf value, final ByteBuf auxBuffer) {
+    protected static void serializeTLV(final int tlvType, final int lenght, final ByteBuf value, final ByteBuf
+        auxBuffer) {
         auxBuffer.writeShort(tlvType);
         auxBuffer.writeShort(lenght);
         auxBuffer.writeBytes(value);

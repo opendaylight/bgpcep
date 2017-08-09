@@ -38,10 +38,11 @@ public class RROPathKey32SubobjectParser implements RROSubobjectParser, RROSubob
 
     @Override
     public SubobjectContainer parseSubobject(final ByteBuf buffer) throws RSVPParsingException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
+            "Array of bytes is mandatory. Can't be null or empty.");
         if (buffer.readableBytes() != CONTENT_LENGTH) {
-            throw new RSVPParsingException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; Expected: >"
-                + CONTENT_LENGTH + ".");
+            throw new RSVPParsingException("Wrong length of array of bytes. Passed: " + buffer.readableBytes()
+                + "; " + "Expected: >" + CONTENT_LENGTH + ".");
         }
         final int pathKey = buffer.readUnsignedShort();
         final byte[] pceId = ByteArray.readBytes(buffer, PCE_ID_F_LENGTH);
@@ -55,16 +56,20 @@ public class RROPathKey32SubobjectParser implements RROSubobjectParser, RROSubob
 
     @Override
     public void serializeSubobject(final SubobjectContainer subobject, final ByteBuf buffer) {
-        Preconditions.checkArgument(subobject.getSubobjectType() instanceof PathKeyCase, "Unknown subobject instance. Passed %s. Needed PathKey.", subobject.getSubobjectType().getClass());
+        Preconditions.checkArgument(subobject.getSubobjectType() instanceof PathKeyCase,
+            "Unknown subobject instance.Passed %s. Needed PathKey.",
+            subobject.getSubobjectType().getClass());
         final PathKeyCase pkcase = (PathKeyCase) subobject.getSubobjectType();
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.path.key._case.PathKey pk = pkcase.getPathKey();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects
+            .subobject.type.path.key._case.PathKey pk = pkcase.getPathKey();
         final ByteBuf body = Unpooled.buffer();
         Preconditions.checkArgument(pk.getPceId() != null, "PceId is mandatory.");
         if (pk.getPceId().getBinary().length == RROPathKey128SubobjectParser.PCE128_ID_F_LENGTH) {
             RROPathKey128SubobjectParser.serializeSubobject(subobject, buffer);
         }
         Preconditions.checkArgument(pk.getPathKey() != null, "PathKey is mandatory.");
-        Preconditions.checkArgument(pk.getPceId().getBinary().length == PCE_ID_F_LENGTH, "PathKey 32Bit is mandatory.");
+        Preconditions.checkArgument(pk.getPceId().getBinary().length == PCE_ID_F_LENGTH,
+            "PathKey 32Bit is mandatory.");
         writeUnsignedShort(pk.getPathKey().getValue(), body);
         body.writeBytes(pk.getPceId().getBinary());
         RROSubobjectUtil.formatSubobject(TYPE, body, buffer);

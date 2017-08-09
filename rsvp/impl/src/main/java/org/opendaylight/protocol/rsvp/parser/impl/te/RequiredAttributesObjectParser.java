@@ -44,31 +44,36 @@ public final class RequiredAttributesObjectParser extends AbstractRSVPObjectPars
             final ByteBuf value = byteBuf.readSlice(length);
             final SubobjectContainerBuilder subObj = new SubobjectContainerBuilder();
             if (type == AttributesObjectParser.FLAG_TLV_TYPE) {
-                subObj.setLspSubobject(new FlagsTlvBuilder().setFlagContainer(AttributesObjectParser.parseFlag(value)).build());
+                subObj.setLspSubobject(new FlagsTlvBuilder().setFlagContainer(AttributesObjectParser.parseFlag(value)
+                ).build());
             } else {
                 LOG.warn("Lsp Attributes Subobject type {} not supported", type);
             }
             subObjectList.add(subObj.build());
         }
 
-        return builder.setLspAttributesObject(new LspAttributesObjectBuilder().setSubobjectContainer(subObjectList).build()).build();
+        return builder.setLspAttributesObject(new LspAttributesObjectBuilder().setSubobjectContainer(subObjectList)
+            .build()).build();
     }
 
     @Override
     public void localSerializeObject(final RsvpTeObject teLspObject, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(teLspObject instanceof LspRequiredAttributesObject, "LspAttributesObject is mandatory.");
+        Preconditions.checkArgument(teLspObject instanceof LspRequiredAttributesObject,
+            "LspAttributesObject is mandatory.");
         final LspRequiredAttributesObject lspAttributesObject = (LspRequiredAttributesObject) teLspObject;
 
         final ByteBuf bufferAux = Unpooled.buffer();
         int lenght = 0;
-        for (final SubobjectContainer subObject : lspAttributesObject.getLspAttributesObject().getSubobjectContainer()) {
+        for (final SubobjectContainer subObject : lspAttributesObject.getLspAttributesObject()
+            .getSubobjectContainer()) {
             final LspSubobject lspSubonject = subObject.getLspSubobject();
             if (lspSubonject instanceof FlagsTlv) {
                 final ByteBuf flagTLVValue = Unpooled.buffer();
                 final List<FlagContainer> flagList = ((FlagsTlv) lspSubonject).getFlagContainer();
                 lenght = AttributesObjectParser.FLAG_TLV_SIZE * flagList.size();
                 AttributesObjectParser.serializeFlag(flagList, flagTLVValue);
-                AttributesObjectParser.serializeTLV(AttributesObjectParser.FLAG_TLV_TYPE, lenght, flagTLVValue, bufferAux);
+                AttributesObjectParser.serializeTLV(AttributesObjectParser.FLAG_TLV_TYPE, lenght, flagTLVValue,
+                    bufferAux);
                 lenght += AttributesObjectParser.TLV_HEADER_SIZE;
             }
         }

@@ -57,7 +57,8 @@ public final class DetourObjectIpv6Parser extends AbstractRSVPObjectParser {
 
         final List<PlrId> pList = detourObject.getPlrId();
         final List<AvoidNode> aList = detourObject.getAvoidNode();
-        serializeAttributeHeader((pList.size() * Ipv6Util.IPV6_LENGTH) + (aList.size() * Ipv6Util.IPV6_LENGTH), CLASS_NUM,
+        serializeAttributeHeader((pList.size() * Ipv6Util.IPV6_LENGTH) + (aList.size() * Ipv6Util.IPV6_LENGTH),
+            CLASS_NUM,
             CTYPE, byteAggregator);
 
         for (final PlrId plrId : pList) {

@@ -23,7 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.label.type.waveband.switching.label._case.WavebandSwitchingLabelBuilder;
 
 /**
- * Parser for {@link WavebandSwitchingLabelCase}
+ * Parser for {@link WavebandSwitchingLabelCase}.
  */
 public class WavebandSwitchingLabelParser implements LabelParser, LabelSerializer {
 
@@ -37,10 +37,11 @@ public class WavebandSwitchingLabelParser implements LabelParser, LabelSerialize
 
     @Override
     public final LabelType parseLabel(final ByteBuf buffer) throws RSVPParsingException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
+            "Array of bytes is mandatory. Can't be null or empty.");
         if (buffer.readableBytes() != CONTENT_LENGTH) {
-            throw new RSVPParsingException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; Expected: "
-                + CONTENT_LENGTH + ".");
+            throw new RSVPParsingException("Wrong length of array of bytes. Passed: " + buffer.readableBytes()
+                + "; Expected: " + CONTENT_LENGTH + ".");
         }
         final WavebandSwitchingLabelBuilder builder = new WavebandSwitchingLabelBuilder();
         builder.setWavebandId(buffer.readUnsignedInt());
@@ -51,8 +52,10 @@ public class WavebandSwitchingLabelParser implements LabelParser, LabelSerialize
 
     @Override
     public final void serializeLabel(final boolean unidirectional, final boolean global, final LabelType subobject,
-                                     final ByteBuf buffer) {
-        Preconditions.checkArgument(subobject instanceof WavebandSwitchingLabelCase, "Unknown Label Subobject instance. Passed {}. Needed WavebandSwitchingLabelCase.", subobject.getClass());
+        final ByteBuf buffer) {
+        Preconditions.checkArgument(subobject instanceof WavebandSwitchingLabelCase,
+            "Unknown Label Subobject instance. Passed {}. Needed WavebandSwitchingLabelCase.",
+            subobject.getClass());
         final WavebandSwitchingLabel obj = ((WavebandSwitchingLabelCase) subobject).getWavebandSwitchingLabel();
         final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
         Preconditions.checkArgument(obj.getWavebandId() != null, "WavebandId is mandatory.");

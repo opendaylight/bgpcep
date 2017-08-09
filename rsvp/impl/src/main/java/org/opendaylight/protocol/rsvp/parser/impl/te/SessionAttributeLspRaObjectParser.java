@@ -27,7 +27,8 @@ public final class SessionAttributeLspRaObjectParser extends AbstractRSVPObjectP
 
     @Override
     protected RsvpTeObject localParseObject(final ByteBuf byteBuf) throws RSVPParsingException {
-        final SessionAttributeObjectWithResourcesAffinitiesBuilder builder = new SessionAttributeObjectWithResourcesAffinitiesBuilder();
+        final SessionAttributeObjectWithResourcesAffinitiesBuilder builder = new
+            SessionAttributeObjectWithResourcesAffinitiesBuilder();
         builder.setIncludeAny(new AttributeFilter(byteBuf.readUnsignedInt()));
         builder.setExcludeAny(new AttributeFilter(byteBuf.readUnsignedInt()));
         builder.setIncludeAll(new AttributeFilter(byteBuf.readUnsignedInt()));
@@ -46,10 +47,13 @@ public final class SessionAttributeLspRaObjectParser extends AbstractRSVPObjectP
 
     @Override
     public void localSerializeObject(final RsvpTeObject teLspObject, final ByteBuf output) {
-        Preconditions.checkArgument(teLspObject instanceof SessionAttributeObjectWithResourcesAffinities, "SessionAttributeObject is mandatory.");
+        Preconditions.checkArgument(teLspObject instanceof SessionAttributeObjectWithResourcesAffinities,
+            "SessionAttributeObject is mandatory.");
 
-        final SessionAttributeObjectWithResourcesAffinities sessionObject = (SessionAttributeObjectWithResourcesAffinities) teLspObject;
-        final ByteBuf sessionName = Unpooled.wrappedBuffer(StandardCharsets.US_ASCII.encode(sessionObject.getSessionName()));
+        final SessionAttributeObjectWithResourcesAffinities sessionObject =
+            (SessionAttributeObjectWithResourcesAffinities) teLspObject;
+        final ByteBuf sessionName = Unpooled.wrappedBuffer(StandardCharsets.US_ASCII.encode(sessionObject
+            .getSessionName()));
         final int pad = SessionAttributeLspObjectParser.getPadding(sessionName.readableBytes());
 
         serializeAttributeHeader(BODY_SIZE_C1 + pad + sessionName.readableBytes(), CLASS_NUM, CTYPE, output);

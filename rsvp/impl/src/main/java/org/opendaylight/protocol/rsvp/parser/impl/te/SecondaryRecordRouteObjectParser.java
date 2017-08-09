@@ -34,7 +34,8 @@ public final class SecondaryRecordRouteObjectParser extends RROSubobjectListPars
 
     @Override
     public void localSerializeObject(final RsvpTeObject teLspObject, final ByteBuf output) {
-        Preconditions.checkArgument(teLspObject instanceof SecondaryRecordRouteObject, "RecordRouteObject is mandatory.");
+        Preconditions.checkArgument(teLspObject instanceof SecondaryRecordRouteObject,
+            "RecordRouteObject is mandatory.");
         final SecondaryRecordRouteObject srro = (SecondaryRecordRouteObject) teLspObject;
         final ByteBuf bufferAux = Unpooled.buffer();
         serializeList(srro.getSubobjectContainer(), bufferAux);

@@ -19,7 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.list.SubobjectContainerBuilder;
 
 /**
- * Parser for {@link AsNumberCase}
+ * Parser for {@link AsNumberCase}.
  */
 public class EROAsNumberSubobjectParser implements EROSubobjectParser, EROSubobjectSerializer {
 
@@ -27,13 +27,15 @@ public class EROAsNumberSubobjectParser implements EROSubobjectParser, EROSubobj
 
     @Override
     public SubobjectContainer parseSubobject(final ByteBuf buffer, final boolean loose) throws RSVPParsingException {
-        return new SubobjectContainerBuilder().setLoose(loose).setSubobjectType(AsNumberCaseParser.parseSubobject
-            (buffer)).build();
+        return new SubobjectContainerBuilder().setLoose(loose).setSubobjectType(AsNumberCaseParser
+            .parseSubobject(buffer)).build();
     }
 
     @Override
     public void serializeSubobject(final SubobjectContainer subobject, final ByteBuf buffer) {
-        Preconditions.checkArgument(subobject.getSubobjectType() instanceof AsNumberCase, "Unknown subobject instance. Passed %s. Needed AsNumberCase.", subobject.getSubobjectType().getClass());
+        Preconditions.checkArgument(subobject.getSubobjectType() instanceof AsNumberCase,
+            "Unknown subobject instance. Passed %s. Needed AsNumberCase.",
+            subobject.getSubobjectType().getClass());
         final ByteBuf body = AsNumberCaseParser.serializeSubobject((AsNumberCase) subobject.getSubobjectType());
         EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), body, buffer);
     }

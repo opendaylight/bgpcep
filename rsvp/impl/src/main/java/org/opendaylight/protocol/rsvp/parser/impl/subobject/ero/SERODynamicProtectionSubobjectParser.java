@@ -19,7 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary.explicit.route.object.secondary.explicit.route.object.subobject.container.subobject.type.DynamicControlProtectionCase;
 
 /**
- * Parser for {@link DynamicControlProtectionCase}
+ * Parser for {@link DynamicControlProtectionCase}.
  */
 public class SERODynamicProtectionSubobjectParser extends ProtectionCommonParser implements EROSubobjectSerializer {
 
@@ -28,8 +28,9 @@ public class SERODynamicProtectionSubobjectParser extends ProtectionCommonParser
 
     @Override
     public void serializeSubobject(final SubobjectContainer subobject, final ByteBuf buffer) {
-        Preconditions.checkArgument(subobject.getSubobjectType() instanceof DynamicControlProtectionCase, "Unknown " +
-            "subobject instance. Passed %s. Needed UnnumberedCase.", subobject.getSubobjectType());
+        Preconditions.checkArgument(subobject.getSubobjectType() instanceof DynamicControlProtectionCase,
+            "Unknown subobject instance. Passed %s. Needed UnnumberedCase.",
+            subobject.getSubobjectType());
         final ProtectionSubobject protObj = ((DynamicControlProtectionCase) subobject.getSubobjectType())
             .getDynamicControlProtection().getProtectionSubobject();
         final ByteBuf body = Unpooled.buffer();

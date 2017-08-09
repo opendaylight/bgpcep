@@ -19,20 +19,23 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.exclude.route.object.exclude.route.object.SubobjectContainerBuilder;
 
 /**
- * Parser for {@link AsNumberCase}
+ * Parser for {@link AsNumberCase}.
  */
 public class XROAsNumberSubobjectParser implements XROSubobjectParser, XROSubobjectSerializer {
     public static final int TYPE = 32;
 
     @Override
-    public SubobjectContainer parseSubobject(final ByteBuf buffer, final boolean mandatory) throws RSVPParsingException {
-        return new SubobjectContainerBuilder().setMandatory(mandatory).setSubobjectType(AsNumberCaseParser.
-            parseSubobject(buffer)).build();
+    public SubobjectContainer parseSubobject(final ByteBuf buffer, final boolean mandatory) throws
+        RSVPParsingException {
+        return new SubobjectContainerBuilder().setMandatory(mandatory).setSubobjectType(
+            AsNumberCaseParser.parseSubobject(buffer)).build();
     }
 
     @Override
     public void serializeSubobject(final SubobjectContainer subobject, final ByteBuf buffer) {
-        Preconditions.checkArgument(subobject.getSubobjectType() instanceof AsNumberCase, "Unknown subobject instance. Passed %s. Needed AsNumberCase.", subobject.getSubobjectType().getClass());
+        Preconditions.checkArgument(subobject.getSubobjectType() instanceof AsNumberCase,
+            "Unknown subobject instance. Passed %s. Needed AsNumberCase.",
+            subobject.getSubobjectType().getClass());
         final ByteBuf body = AsNumberCaseParser.serializeSubobject((AsNumberCase) subobject.getSubobjectType());
         XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), body, buffer);
     }
