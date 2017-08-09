@@ -46,13 +46,15 @@ public class RROIpv4PrefixSubobjectParser implements RROSubobjectParser, RROSubo
 
     @Override
     public SubobjectContainer parseSubobject(final ByteBuf buffer) throws RSVPParsingException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be " +
+            "null or empty.");
         if (buffer.readableBytes() != CONTENT4_LENGTH) {
             throw new RSVPParsingException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + ";");
         }
         final SubobjectContainerBuilder builder = new SubobjectContainerBuilder();
         final int length = buffer.getUnsignedByte(PREFIX4_F_OFFSET);
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.ip.prefix._case.IpPrefix prefix = new IpPrefixBuilder().setIpPrefix(
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects
+            .subobject.type.ip.prefix._case.IpPrefix prefix = new IpPrefixBuilder().setIpPrefix(
             new IpPrefix(Ipv4Util.prefixForBytes(ByteArray.readBytes(buffer, Ipv4Util.IP4_LENGTH), length))).build();
         buffer.skipBytes(PREFIX_F_LENGTH);
         final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
@@ -64,10 +66,12 @@ public class RROIpv4PrefixSubobjectParser implements RROSubobjectParser, RROSubo
 
     @Override
     public void serializeSubobject(final SubobjectContainer subobject, final ByteBuf buffer) {
-        Preconditions.checkArgument(subobject.getSubobjectType() instanceof IpPrefixCase, "Unknown subobject instance. Passed %s. Needed IpPrefixCase.", subobject.getSubobjectType().getClass());
+        Preconditions.checkArgument(subobject.getSubobjectType() instanceof IpPrefixCase, "Unknown subobject instance" +
+            ". Passed %s. Needed IpPrefixCase.", subobject.getSubobjectType().getClass());
         final IpPrefixSubobject specObj = ((IpPrefixCase) subobject.getSubobjectType()).getIpPrefix();
         final IpPrefix prefix = specObj.getIpPrefix();
-        Preconditions.checkArgument(prefix.getIpv4Prefix() != null || prefix.getIpv6Prefix() != null, "Unknown AbstractPrefix instance. Passed %s.", prefix.getClass());
+        Preconditions.checkArgument(prefix.getIpv4Prefix() != null || prefix.getIpv6Prefix() != null, "Unknown " +
+            "AbstractPrefix instance. Passed %s.", prefix.getClass());
         if (prefix.getIpv6Prefix() != null) {
             new RROIpv6PrefixSubobjectParser().serializeSubobject(subobject, buffer);
         } else {

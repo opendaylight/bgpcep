@@ -101,7 +101,7 @@ public class ProtectionCommonParser {
         return sub.build();
     }
 
-    protected static final void serializeBody(final Short cType, final ProtectionSubobject protObj,
+    protected static void serializeBody(final Short cType, final ProtectionSubobject protObj,
             final ByteBuf output) {
         output.writeZero(BYTE_SIZE);
         writeUnsignedByte(cType, output);
@@ -118,7 +118,7 @@ public class ProtectionCommonParser {
         }
     }
 
-    protected static final ProtectionSubobject parseCommonProtectionBody(final short cType, final ByteBuf byteBuf)
+    protected static ProtectionSubobject parseCommonProtectionBody(final short cType, final ByteBuf byteBuf)
             throws RSVPParsingException {
         ProtectionSubobject protectionSubobject = null;
         switch (cType) {

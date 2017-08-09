@@ -31,10 +31,13 @@ public class XROPathKey32SubobjectParser extends CommonPathKeyParser implements 
     private static final int CONTENT_LENGTH = 2 + PCE_ID_F_LENGTH;
 
     @Override
-    public SubobjectContainer parseSubobject(final ByteBuf buffer, final boolean mandatory) throws RSVPParsingException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+    public SubobjectContainer parseSubobject(final ByteBuf buffer, final boolean mandatory) throws
+        RSVPParsingException {
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be " +
+            "null or empty.");
         if (buffer.readableBytes() != CONTENT_LENGTH) {
-            throw new RSVPParsingException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; Expected: >"
+            throw new RSVPParsingException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; " +
+                "Expected: >"
                 + CONTENT_LENGTH + ".");
         }
 
@@ -46,9 +49,11 @@ public class XROPathKey32SubobjectParser extends CommonPathKeyParser implements 
 
     @Override
     public void serializeSubobject(final SubobjectContainer subobject, final ByteBuf buffer) {
-        Preconditions.checkArgument(subobject.getSubobjectType() instanceof PathKeyCase, "Unknown subobject instance. Passed %s. Needed PathKey.", subobject.getSubobjectType().getClass());
+        Preconditions.checkArgument(subobject.getSubobjectType() instanceof PathKeyCase, "Unknown subobject instance." +
+            " Passed %s. Needed PathKey.", subobject.getSubobjectType().getClass());
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route
-            .subobjects.subobject.type.path.key._case.PathKey pk = ((PathKeyCase) subobject.getSubobjectType()).getPathKey();
+            .subobjects.subobject.type.path.key._case.PathKey pk = ((PathKeyCase) subobject.getSubobjectType())
+            .getPathKey();
         final ByteBuf body = serializePathKey(pk);
         if (pk.getPceId().getBinary().length == PCE_ID_F_LENGTH) {
             XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), body, buffer);

@@ -46,13 +46,15 @@ public class RROIpv6PrefixSubobjectParser implements RROSubobjectParser, RROSubo
 
     @Override
     public SubobjectContainer parseSubobject(final ByteBuf buffer) throws RSVPParsingException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be " +
+            "null or empty.");
         final SubobjectContainerBuilder builder = new SubobjectContainerBuilder();
         if (buffer.readableBytes() != CONTENT_LENGTH) {
             throw new RSVPParsingException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + ";");
         }
         final int length = buffer.getUnsignedByte(PREFIX_F_OFFSET);
-        final IpPrefixBuilder prefix = new IpPrefixBuilder().setIpPrefix(new IpPrefix(Ipv6Util.prefixForBytes(ByteArray.readBytes(buffer,
+        final IpPrefixBuilder prefix = new IpPrefixBuilder().setIpPrefix(new IpPrefix(Ipv6Util.prefixForBytes
+            (ByteArray.readBytes(buffer,
             Ipv6Util.IPV6_LENGTH), length)));
         buffer.skipBytes(PREFIX_F_LENGTH);
         final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
@@ -64,7 +66,8 @@ public class RROIpv6PrefixSubobjectParser implements RROSubobjectParser, RROSubo
 
     @Override
     public void serializeSubobject(final SubobjectContainer subobject, final ByteBuf buffer) {
-        Preconditions.checkArgument(subobject.getSubobjectType() instanceof IpPrefixCase, "Unknown subobject instance. Passed %s. Needed IpPrefixCase.", subobject.getSubobjectType().getClass());
+        Preconditions.checkArgument(subobject.getSubobjectType() instanceof IpPrefixCase, "Unknown subobject instance" +
+            ". Passed %s. Needed IpPrefixCase.", subobject.getSubobjectType().getClass());
         final IpPrefixSubobject specObj = ((IpPrefixCase) subobject.getSubobjectType()).getIpPrefix();
         final IpPrefix prefix = specObj.getIpPrefix();
         final BitArray flags = new BitArray(FLAGS_SIZE);

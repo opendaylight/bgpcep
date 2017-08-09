@@ -25,14 +25,16 @@ public class XROAsNumberSubobjectParser implements XROSubobjectParser, XROSubobj
     public static final int TYPE = 32;
 
     @Override
-    public SubobjectContainer parseSubobject(final ByteBuf buffer, final boolean mandatory) throws RSVPParsingException {
+    public SubobjectContainer parseSubobject(final ByteBuf buffer, final boolean mandatory) throws
+        RSVPParsingException {
         return new SubobjectContainerBuilder().setMandatory(mandatory).setSubobjectType(AsNumberCaseParser.
             parseSubobject(buffer)).build();
     }
 
     @Override
     public void serializeSubobject(final SubobjectContainer subobject, final ByteBuf buffer) {
-        Preconditions.checkArgument(subobject.getSubobjectType() instanceof AsNumberCase, "Unknown subobject instance. Passed %s. Needed AsNumberCase.", subobject.getSubobjectType().getClass());
+        Preconditions.checkArgument(subobject.getSubobjectType() instanceof AsNumberCase, "Unknown subobject instance" +
+            ". Passed %s. Needed AsNumberCase.", subobject.getSubobjectType().getClass());
         final ByteBuf body = AsNumberCaseParser.serializeSubobject((AsNumberCase) subobject.getSubobjectType());
         XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), body, buffer);
     }

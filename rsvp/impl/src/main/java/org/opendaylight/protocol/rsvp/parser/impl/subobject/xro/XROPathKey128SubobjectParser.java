@@ -28,10 +28,13 @@ public class XROPathKey128SubobjectParser extends CommonPathKeyParser implements
     private static final int CONTENT128_LENGTH = 2 + PCE128_ID_F_LENGTH;
 
     @Override
-    public SubobjectContainer parseSubobject(final ByteBuf buffer, final boolean mandatory) throws RSVPParsingException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+    public SubobjectContainer parseSubobject(final ByteBuf buffer, final boolean mandatory) throws
+        RSVPParsingException {
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be " +
+            "null or empty.");
         if (buffer.readableBytes() != CONTENT128_LENGTH) {
-            throw new RSVPParsingException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; Expected: >"
+            throw new RSVPParsingException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; " +
+                "Expected: >"
                 + CONTENT128_LENGTH + ".");
         }
 
