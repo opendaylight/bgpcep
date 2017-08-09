@@ -25,7 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.unnumbered._case.UnnumberedBuilder;
 
 /**
- * Parser for {@link UnnumberedCase}
+ * Parser for {@link UnnumberedCase}.
  */
 public class RROUnnumberedInterfaceSubobjectParser implements RROSubobjectParser, RROSubobjectSerializer {
 
@@ -41,10 +41,11 @@ public class RROUnnumberedInterfaceSubobjectParser implements RROSubobjectParser
 
     @Override
     public SubobjectContainer parseSubobject(final ByteBuf buffer) throws RSVPParsingException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
+            "Array of bytes is mandatory. Can't be null or empty.");
         if (buffer.readableBytes() != CONTENT_LENGTH) {
-            throw new RSVPParsingException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; Expected: "
-                + CONTENT_LENGTH + ".");
+            throw new RSVPParsingException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; "
+                + "Expected: " + CONTENT_LENGTH + ".");
         }
         final SubobjectContainerBuilder builder = new SubobjectContainerBuilder();
         final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
@@ -60,7 +61,9 @@ public class RROUnnumberedInterfaceSubobjectParser implements RROSubobjectParser
 
     @Override
     public void serializeSubobject(final SubobjectContainer subobject, final ByteBuf buffer) {
-        Preconditions.checkArgument(subobject.getSubobjectType() instanceof UnnumberedCase, "Unknown subobject instance. Passed %s. Needed UnnumberedCase.", subobject.getSubobjectType().getClass());
+        Preconditions.checkArgument(subobject.getSubobjectType() instanceof UnnumberedCase,
+            "Unknown subobject instance. Passed %s. Needed UnnumberedCase.",
+            subobject.getSubobjectType().getClass());
         final UnnumberedSubobject specObj = ((UnnumberedCase) subobject.getSubobjectType()).getUnnumbered();
         final BitArray flags = new BitArray(FLAGS_SIZE);
         flags.set(LPA_F_OFFSET, subobject.isProtectionAvailable());

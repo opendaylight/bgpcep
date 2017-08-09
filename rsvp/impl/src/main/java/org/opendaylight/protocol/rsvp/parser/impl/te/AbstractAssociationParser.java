@@ -27,7 +27,7 @@ public abstract class AbstractAssociationParser extends AbstractRSVPObjectParser
     private static final Integer BODY_SIZE_IPV4 = 8;
     private static final Integer BODY_SIZE_IPV6 = 20;
 
-    protected abstract IpAddress parseAssociationIpAddress(final ByteBuf byteBuf);
+    protected abstract IpAddress parseAssociationIpAddress(ByteBuf byteBuf);
 
     @Override
     protected final void localSerializeObject(final RsvpTeObject teLspObject, final ByteBuf output) {

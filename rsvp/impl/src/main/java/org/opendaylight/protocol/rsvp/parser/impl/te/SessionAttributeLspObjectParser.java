@@ -51,10 +51,12 @@ public final class SessionAttributeLspObjectParser extends AbstractRSVPObjectPar
 
     @Override
     public void localSerializeObject(final RsvpTeObject teLspObject, final ByteBuf output) {
-        Preconditions.checkArgument(teLspObject instanceof BasicSessionAttributeObject, "SessionAttributeObject is mandatory.");
+        Preconditions.checkArgument(teLspObject instanceof BasicSessionAttributeObject,
+            "SessionAttributeObject is mandatory.");
 
         final BasicSessionAttributeObject sessionObject = (BasicSessionAttributeObject) teLspObject;
-        final ByteBuf sessionName = Unpooled.wrappedBuffer(StandardCharsets.US_ASCII.encode(sessionObject.getSessionName()));
+        final ByteBuf sessionName = Unpooled.wrappedBuffer(StandardCharsets.US_ASCII.encode(sessionObject
+            .getSessionName()));
         final int pad = getPadding(sessionName.readableBytes());
         serializeAttributeHeader(BODY_SIZE_C7 + pad + sessionName.readableBytes(), CLASS_NUM, CTYPE, output);
         output.writeByte(sessionObject.getSetupPriority());

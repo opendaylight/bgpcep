@@ -20,7 +20,8 @@ public final class XROSubobjectUtil {
         throw new UnsupportedOperationException();
     }
 
-    public static void formatSubobject(final int type, final Boolean mandatory, final ByteBuf body, final ByteBuf buffer) {
+    public static void formatSubobject(final int type, final Boolean mandatory, final ByteBuf body,
+        final ByteBuf buffer) {
         if (mandatory == null) {
             buffer.writeByte(type);
         } else {

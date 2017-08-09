@@ -25,16 +25,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary.record.route.object.secondary.record.route.object.subobject.container.subobject.type.dynamic.control.protection._case.DynamicControlProtectionBuilder;
 
 /**
- * Parser for {@link BasicProtectionCase}
+ * Parser for {@link BasicProtectionCase}.
  */
-public class SRROBasicProtectionSubobjectParser extends ProtectionCommonParser implements RROSubobjectParser, RROSubobjectSerializer {
+public class SRROBasicProtectionSubobjectParser extends ProtectionCommonParser implements RROSubobjectParser,
+    RROSubobjectSerializer {
 
     public static final int TYPE = 37;
     public static final Short CTYPE = 1;
 
     @Override
     public SubobjectContainer parseSubobject(final ByteBuf buffer) throws RSVPParsingException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
+            "Array of bytes is mandatory. Can't be null or empty.");
         final SubobjectContainerBuilder builder = new SubobjectContainerBuilder();
         //skip reserved
         buffer.readByte();
@@ -53,7 +55,9 @@ public class SRROBasicProtectionSubobjectParser extends ProtectionCommonParser i
 
     @Override
     public void serializeSubobject(final SubobjectContainer subobject, final ByteBuf buffer) {
-        Preconditions.checkArgument(subobject.getSubobjectType() instanceof BasicProtectionCase, "Unknown subobject instance. Passed %s. Needed UnnumberedCase.", subobject.getSubobjectType().getClass());
+        Preconditions.checkArgument(subobject.getSubobjectType() instanceof BasicProtectionCase,
+            "Unknown subobject instance. Passed %s. Needed UnnumberedCase.",
+            subobject.getSubobjectType().getClass());
         final ProtectionSubobject protObj = ((BasicProtectionCase) subobject.getSubobjectType()).getBasicProtection()
             .getProtectionSubobject();
         final ByteBuf body = Unpooled.buffer();

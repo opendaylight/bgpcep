@@ -18,7 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.subobject.type.PathKeyCaseBuilder;
 
 /**
- * Parser for { PathKey}
+ * Parser for { PathKey}.
  */
 public class XROPathKey128SubobjectParser extends CommonPathKeyParser implements XROSubobjectParser {
     public static final int TYPE = 65;
@@ -28,11 +28,13 @@ public class XROPathKey128SubobjectParser extends CommonPathKeyParser implements
     private static final int CONTENT128_LENGTH = 2 + PCE128_ID_F_LENGTH;
 
     @Override
-    public SubobjectContainer parseSubobject(final ByteBuf buffer, final boolean mandatory) throws RSVPParsingException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+    public SubobjectContainer parseSubobject(final ByteBuf buffer, final boolean mandatory) throws
+        RSVPParsingException {
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
+            "Array of bytes is mandatory. Can't be null or empty.");
         if (buffer.readableBytes() != CONTENT128_LENGTH) {
-            throw new RSVPParsingException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; Expected: >"
-                + CONTENT128_LENGTH + ".");
+            throw new RSVPParsingException("Wrong length of array of bytes. Passed: " + buffer.readableBytes()
+                + "; " + "Expected: >" + CONTENT128_LENGTH + ".");
         }
 
         final SubobjectContainerBuilder builder = new SubobjectContainerBuilder();

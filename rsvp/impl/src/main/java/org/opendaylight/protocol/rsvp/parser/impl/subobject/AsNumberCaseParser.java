@@ -28,12 +28,14 @@ public final class AsNumberCaseParser {
     }
 
     public static AsNumberCase parseSubobject(final ByteBuf buffer) throws RSVPParsingException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
+            "Array of bytes is mandatory. Can't be null or empty.");
         if (buffer.readableBytes() != CONTENT_LENGTH) {
-            throw new RSVPParsingException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; Expected: "
-                + CONTENT_LENGTH + ".");
+            throw new RSVPParsingException("Wrong length of array of bytes. Passed: " + buffer.readableBytes()
+                + "; " + "Expected: " + CONTENT_LENGTH + ".");
         }
-        return new AsNumberCaseBuilder().setAsNumber(new AsNumberBuilder().setAsNumber(new AsNumber((long) buffer.readUnsignedShort())).build()).build();
+        return new AsNumberCaseBuilder().setAsNumber(new AsNumberBuilder().setAsNumber(new AsNumber((long) buffer
+            .readUnsignedShort())).build()).build();
     }
 
 

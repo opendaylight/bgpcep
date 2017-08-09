@@ -46,10 +46,11 @@ public class EROLabelSubobjectParser implements EROSubobjectParser, EROSubobject
 
     @Override
     public SubobjectContainer parseSubobject(final ByteBuf buffer, final boolean loose) throws RSVPParsingException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
+            "Array of bytes is mandatory. Can't be null or empty.");
         if (buffer.readableBytes() < HEADER_LENGTH) {
-            throw new RSVPParsingException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; Expected: >"
-                + HEADER_LENGTH + ".");
+            throw new RSVPParsingException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; "
+                + "Expected: >" + HEADER_LENGTH + ".");
         }
         final BitArray reserved = BitArray.valueOf(buffer, FLAGS_SIZE);
         final short cType = buffer.readUnsignedByte();
@@ -61,12 +62,15 @@ public class EROLabelSubobjectParser implements EROSubobjectParser, EROSubobject
         final LabelBuilder builder = new LabelBuilder();
         builder.setUniDirectional(reserved.get(U_FLAG_OFFSET));
         builder.setLabelType(labelType);
-        return new SubobjectContainerBuilder().setLoose(loose).setSubobjectType(new LabelCaseBuilder().setLabel(builder.build()).build()).build();
+        return new SubobjectContainerBuilder().setLoose(loose).setSubobjectType(
+            new LabelCaseBuilder().setLabel(builder.build()).build()).build();
     }
 
     @Override
     public void serializeSubobject(final SubobjectContainer subobject, final ByteBuf buffer) {
-        Preconditions.checkArgument(subobject.getSubobjectType() instanceof LabelCase, "Unknown subobject instance. Passed %s. Needed LabelCase.", subobject.getSubobjectType().getClass());
+        Preconditions.checkArgument(subobject.getSubobjectType() instanceof LabelCase,
+            "Unknown subobject instance. Passed %s. Needed LabelCase.",
+            subobject.getSubobjectType().getClass());
         final Label label = ((LabelCase) subobject.getSubobjectType()).getLabel();
         final ByteBuf body = Unpooled.buffer();
         this.registry.serializeLabel(label.isUniDirectional(), false, label.getLabelType(), body);

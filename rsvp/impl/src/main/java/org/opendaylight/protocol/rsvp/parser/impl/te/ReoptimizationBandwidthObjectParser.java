@@ -33,7 +33,8 @@ public final class ReoptimizationBandwidthObjectParser extends AbstractRSVPObjec
 
     @Override
     public void localSerializeObject(final RsvpTeObject teLspObject, final ByteBuf output) {
-        Preconditions.checkArgument(teLspObject instanceof ReoptimizationBandwidthObject, "BandwidthObject is mandatory.");
+        Preconditions.checkArgument(teLspObject instanceof ReoptimizationBandwidthObject,
+            "BandwidthObject is mandatory.");
         final ReoptimizationBandwidthObject bandObject = (ReoptimizationBandwidthObject) teLspObject;
         serializeAttributeHeader(BandwidthObjectParser.BODY_SIZE, CLASS_NUM, CTYPE, output);
         final Bandwidth band = bandObject.getBandwidth();

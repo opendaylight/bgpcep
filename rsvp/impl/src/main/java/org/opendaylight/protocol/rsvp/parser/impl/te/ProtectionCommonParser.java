@@ -62,9 +62,11 @@ public class ProtectionCommonParser {
         output.writeZero(ByteBufWriteUtil.SHORT_BYTES_LENGTH);
     }
 
-    protected static ProtectionSubobject parseCommonProtectionBodyType2(final ByteBuf byteBuf) throws RSVPParsingException {
+    protected static ProtectionSubobject parseCommonProtectionBodyType2(final ByteBuf byteBuf) throws
+        RSVPParsingException {
         if (byteBuf.readableBytes() != CONTENT_LENGTH_C2) {
-            throw new RSVPParsingException("Wrong length of array of bytes. Passed: " + byteBuf.readableBytes() + "; Expected: " + CONTENT_LENGTH_C2 + ".");
+            throw new RSVPParsingException("Wrong length of array of bytes. Passed: " + byteBuf.readableBytes() + "; "
+                + "Expected: " + CONTENT_LENGTH_C2 + ".");
         }
         final ProtectionSubobjectBuilder sub = new ProtectionSubobjectBuilder();
         final BitArray protectionFlag = BitArray.valueOf(byteBuf.readByte());
@@ -101,36 +103,36 @@ public class ProtectionCommonParser {
         return sub.build();
     }
 
-    protected static final void serializeBody(final Short cType, final ProtectionSubobject protObj,
-            final ByteBuf output) {
+    protected static void serializeBody(final Short ctype, final ProtectionSubobject protObj,
+        final ByteBuf output) {
         output.writeZero(BYTE_SIZE);
-        writeUnsignedByte(cType, output);
-        switch (cType) {
-        case PROTECTION_SUBOBJECT_TYPE_1:
-            serializeBodyType1(protObj, output);
-            break;
-        case PROTECTION_SUBOBJECT_TYPE_2:
-            serializeBodyType2(protObj, output);
-            break;
-        default:
-            LOG.warn("Secondary Record Route Protection Subobject cType {} not supported", cType);
-            break;
+        writeUnsignedByte(ctype, output);
+        switch (ctype) {
+            case PROTECTION_SUBOBJECT_TYPE_1:
+                serializeBodyType1(protObj, output);
+                break;
+            case PROTECTION_SUBOBJECT_TYPE_2:
+                serializeBodyType2(protObj, output);
+                break;
+            default:
+                LOG.warn("Secondary Record Route Protection Subobject cType {} not supported", ctype);
+                break;
         }
     }
 
-    protected static final ProtectionSubobject parseCommonProtectionBody(final short cType, final ByteBuf byteBuf)
-            throws RSVPParsingException {
+    protected static ProtectionSubobject parseCommonProtectionBody(final short ctype, final ByteBuf byteBuf)
+        throws RSVPParsingException {
         ProtectionSubobject protectionSubobject = null;
-        switch (cType) {
-        case PROTECTION_SUBOBJECT_TYPE_1:
-            protectionSubobject = parseCommonProtectionBodyType1(byteBuf);
-            break;
-        case PROTECTION_SUBOBJECT_TYPE_2:
-            protectionSubobject = parseCommonProtectionBodyType2(byteBuf);
-            break;
-        default:
-            LOG.warn("Secondary Record Route Protection Subobject cType {} not supported", cType);
-            break;
+        switch (ctype) {
+            case PROTECTION_SUBOBJECT_TYPE_1:
+                protectionSubobject = parseCommonProtectionBodyType1(byteBuf);
+                break;
+            case PROTECTION_SUBOBJECT_TYPE_2:
+                protectionSubobject = parseCommonProtectionBodyType2(byteBuf);
+                break;
+            default:
+                LOG.warn("Secondary Record Route Protection Subobject cType {} not supported", ctype);
+                break;
         }
         return protectionSubobject;
     }
