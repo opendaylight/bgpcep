@@ -585,6 +585,46 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         });
     }
 
+    @Test
+    public void testDelegatedLspsCountWithDelegation() throws Exception {
+        this.listener.onSessionUp(this.session);
+        this.topologyRpcs.addLsp(createAddLspInput());
+        assertEquals(1, this.receivedMsgs.size());
+        assertTrue(this.receivedMsgs.get(0) instanceof Pcinitiate);
+        final Pcinitiate pcinitiate = (Pcinitiate) this.receivedMsgs.get(0);
+        final Requests req = pcinitiate.getPcinitiateMessage().getRequests().get(0);
+        final long srpId = req.getSrp().getOperationId().getValue();
+        final Tlvs tlvs = createLspTlvs(req.getLsp().getPlspId().getValue(), true,
+            this.testAddress, this.testAddress, this.testAddress, Optional.absent());
+        //delegate set to true
+        final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(req.getLsp()).setTlvs(tlvs)
+            .setPlspId(new PlspId(1L)).setSync(false).setRemove(false).setOperational(OperationalStatus.Active)
+            .setDelegate(true).build(), Optional.of(MsgBuilderUtil.createSrp(srpId)), MsgBuilderUtil.createPath(
+                    req.getEro().getSubobject()));
+        this.listener.onMessage(this.session, pcRpt);
+        checkEquals(()->assertEquals(1, this.listener.getDelegatedLspsCount().intValue()));
+    }
+
+    @Test
+    public void testDelegatedLspsCountWithoutDelegation() throws Exception {
+        this.listener.onSessionUp(this.session);
+        this.topologyRpcs.addLsp(createAddLspInput());
+        assertEquals(1, this.receivedMsgs.size());
+        assertTrue(this.receivedMsgs.get(0) instanceof Pcinitiate);
+        final Pcinitiate pcinitiate = (Pcinitiate) this.receivedMsgs.get(0);
+        final Requests req = pcinitiate.getPcinitiateMessage().getRequests().get(0);
+        final long srpId = req.getSrp().getOperationId().getValue();
+        final Tlvs tlvs = createLspTlvs(req.getLsp().getPlspId().getValue(), true,
+            this.testAddress, this.testAddress, this.testAddress, Optional.absent());
+        //delegate set to false
+        final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(req.getLsp()).setTlvs(tlvs)
+            .setPlspId(new PlspId(1L)).setSync(false).setRemove(false).setOperational(OperationalStatus.Active)
+            .setDelegate(false).build(), Optional.of(MsgBuilderUtil.createSrp(srpId)), MsgBuilderUtil.createPath(
+                    req.getEro().getSubobject()));
+        this.listener.onMessage(this.session, pcRpt);
+        checkEquals(()->assertEquals(0, this.listener.getDelegatedLspsCount().intValue()));
+    }
+
     @Override
     protected Open getLocalPref() {
         return new OpenBuilder(super.getLocalPref()).setTlvs(new TlvsBuilder().addAugmentation(Tlvs1.class,
