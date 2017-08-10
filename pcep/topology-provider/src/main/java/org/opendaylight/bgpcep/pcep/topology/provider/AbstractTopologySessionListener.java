@@ -39,6 +39,7 @@ import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPTerminationReason;
 import org.opendaylight.protocol.pcep.TerminationReason;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Path1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.MessageHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
@@ -633,8 +634,19 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     }
 
     @Override
-    public Integer getDelegatedLspsCount() {
-        return this.lsps.size();
+    public synchronized Integer getDelegatedLspsCount() {
+        Integer count = 0;
+        for (final ReportedLsp reportedLsp : this.lspData.values()) {
+            if (reportedLsp.getPath() != null && !reportedLsp.getPath().isEmpty()) {
+                // pick the first path, as delegate status should be same in each path
+                final Path path = reportedLsp.getPath().get(0);
+                final Path1 path1 = path.getAugmentation(Path1.class);
+                if (path1 != null && path1.getLsp() != null && path1.getLsp().isDelegate()) {
+                    count++;
+                }
+            }
+        }
+        return count;
     }
 
     @Override
