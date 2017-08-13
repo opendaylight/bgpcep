@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.rsvp.parser.spi;
 
 import static org.junit.Assert.assertArrayEquals;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.lang.reflect.Constructor;
@@ -16,7 +17,8 @@ import org.junit.Test;
 
 public class EROSubobjectUtilTest {
 
-    @Test(expected=UnsupportedOperationException.class)
+    @Test(expected = UnsupportedOperationException.class)
+    @SuppressWarnings({"checkstyle:IllegalCatch", "checkstyle:IllegalThrows"})
     public void testPrivateConstructor() throws Throwable {
         final Constructor<EROSubobjectUtil> c = EROSubobjectUtil.class.getDeclaredConstructor();
         c.setAccessible(true);
@@ -29,8 +31,8 @@ public class EROSubobjectUtilTest {
 
     @Test
     public void testFormatSubobject1() {
-        final byte[] array = new byte[] {2, 3};
-        final byte[] expected = new byte[] {(byte)0x81, 4, 2, 3};
+        final byte[] array = new byte[]{2, 3};
+        final byte[] expected = new byte[]{(byte) 0x81, 4, 2, 3};
         final ByteBuf body = Unpooled.copiedBuffer(array);
         final ByteBuf aggregator = Unpooled.buffer(4);
         EROSubobjectUtil.formatSubobject(1, Boolean.TRUE, body, aggregator);
@@ -39,8 +41,8 @@ public class EROSubobjectUtilTest {
 
     @Test
     public void testFormatSubobject2() {
-        final byte[] array = new byte[] {2, 3};
-        final byte[] expected = new byte[] {1, 4, 2, 3};
+        final byte[] array = new byte[]{2, 3};
+        final byte[] expected = new byte[]{1, 4, 2, 3};
         final ByteBuf body = Unpooled.copiedBuffer(array);
         final ByteBuf aggregator = Unpooled.buffer(4);
         EROSubobjectUtil.formatSubobject(1, Boolean.FALSE, body, aggregator);
@@ -49,8 +51,8 @@ public class EROSubobjectUtilTest {
 
     @Test
     public void testFormatSubobject3() {
-        final byte[] array = new byte[] {2, 3};
-        final byte[] expected = new byte[] {1, 4, 2, 3};
+        final byte[] array = new byte[]{2, 3};
+        final byte[] expected = new byte[]{1, 4, 2, 3};
         final ByteBuf body = Unpooled.copiedBuffer(array);
         final ByteBuf aggregator = Unpooled.buffer(4);
         EROSubobjectUtil.formatSubobject(1, null, body, aggregator);
