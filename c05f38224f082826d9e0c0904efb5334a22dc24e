@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_c2771cd3",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/ServerSessionManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2017-08-16T23:56:57Z",
+      "side": 1,
+      "message": "Check if the ServerSessionManager is closed here.  If it\u0027s closed already, the pcep topology has already been removed.  In this case, if this method get invoked, nodeState.released(persistNode) will throw Optismic Lock Exception as the node to be removed is not there anymore.\nThis happens when a CLOSE message is received earlier but processed just after the ServerSessionManager is closed.",
+      "revId": "c05f38224f082826d9e0c0904efb5334a22dc24e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
