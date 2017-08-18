@@ -16,6 +16,24 @@
       "revId": "c05f38224f082826d9e0c0904efb5334a22dc24e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_69bbb0e5",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/ServerSessionManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2017-08-18T09:14:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_c2771cd3",
+      "revId": "c05f38224f082826d9e0c0904efb5334a22dc24e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
