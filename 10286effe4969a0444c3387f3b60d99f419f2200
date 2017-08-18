@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_5f13fab7",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPSessionImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2017-08-18T16:18:24Z",
+      "side": 1,
+      "message": "check isClosed here. there is a chance the onSessionTerminated() get triggered twice or triggered along with onSessionDown() when the session is already closed.",
+      "revId": "10286effe4969a0444c3387f3b60d99f419f2200",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
