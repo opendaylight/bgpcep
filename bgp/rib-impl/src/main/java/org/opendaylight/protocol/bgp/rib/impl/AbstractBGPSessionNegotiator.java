@@ -8,8 +8,9 @@
 
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -85,8 +86,8 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
 
     AbstractBGPSessionNegotiator(final Promise<BGPSessionImpl> promise, final Channel channel,
             final BGPPeerRegistry registry) {
-        this.promise = Preconditions.checkNotNull(promise);
-        this.channel = Preconditions.checkNotNull(channel);
+        this.promise = requireNonNull(promise);
+        this.channel = requireNonNull(channel);
         this.registry = registry;
     }
 

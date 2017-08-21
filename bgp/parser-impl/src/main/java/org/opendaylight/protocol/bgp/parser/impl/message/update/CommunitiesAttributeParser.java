@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -42,7 +44,7 @@ public final class CommunitiesAttributeParser implements AttributeParser, Attrib
     private final ReferenceCache refCache;
 
     public CommunitiesAttributeParser(final ReferenceCache refCache) {
-        this.refCache = Preconditions.checkNotNull(refCache);
+        this.refCache = requireNonNull(refCache);
     }
 
     @Override

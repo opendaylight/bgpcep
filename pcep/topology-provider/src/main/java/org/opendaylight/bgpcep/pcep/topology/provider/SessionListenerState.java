@@ -8,7 +8,8 @@
 
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Stopwatch;
 import java.util.concurrent.TimeUnit;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.ErrorMessages;
@@ -48,7 +49,7 @@ final class SessionListenerState {
     }
 
     public void init(final PCEPSession session) {
-        Preconditions.checkNotNull(session);
+        requireNonNull(session);
         this.localPref = getLocalPref(session.getLocalPref());
         this.peerPref = getPeerPref(session.getPeerPref());
         this.sessionUpDuration.start();
@@ -79,7 +80,7 @@ final class SessionListenerState {
     }
 
     public void resetStats(final PCEPSession session) {
-        Preconditions.checkNotNull(session);
+        requireNonNull(session);
         this.receivedRptMsgCount = 0;
         this.sentInitMsgCount = 0;
         this.sentUpdMsgCount = 0;
@@ -108,7 +109,7 @@ final class SessionListenerState {
     }
 
     public SessionState getSessionState(final PCEPSession session) {
-        Preconditions.checkNotNull(session);
+        requireNonNull(session);
         final SessionState state = new SessionState();
         state.setLocalPref(this.localPref);
         state.setPeerPref(this.peerPref);
@@ -118,7 +119,7 @@ final class SessionListenerState {
     }
 
     public void setPeerCapabilities(final PeerCapabilities capabilities) {
-        this.capa = Preconditions.checkNotNull(capabilities);
+        this.capa = requireNonNull(capabilities);
     }
 
     public void updateLastReceivedRptMsg() {

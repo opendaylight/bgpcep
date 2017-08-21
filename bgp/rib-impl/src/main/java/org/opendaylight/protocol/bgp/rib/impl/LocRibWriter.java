@@ -7,8 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedInteger;
 import java.util.Collection;
 import java.util.HashMap;
@@ -86,14 +87,14 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
         final YangInstanceIdentifier target, final Long ourAs, final DOMDataTreeChangeService service,
         final ExportPolicyPeerTracker exportPolicyPeerTracker, final TablesKey tablesKey,
         final PathSelectionMode pathSelectionMode) {
-        this.chain = Preconditions.checkNotNull(chain);
-        this.target = Preconditions.checkNotNull(target);
+        this.chain = requireNonNull(chain);
+        this.target = requireNonNull(target);
         this.tableKey  = RibSupportUtils.toYangTablesKey(tablesKey);
         this.localTablesKey = tablesKey;
         this.locRibTarget = YangInstanceIdentifier.create(target.node(LocRib.QNAME).node(Tables.QNAME)
             .node(this.tableKey).getPathArguments());
-        this.ourAs = Preconditions.checkNotNull(ourAs);
-        this.service = Preconditions.checkNotNull(service);
+        this.ourAs = requireNonNull(ourAs);
+        this.service = requireNonNull(service);
         this.ribSupport = registry.getRIBSupportContext(tablesKey).getRibSupport();
         this.attributesIdentifier = this.ribSupport.routeAttributesIdentifier();
         this.exportPolicyPeerTracker = exportPolicyPeerTracker;
@@ -129,7 +130,7 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
      * @param newChain new transaction chain
      */
     synchronized void restart(@Nonnull final DOMTransactionChain newChain) {
-        Preconditions.checkNotNull(newChain);
+        requireNonNull(newChain);
         close();
         this.chain = newChain;
         init();

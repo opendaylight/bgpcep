@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.flowspec;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
@@ -36,7 +38,7 @@ public final class FSDestinationPortHandler implements FlowspecTypeParser, Flows
 
     @Override
     public FlowspecType parseType(ByteBuf buffer) {
-        Preconditions.checkNotNull(buffer, "input buffer is null, missing data to parse.");
+        requireNonNull(buffer, "input buffer is null, missing data to parse.");
         return new DestinationPortCaseBuilder().setDestinationPorts(parseDestinationPort(buffer)).build();
     }
 

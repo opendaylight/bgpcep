@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.stats.peer.route;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import java.util.Map;
 import java.util.Set;
@@ -34,7 +36,7 @@ public final class PerTableTypeRouteCounter {
     }
 
     public final synchronized LongAdder init(@Nonnull final TablesKey tablesKey) {
-        LongAdder counter = this.counters.get(Preconditions.checkNotNull(tablesKey));
+        LongAdder counter = this.counters.get(requireNonNull(tablesKey));
         if (counter == null) {
             counter = new LongAdder();
             this.counters.put(tablesKey, counter);
@@ -51,7 +53,7 @@ public final class PerTableTypeRouteCounter {
      * @param tablesKey
      */
     @Nonnull public final LongAdder getCounterOrDefault(@Nonnull final TablesKey tablesKey) {
-        return this.counters.getOrDefault(Preconditions.checkNotNull(tablesKey), new LongAdder());
+        return this.counters.getOrDefault(requireNonNull(tablesKey), new LongAdder());
     }
 
     /**
@@ -65,7 +67,7 @@ public final class PerTableTypeRouteCounter {
             return init(tablesKey);
         }
 
-        return this.counters.get(Preconditions.checkNotNull(tablesKey));
+        return this.counters.get(requireNonNull(tablesKey));
     }
 
     public final Map<TablesKey, LongAdder> getCounters() {

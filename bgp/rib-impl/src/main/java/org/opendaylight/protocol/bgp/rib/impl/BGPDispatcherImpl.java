@@ -7,8 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -66,10 +67,10 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
             this.bossGroup = new EpollEventLoopGroup();
             this.workerGroup = new EpollEventLoopGroup();
         } else {
-            this.bossGroup = Preconditions.checkNotNull(bossGroup);
-            this.workerGroup = Preconditions.checkNotNull(workerGroup);
+            this.bossGroup = requireNonNull(bossGroup);
+            this.workerGroup = requireNonNull(workerGroup);
         }
-        this.bgpPeerRegistry = Preconditions.checkNotNull(bgpPeerRegistry);
+        this.bgpPeerRegistry = requireNonNull(bgpPeerRegistry);
         this.handlerFactory = new BGPHandlerFactory(messageRegistry);
     }
 

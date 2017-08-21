@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.parser.object;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
@@ -31,7 +33,7 @@ public abstract class AbstractXROWithSubobjectsParser implements ObjectParser, O
     private final XROSubobjectRegistry subobjReg;
 
     protected AbstractXROWithSubobjectsParser(final XROSubobjectRegistry subobjReg) {
-        this.subobjReg = Preconditions.checkNotNull(subobjReg);
+        this.subobjReg = requireNonNull(subobjReg);
     }
 
     protected List<Subobject> parseSubobjects(final ByteBuf buffer) throws PCEPDeserializerException {

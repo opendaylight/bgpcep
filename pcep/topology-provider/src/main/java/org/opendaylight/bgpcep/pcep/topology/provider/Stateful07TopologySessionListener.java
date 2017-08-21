@@ -7,6 +7,8 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -588,7 +590,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
 
     private ListenableFuture<OperationResult> redelegate(final Lsp reportedLsp, final Srp srp, final Lsp lsp, final UpdateLspArgs input) {
         // the D bit that was reported decides the type of PCE message sent
-        Preconditions.checkNotNull(reportedLsp.isDelegate());
+        requireNonNull(reportedLsp.isDelegate());
         final Message msg;
         if (reportedLsp.isDelegate()) {
             // we already have delegation, send update

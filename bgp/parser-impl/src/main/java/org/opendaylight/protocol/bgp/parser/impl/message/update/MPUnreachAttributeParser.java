@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -32,7 +34,7 @@ public final class MPUnreachAttributeParser implements AttributeParser, Attribut
     private final NlriRegistry reg;
 
     public MPUnreachAttributeParser(final NlriRegistry reg) {
-        this.reg = Preconditions.checkNotNull(reg);
+        this.reg = requireNonNull(reg);
     }
 
     @Override

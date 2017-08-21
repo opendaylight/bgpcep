@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.open;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Optional;
@@ -35,8 +36,8 @@ public final class MultiProtocolCapabilityHandler implements CapabilityParser, C
     private final SubsequentAddressFamilyRegistry safiReg;
 
     public MultiProtocolCapabilityHandler(final AddressFamilyRegistry afiReg, final SubsequentAddressFamilyRegistry safiReg) {
-        this.afiReg = Preconditions.checkNotNull(afiReg);
-        this.safiReg = Preconditions.checkNotNull(safiReg);
+        this.afiReg = requireNonNull(afiReg);
+        this.safiReg = requireNonNull(safiReg);
     }
 
     @Override

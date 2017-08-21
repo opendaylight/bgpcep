@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -31,7 +33,7 @@ public final class ExtendedCommunitiesAttributeParser implements AttributeParser
     private final ExtendedCommunityRegistry ecReg;
 
     public ExtendedCommunitiesAttributeParser(final ExtendedCommunityRegistry ecReg) {
-        this.ecReg = Preconditions.checkNotNull(ecReg);
+        this.ecReg = requireNonNull(ecReg);
     }
 
     @Override

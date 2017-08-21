@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.bmp.spi.parser;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
@@ -50,7 +52,7 @@ public abstract  class AbstractBmpMessageWithTlvParser<T extends Builder<?>> ext
     }
 
     protected final void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkNotNull(tlv, "BMP TLV is mandatory.");
+        requireNonNull(tlv, "BMP TLV is mandatory.");
         LOG.trace("Serializing BMP TLV {}", tlv);
         this.tlvRegistry.serializeTlv(tlv, buffer);
         LOG.trace("Serialized BMP TLV : {}.", ByteBufUtil.hexDump(buffer));

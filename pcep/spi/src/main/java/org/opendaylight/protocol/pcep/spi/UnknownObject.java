@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import java.util.Collections;
 import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
@@ -30,7 +31,7 @@ public final class UnknownObject implements Object {
     }
 
     public UnknownObject(final PCEPErrors error, final Object invalidObject) {
-        this.e = Preconditions.checkNotNull(error);
+        this.e = requireNonNull(error);
 
         this.error = new ErrorsBuilder().setErrorObject(
                 new ErrorObjectBuilder().setType(error.getErrorType()).setValue(

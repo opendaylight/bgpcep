@@ -7,8 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.mode.impl.add;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.MoreObjects.ToStringHelper;
-import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedInteger;
 import javax.annotation.Nonnull;
 import org.opendaylight.protocol.bgp.mode.api.BestPathState;
@@ -23,7 +24,7 @@ public final class AddPathBestPath extends AbstractBestPath {
 
     public AddPathBestPath(@Nonnull final BestPathState state, @Nonnull final RouteKey key, final int offsetPosition, final Long pathId) {
         super(state);
-        this.routeKey = Preconditions.checkNotNull(key);
+        this.routeKey = requireNonNull(key);
         this.offsetPosition = offsetPosition;
         this.pathId = pathId;
     }

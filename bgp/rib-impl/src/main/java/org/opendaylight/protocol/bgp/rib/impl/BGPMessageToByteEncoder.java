@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandler.Sharable;
@@ -27,7 +28,7 @@ final class BGPMessageToByteEncoder extends MessageToByteEncoder<Notification> {
     private final MessageRegistry registry;
 
     BGPMessageToByteEncoder(final MessageRegistry registry) {
-        this.registry = Preconditions.checkNotNull(registry);
+        this.registry = requireNonNull(registry);
     }
 
     @Override

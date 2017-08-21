@@ -8,6 +8,7 @@
 
 package org.opendaylight.protocol.bmp.impl.app;
 
+import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bmp.impl.app.TablesUtil.BMP_TABLES_QNAME;
 
 import com.google.common.base.Preconditions;
@@ -123,10 +124,10 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
     private final BindingCodecTreeNode<ReceivedOpen> receivedOpenCodec;
     private boolean up = true;
 
-    private BmpRouterPeerImpl(final DOMTransactionChain domTxChain, final YangInstanceIdentifier peersYangIId, final PeerId peerId,
-            final RIBExtensionConsumerContext extensions, final PeerUpNotification peerUp,
-            final BindingCodecTree tree) {
-        this.domTxChain = Preconditions.checkNotNull(domTxChain);
+    private BmpRouterPeerImpl(final DOMTransactionChain domTxChain, final YangInstanceIdentifier peersYangIId,
+        final PeerId peerId, final RIBExtensionConsumerContext extensions, final PeerUpNotification peerUp,
+        final BindingCodecTree tree) {
+        this.domTxChain = requireNonNull(domTxChain);
         this.peerId = peerId;
         this.peerYangIId = YangInstanceIdentifier.builder(peersYangIId).nodeWithKey(Peer.QNAME, PEER_ID_QNAME, this.peerId.getValue()).build();
         this.sentOpenCodec = tree.getSubtreeCodec(SENT_OPEN_IID);

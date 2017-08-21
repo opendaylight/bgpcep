@@ -8,6 +8,7 @@
 
 package org.opendaylight.protocol.bmp.impl.app;
 
+import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bmp.impl.app.KeyConstructorUtil.constructKeys;
 
 import com.google.common.base.Optional;
@@ -66,11 +67,11 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation, Clu
     public BmpMonitoringStationImpl(final BmpDeployerDependencies bmpDeployerDependencies,
         final BmpDispatcher dispatcher, final MonitorId monitorId, final InetSocketAddress address,
         final List<MonitoredRouter> mrs) {
-        this.domDataBroker = Preconditions.checkNotNull(bmpDeployerDependencies.getDomDataBroker());
-        this.dispatcher = Preconditions.checkNotNull(dispatcher);
+        this.domDataBroker = requireNonNull(bmpDeployerDependencies.getDomDataBroker());
+        this.dispatcher = requireNonNull(dispatcher);
         this.monitorId = monitorId;
         this.monitoredRouters = mrs;
-        this.address = Preconditions.checkNotNull(address);
+        this.address = requireNonNull(address);
 
         this.yangMonitorId = YangInstanceIdentifier.builder()
             .node(BmpMonitor.QNAME).node(Monitor.QNAME)
@@ -130,8 +131,8 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation, Clu
         if (this.monitoredRouters != null) {
             for (final MonitoredRouter mr : this.monitoredRouters) {
                 if (mr.isActive()) {
-                    Preconditions.checkNotNull(mr.getAddress());
-                    Preconditions.checkNotNull(mr.getPort());
+                    requireNonNull(mr.getAddress());
+                    requireNonNull(mr.getPort());
                     final String s = mr.getAddress().getIpv4Address().getValue();
                     final InetAddress addr = InetAddresses.forString(s);
                     final KeyMapping ret;

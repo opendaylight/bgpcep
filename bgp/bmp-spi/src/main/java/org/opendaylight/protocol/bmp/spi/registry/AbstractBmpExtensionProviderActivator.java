@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.bmp.spi.registry;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -35,7 +37,7 @@ public abstract class AbstractBmpExtensionProviderActivator implements AutoClose
     @Override
     public final synchronized void start(@Nonnull final BmpExtensionProviderContext context) {
         Preconditions.checkState(this.registrations == null);
-        this.registrations = Preconditions.checkNotNull(startImpl(context));
+        this.registrations = requireNonNull(startImpl(context));
     }
 
     @Override

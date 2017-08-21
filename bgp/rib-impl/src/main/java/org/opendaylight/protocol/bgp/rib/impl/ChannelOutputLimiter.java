@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -27,7 +28,7 @@ public final class ChannelOutputLimiter extends ChannelInboundHandlerAdapter {
     private volatile boolean blocked;
 
     ChannelOutputLimiter(final BGPSessionImpl session) {
-        this.session = Preconditions.checkNotNull(session);
+        this.session = requireNonNull(session);
     }
 
     private void ensureWritable() {

@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.rsvp.parser.spi.subobjects;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
@@ -27,7 +29,7 @@ public abstract class XROSubobjectListParser extends AbstractRSVPObjectParser {
     private final XROSubobjectRegistry subobjReg;
 
     protected XROSubobjectListParser(final XROSubobjectRegistry subobjReg) {
-        this.subobjReg = Preconditions.checkNotNull(subobjReg);
+        this.subobjReg = requireNonNull(subobjReg);
     }
 
     public List<SubobjectContainer> parseList(final ByteBuf byteBuf) throws RSVPParsingException {

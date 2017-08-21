@@ -7,9 +7,10 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.CheckedFuture;
@@ -124,27 +125,27 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
         final BindingCodecTreeFactory codecFactory, final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
         @Nonnull final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies, final GeneratedClassLoadingStrategy classStrategy,
         final BgpDeployer.WriteConfiguration configurationWriter) {
-        super(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(Preconditions.checkNotNull(ribId))),
+        super(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(requireNonNull(ribId))),
             localBgpId, localAs);
-        this.localAs = Preconditions.checkNotNull(localAs);
-        this.bgpIdentifier = Preconditions.checkNotNull(localBgpId);
-        this.dispatcher = Preconditions.checkNotNull(dispatcher);
+        this.localAs = requireNonNull(localAs);
+        this.bgpIdentifier = requireNonNull(localBgpId);
+        this.dispatcher = requireNonNull(dispatcher);
         this.localTables = ImmutableSet.copyOf(localTables);
         this.localTablesKeys = new HashSet<>();
-        this.domDataBroker = Preconditions.checkNotNull(domDataBroker);
+        this.domDataBroker = requireNonNull(domDataBroker);
         this.service = this.domDataBroker.getSupportedExtensions().get(DOMDataTreeChangeService.class);
-        this.extensions = Preconditions.checkNotNull(extensions);
+        this.extensions = requireNonNull(extensions);
         this.codecsRegistry = CodecsRegistryImpl.create(codecFactory, classStrategy);
         this.ribContextRegistry = RIBSupportContextRegistryImpl.create(extensions, this.codecsRegistry);
         final InstanceIdentifierBuilder yangRibIdBuilder = YangInstanceIdentifier.builder().node(BgpRib.QNAME).node(Rib.QNAME);
         this.yangRibId = yangRibIdBuilder.nodeWithKey(Rib.QNAME, RIB_ID_QNAME, ribId.getValue()).build();
-        this.bestPathSelectionStrategies = Preconditions.checkNotNull(bestPathSelectionStrategies);
+        this.bestPathSelectionStrategies = requireNonNull(bestPathSelectionStrategies);
         final ClusterIdentifier cId = clusterId == null ? new ClusterIdentifier(localBgpId) : clusterId;
         this.ribId = ribId;
         final PolicyDatabase policyDatabase = new PolicyDatabase(this.localAs.getValue(), localBgpId, cId);
         this.importPolicyPeerTracker = new ImportPolicyPeerTrackerImpl(policyDatabase);
         this.serviceGroupIdentifier = ServiceGroupIdentifier.create(this.ribId.getValue() + "-service-group");
-        Preconditions.checkNotNull(provider, "ClusterSingletonServiceProvider is null");
+        requireNonNull(provider, "ClusterSingletonServiceProvider is null");
         this.provider = provider;
         this.configurationWriter = configurationWriter;
 

@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
@@ -27,7 +28,7 @@ public final class DefaultPCEPSessionNegotiatorFactory extends AbstractPCEPSessi
     }
 
     public DefaultPCEPSessionNegotiatorFactory(final PCEPSessionProposalFactory spf, final int maxUnknownMessages, final Tls tlsConfiguration) {
-        this.spf = Preconditions.checkNotNull(spf);
+        this.spf = requireNonNull(spf);
         this.maxUnknownMessages = maxUnknownMessages;
         this.tlsConfiguration = tlsConfiguration;
     }

@@ -8,7 +8,8 @@
 
 package org.opendaylight.protocol.pcep.impl;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import io.netty.channel.Channel;
 import java.net.InetSocketAddress;
 import org.opendaylight.protocol.util.StatisticsUtil;
@@ -40,9 +41,9 @@ final class PCEPSessionState {
     private final MessagesBuilder msgsBuilder;
 
     public PCEPSessionState(final Open remoteOpen, final Open localOpen, final Channel channel) {
-        Preconditions.checkNotNull(remoteOpen);
-        Preconditions.checkNotNull(localOpen);
-        Preconditions.checkNotNull(channel);
+        requireNonNull(remoteOpen);
+        requireNonNull(localOpen);
+        requireNonNull(channel);
         this.peerPref = getRemotePref(remoteOpen, channel);
         this.localPref = getLocalPref(localOpen, channel);
         this.lastReceivedErrorBuilder = new LastReceivedErrorBuilder();
@@ -108,7 +109,7 @@ final class PCEPSessionState {
     }
 
     private static ErrorObject getErrorObject(final Message msg) {
-        Preconditions.checkNotNull(msg);
+        requireNonNull(msg);
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessage errMsg =
                 ((PcerrMessage) msg).getPcerrMessage();
         return errMsg.getErrors().get(errMsg.getErrors().size() - 1).getErrorObject();

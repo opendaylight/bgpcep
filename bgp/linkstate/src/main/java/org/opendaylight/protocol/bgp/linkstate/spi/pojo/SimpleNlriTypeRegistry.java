@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.bgp.linkstate.spi.pojo;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -71,7 +73,7 @@ public final class SimpleNlriTypeRegistry {
         if (nlri == null) {
             return;
         }
-        Preconditions.checkNotNull(byteAggregator);
+        requireNonNull(byteAggregator);
         final ObjectType objectType = nlri.getObjectType();
         final NlriTypeCaseSerializer serializer = this.nlriRegistry.getSerializer((Class<? extends ObjectType>) objectType.getImplementedInterface());
         if (serializer == null) {
@@ -122,8 +124,8 @@ public final class SimpleNlriTypeRegistry {
         if (tlv == null) {
             return;
         }
-        Preconditions.checkNotNull(tlvQName);
-        Preconditions.checkNotNull(buffer);
+        requireNonNull(tlvQName);
+        requireNonNull(buffer);
         final LinkstateTlvParser.LinkstateTlvSerializer<T> tlvSerializer = (LinkstateTlvParser.LinkstateTlvSerializer<T>) this.tlvSerializers.get(tlvQName);
         if (tlvSerializer == null) {
             LOG.warn("Linkstate TLV serializer for QName: {} was not found.", tlvQName);

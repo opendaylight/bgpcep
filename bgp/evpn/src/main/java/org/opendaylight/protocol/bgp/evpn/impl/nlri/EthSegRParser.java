@@ -8,6 +8,7 @@
 
 package org.opendaylight.protocol.bgp.evpn.impl.nlri;
 
+import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.evpn.impl.nlri.NlriModelUtil.extractOrigRouteIp;
 
 import com.google.common.base.Preconditions;
@@ -38,7 +39,7 @@ final class EthSegRParser extends AbstractEvpnNlri {
             "Wrong length of array of bytes. Passed: %s ;", buffer);
 
         final Esi esi = SimpleEsiTypeRegistry.getInstance().parseEsi(buffer.readSlice(ESI_SIZE));
-        final IpAddress ip = Preconditions.checkNotNull(parseOrigRouteIp(buffer));
+        final IpAddress ip = requireNonNull(parseOrigRouteIp(buffer));
 
         final EsRouteBuilder builder = new EsRouteBuilder().setEsi(esi).setOrigRouteIp(ip);
         return new EsRouteCaseBuilder().setEsRoute(builder.build()).build();

@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 
@@ -20,8 +21,8 @@ final class RouteUpdateKey {
     private final PathArgument routeId;
 
     RouteUpdateKey(final PeerId peerId, final PathArgument routeId) {
-        this.peerId = Preconditions.checkNotNull(peerId);
-        this.routeId = Preconditions.checkNotNull(routeId);
+        this.peerId = requireNonNull(peerId);
+        this.routeId = requireNonNull(routeId);
     }
 
     PeerId getPeerId() {

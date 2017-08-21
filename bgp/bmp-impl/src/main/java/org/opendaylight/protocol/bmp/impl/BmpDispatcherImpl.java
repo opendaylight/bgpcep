@@ -8,7 +8,8 @@
 
 package org.opendaylight.protocol.bmp.impl;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -59,19 +60,20 @@ public class BmpDispatcherImpl implements BmpDispatcher {
             this.bossGroup = new EpollEventLoopGroup();
             this.workerGroup = new EpollEventLoopGroup();
         } else {
-            this.bossGroup = Preconditions.checkNotNull(bossGroup);
-            this.workerGroup = Preconditions.checkNotNull(workerGroup);
+            this.bossGroup = requireNonNull(bossGroup);
+            this.workerGroup = requireNonNull(workerGroup);
         }
-        this.hf = new BmpHandlerFactory(Preconditions.checkNotNull(registry));
-        this.sessionFactory = Preconditions.checkNotNull(sessionFactory);
+        this.hf = new BmpHandlerFactory(requireNonNull(registry));
+        this.sessionFactory = requireNonNull(sessionFactory);
     }
 
     @Override
-    public ChannelFuture createClient(final InetSocketAddress address, final BmpSessionListenerFactory slf, final KeyMapping keys) {
+    public ChannelFuture createClient(final InetSocketAddress address, final BmpSessionListenerFactory slf,
+        final KeyMapping keys) {
 
         final Bootstrap b = new Bootstrap();
 
-        Preconditions.checkNotNull(address);
+        requireNonNull(address);
 
         if (Epoll.isAvailable()) {
             b.channel(EpollSocketChannel.class);
@@ -104,9 +106,10 @@ public class BmpDispatcherImpl implements BmpDispatcher {
     }
 
     @Override
-    public ChannelFuture createServer(final InetSocketAddress address, final BmpSessionListenerFactory slf, final KeyMapping keys) {
-        Preconditions.checkNotNull(address);
-        Preconditions.checkNotNull(slf);
+    public ChannelFuture createServer(final InetSocketAddress address, final BmpSessionListenerFactory slf,
+        final KeyMapping keys) {
+        requireNonNull(address);
+        requireNonNull(slf);
 
         final ServerBootstrap b = new ServerBootstrap();
         b.childHandler(new ChannelInitializer<Channel>() {
@@ -170,13 +173,15 @@ public class BmpDispatcherImpl implements BmpDispatcher {
                 LOG.debug("Connection {} succeeded!", cf);
             } else {
                 if (this.delay > MAXIMUM_BACKOFF) {
-                    LOG.warn("The time of maximum backoff has been exceeded. No further connection attempts with BMP router {}.", this.address);
+                    LOG.warn("The time of maximum backoff has been exceeded. No further connection attempts with BMP " +
+                        "router {}.", this.address);
                     cf.cancel(false);
                     return;
                 }
                 final EventLoop loop = cf.channel().eventLoop();
                 loop.schedule(() -> this.bootstrap.connect().addListener(this), this.delay, TimeUnit.MILLISECONDS);
-                LOG.info("The connection try to BMP router {} failed. Next reconnection attempt in {} milliseconds.", this.address, this.delay);
+                LOG.info("The connection try to BMP router {} failed. Next reconnection attempt in {} milliseconds.",
+                    this.address, this.delay);
                 this.delay *= 2;
             }
         }

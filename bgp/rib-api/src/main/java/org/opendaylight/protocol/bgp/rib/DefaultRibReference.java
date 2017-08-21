@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.RibKey;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
@@ -19,7 +20,7 @@ public class DefaultRibReference implements RibReference {
     private final KeyedInstanceIdentifier<Rib, RibKey> instanceIdentifier;
 
     public DefaultRibReference(final KeyedInstanceIdentifier<Rib, RibKey> instanceIdentifier) {
-        this.instanceIdentifier = Preconditions.checkNotNull(instanceIdentifier);
+        this.instanceIdentifier = requireNonNull(instanceIdentifier);
     }
 
     @Override

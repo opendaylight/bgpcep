@@ -8,7 +8,8 @@
 
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Stateful1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs3;
@@ -26,7 +27,7 @@ final class SyncOptimization {
     private final boolean isTriggeredReSyncEnable;
 
     public SyncOptimization(final PCEPSession session) {
-        Preconditions.checkNotNull(session);
+        requireNonNull(session);
         final Tlvs remote = session.getRemoteTlvs();
         final Tlvs local = session.localSessionCharacteristics();
         final LspDbVersion localLspDbVersion = getLspDbVersion(local);

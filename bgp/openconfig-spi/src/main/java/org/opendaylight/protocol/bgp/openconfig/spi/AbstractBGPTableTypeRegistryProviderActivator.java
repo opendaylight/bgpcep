@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.bgp.openconfig.spi;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import java.util.List;
 import javax.annotation.concurrent.GuardedBy;
@@ -24,7 +26,7 @@ public abstract class AbstractBGPTableTypeRegistryProviderActivator implements A
     @Override
     public final synchronized void startBGPTableTypeRegistryProvider(final BGPTableTypeRegistryProvider provider) {
         Preconditions.checkState(this.registrations == null);
-        this.registrations = Preconditions.checkNotNull(startBGPTableTypeRegistryProviderImpl(provider));
+        this.registrations = requireNonNull(startBGPTableTypeRegistryProviderImpl(provider));
     }
 
     @Override

@@ -7,7 +7,7 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider.config;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.requireNonNull;
 
 import com.google.common.base.Optional;
 import java.net.InetSocketAddress;

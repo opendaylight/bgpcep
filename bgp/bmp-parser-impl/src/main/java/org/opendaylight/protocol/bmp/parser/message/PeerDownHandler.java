@@ -8,6 +8,7 @@
 
 package org.opendaylight.protocol.bmp.parser.message;
 
+import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bmp.parser.message.PeerDownHandler.Reason.REASON_FOUR;
 import static org.opendaylight.protocol.bmp.parser.message.PeerDownHandler.Reason.REASON_ONE;
 import static org.opendaylight.protocol.bmp.parser.message.PeerDownHandler.Reason.REASON_THREE;
@@ -110,7 +111,7 @@ public class PeerDownHandler extends AbstractBmpPerPeerMessageParser<PeerDownNot
             = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.down.data.notification.NotificationBuilder();
         try {
             final Notification not = this.msgRegistry.parseMessage(bytes, null);
-            Preconditions.checkNotNull(not, "Notify message may not be null.");
+            requireNonNull(not, "Notify message may not be null.");
             Preconditions.checkArgument(not instanceof NotifyMessage, "An instance of NotifyMessage is required");
             notificationBuilder.fieldsFrom((NotifyMessage) not);
             notificationCBuilder.setNotification(notificationBuilder.build());

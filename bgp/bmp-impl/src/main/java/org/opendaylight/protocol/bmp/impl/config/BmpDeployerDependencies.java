@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.bmp.impl.config;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTree;
@@ -26,11 +27,11 @@ public class BmpDeployerDependencies {
     public BmpDeployerDependencies(final DataBroker dataBroker, final DOMDataBroker domDataBroker,
     final RIBExtensionConsumerContext extensions, final BindingCodecTreeFactory codecTreeFactory,
     final SchemaContext schemaContext, final ClusterSingletonServiceProvider singletonProvider) {
-        this.dataBroker = Preconditions.checkNotNull(dataBroker);
-        this.domDataBroker = Preconditions.checkNotNull(domDataBroker);
-        this.extensions = Preconditions.checkNotNull(extensions);
-        this.tree = Preconditions.checkNotNull(codecTreeFactory).create(schemaContext);
-        this.singletonProvider = Preconditions.checkNotNull(singletonProvider);
+        this.dataBroker = requireNonNull(dataBroker);
+        this.domDataBroker = requireNonNull(domDataBroker);
+        this.extensions = requireNonNull(extensions);
+        this.tree = requireNonNull(codecTreeFactory).create(schemaContext);
+        this.singletonProvider = requireNonNull(singletonProvider);
     }
 
     public DataBroker getDataBroker() {

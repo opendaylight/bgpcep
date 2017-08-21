@@ -7,7 +7,8 @@
  */
 package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.bgpcep.topology.TopologyReference;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -27,7 +28,7 @@ public final class PCEPTunnelTopologyProvider implements AutoCloseable {
 
     private PCEPTunnelTopologyProvider(final InstanceIdentifier<Topology> dst, final ListenerRegistration<NodeChangedListener> reg) {
         this.ref = new DefaultTopologyReference(dst);
-        this.reg = Preconditions.checkNotNull(reg);
+        this.reg = requireNonNull(reg);
     }
 
     public static PCEPTunnelTopologyProvider create(final DataBroker dataProvider,

@@ -7,7 +7,8 @@
  */
 package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import org.opendaylight.bgpcep.pcep.topology.spi.AbstractInstructionExecutor;
@@ -36,9 +37,9 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
     private final InstructionScheduler scheduler;
 
     public TunnelProgramming(final InstructionScheduler scheduler, final DataBroker dataProvider, final NetworkTopologyPcepService topologyService) {
-        this.scheduler = Preconditions.checkNotNull(scheduler);
-        this.dataProvider = Preconditions.checkNotNull(dataProvider);
-        this.topologyService = Preconditions.checkNotNull(topologyService);
+        this.scheduler = requireNonNull(scheduler);
+        this.dataProvider = requireNonNull(dataProvider);
+        this.topologyService = requireNonNull(topologyService);
     }
 
     @Override

@@ -8,7 +8,8 @@
 
 package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -81,7 +82,7 @@ final class UpdateTunnelInstructionExecutor extends AbstractInstructionExecutor 
     private UpdateLspInput buildUpdateInput(final Link link, final Node node) {
         final UpdateLspInputBuilder ab = new UpdateLspInputBuilder();
         ab.setName(link.getAugmentation(Link1.class).getSymbolicPathName());
-        ab.setNode(Preconditions.checkNotNull(TunelProgrammingUtil.supportingNode(node)));
+        ab.setNode(requireNonNull(TunelProgrammingUtil.supportingNode(node)));
 
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.update.lsp.args.ArgumentsBuilder args =
             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.update.lsp.args.ArgumentsBuilder();

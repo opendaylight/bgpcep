@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.flowspec;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +54,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
     private final FlowspecActivator activator;
 
     public BGPActivator(@Nonnull final FlowspecActivator activator) {
-        this.activator = Preconditions.checkNotNull(activator);
+        this.activator = requireNonNull(activator);
     }
 
     @Override

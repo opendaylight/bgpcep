@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Verify;
 import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.Futures;
@@ -106,7 +107,7 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
         super(rib.getInstanceIdentifier(), "application-peers", new IpAddress(ipAddress), rib.getLocalTablesKeys(),
             Collections.emptySet());
         this.name = applicationRibId.getValue();
-        final RIB targetRib = Preconditions.checkNotNull(rib);
+        final RIB targetRib = requireNonNull(rib);
         this.rawIdentifier = InetAddresses.forString(ipAddress.getValue()).getAddress();
         final NodeIdentifierWithPredicates peerId = IdentifierUtils.domPeerId(RouterIds.createPeerId(ipAddress));
         this.peerIId = targetRib.getYangRibId().node(Peer.QNAME).node(peerId);

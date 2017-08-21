@@ -8,9 +8,9 @@
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -86,22 +86,22 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference {
         final InstanceIdentifier<Topology> topology, final ServerSessionManager manager,
         final InstructionScheduler scheduler) {
         super(topology);
-        this.dependenciesProvider = Preconditions.checkNotNull(dependenciesProvider);
+        this.dependenciesProvider = requireNonNull(dependenciesProvider);
         this.address = address;
-        this.topology = Preconditions.checkNotNull(topology);
+        this.topology = requireNonNull(topology);
         this.keys = keys;
-        this.manager = Preconditions.checkNotNull(manager);
+        this.manager = requireNonNull(manager);
         this.scheduler = scheduler;
     }
 
     public void instantiateServiceInstance() {
         final RpcProviderRegistry rpcRegistry = this.dependenciesProvider.getRpcProviderRegistry();
 
-        this.element = Preconditions.checkNotNull(rpcRegistry
+        this.element = requireNonNull(rpcRegistry
             .addRoutedRpcImplementation(NetworkTopologyPcepService.class, new TopologyRPCs(this.manager)));
         this.element.registerPath(NetworkTopologyContext.class, this.topology);
 
-        this.network = Preconditions.checkNotNull(rpcRegistry
+        this.network = requireNonNull(rpcRegistry
             .addRoutedRpcImplementation(NetworkTopologyPcepProgrammingService.class,
                 new TopologyProgramming(this.scheduler, this.manager)));
         this.network.registerPath(NetworkTopologyContext.class, this.topology);

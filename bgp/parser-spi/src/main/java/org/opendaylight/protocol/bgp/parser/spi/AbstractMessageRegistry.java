@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
@@ -67,7 +69,7 @@ public abstract class AbstractMessageRegistry implements MessageRegistry {
 
     @Override
     public final void serializeMessage(final Notification message, final ByteBuf buffer) {
-        Preconditions.checkNotNull(message, "BGPMessage is mandatory.");
+        requireNonNull(message, "BGPMessage is mandatory.");
         serializeMessageImpl(message, buffer);
     }
 }

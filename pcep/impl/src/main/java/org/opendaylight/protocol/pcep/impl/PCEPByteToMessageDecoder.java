@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelFutureListener;
@@ -31,7 +32,7 @@ public final class PCEPByteToMessageDecoder extends ByteToMessageDecoder {
     private final MessageRegistry registry;
 
     public PCEPByteToMessageDecoder(final MessageRegistry registry) {
-        this.registry = Preconditions.checkNotNull(registry);
+        this.registry = requireNonNull(registry);
     }
 
     @Override

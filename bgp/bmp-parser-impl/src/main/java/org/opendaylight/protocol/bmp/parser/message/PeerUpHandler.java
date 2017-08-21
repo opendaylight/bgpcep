@@ -9,6 +9,8 @@
 package org.opendaylight.protocol.bmp.parser.message;
 
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import io.netty.buffer.ByteBuf;
@@ -96,7 +98,7 @@ public class PeerUpHandler extends AbstractBmpPerPeerMessageParser<InformationBu
         try {
             final Notification opSent = this.msgRegistry
                 .parseMessage(bytes.readSlice(getBgpMessageLength(bytes)), null);
-            Preconditions.checkNotNull(opSent,
+            requireNonNull(opSent,
                 "Error on parse Sent OPEN Message, Sent OPEN Message is null");
             Preconditions.checkArgument(opSent instanceof OpenMessage,
                 "An instance of OpenMessage notification is required");
@@ -104,7 +106,7 @@ public class PeerUpHandler extends AbstractBmpPerPeerMessageParser<InformationBu
 
             final Notification opRec = this.msgRegistry
                 .parseMessage(bytes.readSlice(getBgpMessageLength(bytes)), null);
-            Preconditions.checkNotNull(opRec,
+            requireNonNull(opRec,
                 "Error on parse Received  OPEN Message, Received  OPEN Message is null");
             Preconditions.checkArgument(opRec instanceof OpenMessage,
                 "An instance of OpenMessage notification is required");

@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.spi.pojo;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import java.util.List;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
@@ -27,8 +28,8 @@ public class SimplePCEPExtensionProviderContextActivator implements AutoCloseabl
 
     public SimplePCEPExtensionProviderContextActivator(final PCEPExtensionProviderContext providerContext,
             final List<PCEPExtensionProviderActivator> extensionActivators) {
-        this.providerContext = Preconditions.checkNotNull(providerContext);
-        this.extensionActivators = Preconditions.checkNotNull(extensionActivators);
+        this.providerContext = requireNonNull(providerContext);
+        this.extensionActivators = requireNonNull(extensionActivators);
     }
 
     public void start() {
