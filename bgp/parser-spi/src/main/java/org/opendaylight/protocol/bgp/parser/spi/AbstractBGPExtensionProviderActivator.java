@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import java.util.List;
 import javax.annotation.concurrent.GuardedBy;
@@ -26,7 +28,7 @@ public abstract class AbstractBGPExtensionProviderActivator implements AutoClose
     public final synchronized void start(final BGPExtensionProviderContext context) {
         Preconditions.checkState(this.registrations == null);
 
-        this.registrations = Preconditions.checkNotNull(startImpl(context));
+        this.registrations = requireNonNull(startImpl(context));
     }
 
     @Override

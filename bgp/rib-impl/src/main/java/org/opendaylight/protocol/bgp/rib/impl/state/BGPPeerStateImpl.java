@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.bgp.rib.impl.state;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
@@ -72,10 +74,10 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
         @Nonnull final Set<TablesKey> afiSafisAdvertized,
         @Nonnull final Set<TablesKey> afiSafisGracefulAdvertized) {
         super(instanceIdentifier);
-        this.neighborAddress = Preconditions.checkNotNull(neighborAddress);
+        this.neighborAddress = requireNonNull(neighborAddress);
         this.groupId = groupId;
-        this.afiSafisAdvertized = Preconditions.checkNotNull(afiSafisAdvertized);
-        this.afiSafisGracefulAdvertized = Preconditions.checkNotNull(afiSafisGracefulAdvertized);
+        this.afiSafisAdvertized = requireNonNull(afiSafisAdvertized);
+        this.afiSafisGracefulAdvertized = requireNonNull(afiSafisGracefulAdvertized);
     }
 
     @Override

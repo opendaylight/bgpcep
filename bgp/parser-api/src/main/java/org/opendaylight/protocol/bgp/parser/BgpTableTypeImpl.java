@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
@@ -28,8 +29,8 @@ public final class BgpTableTypeImpl implements BgpTableType {
      * @param safi Subsequent Address Family Identifier
      */
     public BgpTableTypeImpl(final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi) {
-        this.afi = Preconditions.checkNotNull(afi, "Address family may not be null");
-        this.safi = Preconditions.checkNotNull(safi, "Subsequent address family may not be null");
+        this.afi = requireNonNull(afi, "Address family may not be null");
+        this.safi = requireNonNull(safi, "Subsequent address family may not be null");
     }
 
     @Override

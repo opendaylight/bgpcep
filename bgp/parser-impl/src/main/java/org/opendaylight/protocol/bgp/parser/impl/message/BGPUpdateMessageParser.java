@@ -8,6 +8,8 @@
 package org.opendaylight.protocol.bgp.parser.impl.message;
 
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -56,7 +58,7 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
     private final AttributeRegistry reg;
 
     public BGPUpdateMessageParser(final AttributeRegistry reg) {
-        this.reg = Preconditions.checkNotNull(reg);
+        this.reg = requireNonNull(reg);
     }
 
     @Override
@@ -154,7 +156,7 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
      * @throws BGPDocumentedException
      */
     private static void checkMandatoryAttributesPresence(final Update message) throws BGPDocumentedException {
-        Preconditions.checkNotNull(message, "Update message cannot be null");
+        requireNonNull(message, "Update message cannot be null");
 
         final Attributes attrs = message.getAttributes();
 

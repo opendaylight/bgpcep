@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,8 +30,8 @@ public class PeerSpecificParserConstraintImpl implements PeerSpecificParserConst
 
     @Override
     public synchronized <T extends PeerConstraint> boolean addPeerConstraint(final Class<T> classType, final T peerConstraint) {
-        Preconditions.checkNotNull(classType);
-        Preconditions.checkNotNull(peerConstraint);
+        requireNonNull(classType);
+        requireNonNull(peerConstraint);
         final PeerConstraint previous = this.constraints.putIfAbsent(classType, peerConstraint);
         return previous == null;
     }

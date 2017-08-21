@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.open;
 
+import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
 
 import com.google.common.base.Preconditions;
@@ -63,8 +64,8 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
     private final SubsequentAddressFamilyRegistry safiReg;
 
     public GracefulCapabilityHandler(final AddressFamilyRegistry afiReg, final SubsequentAddressFamilyRegistry safiReg) {
-        this.afiReg = Preconditions.checkNotNull(afiReg);
-        this.safiReg = Preconditions.checkNotNull(safiReg);
+        this.afiReg = requireNonNull(afiReg);
+        this.safiReg = requireNonNull(safiReg);
     }
 
     private void serializeTables(final List<Tables> tables, final ByteBuf bytes) {

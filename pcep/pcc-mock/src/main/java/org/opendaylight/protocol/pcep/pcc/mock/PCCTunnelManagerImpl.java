@@ -8,6 +8,7 @@
 
 package org.opendaylight.protocol.pcep.pcc.mock;
 
+import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createLsp;
 import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createLspTlvs;
 import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createLspTlvsEndofSync;
@@ -80,8 +81,8 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
         this.redelegationTimeout = redelegationTimeout;
         this.stateTimeout = stateTimeout;
         this.plspIDsCounter = new AtomicLong(lspsCount);
-        this.address = InetAddresses.toAddrString(Preconditions.checkNotNull(address));
-        this.timer = Preconditions.checkNotNull(timer);
+        this.address = InetAddresses.toAddrString(requireNonNull(address));
+        this.timer = requireNonNull(timer);
         this.timerHandler = timerHandler;
         this.lspsCount = lspsCount;
     }

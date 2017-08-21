@@ -7,10 +7,11 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Ticker;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -100,10 +101,10 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
 
     PCEPSessionImpl(final PCEPSessionListener listener, final int maxUnknownMessages, final Channel channel,
         final Open localOpen, final Open remoteOpen) {
-        this.listener = Preconditions.checkNotNull(listener);
-        this.channel = Preconditions.checkNotNull(channel);
-        this.localOpen = Preconditions.checkNotNull(localOpen);
-        this.remoteOpen = Preconditions.checkNotNull(remoteOpen);
+        this.listener = requireNonNull(listener);
+        this.channel = requireNonNull(channel);
+        this.localOpen = requireNonNull(localOpen);
+        this.remoteOpen = requireNonNull(remoteOpen);
         this.lastMessageReceivedAt = TICKER.read();
 
         if (maxUnknownMessages != 0) {

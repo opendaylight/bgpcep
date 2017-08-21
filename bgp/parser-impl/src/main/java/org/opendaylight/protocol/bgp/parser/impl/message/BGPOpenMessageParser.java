@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
@@ -55,7 +57,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
     private final ParameterRegistry reg;
 
     public BGPOpenMessageParser(final ParameterRegistry reg) {
-        this.reg = Preconditions.checkNotNull(reg);
+        this.reg = requireNonNull(reg);
     }
 
     /**

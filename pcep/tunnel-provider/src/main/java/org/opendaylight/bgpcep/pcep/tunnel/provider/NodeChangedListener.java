@@ -7,6 +7,8 @@
  */
 package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -83,9 +85,9 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
     private final TopologyId source;
 
     NodeChangedListener(final DataBroker dataProvider, final TopologyId source, final InstanceIdentifier<Topology> target) {
-        this.dataProvider = Preconditions.checkNotNull(dataProvider);
-        this.target = Preconditions.checkNotNull(target);
-        this.source = Preconditions.checkNotNull(source);
+        this.dataProvider = requireNonNull(dataProvider);
+        this.target = requireNonNull(target);
+        this.source = requireNonNull(source);
     }
 
     private static void categorizeIdentifier(final InstanceIdentifier<?> i, final Set<InstanceIdentifier<ReportedLsp>> changedLsps,

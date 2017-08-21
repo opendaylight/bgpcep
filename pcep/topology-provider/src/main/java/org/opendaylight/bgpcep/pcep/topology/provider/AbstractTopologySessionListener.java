@@ -7,6 +7,8 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
@@ -77,7 +79,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         private final WriteTransaction trans;
 
         private MessageContext(final WriteTransaction trans) {
-            this.trans = Preconditions.checkNotNull(trans);
+            this.trans = requireNonNull(trans);
         }
 
         void resolveRequest(final PCEPRequest req) {
@@ -131,7 +133,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
     private final SessionListenerState listenerState;
 
     protected AbstractTopologySessionListener(final ServerSessionManager serverSessionManager) {
-        this.serverSessionManager = Preconditions.checkNotNull(serverSessionManager);
+        this.serverSessionManager = requireNonNull(serverSessionManager);
         this.listenerState = new SessionListenerState();
     }
 
@@ -256,7 +258,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
      */
     @GuardedBy("this")
     private synchronized void tearDown(final PCEPSession session) {
-        Preconditions.checkNotNull(session);
+        requireNonNull(session);
         this.serverSessionManager.releaseNodeState(this.nodeState, session, isLspDbPersisted());
         this.nodeState = null;
         try {
@@ -577,7 +579,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
     protected abstract boolean onMessage(MessageContext ctx, Message message);
 
     protected final String lookupLspName(final L id) {
-        Preconditions.checkNotNull(id, "ID parameter null.");
+        requireNonNull(id, "ID parameter null.");
         return this.lsps.get(id);
     }
 

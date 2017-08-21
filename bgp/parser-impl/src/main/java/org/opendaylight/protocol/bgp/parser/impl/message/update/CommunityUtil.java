@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import org.opendaylight.protocol.util.NoopReferenceCache;
 import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
@@ -40,7 +41,7 @@ public final class CommunityUtil {
     private final ReferenceCache refCache;
 
     public CommunityUtil(final ReferenceCache refCache) {
-        this.refCache = Preconditions.checkNotNull(refCache);
+        this.refCache = requireNonNull(refCache);
     }
 
     /**

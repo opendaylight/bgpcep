@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Verify;
 import java.util.Map.Entry;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -37,7 +38,7 @@ class RIBSupportContextImpl extends RIBSupportContext {
     private final Codecs codecs;
 
     public RIBSupportContextImpl(final RIBSupport ribSupport, final CodecsRegistry codecs) {
-        this.ribSupport = Preconditions.checkNotNull(ribSupport);
+        this.ribSupport = requireNonNull(ribSupport);
         this.codecs = codecs.getCodecs(this.ribSupport);
     }
 

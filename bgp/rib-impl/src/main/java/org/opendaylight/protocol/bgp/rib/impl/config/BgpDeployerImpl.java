@@ -9,11 +9,11 @@
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
 import static com.google.common.util.concurrent.Futures.transform;
+import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getNeighborInstanceIdentifier;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getNeighborInstanceName;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getRibInstanceName;
 
-import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -76,10 +76,10 @@ public final class BgpDeployerImpl implements BgpDeployer, ClusteredDataTreeChan
     public BgpDeployerImpl(final String networkInstanceName, final BlueprintContainer container,
         final BundleContext bundleContext, final DataBroker dataBroker,
         final BGPTableTypeRegistryConsumer mappingService) {
-        this.dataBroker = Preconditions.checkNotNull(dataBroker);
-        this.container = Preconditions.checkNotNull(container);
-        this.bundleContext = Preconditions.checkNotNull(bundleContext);
-        this.tableTypeRegistry = Preconditions.checkNotNull(mappingService);
+        this.dataBroker = requireNonNull(dataBroker);
+        this.container = requireNonNull(container);
+        this.bundleContext = requireNonNull(bundleContext);
+        this.tableTypeRegistry = requireNonNull(mappingService);
         this.networkInstanceIId = InstanceIdentifier.create(NetworkInstances.class)
             .child(NetworkInstance.class, new NetworkInstanceKey(networkInstanceName));
         Futures.addCallback(initializeNetworkInstance(dataBroker, this.networkInstanceIId), new FutureCallback<Void>() {

@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.flowspec;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableCollection;
@@ -46,7 +48,7 @@ public abstract class AbstractFlowspecRIBSupport<T extends AbstractFlowspecNlriP
     ) {
         super(cazeClass, containerClass, listClass, afiClass, safiClass, "route-key", dstContainerClassQName);
 
-        this.nlriParser = Preconditions.checkNotNull(nlriParser);
+        this.nlriParser = requireNonNull(nlriParser);
     }
 
     @Override

@@ -9,6 +9,8 @@
 package org.opendaylight.protocol.bgp.rib.impl.state;
 
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,8 +40,8 @@ public class BGPRIBStateImpl extends DefaultRibReference implements BGPRIBState,
     protected BGPRIBStateImpl(final KeyedInstanceIdentifier<Rib, RibKey> instanceIdentifier,
         @Nonnull final BgpId routeId, @Nonnull final AsNumber localAs) {
         super(instanceIdentifier);
-        this.routeId = Preconditions.checkNotNull(routeId);
-        this.localAs = Preconditions.checkNotNull(localAs);
+        this.routeId = requireNonNull(routeId);
+        this.localAs = requireNonNull(localAs);
     }
 
     @Override

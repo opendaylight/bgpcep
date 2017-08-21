@@ -8,7 +8,7 @@
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -77,9 +77,9 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
 
     public ServerSessionManager(final DataBroker broker, final InstanceIdentifier<Topology> topology,
         final TopologySessionListenerFactory listenerFactory, final short rpcTimeout) {
-        this.broker = Preconditions.checkNotNull(broker);
-        this.topology = Preconditions.checkNotNull(topology);
-        this.listenerFactory = Preconditions.checkNotNull(listenerFactory);
+        this.broker = requireNonNull(broker);
+        this.topology = requireNonNull(topology);
+        this.listenerFactory = requireNonNull(listenerFactory);
         this.peerProposal = PCEPStatefulPeerProposal.createStatefulPeerProposal(this.broker, this.topology);
         this.rpcTimeout = rpcTimeout;
     }
@@ -249,7 +249,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
 
     @Override
     public void setPeerSpecificProposal(final InetSocketAddress address, final TlvsBuilder openBuilder) {
-        Preconditions.checkNotNull(address);
+        requireNonNull(address);
         this.peerProposal.setPeerProposal(createNodeId(address.getAddress()), openBuilder);
     }
 

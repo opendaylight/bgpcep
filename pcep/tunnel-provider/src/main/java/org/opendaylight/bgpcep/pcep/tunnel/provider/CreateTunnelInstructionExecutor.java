@@ -8,6 +8,8 @@
 
 package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.Futures;
@@ -77,7 +79,7 @@ final class CreateTunnelInstructionExecutor extends AbstractInstructionExecutor 
         private final InstanceIdentifier<TerminationPoint> tii;
 
         TpReader(final ReadTransaction t, final InstanceIdentifier<Topology> topo, final TpReference ref) {
-            this.t = Preconditions.checkNotNull(t);
+            this.t = requireNonNull(t);
 
             this.nii = topo.child(Node.class, new NodeKey(ref.getNode()));
             this.tii = this.nii.child(TerminationPoint.class, new TerminationPointKey(ref.getTp()));
@@ -114,14 +116,14 @@ final class CreateTunnelInstructionExecutor extends AbstractInstructionExecutor 
     private AddLspInput createAddLspInput(final ReadOnlyTransaction transaction) {
         final InstanceIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(this.p2pTunnelInput);
         final TpReader dr = new TpReader(transaction, tii, this.p2pTunnelInput.getDestination());
-        final TerminationPoint dp = Preconditions.checkNotNull(dr.getTp());
+        final TerminationPoint dp = requireNonNull(dr.getTp());
 
         final TpReader sr = new TpReader(transaction, tii, this.p2pTunnelInput.getSource());
-        final TerminationPoint sp = Preconditions.checkNotNull(sr.getTp());
+        final TerminationPoint sp = requireNonNull(sr.getTp());
 
-        final Node sn = Preconditions.checkNotNull(sr.getNode());
+        final Node sn = requireNonNull(sr.getNode());
         final AddLspInputBuilder ab = new AddLspInputBuilder();
-        ab.setNode(Preconditions.checkNotNull(TunelProgrammingUtil.supportingNode(sn)));
+        ab.setNode(requireNonNull(TunelProgrammingUtil.supportingNode(sn)));
         ab.setName(this.p2pTunnelInput.getSymbolicPathName());
 
         checkLinkIsnotExistent(tii, ab, transaction);
@@ -161,8 +163,8 @@ final class CreateTunnelInstructionExecutor extends AbstractInstructionExecutor 
 
     private static AddressFamily buildAddressFamily(final TerminationPoint sp, final TerminationPoint dp) {
         // We need the IGP augmentation -- it has IP addresses
-        final TerminationPoint1 sp1 = Preconditions.checkNotNull(sp.getAugmentation(TerminationPoint1.class));
-        final TerminationPoint1 dp1 = Preconditions.checkNotNull(dp.getAugmentation(TerminationPoint1.class));
+        final TerminationPoint1 sp1 = requireNonNull(sp.getAugmentation(TerminationPoint1.class));
+        final TerminationPoint1 dp1 = requireNonNull(dp.getAugmentation(TerminationPoint1.class));
 
         // Get the types
         final TerminationPointType spt = sp1.getIgpTerminationPointAttributes().getTerminationPointType();

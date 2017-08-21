@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
@@ -32,7 +33,7 @@ final class BGPByteToMessageDecoder extends ByteToMessageDecoder {
 
     public BGPByteToMessageDecoder(final MessageRegistry registry) {
         this.constraints = new PeerSpecificParserConstraintImpl();
-        this.registry = Preconditions.checkNotNull(registry);
+        this.registry = requireNonNull(registry);
     }
 
     public <T extends PeerConstraint> boolean addDecoderConstraint(final Class<T> classType, final T peerConstraint) {

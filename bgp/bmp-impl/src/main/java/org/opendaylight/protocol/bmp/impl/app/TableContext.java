@@ -8,6 +8,7 @@
 
 package org.opendaylight.protocol.bmp.impl.app;
 
+import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bmp.impl.app.TablesUtil.BMP_ATTRIBUTES_QNAME;
 import static org.opendaylight.protocol.bmp.impl.app.TablesUtil.BMP_ROUTES_QNAME;
 
@@ -67,8 +68,8 @@ final class TableContext {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     TableContext(final RIBSupport tableSupport, final YangInstanceIdentifier tableId, final BindingCodecTree tree) {
-        this.tableSupport = Preconditions.checkNotNull(tableSupport);
-        this.tableId = Preconditions.checkNotNull(tableId);
+        this.tableSupport = requireNonNull(tableSupport);
+        this.tableId = requireNonNull(tableId);
         final BindingCodecTreeNode tableCodecContext = tree.getSubtreeCodec(tableId);
         final BindingCodecTreeNode<? extends Route> routeListCodec = tableCodecContext
             .streamChild(Routes.class)

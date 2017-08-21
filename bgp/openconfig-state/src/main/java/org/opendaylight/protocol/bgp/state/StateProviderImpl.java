@@ -8,7 +8,8 @@
 
 package org.opendaylight.protocol.bgp.state;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 import io.netty.util.concurrent.GlobalEventExecutor;
@@ -81,13 +82,13 @@ public final class StateProviderImpl implements TransactionChainListener, Cluste
     public StateProviderImpl(@Nonnull final DataBroker dataBroker, final int timeout,
         @Nonnull BGPTableTypeRegistryConsumer bgpTableTypeRegistry, @Nonnull final BGPStateConsumer stateCollector,
         @Nonnull final String networkInstanceName, @Nonnull final ClusterSingletonServiceProvider provider) {
-        this.dataBroker = Preconditions.checkNotNull(dataBroker);
-        this.bgpTableTypeRegistry = Preconditions.checkNotNull(bgpTableTypeRegistry);
-        this.stateCollector = Preconditions.checkNotNull(stateCollector);
+        this.dataBroker = requireNonNull(dataBroker);
+        this.bgpTableTypeRegistry = requireNonNull(bgpTableTypeRegistry);
+        this.stateCollector = requireNonNull(stateCollector);
         this.networkInstanceIId = InstanceIdentifier.create(NetworkInstances.class)
             .child(NetworkInstance.class, new NetworkInstanceKey(networkInstanceName));
         this.timeout = timeout;
-        this.singletonServiceRegistration = Preconditions.checkNotNull(provider)
+        this.singletonServiceRegistration = requireNonNull(provider)
             .registerClusterSingletonService(this);
     }
 

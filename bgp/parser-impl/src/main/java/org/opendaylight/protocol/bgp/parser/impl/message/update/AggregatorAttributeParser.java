@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -31,7 +33,7 @@ public final class AggregatorAttributeParser implements AttributeParser, Attribu
     private final ReferenceCache refCache;
 
     public AggregatorAttributeParser(final ReferenceCache refCache) {
-        this.refCache = Preconditions.checkNotNull(refCache);
+        this.refCache = requireNonNull(refCache);
     }
 
     /**

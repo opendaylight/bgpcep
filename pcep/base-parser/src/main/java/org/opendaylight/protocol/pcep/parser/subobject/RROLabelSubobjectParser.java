@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.parser.subobject;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -42,7 +44,7 @@ public class RROLabelSubobjectParser implements RROSubobjectParser, RROSubobject
     private final LabelRegistry registry;
 
     public RROLabelSubobjectParser(final LabelRegistry labelReg) {
-        this.registry = Preconditions.checkNotNull(labelReg);
+        this.registry = requireNonNull(labelReg);
     }
 
     @Override
@@ -69,7 +71,7 @@ public class RROLabelSubobjectParser implements RROSubobjectParser, RROSubobject
 
     @Override
     public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
-        Preconditions.checkNotNull(subobject.getSubobjectType(), "Subobject type cannot be empty.");
+        requireNonNull(subobject.getSubobjectType(), "Subobject type cannot be empty.");
         final Label label = ((LabelCase) subobject.getSubobjectType()).getLabel();
         final ByteBuf body = Unpooled.buffer();
         this.registry.serializeLabel(label.isUniDirectional(), label.isGlobal(), label.getLabelType(), body);

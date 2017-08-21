@@ -7,6 +7,8 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider.config;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import java.net.InetSocketAddress;
@@ -33,7 +35,7 @@ public class PCEPTopologyDeployerImpl implements PCEPTopologyDeployer, AutoClose
     private final BlueprintContainer container;
 
     public PCEPTopologyDeployerImpl(final BlueprintContainer container) {
-        this.container = Preconditions.checkNotNull(container);
+        this.container = requireNonNull(container);
     }
 
     @Override

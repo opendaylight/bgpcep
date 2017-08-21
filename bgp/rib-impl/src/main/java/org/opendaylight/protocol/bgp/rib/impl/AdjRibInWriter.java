@@ -7,8 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.util.concurrent.FutureCallback;
@@ -98,10 +99,10 @@ final class AdjRibInWriter {
 
     private AdjRibInWriter(final YangInstanceIdentifier ribPath, final DOMTransactionChain chain, final PeerRole role,
         final Optional<SimpleRoutingPolicy> simpleRoutingPolicy, final YangInstanceIdentifier peerPath, final Map<TablesKey, TableContext> tables) {
-        this.ribPath = Preconditions.checkNotNull(ribPath);
-        this.chain = Preconditions.checkNotNull(chain);
-        this.tables = Preconditions.checkNotNull(tables);
-        this.role = Preconditions.checkNotNull(role);
+        this.ribPath = requireNonNull(ribPath);
+        this.chain = requireNonNull(chain);
+        this.tables = requireNonNull(tables);
+        this.role = requireNonNull(role);
         this.simpleRoutingPolicy = simpleRoutingPolicy;
         this.peerPath = peerPath;
     }

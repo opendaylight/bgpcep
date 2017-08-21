@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelOutboundHandler;
@@ -22,7 +22,7 @@ public final class PCEPHandlerFactory {
     private final ChannelOutboundHandler encoder;
 
     public PCEPHandlerFactory(final MessageRegistry registry) {
-        this.registry = Preconditions.checkNotNull(registry);
+        this.registry = requireNonNull(registry);
         this.encoder = new PCEPMessageToByteEncoder(registry);
     }
 

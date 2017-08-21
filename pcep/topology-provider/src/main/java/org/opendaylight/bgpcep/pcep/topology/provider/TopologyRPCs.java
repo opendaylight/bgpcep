@@ -7,6 +7,8 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.Futures;
@@ -35,7 +37,7 @@ final class TopologyRPCs implements NetworkTopologyPcepService {
     private final ServerSessionManager manager;
 
     TopologyRPCs(final ServerSessionManager manager) {
-        this.manager = Preconditions.checkNotNull(manager);
+        this.manager = requireNonNull(manager);
     }
 
     @Override

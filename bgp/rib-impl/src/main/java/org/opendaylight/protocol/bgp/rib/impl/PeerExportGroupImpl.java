@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -25,7 +26,7 @@ final class PeerExportGroupImpl implements PeerExportGroupRegistry {
     private final AbstractExportPolicy policy;
 
     public PeerExportGroupImpl(final AbstractExportPolicy policy) {
-        this.policy = Preconditions.checkNotNull(policy);
+        this.policy = requireNonNull(policy);
     }
 
     @Override

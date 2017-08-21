@@ -7,6 +7,8 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -41,8 +43,8 @@ final class TopologyProgramming implements NetworkTopologyPcepProgrammingService
     private final ServerSessionManager manager;
 
     TopologyProgramming(final InstructionScheduler scheduler, final ServerSessionManager manager) {
-        this.scheduler = Preconditions.checkNotNull(scheduler);
-        this.manager = Preconditions.checkNotNull(manager);
+        this.scheduler = requireNonNull(scheduler);
+        this.manager = requireNonNull(manager);
     }
 
     @Override

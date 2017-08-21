@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.bmp.parser.tlv;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -32,8 +34,8 @@ public class StatType009TlvHandler implements BmpTlvParser, BmpTlvSerializer {
     private final SubsequentAddressFamilyRegistry safiRegistry;
 
     public StatType009TlvHandler(final AddressFamilyRegistry afiReg, SubsequentAddressFamilyRegistry safiReg) {
-        this.afiRegistry = Preconditions.checkNotNull(afiReg, "AddressFamily cannot be null");
-        this.safiRegistry = Preconditions.checkNotNull(safiReg, "SubsequentAddressFamily cannot be null");
+        this.afiRegistry = requireNonNull(afiReg, "AddressFamily cannot be null");
+        this.safiRegistry = requireNonNull(safiReg, "SubsequentAddressFamily cannot be null");
     }
 
     @Override

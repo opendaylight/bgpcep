@@ -7,7 +7,8 @@
  */
 package org.opendaylight.bgpcep.programming.tunnel;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.programming.rev130930.BaseTunnelInput;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link;
@@ -23,7 +24,7 @@ public final class TunnelProgrammingUtil {
     }
 
     public static InstanceIdentifier<Link> linkIdentifier(final InstanceIdentifier<Topology> topology, final BaseTunnelInput input) {
-        Preconditions.checkNotNull(input.getLinkId());
+        requireNonNull(input.getLinkId());
         return topology.child(Link.class, new LinkKey(input.getLinkId()));
     }
 }

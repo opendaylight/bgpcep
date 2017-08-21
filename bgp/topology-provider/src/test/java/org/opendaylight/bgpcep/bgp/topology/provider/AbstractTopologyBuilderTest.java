@@ -8,7 +8,8 @@
 
 package org.opendaylight.bgpcep.bgp.topology.provider;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import java.util.Collections;
 import org.junit.Before;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -28,7 +29,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public abstract class AbstractTopologyBuilderTest extends AbstractConcurrentDataBrokerTest {
     static final TopologyId TEST_TOPOLOGY_ID = new TopologyId("test-topo");
     static final RibReference LOC_RIB_REF = new DefaultRibReference(InstanceIdentifier.create(BgpRib.class)
-        .child(Rib.class, new RibKey(Preconditions.checkNotNull(new RibId("test-rib")))));
+        .child(Rib.class, new RibKey(requireNonNull(new RibId("test-rib")))));
 
     @Before
     public void setUp() {

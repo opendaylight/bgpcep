@@ -7,8 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.mode.impl.base;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.MoreObjects.ToStringHelper;
-import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedInteger;
 import javax.annotation.Nonnull;
 import org.opendaylight.protocol.bgp.mode.api.BestPathState;
@@ -22,7 +23,7 @@ final class BaseBestPath extends AbstractBestPath {
 
     BaseBestPath(@Nonnull final UnsignedInteger routerId, @Nonnull final BestPathState state) {
         super(state);
-        this.routerId = Preconditions.checkNotNull(routerId);
+        this.routerId = requireNonNull(routerId);
     }
 
     @Override

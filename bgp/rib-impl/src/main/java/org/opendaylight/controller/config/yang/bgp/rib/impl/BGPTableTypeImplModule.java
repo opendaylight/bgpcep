@@ -16,7 +16,8 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
@@ -56,8 +57,8 @@ public final class BGPTableTypeImplModule extends org.opendaylight.controller.co
         private final Class<? extends SubsequentAddressFamily> safi;
 
         public AutoCloseableBgpTableType(final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi) {
-            this.afi = Preconditions.checkNotNull(afi);
-            this.safi = Preconditions.checkNotNull(safi);
+            this.afi = requireNonNull(afi);
+            this.safi = requireNonNull(safi);
         }
 
         @Override

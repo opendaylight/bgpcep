@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.stats.peer;
 
+import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.rib.impl.CountersUtil.toZeroBasedCounter32;
 
 import com.google.common.base.Preconditions;
@@ -34,11 +35,11 @@ public final class BGPPeerStatsImpl implements BGPPeerStats {
 
     public BGPPeerStatsImpl(@Nonnull final String peerName, @Nonnull final Set<TablesKey> tablesKeySet,
         @Nonnull final BGPPeerStateImpl neighborState) {
-        Preconditions.checkNotNull(peerName);
-        this.tablesKeySet = Preconditions.checkNotNull(tablesKeySet);
+        requireNonNull(peerName);
+        this.tablesKeySet = requireNonNull(tablesKeySet);
         this.adjRibInRouteCounters = new PerTableTypeRouteCounter(tablesKeySet);
         this.adjRibOutRouteCounters = new PerTableTypeRouteCounter(tablesKeySet);
-        this.neighborState = Preconditions.checkNotNull(neighborState);
+        this.neighborState = requireNonNull(neighborState);
     }
 
     public PerTableTypeRouteCounter getAdjRibInRouteCounters() {
@@ -50,7 +51,7 @@ public final class BGPPeerStatsImpl implements BGPPeerStats {
     }
 
     private RouteTable createRouteTable(@Nonnull final TablesKey tablesKey) {
-        Preconditions.checkNotNull(tablesKey);
+        requireNonNull(tablesKey);
         final RouteTable routeTable = new RouteTable();
         // FIXME: setTableType() is DEPRECATED, use setAfi() and setSafi() instead
         routeTable.setTableType("afi=" + tablesKey.getAfi().getSimpleName() + ",safi=" + tablesKey.getSafi().getSimpleName());

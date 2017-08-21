@@ -8,7 +8,8 @@
 
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import java.util.Set;
@@ -37,7 +38,7 @@ public final class MultiPathSupportImpl implements MultiPathSupport {
      * @return MultiPathSupport instance.
      */
     public static MultiPathSupport createParserMultiPathSupport(@Nonnull final List<AddressFamilies> addPathCapabilities) {
-        Preconditions.checkNotNull(addPathCapabilities);
+        requireNonNull(addPathCapabilities);
         final Set<BgpTableType> support = addPathCapabilities
             .stream()
             .filter(e -> e.getSendReceive() == SendReceive.Both || e.getSendReceive() == SendReceive.Send)

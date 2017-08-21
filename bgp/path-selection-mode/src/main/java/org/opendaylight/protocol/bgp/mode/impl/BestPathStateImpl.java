@@ -7,10 +7,11 @@
  */
 package org.opendaylight.protocol.bgp.mode.impl;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
@@ -120,7 +121,7 @@ public final class BestPathStateImpl implements BestPathState {
             throw new IllegalStateException("Error creating namespace-specific attributes collection.", e);
         }
 
-        this.attributes = Preconditions.checkNotNull(attributes);
+        this.attributes = requireNonNull(attributes);
         this.ids = col;
         resolveValues();
     }

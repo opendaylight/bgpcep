@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Verify;
@@ -90,11 +92,11 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         AdjInTracker(final DOMDataTreeChangeService service, final RIBSupportContextRegistry registry,
             final DOMTransactionChain chain, final YangInstanceIdentifier peerIId,
             @Nonnull final PerTableTypeRouteCounter adjRibInRouteCounters, @Nonnull Set<TablesKey> tables) {
-            this.registry = Preconditions.checkNotNull(registry);
-            this.chain = Preconditions.checkNotNull(chain);
-            this.peerIId = Preconditions.checkNotNull(peerIId);
+            this.registry = requireNonNull(registry);
+            this.chain = requireNonNull(chain);
+            this.peerIId = requireNonNull(peerIId);
             this.effRibTables = this.peerIId.node(EffectiveRibIn.QNAME).node(Tables.QNAME);
-            this.adjRibInRouteCounters = Preconditions.checkNotNull(adjRibInRouteCounters);
+            this.adjRibInRouteCounters = requireNonNull(adjRibInRouteCounters);
             this.prefixesInstalled = buildPrefixesTables(tables);
             this.prefixesReceived = buildPrefixesTables(tables);
 

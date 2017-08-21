@@ -7,6 +7,8 @@
  */
 package org.opendaylight.bgpcep.bgp.topology.provider;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
@@ -138,7 +140,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
         private final TerminationPoint tp;
 
         private TpHolder(final TerminationPoint tp) {
-            this.tp = Preconditions.checkNotNull(tp);
+            this.tp = requireNonNull(tp);
         }
 
         private synchronized void addLink(final LinkId id, final boolean isRemote) {
@@ -265,8 +267,8 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
         }
 
         private void advertized(final NodeBuilder nb, final IgpNodeAttributesBuilder inab) {
-            this.nb = Preconditions.checkNotNull(nb);
-            this.inab = Preconditions.checkNotNull(inab);
+            this.nb = requireNonNull(nb);
+            this.inab = requireNonNull(inab);
             this.advertized = true;
             LOG.debug("Node {} is advertized", nb.getNodeId());
         }

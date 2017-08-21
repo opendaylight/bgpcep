@@ -8,6 +8,8 @@
 
 package org.opendaylight.bgpcep.bgp.topology.provider.config;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.function.Function;
@@ -31,8 +33,8 @@ final class TopologyReferenceSingletonServiceImpl implements TopologyReferenceSi
     TopologyReferenceSingletonServiceImpl(final AbstractTopologyBuilder<?> topologyBuilder, final BgpTopologyDeployer deployer,
             final Topology configuration, final Function<Topology, Void> writeFunction) {
         this.writeFunction = writeFunction;
-        this.configuration = Preconditions.checkNotNull(configuration);
-        this.topologyBuilder = Preconditions.checkNotNull(topologyBuilder);
+        this.configuration = requireNonNull(configuration);
+        this.topologyBuilder = requireNonNull(topologyBuilder);
         this.serviceRegistration = deployer.registerService(this);
     }
 

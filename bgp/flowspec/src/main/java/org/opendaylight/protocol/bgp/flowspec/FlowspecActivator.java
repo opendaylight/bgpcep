@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.flowspec;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -47,7 +48,7 @@ public final class FlowspecActivator implements AutoCloseable {
     }
 
     public FlowspecActivator(@Nonnull final SimpleFlowspecExtensionProviderContext context) {
-        this.context = Preconditions.checkNotNull(context);
+        this.context = requireNonNull(context);
 
         for (SimpleFlowspecExtensionProviderContext.SAFI safi : SimpleFlowspecExtensionProviderContext.SAFI.values()) {
             registerCommonFlowspecTypeHandlers(

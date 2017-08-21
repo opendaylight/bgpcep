@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.concepts;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
 
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -19,7 +19,7 @@ public class DefaultInstanceReference<T extends DataObject> implements InstanceR
     private final InstanceIdentifier<T> instanceIdentifier;
 
     public DefaultInstanceReference(final InstanceIdentifier<T> instanceIdentifier) {
-        this.instanceIdentifier = Preconditions.checkNotNull(instanceIdentifier);
+        this.instanceIdentifier = requireNonNull(instanceIdentifier);
     }
 
     @Override

@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 
 import java.util.Map;
@@ -19,7 +21,7 @@ abstract class AbstractFamilyRegistry<C, N> {
     private final Map<N, Class<? extends C>> numberToClass = new ConcurrentHashMap<>();
 
     protected synchronized AutoCloseable registerFamily(final Class<? extends C> clazz, final N number) {
-        Preconditions.checkNotNull(clazz);
+        requireNonNull(clazz);
 
         final Class<?> c = this.numberToClass.get(number);
         Preconditions.checkState(c == null, "Number " + number + " already registered to " + c);

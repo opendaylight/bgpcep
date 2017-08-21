@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
@@ -32,7 +34,7 @@ public final class BgpPrefixSidAttributeParser implements AttributeParser, Attri
     private final BgpPrefixSidTlvRegistry reg;
 
     public BgpPrefixSidAttributeParser(final BgpPrefixSidTlvRegistry registry) {
-        this.reg = Preconditions.checkNotNull(registry);
+        this.reg = requireNonNull(registry);
     }
 
     @Override

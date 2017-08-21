@@ -8,7 +8,8 @@
 
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -47,8 +48,8 @@ public final class ProtocolsConfigFileProcessor implements ConfigFileProcessor, 
     private static final SchemaPath PROTOCOLS_SCHEMA_PATH = SchemaPath.create(true, NetworkInstances.QNAME, NetworkInstance.QNAME, Protocols.QNAME);
 
     public ProtocolsConfigFileProcessor(final ConfigLoader configLoader, final BgpDeployer bgpDeployer) {
-        Preconditions.checkNotNull(configLoader);
-        this.bgpDeployer = Preconditions.checkNotNull(bgpDeployer);
+        requireNonNull(configLoader);
+        this.bgpDeployer = requireNonNull(bgpDeployer);
         this.protocolsIID = this.bgpDeployer.getInstanceIdentifier().child(Protocols.class);
         this.bindingSerializer = configLoader.getBindingNormalizedNodeSerializer();
         this.protocolYIId = this.bindingSerializer.toYangInstanceIdentifier(this.protocolsIID.child(Protocol.class));

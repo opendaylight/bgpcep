@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import io.netty.buffer.ByteBuf;
@@ -53,14 +55,14 @@ final class SimpleNlriRegistry implements NlriRegistry {
     private final AddressFamilyRegistry afiReg;
 
     public SimpleNlriRegistry(final AddressFamilyRegistry afiReg, final SubsequentAddressFamilyRegistry safiReg) {
-        this.afiReg = Preconditions.checkNotNull(afiReg);
-        this.safiReg = Preconditions.checkNotNull(safiReg);
+        this.afiReg = requireNonNull(afiReg);
+        this.safiReg = requireNonNull(safiReg);
     }
 
     private static BgpTableType createKey(final Class<? extends AddressFamily> afi,
         final Class<? extends SubsequentAddressFamily> safi) {
-        Preconditions.checkNotNull(afi);
-        Preconditions.checkNotNull(safi);
+        requireNonNull(afi);
+        requireNonNull(safi);
         return new BgpTableTypeImpl(afi, safi);
     }
 

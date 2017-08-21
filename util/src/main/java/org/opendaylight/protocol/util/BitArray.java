@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.util;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
@@ -39,7 +41,7 @@ public final class BitArray {
     }
 
     private BitArray(final byte[] backingArray, final int size) {
-        Preconditions.checkNotNull(backingArray, "Byte Array cannot be null");
+        requireNonNull(backingArray, "Byte Array cannot be null");
         this.size = size;
         this.backingArray = (backingArray == null) ? null : backingArray.clone();
         this.offset = (calculateBytes(this.size) * Byte.SIZE) - this.size;
@@ -55,7 +57,7 @@ public final class BitArray {
      */
     public static BitArray valueOf(final ByteBuf buffer, final int size) {
         Preconditions.checkArgument(size >= 1, "Minimum size is 1 bit.");
-        Preconditions.checkNotNull(buffer, "Byte Array cannot be null");
+        requireNonNull(buffer, "Byte Array cannot be null");
         final byte[] b = new byte[calculateBytes(size)];
         buffer.readBytes(b, 0, b.length);
         return new BitArray(b, size);

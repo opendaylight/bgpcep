@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.bgp.openconfig.spi;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import java.util.List;
 import org.slf4j.Logger;
@@ -22,8 +24,8 @@ public final class SimpleBGPTableTypeRegistryProviderActivator implements AutoCl
 
     public SimpleBGPTableTypeRegistryProviderActivator(final BGPTableTypeRegistryProvider providerContext,
             final List<BGPTableTypeRegistryProviderActivator> extensionActivators) {
-        this.providerContext = Preconditions.checkNotNull(providerContext);
-        this.extensionActivators = Preconditions.checkNotNull(extensionActivators);
+        this.providerContext = requireNonNull(providerContext);
+        this.extensionActivators = requireNonNull(extensionActivators);
     }
 
     public void start() {

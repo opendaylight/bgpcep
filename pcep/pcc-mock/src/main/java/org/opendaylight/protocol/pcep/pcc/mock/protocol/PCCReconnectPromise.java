@@ -8,7 +8,8 @@
 
 package org.opendaylight.protocol.pcep.pcc.mock.protocol;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -76,7 +77,7 @@ final class PCCReconnectPromise extends DefaultPromise<PCEPSession> {
     }
 
     synchronized boolean isInitialConnectFinished() {
-        Preconditions.checkNotNull(this.pending);
+        requireNonNull(this.pending);
         return this.pending.isDone() && this.pending.isSuccess();
     }
 

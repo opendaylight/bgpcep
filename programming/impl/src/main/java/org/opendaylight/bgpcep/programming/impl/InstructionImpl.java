@@ -7,6 +7,8 @@
  */
 package org.opendaylight.bgpcep.programming.impl;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -41,11 +43,11 @@ final class InstructionImpl implements Instruction {
 
     InstructionImpl(final QueueInstruction queue, final SettableFuture<Instruction> future, final InstructionId id,
             final List<InstructionImpl> dependencies, final Timeout timeout) {
-        this.schedulingFuture = Preconditions.checkNotNull(future);
-        this.dependencies = Preconditions.checkNotNull(dependencies);
-        this.timeout = Preconditions.checkNotNull(timeout);
-        this.queue = Preconditions.checkNotNull(queue);
-        this.id = Preconditions.checkNotNull(id);
+        this.schedulingFuture = requireNonNull(future);
+        this.dependencies = requireNonNull(dependencies);
+        this.timeout = requireNonNull(timeout);
+        this.queue = requireNonNull(queue);
+        this.id = requireNonNull(id);
     }
 
     InstructionId getId() {

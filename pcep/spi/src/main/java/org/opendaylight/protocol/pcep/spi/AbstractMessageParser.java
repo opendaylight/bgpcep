@@ -7,8 +7,9 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
@@ -49,7 +50,7 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
     private final ObjectRegistry registry;
 
     protected AbstractMessageParser(final ObjectRegistry registry) {
-        this.registry = Preconditions.checkNotNull(registry);
+        this.registry = requireNonNull(registry);
     }
 
     /**
@@ -122,7 +123,7 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 
     @Override
     public final Message parseMessage(final ByteBuf buffer, final List<Message> errors) throws PCEPDeserializerException {
-        Preconditions.checkNotNull(buffer, "Buffer may not be null");
+        requireNonNull(buffer, "Buffer may not be null");
 
         // Parse objects first
         final List<Object> objs = parseObjects(buffer);

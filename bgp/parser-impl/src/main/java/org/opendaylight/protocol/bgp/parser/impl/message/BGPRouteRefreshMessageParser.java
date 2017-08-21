@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
@@ -39,8 +41,8 @@ public final class BGPRouteRefreshMessageParser implements MessageParser, Messag
     private final SubsequentAddressFamilyRegistry safiReg;
 
     public BGPRouteRefreshMessageParser(final AddressFamilyRegistry afiReg, final SubsequentAddressFamilyRegistry safiReg) {
-        this.afiReg = Preconditions.checkNotNull(afiReg);
-        this.safiReg = Preconditions.checkNotNull(safiReg);
+        this.afiReg = requireNonNull(afiReg);
+        this.safiReg = requireNonNull(safiReg);
     }
 
     /**

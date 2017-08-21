@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.pcc.mock.protocol;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import javax.annotation.Nonnull;
@@ -27,7 +28,7 @@ public class PCCServerPeerProposal implements PCEPPeerProposal {
 
     @Override
     public void setPeerSpecificProposal(@Nonnull final InetSocketAddress address, @Nonnull final TlvsBuilder openBuilder) {
-        Preconditions.checkNotNull(address);
+        requireNonNull(address);
         final LspDbVersionBuilder lspDbVersionBuilder = new LspDbVersionBuilder();
         if (this.isAfterReconnection) {
             lspDbVersionBuilder.setLspDbVersionValue(this.dbVersion);

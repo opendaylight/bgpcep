@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
 
 import java.util.ServiceLoader;
 
@@ -22,7 +22,7 @@ public final class ServiceLoaderRIBExtensionConsumerContext extends SimpleRIBExt
     private final ServiceLoader<RIBExtensionProviderActivator> loader;
 
     private ServiceLoaderRIBExtensionConsumerContext(final ServiceLoader<RIBExtensionProviderActivator> loader) {
-        this.loader = Preconditions.checkNotNull(loader);
+        this.loader = requireNonNull(loader);
 
         for (RIBExtensionProviderActivator a : loader) {
             a.startRIBExtensionProvider(this);

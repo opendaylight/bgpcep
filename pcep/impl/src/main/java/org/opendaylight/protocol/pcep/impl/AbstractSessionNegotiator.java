@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -25,8 +26,8 @@ public abstract class AbstractSessionNegotiator extends ChannelInboundHandlerAda
     protected final Promise<PCEPSessionImpl> promise;
 
     protected AbstractSessionNegotiator(final Promise<PCEPSessionImpl> promise, final Channel channel) {
-        this.promise = Preconditions.checkNotNull(promise);
-        this.channel = Preconditions.checkNotNull(channel);
+        this.promise = requireNonNull(promise);
+        this.channel = requireNonNull(channel);
     }
 
     protected final void negotiationSuccessful(final PCEPSessionImpl session) {

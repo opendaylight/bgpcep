@@ -7,7 +7,8 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import org.opendaylight.controller.config.api.DependencyResolver;
 import org.opendaylight.controller.config.api.ModuleIdentifier;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
@@ -32,8 +33,8 @@ public final class BGPPSMImplModule extends AbstractBGPPSMImplModule {
         private final PathSelectionMode strategyFactory;
 
         AutoCloseableBestPathSelectionStrategy(final BgpTableType pathFamilyDependency, final PathSelectionMode strategyFactory) {
-            this.pathFamilyDependency = Preconditions.checkNotNull(pathFamilyDependency);
-            this.strategyFactory = Preconditions.checkNotNull(strategyFactory);
+            this.pathFamilyDependency = requireNonNull(pathFamilyDependency);
+            this.strategyFactory = requireNonNull(strategyFactory);
         }
 
         @Override

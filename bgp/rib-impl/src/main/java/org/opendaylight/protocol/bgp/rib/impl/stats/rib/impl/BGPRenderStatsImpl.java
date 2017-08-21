@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl;
 
+import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.rib.impl.CountersUtil.toZeroBasedCounter32;
 
 import com.google.common.base.Preconditions;
@@ -42,10 +43,10 @@ public final class BGPRenderStatsImpl implements BGPRenderStats {
     public BGPRenderStatsImpl(@Nonnull final BgpId bgpId, @Nonnull final RibId ribId, @Nonnull final AsNumber localAs,
         @Nullable final ClusterIdentifier clusterId, @Nonnull final BGPRIBState globalState,
         @Nonnull final Set<TablesKey> tablesKeys) {
-        this.bgpId = Preconditions.checkNotNull(bgpId);
-        this.ribId = Preconditions.checkNotNull(ribId);
-        this.globalState = Preconditions.checkNotNull(globalState);
-        this.tablesKeys = Preconditions.checkNotNull(tablesKeys);
+        this.bgpId = requireNonNull(bgpId);
+        this.ribId = requireNonNull(ribId);
+        this.globalState = requireNonNull(globalState);
+        this.tablesKeys = requireNonNull(tablesKeys);
         this.localAs = localAs;
         this.clusterId = clusterId;
     }

@@ -7,8 +7,9 @@
  */
 package org.opendaylight.bgpcep.programming.impl;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -112,12 +113,12 @@ public final class InstructionDeployerImpl implements IntructionDeployer,
     public InstructionDeployerImpl(final DataBroker dataProvider, final RpcProviderRegistry rpcProviderRegistry,
         final NotificationPublishService notifs, final Timer timer, final ClusterSingletonServiceProvider cssp,
         final BundleContext bundleContext) {
-        this.dataProvider = Preconditions.checkNotNull(dataProvider);
-        this.notifs = Preconditions.checkNotNull(notifs);
-        this.timer = Preconditions.checkNotNull(timer);
-        this.rpcProviderRegistry = Preconditions.checkNotNull(rpcProviderRegistry);
-        this.bundleContext = Preconditions.checkNotNull(bundleContext);
-        this.cssp = Preconditions.checkNotNull(cssp);
+        this.dataProvider = requireNonNull(dataProvider);
+        this.notifs = requireNonNull(notifs);
+        this.timer = requireNonNull(timer);
+        this.rpcProviderRegistry = requireNonNull(rpcProviderRegistry);
+        this.bundleContext = requireNonNull(bundleContext);
+        this.cssp = requireNonNull(cssp);
         this.iid = InstanceIdentifier.create(OdlProgramming.class);
 
         final WriteTransaction wTx = dataProvider.newWriteOnlyTransaction();

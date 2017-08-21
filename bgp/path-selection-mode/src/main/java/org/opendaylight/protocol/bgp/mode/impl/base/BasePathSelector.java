@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.mode.impl.base;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.primitives.UnsignedInteger;
 import org.opendaylight.protocol.bgp.mode.api.BestPathState;
 import org.opendaylight.protocol.bgp.mode.impl.BestPathStateImpl;
@@ -26,7 +27,7 @@ final class BasePathSelector extends AbstractBestPathSelector {
     }
 
     void processPath(final UnsignedInteger routerId, final ContainerNode attrs) {
-        Preconditions.checkNotNull(routerId, "Router ID may not be null");
+        requireNonNull(routerId, "Router ID may not be null");
 
         // Consider only non-null attributes
         if (attrs != null) {

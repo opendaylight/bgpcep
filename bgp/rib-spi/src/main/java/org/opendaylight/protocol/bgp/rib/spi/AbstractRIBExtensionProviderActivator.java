@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import java.util.List;
 import javax.annotation.concurrent.GuardedBy;
@@ -26,7 +28,7 @@ public abstract class AbstractRIBExtensionProviderActivator implements AutoClose
     public final synchronized void startRIBExtensionProvider(final RIBExtensionProviderContext context) {
         Preconditions.checkState(this.registrations == null);
 
-        this.registrations = Preconditions.checkNotNull(startRIBExtensionProviderImpl(context));
+        this.registrations = requireNonNull(startRIBExtensionProviderImpl(context));
     }
 
     @Override

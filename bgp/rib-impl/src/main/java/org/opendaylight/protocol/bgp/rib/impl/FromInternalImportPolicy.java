@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import org.opendaylight.protocol.bgp.rib.impl.spi.AbstractImportPolicy;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
@@ -26,8 +27,8 @@ class FromInternalImportPolicy extends AbstractImportPolicy {
     private final Ipv4Address bgpIdentifier;
 
     FromInternalImportPolicy(final Ipv4Address bgpIdentifier, final ClusterIdentifier clusterIdentifier) {
-        this.bgpIdentifier = Preconditions.checkNotNull(bgpIdentifier);
-        this.clusterIdentifier = Preconditions.checkNotNull(clusterIdentifier);
+        this.bgpIdentifier = requireNonNull(bgpIdentifier);
+        this.clusterIdentifier = requireNonNull(clusterIdentifier);
     }
 
     @Override

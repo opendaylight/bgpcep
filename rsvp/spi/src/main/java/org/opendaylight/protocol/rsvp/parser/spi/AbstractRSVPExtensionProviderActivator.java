@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.rsvp.parser.spi;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import java.util.List;
 import javax.annotation.concurrent.GuardedBy;
@@ -27,7 +29,7 @@ public abstract class AbstractRSVPExtensionProviderActivator implements AutoClos
     public final synchronized void start(final RSVPExtensionProviderContext context) {
         Preconditions.checkState(this.registrations == null);
 
-        this.registrations = Preconditions.checkNotNull(startImpl(context));
+        this.registrations = requireNonNull(startImpl(context));
     }
 
     @Override

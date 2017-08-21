@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
@@ -45,8 +47,8 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
         private final ByteBuf buffer;
 
         public RawAttribute(final AttributeParser parser, final ByteBuf buffer) {
-            this.parser = Preconditions.checkNotNull(parser);
-            this.buffer = Preconditions.checkNotNull(buffer);
+            this.parser = requireNonNull(parser);
+            this.buffer = requireNonNull(buffer);
         }
     }
 
