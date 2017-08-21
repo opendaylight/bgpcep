@@ -7,6 +7,8 @@
  */
 package org.opendaylight.bgp.concepts;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
@@ -67,7 +69,7 @@ public final class RouteDistinguisherUtil {
      * @param byteAggregator
      */
     public static void serializeRouteDistinquisher(final RouteDistinguisher distinguisher, final ByteBuf byteAggregator) {
-        Preconditions.checkNotNull(distinguisher);
+        requireNonNull(distinguisher);
         Preconditions.checkState(byteAggregator != null && byteAggregator.isWritable(RD_LENGTH), "Cannot write Route Distinguisher to provided buffer.");
         if (distinguisher.getRdTwoOctetAs() != null) {
             final String[] values = distinguisher.getRdTwoOctetAs().getValue().split(SEPARATOR);

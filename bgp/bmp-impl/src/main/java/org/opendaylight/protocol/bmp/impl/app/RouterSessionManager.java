@@ -8,7 +8,8 @@
 
 package org.opendaylight.protocol.bmp.impl.app;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
@@ -48,8 +49,8 @@ final class RouterSessionManager implements BmpSessionListenerFactory, AutoClose
     }
 
     private synchronized boolean isSessionExist(final BmpRouter sessionListener) {
-        Preconditions.checkNotNull(sessionListener);
-        return this.sessionListeners.containsKey(Preconditions.checkNotNull(sessionListener.getRouterId()));
+        requireNonNull(sessionListener);
+        return this.sessionListeners.containsKey(requireNonNull(sessionListener.getRouterId()));
     }
 
     synchronized boolean addSessionListener(final BmpRouter sessionListener) {

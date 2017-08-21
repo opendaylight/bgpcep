@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.util;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -44,7 +46,7 @@ public final class HexDumpBGPFileParser {
     }
 
     public static List<byte[]> parseMessages(final InputStream is) throws IOException {
-        Preconditions.checkNotNull(is);
+        requireNonNull(is);
         try (InputStreamReader isr = new InputStreamReader(is, "UTF-8")) {
             return parseMessages(CharStreams.toString(isr));
         } finally {

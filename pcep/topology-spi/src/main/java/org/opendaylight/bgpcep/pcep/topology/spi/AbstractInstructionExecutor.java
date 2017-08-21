@@ -7,7 +7,8 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.spi;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -62,7 +63,7 @@ public abstract class AbstractInstructionExecutor implements FutureCallback<Inst
     private final SubmitInstructionInput input;
 
     protected AbstractInstructionExecutor(final SubmitInstructionInput input) {
-        this.input = Preconditions.checkNotNull(input);
+        this.input = requireNonNull(input);
     }
 
     public final SubmitInstructionInput getInput() {

@@ -8,7 +8,8 @@
 
 package org.opendaylight.protocol.bmp.mock;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -41,8 +42,8 @@ final class BmpMockDispatcher {
     private final EventLoopGroup workerGroup = new NioEventLoopGroup();
 
     BmpMockDispatcher(final BmpMessageRegistry registry, final BmpSessionFactory sessionFactory) {
-        this.sessionFactory = Preconditions.checkNotNull(sessionFactory);
-        Preconditions.checkNotNull(registry);
+        this.sessionFactory = requireNonNull(sessionFactory);
+        requireNonNull(registry);
         this.hf = new BmpHandlerFactory(registry);
     }
 
@@ -68,8 +69,8 @@ final class BmpMockDispatcher {
     }
 
     ChannelFuture createClient(final SocketAddress localAddress, final SocketAddress remoteAddress) {
-        Preconditions.checkNotNull(localAddress);
-        Preconditions.checkNotNull(remoteAddress);
+        requireNonNull(localAddress);
+        requireNonNull(remoteAddress);
 
         // ideally we should use Bootstrap clones here
         final Bootstrap bootstrap = createClientInstance(localAddress);
@@ -96,7 +97,7 @@ final class BmpMockDispatcher {
     }
 
     ChannelFuture createServer(final InetSocketAddress localAddress) {
-        Preconditions.checkNotNull(localAddress);
+        requireNonNull(localAddress);
         final ServerBootstrap serverBootstrap = createServerInstance();
         final ChannelFuture channelFuture = serverBootstrap.bind(localAddress);
         LOG.info("Initiated BMP server at {}.", localAddress);

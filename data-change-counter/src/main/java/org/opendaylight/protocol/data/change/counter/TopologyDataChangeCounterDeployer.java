@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.data.change.counter;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.HashMap;
@@ -36,7 +38,7 @@ public class TopologyDataChangeCounterDeployer implements DataTreeChangeListener
     private ListenerRegistration<TopologyDataChangeCounterDeployer> registration;
 
     public TopologyDataChangeCounterDeployer(final DataBroker dataBroker) {
-        this.dataBroker = Preconditions.checkNotNull(dataBroker);
+        this.dataBroker = requireNonNull(dataBroker);
     }
 
     public synchronized void register() {

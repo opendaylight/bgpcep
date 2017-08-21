@@ -8,7 +8,8 @@
 
 package org.opendaylight.protocol.bmp.impl;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
@@ -25,11 +26,12 @@ public class BmpByteToMessageDecoder extends ByteToMessageDecoder {
     private final BmpMessageRegistry registry;
 
     public BmpByteToMessageDecoder(final BmpMessageRegistry registry) {
-        this.registry = Preconditions.checkNotNull(registry);
+        this.registry = requireNonNull(registry);
     }
 
     @Override
-    protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> out) throws BmpDeserializationException {
+    protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> out)
+        throws BmpDeserializationException {
         if (in.isReadable()) {
             LOG.trace("Received to decode: {}", ByteBufUtil.hexDump(in));
             out.add(this.registry.parseMessage(in));

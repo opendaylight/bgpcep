@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.flowspec.l3vpn;
 
+import static java.util.Objects.requireNonNull;
 import static org.opendaylight.bgp.concepts.RouteDistinguisherUtil.extractRouteDistinguisher;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +59,7 @@ public abstract class AbstractFlowspecL3vpnNlriParser extends AbstractFlowspecNl
 
     @Override
     protected void serializeNlri(final Object[] nlriFields, final ByteBuf buffer) {
-        final RouteDistinguisher rd = Preconditions.checkNotNull((RouteDistinguisher) nlriFields[0]);
+        final RouteDistinguisher rd = requireNonNull((RouteDistinguisher) nlriFields[0]);
         RouteDistinguisherUtil.serializeRouteDistinquisher(rd, buffer);
         final List<Flowspec> flowspecList = (List<Flowspec>) nlriFields[1];
         serializeNlri(flowspecList, buffer);
@@ -69,7 +69,7 @@ public abstract class AbstractFlowspecL3vpnNlriParser extends AbstractFlowspecNl
     protected Object[] parseNlri(final ByteBuf nlri) throws BGPParsingException {
         readNlriLength(nlri);
         return new Object[] {
-            Preconditions.checkNotNull(readRouteDistinguisher(nlri)),
+            requireNonNull(readRouteDistinguisher(nlri)),
             parseL3vpnNlriFlowspecList(nlri)
         };
     }

@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import java.util.HashSet;
 import java.util.Set;
@@ -75,7 +77,7 @@ public class SimpleRIBExtensionProviderContext implements RIBExtensionProviderCo
 
     @Override
     public RIBSupport getRIBSupport(final TablesKey key) {
-        return this.supports.get(Preconditions.checkNotNull(key));
+        return this.supports.get(requireNonNull(key));
     }
 
     @Override

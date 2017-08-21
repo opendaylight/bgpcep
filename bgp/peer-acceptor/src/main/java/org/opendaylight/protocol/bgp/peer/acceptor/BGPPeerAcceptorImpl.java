@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.bgp.peer.acceptor;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelConfig;
@@ -40,8 +42,8 @@ public final class BGPPeerAcceptorImpl implements AutoCloseable {
 
     public BGPPeerAcceptorImpl(final IpAddress bindingAddress, final PortNumber portNumber,
         final BGPDispatcher bgpDispatcher) {
-        this.bgpDispatcher = Preconditions.checkNotNull(bgpDispatcher);
-        this.address = getAddress(Preconditions.checkNotNull(bindingAddress), Preconditions.checkNotNull(portNumber));
+        this.bgpDispatcher = requireNonNull(bgpDispatcher);
+        this.address = getAddress(requireNonNull(bindingAddress), requireNonNull(portNumber));
         if (!PlatformDependent.isWindows() && !PlatformDependent.isRoot()
             && portNumber.getValue() < PRIVILEGED_PORTS) {
             throw new AccessControlException("Unable to bind port " + portNumber.getValue() +

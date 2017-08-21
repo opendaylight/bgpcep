@@ -8,6 +8,7 @@
 
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
+import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getHoldTimer;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getPeerAs;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getSimpleRoutingPolicy;
@@ -233,7 +234,7 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer, BGPPeerRun
         private BgpPeerSingletonService(final RIB rib, final Neighbor neighbor,
             final BGPTableTypeRegistryConsumer tableTypeRegistry, final WriteConfiguration configurationWriter) {
             this.neighborAddress = neighbor.getNeighborAddress();
-            final AfiSafis afisSAfis = Preconditions.checkNotNull(neighbor.getAfiSafis());
+            final AfiSafis afisSAfis = requireNonNull(neighbor.getAfiSafis());
             final Set<TablesKey> afiSafisAdvertized = OpenConfigMappingUtil
                 .toTableKey(afisSAfis.getAfiSafi(), tableTypeRegistry);
             this.bgpPeer = new BGPPeer(Ipv4Util.toStringIP(this.neighborAddress), rib,

@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.bmp.impl.session;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.base.Preconditions;
@@ -39,7 +41,7 @@ public final class BmpSessionImpl extends SimpleChannelInboundHandler<Notificati
     private State state;
 
     public BmpSessionImpl(@Nonnull final BmpSessionListener listener) {
-        this.listener = Preconditions.checkNotNull(listener);
+        this.listener = requireNonNull(listener);
         this.state = State.IDLE;
     }
 
@@ -79,7 +81,7 @@ public final class BmpSessionImpl extends SimpleChannelInboundHandler<Notificati
 
     @Override
     public InetAddress getRemoteAddress() {
-        Preconditions.checkNotNull(this.channel.remoteAddress(), "BMP Channel doesn't have a valid remote address.");
+        requireNonNull(this.channel.remoteAddress(), "BMP Channel doesn't have a valid remote address.");
         return ((InetSocketAddress) this.channel.remoteAddress()).getAddress();
     }
 

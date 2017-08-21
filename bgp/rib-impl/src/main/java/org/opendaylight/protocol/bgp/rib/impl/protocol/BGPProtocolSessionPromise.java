@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.protocol;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
@@ -49,10 +51,10 @@ public final class BGPProtocolSessionPromise<S extends BGPSession> extends Defau
     public BGPProtocolSessionPromise(@Nonnull final InetSocketAddress remoteAddress, final int retryTimer,
         @Nonnull final Bootstrap bootstrap, @Nonnull final BGPPeerRegistry peerRegistry) {
         super(GlobalEventExecutor.INSTANCE);
-        this.address = Preconditions.checkNotNull(remoteAddress);
+        this.address = requireNonNull(remoteAddress);
         this.retryTimer = retryTimer;
-        this.bootstrap = Preconditions.checkNotNull(bootstrap);
-        this.peerRegistry = Preconditions.checkNotNull(peerRegistry);
+        this.bootstrap = requireNonNull(bootstrap);
+        this.peerRegistry = requireNonNull(peerRegistry);
         this.listenerRegistration = this.peerRegistry.registerPeerSessionListener(
             new PeerRegistrySessionListenerImpl(this, StrictBGPPeerRegistry.getIpAddress(this.address)));
     }
@@ -115,7 +117,7 @@ public final class BGPProtocolSessionPromise<S extends BGPSession> extends Defau
     public synchronized boolean cancel(final boolean mayInterruptIfRunning) {
         closePeerSessionListener();
         if (super.cancel(mayInterruptIfRunning)) {
-            Preconditions.checkNotNull(this.pending);
+            requireNonNull(this.pending);
             this.pending.cancel(mayInterruptIfRunning);
             return true;
         }

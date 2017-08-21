@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelFuture;
@@ -65,16 +66,16 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     public PCEPDispatcherImpl(@Nonnull final MessageRegistry registry,
         @Nonnull final PCEPSessionNegotiatorFactory negotiatorFactory,
         @Nonnull final EventLoopGroup bossGroup, @Nonnull  final EventLoopGroup workerGroup) {
-        this.snf = Preconditions.checkNotNull(negotiatorFactory);
+        this.snf = requireNonNull(negotiatorFactory);
         this.hf = new PCEPHandlerFactory(registry);
         if (Epoll.isAvailable()) {
             this.bossGroup = new EpollEventLoopGroup();
             this.workerGroup = new EpollEventLoopGroup();
         } else {
-            this.bossGroup = Preconditions.checkNotNull(bossGroup);
-            this.workerGroup = Preconditions.checkNotNull(workerGroup);
+            this.bossGroup = requireNonNull(bossGroup);
+            this.workerGroup = requireNonNull(workerGroup);
         }
-        this.executor = Preconditions.checkNotNull(GlobalEventExecutor.INSTANCE);
+        this.executor = requireNonNull(GlobalEventExecutor.INSTANCE);
     }
 
     @Override

@@ -8,11 +8,11 @@
 
 package org.opendaylight.protocol.pcep.impl;
 
+import static java.util.Objects.requireNonNull;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
-import com.google.common.base.Preconditions;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -191,10 +191,10 @@ public class PCEPDispatcherImplTest {
         private final EventLoopGroup workerGroup;
 
         PCCMock(final PCEPSessionNegotiatorFactory<?> negotiatorFactory, final PCEPHandlerFactory factory) {
-            this.workerGroup = Preconditions.checkNotNull(new NioEventLoopGroup());
-            this.negotiatorFactory = Preconditions.checkNotNull(negotiatorFactory);
-            this.factory = Preconditions.checkNotNull(factory);
-            this.executor = Preconditions.checkNotNull(GlobalEventExecutor.INSTANCE);
+            this.workerGroup = requireNonNull(new NioEventLoopGroup());
+            this.negotiatorFactory = requireNonNull(negotiatorFactory);
+            this.factory = requireNonNull(factory);
+            this.executor = requireNonNull(GlobalEventExecutor.INSTANCE);
         }
 
         Future<PCEPSession> createClient(final InetSocketAddress address, final int retryTimer,

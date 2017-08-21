@@ -7,8 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -61,7 +62,7 @@ public class BGPSynchronization {
     private final BGPSessionListener listener;
 
     public BGPSynchronization(final BGPSessionListener listener, final Set<TablesKey> types) {
-        this.listener = Preconditions.checkNotNull(listener);
+        this.listener = requireNonNull(listener);
 
         for (final TablesKey type : types) {
             this.syncStorage.put(type, new SyncVariables());

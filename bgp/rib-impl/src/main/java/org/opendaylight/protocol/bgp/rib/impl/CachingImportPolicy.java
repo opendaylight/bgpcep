@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.collect.Interner;
 import com.google.common.collect.Interners;
 import com.google.common.collect.MapMaker;
@@ -49,7 +50,7 @@ final class CachingImportPolicy extends AbstractImportPolicy {
     private final AbstractImportPolicy delegate;
 
     CachingImportPolicy(final AbstractImportPolicy delegate) {
-        this.delegate = Preconditions.checkNotNull(delegate);
+        this.delegate = requireNonNull(delegate);
     }
 
     @Nonnull private static ContainerNode maskNull(@Nullable final ContainerNode unmasked) {

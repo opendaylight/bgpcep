@@ -7,6 +7,8 @@
  */
 package org.opendaylight.bgpcep.bgp.topology.provider;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
@@ -83,8 +85,8 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
         final Class<? extends SubsequentAddressFamily> safi, final long listenerResetLimitInMillsec,
         final int listenerResetEnforceCounter) {
         this.dataProvider = dataProvider;
-        this.locRibReference = Preconditions.checkNotNull(locRibReference);
-        this.topologyKey = new TopologyKey(Preconditions.checkNotNull(topologyId));
+        this.locRibReference = requireNonNull(locRibReference);
+        this.topologyKey = new TopologyKey(requireNonNull(topologyId));
         this.topologyTypes = types;
         this.afi = afi;
         this.safi = safi;
@@ -224,7 +226,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
     }
 
     private synchronized void initOperationalTopology() {
-        Preconditions.checkNotNull(this.chain, "A valid transaction chain must be provided.");
+        requireNonNull(this.chain, "A valid transaction chain must be provided.");
         final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
         trans.put(LogicalDatastoreType.OPERATIONAL, this.topology,
             new TopologyBuilder().setKey(this.topologyKey).setServerProvided(Boolean.TRUE).setTopologyTypes(this.topologyTypes)
@@ -248,7 +250,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
      * @throws TransactionCommitFailedException
      */
     private synchronized ListenableFuture<Void> destroyOperationalTopology() {
-        Preconditions.checkNotNull(this.chain, "A valid transaction chain must be provided.");
+        requireNonNull(this.chain, "A valid transaction chain must be provided.");
         final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
         trans.delete(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier());
         final ListenableFuture<Void> future = trans.submit();
@@ -304,7 +306,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
      */
     @VisibleForTesting
     protected synchronized void resetListener() {
-        Preconditions.checkNotNull(this.listenerRegistration, "Listener on topology %s hasn't been initialized.", this);
+        requireNonNull(this.listenerRegistration, "Listener on topology " + this + " hasn't been initialized.");
         LOG.debug("Resetting data change listener for topology builder {}", getInstanceIdentifier());
         // unregister current listener to prevent incoming data tree change first
         unregisterDataChangeListener();

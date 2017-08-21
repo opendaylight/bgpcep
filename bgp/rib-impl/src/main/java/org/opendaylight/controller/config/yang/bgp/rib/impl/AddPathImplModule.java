@@ -7,7 +7,8 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.SendReceive;
@@ -42,8 +43,8 @@ public final class AddPathImplModule extends AbstractAddPathImplModule {
         private final SendReceive sendReceiveMode;
 
         public AutoCloseableAddPath(final BgpTableType addressFamilyDependency, final SendReceive sendReceive) {
-            this.family = Preconditions.checkNotNull(addressFamilyDependency);
-            this.sendReceiveMode = Preconditions.checkNotNull(sendReceive);
+            this.family = requireNonNull(addressFamilyDependency);
+            this.sendReceiveMode = requireNonNull(sendReceive);
         }
 
         @Override

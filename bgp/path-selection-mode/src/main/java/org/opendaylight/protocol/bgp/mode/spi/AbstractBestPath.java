@@ -8,9 +8,10 @@
 
 package org.opendaylight.protocol.bgp.mode.spi;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Preconditions;
 import org.opendaylight.protocol.bgp.mode.api.BestPath;
 import org.opendaylight.protocol.bgp.mode.api.BestPathState;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -19,7 +20,7 @@ public abstract class AbstractBestPath implements BestPath {
     protected final BestPathState state;
 
     protected AbstractBestPath(final BestPathState state) {
-        this.state = Preconditions.checkNotNull(state);
+        this.state = requireNonNull(state);
     }
 
     protected abstract MoreObjects.ToStringHelper addToStringAttributes(final MoreObjects.ToStringHelper toStringHelper);

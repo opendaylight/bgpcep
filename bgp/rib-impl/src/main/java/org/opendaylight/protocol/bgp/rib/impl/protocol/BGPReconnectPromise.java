@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.protocol;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -39,10 +40,10 @@ public class BGPReconnectPromise<S extends BGPSession> extends DefaultPromise<Vo
         @Nonnull final ChannelPipelineInitializer<S> initializer) {
         super(executor);
         this.bootstrap = bootstrap;
-        this.initializer = Preconditions.checkNotNull(initializer);
-        this.address = Preconditions.checkNotNull(address);
+        this.initializer = requireNonNull(initializer);
+        this.address = requireNonNull(address);
         this.retryTimer = retryTimer;
-        this.peerRegistry = Preconditions.checkNotNull(peerRegistry);
+        this.peerRegistry = requireNonNull(peerRegistry);
     }
 
     public synchronized void connect() {
@@ -90,19 +91,19 @@ public class BGPReconnectPromise<S extends BGPSession> extends DefaultPromise<Vo
      *         to e.g. Connection refused, Negotiation failed
      */
     private  synchronized boolean isInitialConnectFinished() {
-        Preconditions.checkNotNull(this.pending);
+        requireNonNull(this.pending);
         return this.pending.isDone() && this.pending.isSuccess();
     }
 
     private synchronized void reconnect() {
-        Preconditions.checkNotNull(this.pending);
+        requireNonNull(this.pending);
         this.pending.reconnect();
     }
 
     @Override
     public synchronized boolean cancel(final boolean mayInterruptIfRunning) {
         if (super.cancel(mayInterruptIfRunning)) {
-            Preconditions.checkNotNull(this.pending);
+            requireNonNull(this.pending);
             this.pending.cancel(mayInterruptIfRunning);
             return true;
         }

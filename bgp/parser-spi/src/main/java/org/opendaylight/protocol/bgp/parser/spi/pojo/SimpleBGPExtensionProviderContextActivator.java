@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import java.util.List;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
@@ -27,8 +28,8 @@ public class SimpleBGPExtensionProviderContextActivator implements AutoCloseable
 
     public SimpleBGPExtensionProviderContextActivator(final BGPExtensionProviderContext providerContext,
             final List<BGPExtensionProviderActivator> extensionActivators) {
-        this.providerContext = Preconditions.checkNotNull(providerContext);
-        this.extensionActivators = Preconditions.checkNotNull(extensionActivators);
+        this.providerContext = requireNonNull(providerContext);
+        this.extensionActivators = requireNonNull(extensionActivators);
     }
 
     public void start() {

@@ -7,9 +7,10 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.annotations.Beta;
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.Collections;
 import javax.annotation.Nonnull;
@@ -97,9 +98,9 @@ public abstract class AbstractRIBSupport implements RIBSupport {
         final QName qname = BindingReflections.findQName(containerClass).intern();
         this.routesContainerIdentifier = new NodeIdentifier(qname);
         this.routeAttributesIdentifier = new NodeIdentifier(QName.create(qname, Attributes.QNAME.getLocalName().intern()));
-        this.cazeClass = Preconditions.checkNotNull(cazeClass);
-        this.containerClass = Preconditions.checkNotNull(containerClass);
-        this.listClass = Preconditions.checkNotNull(listClass);
+        this.cazeClass = requireNonNull(cazeClass);
+        this.containerClass = requireNonNull(containerClass);
+        this.listClass = requireNonNull(listClass);
         this.routeQname = QName.create(qname, BindingReflections.findQName(listClass).intern().getLocalName());
         this.routesListIdentifier = new NodeIdentifier(this.routeQname);
         this.emptyRoutes = Builders.choiceBuilder().withNodeIdentifier(ROUTES).addChild(Builders.containerBuilder()

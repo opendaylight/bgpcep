@@ -8,7 +8,8 @@
 
 package org.opendaylight.bgpcep.bgp.topology.provider;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import java.util.Collection;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -36,8 +37,8 @@ public final class NetworkTopologyConfigFileProcessor implements ConfigFileProce
     private final YangInstanceIdentifier topologyYii;
 
     public NetworkTopologyConfigFileProcessor(final ConfigLoader configLoader, final BgpTopologyDeployer deployer) {
-        Preconditions.checkNotNull(configLoader);
-        this.deployer = Preconditions.checkNotNull(deployer);
+        requireNonNull(configLoader);
+        this.deployer = requireNonNull(deployer);
         this.bindingSerializer = configLoader.getBindingNormalizedNodeSerializer();
         this.topologyYii = this.bindingSerializer.toYangInstanceIdentifier(deployer.getInstanceIdentifier());
         this.registration = configLoader.registerConfigFile(this);

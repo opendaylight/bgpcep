@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.bmp.impl.config;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.collect.Iterables;
 import java.net.InetSocketAddress;
 import java.util.Collection;
@@ -64,8 +65,8 @@ public class BmpDeployerImpl implements BmpDeployer, ClusteredDataTreeChangeList
     private ListenerRegistration<BmpDeployerImpl> registration;
 
     public BmpDeployerImpl(final BmpDispatcher dispatcher, final BmpDeployerDependencies bmpDeployerDependencies) {
-        this.dispatcher = Preconditions.checkNotNull(dispatcher);
-        this.bmpDeployerDependencies = Preconditions.checkNotNull(bmpDeployerDependencies);
+        this.dispatcher = requireNonNull(dispatcher);
+        this.bmpDeployerDependencies = requireNonNull(bmpDeployerDependencies);
     }
 
     public synchronized void register() {

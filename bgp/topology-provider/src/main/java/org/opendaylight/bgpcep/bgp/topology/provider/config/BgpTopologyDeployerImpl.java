@@ -8,6 +8,8 @@
 
 package org.opendaylight.bgpcep.bgp.topology.provider.config;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import java.util.Collection;
@@ -61,9 +63,9 @@ public final class BgpTopologyDeployerImpl implements AutoCloseable, ClusteredDa
     private boolean closed;
 
     public BgpTopologyDeployerImpl(final BundleContext context, final DataBroker dataBroker, final ClusterSingletonServiceProvider singletonProvider) {
-        this.context = Preconditions.checkNotNull(context);
-        this.dataBroker = Preconditions.checkNotNull(dataBroker);
-        this.singletonProvider = Preconditions.checkNotNull(singletonProvider);
+        this.context = requireNonNull(context);
+        this.dataBroker = requireNonNull(dataBroker);
+        this.singletonProvider = requireNonNull(singletonProvider);
         this.registration =
             this.dataBroker.registerDataTreeChangeListener(new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(NetworkTopology.class).child(Topology.class)), this);
         LOG.info("BGP topology deployer started.");

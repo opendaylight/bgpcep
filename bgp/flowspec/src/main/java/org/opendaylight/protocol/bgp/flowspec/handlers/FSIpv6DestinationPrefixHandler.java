@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.flowspec.handlers;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.flowspec.FlowspecType;
@@ -26,7 +28,7 @@ public final class FSIpv6DestinationPrefixHandler implements FlowspecTypeParser,
 
     @Override
     public FlowspecType parseType(final ByteBuf buffer) {
-        Preconditions.checkNotNull(buffer, "input buffer is null, missing data to parse.");
+        requireNonNull(buffer, "input buffer is null, missing data to parse.");
         return new DestinationIpv6PrefixCaseBuilder().setDestinationPrefix(
                 FSIpv6SourcePrefixHandler.parseIpv6Prefix(buffer)).build();
     }

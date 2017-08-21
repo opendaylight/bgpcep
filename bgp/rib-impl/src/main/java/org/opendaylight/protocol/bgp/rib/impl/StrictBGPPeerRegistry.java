@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -81,13 +83,13 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
 
     @Override
     public synchronized void addPeer(final IpAddress ip, final BGPSessionListener peer, final BGPSessionPreferences preferences) {
-        Preconditions.checkNotNull(ip);
+        requireNonNull(ip);
         Preconditions.checkArgument(!this.peers.containsKey(ip), "Peer for %s already present", ip);
-        this.peers.put(ip, Preconditions.checkNotNull(peer));
-        Preconditions.checkNotNull(preferences.getMyAs());
-        Preconditions.checkNotNull(preferences.getHoldTime());
-        Preconditions.checkNotNull(preferences.getParams());
-        Preconditions.checkNotNull(preferences.getBgpId());
+        this.peers.put(ip, requireNonNull(peer));
+        requireNonNull(preferences.getMyAs());
+        requireNonNull(preferences.getHoldTime());
+        requireNonNull(preferences.getParams());
+        requireNonNull(preferences.getBgpId());
         this.peerPreferences.put(ip, preferences);
         for (final PeerRegistryListener peerRegistryListener : this.listeners) {
             peerRegistryListener.onPeerAdded(ip, preferences);
@@ -96,7 +98,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
 
     @Override
     public synchronized void removePeer(final IpAddress ip) {
-        Preconditions.checkNotNull(ip);
+        requireNonNull(ip);
         this.peers.remove(ip);
         for (final PeerRegistryListener peerRegistryListener : this.listeners) {
             peerRegistryListener.onPeerRemoved(ip);
@@ -105,7 +107,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
 
     @Override
     public synchronized void removePeerSession(final IpAddress ip) {
-        Preconditions.checkNotNull(ip);
+        requireNonNull(ip);
         this.sessionIds.remove(ip);
         for (final PeerRegistrySessionListener peerRegistrySessionListener : this.sessionListeners) {
             peerRegistrySessionListener.onSessionRemoved(ip);
@@ -114,7 +116,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
 
     @Override
     public boolean isPeerConfigured(final IpAddress ip) {
-        Preconditions.checkNotNull(ip);
+        requireNonNull(ip);
         return this.peers.containsKey(ip);
     }
 
@@ -125,11 +127,11 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     @Override
     public synchronized BGPSessionListener getPeer(final IpAddress ip, final Ipv4Address sourceId,
         final Ipv4Address remoteId, final Open openObj) throws BGPDocumentedException {
-        Preconditions.checkNotNull(ip);
-        Preconditions.checkNotNull(sourceId);
-        Preconditions.checkNotNull(remoteId);
+        requireNonNull(ip);
+        requireNonNull(sourceId);
+        requireNonNull(remoteId);
         final AsNumber remoteAsNumber = AsNumberUtil.advertizedAsNumber(openObj);
-        Preconditions.checkNotNull(remoteAsNumber);
+        requireNonNull(remoteAsNumber);
 
         final BGPSessionPreferences prefs = getPeerPreferences(ip);
 
@@ -231,7 +233,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
 
     @Override
     public BGPSessionPreferences getPeerPreferences(final IpAddress ip) {
-        Preconditions.checkNotNull(ip);
+        requireNonNull(ip);
         checkPeerConfigured(ip);
         return this.peerPreferences.get(ip);
     }
@@ -244,7 +246,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
      * @throws IllegalArgumentException if submitted socket address is not InetSocketAddress[ipv4 | ipv6]
      */
     public static IpAddress getIpAddress(final SocketAddress socketAddress) {
-        Preconditions.checkNotNull(socketAddress);
+        requireNonNull(socketAddress);
         Preconditions.checkArgument(socketAddress instanceof InetSocketAddress, "Expecting InetSocketAddress but was %s", socketAddress.getClass());
         final InetAddress inetAddress = ((InetSocketAddress) socketAddress).getAddress();
 
@@ -275,9 +277,9 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         private final AsNumber asNumber;
 
         BGPSessionId(final Ipv4Address from, final Ipv4Address to, final AsNumber asNumber) {
-            this.from = Preconditions.checkNotNull(from);
-            this.to = Preconditions.checkNotNull(to);
-            this.asNumber = Preconditions.checkNotNull(asNumber);
+            this.from = requireNonNull(from);
+            this.to = requireNonNull(to);
+            this.asNumber = requireNonNull(asNumber);
         }
 
         /**

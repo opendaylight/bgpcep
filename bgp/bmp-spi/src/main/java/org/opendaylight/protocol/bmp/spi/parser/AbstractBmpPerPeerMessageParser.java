@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.bmp.spi.parser;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
@@ -44,7 +46,7 @@ public abstract class AbstractBmpPerPeerMessageParser<T  extends Builder<?>> ext
 
     public AbstractBmpPerPeerMessageParser(final MessageRegistry bgpMssageRegistry, final BmpTlvRegistry tlvRegistry) {
         super(tlvRegistry);
-        this.bgpMssageRegistry = Preconditions.checkNotNull(bgpMssageRegistry);
+        this.bgpMssageRegistry = requireNonNull(bgpMssageRegistry);
     }
 
     @Override

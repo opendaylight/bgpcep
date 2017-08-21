@@ -7,6 +7,8 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider.config;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -48,12 +50,12 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
     public PCEPTopologyProviderBean(final ClusterSingletonServiceProvider cssp, final BundleContext bundleContext,
         final DataBroker dataBroker, final PCEPDispatcher pcepDispatcher, final RpcProviderRegistry rpcProviderRegistry,
         final TopologySessionListenerFactory sessionListenerFactory) {
-        this.cssp = Preconditions.checkNotNull(cssp);
-        this.bundleContext = Preconditions.checkNotNull(bundleContext);
-        this.pcepDispatcher = Preconditions.checkNotNull(pcepDispatcher);
-        this.dataBroker = Preconditions.checkNotNull(dataBroker);
-        this.sessionListenerFactory = Preconditions.checkNotNull(sessionListenerFactory);
-        this.rpcProviderRegistry = Preconditions.checkNotNull(rpcProviderRegistry);
+        this.cssp = requireNonNull(cssp);
+        this.bundleContext = requireNonNull(bundleContext);
+        this.pcepDispatcher = requireNonNull(pcepDispatcher);
+        this.dataBroker = requireNonNull(dataBroker);
+        this.sessionListenerFactory = requireNonNull(sessionListenerFactory);
+        this.rpcProviderRegistry = requireNonNull(rpcProviderRegistry);
         final List<PCEPCapability> capabilities = this.pcepDispatcher.getPCEPSessionNegotiatorFactory()
             .getPCEPSessionProposalFactory().getCapabilities();
         final boolean statefulCapability = capabilities.stream().anyMatch(PCEPCapability::isStateful);

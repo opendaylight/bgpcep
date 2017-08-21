@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.bmp.impl.app;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
 import java.util.HashMap;
@@ -75,7 +77,7 @@ public class BmpRouterImpl implements BmpRouter, TransactionChainListener {
     private YangInstanceIdentifier peersYangIId;
 
     public BmpRouterImpl(final RouterSessionManager sessionManager) {
-        this.sessionManager = Preconditions.checkNotNull(sessionManager);
+        this.sessionManager = requireNonNull(sessionManager);
         this.domDataBroker = sessionManager.getDomDataBroker();
         this.domTxChain = this.domDataBroker.createTransactionChain(this);
         this.extensions = sessionManager.getExtensions();
@@ -89,11 +91,12 @@ public class BmpRouterImpl implements BmpRouter, TransactionChainListener {
         this.routerId = new RouterId(Ipv4Util.getIpAddress(this.session.getRemoteAddress()));
         // check if this session is redundant
         if (!this.sessionManager.addSessionListener(this)) {
-            LOG.warn("Redundant BMP session with remote router {} ({}) detected. This BMP session will be abandoned.", this.routerIp, this.session);
+            LOG.warn("Redundant BMP session with remote router {} ({}) detected. This BMP session will be abandoned.",
+                this.routerIp, this.session);
             this.close();
         } else {
-            this.routerYangIId = YangInstanceIdentifier.builder(this.sessionManager.getRoutersYangIId()).nodeWithKey(Router.QNAME,
-                ROUTER_ID_QNAME, this.routerIp).build();
+            this.routerYangIId = YangInstanceIdentifier.builder(this.sessionManager.getRoutersYangIId())
+                .nodeWithKey(Router.QNAME, ROUTER_ID_QNAME, this.routerIp).build();
             this.peersYangIId = YangInstanceIdentifier.builder(this.routerYangIId).node(Peer.QNAME).build();
             createRouterEntry();
             LOG.info("BMP session with remote router {} ({}) is up now.", this.routerIp, this.session);
@@ -173,7 +176,8 @@ public class BmpRouterImpl implements BmpRouter, TransactionChainListener {
     }
 
     @Override
-    public void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction, final Throwable cause) {
+    public void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction,
+        final Throwable cause) {
         LOG.error("Transaction chain failed.", cause);
     }
 
@@ -214,7 +218,8 @@ public class BmpRouterImpl implements BmpRouter, TransactionChainListener {
     private void onPeerUp(final PeerUpNotification peerUp) {
         final PeerId peerId = getPeerIdFromOpen(peerUp.getReceivedOpen());
         if (!getPeer(peerId).isPresent()) {
-            final BmpRouterPeer peer = BmpRouterPeerImpl.createRouterPeer(this.domTxChain, this.peersYangIId, peerUp, this.extensions, this.tree, peerId);
+            final BmpRouterPeer peer = BmpRouterPeerImpl.createRouterPeer(this.domTxChain, this.peersYangIId, peerUp,
+                this.extensions, this.tree, peerId);
             this.peers.put(peerId, peer);
             LOG.debug("Router {}: Peer {} goes up.", this.routerIp, peerId.getValue());
         } else {

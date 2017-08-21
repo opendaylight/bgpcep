@@ -8,6 +8,7 @@
 
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
+import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getAfiSafiWithDefault;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getClusterIdentifier;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.toTableTypes;
@@ -85,7 +86,7 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
     public RibImpl(final ClusterSingletonServiceProvider provider, final RIBExtensionConsumerContext contextProvider,
         final BGPDispatcher dispatcher, final BindingCodecTreeFactory codecTreeFactory, final DOMDataBroker domBroker,
         final DOMSchemaService domSchemaService) {
-        this.provider = Preconditions.checkNotNull(provider);
+        this.provider = requireNonNull(provider);
         this.extensions = contextProvider;
         this.dispatcher = dispatcher;
         this.codecTreeFactory = codecTreeFactory;

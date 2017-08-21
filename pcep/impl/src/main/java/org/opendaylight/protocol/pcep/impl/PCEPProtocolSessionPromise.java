@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
@@ -38,10 +40,10 @@ public final class PCEPProtocolSessionPromise<S extends PCEPSession> extends Def
     PCEPProtocolSessionPromise(final EventExecutor executor, final InetSocketAddress address,
             final int retryTimer, final int connectTimeout, final Bootstrap b) {
         super(executor);
-        this.address = Preconditions.checkNotNull(address);
+        this.address = requireNonNull(address);
         this.retryTimer = retryTimer;
         this.connectTimeout = connectTimeout;
-        this.b = Preconditions.checkNotNull(b);
+        this.b = requireNonNull(b);
     }
 
     synchronized void connect() {

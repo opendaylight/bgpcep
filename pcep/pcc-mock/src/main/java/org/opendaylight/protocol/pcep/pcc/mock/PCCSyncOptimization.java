@@ -8,8 +8,9 @@
 
 package org.opendaylight.protocol.pcep.pcc.mock;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import java.math.BigInteger;
 import javax.annotation.Nonnull;
 import org.opendaylight.protocol.pcep.pcc.mock.api.PCCSession;
@@ -31,7 +32,7 @@ final class PCCSyncOptimization {
     private Boolean resynchronizing = Boolean.FALSE;
 
     public PCCSyncOptimization(@Nonnull final PCCSession session) {
-        Preconditions.checkNotNull(session);
+        requireNonNull(session);
         final Tlvs remote = session.getRemoteTlvs();
         final Tlvs local = session.localSessionCharacteristics();
         this.localLspDbVersion = getLspDbVersion(local);

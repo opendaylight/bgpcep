@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,7 +53,7 @@ final class ExportPolicyPeerTrackerImpl implements ExportPolicyPeerTracker {
     private final Map<PeerRole, PeerExportGroupRegistry> groups = new EnumMap<>(PeerRole.class);
 
     ExportPolicyPeerTrackerImpl(final PolicyDatabase policyDatabase, final TablesKey localTablesKey) {
-        this.policyDatabase = Preconditions.checkNotNull(policyDatabase);
+        this.policyDatabase = requireNonNull(policyDatabase);
         this.localTableKey = localTablesKey;
     }
 
@@ -110,7 +111,7 @@ final class ExportPolicyPeerTrackerImpl implements ExportPolicyPeerTracker {
 
     @Override
     public synchronized PeerExportGroup getPeerGroup(final PeerRole role) {
-        return this.groups.get(Preconditions.checkNotNull(role));
+        return this.groups.get(requireNonNull(role));
     }
 
     @Override

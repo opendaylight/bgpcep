@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -33,8 +34,8 @@ final class RIBSupportContextRegistryImpl implements RIBSupportContextRegistry {
     private final CodecsRegistry codecs;
 
     private RIBSupportContextRegistryImpl(final RIBExtensionConsumerContext extensions, final CodecsRegistry codecs) {
-        this.extensionContext = Preconditions.checkNotNull(extensions);
-        this.codecs = Preconditions.checkNotNull(codecs);
+        this.extensionContext = requireNonNull(extensions);
+        this.codecs = requireNonNull(codecs);
     }
 
     static RIBSupportContextRegistryImpl create(final RIBExtensionConsumerContext extensions, final CodecsRegistry codecs) {

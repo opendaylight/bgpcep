@@ -7,12 +7,12 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.rib.impl.AdjRibInWriter.isAnnounceNone;
 import static org.opendaylight.protocol.bgp.rib.impl.AdjRibInWriter.isLearnNone;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.Futures;
@@ -144,7 +144,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
             afiSafisGracefulAdvertized);
         this.peerRole = role;
         this.simpleRoutingPolicy = Optional.ofNullable(peerStatus);
-        this.rib = Preconditions.checkNotNull(rib);
+        this.rib = requireNonNull(rib);
         this.name = name;
         this.rpcRegistry = rpcRegistry;
         this.peerStats = new BGPPeerStatsImpl(this.name, this.tables, this);

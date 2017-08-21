@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -39,8 +40,8 @@ final class CodecsRegistryImpl implements CodecsRegistry {
     private volatile BindingCodecTree latestCodecTree;
 
     private CodecsRegistryImpl(final BindingCodecTreeFactory codecFactory, final GeneratedClassLoadingStrategy strategy) {
-        this.codecFactory = Preconditions.checkNotNull(codecFactory);
-        this.classContext = Preconditions.checkNotNull(strategy);
+        this.codecFactory = requireNonNull(codecFactory);
+        this.classContext = requireNonNull(strategy);
     }
 
     static CodecsRegistryImpl create(final BindingCodecTreeFactory codecFactory, final GeneratedClassLoadingStrategy classStrategy) {

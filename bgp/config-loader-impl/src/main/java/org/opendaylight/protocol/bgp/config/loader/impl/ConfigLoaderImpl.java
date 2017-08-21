@@ -8,7 +8,8 @@
 
 package org.opendaylight.protocol.bgp.config.loader.impl;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -55,10 +56,10 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
 
     public ConfigLoaderImpl(final SchemaContext schemaContext, final BindingNormalizedNodeSerializer bindingSerializer,
         final String path, final WatchService watchService) {
-        this.schemaContext = Preconditions.checkNotNull(schemaContext);
-        this.bindingSerializer = Preconditions.checkNotNull(bindingSerializer);
-        this.path = Preconditions.checkNotNull(path);
-        Preconditions.checkNotNull(watchService);
+        this.schemaContext = requireNonNull(schemaContext);
+        this.bindingSerializer = requireNonNull(bindingSerializer);
+        this.path = requireNonNull(path);
+        requireNonNull(watchService);
         this.watcherThread = new Thread(new ConfigLoaderImplRunnable(watchService));
         this.watcherThread.start();
         LOG.info("Config Loader service initiated");

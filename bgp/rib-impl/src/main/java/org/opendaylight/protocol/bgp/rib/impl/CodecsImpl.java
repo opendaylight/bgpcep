@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
@@ -90,7 +92,7 @@ public final class CodecsImpl implements Codecs {
     private final RIBSupport ribSupport;
 
     public CodecsImpl(final RIBSupport ribSupport) {
-        this.ribSupport = Preconditions.checkNotNull(ribSupport);
+        this.ribSupport = requireNonNull(ribSupport);
         final Builder<Class<? extends DataObject>> acb = ImmutableSet.builder();
         acb.addAll(ATTRIBUTE_CACHEABLES);
         acb.addAll(this.ribSupport.cacheableAttributeObjects());

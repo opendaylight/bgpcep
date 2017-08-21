@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.parser.subobject;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -41,7 +43,7 @@ public class EROLabelSubobjectParser implements EROSubobjectParser, EROSubobject
     private final LabelRegistry registry;
 
     public EROLabelSubobjectParser(final LabelRegistry labelReg) {
-        this.registry = Preconditions.checkNotNull(labelReg);
+        this.registry = requireNonNull(labelReg);
     }
 
     @Override

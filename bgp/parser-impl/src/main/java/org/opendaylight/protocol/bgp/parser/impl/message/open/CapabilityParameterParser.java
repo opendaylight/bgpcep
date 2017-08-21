@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.open;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
@@ -39,7 +41,7 @@ public final class CapabilityParameterParser implements ParameterParser, Paramet
     private final CapabilityRegistry reg;
 
     public CapabilityParameterParser(final CapabilityRegistry reg) {
-        this.reg = Preconditions.checkNotNull(reg);
+        this.reg = requireNonNull(reg);
     }
 
     @Override

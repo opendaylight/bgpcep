@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -71,8 +72,8 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
     private AdjRibOutListener(final PeerId peerId, final TablesKey tablesKey, final YangInstanceIdentifier ribId,
         final CodecsRegistry registry, final RIBSupport support, final DOMDataTreeChangeService service,
         final ChannelOutputLimiter session, final boolean mpSupport, final LongAdder routeCounter) {
-        this.session = Preconditions.checkNotNull(session);
-        this.support = Preconditions.checkNotNull(support);
+        this.session = requireNonNull(session);
+        this.support = requireNonNull(support);
         this.codecs = registry.getCodecs(this.support);
         this.mpSupport = mpSupport;
         final YangInstanceIdentifier adjRibOutId =  ribId.node(Peer.QNAME).node(IdentifierUtils.domPeerId(peerId)).node(AdjRibOut.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(tablesKey));

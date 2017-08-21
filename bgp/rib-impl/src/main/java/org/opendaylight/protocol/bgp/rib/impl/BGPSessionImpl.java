@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
@@ -131,8 +133,8 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
 
     public BGPSessionImpl(final BGPSessionListener listener, final Channel channel, final Open remoteOpen,
         final int localHoldTimer, final BGPPeerRegistry peerRegistry) {
-        this.listener = Preconditions.checkNotNull(listener);
-        this.channel = Preconditions.checkNotNull(channel);
+        this.listener = requireNonNull(listener);
+        this.channel = requireNonNull(channel);
         this.limiter = new ChannelOutputLimiter(this);
         this.channel.pipeline().addLast(this.limiter);
         this.holdTimerValue = (remoteOpen.getHoldTimer() < localHoldTimer) ? remoteOpen.getHoldTimer() : localHoldTimer;

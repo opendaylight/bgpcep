@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl.tls;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import java.io.IOException;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
@@ -36,7 +37,7 @@ public class SslContextFactory {
      *            keystore types
      */
     public SslContextFactory(final Tls tlsConfig) {
-        this.tlsConfig = Preconditions.checkNotNull(tlsConfig);
+        this.tlsConfig = requireNonNull(tlsConfig);
     }
 
     public SSLContext getServerContext() {

@@ -7,7 +7,8 @@
  */
 package org.opendaylight.bgpcep.programming.impl;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -156,12 +157,12 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
         final ListeningExecutorService executor, final RpcProviderRegistry rpcProviderRegistry,
         final ClusterSingletonServiceProvider cssp, final Timer timer, final String instructionId,
         final WriteConfiguration writeConfiguration) {
-        this.dataProvider = Preconditions.checkNotNull(dataProvider);
-        this.instructionId = Preconditions.checkNotNull(instructionId);
-        this.notifs = Preconditions.checkNotNull(notifs);
-        this.executor = Preconditions.checkNotNull(executor);
-        this.rpcProviderRegistry = Preconditions.checkNotNull(rpcProviderRegistry);
-        this.timer = Preconditions.checkNotNull(timer);
+        this.dataProvider = requireNonNull(dataProvider);
+        this.instructionId = requireNonNull(instructionId);
+        this.notifs = requireNonNull(notifs);
+        this.executor = requireNonNull(executor);
+        this.rpcProviderRegistry = requireNonNull(rpcProviderRegistry);
+        this.timer = requireNonNull(timer);
         this.qid = KeyedInstanceIdentifier.builder(InstructionsQueue.class,
             new InstructionsQueueKey(this.instructionId)).build();
         this.writeConfiguration = writeConfiguration;

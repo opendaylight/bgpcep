@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.rsvp.parser.spi.pojo;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import java.util.List;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPExtensionProviderActivator;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPExtensionProviderContext;
@@ -27,8 +28,8 @@ public class SimpleRSVPExtensionProviderContextActivator implements AutoCloseabl
 
     public SimpleRSVPExtensionProviderContextActivator(final RSVPExtensionProviderContext providerContext,
         final List<RSVPExtensionProviderActivator> extensionActivators) {
-        this.providerContext = Preconditions.checkNotNull(providerContext);
-        this.extensionActivators = Preconditions.checkNotNull(extensionActivators);
+        this.providerContext = requireNonNull(providerContext);
+        this.extensionActivators = requireNonNull(extensionActivators);
     }
 
     public void start() {

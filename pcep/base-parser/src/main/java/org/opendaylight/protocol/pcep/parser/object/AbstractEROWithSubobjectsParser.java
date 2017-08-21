@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.parser.object;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
@@ -30,7 +32,7 @@ public abstract class AbstractEROWithSubobjectsParser implements ObjectParser, O
     private final EROSubobjectRegistry subobjReg;
 
     protected AbstractEROWithSubobjectsParser(final EROSubobjectRegistry subobjReg) {
-        this.subobjReg = Preconditions.checkNotNull(subobjReg);
+        this.subobjReg = requireNonNull(subobjReg);
     }
 
     protected List<Subobject> parseSubobjects(final ByteBuf buffer) throws PCEPDeserializerException {

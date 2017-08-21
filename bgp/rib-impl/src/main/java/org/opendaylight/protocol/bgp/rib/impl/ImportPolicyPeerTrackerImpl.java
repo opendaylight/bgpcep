@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.opendaylight.protocol.bgp.rib.impl.spi.AbstractImportPolicy;
@@ -28,7 +29,7 @@ final class ImportPolicyPeerTrackerImpl implements ImportPolicyPeerTracker {
 
     protected ImportPolicyPeerTrackerImpl(final PolicyDatabase policyDatabase) {
         super();
-        this.policyDatabase = Preconditions.checkNotNull(policyDatabase);
+        this.policyDatabase = requireNonNull(policyDatabase);
     }
 
     @Override

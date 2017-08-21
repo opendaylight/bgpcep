@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.bmp.parser.message;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
@@ -44,7 +46,7 @@ public class RouteMonitoringMessageHandler extends AbstractBmpPerPeerMessagePars
         final RouteMonitoringMessageBuilder routeMonitor = new RouteMonitoringMessageBuilder().setPeerHeader(parsePerPeerHeader(bytes));
         try {
             final Notification message = this.msgRegistry.parseMessage(bytes, null);
-            Preconditions.checkNotNull(message, "UpdateMessage may not be null");
+            requireNonNull(message, "UpdateMessage may not be null");
             Preconditions.checkArgument(message instanceof UpdateMessage, "An instance of UpdateMessage is required");
             final UpdateMessage updateMessage = (UpdateMessage) message;
             final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.route.monitoring

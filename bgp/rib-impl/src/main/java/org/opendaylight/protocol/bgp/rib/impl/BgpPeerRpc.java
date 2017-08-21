@@ -7,8 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -36,8 +37,8 @@ public class BgpPeerRpc implements BgpPeerRpcService {
     private final Set<TablesKey> supportedFamilies;
 
     BgpPeerRpc(final BGPSession session, final Set<TablesKey> supportedFamilies) {
-        this.session = Preconditions.checkNotNull(session);
-        this.supportedFamilies = Preconditions.checkNotNull(supportedFamilies);
+        this.session = requireNonNull(session);
+        this.supportedFamilies = requireNonNull(supportedFamilies);
     }
 
     @Override

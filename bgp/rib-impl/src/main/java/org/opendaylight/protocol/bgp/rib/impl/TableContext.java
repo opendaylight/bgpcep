@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -28,8 +30,8 @@ final class TableContext {
     private final RIBSupportContext tableSupport;
 
     TableContext(final RIBSupportContext tableSupport, final YangInstanceIdentifier tableId) {
-        this.tableSupport = Preconditions.checkNotNull(tableSupport);
-        this.tableId = Preconditions.checkNotNull(tableId);
+        this.tableSupport = requireNonNull(tableSupport);
+        this.tableId = requireNonNull(tableId);
     }
 
     YangInstanceIdentifier getTableId() {

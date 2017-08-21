@@ -8,8 +8,9 @@
 
 package org.opendaylight.protocol.bgp.benchmark.app;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.FutureCallback;
@@ -102,7 +103,7 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
 
     public AppPeerBenchmark(final DataBroker bindingDataBroker, final RpcProviderRegistry rpcProviderRegistry,
             final String appRibId) {
-        this.appRibId = Preconditions.checkNotNull(appRibId);
+        this.appRibId = requireNonNull(appRibId);
         this.txChain = bindingDataBroker.createTransactionChain(this);
 
         this.appIID = InstanceIdentifier.builder(ApplicationRib.class,
@@ -205,13 +206,15 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
         return processRoutes(ipv4Prefix, count, batch, null);
     }
 
-    private long processRoutes(final Ipv4Prefix ipv4Prefix, final long count, final long batch, final Attributes attributes) {
+    private long processRoutes(final Ipv4Prefix ipv4Prefix, final long count, final long batch,
+        final Attributes attributes) {
         WriteTransaction wTx = this.txChain.newWriteOnlyTransaction();
         String address = getAdddressFromPrefix(ipv4Prefix);
         final Stopwatch stopwatch = Stopwatch.createStarted();
         for (int i = 1; i <= count; i++) {
             final Ipv4RouteKey routeKey = new Ipv4RouteKey(PATH_ID, createPrefix(address));
-            final KeyedInstanceIdentifier<Ipv4Route, Ipv4RouteKey> routeIId = this.routesIId.child(Ipv4Route.class, routeKey);
+            final KeyedInstanceIdentifier<Ipv4Route, Ipv4RouteKey> routeIId =
+                this.routesIId.child(Ipv4Route.class, routeKey);
             if (attributes != null) {
                 final Ipv4RouteBuilder ipv4RouteBuilder = new Ipv4RouteBuilder();
                 ipv4RouteBuilder.setPrefix(routeKey.getPrefix());

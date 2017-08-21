@@ -8,7 +8,8 @@
 
 package org.opendaylight.protocol.bgp.mode.impl.add.all.paths;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,7 @@ abstract class AbstractAllPathsRouteEntry extends AddPathAbstractRouteEntry {
             for (final RouteKey key : keyList) {
                 final int offset = this.offsets.offsetOf(key);
                 final ContainerNode attributes = this.offsets.getValue(this.values, offset);
-                Preconditions.checkNotNull(key.getRouteId(), "Router ID may not be null");
+                requireNonNull(key.getRouteId(), "Router ID may not be null");
                 if (attributes != null) {
                     final BestPathState state = new BestPathStateImpl(attributes);
                     final AddPathBestPath bestPath = new AddPathBestPath(state, key, offset, this.offsets.getValue(this.pathsId, offset));

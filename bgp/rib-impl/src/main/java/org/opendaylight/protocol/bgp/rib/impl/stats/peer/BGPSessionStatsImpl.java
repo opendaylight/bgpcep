@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.bgp.rib.impl.stats.peer;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
@@ -108,21 +110,21 @@ public final class BGPSessionStatsImpl implements BGPSessionStats {
     }
 
     private static void updateReceivedMsg(final Received received) {
-        Preconditions.checkNotNull(received);
+        requireNonNull(received);
         final long count = received.getCount() == null ? 0L : received.getCount().getValue();
         received.setCount(new ZeroBasedCounter32(count + 1));
         received.setTimestamp(new Timestamp(StatisticsUtil.getCurrentTimestampInSeconds()));
     }
 
     private static void updateSentMsg(final Sent sent) {
-        Preconditions.checkNotNull(sent);
+        requireNonNull(sent);
         final long count = sent.getCount() == null ? 0L : sent.getCount().getValue();
         sent.setCount(new ZeroBasedCounter32(count + 1));
         sent.setTimestamp(new Timestamp(StatisticsUtil.getCurrentTimestampInSeconds()));
     }
 
     private static AdvertizedTableTypes addTableType(final BgpTableType type) {
-        Preconditions.checkNotNull(type);
+        requireNonNull(type);
         final AdvertizedTableTypes att = new AdvertizedTableTypes();
         final QName afi = BindingReflections.findQName(type.getAfi()).intern();
         final QName safi = BindingReflections.findQName(type.getSafi()).intern();
@@ -132,7 +134,7 @@ public final class BGPSessionStatsImpl implements BGPSessionStats {
     }
 
     private static AdvertisedAddPathTableTypes addAddPathTableType(final AddressFamilies addressFamilies) {
-        Preconditions.checkNotNull(addressFamilies);
+        requireNonNull(addressFamilies);
         final AdvertisedAddPathTableTypes att = new AdvertisedAddPathTableTypes();
         att.setAfi(new IdentityAttributeRef(BindingReflections.findQName(addressFamilies.getAfi()).intern().toString()));
         att.setSafi(new IdentityAttributeRef(BindingReflections.findQName(addressFamilies.getSafi()).intern().toString()));
@@ -141,7 +143,7 @@ public final class BGPSessionStatsImpl implements BGPSessionStats {
     }
 
     private static RemotePeerPreferences setRemotePeerPref(final Channel channel, final Optional<BGPSessionPreferences> localPreferences) {
-        Preconditions.checkNotNull(channel);
+        requireNonNull(channel);
         final RemotePeerPreferences pref = new RemotePeerPreferences();
         final InetSocketAddress isa = (InetSocketAddress) channel.localAddress();
         pref.setHost(IpAddressBuilder.getDefaultInstance(isa.getAddress().getHostAddress()));
@@ -201,8 +203,8 @@ public final class BGPSessionStatsImpl implements BGPSessionStats {
 
     private static LocalPeerPreferences setLocalPeerPref(final Open remoteOpen, final Channel channel, final Collection<BgpTableType> tableTypes,
         final List<AddressFamilies> addPathTypes) {
-        Preconditions.checkNotNull(remoteOpen);
-        Preconditions.checkNotNull(channel);
+        requireNonNull(remoteOpen);
+        requireNonNull(channel);
         final LocalPeerPreferences pref = new LocalPeerPreferences();
         final InetSocketAddress isa = (InetSocketAddress) channel.remoteAddress();
         pref.setHost(IpAddressBuilder.getDefaultInstance(isa.getAddress().getHostAddress()));
@@ -299,7 +301,7 @@ public final class BGPSessionStatsImpl implements BGPSessionStats {
     }
 
     private void updateReceivedMsgErr(@Nonnull final Notify error) {
-        Preconditions.checkNotNull(error);
+        requireNonNull(error);
         final List<ErrorReceived> errList = this.errMsgs.getErrorReceived();
         ErrorReceived received = null;
         for (ErrorReceived err : errList) {
@@ -323,7 +325,7 @@ public final class BGPSessionStatsImpl implements BGPSessionStats {
     }
 
     private void updateSentMsgErr(@Nonnull final Notify error) {
-        Preconditions.checkNotNull(error);
+        requireNonNull(error);
         final List<ErrorSent> errList = this.errMsgs.getErrorSent();
         ErrorSent sent = null;
         for (ErrorSent err : errList) {

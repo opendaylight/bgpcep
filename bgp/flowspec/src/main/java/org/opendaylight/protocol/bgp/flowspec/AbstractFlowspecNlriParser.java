@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.flowspec;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
@@ -150,7 +152,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     private static final String FLOW_SEPARATOR = " AND ";
 
     protected AbstractFlowspecNlriParser(final SimpleFlowspecTypeRegistry flowspecTypeRegistry) {
-        this.flowspecTypeRegistry = Preconditions.checkNotNull(flowspecTypeRegistry);
+        this.flowspecTypeRegistry = requireNonNull(flowspecTypeRegistry);
     }
 
     protected abstract void serializeMpReachNlri(final DestinationType dstType, final ByteBuf byteAggregator);
@@ -251,7 +253,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     }
 
     public final List<Flowspec> extractFlowspec(final DataContainerNode<?> route) {
-        Preconditions.checkNotNull(route, "Cannot extract flowspec from null route.");
+        requireNonNull(route, "Cannot extract flowspec from null route.");
         final List<Flowspec> fsList = new ArrayList<>();
         final Optional<DataContainerChild<? extends PathArgument, ?>> flowspecs = route.getChild(FLOWSPEC_NID);
         if (flowspecs.isPresent()) {
@@ -567,7 +569,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     }
 
     public static final int readNlriLength(@Nonnull final ByteBuf nlri) {
-        Preconditions.checkNotNull(nlri, "NLRI information cannot be null");
+        requireNonNull(nlri, "NLRI information cannot be null");
         Preconditions.checkState(nlri.isReadable(), "NLRI Byte buffer is not readable.");
         int length = nlri.readUnsignedByte();
         if (length >= MAX_NLRI_LENGTH_ONE_BYTE) {

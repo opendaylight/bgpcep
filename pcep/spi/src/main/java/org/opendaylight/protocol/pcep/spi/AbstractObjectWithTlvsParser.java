@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -28,8 +30,8 @@ public abstract class AbstractObjectWithTlvsParser<T> implements ObjectParser, O
     private final VendorInformationTlvRegistry viTlvReg;
 
     protected AbstractObjectWithTlvsParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
-        this.tlvReg = Preconditions.checkNotNull(tlvReg);
-        this.viTlvReg = Preconditions.checkNotNull(viTlvReg);
+        this.tlvReg = requireNonNull(tlvReg);
+        this.viTlvReg = requireNonNull(viTlvReg);
     }
 
     protected final void parseTlvs(final T builder, final ByteBuf bytes) throws PCEPDeserializerException {
@@ -68,7 +70,7 @@ public abstract class AbstractObjectWithTlvsParser<T> implements ObjectParser, O
     }
 
     protected final void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkNotNull(tlv, "PCEP TLV is mandatory.");
+        requireNonNull(tlv, "PCEP TLV is mandatory.");
         LOG.trace("Serializing PCEP TLV {}", tlv);
         this.tlvReg.serializeTlv(tlv, buffer);
         LOG.trace("Serialized PCEP TLV : {}.", ByteBufUtil.hexDump(buffer));

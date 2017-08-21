@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +26,8 @@ public final class SimpleRIBExtensionProviderContextActivator implements AutoClo
 
     public SimpleRIBExtensionProviderContextActivator(final RIBExtensionProviderContext providerContext,
             final List<RIBExtensionProviderActivator> extensionActivators) {
-        this.providerContext = Preconditions.checkNotNull(providerContext);
-        this.extensionActivators = Preconditions.checkNotNull(extensionActivators);
+        this.providerContext = requireNonNull(providerContext);
+        this.extensionActivators = requireNonNull(extensionActivators);
     }
 
     public void start() {
