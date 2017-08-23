@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_de3877a2",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractTopologySessionListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 644,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2017-08-23T19:31:59Z",
+      "side": 1,
+      "message": "Filter empty path list also as 1st element is being accessed in next map operation",
+      "range": {
+        "startLine": 644,
+        "startChar": 39,
+        "endLine": 644,
+        "endChar": 63
+      },
+      "revId": "09169535f7986fb7edd5b13a00bdc0136ed6978b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
