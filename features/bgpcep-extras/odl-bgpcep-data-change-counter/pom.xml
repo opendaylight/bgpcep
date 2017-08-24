@@ -3,24 +3,34 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
-        <artifactId>feature-repo-parent</artifactId>
+        <artifactId>single-feature-parent</artifactId>
         <version>2.0.4</version>
         <relativePath/>
     </parent>
 
     <groupId>org.opendaylight.bgpcep</groupId>
-    <artifactId>features-bgpcep-extras</artifactId>
+    <artifactId>odl-bgpcep-data-change-counter</artifactId>
     <version>0.8.0-SNAPSHOT</version>
     <packaging>feature</packaging>
 
+    <name>ODL :: Bgpcep :: odl-bgpcep-data-change-counter</name>
+
     <dependencyManagement>
-        <!-- ODL-BGP-ARTIFACTS -->
         <dependencies>
+            <!-- ODL-BGP-ARTIFACTS -->
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
                 <artifactId>bgpcep-artifacts</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>dependency-version-management</artifactId>
                 <version>${project.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
@@ -30,32 +40,20 @@
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.opendaylight.bgpcep</groupId>
             <artifactId>odl-bgpcep-extras-dependencies</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-data-change-counter</artifactId>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>odl-mdsal-broker</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>data-change-counter</artifactId>
+        </dependency>
     </dependencies>
-
-    <!--
-        Maven Site Configuration
-
-        The following configuration is necessary for maven-site-plugin to
-        correctly identify the correct deployment path for OpenDaylight Maven
-        sites.
-    -->
-    <url>${odl.site.url}/${project.groupId}/${stream}/${project.artifactId}/</url>
-
-    <distributionManagement>
-        <site>
-            <id>opendaylight-site</id>
-            <url>${nexus.site.url}/${project.artifactId}/</url>
-        </site>
-    </distributionManagement>
 </project>
