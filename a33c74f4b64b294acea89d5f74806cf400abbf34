@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_ed45cf17",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractTopologySessionListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 660,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2017-08-24T16:06:45Z",
+      "side": 1,
+      "message": "missing space before -\u003e",
+      "range": {
+        "startLine": 660,
+        "startChar": 78,
+        "endLine": 660,
+        "endChar": 80
+      },
+      "revId": "a33c74f4b64b294acea89d5f74806cf400abbf34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_6d51dfd7",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractTopologySessionListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 662,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2017-08-24T16:06:45Z",
+      "side": 1,
+      "message": "Will be good to call this pathList like in filter before for easy readability",
+      "range": {
+        "startLine": 662,
+        "startChar": 17,
+        "endLine": 662,
+        "endChar": 37
+      },
+      "revId": "a33c74f4b64b294acea89d5f74806cf400abbf34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
