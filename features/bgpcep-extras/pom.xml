@@ -25,6 +25,7 @@
     <modules>
         <module>features-bgpcep-extras</module>
         <module>odl-bgpcep-extras-dependencies</module>
+        <module>odl-bgpcep-data-change-counter</module>
     </modules>
 
   <!--
