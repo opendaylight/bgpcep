@@ -163,8 +163,8 @@ public class BGPSessionImplTest {
         assertEquals(BGP_ID.getValue(), state.getLocalPeerPreferences().getBgpId().getValue());
         assertEquals(1, state.getLocalPeerPreferences().getAdvertizedTableTypes().size());
         assertEquals(HOLD_TIMER, state.getLocalPeerPreferences().getHoldtimer().intValue());
-        assertTrue(state.getLocalPeerPreferences().getFourOctetAsCapability().booleanValue());
-        assertTrue(state.getLocalPeerPreferences().getBgpExtendedMessageCapability().booleanValue());
+        assertTrue(state.getLocalPeerPreferences().getFourOctetAsCapability());
+        assertTrue(state.getLocalPeerPreferences().getBgpExtendedMessageCapability());
         assertTrue(state.getLocalPeerPreferences().getGrCapability());
         assertEquals(LOCAL_IP, new String(state.getRemotePeerPreferences().getHost().getValue()));
         assertEquals(LOCAL_PORT, state.getRemotePeerPreferences().getPort().getValue().intValue());

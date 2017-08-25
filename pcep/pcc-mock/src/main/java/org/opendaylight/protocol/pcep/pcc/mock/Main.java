@@ -85,7 +85,7 @@ public final class Main {
             } else if (args[argIdx].equals("--password")) {
                 password = args[++argIdx];
             } else if (args[argIdx].equals("--reconnect")) {
-                reconnectTime = Integer.valueOf(args[++argIdx]).intValue();
+                reconnectTime = Integer.valueOf(args[++argIdx]);
             } else if (args[argIdx].equals("--redelegation-timeout")) {
                 redelegationTimeout = Integer.valueOf(args[++argIdx]);
             } else if (args[argIdx].equals("--state-timeout")) {

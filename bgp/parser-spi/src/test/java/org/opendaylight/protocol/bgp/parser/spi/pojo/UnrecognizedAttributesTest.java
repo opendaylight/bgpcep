@@ -51,7 +51,7 @@ public class UnrecognizedAttributesTest {
         assertEquals(UNRECOGNIZED_ATTRIBUTE_COUNT, unrecogAttribs.size());
         final UnrecognizedAttributes unrecogAttrib = unrecogAttribs.get(FIRST_ATTRIBUTE);
         final UnrecognizedAttributesKey expectedAttribKey =
-            new UnrecognizedAttributesKey(unrecogAttrib.getType().shortValue());
+            new UnrecognizedAttributesKey(unrecogAttrib.getType());
 
         assertTrue(unrecogAttrib.isPartial());
         assertTrue(unrecogAttrib.isTransitive());
