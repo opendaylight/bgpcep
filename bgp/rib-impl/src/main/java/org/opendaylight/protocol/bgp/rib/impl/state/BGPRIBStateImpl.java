@@ -11,7 +11,6 @@ package org.opendaylight.protocol.bgp.rib.impl.state;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;

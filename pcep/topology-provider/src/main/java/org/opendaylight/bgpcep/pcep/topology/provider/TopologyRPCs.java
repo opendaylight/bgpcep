@@ -10,7 +10,6 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.Futures;
 import java.util.concurrent.Future;
 import org.opendaylight.bgpcep.programming.spi.SuccessfulRpcResult;
