@@ -10,7 +10,6 @@ package org.opendaylight.bgpcep.bgp.topology.provider.config;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import java.util.Collection;
 import java.util.Dictionary;

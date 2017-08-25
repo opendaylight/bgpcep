@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.rib.impl.stats.peer.route;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
