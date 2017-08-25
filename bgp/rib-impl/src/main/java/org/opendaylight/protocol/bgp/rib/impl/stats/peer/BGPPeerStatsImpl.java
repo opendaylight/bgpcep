@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.rib.impl.stats.peer;
 import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.rib.impl.CountersUtil.toZeroBasedCounter32;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Set;

@@ -9,7 +9,6 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.AsyncFunction;
@@ -658,7 +657,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     }
 
     private ListenableFuture<OperationResult> listenableFuture(final ListenableFuture<Optional<ReportedLsp>> f, final EnsureLspOperationalInput input, final OperationalStatus op) {
-        return Futures.transform(f, (Function<Optional<ReportedLsp>, OperationResult>) rep -> {
+        return Futures.transform(f, rep -> {
             if (!rep.isPresent()) {
                 LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
                 return OperationResults.UNSENT;

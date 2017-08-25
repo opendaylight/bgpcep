@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Function;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -45,7 +44,7 @@ public class BgpPeerRpc implements BgpPeerRpcService {
     public Future<RpcResult<Void>> routeRefreshRequest(final RouteRefreshRequestInput input) {
         final ChannelFuture f = sendRRMessage(input);
         if (f != null) {
-            return Futures.transform(JdkFutureAdapters.listenInPoolThread(f), (Function<Void, RpcResult<Void>>) input1 -> {
+            return Futures.transform(JdkFutureAdapters.listenInPoolThread(f), input1 -> {
                 if (f.isSuccess()) {
                     return RpcResultBuilder.<Void>success().build();
                 }

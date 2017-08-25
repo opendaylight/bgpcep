@@ -11,7 +11,6 @@ package org.opendaylight.protocol.bgp.rib.impl.stats.peer;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import io.netty.channel.Channel;
 import java.net.InetSocketAddress;
