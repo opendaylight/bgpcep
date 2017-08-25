@@ -46,7 +46,7 @@ public class UriBuilderTest {
         final UriBuilder c = new UriBuilder(b, "foo");
         assertEquals("bgpls://1:Direct:10/type=foo", c.toString());
 
-        a.add("foo", new Long(25L));
+        a.add("foo", 25L);
         assertEquals("bgpls://Direct:10/&foo=25", a.toString());
 
         final LinkCaseBuilder linkB = new LinkCaseBuilder();

@@ -35,7 +35,7 @@ public class TrafficMarkingEcHandler implements ExtendedCommunityParser, Extende
                 "The extended community %s is not TrafficMarkingExtendedCommunity type.", extendedCommunity);
         final TrafficMarkingExtendedCommunity trafficMarking = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.TrafficMarkingExtendedCommunity) extendedCommunity).getTrafficMarkingExtendedCommunity();
         byteAggregator.writeZero(RESERVED);
-        ByteBufWriteUtil.writeUnsignedByte(trafficMarking.getGlobalAdministrator().getValue().shortValue(), byteAggregator);
+        ByteBufWriteUtil.writeUnsignedByte(trafficMarking.getGlobalAdministrator().getValue(), byteAggregator);
     }
 
     @Override

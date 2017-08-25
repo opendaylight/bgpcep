@@ -32,7 +32,7 @@ public class MultiRegistryTest {
 
         assertEquals(Integer.valueOf(22), registry.get("second"));
 
-        registry.register(Character.valueOf('c'), 5);
+        registry.register('c', 5);
 
         assertEquals(Integer.valueOf(5), registry.get('c'));
 
@@ -46,14 +46,14 @@ public class MultiRegistryTest {
         final MultiRegistry<Object, Number> registry = new MultiRegistry<>();
         final String first = "first";
 
-        registry.register(first, new Integer(1));
-        assertEquals(Integer.valueOf(1), registry.get("first"));
+        registry.register(first, 1);
+        assertEquals(1, registry.get("first"));
 
-        registry.register(first, new Short((short) 1));
-        assertEquals(Integer.valueOf(1), registry.get("first"));
+        registry.register(first, (short) 1);
+        assertEquals(1, registry.get("first"));
 
-        registry.register(first, new Short((short) 2));
-        assertEquals(Integer.valueOf(1), registry.get("first"));
+        registry.register(first, (short) 2);
+        assertEquals(1, registry.get("first"));
     }
 
     @Test
@@ -62,20 +62,20 @@ public class MultiRegistryTest {
         final String first = "first";
         final String second = "second";
 
-        registry.register(first, new Integer(1));
-        assertEquals(Integer.valueOf(1), registry.get("first"));
+        registry.register(first, 1);
+        assertEquals(1, registry.get("first"));
 
-        registry.register(first, new Character('1'));
-        assertEquals(Integer.valueOf(1), registry.get("first"));
+        registry.register(first, '1');
+        assertEquals(1, registry.get("first"));
 
-        registry.register(second, new Character('2'));
-        assertEquals(Character.valueOf('2'), registry.get("second"));
+        registry.register(second, '2');
+        assertEquals('2', registry.get("second"));
 
-        registry.register(second, new Integer(2));
-        assertEquals(Character.valueOf('2'), registry.get("second"));
+        registry.register(second, 2);
+        assertEquals('2', registry.get("second"));
 
         registry.register(second, new Object());
-        assertEquals(Character.valueOf('2'), registry.get("second"));
+        assertEquals('2', registry.get("second"));
     }
 
 }
