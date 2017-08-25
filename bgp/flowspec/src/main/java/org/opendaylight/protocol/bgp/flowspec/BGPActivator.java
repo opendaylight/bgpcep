@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.flowspec;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;

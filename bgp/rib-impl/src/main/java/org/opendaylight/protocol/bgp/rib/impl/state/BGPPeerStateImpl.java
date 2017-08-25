@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.rib.impl.state;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import java.util.HashMap;
