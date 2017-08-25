@@ -9,7 +9,6 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Function;
 import com.google.common.util.concurrent.Futures;
 import java.util.concurrent.Future;
 import org.opendaylight.bgpcep.programming.spi.SuccessfulRpcResult;
@@ -20,7 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.EnsureLspOperationalOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.EnsureLspOperationalOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.NetworkTopologyPcepService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.OperationResult;
+
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.RemoveLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.RemoveLspOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.RemoveLspOutputBuilder;
@@ -41,27 +40,27 @@ final class TopologyRPCs implements NetworkTopologyPcepService {
 
     @Override
     public Future<RpcResult<AddLspOutput>> addLsp(final AddLspInput input) {
-        return Futures.transform(this.manager.addLsp(input), (Function<OperationResult, RpcResult<AddLspOutput>>) input1 -> SuccessfulRpcResult.create(new AddLspOutputBuilder(input1).build()));
+        return Futures.transform(this.manager.addLsp(input), input1 -> SuccessfulRpcResult.create(new AddLspOutputBuilder(input1).build()));
     }
 
     @Override
     public Future<RpcResult<RemoveLspOutput>> removeLsp(final RemoveLspInput input) {
-        return Futures.transform(this.manager.removeLsp(input), (Function<OperationResult, RpcResult<RemoveLspOutput>>) input1 -> SuccessfulRpcResult.create(new RemoveLspOutputBuilder(input1).build()));
+        return Futures.transform(this.manager.removeLsp(input), input1 -> SuccessfulRpcResult.create(new RemoveLspOutputBuilder(input1).build()));
     }
 
     @Override
     public Future<RpcResult<TriggerSyncOutput>> triggerSync(final TriggerSyncInput input) {
-        return Futures.transform(this.manager.triggerSync(input), (Function<OperationResult, RpcResult<TriggerSyncOutput>>) input1 -> SuccessfulRpcResult.create(new TriggerSyncOutputBuilder(input1).build()));
+        return Futures.transform(this.manager.triggerSync(input), input1 -> SuccessfulRpcResult.create(new TriggerSyncOutputBuilder(input1).build()));
     }
 
     @Override
     public Future<RpcResult<UpdateLspOutput>> updateLsp(final UpdateLspInput input) {
-        return Futures.transform(this.manager.updateLsp(input), (Function<OperationResult, RpcResult<UpdateLspOutput>>) input1 -> SuccessfulRpcResult.create(new UpdateLspOutputBuilder(input1).build()));
+        return Futures.transform(this.manager.updateLsp(input), input1 -> SuccessfulRpcResult.create(new UpdateLspOutputBuilder(input1).build()));
     }
 
     @Override
     public Future<RpcResult<EnsureLspOperationalOutput>> ensureLspOperational(final EnsureLspOperationalInput input) {
         return Futures.transform(this.manager.ensureLspOperational(input),
-            (Function<OperationResult, RpcResult<EnsureLspOperationalOutput>>) input1 -> SuccessfulRpcResult.create(new EnsureLspOperationalOutputBuilder(input1).build()));
+            input1 -> SuccessfulRpcResult.create(new EnsureLspOperationalOutputBuilder(input1).build()));
     }
 }
