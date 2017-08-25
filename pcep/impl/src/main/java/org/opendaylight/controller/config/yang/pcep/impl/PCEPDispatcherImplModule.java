@@ -64,6 +64,6 @@ public final class PCEPDispatcherImplModule extends AbstractPCEPDispatcherImplMo
         this.bundleContext = bundleContext;
     }
 
-    private static interface AutoCloseablePCEPDispatcher extends PCEPDispatcher, AutoCloseable {
+    private interface AutoCloseablePCEPDispatcher extends PCEPDispatcher, AutoCloseable {
     }
 }

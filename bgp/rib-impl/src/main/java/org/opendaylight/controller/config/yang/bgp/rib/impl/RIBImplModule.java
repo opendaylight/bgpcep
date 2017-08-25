@@ -117,7 +117,7 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
                 Collectors.toMap(st -> new TablesKey(st.getAfi(), st.getSafi()), BGPBestPathSelection::getStrategy)));
     }
 
-    private static interface AutoCloseableRIB extends RIB, AutoCloseable {
+    private interface AutoCloseableRIB extends RIB, AutoCloseable {
     }
 
 
