@@ -50,7 +50,7 @@ public final class PCEPProtocolSessionPromise<S extends PCEPSession> extends Def
         final PCEPProtocolSessionPromise<?> lock = this;
 
         try {
-            LOG.debug("Promise {} attempting connect for {}ms", lock, Integer.valueOf(this.connectTimeout));
+            LOG.debug("Promise {} attempting connect for {}ms", lock, this.connectTimeout);
             if (this.address.isUnresolved()) {
                 this.address = new InetSocketAddress(this.address.getHostName(), this.address.getPort());
             }
