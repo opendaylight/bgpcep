@@ -205,7 +205,7 @@ final class CreateTunnelInstructionExecutor extends AbstractInstructionExecutor 
             }
         }
 
-        return null;
+        return Optional.absent();
     }
 
     private static Optional<AddressFamily> findIpv6(final List<IpAddress> srcs, final List<IpAddress> dsts) {
