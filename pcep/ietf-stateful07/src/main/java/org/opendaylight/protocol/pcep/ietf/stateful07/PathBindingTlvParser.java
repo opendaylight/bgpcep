@@ -72,19 +72,19 @@ public final class PathBindingTlvParser implements TlvParser, TlvSerializer {
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkArgument(tlv instanceof PathBinding, "The TLV must be PathBinding type, but was %s", tlv.getClass());
+        Preconditions.checkArgument(tlv instanceof PathBinding,
+            "The TLV must be PathBinding type, but was %s", tlv.getClass());
         final PathBinding pTlv = (PathBinding) tlv;
         final BindingTypeValue bindingTypeValue = pTlv.getBindingTypeValue();
-        Preconditions.checkArgument(pTlv.getBindingValue() != null && pTlv.getBindingType() != null || bindingTypeValue != null, "Missing Binding Value in Path Bidning TLV: %s", pTlv);
+        Preconditions.checkArgument(bindingTypeValue != null,
+            "Missing Binding Value in Path Bidning TLV: %s", pTlv);
         final ByteBuf body = Unpooled.buffer(MPLS_BINDING_LENGTH);
-        if (bindingTypeValue == null) {
-            backwardsSerializer(pTlv, body);
-        } else {
-            final PathBindingTlvCodec codec = BT_SERIALIZERS.get(bindingTypeValue.getImplementedInterface());
-            Preconditions.checkArgument(codec != null, "Unsupported Path Binding Type: %s", bindingTypeValue.getImplementedInterface());
-            ByteBufWriteUtil.writeUnsignedShort(codec.getBindingType(), body);
-            body.writeBytes(codec.serialize(bindingTypeValue));
-        }
+        final PathBindingTlvCodec codec = BT_SERIALIZERS.get(bindingTypeValue.getImplementedInterface());
+        Preconditions.checkArgument(codec != null,
+            "Unsupported Path Binding Type: %s", bindingTypeValue.getImplementedInterface());
+        ByteBufWriteUtil.writeUnsignedShort(codec.getBindingType(), body);
+        body.writeBytes(codec.serialize(bindingTypeValue));
+
         TlvUtil.formatTlv(TYPE, body, buffer);
     }
 
@@ -99,21 +99,7 @@ public final class PathBindingTlvParser implements TlvParser, TlvSerializer {
             throw new PCEPDeserializerException("Unsupported Path Binding Type: " + type);
         }
         final PathBindingBuilder builder = new PathBindingBuilder();
-        backwardsParser(type, buffer, builder);
         return builder.setBindingTypeValue(codec.deserialize(buffer)).build();
-    }
-
-    private static void backwardsParser(final int type, final ByteBuf buffer, final PathBindingBuilder builder) {
-        builder.setBindingType((short) type);
-        final byte[] value = new byte[buffer.readableBytes()];
-        //codec will do the reading from buffer
-        buffer.getBytes(0, value);
-        builder.setBindingValue(value);
-    }
-
-    private static void backwardsSerializer(final PathBinding pTlv, final ByteBuf body) {
-        ByteBufWriteUtil.writeUnsignedShort((int)pTlv.getBindingType(), body);
-        body.writeBytes(pTlv.getBindingValue());
     }
 
     private static final class MplsLabelCodec implements PathBindingTlvCodec {
