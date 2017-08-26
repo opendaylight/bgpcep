@@ -12,7 +12,6 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import java.math.BigInteger;
@@ -139,6 +138,7 @@ public final class Main {
     }
 
     private static ch.qos.logback.classic.Logger getRootLogger(final LoggerContext lc) {
-        return Iterables.find(lc.getLoggerList(), input -> (input != null) ? input.getName().equals(Logger.ROOT_LOGGER_NAME) : false);
+        return lc.getLoggerList().stream().filter(input -> (input != null) && input.getName()
+            .equals(Logger.ROOT_LOGGER_NAME)).findFirst().get();
     }
 }
