@@ -13,12 +13,12 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.protocol.bgp.flowspec.handlers.BitmaskOperandParser;
@@ -472,7 +472,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     protected final String stringNlri(final List<Flowspec> flows) {
         final StringBuilder buffer = new StringBuilder("all packets ");
         final Joiner joiner = Joiner.on(FLOW_SEPARATOR);
-        joiner.appendTo(buffer, Iterables.transform(flows, this::encodeFlow));
+        joiner.appendTo(buffer, flows.stream().map(this::encodeFlow).collect(Collectors.toList()));
         return buffer.toString().replace("  ", " ");
     }
 

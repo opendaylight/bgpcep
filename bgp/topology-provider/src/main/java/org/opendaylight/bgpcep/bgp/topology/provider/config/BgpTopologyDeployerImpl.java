@@ -10,13 +10,13 @@ package org.opendaylight.bgpcep.bgp.topology.provider.config;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.collect.Iterables;
 import java.util.Collection;
 import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyDeployer;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyProvider;
@@ -168,7 +168,8 @@ public final class BgpTopologyDeployerImpl implements AutoCloseable, ClusteredDa
     }
 
     private Iterable<BgpTopologyProvider> filterTopologyBuilders(final Topology topology) {
-        return Iterables.filter(this.topologyProviders, input -> input.topologyTypeFilter(topology));
+        return this.topologyProviders.stream().filter(input -> input.topologyTypeFilter(topology))
+            .collect(Collectors.toList());
     }
 
     private ClusterSingletonServiceRegistration registerSingletonService(final ClusterSingletonService clusterSingletonService) {

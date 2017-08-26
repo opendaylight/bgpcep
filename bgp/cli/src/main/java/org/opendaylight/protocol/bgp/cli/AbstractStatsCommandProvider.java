@@ -39,7 +39,7 @@ public abstract class AbstractStatsCommandProvider extends OsgiCommandSupport {
         return MBEAN_SERVER.queryNames(BGP_PEER_MODULE_PATTERN, null);
     }
 
-    private static final BGPPeerRuntimeMXBean getRuntimeMXBean(final ObjectName objectName) {
+    private static BGPPeerRuntimeMXBean getRuntimeMXBean(final ObjectName objectName) {
         return JMX.newMXBeanProxy(MBEAN_SERVER, objectName, BGPPeerRuntimeMXBean.class);
     }
 }

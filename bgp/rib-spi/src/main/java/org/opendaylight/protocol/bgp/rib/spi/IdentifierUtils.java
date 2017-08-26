@@ -29,7 +29,7 @@ public final class IdentifierUtils {
 
     // FIXME: implement as id.firstIdentifierOf(IS_PEER), null indicating not found
     private static NodeIdentifierWithPredicates firstKeyOf(final YangInstanceIdentifier id, final Predicate<PathArgument> match) {
-        final PathArgument ret = Iterables.find(id.getPathArguments(), match);
+        final PathArgument ret = id.getPathArguments().stream().filter(match::apply).findFirst().get();
         Preconditions.checkArgument(ret instanceof NodeIdentifierWithPredicates, "Non-key peer identifier %s", ret);
         return (NodeIdentifierWithPredicates) ret;
     }
