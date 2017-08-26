@@ -108,7 +108,8 @@ public class PCEPTlvParserTest {
     public void testSymbolicNameTlv() throws PCEPDeserializerException {
         final Stateful07LspSymbolicNameTlvParser parser = new Stateful07LspSymbolicNameTlvParser();
         final SymbolicPathName tlv = new SymbolicPathNameBuilder().setPathName(
-            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.SymbolicPathName("Med test of symbolic nameeee".getBytes())).build();
+            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.
+                SymbolicPathName("Med test of symbolic nameeee".getBytes())).build();
         assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(symbolicNameBytes, 4))));
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeTlv(tlv, buff);
@@ -214,10 +215,7 @@ public class PCEPTlvParserTest {
         final byte[] pathBindingBytes = {0x00, 0x1f, 0x00, 0x06, 0x00, 0x00, (byte) 0xA8, 0x0F, (byte) 0x60, 0x00, 0x00, 0x00};
         final PathBindingTlvParser parser = new PathBindingTlvParser();
         final PathBindingBuilder builder = new PathBindingBuilder();
-        builder.setBindingType((short) 0);
         builder.setBindingTypeValue(new MplsLabelBuilder().setMplsLabel(new MplsLabel(688_374L)).build());
-        assertEquals(builder.setBindingValue(new byte[] {0x00, 0x00, (byte) 0xA8, 0x0F, (byte) 0x60, 0x00}).build(),
-                parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(pathBindingBytes, 4))));
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeTlv(builder.build(), buff);
         assertArrayEquals(pathBindingBytes, ByteArray.readAllBytes(buff));
@@ -236,7 +234,6 @@ public class PCEPTlvParserTest {
         final byte[] pathBindingBytes = {0x00, 0x1f, 0x00, 0x06, 0x00, 0x01, (byte) 0xA8, (byte) 0x0F, (byte) 0x6D, (byte)0xAD, 0x00, 0x00};
         final PathBindingTlvParser parser = new PathBindingTlvParser();
         final PathBindingBuilder builder = new PathBindingBuilder();
-        builder.setBindingType((short) 1);
         builder.setBindingTypeValue(
             new MplsLabelEntryBuilder()
             .setTrafficClass((short) 6)
@@ -244,8 +241,6 @@ public class PCEPTlvParserTest {
             .setBottomOfStack(true)
             .setLabel(new MplsLabel(688_374L)).build());
         final PathBinding tlv = builder.build();
-        assertEquals(builder.setBindingValue(new byte[] {0x00, 0x01, (byte) 0xA8, (byte) 0x0F, (byte) 0x6D, (byte)0xAD}).build(),
-                parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(pathBindingBytes, 4))));
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeTlv(tlv, buff);
         assertArrayEquals(pathBindingBytes, ByteArray.readAllBytes(buff));
