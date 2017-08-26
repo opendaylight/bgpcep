@@ -341,7 +341,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
                 assertEquals(PEER1, peer.getBgpId());
                 assertEquals(TestUtil.IPV4_ADDRESS_10, peer.getAddress().getIpv4Address());
                 assertEquals(TestUtil.PEER_AS, peer.getAs());
-                assertNull(peer.getDistinguisher());
+                assertNull(peer.getPeerDistinguisher());
                 assertNull(peer.getStats());
 
                 assertNotNull(peer.getPrePolicyRib());
