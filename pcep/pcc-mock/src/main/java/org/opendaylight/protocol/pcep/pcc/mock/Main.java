@@ -65,52 +65,72 @@ public final class Main {
         getRootLogger(lc).setLevel(ch.qos.logback.classic.Level.INFO);
         int argIdx = 0;
         while (argIdx < args.length) {
-            if (args[argIdx].equals("--local-address")) {
-                localAddress = InetSocketAddressUtil.getInetSocketAddress(args[++argIdx], DEFAULT_LOCAL_PORT);
-            } else if (args[argIdx].equals("--remote-address")) {
-                remoteAddress = InetSocketAddressUtil.parseAddresses(args[++argIdx], DEFAULT_REMOTE_PORT);
-            } else if (args[argIdx].equals("--pcc")) {
-                pccCount = Integer.valueOf(args[++argIdx]);
-            } else if (args[argIdx].equals("--lsp")) {
-                lsps = Integer.valueOf(args[++argIdx]);
-            } else if (args[argIdx].equals("--pcerr")) {
-                pcError = true;
-            } else if (args[argIdx].equals("--log-level")) {
-                getRootLogger(lc).setLevel(Level.toLevel(args[++argIdx], ch.qos.logback.classic.Level.INFO));
-            } else if (args[argIdx].equals("--keepalive") || args[argIdx].equals("-ka")) {
-                ka = Short.valueOf(args[++argIdx]);
-            } else if (args[argIdx].equals("--deadtimer") || args[argIdx].equals("-d")) {
-                dt = Short.valueOf(args[++argIdx]);
-            } else if (args[argIdx].equals("--password")) {
-                password = args[++argIdx];
-            } else if (args[argIdx].equals("--reconnect")) {
-                reconnectTime = Integer.valueOf(args[++argIdx]);
-            } else if (args[argIdx].equals("--redelegation-timeout")) {
-                redelegationTimeout = Integer.valueOf(args[++argIdx]);
-            } else if (args[argIdx].equals("--state-timeout")) {
-                stateTimeout = Integer.valueOf(args[++argIdx]);
-            } else if (args[argIdx].equals("--state-sync-avoidance")) {
-                //"--state-sync-avoidance 10, 5, 10
-                includeDbv = Boolean.TRUE;
-                final Long dbVersionAfterReconnect = Long.valueOf(args[++argIdx]);
-                disonnectAfterXSeconds = Integer.valueOf(args[++argIdx]);
-                reconnectAfterXSeconds = Integer.valueOf(args[++argIdx]);
-                syncOptDBVersion = BigInteger.valueOf(dbVersionAfterReconnect);
-            } else if (args[argIdx].equals("--incremental-sync-procedure")) {
-                //TODO Check that DBv > Lsp always ??
-                includeDbv = Boolean.TRUE;
-                incrementalSync = Boolean.TRUE;
-                //Version of database to be used after restart
-                final Long initialDbVersionAfterReconnect = Long.valueOf(args[++argIdx]);
-                disonnectAfterXSeconds = Integer.valueOf(args[++argIdx]);
-                reconnectAfterXSeconds = Integer.valueOf(args[++argIdx]);
-                syncOptDBVersion = BigInteger.valueOf(initialDbVersionAfterReconnect);
-            } else if (args[argIdx].equals("--triggered-initial-sync")) {
-                triggeredInitSync = Boolean.TRUE;
-            } else if (args[argIdx].equals("--triggered-re-sync")) {
-                triggeredResync = Boolean.TRUE;
-            } else {
-                LOG.warn("WARNING: Unrecognized argument: {}", args[argIdx]);
+            switch (args[argIdx]) {
+                case "--local-address":
+                    localAddress = InetSocketAddressUtil.getInetSocketAddress(args[++argIdx], DEFAULT_LOCAL_PORT);
+                    break;
+                case "--remote-address":
+                    remoteAddress = InetSocketAddressUtil.parseAddresses(args[++argIdx], DEFAULT_REMOTE_PORT);
+                    break;
+                case "--pcc":
+                    pccCount = Integer.valueOf(args[++argIdx]);
+                    break;
+                case "--lsp":
+                    lsps = Integer.valueOf(args[++argIdx]);
+                    break;
+                case "--pcerr":
+                    pcError = true;
+                    break;
+                case "--log-level":
+                    getRootLogger(lc).setLevel(Level.toLevel(args[++argIdx], Level.INFO));
+                    break;
+                case "--keepalive":
+                case "-ka":
+                    ka = Short.valueOf(args[++argIdx]);
+                    break;
+                case "--deadtimer":
+                case "-d":
+                    dt = Short.valueOf(args[++argIdx]);
+                    break;
+                case "--password":
+                    password = args[++argIdx];
+                    break;
+                case "--reconnect":
+                    reconnectTime = Integer.valueOf(args[++argIdx]);
+                    break;
+                case "--redelegation-timeout":
+                    redelegationTimeout = Integer.valueOf(args[++argIdx]);
+                    break;
+                case "--state-timeout":
+                    stateTimeout = Integer.valueOf(args[++argIdx]);
+                    break;
+                case "--state-sync-avoidance":
+                    //"--state-sync-avoidance 10, 5, 10
+                    includeDbv = Boolean.TRUE;
+                    final Long dbVersionAfterReconnect = Long.valueOf(args[++argIdx]);
+                    disonnectAfterXSeconds = Integer.valueOf(args[++argIdx]);
+                    reconnectAfterXSeconds = Integer.valueOf(args[++argIdx]);
+                    syncOptDBVersion = BigInteger.valueOf(dbVersionAfterReconnect);
+                    break;
+                case "--incremental-sync-procedure":
+                    //TODO Check that DBv > Lsp always ??
+                    includeDbv = Boolean.TRUE;
+                    incrementalSync = Boolean.TRUE;
+                    //Version of database to be used after restart
+                    final Long initialDbVersionAfterReconnect = Long.valueOf(args[++argIdx]);
+                    disonnectAfterXSeconds = Integer.valueOf(args[++argIdx]);
+                    reconnectAfterXSeconds = Integer.valueOf(args[++argIdx]);
+                    syncOptDBVersion = BigInteger.valueOf(initialDbVersionAfterReconnect);
+                    break;
+                case "--triggered-initial-sync":
+                    triggeredInitSync = Boolean.TRUE;
+                    break;
+                case "--triggered-re-sync":
+                    triggeredResync = Boolean.TRUE;
+                    break;
+                default:
+                    LOG.warn("WARNING: Unrecognized argument: {}", args[argIdx]);
+                    break;
             }
             argIdx++;
         }
