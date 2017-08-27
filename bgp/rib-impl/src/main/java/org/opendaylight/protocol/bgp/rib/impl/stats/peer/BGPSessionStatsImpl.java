@@ -171,9 +171,6 @@ public final class BGPSessionStatsImpl implements BGPSessionStats {
                                 pref.setGrCapability(true);
                             }
                             if (capabilities.getAddPathCapability() != null) {
-                                // FIXME: add path capability is deprecated, replaced by addPathTableTypes
-                                pref.setAddPathCapability(true);
-
                                 final List<AdvertisedAddPathTableTypes> addPathTableTypeList = capabilities.getAddPathCapability()
                                     .getAddressFamilies()
                                     .stream()
@@ -227,10 +224,6 @@ public final class BGPSessionStatsImpl implements BGPSessionStats {
                     if (capabilities != null) {
                         if (capabilities.getGracefulRestartCapability() != null) {
                             pref.setGrCapability(true);
-                        }
-                        // FIXME: add-path-capability is deprecated in Boron
-                        if (capabilities.getAddPathCapability() != null) {
-                            pref.setAddPathCapability(true);
                         }
                         if (capabilities.getRouteRefreshCapability() != null) {
                             pref.setRouteRefreshCapability(true);
