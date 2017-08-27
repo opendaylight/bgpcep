@@ -54,13 +54,6 @@ module bgp-stats-peer {
                 key "afi safi";
                 uses bgp-mp:bgp-table-type;
 
-                leaf table-type {
-                    description "The table name - composed of AFI and SAFI.
-                    Deprecated in Boron.  Use afi/safi fields instead";
-                    type string;
-                    status deprecated;
-                }
-
                 leaf adj-rib-in-routes-count {
                     description "The total number of Adj-RIB-In routes in table.";
                     type yang:zero-based-counter32;
