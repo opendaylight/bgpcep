@@ -16,10 +16,14 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.management.JMException;
 import javax.management.ObjectName;
 import org.junit.Test;
+import org.opendaylight.controller.config.api.IdentityAttributeRef;
+import org.opendaylight.controller.config.yang.bgp.rib.impl.AdvertisedAddPathTableTypes;
+import org.opendaylight.controller.config.yang.bgp.rib.impl.AdvertizedTableTypes;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpSessionState;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.ErrorMsgs;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.ErrorReceived;
@@ -27,6 +31,10 @@ import org.opendaylight.controller.config.yang.bgp.rib.impl.LocalPeerPreferences
 import org.opendaylight.controller.config.yang.bgp.rib.impl.MessagesStats;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.RemotePeerPreferences;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.ZeroBasedCounter32;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.SendReceive;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types
+    .rev130919.UnicastSubsequentAddressFamily;
 
 public final class BgpCliUtilsTests{
 
@@ -45,8 +53,16 @@ public final class BgpCliUtilsTests{
         newlist.add(errorReceived);
 
         when(bgpSessionState.getMessagesStats()).thenReturn(msgStats);
-        when(speakerPref.getAddPathCapability()).thenReturn(true);
-        when(peerPref.getAddPathCapability()).thenReturn(true);
+        final AdvertisedAddPathTableTypes att = new AdvertisedAddPathTableTypes();
+        att.setAfi(new IdentityAttributeRef(Ipv4AddressFamily.QNAME.toString()));
+        att.setSafi(new IdentityAttributeRef(UnicastSubsequentAddressFamily.QNAME.toString()));
+        att.setSendReceive(SendReceive.Both);
+        when(speakerPref.getAdvertisedAddPathTableTypes()).thenReturn(Collections.singletonList(att));
+
+        final AdvertizedTableTypes atp = new AdvertizedTableTypes();
+        atp.setAfi(new IdentityAttributeRef(Ipv4AddressFamily.QNAME.toString()));
+        atp.setSafi(new IdentityAttributeRef(UnicastSubsequentAddressFamily.QNAME.toString()));
+        when(peerPref.getAdvertizedTableTypes()).thenReturn(Collections.singletonList(atp));
         when(errorReceived.getCount()).thenReturn(new ZeroBasedCounter32(5L));
 
         when(errorMsgs.getErrorReceived()).thenReturn(newlist);
