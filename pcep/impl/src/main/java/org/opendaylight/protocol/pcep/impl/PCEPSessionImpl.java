@@ -175,6 +175,16 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
     }
 
     /**
+     * Handle exception occurred in the PCEP session. The session in error state should be closed
+     * properly so that it can be restored later.
+     */
+    @VisibleForTesting
+    void handleException(final Throwable cause) {
+        LOG.error("Exception captured for session {}, closing session.", this, cause);
+        terminate(TerminationReason.UNKNOWN);
+    }
+
+    /**
      * Sends message to serialization.
      *
      * @param msg to be sent
@@ -359,12 +369,17 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
     }
 
     @VisibleForTesting
-    public void sessionUp() {
-        this.listener.onSessionUp(this);
+    void sessionUp() {
+        try {
+            this.listener.onSessionUp(this);
+        } catch (final Exception e) {
+            handleException(e);
+            throw e;
+        }
     }
 
     @VisibleForTesting
-    protected final Queue<Long> getUnknownMessagesTimes() {
+    final Queue<Long> getUnknownMessagesTimes() {
         return this.unknownMessagesTimes;
     }
 
@@ -414,6 +429,11 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
     @Override
     public final void handlerAdded(final ChannelHandlerContext ctx) {
         this.sessionUp();
+    }
+
+    @Override
+    public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
+        handleException(cause);
     }
 
     @Override
