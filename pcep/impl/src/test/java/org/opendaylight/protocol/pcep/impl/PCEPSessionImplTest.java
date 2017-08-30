@@ -149,4 +149,13 @@ public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
         Assert.assertEquals(PCEPErrors.UNKNOWN_PLSP_ID.getErrorType(), errMsgs2.getLastSentError().getErrorType().shortValue());
         Assert.assertEquals(PCEPErrors.UNKNOWN_PLSP_ID.getErrorValue(), errMsgs2.getLastSentError().getErrorValue().shortValue());
     }
+
+    @Test
+    public void testExceptionCaught() throws Exception {
+        Assert.assertFalse(this.session.isClosed());
+        Assert.assertTrue(this.listener.up);
+        this.session.exceptionCaught(null, new Throwable("PCEP exception."));
+        Assert.assertFalse(this.listener.up);
+        Assert.assertTrue(this.session.isClosed());
+    }
 }
