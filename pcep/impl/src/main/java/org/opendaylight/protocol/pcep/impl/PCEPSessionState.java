@@ -119,7 +119,8 @@ final class PCEPSessionState {
         final PeerPrefBuilder peerBuilder = new PeerPrefBuilder();
         peerBuilder.setDeadtimer(open.getDeadTimer());
         peerBuilder.setKeepalive(open.getKeepalive());
-        peerBuilder.setIpAddress(((InetSocketAddress) channel.remoteAddress()).getAddress().getHostAddress());
+        if (channel.remoteAddress() instanceof InetSocketAddress)
+            peerBuilder.setIpAddress(((InetSocketAddress) channel.remoteAddress()).getAddress().getHostAddress());
         peerBuilder.setSessionId(open.getSessionId().intValue());
         return peerBuilder.build();
     }
@@ -128,7 +129,8 @@ final class PCEPSessionState {
         final LocalPrefBuilder peerBuilder = new LocalPrefBuilder();
         peerBuilder.setDeadtimer(open.getDeadTimer());
         peerBuilder.setKeepalive(open.getKeepalive());
-        peerBuilder.setIpAddress(((InetSocketAddress) channel.localAddress()).getAddress().getHostAddress());
+        if (channel.localAddress() instanceof InetSocketAddress)
+            peerBuilder.setIpAddress(((InetSocketAddress) channel.localAddress()).getAddress().getHostAddress());
         peerBuilder.setSessionId(open.getSessionId().intValue());
         return peerBuilder.build();
     }

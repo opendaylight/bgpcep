@@ -8,11 +8,14 @@
 
 package org.opendaylight.protocol.pcep.impl;
 
+import io.netty.channel.embedded.EmbeddedChannel;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
+import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.TerminationReason;
 import org.opendaylight.protocol.pcep.impl.spi.Util;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
@@ -148,5 +151,40 @@ public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
         Assert.assertEquals(1, errMsgs2.getSentErrorMsgCount().intValue());
         Assert.assertEquals(PCEPErrors.UNKNOWN_PLSP_ID.getErrorType(), errMsgs2.getLastSentError().getErrorType().shortValue());
         Assert.assertEquals(PCEPErrors.UNKNOWN_PLSP_ID.getErrorValue(), errMsgs2.getLastSentError().getErrorValue().shortValue());
+    }
+
+    @Test
+    public void testExceptionCaught() throws Exception {
+        Assert.assertFalse(this.session.isClosed());
+        Assert.assertTrue(this.listener.up);
+        this.session.exceptionCaught(null, new Throwable("PCEP exception."));
+        Assert.assertFalse(this.listener.up);
+        Assert.assertTrue(this.session.isClosed());
+    }
+
+    @Test
+    public void testIncompleteLinesStrippedDelimiters() throws Exception {
+        final EmbeddedChannel ch = new EmbeddedChannel();
+        this.listener = new SimpleExceptionSessionListener();
+        this.session = Mockito.spy(new PCEPSessionImpl(this.listener, 0, ch, this.openMsg.getOpenMessage().getOpen(), this.openMsg.getOpenMessage().getOpen()));
+        Mockito.verify(this.session, Mockito.times(0)).exceptionCaught(Matchers.any(), Matchers.any());
+        Mockito.verify(this.session, Mockito.times(0)).sendMessage(Matchers.any());
+        Mockito.verify(this.session, Mockito.times(0)).closeChannel();
+        try {
+            this.session.sessionUp();
+        } catch (final RuntimeException e) {
+        }
+        Assert.assertFalse(this.listener.up);
+        Mockito.verify(this.session, Mockito.times(1)).exceptionCaught(Matchers.any(), Matchers.any());
+        Mockito.verify(this.session, Mockito.times(1)).sendMessage(Matchers.any(CloseMessage.class));
+        Mockito.verify(this.session, Mockito.times(1)).closeChannel();
+    }
+
+    private static class SimpleExceptionSessionListener extends SimpleSessionListener {
+        @Override
+        public synchronized void onSessionUp(final PCEPSession session) {
+            super.onSessionUp(session);
+            throw new RuntimeException("Mocked runtime exception.");
+        }
     }
 }
