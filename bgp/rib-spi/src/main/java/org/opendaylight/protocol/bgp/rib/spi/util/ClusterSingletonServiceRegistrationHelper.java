@@ -18,41 +18,64 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Utility class which provides helper functionality for ClusterSingletonService.
- *
  */
 public final class ClusterSingletonServiceRegistrationHelper {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClusterSingletonServiceRegistrationHelper.class);
+    private static final int MAX_REGISTRATION_ATTEMPTS = 10;
+    private static final int SLEEP_TIME_MILLIS = MAX_REGISTRATION_ATTEMPTS;
 
     private ClusterSingletonServiceRegistrationHelper() {
         throw new UnsupportedOperationException();
     }
 
     /**
-     * This helper function wraps {@link ClusterSingletonServiceProvider#registerClusterSingletonService(ClusterSingletonService)} in order to
-     * execute repeated registration attempts while catching RuntimeException. If registration is not successful, RuntimeException is re-thrown.
+     * This helper function wraps
+     * {@link ClusterSingletonServiceProvider#registerClusterSingletonService(ClusterSingletonService)} in order to
+     * execute repeated registration attempts while catching RuntimeException. If registration is not successful,
+     * RuntimeException is re-thrown.
+     *
      * @param singletonProvider
      * @param clusterSingletonService
-     * @param maxAttempts Upper bound for registration retries count.
-     * @param sleepTime Sleep time between registration retries in milliseconds.
+     * @param maxAttempts             Upper bound for registration retries count.
+     * @param sleepTime               Sleep time between registration retries in milliseconds.
      * @return Registration
      */
-    public static ClusterSingletonServiceRegistration registerSingletonService(final ClusterSingletonServiceProvider singletonProvider,
-            final ClusterSingletonService clusterSingletonService, final int maxAttempts, final int sleepTime) {
+    public static ClusterSingletonServiceRegistration registerSingletonService(
+        final ClusterSingletonServiceProvider singletonProvider,
+        final ClusterSingletonService clusterSingletonService, final int maxAttempts, final int sleepTime) {
         int attempts = maxAttempts;
         while (true) {
             try {
-              return singletonProvider.registerClusterSingletonService(clusterSingletonService);
+                return singletonProvider.registerClusterSingletonService(clusterSingletonService);
             } catch (final RuntimeException e) {
                 if (attempts == 0) {
-                    LOG.error("Giving up after {} registration attempts for service {}.", maxAttempts, clusterSingletonService, e);
+                    LOG.error("Giving up after {} registration attempts for service {}.", maxAttempts,
+                        clusterSingletonService, e);
                     throw e;
                 }
                 attempts--;
-                LOG.warn("Failed to register {} service to ClusterSingletonServiceProvider. Try again in {} ms.", clusterSingletonService, sleepTime);
+                LOG.warn("Failed to register {} service to ClusterSingletonServiceProvider. Try again in {} ms. {}",
+                    clusterSingletonService, sleepTime, e);
                 Uninterruptibles.sleepUninterruptibly(sleepTime, TimeUnit.MILLISECONDS);
             }
         }
     }
 
+    /**
+     * This helper function wraps
+     * {@link ClusterSingletonServiceProvider#registerClusterSingletonService(ClusterSingletonService)} in order to
+     * execute repeated registration attempts while catching RuntimeException. If registration is not successful,
+     * RuntimeException is re-thrown. 10 registration attempts will be tried with 10 ms pause between each
+     * other.
+     *
+     * @param singletonProvider
+     * @param clusterSingletonService
+     * @return Registration
+     */
+    public static ClusterSingletonServiceRegistration registerSingletonService(final ClusterSingletonServiceProvider
+        singletonProvider, final ClusterSingletonService clusterSingletonService) {
+        return ClusterSingletonServiceRegistrationHelper.registerSingletonService(singletonProvider,
+            clusterSingletonService, MAX_REGISTRATION_ATTEMPTS, SLEEP_TIME_MILLIS);
+    }
 }

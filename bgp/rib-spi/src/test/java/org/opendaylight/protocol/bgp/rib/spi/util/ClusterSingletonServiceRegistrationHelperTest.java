@@ -58,7 +58,8 @@ public class ClusterSingletonServiceRegistrationHelperTest {
 
     @Test
     public void testRegisterSingletonServiceSuccessfulRetry() {
-        final ClusterSingletonServiceRegistration registerSingletonService = registerSingletonService(this.singletonProvider, this.clusterSingletonService, 1, 1);
+        final ClusterSingletonServiceRegistration registerSingletonService =
+            registerSingletonService(this.singletonProvider, this.clusterSingletonService, 1, 1);
         Assert.assertEquals(this.serviceRegistration, registerSingletonService);
         //first reg. attempt failed, second succeeded
         Mockito.verify(this.singletonProvider, Mockito.times(2)).registerClusterSingletonService(Mockito.any());

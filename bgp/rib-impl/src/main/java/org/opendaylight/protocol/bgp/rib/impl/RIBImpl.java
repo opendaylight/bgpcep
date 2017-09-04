@@ -91,8 +91,6 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
     private static final Logger LOG = LoggerFactory.getLogger(RIBImpl.class);
     private static final QName RIB_ID_QNAME = QName.create(Rib.QNAME, "id").intern();
     private static final ContainerNode EMPTY_TABLE_ATTRIBUTES = ImmutableNodes.containerNode(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Attributes.QNAME);
-    private static final int MAX_REGISTRATION_ATTEMPTS = 10;
-    private static final int SLEEP_TIME = MAX_REGISTRATION_ATTEMPTS;
 
     private final BGPDispatcher dispatcher;
     private final AsNumber localAs;
@@ -381,9 +379,10 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
     }
 
     @Override
-    public ClusterSingletonServiceRegistration registerClusterSingletonService(final ClusterSingletonService clusterSingletonService) {
-        return ClusterSingletonServiceRegistrationHelper.registerSingletonService(this.provider, clusterSingletonService, MAX_REGISTRATION_ATTEMPTS,
-                SLEEP_TIME);
+    public ClusterSingletonServiceRegistration registerClusterSingletonService(
+        final ClusterSingletonService clusterSingletonService) {
+        return ClusterSingletonServiceRegistrationHelper
+            .registerSingletonService(this.provider, clusterSingletonService);
     }
 
     @Override
