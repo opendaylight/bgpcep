@@ -49,8 +49,6 @@ public final class BgpTopologyDeployerImpl implements AutoCloseable, ClusteredDa
 
     private static final Logger LOG = LoggerFactory.getLogger(BgpTopologyDeployerImpl.class);
     private static final InstanceIdentifier<Topology> TOPOLOGY_IID = InstanceIdentifier.create(NetworkTopology.class).child(Topology.class);
-    private static final int MAX_REGISTRATION_ATTEMPTS = 10;
-    private static final int SLEEP_TIME = MAX_REGISTRATION_ATTEMPTS;
 
     @GuardedBy("this")
     private final Set<BgpTopologyProvider> topologyProviders = new HashSet<>();
@@ -172,8 +170,10 @@ public final class BgpTopologyDeployerImpl implements AutoCloseable, ClusteredDa
             .collect(Collectors.toList());
     }
 
-    private ClusterSingletonServiceRegistration registerSingletonService(final ClusterSingletonService clusterSingletonService) {
-        return ClusterSingletonServiceRegistrationHelper.registerSingletonService(this.singletonProvider, clusterSingletonService, MAX_REGISTRATION_ATTEMPTS, SLEEP_TIME);
+    private ClusterSingletonServiceRegistration registerSingletonService(
+        final ClusterSingletonService clusterSingletonService) {
+        return ClusterSingletonServiceRegistrationHelper
+            .registerSingletonService(this.singletonProvider, clusterSingletonService);
     }
 
 }
