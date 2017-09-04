@@ -108,7 +108,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         } else {
             bootstrap.channel(NioSocketChannel.class);
         }
-        if (!keys.isEmpty()) {
+        if (keys != null && !keys.isEmpty()) {
             if (Epoll.isAvailable()) {
                 bootstrap.option(EpollChannelOption.TCP_MD5SIG, keys);
             } else {
