@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_7a15e547",
+        "filename": "bgp/bmp-impl/pom.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-09-07T13:50:48Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 237,
+        "startChar": 0,
+        "endLine": 241,
+        "endChar": 21
+      },
+      "revId": "8d1a803918134aefbd3c66b15660e99c47a3d8b3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_9af1b903",
+        "filename": "bgp/evpn/pom.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-09-07T13:50:48Z",
+      "side": 1,
+      "message": "remove?",
+      "range": {
+        "startLine": 112,
+        "startChar": 24,
+        "endLine": 112,
+        "endChar": 47
+      },
+      "revId": "8d1a803918134aefbd3c66b15660e99c47a3d8b3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_7af685fa",
+        "filename": "bgp/flowspec/pom.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-09-07T13:50:48Z",
+      "side": 1,
+      "message": "remove?",
+      "range": {
+        "startLine": 158,
+        "startChar": 24,
+        "endLine": 158,
+        "endChar": 47
+      },
+      "revId": "8d1a803918134aefbd3c66b15660e99c47a3d8b3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_dade916c",
+        "filename": "bgp/l3vpn/pom.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-09-07T13:50:48Z",
+      "side": 1,
+      "message": "remove?",
+      "range": {
+        "startLine": 99,
+        "startChar": 24,
+        "endLine": 99,
+        "endChar": 46
+      },
+      "revId": "8d1a803918134aefbd3c66b15660e99c47a3d8b3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_ba0abd23",
+        "filename": "bgp/linkstate/pom.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-09-07T13:50:48Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 168,
+        "startChar": 0,
+        "endLine": 172,
+        "endChar": 21
+      },
+      "revId": "8d1a803918134aefbd3c66b15660e99c47a3d8b3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
