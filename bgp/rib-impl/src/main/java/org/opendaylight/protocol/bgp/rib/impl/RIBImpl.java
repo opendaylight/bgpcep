@@ -49,6 +49,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ImportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
+import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPRIBStateImpl;
 import org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl.BGPRenderStats;
 import org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl.RIBImplRuntimeMXBeanImpl;
@@ -177,16 +178,21 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
             table.withChild(ImmutableNodes.leafNode(e.getKey(), e.getValue()));
         }
 
-        final ChoiceNode routes = this.ribContextRegistry.getRIBSupportContext(key).getRibSupport().emptyRoutes();
-        table.withChild(routes);
+        final RIBSupportContext supportContext = this.ribContextRegistry.getRIBSupportContext(key);
+        if (supportContext != null) {
+            final ChoiceNode routes = supportContext.getRibSupport().emptyRoutes();
+            table.withChild(routes);
 
-        tx.put(LogicalDatastoreType.OPERATIONAL, tableId.build(), table.build());
-        try {
-            tx.submit().checkedGet();
-        } catch (final TransactionCommitFailedException e1) {
-            LOG.error("Failed to initiate LocRIB for key {}", key, e1);
+            tx.put(LogicalDatastoreType.OPERATIONAL, tableId.build(), table.build());
+            try {
+                tx.submit().checkedGet();
+            } catch (final TransactionCommitFailedException e1) {
+                LOG.error("Failed to initiate LocRIB for key {}", key, e1);
+            }
+            createLocRibWriter(key);
+        } else {
+            LOG.warn("There's no registered RIB Context for {}", key.getAfi());
         }
-        createLocRibWriter(key);
     }
 
     private synchronized void createLocRibWriter(final TablesKey key) {
