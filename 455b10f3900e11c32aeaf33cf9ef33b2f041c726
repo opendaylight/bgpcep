@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_0fbc6205",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/util/ClusterSingletonServiceRegistrationHelper.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2017-09-10T07:22:30Z",
+      "side": 1,
+      "message": "SLEEP_TIME_MILLIS, to reflect the time unit...",
+      "range": {
+        "startLine": 26,
+        "startChar": 28,
+        "endLine": 26,
+        "endChar": 38
+      },
+      "revId": "455b10f3900e11c32aeaf33cf9ef33b2f041c726",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_efb8ee12",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/util/ClusterSingletonServiceRegistrationHelper.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2017-09-10T07:22:30Z",
+      "side": 1,
+      "message": "Any reason these two are public?",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 67
+      },
+      "revId": "455b10f3900e11c32aeaf33cf9ef33b2f041c726",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_6fcd1eb7",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/util/ClusterSingletonServiceRegistrationHelper.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2017-09-10T07:22:30Z",
+      "side": 1,
+      "message": "should not be split",
+      "range": {
+        "startLine": 44,
+        "startChar": 79,
+        "endLine": 45,
+        "endChar": 26
+      },
+      "revId": "455b10f3900e11c32aeaf33cf9ef33b2f041c726",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_cfc52a8f",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/util/ClusterSingletonServiceRegistrationHelper.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2017-09-10T07:22:30Z",
+      "side": 1,
+      "message": "missing javadoc",
+      "range": {
+        "startLine": 65,
+        "startChar": 3,
+        "endLine": 65,
+        "endChar": 78
+      },
+      "revId": "455b10f3900e11c32aeaf33cf9ef33b2f041c726",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
