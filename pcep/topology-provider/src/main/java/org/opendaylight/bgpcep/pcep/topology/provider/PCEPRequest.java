@@ -12,22 +12,28 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import java.util.Timer;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.OperationResult;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.lsp.metadata.Metadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 final class PCEPRequest {
+
+    private static final Logger LOG = LoggerFactory.getLogger(PCEPRequest.class);
+
+    private static final long MINIMUM_ELAPSED_TIME = 1;
+
     enum State {
         UNSENT,
         UNACKED,
         DONE,
     }
 
-    private static final Logger LOG = LoggerFactory.getLogger(PCEPRequest.class);
     private final SettableFuture<OperationResult> future;
     private final Metadata metadata;
     private volatile State state;
+    @GuardedBy("this")
     private final Stopwatch stopwatch;
     private final Timer timer;
 
@@ -88,7 +94,12 @@ final class PCEPRequest {
         }
     }
 
-    long getElapsedMillis() {
-        return this.stopwatch.elapsed(TimeUnit.MILLISECONDS);
+    synchronized long getElapsedMillis() {
+        final long elapsedNanos = this.stopwatch.elapsed().toNanos();
+        final long elapsedMillis = TimeUnit.NANOSECONDS.toMillis(elapsedNanos);
+        if (elapsedMillis == 0 && elapsedNanos > 0) {
+            return  MINIMUM_ELAPSED_TIME;
+        }
+        return elapsedMillis;
     }
 }
