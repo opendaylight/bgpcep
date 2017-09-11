@@ -20,6 +20,7 @@ import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createL
 import static org.opendaylight.protocol.util.CheckUtil.checkEquals;
 import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentOperational;
 import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import java.net.UnknownHostException;
@@ -99,7 +100,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.Path;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 
-public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTest<Stateful07TopologySessionListenerFactory> {
+public class Stateful07TopologySessionListenerTest
+    extends AbstractPCEPSessionTest<Stateful07TopologySessionListenerFactory> {
 
     private final String TUNNEL_NAME = "pcc_" + this.testAddress + "_tunnel_0";
 
@@ -171,7 +173,8 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         checkEquals(()->assertEquals(1, this.listener.getDelegatedLspsCount().intValue()));
         checkEquals(()->assertTrue(this.listener.getSynchronized()));
         checkEquals(()->assertTrue(this.listener.getStatefulMessages().getLastReceivedRptMsgTimestamp() > 0));
-        checkEquals(()->assertEquals(2, this.listener.getStatefulMessages().getReceivedRptMsgCount().intValue()));
+        checkEquals(()->assertEquals(2,
+            this.listener.getStatefulMessages().getReceivedRptMsgCount().intValue()));
         checkEquals(()->assertEquals(1, this.listener.getStatefulMessages().getSentInitMsgCount().intValue()));
         checkEquals(()->assertEquals(0, this.listener.getStatefulMessages().getSentUpdMsgCount().intValue()));
         checkEquals(()->assertNotNull(this.listener.getSessionState()));
@@ -261,12 +264,15 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         checkEquals(()->assertEquals(0, this.listener.getDelegatedLspsCount().intValue()));
         checkEquals(()->assertTrue(this.listener.getSynchronized()));
         checkEquals(()->assertTrue(this.listener.getStatefulMessages().getLastReceivedRptMsgTimestamp() > 0));
-        checkEquals(()->assertEquals(4, this.listener.getStatefulMessages().getReceivedRptMsgCount().intValue()));
+        checkEquals(()->assertEquals(4, this.listener.getStatefulMessages()
+            .getReceivedRptMsgCount().intValue()));
         checkEquals(()->assertEquals(2, this.listener.getStatefulMessages().getSentInitMsgCount().intValue()));
         checkEquals(()->assertEquals(1, this.listener.getStatefulMessages().getSentUpdMsgCount().intValue()));
         checkEquals(()->this.listener.resetStats());
-        checkEquals(()->assertEquals(0, this.listener.getStatefulMessages().getLastReceivedRptMsgTimestamp().longValue()));
-        checkEquals(()->assertEquals(0, this.listener.getStatefulMessages().getReceivedRptMsgCount().intValue()));
+        checkEquals(()->assertEquals(0, this.listener.getStatefulMessages()
+            .getLastReceivedRptMsgTimestamp().longValue()));
+        checkEquals(()->assertEquals(0, this.listener.getStatefulMessages()
+            .getReceivedRptMsgCount().intValue()));
         checkEquals(()->assertEquals(0, this.listener.getStatefulMessages().getSentInitMsgCount().intValue()));
         checkEquals(()->assertEquals(0, this.listener.getStatefulMessages().getSentUpdMsgCount().intValue()));
         checkEquals(()->assertEquals(0, this.listener.getReplyTime().getAverageTime().longValue()));
@@ -454,7 +460,8 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
     public void testConflictingListeners() throws Exception {
         this.listener.onSessionUp(this.session);
         assertFalse(this.session.isClosed());
-        Stateful07TopologySessionListener conflictingListener = (Stateful07TopologySessionListener) getSessionListener();
+        Stateful07TopologySessionListener conflictingListener =
+            (Stateful07TopologySessionListener) getSessionListener();
         conflictingListener.onSessionUp(this.session);
         assertTrue(this.session.isClosed());
     }
