@@ -12,6 +12,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Stopwatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.LongAdder;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.ErrorMessages;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.LastReceivedError;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.LastSentError;
@@ -29,19 +30,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 final class SessionListenerState {
-    private long lastReceivedRptMsgTimestamp = 0;
-    private long receivedRptMsgCount = 0;
-    private long sentUpdMsgCount = 0;
-    private long sentInitMsgCount = 0;
+    private final LongAdder lastReceivedRptMsgTimestamp = new LongAdder();
+    private final LongAdder receivedRptMsgCount = new LongAdder();
+    private final LongAdder sentUpdMsgCount = new LongAdder();
+    private final LongAdder sentInitMsgCount = new LongAdder();
     private PeerCapabilities capa;
     private LocalPref localPref;
     private PeerPref peerPref;
     private final Stopwatch sessionUpDuration;
 
-    private long minReplyTime = 0;
-    private long maxReplyTime = 0;
-    private long totalTime = 0;
-    private long reqCount = 0;
+    private final LongAdder minReplyTime = new LongAdder();
+    private final LongAdder maxReplyTime = new LongAdder();
+    private final LongAdder totalTime = new LongAdder();
+    private final LongAdder reqCount = new LongAdder();
 
     public SessionListenerState() {
         this.sessionUpDuration = Stopwatch.createUnstarted();
@@ -55,52 +56,53 @@ final class SessionListenerState {
         this.sessionUpDuration.start();
     }
 
-    public void processRequestStats(final long duration) {
-        if (this.minReplyTime == 0) {
-            this.minReplyTime = duration;
-        } else {
-            if (duration < this.minReplyTime) {
-                this.minReplyTime = duration;
-            }
+    public synchronized void processRequestStats(final long duration) {
+        if (this.minReplyTime.longValue() == 0) {
+            this.minReplyTime.reset();
+            this.minReplyTime.add(duration);
+        } else if (duration < this.minReplyTime.longValue()) {
+            this.minReplyTime.reset();
+            this.minReplyTime.add(duration);
         }
-        if (duration > this.maxReplyTime) {
-            this.maxReplyTime = duration;
+        if (duration > this.maxReplyTime.longValue()) {
+            this.maxReplyTime.reset();
+            this.maxReplyTime.add(duration);
         }
-        this.totalTime += duration;
-        this.reqCount++;
+        this.totalTime.add(duration);
+        this.reqCount.increment();
     }
 
-    public StatefulMessages getStatefulMessages() {
+    public synchronized StatefulMessages getStatefulMessages() {
         final StatefulMessages msgs = new StatefulMessages();
-        msgs.setLastReceivedRptMsgTimestamp(this.lastReceivedRptMsgTimestamp);
-        msgs.setReceivedRptMsgCount(this.receivedRptMsgCount);
-        msgs.setSentInitMsgCount(this.sentInitMsgCount);
-        msgs.setSentUpdMsgCount(this.sentUpdMsgCount);
+        msgs.setLastReceivedRptMsgTimestamp(this.lastReceivedRptMsgTimestamp.longValue());
+        msgs.setReceivedRptMsgCount(this.receivedRptMsgCount.longValue());
+        msgs.setSentInitMsgCount(this.sentInitMsgCount.longValue());
+        msgs.setSentUpdMsgCount(this.sentUpdMsgCount.longValue());
         return msgs;
     }
 
-    public void resetStats(final PCEPSession session) {
+    public synchronized void resetStats(final PCEPSession session) {
         requireNonNull(session);
-        this.receivedRptMsgCount = 0;
-        this.sentInitMsgCount = 0;
-        this.sentUpdMsgCount = 0;
-        this.lastReceivedRptMsgTimestamp = 0;
-        this.maxReplyTime = 0;
-        this.minReplyTime = 0;
-        this.totalTime = 0;
-        this.reqCount = 0;
+        this.receivedRptMsgCount.reset();
+        this.sentInitMsgCount.reset();
+        this.sentUpdMsgCount.reset();
+        this.lastReceivedRptMsgTimestamp.reset();
+        this.maxReplyTime.reset();
+        this.minReplyTime.reset();
+        this.totalTime.reset();
+        this.reqCount.reset();
         session.resetStats();
     }
 
-    public ReplyTime getReplyTime() {
+    public synchronized ReplyTime getReplyTime() {
         final ReplyTime time = new ReplyTime();
         long avg = 0;
-        if (this.reqCount != 0) {
-            avg = this.totalTime / this.reqCount;
+        if (this.reqCount.longValue() != 0) {
+            avg = Math.round((double)this.totalTime.longValue()/this.reqCount.longValue());
         }
         time.setAverageTime(avg);
-        time.setMaxTime(this.maxReplyTime);
-        time.setMinTime(this.minReplyTime);
+        time.setMaxTime(this.maxReplyTime.longValue());
+        time.setMinTime(this.minReplyTime.longValue());
         return time;
     }
 
@@ -123,19 +125,21 @@ final class SessionListenerState {
     }
 
     public void updateLastReceivedRptMsg() {
-        this.lastReceivedRptMsgTimestamp = StatisticsUtil.getCurrentTimestampInSeconds();
-        this.receivedRptMsgCount++;
+        this.lastReceivedRptMsgTimestamp.reset();
+        this.lastReceivedRptMsgTimestamp.add(StatisticsUtil.getCurrentTimestampInSeconds());
+        this.receivedRptMsgCount.increment();
     }
 
     public void updateStatefulSentMsg(final Message msg) {
         if (msg instanceof Pcinitiate) {
-            this.sentInitMsgCount++;
+            this.sentInitMsgCount.increment();
         } else if (msg instanceof Pcupd) {
-            this.sentUpdMsgCount++;
+            this.sentUpdMsgCount.increment();
         }
     }
 
-    private static LocalPref getLocalPref(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev141006.pcep.session.state.LocalPref localPref) {
+    private static LocalPref getLocalPref(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+        .controller.pcep.stats.rev141006.pcep.session.state.LocalPref localPref) {
         final LocalPref local = new LocalPref();
         local.setDeadtimer(localPref.getDeadtimer());
         local.setIpAddress(localPref.getIpAddress());
@@ -144,7 +148,8 @@ final class SessionListenerState {
         return local;
     }
 
-    private static PeerPref getPeerPref(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev141006.pcep.session.state.PeerPref peerPref) {
+    private static PeerPref getPeerPref(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+        .controller.pcep.stats.rev141006.pcep.session.state.PeerPref peerPref) {
         final PeerPref peer = new PeerPref();
         peer.setDeadtimer(peerPref.getDeadtimer());
         peer.setIpAddress(peerPref.getIpAddress());
@@ -153,7 +158,8 @@ final class SessionListenerState {
         return peer;
     }
 
-    private static Messages getMessageStats(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev141006.pcep.session.state.Messages messages) {
+    private static Messages getMessageStats(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+        .controller.pcep.stats.rev141006.pcep.session.state.Messages messages) {
         final LastReceivedError lastReceivedError = new LastReceivedError();
         lastReceivedError.setErrorType(messages.getErrorMessages().getLastReceivedError().getErrorType());
         lastReceivedError.setErrorValue(messages.getErrorMessages().getLastReceivedError().getErrorValue());
