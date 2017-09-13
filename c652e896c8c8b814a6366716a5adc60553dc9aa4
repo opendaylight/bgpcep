@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_a0eb9c11",
+        "filename": "pcep/impl/src/test/java/org/opendaylight/protocol/pcep/impl/PCEPSessionImplTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-09-13T07:27:28Z",
+      "side": 1,
+      "message": "line lenght",
+      "revId": "c652e896c8c8b814a6366716a5adc60553dc9aa4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_608ec47a",
+        "filename": "pcep/impl/src/test/java/org/opendaylight/protocol/pcep/impl/PCEPSessionImplTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-09-13T07:27:28Z",
+      "side": 1,
+      "message": "never()",
+      "range": {
+        "startLine": 168,
+        "startChar": 37,
+        "endLine": 168,
+        "endChar": 53
+      },
+      "revId": "c652e896c8c8b814a6366716a5adc60553dc9aa4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_80f018ff",
+        "filename": "pcep/impl/src/test/java/org/opendaylight/protocol/pcep/impl/PCEPSessionImplTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-09-13T07:27:28Z",
+      "side": 1,
+      "message": "rename to ignored.",
+      "range": {
+        "startLine": 174,
+        "startChar": 40,
+        "endLine": 174,
+        "endChar": 41
+      },
+      "revId": "c652e896c8c8b814a6366716a5adc60553dc9aa4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_408bc067",
+        "filename": "pcep/impl/src/test/java/org/opendaylight/protocol/pcep/impl/PCEPSessionImplTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-09-13T07:27:28Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 176,
+        "startChar": 35,
+        "endLine": 176,
+        "endChar": 53
+      },
+      "revId": "c652e896c8c8b814a6366716a5adc60553dc9aa4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
