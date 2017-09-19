@@ -12,7 +12,7 @@
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>odl-bgpcep-programming-impl</artifactId>
-    <version>0.8.0-SNAPSHOT</version>
+    <version>0.8.0</version>
     <packaging>feature</packaging>
 
     <name>OpenDaylight :: PCEP :: Programming Impl</name>
