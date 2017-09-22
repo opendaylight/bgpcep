@@ -94,7 +94,7 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer, BGPPeerRun
     }
 
     @Override
-    public void close() {
+    public synchronized void close() {
         closeSingletonService();
         if (this.serviceRegistration != null) {
             this.serviceRegistration.unregister();
@@ -111,11 +111,13 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer, BGPPeerRun
     }
 
     private void closeSingletonService() {
-        try {
-            this.bgpPeerSingletonService.close();
-            this.bgpPeerSingletonService = null;
-        } catch (final Exception e) {
-            LOG.warn("Failed to close peer instance", e);
+        if (this.bgpPeerSingletonService != null) {
+            try {
+                this.bgpPeerSingletonService.close();
+                this.bgpPeerSingletonService = null;
+            } catch (final Exception e) {
+                LOG.warn("Failed to close peer instance", e);
+            }
         }
     }
 

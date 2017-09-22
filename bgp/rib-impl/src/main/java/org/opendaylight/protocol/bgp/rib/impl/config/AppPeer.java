@@ -61,12 +61,14 @@ public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
     }
 
     @Override
-    public void close() {
-        try {
-            this.bgpAppPeerSingletonService.close();
-            this.bgpAppPeerSingletonService = null;
-        } catch (final Exception e) {
-            LOG.warn("Failed to close application peer instance", e);
+    public synchronized void close() {
+        if (this.bgpAppPeerSingletonService != null) {
+            try {
+                this.bgpAppPeerSingletonService.close();
+                this.bgpAppPeerSingletonService = null;
+            } catch (final Exception e) {
+                LOG.warn("Failed to close application peer instance", e);
+            }
         }
         if (this.serviceRegistration != null) {
             this.serviceRegistration.unregister();
