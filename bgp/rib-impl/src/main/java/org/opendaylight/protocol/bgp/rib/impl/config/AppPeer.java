@@ -41,12 +41,15 @@ import org.slf4j.LoggerFactory;
 public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
     private static final Logger LOG = LoggerFactory.getLogger(AppPeer.class);
     private static final QName APP_ID_QNAME = QName.create(ApplicationRib.QNAME, "id").intern();
+    @GuardedBy("this")
     private Neighbor currentConfiguration;
+    @GuardedBy("this")
     private BgpAppPeerSingletonService bgpAppPeerSingletonService;
+    @GuardedBy("this")
     private ServiceRegistration<?> serviceRegistration;
 
     @Override
-    public void start(final RIB rib, final Neighbor neighbor, final BGPTableTypeRegistryConsumer tableTypeRegistry,
+    public synchronized void start(final RIB rib, final Neighbor neighbor, final BGPTableTypeRegistryConsumer tableTypeRegistry,
         final WriteConfiguration configurationWriter) {
         Preconditions.checkState(this.bgpAppPeerSingletonService == null, "Previous peer instance was not closed.");
         this.currentConfiguration = neighbor;
@@ -55,18 +58,20 @@ public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
     }
 
     @Override
-    public void restart(final RIB rib, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
+    public synchronized void restart(final RIB rib, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         Preconditions.checkState(this.currentConfiguration != null);
         start(rib, this.currentConfiguration, tableTypeRegistry, null);
     }
 
     @Override
-    public void close() {
-        try {
-            this.bgpAppPeerSingletonService.close();
-            this.bgpAppPeerSingletonService = null;
-        } catch (final Exception e) {
-            LOG.warn("Failed to close application peer instance", e);
+    public synchronized void close() {
+        if (this.bgpAppPeerSingletonService != null) {
+            try {
+                this.bgpAppPeerSingletonService.close();
+                this.bgpAppPeerSingletonService = null;
+            } catch (final Exception e) {
+                LOG.warn("Failed to close application peer instance", e);
+            }
         }
         if (this.serviceRegistration != null) {
             this.serviceRegistration.unregister();
@@ -75,7 +80,7 @@ public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
     }
 
     @Override
-    public ListenableFuture<Void> closeServiceInstance() {
+    public synchronized ListenableFuture<Void> closeServiceInstance() {
         if (this.bgpAppPeerSingletonService != null) {
             return this.bgpAppPeerSingletonService.closeServiceInstance();
         }
@@ -102,7 +107,7 @@ public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
         return this.bgpAppPeerSingletonService.getPeerState();
     }
 
-    void setServiceRegistration(final ServiceRegistration<?> serviceRegistration) {
+    synchronized void setServiceRegistration(final ServiceRegistration<?> serviceRegistration) {
         this.serviceRegistration = serviceRegistration;
     }
 
