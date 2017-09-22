@@ -6,6 +6,7 @@
   <reference id="globalBossGroup" interface="io.netty.channel.EventLoopGroup" odl:type="global-boss-group"/>
   <reference id="globalWorkerGroup" interface="io.netty.channel.EventLoopGroup" odl:type="global-worker-group"/>
   <reference id="clusterSingletonServiceProvider" interface="org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider"/>
+  <reference id="extensionProviderContext" interface="org.opendaylight.protocol.bgp.rib.impl.RIBExtensionProviderContext"/>
 
   <bean id="BGPPeerRegistry" class="org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry"
           factory-method="instance" destroy-method="close"/>
