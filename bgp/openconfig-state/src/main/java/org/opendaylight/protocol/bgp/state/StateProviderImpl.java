@@ -175,7 +175,8 @@ public final class StateProviderImpl implements TransactionChainListener, Cluste
     public synchronized ListenableFuture<Void> closeServiceInstance() {
         this.scheduleTask.cancel(true);
         final WriteTransaction wTx = this.transactionChain.newWriteOnlyTransaction();
-        this.instanceIdentifiersCache.keySet().forEach(ribId -> removeStoredOperationalState(ribId, wTx));
+        this.instanceIdentifiersCache.keySet().stream().collect(Collectors.toSet())
+                .forEach(ribId -> removeStoredOperationalState(ribId, wTx));
         final CheckedFuture<Void, TransactionCommitFailedException> futureDelete = wTx.submit();
         this.transactionChain.close();
         return futureDelete;
