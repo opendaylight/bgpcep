@@ -72,8 +72,11 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer, BGPPeerRun
     private static final Logger LOG = LoggerFactory.getLogger(BgpPeer.class);
 
     private final RpcProviderRegistry rpcRegistry;
+    @GuardedBy("this")
     private ServiceRegistration<?> serviceRegistration;
+    @GuardedBy("this")
     private Neighbor currentConfiguration;
+    @GuardedBy("this")
     private BgpPeerSingletonService bgpPeerSingletonService;
 
     public BgpPeer(final RpcProviderRegistry rpcRegistry) {
@@ -81,7 +84,7 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer, BGPPeerRun
     }
 
     @Override
-    public void start(final RIB rib, final Neighbor neighbor, final BGPTableTypeRegistryConsumer tableTypeRegistry,
+    public synchronized void start(final RIB rib, final Neighbor neighbor, final BGPTableTypeRegistryConsumer tableTypeRegistry,
         final WriteConfiguration configurationWriter) {
         Preconditions.checkState(this.bgpPeerSingletonService == null, "Previous peer instance was not closed.");
         this.bgpPeerSingletonService = new BgpPeerSingletonService(rib, neighbor, tableTypeRegistry, configurationWriter);
@@ -89,13 +92,13 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer, BGPPeerRun
     }
 
     @Override
-    public void restart(final RIB rib, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
+    public synchronized void restart(final RIB rib, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         Preconditions.checkState(this.currentConfiguration != null);
         start(rib, this.currentConfiguration, tableTypeRegistry, null);
     }
 
     @Override
-    public void close() {
+    public synchronized void close() {
         closeSingletonService();
         if (this.serviceRegistration != null) {
             this.serviceRegistration.unregister();
@@ -104,7 +107,7 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer, BGPPeerRun
     }
 
     @Override
-    public ListenableFuture<Void> closeServiceInstance() {
+    public synchronized ListenableFuture<Void> closeServiceInstance() {
         if (this.bgpPeerSingletonService != null) {
             return this.bgpPeerSingletonService.closeServiceInstance();
         }
@@ -112,11 +115,13 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer, BGPPeerRun
     }
 
     private void closeSingletonService() {
-        try {
-            this.bgpPeerSingletonService.close();
-            this.bgpPeerSingletonService = null;
-        } catch (final Exception e) {
-            LOG.warn("Failed to close peer instance", e);
+        if (this.bgpPeerSingletonService != null) {
+            try {
+                this.bgpPeerSingletonService.close();
+                this.bgpPeerSingletonService = null;
+            } catch (final Exception e) {
+                LOG.warn("Failed to close peer instance", e);
+            }
         }
     }
 
@@ -210,7 +215,7 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer, BGPPeerRun
         return this.bgpPeerSingletonService.getPeerState();
     }
 
-    void setServiceRegistration(final ServiceRegistration<?> serviceRegistration) {
+    synchronized void setServiceRegistration(final ServiceRegistration<?> serviceRegistration) {
         this.serviceRegistration = serviceRegistration;
     }
 
