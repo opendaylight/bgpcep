@@ -31,6 +31,7 @@ import com.google.common.primitives.Shorts;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -379,6 +380,10 @@ public class OpenConfigMappingUtilTest {
         expected.put(new BgpTableTypeImpl(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class), ADD_PATH_BEST_ALL_PATH_SELECTION);
         assertEquals(expected.get(0), result.get(0));
         assertEquals(expected.get(1), result.get(1));
+        assertTrue(OpenConfigMappingUtil.toPathSelectionMode(
+                Arrays.asList(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
+                        .addAugmentation(AfiSafi2.class, new AfiSafi2Builder().build()).build()),
+                this.tableTypeRegistry).isEmpty());
     }
 
     @Test
