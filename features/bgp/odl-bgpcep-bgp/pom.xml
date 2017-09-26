@@ -51,12 +51,6 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-rib-impl</artifactId>
-            <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-bgp-openconfig-state</artifactId>
             <classifier>features</classifier>
             <type>xml</type>
