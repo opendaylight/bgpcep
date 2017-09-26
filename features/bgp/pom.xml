@@ -37,7 +37,6 @@
         <module>odl-bgpcep-bgp-l3vpn</module>
         <module>odl-bgpcep-bgp-evpn</module>
         <module>odl-bgpcep-bgp-path-selection-mode</module>
-        <module>odl-bgpcep-bgp-rib-impl</module>
         <module>odl-bgpcep-bgp-topology</module>
         <module>odl-bgpcep-bgp-benchmark</module>
         <module>odl-bgpcep-bgp-cli</module>
