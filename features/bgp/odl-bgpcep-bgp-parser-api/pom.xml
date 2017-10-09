@@ -11,11 +11,11 @@
     </parent>
 
     <groupId>org.opendaylight.bgpcep</groupId>
-    <artifactId>odl-bgpcep-bgp-evpn</artifactId>
+    <artifactId>odl-bgpcep-bgp-parser-api</artifactId>
     <version>0.9.0-SNAPSHOT</version>
     <packaging>feature</packaging>
 
-    <name>OpenDaylight :: BGP :: Evpn</name>
+    <name>OpenDaylight :: BGP :: Parser :: API</name>
 
     <dependencyManagement>
         <!-- ODL-BGP-ARTIFACTS -->
@@ -27,29 +27,34 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>dependency-version-management</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-evpn</artifactId>
+            <artifactId>bgp-parser-api</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-parser</artifactId>
+            <artifactId>bgp-parser-spi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>odl-bgpcep-bgp-dependencies</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-openconfig</artifactId>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bmp-api</artifactId>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>odl-config-core</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
@@ -70,5 +75,4 @@
             <url>${nexus.site.url}/${project.artifactId}/</url>
         </site>
     </distributionManagement>
-    
 </project>
