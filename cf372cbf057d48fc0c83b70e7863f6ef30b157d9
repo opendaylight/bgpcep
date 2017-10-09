@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_7bf3b073",
+        "filename": "bgp/openconfig-state/src/main/java/org/opendaylight/protocol/bgp/state/StateProviderImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2017-10-09T17:33:53Z",
+      "side": 1,
+      "message": "why we need to convert the keySet to a set first?",
+      "revId": "cf372cbf057d48fc0c83b70e7863f6ef30b157d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_bbed288e",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/AppPeer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2017-10-09T17:33:53Z",
+      "side": 1,
+      "message": "should we also make start() / closeSingletonService() synchronized as well? otherwise this synchronized doesn\u0027t make any difference",
+      "revId": "cf372cbf057d48fc0c83b70e7863f6ef30b157d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_fbfe8037",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpPeer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2017-10-09T17:33:53Z",
+      "side": 1,
+      "message": "need to make start()/ closeSingletonService() synchronized?",
+      "revId": "cf372cbf057d48fc0c83b70e7863f6ef30b157d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
