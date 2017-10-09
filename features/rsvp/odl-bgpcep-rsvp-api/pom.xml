@@ -11,11 +11,11 @@
     </parent>
 
     <groupId>org.opendaylight.bgpcep</groupId>
-    <artifactId>odl-bgpcep-bgp-linkstate</artifactId>
+    <artifactId>odl-bgpcep-rsvp-api</artifactId>
     <version>0.8.1-SNAPSHOT</version>
     <packaging>feature</packaging>
 
-    <name>OpenDaylight :: BGP :: RIB Linkstate</name>
+    <name>OpenDaylight :: RSVP :: API</name>
 
     <dependencyManagement>
         <!-- ODL-BGP-ARTIFACTS -->
@@ -33,35 +33,17 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-bmp-api</artifactId>
+            <artifactId>rsvp-api</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-linkstate</artifactId>
+            <artifactId>rsvp-spi</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-parser</artifactId>
-            <type>xml</type>
+            <artifactId>odl-bgpcep-rsvp-dependencies</artifactId>
             <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-openconfig</artifactId>
             <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bmp-api</artifactId>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-rsvp</artifactId>
-            <type>xml</type>
-            <classifier>features</classifier>
         </dependency>
     </dependencies>
 

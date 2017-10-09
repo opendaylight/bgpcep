@@ -542,6 +542,13 @@
             </dependency>
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>odl-bgpcep-bgp-parser-api</artifactId>
+                <classifier>features</classifier>
+                <type>xml</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
                 <artifactId>odl-bgpcep-bgp-rib-api</artifactId>
                 <classifier>features</classifier>
                 <type>xml</type>
@@ -631,6 +638,7 @@
                 <type>xml</type>
                 <version>${project.version}</version>
             </dependency>
+
             <!-- BMP Features artifacts -->
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
@@ -646,6 +654,14 @@
                 <type>xml</type>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>odl-bgpcep-bmp-api</artifactId>
+                <classifier>features</classifier>
+                <type>xml</type>
+                <version>${project.version}</version>
+            </dependency>
+
             <!-- Extras Features artifacts -->
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
@@ -777,7 +793,7 @@
             </dependency>
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
-                <artifactId>odl-bgpcep-rsvp-dependencies</artifactId>
+                <artifactId>odl-bgpcep-rsvp-api</artifactId>
                 <classifier>features</classifier>
                 <type>xml</type>
                 <version>${project.version}</version>
@@ -785,6 +801,13 @@
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
                 <artifactId>odl-bgpcep-rsvp</artifactId>
+                <classifier>features</classifier>
+                <type>xml</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>odl-bgpcep-rsvp-dependencies</artifactId>
                 <classifier>features</classifier>
                 <type>xml</type>
                 <version>${project.version}</version>
