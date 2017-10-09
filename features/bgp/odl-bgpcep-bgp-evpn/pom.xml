@@ -33,10 +33,6 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-bmp-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>bgp-evpn</artifactId>
         </dependency>
         <dependency>
@@ -47,13 +43,13 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-rib-api</artifactId>
+            <artifactId>odl-bgpcep-bgp-openconfig</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-openconfig</artifactId>
+            <artifactId>odl-bgpcep-bmp-api</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>

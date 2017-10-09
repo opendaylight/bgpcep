@@ -11,11 +11,11 @@
     </parent>
 
     <groupId>org.opendaylight.bgpcep</groupId>
-    <artifactId>odl-bgpcep-bgp-linkstate</artifactId>
+    <artifactId>odl-bgpcep-bgp-parser-api</artifactId>
     <version>0.8.1-SNAPSHOT</version>
     <packaging>feature</packaging>
 
-    <name>OpenDaylight :: BGP :: RIB Linkstate</name>
+    <name>OpenDaylight :: BGP :: Parser :: API</name>
 
     <dependencyManagement>
         <!-- ODL-BGP-ARTIFACTS -->
@@ -27,39 +27,34 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>dependency-version-management</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-bmp-api</artifactId>
+            <artifactId>bgp-parser-api</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-linkstate</artifactId>
+            <artifactId>bgp-parser-spi</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-parser</artifactId>
+            <artifactId>odl-bgpcep-bgp-dependencies</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-openconfig</artifactId>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bmp-api</artifactId>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-rsvp</artifactId>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>odl-config-core</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>

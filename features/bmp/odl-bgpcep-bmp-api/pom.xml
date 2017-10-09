@@ -11,18 +11,25 @@
     </parent>
 
     <groupId>org.opendaylight.bgpcep</groupId>
-    <artifactId>odl-bgpcep-bgp-linkstate</artifactId>
+    <artifactId>odl-bgpcep-bmp-api</artifactId>
     <version>0.8.1-SNAPSHOT</version>
     <packaging>feature</packaging>
 
-    <name>OpenDaylight :: BGP :: RIB Linkstate</name>
+    <name>OpenDaylight :: BMP :: API</name>
 
     <dependencyManagement>
-        <!-- ODL-BGP-ARTIFACTS -->
         <dependencies>
+            <!-- ODL-BGP-ARTIFACTS -->
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
                 <artifactId>bgpcep-artifacts</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>dependency-version-management</artifactId>
                 <version>${project.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
@@ -33,35 +40,18 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>odl-bgpcep-bgp-rib-api</artifactId>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>bgp-bmp-api</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-linkstate</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-parser</artifactId>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-openconfig</artifactId>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bmp-api</artifactId>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-rsvp</artifactId>
-            <type>xml</type>
-            <classifier>features</classifier>
+            <artifactId>bgp-bmp-spi</artifactId>
         </dependency>
     </dependencies>
 
