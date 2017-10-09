@@ -6,20 +6,20 @@
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>single-feature-parent</artifactId>
-        <version>1.8.2-SNAPSHOT</version>
+        <version>1.8.2-Carbon</version>
         <relativePath/>
     </parent>
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>odl-bgpcep-rsvp-dependencies</artifactId>
-    <version>0.7.2-SNAPSHOT</version>
+    <version>0.7.2-Carbon</version>
     <packaging>feature</packaging>
 
     <name>OpenDaylight :: RSVP :: Dependencies</name>
 
     <properties>
-        <config.version>0.6.2-SNAPSHOT</config.version>
-        <mdsal.binding.base>0.10.2-SNAPSHOT</mdsal.binding.base>
+        <config.version>0.6.2-Carbon</config.version>
+        <mdsal.binding.base>0.10.2-Carbon</mdsal.binding.base>
     </properties>
 
     <dependencyManagement>
