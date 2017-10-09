@@ -40,22 +40,6 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-bmp-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-bmp-spi</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-bmp-parser-impl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-bmp-impl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-bgp-dependencies</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
@@ -68,7 +52,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-rib-api</artifactId>
+            <artifactId>odl-bgpcep-bmp-api</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
@@ -149,6 +133,15 @@
             <artifactId>bgp-controller-config</artifactId>
             <type>xml</type>
             <classifier>bmp-config-example</classifier>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-bmp-parser-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-bmp-impl</artifactId>
         </dependency>
     </dependencies>
 
