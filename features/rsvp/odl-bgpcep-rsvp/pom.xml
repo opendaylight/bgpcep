@@ -33,21 +33,20 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>rsvp-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>rsvp-spi</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>rsvp-impl</artifactId>
+            <artifactId>odl-bgpcep-rsvp-api</artifactId>
+            <classifier>features</classifier>
+            <type>xml</type>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-rsvp-dependencies</artifactId>
             <classifier>features</classifier>
             <type>xml</type>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>rsvp-impl</artifactId>
         </dependency>
     </dependencies>
 
