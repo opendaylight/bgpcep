@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_36ee6fed",
+        "filename": "bgp/openconfig-state/src/main/java/org/opendaylight/protocol/bgp/state/StateProviderImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2017-10-09T19:03:44Z",
+      "side": 1,
+      "message": "It is required as it results in concurrent modification exception (refer traceback in bug) bcoz removeStoredOperationalState() removes entry from the map while it is being iterated over",
+      "parentUuid": "9a245df4_7bf3b073",
+      "revId": "cf372cbf057d48fc0c83b70e7863f6ef30b157d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_bbed288e",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/AppPeer.java",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_b6b9bfeb",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/AppPeer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2017-10-09T19:03:44Z",
+      "side": 1,
+      "message": "NPE in the bug is caused by close() being called twice and there is potential of them racing with each other and the synchronization added protects against that. I agree that start()/closeSingletonService() could also race with it if things happen in quick succession. I have added synchronization for that as well now",
+      "parentUuid": "9a245df4_bbed288e",
+      "revId": "cf372cbf057d48fc0c83b70e7863f6ef30b157d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_fbfe8037",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpPeer.java",
         "patchSetId": 1
@@ -47,6 +83,24 @@
       "writtenOn": "2017-10-09T17:33:53Z",
       "side": 1,
       "message": "need to make start()/ closeSingletonService() synchronized?",
+      "revId": "cf372cbf057d48fc0c83b70e7863f6ef30b157d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_16cecb83",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpPeer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2017-10-09T19:03:44Z",
+      "side": 1,
+      "message": "Similar comment as fat AppPeer.java change",
+      "parentUuid": "9a245df4_fbfe8037",
       "revId": "cf372cbf057d48fc0c83b70e7863f6ef30b157d9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
