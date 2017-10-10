@@ -7,7 +7,6 @@
  */
 package org.opendaylight.bgp.concepts;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
@@ -17,6 +16,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv6NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv6NextHopCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.ipv6.next.hop._case.Ipv6NextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.ipv6.next.hop._case.Ipv6NextHopBuilder;
@@ -38,13 +38,25 @@ public final class NextHopUtil {
      */
     public static void serializeNextHop(final CNextHop cnextHop, final ByteBuf byteAggregator) {
         if (cnextHop instanceof Ipv4NextHopCase) {
-            byteAggregator.writeBytes(Ipv4Util.bytesForAddress(((Ipv4NextHopCase) cnextHop).getIpv4NextHop().getGlobal()));
+            final Ipv4NextHop nextHop = ((Ipv4NextHopCase) cnextHop).getIpv4NextHop();
+            // it is possible next hop is null, e.g. empty container ( "ipv4-next-hop": {} )
+            // TODO if null value is not allowed, it should be forbidden via commit cohort
+            // and make the leaf mandatory
+            if (nextHop != null && nextHop.getGlobal() != null) {
+                byteAggregator.writeBytes(Ipv4Util.bytesForAddress(nextHop.getGlobal()));
+            }
         } else if (cnextHop instanceof Ipv6NextHopCase) {
             final Ipv6NextHop nextHop = ((Ipv6NextHopCase) cnextHop).getIpv6NextHop();
-            Preconditions.checkArgument(nextHop.getGlobal() != null, "Ipv6 Next Hop is missing Global address.");
-            byteAggregator.writeBytes(Ipv6Util.bytesForAddress(nextHop.getGlobal()));
-            if (nextHop.getLinkLocal() != null) {
-                byteAggregator.writeBytes(Ipv6Util.bytesForAddress(nextHop.getLinkLocal()));
+            if (nextHop != null) {
+                if (nextHop.getGlobal() != null) {
+                    byteAggregator.writeBytes(Ipv6Util.bytesForAddress(nextHop.getGlobal()));
+                    if (nextHop.getLinkLocal() != null) {
+                        byteAggregator.writeBytes(Ipv6Util.bytesForAddress(nextHop.getLinkLocal()));
+                    }
+                } else if (nextHop.getLinkLocal() != null) {
+                    // a link-local address shouldn't exist when global address is not there
+                    throw new IllegalArgumentException("Ipv6 Next Hop is missing Global address.");
+                }
             }
         } else if (!(cnextHop instanceof EmptyNextHopCase)) {
             throw new IllegalArgumentException("Cannot serialize NEXT_HOP. Class not supported: " + cnextHop);

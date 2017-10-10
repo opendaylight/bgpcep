@@ -56,7 +56,15 @@ public class NextHopUtilTest {
         NextHopUtil.serializeNextHop(hop, buffer);
         assertArrayEquals(ipv6lB, ByteArray.readAllBytes(buffer));
 
+        hop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().build()).build();
         buffer.clear();
+        NextHopUtil.serializeNextHop(hop, buffer);
+        assertEquals(0, buffer.writerIndex());
+
+        hop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder().build()).build();
+        buffer.clear();
+        NextHopUtil.serializeNextHop(hop, buffer);
+        assertEquals(0, buffer.writerIndex());
 
         hop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder().setLinkLocal(ipv6l).build()).build();
         buffer.clear();
