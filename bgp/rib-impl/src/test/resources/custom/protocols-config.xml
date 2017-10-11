@@ -19,7 +19,7 @@
        send-max = 0 (for all paths) or N (e.g. N = 2, for N paths).
 -->
 <protocols xmlns="http://openconfig.net/yang/network-instance">
-    <!--<protocol>
+    <protocol>
         <name>example-bgp-rib</name>
         <identifier xmlns:x="http://openconfig.net/yang/policy-types">x:BGP</identifier>
         <bgp xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
@@ -143,5 +143,5 @@
                 </neighbor>
             </neighbors>
         </bgp>
-    </protocol>-->
+    </protocol>
 </protocols>
