@@ -11,7 +11,7 @@
     usage requirements before use.
 -->
 <network-topology xmlns="urn:TBD:params:xml:ns:yang:network-topology">
-    <!--<topology>
+    <topology>
         <topology-id>example-ipv4-topology</topology-id>
         <topology-types>
             <bgp-ipv4-reachability-topology xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-topology-types"/>
@@ -31,5 +31,5 @@
             <bgp-linkstate-topology xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-topology-types"/>
         </topology-types>
         <rib-id xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-topology-config">example-bgp-rib</rib-id>
-    </topology>-->
+    </topology>
 </network-topology>

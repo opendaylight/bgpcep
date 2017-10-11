@@ -59,7 +59,10 @@ public final class NetworkTopologyConfigFileProcessor implements ConfigFileProce
     public void loadConfiguration(@Nonnull final NormalizedNode<?, ?> dto) {
         final ContainerNode networkTopologyContainer = (ContainerNode) dto;
         final MapNode topologyList = (MapNode) networkTopologyContainer.getChild(
-                topologyYii.getLastPathArgument()).get();
+                topologyYii.getLastPathArgument()).orNull();
+        if (topologyList == null) {
+            return;
+        }
         final Collection<MapEntryNode> networkTopology = topologyList.getValue();
         for (final MapEntryNode topology : networkTopology) {
             final Map.Entry<InstanceIdentifier<?>, DataObject> bi = this.bindingSerializer.fromNormalizedNode(this.topologyYii , topology);
