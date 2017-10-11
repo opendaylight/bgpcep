@@ -64,7 +64,10 @@ public final class ProtocolsConfigFileProcessor implements ConfigFileProcessor, 
     @Override
     public void loadConfiguration(@Nonnull final NormalizedNode<?, ?> dto) {
         final ContainerNode protocolsContainer = (ContainerNode) dto;
-        final MapNode protocolList = (MapNode) protocolsContainer.getChild(protocolYIId.getLastPathArgument()).get();
+        final MapNode protocolList = (MapNode) protocolsContainer.getChild(protocolYIId.getLastPathArgument()).orNull();
+        if (protocolList == null) {
+            return;
+        }
         final Collection<MapEntryNode> protocolsCollection = protocolList.getValue();
         for (final MapEntryNode protocolEntry : protocolsCollection) {
             final Map.Entry<InstanceIdentifier<?>, DataObject> bi = this.bindingSerializer.fromNormalizedNode(this.protocolYIId, protocolEntry);

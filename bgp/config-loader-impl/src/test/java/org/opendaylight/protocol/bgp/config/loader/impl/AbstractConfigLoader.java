@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.List;
 import javassist.ClassPool;
 import javax.annotation.concurrent.GuardedBy;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.mockito.Mock;
@@ -33,7 +32,6 @@ import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrate
 import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.mdsal.binding.generator.util.JavassistUtils;
 import org.opendaylight.protocol.bgp.config.loader.spi.ConfigFileProcessor;
-import org.opendaylight.protocol.bgp.config.loader.spi.ConfigLoader;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.opendaylight.yangtools.yang.test.util.YangParserTestUtils;
 
@@ -41,7 +39,7 @@ public abstract class AbstractConfigLoader {
     @GuardedBy("this")
     private final List<WatchEvent<?>> eventList = new ArrayList<>();
     protected BindingToNormalizedNodeCodec mappingService;
-    protected ConfigLoader configLoader;
+    protected SchemaContext schemaContext;
     @Mock
     protected WatchService watchService;
     @Mock
@@ -69,17 +67,11 @@ public abstract class AbstractConfigLoader {
             clearEvent();
             return null;
         }).when(this.processor).loadConfiguration(any());
-        final SchemaContext schemaContext = YangParserTestUtils.parseYangStreams(
-            getFilesAsStreams(getYangModelsPaths()));
-        this.configLoader = new ConfigLoaderImpl(schemaContext, this.mappingService, getResourceFolder(), this.watchService);
+		this.schemaContext = YangParserTestUtils.parseYangStreams(getFilesAsStreams(getYangModelsPaths()));
     }
 
     private synchronized void clearEvent() {
         this.eventList.clear();
-    }
-
-    protected String getResourceFolder() {
-        return ClassLoader.getSystemClassLoader().getResource("initial").getPath();
     }
 
     protected abstract void registerModules(final ModuleInfoBackedContext moduleInfoBackedContext) throws Exception;
@@ -104,10 +96,5 @@ public abstract class AbstractConfigLoader {
     protected synchronized void triggerEvent(final String filename) {
         doReturn(filename).when(this.watchEvent).context();
         this.eventList.add(this.watchEvent);
-    }
-
-    @After
-    public final void tearDown() throws Exception {
-        ((ConfigLoaderImpl) this.configLoader).close();
     }
 }

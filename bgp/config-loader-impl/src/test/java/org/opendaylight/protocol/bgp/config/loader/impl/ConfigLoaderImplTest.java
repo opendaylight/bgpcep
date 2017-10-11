@@ -20,6 +20,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
+import org.opendaylight.protocol.bgp.config.loader.spi.ConfigLoader;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.NetworkInstances;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstance;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.Protocols;
@@ -35,11 +36,6 @@ public class ConfigLoaderImplTest extends AbstractConfigLoader {
         final SchemaPath schemaPath = SchemaPath.create(true, NetworkInstances.QNAME, NetworkInstance.QNAME, Protocols.QNAME);
         doReturn(schemaPath).when(this.processor).getSchemaPath();
         doReturn("processor").when(this.processor).toString();
-    }
-
-    @Override
-    protected String getResourceFolder() {
-        return ClassLoader.getSystemClassLoader().getResource("etc/opendaylight/bgp").getPath();
     }
 
     @Override
@@ -67,7 +63,9 @@ public class ConfigLoaderImplTest extends AbstractConfigLoader {
     @Test
     public void configLoaderImplTest() throws Exception {
         assertNotNull(ClassLoader.getSystemClassLoader().getResource("etc/opendaylight/bgp/protocols-config.xml"));
-        final AbstractRegistration ticket = this.configLoader.registerConfigFile(this.processor);
+        final ConfigLoader configLoader = new ConfigLoaderImpl(this.schemaContext, this.mappingService,
+                ClassLoader.getSystemClassLoader().getResource("etc/opendaylight/bgp").getPath(), this.watchService);
+        final AbstractRegistration ticket = configLoader.registerConfigFile(this.processor);
         verify(this.processor).loadConfiguration(any());
 
         triggerEvent("protocols-config.xml");
@@ -76,5 +74,6 @@ public class ConfigLoaderImplTest extends AbstractConfigLoader {
         ticket.close();
         triggerEvent("protocols-config.xml");
         verify(this.processor, timeout(20000).times(2)).loadConfiguration(any());
+        ((ConfigLoaderImpl) configLoader).close();
     }
 }

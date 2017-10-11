@@ -26,6 +26,8 @@ import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyDeployer;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.protocol.bgp.config.loader.impl.AbstractConfigLoader;
+import org.opendaylight.protocol.bgp.config.loader.impl.ConfigLoaderImpl;
+import org.opendaylight.protocol.bgp.config.loader.spi.ConfigLoader;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -74,13 +76,34 @@ public class NetworkTopologyConfigFileProcessorTest extends AbstractConfigLoader
     }
 
     @Test
-    public void configFileTest() throws Exception {
+    public void defaultConfigFileTest() throws Exception {
         assertNotNull(ClassLoader.getSystemClassLoader().getResource("initial/network-topology-config.xml"));
         verify(this.bgpDeployer, never()).createInstance(any());
-        final NetworkTopologyConfigFileProcessor processor = new NetworkTopologyConfigFileProcessor(this.configLoader, this.bgpDeployer);
+
+        final ConfigLoader defaultConfigLoader = new ConfigLoaderImpl(this.schemaContext, this.mappingService,
+                ClassLoader.getSystemClassLoader().getResource("initial").getPath(), this.watchService);
+        final NetworkTopologyConfigFileProcessor processor = new NetworkTopologyConfigFileProcessor(defaultConfigLoader, this.bgpDeployer);
+        assertEquals(SchemaPath.create(true, NetworkTopology.QNAME), processor.getSchemaPath());
+
+        verify(this.bgpDeployer, never()).createInstance(any());
+
+        processor.close();
+        ((ConfigLoaderImpl) defaultConfigLoader).close();
+    }
+
+    @Test
+    public void customConfigFileTest() throws Exception {
+        assertNotNull(ClassLoader.getSystemClassLoader().getResource("custom/network-topology-config.xml"));
+        verify(this.bgpDeployer, never()).createInstance(any());
+
+        final ConfigLoader customConfigLoader = new ConfigLoaderImpl(this.schemaContext, this.mappingService,
+                ClassLoader.getSystemClassLoader().getResource("custom").getPath(), this.watchService);
+        final NetworkTopologyConfigFileProcessor processor = new NetworkTopologyConfigFileProcessor(customConfigLoader, this.bgpDeployer);
         assertEquals(SchemaPath.create(true, NetworkTopology.QNAME), processor.getSchemaPath());
 
         verify(this.bgpDeployer, times(3)).createInstance(any());
+
         processor.close();
+        ((ConfigLoaderImpl) customConfigLoader).close();
     }
 }

@@ -24,6 +24,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.protocol.bgp.config.loader.impl.AbstractConfigLoader;
+import org.opendaylight.protocol.bgp.config.loader.impl.ConfigLoaderImpl;
+import org.opendaylight.protocol.bgp.config.loader.spi.ConfigLoader;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.NetworkInstances;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstance;
@@ -89,16 +91,38 @@ public class ProtocolsConfigFileProcessorTest extends AbstractConfigLoader {
     }
 
     @Test
-    public void configFileTest() throws Exception {
+    public void defaultConfigFileTest() throws Exception {
         assertNotNull(ClassLoader.getSystemClassLoader().getResource("initial/protocols-config.xml"));
         verify(this.bgpDeployer, never()).onGlobalModified(any(), any(), any());
         verify(this.bgpDeployer, never()).onNeighborModified(any(), any(), any());
 
-        final ProtocolsConfigFileProcessor processor = new ProtocolsConfigFileProcessor(this.configLoader, this.bgpDeployer);
+        final ConfigLoader defaultConfigLoader = new ConfigLoaderImpl(this.schemaContext, this.mappingService,
+                ClassLoader.getSystemClassLoader().getResource("initial").getPath(), this.watchService);
+        final ProtocolsConfigFileProcessor processor = new ProtocolsConfigFileProcessor(defaultConfigLoader, this.bgpDeployer);
+        assertEquals(SchemaPath.create(true, NetworkInstances.QNAME, NetworkInstance.QNAME, Protocols.QNAME), processor.getSchemaPath());
+
+        verify(this.bgpDeployer, never()).onGlobalModified(any(), any(), any());
+        verify(this.bgpDeployer, never()).onNeighborModified(any(), any(), any());
+
+        processor.close();
+        ((ConfigLoaderImpl) defaultConfigLoader).close();
+    }
+
+    @Test
+    public void customConfigFileTest() throws Exception {
+        assertNotNull(ClassLoader.getSystemClassLoader().getResource("custom/protocols-config.xml"));
+        verify(this.bgpDeployer, never()).onGlobalModified(any(), any(), any());
+        verify(this.bgpDeployer, never()).onNeighborModified(any(), any(), any());
+
+        final ConfigLoader customConfigLoader = new ConfigLoaderImpl(this.schemaContext, this.mappingService,
+                ClassLoader.getSystemClassLoader().getResource("custom").getPath(), this.watchService);
+        final ProtocolsConfigFileProcessor processor = new ProtocolsConfigFileProcessor(customConfigLoader, this.bgpDeployer);
         assertEquals(SchemaPath.create(true, NetworkInstances.QNAME, NetworkInstance.QNAME, Protocols.QNAME), processor.getSchemaPath());
 
         verify(this.bgpDeployer).onGlobalModified(any(), any(), any());
         verify(this.bgpDeployer, times(2)).onNeighborModified(any(), any(), any());
+
         processor.close();
+        ((ConfigLoaderImpl) customConfigLoader).close();
     }
 }
