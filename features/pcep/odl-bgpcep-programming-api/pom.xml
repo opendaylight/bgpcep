@@ -40,10 +40,6 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>topology-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>topology-tunnel-api</artifactId>
         </dependency>
         <dependency>
@@ -61,6 +57,12 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>programming-tunnel-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>odl-bgpcep-topology-api</artifactId>
+            <type>xml</type>
+            <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
