@@ -100,55 +100,74 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
     private final Set<TablesKey> localTablesKeys;
     private final DOMDataBroker domDataBroker;
     private final RIBExtensionConsumerContext extensions;
-    private final YangInstanceIdentifier yangRibId;
-    private final RIBSupportContextRegistryImpl ribContextRegistry;
-    private final CodecsRegistryImpl codecsRegistry;
-    private final ServiceGroupIdentifier serviceGroupIdentifier;
+    private YangInstanceIdentifier yangRibId;
+    private RIBSupportContextRegistryImpl ribContextRegistry;
+    private CodecsRegistryImpl codecsRegistry;
+    private ServiceGroupIdentifier serviceGroupIdentifier;
     private final ClusterSingletonServiceProvider provider;
     private final BgpDeployer.WriteConfiguration configurationWriter;
     private ClusterSingletonServiceRegistration registration;
-    private final DOMDataBrokerExtension service;
+    private DOMDataBrokerExtension service;
     private final Map<TransactionChain<?, ?>, LocRibWriter> txChainToLocRibWriter = new HashMap<>();
-    private final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies;
-    private final ImportPolicyPeerTracker importPolicyPeerTracker;
-    private final RIBImplRuntimeMXBeanImpl renderStats;
-    private final RibId ribId;
-    private final Map<TablesKey, ExportPolicyPeerTracker> exportPolicyPeerTrackerMap;
+    private Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies;
+    private ImportPolicyPeerTracker importPolicyPeerTracker;
+    private RIBImplRuntimeMXBeanImpl renderStats;
+    private RibId ribId;
+    private Map<TablesKey, ExportPolicyPeerTracker> exportPolicyPeerTrackerMap;
 
     private DOMTransactionChain domChain;
     @GuardedBy("this")
     private boolean isServiceInstantiated;
 
-    public RIBImpl(final ClusterSingletonServiceProvider provider, final RibId ribId, final AsNumber localAs, final BgpId localBgpId,
-        final ClusterIdentifier clusterId, final RIBExtensionConsumerContext extensions, final BGPDispatcher dispatcher,
-        final BindingCodecTreeFactory codecFactory, final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
-        @Nonnull final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies, final GeneratedClassLoadingStrategy classStrategy,
-        final BgpDeployer.WriteConfiguration configurationWriter) {
+    public RIBImpl(final ClusterSingletonServiceProvider provider,
+                   final RibId ribId,
+                   final AsNumber localAs,
+                   final BgpId localBgpId,
+                   final RIBExtensionConsumerContext extensions,
+                   final BGPDispatcher dispatcher,
+                   final DOMDataBroker domDataBroker,
+                   final List<BgpTableType> localTables,
+                   final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies,
+                   final BgpDeployer.WriteConfiguration configurationWriter) {
+
         super(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(requireNonNull(ribId))),
-            localBgpId, localAs);
+                localBgpId, localAs);
+
+        this.ribId = ribId;
         this.localAs = requireNonNull(localAs);
         this.bgpIdentifier = requireNonNull(localBgpId);
         this.dispatcher = requireNonNull(dispatcher);
         this.localTables = ImmutableSet.copyOf(localTables);
+        this.bestPathSelectionStrategies = requireNonNull(bestPathSelectionStrategies);
         this.localTablesKeys = new HashSet<>();
         this.domDataBroker = requireNonNull(domDataBroker);
-        this.service = this.domDataBroker.getSupportedExtensions().get(DOMDataTreeChangeService.class);
         this.extensions = requireNonNull(extensions);
-        this.codecsRegistry = CodecsRegistryImpl.create(codecFactory, classStrategy);
-        this.ribContextRegistry = RIBSupportContextRegistryImpl.create(extensions, this.codecsRegistry);
-        final InstanceIdentifierBuilder yangRibIdBuilder = YangInstanceIdentifier.builder().node(BgpRib.QNAME).node(Rib.QNAME);
-        this.yangRibId = yangRibIdBuilder.nodeWithKey(Rib.QNAME, RIB_ID_QNAME, ribId.getValue()).build();
-        this.bestPathSelectionStrategies = requireNonNull(bestPathSelectionStrategies);
-        final ClusterIdentifier cId = clusterId == null ? new ClusterIdentifier(localBgpId) : clusterId;
-        this.ribId = ribId;
-        final PolicyDatabase policyDatabase = new PolicyDatabase(this.localAs.getValue(), localBgpId, cId);
-        this.importPolicyPeerTracker = new ImportPolicyPeerTrackerImpl(policyDatabase);
-        this.serviceGroupIdentifier = ServiceGroupIdentifier.create(this.ribId.getValue() + "-service-group");
-        requireNonNull(provider, "ClusterSingletonServiceProvider is null");
         this.provider = provider;
         this.configurationWriter = configurationWriter;
 
+        requireNonNull(provider, "ClusterSingletonServiceProvider is null");
+
+    }
+
+    public void start(
+            final ClusterIdentifier clusterId,
+            final BindingCodecTreeFactory codecFactory,
+            final GeneratedClassLoadingStrategy classStrategy) {
+
+        final InstanceIdentifierBuilder yangRibIdBuilder = YangInstanceIdentifier.builder()
+                .node(BgpRib.QNAME).node(Rib.QNAME);
+        this.service = this.domDataBroker.getSupportedExtensions().get(DOMDataTreeChangeService.class);
+        this.yangRibId = yangRibIdBuilder.nodeWithKey(Rib.QNAME, RIB_ID_QNAME, ribId.getValue()).build();
+        this.bestPathSelectionStrategies = requireNonNull(bestPathSelectionStrategies);
+        this.codecsRegistry = CodecsRegistryImpl.create(codecFactory, classStrategy);
+        this.ribContextRegistry = RIBSupportContextRegistryImpl.create(extensions, this.codecsRegistry);
         final ImmutableMap.Builder<TablesKey, ExportPolicyPeerTracker> exportPolicies = new ImmutableMap.Builder<>();
+        final ClusterIdentifier cId = clusterId == null ? new ClusterIdentifier(this.bgpIdentifier) : clusterId;
+        final PolicyDatabase policyDatabase = new PolicyDatabase(this.localAs.getValue(), this.bgpIdentifier, cId);
+
+        this.importPolicyPeerTracker = new ImportPolicyPeerTrackerImpl(policyDatabase);
+        this.serviceGroupIdentifier = ServiceGroupIdentifier.create(this.ribId.getValue() + "-service-group");
+
         for (final BgpTableType t : this.localTables) {
             final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
             this.localTablesKeys.add(key);
@@ -156,7 +175,8 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
         }
         this.exportPolicyPeerTrackerMap = exportPolicies.build();
 
-        this.renderStats = new RIBImplRuntimeMXBeanImpl(localBgpId, ribId, localAs, cId, this, this.localTablesKeys);
+        this.renderStats = new RIBImplRuntimeMXBeanImpl(
+                this.bgpIdentifier, ribId, localAs, cId, this, this.localTablesKeys);
         LOG.info("RIB Singleton Service {} registered, RIB {}", getIdentifier().getValue(), this.ribId.getValue());
         //this need to be always the last step
         this.registration = registerClusterSingletonService(this);

@@ -139,10 +139,11 @@ public class ParserToSalTest extends AbstractConcurrentDataBrokerTest {
         final List<BgpTableType> tables = ImmutableList.of(new BgpTableTypeImpl(LinkstateAddressFamily.class,
             LinkstateSubsequentAddressFamily.class));
         final RIBImpl rib = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(TEST_RIB_ID),
-            AS_NUMBER, new BgpId("127.0.0.1"), null, this.ext2, this.dispatcher,
-            this.codecFactory, getDomBroker(), tables, Collections.singletonMap(TABLE_KEY,
+            AS_NUMBER, new BgpId("127.0.0.1"), this.ext2, this.dispatcher,
+            getDomBroker(), tables, Collections.singletonMap(TABLE_KEY,
             BasePathSelectionModeFactory.createBestPathSelectionStrategy()),
-            GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), null);
+            null);
+        rib.start(null, this.codecFactory, GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
         rib.instantiateServiceInstance();
         assertTablesExists(tables);
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
@@ -158,9 +159,10 @@ public class ParserToSalTest extends AbstractConcurrentDataBrokerTest {
         final List<BgpTableType> tables = ImmutableList.of(new BgpTableTypeImpl(Ipv4AddressFamily.class,
             UnicastSubsequentAddressFamily.class));
         final RIBImpl rib = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(TEST_RIB_ID), AS_NUMBER, BGP_ID,
-            null, this.ext1, this.dispatcher, this.codecFactory, getDomBroker(), tables,
+            this.ext1, this.dispatcher, getDomBroker(), tables,
             Collections.singletonMap(TABLE_KEY, BasePathSelectionModeFactory.createBestPathSelectionStrategy()),
-            GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), null);
+            null);
+        rib.start(null, this.codecFactory, GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
         rib.instantiateServiceInstance();
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
         assertTablesExists(tables);

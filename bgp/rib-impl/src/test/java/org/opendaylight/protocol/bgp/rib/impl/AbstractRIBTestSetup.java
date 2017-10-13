@@ -154,9 +154,10 @@ public class AbstractRIBTestSetup {
         mockedMethods();
         doReturn(Mockito.mock(ClusterSingletonServiceRegistration.class)).when(this.clusterSingletonServiceProvider)
             .registerClusterSingletonService(any(ClusterSingletonService.class));
-        this.rib = new RIBImpl(this.clusterSingletonServiceProvider, new RibId("test"), new AsNumber(5L), RIB_ID, CLUSTER_ID, context,
-            this.dispatcher, this.codecFactory, this.dom, localTables, Collections.singletonMap(new TablesKey(AFI, SAFI),
-            BasePathSelectionModeFactory.createBestPathSelectionStrategy()), GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), null);
+        this.rib = new RIBImpl(this.clusterSingletonServiceProvider, new RibId("test"), new AsNumber(5L), RIB_ID, context,
+            this.dispatcher, this.dom, localTables, Collections.singletonMap(new TablesKey(AFI, SAFI),
+            BasePathSelectionModeFactory.createBestPathSelectionStrategy()), null);
+        this.rib.start(CLUSTER_ID, this.codecFactory, GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
         this.rib.onGlobalContextUpdated(schemaContext);
         this.ribSupport = getRib().getRibSupportContext().getRIBSupportContext(KEY).getRibSupport();
     }

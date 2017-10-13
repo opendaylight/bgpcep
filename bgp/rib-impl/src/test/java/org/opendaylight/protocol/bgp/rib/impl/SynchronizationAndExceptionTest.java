@@ -198,9 +198,9 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(TABLES_KEY,
             BasePathSelectionModeFactory.createBestPathSelectionStrategy());
         final RIBImpl ribImpl = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(RIB_ID), AS_NUMBER,
-            new BgpId(RIB_ID), null, this.ribExtension, this.serverDispatcher, this.mappingService.getCodecFactory(),
-            this.domBroker, ImmutableList.of(this.ipv4tt), pathTables, this.ribExtension.getClassLoadingStrategy(),
-            null);
+            new BgpId(RIB_ID), this.ribExtension, this.serverDispatcher, this.domBroker,
+                ImmutableList.of(this.ipv4tt), pathTables,null);
+        ribImpl.start(null, this.mappingService.getCodecFactory(), this.ribExtension.getClassLoadingStrategy());
         ribImpl.instantiateServiceInstance();
         ribImpl.onGlobalContextUpdated(this.schemaContext);
 
@@ -237,16 +237,18 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
     @Test
     public void testUseCase1() throws InterruptedException {
         final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(TABLES_KEY,
-            BasePathSelectionModeFactory.createBestPathSelectionStrategy());
-        final RIBImpl ribImpl = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(RIB_ID), AS_NUMBER,
-            new BgpId(RIB_ID), null, this.ribExtension, this.serverDispatcher, this.mappingService.getCodecFactory(),
-            this.domBroker, ImmutableList.of(this.ipv4tt), pathTables, this.ribExtension.getClassLoadingStrategy(),
-            null);
+                BasePathSelectionModeFactory.createBestPathSelectionStrategy());
+        final RIBImpl ribImpl = new RIBImpl(this.clusterSingletonServiceProvider,
+                new RibId(RIB_ID), AS_NUMBER,
+                new BgpId(RIB_ID), this.ribExtension, this.serverDispatcher,
+                this.domBroker, ImmutableList.of(this.ipv4tt), pathTables,
+                null);
+        ribImpl.start(null, this.mappingService.getCodecFactory(), this.ribExtension.getClassLoadingStrategy());
         ribImpl.instantiateServiceInstance();
         ribImpl.onGlobalContextUpdated(this.schemaContext);
 
         final BGPPeer bgpPeer = new BGPPeer(LOCAL_IP, ribImpl, PeerRole.Ibgp, null, AFI_SAFIS_ADVERTIZED,
-            Collections.emptySet());
+                Collections.emptySet());
         bgpPeer.instantiateServiceInstance();
         final BGPSessionImpl bgpSession = new BGPSessionImpl(bgpPeer, this.speakerListener, this.classicOpen, this.classicOpen.getHoldTimer(), null);
         bgpSession.setChannelExtMsgCoder(this.classicOpen);
@@ -270,7 +272,7 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         verify(this.tx, times(5)).merge(eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class), any(NormalizedNode.class));
 
         verify(this.tx).merge(eq(LogicalDatastoreType.OPERATIONAL), eq(TABLE_PATH),
-            eq(ImmutableNodes.leafNode(ATTRIBUTES_UPTODATE_FALSE.getNodeType(), Boolean.TRUE)));
+                eq(ImmutableNodes.leafNode(ATTRIBUTES_UPTODATE_FALSE.getNodeType(), Boolean.TRUE)));
         verify(this.tx, times(0)).delete(eq(LogicalDatastoreType.OPERATIONAL), eq(PEER_PATH));
     }
 }

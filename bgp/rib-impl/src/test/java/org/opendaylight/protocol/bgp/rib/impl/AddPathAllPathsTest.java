@@ -25,6 +25,7 @@ import java.util.concurrent.ExecutionException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.add.all.paths.AllPathSelection;
 import org.opendaylight.protocol.bgp.rib.spi.State;
@@ -55,9 +56,10 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(TABLES_KEY, new AllPathSelection());
 
         this.ribImpl = new RIBImpl(this.clusterSingletonServiceProvider, new RibId("test-rib"),
-            AS_NUMBER, BGP_ID, null, this.ribExtension, this.serverDispatcher, this.mappingService.getCodecFactory(),
-            getDomBroker(), TABLES_TYPE, pathTables, this.ribExtension.getClassLoadingStrategy(), null);
-
+            AS_NUMBER, BGP_ID, this.ribExtension, this.serverDispatcher,
+            getDomBroker(), TABLES_TYPE, pathTables, null);
+        this.ribImpl.start(
+                null, this.mappingService.getCodecFactory(), this.ribExtension.getClassLoadingStrategy());
         this.ribImpl.instantiateServiceInstance();
         this.ribImpl.onGlobalContextUpdated(this.schemaContext);
         final ChannelFuture channelFuture = this.serverDispatcher.createServer(new InetSocketAddress(RIB_ID, PORT));
