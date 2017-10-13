@@ -40,10 +40,6 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>topology-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>bgp-topology-provider</artifactId>
         </dependency>
         <dependency>
@@ -55,6 +51,12 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-bgp-linkstate</artifactId>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>odl-bgpcep-topology-api</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
