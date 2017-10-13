@@ -234,17 +234,35 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
     }
 
     private RIBImpl createRib(final Global global, final String bgpInstanceName,
-        final BGPTableTypeRegistryConsumer tableTypeRegistry, final BgpDeployer.WriteConfiguration configurationWriter) {
-        this.afiSafi = getAfiSafiWithDefault(global.getAfiSafis(), true);
+                              final BGPTableTypeRegistryConsumer tableTypeRegistry, final BgpDeployer.WriteConfiguration configWriter) {
         final Config globalConfig = global.getConfig();
+        this.afiSafi = getAfiSafiWithDefault(global.getAfiSafis(), true);
         this.asNumber = globalConfig.getAs();
         this.routerId = globalConfig.getRouterId();
         this.clusterId = getClusterIdentifier(globalConfig);
-        final Map<TablesKey, PathSelectionMode> pathSelectionModes = OpenConfigMappingUtil.toPathSelectionMode(this.afiSafi, tableTypeRegistry).entrySet()
-                .stream().collect(Collectors.toMap(entry -> new TablesKey(entry.getKey().getAfi(), entry.getKey().getSafi()), Map.Entry::getValue));
-        return new RIBImpl(this.provider, new RibId(bgpInstanceName), this.asNumber, new BgpId(this.routerId), this.clusterId,
-                this.extensions, this.dispatcher, this.codecTreeFactory, this.domBroker, toTableTypes(this.afiSafi, tableTypeRegistry), pathSelectionModes,
-                this.extensions.getClassLoadingStrategy(), configurationWriter);
+        final Map<TablesKey, PathSelectionMode> pathSelectionModes = extractPathSelectionsModes(tableTypeRegistry);
+        final List<BgpTableType> bgpTableTypes = toTableTypes(this.afiSafi, tableTypeRegistry);
+        final RIBImpl ribImpl = new RIBImpl(
+                this.provider,
+                new RibId(bgpInstanceName),
+                this.asNumber,
+                new BgpId(this.routerId),
+                this.extensions,
+                this.dispatcher,
+                this.domBroker,
+                bgpTableTypes,
+                pathSelectionModes, configWriter);
+        ribImpl.start(clusterId, this.codecTreeFactory, this.extensions.getClassLoadingStrategy());
+        return ribImpl;
+    }
+
+    private Map<TablesKey, PathSelectionMode> extractPathSelectionsModes(final BGPTableTypeRegistryConsumer consumer) {
+
+        final Map<TablesKey, PathSelectionMode> result = OpenConfigMappingUtil.toPathSelectionMode(
+                this.afiSafi, consumer).entrySet().stream().collect(
+                Collectors.toMap(entry ->
+                        new TablesKey(entry.getKey().getAfi(), entry.getKey().getSafi()), Map.Entry::getValue));
+        return result;
     }
 
     @Override
