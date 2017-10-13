@@ -19,6 +19,8 @@
     <module>bgpcep-extras</module>
     <module>bmp</module>
     <module>rsvp</module>
+    <module>topology</module>
+    <module>concept</module>
   </modules>
 
   <!--
