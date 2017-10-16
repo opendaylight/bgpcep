@@ -84,7 +84,12 @@ abstract class AbstractIPRIBSupport extends MultiPathAbstractRIBSupport {
                     final YangInstanceIdentifier base = routesPath.node(routesContainerIdentifier()).node(routeNid());
                     for (final UnkeyedListEntryNode e : ((UnkeyedListNode) routes).getValue()) {
                         final NodeIdentifierWithPredicates routeKey = createRouteKey(e);
-                        function.apply(tx, base, routeKey, e, attributes);
+                        if (routeKey != null) {
+                            function.apply(tx, base, routeKey, e, attributes);
+                        } else {
+                            LOG.warn("Could not create Route key. Please verify if " +
+                                    "all BGP peers were configured as AFI-SAFI receive as True.");
+                        }
                     }
                 } else {
                     LOG.warn("Routes {} are not a map", routes);
@@ -100,10 +105,13 @@ abstract class AbstractIPRIBSupport extends MultiPathAbstractRIBSupport {
      * @return Nid with Route Key
      */
     private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode prefixes) {
+        NodeIdentifierWithPredicates result = null;
         final Optional<DataContainerChild<? extends PathArgument, ?>> maybePrefixLeaf = prefixes.getChild(routePrefixIdentifier());
         final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf = prefixes.getChild(routePathIdNid());
-        Preconditions.checkState(maybePrefixLeaf.isPresent());
-        final Object prefixValue = (maybePrefixLeaf.get()).getValue();
-        return PathIdUtil.createNidKey(routeQName(), routeKeyQName(), pathIdQName(), prefixValue, maybePathIdLeaf);
+        if (maybePrefixLeaf.isPresent()) {
+            final Object prefixValue = (maybePrefixLeaf.get()).getValue();
+            result = PathIdUtil.createNidKey(routeQName(), routeKeyQName(), pathIdQName(), prefixValue, maybePathIdLeaf);
+        }
+        return result;
     }
 }
