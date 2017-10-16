@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_b5c1a230",
+        "filename": "features/topology/odl-bgpcep-topology-api/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2017-10-16T14:20:03Z",
+      "side": 1,
+      "message": "This depends on multiple upstream ODL jars. You have to add upstream ODL features as dependencies to avoid Bug 9191 violations.\nhttps://logs.opendaylight.org/releng/jenkins092/bgpcep-distribution-check-oxygen/139/bug9191.log.gz",
+      "range": {
+        "startLine": 36,
+        "startChar": 24,
+        "endLine": 36,
+        "endChar": 36
+      },
+      "revId": "a3df806233b9fd4956a32c1610bf506a8355a413",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
