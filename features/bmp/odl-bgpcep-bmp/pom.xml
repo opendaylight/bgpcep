@@ -126,12 +126,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>bgp-controller-config</artifactId>
             <type>xml</type>
-            <classifier>bmp-config</classifier>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-controller-config</artifactId>
-            <type>xml</type>
             <classifier>bmp-config-example</classifier>
         </dependency>
 
