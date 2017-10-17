@@ -13,5 +13,6 @@
     <feature name="odl-bgpcep-config-files" version="${project.version}">
         <configfile finalname="etc/opendaylight/bgp/protocols-config.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/${project.version}/xml/bgp-initial-config</configfile>
         <configfile finalname="etc/opendaylight/bgp/network-topology-config.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/${project.version}/xml/network-topology-initial-config</configfile>
+        <configfile finalname="etc/opendaylight/bgp/odl-bmp-monitors-config.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/${project.version}/xml/odl-bmp-monitors-config</configfile>
     </feature>
 </features>
