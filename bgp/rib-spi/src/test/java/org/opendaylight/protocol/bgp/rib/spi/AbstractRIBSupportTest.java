@@ -64,7 +64,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
 public abstract class AbstractRIBSupportTest {
-    protected final static long PATH_ID = 1;
+    protected static final long PATH_ID = 1;
     protected static final Attributes ATTRIBUTES = new AttributesBuilder().build();
     private static final InstanceIdentifier<LocRib> RIB = InstanceIdentifier.builder(BgpRib.class).child(Rib.class, new RibKey(new RibId("rib"))).child(LocRib.class).build();
     private static final InstanceIdentifier<Attributes> ATTRIBUTES_IID = InstanceIdentifier.create(Update.class).child(Attributes.class);
