@@ -70,11 +70,6 @@
                         <configuration>
                             <artifacts>
                                 <artifact>
-                                    <file>${project.build.directory}/classes/initial/31-bgp.xml</file>
-                                    <type>xml</type>
-                                    <classifier>config</classifier>
-                                </artifact>
-                                <artifact>
                                     <file>${project.build.directory}/classes/initial/protocols-config.xml</file>
                                     <type>xml</type>
                                     <classifier>bgp-initial-config</classifier>
