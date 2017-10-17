@@ -65,6 +65,7 @@
         <module>config-loader-spi</module>
         <module>config-loader-impl</module>
         <module>openconfig-state</module>
+        <module>bmp-config-examples</module>
     </modules>
 
   <!--
