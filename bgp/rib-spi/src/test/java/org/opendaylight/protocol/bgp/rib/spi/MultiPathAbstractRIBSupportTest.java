@@ -76,8 +76,8 @@ import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableCo
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableLeafNodeBuilder;
 
 public class MultiPathAbstractRIBSupportTest {
-    private final static long PATH_ID = 0;
-    private final static String ROUTE_KEY = "prefix";
+    private static final long PATH_ID = 0;
+    private static final String ROUTE_KEY = "prefix";
     private static final String PREFIX = "1.2.3.4/32";
     private static final QName PATH_ID_QNAME = QName.create(Ipv4Route.QNAME, "path-id").intern();
     private static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, ROUTE_KEY).intern();

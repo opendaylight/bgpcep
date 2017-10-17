@@ -28,14 +28,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tun
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 public class PAddressPMulticastGroupUtilTest {
-    private final static byte[] IPV4_ADDRESS_EXPECTED = {
+    private static final byte[] IPV4_ADDRESS_EXPECTED = {
         (byte) 0x01, (byte) 0x01, (byte) 0x01, (byte) 0x01
     };
-    private final static byte[] IPV6_ADDRESS_EXPECTED = {
+    private static final byte[] IPV6_ADDRESS_EXPECTED = {
         0x20, (byte) 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01
     };
 
-    private final static byte[] SENDER_P_MULTICAST_GROUP_EXPECTED = {
+    private static final byte[] SENDER_P_MULTICAST_GROUP_EXPECTED = {
         (byte) 0x01, (byte) 0x01, (byte) 0x01, (byte) 0x01,
         (byte) 0x17, (byte) 0x01, (byte) 0x01, (byte) 0x01
     };

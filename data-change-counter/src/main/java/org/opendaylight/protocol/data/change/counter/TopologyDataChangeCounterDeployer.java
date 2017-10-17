@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 public class TopologyDataChangeCounterDeployer implements DataTreeChangeListener<DataChangeCounterConfig>,
     AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(TopologyDataChangeCounterDeployer.class);
-    private final static InstanceIdentifier<DataChangeCounterConfig> DATA_CHANGE_COUNTER_IID =
+    private static final InstanceIdentifier<DataChangeCounterConfig> DATA_CHANGE_COUNTER_IID =
         InstanceIdentifier.builder(DataChangeCounterConfig.class).build();
     private final DataBroker dataBroker;
     @GuardedBy("this")

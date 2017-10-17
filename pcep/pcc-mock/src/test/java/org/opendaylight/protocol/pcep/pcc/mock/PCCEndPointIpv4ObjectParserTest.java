@@ -23,8 +23,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 
 public class PCCEndPointIpv4ObjectParserTest {
 
-    private final static String IP1 = "1.2.3.4";
-    private final static String IP2 = "1.2.3.5";
+    private static final String IP1 = "1.2.3.4";
+    private static final String IP2 = "1.2.3.5";
 
     @Test(expected=PCEPDeserializerException.class)
     public void testParseEmptyObject() throws PCEPDeserializerException {
