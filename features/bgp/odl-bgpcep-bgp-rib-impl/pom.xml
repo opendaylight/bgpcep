@@ -6,20 +6,20 @@
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>single-feature-parent</artifactId>
-        <version>1.8.2-SNAPSHOT</version>
+        <version>1.8.3-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>odl-bgpcep-bgp-rib-impl</artifactId>
-    <version>0.7.2-SNAPSHOT</version>
+    <version>0.7.3-SNAPSHOT</version>
     <packaging>feature</packaging>
 
     <name>OpenDaylight :: BGP :: RIB Impl</name>
 
     <properties>
-        <config.version>0.6.2-SNAPSHOT</config.version>
-        <controller.mdsal.version>1.5.2-SNAPSHOT</controller.mdsal.version>
+        <config.version>0.6.3-SNAPSHOT</config.version>
+        <controller.mdsal.version>1.5.3-SNAPSHOT</controller.mdsal.version>
     </properties>
 
     <dependencyManagement>
