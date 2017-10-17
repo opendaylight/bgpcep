@@ -63,6 +63,7 @@
         <module>cli</module>
         <module>peer-acceptor</module>
         <module>openconfig-state</module>
+        <module>bmp-config-example</module>
     </modules>
 
   <!--
