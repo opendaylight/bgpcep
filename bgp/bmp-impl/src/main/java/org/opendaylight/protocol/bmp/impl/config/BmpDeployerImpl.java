@@ -55,7 +55,7 @@ public class BmpDeployerImpl implements BmpDeployer, ClusteredDataTreeChangeList
             InstanceIdentifier.create(OdlBmpMonitors.class);
     private static final YangInstanceIdentifier BMP_MONITOR_YII =
             YangInstanceIdentifier.of(BmpMonitor.QNAME);
-    private final static ContainerNode EMPTY_PARENT_NODE = Builders.containerBuilder().withNodeIdentifier(
+    private static final ContainerNode EMPTY_PARENT_NODE = Builders.containerBuilder().withNodeIdentifier(
             new NodeIdentifier(BmpMonitor.QNAME)).addChild(ImmutableNodes.mapNodeBuilder(Monitor.QNAME).build()).build();
     private final BmpDispatcher dispatcher;
     @GuardedBy("this")

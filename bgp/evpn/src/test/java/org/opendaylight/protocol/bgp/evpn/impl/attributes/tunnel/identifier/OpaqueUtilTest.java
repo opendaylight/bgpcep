@@ -26,12 +26,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tun
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.mldp.p2mp.lsp.mldp.p2mp.lsp.OpaqueValueBuilder;
 
 public class OpaqueUtilTest {
-    private final static byte[] OPAQUE_WRONG= {
+    private static final byte[] OPAQUE_WRONG= {
         (byte) 0xfc, (byte) 0x00, (byte) 0x03, // Opaque Type - Length
         (byte) 0xb5, (byte) 0xeb, (byte) 0x2d,  //Value
     };
 
-    private final static byte[] OPAQUE_EXPECTED = {
+    private static final byte[] OPAQUE_EXPECTED = {
         (byte) 0x01, (byte) 0x00, (byte) 0x0e, // Opaque Type - Length
         (byte) 0x07, (byte) 0x00, (byte) 0x0B, //Value
         (byte) 0x00, (byte) 0x00, (byte) 0x01,
@@ -39,7 +39,7 @@ public class OpaqueUtilTest {
         (byte) 0x01, (byte) 0x00, (byte) 0x00,
         (byte) 0x00, (byte) 0x00
     };
-    private final static byte[] OPAQUE_EXT_EXPECTED = {
+    private static final byte[] OPAQUE_EXT_EXPECTED = {
         (byte) 0xff, (byte) 0x00, (byte) 0x04, (byte) 0x00, (byte) 0x10, // Opaque Type -Ext Type - Length
         (byte) 0x07, (byte) 0x00, (byte) 0x0B, //Value
         (byte) 0x00, (byte) 0x00, (byte) 0x01,
@@ -48,7 +48,7 @@ public class OpaqueUtilTest {
         (byte) 0x00, (byte) 0x00, (byte) 0x01,
         (byte) 0x02
     };
-    private final static byte[] OPAQUE_VALUES_EXPECTED = {
+    private static final byte[] OPAQUE_VALUES_EXPECTED = {
         (byte) 0x01, (byte) 0x00, (byte) 0x0e, // Opaque Type - Length
         (byte) 0x07, (byte) 0x00, (byte) 0x0B, //Value
         (byte) 0x00, (byte) 0x00, (byte) 0x01,
@@ -66,10 +66,10 @@ public class OpaqueUtilTest {
 
     static final HexString OPAQUE_TEST = new HexString("07:00:0b:00:00:01:00:00:00:01:00:00:00:00");
     static final HexString OPAQUE_TEST2 = new HexString ("07:00:0b:00:00:01:00:00:00:01:00:00:00:00:01:02");
-    private final static Opaque OPAQUE = new OpaqueValueBuilder().setOpaque(OPAQUE_TEST).setOpaqueType(OpaqueUtil.GENERIC_LSP_IDENTIFIER).build();
-    private final static Opaque OPAQUE_EXTENDED = new OpaqueValueBuilder().setOpaque(OPAQUE_TEST2).setOpaqueType((short) 2)
+    private static final Opaque OPAQUE = new OpaqueValueBuilder().setOpaque(OPAQUE_TEST).setOpaqueType(OpaqueUtil.GENERIC_LSP_IDENTIFIER).build();
+    private static final Opaque OPAQUE_EXTENDED = new OpaqueValueBuilder().setOpaque(OPAQUE_TEST2).setOpaqueType((short) 2)
         .setOpaqueType(OpaqueUtil.EXTENDED_TYPE).setOpaqueExtendedType(4).build();
-    private final static List<OpaqueValue> OPAQUE_VALUE_LIST = Arrays.asList((OpaqueValue) OPAQUE, (OpaqueValue) OPAQUE_EXTENDED);
+    private static final List<OpaqueValue> OPAQUE_VALUE_LIST = Arrays.asList((OpaqueValue) OPAQUE, (OpaqueValue) OPAQUE_EXTENDED);
 
     @Test
     public void serializeOpaque() throws Exception {
