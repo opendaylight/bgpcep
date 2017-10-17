@@ -63,7 +63,7 @@ public class FlowspecL3vpnIpv4RIBSupportTest extends AbstractRIBSupportTest {
     private static final DestinationPrefixCase DEST_PREFIX = new DestinationPrefixCaseBuilder()
         .setDestinationPrefix(new Ipv4Prefix("172.17.1.0/24")).build();
     private static final List<Flowspec> FLOW_LIST = Collections.singletonList(new FlowspecBuilder().setFlowspecType(DEST_PREFIX).build());
-    private final static DestinationFlowspecL3vpnIpv4 DEST_FLOW = new DestinationFlowspecL3vpnIpv4Builder().setRouteDistinguisher(RD)
+    private static final DestinationFlowspecL3vpnIpv4 DEST_FLOW = new DestinationFlowspecL3vpnIpv4Builder().setRouteDistinguisher(RD)
         .setFlowspec(FLOW_LIST).setPathId(PATH_ID).build();
     private static final DestinationFlowspecL3vpnIpv4Case REACH_NLRI = new DestinationFlowspecL3vpnIpv4CaseBuilder().setDestinationFlowspecL3vpnIpv4(DEST_FLOW).build();
     private static final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.

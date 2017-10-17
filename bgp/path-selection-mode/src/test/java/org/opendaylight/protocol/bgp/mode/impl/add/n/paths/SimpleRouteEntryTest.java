@@ -20,7 +20,7 @@ import org.opendaylight.protocol.bgp.mode.impl.AbstractRouteEntryTest;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 
 public final class SimpleRouteEntryTest extends AbstractRouteEntryTest {
-    private final static long N_PATHS = 2;
+    private static final long N_PATHS = 2;
     private SimpleRouteEntry testBARE;
 
     @Before
