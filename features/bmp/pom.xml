@@ -17,6 +17,7 @@
         <module>features-bmp</module>
         <module>odl-bgpcep-bmp</module>
         <module>odl-bgpcep-bmp-api</module>
+        <module>odl-bgpcep-bmp-config-example</module>
     </modules>
 
     <!--

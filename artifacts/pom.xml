@@ -450,6 +450,11 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-bmp-config-example</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>bgp-openconfig-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -460,19 +465,11 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-controller-config</artifactId>
+                <artifactId>bgp-bmp-config-example</artifactId>
                 <version>${project.version}</version>
                 <type>xml</type>
-                <classifier>bmp-config</classifier>
+                <classifier>odl-bmp-monitors-config</classifier>
             </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-controller-config</artifactId>
-                <version>${project.version}</version>
-                <type>xml</type>
-                <classifier>bmp-config-example</classifier>
-            </dependency>
-
             <!-- BGP Features artifacts -->
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
@@ -662,6 +659,13 @@
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
                 <artifactId>odl-bgpcep-bmp-api</artifactId>
+                <classifier>features</classifier>
+                <type>xml</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>odl-bgpcep-bmp-config-example</artifactId>
                 <classifier>features</classifier>
                 <type>xml</type>
                 <version>${project.version}</version>

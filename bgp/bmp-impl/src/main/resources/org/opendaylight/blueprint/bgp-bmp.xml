@@ -52,5 +52,11 @@
   </bean>
 
   <service ref="bmpDeployer" interface="org.opendaylight.protocol.bmp.impl.api.BmpDeployer"/>
+  <reference id="bgpConfigLoader" interface="org.opendaylight.protocol.bgp.config.loader.spi.ConfigLoader"/>
 
+  <bean id="bmpConfigLoader" class="org.opendaylight.protocol.bmp.impl.BmpMonitorConfigFileProcessor"
+        init-method="register" destroy-method="close">
+    <argument ref="bgpConfigLoader"/>
+    <argument ref="bmpDeployer"/>
+  </bean>
 </blueprint>
