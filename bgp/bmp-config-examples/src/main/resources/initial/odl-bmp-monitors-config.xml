@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+~ Copyright (c) 2017 AT&T Services, Inc. and others.  All rights reserved.
+~
+~ This program and the accompanying materials are made available under the
+~ terms of the Eclipse Public License v1.0 which accompanies this distribution,
+~ and is available at http://www.eclipse.org/legal/epl-v10.html
+-->
+<!--
+To enable active TCP connection, configure monitored-router with address, port and active flag.
+
+For TCP-MD5 note that if this option is configured, the monitored router(s) connecting here must
+have the same password configured, otherwise they will not be able to connect at all.
+-->
+<odl-bmp-monitors xmlns="urn:opendaylight:params:xml:ns:yang:bmp-monitor-config">
+    <bmp-monitor-config>
+        <monitor-id>example-bmp-monitor</monitor-id>
+        <server>
+            <binding-port>12345</binding-port>
+            <binding-address>0.0.0.0</binding-address>
+        </server>
+        <!--
+        <monitored-router>
+            <address>192.0.2.2</address>
+            <port>1234</port>
+            <active>true</active>
+        </monitored-router>
+        -->
+        <!--
+        <monitored-router>
+            <address>192.0.2.2</address>
+            <password>changeme</password>
+        </monitored-router>
+        -->
+    </bmp-monitor-config>
+
+</odl-bmp-monitors>
