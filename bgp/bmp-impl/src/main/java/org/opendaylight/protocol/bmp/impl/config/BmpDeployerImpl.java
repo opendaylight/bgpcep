@@ -52,11 +52,11 @@ public class BmpDeployerImpl implements BmpDeployer, ClusteredDataTreeChangeList
     private static final Logger LOG = LoggerFactory.getLogger(BmpDeployerImpl.class);
 
     private static final InstanceIdentifier<OdlBmpMonitors> ODL_BMP_MONITORS_IID =
-        InstanceIdentifier.create(OdlBmpMonitors.class);
+            InstanceIdentifier.create(OdlBmpMonitors.class);
     private static final YangInstanceIdentifier BMP_MONITOR_YII =
-        YangInstanceIdentifier.of(BmpMonitor.QNAME);
+            YangInstanceIdentifier.of(BmpMonitor.QNAME);
     private final static ContainerNode EMPTY_PARENT_NODE = Builders.containerBuilder().withNodeIdentifier(
-        new NodeIdentifier(BmpMonitor.QNAME)).addChild(ImmutableNodes.mapNodeBuilder(Monitor.QNAME).build()).build();
+            new NodeIdentifier(BmpMonitor.QNAME)).addChild(ImmutableNodes.mapNodeBuilder(Monitor.QNAME).build()).build();
     private final BmpDispatcher dispatcher;
     @GuardedBy("this")
     private final Map<MonitorId, BmpMonitoringStationImpl> bmpMonitorServices = new HashMap<>();
@@ -74,14 +74,14 @@ public class BmpDeployerImpl implements BmpDeployer, ClusteredDataTreeChangeList
         wTx.merge(LogicalDatastoreType.OPERATIONAL, BMP_MONITOR_YII, EMPTY_PARENT_NODE);
         wTx.submit();
         this.registration = this.bmpDeployerDependencies.getDataBroker().registerDataTreeChangeListener(
-            new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, ODL_BMP_MONITORS_IID), this);
+                new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, ODL_BMP_MONITORS_IID), this);
     }
 
     @Override
     public synchronized void onDataTreeChanged(final Collection<DataTreeModification<OdlBmpMonitors>> changes) {
         final DataTreeModification<OdlBmpMonitors> dataTreeModification = Iterables.getOnlyElement(changes);
         final Collection<DataObjectModification<? extends DataObject>> rootNode = dataTreeModification.getRootNode()
-            .getModifiedChildren();
+                .getModifiedChildren();
         if (rootNode.isEmpty()) {
             return;
         }
@@ -115,9 +115,9 @@ public class BmpDeployerImpl implements BmpDeployer, ClusteredDataTreeChangeList
 
             final Server server = bmpConfig.getServer();
             final InetSocketAddress inetAddress =
-                Ipv4Util.toInetSocketAddress(server.getBindingAddress(), server.getBindingPort());
+                    Ipv4Util.toInetSocketAddress(server.getBindingAddress(), server.getBindingPort());
             final BmpMonitoringStationImpl monitor = new BmpMonitoringStationImpl(this.bmpDeployerDependencies,
-                this.dispatcher, monitorId, inetAddress, bmpConfig.getMonitoredRouter());
+                    this.dispatcher, monitorId, inetAddress, bmpConfig.getMonitoredRouter());
             this.bmpMonitorServices.put(monitorId, monitor);
         } catch (final Exception e) {
             LOG.error("Failed to create Bmp Monitor {}.", monitorId, e);
@@ -139,8 +139,8 @@ public class BmpDeployerImpl implements BmpDeployer, ClusteredDataTreeChangeList
 
     @Override
     public synchronized void writeBmpMonitor(final BmpMonitorConfig bmpConfig) throws TransactionCommitFailedException {
-        final KeyedInstanceIdentifier<BmpMonitorConfig, BmpMonitorConfigKey> iid = InstanceIdentifier
-            .create(OdlBmpMonitors.class).child(BmpMonitorConfig.class, bmpConfig.getKey());
+        final KeyedInstanceIdentifier<BmpMonitorConfig, BmpMonitorConfigKey> iid = ODL_BMP_MONITORS_IID
+                .child(BmpMonitorConfig.class, bmpConfig.getKey());
 
         final WriteTransaction wTx = this.bmpDeployerDependencies.getDataBroker().newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.CONFIGURATION, iid, bmpConfig, true);
@@ -149,9 +149,9 @@ public class BmpDeployerImpl implements BmpDeployer, ClusteredDataTreeChangeList
 
     @Override
     public synchronized void deleteBmpMonitor(final MonitorId monitorId)
-        throws TransactionCommitFailedException {
-        final KeyedInstanceIdentifier<BmpMonitorConfig, BmpMonitorConfigKey> iid = InstanceIdentifier
-            .create(OdlBmpMonitors.class).child(BmpMonitorConfig.class, new BmpMonitorConfigKey(monitorId));
+            throws TransactionCommitFailedException {
+        final KeyedInstanceIdentifier<BmpMonitorConfig, BmpMonitorConfigKey> iid = ODL_BMP_MONITORS_IID
+                .child(BmpMonitorConfig.class, new BmpMonitorConfigKey(monitorId));
 
         final WriteTransaction wTx = this.bmpDeployerDependencies.getDataBroker().newWriteOnlyTransaction();
         wTx.delete(LogicalDatastoreType.CONFIGURATION, iid);
