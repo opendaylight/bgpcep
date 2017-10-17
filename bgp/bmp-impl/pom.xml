@@ -168,7 +168,10 @@
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>config-loader-spi</artifactId>
+        </dependency>
         <!-- test dependencies -->
         <dependency>
             <groupId>junit</groupId>
@@ -197,11 +200,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>bgp-rib-impl</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-rib-impl</artifactId>
-            <type>test-jar</type>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -245,10 +243,44 @@
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>yang-test-util</artifactId>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>config-loader-impl</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>config-loader-impl</artifactId>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-bmp-config-example</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-remote-resources-plugin</artifactId>
+                <configuration>
+                    <attachToMain>false</attachToMain>
+                    <resourceBundles>
+                        <resourceBundle>${project.groupId}:bgp-bmp-config-example:${project.version}</resourceBundle>
+                    </resourceBundles>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>process-test-sources</phase>
+                        <goals>
+                            <goal>process</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>

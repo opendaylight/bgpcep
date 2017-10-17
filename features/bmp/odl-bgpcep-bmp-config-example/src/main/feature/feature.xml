@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c)  2017 AT&T Intellectual Property. All rights reserved.
+  ~
+  ~ This program and the accompanying materials are made available under the
+  ~ terms of the Eclipse Public License v1.0 which accompanies this distribution,
+  ~ and is available at http://www.eclipse.org/legal/epl-v10.html
+  -->
+
+<!-- vi: set et smarttab sw=4 tabstop=4: -->
+
+<features name="odl-bgpcep-${project.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.2.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.2.0 http://karaf.apache.org/xmlns/features/v1.2.0">
+    <feature name="odl-bgpcep-bmp-config-example" version="${project.version}">
+        <configfile finalname="etc/opendaylight/bgpcep/odl-bmp-monitors-config.xml">mvn:org.opendaylight.bgpcep/bgp-bmp-config-example/${project.version}/xml/odl-bmp-monitors-config</configfile>
+    </feature>
+</features>
