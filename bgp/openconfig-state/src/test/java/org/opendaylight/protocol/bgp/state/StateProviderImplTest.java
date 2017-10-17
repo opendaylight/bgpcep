@@ -130,7 +130,7 @@ public class StateProviderImplTest extends AbstractConcurrentDataBrokerTest {
     private final InstanceIdentifier<Bgp> bgpInstanceIdentifier = InstanceIdentifier.create(NetworkInstances.class)
         .child(NetworkInstance.class, new NetworkInstanceKey("global-bgp")).child(Protocols.class)
         .child(Protocol.class, new ProtocolKey(BGP.class, this.ribId)).augmentation(Protocol1.class).child(Bgp.class);
-    final static TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+    static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
     private final AsNumber as = new AsNumber(72L);
     private final BgpId bgpId = new BgpId("127.0.0.1");
     private final IpAddress neighborAddress = new IpAddress(new Ipv4Address("127.0.0.2"));

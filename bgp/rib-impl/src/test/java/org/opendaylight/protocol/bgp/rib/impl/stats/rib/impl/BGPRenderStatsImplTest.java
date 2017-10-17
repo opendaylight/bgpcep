@@ -32,7 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 
 public class BGPRenderStatsImplTest {
-    private final static BgpId BGP_ID = new BgpId("127.0.0.1");
+    private static final BgpId BGP_ID = new BgpId("127.0.0.1");
     private static final RibId RIB_ID = new RibId("test-rib");
     private static final ClusterIdentifier CLUSTER_ID = new ClusterIdentifier("192.168.1.2");
     private static final AsNumber AS = new AsNumber(0x10L);

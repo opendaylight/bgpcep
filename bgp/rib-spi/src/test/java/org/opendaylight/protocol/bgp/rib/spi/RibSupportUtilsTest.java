@@ -29,8 +29,8 @@ import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 
 public class RibSupportUtilsTest {
-    private final static NodeIdentifierWithPredicates NII;
-    private final static NodeIdentifierWithPredicates NII_PATH;
+    private static final NodeIdentifierWithPredicates NII;
+    private static final NodeIdentifierWithPredicates NII_PATH;
     final Class<? extends AddressFamily> AFI = Ipv4AddressFamily.class;
     final Class<? extends SubsequentAddressFamily> SAFI = UnicastSubsequentAddressFamily.class;
     private static final TablesKey TABLE_KEY = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
