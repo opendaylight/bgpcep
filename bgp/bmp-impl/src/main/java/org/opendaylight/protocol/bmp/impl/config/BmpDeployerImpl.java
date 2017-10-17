@@ -74,7 +74,7 @@ public class BmpDeployerImpl implements BmpDeployer, ClusteredDataTreeChangeList
         wTx.merge(LogicalDatastoreType.OPERATIONAL, BMP_MONITOR_YII, EMPTY_PARENT_NODE);
         wTx.submit();
         this.registration = this.bmpDeployerDependencies.getDataBroker().registerDataTreeChangeListener(
-            new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, ODL_BMP_MONITORS_IID), this);
+                new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, ODL_BMP_MONITORS_IID), this);
     }
 
     @Override
@@ -115,7 +115,7 @@ public class BmpDeployerImpl implements BmpDeployer, ClusteredDataTreeChangeList
 
             final Server server = bmpConfig.getServer();
             final InetSocketAddress inetAddress =
-                Ipv4Util.toInetSocketAddress(server.getBindingAddress(), server.getBindingPort());
+                    Ipv4Util.toInetSocketAddress(server.getBindingAddress(), server.getBindingPort());
             final BmpMonitoringStationImpl monitor = new BmpMonitoringStationImpl(this.bmpDeployerDependencies,
                 this.dispatcher, monitorId, inetAddress, bmpConfig.getMonitoredRouter());
             this.bmpMonitorServices.put(monitorId, monitor);
@@ -139,8 +139,8 @@ public class BmpDeployerImpl implements BmpDeployer, ClusteredDataTreeChangeList
 
     @Override
     public synchronized void writeBmpMonitor(final BmpMonitorConfig bmpConfig) throws TransactionCommitFailedException {
-        final KeyedInstanceIdentifier<BmpMonitorConfig, BmpMonitorConfigKey> iid = InstanceIdentifier
-            .create(OdlBmpMonitors.class).child(BmpMonitorConfig.class, bmpConfig.getKey());
+        final KeyedInstanceIdentifier<BmpMonitorConfig, BmpMonitorConfigKey> iid = ODL_BMP_MONITORS_IID
+            .child(BmpMonitorConfig.class, bmpConfig.getKey());
 
         final WriteTransaction wTx = this.bmpDeployerDependencies.getDataBroker().newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.CONFIGURATION, iid, bmpConfig, true);
@@ -149,9 +149,9 @@ public class BmpDeployerImpl implements BmpDeployer, ClusteredDataTreeChangeList
 
     @Override
     public synchronized void deleteBmpMonitor(final MonitorId monitorId)
-        throws TransactionCommitFailedException {
-        final KeyedInstanceIdentifier<BmpMonitorConfig, BmpMonitorConfigKey> iid = InstanceIdentifier
-            .create(OdlBmpMonitors.class).child(BmpMonitorConfig.class, new BmpMonitorConfigKey(monitorId));
+            throws TransactionCommitFailedException {
+        final KeyedInstanceIdentifier<BmpMonitorConfig, BmpMonitorConfigKey> iid = ODL_BMP_MONITORS_IID
+            .child(BmpMonitorConfig.class, new BmpMonitorConfigKey(monitorId));
 
         final WriteTransaction wTx = this.bmpDeployerDependencies.getDataBroker().newWriteOnlyTransaction();
         wTx.delete(LogicalDatastoreType.CONFIGURATION, iid);

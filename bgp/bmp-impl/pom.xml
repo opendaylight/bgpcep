@@ -168,7 +168,6 @@
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
         </dependency>
-
         <!-- test dependencies -->
         <dependency>
             <groupId>junit</groupId>

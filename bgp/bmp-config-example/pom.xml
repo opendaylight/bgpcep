@@ -1,17 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- vi: set et smarttab sw=4 tabstop=4: -->
 <!--
-
-    Copyright (c) 2017 AT&T Intellectual Property. All rights reserved.
-
-    This program and the accompanying materials are made available under the
-    terms of the Eclipse Public License v1.0 which accompanies this distribution,
-    and is available at http://www.eclipse.org/legal/epl-v10.html
-
--->
-
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
+  ~ Copyright (c) 2017 AT&T Intellectual Property.
+  ~ All rights reserved.
+  ~ This program and the accompanying materials are made available under the
+  ~ terms of the Eclipse Public License v1.0 which accompanies this distribution,
+  ~ and is available at http://www.eclipse.org/legal/epl-v10.html
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
@@ -21,10 +18,10 @@
     </parent>
 
     <groupId>org.opendaylight.bgpcep</groupId>
-    <artifactId>bgp-config-example</artifactId>
+    <artifactId>bgp-bmp-config-example</artifactId>
     <version>0.9.0-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <description>Example of configuration files for BGP protocol</description>
+    <description>Configuration files examples for BMP protocol</description>
     <name>${project.artifactId}</name>
 
     <dependencyManagement>
@@ -52,8 +49,7 @@
                 </executions>
                 <configuration>
                     <includes>
-                        <include>**/network-topology-config.xml</include>
-                        <include>**/protocols-config.xml</include>
+                        <include>**/odl-bmp-monitors-config.xml</include>
                     </includes>
                 </configuration>
             </plugin>
@@ -70,19 +66,9 @@
                         <configuration>
                             <artifacts>
                                 <artifact>
-                                    <file>${project.build.directory}/classes/initial/31-bgp.xml</file>
+                                    <file>${project.build.directory}/classes/initial/odl-bmp-monitors-config.xml</file>
                                     <type>xml</type>
-                                    <classifier>config</classifier>
-                                </artifact>
-                                <artifact>
-                                    <file>${project.build.directory}/classes/initial/protocols-config.xml</file>
-                                    <type>xml</type>
-                                    <classifier>bgp-initial-config</classifier>
-                                </artifact>
-                                <artifact>
-                                    <file>${project.build.directory}/classes/initial/network-topology-config.xml</file>
-                                    <type>xml</type>
-                                    <classifier>network-topology-initial-config</classifier>
+                                    <classifier>odl-bmp-monitors-config</classifier>
                                 </artifact>
                             </artifacts>
                         </configuration>

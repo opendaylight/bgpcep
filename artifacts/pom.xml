@@ -450,6 +450,11 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-bmp-config-example</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>bgp-openconfig-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -666,7 +671,20 @@
                 <type>xml</type>
                 <version>${project.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>odl-bgpcep-bmp-config-example</artifactId>
+                <classifier>features</classifier>
+                <type>xml</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-bmp-config-example</artifactId>
+                <version>${project.version}</version>
+                <type>xml</type>
+                <classifier>odl-bmp-monitors-config</classifier>
+            </dependency>
             <!-- Extras Features artifacts -->
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
