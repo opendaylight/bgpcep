@@ -46,7 +46,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
      * PMSI FLAG - PMSI TYPE 0- MPLS LABEL
      * No tunnel information present
      */
-    final static byte[] NO_TUNNEL_INFORMATION_PRESENT_EXPECTED = {
+    static final byte[] NO_TUNNEL_INFORMATION_PRESENT_EXPECTED = {
         (byte) 0x80, (byte) 0x16, (byte) 0x05,
         (byte) 0x01, (byte) 0x00, (byte) 0x05, (byte) 0xdc, (byte) 0x10
     };
@@ -55,7 +55,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
      * PMSI FLAG - PMSI TYPE 1- MPLS LABEL
      * mLDP P2MP LSP
      */
-    final static byte[] RSVP_TE_P2MP_LSP_LSP_EXPECTED = {
+    static final byte[] RSVP_TE_P2MP_LSP_LSP_EXPECTED = {
         (byte) 0x80, (byte) 0x16, (byte) 0x11,
         (byte) 0x01, (byte) 0x01, (byte) 0x05, (byte) 0xdc, (byte) 0x10,
         (byte) 0x00, (byte) 0x00, (byte) 0x0d, (byte) 0x82,
@@ -67,7 +67,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
      * PMSI FLAG - PMSI TYPE 2- MPLS LABEL
      * mLDP P2MP LSP
      */
-    final static byte[] M_LDP_P2MP_LSP_EXPECTED_IPV4 = {
+    static final byte[] M_LDP_P2MP_LSP_EXPECTED_IPV4 = {
         (byte) 0x80, (byte) 0x16, (byte) 0x35,
         (byte) 0x01, (byte) 0x02, (byte) 0x05, (byte) 0xdc, (byte) 0x10,
         (byte) 0x06, (byte) 0x00, (byte) 0x01, (byte) 0x04,
@@ -92,7 +92,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
      * PMSI FLAG - PMSI TYPE 2- MPLS LABEL
      * mLDP P2MP LSP
      */
-    final static byte[] M_LDP_P2MP_LSP_EXPECTED_WRONG_FAMILY = {
+    static final byte[] M_LDP_P2MP_LSP_EXPECTED_WRONG_FAMILY = {
         (byte) 0x80, (byte) 0x16, (byte) 0x20,
         (byte) 0x01, (byte) 0x02, (byte) 0x05, (byte) 0xdc, (byte) 0x10,
         (byte) 0x06, (byte) 0x00, (byte) 0xfc, (byte) 0x04,
@@ -108,7 +108,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
      * PMSI FLAG - PMSI TYPE 2- MPLS LABEL
      * mLDP P2MP LSP L2VPN
      */
-    final static byte[] M_LDP_P2MP_LSP_EXPECTED_L2VPN = {
+    static final byte[] M_LDP_P2MP_LSP_EXPECTED_L2VPN = {
         (byte) 0x80, (byte) 0x16, (byte) 0x35,
         (byte) 0x01, (byte) 0x02, (byte) 0x05, (byte) 0xdc, (byte) 0x10,
         (byte) 0x06, (byte) 0x00, (byte) 0x19, (byte) 0x04,
@@ -133,7 +133,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
      * PMSI FLAG - PMSI TYPE 2- MPLS LABEL
      * mLDP P2MP LSP IPV4
      */
-    final static byte[] M_LDP_P2MP_LSP_EXPECTED_IPV4_2 = {
+    static final byte[] M_LDP_P2MP_LSP_EXPECTED_IPV4_2 = {
         (byte) 0x80, (byte) 0x16, (byte) 0x3b,
         (byte) 0x01, (byte) 0x02, (byte) 0x05, (byte) 0xdc, (byte) 0x10,
         (byte) 0x06, (byte) 0x00, (byte) 0x01, (byte) 0x04,
@@ -160,7 +160,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
      * PMSI FLAG - PMSI TYPE 2- MPLS LABEL
      * mLDP P2MP LSP IPV6
      */
-    final static byte[] M_LDP_P2MP_LSP_EXPECTED_IPV6 = {
+    static final byte[] M_LDP_P2MP_LSP_EXPECTED_IPV6 = {
         (byte) 0x80, (byte) 0x16, (byte) 0x41,
         (byte) 0x01, (byte) 0x02, (byte) 0x05, (byte) 0xdc, (byte) 0x10,
         (byte) 0x06, (byte) 0x00, (byte) 0x02, (byte) 0x10,
@@ -188,7 +188,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
      * PMSI FLAG - PMSI TYPE 3- MPLS LABEL
      * PIM-SSM Tree
      */
-    final static byte[] PIM_SSM_TREE_EXPECTED = {
+    static final byte[] PIM_SSM_TREE_EXPECTED = {
         (byte) 0x80, (byte) 0x16, (byte) 0x0d,
         (byte) 0x01, (byte) 0x03, (byte) 0x05, (byte) 0xdc, (byte) 0x10,
         (byte) 0x01, (byte) 0x01, (byte) 0x01, (byte) 0x01,
@@ -199,7 +199,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
      * PMSI FLAG - PMSI TYPE 4- MPLS LABEL
      * PIM-SM Tree
      */
-    final static byte[] PIM_SM_TREE_EXPECTED = {
+    static final byte[] PIM_SM_TREE_EXPECTED = {
         (byte) 0x80, (byte) 0x16, (byte) 0x0d,
         (byte) 0x01, (byte) 0x04, (byte) 0x05, (byte) 0xdc, (byte) 0x10,
         (byte) 0x01, (byte) 0x01, (byte) 0x01, (byte) 0x01,
@@ -210,7 +210,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
      * PMSI FLAG - PMSI TYPE 5- MPLS LABEL
      * BIDIR-PIM Tree
      */
-    final static byte[] BIDIR_PIM_EXPECTED = {
+    static final byte[] BIDIR_PIM_EXPECTED = {
         (byte) 0x80, (byte) 0x16, (byte) 0x0d,
         (byte) 0x01, (byte) 0x05, (byte) 0x05, (byte) 0xdc, (byte) 0x10,
         (byte) 0x01, (byte) 0x01, (byte) 0x01, (byte) 0x01,
@@ -221,7 +221,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
      * PMSI FLAG - PMSI TYPE 6- MPLS LABEL
      * Ingress Replication
      */
-    final static byte[] INGRESS_REPLICATION_EXPECTED = {
+    static final byte[] INGRESS_REPLICATION_EXPECTED = {
         (byte) 0x80, (byte) 0x16, (byte) 0x09,
         (byte) 0x01, (byte) 0x06, (byte) 0x05, (byte) 0xdc, (byte) 0x10,
         (byte) 0x01, (byte) 0x01, (byte) 0x01, (byte) 0x01
@@ -231,7 +231,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
      * PMSI FLAG - PMSI TYPE 7- MPLS LABEL
      * mLDP MP2MP LSP
      */
-    final static byte[] M_LDP_MP_2_MP_LSP_EXPECTED = {
+    static final byte[] M_LDP_MP_2_MP_LSP_EXPECTED = {
         (byte) 0x80, (byte) 0x16, (byte) 0x16,
         (byte) 0x01, (byte) 0x07, (byte) 0x05, (byte) 0xdc, (byte) 0x10,
         (byte) 0x01, (byte) 0x00, (byte) 0x0e, // Opaque Type - Length
@@ -246,7 +246,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
      * PMSI FLAG - PMSI TYPE 7- MPLS LABEL
      * mLDP MP2MP LSP
      */
-    final static byte[] M_LDP_MP_2_MP_LSP_WRONG = {
+    static final byte[] M_LDP_MP_2_MP_LSP_WRONG = {
         (byte) 0x80, (byte) 0x16, (byte) 0x0b,
         (byte) 0x01, (byte) 0x07, (byte) 0x05, (byte) 0xdc, (byte) 0x10,
         (byte) 0xfc, (byte) 0x00, (byte) 0x03, // Opaque Type - Length

@@ -49,7 +49,7 @@ public class ExportPolicyPeerTrackerImplTest {
     private static final YangInstanceIdentifier YII_PEER4 = YangInstanceIdentifier.builder().node(BgpRib.QNAME).node(Peer.QNAME)
         .nodeWithKey(Peer.QNAME, PEER_ID_QNAME, PEER_ID4.getValue()).build();
     private static final PeerId PEER_ID5 = new PeerId("bgp://42.42.42.46");
-    private final static List<AutoCloseable> TABLE_REGISTRATION = new ArrayList<>();
+    private static final List<AutoCloseable> TABLE_REGISTRATION = new ArrayList<>();
 
     @Test
     public void testExportPolicyPeerTrackerImpl() throws Exception {

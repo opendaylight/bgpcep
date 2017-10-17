@@ -33,7 +33,7 @@ import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.model.api.SchemaPath;
 
 public class NetworkTopologyConfigFileProcessorTest extends AbstractConfigLoader {
-    private final static InstanceIdentifier<Topology> TOPOLOGY_IID = InstanceIdentifier.create(NetworkTopology.class).child(Topology.class);
+    private static final InstanceIdentifier<Topology> TOPOLOGY_IID = InstanceIdentifier.create(NetworkTopology.class).child(Topology.class);
     @Mock
     private BgpTopologyDeployer bgpDeployer;
     @Mock
