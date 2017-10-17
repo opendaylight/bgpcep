@@ -118,23 +118,10 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-controller-config</artifactId>
+            <artifactId>odl-bgpcep-bmp-config-examples</artifactId>
             <type>xml</type>
-            <classifier>config</classifier>
+            <classifier>features</classifier>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-controller-config</artifactId>
-            <type>xml</type>
-            <classifier>bmp-config</classifier>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-controller-config</artifactId>
-            <type>xml</type>
-            <classifier>bmp-config-example</classifier>
-        </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>bgp-bmp-parser-impl</artifactId>
