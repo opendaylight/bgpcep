@@ -9,7 +9,7 @@ package org.opendaylight.protocol.bgp.rib.spi;
 
 import java.util.EventListener;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 /**

@@ -10,7 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl.state.peer;
 
 import java.util.Set;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
 
 /**
  * Expose Prefixes Received Count

@@ -4,7 +4,7 @@ module bgp-multiprotocol {
     prefix "bgp-mp";
 
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
-    import bgp-message { prefix bgp-msg; revision-date 2013-09-19; }
+    import bgp-message { prefix bgp-msg; revision-date 2017-12-07; }
     import bgp-types { prefix bgp-t; revision-date 2013-09-19; }
     import yang-ext { prefix ext; revision-date 2013-07-09; }
 
@@ -22,6 +22,10 @@ module bgp-multiprotocol {
         under the terms of the Eclipse Public License v1.0 which
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2017-12-07" {
+        description "Add support for add-path in base BGP NLRI.";
+    }
 
     revision "2013-09-19" {
         description

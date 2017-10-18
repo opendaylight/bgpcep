@@ -1,31 +1,35 @@
 module bgp-rib {
-        yang-version 1;
-        namespace "urn:opendaylight:params:xml:ns:yang:bgp-rib";
-        prefix "rib";
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:bgp-rib";
+    prefix "rib";
 
-    import bgp-message { prefix bgp-msg; revision-date 2013-09-19; }
-    import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-19; }
+    import bgp-message { prefix bgp-msg; revision-date 2017-12-07; }
+    import bgp-multiprotocol { prefix bgp-mp; revision-date 2017-12-07; }
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
 
-        organization "Cisco Systems, Inc.";
-        contact "Robert Varga <rovarga@cisco.com>";
+    organization "Cisco Systems, Inc.";
+    contact "Robert Varga <rovarga@cisco.com>";
 
-        description
-                "This module contains the concept of a Routing Information Base,
+    description
+        "This module contains the concept of a Routing Information Base,
         as defined by RFC4271.
 
-                Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
+        Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
 
-                This program and the accompanying materials are made available
-                under the terms of the Eclipse Public License v1.0 which
-                accompanies this distribution, and is available at
-                http://www.eclipse.org/legal/epl-v10.html";
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
 
-        revision "2013-09-25" {
-                description
-                        "Initial revision.";
-                reference "RFC4271";
-        }
+    revision "2017-12-07" {
+        description "Add support for add-path in base BGP NLRI.";
+    }
+
+    revision "2013-09-25" {
+        description
+            "Initial revision.";
+        reference "RFC4271";
+    }
 
     typedef rib-id {
         type inet:uri;

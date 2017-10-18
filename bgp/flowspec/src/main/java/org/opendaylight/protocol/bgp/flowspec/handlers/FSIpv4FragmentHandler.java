@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.bgp.flowspec.handlers;
 
 import org.opendaylight.protocol.util.BitArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.Fragment;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.Fragment;
 
 public class FSIpv4FragmentHandler extends AbstractFSFragmentHandler {
 

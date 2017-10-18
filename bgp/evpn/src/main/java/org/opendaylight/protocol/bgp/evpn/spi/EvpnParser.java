@@ -10,7 +10,7 @@ package org.opendaylight.protocol.bgp.evpn.spi;
 
 import io.netty.buffer.ByteBuf;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.evpn.EvpnChoice;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171207.evpn.EvpnChoice;
 
 public interface EvpnParser {
     /**

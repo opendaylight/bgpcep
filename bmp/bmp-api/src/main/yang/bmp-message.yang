@@ -3,8 +3,8 @@ module bmp-message {
     namespace "urn:opendaylight:params:xml:ns:yang:bmp-message";
     prefix "bmp-msg";
 
-    import bgp-message { prefix bgp-msg; revision-date 2013-09-19; }
-    import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-19; }
+    import bgp-message { prefix bgp-msg; revision-date 2017-12-07; }
+    import bgp-multiprotocol { prefix bgp-mp; revision-date 2017-12-07; }
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import ietf-yang-types { prefix yang; revision-date 2013-07-15; }
     import bgp-types { prefix bgp-t; revision-date 2013-09-19; }
@@ -25,6 +25,10 @@ module bmp-message {
 
    reference
         "https://tools.ietf.org/html/rfc7854";
+
+    revision "2017-12-07" {
+        description "Add support for add-path in base BGP NLRI.";
+    }
 
     revision "2015-05-12" {
         description

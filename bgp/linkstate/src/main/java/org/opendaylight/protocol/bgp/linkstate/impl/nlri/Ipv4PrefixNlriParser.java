@@ -8,7 +8,7 @@
 
 package org.opendaylight.protocol.bgp.linkstate.impl.nlri;
 
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NlriType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev171207.NlriType;
 
 public final class Ipv4PrefixNlriParser extends AbstractPrefixNlriParser {
     @Override

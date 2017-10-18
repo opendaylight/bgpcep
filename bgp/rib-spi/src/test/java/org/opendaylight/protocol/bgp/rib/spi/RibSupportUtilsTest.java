@@ -17,9 +17,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.SupportedTables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.peer.SupportedTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.Tables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
@@ -35,14 +35,14 @@ public class RibSupportUtilsTest {
     final Class<? extends SubsequentAddressFamily> SAFI = UnicastSubsequentAddressFamily.class;
     private static final TablesKey TABLE_KEY = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
     static {
-        final QName afi = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-rib?revision=2013-09-25", "afi");
-        final QName safi = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-rib?revision=2013-09-25", "safi");
+        final QName afi = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-rib?revision=2017-12-07", "afi");
+        final QName safi = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-rib?revision=2017-12-07", "safi");
         NII = new NodeIdentifierWithPredicates(SupportedTables.QNAME, ImmutableMap.of(afi, Ipv4AddressFamily.QNAME, safi, UnicastSubsequentAddressFamily.QNAME));
         NII_PATH = new NodeIdentifierWithPredicates(SupportedTables.QNAME,
             ImmutableMap.of(
-                QName.create("urn:opendaylight:params:xml:ns:yang:bgp-multiprotocol?revision=2013-09-19", "afi"),
+                QName.create("urn:opendaylight:params:xml:ns:yang:bgp-multiprotocol?revision=2017-12-07", "afi"),
                 Ipv4AddressFamily.QNAME,
-                QName.create("urn:opendaylight:params:xml:ns:yang:bgp-multiprotocol?revision=2013-09-19", "safi"),
+                QName.create("urn:opendaylight:params:xml:ns:yang:bgp-multiprotocol?revision=2017-12-07", "safi"),
                 UnicastSubsequentAddressFamily.QNAME)
         );
     }

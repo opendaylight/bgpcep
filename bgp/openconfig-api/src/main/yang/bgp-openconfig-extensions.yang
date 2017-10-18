@@ -8,7 +8,7 @@ module bgp-openconfig-extensions {
     import openconfig-bgp { prefix openconfig-bgp; }
     import ietf-inet-types { prefix inet; }
     import yang-ext { prefix ext; revision-date 2013-07-09; }
-    import bgp-rib { prefix bgp-rib; revision-date 2013-09-25; }
+    import bgp-rib { prefix bgp-rib; revision-date 2017-12-07; }
     import openconfig-bgp-operational { prefix bgp-op; }
 
     organization "Cisco Systems, Inc.";
@@ -24,6 +24,10 @@ module bgp-openconfig-extensions {
         under the terms of the Eclipse Public License v1.0 which
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
+
+    revision 2017-12-07 {
+        description "Add support for add-path in base BGP NLRI.";
+    }
 
     revision 2016-06-14 {
         description

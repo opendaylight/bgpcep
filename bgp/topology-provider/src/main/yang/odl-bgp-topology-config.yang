@@ -5,7 +5,7 @@ module odl-bgp-topology-config {
     prefix "bgp-topo-cfg";
 
     import network-topology { prefix nt; revision-date 2013-10-21; }
-    import bgp-rib { prefix rib; revision-date 2013-09-25; }
+    import bgp-rib { prefix rib; revision-date 2017-12-07; }
     import odl-bgp-topology-types { prefix topology-tpes; revision-date 2016-05-24; }
 
     organization "Cisco Systems, Inc.";
@@ -22,6 +22,10 @@ module odl-bgp-topology-config {
         under the terms of the Eclipse Public License v1.0 which
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2017-12-07" {
+        description "Add support for add-path in base BGP NLRI.";
+    }
 
     revision "2016-07-26" {
         description

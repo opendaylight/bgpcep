@@ -23,7 +23,6 @@ public class BaseRouteEntryTest extends AbstractRouteEntryTest {
 
     private BaseSimpleRouteEntry testBARE;
 
-    @Override
     @Before
     public void setUp() {
         super.setUp();
