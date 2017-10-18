@@ -42,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 
 final class PrefixesBuilder {
     private static final Ipv4NextHopCase NEXT_HOP;
+    private static long count = 1;
 
     static {
         NEXT_HOP = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("127.1.1.1")).build()).build();
@@ -55,14 +56,16 @@ final class PrefixesBuilder {
         Ipv4Prefix addressPrefix = new Ipv4Prefix("1.1.1.1/31");
         for (int i = 0; i < nPrefixes; i++) {
             buildAndSend(session, addressPrefix, extCom, multipartSupport);
-            addressPrefix = incrementIpv4Prefix(addressPrefix);
+            if (!multipartSupport) {
+                addressPrefix = incrementIpv4Prefix(addressPrefix);
+            }
         }
     }
 
     private static void buildAndSend(final ChannelOutputLimiter session, final Ipv4Prefix addressPrefix, final List<String> extCom,
-        final boolean multipartSupport) {
+                                     final boolean multipartSupport) {
         final Update upd = new UpdateBuilder().setNlri(new NlriBuilder().build())
-            .setAttributes(createAttributes(extCom, multipartSupport, addressPrefix)).build();
+                .setAttributes(createAttributes(extCom, multipartSupport, addressPrefix)).build();
         session.write(upd);
         session.flush();
     }
@@ -78,13 +81,14 @@ final class PrefixesBuilder {
 
         final Ipv4PrefixesBuilder prefixes = new Ipv4PrefixesBuilder().setPrefix(addressPrefix);
         if (multiPathSupport) {
-            prefixes.setPathId(new PathId(5L));
+            prefixes.setPathId(new PathId(count));
+            count++;
         }
         attBuilder.addAugmentation(Attributes1.class, new Attributes1Builder().setMpReachNlri(
-            new MpReachNlriBuilder().setCNextHop(NEXT_HOP).setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
-                .setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
-                    new DestinationIpv4CaseBuilder().setDestinationIpv4(new DestinationIpv4Builder()
-                        .setIpv4Prefixes(Collections.singletonList(prefixes.build())).build()).build()).build()).build()).build());
+                new MpReachNlriBuilder().setCNextHop(NEXT_HOP).setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
+                        .setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
+                                new DestinationIpv4CaseBuilder().setDestinationIpv4(new DestinationIpv4Builder()
+                                        .setIpv4Prefixes(Collections.singletonList(prefixes.build())).build()).build()).build()).build()).build());
 
         return attBuilder.build();
     }
