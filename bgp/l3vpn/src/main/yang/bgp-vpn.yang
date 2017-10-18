@@ -2,9 +2,9 @@ module bgp-vpn {
     namespace "urn:opendaylight:params:xml:ns:yang:bgp-vpn";
     prefix "bgp-vpn";
 
-    import bgp-labeled-unicast { prefix bgp-lu; revision-date 2015-05-25; }
+    import bgp-labeled-unicast { prefix bgp-lu; revision-date 2017-12-07; }
     import bgp-types { prefix bgp-t; revision-date 2013-09-19; }
-    import bgp-rib { prefix bgp-rib; revision-date 2013-09-25; }
+    import bgp-rib { prefix bgp-rib; revision-date 2017-12-07; }
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
 
     organization "Brocade Communications Systems, Inc.";
@@ -20,6 +20,10 @@ module bgp-vpn {
         under the terms of the Eclipse Public License v1.0 which
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2017-12-07" {
+        description "Add support for add-path in base BGP NLRI.";
+    }
 
     revision 2016-04-13 {
         description "Initial version";

@@ -15,7 +15,7 @@ import io.netty.buffer.Unpooled;
 import org.junit.Test;
 import org.opendaylight.protocol.bmp.spi.parser.BmpDeserializationException;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.StatsReportsMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.StatsReportsMessage;
 
 public class StatisticsReportHandlerTest extends AbstractBmpMessageTest {
 

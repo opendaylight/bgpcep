@@ -23,13 +23,13 @@ import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bmp.spi.parser.AbstractBmpPerPeerMessageParser;
 import org.opendaylight.protocol.bmp.spi.parser.BmpDeserializationException;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.NotifyBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.NotifyMessage;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.PeerDownNotification;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.PeerDownNotificationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.down.Data;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.down.data.FsmEventCode;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.down.data.FsmEventCodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.NotifyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.NotifyMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.PeerDownNotification;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.PeerDownNotificationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.peer.down.Data;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.peer.down.data.FsmEventCode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.peer.down.data.FsmEventCodeBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 public class PeerDownHandler extends AbstractBmpPerPeerMessageParser<PeerDownNotificationBuilder> {
@@ -52,13 +52,13 @@ public class PeerDownHandler extends AbstractBmpPerPeerMessageParser<PeerDownNot
                 ByteBufWriteUtil.writeUnsignedByte(REASON_TWO.getValue(), buffer);
                 ByteBufWriteUtil.writeUnsignedShort(((FsmEventCode) peerDown.getData()).getFsmEventCode(), buffer);
             } else if (peerDown.getData() instanceof
-                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.down.data.Notification) {
+                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.peer.down.data.Notification) {
                 ByteBufWriteUtil.writeUnsignedByte(REASON_ONE.getValue(), buffer);
                 serializePDU(peerDown.getData(), buffer);
             }
         } else {
             if (peerDown.getData() instanceof
-                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.down.data.Notification) {
+                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.peer.down.data.Notification) {
                 ByteBufWriteUtil.writeUnsignedByte(REASON_THREE.getValue(), buffer);
                 serializePDU(peerDown.getData(), buffer);
             } else {
@@ -68,8 +68,8 @@ public class PeerDownHandler extends AbstractBmpPerPeerMessageParser<PeerDownNot
     }
 
     private void serializePDU(final Data data, final ByteBuf buffer) {
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.down.data.Notification notification
-            = (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.down.data.Notification) data;
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.peer.down.data.Notification notification
+            = (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.peer.down.data.Notification) data;
         this.msgRegistry.serializeMessage(new NotifyBuilder(notification.getNotification()).build(), buffer);
     }
 
@@ -103,12 +103,12 @@ public class PeerDownHandler extends AbstractBmpPerPeerMessageParser<PeerDownNot
         return peerDown.build();
     }
 
-    private org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.down.data.Notification parseBgpNotificationMessage(final ByteBuf bytes) throws BmpDeserializationException {
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.down.data.NotificationBuilder notificationCBuilder
-            = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.down.data.NotificationBuilder();
+    private org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.peer.down.data.Notification parseBgpNotificationMessage(final ByteBuf bytes) throws BmpDeserializationException {
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.peer.down.data.NotificationBuilder notificationCBuilder
+            = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.peer.down.data.NotificationBuilder();
 
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.down.data.notification.NotificationBuilder notificationBuilder
-            = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.down.data.notification.NotificationBuilder();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.peer.down.data.notification.NotificationBuilder notificationBuilder
+            = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.peer.down.data.notification.NotificationBuilder();
         try {
             final Notification not = this.msgRegistry.parseMessage(bytes, null);
             requireNonNull(not, "Notify message may not be null.");

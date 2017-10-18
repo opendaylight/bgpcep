@@ -9,7 +9,7 @@
 package org.opendaylight.protocol.bgp.rib.spi.state;
 
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
 
 /**
  * BGP Operational Graceful Restart State

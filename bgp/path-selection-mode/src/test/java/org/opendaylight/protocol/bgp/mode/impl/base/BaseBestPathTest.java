@@ -14,7 +14,7 @@ import static org.junit.Assert.assertTrue;
 import com.google.common.primitives.UnsignedInteger;
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
 
 public class BaseBestPathTest {
     private static final long PATH_ID = 0;

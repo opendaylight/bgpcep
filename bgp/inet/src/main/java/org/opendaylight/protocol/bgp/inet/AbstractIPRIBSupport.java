@@ -15,8 +15,8 @@ import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.rib.spi.MultiPathAbstractRIBSupport;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -103,7 +103,7 @@ abstract class AbstractIPRIBSupport extends MultiPathAbstractRIBSupport {
         final Optional<DataContainerChild<? extends PathArgument, ?>> maybePrefixLeaf = prefixes.getChild(routePrefixIdentifier());
         final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf = prefixes.getChild(routePathIdNid());
         Preconditions.checkState(maybePrefixLeaf.isPresent());
-        final Object prefixValue = (maybePrefixLeaf.get()).getValue();
+        final Object prefixValue = maybePrefixLeaf.get().getValue();
         return PathIdUtil.createNidKey(routeQName(), routeKeyQName(), pathIdQName(), prefixValue, maybePathIdLeaf);
     }
 }

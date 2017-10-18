@@ -3,9 +3,9 @@ module bmp-monitor {
     namespace "urn:opendaylight:params:xml:ns:yang:bmp-monitor";
     prefix "bmp-mon";
 
-    import bgp-rib { prefix rib; revision-date 2013-09-25; }
-    import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-19; }
-    import bmp-message { prefix bmp-msg; revision-date 2015-05-12; }
+    import bgp-rib { prefix rib; revision-date 2017-12-07; }
+    import bgp-multiprotocol { prefix bgp-mp; revision-date 2017-12-07; }
+    import bmp-message { prefix bmp-msg; revision-date 2017-12-07; }
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import ietf-yang-types { prefix yang; revision-date 2013-07-15; }
 
@@ -21,6 +21,10 @@ module bmp-monitor {
         under the terms of the Eclipse Public License v1.0 which
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2017-12-07" {
+        description "Add support for add-path in base BGP NLRI.";
+    }
 
     revision "2015-05-12" {
         description

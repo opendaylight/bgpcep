@@ -12,7 +12,7 @@ import io.netty.buffer.ByteBuf;
 import java.util.List;
 import java.util.Set;
 import org.opendaylight.protocol.util.BitArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.NumericOperand;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.NumericOperand;
 
 /**
  * Common parent class for numeric operands.
