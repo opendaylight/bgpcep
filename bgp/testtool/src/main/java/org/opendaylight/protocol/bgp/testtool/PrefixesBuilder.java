@@ -28,7 +28,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.LocalPrefBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.MultiExitDiscBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.OriginBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.message.NlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlriBuilder;
@@ -61,7 +60,7 @@ final class PrefixesBuilder {
 
     private static void buildAndSend(final ChannelOutputLimiter session, final Ipv4Prefix addressPrefix, final List<String> extCom,
         final boolean multipartSupport) {
-        final Update upd = new UpdateBuilder().setNlri(new NlriBuilder().build())
+        final Update upd = new UpdateBuilder().setNlri(Collections.emptyList())
             .setAttributes(createAttributes(extCom, multipartSupport, addressPrefix)).build();
         session.write(upd);
         session.flush();

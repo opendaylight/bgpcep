@@ -34,7 +34,7 @@ final class IPv4RIBSupport extends AbstractIPRIBSupport {
     private static final IPv4RIBSupport SINGLETON = new IPv4RIBSupport();
 
     private IPv4RIBSupport() {
-        super(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.Ipv4Prefix.class, Ipv4AddressFamily.class,
+        super(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Ipv4Prefix.class, Ipv4AddressFamily.class,
                 Ipv4RoutesCase.class, Ipv4Routes.class, Ipv4Route.class, DestinationIpv4.QNAME, Ipv4Prefixes.QNAME);
     }
 

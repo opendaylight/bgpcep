@@ -354,7 +354,7 @@ class AbstractAddPathTest extends AbstractConcurrentDataBrokerTest {
         attBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build());
         attBuilder.setAsPath(new AsPathBuilder().setSegments(Collections.emptyList()).build());
         attBuilder.setUnrecognizedAttributes(Collections.emptyList());
-        return new UpdateBuilder().setWithdrawnRoutes(new WithdrawnRoutesBuilder()
-            .setWithdrawnRoutes(Collections.singletonList(prefix)).build()).build();
+        return new UpdateBuilder()
+                .setWithdrawnRoutes(Lists.newArrayList(new WithdrawnRoutesBuilder().setPrefix(prefix).build())).build();
     }
 }

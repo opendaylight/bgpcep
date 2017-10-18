@@ -53,7 +53,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.LocalPrefBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.Origin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.OriginBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.message.Nlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.message.NlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.message.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.message.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes2Builder;
@@ -141,9 +143,12 @@ public class PeerTest extends AbstractRIBTestSetup {
         Assert.assertArrayEquals(new byte[]{1, 1, 1, 1}, this.classic.getRawIdentifier());
         assertEquals("BGPPeer{name=127.0.0.1, tables=[TablesKey [_afi=class org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily, _safi=class org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily]]}", this.classic.toString());
 
-        final List<Ipv4Prefix> prefs = Lists.newArrayList(new Ipv4Prefix("8.0.1.0/28"), new Ipv4Prefix("127.0.0.1/32"), new Ipv4Prefix("2.2.2.2/24"));
+        final Nlri n1 = new NlriBuilder().setPrefix(new Ipv4Prefix("8.0.1.0/28")).build();
+        final Nlri n2 = new NlriBuilder().setPrefix(new Ipv4Prefix("127.0.0.1/32")).build();
+        final Nlri n3 = new NlriBuilder().setPrefix(new Ipv4Prefix("2.2.2.2/24")).build();
+        final List<Nlri> nlris = Lists.newArrayList(n1, n2, n3);
         final UpdateBuilder ub = new UpdateBuilder();
-        ub.setNlri(new NlriBuilder().setNlri(prefs).build());
+        ub.setNlri(nlris);
         final Origin origin = new OriginBuilder().setValue(BgpOrigin.Igp).build();
         final AsPath asPath = new AsPathBuilder().setSegments(Collections.emptyList()).build();
         final CNextHop nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("127.0.0.1")).build()).build();
@@ -179,9 +184,15 @@ public class PeerTest extends AbstractRIBTestSetup {
         assertEquals(SAFI_QNAME.toString(), routeTable.getSafi().getqNameOfIdentity());
         assertNotNull(testingPeer.getBgpSessionState());
 
-        final List<Ipv4Prefix> prefs2 = Lists.newArrayList(new Ipv4Prefix("8.0.1.0/28"), new Ipv4Prefix("8.0.1.16/28"));
-        ub.setNlri(new NlriBuilder().setNlri(prefs2).build());
-        ub.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setWithdrawnRoutes(prefs).build());
+        final Nlri n11 = new NlriBuilder().setPrefix(new Ipv4Prefix("8.0.1.0/28")).build();
+        final Nlri n22 = new NlriBuilder().setPrefix(new Ipv4Prefix("8.0.1.16/28")).build();
+        final List<Nlri> nlris2 = Lists.newArrayList(n11, n22);
+        ub.setNlri(nlris2);
+        final WithdrawnRoutes w1 = new WithdrawnRoutesBuilder().setPrefix(new Ipv4Prefix("8.0.1.0/28")).build();
+        final WithdrawnRoutes w2 = new WithdrawnRoutesBuilder().setPrefix(new Ipv4Prefix("127.0.0.1/32")).build();
+        final WithdrawnRoutes w3 = new WithdrawnRoutesBuilder().setPrefix(new Ipv4Prefix("2.2.2.2/24")).build();
+        final List<WithdrawnRoutes> wrs = Lists.newArrayList(w1, w2, w3);
+        ub.setWithdrawnRoutes(wrs);
         this.classic.onMessage(this.session, ub.build());
         assertEquals(2, this.routes.size());
         this.classic.onMessage(this.session, new KeepaliveBuilder().build());

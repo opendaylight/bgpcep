@@ -113,7 +113,7 @@ final class BmpMockUtil {
         final UpdateBuilder updateBuilder = new UpdateBuilder()
             .setAttributes(new AttributesBuilder().setOrigin(ORIGIN).setAsPath(AS_PATH).setCNextHop(
                 new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(NEXT_HOP).build()).build()).build())
-            .setNlri(new NlriBuilder().setNlri(Collections.singletonList(prefix)).build());
+            .setNlri(Collections.singletonList(new NlriBuilder().setPrefix(prefix).build()));
         return updateBuilder.build();
     }
 }
