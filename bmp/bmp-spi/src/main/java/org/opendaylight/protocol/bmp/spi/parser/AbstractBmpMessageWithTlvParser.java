@@ -13,7 +13,7 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.Tlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.Tlv;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

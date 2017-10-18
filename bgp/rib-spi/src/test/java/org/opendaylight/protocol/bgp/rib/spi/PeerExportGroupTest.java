@@ -11,7 +11,7 @@ package org.opendaylight.protocol.bgp.rib.spi;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 
 public class PeerExportGroupTest {

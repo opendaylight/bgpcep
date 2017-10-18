@@ -13,7 +13,7 @@ import org.opendaylight.protocol.bmp.spi.parser.BmpMessageSerializer;
 import org.opendaylight.protocol.bmp.spi.parser.BmpTlvParser;
 import org.opendaylight.protocol.bmp.spi.parser.BmpTlvRegistry;
 import org.opendaylight.protocol.bmp.spi.parser.BmpTlvSerializer;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.Tlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.Tlv;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 public class SimpleBmpExtensionProviderContext implements BmpExtensionConsumerContext, BmpExtensionProviderContext {

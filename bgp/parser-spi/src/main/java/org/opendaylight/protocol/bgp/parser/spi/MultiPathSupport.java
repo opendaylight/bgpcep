@@ -8,7 +8,7 @@
 
 package org.opendaylight.protocol.bgp.parser.spi;
 
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.BgpTableType;
 
 /**
  * Holds user specific add-path constraints per AFI/SAFI (table type)

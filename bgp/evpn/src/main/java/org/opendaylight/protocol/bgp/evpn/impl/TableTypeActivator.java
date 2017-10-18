@@ -13,8 +13,8 @@ import java.util.List;
 import org.opendaylight.protocol.bgp.openconfig.spi.AbstractBGPTableTypeRegistryProviderActivator;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryProvider;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.L2VPNEVPN;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.EvpnSubsequentAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.L2vpnAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171207.EvpnSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171207.L2vpnAddressFamily;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 
 public final class TableTypeActivator extends AbstractBGPTableTypeRegistryProviderActivator {

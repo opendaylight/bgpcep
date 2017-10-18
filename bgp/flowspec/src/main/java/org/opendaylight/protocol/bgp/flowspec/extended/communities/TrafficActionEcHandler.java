@@ -15,9 +15,9 @@ import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunityParser;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunitySerializer;
 import org.opendaylight.protocol.util.BitArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.traffic.action.extended.community.TrafficActionExtendedCommunity;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.traffic.action.extended.community.TrafficActionExtendedCommunityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.extended.communities.extended.community.TrafficActionExtendedCommunityCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.traffic.action.extended.community.TrafficActionExtendedCommunity;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.traffic.action.extended.community.TrafficActionExtendedCommunityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.update.attributes.extended.communities.extended.community.TrafficActionExtendedCommunityCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.ExtendedCommunity;
 
 public class TrafficActionEcHandler implements ExtendedCommunityParser, ExtendedCommunitySerializer {
@@ -36,9 +36,9 @@ public class TrafficActionEcHandler implements ExtendedCommunityParser, Extended
 
     @Override
     public void serializeExtendedCommunity(final ExtendedCommunity extendedCommunity, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(extendedCommunity instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.TrafficActionExtendedCommunity,
+        Preconditions.checkArgument(extendedCommunity instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.TrafficActionExtendedCommunity,
                 "The extended community %s is not TrafficActionExtendedCommunityCase type.", extendedCommunity);
-        final TrafficActionExtendedCommunity trafficAction = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.TrafficActionExtendedCommunity) extendedCommunity).getTrafficActionExtendedCommunity();
+        final TrafficActionExtendedCommunity trafficAction = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.TrafficActionExtendedCommunity) extendedCommunity).getTrafficActionExtendedCommunity();
         byteAggregator.writeZero(RESERVED);
         final BitArray flags = new BitArray(FLAGS_SIZE);
         flags.set(SAMPLE_BIT, trafficAction.isSample());

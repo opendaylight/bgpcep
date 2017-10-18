@@ -2,8 +2,8 @@ module bgp-peer-rpc {
     namespace "urn:opendaylight:params:xml:ns:yang:bgp-peer-rpc";
     prefix "bgp-rpc";
 
-    import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-19; }
-    import bgp-rib { prefix rib; revision-date 2013-09-25; }
+    import bgp-multiprotocol { prefix bgp-mp; revision-date 2017-12-07; }
+    import bgp-rib { prefix rib; revision-date 2017-12-07; }
     import yang-ext { prefix ext; revision-date "2013-07-09"; }
 
     organization "Cisco Systems, Inc.";
@@ -25,6 +25,10 @@ module bgp-peer-rpc {
 
     revision 2017-10-27 {
         description "Add reset session RPC";
+    }
+
+    revision 2017-12-07 {
+        description "Add support for add-path in base BGP NLRI.";
     }
 
     identity peer-context {

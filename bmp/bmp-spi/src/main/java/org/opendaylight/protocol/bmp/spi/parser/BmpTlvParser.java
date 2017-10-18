@@ -9,7 +9,7 @@
 package org.opendaylight.protocol.bmp.spi.parser;
 
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.Tlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.Tlv;
 
 public interface BmpTlvParser {
 

@@ -10,7 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl.spi;
 import com.google.common.annotations.Beta;
 import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
 import org.opendaylight.protocol.concepts.AbstractRegistration;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
 
 /**
  * PeerExportGroup Registry. Register should be maintained in blocking mode to avoid race between

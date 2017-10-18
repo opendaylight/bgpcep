@@ -9,7 +9,7 @@
 package org.opendaylight.protocol.bgp.linkstate.impl.tlvs;
 
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.node._case.NodeDescriptors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev171207.linkstate.object.type.node._case.NodeDescriptors;
 import org.opendaylight.yangtools.yang.common.QName;
 
 public final class NodeDescriptorTlvParser extends AbstractLocalNodeDescriptorTlvCodec<NodeDescriptors> {

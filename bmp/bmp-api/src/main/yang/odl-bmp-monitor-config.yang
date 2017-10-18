@@ -5,7 +5,7 @@ module odl-bmp-monitor-config {
 
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import rfc2385 { prefix rfc2385; revision-date 2016-03-24; }
-    import bmp-monitor { prefix bmp-monitor; revision-date 2015-05-12; }
+    import bmp-monitor { prefix bmp-monitor; revision-date 2017-12-07; }
 
     description
         "This module contains the base YANG definitions for
@@ -16,6 +16,10 @@ module odl-bmp-monitor-config {
          under the terms of the Eclipse Public License v1.0 which
          accompanies this distribution, and is available at
          http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2017-12-07" {
+        description "Add support for add-path in base BGP NLRI.";
+    }
 
     revision "2017-05-17" {
         description

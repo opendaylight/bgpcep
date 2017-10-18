@@ -9,7 +9,7 @@
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.BgpTableType;
 
 public interface BGPBestPathSelection extends BgpTableType, AutoCloseable {
     PathSelectionMode getStrategy();

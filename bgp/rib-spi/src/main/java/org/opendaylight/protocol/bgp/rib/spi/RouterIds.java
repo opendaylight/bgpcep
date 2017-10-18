@@ -15,7 +15,7 @@ import com.google.common.net.InetAddresses;
 import com.google.common.primitives.UnsignedInteger;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
 
 public final class RouterIds {
     private static final LoadingCache<String, UnsignedInteger> ROUTER_IDS = CacheBuilder.newBuilder().weakValues().build(new CacheLoader<String, UnsignedInteger>() {

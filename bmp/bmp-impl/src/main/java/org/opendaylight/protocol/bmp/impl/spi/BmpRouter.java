@@ -9,7 +9,7 @@
 package org.opendaylight.protocol.bmp.impl.spi;
 
 import org.opendaylight.protocol.bmp.api.BmpSessionListener;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev150512.RouterId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev171207.RouterId;
 
 /**
  * Represent monitored router.

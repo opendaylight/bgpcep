@@ -2,11 +2,11 @@ module bgp-vpn-ipv6 {
     namespace "urn:opendaylight:params:xml:ns:yang:bgp-vpn-ipv6";
     prefix "bgp-vpn";
 
-    import bgp-message { prefix bgp-msg; revision-date 2013-09-19; }
-    import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-19; }
-    import bmp-monitor { prefix bmp-mon; revision-date 2015-05-12; }
-    import bgp-rib { prefix bgp-rib; revision-date 2013-09-25; }
-    import bgp-vpn { prefix bgp-vpn; revision-date 2016-04-13; }
+    import bgp-message { prefix bgp-msg; revision-date 2017-12-07; }
+    import bgp-multiprotocol { prefix bgp-mp; revision-date 2017-12-07; }
+    import bmp-monitor { prefix bmp-mon; revision-date 2017-12-07; }
+    import bgp-rib { prefix bgp-rib; revision-date 2017-12-07; }
+    import bgp-vpn { prefix bgp-vpn; revision-date 2017-12-07; }
 
     organization "Brocade Communications Systems, Inc.";
     contact "Kevin Wang <kwang@brocade.com>";
@@ -21,6 +21,10 @@ module bgp-vpn-ipv6 {
         under the terms of the Eclipse Public License v1.0 which
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2017-12-07" {
+        description "Add support for add-path in base BGP NLRI.";
+    }
 
     revision 2016-03-31 {
         reference "https://tools.ietf.org/html/rfc4659";

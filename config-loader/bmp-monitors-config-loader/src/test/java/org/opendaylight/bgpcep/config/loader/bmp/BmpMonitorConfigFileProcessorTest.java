@@ -18,7 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.bgpcep.config.loader.impl.AbstractConfigLoader;
 import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.config.rev170517.OdlBmpMonitors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.config.rev171207.OdlBmpMonitors;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.model.api.SchemaPath;
 
