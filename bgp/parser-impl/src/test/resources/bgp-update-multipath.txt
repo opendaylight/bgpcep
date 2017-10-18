@@ -1,0 +1,14 @@
+Received BGP Update message. Length:93
+
+ff ff ff ff ff ff ff ff  ff ff ff ff ff ff ff ff
+00 60 02 00 00 00 31 40  01 01 00 40 02 06 02 01
+00 00 fd ea 40 03 04 0a  00 00 02 80 04 04 00 00
+00 00 40 06 00 c0 08 10  ff ff ff 01 ff ff ff 02
+ff ff ff 03 ff ff ff 10  00 00 00 01 18 ac 11 01
+00 00 00 02 18 ac 11 01 00 00 00  01 18 ac 11 00
+
+Received BGP Update message. Length:41
+
+ff ff ff ff ff ff ff ff  ff ff ff ff ff ff ff ff
+00 29 02 00 12 00 00 00  01 1e ac 10 00 04 00 00
+00 02 1e ac 10 00 04 00  00

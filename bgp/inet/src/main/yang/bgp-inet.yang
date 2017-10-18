@@ -28,13 +28,6 @@ module bgp-inet {
                     "Initial revision.";
     }
 
-    grouping ipv4-prefix {
-        leaf prefix {
-            type inet:ipv4-prefix;
-        }
-        uses bgp-msg:path-id-grouping;
-    }
-
     grouping ipv6-prefix {
         leaf prefix {
             type inet:ipv6-prefix;
@@ -45,7 +38,7 @@ module bgp-inet {
     grouping ipv4-prefixes {
         container destination-ipv4 {
             list ipv4-prefixes {
-                uses ipv4-prefix;
+                uses bgp-msg:ipv4-prefix;
             }
         }
     }
@@ -61,7 +54,7 @@ module bgp-inet {
     grouping ipv4-routes {
         container ipv4-routes {
             list ipv4-route {
-                uses ipv4-prefix;
+                uses bgp-msg:ipv4-prefix;
 
                 key "prefix path-id";
 

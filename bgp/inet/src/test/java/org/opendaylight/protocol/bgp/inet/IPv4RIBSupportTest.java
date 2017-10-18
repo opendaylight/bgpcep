@@ -116,7 +116,7 @@ public final class IPv4RIBSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testCacheableNlriObjects() {
-        Assert.assertEquals(ImmutableSet.of(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.Ipv4Prefix.class), RIB_SUPPORT.cacheableNlriObjects());
+        Assert.assertEquals(ImmutableSet.of(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Ipv4Prefix.class), RIB_SUPPORT.cacheableNlriObjects());
     }
 
     @Test
