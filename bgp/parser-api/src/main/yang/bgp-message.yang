@@ -32,6 +32,10 @@ module bgp-message {
         reference "RFC4271, RFC4893";
     }
 
+    revision 2017-11-22 {
+        description "Add support for add-path in base BGP NLRI.";
+    }
+
     typedef protocol-version {
         type uint8 {
             range 1..7;
@@ -64,6 +68,13 @@ module bgp-message {
             type bgp-t:cluster-identifier;
             ordered-by user;
         }
+    }
+
+    grouping ipv4-prefix-and-path-id {
+        leaf prefix {
+            type inet:ipv4-prefix;
+        }
+        uses path-id-grouping;
     }
 
     notification open {
@@ -203,15 +214,13 @@ module bgp-message {
         description "Update Message";
         reference "http://tools.ietf.org/html/rfc4271#section-4.3";
         uses path-attributes;
-        container withdrawn-routes {
-            leaf-list withdrawn-routes {
-                type inet:ipv4-prefix;
-            }
+        list withdrawn-routes {
+            uses ipv4-prefix-and-path-id;
+            key "prefix path-id";
         }
-        container nlri {
-            leaf-list nlri {
-                type inet:ipv4-prefix;
-            }
+        list nlri {
+            uses ipv4-prefix-and-path-id;
+            key "prefix path-id";
         }
     }
 

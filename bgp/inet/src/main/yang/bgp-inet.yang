@@ -6,7 +6,7 @@ module bgp-inet {
     import bgp-rib { prefix bgp-rib; revision-date 2013-09-25; }
     import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-19; }
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
-    import bgp-message { prefix bgp-msg; revision-date 2013-09-19; }
+    import bgp-message { prefix bgp-msg; revision-date 2017-11-22; }
     import bmp-monitor { prefix bmp-mon; revision-date 2015-05-12; }
 
     organization "Cisco Systems, Inc.";
@@ -28,11 +28,8 @@ module bgp-inet {
                     "Initial revision.";
     }
 
-    grouping ipv4-prefix {
-        leaf prefix {
-            type inet:ipv4-prefix;
-        }
-        uses bgp-msg:path-id-grouping;
+    revision 2017-11-22 {
+        description "Add support for add-path in base BGP NLRI.";
     }
 
     grouping ipv6-prefix {
@@ -45,7 +42,8 @@ module bgp-inet {
     grouping ipv4-prefixes {
         container destination-ipv4 {
             list ipv4-prefixes {
-                uses ipv4-prefix;
+                uses bgp-msg:ipv4-prefix-and-path-id;
+                key "prefix path-id";
             }
         }
     }
@@ -54,6 +52,7 @@ module bgp-inet {
         container destination-ipv6 {
             list ipv6-prefixes {
                 uses ipv6-prefix;
+                key "prefix path-id";
             }
         }
     }
@@ -61,7 +60,7 @@ module bgp-inet {
     grouping ipv4-routes {
         container ipv4-routes {
             list ipv4-route {
-                uses ipv4-prefix;
+                uses bgp-msg:ipv4-prefix-and-path-id;
 
                 key "prefix path-id";
 

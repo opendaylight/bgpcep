@@ -69,8 +69,8 @@ public class BmpMockUtilTest {
         assertEquals(PeerType.Global, peerHeader.getType());
         assertEquals(AdjRibInType.PrePolicy, peerHeader.getAdjRibInType());
         final Update update = routeMonitoring.getUpdate();
-        assertEquals(PREFIX, update.getNlri().getNlri().get(0));
-        assertEquals("1.2.3.4", ((Ipv4NextHopCase) update.getAttributes()
+        assertEquals(PREFIX, update.getNlri().get(0).getPrefix());
+        assertEquals("1.2.3.4", ((Ipv4NextHopCase)update.getAttributes()
                 .getCNextHop()).getIpv4NextHop().getGlobal().getValue());
     }
 

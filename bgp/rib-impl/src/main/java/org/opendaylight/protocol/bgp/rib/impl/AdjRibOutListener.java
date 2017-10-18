@@ -9,11 +9,12 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.ArrayList;
+import com.google.common.base.Optional;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.LongAdder;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -27,12 +28,15 @@ import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.ipv4.routes.Ipv4Route;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.UpdateBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.message.NlriBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.message.WithdrawnRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171122.ipv4.routes.ipv4.routes.Ipv4Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171122.PathId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171122.Update;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171122.UpdateBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171122.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171122.update.message.Nlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171122.update.message.NlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171122.update.message.WithdrawnRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171122.update.message.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.AdjRibOut;
@@ -41,7 +45,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
@@ -58,9 +64,12 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
 
     private static final Logger LOG = LoggerFactory.getLogger(AdjRibOutListener.class);
 
-    private static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, "prefix").intern();
-    private final YangInstanceIdentifier.NodeIdentifier routeKeyLeaf = new YangInstanceIdentifier
+    static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, "prefix").intern();
+    static final QName PATHID_QNAME = QName.create(Ipv4Route.QNAME, "path-id").intern();
+    private final YangInstanceIdentifier.NodeIdentifier routeKeyPrefixLeaf = new YangInstanceIdentifier
             .NodeIdentifier(PREFIX_QNAME);
+    private final YangInstanceIdentifier.NodeIdentifier routeKeyPathIdLeaf = new YangInstanceIdentifier
+            .NodeIdentifier(PATHID_QNAME);
 
     private final ChannelOutputLimiter session;
     private final Codecs codecs;
@@ -165,20 +174,31 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
             @Nonnull final Collection<MapEntryNode> advertised,
             @Nonnull final Collection<MapEntryNode> withdrawn,
             @Nonnull final Attributes attr) {
-        final UpdateBuilder ub = new UpdateBuilder().setWithdrawnRoutes(
-                new WithdrawnRoutesBuilder().setWithdrawnRoutes(extractPrefixes(withdrawn)).build())
-                .setNlri(new NlriBuilder().setNlri(extractPrefixes(advertised)).build());
+        final UpdateBuilder ub = new UpdateBuilder().setWithdrawnRoutes(extractWithdrawnRoutes(withdrawn))
+                .setNlri(extractNlris(advertised));
         ub.setAttributes(attr);
         return ub.build();
     }
 
-    private List<Ipv4Prefix> extractPrefixes(final Collection<MapEntryNode> routes) {
-        final List<Ipv4Prefix> prefs = new ArrayList<>(routes.size());
-        for (final MapEntryNode ipv4Route : routes) {
-            final String prefix = (String) ipv4Route.getChild(this.routeKeyLeaf).get().getValue();
-            prefs.add(new Ipv4Prefix(prefix));
-        }
-        return prefs;
+    private List<Nlri> extractNlris(final Collection<MapEntryNode> routes) {
+        return routes.stream().map(ipv4Route -> new NlriBuilder().setPrefix(new Ipv4Prefix(extractPrefix(ipv4Route)))
+                .setPathId(extractPathId(ipv4Route)).build()).collect(Collectors.toList());
+    }
+
+    private List<WithdrawnRoutes> extractWithdrawnRoutes(final Collection<MapEntryNode> routes) {
+        return routes.stream().map(ipv4Route -> new WithdrawnRoutesBuilder()
+                .setPrefix(new Ipv4Prefix(extractPrefix(ipv4Route))).setPathId(extractPathId(ipv4Route)).build())
+                .collect(Collectors.toList());
+    }
+
+    private String extractPrefix(final MapEntryNode ipv4Route) {
+        return (String) ipv4Route.getChild(this.routeKeyPrefixLeaf).get().getValue();
+    }
+
+    private PathId extractPathId(final MapEntryNode ipv4Route) {
+        final Optional<DataContainerChild<? extends PathArgument, ?>> pathId = ipv4Route
+                .getChild(this.routeKeyPathIdLeaf);
+        return pathId.isPresent() ? new PathId((Long) pathId.get().getValue()) : null;
     }
 
     public void close() {

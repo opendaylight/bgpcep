@@ -3,7 +3,7 @@ module bgp-rib {
         namespace "urn:opendaylight:params:xml:ns:yang:bgp-rib";
         prefix "rib";
 
-    import bgp-message { prefix bgp-msg; revision-date 2013-09-19; }
+    import bgp-message { prefix bgp-msg; revision-date 2017-11-22; }
     import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-19; }
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
 
