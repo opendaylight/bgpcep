@@ -72,6 +72,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.LocalPrefBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.Origin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.OriginBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.message.Nlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.message.NlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
@@ -211,9 +212,12 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         bgpSession.setChannelExtMsgCoder(this.classicOpen);
         bgpPeer.onSessionUp(bgpSession);
 
-        final List<Ipv4Prefix> prefs = Lists.newArrayList(new Ipv4Prefix("8.0.1.0/28"), new Ipv4Prefix("127.0.0.1/32"), new Ipv4Prefix("2.2.2.2/24"));
+        final Nlri n1 = new NlriBuilder().setPrefix(new Ipv4Prefix("8.0.1.0/28")).build();
+        final Nlri n2 = new NlriBuilder().setPrefix(new Ipv4Prefix("127.0.0.1/32")).build();
+        final Nlri n3 = new NlriBuilder().setPrefix(new Ipv4Prefix("2.2.2.2/24")).build();
+        final List<Nlri> nlris = Lists.newArrayList(n1, n2, n3);
         final UpdateBuilder wrongMessage = new UpdateBuilder();
-        wrongMessage.setNlri(new NlriBuilder().setNlri(prefs).build());
+        wrongMessage.setNlri(nlris);
         final Origin origin = new OriginBuilder().setValue(BgpOrigin.Igp).build();
         final AsPath asPath = new AsPathBuilder().setSegments(Collections.emptyList()).build();
         final CNextHop nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("127.0.0.1")).build()).build();
@@ -252,9 +256,12 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         bgpSession.setChannelExtMsgCoder(this.classicOpen);
         bgpPeer.onSessionUp(bgpSession);
 
-        final List<Ipv4Prefix> prefs = Lists.newArrayList(new Ipv4Prefix("8.0.1.0/28"), new Ipv4Prefix("127.0.0.1/32"), new Ipv4Prefix("2.2.2.2/24"));
+        final Nlri n1 = new NlriBuilder().setPrefix(new Ipv4Prefix("8.0.1.0/28")).build();
+        final Nlri n2 = new NlriBuilder().setPrefix(new Ipv4Prefix("127.0.0.1/32")).build();
+        final Nlri n3 = new NlriBuilder().setPrefix(new Ipv4Prefix("2.2.2.2/24")).build();
+        final List<Nlri> nlris = Lists.newArrayList(n1, n2, n3);
         final UpdateBuilder wrongMessage = new UpdateBuilder();
-        wrongMessage.setNlri(new NlriBuilder().setNlri(prefs).build());
+        wrongMessage.setNlri(nlris);
         final Origin origin = new OriginBuilder().setValue(BgpOrigin.Igp).build();
         final AsPath asPath = new AsPathBuilder().setSegments(Collections.emptyList()).build();
         final CNextHop nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("127.0.0.1")).build()).build();

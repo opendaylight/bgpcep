@@ -276,7 +276,7 @@ public final class TestUtil {
     private static Update createUpdate(final boolean withNormalizedIpv4Prefixes) {
         final UpdateBuilder updateBuilder = new UpdateBuilder()
             .setAttributes(createAttributes())
-            .setWithdrawnRoutes(createWithdrwnRoutes());
+            .setWithdrawnRoutes(createWithdrawnRoutes());
         if (withNormalizedIpv4Prefixes) {
             updateBuilder.setNlri(createNlriWitNormalizedIpv4Prefixes());
         } else {
@@ -323,22 +323,25 @@ public final class TestUtil {
         return communities;
     }
 
-    private static Nlri createNlri() {
-        final NlriBuilder nlriBuilder = new NlriBuilder()
-            .setNlri(Lists.newArrayList(new Ipv4Prefix("10.10.10.10/24"), new Ipv4Prefix("20.20.20.20/24"), new Ipv4Prefix("30.30.30.30/24")));
-        return nlriBuilder.build();
+    private static List<Nlri> createNlri() {
+        final Nlri n1 = new NlriBuilder().setPrefix(new Ipv4Prefix("10.10.10.10/24")).build();
+        final Nlri n2 = new NlriBuilder().setPrefix(new Ipv4Prefix("20.20.20.20/24")).build();
+        final Nlri n3 = new NlriBuilder().setPrefix(new Ipv4Prefix("30.30.30.30/24")).build();
+        return Lists.newArrayList(n1, n2, n3);
     }
 
-    private static Nlri createNlriWitNormalizedIpv4Prefixes() {
-        final NlriBuilder nlriBuilder = new NlriBuilder()
-            .setNlri(Lists.newArrayList(new Ipv4Prefix("10.10.10.0/24"), new Ipv4Prefix("20.20.20.0/24"), new Ipv4Prefix("30.30.30.0/24")));
-        return nlriBuilder.build();
+    private static List<Nlri> createNlriWitNormalizedIpv4Prefixes() {
+        final Nlri n1 = new NlriBuilder().setPrefix(new Ipv4Prefix("10.10.10.0/24")).build();
+        final Nlri n2 = new NlriBuilder().setPrefix(new Ipv4Prefix("20.20.20.0/24")).build();
+        final Nlri n3 = new NlriBuilder().setPrefix(new Ipv4Prefix("30.30.30.0/24")).build();
+        return Lists.newArrayList(n1, n2, n3);
     }
 
-    private static WithdrawnRoutes createWithdrwnRoutes() {
-        final WithdrawnRoutesBuilder withDrawnBuilder = new WithdrawnRoutesBuilder()
-            .setWithdrawnRoutes(Lists.newArrayList(new Ipv4Prefix("10.10.20.0/24"), new Ipv4Prefix("20.20.10.0/24"), new Ipv4Prefix("30.10.10.0/24")));
-        return withDrawnBuilder.build();
+    private static List<WithdrawnRoutes> createWithdrawnRoutes() {
+        final WithdrawnRoutes w1 = new WithdrawnRoutesBuilder().setPrefix(new Ipv4Prefix("10.10.20.0/24")).build();
+        final WithdrawnRoutes w2 = new WithdrawnRoutesBuilder().setPrefix(new Ipv4Prefix("20.20.10.0/24")).build();
+        final WithdrawnRoutes w3 = new WithdrawnRoutesBuilder().setPrefix(new Ipv4Prefix("30.10.10.0/24")).build();
+        return Lists.newArrayList(w1, w2, w3);
     }
 
     public static StatsReportsMessage createStatsReportMsg(final Ipv4Address bgpId) {

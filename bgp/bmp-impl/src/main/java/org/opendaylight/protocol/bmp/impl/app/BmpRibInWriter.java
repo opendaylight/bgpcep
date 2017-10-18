@@ -22,7 +22,6 @@ import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTree;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.prefixes.DestinationIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.prefixes.destination.ipv4.Ipv4Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.prefixes.destination.ipv4.Ipv4PrefixesBuilder;
@@ -180,9 +179,8 @@ final class BmpRibInWriter {
      */
     private static MpReachNlri prefixesToMpReach(final UpdateMessage message) {
         final List<Ipv4Prefixes> prefixes = new ArrayList<>();
-        for (final Ipv4Prefix p : message.getNlri().getNlri()) {
-            prefixes.add(new Ipv4PrefixesBuilder().setPrefix(p).build());
-        }
+        message.getNlri().forEach(
+                n -> prefixes.add(new Ipv4PrefixesBuilder().setPrefix(n.getPrefix()).setPathId(n.getPathId()).build()));
         final MpReachNlriBuilder b = new MpReachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(
             UnicastSubsequentAddressFamily.class).setAdvertizedRoutes(
             new AdvertizedRoutesBuilder().setDestinationType(
@@ -202,9 +200,8 @@ final class BmpRibInWriter {
      */
     private static MpUnreachNlri prefixesToMpUnreach(final UpdateMessage message) {
         final List<Ipv4Prefixes> prefixes = new ArrayList<>();
-        for (final Ipv4Prefix p : message.getWithdrawnRoutes().getWithdrawnRoutes()) {
-            prefixes.add(new Ipv4PrefixesBuilder().setPrefix(p).build());
-        }
+        message.getWithdrawnRoutes().forEach(
+                w -> prefixes.add(new Ipv4PrefixesBuilder().setPrefix(w.getPrefix()).setPathId(w.getPathId()).build()));
         return new MpUnreachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).setWithdrawnRoutes(
             new WithdrawnRoutesBuilder().setDestinationType(
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4CaseBuilder().setDestinationIpv4(
