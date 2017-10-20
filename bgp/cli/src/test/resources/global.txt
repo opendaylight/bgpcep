@@ -1,0 +1,15 @@
+Attribute              | Value                
+----------------------------------------------
+                       |                      
+RIB state              |                      
+====================== |                      
+Router Id              | test-rib             
+As                     | AsNumber [_value=100]
+Total Paths            | 1                    
+Total Prefixes         | 2                    
+                       |                      
+AFI/SAFI state         |                      
+====================== |                      
+Family                 | IPV4UNICAST          
+Total Paths            | 3                    
+Total Prefixes         | 4                    
