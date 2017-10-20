@@ -1,0 +1,37 @@
+Attribute              | Value      
+------------------------------------
+Neighbor Address       | 127.0.0.2  
+Session State          | ACTIVE     
+                       |            
+Supported Capabilities |            
+====================== |            
+                       | ADDPATHS   
+                       |            
+Timer state            |            
+====================== |            
+Negotiated Hold Time   | 10         
+Uptime                 | 600        
+                       |            
+Transport state        |            
+====================== |            
+Remote Address         | 127.0.0.2  
+Remote Port            | 4321       
+Local Port             | 1234       
+                       |            
+Messages state         |            
+====================== |            
+Messages Received      |            
+NOTIFICATION           | 1          
+UPDATE                 | 10         
+Messages Sent          |            
+NOTIFICATION           | 10         
+UPDATE                 | 1          
+                       |            
+AFI state              |            
+====================== |            
+Family                 | IPV4UNICAST
+Active                 | true       
+Prefixes               |            
+Installed              | 1          
+Sent                   | 2          
+Received               | 1          
