@@ -13,6 +13,7 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import org.opendaylight.protocol.bgp.flowspec.handlers.AbstractOperandParser;
 import org.opendaylight.protocol.bgp.flowspec.handlers.BitmaskOperandParser;
@@ -44,10 +45,11 @@ public final class FSTcpFlagsHandler implements FlowspecTypeParser, FlowspecType
     }
 
     private static final void serializeTcpFlags(final List<TcpFlags> flags, final ByteBuf nlriByteBuf) {
-        for (final TcpFlags flag : flags) {
+        for (final Iterator<TcpFlags> it = flags.iterator(); it.hasNext(); ) {
+            final TcpFlags flag = it.next();
             final ByteBuf flagsBuf = Unpooled.buffer();
             Util.writeShortest(flag.getValue(), flagsBuf);
-            BitmaskOperandParser.INSTANCE.serialize(flag.getOp(), flagsBuf.readableBytes(), nlriByteBuf);
+            BitmaskOperandParser.INSTANCE.serialize(flag.getOp(), flagsBuf.readableBytes(), !it.hasNext(), nlriByteBuf);
             nlriByteBuf.writeBytes(flagsBuf);
         }
     }

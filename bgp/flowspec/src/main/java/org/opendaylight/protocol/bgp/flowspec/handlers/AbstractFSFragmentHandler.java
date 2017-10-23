@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.flowspec.handlers;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.BitmaskOperand;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.Fragment;
@@ -47,8 +48,9 @@ public abstract class AbstractFSFragmentHandler implements FlowspecTypeParser, F
     }
 
     protected final void serializeFragments(final List<Fragments> fragments, final ByteBuf nlriByteBuf) {
-        for (final Fragments fragment : fragments) {
-            BitmaskOperandParser.INSTANCE.serialize(fragment.getOp(), 1, nlriByteBuf);
+        for (final Iterator<Fragments> it = fragments.iterator(); it.hasNext(); ) {
+            final Fragments fragment = it.next();
+            BitmaskOperandParser.INSTANCE.serialize(fragment.getOp(), 1, !it.hasNext(), nlriByteBuf);
             nlriByteBuf.writeByte(serializeFragment(fragment.getValue()));
         }
     }

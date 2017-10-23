@@ -43,9 +43,9 @@ public final class BitmaskOperandParser extends AbstractOperandParser<BitmaskOpe
     }
 
     @Override
-    public void serialize(final BitmaskOperand op, final int length, final ByteBuf buffer) {
+    public void serialize(final BitmaskOperand op, final int length, final boolean endOfList, final ByteBuf buffer) {
         final BitArray bs = new BitArray(OPERAND_LENGTH);
-        bs.set(END_OF_LIST, op.isEndOfList());
+        bs.set(END_OF_LIST, endOfList);
         bs.set(AND_BIT, op.isAndBit());
         bs.set(MATCH, op.isMatch());
         bs.set(NOT, op.isNot());

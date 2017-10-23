@@ -12,6 +12,7 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import org.opendaylight.protocol.bgp.flowspec.handlers.FlowspecTypeParser;
 import org.opendaylight.protocol.bgp.flowspec.handlers.FlowspecTypeSerializer;
@@ -41,8 +42,9 @@ public final class FSDscpHandler implements FlowspecTypeParser, FlowspecTypeSeri
     }
 
     private static final void serializeDscps(final List<Dscps> dscps, final ByteBuf nlriByteBuf) {
-        for (final Dscps dscp : dscps) {
-            NumericOneByteOperandParser.INSTANCE.serialize(dscp.getOp(), 1, nlriByteBuf);
+        for (final Iterator<Dscps> it = dscps.iterator(); it.hasNext(); ) {
+            final Dscps dscp = it.next();
+            NumericOneByteOperandParser.INSTANCE.serialize(dscp.getOp(), 1, !it.hasNext(), nlriByteBuf);
             Util.writeShortest(dscp.getValue().getValue(), nlriByteBuf);
         }
     }
