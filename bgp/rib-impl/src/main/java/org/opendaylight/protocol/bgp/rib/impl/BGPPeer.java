@@ -28,11 +28,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
-import org.opendaylight.controller.config.yang.bgp.rib.impl.BGPPeerRuntimeMXBean;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BGPPeerRuntimeRegistration;
-import org.opendaylight.controller.config.yang.bgp.rib.impl.BGPPeerRuntimeRegistrator;
-import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpPeerState;
-import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpSessionState;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
@@ -47,9 +43,6 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPPeerStateImpl;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPSessionStateProvider;
-import org.opendaylight.protocol.bgp.rib.impl.stats.peer.BGPPeerStats;
-import org.opendaylight.protocol.bgp.rib.impl.stats.peer.BGPPeerStatsImpl;
-import org.opendaylight.protocol.bgp.rib.impl.stats.peer.BGPSessionStats;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
@@ -105,8 +98,7 @@ import org.slf4j.LoggerFactory;
  * Class representing a peer. We have a single instance for each peer, which provides translation from BGP events into
  * RIB actions.
  */
-public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Peer, BGPPeerRuntimeMXBean,
-    TransactionChainListener {
+public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Peer, TransactionChainListener {
     private static final Logger LOG = LoggerFactory.getLogger(BGPPeer.class);
 
     @GuardedBy("this")
@@ -124,42 +116,37 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
 
     private final RIB rib;
     private final String name;
-    private BGPPeerRuntimeRegistrator registrator;
     private BGPPeerRuntimeRegistration runtimeReg;
     private final Map<TablesKey, AdjRibOutListener> adjRibOutListenerSet = new HashMap<>();
     private final RpcProviderRegistry rpcRegistry;
     private RoutedRpcRegistration<BgpPeerRpcService> rpcRegistration;
     private final PeerRole peerRole;
     private final Optional<SimpleRoutingPolicy> simpleRoutingPolicy;
-    private final BGPPeerStats peerStats;
     private YangInstanceIdentifier peerIId;
     private final Set<AbstractRegistration> tableRegistration = new HashSet<>();
 
     public BGPPeer(final String name, final RIB rib, final PeerRole role, final SimpleRoutingPolicy peerStatus,
-        final RpcProviderRegistry rpcRegistry,
-        @Nonnull final Set<TablesKey> afiSafisAdvertized,
-        @Nonnull final Set<TablesKey> afiSafisGracefulAdvertized) {
+            final RpcProviderRegistry rpcRegistry,
+            @Nonnull final Set<TablesKey> afiSafisAdvertized,
+            @Nonnull final Set<TablesKey> afiSafisGracefulAdvertized) {
         //FIXME BUG-6971 Once Peer Group is implemented, pass it
         super(rib.getInstanceIdentifier(), null, new IpAddress(new Ipv4Address(name)), afiSafisAdvertized,
-            afiSafisGracefulAdvertized);
+                afiSafisGracefulAdvertized);
         this.peerRole = role;
         this.simpleRoutingPolicy = Optional.ofNullable(peerStatus);
         this.rib = requireNonNull(rib);
         this.name = name;
         this.rpcRegistry = rpcRegistry;
-        this.peerStats = new BGPPeerStatsImpl(this.name, this.tables, this);
         this.chain = rib.createPeerChain(this);
     }
 
     public BGPPeer(final String name, final RIB rib, final PeerRole role,
-        final RpcProviderRegistry rpcRegistry, @Nonnull final Set<TablesKey> afiSafisAdvertized,
-        @Nonnull final Set<TablesKey> afiSafisGracefulAdvertized) {
+            final RpcProviderRegistry rpcRegistry, @Nonnull final Set<TablesKey> afiSafisAdvertized,
+            @Nonnull final Set<TablesKey> afiSafisGracefulAdvertized) {
         this(name, rib, role, null, rpcRegistry, afiSafisAdvertized, afiSafisGracefulAdvertized);
     }
 
     public void instantiateServiceInstance() {
-        // add current peer to "configured BGP peer" stats
-        this.rib.getRenderStats().getConfiguredPeerCounter().increment();
         this.ribWriter = AdjRibInWriter.create(this.rib.getYangRibId(), this.peerRole, this.simpleRoutingPolicy, this.chain);
     }
 
@@ -211,7 +198,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
             if (this.peerRole == PeerRole.Ibgp && (attrs == null || attrs.getLocalPref() == null)) {
                 throw new BGPDocumentedException(BGPError.MANDATORY_ATTR_MISSING_MSG + "LOCAL_PREF",
                         BGPError.WELL_KNOWN_ATTR_MISSING,
-                        new byte[] { LocalPreferenceAttributeParser.TYPE });
+                        new byte[]{LocalPreferenceAttributeParser.TYPE});
             }
         }
     }
@@ -271,9 +258,9 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
         }
         final MpReachNlriBuilder b = new MpReachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(
                 UnicastSubsequentAddressFamily.class).setAdvertizedRoutes(
-                        new AdvertizedRoutesBuilder().setDestinationType(
-                                new DestinationIpv4CaseBuilder().setDestinationIpv4(
-                                        new DestinationIpv4Builder().setIpv4Prefixes(prefixes).build()).build()).build());
+                new AdvertizedRoutesBuilder().setDestinationType(
+                        new DestinationIpv4CaseBuilder().setDestinationIpv4(
+                                new DestinationIpv4Builder().setIpv4Prefixes(prefixes).build()).build()).build());
         if (message.getAttributes() != null) {
             b.setCNextHop(message.getAttributes().getCNextHop());
         }
@@ -283,7 +270,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
     /**
      * Create MPUnreach for the prefixes to be handled in the same way as linkstate routes
      *
-     * @param message Update message containing withdrawn routes
+     * @param message            Update message containing withdrawn routes
      * @param isAnyNlriAnnounced
      * @return MpUnreachNlri with prefixes from the withdrawn routes field
      */
@@ -291,11 +278,11 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
         final List<Ipv4Prefixes> prefixes = new ArrayList<>();
         for (final Ipv4Prefix p : message.getWithdrawnRoutes().getWithdrawnRoutes()) {
             boolean nlriAnounced = false;
-            if(isAnyNlriAnnounced) {
+            if (isAnyNlriAnnounced) {
                 nlriAnounced = message.getNlri().getNlri().contains(p);
             }
 
-            if(!nlriAnounced) {
+            if (!nlriAnounced) {
                 prefixes.add(new Ipv4PrefixesBuilder().setPrefix(p).build());
             }
         }
@@ -322,37 +309,34 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
         this.tables.addAll(advertizedTableTypes.stream().map(t -> new TablesKey(t.getAfi(), t.getSafi())).collect(Collectors.toList()));
 
         setAdvertizedGracefulRestartTableTypes(advertizedGracefulRestartTableTypes.stream()
-            .map(t -> new TablesKey(t.getAfi(), t.getSafi())).collect(Collectors.toList()));
+                .map(t -> new TablesKey(t.getAfi(), t.getSafi())).collect(Collectors.toList()));
         final boolean announceNone = isAnnounceNone(this.simpleRoutingPolicy);
         final Map<TablesKey, SendReceive> addPathTableMaps = mapTableTypesFamilies(addPathTablesType);
         this.peerIId = this.rib.getYangRibId().node(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer.QNAME)
-            .node(IdentifierUtils.domPeerId(peerId));
+                .node(IdentifierUtils.domPeerId(peerId));
 
-        if(!announceNone) {
+        if (!announceNone) {
             createAdjRibOutListener(peerId);
         }
         this.tables.forEach(tablesKey -> {
             final ExportPolicyPeerTracker exportTracker = this.rib.getExportPolicyPeerTracker(tablesKey);
             if (exportTracker != null) {
                 this.tableRegistration.add(exportTracker.registerPeer(peerId, addPathTableMaps.get(tablesKey), this.peerIId, this.peerRole,
-                    this.simpleRoutingPolicy));
+                        this.simpleRoutingPolicy));
             }
         });
         addBgp4Support(peerId, announceNone);
 
-        if(!isLearnNone(this.simpleRoutingPolicy)) {
-            this.effRibInWriter = EffectiveRibInWriter.create(this.rib.getService(), this.rib.createPeerChain(this),
-                this.peerIId, this.rib.getImportPolicyPeerTracker(), this.rib.getRibSupportContext(), this.peerRole,
-                this.peerStats.getAdjRibInRouteCounters(), this.tables);
+        if (!isLearnNone(this.simpleRoutingPolicy)) {
+            this.effRibInWriter = EffectiveRibInWriter.create(this.rib.getService(),
+                    this.rib.createPeerChain(this),
+                    this.peerIId, this.rib.getImportPolicyPeerTracker(),
+                    this.rib.getRibSupportContext(),
+                    this.peerRole,
+                    this.tables);
             registerPrefixesCounters(this.effRibInWriter, this.effRibInWriter);
         }
         this.ribWriter = this.ribWriter.transform(peerId, this.rib.getRibSupportContext(), this.tables, addPathTableMaps);
-
-        // register BGP Peer stats
-        this.peerStats.getSessionEstablishedCounter().increment();
-        if (this.registrator != null) {
-            this.runtimeReg = this.registrator.register(this);
-        }
 
         if (this.rpcRegistry != null) {
             this.rpcRegistration = this.rpcRegistry.addRoutedRpcImplementation(BgpPeerRpcService.class,
@@ -361,12 +345,10 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
                     this.rib.getInstanceIdentifier().child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer.class, new PeerKey(peerId));
             this.rpcRegistration.registerPath(PeerContext.class, path);
         }
-
-        this.rib.getRenderStats().getConnectedPeerCounter().increment();
     }
 
     private void createAdjRibOutListener(final PeerId peerId) {
-        this.tables.forEach(key->createAdjRibOutListener(peerId, key, true));
+        this.tables.forEach(key -> createAdjRibOutListener(peerId, key, true));
     }
 
     //try to add a support for old-school BGP-4, if peer did not advertise IPv4-Unicast MP capability
@@ -384,8 +366,8 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
         if (context != null && this.session instanceof BGPSessionImpl) {
             final ChannelOutputLimiter limiter = ((BGPSessionImpl) this.session).getLimiter();
             final AdjRibOutListener adjRibOut = AdjRibOutListener.create(peerId, key,
-                this.rib.getYangRibId(), this.rib.getCodecsRegistry(), context.getRibSupport(),
-                this.rib.getService(), limiter, mpSupport, this.peerStats.getAdjRibOutRouteCounters().init(key));
+                    this.rib.getYangRibId(), this.rib.getCodecsRegistry(), context.getRibSupport(),
+                    this.rib.getService(), limiter, mpSupport);
             this.adjRibOutListenerSet.put(key, adjRibOut);
             registerPrefixesSentCounter(key, adjRibOut);
         }
@@ -407,7 +389,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
 
     @Override
     public void onSessionDown(final BGPSession session, final Exception e) {
-        if(e.getMessage().equals(BGPSessionImpl.END_OF_INPUT)) {
+        if (e.getMessage().equals(BGPSessionImpl.END_OF_INPUT)) {
             LOG.info("Session with peer {} went down", this.name);
         } else {
             LOG.info("Session with peer {} went down", this.name, e);
@@ -468,39 +450,12 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
                 LOG.warn("Error closing session with peer", e);
             }
             this.session = null;
-
-            this.rib.getRenderStats().getConnectedPeerCounter().decrement();
         }
     }
 
     @Override
     public synchronized byte[] getRawIdentifier() {
         return Arrays.copyOf(this.rawIdentifier, this.rawIdentifier.length);
-    }
-
-    @Override
-    public void resetSession() {
-        releaseConnection();
-    }
-
-    @Override
-    public void resetStats() {
-        if (this.session instanceof BGPSessionStats) {
-            ((BGPSessionStats) this.session).resetBgpSessionStats();
-        }
-    }
-
-    @Override
-    public BgpSessionState getBgpSessionState() {
-        if (this.session instanceof BGPSessionStats) {
-            return ((BGPSessionStats) this.session).getBgpSessionState();
-        }
-        return new BgpSessionState();
-    }
-
-    @Override
-    public synchronized BgpPeerState getBgpPeerState() {
-        return this.peerStats.getBgpPeerState();
     }
 
     @Override
@@ -524,7 +479,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
 
     private static Map<TablesKey, SendReceive> mapTableTypesFamilies(final List<AddressFamilies> addPathTablesType) {
         return ImmutableMap.copyOf(addPathTablesType.stream().collect(Collectors.toMap(af -> new TablesKey(af.getAfi(), af.getSafi()),
-            BgpAddPathTableType::getSendReceive)));
+                BgpAddPathTableType::getSendReceive)));
     }
 
     @Override

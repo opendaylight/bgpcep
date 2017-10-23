@@ -41,7 +41,6 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ImportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
-import org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl.BGPRenderStats;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
@@ -78,8 +77,6 @@ class AbstractConfig {
     @Mock
     protected DOMTransactionChain domTx;
     @Mock
-    protected BGPRenderStats render;
-    @Mock
     protected BGPDispatcher dispatcher;
     @Mock
     protected ServiceRegistration<?> serviceRegistration;
@@ -100,15 +97,13 @@ class AbstractConfig {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        Mockito.doAnswer(invocationOnMock->{
+        Mockito.doAnswer(invocationOnMock -> {
             this.singletonService = (ClusterSingletonService) invocationOnMock.getArguments()[0];
             return this.singletonServiceRegistration;
         }).when(this.rib).registerClusterSingletonService(any(ClusterSingletonService.class));
-        Mockito.doReturn(new LongAdder()).when(this.render).getConfiguredPeerCounter();
-        Mockito.doReturn(this.render).when(this.rib).getRenderStats();
         Mockito.doReturn(InstanceIdentifier.create(BgpRib.class).child(org.opendaylight.yang.gen.v1.urn.opendaylight
-            .params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib.class, new RibKey(RIB_ID))).when(this.rib)
-            .getInstanceIdentifier();
+                .params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib.class, new RibKey(RIB_ID))).when(this.rib)
+                .getInstanceIdentifier();
         Mockito.doReturn(this.domTx).when(this.rib).createPeerChain(any(TransactionChainListener.class));
         Mockito.doReturn(AS).when(this.rib).getLocalAs();
         Mockito.doReturn(this.importPolicyPeerTracker).when(this.rib).getImportPolicyPeerTracker();
@@ -132,7 +127,7 @@ class AbstractConfig {
         Mockito.doReturn(null).when(checkedFuture).get();
         Mockito.doReturn(true).when(checkedFuture).isDone();
         Mockito.doReturn("checkedFuture").when(checkedFuture).toString();
-        Mockito.doAnswer(invocationOnMock->{
+        Mockito.doAnswer(invocationOnMock -> {
             this.singletonService.closeServiceInstance();
             return null;
         }).when(this.singletonServiceRegistration).close();
@@ -143,14 +138,14 @@ class AbstractConfig {
         Mockito.doReturn(new BgpId("127.0.0.1")).when(this.rib).getBgpIdentifier();
         Mockito.doReturn(true).when(this.future).cancel(true);
         Mockito.doReturn(this.future).when(this.dispatcher)
-            .createReconnectingClient(any(InetSocketAddress.class), anyInt(), any(KeyMapping.class));
+                .createReconnectingClient(any(InetSocketAddress.class), anyInt(), any(KeyMapping.class));
         Mockito.doReturn(this.dispatcher).when(this.rib).getDispatcher();
 
         Mockito.doReturn(java.util.Optional.of(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class)))
-            .when(this.tableTypeRegistry).getTableType(any());
+                .when(this.tableTypeRegistry).getTableType(any());
         Mockito.doReturn(java.util.Optional.of(TABLES_KEY)).when(this.tableTypeRegistry).getTableKey(any());
         Mockito.doReturn(Collections.singleton(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class)))
-            .when(this.rib).getLocalTables();
+                .when(this.rib).getLocalTables();
         Mockito.doNothing().when(this.configurationWriter).apply();
 
         Mockito.doNothing().when(this.bgpPeerRegistry).addPeer(any(IpAddress.class), any(BGPSessionListener.class), any(BGPSessionPreferences.class));

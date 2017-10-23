@@ -48,11 +48,9 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ImportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
-import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
+import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPRIBStateImpl;
-import org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl.BGPRenderStats;
-import org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl.RIBImplRuntimeMXBeanImpl;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
@@ -88,7 +86,7 @@ import org.slf4j.LoggerFactory;
 
 @ThreadSafe
 public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonService, RIB, TransactionChainListener,
-    SchemaContextListener, AutoCloseable {
+        SchemaContextListener, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(RIBImpl.class);
     private static final QName RIB_ID_QNAME = QName.create(Rib.QNAME, "id").intern();
     private static final ContainerNode EMPTY_TABLE_ATTRIBUTES = ImmutableNodes.containerNode(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Attributes.QNAME);
@@ -111,7 +109,6 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
     private final Map<TransactionChain<?, ?>, LocRibWriter> txChainToLocRibWriter = new HashMap<>();
     private final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies;
     private final ImportPolicyPeerTracker importPolicyPeerTracker;
-    private final RIBImplRuntimeMXBeanImpl renderStats;
     private final RibId ribId;
     private final Map<TablesKey, ExportPolicyPeerTracker> exportPolicyPeerTrackerMap;
 
@@ -120,12 +117,12 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
     private boolean isServiceInstantiated;
 
     public RIBImpl(final ClusterSingletonServiceProvider provider, final RibId ribId, final AsNumber localAs, final BgpId localBgpId,
-        final ClusterIdentifier clusterId, final RIBExtensionConsumerContext extensions, final BGPDispatcher dispatcher,
-        final BindingCodecTreeFactory codecFactory, final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
-        @Nonnull final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies, final GeneratedClassLoadingStrategy classStrategy,
-        final BgpDeployer.WriteConfiguration configurationWriter) {
+            final ClusterIdentifier clusterId, final RIBExtensionConsumerContext extensions, final BGPDispatcher dispatcher,
+            final BindingCodecTreeFactory codecFactory, final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
+            @Nonnull final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies, final GeneratedClassLoadingStrategy classStrategy,
+            final BgpDeployer.WriteConfiguration configurationWriter) {
         super(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(requireNonNull(ribId))),
-            localBgpId, localAs);
+                localBgpId, localAs);
         this.localAs = requireNonNull(localAs);
         this.bgpIdentifier = requireNonNull(localBgpId);
         this.dispatcher = requireNonNull(dispatcher);
@@ -155,8 +152,6 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
             exportPolicies.put(key, new ExportPolicyPeerTrackerImpl(policyDatabase, key));
         }
         this.exportPolicyPeerTrackerMap = exportPolicies.build();
-
-        this.renderStats = new RIBImplRuntimeMXBeanImpl(localBgpId, ribId, localAs, cId, this, this.localTablesKeys);
         LOG.info("RIB Singleton Service {} registered, RIB {}", getIdentifier().getValue(), this.ribId.getValue());
         //this need to be always the last step
         this.registration = registerClusterSingletonService(this);
@@ -204,7 +199,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
         }
 
         final LocRibWriter locRibWriter = LocRibWriter.create(this.ribContextRegistry, key, txChain,
-            getYangRibId(), this.localAs, getService(), this.exportPolicyPeerTrackerMap.get(key), pathSelectionStrategy);
+                getYangRibId(), this.localAs, getService(), this.exportPolicyPeerTrackerMap.get(key), pathSelectionStrategy);
         registerTotalPathCounter(key, locRibWriter);
         registerTotalPrefixesCounter(key, locRibWriter);
         this.txChainToLocRibWriter.put(txChain, locRibWriter);
@@ -275,11 +270,6 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
     }
 
     @Override
-    public BGPRenderStats getRenderStats() {
-        return this.renderStats;
-    }
-
-    @Override
     public YangInstanceIdentifier getYangRibId() {
         return this.yangRibId;
     }
@@ -323,22 +313,22 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
     public synchronized void instantiateServiceInstance() {
         this.isServiceInstantiated = true;
         this.domChain = this.domDataBroker.createTransactionChain(this);
-        if(this.configurationWriter != null) {
+        if (this.configurationWriter != null) {
             this.configurationWriter.apply();
         }
         LOG.info("RIB Singleton Service {} instantiated, RIB {}", getIdentifier().getValue(), this.ribId.getValue());
-        LOG.debug("Instantiating RIB table {} at {}", this.ribId , this.yangRibId);
+        LOG.debug("Instantiating RIB table {} at {}", this.ribId, this.yangRibId);
 
         final ContainerNode bgpRib = Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(BgpRib.QNAME))
-            .addChild(ImmutableNodes.mapNodeBuilder(Rib.QNAME).build()).build();
+                .addChild(ImmutableNodes.mapNodeBuilder(Rib.QNAME).build()).build();
 
         final MapEntryNode ribInstance = Builders.mapEntryBuilder().withNodeIdentifier(
-            new NodeIdentifierWithPredicates(Rib.QNAME, RIB_ID_QNAME, this.ribId .getValue()))
-            .addChild(ImmutableNodes.leafNode(RIB_ID_QNAME, this.ribId .getValue()))
-            .addChild(ImmutableNodes.mapNodeBuilder(Peer.QNAME).build())
-            .addChild(Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(LocRib.QNAME))
-                .addChild(ImmutableNodes.mapNodeBuilder(Tables.QNAME).build())
-                .build()).build();
+                new NodeIdentifierWithPredicates(Rib.QNAME, RIB_ID_QNAME, this.ribId.getValue()))
+                .addChild(ImmutableNodes.leafNode(RIB_ID_QNAME, this.ribId.getValue()))
+                .addChild(ImmutableNodes.mapNodeBuilder(Peer.QNAME).build())
+                .addChild(Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(LocRib.QNAME))
+                        .addChild(ImmutableNodes.mapNodeBuilder(Tables.QNAME).build())
+                        .build()).build();
 
 
         final DOMDataWriteTransaction trans = this.domChain.newWriteOnlyTransaction();
@@ -360,9 +350,9 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
 
     @Override
     public synchronized ListenableFuture<Void> closeServiceInstance() {
-        if(!this.isServiceInstantiated) {
+        if (!this.isServiceInstantiated) {
             LOG.trace("RIB Singleton Service {} already closed, RIB {}", getIdentifier().getValue(),
-                this.ribId.getValue());
+                    this.ribId.getValue());
             return Futures.immediateFuture(null);
         }
         LOG.info("Close RIB Singleton Service {}, RIB {}", getIdentifier().getValue(), this.ribId.getValue());
@@ -386,9 +376,9 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
 
     @Override
     public ClusterSingletonServiceRegistration registerClusterSingletonService(
-        final ClusterSingletonService clusterSingletonService) {
+            final ClusterSingletonService clusterSingletonService) {
         return ClusterSingletonServiceRegistrationHelper
-            .registerSingletonService(this.provider, clusterSingletonService);
+                .registerSingletonService(this.provider, clusterSingletonService);
     }
 
     @Override

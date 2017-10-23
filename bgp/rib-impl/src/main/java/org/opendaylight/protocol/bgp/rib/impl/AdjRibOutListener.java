@@ -58,34 +58,40 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
 
     private static final Logger LOG = LoggerFactory.getLogger(AdjRibOutListener.class);
 
-    static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, "prefix").intern();
-    private final YangInstanceIdentifier.NodeIdentifier routeKeyLeaf = new YangInstanceIdentifier.NodeIdentifier(PREFIX_QNAME);
+    private static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, "prefix").intern();
+    private final YangInstanceIdentifier.NodeIdentifier routeKeyLeaf = new YangInstanceIdentifier
+            .NodeIdentifier(PREFIX_QNAME);
 
     private final ChannelOutputLimiter session;
     private final Codecs codecs;
     private final RIBSupport support;
     private final boolean mpSupport;
     private final ListenerRegistration<AdjRibOutListener> registerDataTreeChangeListener;
-    private final LongAdder routeCounter;
     private final LongAdder prefixesSentCounter = new LongAdder();
 
     private AdjRibOutListener(final PeerId peerId, final TablesKey tablesKey, final YangInstanceIdentifier ribId,
-        final CodecsRegistry registry, final RIBSupport support, final DOMDataTreeChangeService service,
-        final ChannelOutputLimiter session, final boolean mpSupport, final LongAdder routeCounter) {
+            final CodecsRegistry registry, final RIBSupport support, final DOMDataTreeChangeService service,
+            final ChannelOutputLimiter session, final boolean mpSupport) {
         this.session = requireNonNull(session);
         this.support = requireNonNull(support);
         this.codecs = registry.getCodecs(this.support);
         this.mpSupport = mpSupport;
-        final YangInstanceIdentifier adjRibOutId =  ribId.node(Peer.QNAME).node(IdentifierUtils.domPeerId(peerId)).node(AdjRibOut.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(tablesKey));
-        this.registerDataTreeChangeListener = service.registerDataTreeChangeListener(new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, adjRibOutId), this);
-        this.routeCounter = routeCounter;
+        final YangInstanceIdentifier adjRibOutId = ribId.node(Peer.QNAME).node(IdentifierUtils.domPeerId(peerId))
+                .node(AdjRibOut.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(tablesKey));
+        this.registerDataTreeChangeListener = service.registerDataTreeChangeListener(
+                new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, adjRibOutId), this);
     }
 
-    static AdjRibOutListener create(@Nonnull final PeerId peerId, @Nonnull final TablesKey tablesKey, @Nonnull final YangInstanceIdentifier ribId,
-        @Nonnull final CodecsRegistry registry, @Nonnull final RIBSupport support, @Nonnull final DOMDataTreeChangeService service,
-        @Nonnull final ChannelOutputLimiter session, final boolean mpSupport, @Nonnull final LongAdder routeCounter
-    ) {
-        return new AdjRibOutListener(peerId, tablesKey, ribId, registry, support, service, session, mpSupport, routeCounter);
+    static AdjRibOutListener create(
+            @Nonnull final PeerId peerId,
+            @Nonnull final TablesKey tablesKey,
+            @Nonnull final YangInstanceIdentifier ribId,
+            @Nonnull final CodecsRegistry registry,
+            @Nonnull final RIBSupport support,
+            @Nonnull final DOMDataTreeChangeService service,
+            @Nonnull final ChannelOutputLimiter session,
+            final boolean mpSupport) {
+        return new AdjRibOutListener(peerId, tablesKey, ribId, registry, support, service, session, mpSupport);
     }
 
     @Override
@@ -109,24 +115,24 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
     private void processRouteChange(final DataTreeCandidateNode route) {
         final Update update;
         switch (route.getModificationType()) {
-        case UNMODIFIED:
-            LOG.debug("Skipping unmodified route {}", route.getIdentifier());
-            return;
-        case DELETE:
-        case DISAPPEARED:
-            // FIXME: we can batch deletions into a single batch
-            update = withdraw((MapEntryNode) route.getDataBefore().get());
-            LOG.debug("Withdrawing routes {}", update);
-            break;
-        case APPEARED:
-        case SUBTREE_MODIFIED:
-        case WRITE:
-            update = advertise((MapEntryNode) route.getDataAfter().get());
-            LOG.debug("Advertising routes {}", update);
-            break;
-        default:
-            LOG.warn("Ignoring unhandled modification type {}", route.getModificationType());
-            return;
+            case UNMODIFIED:
+                LOG.debug("Skipping unmodified route {}", route.getIdentifier());
+                return;
+            case DELETE:
+            case DISAPPEARED:
+                // FIXME: we can batch deletions into a single batch
+                update = withdraw((MapEntryNode) route.getDataBefore().get());
+                LOG.debug("Withdrawing routes {}", update);
+                break;
+            case APPEARED:
+            case SUBTREE_MODIFIED:
+            case WRITE:
+                update = advertise((MapEntryNode) route.getDataAfter().get());
+                LOG.debug("Advertising routes {}", update);
+                break;
+            default:
+                LOG.warn("Ignoring unhandled modification type {}", route.getModificationType());
+                return;
         }
         this.session.write(update);
     }
@@ -135,12 +141,12 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
         if (LOG.isDebugEnabled()) {
             LOG.debug("AdjRibOut parsing route {}", NormalizedNodes.toStringTree(route));
         }
-        final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(route, this.support.routeAttributesIdentifier()).orNull();
+        final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(route,
+                this.support.routeAttributesIdentifier()).orNull();
         return this.codecs.deserializeAttributes(advertisedAttrs);
     }
 
     private Update withdraw(final MapEntryNode route) {
-        this.routeCounter.decrement();
         if (!this.mpSupport) {
             return buildUpdate(Collections.emptyList(), Collections.singleton(route), routeAttributes(route));
         }
@@ -148,7 +154,6 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
     }
 
     private Update advertise(final MapEntryNode route) {
-        this.routeCounter.increment();
         this.prefixesSentCounter.increment();
         if (!this.mpSupport) {
             return buildUpdate(Collections.singleton(route), Collections.emptyList(), routeAttributes(route));
@@ -156,10 +161,13 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
         return this.support.buildUpdate(Collections.singleton(route), Collections.emptyList(), routeAttributes(route));
     }
 
-    private Update buildUpdate(@Nonnull final Collection<MapEntryNode> advertised, @Nonnull final Collection<MapEntryNode> withdrawn, @Nonnull final Attributes attr) {
-        final UpdateBuilder ub = new UpdateBuilder()
-            .setWithdrawnRoutes(new WithdrawnRoutesBuilder().setWithdrawnRoutes(extractPrefixes(withdrawn)).build())
-            .setNlri(new NlriBuilder().setNlri(extractPrefixes(advertised)).build());
+    private Update buildUpdate(
+            @Nonnull final Collection<MapEntryNode> advertised,
+            @Nonnull final Collection<MapEntryNode> withdrawn,
+            @Nonnull final Attributes attr) {
+        final UpdateBuilder ub = new UpdateBuilder().setWithdrawnRoutes(
+                new WithdrawnRoutesBuilder().setWithdrawnRoutes(extractPrefixes(withdrawn)).build())
+                .setNlri(new NlriBuilder().setNlri(extractPrefixes(advertised)).build());
         ub.setAttributes(attr);
         return ub.build();
     }

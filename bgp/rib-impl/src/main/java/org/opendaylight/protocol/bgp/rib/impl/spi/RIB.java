@@ -15,7 +15,6 @@ import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.protocol.bgp.rib.RibReference;
-import org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl.BGPRenderStats;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
@@ -27,7 +26,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 /**
  * Internal reference to a RIB instance.
  */
-public interface RIB  extends RibReference, ClusterSingletonServiceProvider {
+public interface RIB extends RibReference, ClusterSingletonServiceProvider {
     AsNumber getLocalAs();
 
     BgpId getBgpIdentifier();
@@ -38,7 +37,8 @@ public interface RIB  extends RibReference, ClusterSingletonServiceProvider {
      *
      * @return A set of identifiers.
      */
-    @Nonnull Set<? extends BgpTableType> getLocalTables();
+    @Nonnull
+    Set<? extends BgpTableType> getLocalTables();
 
     BGPDispatcher getDispatcher();
 
@@ -78,11 +78,10 @@ public interface RIB  extends RibReference, ClusterSingletonServiceProvider {
     /**
      * Return instance of DOMDataTreeChangeService, where consumer can register to
      * listen on DOM data changes.
+     *
      * @return DOMDataTreeChangeService
      */
     DOMDataTreeChangeService getService();
-
-    BGPRenderStats getRenderStats();
 
     ImportPolicyPeerTracker getImportPolicyPeerTracker();
 
@@ -90,6 +89,7 @@ public interface RIB  extends RibReference, ClusterSingletonServiceProvider {
      * Returns ExportPolicyPeerTracker for specific tableKey, where peer can register himself
      * as supporting the table. Same export policy can be used to check which peers support respective
      * table and announce then routes if required.
+     *
      * @param tablesKey supported table
      * @return ExportPolicyPeerTracker
      */
@@ -99,6 +99,7 @@ public interface RIB  extends RibReference, ClusterSingletonServiceProvider {
 
     /**
      * Return common ServiceGroupIdentifier to be used between same group cluster service
+     *
      * @return ServiceGroupIdentifier
      */
     ServiceGroupIdentifier getRibIServiceGroupIdentifier();
