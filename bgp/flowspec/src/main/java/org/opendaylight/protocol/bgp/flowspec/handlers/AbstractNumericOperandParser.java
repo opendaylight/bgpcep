@@ -49,9 +49,9 @@ public abstract class AbstractNumericOperandParser<N> extends AbstractOperandPar
     }
 
     @Override
-    public final void serialize(final NumericOperand operand, final int length, final ByteBuf buffer) {
+    public final void serialize(final NumericOperand operand, final int length, final boolean endOfList, final ByteBuf buffer) {
         final BitArray operandValues = new BitArray(OPERAND_LENGTH);
-        operandValues.set(END_OF_LIST, operand.isEndOfList());
+        operandValues.set(END_OF_LIST, endOfList);
         operandValues.set(AND_BIT, operand.isAndBit());
         operandValues.set(LESS_THAN, operand.isLessThan());
         operandValues.set(GREATER_THAN, operand.isGreaterThan());

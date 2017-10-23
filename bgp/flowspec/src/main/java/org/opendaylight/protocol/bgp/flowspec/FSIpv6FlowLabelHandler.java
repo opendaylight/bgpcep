@@ -11,6 +11,7 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import org.opendaylight.protocol.bgp.flowspec.handlers.AbstractOperandParser;
 import org.opendaylight.protocol.bgp.flowspec.handlers.FlowspecTypeParser;
@@ -41,10 +42,11 @@ public final class FSIpv6FlowLabelHandler implements FlowspecTypeParser, Flowspe
     }
 
     private static void serializeNumericFourByteValue(final List<FlowLabel> list, final ByteBuf nlriByteBuf) {
-        for (final FlowLabel item : list) {
+        for (final Iterator<FlowLabel> it = list.iterator(); it.hasNext(); ) {
+            final FlowLabel item = it.next();
             final ByteBuf protoBuf = Unpooled.buffer();
             Util.writeShortest(item.getValue().intValue(), protoBuf);
-            NumericOneByteOperandParser.INSTANCE.serialize(item.getOp(), protoBuf.readableBytes(), nlriByteBuf);
+            NumericOneByteOperandParser.INSTANCE.serialize(item.getOp(), protoBuf.readableBytes(), !it.hasNext(), nlriByteBuf);
             nlriByteBuf.writeBytes(protoBuf);
         }
     }
