@@ -11,7 +11,6 @@ import com.google.common.annotations.VisibleForTesting;
 import io.netty.buffer.ByteBuf;
 import java.util.List;
 import java.util.Set;
-
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.NumericOperand;
 
@@ -29,9 +28,9 @@ public abstract class AbstractNumericOperandParser<N> extends AbstractOperandPar
     @VisibleForTesting
     public static final String LESS_THAN_VALUE = "less-than";
 
-    protected static final int LESS_THAN = 5;
-    protected static final int GREATER_THAN = 6;
-    protected static final int EQUAL = 7;
+    private static final int LESS_THAN = 5;
+    private static final int GREATER_THAN = 6;
+    private static final int EQUAL = 7;
 
     /**
      * Serializes specific numeric operand type depending on the length field value.
@@ -45,13 +44,20 @@ public abstract class AbstractNumericOperandParser<N> extends AbstractOperandPar
 
     @Override
     public final NumericOperand create(final Set<String> operandValues) {
-        return new NumericOperand(operandValues.contains(AND_BIT_VALUE), operandValues.contains(END_OF_LIST_VALUE), operandValues.contains(EQUALS_VALUE), operandValues.contains(GREATER_THAN_VALUE), operandValues.contains(LESS_THAN_VALUE));
+        return new NumericOperand(
+                operandValues.contains(AND_BIT_VALUE),
+                operandValues.contains(END_OF_LIST_VALUE),
+                operandValues.contains(EQUALS_VALUE),
+                operandValues.contains(GREATER_THAN_VALUE),
+                operandValues.contains(LESS_THAN_VALUE)
+        );
     }
 
     @Override
-    public final void serialize(final NumericOperand operand, final int length, final ByteBuf buffer) {
+    public final void serialize(final NumericOperand operand, final int length,
+            final boolean endOfList, final ByteBuf buffer) {
         final BitArray operandValues = new BitArray(OPERAND_LENGTH);
-        operandValues.set(END_OF_LIST, operand.isEndOfList());
+        operandValues.set(END_OF_LIST, endOfList);
         operandValues.set(AND_BIT, operand.isAndBit());
         operandValues.set(LESS_THAN, operand.isLessThan());
         operandValues.set(GREATER_THAN, operand.isGreaterThan());
@@ -63,7 +69,13 @@ public abstract class AbstractNumericOperandParser<N> extends AbstractOperandPar
     @Override
     public final NumericOperand parse(final byte operand) {
         final BitArray operandValues = BitArray.valueOf(operand);
-        return new NumericOperand(operandValues.get(AND_BIT), operandValues.get(END_OF_LIST), operandValues.get(EQUAL), operandValues.get(GREATER_THAN), operandValues.get(LESS_THAN));
+        return new NumericOperand(
+                operandValues.get(AND_BIT),
+                operandValues.get(END_OF_LIST),
+                operandValues.get(EQUAL),
+                operandValues.get(GREATER_THAN),
+                operandValues.get(LESS_THAN)
+        );
     }
 
     @Override

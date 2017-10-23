@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.flowspec.handlers;
 import com.google.common.annotations.VisibleForTesting;
 import io.netty.buffer.ByteBuf;
 import java.util.Set;
-
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.BitmaskOperand;
 
@@ -33,19 +32,23 @@ public final class BitmaskOperandParser extends AbstractOperandParser<BitmaskOpe
     private static final int NOT = 6;
     private static final int MATCH = 7;
 
-    private BitmaskOperandParser() {
-
-    }
+    private BitmaskOperandParser() { }
 
     @Override
     public BitmaskOperand create(final Set<String> opValues) {
-        return new BitmaskOperand(opValues.contains(AND_BIT_VALUE), opValues.contains(END_OF_LIST_VALUE), opValues.contains(MATCH_VALUE), opValues.contains(NOT_VALUE));
+        return new BitmaskOperand(
+                opValues.contains(AND_BIT_VALUE),
+                opValues.contains(END_OF_LIST_VALUE),
+                opValues.contains(MATCH_VALUE),
+                opValues.contains(NOT_VALUE)
+        );
     }
 
     @Override
-    public void serialize(final BitmaskOperand op, final int length, final ByteBuf buffer) {
+    public void serialize(final BitmaskOperand op, final int length, final boolean endOfList,
+            final ByteBuf buffer) {
         final BitArray bs = new BitArray(OPERAND_LENGTH);
-        bs.set(END_OF_LIST, op.isEndOfList());
+        bs.set(END_OF_LIST, endOfList);
         bs.set(AND_BIT, op.isAndBit());
         bs.set(MATCH, op.isMatch());
         bs.set(NOT, op.isNot());
