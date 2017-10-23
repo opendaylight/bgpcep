@@ -7,10 +7,13 @@
  */
 package org.opendaylight.protocol.bgp.flowspec;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import org.opendaylight.protocol.bgp.flowspec.handlers.AbstractOperandParser;
 import org.opendaylight.protocol.bgp.flowspec.handlers.BitmaskOperandParser;
@@ -26,28 +29,30 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.flowspec.flowspec.type.tcp.flags._case.TcpFlagsBuilder;
 
 public final class FSTcpFlagsHandler implements FlowspecTypeParser, FlowspecTypeSerializer {
-    public static final int TCP_FLAGS_VALUE = 9;
+    static final int TCP_FLAGS_VALUE = 9;
+
+    private static void serializeTcpFlags(final List<TcpFlags> flags, final ByteBuf nlriByteBuf) {
+        for (final Iterator<TcpFlags> it = flags.iterator(); it.hasNext(); ) {
+            final TcpFlags flag = it.next();
+            final ByteBuf flagsBuf = Unpooled.buffer();
+            Util.writeShortest(flag.getValue(), flagsBuf);
+            BitmaskOperandParser.INSTANCE.serialize(flag.getOp(), flagsBuf.readableBytes(),
+                    !it.hasNext(), nlriByteBuf);
+            nlriByteBuf.writeBytes(flagsBuf);
+        }
+    }
 
     @Override
-    public void serializeType(FlowspecType fsType, ByteBuf output) {
+    public void serializeType(final FlowspecType fsType, final ByteBuf output) {
         Preconditions.checkArgument(fsType instanceof TcpFlagsCase, "TcpFlagsCase class is mandatory!");
         output.writeByte(TCP_FLAGS_VALUE);
         serializeTcpFlags(((TcpFlagsCase) fsType).getTcpFlags(), output);
     }
 
     @Override
-    public FlowspecType parseType(ByteBuf buffer) {
-        Preconditions.checkNotNull(buffer, "input buffer is null, missing data to parse.");
+    public FlowspecType parseType(final ByteBuf buffer) {
+        requireNonNull(buffer, "input buffer is null, missing data to parse.");
         return new TcpFlagsCaseBuilder().setTcpFlags(parseTcpFlags(buffer)).build();
-    }
-
-    private static final void serializeTcpFlags(final List<TcpFlags> flags, final ByteBuf nlriByteBuf) {
-        for (final TcpFlags flag : flags) {
-            final ByteBuf flagsBuf = Unpooled.buffer();
-            Util.writeShortest(flag.getValue(), flagsBuf);
-            BitmaskOperandParser.INSTANCE.serialize(flag.getOp(), flagsBuf.readableBytes(), nlriByteBuf);
-            nlriByteBuf.writeBytes(flagsBuf);
-        }
     }
 
     private static List<TcpFlags> parseTcpFlags(final ByteBuf nlri) {
