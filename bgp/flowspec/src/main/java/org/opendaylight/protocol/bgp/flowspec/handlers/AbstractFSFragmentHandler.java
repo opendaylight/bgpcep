@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.flowspec.handlers;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.BitmaskOperand;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.Fragment;
@@ -23,37 +24,38 @@ public abstract class AbstractFSFragmentHandler implements FlowspecTypeParser, F
 
     public static final int FRAGMENT_VALUE = 12;
 
-    protected static final int LAST_FRAGMENT = 4;
-    protected static final int FIRST_FRAGMENT = 5;
-    protected static final int IS_A_FRAGMENT = 6;
-    protected static final int DONT_FRAGMENT = 7;
+    static final int LAST_FRAGMENT = 4;
+    static final int FIRST_FRAGMENT = 5;
+    static final int IS_A_FRAGMENT = 6;
+    static final int DONT_FRAGMENT = 7;
 
     protected abstract Fragment parseFragment(final byte fragment);
     protected abstract byte serializeFragment(final Fragment fragment);
 
     @Override
-    public void serializeType(FlowspecType fsType, ByteBuf output) {
+    public void serializeType(final FlowspecType fsType, final ByteBuf output) {
         Preconditions.checkArgument(fsType instanceof FragmentCase, "FragmentCase class is mandatory!");
         output.writeByte(FRAGMENT_VALUE);
         serializeFragments(((FragmentCase) fsType).getFragments(), output);
     }
 
     @Override
-    public FlowspecType parseType(ByteBuf buffer) {
+    public FlowspecType parseType(final ByteBuf buffer) {
         if (buffer == null) {
             return null;
         }
         return new FragmentCaseBuilder().setFragments(parseFragments(buffer)).build();
     }
 
-    protected final void serializeFragments(final List<Fragments> fragments, final ByteBuf nlriByteBuf) {
-        for (final Fragments fragment : fragments) {
-            BitmaskOperandParser.INSTANCE.serialize(fragment.getOp(), 1, nlriByteBuf);
+    private void serializeFragments(final List<Fragments> fragments, final ByteBuf nlriByteBuf) {
+        for (final Iterator<Fragments> it = fragments.iterator(); it.hasNext(); ) {
+            final Fragments fragment = it.next();
+            BitmaskOperandParser.INSTANCE.serialize(fragment.getOp(), 1, !it.hasNext(), nlriByteBuf);
             nlriByteBuf.writeByte(serializeFragment(fragment.getValue()));
         }
     }
 
-    protected final List<Fragments> parseFragments(final ByteBuf nlri) {
+    private List<Fragments> parseFragments(final ByteBuf nlri) {
         final List<Fragments> fragments = new ArrayList<>();
         boolean end = false;
         // we can do this as all fields will be rewritten in the cycle

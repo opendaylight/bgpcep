@@ -12,11 +12,13 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import org.opendaylight.protocol.bgp.flowspec.handlers.FlowspecTypeParser;
 import org.opendaylight.protocol.bgp.flowspec.handlers.FlowspecTypeSerializer;
 import org.opendaylight.protocol.bgp.flowspec.handlers.NumericOneByteOperandParser;
 import org.opendaylight.protocol.bgp.flowspec.handlers.Util;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.Dscp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.NumericOperand;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.flowspec.FlowspecType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.flowspec.flowspec.type.DscpCase;
@@ -25,24 +27,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.flowspec.flowspec.type.dscp._case.DscpsBuilder;
 
 public final class FSDscpHandler implements FlowspecTypeParser, FlowspecTypeSerializer {
-    public static final int DSCP_VALUE = 11;
+    static final int DSCP_VALUE = 11;
 
-    @Override
-    public void serializeType(FlowspecType fsType, ByteBuf output) {
-        Preconditions.checkArgument(fsType instanceof DscpCase, "DscpCase class is mandatory!");
-        output.writeByte(DSCP_VALUE);
-        serializeDscps(((DscpCase) fsType).getDscps(), output);
-    }
-
-    @Override
-    public FlowspecType parseType(ByteBuf buffer) {
-        requireNonNull(buffer, "input buffer is null, missing data to parse.");
-        return new DscpCaseBuilder().setDscps(parseDscps(buffer)).build();
-    }
-
-    private static final void serializeDscps(final List<Dscps> dscps, final ByteBuf nlriByteBuf) {
-        for (final Dscps dscp : dscps) {
-            NumericOneByteOperandParser.INSTANCE.serialize(dscp.getOp(), 1, nlriByteBuf);
+    private static void serializeDscps(final List<Dscps> dscps, final ByteBuf nlriByteBuf) {
+        for (final Iterator<Dscps> it = dscps.iterator(); it.hasNext(); ) {
+            final Dscps dscp = it.next();
+            NumericOneByteOperandParser.INSTANCE.serialize(dscp.getOp(), 1, !it.hasNext(), nlriByteBuf);
             Util.writeShortest(dscp.getValue().getValue(), nlriByteBuf);
         }
     }
@@ -57,10 +47,23 @@ public final class FSDscpHandler implements FlowspecTypeParser, FlowspecTypeSeri
             // RFC does not specify operator
             final NumericOperand op = NumericOneByteOperandParser.INSTANCE.parse(b);
             builder.setOp(op);
-            builder.setValue(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.Dscp(nlri.readUnsignedByte()));
+            builder.setValue(new Dscp(nlri.readUnsignedByte()));
             end = op.isEndOfList();
             dscps.add(builder.build());
         }
         return dscps;
+    }
+
+    @Override
+    public void serializeType(final FlowspecType fsType, final ByteBuf output) {
+        Preconditions.checkArgument(fsType instanceof DscpCase, "DscpCase class is mandatory!");
+        output.writeByte(DSCP_VALUE);
+        serializeDscps(((DscpCase) fsType).getDscps(), output);
+    }
+
+    @Override
+    public FlowspecType parseType(final ByteBuf buffer) {
+        requireNonNull(buffer, "input buffer is null, missing data to parse.");
+        return new DscpCaseBuilder().setDscps(parseDscps(buffer)).build();
     }
 }
