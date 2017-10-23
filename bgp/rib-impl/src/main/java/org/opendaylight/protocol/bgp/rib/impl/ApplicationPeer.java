@@ -32,8 +32,6 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPPeerStateImpl;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPSessionStateImpl;
-import org.opendaylight.protocol.bgp.rib.impl.stats.peer.BGPPeerStats;
-import org.opendaylight.protocol.bgp.rib.impl.stats.peer.BGPPeerStatsImpl;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
@@ -77,7 +75,7 @@ import org.slf4j.LoggerFactory;
  * peer needs to have a BGP-ID that is configurable.
  */
 public class ApplicationPeer extends BGPPeerStateImpl implements org.opendaylight.protocol.bgp.rib.spi.Peer,
-    ClusteredDOMDataTreeChangeListener, TransactionChainListener {
+        ClusteredDOMDataTreeChangeListener, TransactionChainListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(ApplicationPeer.class);
 
@@ -104,8 +102,8 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
     }
 
     public ApplicationPeer(final ApplicationRibId applicationRibId, final Ipv4Address ipAddress, final RIB rib) {
-        super(rib.getInstanceIdentifier(), "application-peers", new IpAddress(ipAddress), rib.getLocalTablesKeys(),
-            Collections.emptySet());
+        super(rib.getInstanceIdentifier(), "application-peers", new IpAddress(ipAddress),
+                rib.getLocalTablesKeys(), Collections.emptySet());
         this.name = applicationRibId.getValue();
         final RIB targetRib = requireNonNull(rib);
         this.rawIdentifier = InetAddresses.forString(ipAddress.getValue()).getAddress();
@@ -117,7 +115,7 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
     }
 
     public synchronized void instantiateServiceInstance(final DOMDataTreeChangeService dataTreeChangeService,
-        final DOMDataTreeIdentifier appPeerDOMId) {
+            final DOMDataTreeIdentifier appPeerDOMId) {
         this.chain = this.rib.createPeerChain(this);
         this.writerChain = this.rib.createPeerChain(this);
 
@@ -133,21 +131,22 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
         });
         setAdvertizedGracefulRestartTableTypes(Collections.emptyList());
 
-        this.adjRibInWriter = AdjRibInWriter.create(this.rib.getYangRibId(), PeerRole.Internal, simpleRoutingPolicy, this.writerChain);
+        this.adjRibInWriter = AdjRibInWriter.create(this.rib.getYangRibId(), PeerRole.Internal, simpleRoutingPolicy,
+                this.writerChain);
         final RIBSupportContextRegistry context = this.rib.getRibSupportContext();
         final RegisterAppPeerListener registerAppPeerListener = () -> {
             synchronized (this) {
-                if(this.chain != null) {
+                if (this.chain != null) {
                     this.registration = dataTreeChangeService.registerDataTreeChangeListener(appPeerDOMId, this);
                 }
             }
         };
         this.adjRibInWriter = this.adjRibInWriter.transform(peerId, context, localTables, Collections.emptyMap(),
-            registerAppPeerListener);
-        final BGPPeerStats peerStats = new BGPPeerStatsImpl(this.name, localTables, this);
-        this.effectiveRibInWriter = EffectiveRibInWriter.create(this.rib.getService(), this.rib.createPeerChain(this), this.peerIId,
-            this.rib.getImportPolicyPeerTracker(), context, PeerRole.Internal,
-            peerStats.getAdjRibInRouteCounters(), localTables);
+                registerAppPeerListener);
+        this.effectiveRibInWriter = EffectiveRibInWriter
+                .create(this.rib.getService(), this.rib.createPeerChain(this), this.peerIId,
+                this.rib.getImportPolicyPeerTracker(), context, PeerRole.Internal,
+                localTables);
         this.bgpSessionState.registerMessagesCounter(this);
     }
 
@@ -159,7 +158,7 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
      */
     @Override
     public synchronized void onDataTreeChanged(final Collection<DataTreeCandidate> changes) {
-        if(this.chain == null) {
+        if (this.chain == null) {
             LOG.trace("Skipping data changed called to Application Peer. Change : {}", changes);
             return;
         }
@@ -169,7 +168,8 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
             LOG.debug("Modification Type {}", tc.getRootNode().getModificationType());
             final YangInstanceIdentifier path = tc.getRootPath();
             final PathArgument lastArg = path.getLastPathArgument();
-            Verify.verify(lastArg instanceof NodeIdentifierWithPredicates, "Unexpected type %s in path %s", lastArg.getClass(), path);
+            Verify.verify(lastArg instanceof NodeIdentifierWithPredicates,
+                    "Unexpected type %s in path %s", lastArg.getClass(), path);
             final NodeIdentifierWithPredicates tableKey = (NodeIdentifierWithPredicates) lastArg;
             if (!this.supportedTables.contains(tableKey)) {
                 LOG.trace("Skipping received data change for non supported family {}.", tableKey);
@@ -179,28 +179,28 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
                 final PathArgument childIdentifier = child.getIdentifier();
                 final YangInstanceIdentifier tableId = this.adjRibsInId.node(tableKey).node(childIdentifier);
                 switch (child.getModificationType()) {
-                case DELETE:
-                    LOG.trace("App peer -> AdjRibsIn path delete: {}", childIdentifier);
-                    tx.delete(LogicalDatastoreType.OPERATIONAL, tableId);
-                    break;
-                case UNMODIFIED:
-                    // No-op
-                    break;
-                case SUBTREE_MODIFIED:
-                    if (EffectiveRibInWriter.TABLE_ROUTES.equals(childIdentifier)) {
-                        processRoutesTable(child, tableId, tx, tableId);
+                    case DELETE:
+                        LOG.trace("App peer -> AdjRibsIn path delete: {}", childIdentifier);
+                        tx.delete(LogicalDatastoreType.OPERATIONAL, tableId);
                         break;
-                    }
-                case WRITE:
-                    if (child.getDataAfter().isPresent()) {
-                        final NormalizedNode<?,?> dataAfter = child.getDataAfter().get();
-                        LOG.trace("App peer -> AdjRibsIn path : {}", tableId);
-                        LOG.trace("App peer -> AdjRibsIn data : {}", dataAfter);
-                        tx.put(LogicalDatastoreType.OPERATIONAL, tableId, dataAfter);
-                    }
-                    break;
-                default:
-                    break;
+                    case UNMODIFIED:
+                        // No-op
+                        break;
+                    case SUBTREE_MODIFIED:
+                        if (EffectiveRibInWriter.TABLE_ROUTES.equals(childIdentifier)) {
+                            processRoutesTable(child, tableId, tx, tableId);
+                            break;
+                        }
+                    case WRITE:
+                        if (child.getDataAfter().isPresent()) {
+                            final NormalizedNode<?, ?> dataAfter = child.getDataAfter().get();
+                            LOG.trace("App peer -> AdjRibsIn path : {}", tableId);
+                            LOG.trace("App peer -> AdjRibsIn data : {}", dataAfter);
+                            tx.put(LogicalDatastoreType.OPERATIONAL, tableId, dataAfter);
+                        }
+                        break;
+                    default:
+                        break;
                 }
             }
         }
@@ -209,40 +209,42 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
 
     /**
      * Applies modification under table routes based on modification type instead of only put. BUG 4438
+     *
      * @param node
      * @param identifier
      * @param tx
      * @param routeTableIdentifier
      */
-    private synchronized void processRoutesTable(final DataTreeCandidateNode node, final YangInstanceIdentifier identifier,
-            final DOMDataWriteTransaction tx, final YangInstanceIdentifier routeTableIdentifier) {
+    private synchronized void processRoutesTable(final DataTreeCandidateNode node,
+            final YangInstanceIdentifier identifier, final DOMDataWriteTransaction tx,
+            final YangInstanceIdentifier routeTableIdentifier) {
         for (final DataTreeCandidateNode child : node.getChildNodes()) {
             final YangInstanceIdentifier childIdentifier = identifier.node(child.getIdentifier());
             switch (child.getModificationType()) {
-            case DELETE:
-                LOG.trace("App peer -> AdjRibsIn path delete: {}", childIdentifier);
-                tx.delete(LogicalDatastoreType.OPERATIONAL, childIdentifier);
-                break;
-            case UNMODIFIED:
-                // No-op
-                break;
-            case SUBTREE_MODIFIED:
-                //For be ables to use DELETE when we remove specific routes as we do when we remove the whole routes,
-                // we need to go deeper three levels
-                if (!routeTableIdentifier.equals(childIdentifier.getParent().getParent().getParent())) {
-                    processRoutesTable(child, childIdentifier, tx, routeTableIdentifier);
+                case DELETE:
+                    LOG.trace("App peer -> AdjRibsIn path delete: {}", childIdentifier);
+                    tx.delete(LogicalDatastoreType.OPERATIONAL, childIdentifier);
                     break;
-                }
-            case WRITE:
-                if (child.getDataAfter().isPresent()) {
-                    final NormalizedNode<?,?> dataAfter = child.getDataAfter().get();
-                    LOG.trace("App peer -> AdjRibsIn path : {}", childIdentifier);
-                    LOG.trace("App peer -> AdjRibsIn data : {}", dataAfter);
-                    tx.put(LogicalDatastoreType.OPERATIONAL, childIdentifier, dataAfter);
-                }
-                break;
-            default:
-                break;
+                case UNMODIFIED:
+                    // No-op
+                    break;
+                case SUBTREE_MODIFIED:
+                    //For be ables to use DELETE when we remove specific routes as we do when we remove the whole routes,
+                    // we need to go deeper three levels
+                    if (!routeTableIdentifier.equals(childIdentifier.getParent().getParent().getParent())) {
+                        processRoutesTable(child, childIdentifier, tx, routeTableIdentifier);
+                        break;
+                    }
+                case WRITE:
+                    if (child.getDataAfter().isPresent()) {
+                        final NormalizedNode<?, ?> dataAfter = child.getDataAfter().get();
+                        LOG.trace("App peer -> AdjRibsIn path : {}", childIdentifier);
+                        LOG.trace("App peer -> AdjRibsIn data : {}", dataAfter);
+                        tx.put(LogicalDatastoreType.OPERATIONAL, childIdentifier, dataAfter);
+                    }
+                    break;
+                default:
+                    break;
             }
         }
     }
@@ -265,7 +267,7 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
         final ListenableFuture<Void> future;
         if (this.adjRibInWriter != null) {
             future = this.adjRibInWriter.removePeer();
-        }else {
+        } else {
             future = Futures.immediateFuture(null);
         }
         if (this.chain != null) {
@@ -286,7 +288,7 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
 
     @Override
     public void onTransactionChainFailed(final TransactionChain<?, ?> chain,
-        final AsyncTransaction<?, ?> transaction, final Throwable cause) {
+            final AsyncTransaction<?, ?> transaction, final Throwable cause) {
         LOG.error("Transaction chain {} failed.", transaction != null ? transaction.getIdentifier() : null, cause);
     }
 

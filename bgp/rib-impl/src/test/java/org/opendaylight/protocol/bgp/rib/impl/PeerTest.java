@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 
@@ -29,7 +28,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.opendaylight.controller.config.yang.bgp.rib.impl.RouteTable;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
@@ -132,12 +130,11 @@ public class PeerTest extends AbstractRIBTestSetup {
     @Test
     public void testClassicPeer() throws Exception {
         this.classic = new BGPPeer(this.neighborAddress.getValue(), getRib(), PeerRole.Ibgp, null, Collections.emptySet(),
-            Collections.emptySet());
+                Collections.emptySet());
         this.classic.instantiateServiceInstance();
         this.mockSession();
         assertEquals(this.neighborAddress.getValue(), this.classic.getName());
         this.classic.onSessionUp(this.session);
-        assertEquals(1, this.classic.getBgpPeerState().getSessionEstablishedCount().getValue().intValue());
         Assert.assertArrayEquals(new byte[]{1, 1, 1, 1}, this.classic.getRawIdentifier());
         assertEquals("BGPPeer{name=127.0.0.1, tables=[TablesKey [_afi=class org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily, _safi=class org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily]]}", this.classic.toString());
 
@@ -167,17 +164,10 @@ public class PeerTest extends AbstractRIBTestSetup {
 
         //create new peer so that it gets advertized routes from RIB
         final BGPPeer testingPeer = new BGPPeer(this.neighborAddress.getValue(), getRib(), PeerRole.Ibgp, null,
-        Collections.emptySet(), Collections.emptySet());
+                Collections.emptySet(), Collections.emptySet());
         testingPeer.instantiateServiceInstance();
         testingPeer.onSessionUp(this.session);
         assertEquals(3, this.routes.size());
-        assertEquals(1, testingPeer.getBgpPeerState().getSessionEstablishedCount().getValue().intValue());
-        final List<RouteTable> routeTables = testingPeer.getBgpPeerState().getRouteTable();
-        assertEquals(1, routeTables.size());
-        final RouteTable routeTable = routeTables.get(0);
-        assertEquals(AFI_QNAME.toString(), routeTable.getAfi().getqNameOfIdentity());
-        assertEquals(SAFI_QNAME.toString(), routeTable.getSafi().getqNameOfIdentity());
-        assertNotNull(testingPeer.getBgpSessionState());
 
         final List<Ipv4Prefix> prefs2 = Lists.newArrayList(new Ipv4Prefix("8.0.1.0/28"), new Ipv4Prefix("8.0.1.16/28"));
         ub.setNlri(new NlriBuilder().setNlri(prefs2).build());
@@ -186,10 +176,10 @@ public class PeerTest extends AbstractRIBTestSetup {
         assertEquals(2, this.routes.size());
         this.classic.onMessage(this.session, new KeepaliveBuilder().build());
         this.classic.onMessage(this.session, new UpdateBuilder().setAttributes(
-            new AttributesBuilder().addAugmentation(
-                Attributes2.class,
-                new Attributes2Builder().setMpUnreachNlri(
-                    new MpUnreachNlriBuilder().setAfi(AFI).setSafi(SAFI).build()).build()).build()).build());
+                new AttributesBuilder().addAugmentation(
+                        Attributes2.class,
+                        new Attributes2Builder().setMpUnreachNlri(
+                                new MpUnreachNlriBuilder().setAfi(AFI).setSafi(SAFI).build()).build()).build()).build());
         this.classic.onMessage(this.session, new RouteRefreshBuilder().setAfi(AFI).setSafi(SAFI).build());
         this.classic.onMessage(this.session, new RouteRefreshBuilder().setAfi(Ipv6AddressFamily.class).setSafi(SAFI).build());
         assertEquals(2, this.routes.size());
@@ -211,9 +201,9 @@ public class PeerTest extends AbstractRIBTestSetup {
         Mockito.doReturn(new InetSocketAddress("localhost", 12345)).when(channel).remoteAddress();
         Mockito.doReturn(new InetSocketAddress("localhost", 12345)).when(channel).localAddress();
         final List<BgpParameters> params = Lists.newArrayList(new BgpParametersBuilder().setOptionalCapabilities(
-            Lists.newArrayList(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(
-                CParameters1.class, new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
-                    .setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).build()).build()).build()).build())).build());
+                Lists.newArrayList(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(
+                        CParameters1.class, new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
+                                .setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).build()).build()).build()).build())).build());
         final Open openObj = new OpenBuilder().setBgpIdentifier(new Ipv4Address("1.1.1.1")).setHoldTimer(50).setMyAsNumber(72).setBgpParameters(params).build();
         this.session = new BGPSessionImpl(this.classic, channel, openObj, 30, null);
         this.session.setChannelExtMsgCoder(openObj);

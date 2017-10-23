@@ -20,8 +20,6 @@ module odl-bgp-rib-impl-cfg {
     import rpc-context { prefix rpcx; revision-date 2013-06-17; }
     import odl-bgp-path-selection-mode { prefix bps; revision-date 2016-03-01;}
     import bgp-peer { prefix peer; revision-date 2016-06-06; }
-    import bgp-stats-peer { prefix peer-stats; revision-date 2016-06-06; }
-    import bgp-stats-rib-impl { prefix rib-impl-stats; revision-date 2016-06-06; }
 
     organization "Cisco Systems, Inc.";
 
@@ -279,29 +277,11 @@ module odl-bgp-rib-impl-cfg {
             when "/config:modules/config:module/config:type = 'bgp-peer'";
 
             rpcx:rpc-context-instance "peer-rpc";
-            uses peer-stats:bgp-peer-stats;
-        }
-
-        case rib-impl {
-            when "/config:modules/config:module/config:type = 'rib-impl'";
-
-            uses rib-impl-stats:bgp-render-stats;
         }
     }
 
     rpc reset-session {
         description "Restart the session between BGP peers";
-        input {
-            uses rpcx:rpc-context-ref {
-                refine context-instance {
-                    rpcx:rpc-context-instance peer-rpc;
-                }
-            }
-        }
-    }
-
-    rpc reset-stats {
-        description "Reset the BGP peer statistics.";
         input {
             uses rpcx:rpc-context-ref {
                 refine context-instance {

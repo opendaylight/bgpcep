@@ -24,8 +24,8 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListen
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
-import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
+import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
@@ -39,7 +39,6 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ImportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
-import org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl.BGPRenderStats;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPRIBState;
@@ -84,8 +83,8 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
     private ClusterIdentifier clusterId;
 
     public RibImpl(final ClusterSingletonServiceProvider provider, final RIBExtensionConsumerContext contextProvider,
-        final BGPDispatcher dispatcher, final BindingCodecTreeFactory codecTreeFactory, final DOMDataBroker domBroker,
-        final DOMSchemaService domSchemaService) {
+            final BGPDispatcher dispatcher, final BindingCodecTreeFactory codecTreeFactory, final DOMDataBroker domBroker,
+            final DOMSchemaService domSchemaService) {
         this.provider = requireNonNull(provider);
         this.extensions = contextProvider;
         this.dispatcher = dispatcher;
@@ -95,8 +94,9 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
     }
 
     void start(final Global global, final String instanceName, final BGPTableTypeRegistryConsumer tableTypeRegistry,
-        final BgpDeployer.WriteConfiguration configurationWriter) {
-        Preconditions.checkState(this.ribImpl == null, "Previous instance %s was not closed.", this);
+            final BgpDeployer.WriteConfiguration configurationWriter) {
+        Preconditions.checkState(this.ribImpl == null,
+                "Previous instance %s was not closed.", this);
         this.ribImpl = createRib(global, instanceName, tableTypeRegistry, configurationWriter);
         this.schemaContextRegistration = this.domSchemaService.registerSchemaContextListener(this.ribImpl);
     }
@@ -108,9 +108,9 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
         final Ipv4Address globalRouterId = global.getConfig().getRouterId();
         final ClusterIdentifier globalClusterId = getClusterIdentifier(globalConfig);
         return this.afiSafi.containsAll(globalAfiSafi) && globalAfiSafi.containsAll(this.afiSafi)
-            && globalAs.equals(this.asNumber)
-            && globalRouterId.getValue().equals(this.routerId.getValue())
-            && globalClusterId.getValue().equals(this.clusterId.getValue());
+                && globalAs.equals(this.asNumber)
+                && globalRouterId.getValue().equals(this.routerId.getValue())
+                && globalClusterId.getValue().equals(this.clusterId.getValue());
     }
 
     @Override
@@ -192,7 +192,7 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
         if (this.serviceRegistration != null) {
             try {
                 this.serviceRegistration.unregister();
-            } catch(final IllegalStateException e) {
+            } catch (final IllegalStateException e) {
                 LOG.warn("Failed to unregister {} service instance", this, e);
             }
             this.serviceRegistration = null;
@@ -201,11 +201,6 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
 
     void setServiceRegistration(final ServiceRegistration<?> serviceRegistration) {
         this.serviceRegistration = serviceRegistration;
-    }
-
-    @Override
-    public BGPRenderStats getRenderStats() {
-        return this.ribImpl.getRenderStats();
     }
 
     @Override
@@ -233,22 +228,39 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
         return this.ribImpl != null ? this.ribImpl.toString() : null;
     }
 
-    private RIBImpl createRib(final Global global, final String bgpInstanceName,
-        final BGPTableTypeRegistryConsumer tableTypeRegistry, final BgpDeployer.WriteConfiguration configurationWriter) {
+    private RIBImpl createRib(
+            final Global global,
+            final String bgpInstanceName,
+            final BGPTableTypeRegistryConsumer tableTypeRegistry,
+            final BgpDeployer.WriteConfiguration configurationWriter) {
         this.afiSafi = getAfiSafiWithDefault(global.getAfiSafis(), true);
         final Config globalConfig = global.getConfig();
         this.asNumber = globalConfig.getAs();
         this.routerId = globalConfig.getRouterId();
         this.clusterId = getClusterIdentifier(globalConfig);
-        final Map<TablesKey, PathSelectionMode> pathSelectionModes = OpenConfigMappingUtil.toPathSelectionMode(this.afiSafi, tableTypeRegistry).entrySet()
-                .stream().collect(Collectors.toMap(entry -> new TablesKey(entry.getKey().getAfi(), entry.getKey().getSafi()), Map.Entry::getValue));
-        return new RIBImpl(this.provider, new RibId(bgpInstanceName), this.asNumber, new BgpId(this.routerId), this.clusterId,
-                this.extensions, this.dispatcher, this.codecTreeFactory, this.domBroker, toTableTypes(this.afiSafi, tableTypeRegistry), pathSelectionModes,
-                this.extensions.getClassLoadingStrategy(), configurationWriter);
+        final Map<TablesKey, PathSelectionMode> pathSelectionModes = OpenConfigMappingUtil
+                .toPathSelectionMode(this.afiSafi, tableTypeRegistry).entrySet()
+                .stream()
+                .collect(Collectors.toMap(entry ->
+                        new TablesKey(entry.getKey().getAfi(), entry.getKey().getSafi()), Map.Entry::getValue));
+        return new RIBImpl(this.provider,
+                new RibId(bgpInstanceName),
+                this.asNumber,
+                new BgpId(this.routerId),
+                this.clusterId,
+                this.extensions,
+                this.dispatcher,
+                this.codecTreeFactory,
+                this.domBroker,
+                toTableTypes(this.afiSafi, tableTypeRegistry),
+                pathSelectionModes,
+                this.extensions.getClassLoadingStrategy(),
+                configurationWriter);
     }
 
     @Override
-    public ClusterSingletonServiceRegistration registerClusterSingletonService(final ClusterSingletonService clusterSingletonService) {
+    public ClusterSingletonServiceRegistration registerClusterSingletonService(
+            final ClusterSingletonService clusterSingletonService) {
         return this.ribImpl.registerClusterSingletonService(clusterSingletonService);
     }
 
