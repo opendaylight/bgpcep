@@ -50,9 +50,11 @@ public abstract class AbstractOperandParser<T> {
      *
      * @param op operand to be serialized
      * @param length value of the 'length' field
+     * @param endOfList if this operand is at the end of the list
      * @param buffer where the operand will be serialized to
      */
-    protected abstract void serialize(final T op, final int length, final ByteBuf buffer);
+    protected abstract void serialize(final T op, final int length, final boolean endOfList,
+            final ByteBuf buffer);
 
     /**
      * Parses operand from byte value.
