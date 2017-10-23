@@ -8,8 +8,8 @@
 package org.opendaylight.protocol.bgp.flowspec.handlers;
 
 import io.netty.buffer.ByteBuf;
+import java.util.Iterator;
 import java.util.List;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.NumericOneByteValue;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.NumericOperand;
 
@@ -36,8 +36,9 @@ public final class NumericOneByteOperandParser extends AbstractNumericByteOperan
      */
     @Override
     public <T extends NumericOneByteValue> void serialize(final List<T> list, final ByteBuf nlriByteBuf) {
-        for (final T operand : list) {
-            super.serialize(operand.getOp(), 1, nlriByteBuf);
+        for (final Iterator<T> it = list.iterator(); it.hasNext(); ) {
+            final T operand = it.next();
+            super.serialize(operand.getOp(), 1, !it.hasNext(), nlriByteBuf);
             Util.writeShortest(operand.getValue(), nlriByteBuf);
         }
     }
