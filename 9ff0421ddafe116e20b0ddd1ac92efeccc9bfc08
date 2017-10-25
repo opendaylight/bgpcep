@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_0ae1449a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2017-10-25T17:59:22Z",
+      "side": 1,
+      "message": "Is there a BUG id so that we can track?",
+      "revId": "9ff0421ddafe116e20b0ddd1ac92efeccc9bfc08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_eadb10eb",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/RIBImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2017-10-25T17:59:22Z",
+      "side": 1,
+      "message": "what\u0027s the benefit for moving these into a separate start() function?  I see the start() is always used after the constructor.  I do not see start() is used independently",
+      "revId": "9ff0421ddafe116e20b0ddd1ac92efeccc9bfc08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
