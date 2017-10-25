@@ -28,7 +28,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
-import org.opendaylight.controller.config.yang.bgp.rib.impl.BGPPeerRuntimeRegistration;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
@@ -116,7 +115,6 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
 
     private final RIB rib;
     private final String name;
-    private BGPPeerRuntimeRegistration runtimeReg;
     private final Map<TablesKey, AdjRibOutListener> adjRibOutListenerSet = new HashMap<>();
     private final RpcProviderRegistry rpcRegistry;
     private RoutedRpcRegistration<BgpPeerRpcService> rpcRegistration;
@@ -426,23 +424,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
         }
         closeRegistration();
         final ListenableFuture<Void> future = cleanup();
-        dropConnection();
-        resetState();
-        return future;
-    }
 
-    private void closeRegistration() {
-        for (final AbstractRegistration tableCloseable : this.tableRegistration) {
-            tableCloseable.close();
-        }
-        this.tableRegistration.clear();
-    }
-
-    private void dropConnection() {
-        if (this.runtimeReg != null) {
-            this.runtimeReg.close();
-            this.runtimeReg = null;
-        }
         if (this.session != null) {
             try {
                 this.session.close();
@@ -451,6 +433,14 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
             }
             this.session = null;
         }
+
+        resetState();
+        return future;
+    }
+
+    private void closeRegistration() {
+        this.tableRegistration.iterator().forEachRemaining(AbstractRegistration::close);
+        this.tableRegistration.clear();
     }
 
     @Override
