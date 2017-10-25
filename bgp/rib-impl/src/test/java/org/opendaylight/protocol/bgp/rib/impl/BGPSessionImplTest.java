@@ -101,9 +101,9 @@ public class BGPSessionImplTest {
 
         final List<OptionalCapabilities> capa = Lists.newArrayList();
         capa.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class,
-            new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
-                .setAfi(this.ipv4tt.getAfi()).setSafi(this.ipv4tt.getSafi()).build())
-                .setGracefulRestartCapability(new GracefulRestartCapabilityBuilder().build()).build())
+                new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
+                        .setAfi(this.ipv4tt.getAfi()).setSafi(this.ipv4tt.getSafi()).build())
+                        .setGracefulRestartCapability(new GracefulRestartCapabilityBuilder().build()).build())
                 .setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(AS_NUMBER).build()).build()).build());
         capa.add(new OptionalCapabilitiesBuilder().setCParameters(BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY).build());
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capa).build());
