@@ -378,6 +378,7 @@ module bgp-types {
                     reference "http://tools.ietf.org/html/rfc4271#section-5.1.3";
                     leaf global {
                         type inet:ipv4-address;
+                        mandatory true;
                     }
                 }
             }
@@ -386,6 +387,7 @@ module bgp-types {
                     reference "http://tools.ietf.org/html/rfc4760#section-3";
                     leaf global {
                         type inet:ipv6-address;
+                        mandatory true;
                     }
                     leaf link-local {
                         type inet:ipv6-address;
