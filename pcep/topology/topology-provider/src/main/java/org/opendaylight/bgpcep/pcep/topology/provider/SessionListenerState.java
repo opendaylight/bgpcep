@@ -25,8 +25,8 @@ import org.opendaylight.controller.config.yang.pcep.topology.provider.SessionSta
 import org.opendaylight.controller.config.yang.pcep.topology.provider.StatefulMessages;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.util.StatisticsUtil;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Pcinitiate;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Pcupd;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev171025.Pcinitiate;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev171025.Pcupd;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 final class SessionListenerState {

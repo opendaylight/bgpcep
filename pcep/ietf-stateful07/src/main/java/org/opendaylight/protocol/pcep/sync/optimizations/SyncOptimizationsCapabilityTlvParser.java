@@ -10,10 +10,10 @@ package org.opendaylight.protocol.pcep.sync.optimizations;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.pcep.ietf.initiated00.CInitiated00StatefulCapabilityTlvParser;
 import org.opendaylight.protocol.util.BitArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Stateful1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Stateful1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.stateful.capability.tlv.Stateful;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.stateful.capability.tlv.StatefulBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev171025.Stateful1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev171025.Stateful1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev171025.stateful.capability.tlv.Stateful;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev171025.stateful.capability.tlv.StatefulBuilder;
 
 public class SyncOptimizationsCapabilityTlvParser extends CInitiated00StatefulCapabilityTlvParser {
 
@@ -29,7 +29,7 @@ public class SyncOptimizationsCapabilityTlvParser extends CInitiated00StatefulCa
         if (flags.get(I_FLAG_OFFSET)) {
             sb.addAugmentation(Stateful1.class, new Stateful1Builder().setInitiation(Boolean.TRUE).build());
         }
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Stateful1Builder syncOptBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Stateful1Builder();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev171025.Stateful1Builder syncOptBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev171025.Stateful1Builder();
         if (flags.get(S_FLAG_OFFSET)) {
             syncOptBuilder.setIncludeDbVersion(Boolean.TRUE);
         }
@@ -42,14 +42,14 @@ public class SyncOptimizationsCapabilityTlvParser extends CInitiated00StatefulCa
         if (flags.get(F_FLAG_OFFSET)) {
             syncOptBuilder.setTriggeredInitialSync(Boolean.TRUE);
         }
-        sb.addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Stateful1.class, syncOptBuilder.build());
+        sb.addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev171025.Stateful1.class, syncOptBuilder.build());
     }
 
     @Override
     protected BitArray serializeFlags(final Stateful sct) {
         final BitArray flags = new BitArray(FLAGS_F_LENGTH);
         final Stateful1 sfi = sct.getAugmentation(Stateful1.class);
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Stateful1 sf2 = sct.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Stateful1.class);
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev171025.Stateful1 sf2 = sct.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev171025.Stateful1.class);
         if (sf2 != null) {
             flags.set(F_FLAG_OFFSET, sf2.isTriggeredInitialSync());
             flags.set(D_FLAG_OFFSET, sf2.isDeltaLspSyncCapability());
