@@ -10,8 +10,6 @@ package org.opendaylight.protocol.bgp.state;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.util.concurrent.CheckedFuture;
-import com.google.common.util.concurrent.ListenableFuture;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.ScheduledFuture;
 import java.util.HashMap;
@@ -32,10 +30,6 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
@@ -62,7 +56,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ThreadSafe
-public final class StateProviderImpl implements TransactionChainListener, ClusterSingletonService, AutoCloseable {
+public final class StateProviderImpl implements TransactionChainListener, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(StateProviderImpl.class);
     private static final ServiceGroupIdentifier SERVICE_GROUP_IDENTIFIER = ServiceGroupIdentifier
         .create("bgp-state-provider-service-group");
@@ -73,7 +67,6 @@ public final class StateProviderImpl implements TransactionChainListener, Cluste
     private final DataBroker dataBroker;
     @GuardedBy("this")
     private final Map<String, InstanceIdentifier<Bgp>> instanceIdentifiersCache = new HashMap<>();
-    private ClusterSingletonServiceRegistration singletonServiceRegistration;
     @GuardedBy("this")
     private BindingTransactionChain transactionChain;
     @GuardedBy("this")
@@ -81,19 +74,16 @@ public final class StateProviderImpl implements TransactionChainListener, Cluste
 
     public StateProviderImpl(@Nonnull final DataBroker dataBroker, final int timeout,
         @Nonnull BGPTableTypeRegistryConsumer bgpTableTypeRegistry, @Nonnull final BGPStateConsumer stateCollector,
-        @Nonnull final String networkInstanceName, @Nonnull final ClusterSingletonServiceProvider provider) {
+        @Nonnull final String networkInstanceName) {
         this.dataBroker = requireNonNull(dataBroker);
         this.bgpTableTypeRegistry = requireNonNull(bgpTableTypeRegistry);
         this.stateCollector = requireNonNull(stateCollector);
         this.networkInstanceIId = InstanceIdentifier.create(NetworkInstances.class)
             .child(NetworkInstance.class, new NetworkInstanceKey(networkInstanceName));
         this.timeout = timeout;
-        this.singletonServiceRegistration = requireNonNull(provider)
-            .registerClusterSingletonService(this);
     }
 
-    @Override
-    public synchronized void instantiateServiceInstance() {
+    public synchronized void init() {
         this.transactionChain = this.dataBroker.createTransactionChain(this);
         final TimerTask task = new TimerTask() {
             @Override
@@ -117,11 +107,11 @@ public final class StateProviderImpl implements TransactionChainListener, Cluste
 
     private synchronized void updateBGPStats(final WriteTransaction wTx) {
         final Set<String> oldStats = new HashSet<>(this.instanceIdentifiersCache.keySet());
-        this.stateCollector.getRibStats()
+        this.stateCollector.getRibStats().stream().filter(BGPRIBState::isActive)
             .forEach(bgpStateConsumer -> {
                 final KeyedInstanceIdentifier<Rib, RibKey> ribId = bgpStateConsumer.getInstanceIdentifier();
                 final List<BGPPeerState> peerStats = this.stateCollector.getPeerStats().stream()
-                    .filter(peerState -> ribId.equals(peerState.getInstanceIdentifier())).collect(Collectors.toList());
+                    .filter(BGPPeerState::isActive).filter(peerState -> ribId.equals(peerState.getInstanceIdentifier())).collect(Collectors.toList());
                 storeOperationalState(bgpStateConsumer, peerStats, ribId.getKey().getId().getValue(), wTx);
                 oldStats.remove(ribId.getKey().getId().getValue());
             });
@@ -154,10 +144,12 @@ public final class StateProviderImpl implements TransactionChainListener, Cluste
 
     @Override
     public void close() throws Exception {
-        if (this.singletonServiceRegistration != null) {
-            this.singletonServiceRegistration.close();
-            this.singletonServiceRegistration = null;
-        }
+        this.scheduleTask.cancel(true);
+        final WriteTransaction wTx = this.transactionChain.newWriteOnlyTransaction();
+        this.instanceIdentifiersCache.keySet().iterator()
+                .forEachRemaining(ribId -> removeStoredOperationalState(ribId, wTx));
+        wTx.submit();
+        this.transactionChain.close();
     }
 
     @Override
@@ -169,21 +161,5 @@ public final class StateProviderImpl implements TransactionChainListener, Cluste
     @Override
     public void onTransactionChainSuccessful(final TransactionChain<?, ?> chain) {
         LOG.debug("Transaction chain {} successful.", chain);
-    }
-
-    @Override
-    public synchronized ListenableFuture<Void> closeServiceInstance() {
-        this.scheduleTask.cancel(true);
-        final WriteTransaction wTx = this.transactionChain.newWriteOnlyTransaction();
-        this.instanceIdentifiersCache.keySet().iterator()
-            .forEachRemaining(ribId -> removeStoredOperationalState(ribId, wTx));
-        final ListenableFuture<Void> futureDelete = wTx.submit();
-        this.transactionChain.close();
-        return futureDelete;
-    }
-
-    @Override
-    public ServiceGroupIdentifier getIdentifier() {
-        return SERVICE_GROUP_IDENTIFIER;
     }
 }

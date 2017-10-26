@@ -149,6 +149,7 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
             this.rib.getImportPolicyPeerTracker(), context, PeerRole.Internal,
             peerStats.getAdjRibInRouteCounters(), localTables);
         this.bgpSessionState.registerMessagesCounter(this);
+        this.setActive(true);
     }
 
     /**
@@ -276,6 +277,7 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
             this.writerChain.close();
             this.writerChain = null;
         }
+        this.setActive(false);
         return future;
     }
 

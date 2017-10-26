@@ -322,6 +322,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
     @Override
     public synchronized void instantiateServiceInstance() {
         this.isServiceInstantiated = true;
+        this.setActive(true);
         this.domChain = this.domDataBroker.createTransactionChain(this);
         if(this.configurationWriter != null) {
             this.configurationWriter.apply();
@@ -367,6 +368,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
         }
         LOG.info("Close RIB Singleton Service {}, RIB {}", getIdentifier().getValue(), this.ribId.getValue());
         this.isServiceInstantiated = false;
+        this.setActive(false);
 
         this.txChainToLocRibWriter.values().forEach(LocRibWriter::close);
         this.txChainToLocRibWriter.clear();

@@ -161,6 +161,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
         // add current peer to "configured BGP peer" stats
         this.rib.getRenderStats().getConfiguredPeerCounter().increment();
         this.ribWriter = AdjRibInWriter.create(this.rib.getYangRibId(), this.peerRole, this.simpleRoutingPolicy, this.chain);
+        this.setActive(true);
     }
 
     // FIXME ListenableFuture<?> should be used once closeServiceInstance uses wildcard too
@@ -168,6 +169,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
     public synchronized ListenableFuture<Void> close() {
         final ListenableFuture<Void> future = releaseConnection();
         this.chain.close();
+        this.setActive(false);
         return future;
     }
 

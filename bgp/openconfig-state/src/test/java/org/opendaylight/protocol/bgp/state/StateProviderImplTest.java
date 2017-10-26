@@ -29,9 +29,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.spi.State;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPAfiSafiState;
@@ -158,28 +155,13 @@ public class StateProviderImplTest extends AbstractConcurrentDataBrokerTest {
     private BGPGracelfulRestartState bgpGracelfulRestartState;
     @Mock
     private BGPAfiSafiState bgpAfiSafiState;
-    @Mock
-    private ClusterSingletonServiceProvider clusterSingletonServiceProvider;
-    @Mock
-    private ClusterSingletonServiceRegistration singletonServiceRegistration;
 
     private final List<BGPPeerState> bgpPeerStates = new ArrayList<>();
     private final List<BGPRIBState> bgpRibStates = new ArrayList<>();
-    private ClusterSingletonService singletonService;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-
-        Mockito.doAnswer(invocationOnMock -> {
-            this.singletonService = (ClusterSingletonService) invocationOnMock.getArguments()[0];
-            return this.singletonServiceRegistration;
-        }).when(this.clusterSingletonServiceProvider).registerClusterSingletonService(any(ClusterSingletonService.class));
-
-        Mockito.doAnswer(invocationOnMock -> {
-            this.singletonService.closeServiceInstance();
-            return null;
-        }).when(this.singletonServiceRegistration).close();
 
         doReturn(Optional.of(IPV4UNICAST.class))
             .when(this.tableTypeRegistry).getAfiSafiType(eq(TABLES_KEY));
@@ -253,10 +235,13 @@ public class StateProviderImplTest extends AbstractConcurrentDataBrokerTest {
     }
 
     @Test
-    public void testStateProvider() throws Exception {
+    public void testActiveStateProvider() throws Exception {
+        doReturn(true).when(this.bgpRibState).isActive();
+        doReturn(true).when(this.bgpPeerState).isActive();
+
         final StateProviderImpl stateProvider = new StateProviderImpl(getDataBroker(), 1, this.tableTypeRegistry,
-            this.stateCollector, "global-bgp", this.clusterSingletonServiceProvider);
-        this.singletonService.instantiateServiceInstance();
+            this.stateCollector, "global-bgp");
+        stateProvider.init();
 
         final Global globalExpected = buildGlobalExpected(0);
         this.bgpRibStates.add(this.bgpRibState);
@@ -322,6 +307,27 @@ public class StateProviderImplTest extends AbstractConcurrentDataBrokerTest {
             Assert.assertTrue(supportedCapabilitiesResult.containsAll(this.supportedCap));
             return bgpRib;
         });
+
+        this.bgpRibStates.clear();
+        checkNotPresentOperational(getDataBroker(), this.bgpInstanceIdentifier);
+
+        stateProvider.close();
+    }
+
+    @Test
+    public void testInactiveStateProvider() throws Exception {
+        doReturn(false).when(this.bgpRibState).isActive();
+        doReturn(false).when(this.bgpPeerState).isActive();
+
+        final StateProviderImpl stateProvider = new StateProviderImpl(getDataBroker(), 1, this.tableTypeRegistry,
+            this.stateCollector, "global-bgp");
+        stateProvider.init();
+
+        this.bgpRibStates.add(this.bgpRibState);
+        checkNotPresentOperational(getDataBroker(), this.bgpInstanceIdentifier);
+
+        this.bgpPeerStates.add(this.bgpPeerState);
+        checkNotPresentOperational(getDataBroker(), this.bgpInstanceIdentifier);
 
         this.bgpRibStates.clear();
         checkNotPresentOperational(getDataBroker(), this.bgpInstanceIdentifier);

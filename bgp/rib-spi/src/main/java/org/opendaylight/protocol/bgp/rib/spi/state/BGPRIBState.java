@@ -23,6 +23,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
  */
 public interface BGPRIBState extends RibReference {
     /**
+     * Active status
+     *
+     * @return active
+     */
+    boolean isActive();
+
+    /**
      * Prefixes count per tablesKey Type
      *
      * @return Prefixes count
