@@ -16,6 +16,24 @@
       "revId": "5925fa662c3c0753e99983973210efb730b27ef6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_d968a4bc",
+        "filename": "bgp/inet/src/main/java/org/opendaylight/protocol/bgp/inet/AbstractIPRIBSupport.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 3741
+      },
+      "writtenOn": "2017-10-26T12:31:28Z",
+      "side": 1,
+      "message": "What\u0027s your suggestion in this case?",
+      "parentUuid": "9a245df4_a11ddfbf",
+      "revId": "5925fa662c3c0753e99983973210efb730b27ef6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
