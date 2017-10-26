@@ -35,6 +35,8 @@ public class BGPRIBStateImpl extends DefaultRibReference implements BGPRIBState,
     private final Map<TablesKey, TotalPathsCounter> totalPaths = new HashMap<>();
     @GuardedBy("this")
     private final Map<TablesKey, TotalPrefixesCounter> totalPrefixes = new HashMap<>();
+    @GuardedBy("this")
+    private boolean active;
 
     protected BGPRIBStateImpl(final KeyedInstanceIdentifier<Rib, RibKey> instanceIdentifier,
         @Nonnull final BgpId routeId, @Nonnull final AsNumber localAs) {
@@ -93,6 +95,15 @@ public class BGPRIBStateImpl extends DefaultRibReference implements BGPRIBState,
     protected final synchronized void registerTotalPrefixesCounter(@Nonnull final TablesKey key,
         @Nonnull final TotalPrefixesCounter totalPrefixesCounter) {
         this.totalPrefixes.put(key, totalPrefixesCounter);
+    }
+
+    @Override
+    public final synchronized boolean isActive() {
+        return this.active;
+    }
+
+    protected final synchronized void setActive(final boolean active) {
+        this.active = active;
     }
 
     @Override
