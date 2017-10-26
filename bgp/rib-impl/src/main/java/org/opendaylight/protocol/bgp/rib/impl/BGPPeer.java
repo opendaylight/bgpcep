@@ -146,6 +146,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
 
     public void instantiateServiceInstance() {
         this.ribWriter = AdjRibInWriter.create(this.rib.getYangRibId(), this.peerRole, this.simpleRoutingPolicy, this.chain);
+        setActive(true);
     }
 
     // FIXME ListenableFuture<?> should be used once closeServiceInstance uses wildcard too
@@ -153,6 +154,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
     public synchronized ListenableFuture<Void> close() {
         final ListenableFuture<Void> future = releaseConnection();
         this.chain.close();
+        setActive(false);
         return future;
     }
 

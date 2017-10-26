@@ -116,6 +116,7 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
 
     public synchronized void instantiateServiceInstance(final DOMDataTreeChangeService dataTreeChangeService,
             final DOMDataTreeIdentifier appPeerDOMId) {
+        setActive(true);
         this.chain = this.rib.createPeerChain(this);
         this.writerChain = this.rib.createPeerChain(this);
 
@@ -257,6 +258,7 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
     // FIXME ListenableFuture<?> should be used once closeServiceInstance uses wildcard too
     @Override
     public synchronized ListenableFuture<Void> close() {
+        setActive(false);
         if (this.registration != null) {
             this.registration.close();
             this.registration = null;
