@@ -25,6 +25,13 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
  */
 public interface BGPPeerState extends RibReference {
     /**
+     * Indicates whether this instance is being actively managed and updated
+     *
+     * @return active
+     */
+    boolean isActive();
+
+    /**
      * PeerGroup Id
      *
      * @return PeerGroup Id

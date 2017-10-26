@@ -6,13 +6,12 @@
                odl:type="pingpong"/>
     <reference id="bgpTableTypeRegistry" interface="org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer"/>
     <reference id="bgpStateProvider" interface="org.opendaylight.protocol.bgp.rib.spi.state.BGPStateConsumer"/>
-    <reference id="clusterSingletonServiceProvider" interface="org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider"/>
 
     <odl:clustered-app-config id="bgpStateConfig"
                               binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.state.config.rev161107.BgpStateConfig"/>
 
     <bean id="bgpOpenconfigState" class="org.opendaylight.protocol.bgp.state.StateProviderImpl"
-          destroy-method="close">
+          init-method="init" destroy-method="close">
         <argument ref="dataBroker"/>
         <argument>
             <bean factory-ref="bgpStateConfig" factory-method="getTimer"/>
@@ -20,6 +19,5 @@
         <argument ref="bgpTableTypeRegistry"/>
         <argument ref="bgpStateProvider"/>
         <argument value="global-bgp"/>
-        <argument ref="clusterSingletonServiceProvider"/>
     </bean>
 </blueprint>

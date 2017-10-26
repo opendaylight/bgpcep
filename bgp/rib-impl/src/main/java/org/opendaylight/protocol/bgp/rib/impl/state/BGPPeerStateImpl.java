@@ -54,6 +54,8 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
     private final LongAdder notificationReceivedCounter = new LongAdder();
     private final LongAdder erroneousUpdate = new LongAdder();
     private final String groupId;
+    @GuardedBy("this")
+    private boolean active;
 
     @GuardedBy("this")
     private final Map<TablesKey, PrefixesSentCounters> prefixesSent = new HashMap<>();
@@ -255,5 +257,14 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
         } else if (msg instanceof Update) {
             this.updateReceivedCounter.increment();
         }
+    }
+
+    @Override
+    public final synchronized boolean isActive() {
+        return this.active;
+    }
+
+    protected final synchronized void setActive(final boolean active) {
+        this.active = active;
     }
 }
