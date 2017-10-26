@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_74025f70",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2017-10-26T16:50:42Z",
+      "side": 1,
+      "message": "Yeah, otherwise upstream may not accept the change",
+      "parentUuid": "9a245df4_549c7bc0",
+      "revId": "9ff0421ddafe116e20b0ddd1ac92efeccc9bfc08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_eadb10eb",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/RIBImpl.java",
         "patchSetId": 2
@@ -66,6 +84,24 @@
       "side": 1,
       "message": "I do believe that should be a good practice remove those responsibilities from constructor. Also it makes the code more clear.",
       "parentUuid": "9a245df4_eadb10eb",
+      "revId": "9ff0421ddafe116e20b0ddd1ac92efeccc9bfc08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_94ff1367",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/RIBImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2017-10-26T16:50:42Z",
+      "side": 1,
+      "message": "Although it reduces the parameter count in the constructor, it adds the complicity that we have to manually bind the start() with the constructor together every time.  If there is no requirement for a start()/stop() kind of service style, I do not see much benefits in this.\nWe are basically grouping setters into one method.",
+      "parentUuid": "9a245df4_f45daf16",
       "revId": "9ff0421ddafe116e20b0ddd1ac92efeccc9bfc08",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
