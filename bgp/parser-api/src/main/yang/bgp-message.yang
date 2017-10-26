@@ -129,6 +129,7 @@ module bgp-message {
                 reference "http://tools.ietf.org/html/rfc4271#section-5.1.4";
                 leaf med {
                     type uint32;
+                    mandatory true;
                 }
             }
             container local-pref {
