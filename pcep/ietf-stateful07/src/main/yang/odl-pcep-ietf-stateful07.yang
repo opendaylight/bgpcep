@@ -35,6 +35,11 @@ module odl-pcep-ietf-stateful07 {
         reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-07";
     }
 
+    revision "2017-10-25" {
+        description
+            "Augment pcep topology with stateful capabilities.";
+    }
+
     typedef operational-status {
         type enumeration {
             enum down {
