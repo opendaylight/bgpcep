@@ -23,6 +23,10 @@ module bgp-peer-rpc {
         description "Initial revision";
     }
 
+    revision 2017-10-27 {
+        description "Add reset session RPC";
+    }
+
     identity peer-context {
         description "Identity used to mark the Peer context for binding RPCs in a particular RIB.";
     }
@@ -53,5 +57,12 @@ module bgp-peer-rpc {
 
     augment "/rib:bgp-rib/rib:rib/rib:peer" {
         ext:context-instance "peer-context";
+    }
+
+    rpc release-connection {
+        description "Release the peer session";
+        input {
+            uses peer-reference;
+        }
     }
 }

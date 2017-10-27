@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
-import com.google.common.util.concurrent.ListenableFuture;
 import java.util.EventListener;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
@@ -16,7 +15,7 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 /**
  * Listener that receives session informations from the session.
  */
-public interface BGPSessionListener extends EventListener {
+public interface BGPSessionListener extends PeerRPCs, EventListener {
 
     /**
      * Marks synchronization finished for given Table key
@@ -54,6 +53,4 @@ public interface BGPSessionListener extends EventListener {
      * @param notification Protocol message
      */
     void onMessage(BGPSession session, Notification notification) throws BGPDocumentedException;
-
-    ListenableFuture<?> releaseConnection();
 }
