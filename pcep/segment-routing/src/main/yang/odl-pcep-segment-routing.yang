@@ -5,8 +5,8 @@ module odl-pcep-segment-routing {
 
     import pcep-types { prefix pcep; revision-date 2013-10-05; }
     import pcep-message { prefix msg; revision-date 2013-10-07; }
-    import odl-pcep-ietf-stateful07 { prefix stateful; revision-date 2013-12-22; }
-    import odl-pcep-ietf-initiated00 { prefix crabbe; revision-date 2013-11-26; }
+    import odl-pcep-ietf-stateful07 { prefix stateful; revision-date 2017-10-25; }
+    import odl-pcep-ietf-initiated00 { prefix crabbe; revision-date 2017-10-25; }
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import network-topology { prefix nt; revision-date 2013-10-21; }
     import network-topology-pcep { prefix pn; revision-date 2013-10-24; }
@@ -29,6 +29,11 @@ module odl-pcep-segment-routing {
         description
             "Upgrade from draft-sivabalan-pce-segment-routing-02.";
         reference "http://tools.ietf.org/html/draft-ietf-pce-segment-routing-01";
+    }
+
+    revision "2017-10-25" {
+        description
+            "Augment PCEP stateful capabilities with segment routing capability.";
     }
 
     grouping sr-pce-capability-tlv {

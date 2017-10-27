@@ -6,7 +6,7 @@ module odl-pcep-auto-bandwidth {
     import pcep-message { prefix msg; revision-date 2013-10-07; }
     import network-topology { prefix nt; revision-date 2013-10-21; }
     import network-topology-pcep { prefix topo; revision-date 2013-10-24; }
-    import odl-pcep-ietf-stateful07 { prefix stateful; revision-date 2013-12-22; }
+    import odl-pcep-ietf-stateful07 { prefix stateful; revision-date 2017-10-25; }
     import network-concepts { prefix netc; revision-date 2013-11-25; }
 
     organization "Cisco Systems, Inc.";
@@ -26,6 +26,10 @@ module odl-pcep-auto-bandwidth {
     revision 2016-01-09 {
         description "Initial revision";
         reference "https://tools.ietf.org/html/draft-dhody-pce-stateful-pce-auto-bandwidth-06";
+    }
+
+    revision 2017-10-25 {
+        description "Update odl-pcep-ietf-stateful07 revision";
     }
 
     grouping bw-samples {
