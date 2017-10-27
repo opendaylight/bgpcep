@@ -11,15 +11,18 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import io.netty.channel.ChannelFuture;
 import java.util.Set;
 import java.util.concurrent.Future;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
+import org.opendaylight.protocol.bgp.rib.spi.PeerRPCs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.RouteRefresh;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.RouteRefreshBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev160322.BgpPeerRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev160322.RouteRefreshRequestInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev171027.BgpPeerRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev171027.ReleaseConnectionInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev171027.RouteRefreshRequestInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yangtools.yang.common.RpcError.ErrorType;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -31,13 +34,27 @@ public class BgpPeerRpc implements BgpPeerRpcService {
 
     private static final Logger LOG = LoggerFactory.getLogger(BgpPeerRpc.class);
     private static final String FAILURE_MSG = "Failed to send Route Refresh message";
+    private static final String FAILURE_RESET_SESSION_MSG = "Failed to reset session";
 
     private final BGPSession session;
     private final Set<TablesKey> supportedFamilies;
+    private final PeerRPCs peerRPCs;
 
-    BgpPeerRpc(final BGPSession session, final Set<TablesKey> supportedFamilies) {
+    BgpPeerRpc(final PeerRPCs peerRPCs, final BGPSession session, final Set<TablesKey> supportedFamilies) {
         this.session = requireNonNull(session);
+        this.peerRPCs = requireNonNull(peerRPCs);
         this.supportedFamilies = requireNonNull(supportedFamilies);
+    }
+
+    @Override
+    public Future<RpcResult<Void>> releaseConnection(final ReleaseConnectionInput input) {
+        final ListenableFuture<?> f = this.peerRPCs.releaseConnection();
+        return Futures.transform(JdkFutureAdapters.listenInPoolThread(f), input1 -> {
+            if (f.isDone()) {
+                return RpcResultBuilder.<Void>success().build();
+            }
+            return RpcResultBuilder.<Void>failed().withError(ErrorType.RPC, FAILURE_RESET_SESSION_MSG).build();
+        }, MoreExecutors.directExecutor());
     }
 
     @Override
@@ -51,7 +68,8 @@ public class BgpPeerRpc implements BgpPeerRpcService {
                 return RpcResultBuilder.<Void>failed().withError(ErrorType.RPC, FAILURE_MSG).build();
             }, MoreExecutors.directExecutor());
         }
-        return RpcResultBuilder.<Void>failed().withError(ErrorType.RPC, FAILURE_MSG + " due to unsupported address families.").buildFuture();
+        return RpcResultBuilder.<Void>failed().withError(ErrorType.RPC, FAILURE_MSG +
+                " due to unsupported address families.").buildFuture();
     }
 
     private ChannelFuture sendRRMessage(final RouteRefreshRequestInput input) {
