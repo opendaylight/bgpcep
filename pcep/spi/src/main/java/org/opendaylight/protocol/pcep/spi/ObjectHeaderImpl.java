@@ -40,14 +40,13 @@ public class ObjectHeaderImpl implements ObjectHeader {
 
     @Override
     public String toString() {
-        final StringBuilder builder = new StringBuilder();
-        builder.append("ObjectHeader [objClass=");
-        builder.append(", processed=");
-        builder.append(this.processed);
-        builder.append(", ignored=");
-        builder.append(this.ignored);
-        builder.append("]");
-        return builder.toString();
+        final String objectHeader = "ObjectHeader [objClass=" +
+                ", processed=" +
+                this.processed +
+                ", ignored=" +
+                this.ignored +
+                "]";
+        return objectHeader;
     }
 
     @Override

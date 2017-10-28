@@ -113,7 +113,7 @@ public class RouteDistinguisherUtilTest {
      */
     private static RouteDistinguisher createRouteDistinguisher(final int type, final String administratorSubfield,
             final String assignedNumberSubfield) {
-        final StringBuffer routeDistiguisher = new StringBuffer();
+        final StringBuilder routeDistiguisher = new StringBuilder();
         if (type == 0) {
             routeDistiguisher.append(type).append(SEPARATOR);
         }
