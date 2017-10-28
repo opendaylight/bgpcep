@@ -58,7 +58,7 @@ public class PCCTriggeredSyncTest extends PCCMockCommon {
         final Srp srp = srpBuilder.build();
         rb.setSrp(srp);
 
-        final Lsp lsp = new LspBuilder().setPlspId(new PlspId(Long.valueOf(0))).setSync(Boolean.TRUE).build();
+        final Lsp lsp = new LspBuilder().setPlspId(new PlspId(0L)).setSync(Boolean.TRUE).build();
         rb.setLsp(lsp);
 
         final PathBuilder pb = new PathBuilder();
