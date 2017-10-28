@@ -206,9 +206,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     }
 
     private void markAllLspAsStale() {
-        for (final PlspId plspId : this.lsps.keySet()) {
-            this.staleLsps.add(plspId);
-        }
+        this.staleLsps.addAll(this.lsps.keySet());
     }
 
     private class ResyncLspFunction implements AsyncFunction<Optional<ReportedLsp>, OperationResult>  {
