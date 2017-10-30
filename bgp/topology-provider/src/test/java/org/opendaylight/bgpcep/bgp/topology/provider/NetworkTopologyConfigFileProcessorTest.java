@@ -33,7 +33,9 @@ import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.model.api.SchemaPath;
 
 public class NetworkTopologyConfigFileProcessorTest extends AbstractConfigLoader {
-    private static final InstanceIdentifier<Topology> TOPOLOGY_IID = InstanceIdentifier.create(NetworkTopology.class).child(Topology.class);
+
+    private static final InstanceIdentifier<Topology> TOPOLOGY_IID = InstanceIdentifier
+            .create(NetworkTopology.class).child(Topology.class);
     @Mock
     private BgpTopologyDeployer bgpDeployer;
     @Mock
@@ -58,17 +60,17 @@ public class NetworkTopologyConfigFileProcessorTest extends AbstractConfigLoader
     @Override
     protected List<String> getYangModelsPaths() {
         final List<String> paths = Lists.newArrayList(
-            "/META-INF/yang/network-topology@2013-10-21.yang",
-            "/META-INF/yang/ietf-inet-types@2013-07-15.yang",
-            "/META-INF/yang/odl-bgp-topology-types.yang",
-            "/META-INF/yang/odl-bgp-topology-config.yang",
-            "/META-INF/yang/bgp-rib.yang",
-            "/META-INF/yang/bgp-multiprotocol.yang",
-            "/META-INF/yang/bgp-types.yang",
-            "/META-INF/yang/network-concepts.yang",
-            "/META-INF/yang/ieee754.yang",
-            "/META-INF/yang/bgp-message.yang",
-            "/META-INF/yang/yang-ext.yang"
+                "/META-INF/yang/network-topology@2013-10-21.yang",
+                "/META-INF/yang/ietf-inet-types@2013-07-15.yang",
+                "/META-INF/yang/odl-bgp-topology-types.yang",
+                "/META-INF/yang/odl-bgp-topology-config.yang",
+                "/META-INF/yang/bgp-rib.yang",
+                "/META-INF/yang/bgp-multiprotocol.yang",
+                "/META-INF/yang/bgp-types.yang",
+                "/META-INF/yang/network-concepts.yang",
+                "/META-INF/yang/ieee754.yang",
+                "/META-INF/yang/bgp-message.yang",
+                "/META-INF/yang/yang-ext.yang"
         );
         return paths;
     }
@@ -77,7 +79,8 @@ public class NetworkTopologyConfigFileProcessorTest extends AbstractConfigLoader
     public void configFileTest() throws Exception {
         assertNotNull(ClassLoader.getSystemClassLoader().getResource("initial/network-topology-config.xml"));
         verify(this.bgpDeployer, never()).createInstance(any());
-        final NetworkTopologyConfigFileProcessor processor = new NetworkTopologyConfigFileProcessor(this.configLoader, this.bgpDeployer);
+        final NetworkTopologyConfigFileProcessor processor =
+                new NetworkTopologyConfigFileProcessor(this.configLoader, this.bgpDeployer);
         assertEquals(SchemaPath.create(true, NetworkTopology.QNAME), processor.getSchemaPath());
 
         verify(this.bgpDeployer, times(3)).createInstance(any());
