@@ -144,23 +144,6 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-config-loader-spi</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-config-loader-impl</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-config-loader-impl</artifactId>
-                <version>${project.version}</version>
-                <type>test-jar</type>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
                 <artifactId>bgp-openconfig-state</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -626,19 +609,41 @@
             </dependency>
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
-                <artifactId>odl-bgpcep-bgp-config-loader</artifactId>
-                <classifier>features</classifier>
-                <type>xml</type>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.bgpcep</groupId>
                 <artifactId>odl-bgpcep-bgp-openconfig-state</artifactId>
                 <classifier>features</classifier>
                 <type>xml</type>
                 <version>${project.version}</version>
             </dependency>
-
+            <!-- Config File loader Features artifacts -->
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-config-loader</artifactId>
+                <classifier>features</classifier>
+                <type>xml</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>features-config-loader</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>config-loader-spi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>config-loader-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>config-loader-impl</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
             <!-- BMP Features artifacts -->
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>

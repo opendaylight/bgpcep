@@ -139,7 +139,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-config-loader</artifactId>
+            <artifactId>odl-bgpcep-config-loader</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
