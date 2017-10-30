@@ -42,7 +42,6 @@
         <module>odl-bgpcep-bgp-topology</module>
         <module>odl-bgpcep-bgp-benchmark</module>
         <module>odl-bgpcep-bgp-cli</module>
-        <module>odl-bgpcep-bgp-config-loader</module>
         <module>odl-bgpcep-bgp-openconfig-state</module>
     </modules>
 

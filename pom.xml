@@ -53,6 +53,7 @@
         <module>programming</module>
         <module>rsvp</module>
         <module>topology</module>
+        <module>config-loader</module>
 
         <!-- Integration tests -->
         <module>integration-tests</module>

@@ -36,8 +36,9 @@ import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.model.api.SchemaPath;
 
 public class ProtocolsConfigFileProcessorTest extends AbstractConfigLoader {
-    private static final InstanceIdentifier<NetworkInstance> NETWORK_INSTANCE_IID = InstanceIdentifier.create(NetworkInstances.class)
-        .child(NetworkInstance.class, new NetworkInstanceKey("GLOBAL"));
+    private static final InstanceIdentifier<NetworkInstance> NETWORK_INSTANCE_IID =
+            InstanceIdentifier.create(NetworkInstances.class)
+            .child(NetworkInstance.class, new NetworkInstanceKey("GLOBAL"));
     @Mock
     private BgpDeployer bgpDeployer;
 
@@ -61,29 +62,29 @@ public class ProtocolsConfigFileProcessorTest extends AbstractConfigLoader {
     @Override
     protected List<String> getYangModelsPaths() {
         final List<String> paths = Lists.newArrayList(
-            "/META-INF/yang/openconfig-extensions.yang",
-            "/META-INF/yang/bgp-openconfig-extensions.yang",
-            "/META-INF/yang/ietf-interfaces.yang",
-            "/META-INF/yang/openconfig-network-instance-types.yang",
-            "/META-INF/yang/openconfig-interfaces.yang",
-            "/META-INF/yang/openconfig-network-instance.yang",
-            "/META-INF/yang/openconfig-routing-policy.yang",
-            "/META-INF/yang/openconfig-policy-types.yang",
-            "/META-INF/yang/openconfig-local-routing.yang",
-            "/META-INF/yang/openconfig-bgp-operational.yang",
-            "/META-INF/yang/openconfig-bgp-types.yang",
-            "/META-INF/yang/openconfig-types.yang",
-            "/META-INF/yang/openconfig-bgp-multiprotocol.yang",
-            "/META-INF/yang/openconfig-bgp.yang",
-            "/META-INF/yang/bgp-rib.yang",
-            "/META-INF/yang/ietf-inet-types@2013-07-15.yang",
-            "/META-INF/yang/bgp-message.yang",
-            "/META-INF/yang/bgp-multiprotocol.yang",
-            "/META-INF/yang/bgp-types.yang",
-            "/META-INF/yang/network-concepts.yang",
-            "/META-INF/yang/ieee754.yang",
-            "/META-INF/yang/ietf-yang-types@2013-07-15.yang",
-            "/META-INF/yang/yang-ext.yang"
+                "/META-INF/yang/openconfig-extensions.yang",
+                "/META-INF/yang/bgp-openconfig-extensions.yang",
+                "/META-INF/yang/ietf-interfaces.yang",
+                "/META-INF/yang/openconfig-network-instance-types.yang",
+                "/META-INF/yang/openconfig-interfaces.yang",
+                "/META-INF/yang/openconfig-network-instance.yang",
+                "/META-INF/yang/openconfig-routing-policy.yang",
+                "/META-INF/yang/openconfig-policy-types.yang",
+                "/META-INF/yang/openconfig-local-routing.yang",
+                "/META-INF/yang/openconfig-bgp-operational.yang",
+                "/META-INF/yang/openconfig-bgp-types.yang",
+                "/META-INF/yang/openconfig-types.yang",
+                "/META-INF/yang/openconfig-bgp-multiprotocol.yang",
+                "/META-INF/yang/openconfig-bgp.yang",
+                "/META-INF/yang/bgp-rib.yang",
+                "/META-INF/yang/ietf-inet-types@2013-07-15.yang",
+                "/META-INF/yang/bgp-message.yang",
+                "/META-INF/yang/bgp-multiprotocol.yang",
+                "/META-INF/yang/bgp-types.yang",
+                "/META-INF/yang/network-concepts.yang",
+                "/META-INF/yang/ieee754.yang",
+                "/META-INF/yang/ietf-yang-types@2013-07-15.yang",
+                "/META-INF/yang/yang-ext.yang"
         );
         return paths;
     }

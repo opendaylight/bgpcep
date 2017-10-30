@@ -21,6 +21,7 @@
     <module>rsvp</module>
     <module>topology</module>
     <module>concepts</module>
+    <module>config-loader</module>
   </modules>
 
   <!--

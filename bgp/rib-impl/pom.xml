@@ -34,7 +34,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-config-loader-spi</artifactId>
+            <artifactId>config-loader-spi</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -104,12 +104,12 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-config-loader-impl</artifactId>
+            <artifactId>config-loader-impl</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-config-loader-impl</artifactId>
+            <artifactId>config-loader-impl</artifactId>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>

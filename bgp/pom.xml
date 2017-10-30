@@ -62,8 +62,6 @@
         <module>evpn</module>
         <module>cli</module>
         <module>peer-acceptor</module>
-        <module>config-loader-spi</module>
-        <module>config-loader-impl</module>
         <module>openconfig-state</module>
     </modules>
 
