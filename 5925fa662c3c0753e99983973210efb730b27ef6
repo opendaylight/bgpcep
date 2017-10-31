@@ -34,6 +34,24 @@
       "revId": "5925fa662c3c0753e99983973210efb730b27ef6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_838fc8cb",
+        "filename": "bgp/inet/src/main/java/org/opendaylight/protocol/bgp/inet/AbstractIPRIBSupport.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2017-10-31T19:36:22Z",
+      "side": 1,
+      "message": "https://tools.ietf.org/html/rfc7911#section-5\n\n\"   For a BGP speaker to be able to send multiple paths to its peer, that\n   BGP speaker MUST advertise the ADD-PATH Capability with the Send/\n   Receive field set to either 2 or 3, and MUST receive from its peer\n   the ADD-PATH Capability with the Send/Receive field set to either 1\n   or 3, for the corresponding \u003cAFI, SAFI\u003e.\"\n\nSince above is getting violated in this scenario, I would say when this happens notify with appropriate code should be sent and session reset",
+      "parentUuid": "9a245df4_d968a4bc",
+      "revId": "5925fa662c3c0753e99983973210efb730b27ef6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
