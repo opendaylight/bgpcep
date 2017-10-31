@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_a34f6cbc",
+        "filename": "bgp/concepts/src/main/yang/bgp-types.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2017-10-31T19:18:55Z",
+      "side": 1,
+      "message": "Kevin - please check that this is actually taking effect. In past I have seen that the mandatory verification does not always work ref. https://lists.opendaylight.org/pipermail/yangtools-users/2016-May/000084.html",
+      "revId": "80746dbcd2584b6a407e1d64062f98fb0c97a6a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
