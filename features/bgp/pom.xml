@@ -26,7 +26,7 @@
         <module>features-bgp</module>
         <module>odl-bgpcep-bgp</module>
         <module>odl-bgpcep-bgp-dependencies</module>
-        <module>odl-bgpcep-config-files</module>
+        <module>odl-bgpcep-bgp-config-example</module>
         <module>odl-bgpcep-bgp-openconfig</module>
         <module>odl-bgpcep-bgp-inet</module>
         <module>odl-bgpcep-bgp-parser</module>
