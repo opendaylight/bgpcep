@@ -11,7 +11,7 @@
     </parent>
     
     <groupId>org.opendaylight.bgpcep</groupId>
-    <artifactId>odl-bgpcep-config-files</artifactId>
+    <artifactId>odl-bgpcep-bgp-config-example</artifactId>
     <version>0.9.0-SNAPSHOT</version>
     <packaging>feature</packaging>
 
