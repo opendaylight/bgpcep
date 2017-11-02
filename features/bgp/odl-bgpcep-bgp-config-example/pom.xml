@@ -33,13 +33,13 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-controller-config</artifactId>
+            <artifactId>bgp-config-example</artifactId>
             <type>xml</type>
             <classifier>bgp-initial-config</classifier>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-controller-config</artifactId>
+            <artifactId>bgp-config-example</artifactId>
             <type>xml</type>
             <classifier>network-topology-initial-config</classifier>
         </dependency>

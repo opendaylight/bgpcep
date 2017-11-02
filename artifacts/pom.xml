@@ -181,33 +181,33 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-controller-config</artifactId>
+                <artifactId>bgp-config-example</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-controller-config</artifactId>
+                <artifactId>bgp-config-example</artifactId>
                 <version>${project.version}</version>
                 <type>xml</type>
                 <classifier>config</classifier>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-controller-config</artifactId>
+                <artifactId>bgp-config-example</artifactId>
                 <version>${project.version}</version>
                 <type>xml</type>
                 <classifier>openconfig-config</classifier>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-controller-config</artifactId>
+                <artifactId>bgp-config-example</artifactId>
                 <version>${project.version}</version>
                 <type>xml</type>
                 <classifier>bgp-initial-config</classifier>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-controller-config</artifactId>
+                <artifactId>bgp-config-example</artifactId>
                 <version>${project.version}</version>
                 <type>xml</type>
                 <classifier>network-topology-initial-config</classifier>
@@ -460,14 +460,14 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-controller-config</artifactId>
+                <artifactId>bgp-config-example</artifactId>
                 <version>${project.version}</version>
                 <type>xml</type>
                 <classifier>bmp-config</classifier>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-controller-config</artifactId>
+                <artifactId>bgp-config-example</artifactId>
                 <version>${project.version}</version>
                 <type>xml</type>
                 <classifier>bmp-config-example</classifier>
