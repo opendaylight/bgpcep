@@ -158,7 +158,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-controller-config</artifactId>
+            <artifactId>bgp-config-example</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -282,7 +282,7 @@
                 <configuration>
                     <attachToMain>false</attachToMain>
                     <resourceBundles>
-                        <resourceBundle>${project.groupId}:bgp-controller-config:${project.version}</resourceBundle>
+                        <resourceBundle>${project.groupId}:bgp-config-example:${project.version}</resourceBundle>
                     </resourceBundles>
                 </configuration>
                 <executions>

@@ -11,7 +11,7 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.2.0 http://karaf.apache.org/xmlns/features/v1.2.0">
     <feature name="odl-bgpcep-bgp-config-example" version="${project.version}">
-        <configfile finalname="etc/opendaylight/bgpcep/protocols-config.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/${project.version}/xml/bgp-initial-config</configfile>
-        <configfile finalname="etc/opendaylight/bgpcep/network-topology-config.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/${project.version}/xml/network-topology-initial-config</configfile>
+        <configfile finalname="etc/opendaylight/bgpcep/protocols-config.xml">mvn:org.opendaylight.bgpcep/bgp-config-example/${project.version}/xml/bgp-initial-config</configfile>
+        <configfile finalname="etc/opendaylight/bgpcep/network-topology-config.xml">mvn:org.opendaylight.bgpcep/bgp-config-example/${project.version}/xml/network-topology-initial-config</configfile>
     </feature>
 </features>

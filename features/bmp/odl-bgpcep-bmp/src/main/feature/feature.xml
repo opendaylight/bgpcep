@@ -11,8 +11,8 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.2.0 http://karaf.apache.org/xmlns/features/v1.2.0">
     <feature name="odl-bgpcep-bmp" version="${project.version}">
-        <configfile finalname="etc/opendaylight/karaf/31-bgp.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/${project.version}/xml/config</configfile>
-        <configfile finalname="etc/opendaylight/karaf/32-bmp.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/${project.version}/xml/bmp-config</configfile>
-        <configfile finalname="etc/opendaylight/karaf/42-bmp-example.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/${project.version}/xml/bmp-config-example</configfile>
+        <configfile finalname="etc/opendaylight/karaf/31-bgp.xml">mvn:org.opendaylight.bgpcep/bgp-config-example/${project.version}/xml/config</configfile>
+        <configfile finalname="etc/opendaylight/karaf/32-bmp.xml">mvn:org.opendaylight.bgpcep/bgp-config-example/${project.version}/xml/bmp-config</configfile>
+        <configfile finalname="etc/opendaylight/karaf/42-bmp-example.xml">mvn:org.opendaylight.bgpcep/bgp-config-example/${project.version}/xml/bmp-config-example</configfile>
     </feature>
 </features>
