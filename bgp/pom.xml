@@ -54,7 +54,7 @@
         <module>bmp-impl</module>
         <module>bmp-mock</module>
         <module>bmp-parser-impl</module>
-        <module>controller-config</module>
+        <module>config-example</module>
         <module>openconfig-api</module>
         <module>openconfig-spi</module>
         <module>path-selection-mode</module>
