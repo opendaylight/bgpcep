@@ -1,0 +1,650 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_e9ce5eb3",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSDscpHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-02T10:20:49Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 29,
+        "startChar": 4,
+        "endLine": 29,
+        "endChar": 10
+      },
+      "revId": "b9828cb348ef5a5b5c5103a80120347477b2dae4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_29c0767b",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSDscpHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-02T10:20:49Z",
+      "side": 1,
+      "message": "final",
+      "range": {
+        "startLine": 32,
+        "startChar": 30,
+        "endLine": 32,
+        "endChar": 65
+      },
+      "revId": "b9828cb348ef5a5b5c5103a80120347477b2dae4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_69ba6e0b",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSDscpHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-02T10:20:49Z",
+      "side": 1,
+      "message": "final",
+      "revId": "b9828cb348ef5a5b5c5103a80120347477b2dae4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c938baa2",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSDscpHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-02T10:20:49Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 44,
+        "startChar": 19,
+        "endLine": 44,
+        "endChar": 24
+      },
+      "revId": "b9828cb348ef5a5b5c5103a80120347477b2dae4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_095ad2f2",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSDscpHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-02T10:20:49Z",
+      "side": 1,
+      "message": "line length",
+      "revId": "b9828cb348ef5a5b5c5103a80120347477b2dae4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e945be17",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSIpv6FlowLabelHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-02T10:20:49Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 30,
+        "startChar": 4,
+        "endLine": 30,
+        "endChar": 10
+      },
+      "revId": "b9828cb348ef5a5b5c5103a80120347477b2dae4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_494cca42",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSIpv6FlowLabelHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-02T10:20:49Z",
+      "side": 1,
+      "message": "final",
+      "range": {
+        "startLine": 33,
+        "startChar": 30,
+        "endLine": 33,
+        "endChar": 65
+      },
+      "revId": "b9828cb348ef5a5b5c5103a80120347477b2dae4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_2947d61e",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSIpv6FlowLabelHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-02T10:20:49Z",
+      "side": 1,
+      "message": "final",
+      "revId": "b9828cb348ef5a5b5c5103a80120347477b2dae4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c92d5a48",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSIpv6FlowLabelHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-02T10:20:49Z",
+      "side": 1,
+      "message": "item?",
+      "range": {
+        "startLine": 46,
+        "startChar": 28,
+        "endLine": 46,
+        "endChar": 32
+      },
+      "revId": "b9828cb348ef5a5b5c5103a80120347477b2dae4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c95f1ae4",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSIpv6FlowLabelHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-02T10:20:49Z",
+      "side": 1,
+      "message": "line length",
+      "revId": "b9828cb348ef5a5b5c5103a80120347477b2dae4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_296eb696",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSTcpFlagsHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-02T10:20:49Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 32,
+        "startChar": 4,
+        "endLine": 32,
+        "endChar": 10
+      },
+      "revId": "b9828cb348ef5a5b5c5103a80120347477b2dae4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c906facd",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSTcpFlagsHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-02T10:20:49Z",
+      "side": 1,
+      "message": "final",
+      "range": {
+        "startLine": 35,
+        "startChar": 30,
+        "endLine": 35,
+        "endChar": 65
+      },
+      "revId": "b9828cb348ef5a5b5c5103a80120347477b2dae4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a90906df",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSTcpFlagsHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-02T10:20:49Z",
+      "side": 1,
+      "message": "final",
+      "revId": "b9828cb348ef5a5b5c5103a80120347477b2dae4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_09113205",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSTcpFlagsHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-02T10:20:49Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 47,
+        "startChar": 19,
+        "endLine": 47,
+        "endChar": 24
+      },
+      "revId": "b9828cb348ef5a5b5c5103a80120347477b2dae4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_49732a80",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSTcpFlagsHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-02T10:20:49Z",
+      "side": 1,
+      "message": "line length",
+      "revId": "b9828cb348ef5a5b5c5103a80120347477b2dae4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e92ade2a",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/handlers/AbstractFSFragmentHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-02T10:20:49Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 27,
+        "startChar": 4,
+        "endLine": 27,
+        "endChar": 13
+      },
+      "revId": "b9828cb348ef5a5b5c5103a80120347477b2dae4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_49216a4c",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/handlers/AbstractFSFragmentHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-02T10:20:49Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 28,
+        "startChar": 4,
+        "endLine": 28,
+        "endChar": 13
+      },
+      "revId": "b9828cb348ef5a5b5c5103a80120347477b2dae4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_291cf612",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/handlers/AbstractFSFragmentHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-02T10:20:49Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 29,
+        "startChar": 4,
+        "endLine": 29,
+        "endChar": 13
+      },
+      "revId": "b9828cb348ef5a5b5c5103a80120347477b2dae4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_891b621a",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/handlers/AbstractFSFragmentHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-02T10:20:49Z",
+      "side": 1,
+      "message": "remove",
+      "revId": "b9828cb348ef5a5b5c5103a80120347477b2dae4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_6916eef2",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/handlers/AbstractFSFragmentHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-02T10:20:49Z",
+      "side": 1,
+      "message": "final",
+      "range": {
+        "startLine": 36,
+        "startChar": 30,
+        "endLine": 36,
+        "endChar": 65
+      },
+      "revId": "b9828cb348ef5a5b5c5103a80120347477b2dae4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c9d43a22",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/handlers/AbstractFSFragmentHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-02T10:20:49Z",
+      "side": 1,
+      "message": "final",
+      "revId": "b9828cb348ef5a5b5c5103a80120347477b2dae4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_29e35606",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/handlers/AbstractFSFragmentHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-02T10:20:49Z",
+      "side": 1,
+      "message": "private",
+      "range": {
+        "startLine": 50,
+        "startChar": 4,
+        "endLine": 50,
+        "endChar": 13
+      },
+      "revId": "b9828cb348ef5a5b5c5103a80120347477b2dae4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e9e13eff",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/handlers/AbstractFSFragmentHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-02T10:20:49Z",
+      "side": 1,
+      "message": "private",
+      "range": {
+        "startLine": 58,
+        "startChar": 4,
+        "endLine": 58,
+        "endChar": 13
+      },
+      "revId": "b9828cb348ef5a5b5c5103a80120347477b2dae4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_89f242d0",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/handlers/AbstractNumericOperandParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-02T10:20:49Z",
+      "side": 1,
+      "message": "private",
+      "range": {
+        "startLine": 32,
+        "startChar": 4,
+        "endLine": 32,
+        "endChar": 13
+      },
+      "revId": "b9828cb348ef5a5b5c5103a80120347477b2dae4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c9bb9ae3",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/handlers/AbstractNumericOperandParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-02T10:20:49Z",
+      "side": 1,
+      "message": "private",
+      "revId": "b9828cb348ef5a5b5c5103a80120347477b2dae4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a9be26d2",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/handlers/AbstractNumericOperandParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-02T10:20:49Z",
+      "side": 1,
+      "message": "private",
+      "revId": "b9828cb348ef5a5b5c5103a80120347477b2dae4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e9b81ee7",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/handlers/AbstractNumericOperandParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-02T10:20:49Z",
+      "side": 1,
+      "message": "line length",
+      "revId": "b9828cb348ef5a5b5c5103a80120347477b2dae4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_29ca366e",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/handlers/AbstractNumericOperandParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-02T10:20:49Z",
+      "side": 1,
+      "message": "line length",
+      "revId": "b9828cb348ef5a5b5c5103a80120347477b2dae4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_49cfaa7f",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/handlers/AbstractNumericOperandParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-02T10:20:49Z",
+      "side": 1,
+      "message": "line length",
+      "revId": "b9828cb348ef5a5b5c5103a80120347477b2dae4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_69c42e5f",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/handlers/AbstractOperandParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-02T10:20:49Z",
+      "side": 1,
+      "message": "the",
+      "revId": "b9828cb348ef5a5b5c5103a80120347477b2dae4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a9a586b6",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/handlers/BitmaskOperandParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-02T10:20:49Z",
+      "side": 1,
+      "message": "line length",
+      "revId": "b9828cb348ef5a5b5c5103a80120347477b2dae4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_699b8e72",
+        "filename": "bgp/flowspec/src/test/java/org/opendaylight/protocol/bgp/flowspec/handlers/NumericOperandParserTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-02T10:20:49Z",
+      "side": 1,
+      "message": "remove here and the same for there rest where is not required.",
+      "range": {
+        "startLine": 32,
+        "startChar": 39,
+        "endLine": 32,
+        "endChar": 55
+      },
+      "revId": "b9828cb348ef5a5b5c5103a80120347477b2dae4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
