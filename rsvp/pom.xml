@@ -33,6 +33,7 @@
     <name>${project.artifactId}</name>
 
     <modules>
+        <module>rsvp-artifacts</module>
         <module>api</module>
         <module>spi</module>
         <module>impl</module>

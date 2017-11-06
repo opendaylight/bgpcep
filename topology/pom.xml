@@ -32,6 +32,7 @@
     <name>${project.artifactId}</name>
 
     <modules>
+        <module>topology-artifacts</module>
         <module>api</module>
         <module>segment-routing</module>
         <module>tunnel-api</module>
