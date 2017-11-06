@@ -49,6 +49,7 @@
 
         <!-- Subsystems -->
         <module>bgp</module>
+        <module>bmp</module>
         <module>pcep</module>
         <module>programming</module>
         <module>rsvp</module>
