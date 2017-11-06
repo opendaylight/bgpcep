@@ -32,6 +32,7 @@
     <name>${project.artifactId}</name>
 
     <modules>
+        <module>bgp-artifacts</module>
         <module>concepts</module>
         <module>inet</module>
         <module>linkstate</module>

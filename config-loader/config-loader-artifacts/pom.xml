@@ -20,7 +20,7 @@
     </parent>
 
     <groupId>org.opendaylight.bgpcep</groupId>
-    <artifactId>bmp-artifacts</artifactId>
+    <artifactId>config-loader-artifacts</artifactId>
     <version>0.9.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
@@ -28,66 +28,32 @@
         <dependencies>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>dependency-version-management</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-bmp-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-bmp-spi</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-bmp-impl</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-bmp-mock</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-bmp-parser-impl</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-bmp-config-example</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>features-bmp</artifactId>
+                <artifactId>odl-bgpcep-config-loader</artifactId>
                 <classifier>features</classifier>
                 <type>xml</type>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>odl-bgpcep-bmp</artifactId>
-                <classifier>features</classifier>
-                <type>xml</type>
+                <artifactId>features-config-loader</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>odl-bgpcep-bmp-api</artifactId>
-                <classifier>features</classifier>
-                <type>xml</type>
+                <artifactId>config-loader-spi</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>odl-bgpcep-bmp-config-example</artifactId>
-                <classifier>features</classifier>
-                <type>xml</type>
+                <artifactId>config-loader-impl</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>config-loader-impl</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

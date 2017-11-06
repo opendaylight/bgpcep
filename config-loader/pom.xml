@@ -31,6 +31,7 @@
     <name>${project.artifactId}</name>
 
     <modules>
+        <module>config-loader-artifacts</module>
         <module>config-loader-spi</module>
         <module>config-loader-impl</module>
     </modules>

@@ -32,6 +32,7 @@
     <name>${project.artifactId}</name>
 
     <modules>
+        <module>pcep-artifacts</module>
         <module>api</module>
         <module>impl</module>
         <module>spi</module>
