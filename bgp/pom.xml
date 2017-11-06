@@ -49,11 +49,6 @@
         <module>testtool</module>
         <module>topology-provider</module>
         <module>util</module>
-        <module>bmp-api</module>
-        <module>bmp-spi</module>
-        <module>bmp-impl</module>
-        <module>bmp-mock</module>
-        <module>bmp-parser-impl</module>
         <module>controller-config</module>
         <module>openconfig-api</module>
         <module>openconfig-spi</module>
