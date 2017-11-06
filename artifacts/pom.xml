@@ -32,6 +32,13 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>bmp-artifacts</artifactId>
+                <version>${project.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>concepts</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -423,36 +430,7 @@
                 <version>${project.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-bmp-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-bmp-spi</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-bmp-impl</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-bmp-mock</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-bmp-parser-impl</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-bmp-config-example</artifactId>
-                <version>${project.version}</version>
-            </dependency>
+
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>bgp-openconfig-api</artifactId>
@@ -462,13 +440,6 @@
                 <groupId>${project.groupId}</groupId>
                 <artifactId>bgp-openconfig-spi</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-bmp-config-example</artifactId>
-                <version>${project.version}</version>
-                <type>xml</type>
-                <classifier>odl-bmp-monitors-config</classifier>
             </dependency>
             <!-- BGP Features artifacts -->
             <dependency>
@@ -641,36 +612,6 @@
                 <type>test-jar</type>
                 <scope>test</scope>
             </dependency>
-            <!-- BMP Features artifacts -->
-            <dependency>
-                <groupId>org.opendaylight.bgpcep</groupId>
-                <artifactId>features-bmp</artifactId>
-                <classifier>features</classifier>
-                <type>xml</type>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.bgpcep</groupId>
-                <artifactId>odl-bgpcep-bmp</artifactId>
-                <classifier>features</classifier>
-                <type>xml</type>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.bgpcep</groupId>
-                <artifactId>odl-bgpcep-bmp-api</artifactId>
-                <classifier>features</classifier>
-                <type>xml</type>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.bgpcep</groupId>
-                <artifactId>odl-bgpcep-bmp-config-example</artifactId>
-                <classifier>features</classifier>
-                <type>xml</type>
-                <version>${project.version}</version>
-            </dependency>
-
             <!-- Extras Features artifacts -->
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
