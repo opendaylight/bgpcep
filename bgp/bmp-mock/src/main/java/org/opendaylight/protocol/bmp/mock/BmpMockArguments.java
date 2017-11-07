@@ -14,12 +14,17 @@ import ch.qos.logback.classic.Level;
 import com.google.common.net.InetAddresses;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.Collections;
+import java.util.List;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
+import net.sourceforge.argparse4j.inf.Argument;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
+import net.sourceforge.argparse4j.inf.ArgumentType;
 import net.sourceforge.argparse4j.inf.Namespace;
 import org.opendaylight.protocol.util.ArgumentsInput;
+import org.opendaylight.protocol.util.InetSocketAddressUtil;
 
 public final class BmpMockArguments implements ArgumentsInput {
 
@@ -50,7 +55,7 @@ public final class BmpMockArguments implements ArgumentsInput {
         this.parseArgs = parseArgs;
     }
 
-    public static BmpMockArguments parseArguments(final String[] args) {
+    static BmpMockArguments parseArguments(final String[] args) {
         try {
             final Namespace namespace = ARGUMENT_PARSER.parseArgs(args);
             return new BmpMockArguments(namespace);
@@ -59,27 +64,36 @@ public final class BmpMockArguments implements ArgumentsInput {
         }
     }
 
-    public int getRoutersCount() {
+    private interface ArgumentTypeTool<T> extends ArgumentType<T> {
+        default T convert(final ArgumentParser var1, final Argument var2, final String input)
+                throws ArgumentParserException {
+            return convert(input);
+        }
+
+        T convert(String input) throws ArgumentParserException;
+    }
+
+    int getRoutersCount() {
         return this.parseArgs.getInt(ROUTERS_COUNT_DST);
     }
 
-    public int getPeersCount() {
+    int getPeersCount() {
         return this.parseArgs.getInt(PEERS_COUNT_DST);
     }
 
-    public int getPrePolicyRoutesCount() {
+    int getPrePolicyRoutesCount() {
         return this.parseArgs.getInt(PRE_POLICY_ROUTES_COUNT_DST);
     }
 
-    public int getPostPolicyRoutesCount() {
+    int getPostPolicyRoutesCount() {
         return this.parseArgs.getInt(POST_POLICY_ROUTES_COUNT_DST);
     }
 
-    public InetSocketAddress getLocalAddress() {
+    InetSocketAddress getLocalAddress() {
         return this.parseArgs.get(LOCAL_ADDRESS_DST);
     }
 
-    public InetSocketAddress getRemoteAddress() {
+    List<InetSocketAddress> getRemoteAddress() {
         return this.parseArgs.get(REMOTE_ADDRESS_DST);
     }
 
@@ -88,20 +102,35 @@ public final class BmpMockArguments implements ArgumentsInput {
         return this.parseArgs.get(LOG_LEVEL_DST);
     }
 
-    public boolean isOnPassiveMode() {
+    boolean isOnPassiveMode() {
         return this.parseArgs.get(PASSIVE_MODE_DST);
     }
 
     private static ArgumentParser initializeArgumentParser() {
         final ArgumentParser parser = ArgumentParsers.newArgumentParser(PROGRAM_NAME);
-        parser.addArgument(toArgName(ROUTERS_COUNT_DST)).type(Integer.class).setDefault(1);
-        parser.addArgument(toArgName(PEERS_COUNT_DST)).type(Integer.class).setDefault(0);
-        parser.addArgument(toArgName(PRE_POLICY_ROUTES_COUNT_DST)).type(Integer.class).setDefault(0);
-        parser.addArgument(toArgName(POST_POLICY_ROUTES_COUNT_DST)).type(Integer.class).setDefault(0);
-        parser.addArgument(toArgName(PASSIVE_MODE_DST)).action(Arguments.storeTrue());
-        parser.addArgument(toArgName(LOCAL_ADDRESS_DST)).type((parser13, arg, value) -> getInetSocketAddress(value, DEFAULT_LOCAL_PORT)).setDefault(LOCAL_ADDRESS);
-        parser.addArgument(toArgName(REMOTE_ADDRESS_DST)).type((parser12, arg, value) -> getInetSocketAddress(value, DEFAULT_REMOTE_PORT)).setDefault(REMOTE_ADDRESS);
-        parser.addArgument(toArgName(LOG_LEVEL_DST)).type((parser1, arg, value) -> Level.toLevel(value)).setDefault(Level.INFO);
+        parser.addArgument(toArgName(ROUTERS_COUNT_DST))
+                .type(Integer.class)
+                .setDefault(1);
+        parser.addArgument(toArgName(PEERS_COUNT_DST))
+                .type(Integer.class)
+                .setDefault(0);
+        parser.addArgument(toArgName(PRE_POLICY_ROUTES_COUNT_DST))
+                .type(Integer.class)
+                .setDefault(0);
+        parser.addArgument(toArgName(POST_POLICY_ROUTES_COUNT_DST))
+                .type(Integer.class).setDefault(0);
+        parser.addArgument(toArgName(PASSIVE_MODE_DST))
+                .action(Arguments.storeTrue());
+        parser.addArgument(toArgName(LOCAL_ADDRESS_DST))
+                .type((parser13, arg, value) -> getInetSocketAddress(value, DEFAULT_LOCAL_PORT))
+                .setDefault(LOCAL_ADDRESS);
+        parser.addArgument("-ra", toArgName(REMOTE_ADDRESS_DST))
+                .type((ArgumentTypeTool<List<InetSocketAddress>>) input ->
+                        InetSocketAddressUtil.parseAddresses(input, DEFAULT_REMOTE_PORT))
+                .setDefault(Collections.singletonList(REMOTE_ADDRESS));
+        parser.addArgument(toArgName(LOG_LEVEL_DST))
+                .type((parser1, arg, value) -> Level.toLevel(value))
+                .setDefault(Level.INFO);
         return parser;
     }
 

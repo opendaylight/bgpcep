@@ -65,7 +65,8 @@ public final class BmpMockSession extends SimpleChannelInboundHandler<Notificati
     @Override
     public void channelActive(final ChannelHandlerContext ctx) {
         this.channel = ctx.channel();
-        this.channel.closeFuture().addListener((ChannelFutureListener) future -> LOG.info("BMP session {} final successfully established.", BmpMockSession.this.channel));
+        this.channel.closeFuture().addListener((ChannelFutureListener) future ->
+                LOG.info("BMP session {} final successfully established.", BmpMockSession.this.channel));
         LOG.info("BMP session {} successfully established.", this.channel);
         final InetSocketAddress localAddress = (InetSocketAddress) this.channel.localAddress();
         this.remoteAddress = (InetSocketAddress) this.channel.remoteAddress();
