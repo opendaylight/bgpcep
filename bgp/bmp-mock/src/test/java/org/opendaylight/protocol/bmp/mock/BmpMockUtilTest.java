@@ -13,8 +13,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import com.google.common.net.InetAddresses;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -62,7 +60,8 @@ public class BmpMockUtilTest {
 
     @Test
     public void testCreateRouteMonitoringPrePolicy() {
-        final RouteMonitoringMessage routeMonitoring = BmpMockUtil.createRouteMonitoring(PEER_IP, AdjRibInType.PrePolicy, PREFIX);
+        final RouteMonitoringMessage routeMonitoring = BmpMockUtil
+                .createRouteMonitoring(PEER_IP, AdjRibInType.PrePolicy, PREFIX);
         final PeerHeader peerHeader = routeMonitoring.getPeerHeader();
         assertEquals(PEER_IP, peerHeader.getAddress().getIpv4Address());
         assertEquals(65431L, peerHeader.getAs().getValue().longValue());
@@ -71,23 +70,14 @@ public class BmpMockUtilTest {
         assertEquals(AdjRibInType.PrePolicy, peerHeader.getAdjRibInType());
         final Update update = routeMonitoring.getUpdate();
         assertEquals(PREFIX, update.getNlri().getNlri().get(0));
-        assertEquals("1.2.3.4", ((Ipv4NextHopCase)update.getAttributes().getCNextHop()).getIpv4NextHop().getGlobal().getValue());
+        assertEquals("1.2.3.4", ((Ipv4NextHopCase) update.getAttributes()
+                .getCNextHop()).getIpv4NextHop().getGlobal().getValue());
     }
 
     @Test
     public void testCreateRouteMonitoringPostPolicy() {
-        final RouteMonitoringMessage routeMonitoring = BmpMockUtil.createRouteMonitoring(PEER_IP, AdjRibInType.PostPolicy, PREFIX);
+        final RouteMonitoringMessage routeMonitoring = BmpMockUtil
+                .createRouteMonitoring(PEER_IP, AdjRibInType.PostPolicy, PREFIX);
         assertEquals(AdjRibInType.PostPolicy, routeMonitoring.getPeerHeader().getAdjRibInType());
-    }
-
-    @Test(expected=UnsupportedOperationException.class)
-    public void testPrivateConstructor() throws Throwable {
-        final Constructor<BmpMockUtil> c = BmpMockUtil.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
     }
 }
