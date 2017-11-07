@@ -16,7 +16,6 @@ import static org.mockito.Mockito.verify;
 import static org.opendaylight.protocol.util.CheckUtil.checkEquals;
 import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
-import com.google.common.base.Optional;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
@@ -37,6 +36,7 @@ import org.opendaylight.protocol.bmp.impl.BmpDispatcherImpl;
 import org.opendaylight.protocol.bmp.parser.BmpActivator;
 import org.opendaylight.protocol.bmp.spi.registry.BmpMessageRegistry;
 import org.opendaylight.protocol.bmp.spi.registry.SimpleBmpExtensionProviderContext;
+import org.opendaylight.protocol.concepts.KeyMapping;
 
 public class BmpDispatcherImplTest {
 
@@ -73,7 +73,7 @@ public class BmpDispatcherImplTest {
         final BmpMessageRegistry messageRegistry = ctx.getBmpMessageRegistry();
 
         this.dispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(),
-            messageRegistry, (channel, sessionListenerFactory) -> BmpDispatcherImplTest.this.mockedSession);
+                messageRegistry, (channel, sessionListenerFactory) -> BmpDispatcherImplTest.this.mockedSession);
     }
 
     @After
@@ -86,18 +86,18 @@ public class BmpDispatcherImplTest {
     @Test
     public void testCreateServer() throws Exception {
         final ChannelFuture futureServer = this.dispatcher.createServer(SERVER,
-            this.mockedListenerFactory, Optional.absent());
+                this.mockedListenerFactory, KeyMapping.getKeyMapping());
         waitFutureSuccess(futureServer);
         final Channel serverChannel = futureServer.channel();
-        checkEquals(()-> assertTrue(serverChannel.isActive()));
+        checkEquals(() -> assertTrue(serverChannel.isActive()));
 
 
         final ChannelFuture futureClient = this.dispatcher.createClient(CLIENT_REMOTE,
-            this.mockedListenerFactory, Optional.absent());
+                this.mockedListenerFactory, KeyMapping.getKeyMapping());
         waitFutureSuccess(futureClient);
 
         final Channel clientChannel = futureClient.channel();
-        checkEquals(()-> assertTrue(clientChannel.isActive()));
+        checkEquals(() -> assertTrue(clientChannel.isActive()));
         verify(this.mockedSession, timeout(500).times(2)).handlerAdded(any(ChannelHandlerContext.class));
         verify(this.mockedSession, timeout(500).times(2)).channelRegistered(any(ChannelHandlerContext.class));
         verify(this.mockedSession, timeout(500).times(2)).channelActive(any(ChannelHandlerContext.class));

@@ -11,7 +11,6 @@ package org.opendaylight.protocol.bmp.impl.app;
 import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bmp.impl.app.KeyConstructorUtil.constructKeys;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -22,13 +21,13 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.List;
 import javax.annotation.Nonnull;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
-import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
+import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.protocol.bmp.api.BmpDispatcher;
 import org.opendaylight.protocol.bmp.impl.config.BmpDeployerDependencies;
 import org.opendaylight.protocol.bmp.impl.spi.BmpMonitoringStation;
@@ -52,7 +51,7 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation, Clu
 
     private static final QName MONITOR_ID_QNAME = QName.create(Monitor.QNAME, "monitor-id").intern();
     private static final ServiceGroupIdentifier SERVICE_GROUP_IDENTIFIER =
-        ServiceGroupIdentifier.create("bmp-monitors-service-group");
+            ServiceGroupIdentifier.create("bmp-monitors-service-group");
 
     private final DOMDataBroker domDataBroker;
     private final InetSocketAddress address;
@@ -65,8 +64,8 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation, Clu
     private ClusterSingletonServiceRegistration singletonServiceRegistration;
 
     public BmpMonitoringStationImpl(final BmpDeployerDependencies bmpDeployerDependencies,
-        final BmpDispatcher dispatcher, final MonitorId monitorId, final InetSocketAddress address,
-        final List<MonitoredRouter> mrs) {
+            final BmpDispatcher dispatcher, final MonitorId monitorId, final InetSocketAddress address,
+            final List<MonitoredRouter> mrs) {
         this.domDataBroker = requireNonNull(bmpDeployerDependencies.getDomDataBroker());
         this.dispatcher = requireNonNull(dispatcher);
         this.monitorId = monitorId;
@@ -74,25 +73,25 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation, Clu
         this.address = requireNonNull(address);
 
         this.yangMonitorId = YangInstanceIdentifier.builder()
-            .node(BmpMonitor.QNAME).node(Monitor.QNAME)
-            .nodeWithKey(Monitor.QNAME, MONITOR_ID_QNAME, monitorId.getValue()).build();
+                .node(BmpMonitor.QNAME).node(Monitor.QNAME)
+                .nodeWithKey(Monitor.QNAME, MONITOR_ID_QNAME, monitorId.getValue()).build();
 
         this.sessionManager = new RouterSessionManager(this.yangMonitorId, this.domDataBroker,
-            bmpDeployerDependencies.getExtensions(), bmpDeployerDependencies.getTree());
+                bmpDeployerDependencies.getExtensions(), bmpDeployerDependencies.getTree());
 
         LOG.info("BMP Monitor Singleton Service {} registered, Monitor Id {}",
-            getIdentifier().getValue(), this.monitorId.getValue());
+                getIdentifier().getValue(), this.monitorId.getValue());
         this.singletonServiceRegistration = bmpDeployerDependencies.getClusterSingletonProvider()
-            .registerClusterSingletonService(this);
+                .registerClusterSingletonService(this);
     }
 
     @Override
     public synchronized void instantiateServiceInstance() {
         LOG.info("BMP Monitor Singleton Service {} instantiated, Monitor Id {}",
-            getIdentifier().getValue(), this.monitorId.getValue());
+                getIdentifier().getValue(), this.monitorId.getValue());
 
         final ChannelFuture channelFuture = this.dispatcher.createServer(this.address, this.sessionManager,
-            constructKeys(this.monitoredRouters));
+                constructKeys(this.monitoredRouters));
         try {
             this.channel = channelFuture.sync().channel();
             createEmptyMonitor();
@@ -109,7 +108,7 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation, Clu
     @Override
     public synchronized ListenableFuture<Void> closeServiceInstance() {
         LOG.info("BMP Monitor Singleton Service {} instance closed, Monitor Id {}",
-            getIdentifier().getValue(), this.monitorId.getValue());
+                getIdentifier().getValue(), this.monitorId.getValue());
         this.channel.close().addListener((ChannelFutureListener) future -> {
             Preconditions.checkArgument(future.isSuccess(), "Channel failed to close: %s", future.cause());
             BmpMonitoringStationImpl.this.sessionManager.close();
@@ -139,7 +138,7 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation, Clu
                     final Rfc2385Key rfc2385KeyPassword = mr.getPassword();
                     ret = KeyMapping.getKeyMapping(addr, rfc2385KeyPassword.getValue());
                     dispatcher.createClient(Ipv4Util.toInetSocketAddress(mr.getAddress(), mr.getPort()),
-                        this.sessionManager, Optional.fromNullable(ret));
+                            this.sessionManager, ret);
                 }
             }
         }
@@ -148,12 +147,12 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation, Clu
     private synchronized void createEmptyMonitor() {
         final DOMDataWriteTransaction wTx = this.domDataBroker.newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.OPERATIONAL,
-            YangInstanceIdentifier.builder().node(BmpMonitor.QNAME).node(Monitor.QNAME)
-                .nodeWithKey(Monitor.QNAME, MONITOR_ID_QNAME, this.monitorId.getValue()).build(),
-            ImmutableNodes.mapEntryBuilder(Monitor.QNAME, MONITOR_ID_QNAME, this.monitorId.getValue())
-                .addChild(ImmutableNodes.leafNode(MONITOR_ID_QNAME, this.monitorId.getValue()))
-                .addChild(ImmutableNodes.mapNodeBuilder(Router.QNAME).build())
-                .build());
+                YangInstanceIdentifier.builder().node(BmpMonitor.QNAME).node(Monitor.QNAME)
+                        .nodeWithKey(Monitor.QNAME, MONITOR_ID_QNAME, this.monitorId.getValue()).build(),
+                ImmutableNodes.mapEntryBuilder(Monitor.QNAME, MONITOR_ID_QNAME, this.monitorId.getValue())
+                        .addChild(ImmutableNodes.leafNode(MONITOR_ID_QNAME, this.monitorId.getValue()))
+                        .addChild(ImmutableNodes.mapNodeBuilder(Router.QNAME).build())
+                        .build());
         try {
             wTx.submit().checkedGet();
         } catch (final TransactionCommitFailedException e) {
