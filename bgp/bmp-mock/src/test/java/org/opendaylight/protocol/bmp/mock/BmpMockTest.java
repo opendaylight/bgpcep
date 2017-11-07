@@ -44,10 +44,11 @@ public class BmpMockTest {
     public void setUp() {
         final BmpExtensionProviderContext ctx = new SimpleBmpExtensionProviderContext();
         this.bmpActivator = new BmpActivator(
-            ServiceLoaderBGPExtensionProviderContext.getSingletonInstance());
+                ServiceLoaderBGPExtensionProviderContext.getSingletonInstance());
         this.bmpActivator.start(ctx);
-        this.bmpDispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(), ctx.getBmpMessageRegistry(),
-            new DefaultBmpSessionFactory());
+        this.bmpDispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(),
+                ctx.getBmpMessageRegistry(),
+                new DefaultBmpSessionFactory());
     }
 
     @After
@@ -61,10 +62,10 @@ public class BmpMockTest {
         final InetSocketAddress serverAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
         final BmpSessionListenerFactory bmpSessionListenerFactory = () -> BmpMockTest.this.sessionListener;
         final ChannelFuture futureServer = this.bmpDispatcher.createServer(serverAddr,
-            bmpSessionListenerFactory, Optional.absent());
+                bmpSessionListenerFactory, Optional.absent());
         waitFutureComplete(futureServer);
-        Channel serverChannel;
-        int sessionUpWait;
+        final Channel serverChannel;
+        final int sessionUpWait;
         if (futureServer.isSuccess()) {
             serverChannel = futureServer.channel();
             sessionUpWait = 10;
@@ -74,11 +75,19 @@ public class BmpMockTest {
             sessionUpWait = 40;
         }
 
-        BmpMock.main(new String[]{"--remote_address", InetSocketAddressUtil.toHostAndPort(serverAddr).toString(), "--peers_count", "3", "--pre_policy_routes", "3"});
+        BmpMock.main(new String[]{
+            "--remote_address",
+            InetSocketAddressUtil.toHostAndPort(serverAddr).toString(),
+            "--peers_count", "3",
+            "--pre_policy_routes",
+            "3"});
 
-        Mockito.verify(this.sessionListener, Mockito.timeout(TimeUnit.SECONDS.toMillis(sessionUpWait))).onSessionUp(Mockito.any(BmpSession.class));
+        Mockito.verify(this.sessionListener, Mockito.timeout(TimeUnit.SECONDS.toMillis(sessionUpWait)))
+                .onSessionUp(Mockito.any(BmpSession.class));
         //1 * Initiate message + 3 * PeerUp Notification + 9 * Route Monitoring message
-        Mockito.verify(this.sessionListener, Mockito.timeout(TimeUnit.SECONDS.toMillis(10)).times(13)).onMessage(Mockito.any(Notification.class));
+        Mockito.verify(this.sessionListener, Mockito.timeout(TimeUnit.SECONDS.toMillis(10))
+                .times(13))
+                .onMessage(Mockito.any(Notification.class));
 
         if (serverChannel != null) {
             serverChannel.close().sync();
@@ -94,10 +103,10 @@ public class BmpMockTest {
         BmpMock.main(new String[]{"--local_address", InetSocketAddressUtil.toHostAndPort(serverAddr).toString(),
             "--peers_count", "3", "--pre_policy_routes", "3", "--passive"});
         final ChannelFuture futureServer = this.bmpDispatcher.createClient(serverAddr,
-            bmpSessionListenerFactory, Optional.absent());
+                bmpSessionListenerFactory, Optional.absent());
         waitFutureComplete(futureServer);
-        Channel serverChannel;
-        int sessionUpWait;
+        final Channel serverChannel;
+        final int sessionUpWait;
         if (futureServer.isSuccess()) {
             serverChannel = futureServer.channel();
             sessionUpWait = 10;
@@ -107,9 +116,12 @@ public class BmpMockTest {
             sessionUpWait = 40;
         }
 
-        Mockito.verify(this.sessionListener, Mockito.timeout(TimeUnit.SECONDS.toMillis(sessionUpWait))).onSessionUp(Mockito.any(BmpSession.class));
+        Mockito.verify(this.sessionListener, Mockito.timeout(TimeUnit.SECONDS.toMillis(sessionUpWait)))
+                .onSessionUp(Mockito.any(BmpSession.class));
         //1 * Initiate message + 3 * PeerUp Notification + 9 * Route Monitoring message
-        Mockito.verify(this.sessionListener, Mockito.timeout(TimeUnit.SECONDS.toMillis(10)).times(13)).onMessage(Mockito.any(Notification.class));
+        Mockito.verify(this.sessionListener, Mockito.timeout(TimeUnit.SECONDS.toMillis(10))
+                .times(13))
+                .onMessage(Mockito.any(Notification.class));
 
         if (serverChannel != null) {
             serverChannel.close().sync();
