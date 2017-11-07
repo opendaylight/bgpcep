@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_c918a320",
+        "filename": "bmp/bmp-spi/src/main/java/org/opendaylight/protocol/bmp/api/BmpDispatcher.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-07T12:31:38Z",
+      "side": 1,
+      "message": "fix",
+      "range": {
+        "startLine": 13,
+        "startChar": 7,
+        "endLine": 13,
+        "endChar": 41
+      },
+      "revId": "d284b58dceb1a9bf00631a317ac522f6edc5e51c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
