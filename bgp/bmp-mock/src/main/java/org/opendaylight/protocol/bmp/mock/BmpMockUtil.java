@@ -61,7 +61,7 @@ final class BmpMockUtil {
         throw new UnsupportedOperationException();
     }
 
-    public static InitiationMessage createInitiation() {
+    static InitiationMessage createInitiation() {
         final InitiationMessageBuilder msgBuilder = new InitiationMessageBuilder();
         msgBuilder.setTlvs(
             new TlvsBuilder()
@@ -71,7 +71,7 @@ final class BmpMockUtil {
         return msgBuilder.build();
     }
 
-    public static PeerUpNotification createPeerUp(final Ipv4Address peerIp, final InetAddress localAddress) {
+    static PeerUpNotification createPeerUp(final Ipv4Address peerIp, final InetAddress localAddress) {
         final PeerUpNotificationBuilder msgBuilder = new PeerUpNotificationBuilder();
         msgBuilder.setLocalAddress(new IpAddress(new Ipv4Address(localAddress.getHostAddress())));
         msgBuilder.setLocalPort(PEER_PORT);
@@ -102,7 +102,8 @@ final class BmpMockUtil {
             .build();
     }
 
-    public static RouteMonitoringMessage createRouteMonitoring(final Ipv4Address bgpId, final AdjRibInType ribType, final Ipv4Prefix prefix) {
+    static RouteMonitoringMessage createRouteMonitoring(final Ipv4Address bgpId, final AdjRibInType ribType,
+            final Ipv4Prefix prefix) {
         final RouteMonitoringMessageBuilder routeMonitMsgBuilder = new RouteMonitoringMessageBuilder()
             .setPeerHeader(createPeerHeader(bgpId, ribType))
             .setUpdate(createUpdate(prefix));
@@ -112,7 +113,8 @@ final class BmpMockUtil {
     private static Update createUpdate(final Ipv4Prefix prefix) {
         final UpdateBuilder updateBuilder = new UpdateBuilder()
             .setAttributes(new AttributesBuilder().setOrigin(ORIGIN).setAsPath(AS_PATH).setCNextHop(
-                new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(NEXT_HOP).build()).build()).build())
+                new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(NEXT_HOP).build())
+                        .build()).build())
             .setNlri(new NlriBuilder().setNlri(Collections.singletonList(prefix)).build());
         return updateBuilder.build();
     }
