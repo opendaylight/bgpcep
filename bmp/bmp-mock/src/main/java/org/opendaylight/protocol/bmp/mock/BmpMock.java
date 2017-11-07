@@ -53,18 +53,20 @@ public final class BmpMock {
         final BmpExtensionProviderActivator bmpActivator = new BmpActivator(bgpCtx);
         bmpActivator.start(ctx);
 
-        return new BmpMockDispatcher(ctx.getBmpMessageRegistry(),
-            (channel, sessionListenerFactory) -> new BmpMockSession(arguments.getPeersCount(), arguments.getPrePolicyRoutesCount(), arguments.getPostPolicyRoutesCount()));
+        return new BmpMockDispatcher(ctx.getBmpMessageRegistry(), (channel, sessionListenerFactory) ->
+                new BmpMockSession(arguments.getPeersCount(),
+                        arguments.getPrePolicyRoutesCount(), arguments.getPostPolicyRoutesCount()));
     }
 
     private static void deployClients(final BmpMockDispatcher dispatcher, final BmpMockArguments arguments) {
         final InetSocketAddress localAddress = arguments.getLocalAddress();
-        final InetSocketAddress remoteAddress = arguments.getRemoteAddress();
         InetAddress currentLocal = localAddress.getAddress();
         final int port = localAddress.getPort();
-        for (int i = 0; i < arguments.getRoutersCount(); i++) {
-            dispatcher.createClient(new InetSocketAddress(currentLocal, port), remoteAddress);
-            currentLocal = InetAddresses.increment(currentLocal);
+        for (final InetSocketAddress remoteAddress : arguments.getRemoteAddress()) {
+            for (int i = 0; i < arguments.getRoutersCount(); i++) {
+                dispatcher.createClient(new InetSocketAddress(currentLocal, port), remoteAddress);
+                currentLocal = InetAddresses.increment(currentLocal);
+            }
         }
     }
 
