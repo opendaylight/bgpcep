@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bmp.spi.registry;
 
 import static org.junit.Assert.assertNotNull;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -24,8 +25,10 @@ public class SimpleBmpExtensionProviderContextTest {
     private static final SimpleBmpMessageRegistry MESSAGE_REGISTRY = new SimpleBmpMessageRegistry();
     private static final SimpleBmpExtensionProviderContext CONTEXT = new SimpleBmpExtensionProviderContext();
     private static final int TEST_TYPE = 1;
-    @Mock BmpTlvParser tlvParser;
-    @Mock BmpTlvSerializer tlvSerializer;
+    @Mock
+    private BmpTlvParser tlvParser;
+    @Mock
+    private BmpTlvSerializer tlvSerializer;
 
     @Before
     public void setUp() {

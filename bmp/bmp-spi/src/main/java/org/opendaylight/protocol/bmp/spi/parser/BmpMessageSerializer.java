@@ -13,6 +13,6 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 
 public interface BmpMessageSerializer {
 
-    void serializeMessage(final Notification message, final ByteBuf buffer);
+    void serializeMessage(Notification message, ByteBuf buffer);
 
 }

@@ -42,11 +42,15 @@ public class AbstractBmpPerPeerMessageParserTest {
     private AbstractBmpPerPeerMessageParser<?> parser;
     private final byte[] ipv6MsgWithDistinguishergBytes = {
         (byte) 0x01, (byte) 0xc0,
-        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x05, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x03, //Distinguisher
-        (byte) 0x20, (byte) 0x01, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, //IPV6
-        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01, //2001::01
-        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0xA8,  //AS 168
-        (byte) 0x01, (byte) 0x01, (byte) 0x01, (byte) 0x02,  //Peer BGP ID 1.1.1.2
+        //Distinguisher
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x05, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x03,
+         //IPV6 //2001::01
+        (byte) 0x20, (byte) 0x01, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01,
+        //AS 168
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0xA8,
+        //Peer BGP ID 1.1.1.2
+        (byte) 0x01, (byte) 0x01, (byte) 0x01, (byte) 0x02,
         0, 0, 0, 0, 0, 0, 0, 0
     };
 
@@ -72,14 +76,19 @@ public class AbstractBmpPerPeerMessageParserTest {
         final byte[] msgBytes = {
             (byte) 0x00, (byte) 0x40, (byte) 0x00, (byte) 0x00,
             (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, //IPV4
-            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0xC0, (byte) 0xA8, (byte) 0x01, (byte) 0x01, //192.168.1.1
-            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0xA8,  //AS 168
-            (byte) 0x01, (byte) 0x01, (byte) 0x01, (byte) 0x01,  //Peer BGP ID 1.1.1.1
-            (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, // Timestamp
+            //IPV4 192.168.1.1
+            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0xC0, (byte) 0xA8, (byte) 0x01, (byte) 0x01,
+            //AS 168
+            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0xA8,
+            //Peer BGP ID 1.1.1.1
+            (byte) 0x01, (byte) 0x01, (byte) 0x01, (byte) 0x01,
+            // Timestamp
+            (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04,
         };
 
-        final PeerHeader perHeader = AbstractBmpPerPeerMessageParser.parsePerPeerHeader(Unpooled.wrappedBuffer(msgBytes));
+        final PeerHeader perHeader = AbstractBmpPerPeerMessageParser
+                .parsePerPeerHeader(Unpooled.wrappedBuffer(msgBytes));
 
         final PeerHeaderBuilder phBuilder = new PeerHeaderBuilder();
         phBuilder.setType(PeerType.forValue(0));
@@ -101,12 +110,12 @@ public class AbstractBmpPerPeerMessageParserTest {
     public void testPerPeerHeaderIpv6() {
 
         final PeerHeader perHeader = AbstractBmpPerPeerMessageParser
-            .parsePerPeerHeader(Unpooled.wrappedBuffer(this.ipv6MsgWithDistinguishergBytes));
+                .parsePerPeerHeader(Unpooled.wrappedBuffer(this.ipv6MsgWithDistinguishergBytes));
 
         final PeerHeaderBuilder phBuilder = new PeerHeaderBuilder();
         phBuilder.setType(PeerType.L3vpn);
         phBuilder.setPeerDistinguisher(new PeerDistinguisher(
-            new RouteDistinguisher(new RdTwoOctetAs("0:" + RD))));
+                new RouteDistinguisher(new RdTwoOctetAs("0:" + RD))));
         phBuilder.setAdjRibInType(AdjRibInType.forValue(1));
         phBuilder.setIpv4(false);
         phBuilder.setAddress(new IpAddress(new Ipv6Address("2001::1")));
@@ -133,7 +142,7 @@ public class AbstractBmpPerPeerMessageParserTest {
     @Test
     public void testSerializeMessageBody() {
         final PeerHeader perHeader = AbstractBmpPerPeerMessageParser
-            .parsePerPeerHeader(Unpooled.wrappedBuffer(this.ipv6MsgWithDistinguishergBytes));
+                .parsePerPeerHeader(Unpooled.wrappedBuffer(this.ipv6MsgWithDistinguishergBytes));
 
         final PeerUpNotification peerNotif = new PeerUpNotificationBuilder().setPeerHeader(perHeader).build();
 

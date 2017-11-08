@@ -12,6 +12,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -30,15 +31,15 @@ public class AbstractBmpMessageWithTlvParserTest {
 
     private final SimpleBmpTlvRegistry registry = new SimpleBmpTlvRegistry();
     private final SimpleHandler parser = new SimpleHandler(this.registry);
-    private static final byte[] DATA = { 0, 1, 0, 4, 't', 'e', 's', 't' };
+    private static final byte[] DATA = {0, 1, 0, 4, 't', 'e', 's', 't'};
     private static final int TYPE = 1;
 
-    public static final BmpTlvSerializer DESCRIPTION_TLV_SERIALIZER = (tlv, output) -> {
+    private static final BmpTlvSerializer DESCRIPTION_TLV_SERIALIZER = (tlv, output) -> {
         Preconditions.checkArgument(tlv instanceof DescriptionTlv, "DescriptionTlv is mandatory.");
         TlvUtil.formatTlvAscii(TYPE, ((DescriptionTlv) tlv).getDescription(), output);
     };
 
-    public static final BmpTlvParser DESCRIPTION_TLV_PARSER = buffer -> {
+    private static final BmpTlvParser DESCRIPTION_TLV_PARSER = buffer -> {
         if (buffer == null) {
             return null;
         }
@@ -71,31 +72,35 @@ public class AbstractBmpMessageWithTlvParserTest {
         assertArrayEquals(DATA, ByteArray.getAllBytes(output));
     }
 
-    @Test(expected=BmpDeserializationException.class)
+    @Test(expected = BmpDeserializationException.class)
     public void testParseCorruptedTlv() throws BmpDeserializationException {
-        final byte[] wrongData = { 0, 1, 0, 10, 't', 'e', 's', 't' };
+        final byte[] wrongData = {0, 1, 0, 10, 't', 'e', 's', 't'};
         this.parser.parseTlvs(new TlvsBuilder(), Unpooled.wrappedBuffer(wrongData));
     }
 
     private static final class SimpleHandler extends AbstractBmpMessageWithTlvParser<TlvsBuilder> {
-        public SimpleHandler(final BmpTlvRegistry tlvRegistry) {
+        SimpleHandler(final BmpTlvRegistry tlvRegistry) {
             super(tlvRegistry);
         }
+
         @Override
         public void serializeMessageBody(final Notification message, final ByteBuf buffer) {
         }
+
         @Override
         public Notification parseMessageBody(final ByteBuf bytes) throws BmpDeserializationException {
             return null;
         }
+
         @Override
         public int getBmpMessageType() {
             return 0;
         }
+
         @Override
         protected void addTlv(final TlvsBuilder builder, final Tlv tlv) {
-            if(tlv != null && tlv instanceof DescriptionTlv) {
-                builder.setDescriptionTlv((DescriptionTlv)tlv);
+            if (tlv != null && tlv instanceof DescriptionTlv) {
+                builder.setDescriptionTlv((DescriptionTlv) tlv);
             }
         }
     }

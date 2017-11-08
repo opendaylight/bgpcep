@@ -16,5 +16,6 @@ public interface BmpMessageRegistrator {
 
     AutoCloseable registerBmpMessageParser(int messageType, BmpMessageParser parser);
 
-    AutoCloseable registerBmpMessageSerializer(Class<? extends Notification> messageClass, BmpMessageSerializer serializer);
+    AutoCloseable registerBmpMessageSerializer(Class<? extends Notification> messageClass,
+            BmpMessageSerializer serializer);
 }

@@ -32,7 +32,8 @@ public class SimpleBmpExtensionProviderContext implements BmpExtensionConsumerCo
     }
 
     @Override
-    public AutoCloseable registerBmpMessageSerializer(final Class<? extends Notification> messageClass, final BmpMessageSerializer serializer) {
+    public AutoCloseable registerBmpMessageSerializer(final Class<? extends Notification> messageClass,
+            final BmpMessageSerializer serializer) {
         return this.bmpMessageRegistry.registerBmpMessageSerializer(messageClass, serializer);
     }
 
@@ -47,7 +48,8 @@ public class SimpleBmpExtensionProviderContext implements BmpExtensionConsumerCo
     }
 
     @Override
-    public AutoCloseable registerBmpStatisticsTlvSerializer(final Class<? extends Tlv> tlvClass, final BmpTlvSerializer serializer) {
+    public AutoCloseable registerBmpStatisticsTlvSerializer(final Class<? extends Tlv> tlvClass,
+            final BmpTlvSerializer serializer) {
         return this.bmpStatisticsTlvRegistry.registerBmpTlvSerializer(tlvClass, serializer);
     }
 
@@ -57,7 +59,8 @@ public class SimpleBmpExtensionProviderContext implements BmpExtensionConsumerCo
     }
 
     @Override
-    public AutoCloseable registerBmpPeerUpTlvSerializer(final Class<? extends Tlv> tlvClass, final BmpTlvSerializer serializer) {
+    public AutoCloseable registerBmpPeerUpTlvSerializer(final Class<? extends Tlv> tlvClass,
+            final BmpTlvSerializer serializer) {
         return this.bmpPeerUpTlvRegistry.registerBmpTlvSerializer(tlvClass, serializer);
     }
 
@@ -67,7 +70,8 @@ public class SimpleBmpExtensionProviderContext implements BmpExtensionConsumerCo
     }
 
     @Override
-    public AutoCloseable registerBmpInitiationTlvSerializer(final Class<? extends Tlv> tlvClass, final BmpTlvSerializer serializer) {
+    public AutoCloseable registerBmpInitiationTlvSerializer(final Class<? extends Tlv> tlvClass,
+            final BmpTlvSerializer serializer) {
         return this.bmpInitiationTlvRegistry.registerBmpTlvSerializer(tlvClass, serializer);
     }
 
@@ -77,7 +81,8 @@ public class SimpleBmpExtensionProviderContext implements BmpExtensionConsumerCo
     }
 
     @Override
-    public AutoCloseable registerBmpTerminationTlvSerializer(final Class<? extends Tlv> tlvClass, final BmpTlvSerializer serializer) {
+    public AutoCloseable registerBmpTerminationTlvSerializer(final Class<? extends Tlv> tlvClass,
+            final BmpTlvSerializer serializer) {
         return this.bmpTerminationTlvRegistry.registerBmpTlvSerializer(tlvClass, serializer);
     }
 
@@ -87,7 +92,8 @@ public class SimpleBmpExtensionProviderContext implements BmpExtensionConsumerCo
     }
 
     @Override
-    public AutoCloseable registerBmpRouteMirroringTlvSerializer(final Class<? extends Tlv> tlvClass, final BmpTlvSerializer serializer) {
+    public AutoCloseable registerBmpRouteMirroringTlvSerializer(final Class<? extends Tlv> tlvClass,
+            final BmpTlvSerializer serializer) {
         return this.bmpRouteMirroringTlvRegistry.registerBmpTlvSerializer(tlvClass, serializer);
     }
 

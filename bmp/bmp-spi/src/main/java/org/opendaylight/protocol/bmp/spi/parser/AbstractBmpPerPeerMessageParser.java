@@ -30,7 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.mess
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
-public abstract class AbstractBmpPerPeerMessageParser<T  extends Builder<?>> extends AbstractBmpMessageWithTlvParser<T> {
+public abstract class AbstractBmpPerPeerMessageParser<T extends Builder<?>> extends AbstractBmpMessageWithTlvParser<T> {
 
     private static final int L_FLAG_POS = 1;
     private static final int V_FLAG_POS = 0;
@@ -51,14 +51,17 @@ public abstract class AbstractBmpPerPeerMessageParser<T  extends Builder<?>> ext
 
     @Override
     public void serializeMessageBody(final Notification message, final ByteBuf buffer) {
-        if (message instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.PeerHeader) {
-            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.PeerHeader messageWithPerPeerHeader =
-                (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.PeerHeader) message;
+        if (message
+                instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512
+                .PeerHeader) {
+            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.PeerHeader
+                    messageWithPerPeerHeader = (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp
+                    .message.rev150512.PeerHeader) message;
             serializePerPeerHeader(messageWithPerPeerHeader.getPeerHeader(), buffer);
         }
     }
 
-    protected static final PeerHeader parsePerPeerHeader(final ByteBuf bytes) {
+    protected static PeerHeader parsePerPeerHeader(final ByteBuf bytes) {
         Preconditions.checkArgument(bytes.readableBytes() >= PER_PEER_HEADER_SIZE);
         final PeerHeaderBuilder phBuilder = new PeerHeaderBuilder();
         final PeerType peerType = PeerType.forValue(bytes.readByte());
@@ -67,16 +70,18 @@ public abstract class AbstractBmpPerPeerMessageParser<T  extends Builder<?>> ext
         phBuilder.setAdjRibInType(AdjRibInType.forValue(flags.get(L_FLAG_POS) ? 1 : 0));
         phBuilder.setIpv4(!flags.get(V_FLAG_POS));
         switch (peerType) {
-        case L3vpn:
-            phBuilder.setPeerDistinguisher(new PeerDistinguisher(RouteDistinguisherUtil.parseRouteDistinguisher(bytes)));
-            break;
-        case Local:
-            phBuilder.setPeerDistinguisher(new PeerDistinguisher(ByteArray.readBytes(bytes, PEER_DISTINGUISHER_SIZE)));
-            break;
-        case Global:
-        default:
-            bytes.skipBytes(PEER_DISTINGUISHER_SIZE);
-            break;
+            case L3vpn:
+                phBuilder.setPeerDistinguisher(
+                        new PeerDistinguisher(RouteDistinguisherUtil.parseRouteDistinguisher(bytes)));
+                break;
+            case Local:
+                phBuilder.setPeerDistinguisher(
+                        new PeerDistinguisher(ByteArray.readBytes(bytes, PEER_DISTINGUISHER_SIZE)));
+                break;
+            case Global:
+            default:
+                bytes.skipBytes(PEER_DISTINGUISHER_SIZE);
+                break;
         }
         if (phBuilder.isIpv4()) {
             bytes.skipBytes(Ipv6Util.IPV6_LENGTH - Ipv4Util.IP4_LENGTH);
@@ -96,21 +101,21 @@ public abstract class AbstractBmpPerPeerMessageParser<T  extends Builder<?>> ext
         final PeerType peerType = peerHeader.getType();
         output.writeByte(peerType.getIntValue());
         final BitArray flags = new BitArray(FLAGS_SIZE);
-        flags.set(L_FLAG_POS, peerHeader.getAdjRibInType().getIntValue() == 0 ? false : true);
+        flags.set(L_FLAG_POS, peerHeader.getAdjRibInType().getIntValue() != 0);
         flags.set(V_FLAG_POS, !peerHeader.isIpv4());
         flags.toByteBuf(output);
         final PeerDistinguisher peerDistinguisher = peerHeader.getPeerDistinguisher();
         switch (peerType) {
-        case L3vpn:
-            RouteDistinguisherUtil.serializeRouteDistinquisher(peerDistinguisher.getRouteDistinguisher(), output);
-            break;
-        case Local:
-            output.writeBytes(peerDistinguisher.getBinary());
-            break;
-        case Global:
-        default:
-            output.writeZero(PEER_DISTINGUISHER_SIZE);
-            break;
+            case L3vpn:
+                RouteDistinguisherUtil.serializeRouteDistinquisher(peerDistinguisher.getRouteDistinguisher(), output);
+                break;
+            case Local:
+                output.writeBytes(peerDistinguisher.getBinary());
+                break;
+            case Global:
+            default:
+                output.writeZero(PEER_DISTINGUISHER_SIZE);
+                break;
         }
         if (peerHeader.isIpv4()) {
             output.writeZero(Ipv6Util.IPV6_LENGTH - Ipv4Util.IP4_LENGTH);

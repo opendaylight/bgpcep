@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bmp.spi.registry;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Test;
@@ -46,35 +47,37 @@ public class SimpleBmpMessageRegistryTest {
         this.registry.registerBmpMessageSerializer(BmpTestMessage.class, bmpTestParser);
         final BmpTestMessage message = new BmpTestMessage(257);
 
-        assertEquals(message.toString(), this.registry.parseMessage(Unpooled.copiedBuffer(BMP_TEST_MESSAGE)).toString());
+        assertEquals(message.toString(), this.registry
+                .parseMessage(Unpooled.copiedBuffer(BMP_TEST_MESSAGE)).toString());
 
         final ByteBuf aggregator = Unpooled.buffer(BMP_TEST_MESSAGE.length);
         this.registry.serializeMessage(message, aggregator);
         assertArrayEquals(BMP_TEST_MESSAGE, ByteArray.getAllBytes(aggregator));
     }
 
-    @Test(expected=BmpDeserializationException.class)
+    @Test(expected = BmpDeserializationException.class)
     public void testNotBmpTypeException() throws BmpDeserializationException {
         this.exceptionMessage[0] = 0x01;
         this.registry.parseMessage(Unpooled.copiedBuffer(this.exceptionMessage));
     }
 
-    @Test(expected=BmpDeserializationException.class)
+    @Test(expected = BmpDeserializationException.class)
     public void testLengthException() throws BmpDeserializationException {
         this.exceptionMessage[4] = 0x01;
         this.registry.parseMessage(Unpooled.copiedBuffer(this.exceptionMessage));
     }
 
-    @Test(expected=BmpDeserializationException.class)
+    @Test(expected = BmpDeserializationException.class)
     public void testInvalidMessageContextException() throws BmpDeserializationException {
-        this.registry.parseMessage(Unpooled.copiedBuffer(this.exceptionMessage, 0, this.exceptionMessage.length-2));
+        this.registry.parseMessage(Unpooled.copiedBuffer(this.exceptionMessage, 0,
+                this.exceptionMessage.length - 2));
     }
 
     private static final class BmpTestParser extends AbstractBmpMessageParser {
 
         @Override
         public void serializeMessageBody(final Notification message, final ByteBuf buffer) {
-            ByteBufWriteUtil.writeUnsignedInt(((BmpTestMessage)message).getValue(), buffer);
+            ByteBufWriteUtil.writeUnsignedInt(((BmpTestMessage) message).getValue(), buffer);
         }
 
         @Override
@@ -92,11 +95,11 @@ public class SimpleBmpMessageRegistryTest {
 
         private final long value;
 
-        public BmpTestMessage(final long value) {
+        BmpTestMessage(final long value) {
             this.value = value;
         }
 
-        public long getValue() {
+        long getValue() {
             return this.value;
         }
 

@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bmp.spi.parser;
 
 import static org.opendaylight.protocol.bmp.spi.parser.BmpMessageConstants.BMP_VERSION;
 import static org.opendaylight.protocol.bmp.spi.parser.BmpMessageConstants.COMMON_HEADER_LENGTH;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;

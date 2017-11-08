@@ -27,7 +27,8 @@ public class SimpleBmpMessageRegistry implements BmpMessageRegistry {
 
     private static final Logger LOG = LoggerFactory.getLogger(SimpleBmpMessageRegistry.class);
 
-    private final HandlerRegistry<DataContainer, BmpMessageParser, BmpMessageSerializer> handlers = new HandlerRegistry<>();
+    private final HandlerRegistry<DataContainer, BmpMessageParser, BmpMessageSerializer> handlers =
+            new HandlerRegistry<>();
 
     @Override
     public AutoCloseable registerBmpMessageParser(final int messageType, final BmpMessageParser parser) {
@@ -36,7 +37,8 @@ public class SimpleBmpMessageRegistry implements BmpMessageRegistry {
     }
 
     @Override
-    public AutoCloseable registerBmpMessageSerializer(final Class<? extends Notification> msgClass, final BmpMessageSerializer serializer) {
+    public AutoCloseable registerBmpMessageSerializer(final Class<? extends Notification> msgClass,
+            final BmpMessageSerializer serializer) {
         return this.handlers.registerSerializer(msgClass, serializer);
     }
 
@@ -63,12 +65,15 @@ public class SimpleBmpMessageRegistry implements BmpMessageRegistry {
     }
 
     private static int parseMessageHeader(final ByteBuf buffer) throws BmpDeserializationException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes cannot be null or empty.");
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
+                "Array of bytes cannot be null or empty.");
         Preconditions.checkArgument(buffer.readableBytes() >= COMMON_HEADER_LENGTH,
-            "Too few bytes in passed array. Passed: %s. Expected: >= %s.", buffer.readableBytes(), COMMON_HEADER_LENGTH);
+            "Too few bytes in passed array. Passed: %s. Expected: >= %s.",
+                buffer.readableBytes(), COMMON_HEADER_LENGTH);
         final short messageVersion = buffer.readUnsignedByte();
         if (messageVersion != BMP_VERSION) {
-            throw new BmpDeserializationException("Unsuppoted BMP version. Passed: " + messageVersion + "; Expected: " + BMP_VERSION + ".");
+            throw new BmpDeserializationException("Unsuppoted BMP version. Passed: "
+                    + messageVersion + "; Expected: " + BMP_VERSION + ".");
         }
         final long messageLength = buffer.readUnsignedInt();
         final short msgType = buffer.readUnsignedByte();
