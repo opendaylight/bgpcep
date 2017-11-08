@@ -11,6 +11,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Before;
@@ -28,20 +29,19 @@ import org.opendaylight.yangtools.yang.binding.DataContainer;
 public class SimpleBmpTlvRegistryTest {
 
     private final SimpleBmpTlvRegistry bmpTlvRegistry = new SimpleBmpTlvRegistry();
-    private final byte[] bytes = new byte[] {
-        1, 2, 3
-    };
+    private final byte[] bytes = new byte[]{1, 2, 3};
     private final ByteBuf input = Unpooled.wrappedBuffer(this.bytes);
-
-    @Mock private BmpTlvParser descriptionTlvParser;
-    private static final int descriptionTlvType = 1;
-    private static final int otherTlvType = 2;
-    @Mock private BmpTlvSerializer descriptionTlvSerializer;
+    private static final int DESCRIPTION_TLV_TYPE = 1;
+    private static final int OTHER_TLV_TYPE = 2;
+    @Mock
+    private BmpTlvParser descriptionTlvParser;
+    @Mock
+    private BmpTlvSerializer descriptionTlvSerializer;
 
     @Before
     public void setUp() throws BmpDeserializationException {
         MockitoAnnotations.initMocks(this);
-        this.bmpTlvRegistry.registerBmpTlvParser(descriptionTlvType, this.descriptionTlvParser);
+        this.bmpTlvRegistry.registerBmpTlvParser(DESCRIPTION_TLV_TYPE, this.descriptionTlvParser);
         this.bmpTlvRegistry.registerBmpTlvSerializer(MockDescriptionTlv.class, this.descriptionTlvSerializer);
         Mockito.doReturn(new MockDescriptionTlv()).when(this.descriptionTlvParser).parseTlv(this.input);
         final ArgumentCaptor<Tlv> tlvArg = ArgumentCaptor.forClass(Tlv.class);
@@ -51,17 +51,18 @@ public class SimpleBmpTlvRegistryTest {
 
     @Test
     public void testParserRegistration() {
-        assertNotNull(this.bmpTlvRegistry.registerBmpTlvParser(descriptionTlvType, this.descriptionTlvParser));
+        assertNotNull(this.bmpTlvRegistry.registerBmpTlvParser(DESCRIPTION_TLV_TYPE, this.descriptionTlvParser));
     }
 
     @Test
     public void testSerializerRegistration() {
-        assertNotNull(this.bmpTlvRegistry.registerBmpTlvSerializer(MockDescriptionTlv.class, this.descriptionTlvSerializer));
+        assertNotNull(this.bmpTlvRegistry.registerBmpTlvSerializer(MockDescriptionTlv.class,
+                this.descriptionTlvSerializer));
     }
 
     @Test
     public void testUnrecognizedType() throws BmpDeserializationException {
-        assertNull(this.bmpTlvRegistry.parseTlv(otherTlvType, this.input));
+        assertNull(this.bmpTlvRegistry.parseTlv(OTHER_TLV_TYPE, this.input));
         final ByteBuf output = Unpooled.EMPTY_BUFFER;
         this.bmpTlvRegistry.serializeTlv(new MockTlv(), output);
         assertEquals(0, output.readableBytes());
@@ -69,7 +70,7 @@ public class SimpleBmpTlvRegistryTest {
 
     @Test
     public void testParseTlv() throws BmpDeserializationException {
-        final Tlv output = this.bmpTlvRegistry.parseTlv(descriptionTlvType, this.input);
+        final Tlv output = this.bmpTlvRegistry.parseTlv(DESCRIPTION_TLV_TYPE, this.input);
         assertNotNull(output);
         assertTrue(output instanceof MockDescriptionTlv);
 

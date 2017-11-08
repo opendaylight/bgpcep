@@ -15,7 +15,7 @@ public interface BmpSessionListener extends EventListener {
 
     void onSessionUp(BmpSession session);
 
-    void onSessionDown(Exception e);
+    void onSessionDown(Exception exception);
 
     void onMessage(Notification message);
 }

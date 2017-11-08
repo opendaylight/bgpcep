@@ -13,6 +13,6 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 
 public interface BmpMessageParser {
 
-    Notification parseMessage(final ByteBuf bytes) throws BmpDeserializationException;
+    Notification parseMessage(ByteBuf bytes) throws BmpDeserializationException;
 
 }

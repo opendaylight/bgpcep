@@ -18,7 +18,7 @@ import org.opendaylight.yangtools.concepts.Builder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract  class AbstractBmpMessageWithTlvParser<T extends Builder<?>> extends AbstractBmpMessageParser {
+public abstract class AbstractBmpMessageWithTlvParser<T extends Builder<?>> extends AbstractBmpMessageParser {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractBmpMessageWithTlvParser.class);
 
@@ -37,14 +37,14 @@ public abstract  class AbstractBmpMessageWithTlvParser<T extends Builder<?>> ext
             final int type = bytes.readUnsignedShort();
             final int length = bytes.readUnsignedShort();
             if (length > bytes.readableBytes()) {
-                throw new BmpDeserializationException("Wrong length specified. Passed: " + length + "; Expected: <= " + bytes.readableBytes()
-                    + ".");
+                throw new BmpDeserializationException("Wrong length specified. Passed: " + length
+                        + "; Expected: <= " + bytes.readableBytes() + ".");
             }
             final ByteBuf tlvBytes = bytes.readSlice(length);
             LOG.trace("Parsing BMP TLV : {}", ByteBufUtil.hexDump(tlvBytes));
 
             final Tlv tlv = this.tlvRegistry.parseTlv(type, tlvBytes);
-            if(tlv != null) {
+            if (tlv != null) {
                 LOG.trace("Parsed BMP TLV {}.", tlv);
                 addTlv(builder, tlv);
             }

@@ -55,7 +55,8 @@ public class SimpleBmpTlvRegistry implements BmpTlvRegistry {
     }
 
     @Override
-    public AutoCloseable registerBmpTlvSerializer(final Class<? extends Tlv> tlvClass, final BmpTlvSerializer serializer) {
+    public AutoCloseable registerBmpTlvSerializer(final Class<? extends Tlv> tlvClass,
+            final BmpTlvSerializer serializer) {
         return this.handlers.registerSerializer(tlvClass, serializer);
     }
 

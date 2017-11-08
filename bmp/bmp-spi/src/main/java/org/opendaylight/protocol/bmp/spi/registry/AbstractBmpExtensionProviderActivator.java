@@ -17,9 +17,6 @@ import javax.annotation.concurrent.GuardedBy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Created by cgasparini on 15.5.2015.
- */
 public abstract class AbstractBmpExtensionProviderActivator implements AutoCloseable, BmpExtensionProviderActivator {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractBmpExtensionProviderActivator.class);
 
@@ -27,7 +24,7 @@ public abstract class AbstractBmpExtensionProviderActivator implements AutoClose
     private List<AutoCloseable> registrations;
 
     @GuardedBy("this")
-    protected abstract List<AutoCloseable> startImpl(final BmpExtensionProviderContext context);
+    protected abstract List<AutoCloseable> startImpl(BmpExtensionProviderContext context);
 
     @Override
     public final void close() {
@@ -41,17 +38,16 @@ public abstract class AbstractBmpExtensionProviderActivator implements AutoClose
     }
 
     @Override
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public final synchronized void stop() {
         Preconditions.checkState(this.registrations != null);
-
-        for (final AutoCloseable r : this.registrations) {
+        this.registrations.iterator().forEachRemaining(reg -> {
             try {
-                r.close();
+                reg.close();
             } catch (final Exception e) {
                 LOG.warn("Failed to close registration", e);
             }
-        }
-
+        });
         this.registrations = null;
     }
 }
