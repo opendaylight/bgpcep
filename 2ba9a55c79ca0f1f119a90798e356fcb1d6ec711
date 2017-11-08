@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_1decb18e",
+        "filename": "bgp/openconfig-state/src/main/java/org/opendaylight/protocol/bgp/state/StateProviderImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-08T11:29:45Z",
+      "side": 1,
+      "message": ".get()",
+      "revId": "2ba9a55c79ca0f1f119a90798e356fcb1d6ec711",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
