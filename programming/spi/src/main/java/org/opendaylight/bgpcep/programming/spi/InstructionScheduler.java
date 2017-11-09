@@ -26,7 +26,7 @@ public interface InstructionScheduler extends Identifiable<ServiceGroupIdentifie
     ListenableFuture<Instruction> scheduleInstruction(SubmitInstructionInput input) throws SchedulerException;
 
     /**
-     * Returns InstructionID
+     * Returns InstructionID.
      *
      * @return Instruction ID
      */

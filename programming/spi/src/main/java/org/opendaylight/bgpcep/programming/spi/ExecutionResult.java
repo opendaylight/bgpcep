@@ -16,9 +16,11 @@ public final class ExecutionResult<T extends Details> {
     private final T details;
 
     public ExecutionResult(final InstructionStatus status, final T details) {
-        Preconditions.checkArgument(status == InstructionStatus.Cancelled || status == InstructionStatus.Failed
+        Preconditions.checkArgument(status == InstructionStatus.Cancelled
+                || status == InstructionStatus.Failed
                 || status == InstructionStatus.Successful, "Illegal instruction status " + status);
-        Preconditions.checkArgument(status != InstructionStatus.Failed || details != null, "Failed status requires details");
+        Preconditions.checkArgument(status != InstructionStatus.Failed || details != null,
+                "Failed status requires details");
 
         this.status = status;
         this.details = details;

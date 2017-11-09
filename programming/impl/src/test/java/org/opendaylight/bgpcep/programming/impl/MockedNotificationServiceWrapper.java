@@ -43,12 +43,14 @@ final class MockedNotificationServiceWrapper {
     }
 
     void assertNotificationsCount(final int count) throws Exception {
-        checkEquals(()-> assertEquals(count, this.publishedNotifications.size()));
+        checkEquals(() -> assertEquals(count, this.publishedNotifications.size()));
     }
 
-    void assertInstructionStatusChangedNotification(final int idx, final InstructionId id, final InstructionStatus status) {
+    void assertInstructionStatusChangedNotification(final int idx, final InstructionId id,
+            final InstructionStatus status) {
         assertTrue(InstructionStatusChanged.class.isAssignableFrom(this.publishedNotifications.get(idx).getClass()));
-        final InstructionStatusChanged firstNotification = (InstructionStatusChanged) this.publishedNotifications.get(idx);
+        final InstructionStatusChanged firstNotification =
+                (InstructionStatusChanged) this.publishedNotifications.get(idx);
         assertInstructionStatusChangedNotification(id, status, firstNotification);
     }
 

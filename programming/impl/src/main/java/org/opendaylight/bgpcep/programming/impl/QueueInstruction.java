@@ -10,9 +10,6 @@ package org.opendaylight.bgpcep.programming.impl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.InstructionStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.instruction.status.changed.Details;
 
-/**
- *
- */
 interface QueueInstruction {
     void instructionUpdated(InstructionStatus status, Details details);
 
