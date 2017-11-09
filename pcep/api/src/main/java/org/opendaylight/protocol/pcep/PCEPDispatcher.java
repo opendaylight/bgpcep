@@ -36,24 +36,6 @@ public interface PCEPDispatcher {
      * @param peerProposal information used in our Open message
      * @return instance of PCEPServer
      */
-    @Deprecated
-    default ChannelFuture createServer(final InetSocketAddress address, final Optional<KeyMapping> keys,
-        final PCEPSessionListenerFactory listenerFactory, final PCEPPeerProposal peerProposal) {
-        if(keys.isPresent()) {
-            return createServer(address, keys.get(), listenerFactory, peerProposal);
-        }
-        return createServer(address, KeyMapping.getKeyMapping(), listenerFactory, peerProposal);
-    }
-
-    /**
-     * Creates server. Each server needs three factories to pass their instances to client sessions.
-     *
-     * @param address to be bound with the server
-     * @param keys RFC2385 key mapping
-     * @param listenerFactory to create listeners for clients
-     * @param peerProposal information used in our Open message
-     * @return instance of PCEPServer
-     */
     ChannelFuture createServer(InetSocketAddress address, KeyMapping keys, PCEPSessionListenerFactory listenerFactory,
         PCEPPeerProposal peerProposal);
 
