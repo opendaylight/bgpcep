@@ -68,7 +68,7 @@ public class ProgrammingServiceImplTest extends AbstractProgrammingTest {
         this.testedProgrammingService = new ProgrammingServiceImpl(getDataBroker(),
             this.mockedNotificationServiceWrapper.getMockedNotificationService(),
             this.mockedExecutorWrapper.getMockedExecutor(), this.rpcRegistry, this.cssp, this.timer,
-            INSTRUCTIONS_QUEUE_KEY, null);
+            INSTRUCTIONS_QUEUE_KEY);
         this.singletonService.instantiateServiceInstance();
     }
 
@@ -150,7 +150,8 @@ public class ProgrammingServiceImplTest extends AbstractProgrammingTest {
 
         this.testedProgrammingService.cancelInstruction(getCancelInstruction("mockedSubmit1"));
 
-        this.mockedNotificationServiceWrapper.assertNotificationsCount(1 /*First Scheduled*/+ 3 /*First and all dependencies cancelled*/);
+        this.mockedNotificationServiceWrapper
+                .assertNotificationsCount(1 /*First Scheduled*/+ 3 /*First and all dependencies cancelled*/);
         this.mockedNotificationServiceWrapper.assertInstructionStatusChangedNotification(0, mockedSubmit1.getId(),
             InstructionStatus.Scheduled);
         this.mockedNotificationServiceWrapper.assertInstructionStatusChangedNotification(1, mockedSubmit1.getId(),
@@ -298,7 +299,8 @@ public class ProgrammingServiceImplTest extends AbstractProgrammingTest {
         final SubmitInstructionInput mockedSubmit1 = getMockedSubmitInstructionInput("mockedSubmit1");
         final ListenableFuture<Instruction> future = this.testedProgrammingService.scheduleInstruction(mockedSubmit1);
 
-        final SubmitInstructionInput mockedSubmit2 = getMockedSubmitInstructionInput("mockedSubmit2", "mockedSubmit1");
+        final SubmitInstructionInput mockedSubmit2 =
+                getMockedSubmitInstructionInput("mockedSubmit2", "mockedSubmit1");
         final ListenableFuture<Instruction> future2 = this.testedProgrammingService.scheduleInstruction(mockedSubmit2);
 
         this.mockedNotificationServiceWrapper.assertNotificationsCount(1);
