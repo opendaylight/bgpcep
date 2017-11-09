@@ -9,7 +9,6 @@ package org.opendaylight.bgpcep.programming.spi;
 
 import java.util.Collection;
 import java.util.Collections;
-
 import org.opendaylight.yangtools.yang.common.RpcError;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 

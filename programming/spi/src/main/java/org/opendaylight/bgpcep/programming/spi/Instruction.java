@@ -10,9 +10,6 @@ package org.opendaylight.bgpcep.programming.spi;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.InstructionStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.instruction.status.changed.Details;
 
-/**
- *
- */
 public interface Instruction {
     /**
      * Instruction executors are required to call this method prior to starting executing on the instruction.
@@ -29,8 +26,8 @@ public interface Instruction {
      * cancellation occurred asynchronously.
      *
      * @param details Details which execution is held up
-     * @return Indication whether the instruction execution should proceed. If this method returns false, all subsequent
-     *         calls to this method as well as {@link #checkedExecutionStart()} will return false.
+     * @return Indication whether the instruction execution should proceed. If this method returns false,
+     *     all subsequent calls to this method as well as {@link #checkedExecutionStart()} will return false.
      */
     boolean executionHeldUp(Details details);
 
@@ -38,7 +35,7 @@ public interface Instruction {
      * Instruction executors are required to call this method when execution has finished to provide the execution
      * result to the end.
      *
-     * @param status Execution result
+     * @param status  Execution result
      * @param details Execution result details
      */
     void executionCompleted(InstructionStatus status, Details details);
