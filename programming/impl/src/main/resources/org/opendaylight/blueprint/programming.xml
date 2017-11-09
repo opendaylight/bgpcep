@@ -19,8 +19,7 @@
     <reference id="clusterSingletonServiceProvider"
                interface="org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider"/>
 
-    <bean id="IntructionDeployerImpl" class="org.opendaylight.bgpcep.programming.impl.InstructionDeployerImpl"
-          destroy-method="close">
+    <bean id="IntructionFactory" class="org.opendaylight.bgpcep.programming.impl.InstructionSchedulerFactoryImpl">
         <argument ref="dataBroker"/>
         <argument ref="rpcRegistry"/>
         <argument ref="notificationService"/>
@@ -29,5 +28,6 @@
         <argument ref="blueprintBundleContext"/>
     </bean>
 
-    <service ref="IntructionDeployerImpl" interface="org.opendaylight.bgpcep.programming.impl.IntructionDeployer"/>
+    <service ref="IntructionFactory"
+             interface="org.opendaylight.bgpcep.programming.spi.InstructionSchedulerFactory"/>
 </blueprint>
