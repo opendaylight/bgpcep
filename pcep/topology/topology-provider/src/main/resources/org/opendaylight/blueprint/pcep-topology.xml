@@ -10,25 +10,31 @@
              this OSGi service which enables the config system module to be restarted when this blueprint
              container is restarted. -->
         <service-properties>
-            <entry key="config-module-namespace" value="urn:opendaylight:params:xml:ns:yang:controller:pcep:topology:provider"/>
+            <entry key="config-module-namespace"
+                   value="urn:opendaylight:params:xml:ns:yang:controller:pcep:topology:provider"/>
             <entry key="config-module-name" value="pcep-topology-stateful07"/>
             <entry key="config-instance-name" value="global"/>
         </service-properties>
     </service>
 
-    <reference id="dataBroker" interface="org.opendaylight.controller.md.sal.binding.api.DataBroker" odl:type="pingpong"/>
+    <reference id="dataBroker" interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
+               odl:type="pingpong"/>
     <reference id="rpcRegistry" interface="org.opendaylight.controller.sal.binding.api.RpcProviderRegistry"/>
     <reference id="pcepDispatcher" interface="org.opendaylight.protocol.pcep.PCEPDispatcher"/>
     <reference id="clusterSingletonServiceProvider"
                interface="org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider"/>
+    <reference id="intructionFactory" interface="org.opendaylight.bgpcep.programming.spi.InstructionSchedulerFactory"/>
 
-    <bean id="pcepTopologyDeployer" class="org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyDeployerImpl"
-          destroy-method="close">
+    <bean id="pcepTopologyDeployer"
+          class="org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyDeployerImpl"
+          init-method="init" destroy-method="close">
         <argument ref="blueprintContainer"/>
+        <argument ref="dataBroker"/>
+        <argument ref="intructionFactory"/>
     </bean>
-    <service ref="pcepTopologyDeployer" interface="org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyDeployer"/>
 
-    <bean id="PCEPTopologyProviderBean" class="org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyProviderBean"
+    <bean id="PCEPTopologyProviderBean"
+          class="org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyProviderBean"
           scope="prototype">
         <argument ref="clusterSingletonServiceProvider"/>
         <argument ref="blueprintBundleContext"/>
