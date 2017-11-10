@@ -117,25 +117,6 @@
                 <artifactId>pcep-auto-bandwidth-extension</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>pcep-controller-config</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>pcep-controller-config</artifactId>
-                <version>${project.version}</version>
-                <type>xml</type>
-                <classifier>config</classifier>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>pcep-controller-config</artifactId>
-                <version>${project.version}</version>
-                <type>xml</type>
-                <classifier>config-provider</classifier>
-            </dependency>
             <!-- PCEP Features artifacts -->
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
