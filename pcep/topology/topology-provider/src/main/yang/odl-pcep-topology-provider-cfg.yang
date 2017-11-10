@@ -9,7 +9,6 @@ module odl-pcep-topology-provider-cfg {
     import odl-topology-api-cfg { prefix topo; revision-date 2013-11-15; }
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import network-topology { prefix nt; revision-date 2013-10-21; }
-    import odl-pcep-api-cfg { prefix pcep; revision-date 2013-04-09; }
     import opendaylight-md-sal-binding { prefix mdsal; revision-date 2013-10-28; }
     import rpc-context { prefix rpcx; revision-date 2013-06-17; }
     import pcep-session-stats { prefix pcep-stats; revision-date 2014-10-06; }
@@ -89,15 +88,6 @@ module odl-pcep-topology-provider-cfg {
                     refine type {
                         mandatory true;
                         config:required-identity mdsal:binding-rpc-registry;
-                    }
-                }
-            }
-
-            container dispatcher {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity pcep:pcep-dispatcher;
                     }
                 }
             }
