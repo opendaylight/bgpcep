@@ -100,10 +100,10 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
         final TopologyKey key = InstanceIdentifier.keyOf(this.topology);
         final TopologyId topologyId = key.getTopologyId();
         final WriteTransaction tx = this.broker.newWriteOnlyTransaction();
-        tx.put(LogicalDatastoreType.OPERATIONAL, this.topology, new TopologyBuilder().setKey(key)
+        tx.merge(LogicalDatastoreType.OPERATIONAL, this.topology, new TopologyBuilder().setKey(key)
                 .setTopologyId(topologyId).setTopologyTypes(new TopologyTypesBuilder()
-                        .addAugmentation(TopologyTypes1.class, new TopologyTypes1Builder().setTopologyPcep(
-                                new TopologyPcepBuilder().build()).build()).build())
+                        .addAugmentation(TopologyTypes1.class, new TopologyTypes1Builder()
+                                .setTopologyPcep(new TopologyPcepBuilder().build()).build()).build())
                 .setNode(new ArrayList<>()).build(), true);
         final ListenableFuture<Void> future = tx.submit();
         Futures.addCallback(future, new FutureCallback<Void>() {
