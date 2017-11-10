@@ -56,9 +56,6 @@
         <module>topology</module>
         <module>config-loader</module>
 
-        <!-- Integration tests -->
-        <module>integration-tests</module>
-
         <!--Test tools -->
         <module>data-change-counter</module>
         <module>testtool-util</module>
