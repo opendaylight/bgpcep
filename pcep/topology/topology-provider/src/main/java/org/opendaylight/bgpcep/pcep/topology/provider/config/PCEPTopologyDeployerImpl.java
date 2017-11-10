@@ -26,6 +26,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev171025.pcep.config.SessionConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.config.rev171025.PcepTopologyTypeConfig;
@@ -43,7 +44,7 @@ public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener
     private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyDeployerImpl.class);
 
     private final BlueprintContainer container;
-    private final InstanceIdentifier<NetworkTopology> networTopology;
+    private final InstanceIdentifier<Topology> networTopology;
     private final DataBroker dataBroker;
     private final InstructionSchedulerFactory instructionSchedulerFactory;
     @GuardedBy("this")
@@ -55,12 +56,12 @@ public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener
         this.container = requireNonNull(container);
         this.dataBroker = requireNonNull(dataBroker);
         this.instructionSchedulerFactory = requireNonNull(instructionSchedulerFactory);
-        this.networTopology = InstanceIdentifier.builder(NetworkTopology.class).build();
+        this.networTopology = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class).build();
     }
 
     public synchronized void init() {
         this.listenerRegistration = this.dataBroker.registerDataTreeChangeListener(
-                new DataTreeIdentifier<>(CONFIGURATION, this.networTopology.child(Topology.class)), this);
+                new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, this.networTopology), this);
     }
 
     @Override

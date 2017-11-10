@@ -322,9 +322,6 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
 
     /**
      * All the pcep session registration should be closed when the session manager is closed
-     * @throws InterruptedException
-     * @throws ExecutionException
-     * @throws TransactionCommitFailedException
      */
     @Test
     public void testOnServerSessionManagerDown() throws InterruptedException, ExecutionException,
@@ -345,9 +342,6 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
     /**
      * Verify the PCEP session should not be up when server session manager is down,
      * otherwise it would be a problem when the session is up while it's not registered with session manager
-     * @throws InterruptedException
-     * @throws ExecutionException
-     * @throws TransactionCommitFailedException
      */
     @Test
     public void testOnServerSessionManagerUnstarted() throws InterruptedException, ExecutionException,
