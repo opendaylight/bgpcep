@@ -21,10 +21,13 @@
     <reference id="pcepDispatcher" interface="org.opendaylight.protocol.pcep.PCEPDispatcher"/>
     <reference id="clusterSingletonServiceProvider"
                interface="org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider"/>
+    <reference id="intructionFactory" interface="org.opendaylight.bgpcep.programming.spi.InstructionSchedulerFactory"/>
 
     <bean id="pcepTopologyDeployer" class="org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyDeployerImpl"
           destroy-method="close">
         <argument ref="blueprintContainer"/>
+        <argument ref="dataBroker"/>
+        <argument ref="intructionFactory"/>
     </bean>
     <service ref="pcepTopologyDeployer" interface="org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyDeployer"/>
 

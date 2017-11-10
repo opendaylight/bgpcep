@@ -36,8 +36,8 @@ import org.slf4j.LoggerFactory;
 public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDependenciesProvider, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyProviderBean.class);
 
-    private static final String STATEFUL_NOT_DEFINED = "Stateful capability not defined, aborting PCEP Topology " +
-        "Deployer instantiation";
+    private static final String STATEFUL_NOT_DEFINED =
+            "Stateful capability not defined, aborting PCEP Topology Deployer instantiation";
     private final PCEPDispatcher pcepDispatcher;
     private final DataBroker dataBroker;
     private final TopologySessionListenerFactory sessionListenerFactory;
@@ -119,7 +119,8 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
 
         PCEPTopologyProviderBeanCSS(final PCEPTopologyConfigDependencies configDependencies) {
                 this.sgi = configDependencies.getSchedulerDependency().getIdentifier();
-                this.pcepTopoProvider = PCEPTopologyProvider.create(PCEPTopologyProviderBean.this, configDependencies);
+                this.pcepTopoProvider = PCEPTopologyProvider
+                        .create(PCEPTopologyProviderBean.this, configDependencies);
 
                 final Dictionary<String, String> properties = new Hashtable<>();
                 properties.put(PCEPTopologyProvider.class.getName(), configDependencies.getTopologyId().getValue());

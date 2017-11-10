@@ -7,30 +7,44 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider.config;
 
+import com.google.common.net.InetAddresses;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import org.opendaylight.controller.config.yang.pcep.topology.provider.Client;
+import java.util.Objects;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.rfc2385.cfg.rev160324.Rfc2385Key;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.pcep.topology.config.rev171025.PcepNodeConfig;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 
-public final class PCEPTopologyProviderUtil {
+final class PCEPTopologyProviderUtil {
     private PCEPTopologyProviderUtil() {
         throw new UnsupportedOperationException();
     }
 
-    public static KeyMapping contructKeys(final List<Client> clients) {
+    static KeyMapping contructKeys(final Topology topology) {
         final KeyMapping ret = KeyMapping.getKeyMapping();
-
-        if (clients != null) {
-            clients.stream().filter(client -> client != null && client.getPassword() != null &&
-                !client.getPassword().getValue().isEmpty())
-                .forEach(mr -> {
-                    final Rfc2385Key rfc2385KeyPassword = mr.getPassword();
-                    ret.put(IetfInetUtil.INSTANCE.inetAddressFor(mr.getAddress()),
-                        rfc2385KeyPassword.getValue().getBytes(StandardCharsets.US_ASCII));
+        topology.getNode().stream()
+                .filter(Objects::nonNull)
+                .filter(node -> node.getAugmentation(PcepNodeConfig.class) != null)
+                .filter(node -> node.getAugmentation(PcepNodeConfig.class).getSessionConfig() != null)
+                .filter(node -> !node.getAugmentation(PcepNodeConfig.class)
+                        .getSessionConfig().getPassword().getValue().isEmpty())
+                .forEach(node -> {
+                    final PcepNodeConfig config = node.getAugmentation(PcepNodeConfig.class);
+                    final Rfc2385Key rfc2385KeyPassword = config.getSessionConfig().getPassword();
+                    final InetAddress address = InetAddresses.forString(node.getNodeId().getValue());
+                    ret.put(address, rfc2385KeyPassword.getValue().getBytes(StandardCharsets.US_ASCII));
                 });
-        }
+
         return ret;
+    }
+
+    static InetSocketAddress getInetSocketAddress(final IpAddress address, final PortNumber port) {
+        final InetAddress inetAddr = IetfInetUtil.INSTANCE.inetAddressFor(address);
+        return new InetSocketAddress(inetAddr, port.getValue());
     }
 }

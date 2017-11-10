@@ -9,10 +9,8 @@ package org.opendaylight.bgpcep.pcep.topology.provider.config;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.base.Optional;
 import java.net.InetSocketAddress;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
-import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistrator;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 
@@ -23,8 +21,9 @@ public final class PCEPTopologyConfigDependencies {
     private final TopologyId topologyId;
     private final short rpcTimeout;
 
-    public PCEPTopologyConfigDependencies(final InetSocketAddress address, final KeyMapping keys,
-        final InstructionScheduler scheduler, final TopologyId topologyId, final short rpcTimeout) {
+     PCEPTopologyConfigDependencies(final InetSocketAddress address, final KeyMapping keys,
+        final InstructionScheduler scheduler, final TopologyId topologyId,
+         final short rpcTimeout) {
         this.address = checkNotNull(address);
         this.keys = checkNotNull(keys);
         this.scheduler = checkNotNull(scheduler);

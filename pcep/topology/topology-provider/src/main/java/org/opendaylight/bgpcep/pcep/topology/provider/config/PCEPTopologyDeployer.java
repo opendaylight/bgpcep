@@ -7,32 +7,28 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider.config;
 
-import java.net.InetSocketAddress;
+import com.google.common.util.concurrent.ListenableFuture;
 import javax.annotation.Nonnull;
-import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
-import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 
 /**
  * The PCEPTopologyDeployer service is managing PcepTopologyProvider
  */
 public interface PCEPTopologyDeployer {
     /**
-     * Creates and register topology provider instance
+     * Writes Topology Provider Config on DS
      *
-     * @param topologyId        topology ID
-     * @param inetSocketAddress inetSocketAddress
-     * @param rpcTimeout        rpc Timeout
-     * @param client            List of clients password configuration
-     * @param scheduler         Instruction Scheduler
+     * @param pcepTopology pcepTopology
+     * @return future
      */
-    void createTopologyProvider(@Nonnull TopologyId topologyId, @Nonnull InetSocketAddress inetSocketAddress,
-            short rpcTimeout, @Nonnull KeyMapping client, @Nonnull InstructionScheduler scheduler);
+    ListenableFuture<Void> writeConfiguration(@Nonnull Topology pcepTopology);
 
     /**
-     * Closes and unregister topology provider instance
+     * Remove instruction configuration on DS
      *
-     * @param topologyID topology ID
+     * @param topologyId topology Id
+     * @return future
      */
-    void removeTopologyProvider(@Nonnull TopologyId topologyID);
+    ListenableFuture<Void> removeConfiguration(@Nonnull TopologyId topologyId);
 }
