@@ -61,18 +61,6 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>programming-controller-config</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>programming-controller-config</artifactId>
-                <version>${project.version}</version>
-                <type>xml</type>
-                <classifier>config</classifier>
-            </dependency>
-            <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
                 <artifactId>odl-bgpcep-programming-api</artifactId>
                 <classifier>features</classifier>
