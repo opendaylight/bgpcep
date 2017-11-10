@@ -43,6 +43,7 @@ import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPTerminationReason;
 import org.opendaylight.protocol.pcep.TerminationReason;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.topology.pcep.rpc.rev171110.ReleaseConnectionInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.LspObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Path1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.Lsp;
@@ -132,7 +133,6 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
     private SyncOptimization syncOptimization;
     private boolean triggeredResyncInProcess;
 
-    private ListenerStateRuntimeRegistration registration;
     @GuardedBy("this")
     private final SessionListenerState listenerState;
 
@@ -190,13 +190,6 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
             pccBuilder.setReportedLsp(initialNodeState.getAugmentation(Node1.class).getPathComputationClient().getReportedLsp());
         }
         writeNode(pccBuilder, state, topologyAugment);
-        register();
-        if (this.registration == null) {
-            LOG.error("PCEP session fails to register. Closing session {}", session);
-            session.close(TerminationReason.UNKNOWN);
-            this.onSessionTerminated(session, new PCEPCloseTermination(TerminationReason.UNKNOWN));
-            return;
-        }
         this.listenerState.init(session);
         LOG.info("Session with {} attached to topology node {}", session.getRemoteAddress(), state.getNodeId());
     }
@@ -275,7 +268,6 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         }
         this.session = null;
         this.syncOptimization = null;
-        unregister();
 
         // Clear all requests we know about
         for (final Entry<S, PCEPRequest> e : this.requests.entrySet()) {
@@ -348,28 +340,8 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
 
     @Override
     public void close() {
-        unregister();
         if (this.session != null) {
             this.session.close(TerminationReason.UNKNOWN);
-        }
-    }
-
-    private final synchronized void unregister() {
-        if (this.registration != null) {
-            this.registration.close();
-            LOG.trace("PCEP session {} is unregistered successfully.", this.session);
-            this.registration = null;
-        } else {
-            LOG.trace("PCEP session {} was not registered.", this.session);
-        }
-    }
-
-    private final synchronized void register() {
-        Preconditions.checkState(this.registration == null);
-        final PCEPTopologyProviderRuntimeRegistration runtimeReg = this.serverSessionManager.getRuntimeRootRegistration();
-        if (runtimeReg != null) {
-            this.registration = runtimeReg.register(this);
-            LOG.trace("PCEP session {} is successfully registered.", this.session);
         }
     }
 
@@ -679,11 +651,6 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
     }
 
     @Override
-    public synchronized void resetStats() {
-        this.listenerState.resetStats(this.session);
-    }
-
-    @Override
     public synchronized ReplyTime getReplyTime() {
         return this.listenerState.getReplyTime();
     }
@@ -693,9 +660,11 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         return this.listenerState.getPeerCapabilities();
     }
 
+
     @Override
-    public void tearDownSession() {
-        this.close();
+    public synchronized ListenableFuture<Void> releaseSession(final ReleaseConnectionInput input) {
+        close();
+        return Futures.immediateFuture(null);
     }
 
     @Override

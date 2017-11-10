@@ -72,10 +72,6 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference {
             .child(Topology.class, new TopologyKey(configDependencies.getTopologyId())).build();
         final ServerSessionManager manager = new ServerSessionManager(dependenciesProvider.getDataBroker(), topology,
             listenerFactory, configDependencies.getRpcTimeout());
-        final Optional<PCEPTopologyProviderRuntimeRegistrator> runtime = configDependencies.getRuntimeRootRegistrator();
-        if(runtime.isPresent()){
-            manager.setRuntimeRootRegistrator(runtime.get());
-        }
 
         return new PCEPTopologyProvider(configDependencies.getAddress(), configDependencies.getKeys(),
             dependenciesProvider, topology, manager,  configDependencies.getSchedulerDependency());

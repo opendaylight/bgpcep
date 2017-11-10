@@ -247,27 +247,5 @@ module odl-pcep-topology-provider-cfg {
               }
           }
     }
-
-    rpc tear-down-session {
-        description "Closes the session between PCE and PCC.";
-        input {
-            uses rpcx:rpc-context-ref {
-                refine context-instance {
-                    rpcx:rpc-context-instance session-rpc;
-                }
-            }
-        }
-    }
-
-    rpc reset-stats {
-        description "Resets statistics like message counters and timestamps. (set to 0)";
-        input {
-            uses rpcx:rpc-context-ref {
-                refine context-instance {
-                    rpcx:rpc-context-instance session-rpc;
-                }
-            }
-        }
-    }
 }
 

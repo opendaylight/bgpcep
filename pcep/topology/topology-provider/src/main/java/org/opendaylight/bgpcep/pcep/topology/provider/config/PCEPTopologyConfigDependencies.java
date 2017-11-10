@@ -21,17 +21,14 @@ public final class PCEPTopologyConfigDependencies {
     private final KeyMapping keys;
     private final InstructionScheduler scheduler;
     private final TopologyId topologyId;
-    private final Optional<PCEPTopologyProviderRuntimeRegistrator> runtime;
     private final short rpcTimeout;
 
     public PCEPTopologyConfigDependencies(final InetSocketAddress address, final KeyMapping keys,
-        final InstructionScheduler scheduler, final TopologyId topologyId,
-        final Optional<PCEPTopologyProviderRuntimeRegistrator> runtime, final short rpcTimeout) {
+        final InstructionScheduler scheduler, final TopologyId topologyId, final short rpcTimeout) {
         this.address = checkNotNull(address);
         this.keys = checkNotNull(keys);
         this.scheduler = checkNotNull(scheduler);
         this.topologyId = checkNotNull(topologyId);
-        this.runtime = checkNotNull(runtime);
         this.rpcTimeout = rpcTimeout;
     }
 
@@ -45,10 +42,6 @@ public final class PCEPTopologyConfigDependencies {
 
     public short getRpcTimeout() {
         return this.rpcTimeout;
-    }
-
-    public Optional<PCEPTopologyProviderRuntimeRegistrator> getRuntimeRootRegistrator() {
-        return this.runtime;
     }
 
     public InetSocketAddress getAddress() {

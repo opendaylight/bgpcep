@@ -40,8 +40,7 @@ public class PCEPTopologyDeployerImpl implements PCEPTopologyDeployer, AutoClose
     @Override
     public synchronized void createTopologyProvider(final TopologyId topologyId,
         final InetSocketAddress inetSocketAddress, final short rpcTimeout, final KeyMapping keys,
-        final InstructionScheduler schedulerDependency,
-        final Optional<PCEPTopologyProviderRuntimeRegistrator> runtime) {
+        final InstructionScheduler schedulerDependency) {
         if (this.pcepTopologyServices.containsKey(topologyId)) {
             LOG.warn("Topology Provider {} already exist. New instance won't be created", topologyId);
             return;
@@ -50,7 +49,7 @@ public class PCEPTopologyDeployerImpl implements PCEPTopologyDeployer, AutoClose
             .getComponentInstance(PCEPTopologyProviderBean.class.getSimpleName());
         this.pcepTopologyServices.put(topologyId, pcepTopologyProviderBean);
         final PCEPTopologyConfigDependencies configDependencies = new PCEPTopologyConfigDependencies(inetSocketAddress,
-            keys, schedulerDependency, topologyId, runtime, rpcTimeout);
+            keys, schedulerDependency, topologyId, rpcTimeout);
         pcepTopologyProviderBean.start(configDependencies);
     }
 

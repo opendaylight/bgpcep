@@ -264,14 +264,6 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         checkEquals(()->assertEquals(4, this.listener.getStatefulMessages().getReceivedRptMsgCount().intValue()));
         checkEquals(()->assertEquals(2, this.listener.getStatefulMessages().getSentInitMsgCount().intValue()));
         checkEquals(()->assertEquals(1, this.listener.getStatefulMessages().getSentUpdMsgCount().intValue()));
-        checkEquals(()->this.listener.resetStats());
-        checkEquals(()->assertEquals(0, this.listener.getStatefulMessages().getLastReceivedRptMsgTimestamp().longValue()));
-        checkEquals(()->assertEquals(0, this.listener.getStatefulMessages().getReceivedRptMsgCount().intValue()));
-        checkEquals(()->assertEquals(0, this.listener.getStatefulMessages().getSentInitMsgCount().intValue()));
-        checkEquals(()->assertEquals(0, this.listener.getStatefulMessages().getSentUpdMsgCount().intValue()));
-        checkEquals(()->assertEquals(0, this.listener.getReplyTime().getAverageTime().longValue()));
-        checkEquals(()->assertEquals(0, this.listener.getReplyTime().getMaxTime().longValue()));
-        checkEquals(()->assertEquals(0, this.listener.getReplyTime().getMinTime().longValue()));
     }
 
     @Test
@@ -299,13 +291,11 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
     @Test
     public void testOnSessionDown() throws InterruptedException, ExecutionException {
         this.listener.onSessionUp(this.session);
-        verify(this.listenerReg, times(0)).close();
         // send request
         final Future<RpcResult<AddLspOutput>> futureOutput = this.topologyRpcs.addLsp(createAddLspInput());
         assertFalse(this.session.isClosed());
         this.listener.onSessionDown(this.session, new IllegalArgumentException());
         assertTrue(this.session.isClosed());
-        verify(this.listenerReg, times(1)).close();
         final AddLspOutput output = futureOutput.get().getResult();
         // deal with unsent request after session down
         assertEquals(FailureType.Unsent, output.getFailure());
@@ -323,11 +313,9 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         this.listener.onSessionUp(this.session);
         // the session should not be closed when session manager is up
         assertFalse(this.session.isClosed());
-        verify(this.listenerReg, times(0)).close();
         // send request
         final Future<RpcResult<AddLspOutput>> futureOutput = this.topologyRpcs.addLsp(createAddLspInput());
         stopSessionManager();
-        verify(this.listenerReg, times(1)).close();
         final AddLspOutput output = futureOutput.get().getResult();
         // deal with unsent request after session down
         assertEquals(FailureType.Unsent, output.getFailure());
@@ -346,14 +334,10 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
     public void testOnServerSessionManagerUnstarted() throws InterruptedException, ExecutionException,
         TransactionCommitFailedException, ReadFailedException {
         stopSessionManager();
-        // the registration should not be closed since it's never initialized
-        verify(this.listenerReg, times(0)).close();
         assertFalse(this.session.isClosed());
         this.listener.onSessionUp(this.session);
         // verify the session was NOT added to topology
         checkNotPresentOperational(getDataBroker(), TOPO_IID);
-        // still, the session should not be registered and thus close() is never called
-        verify(this.listenerReg, times(0)).close();
         // verify the session is closed due to server session manager is closed
         assertTrue(this.session.isClosed());
         // send request
@@ -367,14 +351,10 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
     public void testOnServerSessionManagerRestartAndSessionRecovery() throws Exception {
         // close server session manager first
         stopSessionManager();
-        // the registration should not be closed since it's never initialized
-        verify(this.listenerReg, times(0)).close();
         assertFalse(this.session.isClosed());
         this.listener.onSessionUp(this.session);
         // verify the session was NOT added to topology
         checkNotPresentOperational(getDataBroker(), TOPO_IID);
-        // still, the session should not be registered and thus close() is never called
-        verify(this.listenerReg, times(0)).close();
         // verify the session is closed due to server session manager is closed
         assertTrue(this.session.isClosed());
         // send request
@@ -393,7 +373,6 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         // notice since the session was terminated before, it is not usable anymore.
         // we need to get a new session instance. the new session will have the same local / remote preference
         this.session = getPCEPSession(getLocalPref(), getRemotePref());
-        verify(this.listenerReg, times(0)).close();
         assertFalse(this.session.isClosed());
         this.listener.onSessionUp(this.session);
         assertFalse(this.session.isClosed());
@@ -421,7 +400,6 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
     @Test
     public void testDuplicatedSession() throws ReadFailedException {
         this.listener.onSessionUp(this.session);
-        verify(this.listenerReg, times(0)).close();
 
         // create node
         this.topologyRpcs.addLsp(createAddLspInput());
@@ -442,7 +420,6 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         // now we do session up again
         this.listener.onSessionUp(this.session);
         assertTrue(this.session.isClosed());
-        verify(this.listenerReg, times(1)).close();
         // node should be removed after termination
         checkNotPresentOperational(getDataBroker(), this.pathComputationClientIId);
         assertFalse(this.receivedMsgs.isEmpty());
@@ -462,8 +439,6 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
     @Test
     public void testOnSessionTermination() throws Exception {
         this.listener.onSessionUp(this.session);
-        verify(this.listenerReg, times(0)).close();
-
         // create node
         this.topologyRpcs.addLsp(createAddLspInput());
         final Pcinitiate pcinitiate = (Pcinitiate) this.receivedMsgs.get(0);
@@ -484,7 +459,6 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         // node should be removed after termination
         this.listener.onSessionTerminated(this.session, new PCEPCloseTermination(TerminationReason.UNKNOWN));
         assertTrue(this.session.isClosed());
-        verify(this.listenerReg, times(1)).close();
         checkNotPresentOperational(getDataBroker(), this.pathComputationClientIId);
     }
 

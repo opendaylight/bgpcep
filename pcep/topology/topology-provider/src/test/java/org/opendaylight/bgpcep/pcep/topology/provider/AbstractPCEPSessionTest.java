@@ -102,12 +102,6 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
     @Mock
     private ChannelFuture channelFuture;
 
-    @Mock
-    ListenerStateRuntimeRegistration listenerReg;
-
-    @Mock
-    private PCEPTopologyProviderRuntimeRegistrator registrator;
-
     private final Open localPrefs = new OpenBuilder().setDeadTimer((short) 30).setKeepalive((short) 10)
         .setSessionId((short) 0).build();
 
@@ -144,13 +138,6 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
 
         doReturn(mock(ChannelFuture.class)).when(this.clientListener).close();
 
-        doNothing().when(this.listenerReg).close();
-        doReturn("listenerReg").when(this.listenerReg).toString();
-        final PCEPTopologyProviderRuntimeRegistration topologyReg = mock(PCEPTopologyProviderRuntimeRegistration.class);
-        doReturn(this.listenerReg).when(topologyReg).register(any(ListenerStateRuntimeMXBean.class));
-        doNothing().when(topologyReg).close();
-        doReturn(topologyReg).when(this.registrator).register(any(PCEPTopologyProviderRuntimeMXBean.class));
-
         final T listenerFactory = (T) ((Class) ((ParameterizedType) this.getClass().getGenericSuperclass())
             .getActualTypeArguments()[0]).newInstance();
         this.manager = new ServerSessionManager(getDataBroker(), TOPO_IID, listenerFactory, RPC_TIMEOUT);
@@ -161,7 +148,6 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
     }
 
     protected void startSessionManager() throws Exception {
-        this.manager.setRuntimeRootRegistrator(this.registrator);
         final ListenableFuture<Void> future = this.manager.instantiateServiceInstance();
         future.get();
         checkEquals(()-> assertFalse(this.manager.isClosed.get()));

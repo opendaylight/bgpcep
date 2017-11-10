@@ -98,7 +98,7 @@ public final class PCEPTopologyProviderModule extends
         final InetSocketAddress inetSocketAddress = new InetSocketAddress(listenAddress(), getListenPort().getValue());
 
         pcepcTopologyDeployer.createTopologyProvider(topologyID, inetSocketAddress, getRpcTimeout(), keys,
-            getSchedulerDependency(), Optional.fromNullable(getRootRuntimeBeanRegistratorWrapper()));
+            getSchedulerDependency());
 
         final WaitingServiceTracker<DefaultTopologyReference> defaultTopologyReferenceTracker =
             WaitingServiceTracker.create(DefaultTopologyReference.class, this.bundleContext,
