@@ -10,7 +10,6 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -21,7 +20,6 @@ import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyConfigD
 import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyProviderDependenciesProvider;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
-import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistrator;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RoutedRpcRegistration;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.protocol.concepts.KeyMapping;
@@ -72,10 +70,6 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference {
             .child(Topology.class, new TopologyKey(configDependencies.getTopologyId())).build();
         final ServerSessionManager manager = new ServerSessionManager(dependenciesProvider.getDataBroker(), topology,
             listenerFactory, configDependencies.getRpcTimeout());
-        final Optional<PCEPTopologyProviderRuntimeRegistrator> runtime = configDependencies.getRuntimeRootRegistrator();
-        if(runtime.isPresent()){
-            manager.setRuntimeRootRegistrator(runtime.get());
-        }
 
         return new PCEPTopologyProvider(configDependencies.getAddress(), configDependencies.getKeys(),
             dependenciesProvider, topology, manager,  configDependencies.getSchedulerDependency());
