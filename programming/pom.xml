@@ -41,8 +41,6 @@
         <module>spi</module>
         <module>topology-api</module>
         <module>tunnel-api</module>
-
-        <module>controller-config</module>
     </modules>
 
   <!--
