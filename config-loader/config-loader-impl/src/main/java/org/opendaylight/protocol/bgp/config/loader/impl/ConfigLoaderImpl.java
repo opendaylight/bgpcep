@@ -15,7 +15,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
-import java.nio.file.ClosedWatchServiceException;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
@@ -54,6 +53,8 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
     private final BindingNormalizedNodeSerializer bindingSerializer;
     private final String path;
     private final Thread watcherThread;
+    @GuardedBy("this")
+    private boolean closed = false;
 
     public ConfigLoaderImpl(final SchemaContext schemaContext, final BindingNormalizedNodeSerializer bindingSerializer,
             final String path, final WatchService watchService) {
@@ -129,7 +130,9 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
 
 
     @Override
-    public void close() throws Exception {
+    public synchronized void close() throws Exception {
+        LOG.info("Config Loader service closed");
+        this.closed = true;
         this.watcherThread.interrupt();
     }
 
@@ -148,19 +151,25 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
         }
 
         private synchronized void handleChanges(final WatchService watchService) {
+            final WatchKey key;
             try {
-                final WatchKey key = watchService.take();
-                if (key != null) {
-                    for (final WatchEvent<?> event : key.pollEvents()) {
-                        handleEvent(event.context().toString());
-                    }
-                    final boolean reset = key.reset();
-                    if (!reset) {
-                        LOG.warn("Could not reset the watch key.");
-                    }
+                key = watchService.take();
+            } catch (final InterruptedException e) {
+                if (!ConfigLoaderImpl.this.closed) {
+                    LOG.warn(INTERRUPTED, e);
+                    Thread.currentThread().interrupt();
                 }
-            } catch (final InterruptedException | ClosedWatchServiceException e) {
-                LOG.warn(INTERRUPTED, e);
+                return;
+            }
+
+            if (key != null) {
+                for (final WatchEvent<?> event : key.pollEvents()) {
+                    handleEvent(event.context().toString());
+                }
+                final boolean reset = key.reset();
+                if (!reset) {
+                    LOG.warn("Could not reset the watch key.");
+                }
             }
         }
 
