@@ -13,15 +13,15 @@ import static java.util.Objects.requireNonNull;
 import io.netty.channel.Channel;
 import java.net.InetSocketAddress;
 import org.opendaylight.protocol.util.StatisticsUtil;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev141006.pcep.session.state.LocalPref;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev141006.pcep.session.state.LocalPrefBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev141006.pcep.session.state.Messages;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev141006.pcep.session.state.MessagesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev141006.pcep.session.state.PeerPref;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev141006.pcep.session.state.PeerPrefBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev141006.pcep.session.state.messages.ErrorMessagesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev141006.pcep.session.state.messages.error.messages.LastReceivedErrorBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev141006.pcep.session.state.messages.error.messages.LastSentErrorBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev171113.error.messages.grouping.ErrorMessagesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev171113.error.messages.grouping.error.messages.LastReceivedErrorBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev171113.error.messages.grouping.error.messages.LastSentErrorBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev171113.pcep.session.state.LocalPref;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev171113.pcep.session.state.LocalPrefBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev171113.pcep.session.state.Messages;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev171113.pcep.session.state.MessagesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev171113.pcep.session.state.PeerPref;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev171113.pcep.session.state.PeerPrefBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcerrMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
@@ -52,7 +52,7 @@ final class PCEPSessionState {
         this.msgsBuilder = new MessagesBuilder();
     }
 
-    public Messages getMessages(final int unknownMessagesCount) {
+    Messages getMessages(final int unknownMessagesCount) {
         this.errorsBuilder.setReceivedErrorMsgCount(this.receivedErrMsgCount);
         this.errorsBuilder.setSentErrorMsgCount(this.sentErrMsgCount);
         this.errorsBuilder.setLastReceivedError(this.lastReceivedErrorBuilder.build());
@@ -65,7 +65,7 @@ final class PCEPSessionState {
         return this.msgsBuilder.build();
     }
 
-    public void reset() {
+    void reset() {
         this.receivedMsgCount = 0;
         this.sentMsgCount = 0;
         this.receivedErrMsgCount = 0;
@@ -81,29 +81,29 @@ final class PCEPSessionState {
         return this.localPref;
     }
 
-    public PeerPref getPeerPref() {
+    PeerPref getPeerPref() {
         return this.peerPref;
     }
 
-    public void setLastSentError(final Message msg) {
+    void setLastSentError(final Message msg) {
         this.sentErrMsgCount++;
         final ErrorObject errObj = getErrorObject(msg);
         this.lastSentErrorBuilder.setErrorType(errObj.getType());
         this.lastSentErrorBuilder.setErrorValue(errObj.getValue());
     }
 
-    public void setLastReceivedError(final Message msg) {
+    void setLastReceivedError(final Message msg) {
         final ErrorObject errObj = getErrorObject(msg);
         this.receivedErrMsgCount++;
         this.lastReceivedErrorBuilder.setErrorType(errObj.getType());
         this.lastReceivedErrorBuilder.setErrorValue(errObj.getValue());
     }
 
-    public void updateLastReceivedMsg() {
+    void updateLastReceivedMsg() {
         this.receivedMsgCount++;
     }
 
-    public void updateLastSentMsg() {
+    void updateLastSentMsg() {
         this.lastSentMsgTimestamp = StatisticsUtil.getCurrentTimestampInSeconds();
         this.sentMsgCount++;
     }

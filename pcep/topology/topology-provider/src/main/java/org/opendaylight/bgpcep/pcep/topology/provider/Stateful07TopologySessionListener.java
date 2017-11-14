@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.concurrent.GuardedBy;
-import org.opendaylight.controller.config.yang.pcep.topology.provider.PeerCapabilities;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.PSTUtil;
@@ -34,7 +33,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.cra
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.PcinitiateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Srp1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Srp1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Stateful1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.pcinitiate.message.PcinitiateMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.pcinitiate.message.pcinitiate.message.Requests;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.pcinitiate.message.pcinitiate.message.RequestsBuilder;
@@ -115,7 +113,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         if (tlvs != null && tlvs.getAugmentation(Tlvs1.class) != null) {
             final Stateful stateful = tlvs.getAugmentation(Tlvs1.class).getStateful();
             if (stateful != null) {
-                getSessionListenerState().setPeerCapabilities(getCapabilities(stateful));
+                this.listenerState.setStatefulCapabilities(stateful);
                 pccBuilder.setReportedLsp(Collections.emptyList());
                 if (isSynchronized()) {
                     pccBuilder.setStateSync(PccSyncState.Synchronized);
@@ -127,7 +125,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
                     pccBuilder.setStateSync(PccSyncState.InitialResync);
                 }
                 pccBuilder.setStatefulTlv(new StatefulTlvBuilder().addAugmentation(StatefulTlv1.class,
-                    new StatefulTlv1Builder(tlvs.getAugmentation(Tlvs1.class)).build()).build());
+                        new StatefulTlv1Builder(tlvs.getAugmentation(Tlvs1.class)).build()).build());
             } else {
                 LOG.debug("Peer {} does not advertise stateful TLV", peerAddress);
             }
@@ -209,7 +207,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         this.staleLsps.addAll(this.lsps.keySet());
     }
 
-    private class ResyncLspFunction implements AsyncFunction<Optional<ReportedLsp>, OperationResult>  {
+    private class ResyncLspFunction implements AsyncFunction<Optional<ReportedLsp>, OperationResult> {
 
         private final TriggerSyncArgs input;
 
@@ -240,14 +238,14 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             final Optional<PathSetupType> maybePST = getPST(rep);
             if (maybePST.isPresent()) {
                 srpBuilder.setTlvs(
-                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.TlvsBuilder()
-                        .setPathSetupType(maybePST.get()).build());
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.TlvsBuilder()
+                                .setPathSetupType(maybePST.get()).build());
             }
 
             final Srp srp = srpBuilder.build();
             final Lsp lsp = new LspBuilder().setPlspId(reportedLsp.getPlspId()).setSync(Boolean.TRUE).build();
 
-            final Message msg = createPcepUpd(srp,lsp);
+            final Message msg = createPcepUpd(srp, lsp);
             return sendMessage(msg, srp.getOperationId(), null);
         }
 
@@ -264,9 +262,10 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     }
 
     private boolean handleErrorMessage(final PcerrMessage message) {
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessage errMsg = message.getPcerrMessage();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message
+                .PcerrMessage errMsg = message.getPcerrMessage();
         if (errMsg.getErrorType() instanceof StatefulCase) {
-            final StatefulCase stat = (StatefulCase)errMsg.getErrorType();
+            final StatefulCase stat = (StatefulCase) errMsg.getErrorType();
             for (final Srps srps : stat.getStateful().getSrps()) {
                 final SrpIdNumber id = srps.getSrp().getOperationId();
                 if (id.getValue() != 0) {
@@ -294,27 +293,27 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             return false;
         }
         switch (lsp.getOperational()) {
-        case Active:
-        case Down:
-        case Up:
-            if(!isTriggeredSyncInProcess()) {
-                final PCEPRequest req = removeRequest(id);
-                if (req != null) {
-                    LOG.debug("Request {} resulted in LSP operational state {}", id, lsp.getOperational());
-                    rlb.setMetadata(req.getMetadata());
-                    ctx.resolveRequest(req);
-                } else {
-                    LOG.warn("Request ID {} not found in outstanding DB", id);
+            case Active:
+            case Down:
+            case Up:
+                if (!isTriggeredSyncInProcess()) {
+                    final PCEPRequest req = removeRequest(id);
+                    if (req != null) {
+                        LOG.debug("Request {} resulted in LSP operational state {}", id, lsp.getOperational());
+                        rlb.setMetadata(req.getMetadata());
+                        ctx.resolveRequest(req);
+                    } else {
+                        LOG.warn("Request ID {} not found in outstanding DB", id);
+                    }
                 }
-            }
-            break;
-        case GoingDown:
-        case GoingUp:
-            // These are transitive states, so we don't have to do anything, as they will be followed
-            // up...
-            break;
-        default:
-            break;
+                break;
+            case GoingDown:
+            case GoingUp:
+                // These are transitive states, so we don't have to do anything, as they will be followed
+                // up...
+                break;
+            default:
+                break;
         }
         return true;
     }
@@ -326,7 +325,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
 
         if (!lsp.isSync() && (plspid == null || plspid.getValue() == 0)) {
             purgeStaleLsps(ctx);
-            if(isTriggeredSyncInProcess()) {
+            if (isTriggeredSyncInProcess()) {
                 if (srp == null) {
                     return false;
                 }
@@ -356,7 +355,8 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
 
         String name = lookupLspName(plspid);
         if (lsp.getTlvs() != null && lsp.getTlvs().getSymbolicPathName() != null) {
-            name = StandardCharsets.UTF_8.decode(ByteBuffer.wrap(lsp.getTlvs().getSymbolicPathName().getPathName().getValue())).toString();
+            name = StandardCharsets.UTF_8.decode(ByteBuffer.wrap(lsp.getTlvs().getSymbolicPathName().getPathName()
+                    .getValue())).toString();
         }
         //get LspDB from LSP and write it to pcc's node
         final LspDbVersion lspDbVersion = geLspDbVersionTlv(lsp);
@@ -372,15 +372,21 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     }
 
     private static LspDbVersion geLspDbVersionTlv(final Lsp lsp) {
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.Tlvs tlvs = lsp.getTlvs();
-        if (tlvs != null && tlvs.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs1.class) != null) {
-            return tlvs.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs1.class).getLspDbVersion();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object
+                .lsp.Tlvs tlvs = lsp.getTlvs();
+        if (tlvs != null && tlvs.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+                .controller.pcep.sync.optimizations.rev150714.Tlvs1.class) != null) {
+            return tlvs.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller
+                    .pcep.sync.optimizations.rev150714.Tlvs1.class).getLspDbVersion();
         }
         return null;
     }
 
     private Path buildPath(final Reports report, final Srp srp, final Lsp lsp) {
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.PathBuilder pb = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.PathBuilder();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client
+                .attributes.path.computation.client.reported.lsp.PathBuilder pb = new org.opendaylight.yang.gen.v1
+                .urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation
+                .client.reported.lsp.PathBuilder();
         if (report.getPath() != null) {
             pb.fieldsFrom(report.getPath());
         }
@@ -396,12 +402,14 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             pst = null;
         }
         pb.addAugmentation(Path1.class, p1Builder.build());
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.Tlvs tlvs = report.getLsp().getTlvs();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp
+                .object.lsp.Tlvs tlvs = report.getLsp().getTlvs();
         if (tlvs != null) {
             if (tlvs.getLspIdentifiers() != null) {
                 pb.setLspId(tlvs.getLspIdentifiers().getLspId());
             } else if (!PSTUtil.isDefaultPST(pst)) {
-                pb.setLspId(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspId(lsp.getPlspId().getValue()));
+                pb.setLspId(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820
+                        .LspId(lsp.getPlspId().getValue()));
             }
         }
         return pb.build();
@@ -415,8 +423,9 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         if (!(message instanceof PcrptMessage)) {
             return true;
         }
-        getSessionListenerState().updateLastReceivedRptMsg();
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcrpt.message.PcrptMessage rpt = ((PcrptMessage) message).getPcrptMessage();
+        this.listenerState.updateLastReceivedRptMsg();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcrpt
+                .message.PcrptMessage rpt = ((PcrptMessage) message).getPcrptMessage();
         for (final Reports report : rpt.getReports()) {
             if (!manageNextReport(report, ctx)) {
                 return false;
@@ -429,7 +438,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         return new SrpIdNumber(this.requestId.getAndIncrement());
     }
 
-    private class AddFunction implements AsyncFunction<Optional<ReportedLsp>, OperationResult>  {
+    private class AddFunction implements AsyncFunction<Optional<ReportedLsp>, OperationResult> {
 
         private final AddLspArgs input;
         private final InstanceIdentifier<ReportedLsp> lsp;
@@ -442,10 +451,11 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         @Override
         public ListenableFuture<OperationResult> apply(final Optional<ReportedLsp> rep) {
             if (rep.isPresent()) {
-                LOG.debug("Node {} already contains lsp {} at {}", this.input.getNode(), this.input.getName(), this.lsp);
+                LOG.debug("Node {} already contains lsp {} at {}", this.input.getNode(), this.input.getName(),
+                        this.lsp);
                 return OperationResults.createUnsent(PCEPErrors.USED_SYMBOLIC_PATH_NAME).future();
             }
-            if (!getPeerCapabilities().getInstantiation()) {
+            if (!listenerState.isInitiationCapability()) {
                 return OperationResults.createUnsent(PCEPErrors.CAPABILITY_NOT_SUPPORTED).future();
             }
 
@@ -466,33 +476,36 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
                 tlvsBuilder = new TlvsBuilder();
             }
             tlvsBuilder.setSymbolicPathName(
-                new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(this.input.getName().getBytes(StandardCharsets.UTF_8))).build());
+                    new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(this.input.getName()
+                            .getBytes(StandardCharsets.UTF_8))).build());
 
             final SrpBuilder srpBuilder = new SrpBuilder();
             srpBuilder.setOperationId(nextRequest());
             srpBuilder.setProcessingRule(Boolean.TRUE);
             if (!PSTUtil.isDefaultPST(args.getPathSetupType())) {
                 srpBuilder.setTlvs(
-                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.TlvsBuilder()
-                            .setPathSetupType(args.getPathSetupType()).build());
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf
+                                .stateful.rev131222.srp.object.srp.TlvsBuilder()
+                                .setPathSetupType(args.getPathSetupType()).build());
             }
             rb.setSrp(srpBuilder.build());
 
-            rb.setLsp(new LspBuilder().setAdministrative(inputLsp.isAdministrative()).setDelegate(inputLsp.isDelegate()).setPlspId(
-                new PlspId(0L)).setTlvs(tlvsBuilder.build()).build());
+            rb.setLsp(new LspBuilder().setAdministrative(inputLsp.isAdministrative()).setDelegate(
+                    inputLsp.isDelegate()).setPlspId(new PlspId(0L)).setTlvs(tlvsBuilder.build()).build());
 
             final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(MESSAGE_HEADER);
             ib.setRequests(Collections.singletonList(rb.build()));
 
             // Send the message
-            return sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(), rb.getSrp().getOperationId(),
-                this.input.getArguments().getMetadata());
+            return sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(),
+                    rb.getSrp().getOperationId(), this.input.getArguments().getMetadata());
         }
     }
 
     @Override
     public synchronized ListenableFuture<OperationResult> addLsp(final AddLspArgs input) {
-        Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null && input.getArguments() != null, MISSING_XML_TAG);
+        Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null
+                && input.getArguments() != null, MISSING_XML_TAG);
         LOG.trace("AddLspArgs {}", input);
         // Make sure there is no such LSP
         final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName());
@@ -505,7 +518,8 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
 
     @Override
     public synchronized ListenableFuture<OperationResult> removeLsp(final RemoveLspArgs input) {
-        Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null, MISSING_XML_TAG);
+        Preconditions.checkArgument(input != null && input.getName() != null
+                && input.getNode() != null, MISSING_XML_TAG);
         LOG.trace("RemoveLspArgs {}", input);
         // Make sure the LSP exists, we need it for PLSP-ID
         final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName());
@@ -521,26 +535,28 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(MESSAGE_HEADER);
             final Requests rb = buildRequest(rep, reportedLsp);
             ib.setRequests(Collections.singletonList(rb));
-            return sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(), rb.getSrp().getOperationId(), null);
+            return sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(),
+                    rb.getSrp().getOperationId(), null);
         });
     }
 
     private Requests buildRequest(final Optional<ReportedLsp> rep, final Lsp reportedLsp) {
         // Build the request and send it
         final RequestsBuilder rb = new RequestsBuilder();
-        final SrpBuilder srpBuilder = new SrpBuilder().addAugmentation(Srp1.class, new Srp1Builder().setRemove(Boolean.TRUE).build()).setOperationId(nextRequest()).setProcessingRule(Boolean.TRUE);
+        final SrpBuilder srpBuilder = new SrpBuilder().addAugmentation(Srp1.class, new Srp1Builder()
+                .setRemove(Boolean.TRUE).build()).setOperationId(nextRequest()).setProcessingRule(Boolean.TRUE);
         final Optional<PathSetupType> maybePST = getPST(rep);
         if (maybePST.isPresent()) {
-            srpBuilder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.TlvsBuilder()
-                .setPathSetupType(maybePST.get())
-                .build());
+            srpBuilder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
+                    .rev131222.srp.object.srp.TlvsBuilder().setPathSetupType(maybePST.get()).build());
         }
         rb.setSrp(srpBuilder.build());
-        rb.setLsp(new LspBuilder().setRemove(Boolean.FALSE).setPlspId(reportedLsp.getPlspId()).setDelegate(reportedLsp.isDelegate()).build());
+        rb.setLsp(new LspBuilder().setRemove(Boolean.FALSE).setPlspId(reportedLsp.getPlspId())
+                .setDelegate(reportedLsp.isDelegate()).build());
         return rb.build();
     }
 
-    private class UpdateFunction implements AsyncFunction<Optional<ReportedLsp>, OperationResult>  {
+    private class UpdateFunction implements AsyncFunction<Optional<ReportedLsp>, OperationResult> {
 
         private final UpdateLspArgs input;
 
@@ -562,15 +578,17 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             if ((args != null && args.getPathSetupType() != null)) {
                 if (!PSTUtil.isDefaultPST(args.getPathSetupType())) {
                     srpBuilder.setTlvs(
-                            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.TlvsBuilder()
-                                .setPathSetupType(args.getPathSetupType()).build());
+                            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
+                                    .rev131222.srp.object.srp.TlvsBuilder()
+                                    .setPathSetupType(args.getPathSetupType()).build());
                 }
             } else {
                 final Optional<PathSetupType> maybePST = getPST(rep);
                 if (maybePST.isPresent()) {
                     srpBuilder.setTlvs(
-                            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.TlvsBuilder()
-                                .setPathSetupType(maybePST.get()).build());
+                            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
+                                    .rev131222.srp.object.srp.TlvsBuilder()
+                                    .setPathSetupType(maybePST.get()).build());
                 }
             }
             final Srp srp = srpBuilder.build();
@@ -585,7 +603,8 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         }
     }
 
-    private ListenableFuture<OperationResult> redelegate(final Lsp reportedLsp, final Srp srp, final Lsp lsp, final UpdateLspArgs input) {
+    private ListenableFuture<OperationResult> redelegate(final Lsp reportedLsp, final Srp srp, final Lsp lsp,
+            final UpdateLspArgs input) {
         // the D bit that was reported decides the type of PCE message sent
         requireNonNull(reportedLsp.isDelegate());
         final Message msg;
@@ -622,7 +641,8 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
 
     @Override
     public synchronized ListenableFuture<OperationResult> updateLsp(final UpdateLspArgs input) {
-        Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null && input.getArguments() != null, MISSING_XML_TAG);
+        Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null
+                && input.getArguments() != null, MISSING_XML_TAG);
         LOG.trace("UpdateLspArgs {}", input);
         // Make sure the LSP exists
         final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName());
@@ -635,7 +655,8 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
 
     @Override
     public synchronized ListenableFuture<OperationResult> ensureLspOperational(final EnsureLspOperationalInput input) {
-        Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null && input.getArguments() != null, MISSING_XML_TAG);
+        Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null
+                && input.getArguments() != null, MISSING_XML_TAG);
         final OperationalStatus op;
         final Arguments1 aa = input.getArguments().getAugmentation(Arguments1.class);
         if (aa != null) {
@@ -654,7 +675,8 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         return listenableFuture(f, input, op);
     }
 
-    private ListenableFuture<OperationResult> listenableFuture(final ListenableFuture<Optional<ReportedLsp>> f, final EnsureLspOperationalInput input, final OperationalStatus op) {
+    private ListenableFuture<OperationResult> listenableFuture(final ListenableFuture<Optional<ReportedLsp>> f,
+            final EnsureLspOperationalInput input, final OperationalStatus op) {
         return Futures.transform(f, rep -> {
             if (!rep.isPresent()) {
                 LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
@@ -676,7 +698,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     }
 
     @Override
-    protected Lsp validateReportedLsp(final Optional<ReportedLsp> rep,  final LspId input) {
+    protected Lsp validateReportedLsp(final Optional<ReportedLsp> rep, final LspId input) {
         if (!rep.isPresent()) {
             LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
             return null;
@@ -702,27 +724,16 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         return Optional.absent();
     }
 
-    private static PeerCapabilities getCapabilities(final Stateful stateful) {
-        final PeerCapabilities capa = new PeerCapabilities();
-        capa.setStateful(true);
-        if (stateful.isLspUpdateCapability() != null) {
-            capa.setActive(stateful.isLspUpdateCapability());
-        }
-        final Stateful1 stateful1 = stateful.getAugmentation(Stateful1.class);
-        if (stateful1 != null && stateful1.isInitiation() != null) {
-            capa.setInstantiation(stateful1.isInitiation());
-        }
-        return capa;
-    }
-
     /**
      * Recover lspData and mark any LSPs in the LSP database that were previously reported by the PCC as stale
+     *
      * @param lspData
      * @param lsps
      * @param incrementalSynchro
      */
     @Override
-    protected synchronized void loadLspData(final Node node, final Map<String, ReportedLsp> lspData, final Map<PlspId, String> lsps, final boolean incrementalSynchro) {
+    protected synchronized void loadLspData(final Node node, final Map<String, ReportedLsp> lspData,
+            final Map<PlspId, String> lsps, final boolean incrementalSynchro) {
         //load node's lsps from DS
         final PathComputationClient pcc = node.getAugmentation(Node1.class).getPathComputationClient();
         final List<ReportedLsp> reportedLsps = pcc.getReportedLsp();
@@ -746,6 +757,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
      * When the PCC reports an LSP during state synchronization, if the LSP already
      * exists in the LSP database, the PCE MUST update the LSP database and
      * clear the stale marker from the LSP
+     *
      * @param plspId
      */
     private synchronized void unmarkStaleLsp(final PlspId plspId) {
@@ -753,7 +765,8 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     }
 
     /**
-     *  Purge any LSPs from the LSP database that are still marked as stale
+     * Purge any LSPs from the LSP database that are still marked as stale
+     *
      * @param ctx
      */
     private synchronized void purgeStaleLsps(final MessageContext ctx) {

@@ -22,6 +22,8 @@
     <reference id="clusterSingletonServiceProvider"
                interface="org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider"/>
     <reference id="intructionFactory" interface="org.opendaylight.bgpcep.programming.spi.InstructionSchedulerFactory"/>
+    <reference id="topologySessionStatsRegistry"
+               interface="org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry"/>
 
     <bean id="pcepTopologyDeployer" class="org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyDeployerImpl"
           destroy-method="close">
@@ -39,5 +41,6 @@
         <argument ref="pcepDispatcher"/>
         <argument ref="rpcRegistry"/>
         <argument ref="Stateful07TopologySessionListenerFactory"/>
+        <argument ref="topologySessionStatsRegistry"/>
     </bean>
 </blueprint>

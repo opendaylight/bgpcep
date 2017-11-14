@@ -34,11 +34,7 @@ import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.controller.config.yang.pcep.topology.provider.ListenerStateRuntimeMXBean;
-import org.opendaylight.controller.config.yang.pcep.topology.provider.ListenerStateRuntimeRegistration;
-import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeMXBean;
-import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistration;
-import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistrator;
+import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
 import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiator;
@@ -72,8 +68,8 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
     extends AbstractConcurrentDataBrokerTest {
 
     private static final String TEST_TOPOLOGY_NAME = "testtopo";
-    static final InstanceIdentifier<Topology> TOPO_IID = InstanceIdentifier.builder(NetworkTopology.class).child(
-            Topology.class, new TopologyKey(new TopologyId(TEST_TOPOLOGY_NAME))).build();
+    static final InstanceIdentifier<Topology> TOPO_IID = InstanceIdentifier.builder(NetworkTopology.class)
+            .child(Topology.class, new TopologyKey(new TopologyId(TEST_TOPOLOGY_NAME))).build();
     private static final String IPV4_MASK = "/32";
     static final short DEAD_TIMER = 30;
     static final short KEEP_ALIVE = 10;
@@ -102,6 +98,9 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
     @Mock
     private ChannelFuture channelFuture;
 
+    @Mock
+    private TopologySessionStatsRegistry statsRegistry;
+
     private final Open localPrefs = new OpenBuilder().setDeadTimer((short) 30).setKeepalive((short) 10)
         .setSessionId((short) 0).build();
 
@@ -128,6 +127,8 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
         doReturn(this.pipeline).when(this.pipeline).replace(any(ChannelHandler.class), any(String.class),
             any(ChannelHandler.class));
         doReturn(this.eventLoop).when(this.clientListener).eventLoop();
+        doNothing().when(this.statsRegistry).bind(any(), any());
+        doNothing().when(this.statsRegistry).unbind(any());
         doReturn(null).when(this.eventLoop).schedule(any(Runnable.class), any(long.class),
             any(TimeUnit.class));
         doReturn(true).when(this.clientListener).isActive();
@@ -140,7 +141,8 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
 
         final T listenerFactory = (T) ((Class) ((ParameterizedType) this.getClass().getGenericSuperclass())
             .getActualTypeArguments()[0]).newInstance();
-        this.manager = new ServerSessionManager(getDataBroker(), TOPO_IID, listenerFactory, RPC_TIMEOUT);
+        this.manager = new ServerSessionManager(getDataBroker(), TOPO_IID, listenerFactory, this.statsRegistry,
+                RPC_TIMEOUT);
         startSessionManager();
         this.neg = new DefaultPCEPSessionNegotiator(mock(Promise.class), this.clientListener,
             this.manager.getSessionListener(), (short) 1, 5, this.localPrefs);

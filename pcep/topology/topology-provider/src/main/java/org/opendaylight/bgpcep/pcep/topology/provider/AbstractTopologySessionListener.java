@@ -23,18 +23,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.GuardedBy;
-import org.opendaylight.controller.config.yang.pcep.topology.provider.ListenerStateRuntimeMXBean;
-import org.opendaylight.controller.config.yang.pcep.topology.provider.ListenerStateRuntimeRegistration;
-import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistration;
-import org.opendaylight.controller.config.yang.pcep.topology.provider.PeerCapabilities;
-import org.opendaylight.controller.config.yang.pcep.topology.provider.ReplyTime;
-import org.opendaylight.controller.config.yang.pcep.topology.provider.SessionState;
-import org.opendaylight.controller.config.yang.pcep.topology.provider.StatefulMessages;
+import org.opendaylight.bgpcep.pcep.topology.provider.session.stats.SessionStateImpl;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -44,9 +37,6 @@ import org.opendaylight.protocol.pcep.PCEPTerminationReason;
 import org.opendaylight.protocol.pcep.TerminationReason;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.topology.pcep.rpc.rev171110.ReleaseConnectionInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.LspObject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Path1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.MessageHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
@@ -78,7 +68,7 @@ import org.slf4j.LoggerFactory;
  * @param <S> identifier type of requests
  * @param <L> identifier type for LSPs
  */
-public abstract class AbstractTopologySessionListener<S, L> implements TopologySessionListener, ListenerStateRuntimeMXBean {
+public abstract class AbstractTopologySessionListener<S, L> implements TopologySessionListener {
     protected static final class MessageContext {
         private final Collection<PCEPRequest> requests = new ArrayList<>();
         private final WriteTransaction trans;
@@ -128,17 +118,18 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
     private final ServerSessionManager serverSessionManager;
     private InstanceIdentifier<PathComputationClient> pccIdentifier;
     private TopologyNodeState nodeState;
+    @GuardedBy("this")
     private boolean synced = false;
     private PCEPSession session;
     private SyncOptimization syncOptimization;
     private boolean triggeredResyncInProcess;
 
     @GuardedBy("this")
-    private final SessionListenerState listenerState;
+    protected final SessionStateImpl listenerState;
 
     protected AbstractTopologySessionListener(final ServerSessionManager serverSessionManager) {
         this.serverSessionManager = requireNonNull(serverSessionManager);
-        this.listenerState = new SessionListenerState();
+        this.listenerState = new SessionStateImpl(this.lspData.values());
     }
 
     @Override
@@ -154,6 +145,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         this.syncOptimization = new SyncOptimization(session);
 
         final TopologyNodeState state = this.serverSessionManager.takeNodeState(peerAddress, this, isLspDbRetreived());
+
         // takeNodeState(..) may fail when the server session manager is being restarted due to configuration change
         if (state == null) {
             LOG.error("Unable to fetch topology node state for PCEP session. Closing session {}", session);
@@ -168,9 +160,9 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
             this.onSessionTerminated(session, new PCEPCloseTermination(TerminationReason.UNKNOWN));
             return;
         }
-
         this.session = session;
         this.nodeState = state;
+        this.serverSessionManager.bind(this.nodeState.getNodeId(), this.listenerState);
 
         LOG.trace("Peer {} resolved to topology node {}", peerAddress, state.getNodeId());
 
@@ -251,13 +243,19 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
     /**
      * Tear down the given PCEP session. It's OK to call this method even after the session
      * is already down. It always clear up the current session status.
+     *
      * @param session
      */
     @GuardedBy("this")
     private synchronized void tearDown(final PCEPSession session) {
+
         requireNonNull(session);
         this.serverSessionManager.releaseNodeState(this.nodeState, session, isLspDbPersisted());
-        this.nodeState = null;
+        if (this.nodeState != null) {
+            this.serverSessionManager.unbind(this.nodeState.getNodeId());
+            this.nodeState = null;
+        }
+
         try {
             if (this.session != null) {
                 this.session.close();
@@ -273,22 +271,22 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         for (final Entry<S, PCEPRequest> e : this.requests.entrySet()) {
             final PCEPRequest r = e.getValue();
             switch (r.getState()) {
-            case DONE:
-                // Done is done, nothing to do
-                LOG.trace("Request {} was done when session went down.", e.getKey());
-                break;
-            case UNACKED:
-                // Peer has not acked: results in failure
-                LOG.info("Request {} was incomplete when session went down, failing the instruction", e.getKey());
-                r.done(OperationResults.NOACK);
-                break;
-            case UNSENT:
-                // Peer has not been sent to the peer: results in cancellation
-                LOG.debug("Request {} was not sent when session went down, cancelling the instruction", e.getKey());
-                r.done(OperationResults.UNSENT);
-                break;
-            default:
-                break;
+                case DONE:
+                    // Done is done, nothing to do
+                    LOG.trace("Request {} was done when session went down.", e.getKey());
+                    break;
+                case UNACKED:
+                    // Peer has not acked: results in failure
+                    LOG.info("Request {} was incomplete when session went down, failing the instruction", e.getKey());
+                    r.done(OperationResults.NOACK);
+                    break;
+                case UNSENT:
+                    // Peer has not been sent to the peer: results in cancellation
+                    LOG.debug("Request {} was not sent when session went down, cancelling the instruction", e.getKey());
+                    r.done(OperationResults.UNSENT);
+                    break;
+                default:
+                    break;
             }
         }
         this.requests.clear();
@@ -355,7 +353,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
     }
 
     protected final synchronized ListenableFuture<OperationResult> sendMessage(final Message message, final S requestId,
-        final Metadata metadata) {
+            final Metadata metadata) {
         final io.netty.util.concurrent.Future<Void> f = this.session.sendMessage(message);
         this.listenerState.updateStatefulSentMsg(message);
         final PCEPRequest req = new PCEPRequest(metadata);
@@ -400,15 +398,15 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
     /**
      * Update an LSP in the data store
      *
-     * @param ctx Message context
-     * @param id Revision-specific LSP identifier
-     * @param lspName LSP name
-     * @param rlb Reported LSP builder
+     * @param ctx       Message context
+     * @param id        Revision-specific LSP identifier
+     * @param lspName   LSP name
+     * @param rlb       Reported LSP builder
      * @param solicited True if the update was solicited
-     * @param remove True if this is an LSP path removal
+     * @param remove    True if this is an LSP path removal
      */
     protected final synchronized void updateLsp(final MessageContext ctx, final L id, final String lspName,
-        final ReportedLspBuilder rlb, final boolean solicited, final boolean remove) {
+            final ReportedLspBuilder rlb, final boolean solicited, final boolean remove) {
 
         final String name;
         if (lspName == null) {
@@ -471,7 +469,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
             for (final Path path : previous.getPath()) {
                 //we found reported path in previous reports
                 if (path.getLspId().getValue() == 0 || path.getLspId().equals(reportedLspId)) {
-                    LOG.debug("Match on lsp-id {}", path.getLspId().getValue() );
+                    LOG.debug("Match on lsp-id {}", path.getLspId().getValue());
                     // path that was reported previously and does have the same lsp-id, path will be updated
                     final boolean r = updatedPaths.remove(path);
                     LOG.trace("Request removed? {}", r);
@@ -512,7 +510,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
 
         // Update synchronization flag
         this.synced = true;
-        if(this.triggeredResyncInProcess) {
+        if (this.triggeredResyncInProcess) {
             this.triggeredResyncInProcess = false;
         }
         updatePccNode(ctx, new PathComputationClientBuilder().setStateSync(PccSyncState.Synchronized).build());
@@ -534,7 +532,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
      * Remove LSP from the database.
      *
      * @param ctx Message Context
-     * @param id Revision-specific LSP identifier
+     * @param id  Revision-specific LSP identifier
      */
     protected final synchronized void removeLsp(final MessageContext ctx, final L id) {
         final String name = this.lsps.remove(id);
@@ -548,7 +546,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
     /**
      * Perform revision-specific message processing when a message arrives.
      *
-     * @param ctx Message processing context
+     * @param ctx     Message processing context
      * @param message Protocol message
      * @return True if the message type is not handle.
      */
@@ -594,6 +592,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
     /**
      * Is Incremental synchronization if LSP-DB-VERSION are included,
      * LSP-DB-VERSION TLV values doesnt match, and  LSP-SYNC-CAPABILITY is enabled
+     *
      * @return
      */
     protected final boolean isIncrementalSynchro() {
@@ -624,56 +623,13 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         return false;
     }
 
-    protected synchronized SessionListenerState getSessionListenerState() {
-        return this.listenerState;
-    }
-
-    @Override
-    public synchronized Integer getDelegatedLspsCount() {
-        return Math.toIntExact(this.lspData.values().stream()
-            .map(ReportedLsp::getPath).filter(Objects::nonNull).filter(pathList -> !pathList.isEmpty())
-            // pick the first path, as delegate status should be same in each path
-            .map(pathList -> pathList.get(0))
-            .map(path -> path.getAugmentation(Path1.class)).filter(Objects::nonNull)
-            .map(LspObject::getLsp).filter(Objects::nonNull)
-            .filter(Lsp::isDelegate)
-            .count());
-    }
-
-    @Override
-    public Boolean getSynchronized() {
+    public synchronized boolean getSynchronized() {
         return this.synced;
     }
-
-    @Override
-    public StatefulMessages getStatefulMessages() {
-        return this.listenerState.getStatefulMessages();
-    }
-
-    @Override
-    public synchronized ReplyTime getReplyTime() {
-        return this.listenerState.getReplyTime();
-    }
-
-    @Override
-    public synchronized PeerCapabilities getPeerCapabilities() {
-        return this.listenerState.getPeerCapabilities();
-    }
-
 
     @Override
     public synchronized ListenableFuture<Void> releaseSession(final ReleaseConnectionInput input) {
         close();
         return Futures.immediateFuture(null);
-    }
-
-    @Override
-    public synchronized SessionState getSessionState() {
-        return this.listenerState.getSessionState(this.session);
-    }
-
-    @Override
-    public synchronized String getPeerId() {
-        return this.session.getPeerPref().getIpAddress();
     }
 }

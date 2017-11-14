@@ -27,7 +27,6 @@ import org.opendaylight.bgpcep.programming.spi.InstructionSchedulerFactory;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
-import org.opendaylight.controller.md.sal.binding.api.DataObjectModification.ModificationType;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -74,23 +73,21 @@ public class PCEPTopologyDeployerImpl implements PCEPTopologyDeployer,
         final List<DataObjectModification<Topology>> topoChanges = changes.stream()
                 .map(DataTreeModification::getRootNode)
                 .collect(Collectors.toList());
-        topoChanges.stream()
-                .filter(rootNode -> rootNode.getModificationType().equals(ModificationType.DELETE))
-                .map(DataObjectModification::getDataBefore)
-                .filter(topo -> filterPcepTopologies(topo.getTopologyTypes()))
-                .forEach(topology -> removeTopologyProvider(topology.getTopologyId()));
 
         topoChanges.stream()
-                .filter(rootNode -> rootNode.getModificationType().equals(ModificationType.SUBTREE_MODIFIED))
-                .map(DataObjectModification::getDataAfter)
-                .filter(topo -> filterPcepTopologies(topo.getTopologyTypes()))
-                .forEach(this::updateTopologyProvider);
-
-        topoChanges.stream()
-                .filter(rootNode -> rootNode.getModificationType().equals(ModificationType.WRITE))
-                .map(DataObjectModification::getDataAfter)
-                .filter(topo -> filterPcepTopologies(topo.getTopologyTypes()))
-                .forEach(this::createTopologyProvider);
+                .iterator().forEachRemaining(topo -> {
+            switch (topo.getModificationType()) {
+                case SUBTREE_MODIFIED:
+                    updateTopologyProvider(topo.getDataAfter());
+                    break;
+                case WRITE:
+                    createTopologyProvider(topo.getDataAfter());
+                    break;
+                case DELETE:
+                    removeTopologyProvider(topo.getDataBefore());
+                    break;
+            }
+        });
     }
 
     private boolean filterPcepTopologies(final TopologyTypes topologyTypes) {
@@ -103,6 +100,9 @@ public class PCEPTopologyDeployerImpl implements PCEPTopologyDeployer,
     }
 
     private void updateTopologyProvider(final Topology topology) {
+        if (!filterPcepTopologies(topology.getTopologyTypes())) {
+            return;
+        }
         final TopologyId topologyId = topology.getTopologyId();
         final PCEPTopologyProviderBean previous = this.pcepTopologyServices.remove(topology.getTopologyId());
         if (previous != null) {
@@ -117,6 +117,9 @@ public class PCEPTopologyDeployerImpl implements PCEPTopologyDeployer,
     }
 
     private synchronized void createTopologyProvider(final Topology topology) {
+        if (!filterPcepTopologies(topology.getTopologyTypes())) {
+            return;
+        }
         final TopologyId topologyId = topology.getTopologyId();
         if (this.pcepTopologyServices.containsKey(topology.getTopologyId())) {
             LOG.warn("Topology Provider {} already exist. New instance won't be created", topologyId);
@@ -144,7 +147,11 @@ public class PCEPTopologyDeployerImpl implements PCEPTopologyDeployer,
         pcepTopologyProviderBean.start(dependencies);
     }
 
-    private synchronized void removeTopologyProvider(final TopologyId topologyId) {
+    private synchronized void removeTopologyProvider(final Topology topo) {
+        if (!filterPcepTopologies(topo.getTopologyTypes())) {
+            return;
+        }
+        final TopologyId topologyId = topo.getTopologyId();
         final PCEPTopologyProviderBean topology = this.pcepTopologyServices.remove(topologyId);
         if (topology != null) {
             try {
@@ -207,5 +214,6 @@ public class PCEPTopologyDeployerImpl implements PCEPTopologyDeployer,
     public synchronized void close() throws Exception {
         this.listenerRegistration.close();
         this.pcepTopologyServices.values().forEach(PCEPTopologyProviderBean::close);
+        this.pcepTopologyServices.clear();
     }
 }
