@@ -24,7 +24,11 @@
 
     <modules>
         <module>features-config-loader</module>
-        <module>odl-bgpcep-config-loader</module>
+        <module>odl-bgpcep-config-loader-spi</module>
+        <module>odl-bgpcep-config-loader-impl</module>
+        <module>odl-bgpcep-topology-config-loader</module>
+        <module>odl-bgpcep-protocols-config-loader</module>
+        <module>odl-bgpcep-bmp-config-loader</module>
     </modules>
 
     <!--

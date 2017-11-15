@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
+    <odl:static-reference id="domSchemaService" interface="org.opendaylight.mdsal.dom.api.DOMSchemaService"/>
+    <odl:static-reference id="mappingCodec"
+                          interface="org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer"/>
+
+    <bean id="filewatcher" class="org.opendaylight.bgpcep.config.loader.impl.FileWatcherImpl"
+          destroy-method="close"/>
+
+    <bean id="configLoader" class="org.opendaylight.bgpcep.config.loader.impl.ConfigLoaderImpl"
+          init-method="init"
+          destroy-method="close">
+        <argument>
+            <bean factory-ref="domSchemaService" factory-method="getGlobalContext"/>
+        </argument>
+        <argument ref="mappingCodec"/>
+        <argument ref="filewatcher"/>
+    </bean>
+
+    <service ref="configLoader" interface="org.opendaylight.bgpcep.config.loader.spi.ConfigLoader"/>
+</blueprint>
