@@ -169,7 +169,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
             return;
         }
         final ReadWriteTransaction trans = this.chain.newReadWriteTransaction();
-        LOG.debug("Received data change {} event with transaction {}", changes, trans.getIdentifier());
+        LOG.trace("Received data change {} event with transaction {}", changes, trans.getIdentifier());
         final AtomicBoolean transactionInError = new AtomicBoolean(false);
         for (final DataTreeModification<T> change : changes) {
             try {
