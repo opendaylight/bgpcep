@@ -159,7 +159,7 @@ public final class BgpTopologyDeployerImpl implements AutoCloseable, ClusteredDa
     }
 
     @Override
-    public synchronized void close() throws Exception {
+    public synchronized void close() {
         this.registration.close();
         LOG.info("BGP topology deployer stopped.");
         this.closed = true;

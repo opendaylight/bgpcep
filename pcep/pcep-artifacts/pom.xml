@@ -122,6 +122,13 @@
                 <artifactId>pcep-topology-stats</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-config-example</artifactId>
+                <version>${project.version}</version>
+                <type>xml</type>
+                <classifier>network-topology-pcep-initial-config</classifier>
+            </dependency>
             <!-- PCEP Features artifacts -->
             <dependency>
                 <groupId>${project.groupId}</groupId>
@@ -196,6 +203,13 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>odl-bgpcep-pcep-auto-bandwidth</artifactId>
+                <classifier>features</classifier>
+                <type>xml</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-pcep-config-example</artifactId>
                 <classifier>features</classifier>
                 <type>xml</type>
                 <version>${project.version}</version>
