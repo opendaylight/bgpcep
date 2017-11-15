@@ -7,7 +7,9 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider.config;
 
+import javax.annotation.Nonnull;
 import org.opendaylight.bgpcep.pcep.topology.provider.TopologySessionListenerFactory;
+import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
@@ -17,26 +19,32 @@ import org.opendaylight.protocol.pcep.PCEPDispatcher;
  */
 public interface PCEPTopologyProviderDependenciesProvider {
     /**
-     *
      * @return PCEPDispatcher
      */
+    @Nonnull
     PCEPDispatcher getPCEPDispatcher();
 
     /**
-     *
      * @return RpcProviderRegistry
      */
+    @Nonnull
     RpcProviderRegistry getRpcProviderRegistry();
 
     /**
-     *
      * @return DataBroker
      */
+    @Nonnull
     DataBroker getDataBroker();
 
     /**
-     *
      * @return TopologySessionListenerFactory
      */
+    @Nonnull
     TopologySessionListenerFactory getTopologySessionListenerFactory();
+
+    /**
+     * @return TopologySessionStateRegistry
+     */
+    @Nonnull
+    TopologySessionStatsRegistry getStateRegistry();
 }

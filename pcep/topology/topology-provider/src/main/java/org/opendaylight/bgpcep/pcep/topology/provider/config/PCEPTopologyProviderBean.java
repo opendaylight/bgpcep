@@ -19,6 +19,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.bgpcep.pcep.topology.provider.PCEPTopologyProvider;
 import org.opendaylight.bgpcep.pcep.topology.provider.TopologySessionListenerFactory;
+import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
@@ -44,20 +45,27 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
     private final RpcProviderRegistry rpcProviderRegistry;
     private final BundleContext bundleContext;
     private final ClusterSingletonServiceProvider cssp;
+    private final TopologySessionStatsRegistry stateRegistry;
     @GuardedBy("this")
     private PCEPTopologyProviderBeanCSS pcepTopoProviderCSS;
 
-    public PCEPTopologyProviderBean(final ClusterSingletonServiceProvider cssp, final BundleContext bundleContext,
-        final DataBroker dataBroker, final PCEPDispatcher pcepDispatcher, final RpcProviderRegistry rpcProviderRegistry,
-        final TopologySessionListenerFactory sessionListenerFactory) {
+    public PCEPTopologyProviderBean(
+            final ClusterSingletonServiceProvider cssp,
+            final BundleContext bundleContext,
+            final DataBroker dataBroker,
+            final PCEPDispatcher pcepDispatcher,
+            final RpcProviderRegistry rpcProviderRegistry,
+            final TopologySessionListenerFactory sessionListenerFactory,
+            final TopologySessionStatsRegistry stateRegistry) {
         this.cssp = requireNonNull(cssp);
         this.bundleContext = requireNonNull(bundleContext);
         this.pcepDispatcher = requireNonNull(pcepDispatcher);
         this.dataBroker = requireNonNull(dataBroker);
         this.sessionListenerFactory = requireNonNull(sessionListenerFactory);
         this.rpcProviderRegistry = requireNonNull(rpcProviderRegistry);
+        this.stateRegistry = requireNonNull(stateRegistry);
         final List<PCEPCapability> capabilities = this.pcepDispatcher.getPCEPSessionNegotiatorFactory()
-            .getPCEPSessionProposalFactory().getCapabilities();
+                .getPCEPSessionProposalFactory().getCapabilities();
         final boolean statefulCapability = capabilities.stream().anyMatch(PCEPCapability::isStateful);
         if (!statefulCapability) {
             throw new IllegalStateException(STATEFUL_NOT_DEFINED);
@@ -81,7 +89,7 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
 
     synchronized void start(final PCEPTopologyConfigDependencies configDependencies) {
         Preconditions.checkState(this.pcepTopoProviderCSS == null,
-            "Previous instance %s was not closed.", this);
+                "Previous instance %s was not closed.", this);
         try {
             this.pcepTopoProviderCSS = new PCEPTopologyProviderBeanCSS(configDependencies);
         } catch (final Exception e) {
@@ -109,6 +117,11 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
         return this.sessionListenerFactory;
     }
 
+    @Override
+    public TopologySessionStatsRegistry getStateRegistry() {
+        return this.stateRegistry;
+    }
+
     private class PCEPTopologyProviderBeanCSS implements ClusterSingletonService, AutoCloseable {
         private final ServiceGroupIdentifier sgi;
         private ServiceRegistration<?> serviceRegistration;
@@ -118,13 +131,13 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
         private boolean serviceInstantiated;
 
         PCEPTopologyProviderBeanCSS(final PCEPTopologyConfigDependencies configDependencies) {
-                this.sgi = configDependencies.getSchedulerDependency().getIdentifier();
-                this.pcepTopoProvider = PCEPTopologyProvider
-                        .create(PCEPTopologyProviderBean.this, configDependencies);
+            this.sgi = configDependencies.getSchedulerDependency().getIdentifier();
+            this.pcepTopoProvider = PCEPTopologyProvider
+                    .create(PCEPTopologyProviderBean.this, configDependencies);
 
-                final Dictionary<String, String> properties = new Hashtable<>();
-                properties.put(PCEPTopologyProvider.class.getName(), configDependencies.getTopologyId().getValue());
-                this.serviceRegistration = PCEPTopologyProviderBean.this.bundleContext
+            final Dictionary<String, String> properties = new Hashtable<>();
+            properties.put(PCEPTopologyProvider.class.getName(), configDependencies.getTopologyId().getValue());
+            this.serviceRegistration = PCEPTopologyProviderBean.this.bundleContext
                     .registerService(DefaultTopologyReference.class.getName(), this.pcepTopoProvider, properties);
             LOG.info("PCEP Topology Provider service {} registered", getIdentifier().getValue());
             this.cssRegistration = PCEPTopologyProviderBean.this.cssp.registerClusterSingletonService(this);

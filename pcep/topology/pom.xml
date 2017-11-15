@@ -21,6 +21,7 @@
         <module>topology-api</module>
         <module>topology-spi</module>
         <module>topology-provider</module>
+        <module>topology-stats</module>
     </modules>
 
     <!--

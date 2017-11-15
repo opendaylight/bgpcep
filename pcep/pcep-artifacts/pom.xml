@@ -117,6 +117,11 @@
                 <artifactId>pcep-auto-bandwidth-extension</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-topology-stats</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <!-- PCEP Features artifacts -->
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
