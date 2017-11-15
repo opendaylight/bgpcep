@@ -199,11 +199,11 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
 
             if (!this.advertized) {
                 if (this.tps.isEmpty() && this.prefixes.isEmpty()) {
-                    LOG.debug("Removing unadvertized unused node {}", this.nb.getNodeId());
+                    LOG.trace("Removing unadvertized unused node {}", this.nb.getNodeId());
                     return true;
                 }
 
-                LOG.debug("Node {} is still implied by {} TPs and {} prefixes", this.nb.getNodeId(), this.tps.size(), this.prefixes.size());
+                LOG.trace("Node {} is still implied by {} TPs and {} prefixes", this.nb.getNodeId(), this.tps.size(), this.prefixes.size());
             }
 
             // Re-generate termination points
@@ -215,7 +215,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             // Write the node out
             final Node n = this.nb.addAugmentation(Node1.class, new Node1Builder().setIgpNodeAttributes(this.inab.build()).build()).build();
             trans.put(LogicalDatastoreType.OPERATIONAL, nid, n);
-            LOG.debug("Created node {} at {}", n, nid);
+            LOG.trace("Created node {} at {}", n, nid);
             return false;
         }
 
@@ -225,11 +225,11 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
                 if (!this.advertized) {
                     if (this.tps.isEmpty() && this.prefixes.isEmpty()) {
                         trans.delete(LogicalDatastoreType.OPERATIONAL, nid);
-                        LOG.debug("Removing unadvertized unused node {}", this.nb.getNodeId());
+                        LOG.trace("Removing unadvertized unused node {}", this.nb.getNodeId());
                         return true;
                     }
 
-                    LOG.debug("Node {} is still implied by {} TPs and {} prefixes", this.nb.getNodeId(), this.tps.size(), this.prefixes.size());
+                    LOG.trace("Node {} is still implied by {} TPs and {} prefixes", this.nb.getNodeId(), this.tps.size(), this.prefixes.size());
                 }
                 return false;
         }
@@ -239,7 +239,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             if (h != null) {
                 if (h.removeLink(link, isRemote)) {
                     this.tps.remove(tp);
-                    LOG.debug("Removed TP {}", tp);
+                    LOG.trace("Removed TP {}", tp);
                 }
             } else {
                 LOG.warn("Removed non-present TP {} by link {}", tp, link);
@@ -560,21 +560,21 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
         lb.addAugmentation(Link1.class, new Link1Builder().setIgpLinkAttributes(ilab.build()).build());
 
         final NodeId srcNode = buildNodeId(base, l.getLocalNodeDescriptors());
-        LOG.debug("Link {} implies source node {}", l, srcNode);
+        LOG.trace("Link {} implies source node {}", l, srcNode);
 
         final NodeId dstNode = buildNodeId(base, l.getRemoteNodeDescriptors());
-        LOG.debug("Link {} implies destination node {}", l, dstNode);
+        LOG.trace("Link {} implies destination node {}", l, dstNode);
 
         final TerminationPoint srcTp = buildLocalTp(base, l.getLinkDescriptors());
-        LOG.debug("Link {} implies source TP {}", l, srcTp);
+        LOG.trace("Link {} implies source TP {}", l, srcTp);
 
         final TerminationPoint dstTp = buildRemoteTp(base, l.getLinkDescriptors());
-        LOG.debug("Link {} implies destination TP {}", l, dstTp);
+        LOG.trace("Link {} implies destination TP {}", l, dstTp);
 
         lb.setSource(new SourceBuilder().setSourceNode(srcNode).setSourceTp(srcTp.getTpId()).build());
         lb.setDestination(new DestinationBuilder().setDestNode(dstNode).setDestTp(dstTp.getTpId()).build());
 
-        LOG.debug("Created TP {} as link source", srcTp);
+        LOG.trace("Created TP {} as link source", srcTp);
         NodeHolder snh = this.nodes.get(srcNode);
         if (snh == null) {
             snh = getNode(srcNode);
