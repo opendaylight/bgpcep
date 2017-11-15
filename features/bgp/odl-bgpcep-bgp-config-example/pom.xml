@@ -41,7 +41,7 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>bgp-config-example</artifactId>
             <type>xml</type>
-            <classifier>network-topology-initial-config</classifier>
+            <classifier>network-topology-bgp-initial-config</classifier>
         </dependency>
     </dependencies>
 
