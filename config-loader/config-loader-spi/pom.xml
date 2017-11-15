@@ -25,7 +25,7 @@
     <dependencies>
         <dependency>
             <groupId>org.opendaylight.mdsal</groupId>
-            <artifactId>mdsal-binding-dom-codec</artifactId>
+            <artifactId>mdsal-binding-generator-api</artifactId>
         </dependency>
     </dependencies>
 
@@ -36,6 +36,13 @@
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <configuration>
                     <propertyExpansion>checkstyle.violationSeverity=error</propertyExpansion>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <configuration>
+                    <failOnError>true</failOnError>
                 </configuration>
             </plugin>
         </plugins>
