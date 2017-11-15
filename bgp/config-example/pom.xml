@@ -77,7 +77,7 @@
                                 <artifact>
                                     <file>${project.build.directory}/classes/initial/network-topology-config.xml</file>
                                     <type>xml</type>
-                                    <classifier>network-topology-initial-config</classifier>
+                                    <classifier>network-topology-bgp-initial-config</classifier>
                                 </artifact>
                             </artifacts>
                         </configuration>

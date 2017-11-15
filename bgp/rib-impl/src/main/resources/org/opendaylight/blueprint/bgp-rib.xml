@@ -75,14 +75,6 @@
 
   <bean id="appPeer" class="org.opendaylight.protocol.bgp.rib.impl.config.AppPeer" scope="prototype"/>
 
-  <reference id="bgpConfigLoader" interface="org.opendaylight.protocol.bgp.config.loader.spi.ConfigLoader"/>
-
-  <bean id="protocolsInitialConfig" class="org.opendaylight.protocol.bgp.rib.impl.ProtocolsConfigFileProcessor"
-        destroy-method="close">
-      <argument ref="bgpConfigLoader"/>
-      <argument ref="bgpDeployer"/>
-  </bean>
-
   <bean id="bgpStateCollector" class="org.opendaylight.protocol.bgp.rib.impl.state.BGPStateCollectorImpl"/>
   <service ref="bgpStateCollector" interface="org.opendaylight.protocol.bgp.rib.spi.state.BGPStateConsumer"/>
 

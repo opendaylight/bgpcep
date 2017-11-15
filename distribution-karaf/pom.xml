@@ -84,6 +84,13 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
+      <groupId>org.opendaylight.bgpcep</groupId>
+      <artifactId>features-config-loader</artifactId>
+      <classifier>features</classifier>
+      <type>xml</type>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
       <groupId>org.opendaylight.netconf</groupId>
       <artifactId>features-restconf</artifactId>
       <classifier>features</classifier>
