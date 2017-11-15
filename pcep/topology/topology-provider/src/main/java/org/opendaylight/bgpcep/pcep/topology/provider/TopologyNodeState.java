@@ -16,6 +16,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -56,6 +57,7 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
         this.chain = broker.createTransactionChain(this);
     }
 
+    @Nonnull
     public KeyedInstanceIdentifier<Node, NodeKey> getNodeId() {
         return this.nodeId;
     }
