@@ -69,7 +69,7 @@ final class PCEPTopologyProviderUtil {
         return aug != null && aug.getTopologyPcep() != null;
     }
 
-    static void closeTopology(final PCEPTopologyProviderBean topology, final TopologyId topologyId) {
+    static void closeTopology(@Nullable final PCEPTopologyProviderBean topology, @Nonnull final TopologyId topologyId) {
         if (topology != null) {
             try {
                 topology.closeServiceInstance().get(TIMEOUT_NS, TimeUnit.NANOSECONDS);

@@ -1,7 +1,7 @@
 // vi: set smarttab et sw=4 tabstop=4:
 module network-pcep-topology-config {
     yang-version 1;
-    namespace "urn:opendaylight:params:xml:ns:yang:topology:pce:config";
+    namespace "urn:opendaylight:params:xml:ns:yang:topology:pcep:config";
     prefix pnc;
 
     import network-topology { prefix nt; revision-date 2013-10-21; }

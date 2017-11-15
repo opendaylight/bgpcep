@@ -159,7 +159,7 @@ public class BmpDeployerImpl implements BmpDeployer, ClusteredDataTreeChangeList
     }
 
     @Override
-    public synchronized void close() throws Exception {
+    public synchronized void close() {
         if (this.registration != null) {
             this.registration.close();
         }

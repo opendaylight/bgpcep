@@ -39,7 +39,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener<Topology>, AutoCloseable {
-
     private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyDeployerImpl.class);
 
     private final BlueprintContainer container;
