@@ -16,6 +16,24 @@
       "revId": "2ba9a55c79ca0f1f119a90798e356fcb1d6ec711",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c5eb4876",
+        "filename": "bgp/openconfig-state/src/main/java/org/opendaylight/protocol/bgp/state/StateProviderImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2017-11-15T04:02:49Z",
+      "side": 1,
+      "message": "done, thx, and the build is green now as well",
+      "parentUuid": "9a245df4_1decb18e",
+      "revId": "2ba9a55c79ca0f1f119a90798e356fcb1d6ec711",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
