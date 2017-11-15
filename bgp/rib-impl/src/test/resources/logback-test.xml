@@ -6,22 +6,23 @@
   ~ terms of the Eclipse Public License v1.0 which accompanies this distribution,
   ~ and is available at http://www.eclipse.org/legal/epl-v10.html
 -->
-<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
-<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
-
-    <appender name="console" class="org.apache.log4j.ConsoleAppender">
-        <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%-6p %d{HH:mm:ss.SSS} [%10.10t] %30.30c %x - %m%n"/>
-        </layout>
+<configuration scan="true">
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
     </appender>
 
-    <logger name="org.opendaylight.yangtools.yang.parser" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="console"/>
+    <logger name="org.opendaylight.protocol" additivity="false">
+        <level value="DEBUG"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
+    <logger name="org.opendaylight.bgpcep" additivity="false">
+        <level value="DEBUG"/>
+        <appender-ref ref="STDOUT"/>
     </logger>
 
-    <root>
-        <priority value="DEBUG"/>
-        <appender-ref ref="console"/>
+    <root level="info">
+        <appender-ref ref="STDOUT"/>
     </root>
-</log4j:configuration>
+</configuration>

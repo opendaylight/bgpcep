@@ -7,6 +7,8 @@
  */
 package org.opendaylight.bgpcep.bgp.topology.provider;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
@@ -138,7 +140,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
         private final TerminationPoint tp;
 
         private TpHolder(final TerminationPoint tp) {
-            this.tp = Preconditions.checkNotNull(tp);
+            this.tp = requireNonNull(tp);
         }
 
         private synchronized void addLink(final LinkId id, final boolean isRemote) {
@@ -197,11 +199,11 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
 
             if (!this.advertized) {
                 if (this.tps.isEmpty() && this.prefixes.isEmpty()) {
-                    LOG.debug("Removing unadvertized unused node {}", this.nb.getNodeId());
+                    LOG.trace("Removing unadvertized unused node {}", this.nb.getNodeId());
                     return true;
                 }
 
-                LOG.debug("Node {} is still implied by {} TPs and {} prefixes", this.nb.getNodeId(), this.tps.size(), this.prefixes.size());
+                LOG.trace("Node {} is still implied by {} TPs and {} prefixes", this.nb.getNodeId(), this.tps.size(), this.prefixes.size());
             }
 
             // Re-generate termination points
@@ -213,7 +215,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             // Write the node out
             final Node n = this.nb.addAugmentation(Node1.class, new Node1Builder().setIgpNodeAttributes(this.inab.build()).build()).build();
             trans.put(LogicalDatastoreType.OPERATIONAL, nid, n);
-            LOG.debug("Created node {} at {}", n, nid);
+            LOG.trace("Created node {} at {}", n, nid);
             return false;
         }
 
@@ -223,11 +225,11 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
                 if (!this.advertized) {
                     if (this.tps.isEmpty() && this.prefixes.isEmpty()) {
                         trans.delete(LogicalDatastoreType.OPERATIONAL, nid);
-                        LOG.debug("Removing unadvertized unused node {}", this.nb.getNodeId());
+                        LOG.trace("Removing unadvertized unused node {}", this.nb.getNodeId());
                         return true;
                     }
 
-                    LOG.debug("Node {} is still implied by {} TPs and {} prefixes", this.nb.getNodeId(), this.tps.size(), this.prefixes.size());
+                    LOG.trace("Node {} is still implied by {} TPs and {} prefixes", this.nb.getNodeId(), this.tps.size(), this.prefixes.size());
                 }
                 return false;
         }
@@ -237,7 +239,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             if (h != null) {
                 if (h.removeLink(link, isRemote)) {
                     this.tps.remove(tp);
-                    LOG.debug("Removed TP {}", tp);
+                    LOG.trace("Removed TP {}", tp);
                 }
             } else {
                 LOG.warn("Removed non-present TP {} by link {}", tp, link);
@@ -265,8 +267,8 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
         }
 
         private void advertized(final NodeBuilder nb, final IgpNodeAttributesBuilder inab) {
-            this.nb = Preconditions.checkNotNull(nb);
-            this.inab = Preconditions.checkNotNull(inab);
+            this.nb = requireNonNull(nb);
+            this.inab = requireNonNull(inab);
             this.advertized = true;
             LOG.debug("Node {} is advertized", nb.getNodeId());
         }
@@ -558,21 +560,21 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
         lb.addAugmentation(Link1.class, new Link1Builder().setIgpLinkAttributes(ilab.build()).build());
 
         final NodeId srcNode = buildNodeId(base, l.getLocalNodeDescriptors());
-        LOG.debug("Link {} implies source node {}", l, srcNode);
+        LOG.trace("Link {} implies source node {}", l, srcNode);
 
         final NodeId dstNode = buildNodeId(base, l.getRemoteNodeDescriptors());
-        LOG.debug("Link {} implies destination node {}", l, dstNode);
+        LOG.trace("Link {} implies destination node {}", l, dstNode);
 
         final TerminationPoint srcTp = buildLocalTp(base, l.getLinkDescriptors());
-        LOG.debug("Link {} implies source TP {}", l, srcTp);
+        LOG.trace("Link {} implies source TP {}", l, srcTp);
 
         final TerminationPoint dstTp = buildRemoteTp(base, l.getLinkDescriptors());
-        LOG.debug("Link {} implies destination TP {}", l, dstTp);
+        LOG.trace("Link {} implies destination TP {}", l, dstTp);
 
         lb.setSource(new SourceBuilder().setSourceNode(srcNode).setSourceTp(srcTp.getTpId()).build());
         lb.setDestination(new DestinationBuilder().setDestNode(dstNode).setDestTp(dstTp.getTpId()).build());
 
-        LOG.debug("Created TP {} as link source", srcTp);
+        LOG.trace("Created TP {} as link source", srcTp);
         NodeHolder snh = this.nodes.get(srcNode);
         if (snh == null) {
             snh = getNode(srcNode);
@@ -580,7 +582,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             putNode(trans, snh);
         } else {
             snh.addTp(srcTp, lb.getLinkId(), false);
-            final InstanceIdentifier<Node> nid = getNodeInstanceIdentifier(new NodeKey((NodeId) snh.getNodeId()));
+            final InstanceIdentifier<Node> nid = getNodeInstanceIdentifier(new NodeKey(snh.getNodeId()));
             trans.put(LogicalDatastoreType.OPERATIONAL, nid.child(TerminationPoint.class, srcTp.getKey()), srcTp);
         }
 
@@ -594,7 +596,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             dnh.addTp(dstTp, lb.getLinkId(), true);
             final InstanceIdentifier<Node> nid = getInstanceIdentifier().child(
                     org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node.class,
-                    new NodeKey((NodeId) dnh.getNodeId()));
+                    new NodeKey(dnh.getNodeId()));
             trans.put(LogicalDatastoreType.OPERATIONAL, nid.child(TerminationPoint.class, dstTp.getKey()), dstTp);
         }
 
@@ -609,7 +611,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             final LinkId link, final boolean isRemote) {
         final NodeHolder nh = this.nodes.get(node);
         if (nh != null) {
-            final InstanceIdentifier<Node> nid = getNodeInstanceIdentifier(new NodeKey((NodeId) nh.getNodeId()));
+            final InstanceIdentifier<Node> nid = getNodeInstanceIdentifier(new NodeKey(nh.getNodeId()));
             trans.delete(LogicalDatastoreType.OPERATIONAL, nid.child(TerminationPoint.class, new TerminationPointKey(tp)));
             nh.removeTp(tp, link, isRemote);
             checkNodeForRemoval(trans, nh);
@@ -865,7 +867,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             putNode(trans, nh);
         } else {
             nh.addPrefix(pfx);
-            final InstanceIdentifier<Node> nid = getNodeInstanceIdentifier(new NodeKey((NodeId) nh.getNodeId()));
+            final InstanceIdentifier<Node> nid = getNodeInstanceIdentifier(new NodeKey(nh.getNodeId()));
             final InstanceIdentifier<IgpNodeAttributes> inaId = nid.builder().augmentation(Node1.class).child(IgpNodeAttributes.class).build();
             trans.put(LogicalDatastoreType.OPERATIONAL, inaId.child(Prefix.class, pk), pfx);
         }
@@ -876,7 +878,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
         final NodeHolder nh = this.nodes.get(node);
         if (nh != null) {
             LOG.debug("Removed prefix {}", p);
-            final InstanceIdentifier<Node> nid = getNodeInstanceIdentifier(new NodeKey((NodeId) nh.getNodeId()));
+            final InstanceIdentifier<Node> nid = getNodeInstanceIdentifier(new NodeKey(nh.getNodeId()));
             final InstanceIdentifier<IgpNodeAttributes> inaId = nid.builder().augmentation(Node1.class).child(IgpNodeAttributes.class).build();
             final IpPrefix ippfx = p.getPrefixDescriptors().getIpReachabilityInformation();
             if (ippfx == null) {
