@@ -8,47 +8,54 @@
 package org.opendaylight.bgpcep.pcep.topology.provider.config;
 
 import static java.util.Objects.requireNonNull;
-import static org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyProviderUtil.filterPcepTopologies;
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
 
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.programming.spi.InstructionSchedulerFactory;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
-import org.opendaylight.controller.md.sal.binding.api.DataObjectModification.ModificationType;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.protocol.concepts.KeyMapping;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.pcep.topology.config.rev171025.PcepTopologyTypeConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev171025.pcep.config.SessionConfig;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pce.config.rev171025.PcepTopologyTypeConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.TopologyTypes1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypes;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.osgi.service.blueprint.container.BlueprintContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener<Topology>, AutoCloseable {
-
     private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyDeployerImpl.class);
 
-    private final BlueprintContainer container;
-    private final InstanceIdentifier<NetworkTopology> networTopology;
-    private final DataBroker dataBroker;
-    private final InstructionSchedulerFactory instructionSchedulerFactory;
     @GuardedBy("this")
     private final Map<TopologyId, PCEPTopologyProviderBean> pcepTopologyServices = new HashMap<>();
+    private final BlueprintContainer container;
+    private final InstanceIdentifier<NetworkTopology> networTopology;
     private ListenerRegistration<PCEPTopologyDeployerImpl> listenerRegistration;
+    private final DataBroker dataBroker;
+    private final InstructionSchedulerFactory instructionSchedulerFactory;
 
     public PCEPTopologyDeployerImpl(final BlueprintContainer container,
             final DataBroker dataBroker, final InstructionSchedulerFactory instructionSchedulerFactory) {
@@ -75,37 +82,57 @@ public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener
     }
 
     @Override
-    public synchronized void onDataTreeChanged(final Collection<DataTreeModification<Topology>> changes) {
+    public synchronized void onDataTreeChanged(@Nonnull final Collection<DataTreeModification<Topology>> changes) {
         final List<DataObjectModification<Topology>> topoChanges = changes.stream()
                 .map(DataTreeModification::getRootNode)
                 .collect(Collectors.toList());
-        topoChanges.stream()
-                .filter(rootNode -> rootNode.getModificationType().equals(ModificationType.DELETE))
-                .map(DataObjectModification::getDataBefore)
-                .filter(topo -> filterPcepTopologies(topo.getTopologyTypes()))
-                .forEach(topology -> removeTopologyProvider(topology.getTopologyId()));
 
         topoChanges.stream()
-                .filter(rootNode -> rootNode.getModificationType().equals(ModificationType.SUBTREE_MODIFIED))
-                .map(DataObjectModification::getDataAfter)
-                .filter(topo -> filterPcepTopologies(topo.getTopologyTypes()))
-                .forEach(this::updateTopologyProvider);
-
-        topoChanges.stream()
-                .filter(rootNode -> rootNode.getModificationType().equals(ModificationType.WRITE))
-                .map(DataObjectModification::getDataAfter)
-                .filter(topo -> filterPcepTopologies(topo.getTopologyTypes()))
-                .forEach(this::createTopologyProvider);
+                .iterator().forEachRemaining(topo -> {
+            switch (topo.getModificationType()) {
+                case SUBTREE_MODIFIED:
+                    updateTopologyProvider(topo.getDataAfter());
+                    break;
+                case WRITE:
+                    createTopologyProvider(topo.getDataAfter());
+                    break;
+                case DELETE:
+                    removeTopologyProvider(topo.getDataBefore());
+                    break;
+            }
+        });
     }
 
-    private synchronized void updateTopologyProvider(final Topology topology) {
+    private boolean filterPcepTopologies(final TopologyTypes topologyTypes) {
+        if (topologyTypes == null) {
+            return false;
+        }
+        final TopologyTypes1 aug = topologyTypes.getAugmentation(TopologyTypes1.class);
+
+        return aug != null && aug.getTopologyPcep() != null;
+    }
+
+    private void updateTopologyProvider(final Topology topology) {
+        if (!filterPcepTopologies(topology.getTopologyTypes())) {
+            return;
+        }
         final TopologyId topologyId = topology.getTopologyId();
         final PCEPTopologyProviderBean previous = this.pcepTopologyServices.remove(topology.getTopologyId());
-        closeTopology(previous, topologyId);
+        if (previous != null) {
+            try {
+                previous.closeServiceInstance().get();
+            } catch (final Exception e) {
+                LOG.error("Topology {} instance failed to close service instance", topologyId, e);
+            }
+            previous.close();
+        }
         createTopologyProvider(topology);
     }
 
     private synchronized void createTopologyProvider(final Topology topology) {
+        if (!filterPcepTopologies(topology.getTopologyTypes())) {
+            return;
+        }
         final TopologyId topologyId = topology.getTopologyId();
         if (this.pcepTopologyServices.containsKey(topology.getTopologyId())) {
             LOG.warn("Topology Provider {} already exist. New instance won't be created", topologyId);
@@ -133,17 +160,25 @@ public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener
         pcepTopologyProviderBean.start(dependencies);
     }
 
-    private synchronized void removeTopologyProvider(final TopologyId topologyId) {
+    private synchronized void removeTopologyProvider(final Topology topo) {
+        if (!filterPcepTopologies(topo.getTopologyTypes())) {
+            return;
+        }
+        final TopologyId topologyId = topo.getTopologyId();
         final PCEPTopologyProviderBean topology = this.pcepTopologyServices.remove(topologyId);
-        closeTopology(topology, topologyId);
+        if (topology != null) {
+            try {
+                topology.closeServiceInstance().get();
+            } catch (final Exception e) {
+                LOG.error("Topology {} instance failed to close service instance", topologyId, e);
+            }
+            topology.close();
+        }
     }
 
     @Override
-    public synchronized void close() {
-        if (this.listenerRegistration != null) {
-            this.listenerRegistration.close();
-            this.listenerRegistration = null;
-        }
+    public synchronized void close() throws Exception {
+        this.listenerRegistration.close();
         this.pcepTopologyServices.entrySet().iterator()
                 .forEachRemaining(entry -> closeTopology(entry.getValue(), entry.getKey()));
         this.pcepTopologyServices.clear();

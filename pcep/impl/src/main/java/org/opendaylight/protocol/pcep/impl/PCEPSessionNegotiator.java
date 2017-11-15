@@ -33,7 +33,8 @@ public class PCEPSessionNegotiator extends AbstractSessionNegotiator {
     private final AbstractPCEPSessionNegotiatorFactory negFactory;
     private final PCEPPeerProposal peerProposal;
 
-    public PCEPSessionNegotiator(final Channel channel, final Promise<PCEPSessionImpl> promise, final PCEPSessionListenerFactory factory,
+    public PCEPSessionNegotiator(final Channel channel, final Promise<PCEPSessionImpl> promise,
+            final PCEPSessionListenerFactory factory,
         final AbstractPCEPSessionNegotiatorFactory negFactory, final PCEPPeerProposal peerProposal) {
         super(promise, channel);
         this.factory = factory;
@@ -74,7 +75,8 @@ public class PCEPSessionNegotiator extends AbstractSessionNegotiator {
             }
 
             final Short sessionId = sessionReg.nextSession(clientAddress);
-            final AbstractPCEPSessionNegotiator n = this.negFactory.createNegotiator(this.promise, this.factory.getSessionListener(),
+            final AbstractPCEPSessionNegotiator n = this.negFactory
+                    .createNegotiator(this.promise, this.factory.getSessionListener(),
                     this.channel, sessionId, this.peerProposal);
 
             sessionReg.putSessionReference(clientAddress, new SessionReference() {

@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.concurrent.GuardedBy;
+import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -29,12 +30,13 @@ import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.PcepSessionState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.AddLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.EnsureLspOperationalInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.OperationResult;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.RemoveLspArgs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.TearDownSessionInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.RestartConnectionInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.TopologyTypes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.TopologyTypes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.TriggerSyncArgs;
@@ -45,40 +47,47 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypesBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  *
  */
-final class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessionRPCs, PCEPPeerProposal {
+final class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessionRPCs, PCEPPeerProposal,
+        TopologySessionStatsRegistry {
     private static final Logger LOG = LoggerFactory.getLogger(ServerSessionManager.class);
     private static final long DEFAULT_HOLD_STATE_NANOS = TimeUnit.MINUTES.toNanos(5);
-    @VisibleForTesting
-    public final AtomicBoolean isClosed = new AtomicBoolean(false);
-    @GuardedBy("this")
-    private final Map<NodeId, TopologySessionListener> nodes = new HashMap<>();
-    @GuardedBy("this")
-    private final Map<NodeId, TopologyNodeState> state = new HashMap<>();
+
     private final TopologySessionListenerFactory listenerFactory;
     private final InstanceIdentifier<Topology> topology;
     private final DataBroker broker;
     private final PCEPStatefulPeerProposal peerProposal;
     private final short rpcTimeout;
+    private final TopologySessionStatsRegistry statsRegistry;
 
-    public ServerSessionManager(final DataBroker broker, final InstanceIdentifier<Topology> topology,
-            final TopologySessionListenerFactory listenerFactory, final short rpcTimeout) {
+    @GuardedBy("this")
+    private final Map<NodeId, TopologySessionListener> nodes = new HashMap<>();
+    @GuardedBy("this")
+    private final Map<NodeId, TopologyNodeState> state = new HashMap<>();
+    @VisibleForTesting
+    final AtomicBoolean isClosed = new AtomicBoolean(false);
+
+    public ServerSessionManager(final DataBroker broker,
+            final InstanceIdentifier<Topology> topology,
+            final TopologySessionListenerFactory listenerFactory,
+            final TopologySessionStatsRegistry statsRegistry,
+            final short rpcTimeout) {
         this.broker = requireNonNull(broker);
         this.topology = requireNonNull(topology);
+        this.statsRegistry = requireNonNull(statsRegistry);
         this.listenerFactory = requireNonNull(listenerFactory);
         this.peerProposal = PCEPStatefulPeerProposal.createStatefulPeerProposal(this.broker, this.topology);
         this.rpcTimeout = rpcTimeout;
-    }
-
-    private static NodeId createNodeId(final InetAddress addr) {
-        return new NodeId("pcc://" + addr.getHostAddress());
     }
 
     /**
@@ -108,6 +117,10 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
             }
         }, MoreExecutors.directExecutor());
         return future;
+    }
+
+    private static NodeId createNodeId(final InetAddress addr) {
+        return new NodeId("pcc://" + addr.getHostAddress());
     }
 
     synchronized void releaseNodeState(final TopologyNodeState nodeState, final PCEPSession session, final boolean persistNode) {
@@ -195,16 +208,16 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
     }
 
     @Override
-    public ListenableFuture<Void> tearDownSession(final TearDownSessionInput input) {
+    public ListenableFuture<Void> restartConnection(final RestartConnectionInput input) {
         final TopologySessionListener l = checkSessionPresence(input.getNode());
-        return l != null ? l.tearDownSession(input) :
+        return l != null ? l.restartConnection(input) :
                 Futures.immediateFailedFuture(new Throwable("Node not present"));
     }
 
     synchronized ListenableFuture<Void> closeServiceInstance() {
         if (this.isClosed.getAndSet(true)) {
             LOG.error("Session Manager has already been closed.");
-            return Futures.immediateFuture(null);
+            Futures.immediateFuture(null);
         }
 
         for (final TopologySessionListener sessionListener : this.nodes.values()) {
@@ -240,5 +253,16 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
 
     short getRpcTimeout() {
         return this.rpcTimeout;
+    }
+
+    @Override
+    public synchronized void bind(final KeyedInstanceIdentifier<Node, NodeKey> nodeId,
+            final PcepSessionState sessionState) {
+        this.statsRegistry.bind(nodeId, sessionState);
+    }
+
+    @Override
+    public synchronized void unbind(final KeyedInstanceIdentifier<Node, NodeKey> nodeId) {
+        this.statsRegistry.unbind(nodeId);
     }
 }

@@ -9,7 +9,9 @@ package org.opendaylight.protocol.pcep;
 
 import io.netty.util.concurrent.Future;
 import java.net.InetAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev141006.PcepSessionState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.pcep.session.state.LocalPref;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.pcep.session.state.Messages;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.pcep.session.state.PeerPref;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.Tlvs;
 
@@ -19,7 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  * manually. If the session is up, it has to redirect messages to/from user. Handles also malformed messages and unknown
  * requests.
  */
-public interface PCEPSession extends AutoCloseable, PcepSessionState {
+public interface PCEPSession extends AutoCloseable {
 
     /**
      * Sends message from user to PCE/PCC. If the user sends an Open Message, the session returns an error (open message
@@ -37,11 +39,31 @@ public interface PCEPSession extends AutoCloseable, PcepSessionState {
 
     InetAddress getRemoteAddress();
 
-    void resetStats();
-
     /**
      * Returns session characteristics of the local PCEP Speaker
+     *
      * @return Open message TLVs
      */
     Tlvs localSessionCharacteristics();
+
+    /**
+     * The statistics of PCEP received/sent messages from the PCE point of view.
+     *
+     * @return <code>org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev171113.pcep.session.state.Messages</code> <code>messages</code>, or <code>null</code> if not present
+     */
+    Messages getMessages();
+
+    /**
+     * The local (PCE) preferences.
+     *
+     * @return <code>org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev171113.pcep.session.state.LocalPref</code> <code>localPref</code>, or <code>null</code> if not present
+     */
+    LocalPref getLocalPref();
+
+    /**
+     * The remote peer (PCC) preferences.
+     *
+     * @return <code>org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev171113.pcep.session.state.PeerPref</code> <code>peerPref</code>, or <code>null</code> if not present
+     */
+    PeerPref getPeerPref();
 }
