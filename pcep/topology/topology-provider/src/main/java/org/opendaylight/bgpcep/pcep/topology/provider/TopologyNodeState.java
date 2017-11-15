@@ -16,6 +16,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -49,22 +50,24 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
     //cache initial node state, if any node was persisted
     private Node initialNodeState = null;
 
-    public TopologyNodeState(final DataBroker broker, final InstanceIdentifier<Topology> topology, final NodeId id, final long holdStateNanos) {
+    TopologyNodeState(final DataBroker broker, final InstanceIdentifier<Topology> topology, final NodeId id,
+            final long holdStateNanos) {
         Preconditions.checkArgument(holdStateNanos >= 0);
         this.nodeId = topology.child(Node.class, new NodeKey(id));
         this.holdStateNanos = holdStateNanos;
         this.chain = broker.createTransactionChain(this);
     }
 
-    public KeyedInstanceIdentifier<Node, NodeKey> getNodeId() {
+    @Nonnull
+    KeyedInstanceIdentifier<Node, NodeKey> getNodeId() {
         return this.nodeId;
     }
 
-    public synchronized Metadata getLspMetadata(final String name) {
+    synchronized Metadata getLspMetadata(final String name) {
         return this.metadata.get(name);
     }
 
-    public synchronized void setLspMetadata(final String name, final Metadata value) {
+    synchronized void setLspMetadata(final String name, final Metadata value) {
         if (value == null) {
             this.metadata.remove(name);
         } else {
@@ -72,11 +75,11 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
         }
     }
 
-    public synchronized void cleanupExcept(final Collection<String> values) {
+    synchronized void cleanupExcept(final Collection<String> values) {
         this.metadata.keySet().removeIf(s -> !values.contains(s));
     }
 
-    public synchronized void released(final boolean persist) {
+    synchronized void released(final boolean persist) {
         // The session went down. Undo all the Topology changes we have done.
         // We might want to persist topology node for later re-use.
         if (!persist) {
@@ -98,7 +101,7 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
         this.lastReleased = System.nanoTime();
     }
 
-    public synchronized void taken(final boolean retrieveNode) {
+    synchronized void taken(final boolean retrieveNode) {
         final long now = System.nanoTime();
 
         if (now - this.lastReleased > this.holdStateNanos) {
@@ -108,7 +111,6 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
         //try to get the topology's node
         if (retrieveNode) {
             Futures.addCallback(readOperationalData(this.nodeId), new FutureCallback<Optional<Node>>() {
-
                 @Override
                 public void onSuccess(final Optional<Node> result) {
                     if (!result.isPresent()) {
@@ -129,7 +131,7 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
         }
     }
 
-    public synchronized Node getInitialNodeState() {
+    synchronized Node getInitialNodeState() {
         return this.initialNodeState;
     }
 
