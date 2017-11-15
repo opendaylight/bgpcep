@@ -28,7 +28,35 @@
         <dependencies>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>odl-bgpcep-config-loader</artifactId>
+                <artifactId>odl-bgpcep-config-loader-impl</artifactId>
+                <classifier>features</classifier>
+                <type>xml</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-config-loader-spi</artifactId>
+                <classifier>features</classifier>
+                <type>xml</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-topology-config-loader</artifactId>
+                <classifier>features</classifier>
+                <type>xml</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-protocols-config-loader</artifactId>
+                <classifier>features</classifier>
+                <type>xml</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-bmp-config-loader</artifactId>
                 <classifier>features</classifier>
                 <type>xml</type>
                 <version>${project.version}</version>
@@ -36,6 +64,8 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>features-config-loader</artifactId>
+                <classifier>features</classifier>
+                <type>xml</type>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -46,6 +76,21 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>config-loader-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>protocols-config-loader</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>topology-config-loader</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bmp-monitors-config-loader</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

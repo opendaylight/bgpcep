@@ -136,6 +136,13 @@
                 <type>xml</type>
                 <classifier>config-provider</classifier>
             </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-config-example</artifactId>
+                <version>${project.version}</version>
+                <type>xml</type>
+                <classifier>network-topology-pcep-initial-config</classifier>
+            </dependency>
             <!-- PCEP Features artifacts -->
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>

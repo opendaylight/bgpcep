@@ -46,6 +46,7 @@
         <module>segment-routing</module>
         <module>pcc-mock</module>
         <module>auto-bandwidth-extension</module>
+        <module>config-example</module>
     </modules>
 
   <!--
