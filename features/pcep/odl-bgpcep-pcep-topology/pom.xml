@@ -45,6 +45,10 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>pcep-topology-stats</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-programming-api</artifactId>
             <type>xml</type>
             <classifier>features</classifier>

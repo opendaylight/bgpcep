@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
@@ -42,6 +43,7 @@ import org.slf4j.LoggerFactory;
 public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener<Topology>, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyDeployerImpl.class);
 
+    private static final long TIMEOUT_NS = TimeUnit.SECONDS.toNanos(5);
     @GuardedBy("this")
     private final Map<TopologyId, PCEPTopologyProviderBean> pcepTopologyServices = new HashMap<>();
     private final BlueprintContainer container;
@@ -61,7 +63,8 @@ public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener
     private static void closeTopology(final PCEPTopologyProviderBean topology, final TopologyId topologyId) {
         if (topology != null) {
             try {
-                topology.closeServiceInstance().get();
+                topology.closeServiceInstance().get(TIMEOUT_NS, TimeUnit.NANOSECONDS);
+                ;
             } catch (final Exception e) {
                 LOG.error("Topology {} instance failed to close service instance", topologyId, e);
             }
@@ -111,14 +114,7 @@ public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener
         }
         final TopologyId topologyId = topology.getTopologyId();
         final PCEPTopologyProviderBean previous = this.pcepTopologyServices.remove(topology.getTopologyId());
-        if (previous != null) {
-            try {
-                previous.closeServiceInstance().get();
-            } catch (final Exception e) {
-                LOG.error("Topology {} instance failed to close service instance", topologyId, e);
-            }
-            previous.close();
-        }
+        closeTopology(previous, topologyId);
         createTopologyProvider(topology);
     }
 
@@ -159,19 +155,15 @@ public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener
         }
         final TopologyId topologyId = topo.getTopologyId();
         final PCEPTopologyProviderBean topology = this.pcepTopologyServices.remove(topologyId);
-        if (topology != null) {
-            try {
-                topology.closeServiceInstance().get();
-            } catch (final Exception e) {
-                LOG.error("Topology {} instance failed to close service instance", topologyId, e);
-            }
-            topology.close();
-        }
+        closeTopology(topology, topologyId);
     }
 
     @Override
-    public synchronized void close() throws Exception {
-        this.listenerRegistration.close();
+    public synchronized void close() {
+        if (this.listenerRegistration != null) {
+            this.listenerRegistration.close();
+            this.listenerRegistration = null;
+        }
         this.pcepTopologyServices.entrySet().iterator()
                 .forEachRemaining(entry -> closeTopology(entry.getValue(), entry.getKey()));
         this.pcepTopologyServices.clear();
