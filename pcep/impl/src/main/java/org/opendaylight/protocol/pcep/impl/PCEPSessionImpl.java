@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.protocol.pcep.PCEPCloseTermination;
 import org.opendaylight.protocol.pcep.PCEPSession;
@@ -33,12 +34,12 @@ import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.TerminationReason;
 import org.opendaylight.protocol.pcep.impl.spi.Util;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev141006.pcep.session.state.LocalPref;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev141006.pcep.session.state.Messages;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev141006.pcep.session.state.PeerPref;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.CloseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.KeepaliveBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.pcep.session.state.LocalPref;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.pcep.session.state.Messages;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.pcep.session.state.PeerPref;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.CloseMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.KeepaliveMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
@@ -49,7 +50,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.keepalive.message.KeepaliveMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.Tlvs;
-import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,7 +91,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
 
     // True if the listener should not be notified about events
     @GuardedBy("this")
-    private boolean closed = false;
+    private AtomicBoolean closed = new AtomicBoolean(false);
 
     private final Channel channel;
 
@@ -100,7 +100,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
     private final PCEPSessionState sessionState;
 
     PCEPSessionImpl(final PCEPSessionListener listener, final int maxUnknownMessages, final Channel channel,
-        final Open localOpen, final Open remoteOpen) {
+            final Open localOpen, final Open remoteOpen) {
         this.listener = requireNonNull(listener);
         this.channel = requireNonNull(channel);
         this.localOpen = requireNonNull(localOpen);
@@ -121,7 +121,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
         }
 
         LOG.info("Session {}[{}] <-> {}[{}] started", channel.localAddress(), localOpen.getSessionId(), channel.remoteAddress(),
-            remoteOpen.getSessionId());
+                remoteOpen.getSessionId());
         this.sessionState = new PCEPSessionState(remoteOpen, localOpen, channel);
     }
 
@@ -160,7 +160,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
      * KeepAlive timer to the time at which the message was sent. If the session was closed by the time this method
      * starts to execute (the session state will become IDLE), that rescheduling won't occur.
      */
-    private  void handleKeepaliveTimer() {
+    private void handleKeepaliveTimer() {
         final long ct = TICKER.read();
 
         long nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(getKeepAliveTimerValue());
@@ -221,7 +221,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
 
     @VisibleForTesting
     public synchronized boolean isClosed() {
-        return this.closed;
+        return this.closed.get();
     }
 
     /**
@@ -239,11 +239,10 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
      */
     @Override
     public synchronized void close(final TerminationReason reason) {
-        if (this.closed) {
+        if (this.closed.getAndSet(true)) {
             LOG.debug("Session is already closed.");
             return;
         }
-        this.closed = true;
         // only send close message when the reason is provided
         if (reason != null) {
             LOG.info("Closing PCEP session with reason {}: {}", reason, this);
@@ -266,7 +265,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
     }
 
     private synchronized void terminate(final TerminationReason reason) {
-        if (this.closed) {
+        if (this.closed.get()) {
             LOG.debug("Session {} is already closed.", this);
             return;
         }
@@ -274,10 +273,9 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
         this.listener.onSessionTerminated(this, new PCEPCloseTermination(reason));
     }
 
-    public synchronized void endOfInput() {
-        if (!this.closed) {
+    synchronized void endOfInput() {
+        if (!this.closed.getAndSet(true)) {
             this.listener.onSessionDown(this, new IOException("End of input detected. Close the session."));
-            this.closed = true;
         }
     }
 
@@ -309,7 +307,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
         this.sendErrorMessage(error);
         if (error == PCEPErrors.CAPABILITY_NOT_SUPPORTED) {
             this.unknownMessagesTimes.add(ct);
-            while ( ct - this.unknownMessagesTimes.peek() > MINUTE) {
+            while (ct - this.unknownMessagesTimes.peek() > MINUTE) {
                 this.unknownMessagesTimes.poll();
             }
             if (this.unknownMessagesTimes.size() > this.maxUnknownMessages) {
@@ -325,7 +323,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
      * @param msg incoming message
      */
     public synchronized void handleMessage(final Message msg) {
-        if (this.closed) {
+        if (this.closed.get()) {
             LOG.debug("PCEP Session {} is already closed, skip handling incoming message {}", this, msg);
             return;
         }
@@ -397,16 +395,6 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
     @Override
     public PeerPref getPeerPref() {
         return this.sessionState.getPeerPref();
-    }
-
-    @Override
-    public Class<? extends DataContainer> getImplementedInterface() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void resetStats() {
-        this.sessionState.reset();
     }
 
     @Override
