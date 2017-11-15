@@ -24,11 +24,4 @@
   <bean id="linkstateTopologyProvider" class="org.opendaylight.bgpcep.bgp.topology.provider.config.LinkstateTopologyProvider" destroy-method="close">
     <argument ref="bgpTopologyDeployer"/>
   </bean>
-
-  <reference id="bgpConfigLoader" interface="org.opendaylight.protocol.bgp.config.loader.spi.ConfigLoader"/>
-
-  <bean id="topologyInitialConfig" class="org.opendaylight.bgpcep.bgp.topology.provider.NetworkTopologyConfigFileProcessor" destroy-method="close">
-    <argument ref="bgpConfigLoader"/>
-    <argument ref="bgpTopologyDeployer"/>
-  </bean>
 </blueprint>
