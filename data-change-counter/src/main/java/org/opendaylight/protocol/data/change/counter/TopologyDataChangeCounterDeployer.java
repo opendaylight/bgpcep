@@ -81,7 +81,7 @@ public class TopologyDataChangeCounterDeployer implements DataTreeChangeListener
     }
 
     @Override
-    public synchronized void close() throws Exception {
+    public synchronized void close() {
         LOG.info("Closing Data change counter Deployer");
 
         if (this.registration != null) {

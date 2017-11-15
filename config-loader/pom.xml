@@ -34,6 +34,9 @@
         <module>config-loader-artifacts</module>
         <module>config-loader-spi</module>
         <module>config-loader-impl</module>
+        <module>topology-config-loader</module>
+        <module>protocols-config-loader</module>
+        <module>bmp-monitors-config-loader</module>
     </modules>
 
     <!--
