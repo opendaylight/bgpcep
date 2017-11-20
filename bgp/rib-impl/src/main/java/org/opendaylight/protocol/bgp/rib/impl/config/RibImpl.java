@@ -8,7 +8,6 @@
 
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
-import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getAfiSafiWithDefault;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getClusterIdentifier;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.toTableTypes;
@@ -26,15 +25,10 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.mdsal.dom.api.DOMSchemaService;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
-import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ImportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
@@ -75,17 +69,15 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
     private RIBImpl ribImpl;
     private ServiceRegistration<?> serviceRegistration;
     private ListenerRegistration<SchemaContextListener> schemaContextRegistration;
-    private final ClusterSingletonServiceProvider provider;
     private List<AfiSafi> afiSafi;
     private AsNumber asNumber;
     private Ipv4Address routerId;
 
     private ClusterIdentifier clusterId;
 
-    public RibImpl(final ClusterSingletonServiceProvider provider, final RIBExtensionConsumerContext contextProvider,
-            final BGPDispatcher dispatcher, final BindingCodecTreeFactory codecTreeFactory, final DOMDataBroker domBroker,
+    public RibImpl(final RIBExtensionConsumerContext contextProvider, final BGPDispatcher dispatcher,
+            final BindingCodecTreeFactory codecTreeFactory, final DOMDataBroker domBroker,
             final DOMSchemaService domSchemaService) {
-        this.provider = requireNonNull(provider);
         this.extensions = contextProvider;
         this.dispatcher = dispatcher;
         this.codecTreeFactory = codecTreeFactory;
@@ -93,11 +85,10 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
         this.domSchemaService = domSchemaService;
     }
 
-    void start(final Global global, final String instanceName, final BGPTableTypeRegistryConsumer tableTypeRegistry,
-            final BgpDeployer.WriteConfiguration configurationWriter) {
+    void start(final Global global, final String instanceName, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         Preconditions.checkState(this.ribImpl == null,
                 "Previous instance %s was not closed.", this);
-        this.ribImpl = createRib(global, instanceName, tableTypeRegistry, configurationWriter);
+        this.ribImpl = createRib(global, instanceName, tableTypeRegistry);
         this.schemaContextRegistration = this.domSchemaService.registerSchemaContextListener(this.ribImpl);
     }
 
@@ -168,7 +159,7 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
         return this.ribImpl.getService();
     }
 
-    public ListenableFuture<Void> closeServiceInstance() {
+    ListenableFuture<Void> closeServiceInstance() {
         if (this.ribImpl != null) {
             return this.ribImpl.closeServiceInstance();
         }
@@ -219,11 +210,6 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
     }
 
     @Override
-    public ServiceGroupIdentifier getRibIServiceGroupIdentifier() {
-        return this.ribImpl.getRibIServiceGroupIdentifier();
-    }
-
-    @Override
     public String toString() {
         return this.ribImpl != null ? this.ribImpl.toString() : null;
     }
@@ -231,8 +217,7 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
     private RIBImpl createRib(
             final Global global,
             final String bgpInstanceName,
-            final BGPTableTypeRegistryConsumer tableTypeRegistry,
-            final BgpDeployer.WriteConfiguration configurationWriter) {
+            final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         this.afiSafi = getAfiSafiWithDefault(global.getAfiSafis(), true);
         final Config globalConfig = global.getConfig();
         this.asNumber = globalConfig.getAs();
@@ -243,7 +228,7 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
                 .stream()
                 .collect(Collectors.toMap(entry ->
                         new TablesKey(entry.getKey().getAfi(), entry.getKey().getSafi()), Map.Entry::getValue));
-        return new RIBImpl(this.provider,
+        return new RIBImpl(
                 new RibId(bgpInstanceName),
                 this.asNumber,
                 new BgpId(this.routerId),
@@ -254,18 +239,17 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
                 this.domBroker,
                 toTableTypes(this.afiSafi, tableTypeRegistry),
                 pathSelectionModes,
-                this.extensions.getClassLoadingStrategy(),
-                configurationWriter);
-    }
-
-    @Override
-    public ClusterSingletonServiceRegistration registerClusterSingletonService(
-            final ClusterSingletonService clusterSingletonService) {
-        return this.ribImpl.registerClusterSingletonService(clusterSingletonService);
+                this.extensions.getClassLoadingStrategy());
     }
 
     @Override
     public BGPRIBState getRIBState() {
         return this.ribImpl.getRIBState();
+    }
+
+    public void instantiateServiceInstance() {
+        if (this.ribImpl != null) {
+            this.ribImpl.instantiateServiceInstance();
+        }
     }
 }

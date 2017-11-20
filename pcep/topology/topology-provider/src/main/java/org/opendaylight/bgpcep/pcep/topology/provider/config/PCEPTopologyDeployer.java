@@ -15,6 +15,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 /**
  * The PCEPTopologyDeployer service is managing PcepTopologyProvider
  */
+@Deprecated
 public interface PCEPTopologyDeployer {
     /**
      * Writes Topology Provider Config on DS
