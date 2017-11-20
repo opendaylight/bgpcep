@@ -8,6 +8,7 @@
 
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
+import com.google.common.annotations.Beta;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 
@@ -15,6 +16,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
  * Listens to the session changes for peers in a PeerRegisty.
  *
  */
+@Beta
 public interface PeerRegistrySessionListener {
 
     /**
