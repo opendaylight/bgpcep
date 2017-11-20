@@ -8,7 +8,11 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
@@ -25,7 +29,6 @@ import javassist.ClassPool;
 import org.junit.After;
 import org.junit.Before;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -95,6 +98,8 @@ public class AbstractRIBTestSetup {
 
     protected static final Class<? extends AddressFamily> AFI = Ipv4AddressFamily.class;
     protected static final Class<? extends SubsequentAddressFamily> SAFI = UnicastSubsequentAddressFamily.class;
+    protected static final QName AFI_QNAME = BindingReflections.findQName(AFI).intern();
+    protected static final QName SAFI_QNAME = BindingReflections.findQName(SAFI).intern();
     protected static final TablesKey KEY = new TablesKey(AFI, SAFI);
     protected static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, "prefix").intern();
     private static final ClusterIdentifier CLUSTER_ID = new ClusterIdentifier("128.0.0.1");
@@ -146,7 +151,8 @@ public class AbstractRIBTestSetup {
     }
 
     private static BindingCodecTreeFactory createCodecFactory(final ClassLoadingStrategy str, final SchemaContext ctx) {
-        final DataObjectSerializerGenerator generator = StreamWriterGenerator.create(JavassistUtils.forClassPool(ClassPool.getDefault()));
+        final DataObjectSerializerGenerator generator = StreamWriterGenerator
+                .create(JavassistUtils.forClassPool(ClassPool.getDefault()));
         final BindingNormalizedNodeCodecRegistry codec = new BindingNormalizedNodeCodecRegistry(generator);
         codec.onBindingRuntimeContextUpdated(BindingRuntimeContext.create(str, ctx));
         return codec;
@@ -168,10 +174,9 @@ public class AbstractRIBTestSetup {
         this.a1 = new RIBActivator();
         this.a1.startRIBExtensionProvider(context);
         mockedMethods();
-        doReturn(Mockito.mock(ClusterSingletonServiceRegistration.class)).when(this.clusterSingletonServiceProvider)
+        doReturn(mock(ClusterSingletonServiceRegistration.class)).when(this.clusterSingletonServiceProvider)
                 .registerClusterSingletonService(any(ClusterSingletonService.class));
-        this.rib = new RIBImpl(this.clusterSingletonServiceProvider, new RibId("test"),
-                new AsNumber(5L), RIB_ID, CLUSTER_ID, context,
+        this.rib = new RIBImpl(new RibId("test"), new AsNumber(5L), RIB_ID, CLUSTER_ID, context,
                 this.dispatcher, this.codecFactory, this.dom, localTables,
                 Collections.singletonMap(new TablesKey(AFI, SAFI),
                         BasePathSelectionModeFactory.createBestPathSelectionStrategy()),
@@ -183,61 +188,74 @@ public class AbstractRIBTestSetup {
     @SuppressWarnings("unchecked")
     private void mockedMethods() throws Exception {
         MockitoAnnotations.initMocks(this);
-        final ReadOnlyTransaction readTx = Mockito.mock(ReadOnlyTransaction.class);
-        Mockito.doReturn(new listenerRegistration()).when(this.service).registerDataTreeChangeListener(Mockito.any(DOMDataTreeIdentifier.class), Mockito.any(ClusteredDOMDataTreeChangeListener.class));
+        final ReadOnlyTransaction readTx = mock(ReadOnlyTransaction.class);
+        doReturn(new listenerRegistration()).when(this.service)
+                .registerDataTreeChangeListener(any(DOMDataTreeIdentifier.class),
+                        any(ClusteredDOMDataTreeChangeListener.class));
         final Map<Class<? extends DOMDataBrokerExtension>, DOMDataBrokerExtension> map = new HashMap<>();
         map.put(DOMDataTreeChangeService.class, this.service);
-        Mockito.doNothing().when(readTx).close();
-        final CheckedFuture<Optional<DataObject>, ReadFailedException> readFuture = Mockito.mock(CheckedFuture.class);
-        Mockito.doNothing().when(this.domTransWrite).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(YangInstanceIdentifier.class), Mockito.any(NormalizedNode.class));
-        Mockito.doNothing().when(this.domTransWrite).delete(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(YangInstanceIdentifier.class));
-        Mockito.doNothing().when(this.domTransWrite).merge(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(YangInstanceIdentifier.class), Mockito.any(NormalizedNode.class));
-        Mockito.doReturn(Optional.absent()).when(readFuture).checkedGet();
-        Mockito.doReturn(readFuture).when(readTx).read(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(InstanceIdentifier.class));
-        Mockito.doNothing().when(this.domChain).close();
-        Mockito.doReturn(this.domTransWrite).when(this.domChain).newWriteOnlyTransaction();
-        Mockito.doNothing().when(getTransaction()).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.eq(YangInstanceIdentifier.of(BgpRib.QNAME)), Mockito.any(NormalizedNode.class));
-        Mockito.doReturn(map).when(this.dom).getSupportedExtensions();
-        Mockito.doReturn(this.domChain).when(this.dom).createTransactionChain(Mockito.any(BGPPeer.class));
-        Mockito.doReturn(this.transWrite).when(this.chain).newWriteOnlyTransaction();
-        Mockito.doReturn(false).when(this.o).isPresent();
-        Mockito.doReturn(this.o).when(this.future).checkedGet();
-        Mockito.doReturn(this.future).when(this.domTransWrite).submit();
-        Mockito.doNothing().when(this.future).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
-        Mockito.doNothing().when(this.transWrite).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(InstanceIdentifier.class), Mockito.any(DataObject.class), Mockito.eq(true));
-        Mockito.doNothing().when(this.transWrite).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(InstanceIdentifier.class), Mockito.any(DataObject.class));
-        Mockito.doReturn(this.future).when(this.transWrite).submit();
+        doNothing().when(readTx).close();
+        final CheckedFuture<Optional<DataObject>, ReadFailedException> readFuture = mock(CheckedFuture.class);
+        doNothing().when(this.domTransWrite).put(eq(LogicalDatastoreType.OPERATIONAL),
+                any(YangInstanceIdentifier.class), any(NormalizedNode.class));
+        doNothing().when(this.domTransWrite).delete(eq(LogicalDatastoreType.OPERATIONAL),
+                any(YangInstanceIdentifier.class));
+        doNothing().when(this.domTransWrite).merge(eq(LogicalDatastoreType.OPERATIONAL),
+                any(YangInstanceIdentifier.class), any(NormalizedNode.class));
+        doReturn(Optional.absent()).when(readFuture).checkedGet();
+        doReturn(readFuture).when(readTx).read(eq(LogicalDatastoreType.OPERATIONAL), any(InstanceIdentifier.class));
+        doNothing().when(this.domChain).close();
+        doReturn(this.domTransWrite).when(this.domChain).newWriteOnlyTransaction();
+        doNothing().when(getTransaction()).put(eq(LogicalDatastoreType.OPERATIONAL),
+                eq(YangInstanceIdentifier.of(BgpRib.QNAME)), any(NormalizedNode.class));
+        doReturn(map).when(this.dom).getSupportedExtensions();
+        doReturn(this.domChain).when(this.dom).createTransactionChain(any(BGPPeer.class));
+        doReturn(this.transWrite).when(this.chain).newWriteOnlyTransaction();
+        doReturn(false).when(this.o).isPresent();
+        doReturn(this.o).when(this.future).checkedGet();
+        doReturn(this.future).when(this.domTransWrite).submit();
+        doNothing().when(this.future).addListener(any(Runnable.class), any(Executor.class));
+        doNothing().when(this.transWrite).put(eq(LogicalDatastoreType.OPERATIONAL),
+                any(InstanceIdentifier.class), any(DataObject.class), eq(true));
+        doNothing().when(this.transWrite).put(eq(LogicalDatastoreType.OPERATIONAL),
+                any(InstanceIdentifier.class), any(DataObject.class));
+        doReturn(this.future).when(this.transWrite).submit();
     }
 
-    public Collection<DataTreeCandidate> ipv4Input(final YangInstanceIdentifier target, final ModificationType type, final Ipv4Prefix... prefix) {
+    public Collection<DataTreeCandidate> ipv4Input(final YangInstanceIdentifier target,
+            final ModificationType type, final Ipv4Prefix... prefix) {
         final Collection<DataTreeCandidate> col = new HashSet<>();
-        final DataTreeCandidate candidate = Mockito.mock(DataTreeCandidate.class);
-        final DataTreeCandidateNode rootNode = Mockito.mock(DataTreeCandidateNode.class);
-        Mockito.doReturn(rootNode).when(candidate).getRootNode();
-        Mockito.doReturn(type).when(rootNode).getModificationType();
-        Mockito.doCallRealMethod().when(rootNode).toString();
-        Mockito.doReturn(target).when(candidate).getRootPath();
-        Mockito.doCallRealMethod().when(candidate).toString();
+        final DataTreeCandidate candidate = mock(DataTreeCandidate.class);
+        final DataTreeCandidateNode rootNode = mock(DataTreeCandidateNode.class);
+        doReturn(rootNode).when(candidate).getRootNode();
+        doReturn(type).when(rootNode).getModificationType();
+        doCallRealMethod().when(rootNode).toString();
+        doReturn(target).when(candidate).getRootPath();
+        doCallRealMethod().when(candidate).toString();
         final Collection<DataTreeCandidateNode> children = new HashSet<>();
         for (final Ipv4Prefix p : prefix) {
-            final NodeIdentifierWithPredicates routekey = new NodeIdentifierWithPredicates(Ipv4Route.QNAME, PREFIX_QNAME, p);
-            final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> b = ImmutableNodes.mapEntryBuilder();
+            final NodeIdentifierWithPredicates routekey =
+                    new NodeIdentifierWithPredicates(Ipv4Route.QNAME, PREFIX_QNAME, p);
+            final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> b =
+                    ImmutableNodes.mapEntryBuilder();
             b.withNodeIdentifier(routekey);
-            b.addChild(Builders.leafBuilder().withNodeIdentifier(new NodeIdentifier(PREFIX_QNAME)).withValue(p).build());
+            b.addChild(Builders.leafBuilder()
+                    .withNodeIdentifier(new NodeIdentifier(PREFIX_QNAME)).withValue(p).build());
 
-            final DataTreeCandidateNode child = Mockito.mock(DataTreeCandidateNode.class);
-            Mockito.doReturn(createIdentifier(p)).when(child).getIdentifier();
-            Mockito.doReturn(Optional.of(b.build())).when(child).getDataAfter();
-            Mockito.doReturn(type).when(child).getModificationType();
+            final DataTreeCandidateNode child = mock(DataTreeCandidateNode.class);
+            doReturn(createIdentifier(p)).when(child).getIdentifier();
+            doReturn(Optional.of(b.build())).when(child).getDataAfter();
+            doReturn(type).when(child).getModificationType();
             children.add(child);
         }
-        Mockito.doReturn(children).when(rootNode).getChildNodes();
+        doReturn(children).when(rootNode).getChildNodes();
         col.add(candidate);
         return col;
     }
 
     public PathArgument createIdentifier(final Ipv4Prefix prefix) {
-        final NodeIdentifierWithPredicates routekey = new NodeIdentifierWithPredicates(Ipv4Route.QNAME, PREFIX_QNAME, prefix);
+        final NodeIdentifierWithPredicates routekey =
+                new NodeIdentifierWithPredicates(Ipv4Route.QNAME, PREFIX_QNAME, prefix);
         return YangInstanceIdentifier.of(PREFIX_QNAME).node(routekey).getLastPathArgument();
     }
 

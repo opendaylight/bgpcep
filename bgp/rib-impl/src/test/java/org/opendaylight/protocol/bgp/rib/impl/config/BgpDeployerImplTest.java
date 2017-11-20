@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.rib.impl.config;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -118,7 +117,7 @@ public class BgpDeployerImplTest {
     private static final short SHORT = 0;
 
     @Mock
-    DataObjectModification<?> dObject;
+    private DataObjectModification<?> dObject;
     @Mock
     private BlueprintContainer blueprintContainer;
     @Mock
@@ -135,6 +134,8 @@ public class BgpDeployerImplTest {
     private ListenerRegistration<?> dataTreeRegistration;
     @Mock
     private ServiceRegistration<?> registration;
+    @Mock
+    private ClusterSingletonServiceProvider singletonServiceProvider;
 
     private Collection<DataTreeModification<Bgp>> collection = Collections.singleton(this.modification);
 
@@ -171,10 +172,10 @@ public class BgpDeployerImplTest {
         doReturn(Optional.of(TABLE_TYPE)).when(this.tableTypeRegistry).getTableType(any());
         doReturn(Optional.of(TABLES_KEY)).when(this.tableTypeRegistry).getTableKey(any());
         Mockito.doNothing().when(this.registration).unregister();
-        doReturn(this.registration).when(this.bundleContext)
-                .registerService(eq(InstanceType.RIB.getServices()), any(), any(Dictionary.class));
-        doReturn(this.registration).when(this.bundleContext)
-                .registerService(eq(InstanceType.PEER.getServices()), any(), any(Dictionary.class));
+        doReturn(this.registration).when(this.bundleContext).registerService(eq(InstanceType.RIB.getServices()), any()
+                , any(Dictionary.class));
+        doReturn(this.registration).when(this.bundleContext).registerService(eq(InstanceType.PEER.getServices()), any()
+                , any(Dictionary.class));
 
 
         Mockito.doNothing().when(this.wTx).merge(any(LogicalDatastoreType.class), any(InstanceIdentifier.class),
@@ -201,9 +202,8 @@ public class BgpDeployerImplTest {
         final RIBExtensionConsumerContext extension = mock(RIBExtensionConsumerContext.class);
         doReturn(mock(GeneratedClassLoadingStrategy.class)).when(extension).getClassLoadingStrategy();
 
-        final ClusterSingletonServiceProvider singletonServiceProvider = mock(ClusterSingletonServiceProvider.class);
         final ClusterSingletonServiceRegistration serviceRegistration = mock(ClusterSingletonServiceRegistration.class);
-        doReturn(serviceRegistration).when(singletonServiceProvider).registerClusterSingletonService(any());
+        doReturn(serviceRegistration).when(this.singletonServiceProvider).registerClusterSingletonService(any());
         Mockito.doNothing().when(serviceRegistration).close();
 
         final DOMSchemaService schemaService = mock(DOMSchemaService.class);
@@ -211,8 +211,8 @@ public class BgpDeployerImplTest {
 
         doReturn(this.dataTreeRegistration).when(schemaService).registerSchemaContextListener(any());
 
-        final RibImpl ribImpl = new RibImpl(singletonServiceProvider, extension,
-                mock(BGPDispatcher.class), mock(BindingCodecTreeFactory.class), domDataBroker, schemaService);
+        final RibImpl ribImpl = new RibImpl(extension, mock(BGPDispatcher.class), mock(BindingCodecTreeFactory.class),
+                domDataBroker, schemaService);
         doReturn(ribImpl).when(this.blueprintContainer).getComponentInstance(eq("ribImpl"));
 
         final BgpPeer bgpPeer = new BgpPeer(mock(RpcProviderRegistry.class));
@@ -223,13 +223,13 @@ public class BgpDeployerImplTest {
     @Test
     public void testDeployerRib() throws Exception {
         doReturn(Global.class).when(this.dObject).getDataType();
-        final BgpDeployerImpl deployer = new BgpDeployerImpl(NETWORK_INSTANCE_NAME, this.blueprintContainer,
-                this.bundleContext, this.dataBroker, this.tableTypeRegistry);
+        final BgpDeployerImpl deployer = new BgpDeployerImpl(NETWORK_INSTANCE_NAME, this.singletonServiceProvider,
+                this.blueprintContainer, this.bundleContext, this.dataBroker, this.tableTypeRegistry);
         final BgpDeployerImpl spyDeployer = spy(deployer);
+        deployer.init();
         configureGlobal(IPV4UNICAST.class);
         doReturn(WRITE).when(this.dObject).getModificationType();
 
-        spyDeployer.init();
         final KeyedInstanceIdentifier<NetworkInstance, NetworkInstanceKey> networkInstanceIId =
                 InstanceIdentifier.create(NetworkInstances.class)
                         .child(NetworkInstance.class, new NetworkInstanceKey(NETWORK_INSTANCE_NAME));
@@ -237,84 +237,51 @@ public class BgpDeployerImplTest {
                 .setName(networkInstanceIId.firstKeyOf(NetworkInstance.class).getName())
                 .setProtocols(new ProtocolsBuilder().build()).build();
         verify(this.wTx).merge(any(LogicalDatastoreType.class), any(InstanceIdentifier.class), eq(netII));
-        verify(this.dataBroker)
-                .registerDataTreeChangeListener(any(DataTreeIdentifier.class), any(BgpDeployerImpl.class));
+        verify(this.dataBroker).registerDataTreeChangeListener(any(DataTreeIdentifier.class),
+                any(BgpDeployerImpl.class));
 
-        assertEquals(networkInstanceIId, spyDeployer.getInstanceIdentifier());
         assertEquals(this.tableTypeRegistry, spyDeployer.getTableTypeRegistry());
 
         spyDeployer.onDataTreeChanged(this.collection);
-        verifyPrivate(spyDeployer)
-                .invoke("onGlobalChanged", any(DataObjectModification.class), any(InstanceIdentifier.class));
+        verifyPrivate(spyDeployer).invoke("onGlobalChanged", any(DataObjectModification.class),
+                any(InstanceIdentifier.class));
         verify(this.blueprintContainer).getComponentInstance(eq("ribImpl"));
         verify(this.bundleContext).registerService(eq(InstanceType.RIB.getServices()), any(), any(Dictionary.class));
-        verify(spyDeployer).onDataTreeChanged(any(Collection.class));
-        verify(spyDeployer).onGlobalModified(any(InstanceIdentifier.class), any());
-        verifyPrivate(spyDeployer).invoke("onGlobalCreated", any(InstanceIdentifier.class), any(Global.class));
-        verifyPrivate(spyDeployer)
-                .invoke("initiateRibInstance", any(InstanceIdentifier.class), any(Global.class), any(RibImpl.class));
-        verifyPrivate(spyDeployer).invoke("registerRibInstance", any(RibImpl.class), anyString());
         verify(spyDeployer).onDataTreeChanged(any(Collection.class));
 
         //change with same rib already existing
         spyDeployer.onDataTreeChanged(this.collection);
-        verifyPrivate(spyDeployer, times(2))
-                .invoke("onGlobalChanged", any(DataObjectModification.class), any(InstanceIdentifier.class));
+        verifyPrivate(spyDeployer, times(2)).invoke("onGlobalChanged",
+                any(DataObjectModification.class), any(InstanceIdentifier.class));
         verify(this.blueprintContainer).getComponentInstance(eq("ribImpl"));
         verify(this.bundleContext).registerService(eq(InstanceType.RIB.getServices()), any(), any(Dictionary.class));
-        verify(spyDeployer, times(2)).onDataTreeChanged(any(Collection.class));
-        verify(spyDeployer, times(2)).onGlobalModified(any(InstanceIdentifier.class), any());
-        verifyPrivate(spyDeployer).invoke("onGlobalCreated", any(InstanceIdentifier.class), any(Global.class));
-        verifyPrivate(spyDeployer)
-                .invoke("initiateRibInstance", any(InstanceIdentifier.class), any(Global.class), any(RibImpl.class));
-        verifyPrivate(spyDeployer).invoke("registerRibInstance", any(RibImpl.class), anyString());
         verify(spyDeployer, times(2)).onDataTreeChanged(any(Collection.class));
 
         //Update for existing rib
         configureGlobal(IPV6UNICAST.class);
         spyDeployer.onDataTreeChanged(this.collection);
-        verifyPrivate(spyDeployer, times(3))
-                .invoke("onGlobalChanged", any(DataObjectModification.class), any(InstanceIdentifier.class));
+        verifyPrivate(spyDeployer, times(3)).invoke("onGlobalChanged",
+                any(DataObjectModification.class), any(InstanceIdentifier.class));
         verify(this.blueprintContainer).getComponentInstance(eq("ribImpl"));
-        verify(this.bundleContext, times(2))
-                .registerService(eq(InstanceType.RIB.getServices()), any(), any(Dictionary.class));
+        verify(this.bundleContext, times(2)).registerService(eq(InstanceType.RIB.getServices()),
+                any(), any(Dictionary.class));
         verify(spyDeployer, times(3)).onDataTreeChanged(any(Collection.class));
-        verify(spyDeployer, times(3)).onGlobalModified(any(InstanceIdentifier.class), any());
-        verifyPrivate(spyDeployer).invoke("onGlobalCreated", any(InstanceIdentifier.class), any(Global.class));
-        verifyPrivate(spyDeployer)
-                .invoke("onGlobalUpdated", any(InstanceIdentifier.class), any(Global.class), any(RibImpl.class));
         verify(this.dataTreeRegistration).close();
         verify(this.registration).unregister();
-        verifyPrivate(spyDeployer).invoke("closeAllBindedPeers", any(InstanceIdentifier.class));
-        verifyPrivate(spyDeployer, times(2)).invoke("initiateRibInstance",
-                any(InstanceIdentifier.class), any(Global.class), any(RibImpl.class));
-        verifyPrivate(spyDeployer, times(2))
-                .invoke("registerRibInstance", any(RibImpl.class), anyString());
         verify(spyDeployer, times(3)).onDataTreeChanged(any(Collection.class));
 
         //Delete for existing rib
         doReturn(DELETE).when(this.dObject).getModificationType();
 
         spyDeployer.onDataTreeChanged(this.collection);
-        verifyPrivate(spyDeployer, times(4))
-                .invoke("onGlobalChanged", any(DataObjectModification.class), any(InstanceIdentifier.class));
+        verifyPrivate(spyDeployer, times(4)).invoke("onGlobalChanged",
+                any(DataObjectModification.class), any(InstanceIdentifier.class));
         verify(this.blueprintContainer).getComponentInstance(eq("ribImpl"));
         verify(this.bundleContext, times(2))
                 .registerService(eq(InstanceType.RIB.getServices()), any(), any(Dictionary.class));
         verify(spyDeployer, times(4)).onDataTreeChanged(any(Collection.class));
-        verify(spyDeployer, times(3)).onGlobalModified(any(InstanceIdentifier.class), any());
-        verify(spyDeployer).onGlobalRemoved(any(InstanceIdentifier.class));
         verify(this.dataTreeRegistration, times(2)).close();
         verify(this.registration, times(2)).unregister();
-        verifyPrivate(spyDeployer).invoke("onGlobalCreated", any(InstanceIdentifier.class), any(Global.class));
-        verifyPrivate(spyDeployer)
-                .invoke("onGlobalUpdated", any(InstanceIdentifier.class), any(Global.class), any(RibImpl.class));
-        verifyPrivate(spyDeployer, times(2))
-                .invoke("closeAllBindedPeers", any(InstanceIdentifier.class));
-        verifyPrivate(spyDeployer, times(2)).invoke("initiateRibInstance",
-                any(InstanceIdentifier.class), any(Global.class), any(RibImpl.class));
-        verifyPrivate(spyDeployer, times(2))
-                .invoke("registerRibInstance", any(RibImpl.class), anyString());
         verify(spyDeployer, times(4)).onDataTreeChanged(any(Collection.class));
 
         deployer.close();
@@ -323,9 +290,8 @@ public class BgpDeployerImplTest {
     private void configureGlobal(final Class<? extends AfiSafiType> afi) {
         final Config config = new ConfigBuilder().setAs(AS).setRouterId(BGP_ID).build();
         final ArrayList<AfiSafi> afiSafiList = new ArrayList<>();
-        afiSafiList.add(new AfiSafiBuilder().setAfiSafiName(afi)
-                .addAugmentation(AfiSafi2.class, new AfiSafi2Builder().setReceive(true)
-                        .setSendMax(Shorts.checkedCast(0L)).build()).build());
+        afiSafiList.add(new AfiSafiBuilder().setAfiSafiName(afi).addAugmentation(AfiSafi2.class, new AfiSafi2Builder().setReceive(true)
+                .setSendMax(Shorts.checkedCast(0L)).build()).build());
         final AfiSafis afiSafi = new AfiSafisBuilder().setAfiSafi(afiSafiList).build();
         doReturn(new GlobalBuilder().setConfig(config).setAfiSafis(afiSafi).build()).when(this.dObject).getDataAfter();
     }
@@ -336,34 +302,25 @@ public class BgpDeployerImplTest {
     @Test
     public void testDeployerCreateNeighbor() throws Exception {
 
-        final BgpDeployerImpl deployer = new BgpDeployerImpl(NETWORK_INSTANCE_NAME, this.blueprintContainer,
-                this.bundleContext, this.dataBroker, this.tableTypeRegistry);
+        final BgpDeployerImpl deployer = new BgpDeployerImpl(NETWORK_INSTANCE_NAME, this.singletonServiceProvider,
+                this.blueprintContainer, this.bundleContext, this.dataBroker, this.tableTypeRegistry);
         final BgpDeployerImpl spyDeployer = spy(deployer);
-
-        spyDeployer.init();
+        deployer.init();
         //First create Rib
         doReturn(Global.class).when(this.dObject).getDataType();
         doReturn(WRITE).when(this.dObject).getModificationType();
         configureGlobal(IPV4UNICAST.class);
 
         spyDeployer.onDataTreeChanged(this.collection);
-        verifyPrivate(spyDeployer)
-                .invoke("onGlobalChanged", any(DataObjectModification.class), any(InstanceIdentifier.class));
+        verifyPrivate(spyDeployer).invoke("onGlobalChanged", any(DataObjectModification.class),
+                any(InstanceIdentifier.class));
         verify(this.blueprintContainer).getComponentInstance(eq("ribImpl"));
         verify(this.bundleContext).registerService(eq(InstanceType.RIB.getServices()), any(), any(Dictionary.class));
         verify(spyDeployer).onDataTreeChanged(any(Collection.class));
-        verify(spyDeployer).onGlobalModified(any(InstanceIdentifier.class), any());
-        verifyPrivate(spyDeployer).invoke("onGlobalCreated", any(InstanceIdentifier.class), any(Global.class));
-        verifyPrivate(spyDeployer)
-                .invoke("initiateRibInstance", any(InstanceIdentifier.class), any(Global.class), any(RibImpl.class));
-        verifyPrivate(spyDeployer).invoke("registerRibInstance", any(RibImpl.class), anyString());
-        verify(spyDeployer).onDataTreeChanged(any(Collection.class));
-
 
         doReturn(Neighbors.class).when(this.dObject).getDataType();
         doReturn(WRITE).when(this.dObject).getModificationType();
         configureNeighbor(IPV4UNICAST.class);
-
 
         final KeyedInstanceIdentifier<NetworkInstance, NetworkInstanceKey> networkInstanceIId =
                 InstanceIdentifier.create(NetworkInstances.class)
@@ -375,54 +332,32 @@ public class BgpDeployerImplTest {
         verify(this.dataBroker)
                 .registerDataTreeChangeListener(any(DataTreeIdentifier.class), any(BgpDeployerImpl.class));
 
-        assertEquals(networkInstanceIId, spyDeployer.getInstanceIdentifier());
         assertEquals(this.tableTypeRegistry, spyDeployer.getTableTypeRegistry());
 
         spyDeployer.onDataTreeChanged(this.collection);
         verify(spyDeployer, times(2)).onDataTreeChanged(any(Collection.class));
-        verifyPrivate(spyDeployer)
-                .invoke("onNeighborsChanged", any(DataObjectModification.class), any(InstanceIdentifier.class));
-        verify(spyDeployer).onNeighborModified(any(InstanceIdentifier.class), any(Neighbor.class));
-        verifyPrivate(spyDeployer).invoke("onNeighborCreated", any(InstanceIdentifier.class), any(Neighbor.class));
+        verifyPrivate(spyDeployer).invoke("onNeighborsChanged",
+                any(DataObjectModification.class), any(InstanceIdentifier.class));
         verify(this.blueprintContainer).getComponentInstance(eq("bgpPeer"));
-        verifyPrivate(spyDeployer)
-                .invoke("initiatePeerInstance", any(InstanceIdentifier.class), any(InstanceIdentifier.class),
-                        any(Neighbor.class), any(PeerBean.class));
-        verifyPrivate(spyDeployer).invoke("registerPeerInstance", any(BgpPeer.class), anyString());
-        verify(this.bundleContext)
-                .registerService(eq(InstanceType.PEER.getServices()), any(BgpPeer.class), any(Dictionary.class));
+        verify(this.bundleContext).registerService(eq(InstanceType.PEER.getServices()),
+                any(BgpPeer.class), any(Dictionary.class));
 
         //change with same peer already existing
         spyDeployer.onDataTreeChanged(this.collection);
         verify(spyDeployer, times(3)).onDataTreeChanged(any(Collection.class));
-        verifyPrivate(spyDeployer, times(2))
-                .invoke("onNeighborsChanged", any(DataObjectModification.class), any(InstanceIdentifier.class));
-        verify(spyDeployer, times(2))
-                .onNeighborModified(any(InstanceIdentifier.class), any(Neighbor.class));
-        verifyPrivate(spyDeployer).invoke("onNeighborCreated", any(InstanceIdentifier.class), any(Neighbor.class));
+        verifyPrivate(spyDeployer, times(2)).invoke("onNeighborsChanged",
+                any(DataObjectModification.class), any(InstanceIdentifier.class));
         verify(this.blueprintContainer).getComponentInstance(eq("bgpPeer"));
-        verifyPrivate(spyDeployer)
-                .invoke("initiatePeerInstance", any(InstanceIdentifier.class), any(InstanceIdentifier.class),
-                        any(Neighbor.class), any(PeerBean.class));
-        verifyPrivate(spyDeployer).invoke("registerPeerInstance", any(Neighbor.class), anyString());
-        verify(this.bundleContext)
-                .registerService(eq(InstanceType.PEER.getServices()), any(BgpPeer.class), any(Dictionary.class));
+        verify(this.bundleContext).registerService(eq(InstanceType.PEER.getServices()),
+                any(BgpPeer.class), any(Dictionary.class));
 
         //Update for existing rib
         configureNeighbor(IPV6UNICAST.class);
         spyDeployer.onDataTreeChanged(this.collection);
         verify(spyDeployer, times(4)).onDataTreeChanged(any(Collection.class));
-        verifyPrivate(spyDeployer, times(3))
-                .invoke("onNeighborsChanged", any(DataObjectModification.class), any(InstanceIdentifier.class));
-        verify(spyDeployer, times(3))
-                .onNeighborModified(any(InstanceIdentifier.class), any(Neighbor.class));
-        verifyPrivate(spyDeployer).invoke("onNeighborCreated", any(InstanceIdentifier.class), any(Neighbor.class));
+        verifyPrivate(spyDeployer, times(3)).invoke("onNeighborsChanged",
+                any(DataObjectModification.class), any(InstanceIdentifier.class));
         verify(this.blueprintContainer).getComponentInstance(eq("bgpPeer"));
-        verifyPrivate(spyDeployer, times(2))
-                .invoke("initiatePeerInstance", any(InstanceIdentifier.class), any(InstanceIdentifier.class),
-                        any(Neighbor.class), any(PeerBean.class));
-        verifyPrivate(spyDeployer, times(2))
-                .invoke("registerPeerInstance", any(Neighbor.class), anyString());
         verify(this.bundleContext, times(2))
                 .registerService(eq(InstanceType.PEER.getServices()), any(BgpPeer.class), any(Dictionary.class));
 
@@ -432,19 +367,8 @@ public class BgpDeployerImplTest {
         spyDeployer.onDataTreeChanged(this.collection);
         verify(spyDeployer, times(5)).onDataTreeChanged(any(Collection.class));
         verify(this.dObject).getDataBefore();
-        verifyPrivate(spyDeployer, times(4))
-                .invoke("onNeighborsChanged", any(DataObjectModification.class), any(InstanceIdentifier.class));
-        verify(spyDeployer, times(3))
-                .onNeighborModified(any(InstanceIdentifier.class), any(Neighbor.class));
-        verify(spyDeployer, times(1))
-                .onNeighborRemoved(any(InstanceIdentifier.class), any(Neighbor.class));
-        verifyPrivate(spyDeployer).invoke("onNeighborCreated", any(InstanceIdentifier.class), any(Neighbor.class));
-        verify(this.blueprintContainer).getComponentInstance(eq("bgpPeer"));
-        verifyPrivate(spyDeployer, times(2))
-                .invoke("initiatePeerInstance", any(InstanceIdentifier.class), any(InstanceIdentifier.class),
-                        any(Neighbor.class), any(PeerBean.class));
-        verifyPrivate(spyDeployer, times(2))
-                .invoke("registerPeerInstance", any(Neighbor.class), anyString());
+        verifyPrivate(spyDeployer, times(4)).invoke("onNeighborsChanged",
+                any(DataObjectModification.class), any(InstanceIdentifier.class));
         verify(this.bundleContext, times(2))
                 .registerService(eq(InstanceType.PEER.getServices()), any(BgpPeer.class), any(Dictionary.class));
 

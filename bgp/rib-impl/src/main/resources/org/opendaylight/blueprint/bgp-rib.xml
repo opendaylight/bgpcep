@@ -54,6 +54,7 @@
         init-method="init"
         destroy-method="close">
     <argument value="global-bgp"/>
+    <argument ref="clusterSingletonServiceProvider"/>
     <argument ref="blueprintContainer"/>
     <argument ref="blueprintBundleContext"/>
     <argument ref="dataBroker"/>
@@ -61,7 +62,6 @@
   </bean>
 
   <bean id="ribImpl" class="org.opendaylight.protocol.bgp.rib.impl.config.RibImpl" scope="prototype">
-    <argument ref="clusterSingletonServiceProvider"/>
     <argument ref="globalBgpExtensions"/>
     <argument ref="BGPDispatcher"/>
     <argument ref="codecTreeFactory"/>
