@@ -234,7 +234,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         }
 
         @Override
-        public void onDataTreeChanged(@Nonnull final Collection<DataTreeCandidate> changes) {
+        public synchronized void onDataTreeChanged(@Nonnull final Collection<DataTreeCandidate> changes) {
             LOG.trace("Data changed called to effective RIB. Change : {}", changes);
 
             // we have a lot of transactions created for 'nothing' because a lot of changes
@@ -291,7 +291,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         }
 
         @Override
-        public void close() {
+        public synchronized void close() {
             this.reg.close();
             this.prefixesReceived.values().forEach(LongAdder::reset);
             this.prefixesInstalled.values().forEach(LongAdder::reset);
