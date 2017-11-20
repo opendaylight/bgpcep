@@ -51,6 +51,8 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.util.HexDumpBGPFileParser;
 import org.opendaylight.protocol.concepts.KeyMapping;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.ipv4.routes.Ipv4Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv6.routes.ipv6.routes.Ipv6Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateAddressFamily;
@@ -78,7 +80,7 @@ public class ParserToSalTest extends AbstractConcurrentDataBrokerTest {
     private BGPMock mock;
     private AbstractRIBExtensionProviderActivator baseact, lsact;
     private RIBExtensionProviderContext ext1, ext2;
-    private final String localAddress = "127.0.0.1";
+    private final IpAddress localAddress = new IpAddress(new Ipv4Address("127.0.0.1"));
 
     @Mock
     private BGPDispatcher dispatcher;
@@ -142,7 +144,7 @@ public class ParserToSalTest extends AbstractConcurrentDataBrokerTest {
             AS_NUMBER, new BgpId("127.0.0.1"), null, this.ext2, this.dispatcher,
             this.codecFactory, getDomBroker(), tables, Collections.singletonMap(TABLE_KEY,
             BasePathSelectionModeFactory.createBestPathSelectionStrategy()),
-            GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), null);
+            GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
         rib.instantiateServiceInstance();
         assertTablesExists(tables);
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
@@ -160,7 +162,7 @@ public class ParserToSalTest extends AbstractConcurrentDataBrokerTest {
         final RIBImpl rib = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(TEST_RIB_ID), AS_NUMBER, BGP_ID,
             null, this.ext1, this.dispatcher, this.codecFactory, getDomBroker(), tables,
             Collections.singletonMap(TABLE_KEY, BasePathSelectionModeFactory.createBestPathSelectionStrategy()),
-            GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), null);
+            GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
         rib.instantiateServiceInstance();
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
         assertTablesExists(tables);

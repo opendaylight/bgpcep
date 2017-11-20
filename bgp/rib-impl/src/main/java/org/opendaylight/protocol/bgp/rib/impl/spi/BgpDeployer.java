@@ -22,6 +22,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  * configuration status.
  * BGP configuration is held under the specific OpenConfig's NetworkInstance subtree.
  */
+@Deprecated
 public interface BgpDeployer {
 
     interface WriteConfiguration {
