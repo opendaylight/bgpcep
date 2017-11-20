@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
+import com.google.common.annotations.Beta;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTree;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
@@ -18,6 +19,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
  * Common interface for Codecs classes.
  *
  */
+@Beta
 public interface Codecs {
     /**
      * Called when Codec tree is updated. Implementations should

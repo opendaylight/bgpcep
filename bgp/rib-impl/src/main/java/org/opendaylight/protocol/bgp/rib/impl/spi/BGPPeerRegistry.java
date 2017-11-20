@@ -8,6 +8,7 @@
 
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
+import com.google.common.annotations.Beta;
 import javax.annotation.Nonnull;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
@@ -19,6 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
  * Registry that contains configured bgp peers ready for when a bgp session is established with remote peer.
  * IP address is uses as a key for configured peers. TODO Is IP sufficient ID for peers ?
  */
+@Beta
 public interface BGPPeerRegistry extends AutoCloseable {
 
     /**

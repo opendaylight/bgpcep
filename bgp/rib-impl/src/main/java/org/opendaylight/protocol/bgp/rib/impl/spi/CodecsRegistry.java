@@ -7,12 +7,14 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
+import com.google.common.annotations.Beta;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 
 /**
  * Registry for Codec classes
  *
  */
+@Beta
 public interface CodecsRegistry {
 
     /**

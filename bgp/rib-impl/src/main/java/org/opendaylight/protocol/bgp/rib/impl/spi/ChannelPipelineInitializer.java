@@ -7,10 +7,12 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
+import com.google.common.annotations.Beta;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.concurrent.Promise;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 
+@Beta
 public interface ChannelPipelineInitializer<S extends BGPSession> {
     void initializeChannel(SocketChannel socketChannel, Promise<S> promise);
 }

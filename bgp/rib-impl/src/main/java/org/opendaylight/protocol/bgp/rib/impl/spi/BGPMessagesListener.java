@@ -8,12 +8,14 @@
 
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
+import com.google.common.annotations.Beta;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 /**
  * BGP Operational Messages Listener State
  */
+@Beta
 public interface BGPMessagesListener {
     /**
      * Fired when message is sent.
