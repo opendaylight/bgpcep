@@ -7,12 +7,13 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.rib.impl.AdjRibInWriter.isAnnounceNone;
 import static org.opendaylight.protocol.bgp.rib.impl.AdjRibInWriter.isLearnNone;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.Futures;
@@ -63,8 +64,8 @@ import org.opendaylight.protocol.bgp.rib.spi.state.BGPSessionState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTimersState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTransportState;
 import org.opendaylight.protocol.concepts.AbstractRegistration;
+import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.prefixes.DestinationIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.prefixes.destination.ipv4.Ipv4Prefixes;
@@ -135,26 +136,27 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
     private YangInstanceIdentifier peerIId;
     private final Set<AbstractRegistration> tableRegistration = new HashSet<>();
 
-    public BGPPeer(final String name, final RIB rib, final PeerRole role, final SimpleRoutingPolicy peerStatus,
-        final RpcProviderRegistry rpcRegistry,
-        @Nonnull final Set<TablesKey> afiSafisAdvertized,
-        @Nonnull final Set<TablesKey> afiSafisGracefulAdvertized) {
+    public BGPPeer(final IpAddress neighborAddress, final RIB rib, final PeerRole role, final SimpleRoutingPolicy peerStatus,
+            final RpcProviderRegistry rpcRegistry,
+            @Nonnull final Set<TablesKey> afiSafisAdvertized,
+            @Nonnull final Set<TablesKey> afiSafisGracefulAdvertized) {
         //FIXME BUG-6971 Once Peer Group is implemented, pass it
-        super(rib.getInstanceIdentifier(), null, new IpAddress(new Ipv4Address(name)), afiSafisAdvertized,
-            afiSafisGracefulAdvertized);
+        super(rib.getInstanceIdentifier(), null, neighborAddress, afiSafisAdvertized,
+                afiSafisGracefulAdvertized);
         this.peerRole = role;
         this.simpleRoutingPolicy = Optional.ofNullable(peerStatus);
-        this.rib = Preconditions.checkNotNull(rib);
-        this.name = name;
+        this.rib = requireNonNull(rib);
+        this.name = Ipv4Util.toStringIP(neighborAddress);
         this.rpcRegistry = rpcRegistry;
         this.peerStats = new BGPPeerStatsImpl(this.name, this.tables, this);
         this.chain = rib.createPeerChain(this);
     }
 
-    public BGPPeer(final String name, final RIB rib, final PeerRole role,
-        final RpcProviderRegistry rpcRegistry, @Nonnull final Set<TablesKey> afiSafisAdvertized,
-        @Nonnull final Set<TablesKey> afiSafisGracefulAdvertized) {
-        this(name, rib, role, null, rpcRegistry, afiSafisAdvertized, afiSafisGracefulAdvertized);
+    @VisibleForTesting
+    BGPPeer(final IpAddress neighborAddress, final RIB rib, final PeerRole role,
+            final RpcProviderRegistry rpcRegistry, @Nonnull final Set<TablesKey> afiSafisAdvertized,
+            @Nonnull final Set<TablesKey> afiSafisGracefulAdvertized) {
+        this(neighborAddress, rib, role, null, rpcRegistry, afiSafisAdvertized, afiSafisGracefulAdvertized);
     }
 
     public void instantiateServiceInstance() {
