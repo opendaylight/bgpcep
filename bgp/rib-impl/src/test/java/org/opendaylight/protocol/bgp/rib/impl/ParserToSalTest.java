@@ -16,13 +16,11 @@ import static org.opendaylight.protocol.bgp.rib.impl.AbstractAddPathTest.BGP_ID;
 import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Throwables;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.eventbus.EventBus;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Collections;
@@ -40,6 +38,7 @@ import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
+import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
@@ -53,6 +52,8 @@ import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivat
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.util.HexDumpBGPFileParser;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.ipv4.routes.Ipv4Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv6.routes.ipv6.routes.Ipv6Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateAddressFamily;
@@ -80,7 +81,7 @@ public class ParserToSalTest extends AbstractConcurrentDataBrokerTest {
     private BGPMock mock;
     private AbstractRIBExtensionProviderActivator baseact, lsact;
     private RIBExtensionProviderContext ext1, ext2;
-    private final String localAddress = "127.0.0.1";
+    private final IpAddress localAddress = new IpAddress(new Ipv4Address("127.0.0.1"));
 
     @Mock
     private BGPDispatcher dispatcher;
@@ -94,13 +95,8 @@ public class ParserToSalTest extends AbstractConcurrentDataBrokerTest {
     public void setUp() throws Exception {
         super.setup();
         MockitoAnnotations.initMocks(this);
-        final List<byte[]> bgpMessages;
-        try {
-            final String hexMessages = "/bgp_hex.txt";
-            bgpMessages = HexDumpBGPFileParser.parseMessages(ParserToSalTest.class.getResourceAsStream(hexMessages));
-        } catch (final IOException e) {
-            throw Throwables.propagate(e);
-        }
+        final String hexMessages = "/bgp_hex.txt";
+        final List<byte[]> bgpMessages = HexDumpBGPFileParser.parseMessages(ParserToSalTest.class.getResourceAsStream(hexMessages));
         this.mock = new BGPMock(new EventBus("test"), ServiceLoaderBGPExtensionProviderContext
             .getSingletonInstance().getMessageRegistry(), Lists.newArrayList(fixMessages(bgpMessages)));
 
@@ -149,7 +145,7 @@ public class ParserToSalTest extends AbstractConcurrentDataBrokerTest {
             AS_NUMBER, new BgpId("127.0.0.1"), null, this.ext2, this.dispatcher,
             this.codecFactory, getDomBroker(), tables, Collections.singletonMap(TABLE_KEY,
             BasePathSelectionModeFactory.createBestPathSelectionStrategy()),
-            GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), null);
+            GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
         rib.instantiateServiceInstance();
         assertTablesExists(tables);
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
@@ -167,7 +163,7 @@ public class ParserToSalTest extends AbstractConcurrentDataBrokerTest {
         final RIBImpl rib = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(TEST_RIB_ID), AS_NUMBER, BGP_ID,
             null, this.ext1, this.dispatcher, this.codecFactory, getDomBroker(), tables,
             Collections.singletonMap(TABLE_KEY, BasePathSelectionModeFactory.createBestPathSelectionStrategy()),
-            GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), null);
+            GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
         rib.instantiateServiceInstance();
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
         assertTablesExists(tables);
