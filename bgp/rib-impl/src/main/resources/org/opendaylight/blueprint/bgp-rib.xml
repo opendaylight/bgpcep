@@ -50,18 +50,18 @@
   <odl:static-reference id="domSchemaService" interface="org.opendaylight.mdsal.dom.api.DOMSchemaService"/>
   <reference id="rpcRegistry" interface="org.opendaylight.controller.sal.binding.api.RpcProviderRegistry"/>
 
-  <bean id="bgpDeployer" class="org.opendaylight.protocol.bgp.rib.impl.config.BgpDeployerImpl"  destroy-method="close">
+  <bean id="bgpDeployer" class="org.opendaylight.protocol.bgp.rib.impl.config.BgpDeployerImpl"
+        init-method="init"
+        destroy-method="close">
     <argument value="global-bgp"/>
+    <argument ref="clusterSingletonServiceProvider"/>
     <argument ref="blueprintContainer"/>
     <argument ref="blueprintBundleContext"/>
     <argument ref="dataBroker"/>
     <argument ref="bgpTableTypeRegistry"/>
   </bean>
 
-  <service ref="bgpDeployer" interface="org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer"/>
-
   <bean id="ribImpl" class="org.opendaylight.protocol.bgp.rib.impl.config.RibImpl" scope="prototype">
-    <argument ref="clusterSingletonServiceProvider"/>
     <argument ref="globalBgpExtensions"/>
     <argument ref="BGPDispatcher"/>
     <argument ref="codecTreeFactory"/>
@@ -75,12 +75,13 @@
 
   <bean id="appPeer" class="org.opendaylight.protocol.bgp.rib.impl.config.AppPeer" scope="prototype"/>
 
-  <reference id="bgpConfigLoader" interface="org.opendaylight.protocol.bgp.config.loader.spi.ConfigLoader"/>
+  <reference id="configLoader" interface="org.opendaylight.protocol.bgp.config.loader.spi.ConfigLoader"/>
 
   <bean id="protocolsInitialConfig" class="org.opendaylight.protocol.bgp.rib.impl.ProtocolsConfigFileProcessor"
+        init-method="init"
         destroy-method="close">
-      <argument ref="bgpConfigLoader"/>
-      <argument ref="bgpDeployer"/>
+      <argument ref="configLoader"/>
+      <argument ref="dataBroker"/>
   </bean>
 
   <bean id="bgpStateCollector" class="org.opendaylight.protocol.bgp.rib.impl.state.BGPStateCollectorImpl"/>

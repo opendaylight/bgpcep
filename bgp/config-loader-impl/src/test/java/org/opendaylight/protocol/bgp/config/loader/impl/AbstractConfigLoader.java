@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
+import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
 import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.mdsal.binding.generator.util.JavassistUtils;
@@ -37,7 +38,7 @@ import org.opendaylight.yangtools.binding.data.codec.impl.BindingNormalizedNodeC
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.opendaylight.yangtools.yang.test.util.YangParserTestUtils;
 
-public abstract class AbstractConfigLoader {
+public abstract class AbstractConfigLoader extends AbstractConcurrentDataBrokerTest {
     @GuardedBy("this")
     private final List<WatchEvent<?>> eventList = new ArrayList<>();
     protected BindingToNormalizedNodeCodec mappingService;
