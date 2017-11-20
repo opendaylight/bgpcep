@@ -52,7 +52,8 @@ public class SynchronizationTest {
     public void setUp() {
         this.listener = new SimpleSessionListener();
         this.ipv4m = new UpdateBuilder()
-                .setNlri(Collections.singletonList(new NlriBuilder().setPrefix(new Ipv4Prefix("1.1.1.1/32")).build()))
+                .setNlri(Collections.singletonList(new NlriBuilder()
+                .setPrefix(new Ipv4Prefix("1.1.1.1/32")).build()))
                 .build();
 
         MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder();

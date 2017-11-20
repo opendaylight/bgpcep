@@ -62,18 +62,19 @@ import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContaine
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableMapNodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 /**
  * Writer of Adjacency-RIB-In for a single peer. An instance of this object
  * is attached to each {@link BGPPeer} and {@link ApplicationPeer}.
  */
 @NotThreadSafe
 final class AdjRibInWriter {
-    private static final Logger LOG = LoggerFactory.getLogger(AdjRibInWriter.class);
     @VisibleForTesting
     static final LeafNode<Boolean> ATTRIBUTES_UPTODATE_FALSE = ImmutableNodes.leafNode(QName.create(Attributes.QNAME, "uptodate"), Boolean.FALSE);
-    private static final LeafNode<Boolean> ATTRIBUTES_UPTODATE_TRUE = ImmutableNodes.leafNode(ATTRIBUTES_UPTODATE_FALSE.getNodeType(), Boolean.TRUE);
     @VisibleForTesting
     static final QName PEER_ID_QNAME = QName.create(Peer.QNAME, "peer-id").intern();
+    private static final Logger LOG = LoggerFactory.getLogger(AdjRibInWriter.class);
+    private static final LeafNode<Boolean> ATTRIBUTES_UPTODATE_TRUE = ImmutableNodes.leafNode(ATTRIBUTES_UPTODATE_FALSE.getNodeType(), Boolean.TRUE);
     private static final QName PEER_ROLE_QNAME = QName.create(Peer.QNAME, "peer-role").intern();
     private static final NodeIdentifier ADJRIBIN = new NodeIdentifier(AdjRibIn.QNAME);
     private static final NodeIdentifier ADJRIBOUT = new NodeIdentifier(AdjRibOut.QNAME);
@@ -98,7 +99,8 @@ final class AdjRibInWriter {
     private final Optional<SimpleRoutingPolicy> simpleRoutingPolicy;
 
     private AdjRibInWriter(final YangInstanceIdentifier ribPath, final DOMTransactionChain chain, final PeerRole role,
-        final Optional<SimpleRoutingPolicy> simpleRoutingPolicy, final YangInstanceIdentifier peerPath, final Map<TablesKey, TableContext> tables) {
+            final Optional<SimpleRoutingPolicy> simpleRoutingPolicy, final YangInstanceIdentifier peerPath,
+            final Map<TablesKey, TableContext> tables) {
         this.ribPath = requireNonNull(ribPath);
         this.chain = requireNonNull(chain);
         this.tables = requireNonNull(tables);
@@ -110,88 +112,13 @@ final class AdjRibInWriter {
     /**
      * Create a new writer using a transaction chain.
      *
-     * @param role peer's role
+     * @param role                peer's role
      * @param simpleRoutingPolicy simple Routing Policy {@link SimpleRoutingPolicy}
-     *@param chain transaction chain  @return A fresh writer instance
+     * @param chain               transaction chain  @return A fresh writer instance
      */
     static AdjRibInWriter create(@Nonnull final YangInstanceIdentifier ribId, @Nonnull final PeerRole role,
-        final Optional<SimpleRoutingPolicy> simpleRoutingPolicy, @Nonnull final DOMTransactionChain chain) {
+            final Optional<SimpleRoutingPolicy> simpleRoutingPolicy, @Nonnull final DOMTransactionChain chain) {
         return new AdjRibInWriter(ribId, chain, role, simpleRoutingPolicy, null, Collections.emptyMap());
-    }
-
-    /**
-     * Transform this writer to a new writer, which is in charge of specified tables.
-     * Empty tables are created for new entries and old tables are deleted. Once this
-     * method returns, the old instance must not be reasonably used.
-     *
-     * @param newPeerId new peer BGP identifier
-     * @param registry RIB extension registry
-     * @param tableTypes New tables, must not be null
-     * @param addPathTablesType
-     * @return New writer
-     */
-    AdjRibInWriter transform(final PeerId newPeerId, final RIBSupportContextRegistry registry,
-        final Set<TablesKey> tableTypes, final Map<TablesKey, SendReceive> addPathTablesType) {
-        return transform(newPeerId, registry, tableTypes, addPathTablesType, null);
-    }
-
-    AdjRibInWriter transform(final PeerId newPeerId, final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes,
-        final Map<TablesKey, SendReceive> addPathTablesType, @Nullable final RegisterAppPeerListener registerAppPeerListener) {
-        final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
-
-        final YangInstanceIdentifier newPeerPath;
-        newPeerPath = createEmptyPeerStructure(newPeerId, tx);
-        final ImmutableMap<TablesKey, TableContext> tb = createNewTableInstances(newPeerPath, registry, tableTypes,
-            addPathTablesType, tx);
-
-        Futures.addCallback(tx.submit(), new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(final Void result) {
-                if(registerAppPeerListener != null) {
-                    LOG.trace("Application Peer Listener registered");
-                    registerAppPeerListener.register();
-                }
-            }
-
-            @Override
-            public void onFailure(final Throwable throwable) {
-                if(registerAppPeerListener != null) {
-                    LOG.error("Failed to create Empty Structure, Application Peer Listener won't be registered",
-                        throwable);
-                } else {
-                    LOG.error("Failed to create Empty Structure", throwable);
-                }
-            }
-        }, MoreExecutors.directExecutor());
-        return new AdjRibInWriter(this.ribPath, this.chain, this.role, this.simpleRoutingPolicy, newPeerPath, tb);
-    }
-
-    /**
-     * Create new table instances, potentially creating their empty entries
-     * @param newPeerPath
-     * @param registry
-     * @param tableTypes
-     * @param addPathTablesType
-     * @param tx
-     * @return
-     */
-    private ImmutableMap<TablesKey, TableContext> createNewTableInstances(final YangInstanceIdentifier newPeerPath,
-        final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes, final Map<TablesKey, SendReceive> addPathTablesType,
-        final DOMDataWriteTransaction tx) {
-
-        final Builder<TablesKey, TableContext> tb = ImmutableMap.builder();
-        for (final TablesKey tableKey : tableTypes) {
-            final RIBSupportContext rs = registry.getRIBSupportContext(tableKey);
-            // TODO: Use returned value once Instance Identifier builder allows for it.
-            final NodeIdentifierWithPredicates instanceIdentifierKey = RibSupportUtils.toYangTablesKey(tableKey);
-            if (rs == null) {
-                LOG.warn("No support for table type {}, skipping it", tableKey);
-                continue;
-            }
-            installAdjRibsOutTables(newPeerPath, rs, instanceIdentifierKey, tableKey, addPathTablesType.get(tableKey), tx);
-            installAdjRibInTables(newPeerPath, tableKey, rs, instanceIdentifierKey, tx, tb);
-        }
-        return tb.build();
     }
 
     private static void installAdjRibInTables(final YangInstanceIdentifier newPeerPath, final TablesKey tableKey,
@@ -209,16 +136,111 @@ final class AdjRibInWriter {
         tb.put(tableKey, ctx);
     }
 
+    static boolean isAnnounceNone(final java.util.Optional<SimpleRoutingPolicy> peerStatus) {
+        return peerStatus.isPresent() && peerStatus.get() == SimpleRoutingPolicy.AnnounceNone;
+    }
+
+    static boolean isLearnNone(final java.util.Optional<SimpleRoutingPolicy> peerStatus) {
+        return peerStatus.isPresent() && peerStatus.get() == SimpleRoutingPolicy.LearnNone;
+    }
+
+    private static String simpleRoutingPolicyString(final SimpleRoutingPolicy simpleRoutingPolicy) {
+        switch (simpleRoutingPolicy) {
+            case AnnounceNone:
+                return "announce-none";
+            case LearnNone:
+                return "learn-none";
+            default:
+                throw new IllegalArgumentException("Unhandled Simple Routing Policy " + simpleRoutingPolicy);
+        }
+    }
+
+    /**
+     * Transform this writer to a new writer, which is in charge of specified tables.
+     * Empty tables are created for new entries and old tables are deleted. Once this
+     * method returns, the old instance must not be reasonably used.
+     *
+     * @param newPeerId         new peer BGP identifier
+     * @param registry          RIB extension registry
+     * @param tableTypes        New tables, must not be null
+     * @param addPathTablesType
+     * @return New writer
+     */
+    AdjRibInWriter transform(final PeerId newPeerId, final RIBSupportContextRegistry registry,
+            final Set<TablesKey> tableTypes, final Map<TablesKey, SendReceive> addPathTablesType) {
+        return transform(newPeerId, registry, tableTypes, addPathTablesType, null);
+    }
+
+    AdjRibInWriter transform(final PeerId newPeerId, final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes,
+            final Map<TablesKey, SendReceive> addPathTablesType, @Nullable final RegisterAppPeerListener registerAppPeerListener) {
+        final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
+
+        final YangInstanceIdentifier newPeerPath;
+        newPeerPath = createEmptyPeerStructure(newPeerId, tx);
+        final ImmutableMap<TablesKey, TableContext> tb = createNewTableInstances(newPeerPath, registry, tableTypes,
+                addPathTablesType, tx);
+
+        Futures.addCallback(tx.submit(), new FutureCallback<Void>() {
+            @Override
+            public void onSuccess(final Void result) {
+                if (registerAppPeerListener != null) {
+                    LOG.trace("Application Peer Listener registered");
+                    registerAppPeerListener.register();
+                }
+            }
+
+            @Override
+            public void onFailure(final Throwable throwable) {
+                if (registerAppPeerListener != null) {
+                    LOG.error("Failed to create Empty Structure, Application Peer Listener won't be registered",
+                            throwable);
+                } else {
+                    LOG.error("Failed to create Empty Structure", throwable);
+                }
+            }
+        }, MoreExecutors.directExecutor());
+        return new AdjRibInWriter(this.ribPath, this.chain, this.role, this.simpleRoutingPolicy, newPeerPath, tb);
+    }
+
+    /**
+     * Create new table instances, potentially creating their empty entries
+     *
+     * @param newPeerPath
+     * @param registry
+     * @param tableTypes
+     * @param addPathTablesType
+     * @param tx
+     * @return
+     */
+    private ImmutableMap<TablesKey, TableContext> createNewTableInstances(final YangInstanceIdentifier newPeerPath,
+            final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes, final Map<TablesKey, SendReceive> addPathTablesType,
+            final DOMDataWriteTransaction tx) {
+
+        final Builder<TablesKey, TableContext> tb = ImmutableMap.builder();
+        for (final TablesKey tableKey : tableTypes) {
+            final RIBSupportContext rs = registry.getRIBSupportContext(tableKey);
+            // TODO: Use returned value once Instance Identifier builder allows for it.
+            final NodeIdentifierWithPredicates instanceIdentifierKey = RibSupportUtils.toYangTablesKey(tableKey);
+            if (rs == null) {
+                LOG.warn("No support for table type {}, skipping it", tableKey);
+                continue;
+            }
+            installAdjRibsOutTables(newPeerPath, rs, instanceIdentifierKey, tableKey, addPathTablesType.get(tableKey), tx);
+            installAdjRibInTables(newPeerPath, tableKey, rs, instanceIdentifierKey, tx, tb);
+        }
+        return tb.build();
+    }
+
     private void installAdjRibsOutTables(final YangInstanceIdentifier newPeerPath, final RIBSupportContext rs,
-        final NodeIdentifierWithPredicates instanceIdentifierKey, final TablesKey tableKey, final SendReceive sendReceive,
-        final DOMDataWriteTransaction tx) {
+            final NodeIdentifierWithPredicates instanceIdentifierKey, final TablesKey tableKey, final SendReceive sendReceive,
+            final DOMDataWriteTransaction tx) {
         if (!isAnnounceNone(this.simpleRoutingPolicy)) {
             final NodeIdentifierWithPredicates supTablesKey = RibSupportUtils.toYangKey(SupportedTables.QNAME, tableKey);
             final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> tt = Builders.mapEntryBuilder().withNodeIdentifier(supTablesKey);
             for (final Entry<QName, Object> e : supTablesKey.getKeyValues().entrySet()) {
                 tt.withChild(ImmutableNodes.leafNode(e.getKey(), e.getValue()));
             }
-            if(sendReceive != null) {
+            if (sendReceive != null) {
                 tt.withChild(ImmutableNodes.leafNode(SEND_RECEIVE, sendReceive.toString().toLowerCase()));
             }
             tx.put(LogicalDatastoreType.OPERATIONAL, newPeerPath.node(PEER_TABLES).node(supTablesKey), tt.build());
@@ -246,7 +268,7 @@ final class AdjRibInWriter {
         }
         pb.withChild(ImmutableMapNodeBuilder.create().withNodeIdentifier(PEER_TABLES).build());
         pb.withChild(EMPTY_ADJRIBIN);
-        if(!isLearnNone(this.simpleRoutingPolicy)) {
+        if (!isLearnNone(this.simpleRoutingPolicy)) {
             pb.withChild(EMPTY_EFFRIBIN);
         }
         if (!isAnnounceNone(this.simpleRoutingPolicy)) {
@@ -255,8 +277,10 @@ final class AdjRibInWriter {
         return pb.build();
     }
 
-    ListenableFuture<Void> removePeer() {
-        if(this.peerPath != null) {
+    synchronized ListenableFuture<Void> removePeer() {
+        if (this.peerPath != null) {
+
+            LOG.info("AdjRibInWriter closed per Peer {} removed", AdjRibInWriter.this.peerPath);
             final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
             tx.delete(LogicalDatastoreType.OPERATIONAL, this.peerPath);
             final ListenableFuture<Void> future = tx.submit();
@@ -308,24 +332,5 @@ final class AdjRibInWriter {
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         ctx.removeRoutes(tx, nlri);
         tx.submit();
-    }
-
-    static boolean isAnnounceNone(final java.util.Optional<SimpleRoutingPolicy> peerStatus) {
-        return peerStatus.isPresent() && peerStatus.get() == SimpleRoutingPolicy.AnnounceNone;
-    }
-
-    static boolean isLearnNone(final java.util.Optional<SimpleRoutingPolicy> peerStatus) {
-        return peerStatus.isPresent() && peerStatus.get() == SimpleRoutingPolicy.LearnNone;
-    }
-
-    private static String simpleRoutingPolicyString(final SimpleRoutingPolicy simpleRoutingPolicy) {
-        switch (simpleRoutingPolicy) {
-        case AnnounceNone:
-            return "announce-none";
-        case LearnNone:
-            return "learn-none";
-        default:
-            throw new IllegalArgumentException("Unhandled Simple Routing Policy " + simpleRoutingPolicy);
-        }
     }
 }
