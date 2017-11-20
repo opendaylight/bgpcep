@@ -8,6 +8,7 @@
 
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
+import com.google.common.annotations.Beta;
 import java.net.SocketAddress;
 import java.util.List;
 import java.util.Set;
@@ -20,6 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 /**
  * BGP Operational Session State Listener
  */
+@Beta
 public interface BGPSessionStateListener extends BGPMessagesListener{
     /**
      * Advertize Session capabilities

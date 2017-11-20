@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
+import com.google.common.annotations.Beta;
 import com.google.common.base.Optional;
 import io.netty.channel.ChannelFuture;
 import io.netty.util.concurrent.Future;
@@ -17,6 +18,7 @@ import org.opendaylight.protocol.concepts.KeyMapping;
 /**
  * Dispatcher class for creating BGP clients.
  */
+@Beta
 public interface BGPDispatcher{
 
     /**
