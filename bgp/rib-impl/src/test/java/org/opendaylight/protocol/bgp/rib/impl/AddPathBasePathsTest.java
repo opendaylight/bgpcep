@@ -42,7 +42,7 @@ public class AddPathBasePathsTest extends AbstractAddPathTest {
         final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(tk,
             BasePathSelectionModeFactory.createBestPathSelectionStrategy());
 
-        this.ribImpl = new RIBImpl(this.clusterSingletonServiceProvider, new RibId("test-rib"),
+        this.ribImpl = new RIBImpl(new RibId("test-rib"),
             AS_NUMBER, new BgpId(RIB_ID), null, this.ribExtension, this.serverDispatcher,
             this.mappingService.getCodecFactory(), getDomBroker(), TABLES_TYPE, pathTables,
             this.ribExtension.getClassLoadingStrategy());
