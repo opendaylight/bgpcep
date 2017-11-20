@@ -50,7 +50,8 @@ public class SynchronizationTest {
     @Before
     public void setUp() {
         this.listener = new SimpleSessionListener();
-        this.ipv4m = new UpdateBuilder().setNlri(new NlriBuilder().setNlri(Lists.newArrayList(new Ipv4Prefix("1.1.1.1/32"))).build()).build();
+        this.ipv4m = new UpdateBuilder().setNlri(new NlriBuilder()
+                .setNlri(Lists.newArrayList(new Ipv4Prefix("1.1.1.1/32"))).build()).build();
 
         MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder();
         mpBuilder.setAfi(Ipv6AddressFamily.class);

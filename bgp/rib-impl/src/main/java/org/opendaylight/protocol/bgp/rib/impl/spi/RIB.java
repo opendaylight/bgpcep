@@ -26,7 +26,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 /**
  * Internal reference to a RIB instance.
  */
-public interface RIB extends RibReference, ClusterSingletonServiceProvider {
+public interface RIB extends RibReference {
     AsNumber getLocalAs();
 
     BgpId getBgpIdentifier();
@@ -96,11 +96,4 @@ public interface RIB extends RibReference, ClusterSingletonServiceProvider {
     ExportPolicyPeerTracker getExportPolicyPeerTracker(TablesKey tablesKey);
 
     Set<TablesKey> getLocalTablesKeys();
-
-    /**
-     * Return common ServiceGroupIdentifier to be used between same group cluster service
-     *
-     * @return ServiceGroupIdentifier
-     */
-    ServiceGroupIdentifier getRibIServiceGroupIdentifier();
 }

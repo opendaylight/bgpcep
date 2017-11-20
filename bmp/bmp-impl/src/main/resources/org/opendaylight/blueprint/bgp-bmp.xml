@@ -50,6 +50,4 @@
     <argument ref="bmpDispatcher"/>
     <argument ref="bmpDeployerDependecies"/>
   </bean>
-
-  <service ref="bmpDeployer" interface="org.opendaylight.protocol.bmp.impl.api.BmpDeployer"/>
 </blueprint>
