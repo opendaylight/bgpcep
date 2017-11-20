@@ -143,15 +143,12 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
                 .setVersion(new ProtocolVersion((short) 4)).setBgpParameters(tlvs).setBgpIdentifier(BGP_ID).build();
 
         final List<OptionalCapabilities> capa = Lists.newArrayList();
-        capa.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder()
-                .addAugmentation(CParameters1.class,
-                        new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
-                                .setAfi(this.ipv4tt.getAfi()).setSafi(this.ipv4tt.getSafi()).build())
-                                .setGracefulRestartCapability(new GracefulRestartCapabilityBuilder().build()).build())
-                .setAs4BytesCapability(new As4BytesCapabilityBuilder()
-                        .setAsNumber(AS_NUMBER).build()).build()).build());
-        capa.add(new OptionalCapabilitiesBuilder()
-                .setCParameters(BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY).build());
+        capa.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class,
+            new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
+                .setAfi(this.ipv4tt.getAfi()).setSafi(this.ipv4tt.getSafi()).build())
+                .setGracefulRestartCapability(new GracefulRestartCapabilityBuilder().build()).build())
+            .setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(AS_NUMBER).build()).build()).build());
+        capa.add(new OptionalCapabilitiesBuilder().setCParameters(BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY).build());
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capa).build());
 
         doReturn(null).when(mock(ChannelFuture.class)).addListener(any());
@@ -172,9 +169,11 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
                 .when(this.speakerListener).localAddress();
         doReturn(this.pipeline).when(this.speakerListener).pipeline();
         doReturn(this.pipeline).when(this.pipeline).replace(any(ChannelHandler.class),
-                any(String.class), any(ChannelHandler.class));
+                any(String.class),
+                any(ChannelHandler.class));
         doReturn(null).when(this.pipeline).replace(Matchers.<Class<ChannelHandler>>any(),
-                any(String.class), any(ChannelHandler.class));
+                any(String.class),
+                any(ChannelHandler.class));
         doReturn(this.pipeline).when(this.pipeline).addLast(any(ChannelHandler.class));
         final ChannelFuture futureChannel = mock(ChannelFuture.class);
         doReturn(null).when(futureChannel).addListener(any());
@@ -207,11 +206,10 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
     @Test
     public void testHandleMessageAfterException() throws InterruptedException {
         final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(TABLES_KEY,
-                BasePathSelectionModeFactory.createBestPathSelectionStrategy());
-        final RIBImpl ribImpl = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(RIB_ID), AS_NUMBER,
-                new BgpId(RIB_ID), null, this.ribExtension, this.serverDispatcher,
-                this.mappingService.getCodecFactory(), this.domBroker, ImmutableList.of(this.ipv4tt),
-                pathTables, this.ribExtension.getClassLoadingStrategy());
+            BasePathSelectionModeFactory.createBestPathSelectionStrategy());
+        final RIBImpl ribImpl = new RIBImpl( new RibId(RIB_ID), AS_NUMBER,
+            new BgpId(RIB_ID), null, this.ribExtension, this.serverDispatcher, this.mappingService.getCodecFactory(),
+            this.domBroker, ImmutableList.of(this.ipv4tt), pathTables, this.ribExtension.getClassLoadingStrategy());
         ribImpl.instantiateServiceInstance();
         ribImpl.onGlobalContextUpdated(this.schemaContext);
 
@@ -256,11 +254,10 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
     @Test
     public void testUseCase1() throws InterruptedException {
         final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(TABLES_KEY,
-                BasePathSelectionModeFactory.createBestPathSelectionStrategy());
-        final RIBImpl ribImpl = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(RIB_ID), AS_NUMBER,
-                new BgpId(RIB_ID), null, this.ribExtension, this.serverDispatcher,
-                this.mappingService.getCodecFactory(), this.domBroker, ImmutableList.of(this.ipv4tt), pathTables,
-                this.ribExtension.getClassLoadingStrategy());
+            BasePathSelectionModeFactory.createBestPathSelectionStrategy());
+        final RIBImpl ribImpl = new RIBImpl( new RibId(RIB_ID), AS_NUMBER,
+            new BgpId(RIB_ID), null, this.ribExtension, this.serverDispatcher, this.mappingService.getCodecFactory(),
+            this.domBroker, ImmutableList.of(this.ipv4tt), pathTables, this.ribExtension.getClassLoadingStrategy());
         ribImpl.instantiateServiceInstance();
         ribImpl.onGlobalContextUpdated(this.schemaContext);
 

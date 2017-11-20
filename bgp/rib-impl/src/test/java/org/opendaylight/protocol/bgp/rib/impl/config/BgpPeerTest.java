@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
@@ -57,12 +56,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 public class BgpPeerTest extends AbstractConfig {
     static final short SHORT = 0;
     static final IpAddress NEIGHBOR_ADDRESS = new IpAddress(new Ipv4Address("127.0.0.1"));
-    static final BigDecimal DEFAULT_TIMERS = BigDecimal.valueOf(30);
     static final String MD5_PASSWORD = "123";
     static final PortNumber PORT = new PortNumber(179);
     static final AfiSafi AFI_SAFI_IPV4 = new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
             .addAugmentation(AfiSafi1.class, new AfiSafi1Builder().setReceive(true).setSendMax(SHORT).build()).build();
     static final List<AfiSafi> AFI_SAFI = Collections.singletonList(AFI_SAFI_IPV4);
+    private static final BigDecimal DEFAULT_TIMERS = BigDecimal.valueOf(30);
     private BgpPeer bgpPeer;
 
     static Neighbor createNeighborExpected(final IpAddress neighborAddress) {
@@ -78,16 +77,19 @@ public class BgpPeerTest extends AbstractConfig {
     }
 
     static Transport createTransport() {
-        return new TransportBuilder().setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp
-                .rev151009.bgp.neighbor.group.transport.ConfigBuilder().setMtuDiscovery(false).setPassiveMode(false)
-                .addAugmentation(Config1.class, new Config1Builder().setRemotePort(PORT).build()).build()).build();
+        return new TransportBuilder().setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.
+                rev151009.bgp.neighbor.group.transport.ConfigBuilder().setMtuDiscovery(false)
+                .setPassiveMode(false).addAugmentation(Config1.class, new Config1Builder()
+                        .setRemotePort(PORT).build()).build()).build();
     }
 
     static Timers createTimers() {
         return new TimersBuilder().setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009
-                .bgp.neighbor.group.timers.ConfigBuilder().setHoldTime(DEFAULT_TIMERS)
+                .bgp.neighbor.group.timers.ConfigBuilder()
+                .setHoldTime(DEFAULT_TIMERS)
                 .setMinimumAdvertisementInterval(DEFAULT_TIMERS)
-                .setKeepaliveInterval(DEFAULT_TIMERS).setConnectRetry(DEFAULT_TIMERS).build()).build();
+                .setKeepaliveInterval(DEFAULT_TIMERS)
+                .setConnectRetry(DEFAULT_TIMERS).build()).build();
     }
 
     static RouteReflector createRR() {
@@ -98,9 +100,13 @@ public class BgpPeerTest extends AbstractConfig {
     }
 
     static Config createConfig() {
-        return new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group
-                .ConfigBuilder().setPeerAs(AS).setPeerType(PeerType.INTERNAL).setAuthPassword(MD5_PASSWORD)
-                .setRouteFlapDamping(false).setSendCommunity(CommunityType.NONE).build();
+        return new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.
+                ConfigBuilder()
+                .setPeerAs(AS)
+                .setPeerType(PeerType.INTERNAL)
+                .setAuthPassword(MD5_PASSWORD)
+                .setRouteFlapDamping(false)
+                .setSendCommunity(CommunityType.NONE).build();
     }
 
     static AfiSafis createAfiSafi() {
@@ -129,10 +135,8 @@ public class BgpPeerTest extends AbstractConfig {
         Mockito.verify(this.rib).createPeerChain(any());
         Mockito.verify(this.rib, times(2)).getLocalAs();
         Mockito.verify(this.rib).getLocalTables();
-        Mockito.verify(this.rib).getRibIServiceGroupIdentifier();
-        Mockito.verify(this.rib).registerClusterSingletonService(any(ClusterSingletonService.class));
 
-        this.singletonService.instantiateServiceInstance();
+        this.bgpPeer.instantiateServiceInstance();
         Mockito.verify(this.bgpPeerRegistry).addPeer(any(), any(), any());
         Mockito.verify(this.dispatcher).createReconnectingClient(any(InetSocketAddress.class),
                 anyInt(), any(KeyMapping.class));
@@ -144,25 +148,24 @@ public class BgpPeerTest extends AbstractConfig {
             assertEquals("Previous peer instance was not closed.", expected.getMessage());
         }
         this.bgpPeer.setServiceRegistration(this.serviceRegistration);
+        this.bgpPeer.closeServiceInstance();
         this.bgpPeer.close();
-        Mockito.verify(this.singletonServiceRegistration).close();
         Mockito.verify(this.future).cancel(true);
 
         this.bgpPeer.restart(this.rib, this.tableTypeRegistry);
+        this.bgpPeer.instantiateServiceInstance();
         Mockito.verify(this.rib, times(2)).createPeerChain(any());
         Mockito.verify(this.rib, times(4)).getLocalAs();
         Mockito.verify(this.rib, times(2)).getLocalTables();
-        Mockito.verify(this.rib, times(2)).getRibIServiceGroupIdentifier();
-        Mockito.verify(this.rib, times(2)).registerClusterSingletonService(any(ClusterSingletonService.class));
-        this.singletonService.instantiateServiceInstance();
 
         final Neighbor neighborExpected = createNeighborExpected(NEIGHBOR_ADDRESS);
         assertTrue(this.bgpPeer.containsEqualConfiguration(neighborExpected));
-        assertFalse(this.bgpPeer.containsEqualConfiguration(createNeighborExpected(new IpAddress(new Ipv4Address("127.0.0.2")))));
+        assertFalse(this.bgpPeer.containsEqualConfiguration(createNeighborExpected(
+                new IpAddress(new Ipv4Address("127.0.0.2")))));
         Mockito.verify(this.bgpPeerRegistry).removePeer(any(IpAddress.class));
 
+        this.bgpPeer.closeServiceInstance();
         this.bgpPeer.close();
-        Mockito.verify(this.singletonServiceRegistration, times(2)).close();
         Mockito.verify(this.serviceRegistration).unregister();
         Mockito.verify(this.future, times(2)).cancel(true);
 

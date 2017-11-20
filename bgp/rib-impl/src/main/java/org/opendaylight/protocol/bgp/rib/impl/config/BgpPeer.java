@@ -27,9 +27,7 @@ import java.util.Objects;
 import java.util.Set;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
-import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.spi.MultiprotocolCapabilitiesUtil;
@@ -96,17 +94,18 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
         final List<AddressFamilies> addPathCapability = OpenConfigMappingUtil
                 .toAddPathCapability(afiSafi, tableTypeRegistry);
         if (!addPathCapability.isEmpty()) {
-            caps.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder()
-                    .addAugmentation(CParameters1.class, new CParameters1Builder().setAddPathCapability(
-                            new AddPathCapabilityBuilder().setAddressFamilies(addPathCapability)
-                                    .build()).build()).build()).build());
+            caps.add(new OptionalCapabilitiesBuilder()
+                    .setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class,
+                            new CParameters1Builder().setAddPathCapability(
+                                    new AddPathCapabilityBuilder()
+                                            .setAddressFamilies(addPathCapability).build()).build()).build()).build());
         }
 
         final List<BgpTableType> tableTypes = OpenConfigMappingUtil.toTableTypes(afiSafi, tableTypeRegistry);
         for (final BgpTableType tableType : tableTypes) {
             if (!rib.getLocalTables().contains(tableType)) {
-                LOG.info("RIB instance does not list {} in its local tables. Incoming data will be dropped.",
-                        tableType);
+                LOG.info("RIB instance does not list {} " +
+                        "in its local tables. Incoming data will be dropped.", tableType);
             }
 
             caps.add(new OptionalCapabilitiesBuilder().setCParameters(
@@ -146,6 +145,13 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
         if (this.serviceRegistration != null) {
             this.serviceRegistration.unregister();
             this.serviceRegistration = null;
+        }
+    }
+
+    @Override
+    public synchronized void instantiateServiceInstance() {
+        if (this.bgpPeerSingletonService != null) {
+            this.bgpPeerSingletonService.instantiateServiceInstance();
         }
     }
 
@@ -202,18 +208,16 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
         this.serviceRegistration = serviceRegistration;
     }
 
-    private final class BgpPeerSingletonService implements BGPPeerStateConsumer, ClusterSingletonService,
-            AutoCloseable {
-        private final ServiceGroupIdentifier serviceGroupIdentifier;
+    private final class BgpPeerSingletonService implements BGPPeerStateConsumer, AutoCloseable {
         private final boolean activeConnection;
         private final BGPDispatcher dispatcher;
         private final InetSocketAddress inetAddress;
         private final int retryTimer;
         private final KeyMapping keys;
+        private ClusterSingletonServiceRegistration registration;
         private final BGPPeer bgpPeer;
         private final IpAddress neighborAddress;
         private final BGPSessionPreferences prefs;
-        private ClusterSingletonServiceRegistration registration;
         private Future<Void> connection;
         @GuardedBy("this")
         private boolean isServiceInstantiated;
@@ -225,21 +229,19 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
             final Set<TablesKey> afiSafisAdvertized = OpenConfigMappingUtil
                     .toTableKey(afisSAfis.getAfiSafi(), tableTypeRegistry);
             this.bgpPeer = new BGPPeer(this.neighborAddress, rib,
-                    OpenConfigMappingUtil.toPeerRole(neighbor), getSimpleRoutingPolicy(neighbor),
-                    BgpPeer.this.rpcRegistry, afiSafisAdvertized, Collections.emptySet());
+                    OpenConfigMappingUtil.toPeerRole(neighbor),
+                    getSimpleRoutingPolicy(neighbor), BgpPeer.this.rpcRegistry,
+                    afiSafisAdvertized, Collections.emptySet());
             final List<BgpParameters> bgpParameters = getBgpParameters(neighbor, rib, tableTypeRegistry);
             final KeyMapping keyMapping = OpenConfigMappingUtil.getNeighborKey(neighbor);
             this.prefs = new BGPSessionPreferences(rib.getLocalAs(), getHoldTimer(neighbor), rib.getBgpIdentifier(),
                     getPeerAs(neighbor, rib), bgpParameters, getPassword(keyMapping));
             this.activeConnection = OpenConfigMappingUtil.isActive(neighbor);
             this.dispatcher = rib.getDispatcher();
-            this.inetAddress = Ipv4Util.toInetSocketAddress(this.neighborAddress, OpenConfigMappingUtil.getPort(neighbor));
+            this.inetAddress = Ipv4Util.toInetSocketAddress(this.neighborAddress,
+                    OpenConfigMappingUtil.getPort(neighbor));
             this.retryTimer = OpenConfigMappingUtil.getRetryTimer(neighbor);
             this.keys = keyMapping;
-            this.serviceGroupIdentifier = rib.getRibIServiceGroupIdentifier();
-            LOG.info("Peer Singleton Service {} registered", this.serviceGroupIdentifier.getValue());
-            //this need to be always the last step
-            this.registration = rib.registerClusterSingletonService(this);
         }
 
         @Override
@@ -250,11 +252,9 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
             }
         }
 
-        @Override
-        public synchronized void instantiateServiceInstance() {
+        private synchronized void instantiateServiceInstance() {
             this.isServiceInstantiated = true;
-            LOG.info("Peer Singleton Service {} instantiated, Peer {}", getIdentifier().getValue(),
-                    this.neighborAddress);
+            LOG.info("Peer instantiated {}", this.neighborAddress);
             this.bgpPeer.instantiateServiceInstance();
             this.dispatcher.getBGPPeerRegistry().addPeer(this.neighborAddress, this.bgpPeer, this.prefs);
             if (this.activeConnection) {
@@ -263,14 +263,12 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
             }
         }
 
-        @Override
-        public synchronized ListenableFuture<Void> closeServiceInstance() {
+        private synchronized ListenableFuture<Void> closeServiceInstance() {
             if (!this.isServiceInstantiated) {
-                LOG.info("Peer Singleton Service {} already closed, Peer {}", getIdentifier().getValue(),
-                        this.neighborAddress);
+                LOG.info("Peer {} already closed", this.neighborAddress);
                 return Futures.immediateFuture(null);
             }
-            LOG.info("Close Peer Singleton Service {}, Peer {}", getIdentifier().getValue(), this.neighborAddress);
+            LOG.info("Close Peer {}", this.neighborAddress);
             this.isServiceInstantiated = false;
             if (this.connection != null) {
                 this.connection.cancel(true);
@@ -281,11 +279,6 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
                 this.dispatcher.getBGPPeerRegistry().removePeer(BgpPeer.this.currentConfiguration.getNeighborAddress());
             }
             return future;
-        }
-
-        @Override
-        public ServiceGroupIdentifier getIdentifier() {
-            return this.serviceGroupIdentifier;
         }
 
         @Override
