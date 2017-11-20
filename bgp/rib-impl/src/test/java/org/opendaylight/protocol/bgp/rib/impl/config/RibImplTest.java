@@ -87,10 +87,6 @@ public class RibImplTest extends AbstractConfig {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        Mockito.doAnswer(invocationOnMock -> {
-            RibImplTest.this.singletonService = (ClusterSingletonService) invocationOnMock.getArguments()[0];
-            return RibImplTest.this.singletonServiceRegistration;
-        }).when(this.clusterSingletonServiceProvider).registerClusterSingletonService(any(ClusterSingletonService.class));
 
         Mockito.doReturn(mock(GeneratedClassLoadingStrategy.class)).when(this.extension).getClassLoadingStrategy();
         Mockito.doReturn(this.ribSupport).when(this.extension).getRIBSupport(any(TablesKey.class));
@@ -116,13 +112,10 @@ public class RibImplTest extends AbstractConfig {
         final RibImpl ribImpl = new RibImpl(this.clusterSingletonServiceProvider, this.extension, this.dispatcher,
             this.bindingCodecTreeFactory, this.domDataBroker, this.domSchemaService);
         ribImpl.setServiceRegistration(this.serviceRegistration);
-        ribImpl.start(createGlobal(), "rib-test", this.tableTypeRegistry, this.configurationWriter);
+        ribImpl.start(createGlobal(), "rib-test", this.tableTypeRegistry);
         verify(this.extension).getClassLoadingStrategy();
         verify(this.domDataBroker).getSupportedExtensions();
-        verify(this.clusterSingletonServiceProvider).registerClusterSingletonService(any());
         verify(this.domSchemaService).registerSchemaContextListener(any(RIBImpl.class));
-        this.singletonService.instantiateServiceInstance();
-        Mockito.verify(this.configurationWriter).apply();
         assertEquals("RIBImpl{}", ribImpl.toString());
         assertEquals(ServiceGroupIdentifier.create("rib-test-service-group"), ribImpl.getRibIServiceGroupIdentifier());
         assertEquals(Collections.singleton(new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class)), ribImpl.getLocalTablesKeys());

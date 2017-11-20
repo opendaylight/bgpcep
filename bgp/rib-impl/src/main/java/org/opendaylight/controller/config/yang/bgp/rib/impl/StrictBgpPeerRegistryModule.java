@@ -7,17 +7,10 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
-import com.google.common.reflect.AbstractInvocationHandler;
-import com.google.common.reflect.Reflection;
-import java.lang.reflect.Method;
-import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.osgi.framework.BundleContext;
 
 /**
- * Registry of BGP peers that allows only one connection per 2 peers
- *
- * @deprecated Replaced by blueprint wiring
+ * No longer Operation supported
  */
 @Deprecated
 public class StrictBgpPeerRegistryModule extends org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractStrictBgpPeerRegistryModule {
@@ -38,24 +31,6 @@ public class StrictBgpPeerRegistryModule extends org.opendaylight.controller.con
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        final WaitingServiceTracker<BGPPeerRegistry> tracker =
-                WaitingServiceTracker.create(BGPPeerRegistry.class, this.bundleContext);
-        final BGPPeerRegistry service = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
-
-        return Reflection.newProxy(BGPPeerRegistry.class, new AbstractInvocationHandler() {
-            @Override
-            protected Object handleInvocation(final Object proxy, final Method method, final Object[] args) throws Throwable {
-                if (method.getName().equals("close")) {
-                    tracker.close();
-                    return null;
-                }
-
-                return method.invoke(service, args);
-            }
-        });
-    }
-
-    void setBundleContext(final BundleContext bundleContext) {
-        this.bundleContext = bundleContext;
+        throw new UnsupportedOperationException();
     }
 }

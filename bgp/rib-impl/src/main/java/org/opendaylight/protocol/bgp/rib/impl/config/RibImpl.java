@@ -8,6 +8,7 @@
 
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
+import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getAfiSafiWithDefault;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getClusterIdentifier;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.toTableTypes;
@@ -85,7 +86,7 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
     public RibImpl(final ClusterSingletonServiceProvider provider, final RIBExtensionConsumerContext contextProvider,
         final BGPDispatcher dispatcher, final BindingCodecTreeFactory codecTreeFactory, final DOMDataBroker domBroker,
         final DOMSchemaService domSchemaService) {
-        this.provider = Preconditions.checkNotNull(provider);
+        this.provider = requireNonNull(provider);
         this.extensions = contextProvider;
         this.dispatcher = dispatcher;
         this.codecTreeFactory = codecTreeFactory;
@@ -93,10 +94,9 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
         this.domSchemaService = domSchemaService;
     }
 
-    void start(final Global global, final String instanceName, final BGPTableTypeRegistryConsumer tableTypeRegistry,
-        final BgpDeployer.WriteConfiguration configurationWriter) {
+    void start(final Global global, final String instanceName, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         Preconditions.checkState(this.ribImpl == null, "Previous instance %s was not closed.", this);
-        this.ribImpl = createRib(global, instanceName, tableTypeRegistry, configurationWriter);
+        this.ribImpl = createRib(global, instanceName, tableTypeRegistry);
         this.schemaContextRegistration = this.domSchemaService.registerSchemaContextListener(this.ribImpl);
     }
 
@@ -233,7 +233,7 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
     }
 
     private RIBImpl createRib(final Global global, final String bgpInstanceName,
-        final BGPTableTypeRegistryConsumer tableTypeRegistry, final BgpDeployer.WriteConfiguration configurationWriter) {
+        final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         this.afiSafi = getAfiSafiWithDefault(global.getAfiSafis(), true);
         final Config globalConfig = global.getConfig();
         this.asNumber = globalConfig.getAs();
@@ -243,7 +243,7 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
                 .stream().collect(Collectors.toMap(entry -> new TablesKey(entry.getKey().getAfi(), entry.getKey().getSafi()), Map.Entry::getValue));
         return new RIBImpl(this.provider, new RibId(bgpInstanceName), this.asNumber, new BgpId(this.routerId), this.clusterId,
                 this.extensions, this.dispatcher, this.codecTreeFactory, this.domBroker, toTableTypes(this.afiSafi, tableTypeRegistry), pathSelectionModes,
-                this.extensions.getClassLoadingStrategy(), configurationWriter);
+                this.extensions.getClassLoadingStrategy());
     }
 
     @Override
@@ -254,5 +254,12 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
     @Override
     public BGPRIBState getRIBState() {
         return this.ribImpl.getRIBState();
+    }
+
+
+    public void instantiateServiceInstance() {
+        if (this.ribImpl != null) {
+            this.ribImpl.instantiateServiceInstance();
+        }
     }
 }
