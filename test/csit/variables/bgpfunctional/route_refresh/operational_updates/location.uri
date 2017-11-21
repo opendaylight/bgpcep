@@ -1,0 +1,1 @@
+restconf/operational/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/$RIB_INSTANCE_NAME/bgp/neighbors/neighbor/$IP/state
