@@ -1,0 +1,3 @@
+<input xmlns="urn:opendaylight:params:xml:ns:yang:bgp-peer-rpc">
+    <peer-ref xmlns:rib="urn:opendaylight:params:xml:ns:yang:bgp-rib">/rib:bgp-rib/rib:rib[rib:id="$RIB_INSTANCE_NAME"]/rib:peer[rib:peer-id="bgp://$IP"]</peer-ref>
+</input>
