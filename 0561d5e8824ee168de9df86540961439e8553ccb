@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_ba8e0b2c",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/app/BmpRibInWriter.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2017-11-22T22:40:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_00ec578e",
+      "range": {
+        "startLine": 181,
+        "startChar": 6,
+        "endLine": 183,
+        "endChar": 7
+      },
+      "revId": "0561d5e8824ee168de9df86540961439e8553ccb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_6cec2ff4",
         "filename": "bgp/inet/src/main/yang/bgp-inet.yang",
         "patchSetId": 3
@@ -60,6 +84,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_0b5438fd",
+        "filename": "bgp/inet/src/main/yang/bgp-inet.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2017-11-22T22:40:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_925d2b4a",
+      "revId": "0561d5e8824ee168de9df86540961439e8553ccb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_8cefe3e8",
         "filename": "bgp/inet/src/main/yang/bgp-inet.yang",
         "patchSetId": 3
@@ -71,6 +113,24 @@
       "writtenOn": "2017-11-06T12:03:00Z",
       "side": 1,
       "message": "missing \nkey \"prefix path-id\";",
+      "revId": "0561d5e8824ee168de9df86540961439e8553ccb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_cb2ea08b",
+        "filename": "bgp/inet/src/main/yang/bgp-inet.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2017-11-22T22:40:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_8cefe3e8",
       "revId": "0561d5e8824ee168de9df86540961439e8553ccb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -94,6 +154,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_2b513c0f",
+        "filename": "bgp/inet/src/main/yang/bgp-inet.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2017-11-22T22:40:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_2ce6b715",
+      "revId": "0561d5e8824ee168de9df86540961439e8553ccb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_0cb3f30a",
         "filename": "bgp/parser-api/src/main/yang/bgp-message.yang",
         "patchSetId": 3
@@ -111,6 +189,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_8da15896",
+        "filename": "bgp/parser-api/src/main/yang/bgp-message.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2017-11-22T22:40:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_0cb3f30a",
+      "revId": "0561d5e8824ee168de9df86540961439e8553ccb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_acc10756",
         "filename": "bgp/parser-api/src/main/yang/bgp-message.yang",
         "patchSetId": 3
@@ -122,6 +218,30 @@
       "writtenOn": "2017-11-06T12:03:00Z",
       "side": 1,
       "message": "since it doesn\u0027t contains only ipv4 prefix,\nwe could use better naming",
+      "range": {
+        "startLine": 69,
+        "startChar": 13,
+        "endLine": 69,
+        "endChar": 24
+      },
+      "revId": "0561d5e8824ee168de9df86540961439e8553ccb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_6db064dd",
+        "filename": "bgp/parser-api/src/main/yang/bgp-message.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2017-11-22T22:40:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_acc10756",
       "range": {
         "startLine": 69,
         "startChar": 13,
@@ -157,6 +277,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_25ade0e9",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2017-11-22T22:40:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_80f7a758",
+      "range": {
+        "startLine": 102,
+        "startChar": 16,
+        "endLine": 103,
+        "endChar": 83
+      },
+      "revId": "0561d5e8824ee168de9df86540961439e8553ccb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_c09cff11",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibOutListener.java",
         "patchSetId": 3
@@ -168,6 +312,30 @@
       "writtenOn": "2017-11-06T12:03:00Z",
       "side": 1,
       "message": "no need it",
+      "range": {
+        "startLine": 176,
+        "startChar": 24,
+        "endLine": 176,
+        "endChar": 30
+      },
+      "revId": "0561d5e8824ee168de9df86540961439e8553ccb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_4516144d",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibOutListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2017-11-22T22:40:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_c09cff11",
       "range": {
         "startLine": 176,
         "startChar": 24,
@@ -203,6 +371,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_25116052",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibOutListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2017-11-22T22:40:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_a0910bf3",
+      "range": {
+        "startLine": 189,
+        "startChar": 12,
+        "endLine": 192,
+        "endChar": 13
+      },
+      "revId": "0561d5e8824ee168de9df86540961439e8553ccb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_e0be6364",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
         "patchSetId": 3
@@ -214,6 +406,30 @@
       "writtenOn": "2017-11-06T12:03:00Z",
       "side": 1,
       "message": "final List\u003cIpv4Prefixes\u003e prefixes \u003d message.getNlri().stream()\n                .map(n-\u003e new Ipv4PrefixesBuilder().setPrefix(n.getPrefix()).setPathId(n.getPathId()).build())\n                .collect(Collectors.toList());",
+      "range": {
+        "startLine": 269,
+        "startChar": 1,
+        "endLine": 271,
+        "endChar": 120
+      },
+      "revId": "0561d5e8824ee168de9df86540961439e8553ccb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_fab243e3",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2017-11-22T22:40:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_e0be6364",
       "range": {
         "startLine": 269,
         "startChar": 1,
@@ -249,6 +465,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_1ae757e5",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/AbstractAddPathTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2017-11-22T22:40:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_206cfb07",
+      "range": {
+        "startLine": 358,
+        "startChar": 42,
+        "endLine": 358,
+        "endChar": 54
+      },
+      "revId": "0561d5e8824ee168de9df86540961439e8553ccb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_807cc7b6",
         "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/SynchronizationTest.java",
         "patchSetId": 3
@@ -272,6 +512,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_5ad42feb",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/SynchronizationTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2017-11-22T22:40:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_807cc7b6",
+      "range": {
+        "startLine": 54,
+        "startChar": 31,
+        "endLine": 54,
+        "endChar": 43
+      },
+      "revId": "0561d5e8824ee168de9df86540961439e8553ccb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_e04ca3a0",
         "filename": "bgp/testtool/src/main/java/org/opendaylight/protocol/bgp/testtool/PrefixesBuilder.java",
         "patchSetId": 3
@@ -283,6 +547,30 @@
       "writtenOn": "2017-11-06T12:03:00Z",
       "side": 1,
       "message": "It can be null, isn\u0027t it? we could just remove it",
+      "range": {
+        "startLine": 63,
+        "startChar": 46,
+        "endLine": 63,
+        "endChar": 79
+      },
+      "revId": "0561d5e8824ee168de9df86540961439e8553ccb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_da665f29",
+        "filename": "bgp/testtool/src/main/java/org/opendaylight/protocol/bgp/testtool/PrefixesBuilder.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2017-11-22T22:40:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_e04ca3a0",
       "range": {
         "startLine": 63,
         "startChar": 46,
