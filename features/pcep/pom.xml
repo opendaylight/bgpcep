@@ -37,7 +37,7 @@
         <module>odl-bgpcep-pcep-tunnel-provider</module>
         <module>odl-bgpcep-pcep-segment-routing</module>
         <module>odl-bgpcep-pcep-auto-bandwidth</module>
-        <module>odl-bgpcep-bgp-config-example</module>
+        <module>odl-bgpcep-pcep-config-example</module>
     </modules>
 
     <!--
