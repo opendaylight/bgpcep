@@ -9,12 +9,12 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Verify;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.LongAdder;
 import javax.annotation.Nonnull;
@@ -81,7 +81,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
         AdjInTracker(final DOMDataTreeChangeService service, final RIBSupportContextRegistry registry,
                 final DOMTransactionChain chain, final YangInstanceIdentifier peerIId,
-                @Nonnull Set<TablesKey> tables) {
+                @Nonnull final Set<TablesKey> tables) {
             this.registry = requireNonNull(registry);
             this.chain = requireNonNull(chain);
             this.peerIId = requireNonNull(peerIId);
@@ -122,7 +122,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                     tx.put(LogicalDatastoreType.OPERATIONAL, routeId, route.getDataAfter().get());
                     CountersUtil.increment(this.prefixesReceived.get(tablesKey), tablesKey);
                     // Lookup per-table attributes from RIBSupport
-                    final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(route.getDataAfter(), ribSupport.routeAttributesIdentifier()).orNull();
+                    final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(route.getDataAfter(), ribSupport.routeAttributesIdentifier()).orElse(null);
                     final ContainerNode effectiveAttrs;
 
                     if (advertisedAttrs != null) {
@@ -340,7 +340,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             @Nonnull final ImportPolicyPeerTracker importPolicyPeerTracker,
             @Nonnull final RIBSupportContextRegistry registry,
             final PeerRole peerRole,
-            @Nonnull Set<TablesKey> tables) {
+            @Nonnull final Set<TablesKey> tables) {
         return new EffectiveRibInWriter(service, chain, peerIId, importPolicyPeerTracker, registry, peerRole, tables);
     }
 
@@ -350,7 +350,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             final ImportPolicyPeerTracker importPolicyPeerTracker,
             final RIBSupportContextRegistry registry,
             final PeerRole peerRole,
-            @Nonnull Set<TablesKey> tables) {
+            @Nonnull final Set<TablesKey> tables) {
         importPolicyPeerTracker.peerRoleChanged(peerIId, peerRole);
         this.importPolicy = importPolicyPeerTracker.policyFor(IdentifierUtils.peerId((NodeIdentifierWithPredicates) peerIId.getLastPathArgument()));
         this.adjInTracker = new AdjInTracker(service, registry, chain, peerIId, tables);

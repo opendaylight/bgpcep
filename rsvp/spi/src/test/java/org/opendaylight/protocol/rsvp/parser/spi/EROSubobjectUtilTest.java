@@ -18,7 +18,7 @@ import org.junit.Test;
 public class EROSubobjectUtilTest {
 
     @Test(expected = UnsupportedOperationException.class)
-    @SuppressWarnings({"checkstyle:IllegalCatch", "checkstyle:IllegalThrows"})
+    @SuppressWarnings({ "checkstyle:IllegalThrows", "checkstyle:avoidHidingCauseException" })
     public void testPrivateConstructor() throws Throwable {
         final Constructor<EROSubobjectUtil> c = EROSubobjectUtil.class.getDeclaredConstructor();
         c.setAccessible(true);
