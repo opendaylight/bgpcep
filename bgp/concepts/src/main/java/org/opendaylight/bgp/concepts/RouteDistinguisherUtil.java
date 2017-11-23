@@ -149,7 +149,7 @@ public final class RouteDistinguisherUtil {
     }
 
     public static RouteDistinguisher extractRouteDistinguisher(final DataContainerNode<?> route, final NodeIdentifier rdNid) {
-        final NormalizedNode<?, ?> rdNode = NormalizedNodes.findNode(route, rdNid).orNull();
+        final NormalizedNode<?, ?> rdNode = NormalizedNodes.findNode(route, rdNid).orElse(null);
         if (rdNode != null) {
             return parseRouteDistinguisher(rdNode.getValue());
         }

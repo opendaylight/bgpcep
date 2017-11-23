@@ -91,7 +91,7 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
 
     protected int addRoute(final RouteKey key, final NodeIdentifier attributesIdentifier, final NormalizedNode<?, ?> data) {
         LOG.trace("Find {} in {}", attributesIdentifier, data);
-        final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(data, attributesIdentifier).orNull();
+        final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(data, attributesIdentifier).orElse(null);
         return addRoute(key, advertisedAttrs);
     }
 
