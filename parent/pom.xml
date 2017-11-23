@@ -26,7 +26,7 @@
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>bgpcep-parent</artifactId>
     <name>BGPCEP common parent</name>
-    <version>0.8.1-SNAPSHOT</version>
+    <version>0.8.1</version>
     <packaging>pom</packaging>
 
     <licenses>
@@ -43,18 +43,18 @@
         <maven.info.reports.version>2.7</maven.info.reports.version>
 
         <!-- YANG tools artifacts -->
-        <yangtools.version>1.2.1-SNAPSHOT</yangtools.version>
+        <yangtools.version>1.2.1</yangtools.version>
 
         <!-- MD-SAL artifacts -->
-        <mdsal.version>2.3.1-SNAPSHOT</mdsal.version>
-        <mdsal.model.version>0.11.1-SNAPSHOT</mdsal.model.version>
+        <mdsal.version>2.3.1</mdsal.version>
+        <mdsal.model.version>0.11.1</mdsal.model.version>
 
         <!-- Controller artifacts -->
-        <controller.config.version>0.7.1-SNAPSHOT</controller.config.version>
-        <controller.framework.version>0.10.1-SNAPSHOT</controller.framework.version>
-        <controller.mdsal.version>1.6.1-SNAPSHOT</controller.mdsal.version>
+        <controller.config.version>0.7.1</controller.config.version>
+        <controller.framework.version>0.10.1</controller.framework.version>
+        <controller.mdsal.version>1.6.1</controller.mdsal.version>
 
-        <bgpcep.version>0.8.1-SNAPSHOT</bgpcep.version>
+        <bgpcep.version>0.8.1</bgpcep.version>
     </properties>
 
     <dependencyManagement>
