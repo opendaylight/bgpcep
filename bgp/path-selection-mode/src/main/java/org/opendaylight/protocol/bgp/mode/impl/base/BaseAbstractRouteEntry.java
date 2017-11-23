@@ -83,7 +83,7 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
             final NodeIdentifier attributesIdentifier, final NormalizedNode<?, ?> data) {
         LOG.trace("Find {} in {}", attributesIdentifier, data);
         final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes
-                .findNode(data, attributesIdentifier).orNull();
+                .findNode(data, attributesIdentifier).orElse(null);
         int offset = this.offsets.offsetOf(routerId);
         if (offset < 0) {
             final OffsetMap newOffsets = this.offsets.with(routerId);

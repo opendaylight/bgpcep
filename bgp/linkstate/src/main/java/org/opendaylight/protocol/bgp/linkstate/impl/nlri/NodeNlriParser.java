@@ -8,8 +8,8 @@
 package org.opendaylight.protocol.bgp.linkstate.impl.nlri;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
 import io.netty.buffer.ByteBuf;
+import java.util.Optional;
 import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.AreaIdTlvParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.AsNumTlvParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.BgpRouterIdTlvParser;

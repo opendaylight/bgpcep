@@ -598,4 +598,8 @@ final class TEObjectUtil {
         (byte) 0xa5, 0x08, 0x00, 0x01,
         (byte) 0x00, 0x00, 0x00, 0x08,
     };
+
+    private TEObjectUtil() {
+
+    }
 }

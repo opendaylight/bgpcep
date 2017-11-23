@@ -36,6 +36,10 @@ public class ProtectionCommonParser {
     private static final int FLAGS_SIZE = 8;
     private static final Logger LOG = LoggerFactory.getLogger(ProtectionCommonParser.class);
 
+    protected ProtectionCommonParser() {
+
+    }
+
     protected static void serializeBodyType1(final ProtectionSubobject protObj, final ByteBuf output) {
         final BitArray flagBitArray = new BitArray(FLAGS_SIZE);
         flagBitArray.set(SECONDARY, protObj.isSecondary());
