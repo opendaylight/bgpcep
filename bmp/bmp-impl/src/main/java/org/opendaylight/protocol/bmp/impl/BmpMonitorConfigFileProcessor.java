@@ -73,7 +73,7 @@ public final class BmpMonitorConfigFileProcessor implements ConfigFileProcessor,
     public void loadConfiguration(final NormalizedNode<?, ?> dto) {
         final ContainerNode bmpMonitorsConfigsContainer = (ContainerNode) dto;
         final MapNode monitorsList = (MapNode) bmpMonitorsConfigsContainer.getChild(
-                this.bmpMonitorsYii.getLastPathArgument()).orNull();
+                this.bmpMonitorsYii.getLastPathArgument()).orElse(null);
         if (monitorsList == null) {
             return;
         }

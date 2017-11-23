@@ -44,7 +44,7 @@ public final class BGPPeerAcceptorImpl implements AutoCloseable {
         final BGPDispatcher bgpDispatcher) {
         this.bgpDispatcher = requireNonNull(bgpDispatcher);
         this.address = getAddress(requireNonNull(bindingAddress), requireNonNull(portNumber));
-        if (!PlatformDependent.isWindows() && !PlatformDependent.isRoot()
+        if (!PlatformDependent.isWindows() && !PlatformDependent.maybeSuperUser()
             && portNumber.getValue() < PRIVILEGED_PORTS) {
             throw new AccessControlException("Unable to bind port " + portNumber.getValue() +
                 " while running as non-root user.");

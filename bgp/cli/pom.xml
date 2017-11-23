@@ -86,9 +86,9 @@
                     <instructions>
                         <!-- This bundle works with Karaf 3 and 4.0, see https://wiki.opendaylight.org/view/Karaf_4_migration#Karaf_CLI_commands -->
                         <Import-Package>
-                            org.apache.karaf.shell.commands;version="[3.0.0,4.1)",
-                            org.apache.karaf.shell.console;version="[3.0.0,4.1)",
-                            org.apache.karaf.shell.table;version="[3.0.0,4.1)",
+                            org.apache.karaf.shell.commands;version="[3.0.1,4.1)",
+                            org.apache.karaf.shell.console;version="[3.0.1,4.1)",
+                            org.apache.karaf.shell.table;version="[3.0.1,4.1)",
                             *
                         </Import-Package>
                     </instructions>

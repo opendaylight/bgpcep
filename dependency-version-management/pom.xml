@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>odlparent-lite</artifactId>
-        <version>2.0.5</version>
+        <version>3.0.1</version>
         <relativePath/>
     </parent>
 
@@ -22,8 +22,8 @@
         <controller.mdsal.version>1.7.0-SNAPSHOT</controller.mdsal.version>
         <mdsal.common.version>2.4.0-SNAPSHOT</mdsal.common.version>
         <mdsal.model.version>0.12.0-SNAPSHOT</mdsal.model.version>
-        <yangtools.version>1.2.0</yangtools.version>
-        <odlparent.version>2.0.5</odlparent.version>
+        <yangtools.version>2.0.0</yangtools.version>
+        <odlparent.version>3.0.1</odlparent.version>
         <config.version>0.8.0-SNAPSHOT</config.version>
         <netconf.version>1.7.0-SNAPSHOT</netconf.version>
     </properties>
