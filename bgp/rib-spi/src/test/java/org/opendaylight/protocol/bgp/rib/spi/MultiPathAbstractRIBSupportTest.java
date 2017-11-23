@@ -15,13 +15,13 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -126,22 +126,16 @@ public class MultiPathAbstractRIBSupportTest {
                 .withNodeIdentifier(new NodeIdentifier(QName.create(Ipv4Routes.QNAME, Attributes.QNAME
             .getLocalName().intern()))).build();
         final ContainerNode destination = Mockito.mock(ContainerNode.class);
-        final ContainerNode route = Mockito.mock(ContainerNode.class);
-        final Optional<?> optional = Mockito.mock(Optional.class);
-        final Optional<?> destinationOptional = Mockito.mock(Optional.class);
-        final Optional<?> destinationsOptional = Mockito.mock(Optional.class);
         final ChoiceNode destinations = Mockito.mock(ChoiceNode.class);
+        final ContainerNode route = Mockito.mock(ContainerNode.class);
+        final Optional<?> optional = Optional.of(destination);
+        final Optional<?> destinationOptional = Optional.of(destinations);
+        final Optional<?> destinationsOptional = Optional.of(route);
 
         doReturn(optional).when(this.nlri).getChild(new NodeIdentifier(WithdrawnRoutes.QNAME));
         doReturn(optional).when(this.nlri).getChild(new NodeIdentifier(AdvertizedRoutes.QNAME));
-        doReturn(true).when(optional).isPresent();
-        doReturn(destination).when(optional).get();
         doReturn(destinationOptional).when(destination).getChild(new NodeIdentifier(DestinationType.QNAME));
-        doReturn(true).when(destinationOptional).isPresent();
-        doReturn(destinations).when(destinationOptional).get();
         doReturn(destinationsOptional).when(destinations).getChild(new NodeIdentifier(Ipv4Prefixes.QNAME));
-        doReturn(true).when(destinationsOptional).isPresent();
-        doReturn(route).when(destinationsOptional).get();
         doReturn(emptyCollection).when(route).getValue();
 
         doAnswer(invocation -> {

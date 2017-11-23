@@ -87,13 +87,14 @@ final class PCCsBuilder {
         }
     }
 
-    private void createPCC(@Nonnull final InetSocketAddress localAddress, @Nonnull final PCCTunnelManager tunnelManager,
-        final BigInteger initialDBVersion) throws InterruptedException, ExecutionException {
+    private void createPCC(@Nonnull final InetSocketAddress plocalAddress,
+            final PCCTunnelManager tunnelManager, final BigInteger initialDBVersion)
+            throws InterruptedException, ExecutionException {
         final PCEPSessionNegotiatorFactory<PCEPSessionImpl> snf = getSessionNegotiatorFactory();
         for (final InetSocketAddress pceAddress : this.remoteAddress) {
             this.pccDispatcher.createClient(pceAddress, this.reconnectTime, () -> new PCCSessionListener(
-                    this.remoteAddress.indexOf(pceAddress), tunnelManager, this.pcError), snf,
-                KeyMapping.getKeyMapping(pceAddress.getAddress(), this.password), localAddress, initialDBVersion);
+                            this.remoteAddress.indexOf(pceAddress), tunnelManager, this.pcError), snf,
+                    KeyMapping.getKeyMapping(pceAddress.getAddress(), this.password), plocalAddress, initialDBVersion);
         }
     }
 

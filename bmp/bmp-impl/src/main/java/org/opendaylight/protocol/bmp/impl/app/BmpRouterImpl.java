@@ -87,8 +87,8 @@ public final class BmpRouterImpl implements BmpRouter, TransactionChainListener 
     }
 
     @Override
-    public synchronized void onSessionUp(final BmpSession session) {
-        this.session = session;
+    public synchronized void onSessionUp(final BmpSession psession) {
+        this.session = psession;
         this.routerIp = InetAddresses.toAddrString(this.session.getRemoteAddress());
         this.routerId = new RouterId(Ipv4Util.getIpAddress(this.session.getRemoteAddress()));
         // check if this session is redundant

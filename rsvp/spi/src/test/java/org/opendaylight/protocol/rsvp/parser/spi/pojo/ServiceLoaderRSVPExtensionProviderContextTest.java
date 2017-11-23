@@ -167,7 +167,7 @@ public class ServiceLoaderRSVPExtensionProviderContextTest {
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    @SuppressWarnings("checkstyle:IllegalThrows")
+    @SuppressWarnings({ "checkstyle:IllegalThrows", "checkstyle:avoidHidingCauseException" })
     public void testPrivateConstructor() throws Throwable {
         final Constructor<ServiceLoaderRSVPExtensionProviderContext> c =
             ServiceLoaderRSVPExtensionProviderContext.class.getDeclaredConstructor();

@@ -129,7 +129,7 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation, Clu
         return SERVICE_GROUP_IDENTIFIER;
     }
 
-    private void connectMonitoredRouters(final BmpDispatcher dispatcher) {
+    private void connectMonitoredRouters(final BmpDispatcher pdispatcher) {
         if (this.monitoredRouters != null) {
             for (final MonitoredRouter mr : this.monitoredRouters) {
                 if (mr.isActive()) {
@@ -140,7 +140,7 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation, Clu
                     final KeyMapping ret;
                     final Rfc2385Key rfc2385KeyPassword = mr.getPassword();
                     ret = KeyMapping.getKeyMapping(addr, rfc2385KeyPassword.getValue());
-                    dispatcher.createClient(Ipv4Util.toInetSocketAddress(mr.getAddress(), mr.getPort()),
+                    pdispatcher.createClient(Ipv4Util.toInetSocketAddress(mr.getAddress(), mr.getPort()),
                             this.sessionManager, ret);
                 }
             }

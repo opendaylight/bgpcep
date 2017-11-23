@@ -151,7 +151,7 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
     }
 
     @Override
-    public void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction,
+    public void onTransactionChainFailed(final TransactionChain<?, ?> pchain, final AsyncTransaction<?, ?> transaction,
             final Throwable cause) {
         // FIXME: flip internal state, so that the next attempt to update fails, triggering node reconnect
         LOG.error("Unexpected transaction failure in node {} transaction {}",
@@ -159,7 +159,7 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
     }
 
     @Override
-    public void onTransactionChainSuccessful(final TransactionChain<?, ?> chain) {
+    public void onTransactionChainSuccessful(final TransactionChain<?, ?> pchain) {
         LOG.info("Node {} shutdown successfully", this.nodeId);
     }
 

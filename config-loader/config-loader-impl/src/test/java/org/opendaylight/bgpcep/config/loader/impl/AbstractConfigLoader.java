@@ -91,7 +91,6 @@ public abstract class AbstractConfigLoader extends AbstractConcurrentDataBrokerT
         this.eventList.add(this.watchEvent);
     }
 
-
     @After
     public final void tearDown() throws Exception {
         ((ConfigLoaderImpl) this.configLoader).close();

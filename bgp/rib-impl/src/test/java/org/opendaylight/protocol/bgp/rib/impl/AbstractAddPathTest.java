@@ -110,7 +110,7 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 
-class AbstractAddPathTest extends AbstractConcurrentDataBrokerTest {
+public abstract class AbstractAddPathTest extends AbstractConcurrentDataBrokerTest {
     private static final int RETRY_TIMER = 10;
     static final String RIB_ID = "127.0.0.1";
     static final BgpId BGP_ID = new BgpId(RIB_ID);

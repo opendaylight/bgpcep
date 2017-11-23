@@ -43,6 +43,10 @@ public final class EvpnTestUtil {
     public static final String RD_MODEL = "1.2.3.4:258";
     public static final RouteDistinguisher RD = RouteDistinguisherBuilder.getDefaultInstance(RD_MODEL);
 
+    private EvpnTestUtil() {
+        throw new UnsupportedOperationException();
+    }
+
     public static DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> createContBuilder(
             final NodeIdentifier nid) {
         return ImmutableContainerNodeSchemaAwareBuilder.create().withNodeIdentifier(nid);

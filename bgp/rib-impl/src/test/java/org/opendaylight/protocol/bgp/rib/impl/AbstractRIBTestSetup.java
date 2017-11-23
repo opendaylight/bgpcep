@@ -244,7 +244,7 @@ public class AbstractRIBTestSetup {
 
             final DataTreeCandidateNode child = mock(DataTreeCandidateNode.class);
             doReturn(createIdentifier(p)).when(child).getIdentifier();
-            doReturn(Optional.of(b.build())).when(child).getDataAfter();
+            doReturn(java.util.Optional.of(b.build())).when(child).getDataAfter();
             doReturn(type).when(child).getModificationType();
             children.add(child);
         }

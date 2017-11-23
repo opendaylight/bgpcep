@@ -64,7 +64,7 @@ public class TimerHandler {
         }
     }
 
-    public void setPCCDispatcher(final PCCDispatcherImpl pccDispatcher) {
-        this.pccDispatcher = pccDispatcher;
+    public void setPCCDispatcher(final PCCDispatcherImpl dispatcher) {
+        this.pccDispatcher = dispatcher;
     }
 }

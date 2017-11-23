@@ -7,10 +7,10 @@
  */
 package org.opendaylight.protocol.bgp.inet;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
@@ -43,9 +43,9 @@ abstract class AbstractIPRibSupport extends MultiPathAbstractRIBSupport {
 
     protected AbstractIPRibSupport(final Class<? extends DataObject> prefixClass,
             final Class<? extends AddressFamily> addressFamilyClass,
-        final Class<? extends Routes> cazeClass,
+            final Class<? extends Routes> cazeClass,
             final Class<? extends DataObject> containerClass, final Class<? extends Route> listClass,
-        final QName destinationQname, final QName prefixesQname) {
+            final QName destinationQname, final QName prefixesQname) {
         super(cazeClass, containerClass, listClass, addressFamilyClass,
                 UnicastSubsequentAddressFamily.class, "prefix", destinationQname);
         this.prefixNid = new NodeIdentifier(routeKeyQName());
