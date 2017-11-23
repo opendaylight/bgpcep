@@ -17,7 +17,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.google.common.collect.Lists;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,20 +59,19 @@ public class NetworkTopologyConfigFileProcessorTest extends AbstractConfigLoader
 
     @Override
     protected List<String> getYangModelsPaths() {
-        final List<String> paths = Lists.newArrayList(
+        return Arrays.asList(
                 "/META-INF/yang/network-topology@2013-10-21.yang",
                 "/META-INF/yang/ietf-inet-types@2013-07-15.yang",
-                "/META-INF/yang/odl-bgp-topology-types.yang",
-                "/META-INF/yang/odl-bgp-topology-config.yang",
-                "/META-INF/yang/bgp-rib.yang",
-                "/META-INF/yang/bgp-multiprotocol.yang",
-                "/META-INF/yang/bgp-types.yang",
-                "/META-INF/yang/network-concepts.yang",
-                "/META-INF/yang/ieee754.yang",
-                "/META-INF/yang/bgp-message.yang",
-                "/META-INF/yang/yang-ext.yang"
+                "/META-INF/yang/odl-bgp-topology-types@2016-05-24.yang",
+                "/META-INF/yang/odl-bgp-topology-config@2016-07-26.yang",
+                "/META-INF/yang/bgp-rib@2013-09-25.yang",
+                "/META-INF/yang/bgp-multiprotocol@2013-09-19.yang",
+                "/META-INF/yang/bgp-types@2013-09-19.yang",
+                "/META-INF/yang/network-concepts@2013-11-25.yang",
+                "/META-INF/yang/ieee754@2013-08-19.yang",
+                "/META-INF/yang/bgp-message@2013-09-19.yang",
+                "/META-INF/yang/yang-ext@2013-07-09.yang"
         );
-        return paths;
     }
 
     @Test

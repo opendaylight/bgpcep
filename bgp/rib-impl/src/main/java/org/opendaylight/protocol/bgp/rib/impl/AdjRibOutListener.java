@@ -142,7 +142,7 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
             LOG.debug("AdjRibOut parsing route {}", NormalizedNodes.toStringTree(route));
         }
         final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(route,
-                this.support.routeAttributesIdentifier()).orNull();
+                this.support.routeAttributesIdentifier()).orElse(null);
         return this.codecs.deserializeAttributes(advertisedAttrs);
     }
 

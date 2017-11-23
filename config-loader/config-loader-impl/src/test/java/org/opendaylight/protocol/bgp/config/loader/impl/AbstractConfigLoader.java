@@ -12,17 +12,14 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 
-import java.io.InputStream;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import javassist.ClassPool;
 import javax.annotation.concurrent.GuardedBy;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -71,8 +68,8 @@ public abstract class AbstractConfigLoader {
             clearEvent();
             return null;
         }).when(this.processor).loadConfiguration(any());
-        final SchemaContext schemaContext = YangParserTestUtils.parseYangStreams(
-                getFilesAsStreams(getYangModelsPaths()));
+        final SchemaContext schemaContext = YangParserTestUtils.parseYangResources(ConfigLoaderImplTest.class,
+            getYangModelsPaths());
         this.configLoader = new ConfigLoaderImpl(schemaContext,
                 this.mappingService, getResourceFolder(), this.watchService);
     }
@@ -88,21 +85,6 @@ public abstract class AbstractConfigLoader {
     protected abstract void registerModules(ModuleInfoBackedContext moduleInfoBackedContext) throws Exception;
 
     protected abstract List<String> getYangModelsPaths();
-
-    private static List<InputStream> getFilesAsStreams(final List<String> paths) {
-        final List<InputStream> resources = new ArrayList<>();
-        final List<String> failedToFind = new ArrayList<>();
-        for (final String path : paths) {
-            final InputStream is = ConfigLoaderImplTest.class.getResourceAsStream(path);
-            if (is == null) {
-                failedToFind.add(path);
-            } else {
-                resources.add(is);
-            }
-        }
-        Assert.assertEquals("Some files were not found", Collections.emptyList(), failedToFind);
-        return resources;
-    }
 
     protected synchronized void triggerEvent(final String filename) {
         doReturn(filename).when(this.watchEvent).context();

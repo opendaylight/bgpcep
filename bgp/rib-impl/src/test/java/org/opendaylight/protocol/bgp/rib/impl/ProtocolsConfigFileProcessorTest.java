@@ -17,7 +17,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.google.common.collect.Lists;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,32 +61,31 @@ public class ProtocolsConfigFileProcessorTest extends AbstractConfigLoader {
 
     @Override
     protected List<String> getYangModelsPaths() {
-        final List<String> paths = Lists.newArrayList(
-                "/META-INF/yang/openconfig-extensions.yang",
-                "/META-INF/yang/bgp-openconfig-extensions.yang",
-                "/META-INF/yang/ietf-interfaces.yang",
-                "/META-INF/yang/openconfig-network-instance-types.yang",
-                "/META-INF/yang/openconfig-interfaces.yang",
-                "/META-INF/yang/openconfig-network-instance.yang",
-                "/META-INF/yang/openconfig-routing-policy.yang",
-                "/META-INF/yang/openconfig-policy-types.yang",
-                "/META-INF/yang/openconfig-local-routing.yang",
-                "/META-INF/yang/openconfig-bgp-operational.yang",
-                "/META-INF/yang/openconfig-bgp-types.yang",
-                "/META-INF/yang/openconfig-types.yang",
-                "/META-INF/yang/openconfig-bgp-multiprotocol.yang",
-                "/META-INF/yang/openconfig-bgp.yang",
-                "/META-INF/yang/bgp-rib.yang",
-                "/META-INF/yang/ietf-inet-types@2013-07-15.yang",
-                "/META-INF/yang/bgp-message.yang",
-                "/META-INF/yang/bgp-multiprotocol.yang",
-                "/META-INF/yang/bgp-types.yang",
-                "/META-INF/yang/network-concepts.yang",
-                "/META-INF/yang/ieee754.yang",
-                "/META-INF/yang/ietf-yang-types@2013-07-15.yang",
-                "/META-INF/yang/yang-ext.yang"
+        return Arrays.asList(
+            "/META-INF/yang/openconfig-extensions@2015-10-09.yang",
+            "/META-INF/yang/bgp-openconfig-extensions@2016-06-14.yang",
+            "/META-INF/yang/ietf-interfaces@2014-05-08.yang",
+            "/META-INF/yang/openconfig-network-instance-types@2015-10-18.yang",
+            "/META-INF/yang/openconfig-interfaces@2016-04-12.yang",
+            "/META-INF/yang/openconfig-network-instance@2015-10-18.yang",
+            "/META-INF/yang/openconfig-routing-policy@2015-10-09.yang",
+            "/META-INF/yang/openconfig-policy-types@2015-10-09.yang",
+            "/META-INF/yang/openconfig-local-routing@2015-10-09.yang",
+            "/META-INF/yang/openconfig-bgp-operational@2015-10-09.yang",
+            "/META-INF/yang/openconfig-bgp-types@2015-10-09.yang",
+            "/META-INF/yang/openconfig-types@2015-10-09.yang",
+            "/META-INF/yang/openconfig-bgp-multiprotocol@2015-10-09.yang",
+            "/META-INF/yang/openconfig-bgp@2015-10-09.yang",
+            "/META-INF/yang/bgp-rib@2013-09-25.yang",
+            "/META-INF/yang/ietf-inet-types@2013-07-15.yang",
+            "/META-INF/yang/bgp-message@2013-09-19.yang",
+            "/META-INF/yang/bgp-multiprotocol@2013-09-19.yang",
+            "/META-INF/yang/bgp-types@2013-09-19.yang",
+            "/META-INF/yang/network-concepts@2013-11-25.yang",
+            "/META-INF/yang/ieee754@2013-08-19.yang",
+            "/META-INF/yang/ietf-yang-types@2013-07-15.yang",
+            "/META-INF/yang/yang-ext@2013-07-09.yang"
         );
-        return paths;
     }
 
     @Test

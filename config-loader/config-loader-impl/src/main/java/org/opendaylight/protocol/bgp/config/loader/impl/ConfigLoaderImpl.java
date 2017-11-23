@@ -150,10 +150,10 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
             }
         }
 
-        private synchronized void handleChanges(final WatchService watchService) {
+        private synchronized void handleChanges(final WatchService watch) {
             final WatchKey key;
             try {
-                key = watchService.take();
+                key = watch.take();
             } catch (final InterruptedException e) {
                 if (!ConfigLoaderImpl.this.closed) {
                     LOG.warn(INTERRUPTED, e);
