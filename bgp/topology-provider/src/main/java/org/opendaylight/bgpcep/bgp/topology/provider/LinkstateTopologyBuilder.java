@@ -232,11 +232,11 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             LOG.debug("Node {} is unadvertized", this.nb.getNodeId());
         }
 
-        private void advertized(final NodeBuilder nb, final IgpNodeAttributesBuilder inab) {
-            this.nb = requireNonNull(nb);
-            this.inab = requireNonNull(inab);
+        private void advertized(final NodeBuilder nodeBuilder, final IgpNodeAttributesBuilder igpNodeAttBuilder) {
+            this.nb = requireNonNull(nodeBuilder);
+            this.inab = requireNonNull(igpNodeAttBuilder);
             this.advertized = true;
-            LOG.debug("Node {} is advertized", nb.getNodeId());
+            LOG.debug("Node {} is advertized", nodeBuilder.getNodeId());
         }
 
         private NodeId getNodeId() {

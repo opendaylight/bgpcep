@@ -396,7 +396,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
     }
 
     @Override
-    public final synchronized void onTransactionChainFailed(final TransactionChain<?, ?> chain,
+    public final synchronized void onTransactionChainFailed(final TransactionChain<?, ?> transactionChain,
             final AsyncTransaction<?, ?> transaction, final Throwable cause) {
         LOG.error("Topology builder for {} failed in transaction {}.", getInstanceIdentifier(),
                 transaction != null ? transaction.getIdentifier() : null, cause);
@@ -405,7 +405,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
     }
 
     @Override
-    public final void onTransactionChainSuccessful(final TransactionChain<?, ?> chain) {
+    public final void onTransactionChainSuccessful(final TransactionChain<?, ?> transactionChain) {
         LOG.info("Topology builder for {} shut down", getInstanceIdentifier());
     }
 }

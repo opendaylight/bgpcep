@@ -12,7 +12,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.attributes.as.path.Segments;
 
 public final class BesthPathStateUtil {
-    BesthPathStateUtil() {
+    private BesthPathStateUtil() {
         throw new UnsupportedOperationException();
     }
 

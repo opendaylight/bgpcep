@@ -8,12 +8,12 @@
 package org.opendaylight.protocol.bgp.linkstate.impl.nlri;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.opendaylight.protocol.bgp.linkstate.spi.AbstractTeLspNlriCodec;
 import org.opendaylight.protocol.bgp.linkstate.spi.pojo.SimpleNlriTypeRegistry;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -136,7 +136,7 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
         final Attributes1 pathAttributes1 = pathAttributes.getAugmentation(Attributes1.class);
         final Attributes2 pathAttributes2 = pathAttributes.getAugmentation(Attributes2.class);
         if (pathAttributes1 != null) {
-            serializeAdvertisedRoutes((pathAttributes1.getMpReachNlri()).getAdvertizedRoutes(), byteAggregator);
+            serializeAdvertisedRoutes(pathAttributes1.getMpReachNlri().getAdvertizedRoutes(), byteAggregator);
         } else if (pathAttributes2 != null) {
             serializeWithDrawnRoutes(pathAttributes2.getMpUnreachNlri().getWithdrawnRoutes(), byteAggregator);
         }

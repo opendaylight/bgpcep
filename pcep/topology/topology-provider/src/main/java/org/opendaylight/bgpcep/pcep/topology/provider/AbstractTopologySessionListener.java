@@ -118,35 +118,35 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
     }
 
     @Override
-    public final synchronized void onSessionUp(final PCEPSession session) {
+    public final synchronized void onSessionUp(final PCEPSession psession) {
         /*
          * The session went up. Look up the router in Inventory model,
          * create it if it is not there (marking that fact for later
          * deletion), and mark it as synchronizing. Also create it in
          * the topology model, with empty LSP list.
          */
-        final InetAddress peerAddress = session.getRemoteAddress();
+        final InetAddress peerAddress = psession.getRemoteAddress();
 
-        this.syncOptimization = new SyncOptimization(session);
+        this.syncOptimization = new SyncOptimization(psession);
 
         final TopologyNodeState state = this.serverSessionManager.takeNodeState(peerAddress,
                 this, isLspDbRetreived());
 
         // takeNodeState(..) may fail when the server session manager is being restarted due to configuration change
         if (state == null) {
-            LOG.error("Unable to fetch topology node state for PCEP session. Closing session {}", session);
-            session.close(TerminationReason.UNKNOWN);
-            this.onSessionTerminated(session, new PCEPCloseTermination(TerminationReason.UNKNOWN));
+            LOG.error("Unable to fetch topology node state for PCEP session. Closing session {}", psession);
+            psession.close(TerminationReason.UNKNOWN);
+            this.onSessionTerminated(psession, new PCEPCloseTermination(TerminationReason.UNKNOWN));
             return;
         }
 
         if (this.session != null || this.nodeState != null) {
-            LOG.error("PCEP session is already up with {}. Closing session {}", session.getRemoteAddress(), session);
-            session.close(TerminationReason.UNKNOWN);
-            this.onSessionTerminated(session, new PCEPCloseTermination(TerminationReason.UNKNOWN));
+            LOG.error("PCEP session is already up with {}. Closing session {}", psession.getRemoteAddress(), psession);
+            psession.close(TerminationReason.UNKNOWN);
+            this.onSessionTerminated(psession, new PCEPCloseTermination(TerminationReason.UNKNOWN));
             return;
         }
-        this.session = session;
+        this.session = psession;
         this.nodeState = state;
         this.serverSessionManager.bind(this.nodeState.getNodeId(), this.listenerState);
 
@@ -155,7 +155,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         // Our augmentation in the topology node
         final PathComputationClientBuilder pccBuilder = new PathComputationClientBuilder();
 
-        onSessionUp(session, pccBuilder);
+        onSessionUp(psession, pccBuilder);
         this.synced.set(isSynchronized());
 
         pccBuilder.setIpAddress(IpAddressBuilder.getDefaultInstance(peerAddress.getHostAddress()));
@@ -169,8 +169,8 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
                     .getPathComputationClient().getReportedLsp());
         }
         writeNode(pccBuilder, state, topologyAugment);
-        this.listenerState.init(session);
-        LOG.info("Session with {} attached to topology node {}", session.getRemoteAddress(), state.getNodeId());
+        this.listenerState.init(psession);
+        LOG.info("Session with {} attached to topology node {}", psession.getRemoteAddress(), state.getNodeId());
     }
 
     private void writeNode(final PathComputationClientBuilder pccBuilder, final TopologyNodeState state,
@@ -237,19 +237,19 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
      */
     @GuardedBy("this")
     @SuppressWarnings("checkstyle:IllegalCatch")
-    private synchronized void tearDown(final PCEPSession session) {
+    private synchronized void tearDown(final PCEPSession psession) {
 
-        requireNonNull(session);
-        this.serverSessionManager.releaseNodeState(this.nodeState, session, isLspDbPersisted());
+        requireNonNull(psession);
+        this.serverSessionManager.releaseNodeState(this.nodeState, psession, isLspDbPersisted());
         clearNodeState();
 
         try {
             if (this.session != null) {
                 this.session.close();
             }
-            session.close();
+            psession.close();
         } catch (final Exception e) {
-            LOG.error("Session {} cannot be closed.", session, e);
+            LOG.error("Session {} cannot be closed.", psession, e);
         }
         this.session = null;
         this.syncOptimization = null;
@@ -280,28 +280,28 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
     }
 
     @Override
-    public final synchronized void onSessionDown(final PCEPSession session, final Exception exception) {
-        LOG.warn("Session {} went down unexpectedly", session, exception);
-        tearDown(session);
+    public final synchronized void onSessionDown(final PCEPSession psession, final Exception exception) {
+        LOG.warn("Session {} went down unexpectedly", psession, exception);
+        tearDown(psession);
     }
 
     @Override
-    public final synchronized void onSessionTerminated(final PCEPSession session, final PCEPTerminationReason reason) {
-        LOG.info("Session {} terminated by peer with reason {}", session, reason);
-        tearDown(session);
+    public final synchronized void onSessionTerminated(final PCEPSession psession, final PCEPTerminationReason reason) {
+        LOG.info("Session {} terminated by peer with reason {}", psession, reason);
+        tearDown(psession);
     }
 
     @Override
-    public final synchronized void onMessage(final PCEPSession session, final Message message) {
+    public final synchronized void onMessage(final PCEPSession psession, final Message message) {
         if (this.nodeState == null) {
-            LOG.warn("Topology node state is null. Unhandled message {} on session {}", message, session);
-            session.close(TerminationReason.UNKNOWN);
+            LOG.warn("Topology node state is null. Unhandled message {} on session {}", message, psession);
+            psession.close(TerminationReason.UNKNOWN);
             return;
         }
         final MessageContext ctx = new MessageContext(this.nodeState.beginTransaction());
 
         if (onMessage(ctx, message)) {
-            LOG.warn("Unhandled message {} on session {}", message, session);
+            LOG.warn("Unhandled message {} on session {}", message, psession);
             //cancel not supported, submit empty transaction
             ctx.trans.submit();
             return;
@@ -310,15 +310,15 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         Futures.addCallback(ctx.trans.submit(), new FutureCallback<Void>() {
             @Override
             public void onSuccess(final Void result) {
-                LOG.trace("Internal state for session {} updated successfully", session);
+                LOG.trace("Internal state for session {} updated successfully", psession);
                 ctx.notifyRequests();
             }
 
             @Override
             public void onFailure(final Throwable throwable) {
-                LOG.error("Failed to update internal state for session {}, closing it", session, throwable);
+                LOG.error("Failed to update internal state for session {}, closing it", psession, throwable);
                 ctx.notifyRequests();
-                session.close(TerminationReason.UNKNOWN);
+                psession.close(TerminationReason.UNKNOWN);
             }
         }, MoreExecutors.directExecutor());
     }

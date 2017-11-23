@@ -258,6 +258,10 @@ final class PMSITunnelAttributeHandlerTestUtil {
     static final IpAddress IP_ADDRESS = new IpAddress(new Ipv4Address("1.1.1.1"));
     private static final Short NO_SUPPORTED_OPAQUE = 200;
 
+    private PMSITunnelAttributeHandlerTestUtil() {
+        throw new UnsupportedOperationException();
+    }
+
     static class MockTunnelIdentifier implements TunnelIdentifier {
         @Override
         public Class<? extends DataContainer> getImplementedInterface() {

@@ -149,7 +149,7 @@ public abstract class PCCMockCommon {
 
         assertTrue(session.getRemoteTlvs().getAugmentation(Tlvs1.class).getStateful()
                 .getAugmentation(Stateful1.class).isInitiation());
-        assertNull(session.localSessionCharacteristics().getAugmentation(Tlvs3.class)
+        assertNull(session.getLocalTlvs().getAugmentation(Tlvs3.class)
                 .getLspDbVersion().getLspDbVersionValue());
     }
 
@@ -174,7 +174,7 @@ public abstract class PCCMockCommon {
 
         assertTrue(session.getRemoteTlvs().getAugmentation(Tlvs1.class).getStateful()
                 .getAugmentation(Stateful1.class).isInitiation());
-        final BigInteger pceDBVersion = session.localSessionCharacteristics().getAugmentation(Tlvs3.class)
+        final BigInteger pceDBVersion = session.getLocalTlvs().getAugmentation(Tlvs3.class)
                 .getLspDbVersion().getLspDbVersionValue();
         assertEquals(startingDBVersion, pceDBVersion);
     }

@@ -43,11 +43,11 @@ public final class PCCSessionListener implements PCEPSessionListener, PCCSession
     }
 
     @Override
-    public void onMessage(final PCEPSession session, final Message message) {
+    public void onMessage(final PCEPSession psession, final Message message) {
         LOG.trace("Received message: {}", message);
         if (this.errorMode) {
             //random error message
-            session.sendMessage(createErrorMessage(message));
+            psession.sendMessage(createErrorMessage(message));
             return;
         }
         if (message instanceof Pcupd) {
@@ -60,26 +60,26 @@ public final class PCCSessionListener implements PCEPSessionListener, PCCSession
     }
 
     @Override
-    public void onSessionUp(final PCEPSession session) {
+    public void onSessionUp(final PCEPSession psession) {
         LOG.debug("Session up.");
-        this.session = session;
+        this.session = psession;
         this.tunnelManager.onSessionUp(this);
     }
 
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public void onSessionDown(final PCEPSession session, final Exception exception) {
+    public void onSessionDown(final PCEPSession psession, final Exception exception) {
         LOG.info("Session down with cause : {} or exception: {}", exception.getCause(), exception, exception);
         this.tunnelManager.onSessionDown(this);
         try {
-            session.close();
+            psession.close();
         } catch (Exception ie) {
             LOG.warn("Error closing session", ie);
         }
     }
 
     @Override
-    public void onSessionTerminated(final PCEPSession session, final PCEPTerminationReason cause) {
+    public void onSessionTerminated(final PCEPSession psession, final PCEPTerminationReason cause) {
         LOG.info("Session terminated. Cause : {}", cause.toString());
     }
 
@@ -105,7 +105,7 @@ public final class PCCSessionListener implements PCEPSessionListener, PCCSession
 
     @Override
     public Tlvs localSessionCharacteristics() {
-        return this.session.localSessionCharacteristics();
+        return this.session.getLocalTlvs();
     }
 
     private final Random rnd = new Random();

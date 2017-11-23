@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>odlparent</artifactId>
-        <version>2.0.5</version>
+        <version>3.0.2</version>
         <relativePath></relativePath>
     </parent>
 
@@ -44,7 +44,7 @@
         <maven.info.reports.version>2.7</maven.info.reports.version>
 
         <!-- YANG tools artifacts -->
-        <yangtools.version>1.2.0</yangtools.version>
+        <yangtools.version>2.0.0</yangtools.version>
 
         <!-- MD-SAL artifacts -->
         <mdsal.version>2.4.0-SNAPSHOT</mdsal.version>

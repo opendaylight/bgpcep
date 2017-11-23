@@ -24,7 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TestingSessionListener implements PCEPSessionListener, ListenerCheck {
+public final class TestingSessionListener implements PCEPSessionListener, ListenerCheck {
 
     private static final Logger LOG = LoggerFactory.getLogger(TestingSessionListener.class);
     private final CountDownLatch sessionLatch = new CountDownLatch(1);
@@ -36,29 +36,29 @@ public class TestingSessionListener implements PCEPSessionListener, ListenerChec
     private PCEPSession session = null;
 
     @Override
-    public synchronized void onMessage(final PCEPSession session, final Message message) {
+    public synchronized void onMessage(final PCEPSession psession, final Message message) {
         LOG.debug("Received message: {}", message);
         this.messages.add(message);
     }
 
     @Override
-    public void onSessionUp(final PCEPSession session) {
+    public void onSessionUp(final PCEPSession psession) {
         LOG.debug("Session up.");
         this.up = true;
-        this.session = session;
+        this.session = psession;
         this.sessionLatch.countDown();
 
     }
 
     @Override
-    public void onSessionDown(final PCEPSession session, final Exception exception) {
+    public void onSessionDown(final PCEPSession psession, final Exception exception) {
         LOG.debug("Session down. Cause : {} ", exception, exception);
         this.up = false;
         this.session = null;
     }
 
     @Override
-    public void onSessionTerminated(final PCEPSession session, final PCEPTerminationReason cause) {
+    public void onSessionTerminated(final PCEPSession psession, final PCEPTerminationReason cause) {
         LOG.debug("Session terminated. Cause : {}", cause);
     }
 

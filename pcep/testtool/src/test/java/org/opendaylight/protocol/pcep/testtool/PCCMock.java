@@ -23,7 +23,11 @@ import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCDispatcherImpl;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 
-public class PCCMock {
+public final class PCCMock {
+
+    private PCCMock() {
+        throw new UnsupportedOperationException();
+    }
 
     public static void main(final String[] args) throws InterruptedException, ExecutionException {
         Preconditions.checkArgument(args.length > 0, "Host and port of server must be provided.");

@@ -8,10 +8,10 @@
 
 package org.opendaylight.protocol.bgp.parser.spi;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import io.netty.buffer.ByteBuf;
+import java.util.Optional;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.PathId;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -62,11 +62,7 @@ public final class PathIdUtil {
      * @return The path identifier from data change
      */
     public static Long extractPathId(final NormalizedNode<?, ?> data, final NodeIdentifier pathNii) {
-        final NormalizedNode<?, ?> pathId = NormalizedNodes.findNode(data, pathNii).orNull();
-        if (pathId == null) {
-            return null;
-        }
-        return (Long) pathId.getValue();
+        return (Long) NormalizedNodes.findNode(data, pathNii).map(NormalizedNode::getValue).orElse(null);
     }
 
     /**
@@ -80,7 +76,8 @@ public final class PathIdUtil {
      * @return Route Key Nid
      */
     public static NodeIdentifierWithPredicates createNidKey(final long pathId, final PathArgument routeId,
-        final QName routeQname, final QName pathidQname, final QName routeKeyQname) {
+        final QName routeQname,
+            final QName pathidQname, final QName routeKeyQname) {
         return createNodeIdentifierWithPredicates(routeQname, pathidQname, pathId, routeKeyQname,
             getObjectKey(routeId, routeKeyQname));
     }
@@ -93,11 +90,11 @@ public final class PathIdUtil {
      * @return key
      */
     public static Object getObjectKey(final PathArgument routeId, final QName routeKeyQname) {
-        return (((NodeIdentifierWithPredicates) routeId).getKeyValues()).get(routeKeyQname);
+        return ((NodeIdentifierWithPredicates) routeId).getKeyValues().get(routeKeyQname);
     }
 
-    public static NodeIdentifierWithPredicates createNodeIdentifierWithPredicates(final QName routeQname,
-        final QName pathidQname, final Object pathId, final QName routeKeyQname, final Object keyObject) {
+    public static NodeIdentifierWithPredicates createNodeIdentifierWithPredicates(final QName routeQname, final QName pathidQname, final Object pathId,
+        final QName routeKeyQname, final Object keyObject) {
         final ImmutableMap<QName, Object> keyValues = ImmutableMap.of(pathidQname, pathId, routeKeyQname, keyObject);
         return new NodeIdentifierWithPredicates(routeQname, keyValues);
     }
@@ -124,14 +121,15 @@ public final class PathIdUtil {
      * @param pathIdQname path Id Qname
      * @param routeKeyValue route key value
      * @param maybePathIdLeaf path id container, it might me supported or not, in that case default 0 value will
-     * be assigned
+     * be
+     *                        assigned
      * @return Route Key Nid
      */
     public static NodeIdentifierWithPredicates createNidKey(final QName routeQname, final QName routeKeyQname,
             final QName pathIdQname, final Object routeKeyValue,
             final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf) {
         // FIXME: a cache here would mean we instantiate the same identifier for each route making comparison quicker.
-        final Object pathId = maybePathIdLeaf.isPresent() ? (maybePathIdLeaf.get()).getValue() : NON_PATH_ID;
+        final Object pathId = maybePathIdLeaf.isPresent() ? maybePathIdLeaf.get().getValue() : NON_PATH_ID;
         return createNodeIdentifierWithPredicates(routeQname, pathIdQname, pathId, routeKeyQname, routeKeyValue);
     }
 }
