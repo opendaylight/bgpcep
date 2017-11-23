@@ -9,11 +9,11 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Optional;
 import com.google.common.primitives.UnsignedInteger;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.LongAdder;
 import javax.annotation.Nonnull;
@@ -205,7 +205,7 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
         final Map<RouteUpdateKey, RouteEntry> routes) {
         for (final DataTreeCandidateNode child : table.getChildNodes()) {
             LOG.debug("Modification type {}", child.getModificationType());
-            if ((Attributes.QNAME).equals(child.getIdentifier().getNodeType())) {
+            if (Attributes.QNAME.equals(child.getIdentifier().getNodeType())) {
                 if (child.getDataAfter().isPresent()) {
                     // putting uptodate attribute in
                     LOG.trace("Uptodate found for {}", child.getDataAfter());
