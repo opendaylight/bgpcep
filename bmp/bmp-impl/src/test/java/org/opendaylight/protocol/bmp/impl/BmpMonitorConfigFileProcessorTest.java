@@ -15,7 +15,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import com.google.common.collect.Lists;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,22 +45,21 @@ public class BmpMonitorConfigFileProcessorTest extends AbstractConfigLoader {
 
     @Override
     protected List<String> getYangModelsPaths() {
-        final List<String> paths = Lists.newArrayList(
-                "/META-INF/yang/odl-bmp-monitor-config.yang",
+        return Arrays.asList(
+                "/META-INF/yang/odl-bmp-monitor-config@2017-05-17.yang",
                 "/META-INF/yang/ietf-inet-types@2013-07-15.yang",
                 "/META-INF/yang/ietf-yang-types@2013-07-15.yang",
-                "/META-INF/yang/bgp-rib.yang",
-                "/META-INF/yang/bgp-multiprotocol.yang",
-                "/META-INF/yang/bgp-types.yang",
-                "/META-INF/yang/network-concepts.yang",
-                "/META-INF/yang/ieee754.yang",
-                "/META-INF/yang/bgp-message.yang",
-                "/META-INF/yang/yang-ext.yang",
-                "/META-INF/yang/bmp-monitor.yang",
-                "/META-INF/yang/bmp-message.yang",
-                "/META-INF/yang/rfc2385.yang"
+                "/META-INF/yang/bgp-rib@2013-09-25.yang",
+                "/META-INF/yang/bgp-multiprotocol@2013-09-19.yang",
+                "/META-INF/yang/bgp-types@2013-09-19.yang",
+                "/META-INF/yang/network-concepts@2013-11-25.yang",
+                "/META-INF/yang/ieee754@2013-08-19.yang",
+                "/META-INF/yang/bgp-message@2013-09-19.yang",
+                "/META-INF/yang/yang-ext@2013-07-09.yang",
+                "/META-INF/yang/bmp-monitor@2015-05-12.yang",
+                "/META-INF/yang/bmp-message@2015-05-12.yang",
+                "/META-INF/yang/rfc2385@2016-03-24.yang"
         );
-        return paths;
     }
 
     @Test

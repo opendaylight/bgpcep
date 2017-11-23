@@ -70,10 +70,10 @@ public final class BmpMockSession extends SimpleChannelInboundHandler<Notificati
         LOG.info("BMP session {} successfully established.", this.channel);
         final InetSocketAddress localAddress = (InetSocketAddress) this.channel.localAddress();
         this.remoteAddress = (InetSocketAddress) this.channel.remoteAddress();
-        advertizePeers(this.channel, localAddress);
+        advertizePeers(localAddress);
     }
 
-    private void advertizePeers(final Channel channel, final InetSocketAddress localAddress) {
+    private void advertizePeers(final InetSocketAddress localAddress) {
         channel.writeAndFlush(BmpMockUtil.createInitiation());
         Ipv4Address peerAddress = PEER_ADDRESS;
         for (int i = 0; i < this.peersCount; i++) {
