@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_460f3a37",
+        "filename": "pcep/topology/topology-api/src/main/yang/network-topology-pcep-rpc.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-23T19:32:04Z",
+      "side": 1,
+      "message": "this model doesnt belong to this patch",
+      "revId": "8e4b6869aab89ea3e5a784b5fdabf608a63a57fe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
