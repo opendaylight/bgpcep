@@ -7,8 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.linkstate.impl.tlvs;
 
-import com.google.common.base.Optional;
 import io.netty.buffer.ByteBuf;
+import java.util.Optional;
 import org.opendaylight.protocol.bgp.linkstate.spi.LinkstateTlvParser;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.OspfRouteType;

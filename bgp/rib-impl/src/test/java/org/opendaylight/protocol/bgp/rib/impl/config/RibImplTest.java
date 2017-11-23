@@ -94,13 +94,13 @@ public class RibImplTest extends AbstractConfig {
 
         Mockito.doReturn(mock(GeneratedClassLoadingStrategy.class)).when(this.extension).getClassLoadingStrategy();
         Mockito.doReturn(this.ribSupport).when(this.extension).getRIBSupport(any(TablesKey.class));
-        final NodeIdentifier nii = new NodeIdentifier(QName.create("test").intern());
+        final NodeIdentifier nii = new NodeIdentifier(QName.create("", "test").intern());
         Mockito.doReturn(nii).when(this.ribSupport).routeAttributesIdentifier();
         Mockito.doReturn(ImmutableSet.of()).when(this.ribSupport).cacheableAttributeObjects();
         final ChoiceNode choiceNode = mock(ChoiceNode.class);
         Mockito.doReturn(choiceNode).when(this.ribSupport).emptyRoutes();
         Mockito.doReturn(nii).when(choiceNode).getIdentifier();
-        Mockito.doReturn(QName.create("test").intern()).when(choiceNode).getNodeType();
+        Mockito.doReturn(QName.create("", "test").intern()).when(choiceNode).getNodeType();
         Mockito.doReturn(this.domTx).when(this.domDataBroker).createTransactionChain(any());
         final DOMDataTreeChangeService dOMDataTreeChangeService = mock(DOMDataTreeChangeService.class);
         Mockito.doReturn(Collections.singletonMap(DOMDataTreeChangeService.class, dOMDataTreeChangeService))

@@ -14,7 +14,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
-import com.google.common.collect.Lists;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,19 +49,18 @@ public class ConfigLoaderImplTest extends AbstractConfigLoader {
 
     @Override
     protected List<String> getYangModelsPaths() {
-        final List<String> paths = Lists.newArrayList(
-            "/META-INF/yang/ietf-interfaces.yang",
-            "/META-INF/yang/openconfig-network-instance-types.yang",
-            "/META-INF/yang/openconfig-interfaces.yang",
-            "/META-INF/yang/openconfig-network-instance.yang",
-            "/META-INF/yang/openconfig-routing-policy.yang",
-            "/META-INF/yang/openconfig-policy-types.yang",
-            "/META-INF/yang/openconfig-extensions.yang",
-            "/META-INF/yang/openconfig-local-routing.yang",
+        return Arrays.asList(
+            "/META-INF/yang/ietf-interfaces@2014-05-08.yang",
+            "/META-INF/yang/openconfig-network-instance-types@2015-10-18.yang",
+            "/META-INF/yang/openconfig-interfaces@2016-04-12.yang",
+            "/META-INF/yang/openconfig-network-instance@2015-10-18.yang",
+            "/META-INF/yang/openconfig-routing-policy@2015-10-09.yang",
+            "/META-INF/yang/openconfig-policy-types@2015-10-09.yang",
+            "/META-INF/yang/openconfig-extensions@2015-10-09.yang",
+            "/META-INF/yang/openconfig-local-routing@2015-10-09.yang",
             "/META-INF/yang/ietf-inet-types@2013-07-15.yang",
             "/META-INF/yang/ietf-yang-types@2013-07-15.yang"
         );
-        return paths;
     }
 
     @Test
