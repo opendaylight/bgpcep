@@ -96,7 +96,7 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
     @Override
     public int addRoute(final UnsignedInteger routerId, final Long remotePathId, final NodeIdentifier attributesIdentifier, final NormalizedNode<?, ?> data) {
         LOG.trace("Find {} in {}", attributesIdentifier, data);
-        final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(data, attributesIdentifier).orNull();
+        final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(data, attributesIdentifier).orElse(null);
         return addRoute(routerId, advertisedAttrs);
     }
 

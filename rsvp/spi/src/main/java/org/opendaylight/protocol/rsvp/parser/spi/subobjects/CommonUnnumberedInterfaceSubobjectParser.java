@@ -9,7 +9,6 @@
 package org.opendaylight.protocol.rsvp.parser.spi.subobjects;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.UnnumberedCase;
@@ -18,6 +17,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.unnumbered._case.UnnumberedBuilder;
 
 public class CommonUnnumberedInterfaceSubobjectParser {
+    protected CommonUnnumberedInterfaceSubobjectParser() {
+
+    }
+
     protected static UnnumberedCase parseUnnumeredInterface(final ByteBuf buffer) {
         final UnnumberedBuilder ubuilder = new UnnumberedBuilder();
         ubuilder.setRouterId(buffer.readUnsignedInt());
