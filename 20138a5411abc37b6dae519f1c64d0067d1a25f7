@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_a61ef66d",
+        "filename": "programming/impl/src/main/resources/org/opendaylight/blueprint/programming.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-23T19:30:28Z",
+      "side": 1,
+      "message": "init-method",
+      "revId": "20138a5411abc37b6dae519f1c64d0067d1a25f7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_66299e9a",
+        "filename": "programming/spi/src/main/java/org/opendaylight/bgpcep/programming/spi/InstructionSchedulerFactory.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-23T19:30:28Z",
+      "side": 1,
+      "message": "missing return",
+      "revId": "20138a5411abc37b6dae519f1c64d0067d1a25f7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c61b2a7f",
+        "filename": "programming/spi/src/main/java/org/opendaylight/bgpcep/programming/spi/InstructionSchedulerFactory.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-23T19:30:28Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 19,
+        "startChar": 52,
+        "endLine": 19,
+        "endChar": 57
+      },
+      "revId": "20138a5411abc37b6dae519f1c64d0067d1a25f7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
