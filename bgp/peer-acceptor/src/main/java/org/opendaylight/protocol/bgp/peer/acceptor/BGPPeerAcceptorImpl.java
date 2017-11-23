@@ -44,11 +44,27 @@ public final class BGPPeerAcceptorImpl implements AutoCloseable {
             final BGPDispatcher bgpDispatcher) {
         this.bgpDispatcher = requireNonNull(bgpDispatcher);
         this.address = getAddress(requireNonNull(bindingAddress), requireNonNull(portNumber));
-        if (!PlatformDependent.isWindows() && !PlatformDependent.isRoot()
+        if (!PlatformDependent.isWindows() && !PlatformDependent.maybeSuperUser()
                 && portNumber.getValue() < PRIVILEGED_PORTS) {
             throw new AccessControlException("Unable to bind port " + portNumber.getValue()
                     + " while running as non-root user.");
         }
+    }
+
+    public void start() {
+        LOG.debug("Instantiating BGP Peer Acceptor : {}", this.address);
+
+        this.futureChannel = this.bgpDispatcher.createServer(this.address);
+        // Validate future success
+        this.futureChannel.addListener(future -> {
+            Preconditions.checkArgument(future.isSuccess(), "Unable to start bgp server on %s",
+                this.address, future.cause());
+            final Channel channel = this.futureChannel.channel();
+            if (Epoll.isAvailable()) {
+                this.listenerRegistration = this.bgpDispatcher.getBGPPeerRegistry().registerPeerRegisterListener(
+                    new BGPPeerAcceptorImpl.PeerRegistryListenerImpl(channel.config()));
+            }
+        });
     }
 
     private static InetSocketAddress getAddress(final IpAddress ipAddress, final PortNumber portNumber) {
@@ -60,22 +76,6 @@ public final class BGPPeerAcceptorImpl implements AutoCloseable {
             throw new IllegalArgumentException("Illegal binding address " + ipAddress, e);
         }
         return new InetSocketAddress(inetAddr, portNumber.getValue());
-    }
-
-    public void start() {
-        LOG.debug("Instantiating BGP Peer Acceptor : {}", this.address);
-
-        this.futureChannel = this.bgpDispatcher.createServer(this.address);
-        // Validate future success
-        this.futureChannel.addListener(future -> {
-            Preconditions.checkArgument(future.isSuccess(), "Unable to start bgp server on %s",
-                    this.address, future.cause());
-            final Channel channel = this.futureChannel.channel();
-            if (Epoll.isAvailable()) {
-                this.listenerRegistration = this.bgpDispatcher.getBGPPeerRegistry().registerPeerRegisterListener(
-                        new BGPPeerAcceptorImpl.PeerRegistryListenerImpl(channel.config()));
-            }
-        });
     }
 
     /**

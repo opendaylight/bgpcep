@@ -10,9 +10,9 @@ package org.opendaylight.protocol.bgp.rib.spi;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Optional;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
@@ -256,7 +256,7 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     private static ContainerNode getDestination(final DataContainerChild<? extends PathArgument, ?> routes,
             final NodeIdentifier destinationId) {
         if (routes instanceof ContainerNode) {
-            final Optional<DataContainerChild<? extends PathArgument, ?>> maybeDestination =
+            final java.util.Optional<DataContainerChild<? extends PathArgument, ?>> maybeDestination =
                     ((ContainerNode) routes).getChild(DESTINATION_TYPE);
             if (maybeDestination.isPresent()) {
                 final DataContainerChild<? extends PathArgument, ?> destination = maybeDestination.get();
