@@ -58,15 +58,15 @@ final class InstructionImpl implements Instruction {
         return this.status;
     }
 
-    private synchronized void setStatus(final InstructionStatus status, final Details details) {
+    private synchronized void setStatus(final InstructionStatus newStatus, final Details details) {
         // Set the status
-        this.status = status;
-        LOG.debug("Instruction {} transitioned to status {}", this.id, status);
+        this.status = newStatus;
+        LOG.debug("Instruction {} transitioned to status {}", this.id, newStatus);
 
         // Send out a notification
-        this.queue.instructionUpdated(status, details);
+        this.queue.instructionUpdated(newStatus, details);
 
-        switch (status) {
+        switch (newStatus) {
             case Cancelled:
             case Failed:
             case Unknown:
@@ -186,7 +186,7 @@ final class InstructionImpl implements Instruction {
     }
 
     @Override
-    public void executionCompleted(final InstructionStatus status, final Details details) {
+    public void executionCompleted(final InstructionStatus newStatus, final Details details) {
         final ExecutionResult<Details> result;
 
         synchronized (this) {
@@ -195,8 +195,8 @@ final class InstructionImpl implements Instruction {
             cancelTimeout();
 
             // We reuse the preconditions set down in this class
-            result = new ExecutionResult<>(status, details);
-            setStatus(status, details);
+            result = new ExecutionResult<>(newStatus, details);
+            setStatus(newStatus, details);
             this.executionFuture.set(result);
         }
     }

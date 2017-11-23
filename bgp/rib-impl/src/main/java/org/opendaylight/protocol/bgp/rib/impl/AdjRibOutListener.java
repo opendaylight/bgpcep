@@ -9,10 +9,10 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Optional;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
@@ -151,7 +151,7 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
             LOG.debug("AdjRibOut parsing route {}", NormalizedNodes.toStringTree(route));
         }
         final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(route,
-                this.support.routeAttributesIdentifier()).orNull();
+                this.support.routeAttributesIdentifier()).orElse(null);
         return this.codecs.deserializeAttributes(advertisedAttrs);
     }
 
