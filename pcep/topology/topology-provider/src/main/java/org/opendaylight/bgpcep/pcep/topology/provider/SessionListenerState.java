@@ -25,8 +25,8 @@ import org.opendaylight.controller.config.yang.pcep.topology.provider.SessionSta
 import org.opendaylight.controller.config.yang.pcep.topology.provider.StatefulMessages;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.util.StatisticsUtil;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Pcinitiate;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Pcupd;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev171025.Pcinitiate;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev171025.Pcupd;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 final class SessionListenerState {
@@ -44,19 +44,19 @@ final class SessionListenerState {
     private final LongAdder totalTime = new LongAdder();
     private final LongAdder reqCount = new LongAdder();
 
-    public SessionListenerState() {
+    SessionListenerState() {
         this.sessionUpDuration = Stopwatch.createUnstarted();
         this.capa = new PeerCapabilities();
     }
 
-    public void init(final PCEPSession session) {
+    synchronized void init(final PCEPSession session) {
         requireNonNull(session);
         this.localPref = getLocalPref(session.getLocalPref());
         this.peerPref = getPeerPref(session.getPeerPref());
         this.sessionUpDuration.start();
     }
 
-    public synchronized void processRequestStats(final long duration) {
+    synchronized void processRequestStats(final long duration) {
         if (this.minReplyTime.longValue() == 0) {
             this.minReplyTime.reset();
             this.minReplyTime.add(duration);
@@ -72,7 +72,7 @@ final class SessionListenerState {
         this.reqCount.increment();
     }
 
-    public synchronized StatefulMessages getStatefulMessages() {
+    synchronized StatefulMessages getStatefulMessages() {
         final StatefulMessages msgs = new StatefulMessages();
         msgs.setLastReceivedRptMsgTimestamp(this.lastReceivedRptMsgTimestamp.longValue());
         msgs.setReceivedRptMsgCount(this.receivedRptMsgCount.longValue());
@@ -81,20 +81,7 @@ final class SessionListenerState {
         return msgs;
     }
 
-    public synchronized void resetStats(final PCEPSession session) {
-        requireNonNull(session);
-        this.receivedRptMsgCount.reset();
-        this.sentInitMsgCount.reset();
-        this.sentUpdMsgCount.reset();
-        this.lastReceivedRptMsgTimestamp.reset();
-        this.maxReplyTime.reset();
-        this.minReplyTime.reset();
-        this.totalTime.reset();
-        this.reqCount.reset();
-        session.resetStats();
-    }
-
-    public synchronized ReplyTime getReplyTime() {
+    synchronized ReplyTime getReplyTime() {
         final ReplyTime time = new ReplyTime();
         long avg = 0;
         if (this.reqCount.longValue() != 0) {
@@ -106,11 +93,11 @@ final class SessionListenerState {
         return time;
     }
 
-    public PeerCapabilities getPeerCapabilities() {
+    synchronized PeerCapabilities getPeerCapabilities() {
         return this.capa;
     }
 
-    public SessionState getSessionState(final PCEPSession session) {
+    synchronized SessionState getSessionState(final PCEPSession session) {
         requireNonNull(session);
         final SessionState state = new SessionState();
         state.setLocalPref(this.localPref);
@@ -120,17 +107,17 @@ final class SessionListenerState {
         return state;
     }
 
-    public void setPeerCapabilities(final PeerCapabilities capabilities) {
+    synchronized void setPeerCapabilities(final PeerCapabilities capabilities) {
         this.capa = requireNonNull(capabilities);
     }
 
-    public void updateLastReceivedRptMsg() {
+    synchronized void updateLastReceivedRptMsg() {
         this.lastReceivedRptMsgTimestamp.reset();
         this.lastReceivedRptMsgTimestamp.add(StatisticsUtil.getCurrentTimestampInSeconds());
         this.receivedRptMsgCount.increment();
     }
 
-    public void updateStatefulSentMsg(final Message msg) {
+    synchronized void updateStatefulSentMsg(final Message msg) {
         if (msg instanceof Pcinitiate) {
             this.sentInitMsgCount.increment();
         } else if (msg instanceof Pcupd) {

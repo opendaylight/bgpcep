@@ -34,6 +34,10 @@ module network-topology-pcep {
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
 
+    revision 2017-10-25 {
+        description "Add release-connection rpc";
+    }
+
     revision "2013-10-24" {
         description
             "Initial revision.";
@@ -167,11 +171,15 @@ module network-topology-pcep {
         }
     }
 
-    grouping lsp-id {
+    grouping node-id {
         leaf node {
             type nt:node-ref;
             mandatory true;
         }
+    }
+
+    grouping lsp-id {
+        uses node-id;
 
         leaf name {
             type string;
@@ -295,6 +303,14 @@ module network-topology-pcep {
         }
         output {
             uses operation-result;
+        }
+    }
+
+    rpc restart-connection {
+        description "Restarts the session between PCE and PCC.";
+        input {
+            uses ont:network-topology-reference;
+            uses node-id;
         }
     }
 }
