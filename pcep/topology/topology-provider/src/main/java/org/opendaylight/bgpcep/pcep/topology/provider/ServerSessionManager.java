@@ -7,8 +7,9 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
-import com.google.common.annotations.VisibleForTesting;
 import static java.util.Objects.requireNonNull;
+
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -20,29 +21,25 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.concurrent.GuardedBy;
-import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeMXBean;
-import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistration;
-import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistrator;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.AddLspArgs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.EnsureLspOperationalInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.OperationResult;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.RemoveLspArgs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TopologyTypes1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TopologyTypes1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerSyncArgs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.UpdateLspArgs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.topology.pcep.type.TopologyPcepBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.AddLspArgs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.EnsureLspOperationalInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.OperationResult;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.RemoveLspArgs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.TearDownSessionInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.TopologyTypes1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.TopologyTypes1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.TriggerSyncArgs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.UpdateLspArgs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.topology.pcep.type.TopologyPcepBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
@@ -56,11 +53,11 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-final class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessionRPCs,
-    PCEPTopologyProviderRuntimeMXBean, PCEPPeerProposal {
+final class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessionRPCs, PCEPPeerProposal {
     private static final Logger LOG = LoggerFactory.getLogger(ServerSessionManager.class);
     private static final long DEFAULT_HOLD_STATE_NANOS = TimeUnit.MINUTES.toNanos(5);
-
+    @VisibleForTesting
+    public final AtomicBoolean isClosed = new AtomicBoolean(false);
     @GuardedBy("this")
     private final Map<NodeId, TopologySessionListener> nodes = new HashMap<>();
     @GuardedBy("this")
@@ -70,13 +67,9 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
     private final DataBroker broker;
     private final PCEPStatefulPeerProposal peerProposal;
     private final short rpcTimeout;
-    private final AtomicReference<PCEPTopologyProviderRuntimeRegistration> runtimeRootRegistration = new AtomicReference<>();
-
-    @VisibleForTesting
-    public final AtomicBoolean isClosed = new AtomicBoolean(false);
 
     public ServerSessionManager(final DataBroker broker, final InstanceIdentifier<Topology> topology,
-        final TopologySessionListenerFactory listenerFactory, final short rpcTimeout) {
+            final TopologySessionListenerFactory listenerFactory, final short rpcTimeout) {
         this.broker = requireNonNull(broker);
         this.topology = requireNonNull(topology);
         this.listenerFactory = requireNonNull(listenerFactory);
@@ -84,20 +77,22 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
         this.rpcTimeout = rpcTimeout;
     }
 
+    private static NodeId createNodeId(final InetAddress addr) {
+        return new NodeId("pcc://" + addr.getHostAddress());
+    }
+
     /**
      * Create Base Topology
-     *
-     * @throws TransactionCommitFailedException exception
      */
     synchronized ListenableFuture<Void> instantiateServiceInstance() {
         final TopologyKey key = InstanceIdentifier.keyOf(this.topology);
         final TopologyId topologyId = key.getTopologyId();
         final WriteTransaction tx = this.broker.newWriteOnlyTransaction();
         tx.put(LogicalDatastoreType.OPERATIONAL, this.topology, new TopologyBuilder().setKey(key)
-            .setTopologyId(topologyId).setTopologyTypes(new TopologyTypesBuilder()
-                .addAugmentation(TopologyTypes1.class, new TopologyTypes1Builder().setTopologyPcep(
-                    new TopologyPcepBuilder().build()).build()).build())
-            .setNode(new ArrayList<>()).build(), true);
+                .setTopologyId(topologyId).setTopologyTypes(new TopologyTypesBuilder()
+                        .addAugmentation(TopologyTypes1.class, new TopologyTypes1Builder().setTopologyPcep(
+                                new TopologyPcepBuilder().build()).build()).build())
+                .setNode(new ArrayList<>()).build(), true);
         final ListenableFuture<Void> future = tx.submit();
         Futures.addCallback(future, new FutureCallback<Void>() {
             @Override
@@ -113,10 +108,6 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
             }
         }, MoreExecutors.directExecutor());
         return future;
-    }
-
-    private static NodeId createNodeId(final InetAddress addr) {
-        return new NodeId("pcc://" + addr.getHostAddress());
     }
 
     synchronized void releaseNodeState(final TopologyNodeState nodeState, final PCEPSession session, final boolean persistNode) {
@@ -163,7 +154,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
         return this.listenerFactory.createTopologySessionListener(this);
     }
 
-    private synchronized TopologySessionListener checkSessionPresence(final NodeId nodeId) {
+    protected final synchronized TopologySessionListener checkSessionPresence(final NodeId nodeId) {
         // Get the listener corresponding to the node
         final TopologySessionListener l = this.nodes.get(nodeId);
         if (l == null) {
@@ -203,15 +194,19 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
         return l != null ? l.triggerSync(input) : OperationResults.UNSENT.future();
     }
 
+    @Override
+    public ListenableFuture<Void> tearDownSession(final TearDownSessionInput input) {
+        final TopologySessionListener l = checkSessionPresence(input.getNode());
+        return l != null ? l.tearDownSession(input) :
+                Futures.immediateFailedFuture(new Throwable("Node not present"));
+    }
+
     synchronized ListenableFuture<Void> closeServiceInstance() {
         if (this.isClosed.getAndSet(true)) {
             LOG.error("Session Manager has already been closed.");
-            Futures.immediateFuture(null);
+            return Futures.immediateFuture(null);
         }
-        final PCEPTopologyProviderRuntimeRegistration runtimeReg = this.runtimeRootRegistration.getAndSet(null);
-        if (runtimeReg != null) {
-            runtimeReg.close();
-        }
+
         for (final TopologySessionListener sessionListener : this.nodes.values()) {
             sessionListener.close();
         }
@@ -235,16 +230,6 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
             }
         }, MoreExecutors.directExecutor());
         return future;
-    }
-
-    synchronized void setRuntimeRootRegistrator(final PCEPTopologyProviderRuntimeRegistrator runtimeRootRegistrator) {
-        if (!this.runtimeRootRegistration.compareAndSet(null, runtimeRootRegistrator.register(this))) {
-            LOG.error("Runtime root registration has been set before.");
-        }
-    }
-
-    PCEPTopologyProviderRuntimeRegistration getRuntimeRootRegistration() {
-        return this.runtimeRootRegistration.get();
     }
 
     @Override

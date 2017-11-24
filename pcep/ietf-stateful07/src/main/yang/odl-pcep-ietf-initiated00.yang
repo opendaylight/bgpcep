@@ -6,8 +6,8 @@ module odl-pcep-ietf-initiated00 {
     import pcep-types { prefix pcep; revision-date 2013-10-05; }
     import pcep-message { prefix msg; revision-date 2013-10-07; }
     import network-topology { prefix nt; revision-date 2013-10-21; }
-    import network-topology-pcep { prefix topo; revision-date 2013-10-24; }
-    import odl-pcep-ietf-stateful07 { prefix stateful; revision-date 2013-12-22; }
+    import network-topology-pcep { prefix topo; revision-date 2017-10-25; }
+    import odl-pcep-ietf-stateful07 { prefix stateful; revision-date 2017-10-25; }
 
     organization "Cisco Systems, Inc.";
     contact "Robert Varga <rovarga@cisco.com>";
@@ -22,6 +22,10 @@ module odl-pcep-ietf-initiated00 {
         under the terms of the Eclipse Public License v1.0 which
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
+
+    revision 2017-10-25 {
+        description "Update network-topology-pcep revision";
+    }
 
     revision "2013-11-26" {
         description
