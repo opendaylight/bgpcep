@@ -15,8 +15,8 @@ import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.pcep.spi.TlvUtil;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.symbolic.path.name.tlv.SymbolicPathName;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.symbolic.path.name.tlv.SymbolicPathNameBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev171025.symbolic.path.name.tlv.SymbolicPathName;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev171025.symbolic.path.name.tlv.SymbolicPathNameBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 
 /**
@@ -32,13 +32,13 @@ public final class Stateful07LspSymbolicNameTlvParser implements TlvParser, TlvS
             return null;
         }
         return new SymbolicPathNameBuilder().setPathName(
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.SymbolicPathName(ByteArray.getAllBytes(buffer))).build();
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev171025.SymbolicPathName(ByteArray.getAllBytes(buffer))).build();
     }
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
         Preconditions.checkArgument(tlv instanceof SymbolicPathName, "SymbolicPathNameTlv is mandatory.");
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.SymbolicPathName spn = ((SymbolicPathName) tlv).getPathName();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev171025.SymbolicPathName spn = ((SymbolicPathName) tlv).getPathName();
         Preconditions.checkArgument(spn != null, "SymbolicPathName is mandatory");
         TlvUtil.formatTlv(TYPE, Unpooled.copiedBuffer(spn.getValue()), buffer);
     }

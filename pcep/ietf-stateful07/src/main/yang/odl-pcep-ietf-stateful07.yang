@@ -5,7 +5,7 @@ module odl-pcep-ietf-stateful07 {
 
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import network-topology { prefix nt; revision-date 2013-10-21; }
-    import network-topology-pcep { prefix topo; revision-date 2013-10-24; }
+    import network-topology-pcep { prefix topo; revision-date 2017-10-25; }
     import pcep-types { prefix pcep; revision-date 2013-10-05; }
     import pcep-message { prefix msg; revision-date 2013-10-07; }
     import rsvp { prefix rsvp; revision-date 2015-08-20; }
@@ -28,6 +28,10 @@ module odl-pcep-ietf-stateful07 {
         under the terms of the Eclipse Public License v1.0 which
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
+
+    revision 2017-10-25 {
+        description "Update network-topology-pcep revision";
+    }
 
     revision "2013-12-22" {
         description

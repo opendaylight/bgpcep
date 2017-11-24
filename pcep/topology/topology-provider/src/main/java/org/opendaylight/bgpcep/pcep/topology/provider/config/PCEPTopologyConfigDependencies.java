@@ -21,9 +21,8 @@ public final class PCEPTopologyConfigDependencies {
     private final TopologyId topologyId;
     private final short rpcTimeout;
 
-     PCEPTopologyConfigDependencies(final InetSocketAddress address, final KeyMapping keys,
-        final InstructionScheduler scheduler, final TopologyId topologyId,
-         final short rpcTimeout) {
+    public PCEPTopologyConfigDependencies(final InetSocketAddress address, final KeyMapping keys,
+            final InstructionScheduler scheduler, final TopologyId topologyId, final short rpcTimeout) {
         this.address = checkNotNull(address);
         this.keys = checkNotNull(keys);
         this.scheduler = checkNotNull(scheduler);

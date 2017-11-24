@@ -5,7 +5,7 @@ module network-pcep-topology-config {
     prefix pnc;
 
     import network-topology { prefix nt; revision-date 2013-10-21; }
-    import network-topology-pcep { prefix pn; revision-date 2013-10-24; }
+    import network-topology-pcep { prefix pn; revision-date 2017-10-25; }
     import yang-ext { prefix ext; revision-date 2013-07-09; }
     import pcep-config { prefix pdc; revision-date 2017-10-25; }
 
