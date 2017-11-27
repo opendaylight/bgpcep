@@ -39,13 +39,12 @@
         <module>base-parser</module>
         <module>ietf-stateful07</module>
         <module>testtool</module>
-        <module>tunnel-api</module>
-        <module>tunnel-provider</module>
         <module>topology</module>
         <module>segment-routing</module>
         <module>pcc-mock</module>
         <module>auto-bandwidth-extension</module>
         <module>config-example</module>
+        <module>tunnel</module>
     </modules>
 
   <!--
