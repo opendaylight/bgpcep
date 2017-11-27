@@ -50,7 +50,7 @@ final class DestroyTunnelInstructionExecutor extends AbstractInstructionExecutor
     protected ListenableFuture<OperationResult> invokeOperation() {
         final InstanceIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(this.pcepDestroyTunnelInput);
         final InstanceIdentifier<Link> lii = TunnelProgrammingUtil.linkIdentifier(tii, this.pcepDestroyTunnelInput);
-        try (final ReadOnlyTransaction t = this.dataProvider.newReadOnlyTransaction()) {
+        try (ReadOnlyTransaction t = this.dataProvider.newReadOnlyTransaction()) {
             final Node node;
             final Link link;
             try {
