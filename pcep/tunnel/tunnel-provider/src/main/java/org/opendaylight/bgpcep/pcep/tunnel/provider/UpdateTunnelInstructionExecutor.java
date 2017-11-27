@@ -50,7 +50,7 @@ final class UpdateTunnelInstructionExecutor extends AbstractInstructionExecutor 
     private final NetworkTopologyPcepService topologyService;
 
     UpdateTunnelInstructionExecutor(final PcepUpdateTunnelInput updateTunnelInput, final DataBroker dataProvider,
-        final NetworkTopologyPcepService topologyService) {
+            final NetworkTopologyPcepService topologyService) {
         super(updateTunnelInput);
         this.updateTunnelInput = updateTunnelInput;
         this.dataProvider = dataProvider;
@@ -61,7 +61,7 @@ final class UpdateTunnelInstructionExecutor extends AbstractInstructionExecutor 
     protected ListenableFuture<OperationResult> invokeOperation() {
         final InstanceIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(this.updateTunnelInput);
         final InstanceIdentifier<Link> lii = TunnelProgrammingUtil.linkIdentifier(tii, this.updateTunnelInput);
-        try (final ReadOnlyTransaction t = this.dataProvider.newReadOnlyTransaction()) {
+        try (ReadOnlyTransaction t = this.dataProvider.newReadOnlyTransaction()) {
             final Link link;
             final Node node;
             try {
@@ -74,8 +74,9 @@ final class UpdateTunnelInstructionExecutor extends AbstractInstructionExecutor 
                 return TunelProgrammingUtil.RESULT;
             }
             return Futures.transform(
-                (ListenableFuture<RpcResult<UpdateLspOutput>>) this.topologyService.updateLsp(buildUpdateInput(link, node)),
-                RpcResult::getResult, MoreExecutors.directExecutor());
+                    (ListenableFuture<RpcResult<UpdateLspOutput>>) this.topologyService
+                            .updateLsp(buildUpdateInput(link, node)),
+                    RpcResult::getResult, MoreExecutors.directExecutor());
         }
     }
 
@@ -84,17 +85,19 @@ final class UpdateTunnelInstructionExecutor extends AbstractInstructionExecutor 
         ab.setName(link.getAugmentation(Link1.class).getSymbolicPathName());
         ab.setNode(requireNonNull(TunelProgrammingUtil.supportingNode(node)));
 
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.update.lsp.args.ArgumentsBuilder args =
-            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.update.lsp.args.ArgumentsBuilder();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.update.lsp
+                .args.ArgumentsBuilder args = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
+                .yang.topology.pcep.rev171025.update.lsp.args.ArgumentsBuilder();
         args.setBandwidth(new BandwidthBuilder().setBandwidth(this.updateTunnelInput.getBandwidth()).build());
         args.setClassType(new ClassTypeBuilder().setClassType(this.updateTunnelInput.getClassType()).build());
         args.setEro(TunelProgrammingUtil.buildEro(this.updateTunnelInput.getExplicitHops()));
         args.setLspa(new LspaBuilder(this.updateTunnelInput).build());
 
-        final AdministrativeStatus adminStatus = this.updateTunnelInput.getAugmentation(PcepUpdateTunnelInput1.class).getAdministrativeStatus();
+        final AdministrativeStatus adminStatus = this.updateTunnelInput.getAugmentation(PcepUpdateTunnelInput1.class)
+                .getAdministrativeStatus();
         if (adminStatus != null) {
-            args.addAugmentation(Arguments3.class, new Arguments3Builder().setLsp(new LspBuilder().
-                setAdministrative(adminStatus == AdministrativeStatus.Active).build()).build());
+            args.addAugmentation(Arguments3.class, new Arguments3Builder().setLsp(new LspBuilder()
+                    .setAdministrative(adminStatus == AdministrativeStatus.Active).build()).build());
         }
         ab.setArguments(args.build());
         return ab.build();

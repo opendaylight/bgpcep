@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+    <reference id="dataBroker" interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
+               odl:type="pingpong"/>
+    <reference id="rpcRegistry" interface="org.opendaylight.controller.sal.binding.api.RpcProviderRegistry"/>
+    <reference id="clusterSingletonServiceProvider"
+               interface="org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider"/>
+
+    <bean id="TunnelProviderDeployer" class="org.opendaylight.bgpcep.pcep.tunnel.provider.TunnelProviderDeployer"
+          init-method="init"
+          destroy-method="close">
+        <argument ref="dataBroker"/>
+        <argument ref="rpcRegistry"/>
+        <argument ref="blueprintBundleContext"/>
+        <argument ref="clusterSingletonServiceProvider"/>
+    </bean>
+</blueprint>

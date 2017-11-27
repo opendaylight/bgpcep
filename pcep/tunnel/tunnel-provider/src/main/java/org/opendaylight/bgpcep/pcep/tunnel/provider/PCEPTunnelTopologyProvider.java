@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Cisco Systems, Inc. and others.  All rights reserved.
+ * Copyright (c) 2017 AT&T Intellectual Property. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -7,48 +7,71 @@
  */
 package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
-import static java.util.Objects.requireNonNull;
-
+import java.util.ArrayList;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.bgpcep.topology.TopologyReference;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev130820.TopologyTypes1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev130820.TopologyTypes1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev130820.topology.tunnel.pcep.type.TopologyTunnelPcepBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypesBuilder;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public final class PCEPTunnelTopologyProvider implements AutoCloseable {
-    private final ListenerRegistration<NodeChangedListener> reg;
-    private final TopologyReference ref;
+public final class PCEPTunnelTopologyProvider extends DefaultTopologyReference implements AutoCloseable {
 
-    private PCEPTunnelTopologyProvider(final InstanceIdentifier<Topology> dst, final ListenerRegistration<NodeChangedListener> reg) {
-        this.ref = new DefaultTopologyReference(dst);
-        this.reg = requireNonNull(reg);
+    private final NodeChangedListener ncl;
+    private final InstanceIdentifier<Node> src;
+    private final DefaultTopologyReference ref;
+    private final DataBroker dataBroker;
+    private final TopologyId tunneltopologyId;
+    private ListenerRegistration<NodeChangedListener> reg;
+
+    public PCEPTunnelTopologyProvider(
+            final DataBroker dataBroker,
+            final InstanceIdentifier<Topology> pcepTopology,
+            final TopologyId pcepTopologyId,
+            final InstanceIdentifier<Topology> tunnelTopology,
+            final TopologyId tunneltopologyId) {
+        super(tunnelTopology);
+        this.dataBroker = dataBroker;
+        this.tunneltopologyId = tunneltopologyId;
+        this.ncl = new NodeChangedListener(dataBroker, pcepTopologyId, tunnelTopology);
+        this.src = pcepTopology.child(Node.class);
+        this.ref = new DefaultTopologyReference(tunnelTopology);
     }
 
-    public static PCEPTunnelTopologyProvider create(final DataBroker dataProvider,
-            final InstanceIdentifier<Topology> sourceTopology, final TopologyId targetTopology) {
-        final InstanceIdentifier<Topology> dst = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
-                new TopologyKey(targetTopology)).build();
-        final NodeChangedListener ncl = new NodeChangedListener(dataProvider, sourceTopology.firstKeyOf(Topology.class).getTopologyId(), dst);
-
-        final InstanceIdentifier<Node> src = sourceTopology.child(Node.class);
-        final ListenerRegistration<NodeChangedListener> reg = dataProvider.registerDataTreeChangeListener(new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL, src), ncl);
-
-        return new PCEPTunnelTopologyProvider(dst, reg);
-    }
-
-    @Override
-    public void close() {
-        this.reg.close();
+    void init() {
+        final WriteTransaction tx = this.dataBroker.newWriteOnlyTransaction();
+        tx.put(LogicalDatastoreType.OPERATIONAL, getTopologyReference().getInstanceIdentifier(),
+                new TopologyBuilder().setTopologyId(this.tunneltopologyId)
+                        .setTopologyTypes(new TopologyTypesBuilder()
+                                .addAugmentation(TopologyTypes1.class, new TopologyTypes1Builder()
+                                        .setTopologyTunnelPcep(
+                                                new TopologyTunnelPcepBuilder().build()).build()).build())
+                        .setNode(new ArrayList<>()).build(), true);
+        tx.submit();
+        this.reg = this.ncl.getDataProvider()
+                .registerDataTreeChangeListener(new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL, this.src),
+                        this.ncl);
     }
 
     public TopologyReference getTopologyReference() {
         return this.ref;
+    }
+
+    @Override
+    public void close() {
+        if (this.reg != null) {
+            this.reg.close();
+            this.reg = null;
+        }
     }
 }

@@ -10,6 +10,7 @@ package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -26,6 +27,8 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -93,11 +96,13 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.igp.termination.point.attributes.termination.point.type.IpBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.osgi.framework.BundleContext;
 
 public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
 
     private static final TopologyId TOPOLOGY_ID = new TopologyId("tunnel-topo");
-    private static final InstanceIdentifier<Topology> TOPO_IID = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class, new TopologyKey(TOPOLOGY_ID)).build();
+    private static final InstanceIdentifier<Topology> TOPO_IID = InstanceIdentifier.builder(NetworkTopology.class)
+            .child(Topology.class, new TopologyKey(TOPOLOGY_ID)).build();
 
     private static final String NODE1_IPV4 = "127.0.0.1";
     private static final NodeId NODE1_ID = new NodeId("pcc://" + NODE1_IPV4);
@@ -120,6 +125,12 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
     private ListenableFuture<Instruction> instructionFuture;
     @Mock
     private Instruction instruction;
+    @Mock
+    private ClusterSingletonServiceProvider cssp;
+    @Mock
+    private RpcProviderRegistry rpr;
+    @Mock
+    private BundleContext bundleContext;
 
     private TunnelProgramming tunnelProgramming;
 
@@ -134,8 +145,39 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
     @Mock
     private ListenableFuture<RpcResult<RemoveLspOutput>> futureRemoveLspOutput;
 
+    private static Node createNode(final NodeId nodeId, final TpId tpId, final String ipv4Address) {
+        final TerminationPointBuilder tpBuilder = new TerminationPointBuilder();
+        tpBuilder.setTpId(tpId);
+        tpBuilder.setKey(new TerminationPointKey(tpId));
+        tpBuilder.addAugmentation(TerminationPoint1.class, new TerminationPoint1Builder()
+                .setIgpTerminationPointAttributes(new IgpTerminationPointAttributesBuilder()
+                        .setTerminationPointType(new IpBuilder()
+                                .setIpAddress(Collections.singletonList(new IpAddress(new Ipv4Address(ipv4Address))))
+                                .build()).build()).build());
+        final NodeBuilder nodeBuilder = new NodeBuilder();
+        nodeBuilder.setNodeId(nodeId);
+        nodeBuilder.setKey(new NodeKey(nodeId));
+        nodeBuilder.setTerminationPoint(Lists.newArrayList(tpBuilder.build()));
+        final SupportingNode supportingNode = new SupportingNodeBuilder()
+                .setKey(new SupportingNodeKey(nodeId, new TopologyId("dummy")))
+                .addAugmentation(SupportingNode1.class, new SupportingNode1Builder()
+                        .setPathComputationClient(new PathComputationClientBuilder()
+                                .setControlling(true).build()).build()).build();
+        nodeBuilder.setSupportingNode(Lists.newArrayList(supportingNode));
+        return nodeBuilder.build();
+    }
+
+    private static ExplicitHops createExplicitHop(final String ipv4Prefix) {
+        final ExplicitHopsBuilder explcitHopsBuilder = new ExplicitHopsBuilder();
+        explcitHopsBuilder.addAugmentation(ExplicitHops1.class, new ExplicitHops1Builder()
+                .setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(new IpPrefixBuilder()
+                        .setIpPrefix(new IpPrefix(new Ipv4Prefix(ipv4Prefix))).build()).build()).build());
+        return explcitHopsBuilder.build();
+    }
+
     @Before
-    public void setUp() throws SchedulerException, InterruptedException, ExecutionException, TransactionCommitFailedException {
+    public void setUp() throws SchedulerException, InterruptedException, ExecutionException,
+            TransactionCommitFailedException {
         MockitoAnnotations.initMocks(this);
         Mockito.doReturn(true).when(this.instruction).checkedExecutionStart();
         Mockito.doNothing().when(this.instruction).executionCompleted(InstructionStatus.Failed, null);
@@ -173,15 +215,21 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
         }).when(this.topologyService).removeLsp(Mockito.any(RemoveLspInput.class));
         Mockito.doReturn(this.instruction).when(this.instructionFuture).get();
         Mockito.doReturn(true).when(this.instructionFuture).isDone();
-        Mockito.doReturn(this.instructionFuture).when(this.scheduler).scheduleInstruction(Mockito.any(SubmitInstructionInput.class));
+        Mockito.doReturn(this.instructionFuture).when(this.scheduler)
+                .scheduleInstruction(Mockito.any(SubmitInstructionInput.class));
+
+        Mockito.doReturn(this.topologyService).when(this.rpr)
+                .getRpcService(NetworkTopologyPcepService.class);
 
         createInitialTopology();
-        this.tunnelProgramming = new TunnelProgramming(this.scheduler, getDataBroker(), this.topologyService);
+        final TunnelProviderDependencies dependencies = new TunnelProviderDependencies(getDataBroker(), this.cssp,
+                this.rpr, this.bundleContext);
+        this.tunnelProgramming = new TunnelProgramming(this.scheduler, dependencies);
     }
 
     @Test
     public void testTunnelProgramming() throws TransactionCommitFailedException {
-        final Bandwidth bwd = new Bandwidth(new byte[] {0x00, 0x00, 0x00, (byte) 0xff});
+        final Bandwidth bwd = new Bandwidth(new byte[]{0x00, 0x00, 0x00, (byte) 0xff});
         final ClassType classType = new ClassType((short) 1);
         final String tunnelName = "create-tunnel";
         final NetworkTopologyRef topologyRef = new NetworkTopologyRef(TOPO_IID);
@@ -194,7 +242,8 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
         createInputBuilder.setClassType(classType);
         createInputBuilder.setSymbolicPathName(tunnelName);
         createInputBuilder.setExplicitHops(Lists.newArrayList());
-        createInputBuilder.addAugmentation(PcepCreateP2pTunnelInput1.class, new PcepCreateP2pTunnelInput1Builder().setAdministrativeStatus(AdministrativeStatus.Active).build());
+        createInputBuilder.addAugmentation(PcepCreateP2pTunnelInput1.class, new PcepCreateP2pTunnelInput1Builder()
+                .setAdministrativeStatus(AdministrativeStatus.Active).build());
         this.tunnelProgramming.pcepCreateP2pTunnel(createInputBuilder.build());
         //check add-lsp input
         Assert.assertNotNull(this.addLspInput);
@@ -214,18 +263,21 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
         updateInputBuilder.setNetworkTopologyRef(topologyRef);
         updateInputBuilder.setBandwidth(bwd);
         updateInputBuilder.setClassType(classType);
-        updateInputBuilder.setExplicitHops(Lists.newArrayList(createExplicitHop(IPV4_PREFIX1), createExplicitHop(IPV4_PREFIX2)));
+        updateInputBuilder.setExplicitHops(Lists.newArrayList(createExplicitHop(IPV4_PREFIX1),
+                createExplicitHop(IPV4_PREFIX2)));
         updateInputBuilder.setLinkId(LINK1_ID);
-        updateInputBuilder.addAugmentation(PcepUpdateTunnelInput1.class, new PcepUpdateTunnelInput1Builder().setAdministrativeStatus(AdministrativeStatus.Active).build());
+        updateInputBuilder.addAugmentation(PcepUpdateTunnelInput1.class, new PcepUpdateTunnelInput1Builder()
+                .setAdministrativeStatus(AdministrativeStatus.Active).build());
         this.tunnelProgramming.pcepUpdateTunnel(updateInputBuilder.build());
         //check update-lsp input
         Assert.assertNotNull(this.updateLspInput);
         Assert.assertEquals(LINK1_ID.getValue(), this.updateLspInput.getName());
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.update.lsp.args.Arguments updArgs = this.updateLspInput.getArguments();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.update.lsp
+                .args.Arguments updArgs = this.updateLspInput.getArguments();
         Assert.assertEquals(2, updArgs.getEro().getSubobject().size());
         final List<Subobject> subObjects = updArgs.getEro().getSubobject();
-        final IpPrefixCase prefix1 = (IpPrefixCase)subObjects.get(0).getSubobjectType();
-        final IpPrefixCase prefix2 = (IpPrefixCase)subObjects.get(1).getSubobjectType();
+        final IpPrefixCase prefix1 = (IpPrefixCase) subObjects.get(0).getSubobjectType();
+        final IpPrefixCase prefix2 = (IpPrefixCase) subObjects.get(1).getSubobjectType();
         Assert.assertEquals(IPV4_PREFIX1, prefix1.getIpPrefix().getIpPrefix().getIpv4Prefix().getValue());
         Assert.assertEquals(IPV4_PREFIX2, prefix2.getIpPrefix().getIpPrefix().getIpv4Prefix().getValue());
 
@@ -244,41 +296,25 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
         topologyBuilder.setKey(new TopologyKey(TOPOLOGY_ID));
         topologyBuilder.setServerProvided(true);
         topologyBuilder.setTopologyId(TOPOLOGY_ID);
-        topologyBuilder.setNode(Lists.newArrayList(createNode(NODE1_ID, TP1_ID, NODE1_IPV4), createNode(NODE2_ID, TP2_ID, NODE2_IPV4)));
+        topologyBuilder.setNode(Lists.newArrayList(createNode(NODE1_ID, TP1_ID, NODE1_IPV4),
+                createNode(NODE2_ID, TP2_ID, NODE2_IPV4)));
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.OPERATIONAL, TOPO_IID, topologyBuilder.build(), true);
         wTx.submit().checkedGet();
     }
 
-    private static Node createNode(final NodeId nodeId, final TpId tpId, final String ipv4Address) {
-        final TerminationPointBuilder tpBuilder = new TerminationPointBuilder();
-        tpBuilder.setTpId(tpId);
-        tpBuilder.setKey(new TerminationPointKey(tpId));
-        tpBuilder.addAugmentation(TerminationPoint1.class, new TerminationPoint1Builder().setIgpTerminationPointAttributes(new IgpTerminationPointAttributesBuilder().setTerminationPointType(new IpBuilder().setIpAddress(Lists.newArrayList(new IpAddress(new Ipv4Address(ipv4Address)))).build()).build()).build());
-        final NodeBuilder nodeBuilder = new NodeBuilder();
-        nodeBuilder.setNodeId(nodeId);
-        nodeBuilder.setKey(new NodeKey(nodeId));
-        nodeBuilder.setTerminationPoint(Lists.newArrayList(tpBuilder.build()));
-        final SupportingNode supportingNode = new SupportingNodeBuilder().setKey(new SupportingNodeKey(nodeId, new TopologyId("dummy"))).addAugmentation(SupportingNode1.class, new SupportingNode1Builder().setPathComputationClient(new PathComputationClientBuilder().setControlling(true).build()).build()).build();
-        nodeBuilder.setSupportingNode(Lists.newArrayList(supportingNode));
-        return nodeBuilder.build();
-    }
-
-    private static ExplicitHops createExplicitHop(final String ipv4Prefix) {
-        final ExplicitHopsBuilder explcitHopsBuilder = new ExplicitHopsBuilder();
-        explcitHopsBuilder.addAugmentation(ExplicitHops1.class, new ExplicitHops1Builder().setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(new IpPrefixBuilder().setIpPrefix(new IpPrefix(new Ipv4Prefix(ipv4Prefix))).build()).build()).build());
-        return explcitHopsBuilder.build();
-    }
-
     private void createLink() throws TransactionCommitFailedException {
         final LinkBuilder linkBuilder = new LinkBuilder();
-        linkBuilder.setSource(new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.link.attributes.SourceBuilder().setSourceNode(NODE1_ID).setSourceTp(TP1_ID).build());
-        linkBuilder.setDestination(new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.link.attributes.DestinationBuilder().setDestNode(NODE2_ID).setDestTp(TP2_ID).build());
+        linkBuilder.setSource(new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
+                .rev131021.link.attributes.SourceBuilder().setSourceNode(NODE1_ID).setSourceTp(TP1_ID).build());
+        linkBuilder.setDestination(new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
+                .rev131021.link.attributes.DestinationBuilder().setDestNode(NODE2_ID).setDestTp(TP2_ID).build());
         linkBuilder.setLinkId(LINK1_ID);
         linkBuilder.setKey(new LinkKey(LINK1_ID));
         linkBuilder.addAugmentation(Link1.class, new Link1Builder().setSymbolicPathName(LINK1_ID.getValue()).build());
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
-        wTx.put(LogicalDatastoreType.OPERATIONAL, TOPO_IID.builder().child(Link.class, new LinkKey(LINK1_ID)).build(), linkBuilder.build(), true);
+        wTx.put(LogicalDatastoreType.OPERATIONAL, TOPO_IID.builder().child(Link.class, new LinkKey(LINK1_ID)).build(),
+                linkBuilder.build(), true);
         wTx.submit().checkedGet();
     }
 
