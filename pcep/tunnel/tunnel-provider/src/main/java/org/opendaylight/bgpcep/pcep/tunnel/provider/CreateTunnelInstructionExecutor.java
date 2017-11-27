@@ -66,99 +66,22 @@ final class CreateTunnelInstructionExecutor extends AbstractInstructionExecutor 
     private final PcepCreateP2pTunnelInput p2pTunnelInput;
 
     CreateTunnelInstructionExecutor(final PcepCreateP2pTunnelInput p2pTunnelInput, final DataBroker dataProvider,
-        final NetworkTopologyPcepService topologyService) {
+            final NetworkTopologyPcepService topologyService) {
         super(p2pTunnelInput);
         this.p2pTunnelInput = p2pTunnelInput;
         this.dataProvider = dataProvider;
         this.topologyService = topologyService;
     }
 
-    private static final class TpReader {
-        private final ReadTransaction t;
-        private final InstanceIdentifier<Node> nii;
-        private final InstanceIdentifier<TerminationPoint> tii;
-
-        TpReader(final ReadTransaction t, final InstanceIdentifier<Topology> topo, final TpReference ref) {
-            this.t = requireNonNull(t);
-
-            this.nii = topo.child(Node.class, new NodeKey(ref.getNode()));
-            this.tii = this.nii.child(TerminationPoint.class, new TerminationPointKey(ref.getTp()));
-        }
-
-        private DataObject read(final InstanceIdentifier<?> id) {
-            try {
-                return this.t.read(LogicalDatastoreType.OPERATIONAL, id).checkedGet().get();
-            } catch (ReadFailedException | IllegalStateException e) {
-                throw new IllegalStateException("Failed to read data.", e);
-            }
-        }
-
-        private Node getNode() {
-            return (Node) read(this.nii);
-        }
-
-        private TerminationPoint getTp() {
-            return (TerminationPoint) read(this.tii);
-        }
-    }
-
-    @Override
-    protected ListenableFuture<OperationResult> invokeOperation() {
-        try (final ReadOnlyTransaction transaction = this.dataProvider.newReadOnlyTransaction()) {
-            AddLspInput addLspInput = createAddLspInput(transaction);
-
-            return Futures.transform(
-                (ListenableFuture<RpcResult<AddLspOutput>>) this.topologyService.addLsp(addLspInput),
-                RpcResult::getResult, MoreExecutors.directExecutor());
-        }
-    }
-
-    private AddLspInput createAddLspInput(final ReadOnlyTransaction transaction) {
-        final InstanceIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(this.p2pTunnelInput);
-        final TpReader dr = new TpReader(transaction, tii, this.p2pTunnelInput.getDestination());
-        final TerminationPoint dp = requireNonNull(dr.getTp());
-
-        final TpReader sr = new TpReader(transaction, tii, this.p2pTunnelInput.getSource());
-        final TerminationPoint sp = requireNonNull(sr.getTp());
-
-        final Node sn = requireNonNull(sr.getNode());
-        final AddLspInputBuilder ab = new AddLspInputBuilder();
-        ab.setNode(requireNonNull(TunelProgrammingUtil.supportingNode(sn)));
-        ab.setName(this.p2pTunnelInput.getSymbolicPathName());
-
-        checkLinkIsnotExistent(tii, ab, transaction);
-
-        ab.setArguments(buildArguments(sp, dp));
-        return ab.build();
-    }
-
-    private static void checkLinkIsnotExistent(final InstanceIdentifier<Topology> tii, final AddLspInputBuilder addLspInput,
-                                               final ReadOnlyTransaction t) {
-        final InstanceIdentifier<Link> lii = NodeChangedListener.linkIdentifier(tii, addLspInput.getNode(), addLspInput.getName());
+    private static void checkLinkIsnotExistent(final InstanceIdentifier<Topology> tii,
+            final AddLspInputBuilder addLspInput, final ReadOnlyTransaction rt) {
+        final InstanceIdentifier<Link> lii = NodeChangedListener.linkIdentifier(tii, addLspInput.getNode(),
+                addLspInput.getName());
         try {
-            Preconditions.checkState(!t.read(LogicalDatastoreType.OPERATIONAL, lii).checkedGet().isPresent());
+            Preconditions.checkState(!rt.read(LogicalDatastoreType.OPERATIONAL, lii).checkedGet().isPresent());
         } catch (final ReadFailedException e) {
             throw new IllegalStateException("Failed to ensure link existence.", e);
         }
-    }
-
-    private Arguments buildArguments(final TerminationPoint sp, final TerminationPoint dp) {
-        final ArgumentsBuilder args = new ArgumentsBuilder();
-        if (this.p2pTunnelInput.getBandwidth() != null) {
-            args.setBandwidth(new BandwidthBuilder().setBandwidth(this.p2pTunnelInput.getBandwidth()).build());
-        }
-        if (this.p2pTunnelInput.getClassType() != null) {
-            args.setClassType(new ClassTypeBuilder().setClassType(this.p2pTunnelInput.getClassType()).build());
-        }
-        args.setEndpointsObj(new EndpointsObjBuilder().setAddressFamily(buildAddressFamily(sp, dp)).build());
-        args.setEro(TunelProgrammingUtil.buildEro(this.p2pTunnelInput.getExplicitHops()));
-        args.setLspa(new LspaBuilder(this.p2pTunnelInput).build());
-
-        final AdministrativeStatus adminStatus = this.p2pTunnelInput.getAugmentation(PcepCreateP2pTunnelInput1.class).getAdministrativeStatus();
-        if (adminStatus != null) {
-            args.addAugmentation(Arguments2.class, new Arguments2Builder().setLsp(new LspBuilder().setAdministrative(adminStatus == AdministrativeStatus.Active).build()).build());
-        }
-        return args.build();
     }
 
     private static AddressFamily buildAddressFamily(final TerminationPoint sp, final TerminationPoint dp) {
@@ -198,8 +121,9 @@ final class CreateTunnelInstructionExecutor extends AbstractInstructionExecutor 
             if (sc.getIpv4Address() != null) {
                 for (final IpAddress dc : dsts) {
                     if (dc.getIpv4Address() != null) {
-                        return Optional.of(new Ipv4CaseBuilder().setIpv4(new Ipv4Builder().setSourceIpv4Address(sc.getIpv4Address()).
-                            setDestinationIpv4Address(dc.getIpv4Address()).build()).build());
+                        return Optional.of(new Ipv4CaseBuilder().setIpv4(new Ipv4Builder()
+                                .setSourceIpv4Address(sc.getIpv4Address())
+                                .setDestinationIpv4Address(dc.getIpv4Address()).build()).build());
                     }
                 }
             }
@@ -213,13 +137,94 @@ final class CreateTunnelInstructionExecutor extends AbstractInstructionExecutor 
             if (sc.getIpv6Address() != null) {
                 for (final IpAddress dc : dsts) {
                     if (dc.getIpv6Address() != null) {
-                        return Optional.of(new Ipv6CaseBuilder().setIpv6(new Ipv6Builder().setSourceIpv6Address(sc.getIpv6Address()).
-                            setDestinationIpv6Address(dc.getIpv6Address()).build()).build());
+                        return Optional.of(new Ipv6CaseBuilder().setIpv6(new Ipv6Builder()
+                                .setSourceIpv6Address(sc.getIpv6Address())
+                                .setDestinationIpv6Address(dc.getIpv6Address()).build()).build());
                     }
                 }
             }
         }
 
         return Optional.absent();
+    }
+
+    @Override
+    protected ListenableFuture<OperationResult> invokeOperation() {
+        try (ReadOnlyTransaction transaction = this.dataProvider.newReadOnlyTransaction()) {
+            AddLspInput addLspInput = createAddLspInput(transaction);
+
+            return Futures.transform(
+                    (ListenableFuture<RpcResult<AddLspOutput>>) this.topologyService.addLsp(addLspInput),
+                    RpcResult::getResult, MoreExecutors.directExecutor());
+        }
+    }
+
+    private AddLspInput createAddLspInput(final ReadOnlyTransaction transaction) {
+        final InstanceIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(this.p2pTunnelInput);
+        final TpReader dr = new TpReader(transaction, tii, this.p2pTunnelInput.getDestination());
+        final TerminationPoint dp = requireNonNull(dr.getTp());
+
+        final TpReader sr = new TpReader(transaction, tii, this.p2pTunnelInput.getSource());
+        final TerminationPoint sp = requireNonNull(sr.getTp());
+
+        final Node sn = requireNonNull(sr.getNode());
+        final AddLspInputBuilder ab = new AddLspInputBuilder();
+        ab.setNode(requireNonNull(TunelProgrammingUtil.supportingNode(sn)));
+        ab.setName(this.p2pTunnelInput.getSymbolicPathName());
+
+        checkLinkIsnotExistent(tii, ab, transaction);
+
+        ab.setArguments(buildArguments(sp, dp));
+        return ab.build();
+    }
+
+    private Arguments buildArguments(final TerminationPoint sp, final TerminationPoint dp) {
+        final ArgumentsBuilder args = new ArgumentsBuilder();
+        if (this.p2pTunnelInput.getBandwidth() != null) {
+            args.setBandwidth(new BandwidthBuilder().setBandwidth(this.p2pTunnelInput.getBandwidth()).build());
+        }
+        if (this.p2pTunnelInput.getClassType() != null) {
+            args.setClassType(new ClassTypeBuilder().setClassType(this.p2pTunnelInput.getClassType()).build());
+        }
+        args.setEndpointsObj(new EndpointsObjBuilder().setAddressFamily(buildAddressFamily(sp, dp)).build());
+        args.setEro(TunelProgrammingUtil.buildEro(this.p2pTunnelInput.getExplicitHops()));
+        args.setLspa(new LspaBuilder(this.p2pTunnelInput).build());
+
+        final AdministrativeStatus adminStatus = this.p2pTunnelInput.getAugmentation(PcepCreateP2pTunnelInput1.class)
+                .getAdministrativeStatus();
+        if (adminStatus != null) {
+            args.addAugmentation(Arguments2.class, new Arguments2Builder().setLsp(new LspBuilder()
+                    .setAdministrative(adminStatus == AdministrativeStatus.Active).build()).build());
+        }
+        return args.build();
+    }
+
+    private static final class TpReader {
+        private final ReadTransaction rt;
+        private final InstanceIdentifier<Node> nii;
+        private final InstanceIdentifier<TerminationPoint> tii;
+
+        TpReader(final ReadTransaction rt, final InstanceIdentifier<Topology> topo, final TpReference ref) {
+            this.rt = requireNonNull(rt);
+
+            this.nii = topo.child(Node.class, new NodeKey(ref.getNode()));
+            this.tii = this.nii.child(TerminationPoint.class, new TerminationPointKey(ref.getTp()));
+        }
+
+        private DataObject read(final InstanceIdentifier<?> id) {
+            try {
+                return this.rt.read(LogicalDatastoreType.OPERATIONAL, id).checkedGet().get();
+            } catch (ReadFailedException | IllegalStateException e) {
+                throw new IllegalStateException("Failed to read data.", e);
+            }
+        }
+
+        private Node getNode() {
+            return (Node) read(this.nii);
+        }
+
+        private TerminationPoint getTp() {
+            return (TerminationPoint) read(this.tii);
+        }
     }
 }

@@ -50,7 +50,8 @@ final class TunelProgrammingUtil {
         }
 
         @Override
-        public List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.operation.result.Error> getError() {
+        public List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025
+                .operation.result.Error> getError() {
             return Collections.emptyList();
         }
     });
@@ -93,9 +94,9 @@ final class TunelProgrammingUtil {
         return null;
     }
 
-    public static Optional<Node> sourceNode(final ReadTransaction t, final InstanceIdentifier<Topology> topology, final Link link) throws
-        ReadFailedException {
-        return t.read(LogicalDatastoreType.OPERATIONAL,
-            topology.child(Node.class, new NodeKey(link.getSource().getSourceNode()))).checkedGet();
+    public static Optional<Node> sourceNode(final ReadTransaction rt, final InstanceIdentifier<Topology> topology,
+            final Link link) throws ReadFailedException {
+        return rt.read(LogicalDatastoreType.OPERATIONAL,
+                topology.child(Node.class, new NodeKey(link.getSource().getSourceNode()))).checkedGet();
     }
 }
