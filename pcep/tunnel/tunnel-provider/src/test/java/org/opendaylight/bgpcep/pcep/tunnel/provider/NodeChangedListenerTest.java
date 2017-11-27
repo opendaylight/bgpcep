@@ -78,9 +78,9 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
     private static final long LSP2_ID = 2;
 
     private static final InstanceIdentifier<Topology> PCEP_TOPO_IID = InstanceIdentifier.builder(NetworkTopology.class)
-        .child(Topology.class, new TopologyKey(PCEP_TOPOLOGY_ID)).build();
-    private static final InstanceIdentifier<Topology> TUNNEL_TOPO_IID = InstanceIdentifier.
-        builder(NetworkTopology.class).child(Topology.class, new TopologyKey(TUNNEL_TOPOLOGY_ID)).build();
+            .child(Topology.class, new TopologyKey(PCEP_TOPOLOGY_ID)).build();
+    private static final InstanceIdentifier<Topology> TUNNEL_TOPO_IID = InstanceIdentifier
+            .builder(NetworkTopology.class).child(Topology.class, new TopologyKey(TUNNEL_TOPOLOGY_ID)).build();
 
     private ListenerRegistration<NodeChangedListener> listenerRegistration;
 
@@ -88,15 +88,15 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
     public void setUp() throws TransactionCommitFailedException {
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.OPERATIONAL, PCEP_TOPO_IID, new TopologyBuilder()
-            .setKey(new TopologyKey(PCEP_TOPOLOGY_ID)).setNode(Lists.newArrayList())
-            .setTopologyId(PCEP_TOPOLOGY_ID).build(), true);
+                .setKey(new TopologyKey(PCEP_TOPOLOGY_ID)).setNode(Lists.newArrayList())
+                .setTopologyId(PCEP_TOPOLOGY_ID).build(), true);
         wTx.put(LogicalDatastoreType.OPERATIONAL, TUNNEL_TOPO_IID, new TopologyBuilder()
-            .setKey(new TopologyKey(TUNNEL_TOPOLOGY_ID)).setTopologyId(TUNNEL_TOPOLOGY_ID).build(), true);
+                .setKey(new TopologyKey(TUNNEL_TOPOLOGY_ID)).setTopologyId(TUNNEL_TOPOLOGY_ID).build(), true);
         wTx.submit().checkedGet();
         final NodeChangedListener nodeListener = new NodeChangedListener(getDataBroker(),
-            PCEP_TOPOLOGY_ID, TUNNEL_TOPO_IID);
+                PCEP_TOPOLOGY_ID, TUNNEL_TOPO_IID);
         this.listenerRegistration = getDataBroker().registerDataTreeChangeListener(new DataTreeIdentifier<>(
-            LogicalDatastoreType.OPERATIONAL, PCEP_TOPO_IID.child(Node.class)), nodeListener);
+                LogicalDatastoreType.OPERATIONAL, PCEP_TOPO_IID.child(Node.class)), nodeListener);
     }
 
     @Test
@@ -198,35 +198,40 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
     }
 
     private void createNode(final NodeId nodeId, final String ipv4Address, final String lspName, final long lspId,
-        final String dstIpv4Address) throws TransactionCommitFailedException {
+            final String dstIpv4Address) throws TransactionCommitFailedException {
         final NodeBuilder nodeBuilder = new NodeBuilder();
         nodeBuilder.setKey(new NodeKey(nodeId));
         nodeBuilder.setNodeId(nodeId);
         final PathBuilder pathBuilder = new PathBuilder();
         pathBuilder.setKey(new PathKey(new LspId(lspId)));
         pathBuilder.setBandwidth(new BandwidthBuilder().setBandwidth(
-            new Bandwidth(new byte[]{0x00, 0x00, (byte) 0xff, (byte) 0xff})).build());
+                new Bandwidth(new byte[]{0x00, 0x00, (byte) 0xff, (byte) 0xff})).build());
         pathBuilder.addAugmentation(Path1.class, new Path1Builder().setLsp(new LspBuilder().setTlvs(new TlvsBuilder()
-            .setLspIdentifiers(new LspIdentifiersBuilder().setAddressFamily(new Ipv4CaseBuilder().setIpv4(
-                new Ipv4Builder().setIpv4TunnelSenderAddress(new Ipv4Address(ipv4Address)).setIpv4ExtendedTunnelId(
-                    new Ipv4ExtendedTunnelId(ipv4Address)).setIpv4TunnelEndpointAddress(new Ipv4Address(dstIpv4Address))
-                    .build()).build()).build()).build()).setAdministrative(true).setDelegate(true).build()).build());
+                .setLspIdentifiers(new LspIdentifiersBuilder().setAddressFamily(new Ipv4CaseBuilder().setIpv4(
+                        new Ipv4Builder().setIpv4TunnelSenderAddress(new Ipv4Address(ipv4Address))
+                                .setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(ipv4Address))
+                                .setIpv4TunnelEndpointAddress(new Ipv4Address(dstIpv4Address))
+                                .build()).build()).build()).build()).setAdministrative(true)
+                .setDelegate(true).build()).build());
         final ReportedLsp reportedLps = new ReportedLspBuilder().setKey(new ReportedLspKey(lspName)).setPath(
-            Collections.singletonList(pathBuilder.build())).build();
+                Collections.singletonList(pathBuilder.build())).build();
         final Node1Builder node1Builder = new Node1Builder();
-        node1Builder.setPathComputationClient(new PathComputationClientBuilder().setStateSync(PccSyncState.Synchronized)
-            .setReportedLsp(Lists.newArrayList(reportedLps)).setIpAddress(new IpAddress(new Ipv4Address(ipv4Address)))
-            .build());
+        node1Builder.setPathComputationClient(new PathComputationClientBuilder()
+                .setStateSync(PccSyncState.Synchronized)
+                .setReportedLsp(Lists.newArrayList(reportedLps))
+                .setIpAddress(new IpAddress(new Ipv4Address(ipv4Address)))
+                .build());
         nodeBuilder.addAugmentation(Node1.class, node1Builder.build());
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.OPERATIONAL, PCEP_TOPO_IID.builder().child(Node.class,
-            new NodeKey(nodeId)).build(), nodeBuilder.build());
+                new NodeKey(nodeId)).build(), nodeBuilder.build());
         wTx.submit().checkedGet();
     }
 
     private void removeNode(final NodeId nodeId) throws TransactionCommitFailedException {
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
-        wTx.delete(LogicalDatastoreType.OPERATIONAL, PCEP_TOPO_IID.builder().child(Node.class, new NodeKey(nodeId)).build());
+        wTx.delete(LogicalDatastoreType.OPERATIONAL, PCEP_TOPO_IID.builder()
+                .child(Node.class, new NodeKey(nodeId)).build());
         wTx.submit().checkedGet();
     }
 }
