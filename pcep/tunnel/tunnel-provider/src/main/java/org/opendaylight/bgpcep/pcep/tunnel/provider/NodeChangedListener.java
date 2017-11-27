@@ -487,4 +487,8 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
     public static InstanceIdentifier<Link> linkIdentifier(final InstanceIdentifier<Topology> topology, final NodeId node, final String name) {
         return topology.child(Link.class, new LinkKey(new LinkId(node.getValue() + "/lsp/" + name)));
     }
+
+    DataBroker getDataProvider() {
+        return dataProvider;
+    }
 }
