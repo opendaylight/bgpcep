@@ -8,7 +8,8 @@
  and is available at http://www.eclipse.org/legal/epl-v10.html
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -48,7 +49,7 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>bgp-rib-api</artifactId>
         </dependency>
-         <dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>bgp-rib-spi</artifactId>
         </dependency>
@@ -87,17 +88,17 @@
             <artifactId>sal-common-api</artifactId>
         </dependency>
 
-         <dependency>
+        <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-buffer</artifactId>
-         </dependency>
+        </dependency>
 
-         <dependency>
+        <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
             <scope>provided</scope>
-         </dependency>
-         <dependency>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>bgp-bmp-api</artifactId>
         </dependency>
@@ -109,7 +110,7 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>bgp-openconfig-spi</artifactId>
         </dependency>
-         <!-- test scope dependencies -->
+        <!-- test scope dependencies -->
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>config-manager</artifactId>
@@ -125,24 +126,24 @@
             <artifactId>config-manager</artifactId>
             <scope>test</scope>
         </dependency>
-         <dependency>
-             <groupId>junit</groupId>
-             <artifactId>junit</artifactId>
-         </dependency>
-         <dependency>
-             <groupId>org.opendaylight.yangtools</groupId>
-             <artifactId>mockito-configuration</artifactId>
-         </dependency>
-         <dependency>
-             <groupId>org.mockito</groupId>
-             <artifactId>mockito-core</artifactId>
-             <scope>test</scope>
-         </dependency>
-         <dependency>
-             <groupId>${project.groupId}</groupId>
-             <artifactId>bgp-parser-spi</artifactId>
-             <type>test-jar</type>
-         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.yangtools</groupId>
+            <artifactId>mockito-configuration</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-parser-spi</artifactId>
+            <type>test-jar</type>
+        </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>sal-binding-api</artifactId>
@@ -167,12 +168,4 @@
         <url>https://wiki.opendaylight.org/view/BGP_LS_PCEP:Main</url>
         <tag>HEAD</tag>
     </scm>
-
-    <url>${odl.site.url}/${project.groupId}/${stream}/${project.artifactId}/</url>
-    <distributionManagement>
-        <site>
-            <id>opendaylight-site</id>
-            <url>${nexus.site.url}/${project.artifactId}/</url>
-        </site>
-    </distributionManagement>
 </project>

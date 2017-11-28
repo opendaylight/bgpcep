@@ -9,7 +9,7 @@
         <version>3.0.1</version>
         <relativePath/>
     </parent>
-    
+
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>odl-bgpcep-bgp-config-example</artifactId>
     <version>0.9.0-SNAPSHOT</version>
@@ -44,20 +44,4 @@
             <classifier>network-topology-initial-config</classifier>
         </dependency>
     </dependencies>
-
-    <!--
-        Maven Site Configuration
-
-        The following configuration is necessary for maven-site-plugin to
-        correctly identify the correct deployment path for OpenDaylight Maven
-        sites.
-    -->
-    <url>${odl.site.url}/${project.groupId}/${stream}/${project.artifactId}/</url>
-
-    <distributionManagement>
-        <site>
-            <id>opendaylight-site</id>
-            <url>${nexus.site.url}/${project.artifactId}/</url>
-        </site>
-    </distributionManagement>
 </project>

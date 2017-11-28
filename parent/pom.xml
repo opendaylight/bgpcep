@@ -8,7 +8,8 @@
  and is available at http://www.eclipse.org/legal/epl-v10.html
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <scm>
         <connection>scm:git:ssh://git.opendaylight.org:29418/bgpcep.git</connection>
@@ -211,8 +212,10 @@
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
                     <sourceDirectory>${project.basedir}</sourceDirectory>
                     <includes>**\/*.java,**\/*.xml,**\/*.ini,**\/*.sh,**\/*.bat,**\/*.yang</includes>
-                    <excludes>**\/target\/,**\/bin\/,**\/target-ide\/,**\/src/main/yang-gen-config\/,**\/src/main/yang-gen-sal\/,**\/
-                        .m2repo\/,**\/org/opendaylight/protocol/util/LoggerUtil.java,**\/org/opendaylight/protocol/util/LoggerUtilTest.java</excludes>
+                    <excludes>
+                        **\/target\/,**\/bin\/,**\/target-ide\/,**\/src/main/yang-gen-config\/,**\/src/main/yang-gen-sal\/,**\/
+                        .m2repo\/,**\/org/opendaylight/protocol/util/LoggerUtil.java,**\/org/opendaylight/protocol/util/LoggerUtilTest.java
+                    </excludes>
                 </configuration>
                 <dependencies>
                     <dependency>
@@ -252,7 +255,7 @@
                                         </goals>
                                     </pluginExecutionFilter>
                                     <action>
-                                        <ignore />
+                                        <ignore/>
                                     </action>
                                 </pluginExecution>
                                 <pluginExecution>
@@ -265,17 +268,17 @@
                                         </goals>
                                     </pluginExecutionFilter>
                                     <action>
-                                        <execute />
+                                        <execute/>
                                     </action>
                                 </pluginExecution>
                                 <pluginExecution>
-                                   <pluginExecutionFilter>
-                                       <groupId>org.jacoco</groupId>
-                                       <artifactId>jacoco-maven-plugin</artifactId>
-                                       <versionRange>[0.6,)</versionRange>
-                                       <goals>
-                                           <goal>prepare-agent</goal>
-                                       </goals>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.jacoco</groupId>
+                                        <artifactId>jacoco-maven-plugin</artifactId>
+                                        <versionRange>[0.6,)</versionRange>
+                                        <goals>
+                                            <goal>prepare-agent</goal>
+                                        </goals>
                                     </pluginExecutionFilter>
                                     <action>
                                         <ignore/>
@@ -291,7 +294,7 @@
                                         </goals>
                                     </pluginExecutionFilter>
                                     <action>
-                                        <execute />
+                                        <execute/>
                                     </action>
                                 </pluginExecution>
                             </pluginExecutions>
@@ -321,18 +324,23 @@
                                         </outputBaseDir>
                                     </generator>
                                     <generator>
-                                        <codeGeneratorClass>org.opendaylight.mdsal.binding.yang.unified.doc.generator.maven.DocumentationGeneratorImpl</codeGeneratorClass>
+                                        <codeGeneratorClass>
+                                            org.opendaylight.mdsal.binding.yang.unified.doc.generator.maven.DocumentationGeneratorImpl
+                                        </codeGeneratorClass>
                                         <outputBaseDir>target/site</outputBaseDir>
                                     </generator>
                                     <generator>
-                                        <codeGeneratorClass>org.opendaylight.mdsal.binding.yang.wadl.generator.maven.WadlGenerator</codeGeneratorClass>
+                                        <codeGeneratorClass>
+                                            org.opendaylight.mdsal.binding.yang.wadl.generator.maven.WadlGenerator
+                                        </codeGeneratorClass>
                                         <outputBaseDir>target/site</outputBaseDir>
                                     </generator>
                                     <generator>
                                         <codeGeneratorClass>
                                             org.opendaylight.controller.config.yangjmxgenerator.plugin.JMXGenerator
                                         </codeGeneratorClass>
-                                        <outputBaseDir>${project.build.directory}/generated-sources/config</outputBaseDir>
+                                        <outputBaseDir>${project.build.directory}/generated-sources/config
+                                        </outputBaseDir>
                                         <additionalConfiguration>
                                             <namespaceToPackage1>
                                                 urn:opendaylight:params:xml:ns:yang:controller==org.opendaylight.controller.config.yang
@@ -361,20 +369,4 @@
             </plugins>
         </pluginManagement>
     </build>
-
-  <!--
-      Maven Site Configuration
-
-      The following configuration is necessary for maven-site-plugin to
-      correctly identify the correct deployment path for OpenDaylight Maven
-      sites.
-  -->
-  <url>${odl.site.url}/${project.groupId}/${stream}/${project.artifactId}/</url>
-
-  <distributionManagement>
-    <site>
-      <id>opendaylight-site</id>
-      <url>${nexus.site.url}/${project.artifactId}/</url>
-    </site>
-  </distributionManagement>
 </project>

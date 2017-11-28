@@ -7,7 +7,8 @@
  terms of the Eclipse Public License v1.0 which accompanies this distribution,
  and is available at http://www.eclipse.org/legal/epl-v10.html
 -->
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -82,19 +83,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <scm>
-        <connection>scm:git:ssh://git.opendaylight.org:29418/bgpcep.git</connection>
-        <developerConnection>scm:git:ssh://git.opendaylight.org:29418/bgpcep.git</developerConnection>
-        <url>https://wiki.opendaylight.org/view/BGP_LS_PCEP:Main</url>
-        <tag>HEAD</tag>
-    </scm>
-
-    <url>${odl.site.url}/${project.groupId}/${stream}/${project.artifactId}/</url>
-    <distributionManagement>
-        <site>
-            <id>opendaylight-site</id>
-            <url>${nexus.site.url}/${project.artifactId}/</url>
-        </site>
-    </distributionManagement>
 </project>

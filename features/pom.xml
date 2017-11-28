@@ -1,42 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>org.opendaylight.odlparent</groupId>
-    <artifactId>odlparent-lite</artifactId>
-    <version>3.0.1</version>
-    <relativePath/>
-  </parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.opendaylight.odlparent</groupId>
+        <artifactId>odlparent-lite</artifactId>
+        <version>3.0.1</version>
+        <relativePath/>
+    </parent>
 
-  <groupId>org.opendaylight.bgpcep</groupId>
-  <artifactId>features-bgpcep</artifactId>
-  <version>0.9.0-SNAPSHOT</version>
-  <packaging>pom</packaging>
+    <groupId>org.opendaylight.bgpcep</groupId>
+    <artifactId>features-bgpcep</artifactId>
+    <version>0.9.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
-  <modules>
-    <module>bgp</module>
-    <module>pcep</module>
-    <module>bgpcep-extras</module>
-    <module>bmp</module>
-    <module>rsvp</module>
-    <module>topology</module>
-    <module>concepts</module>
-    <module>config-loader</module>
-  </modules>
-
-  <!--
-      Maven Site Configuration
-
-      The following configuration is necessary for maven-site-plugin to
-      correctly identify the correct deployment path for OpenDaylight Maven
-      sites.
-  -->
-  <url>${odl.site.url}/${project.groupId}/${stream}/${project.artifactId}/</url>
-
-  <distributionManagement>
-    <site>
-      <id>opendaylight-site</id>
-      <url>${nexus.site.url}/${project.artifactId}/</url>
-    </site>
-  </distributionManagement>
+    <modules>
+        <module>bgp</module>
+        <module>pcep</module>
+        <module>bgpcep-extras</module>
+        <module>bmp</module>
+        <module>rsvp</module>
+        <module>topology</module>
+        <module>concepts</module>
+        <module>config-loader</module>
+    </modules>
 </project>
