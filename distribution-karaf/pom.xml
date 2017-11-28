@@ -120,26 +120,10 @@
     </plugins>
   </build>
 
-  <scm>
-    <connection>scm:git:ssh://git.opendaylight.org:29418/bgpcep.git</connection>
-    <developerConnection>scm:git:ssh://git.opendaylight.org:29418/bgpcep.git</developerConnection>
-    <tag>HEAD</tag>
-    <url>https://git.opendaylight.org/gerrit/gitweb?p=bgpcep.git;a=summary</url>
-  </scm>
-
-  <!--
-      Maven Site Configuration
-
-      The following configuration is necessary for maven-site-plugin to
-      correctly identify the correct deployment path for OpenDaylight Maven
-      sites.
-  -->
-  <url>${odl.site.url}/${project.groupId}/${stream}/${project.artifactId}/</url>
-
-  <distributionManagement>
-    <site>
-      <id>opendaylight-site</id>
-      <url>${nexus.site.url}/${project.artifactId}/</url>
-    </site>
-  </distributionManagement>
+    <scm>
+        <connection>scm:git:ssh://git.opendaylight.org:29418/bgpcep.git</connection>
+        <developerConnection>scm:git:ssh://git.opendaylight.org:29418/bgpcep.git</developerConnection>
+        <tag>HEAD</tag>
+        <url>https://git.opendaylight.org/gerrit/gitweb?p=bgpcep.git;a=summary</url>
+    </scm>
 </project>
