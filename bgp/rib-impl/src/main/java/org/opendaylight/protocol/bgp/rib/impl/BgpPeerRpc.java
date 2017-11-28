@@ -21,7 +21,7 @@ import org.opendaylight.protocol.bgp.rib.spi.PeerRPCs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.RouteRefresh;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.RouteRefreshBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev171027.BgpPeerRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev171027.ReleaseConnectionInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev171027.ResetSessionInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev171027.RouteRefreshRequestInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yangtools.yang.common.RpcError.ErrorType;
@@ -47,7 +47,7 @@ public class BgpPeerRpc implements BgpPeerRpcService {
     }
 
     @Override
-    public Future<RpcResult<Void>> releaseConnection(final ReleaseConnectionInput input) {
+    public Future<RpcResult<Void>> resetSession(final ResetSessionInput input) {
         final ListenableFuture<?> f = this.peerRPCs.releaseConnection();
         return Futures.transform(JdkFutureAdapters.listenInPoolThread(f), input1 -> {
             if (f.isDone()) {

@@ -59,8 +59,8 @@ module bgp-peer-rpc {
         ext:context-instance "peer-context";
     }
 
-    rpc release-connection {
-        description "Release the peer session";
+    rpc reset-session {
+        description "Resets the peer session";
         input {
             uses peer-reference;
         }

@@ -22,8 +22,8 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.bgp.rib.spi.PeerRPCs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev171027.PeerRef;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev171027.ReleaseConnectionInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev171027.ReleaseConnectionInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev171027.ResetSessionInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev171027.ResetSessionInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev171027.RouteRefreshRequestInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev171027.RouteRefreshRequestInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
@@ -83,9 +83,9 @@ public final class BgpPeerRpcTest {
     @Test
     public void testResetSessionRequestSuccessRequest() throws InterruptedException, ExecutionException {
         Mockito.doReturn(Futures.immediateFuture(null)).when(this.peerRpcs).releaseConnection();
-        final ReleaseConnectionInput input = new ReleaseConnectionInputBuilder()
+        final ResetSessionInput input = new ResetSessionInputBuilder()
                 .setPeerRef(this.peer).build();
-        final Future<RpcResult<Void>> result = this.rpc.releaseConnection(input);
+        final Future<RpcResult<Void>> result = this.rpc.resetSession(input);
         assertTrue(result.get().getErrors().isEmpty());
     }
 }
