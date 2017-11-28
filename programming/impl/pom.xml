@@ -8,7 +8,8 @@
  and is available at http://www.eclipse.org/legal/epl-v10.html
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -177,22 +178,22 @@
 
     <build>
         <plugins>
-           <plugin>
-               <groupId>org.apache.felix</groupId>
-               <artifactId>maven-bundle-plugin</artifactId>
-               <extensions>true</extensions>
-               <configuration>
-                   <instructions>
-                       <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
-                       <Export-Package>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
+                        <Export-Package>
                             org.opendaylight.bgpcep.programming.impl,
                             org.opendaylight.controller.config.yang.programming.impl
                             ;-split-package:=error
                         </Export-Package>
-                   </instructions>
-               </configuration>
-           </plugin>
-           <plugin>
+                    </instructions>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <executions>
@@ -224,12 +225,4 @@
         <url>https://wiki.opendaylight.org/view/BGP_LS_PCEP:Main</url>
         <tag>HEAD</tag>
     </scm>
-    
-    <url>${odl.site.url}/${project.groupId}/${stream}/${project.artifactId}/</url>
-    <distributionManagement>
-        <site>
-            <id>opendaylight-site</id>
-            <url>${nexus.site.url}/${project.artifactId}/</url>
-        </site>
-    </distributionManagement>
 </project>
