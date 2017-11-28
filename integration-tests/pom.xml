@@ -14,14 +14,14 @@
     <parent>
         <groupId>org.opendaylight.controller</groupId>
         <artifactId>mdsal-it-parent</artifactId>
-        <version>1.6.1-SNAPSHOT</version>
+        <version>1.6.2-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.opendaylight.bgpcep</groupId>
-    <version>0.8.1-SNAPSHOT</version>
+    <version>0.8.2-SNAPSHOT</version>
     <artifactId>integration-tests</artifactId>
     <description>BGPCEP integration tests</description>
     <packaging>bundle</packaging>

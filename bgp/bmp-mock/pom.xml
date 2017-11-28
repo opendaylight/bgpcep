@@ -12,7 +12,7 @@
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>bgp-bmp-mock</artifactId>
-    <version>0.8.1-SNAPSHOT</version>
+    <version>0.8.2-SNAPSHOT</version>
     <name>bmp-mock</name>
 
     <dependencyManagement>
@@ -20,7 +20,7 @@
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
                 <artifactId>bgpcep-parent</artifactId>
-                <version>0.8.1-SNAPSHOT</version>
+                <version>0.8.2-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

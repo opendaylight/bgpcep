@@ -13,7 +13,7 @@
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>odl-bgpcep-data-change-counter</artifactId>
-    <version>0.8.1-SNAPSHOT</version>
+    <version>0.8.2-SNAPSHOT</version>
     <packaging>feature</packaging>
 
     <name>ODL :: Bgpcep :: odl-bgpcep-data-change-counter</name>
