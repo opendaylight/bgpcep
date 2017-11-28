@@ -8,6 +8,7 @@
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import java.util.concurrent.Future;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.AddLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.EnsureLspOperationalInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.OperationResult;
@@ -15,6 +16,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.TearDownSessionInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.TriggerSyncArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.UpdateLspArgs;
+import org.opendaylight.yangtools.yang.common.RpcResult;
 
 interface TopologySessionRPCs {
     ListenableFuture<OperationResult> addLsp(AddLspArgs input);
@@ -27,5 +29,5 @@ interface TopologySessionRPCs {
 
     ListenableFuture<OperationResult> triggerSync(TriggerSyncArgs input);
 
-    ListenableFuture<Void> tearDownSession(TearDownSessionInput input);
+    ListenableFuture<RpcResult<Void>> tearDownSession(TearDownSessionInput input);
 }

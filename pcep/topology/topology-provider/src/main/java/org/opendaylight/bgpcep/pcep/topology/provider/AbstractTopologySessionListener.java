@@ -65,6 +65,8 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -636,9 +638,9 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
     }
 
     @Override
-    public synchronized ListenableFuture<Void> tearDownSession(final TearDownSessionInput input) {
+    public synchronized ListenableFuture<RpcResult<Void>> tearDownSession(final TearDownSessionInput input) {
         close();
-        return Futures.immediateFuture(null);
+        return Futures.immediateFuture(RpcResultBuilder.<Void>success().build());
     }
 
     @Override
