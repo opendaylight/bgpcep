@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a1969be_9bcddf60",
+        "filename": "bgp/evpn/src/main/yang/odl-bgp-evpn.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-28T11:29:54Z",
+      "side": 1,
+      "message": "given the update in the import this model requires a new reivision. Same for others models",
+      "range": {
+        "startLine": 33,
+        "startChar": 4,
+        "endLine": 33,
+        "endChar": 26
+      },
+      "revId": "56a12f15570db9224e940258f1feb59f2d9a0624",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
