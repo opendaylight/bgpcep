@@ -12,6 +12,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.protocol.concepts.KeyMapping;
@@ -21,10 +22,18 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.rfc2385.cfg.rev160324.Rfc2385Key;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pce.config.rev171025.PcepNodeConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.TopologyTypes1;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 final class PCEPTopologyProviderUtil {
+
+    private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyProviderUtil.class);
+
+    private static final long TIMEOUT_NS = TimeUnit.SECONDS.toNanos(5);
+
     private PCEPTopologyProviderUtil() {
         throw new UnsupportedOperationException();
     }
@@ -58,5 +67,16 @@ final class PCEPTopologyProviderUtil {
         final TopologyTypes1 aug = topologyTypes.getAugmentation(TopologyTypes1.class);
 
         return aug != null && aug.getTopologyPcep() != null;
+    }
+
+    static void closeTopology(final PCEPTopologyProviderBean topology, final TopologyId topologyId) {
+        if (topology != null) {
+            try {
+                topology.closeServiceInstance().get(TIMEOUT_NS, TimeUnit.NANOSECONDS);
+            } catch (final Exception e) {
+                LOG.error("Topology {} instance failed to close service instance", topologyId, e);
+            }
+            topology.close();
+        }
     }
 }
