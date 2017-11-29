@@ -117,80 +117,92 @@
                 <artifactId>pcep-auto-bandwidth-extension</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-topology-stats</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <!-- PCEP Features artifacts -->
             <dependency>
-                <groupId>org.opendaylight.bgpcep</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>features-pcep</artifactId>
                 <classifier>features</classifier>
                 <type>xml</type>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.opendaylight.bgpcep</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>odl-bgpcep-pcep</artifactId>
                 <classifier>features</classifier>
                 <type>xml</type>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.opendaylight.bgpcep</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>odl-bgpcep-pcep-dependencies</artifactId>
                 <classifier>features</classifier>
                 <type>xml</type>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.opendaylight.bgpcep</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>odl-bgpcep-pcep-api</artifactId>
                 <classifier>features</classifier>
                 <type>xml</type>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.opendaylight.bgpcep</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>odl-bgpcep-pcep-impl</artifactId>
                 <classifier>features</classifier>
                 <type>xml</type>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.opendaylight.bgpcep</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>odl-bgpcep-pcep-topology</artifactId>
                 <classifier>features</classifier>
                 <type>xml</type>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.opendaylight.bgpcep</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>odl-bgpcep-pcep-stateful07</artifactId>
                 <classifier>features</classifier>
                 <type>xml</type>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.opendaylight.bgpcep</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>odl-bgpcep-pcep-topology-provider</artifactId>
                 <classifier>features</classifier>
                 <type>xml</type>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.opendaylight.bgpcep</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>odl-bgpcep-pcep-tunnel-provider</artifactId>
                 <classifier>features</classifier>
                 <type>xml</type>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.opendaylight.bgpcep</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>odl-bgpcep-pcep-segment-routing</artifactId>
                 <classifier>features</classifier>
                 <type>xml</type>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.opendaylight.bgpcep</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>odl-bgpcep-pcep-auto-bandwidth</artifactId>
+                <classifier>features</classifier>
+                <type>xml</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-pcep-topology-stats</artifactId>
                 <classifier>features</classifier>
                 <type>xml</type>
                 <version>${project.version}</version>
