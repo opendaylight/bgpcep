@@ -1,0 +1,55 @@
+Attribute                      | Value          
+------------------------------------------------
+                               |                
+Node state                     |                
+======================         |                
+Topology Id                    | pcep-topology  
+Node Id                        | pcc://127.0.0.1
+Session duration               | 0:00:01:26     
+Synchronized                   | true           
+Delegated Lsp Count            | 1              
+                               |                
+Local preferences              |                
+======================         |                
+Session id                     | 0              
+Ip Address                     | 127.0.0.1      
+Dead Timer                     | 120            
+Keep Alive                     | 30             
+                               |                
+Peer preferences               |                
+======================         |                
+Session id                     | 0              
+Ip Address                     | 127.0.0.1      
+Dead Timer                     | 120            
+Keep Alive                     | 30             
+                               |                
+Stateful Capabilities          |                
+======================         |                
+Stateful                       | true           
+Active                         | true           
+Instantiation                  | true           
+                               |                
+Messages                       |                
+======================         |                
+Last Sent Msg Timestamp        | 1512043828     
+Received Msg Count             | 4              
+Sent Msg Count                 | 5              
+Unknown Msg Received           | 1              
+                               |                
+ Stateful Messages             |                
+======================         |                
+Last Received RptMsg Timestamp | 1512043769     
+Received RptMsg                | 2              
+Sent Init Msg                  | 3              
+Sent Upd Msg                   | 1              
+                               |                
+Error Messages                 |                
+======================         |                
+Sent Error Msg Count           | 2              
+Received Error Msg Count       | 1              
+                               |                
+Reply Messages                 |                
+======================         |                
+Average Time                   | 1              
+Max Timet                      | 3              
+Min Time                       | 2              

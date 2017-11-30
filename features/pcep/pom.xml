@@ -39,6 +39,7 @@
         <module>odl-bgpcep-pcep-auto-bandwidth</module>
         <module>odl-bgpcep-pcep-topology-stats</module>
         <module>odl-bgpcep-pcep-config-example</module>
+        <module>odl-bgpcep-pcep-cli</module>
     </modules>
 
     <!--
