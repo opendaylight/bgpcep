@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a1969be_37be7400",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/config/BgpTopologyDeployerImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-30T11:01:54Z",
+      "side": 1,
+      "message": "split registration and set to null",
+      "range": {
+        "startLine": 163,
+        "startChar": 8,
+        "endLine": 163,
+        "endChar": 34
+      },
+      "revId": "fec33f202838499e11b0523efa437cfa2decee71",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_57d5f041",
+        "filename": "bmp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/config/BmpDeployerImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-11-30T11:01:54Z",
+      "side": 1,
+      "message": "registration \u003d null;",
+      "revId": "fec33f202838499e11b0523efa437cfa2decee71",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
