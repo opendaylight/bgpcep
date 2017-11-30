@@ -5,7 +5,9 @@
   <reference id="dataBroker" interface="org.opendaylight.controller.md.sal.binding.api.DataBroker" odl:type="pingpong"/>
   <reference id="clusterSingletonServiceProvider" interface="org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider"/>
 
-  <bean id="bgpTopologyDeployer" class="org.opendaylight.bgpcep.bgp.topology.provider.config.BgpTopologyDeployerImpl" destroy-method="close">
+  <bean id="bgpTopologyDeployer" class="org.opendaylight.bgpcep.bgp.topology.provider.config.BgpTopologyDeployerImpl"
+        init-method="init"
+        destroy-method="close">
     <argument ref="blueprintBundleContext"/>
     <argument ref="dataBroker"/>
     <argument ref="clusterSingletonServiceProvider"/>

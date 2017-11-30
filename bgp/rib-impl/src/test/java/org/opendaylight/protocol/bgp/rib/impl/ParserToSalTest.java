@@ -142,7 +142,7 @@ public class ParserToSalTest extends AbstractConcurrentDataBrokerTest {
             AS_NUMBER, new BgpId("127.0.0.1"), null, this.ext2, this.dispatcher,
             this.codecFactory, getDomBroker(), tables, Collections.singletonMap(TABLE_KEY,
             BasePathSelectionModeFactory.createBestPathSelectionStrategy()),
-            GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), null);
+            GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
         rib.instantiateServiceInstance();
         assertTablesExists(tables);
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
@@ -160,7 +160,7 @@ public class ParserToSalTest extends AbstractConcurrentDataBrokerTest {
         final RIBImpl rib = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(TEST_RIB_ID), AS_NUMBER, BGP_ID,
             null, this.ext1, this.dispatcher, this.codecFactory, getDomBroker(), tables,
             Collections.singletonMap(TABLE_KEY, BasePathSelectionModeFactory.createBestPathSelectionStrategy()),
-            GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), null);
+            GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
         rib.instantiateServiceInstance();
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
         assertTablesExists(tables);

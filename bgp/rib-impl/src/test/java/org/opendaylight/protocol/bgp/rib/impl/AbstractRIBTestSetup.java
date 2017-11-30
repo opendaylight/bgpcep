@@ -93,19 +93,16 @@ import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 
 public class AbstractRIBTestSetup {
 
-    private RIBImpl rib;
-    private static final ClusterIdentifier CLUSTER_ID = new ClusterIdentifier("128.0.0.1");
-    private static final BgpId RIB_ID = new BgpId("127.0.0.1");
     protected static final Class<? extends AddressFamily> AFI = Ipv4AddressFamily.class;
     protected static final Class<? extends SubsequentAddressFamily> SAFI = UnicastSubsequentAddressFamily.class;
-    protected static final QName AFI_QNAME = BindingReflections.findQName(AFI).intern();
-    protected static final QName SAFI_QNAME = BindingReflections.findQName(SAFI).intern();
     protected static final TablesKey KEY = new TablesKey(AFI, SAFI);
+    protected static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, "prefix").intern();
+    private static final ClusterIdentifier CLUSTER_ID = new ClusterIdentifier("128.0.0.1");
+    private static final BgpId RIB_ID = new BgpId("127.0.0.1");
+    private RIBImpl rib;
     private BindingCodecTreeFactory codecFactory;
     private RIBActivator a1;
     private RIBSupport ribSupport;
-    protected static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, "prefix").intern();
-
     @Mock
     private BGPDispatcher dispatcher;
 
@@ -125,7 +122,7 @@ public class AbstractRIBTestSetup {
     private DOMDataWriteTransaction domTransWrite;
 
     @Mock
-    private CheckedFuture<?,?> future;
+    private CheckedFuture<?, ?> future;
 
     @Mock
     private Optional<Rib> o;
@@ -135,31 +132,6 @@ public class AbstractRIBTestSetup {
 
     @Mock
     private ClusterSingletonServiceProvider clusterSingletonServiceProvider;
-
-    @Before
-    public void setUp() throws Exception {
-        mockRib();
-    }
-
-    public void mockRib() throws Exception {
-        final RIBExtensionProviderContext context = new SimpleRIBExtensionProviderContext();
-        final ModuleInfoBackedContext strategy = createClassLoadingStrategy();
-        final SchemaContext schemaContext = strategy.tryToCreateSchemaContext().get();
-        this.codecFactory = createCodecFactory(strategy,schemaContext);
-        final List<BgpTableType> localTables = new ArrayList<>();
-        localTables.add(new BgpTableTypeImpl(AFI, SAFI));
-
-        this.a1 = new RIBActivator();
-        this.a1.startRIBExtensionProvider(context);
-        mockedMethods();
-        doReturn(Mockito.mock(ClusterSingletonServiceRegistration.class)).when(this.clusterSingletonServiceProvider)
-            .registerClusterSingletonService(any(ClusterSingletonService.class));
-        this.rib = new RIBImpl(this.clusterSingletonServiceProvider, new RibId("test"), new AsNumber(5L), RIB_ID, CLUSTER_ID, context,
-            this.dispatcher, this.codecFactory, this.dom, localTables, Collections.singletonMap(new TablesKey(AFI, SAFI),
-            BasePathSelectionModeFactory.createBestPathSelectionStrategy()), GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), null);
-        this.rib.onGlobalContextUpdated(schemaContext);
-        this.ribSupport = getRib().getRibSupportContext().getRIBSupportContext(KEY).getRibSupport();
-    }
 
     private static ModuleInfoBackedContext createClassLoadingStrategy() {
         final ModuleInfoBackedContext ctx = ModuleInfoBackedContext.create();
@@ -178,6 +150,34 @@ public class AbstractRIBTestSetup {
         final BindingNormalizedNodeCodecRegistry codec = new BindingNormalizedNodeCodecRegistry(generator);
         codec.onBindingRuntimeContextUpdated(BindingRuntimeContext.create(str, ctx));
         return codec;
+    }
+
+    @Before
+    public void setUp() throws Exception {
+        mockRib();
+    }
+
+    public void mockRib() throws Exception {
+        final RIBExtensionProviderContext context = new SimpleRIBExtensionProviderContext();
+        final ModuleInfoBackedContext strategy = createClassLoadingStrategy();
+        final SchemaContext schemaContext = strategy.tryToCreateSchemaContext().get();
+        this.codecFactory = createCodecFactory(strategy, schemaContext);
+        final List<BgpTableType> localTables = new ArrayList<>();
+        localTables.add(new BgpTableTypeImpl(AFI, SAFI));
+
+        this.a1 = new RIBActivator();
+        this.a1.startRIBExtensionProvider(context);
+        mockedMethods();
+        doReturn(Mockito.mock(ClusterSingletonServiceRegistration.class)).when(this.clusterSingletonServiceProvider)
+                .registerClusterSingletonService(any(ClusterSingletonService.class));
+        this.rib = new RIBImpl(this.clusterSingletonServiceProvider, new RibId("test"),
+                new AsNumber(5L), RIB_ID, CLUSTER_ID, context,
+                this.dispatcher, this.codecFactory, this.dom, localTables,
+                Collections.singletonMap(new TablesKey(AFI, SAFI),
+                        BasePathSelectionModeFactory.createBestPathSelectionStrategy()),
+                GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
+        this.rib.onGlobalContextUpdated(schemaContext);
+        this.ribSupport = getRib().getRibSupportContext().getRIBSupportContext(KEY).getRibSupport();
     }
 
     @SuppressWarnings("unchecked")
@@ -243,10 +243,6 @@ public class AbstractRIBTestSetup {
 
     public RIBImpl getRib() {
         return this.rib;
-    }
-
-    public DOMDataBroker getDOMBroker() {
-        return this.dom;
     }
 
     public DOMDataWriteTransaction getTransaction() {

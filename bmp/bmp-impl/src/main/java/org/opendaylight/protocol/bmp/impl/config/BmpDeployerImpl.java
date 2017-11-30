@@ -138,6 +138,7 @@ public class BmpDeployerImpl implements ClusteredDataTreeChangeListener<OdlBmpMo
     public synchronized void close() {
         if (this.registration != null) {
             this.registration.close();
+            this.registration = null;
         }
     }
 }

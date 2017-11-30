@@ -34,7 +34,6 @@ import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ImportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
@@ -93,11 +92,10 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
         this.domSchemaService = domSchemaService;
     }
 
-    void start(final Global global, final String instanceName, final BGPTableTypeRegistryConsumer tableTypeRegistry,
-            final BgpDeployer.WriteConfiguration configurationWriter) {
+    void start(final Global global, final String instanceName, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         Preconditions.checkState(this.ribImpl == null,
                 "Previous instance %s was not closed.", this);
-        this.ribImpl = createRib(global, instanceName, tableTypeRegistry, configurationWriter);
+        this.ribImpl = createRib(global, instanceName, tableTypeRegistry);
         this.schemaContextRegistration = this.domSchemaService.registerSchemaContextListener(this.ribImpl);
     }
 
@@ -231,8 +229,7 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
     private RIBImpl createRib(
             final Global global,
             final String bgpInstanceName,
-            final BGPTableTypeRegistryConsumer tableTypeRegistry,
-            final BgpDeployer.WriteConfiguration configurationWriter) {
+            final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         this.afiSafi = getAfiSafiWithDefault(global.getAfiSafis(), true);
         final Config globalConfig = global.getConfig();
         this.asNumber = globalConfig.getAs();
@@ -254,8 +251,7 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
                 this.domBroker,
                 toTableTypes(this.afiSafi, tableTypeRegistry),
                 pathSelectionModes,
-                this.extensions.getClassLoadingStrategy(),
-                configurationWriter);
+                this.extensions.getClassLoadingStrategy());
     }
 
     @Override

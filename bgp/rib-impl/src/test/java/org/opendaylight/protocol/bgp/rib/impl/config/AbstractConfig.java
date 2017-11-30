@@ -18,7 +18,6 @@ import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.LongAdder;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -37,7 +36,6 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.AbstractImportPolicy;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ImportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
@@ -63,8 +61,9 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.osgi.framework.ServiceRegistration;
 
 class AbstractConfig {
-    static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
     protected static final AsNumber AS = new AsNumber(72L);
+    protected static final RibId RIB_ID = new RibId("test");
+    static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
     protected ClusterSingletonService singletonService;
     @Mock
     protected RIB rib;
@@ -72,8 +71,6 @@ class AbstractConfig {
     protected ClusterSingletonServiceRegistration singletonServiceRegistration;
     @Mock
     protected BGPTableTypeRegistryConsumer tableTypeRegistry;
-    @Mock
-    protected BgpDeployer.WriteConfiguration configurationWriter;
     @Mock
     protected DOMTransactionChain domTx;
     @Mock
@@ -92,7 +89,6 @@ class AbstractConfig {
     private ImportPolicyPeerTracker importPolicyPeerTracker;
     @Mock
     private DOMDataTreeChangeService dataTreeChangeService;
-    protected static final RibId RIB_ID = new RibId("test");
 
     @Before
     public void setUp() throws Exception {
@@ -146,7 +142,6 @@ class AbstractConfig {
         Mockito.doReturn(java.util.Optional.of(TABLES_KEY)).when(this.tableTypeRegistry).getTableKey(any());
         Mockito.doReturn(Collections.singleton(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class)))
                 .when(this.rib).getLocalTables();
-        Mockito.doNothing().when(this.configurationWriter).apply();
 
         Mockito.doNothing().when(this.bgpPeerRegistry).addPeer(any(IpAddress.class), any(BGPSessionListener.class), any(BGPSessionPreferences.class));
         Mockito.doNothing().when(this.bgpPeerRegistry).removePeer(any(IpAddress.class));

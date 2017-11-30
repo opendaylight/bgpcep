@@ -11,7 +11,6 @@ package org.opendaylight.bgpcep.bgp.topology.provider.config;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import java.util.function.Function;
 import org.opendaylight.bgpcep.bgp.topology.provider.AbstractTopologyBuilder;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyDeployer;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.TopologyReferenceSingletonService;
@@ -27,11 +26,9 @@ final class TopologyReferenceSingletonServiceImpl implements TopologyReferenceSi
     private final AbstractTopologyBuilder<?> topologyBuilder;
     private final AbstractRegistration serviceRegistration;
     private final Topology configuration;
-    private final Function<Topology, Void> writeFunction;
 
     TopologyReferenceSingletonServiceImpl(final AbstractTopologyBuilder<?> topologyBuilder, final BgpTopologyDeployer deployer,
-            final Topology configuration, final Function<Topology, Void> writeFunction) {
-        this.writeFunction = writeFunction;
+            final Topology configuration) {
         this.configuration = requireNonNull(configuration);
         this.topologyBuilder = requireNonNull(topologyBuilder);
         this.serviceRegistration = deployer.registerService(this);
@@ -51,9 +48,6 @@ final class TopologyReferenceSingletonServiceImpl implements TopologyReferenceSi
     public void instantiateServiceInstance() {
         LOG.info("Topology Singleton Service {} instantiated", getIdentifier());
         this.topologyBuilder.start();
-        if (this.writeFunction != null) {
-            this.writeFunction.apply(this.configuration);
-        }
     }
 
     @Override

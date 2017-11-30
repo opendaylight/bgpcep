@@ -10,7 +10,6 @@ package org.opendaylight.bgpcep.bgp.topology.provider.config;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 import org.opendaylight.bgpcep.bgp.topology.provider.AbstractTopologyBuilder;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyDeployer;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyProvider;
@@ -47,11 +46,11 @@ abstract class AbstractBgpTopologyProvider implements BgpTopologyProvider, AutoC
     }
 
     @Override
-    public final void onTopologyBuilderCreated(final Topology topology, final Function<Topology, Void> writeFunction) {
+    public final void onTopologyBuilderCreated(final Topology topology) {
         LOG.debug("Cretaing topology builder instance {}", topology);
         final TopologyReferenceSingletonService currentInstance = this.topologyBuilders.get(topology.getTopologyId());
         if (currentInstance == null || !currentInstance.getConfiguration().equals(topology)) {
-            final TopologyReferenceSingletonService topologyBuilder = createInstance(topology, writeFunction);
+            final TopologyReferenceSingletonService topologyBuilder = createInstance(topology);
             this.topologyBuilders.put(topology.getTopologyId(), topologyBuilder);
             LOG.debug("Topology builder instance created {}", topologyBuilder);
         }
@@ -83,14 +82,16 @@ abstract class AbstractBgpTopologyProvider implements BgpTopologyProvider, AutoC
         return aug != null && topologyTypeFilter(aug);
     }
 
-    private TopologyReferenceSingletonService createInstance(final Topology topology, final Function<Topology, Void> writeFunction) {
-        final RibReference ribReference = new DefaultRibReference(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(topology.getAugmentation(Topology1.class).getRibId())));
-        final AbstractTopologyBuilder<?> topologyBuilder = createTopologyBuilder(this.dataBroker, ribReference, topology.getTopologyId());
-        return new TopologyReferenceSingletonServiceImpl(topologyBuilder, this.deployer, topology, writeFunction);
+    private TopologyReferenceSingletonService createInstance(final Topology topology) {
+        final RibReference ribReference = new DefaultRibReference(InstanceIdentifier.create(BgpRib.class)
+                .child(Rib.class, new RibKey(topology.getAugmentation(Topology1.class).getRibId())));
+        final AbstractTopologyBuilder<?> topologyBuilder = createTopologyBuilder(this.dataBroker,
+                ribReference, topology.getTopologyId());
+        return new TopologyReferenceSingletonServiceImpl(topologyBuilder, this.deployer, topology);
     }
 
-    abstract AbstractTopologyBuilder<?> createTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
-            final TopologyId topologyId);
+    abstract AbstractTopologyBuilder<?> createTopologyBuilder(final DataBroker dataProvider,
+            final RibReference locRibReference, final TopologyId topologyId);
 
     abstract boolean topologyTypeFilter(TopologyTypes1 topology);
 

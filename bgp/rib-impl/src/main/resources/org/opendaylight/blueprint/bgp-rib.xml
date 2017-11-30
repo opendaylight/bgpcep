@@ -58,8 +58,6 @@
     <argument ref="bgpTableTypeRegistry"/>
   </bean>
 
-  <service ref="bgpDeployer" interface="org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer"/>
-
   <bean id="ribImpl" class="org.opendaylight.protocol.bgp.rib.impl.config.RibImpl" scope="prototype">
     <argument ref="clusterSingletonServiceProvider"/>
     <argument ref="globalBgpExtensions"/>

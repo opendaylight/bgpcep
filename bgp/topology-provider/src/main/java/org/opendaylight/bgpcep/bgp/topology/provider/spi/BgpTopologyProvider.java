@@ -8,7 +8,6 @@
 
 package org.opendaylight.bgpcep.bgp.topology.provider.spi;
 
-import java.util.function.Function;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 
 
@@ -18,6 +17,6 @@ public interface BgpTopologyProvider {
 
     void onTopologyBuilderRemoved(Topology topology);
 
-    void onTopologyBuilderCreated(Topology topology, Function<Topology, Void> writeFunction);
+    void onTopologyBuilderCreated(Topology topology);
 
 }

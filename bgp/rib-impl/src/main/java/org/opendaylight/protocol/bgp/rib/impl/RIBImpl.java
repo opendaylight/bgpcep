@@ -44,7 +44,6 @@ import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BgpDeployer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ImportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
@@ -103,15 +102,13 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
     private final CodecsRegistryImpl codecsRegistry;
     private final ServiceGroupIdentifier serviceGroupIdentifier;
     private final ClusterSingletonServiceProvider provider;
-    private final BgpDeployer.WriteConfiguration configurationWriter;
-    private ClusterSingletonServiceRegistration registration;
     private final DOMDataBrokerExtension service;
     private final Map<TransactionChain<?, ?>, LocRibWriter> txChainToLocRibWriter = new HashMap<>();
     private final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies;
     private final ImportPolicyPeerTracker importPolicyPeerTracker;
     private final RibId ribId;
     private final Map<TablesKey, ExportPolicyPeerTracker> exportPolicyPeerTrackerMap;
-
+    private ClusterSingletonServiceRegistration registration;
     private DOMTransactionChain domChain;
     @GuardedBy("this")
     private boolean isServiceInstantiated;
@@ -119,8 +116,8 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
     public RIBImpl(final ClusterSingletonServiceProvider provider, final RibId ribId, final AsNumber localAs, final BgpId localBgpId,
             final ClusterIdentifier clusterId, final RIBExtensionConsumerContext extensions, final BGPDispatcher dispatcher,
             final BindingCodecTreeFactory codecFactory, final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
-            @Nonnull final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies, final GeneratedClassLoadingStrategy classStrategy,
-            final BgpDeployer.WriteConfiguration configurationWriter) {
+            @Nonnull final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies,
+            final GeneratedClassLoadingStrategy classStrategy) {
         super(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(requireNonNull(ribId))),
                 localBgpId, localAs);
         this.localAs = requireNonNull(localAs);
@@ -143,7 +140,6 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
         this.serviceGroupIdentifier = ServiceGroupIdentifier.create(this.ribId.getValue() + "-service-group");
         requireNonNull(provider, "ClusterSingletonServiceProvider is null");
         this.provider = provider;
-        this.configurationWriter = configurationWriter;
 
         final ImmutableMap.Builder<TablesKey, ExportPolicyPeerTracker> exportPolicies = new ImmutableMap.Builder<>();
         for (final BgpTableType t : this.localTables) {
@@ -314,9 +310,6 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
         this.isServiceInstantiated = true;
         setActive(true);
         this.domChain = this.domDataBroker.createTransactionChain(this);
-        if (this.configurationWriter != null) {
-            this.configurationWriter.apply();
-        }
         LOG.info("RIB Singleton Service {} instantiated, RIB {}", getIdentifier().getValue(), this.ribId.getValue());
         LOG.debug("Instantiating RIB table {} at {}", this.ribId, this.yangRibId);
 

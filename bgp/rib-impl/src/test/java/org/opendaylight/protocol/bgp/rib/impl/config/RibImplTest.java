@@ -58,12 +58,14 @@ import org.osgi.framework.ServiceRegistration;
 public class RibImplTest extends AbstractConfig {
     private static final List<AfiSafi> AFISAFIS = new ArrayList<>();
     private static final Long ALL_PATHS = 0L;
-    private static final BgpTableType TABLE_TYPE = new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+    private static final BgpTableType TABLE_TYPE =
+            new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
     private static final Ipv4Address BGP_ID = new BgpId(new Ipv4Address("127.0.0.1"));
 
     static {
         AFISAFIS.add(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
-            .addAugmentation(AfiSafi2.class, new AfiSafi2Builder().setReceive(true).setSendMax(Shorts.checkedCast(ALL_PATHS)).build()).build());
+                .addAugmentation(AfiSafi2.class, new AfiSafi2Builder().setReceive(true)
+                        .setSendMax(Shorts.checkedCast(ALL_PATHS)).build()).build());
     }
 
     @Mock
@@ -83,6 +85,13 @@ public class RibImplTest extends AbstractConfig {
     @Mock
     private ServiceRegistration<?> serviceRegistration;
 
+    private static Global createGlobal() {
+        return new GlobalBuilder()
+                .setAfiSafis(new AfiSafisBuilder().setAfiSafi(AFISAFIS).build())
+                .setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base
+                        .ConfigBuilder().setAs(AS).setRouterId(BGP_ID).build()).build();
+    }
+
     @Override
     @Before
     public void setUp() throws Exception {
@@ -90,7 +99,8 @@ public class RibImplTest extends AbstractConfig {
         Mockito.doAnswer(invocationOnMock -> {
             RibImplTest.this.singletonService = (ClusterSingletonService) invocationOnMock.getArguments()[0];
             return RibImplTest.this.singletonServiceRegistration;
-        }).when(this.clusterSingletonServiceProvider).registerClusterSingletonService(any(ClusterSingletonService.class));
+        }).when(this.clusterSingletonServiceProvider)
+                .registerClusterSingletonService(any(ClusterSingletonService.class));
 
         Mockito.doReturn(mock(GeneratedClassLoadingStrategy.class)).when(this.extension).getClassLoadingStrategy();
         Mockito.doReturn(this.ribSupport).when(this.extension).getRIBSupport(any(TablesKey.class));
@@ -104,28 +114,29 @@ public class RibImplTest extends AbstractConfig {
         Mockito.doReturn(this.domTx).when(this.domDataBroker).createTransactionChain(any());
         final DOMDataTreeChangeService dOMDataTreeChangeService = mock(DOMDataTreeChangeService.class);
         Mockito.doReturn(Collections.singletonMap(DOMDataTreeChangeService.class, dOMDataTreeChangeService))
-            .when(this.domDataBroker).getSupportedExtensions();
+                .when(this.domDataBroker).getSupportedExtensions();
         Mockito.doReturn(this.dataTreeRegistration).when(this.domSchemaService).registerSchemaContextListener(any());
         Mockito.doNothing().when(this.dataTreeRegistration).close();
-        Mockito.doReturn(mock(ListenerRegistration.class)).when(dOMDataTreeChangeService).registerDataTreeChangeListener(any(), any());
+        Mockito.doReturn(mock(ListenerRegistration.class)).when(dOMDataTreeChangeService)
+                .registerDataTreeChangeListener(any(), any());
         Mockito.doNothing().when(this.serviceRegistration).unregister();
     }
 
     @Test
     public void testRibImpl() throws Exception {
         final RibImpl ribImpl = new RibImpl(this.clusterSingletonServiceProvider, this.extension, this.dispatcher,
-            this.bindingCodecTreeFactory, this.domDataBroker, this.domSchemaService);
+                this.bindingCodecTreeFactory, this.domDataBroker, this.domSchemaService);
         ribImpl.setServiceRegistration(this.serviceRegistration);
-        ribImpl.start(createGlobal(), "rib-test", this.tableTypeRegistry, this.configurationWriter);
+        ribImpl.start(createGlobal(), "rib-test", this.tableTypeRegistry);
         verify(this.extension).getClassLoadingStrategy();
         verify(this.domDataBroker).getSupportedExtensions();
         verify(this.clusterSingletonServiceProvider).registerClusterSingletonService(any());
         verify(this.domSchemaService).registerSchemaContextListener(any(RIBImpl.class));
         this.singletonService.instantiateServiceInstance();
-        Mockito.verify(this.configurationWriter).apply();
         assertEquals("RIBImpl{}", ribImpl.toString());
         assertEquals(ServiceGroupIdentifier.create("rib-test-service-group"), ribImpl.getRibIServiceGroupIdentifier());
-        assertEquals(Collections.singleton(new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class)), ribImpl.getLocalTablesKeys());
+        assertEquals(Collections.singleton(new TablesKey(Ipv4AddressFamily.class,
+                UnicastSubsequentAddressFamily.class)), ribImpl.getLocalTablesKeys());
         assertNotNull(ribImpl.getImportPolicyPeerTracker());
         assertNotNull(ribImpl.getService());
         assertNotNull(ribImpl.getInstanceIdentifier());
@@ -141,12 +152,5 @@ public class RibImplTest extends AbstractConfig {
         verify(this.dataTreeRegistration).close();
         verify(this.dataTreeRegistration).close();
         verify(this.serviceRegistration).unregister();
-    }
-
-    private static Global createGlobal() {
-        return new GlobalBuilder()
-            .setAfiSafis(new AfiSafisBuilder().setAfiSafi(AFISAFIS).build())
-            .setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base
-                .ConfigBuilder().setAs(AS).setRouterId(BGP_ID).build()).build();
     }
 }
