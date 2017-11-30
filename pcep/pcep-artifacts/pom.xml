@@ -124,6 +124,11 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-cli</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>pcep-config-example</artifactId>
                 <version>${project.version}</version>
                 <type>xml</type>
@@ -217,6 +222,13 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>odl-bgpcep-pcep-topology-stats</artifactId>
+                <classifier>features</classifier>
+                <type>xml</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-pcep-cli</artifactId>
                 <classifier>features</classifier>
                 <type>xml</type>
                 <version>${project.version}</version>
