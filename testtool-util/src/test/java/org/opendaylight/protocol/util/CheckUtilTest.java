@@ -7,69 +7,57 @@
  */
 package org.opendaylight.protocol.util;
 
+import static junit.framework.TestCase.assertNull;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 import static org.opendaylight.protocol.util.CheckUtil.checkEquals;
+import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentConfiguration;
 import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentOperational;
+import static org.opendaylight.protocol.util.CheckUtil.checkPresentConfiguration;
+import static org.opendaylight.protocol.util.CheckUtil.checkPresentOperational;
 import static org.opendaylight.protocol.util.CheckUtil.checkReceivedMessages;
+import static org.opendaylight.protocol.util.CheckUtil.readDataConfiguration;
 import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
-import com.google.common.base.Optional;
 import com.google.common.base.VerifyException;
-import com.google.common.util.concurrent.CheckedFuture;
 import io.netty.channel.ChannelFuture;
 import io.netty.util.concurrent.GenericFutureListener;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.protocol.util.CheckUtil.ListenerCheck;
-import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyBuilder;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
-public class CheckUtilTest {
-    private final InstanceIdentifier<MockInterface> instanceIdentifier = InstanceIdentifier.create(MockInterface.class);
-    @Mock
-    private ChannelFuture future;
-    @Mock
-    private DataBroker dataBroker;
-    @Mock
-    private ReadOnlyTransaction readOnlyTransaction;
-    @Mock
-    private CheckedFuture<?, ?> checkedFuture;
-    @Mock
-    private Optional<?> opt;
-    @Mock
-    private MockInterface mockInterface;
+public class CheckUtilTest extends AbstractConcurrentDataBrokerTest {
+    private static final TopologyId TOPOLOGY_ID = new TopologyId("topotest");
+    private final KeyedInstanceIdentifier<Topology, TopologyKey> topologyIIdKeyed =
+            InstanceIdentifier.create(NetworkTopology.class).child(Topology.class,
+                    new TopologyKey(TOPOLOGY_ID));
+    private static int TIMEOUT = 1;
     @Mock
     private ListenerCheck listenerCheck;
+    @Mock
+    private ChannelFuture future;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        doReturn(this.readOnlyTransaction).when(this.dataBroker).newReadOnlyTransaction();
-        doReturn(this.checkedFuture).when(this.readOnlyTransaction).read(any(), any());
-        doReturn(this.opt).when(this.checkedFuture).checkedGet();
-        doReturn(this.mockInterface).when(this.opt).get();
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testPrivateConstructor() throws Throwable {
-        final Constructor<CheckUtil> c = CheckUtil.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
     }
 
     @Test(expected = VerifyException.class)
@@ -90,46 +78,101 @@ public class CheckUtilTest {
     }
 
     @Test(expected = NullPointerException.class)
-    public void testReadDataNull() throws Exception {
-        doReturn(Boolean.FALSE).when(this.opt).isPresent();
-        final InstanceIdentifier<?> instanceIdentifier = null;
-        readDataOperational(this.dataBroker, instanceIdentifier, test -> false);
+    public void testReadDataOperationalNull() throws Exception {
+        readDataOperational(getDataBroker(), topologyIIdKeyed, test -> false, TIMEOUT);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testReadDataConfigurationNull() throws Exception {
+        readDataConfiguration(getDataBroker(), topologyIIdKeyed, test -> false, TIMEOUT);
     }
 
     @Test(expected = AssertionError.class)
-    public void testReadDataNotEquall() throws Exception {
-        doReturn(Boolean.TRUE).when(this.opt).isPresent();
-        doReturn(Boolean.FALSE).when(this.mockInterface).getResult();
-        readDataOperational(this.dataBroker, this.instanceIdentifier, test -> {
-            assertTrue(test.getResult());
-            return test;
-        });
+    public void testReadDataOperationalFail() throws Exception {
+        storeTopo(LogicalDatastoreType.OPERATIONAL);
+        readDataOperational(getDataBroker(), this.topologyIIdKeyed, result -> {
+            assertNotNull(result.getNode());
+            return result;
+        }, TIMEOUT);
     }
 
     @Test(expected = AssertionError.class)
-    public void testCheckNotPresent() throws Exception {
-        doReturn(Boolean.TRUE).when(this.opt).isPresent();
-        checkNotPresentOperational(this.dataBroker, this.instanceIdentifier);
+    public void testReadDataConfigurationFail() throws Exception {
+        storeTopo(LogicalDatastoreType.CONFIGURATION);
+        readDataConfiguration(getDataBroker(), this.topologyIIdKeyed, result -> {
+            assertNotNull(result.getNode());
+            return result;
+        }, TIMEOUT);
+    }
+
+    @Test
+    public void testReadDataOperational() throws Exception {
+        storeTopo(LogicalDatastoreType.OPERATIONAL);
+        readDataOperational(getDataBroker(), this.topologyIIdKeyed, result -> {
+            assertNull(result.getNode());
+            return result;
+        }, TIMEOUT);
+    }
+
+    @Test
+    public void testReadDataConfiguration() throws Exception {
+        storeTopo(LogicalDatastoreType.CONFIGURATION);
+        readDataConfiguration(getDataBroker(), this.topologyIIdKeyed, result -> {
+            assertNull(result.getNode());
+            return result;
+        }, TIMEOUT);
+    }
+
+    private void storeTopo(final LogicalDatastoreType dsType) throws ExecutionException, InterruptedException {
+        final WriteTransaction wt = getDataBroker().newWriteOnlyTransaction();
+        wt.put(dsType, this.topologyIIdKeyed,
+                new TopologyBuilder()
+                        .setTopologyId(TOPOLOGY_ID)
+                        .build(), true);
+        wt.submit().get();
+    }
+
+    @Test
+    public void testCheckPresentConfiguration() throws Exception {
+        storeTopo(LogicalDatastoreType.CONFIGURATION);
+        checkPresentConfiguration(getDataBroker(), this.topologyIIdKeyed);
+    }
+    @Test
+    public void testCheckPresentOperational() throws Exception {
+        storeTopo(LogicalDatastoreType.OPERATIONAL);
+        checkPresentOperational(getDataBroker(), this.topologyIIdKeyed);
+    }
+
+    @Test(expected = AssertionError.class)
+    public void testCheckNotPresentOperationalFail() throws Exception {
+        storeTopo(LogicalDatastoreType.OPERATIONAL);
+        checkNotPresentOperational(getDataBroker(), this.topologyIIdKeyed);
+    }
+
+    @Test
+    public void testCheckNotPresentOperational() throws Exception {
+        checkNotPresentOperational(getDataBroker(), this.topologyIIdKeyed);
+    }
+
+    @Test
+    public void testCheckNotPresentConfiguration() throws Exception {
+        checkNotPresentConfiguration(getDataBroker(), this.topologyIIdKeyed);
     }
 
     @Test(expected = AssertionError.class)
     public void testCheckEquals() throws Exception {
-        checkEquals(()-> assertTrue(false));
+        checkEquals(() -> assertTrue(false), TIMEOUT);
     }
 
     @Test(expected = AssertionError.class)
     public void testCheckReceivedMessagesNotEqual() throws Exception {
         doReturn(0).when(this.listenerCheck).getListMessageSize();
-        checkReceivedMessages(this.listenerCheck, 1);
+        checkReceivedMessages(this.listenerCheck, 1, TIMEOUT);
     }
 
     @Test
     public void testCheckReceivedMessagesEqual() throws Exception {
         doReturn(1).when(this.listenerCheck).getListMessageSize();
-        checkReceivedMessages(this.listenerCheck, 1);
-    }
-
-    private interface MockInterface extends DataObject {
-        boolean getResult();
+        checkReceivedMessages(this.listenerCheck, 1, TIMEOUT);
     }
 }
