@@ -1,0 +1,98 @@
+// vi: set smarttab et sw=4 tabstop=4:
+module odl-pcep-tunnel-provider-cfg {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:controller:pcep:tunnel:provider";
+    prefix "tun";
+
+    import config { prefix config; revision-date 2013-04-05; }
+    import odl-programming-spi-cfg { prefix pgmspi; revision-date 2013-11-15; }
+    import odl-pcep-topology-provider-cfg { prefix pceptopo; revision-date 2013-11-15; }
+    import odl-topology-api-cfg { prefix topo; revision-date 2013-11-15; }
+    import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
+    import network-topology { prefix nt; revision-date 2013-10-21; }
+    import opendaylight-md-sal-binding { prefix mdsal; revision-date 2013-10-28; }
+
+    organization "Cisco Systems, Inc.";
+
+    contact "Robert Varga <rovarga@cisco.com>";
+
+    description
+        "This module contains the base YANG definitions for
+        PCEP tunnel topology provider service.
+
+        Copyright (c)2013 Cisco Systems, Inc. All rights reserved.;
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2013-11-15" {
+        description
+            "Initial revision";
+    }
+
+    identity pcep-tunnel-topology-reference {
+        description
+            "Service representing a PCEP-enabled tunnel topology.";
+        status deprecated;
+        base "config:service-type";
+        config:java-class "org.opendaylight.bgpcep.topology.TopologyReference";
+    }
+
+    identity pcep-tunnel-topology-provider {
+        status deprecated;
+        base config:module-type;
+        config:provided-service pcep-tunnel-topology-reference;
+        config:java-name-prefix PCEPTunnelTopologyProvider;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case pcep-tunnel-topology-provider {
+            status deprecated;
+            when "/config:modules/config:module/config:type = 'pcep-tunnel-topology-provider'";
+
+            container data-provider {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity mdsal:binding-async-data-broker;
+                    }
+                }
+            }
+
+            container rpc-registry {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity mdsal:binding-rpc-registry;
+                    }
+                }
+            }
+
+            container scheduler {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity pgmspi:instruction-scheduler;
+                    }
+                }
+            }
+
+            container source-topology {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity pceptopo:pcep-topology-reference;
+                    }
+                }
+            }
+
+            leaf topology-id {
+                type nt:topology-id;
+                mandatory true;
+            }
+        }
+    }
+}
+

@@ -41,13 +41,11 @@
         <module>topology-api</module>
         <module>topology-spi</module>
         <module>topology-provider</module>
-        <module>tunnel-api</module>
-        <module>tunnel-provider</module>
-
         <module>controller-config</module>
         <module>segment-routing</module>
         <module>pcc-mock</module>
         <module>auto-bandwidth-extension</module>
+        <module>tunnel</module>
     </modules>
 
   <!--
