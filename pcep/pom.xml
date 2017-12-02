@@ -38,16 +38,16 @@
         <module>base-parser</module>
         <module>ietf-stateful07</module>
         <module>testtool</module>
+        <module>topology</module>
         <module>topology-api</module>
         <module>topology-spi</module>
         <module>topology-provider</module>
-        <module>tunnel-api</module>
-        <module>tunnel-provider</module>
-
         <module>controller-config</module>
         <module>segment-routing</module>
         <module>pcc-mock</module>
         <module>auto-bandwidth-extension</module>
+        <module>config-example</module>
+        <module>tunnel</module>
     </modules>
 
   <!--
