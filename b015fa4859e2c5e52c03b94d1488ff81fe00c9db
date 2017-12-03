@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a1969be_de261468",
+        "filename": "pcep/tunnel/tunnel-api/src/main/yang/topology-tunnel-pcep-config.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2017-12-03T21:09:02Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 9,
+        "startChar": 4,
+        "endLine": 9,
+        "endChar": 73
+      },
+      "revId": "b015fa4859e2c5e52c03b94d1488ff81fe00c9db",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
