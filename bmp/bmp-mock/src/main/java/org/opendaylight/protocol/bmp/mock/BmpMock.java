@@ -62,11 +62,12 @@ public final class BmpMock {
         final InetSocketAddress localAddress = arguments.getLocalAddress();
         InetAddress currentLocal = localAddress.getAddress();
         final int port = localAddress.getPort();
-        for (final InetSocketAddress remoteAddress : arguments.getRemoteAddress()) {
-            for (int i = 0; i < arguments.getRoutersCount(); i++) {
+        for (int i = 0; i < arguments.getRoutersCount(); i++) {
+            for (final InetSocketAddress remoteAddress : arguments.getRemoteAddress()) {
                 dispatcher.createClient(new InetSocketAddress(currentLocal, port), remoteAddress);
-                currentLocal = InetAddresses.increment(currentLocal);
             }
+            currentLocal = InetAddresses.increment(currentLocal);
+
         }
     }
 
