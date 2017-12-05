@@ -7,13 +7,6 @@
   ~ and is available at http://www.eclipse.org/legal/epl-v10.html
   -->
 <network-topology xmlns="urn:TBD:params:xml:ns:yang:network-topology">
-    <topology>
-        <topology-id>tunnel-topology</topology-id>
-        <pcep-topology-reference xmlns="urn:opendaylight:params:xml:ns:yang:topology:tunnel:pcep:config">pcep-topology</pcep-topology-reference>
-        <topology-types>
-            <topology-tunnel-pcep xmlns="urn:opendaylight:params:xml:ns:yang:topology:tunnel:pcep"></topology-tunnel-pcep>
-        </topology-types>
-    </topology>
     <topology xmlns="urn:TBD:params:xml:ns:yang:network-topology">
         <topology-id>pcep-topology</topology-id>
         <topology-types>
