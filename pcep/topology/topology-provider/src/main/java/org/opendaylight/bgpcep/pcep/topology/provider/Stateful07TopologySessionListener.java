@@ -14,6 +14,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.AsyncFunction;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -168,7 +169,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         if (f == null) {
             return OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future();
         }
-        return Futures.transformAsync(f, new ResyncLspFunction(input));
+        return Futures.transformAsync(f, new ResyncLspFunction(input), MoreExecutors.directExecutor());
     }
 
     private ListenableFuture<OperationResult> triggerResyncronization(final TriggerSyncArgs input) {
@@ -520,7 +521,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         if (f == null) {
             return OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future();
         }
-        return Futures.transformAsync(f, new AddFunction(input, lsp));
+        return Futures.transformAsync(f, new AddFunction(input, lsp), MoreExecutors.directExecutor());
     }
 
     @Override
@@ -544,7 +545,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             ib.setRequests(Collections.singletonList(rb));
             return sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(),
                     rb.getSrp().getOperationId(), null);
-        });
+        }, MoreExecutors.directExecutor());
     }
 
     private Requests buildRequest(final Optional<ReportedLsp> rep, final Lsp reportedLsp) {
@@ -657,7 +658,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         if (f == null) {
             return OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future();
         }
-        return Futures.transformAsync(f, new UpdateFunction(input));
+        return Futures.transformAsync(f, new UpdateFunction(input), MoreExecutors.directExecutor());
     }
 
     @Override
@@ -701,7 +702,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
                 }
             }
             return OperationResults.UNSENT;
-        });
+        }, MoreExecutors.directExecutor());
     }
 
     @Override
