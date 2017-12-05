@@ -60,6 +60,27 @@
                     </client>
                     -->
                 </module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:tunnel:provider">prefix:pcep-tunnel-topology-provider</type>
+                    <name>pcep-tunnel-topology</name>
+                    <data-provider>
+                        <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-async-data-broker</type>
+                        <name>pingpong-binding-data-broker</name>
+                    </data-provider>
+                    <rpc-registry>
+                        <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-rpc-registry</type>
+                        <name>binding-rpc-broker</name>
+                    </rpc-registry>
+                    <scheduler>
+                        <type xmlns:pgmspi="urn:opendaylight:params:xml:ns:yang:controller:programming:spi">pgmspi:instruction-scheduler</type>
+                        <name>global-instruction-scheduler</name>
+                    </scheduler>
+                    <source-topology>
+                        <type xmlns:pcep="urn:opendaylight:params:xml:ns:yang:controller:pcep:topology:provider">pcep:pcep-topology-reference</type>
+                        <name>pcep-topology</name>
+                    </source-topology>
+                    <topology-id>pcep-tunnel-topology</topology-id>
+                </module>
             </modules>
 
             <services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
@@ -75,6 +96,13 @@
                     <instance>
                         <name>stateful07</name>
                         <provider>/config/modules/module[name='pcep-topology-stateful07']/instance[name='global']</provider>
+                    </instance>
+                </service>
+                <service>
+                    <type xmlns:tun="urn:opendaylight:params:xml:ns:yang:controller:pcep:tunnel:provider">tun:pcep-tunnel-topology-reference</type>
+                    <instance>
+                        <name>pcep-tunnel-topology</name>
+                        <provider>/config/modules/module[name='pcep-tunnel-topology-provider']/instance[name='pcep-tunnel-topology']</provider>
                     </instance>
                 </service>
             </services>
