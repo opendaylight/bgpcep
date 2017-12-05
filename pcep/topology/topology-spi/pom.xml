@@ -15,7 +15,7 @@
         <groupId>org.opendaylight.bgpcep</groupId>
         <artifactId>binding-parent</artifactId>
         <version>0.8.2-SNAPSHOT</version>
-        <relativePath>../../binding-parent</relativePath>
+        <relativePath>../../../binding-parent</relativePath>
     </parent>
 
     <artifactId>pcep-topology-spi</artifactId>
