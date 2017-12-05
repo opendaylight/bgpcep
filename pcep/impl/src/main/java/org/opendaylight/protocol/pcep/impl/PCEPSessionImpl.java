@@ -59,45 +59,34 @@ import org.slf4j.LoggerFactory;
 @VisibleForTesting
 public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implements PCEPSession {
     private static final long MINUTE = TimeUnit.MINUTES.toNanos(1);
+    private static final Logger LOG = LoggerFactory.getLogger(PCEPSessionImpl.class);
     private static Ticker TICKER = Ticker.systemTicker();
+    private final Queue<Long> unknownMessagesTimes = new LinkedList<>();
+    private final PCEPSessionListener listener;
+    /**
+     * Open Object with session characteristics that were accepted by another PCE (sent from this session).
+     */
+    private final Open localOpen;
+    /**
+     * Open Object with session characteristics for this session (sent from another PCE).
+     */
+    private final Open remoteOpen;
+    private final Channel channel;
+    private final Keepalive kaMessage = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
+    private final PCEPSessionState sessionState;
     /**
      * System.nanoTime value about when was sent the last message Protected to be updated also in tests.
      */
     @VisibleForTesting
     protected volatile long lastMessageSentAt;
-
     /**
      * System.nanoTime value about when was received the last message
      */
     private long lastMessageReceivedAt;
-
-    private final Queue<Long> unknownMessagesTimes = new LinkedList<>();
-
-    private final PCEPSessionListener listener;
-
-    /**
-     * Open Object with session characteristics that were accepted by another PCE (sent from this session).
-     */
-    private final Open localOpen;
-
-    /**
-     * Open Object with session characteristics for this session (sent from another PCE).
-     */
-    private final Open remoteOpen;
-
-    private static final Logger LOG = LoggerFactory.getLogger(PCEPSessionImpl.class);
-
     private int maxUnknownMessages;
-
     // True if the listener should not be notified about events
     @GuardedBy("this")
     private AtomicBoolean closed = new AtomicBoolean(false);
-
-    private final Channel channel;
-
-    private final Keepalive kaMessage = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
-
-    private final PCEPSessionState sessionState;
 
     PCEPSessionImpl(final PCEPSessionListener listener, final int maxUnknownMessages, final Channel channel,
             final Open localOpen, final Open remoteOpen) {
@@ -123,6 +112,11 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
         LOG.info("Session {}[{}] <-> {}[{}] started", channel.localAddress(), localOpen.getSessionId(), channel.remoteAddress(),
                 remoteOpen.getSessionId());
         this.sessionState = new PCEPSessionState(remoteOpen, localOpen, channel);
+    }
+
+    @VisibleForTesting
+    static void setTicker(final Ticker ticker) {
+        TICKER = ticker;
     }
 
     public final Integer getKeepAliveTimerValue() {
@@ -173,16 +167,6 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
 
             this.channel.eventLoop().schedule(this::handleKeepaliveTimer, nextKeepalive - ct, TimeUnit.NANOSECONDS);
         }
-    }
-
-    /**
-     * Handle exception occurred in the PCEP session. The session in error state should be closed
-     * properly so that it can be restored later.
-     */
-    @VisibleForTesting
-    void handleException(final Throwable cause) {
-        LOG.error("Exception captured for session {}, closing session.", this, cause);
-        terminate(TerminationReason.UNKNOWN);
     }
 
     /**
@@ -369,12 +353,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
 
     @VisibleForTesting
     void sessionUp() {
-        try {
-            this.listener.onSessionUp(this);
-        } catch (final Exception e) {
-            handleException(e);
-            throw e;
-        }
+        this.listener.onSessionUp(this);
     }
 
     @VisibleForTesting
@@ -417,21 +396,11 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
 
     @Override
     public final void handlerAdded(final ChannelHandlerContext ctx) {
-        this.sessionUp();
-    }
-
-    @Override
-    public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
-        handleException(cause);
+        sessionUp();
     }
 
     @Override
     public Tlvs localSessionCharacteristics() {
         return this.localOpen.getTlvs();
-    }
-
-    @VisibleForTesting
-    static void setTicker(final Ticker ticker) {
-        TICKER = ticker;
     }
 }
