@@ -8,7 +8,9 @@
 package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 import javax.annotation.concurrent.GuardedBy;
+import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyDeployerImpl;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.bgpcep.topology.TopologyReference;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -25,8 +27,12 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypesBuilder;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class PCEPTunnelTopologyProvider extends DefaultTopologyReference implements AutoCloseable {
+
+    private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyDeployerImpl.class);
 
     private final NodeChangedListener ncl;
     private final InstanceIdentifier<Node> src;
@@ -59,7 +65,11 @@ public final class PCEPTunnelTopologyProvider extends DefaultTopologyReference i
                                         .setTopologyTunnelPcep(
                                                 new TopologyTunnelPcepBuilder().build()).build()).build())
                         .setNode(new ArrayList<>()).build(), true);
-        tx.submit();
+        try {
+            tx.submit().get();
+        } catch (final InterruptedException | ExecutionException e) {
+            LOG.error("Failed to create Tunnel Topology root", e);
+        }
         this.reg = this.ncl.getDataProvider()
                 .registerDataTreeChangeListener(new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL, this.src),
                         this.ncl);
