@@ -9,7 +9,6 @@ package org.opendaylight.protocol.pcep;
 
 import io.netty.channel.ChannelFuture;
 import java.net.InetSocketAddress;
-import java.util.Optional;
 import org.opendaylight.protocol.concepts.KeyMapping;
 
 /**
