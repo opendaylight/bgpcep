@@ -58,6 +58,9 @@ import org.slf4j.LoggerFactory;
  */
 @VisibleForTesting
 public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implements PCEPSession {
+
+    private static final Logger LOG = LoggerFactory.getLogger(PCEPSessionImpl.class);
+
     private static final long MINUTE = TimeUnit.MINUTES.toNanos(1);
     private static Ticker TICKER = Ticker.systemTicker();
     /**
@@ -84,8 +87,6 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
      * Open Object with session characteristics for this session (sent from another PCE).
      */
     private final Open remoteOpen;
-
-    private static final Logger LOG = LoggerFactory.getLogger(PCEPSessionImpl.class);
 
     private int maxUnknownMessages;
 
@@ -173,16 +174,6 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
 
             this.channel.eventLoop().schedule(this::handleKeepaliveTimer, nextKeepalive - ct, TimeUnit.NANOSECONDS);
         }
-    }
-
-    /**
-     * Handle exception occurred in the PCEP session. The session in error state should be closed
-     * properly so that it can be restored later.
-     */
-    @VisibleForTesting
-    void handleException(final Throwable cause) {
-        LOG.error("Exception captured for session {}, closing session.", this, cause);
-        terminate(TerminationReason.UNKNOWN);
     }
 
     /**
@@ -369,12 +360,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
 
     @VisibleForTesting
     void sessionUp() {
-        try {
-            this.listener.onSessionUp(this);
-        } catch (final Exception e) {
-            handleException(e);
-            throw e;
-        }
+        this.listener.onSessionUp(this);
     }
 
     @VisibleForTesting
@@ -417,12 +403,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
 
     @Override
     public final void handlerAdded(final ChannelHandlerContext ctx) {
-        this.sessionUp();
-    }
-
-    @Override
-    public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
-        handleException(cause);
+        sessionUp();
     }
 
     @Override
