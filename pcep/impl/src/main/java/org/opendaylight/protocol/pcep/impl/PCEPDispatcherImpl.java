@@ -15,6 +15,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.FixedRecvByteBufAllocator;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollChannelOption;
 import io.netty.channel.epoll.EpollEventLoopGroup;
@@ -58,14 +59,14 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     /**
      * Creates an instance of PCEPDispatcherImpl, gets the default selector and opens it.
      *
-     * @param registry a message registry
+     * @param registry          a message registry
      * @param negotiatorFactory a negotiation factory
-     * @param bossGroup accepts an incoming connection
-     * @param workerGroup handles the traffic of accepted connection
+     * @param bossGroup         accepts an incoming connection
+     * @param workerGroup       handles the traffic of accepted connection
      */
     public PCEPDispatcherImpl(@Nonnull final MessageRegistry registry,
-        @Nonnull final PCEPSessionNegotiatorFactory negotiatorFactory,
-        @Nonnull final EventLoopGroup bossGroup, @Nonnull  final EventLoopGroup workerGroup) {
+            @Nonnull final PCEPSessionNegotiatorFactory negotiatorFactory,
+            @Nonnull final EventLoopGroup bossGroup, @Nonnull final EventLoopGroup workerGroup) {
         this.snf = requireNonNull(negotiatorFactory);
         this.hf = new PCEPHandlerFactory(registry);
         if (Epoll.isAvailable()) {
@@ -80,13 +81,13 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
 
     @Override
     public final synchronized ChannelFuture createServer(final InetSocketAddress address,
-        final PCEPSessionListenerFactory listenerFactory, final PCEPPeerProposal peerProposal) {
+            final PCEPSessionListenerFactory listenerFactory, final PCEPPeerProposal peerProposal) {
         return createServer(address, KeyMapping.getKeyMapping(), listenerFactory, peerProposal);
     }
 
     @Override
     public final synchronized ChannelFuture createServer(final InetSocketAddress address, final KeyMapping keys,
-        final PCEPSessionListenerFactory listenerFactory, final PCEPPeerProposal peerProposal) {
+            final PCEPSessionListenerFactory listenerFactory, final PCEPPeerProposal peerProposal) {
         this.keys = keys;
 
         final ChannelPipelineInitializer initializer = (ch, promise) -> {
@@ -130,9 +131,9 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
         }
 
         // Make sure we are doing round-robin processing
-        b.childOption(ChannelOption.MAX_MESSAGES_PER_READ, 1);
+        b.option(ChannelOption.RCVBUF_ALLOCATOR, new FixedRecvByteBufAllocator(1));
 
-        if (b.group() == null) {
+        if (b.config().group() == null) {
             b.group(this.bossGroup, this.workerGroup);
         }
 
@@ -147,12 +148,12 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
         }
     }
 
-    protected interface ChannelPipelineInitializer {
-        void initializeChannel(SocketChannel socketChannel, Promise<PCEPSessionImpl> promise);
-    }
-
     @Override
     public final PCEPSessionNegotiatorFactory<?> getPCEPSessionNegotiatorFactory() {
         return this.snf;
+    }
+
+    protected interface ChannelPipelineInitializer {
+        void initializeChannel(SocketChannel socketChannel, Promise<PCEPSessionImpl> promise);
     }
 }
