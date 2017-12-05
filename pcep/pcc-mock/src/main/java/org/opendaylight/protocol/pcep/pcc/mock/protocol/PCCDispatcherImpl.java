@@ -74,7 +74,7 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
         setChannelFactory(b, optionalKey);
         b.option(ChannelOption.SO_KEEPALIVE, true);
         b.option(ChannelOption.SO_REUSEADDR, true);
-        b.option(ChannelOption.MAX_MESSAGES_PER_READ, 1);
+        b.option(ChannelOption.RCVBUF_ALLOCATOR, new io.netty.channel.FixedRecvByteBufAllocator(1));
         final long retryTimer = reconnectTime == -1 ? 0 : reconnectTime;
         final PCCReconnectPromise promise = new PCCReconnectPromise(remoteAddress, (int) retryTimer, CONNECT_TIMEOUT, b);
         final ChannelInitializer<SocketChannel> channelInitializer = new ChannelInitializer<SocketChannel>() {
