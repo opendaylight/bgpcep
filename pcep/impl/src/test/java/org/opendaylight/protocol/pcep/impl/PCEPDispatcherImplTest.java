@@ -233,7 +233,7 @@ public class PCEPDispatcherImplTest {
         }
 
         private void setWorkerGroup(final Bootstrap b) {
-            if (b.group() == null) {
+            if (b.config().group() == null) {
                 b.group(this.workerGroup);
             }
         }
