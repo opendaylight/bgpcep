@@ -26,7 +26,6 @@
     <modules>
         <module>features-pcep</module>
         <module>odl-bgpcep-pcep</module>
-        <module>odl-bgpcep-pcep-dependencies</module>
         <module>odl-bgpcep-pcep-api</module>
         <module>odl-bgpcep-pcep-impl</module>
         <module>odl-bgpcep-programming-api</module>
