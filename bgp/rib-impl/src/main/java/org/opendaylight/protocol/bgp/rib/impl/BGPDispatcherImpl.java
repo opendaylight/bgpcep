@@ -18,6 +18,7 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.FixedRecvByteBufAllocator;
 import io.netty.channel.WriteBufferWaterMark;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollChannelOption;
@@ -118,12 +119,12 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         }
 
         // Make sure we are doing round-robin processing
-        bootstrap.option(ChannelOption.MAX_MESSAGES_PER_READ, 1);
+        bootstrap.option(ChannelOption.RCVBUF_ALLOCATOR, new FixedRecvByteBufAllocator(1));
         bootstrap.option(ChannelOption.SO_KEEPALIVE, Boolean.TRUE);
         bootstrap.option(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK);
         bootstrap.option(ChannelOption.SO_REUSEADDR, reuseAddress);
 
-        if (bootstrap.group() == null) {
+        if (bootstrap.config().group() == null) {
             bootstrap.group(this.workerGroup);
         }
 
@@ -190,7 +191,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         serverBootstrap.childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK);
 
         // Make sure we are doing round-robin processing
-        serverBootstrap.option(ChannelOption.MAX_MESSAGES_PER_READ, 1);
+        serverBootstrap.childOption(ChannelOption.RCVBUF_ALLOCATOR, new FixedRecvByteBufAllocator(1));
 
         if (serverBootstrap.group() == null) {
             serverBootstrap.group(this.bossGroup, this.workerGroup);
