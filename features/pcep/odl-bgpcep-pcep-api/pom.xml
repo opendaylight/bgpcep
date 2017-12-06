@@ -47,12 +47,6 @@
             <artifactId>pcep-spi</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-pcep-dependencies</artifactId>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>odl-config-netty-config-api</artifactId>
             <type>xml</type>
