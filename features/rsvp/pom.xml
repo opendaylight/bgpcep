@@ -28,6 +28,5 @@
         <module>features-rsvp</module>
         <module>odl-bgpcep-rsvp</module>
         <module>odl-bgpcep-rsvp-api</module>
-        <module>odl-bgpcep-rsvp-dependencies</module>
     </modules>
 </project>
