@@ -48,7 +48,9 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>concepts</artifactId>
+            <artifactId>odl-bgpcep-concepts</artifactId>
+            <type>xml</type>
+            <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.mdsal.model</groupId>
@@ -63,7 +65,7 @@
             <classifier>features</classifier>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.bgpcep</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-extras-dependencies</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
