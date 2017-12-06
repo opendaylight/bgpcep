@@ -39,13 +39,6 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-rsvp-dependencies</artifactId>
-            <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>rsvp-impl</artifactId>
         </dependency>
     </dependencies>
