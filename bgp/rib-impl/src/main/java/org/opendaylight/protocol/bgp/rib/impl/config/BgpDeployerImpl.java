@@ -64,12 +64,12 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
     private final BlueprintContainer container;
     private final BundleContext bundleContext;
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
-    private final ListenerRegistration<BgpDeployerImpl> registration;
     @GuardedBy("this")
     private final Map<InstanceIdentifier<Bgp>, RibImpl> ribs = new HashMap<>();
     @GuardedBy("this")
     private final Map<InstanceIdentifier<Neighbor>, PeerBean> peers = new HashMap<>();
     private final DataBroker dataBroker;
+    private ListenerRegistration<BgpDeployerImpl> registration;
     @GuardedBy("this")
     private boolean closed;
 
@@ -82,21 +82,6 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
         this.tableTypeRegistry = requireNonNull(mappingService);
         this.networkInstanceIId = InstanceIdentifier.create(NetworkInstances.class)
                 .child(NetworkInstance.class, new NetworkInstanceKey(networkInstanceName));
-        Futures.addCallback(initializeNetworkInstance(dataBroker, this.networkInstanceIId), new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(final Void result) {
-                LOG.debug("Network Instance {} initialized successfully.", networkInstanceName);
-            }
-
-            @Override
-            public void onFailure(final Throwable t) {
-                LOG.error("Failed to initialize Network Instance {}.", networkInstanceName, t);
-            }
-        }, MoreExecutors.directExecutor());
-        this.registration = dataBroker.registerDataTreeChangeListener(
-                new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, this.networkInstanceIId.child(Protocols.class)
-                        .child(Protocol.class).augmentation(Protocol1.class).child(Bgp.class)), this);
-        LOG.info("BGP Deployer {} started.", networkInstanceName);
     }
 
     private static ListenableFuture<Void> initializeNetworkInstance(
@@ -106,6 +91,24 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
                 new NetworkInstanceBuilder().setName(networkInstance.firstKeyOf(NetworkInstance.class).getName())
                         .setProtocols(new ProtocolsBuilder().build()).build());
         return wTx.submit();
+    }
+
+    public synchronized void init() {
+        Futures.addCallback(initializeNetworkInstance(dataBroker, this.networkInstanceIId), new FutureCallback<Void>() {
+            @Override
+            public void onSuccess(final Void result) {
+                LOG.debug("Network Instance {} initialized successfully.", BgpDeployerImpl.this.networkInstanceIId);
+            }
+
+            @Override
+            public void onFailure(final Throwable t) {
+                LOG.error("Failed to initialize Network Instance {}.", BgpDeployerImpl.this.networkInstanceIId, t);
+            }
+        }, MoreExecutors.directExecutor());
+        this.registration = dataBroker.registerDataTreeChangeListener(
+                new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, this.networkInstanceIId.child(Protocols.class)
+                        .child(Protocol.class).augmentation(Protocol1.class).child(Bgp.class)), this);
+        LOG.info("BGP Deployer {} started.", BgpDeployerImpl.this.networkInstanceIId);
     }
 
     @Override
@@ -136,7 +139,10 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
     @Override
     public synchronized void close() throws Exception {
         LOG.info("Closing BGP Deployer.");
-        this.registration.close();
+        if (this.registration != null) {
+            this.registration.close();
+            this.registration = null;
+        }
         this.closed = true;
 
         final List<ListenableFuture<Void>> futurePeerCloseList = this.peers.values().stream()

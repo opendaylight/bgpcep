@@ -50,7 +50,9 @@
   <odl:static-reference id="domSchemaService" interface="org.opendaylight.mdsal.dom.api.DOMSchemaService"/>
   <reference id="rpcRegistry" interface="org.opendaylight.controller.sal.binding.api.RpcProviderRegistry"/>
 
-  <bean id="bgpDeployer" class="org.opendaylight.protocol.bgp.rib.impl.config.BgpDeployerImpl"  destroy-method="close">
+  <bean id="bgpDeployer" class="org.opendaylight.protocol.bgp.rib.impl.config.BgpDeployerImpl"
+        init-method="init"
+        destroy-method="close">
     <argument value="global-bgp"/>
     <argument ref="blueprintContainer"/>
     <argument ref="blueprintBundleContext"/>
