@@ -109,10 +109,13 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation, Clu
     public synchronized ListenableFuture<Void> closeServiceInstance() {
         LOG.info("BMP Monitor Singleton Service {} instance closed, Monitor Id {}",
                 getIdentifier().getValue(), this.monitorId.getValue());
-        this.channel.close().addListener((ChannelFutureListener) future -> {
-            Preconditions.checkArgument(future.isSuccess(), "Channel failed to close: %s", future.cause());
-            BmpMonitoringStationImpl.this.sessionManager.close();
-        });
+        if (this.channel != null) {
+            this.channel.close().addListener((ChannelFutureListener) future -> {
+                Preconditions.checkArgument(future.isSuccess(),
+                        "Channel failed to close: %s", future.cause());
+                BmpMonitoringStationImpl.this.sessionManager.close();
+            });
+        }
 
         final DOMDataWriteTransaction wTx = this.domDataBroker.newWriteOnlyTransaction();
         wTx.delete(LogicalDatastoreType.OPERATIONAL, this.yangMonitorId);
