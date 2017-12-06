@@ -41,6 +41,10 @@
     <dependencies>
         <dependency>
             <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>data-change-counter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
             <artifactId>odl-bgpcep-extras-dependencies</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
@@ -50,10 +54,6 @@
             <artifactId>odl-mdsal-broker</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.bgpcep</groupId>
-            <artifactId>data-change-counter</artifactId>
         </dependency>
     </dependencies>
 </project>
