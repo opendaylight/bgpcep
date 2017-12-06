@@ -568,7 +568,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
         return buffer.toString();
     }
 
-    public static final int readNlriLength(@Nonnull final ByteBuf nlri) {
+    public static int readNlriLength(@Nonnull final ByteBuf nlri) {
         requireNonNull(nlri, "NLRI information cannot be null");
         Preconditions.checkState(nlri.isReadable(), "NLRI Byte buffer is not readable.");
         int length = nlri.readUnsignedByte();
@@ -638,7 +638,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     }
 
     @Nullable
-    protected static final PathId readPathId(@Nonnull final ByteBuf nlri, final Class<? extends AddressFamily> afi,
+    protected static PathId readPathId(@Nonnull final ByteBuf nlri, final Class<? extends AddressFamily> afi,
             final Class<? extends SubsequentAddressFamily> safi, final PeerSpecificParserConstraint constraint) {
         if (MultiPathSupportUtil.isTableTypeSupported(constraint, new BgpTableTypeImpl(afi, safi))) {
             return PathIdUtil.readPathId(nlri);

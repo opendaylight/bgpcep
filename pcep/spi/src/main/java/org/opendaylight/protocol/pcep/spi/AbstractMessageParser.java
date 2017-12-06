@@ -140,7 +140,7 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
         }
     }
 
-    protected static final List<VendorInformationObject> addVendorInformationObjects(final List<Object> objects) {
+    protected static List<VendorInformationObject> addVendorInformationObjects(final List<Object> objects) {
         final List<VendorInformationObject> vendorInfo = new ArrayList<>();
         while (!objects.isEmpty() && objects.get(0) instanceof VendorInformationObject) {
             final VendorInformationObject viObject = (VendorInformationObject) objects.get(0);

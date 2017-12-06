@@ -33,7 +33,7 @@ public abstract class AbstractRouteEntry implements RouteEntry {
     protected static final NodeIdentifier ROUTES_IDENTIFIER = new NodeIdentifier(Routes.QNAME);
     private static final Logger LOG = LoggerFactory.getLogger(AbstractRouteEntry.class);
 
-    protected static final void fillLocRib(final YangInstanceIdentifier routeTarget, final NormalizedNode<?, ?> value,
+    protected static void fillLocRib(final YangInstanceIdentifier routeTarget, final NormalizedNode<?, ?> value,
             final DOMDataWriteTransaction tx) {
         if (value != null) {
             LOG.debug("Write route to LocRib {}", value);
@@ -44,7 +44,7 @@ public abstract class AbstractRouteEntry implements RouteEntry {
         }
     }
 
-    protected static final void update(final PeerId destPeer, final YangInstanceIdentifier routeTarget,
+    protected static void update(final PeerId destPeer, final YangInstanceIdentifier routeTarget,
             final ContainerNode effAttr, final NormalizedNode<?, ?> value, final RIBSupport ribSup,
             final DOMDataWriteTransaction tx) {
         if (!writeRoute(destPeer, routeTarget, effAttr, value, ribSup, tx)) {
@@ -52,7 +52,7 @@ public abstract class AbstractRouteEntry implements RouteEntry {
         }
     }
 
-    protected static final boolean writeRoute(final PeerId destPeer, final YangInstanceIdentifier routeTarget,
+    protected static boolean writeRoute(final PeerId destPeer, final YangInstanceIdentifier routeTarget,
             final ContainerNode effAttrib, final NormalizedNode<?, ?> value, final RIBSupport ribSup,
             final DOMDataWriteTransaction tx) {
         if (effAttrib != null && value != null) {
@@ -70,7 +70,7 @@ public abstract class AbstractRouteEntry implements RouteEntry {
         tx.delete(LogicalDatastoreType.OPERATIONAL, routeTarget);
     }
 
-    protected static final boolean filterRoutes(final PeerId rootPeer, final PeerId destPeer,
+    protected static boolean filterRoutes(final PeerId rootPeer, final PeerId destPeer,
             final ExportPolicyPeerTracker peerPT, final TablesKey localTK, final PeerRole destPeerRole) {
         return !rootPeer.equals(destPeer) && isTableSupportedAndReady(destPeer, peerPT, localTK) && !PeerRole.Internal.equals(destPeerRole);
     }
@@ -83,7 +83,7 @@ public abstract class AbstractRouteEntry implements RouteEntry {
         return true;
     }
 
-    protected static final YangInstanceIdentifier getAdjRibOutYII(final RIBSupport ribSup,
+    protected static YangInstanceIdentifier getAdjRibOutYII(final RIBSupport ribSup,
             final YangInstanceIdentifier rootPath, final PathArgument routeId, final TablesKey localTK) {
         return ribSup.routePath(rootPath.node(AdjRibOut.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(localTK))
             .node(ROUTES_IDENTIFIER), routeId);

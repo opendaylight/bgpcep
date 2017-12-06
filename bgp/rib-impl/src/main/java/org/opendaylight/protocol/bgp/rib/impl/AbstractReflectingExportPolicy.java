@@ -44,7 +44,7 @@ abstract class AbstractReflectingExportPolicy extends AbstractExportPolicy {
      * @param attributes Input attributes, may not be null.
      * @return Modified (reflected) attributes.
      */
-    @Nonnull protected static final ContainerNode reflectedFromInternalAttributes(@Nonnull final ContainerNode attributes) {
+    @Nonnull protected static ContainerNode reflectedFromInternalAttributes(@Nonnull final ContainerNode attributes) {
         return AttributeOperations.getInstance(attributes).reflectedAttributes(attributes);
     }
 }

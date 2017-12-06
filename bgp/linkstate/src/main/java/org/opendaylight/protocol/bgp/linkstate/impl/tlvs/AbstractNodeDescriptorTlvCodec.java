@@ -20,7 +20,7 @@ import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.common.QName;
 
 abstract class AbstractNodeDescriptorTlvCodec {
-    protected static final NodeIdentifier parseNodeDescriptor(final ByteBuf value, final Map<QName, Object> parsedSubTlvs) {
+    protected static NodeIdentifier parseNodeDescriptor(final ByteBuf value, final Map<QName, Object> parsedSubTlvs) {
         parsedSubTlvs.putAll(SimpleNlriTypeRegistry.getInstance().parseSubTlvs(value));
         final AsNumber asNumber = (AsNumber) parsedSubTlvs.get(AsNumTlvParser.AS_NUMBER_QNAME);
         final DomainIdentifier domainId = (DomainIdentifier) parsedSubTlvs.get(DomainIdTlvParser.DOMAIN_ID_QNAME);
@@ -51,7 +51,7 @@ abstract class AbstractNodeDescriptorTlvCodec {
         };
     }
 
-    protected static final void serializeNodeDescriptor(final NodeIdentifier tlv, final ByteBuf body) {
+    protected static void serializeNodeDescriptor(final NodeIdentifier tlv, final ByteBuf body) {
         final SimpleNlriTypeRegistry tlvReg = SimpleNlriTypeRegistry.getInstance();
         tlvReg.serializeTlv(AsNumTlvParser.AS_NUMBER_QNAME, tlv.getAsNumber(), body);
         tlvReg.serializeTlv(DomainIdTlvParser.DOMAIN_ID_QNAME, tlv.getDomainId(), body);

@@ -23,7 +23,7 @@ public enum TerminationReason {
         }
     }
 
-    private TerminationReason(final short value) {
+    TerminationReason(final short value) {
         this.value = value;
     }
 

@@ -310,7 +310,7 @@ public final class TestUtil {
         return attribBuilder.build();
     }
 
-    private static final List<Communities> createCommunities() {
+    private static List<Communities> createCommunities() {
         final List<Communities> communities = Lists.newArrayList();
         final CommunitiesBuilder commBuilder = new CommunitiesBuilder()
             .setAsNumber(new AsNumber(65535L))

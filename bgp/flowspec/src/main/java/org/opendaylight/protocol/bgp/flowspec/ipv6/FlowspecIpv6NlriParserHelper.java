@@ -42,7 +42,7 @@ public final class FlowspecIpv6NlriParserHelper {
 
     private FlowspecIpv6NlriParserHelper() {}
 
-    public static final void extractFlowspec(final ChoiceNode fsType, final FlowspecBuilder fsBuilder) {
+    public static void extractFlowspec(final ChoiceNode fsType, final FlowspecBuilder fsBuilder) {
         if (fsType.getChild(AbstractFlowspecNlriParser.DEST_PREFIX_NID).isPresent()) {
             fsBuilder.setFlowspecType(
                 new DestinationIpv6PrefixCaseBuilder()
@@ -62,7 +62,7 @@ public final class FlowspecIpv6NlriParserHelper {
         }
     }
 
-    public static final void buildFlowspecString(final FlowspecType value, final StringBuilder buffer) {
+    public static void buildFlowspecString(final FlowspecType value, final StringBuilder buffer) {
         if (value instanceof DestinationIpv6PrefixCase) {
             buffer.append("to ");
             buffer.append(((DestinationIpv6PrefixCase) value).getDestinationPrefix().getValue());
@@ -78,7 +78,7 @@ public final class FlowspecIpv6NlriParserHelper {
         }
     }
 
-    private static final List<NextHeaders> createNextHeaders(final UnkeyedListNode nextHeadersData) {
+    private static List<NextHeaders> createNextHeaders(final UnkeyedListNode nextHeadersData) {
         final List<NextHeaders> nextHeaders = new ArrayList<>();
 
         for (final UnkeyedListEntryNode node : nextHeadersData.getValue()) {
@@ -97,7 +97,7 @@ public final class FlowspecIpv6NlriParserHelper {
         return nextHeaders;
     }
 
-    private static final List<FlowLabel> createFlowLabels(final UnkeyedListNode flowLabelsData) {
+    private static List<FlowLabel> createFlowLabels(final UnkeyedListNode flowLabelsData) {
         final List<FlowLabel> flowLabels = new ArrayList<>();
 
         for (final UnkeyedListEntryNode node : flowLabelsData.getValue()) {
@@ -116,7 +116,7 @@ public final class FlowspecIpv6NlriParserHelper {
         return flowLabels;
     }
 
-    private static final String stringFlowLabel(final List<FlowLabel> list) {
+    private static String stringFlowLabel(final List<FlowLabel> list) {
         final StringBuilder buffer = new StringBuilder();
         boolean isFirst = true;
         for (final FlowLabel item : list) {

@@ -358,7 +358,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements ClusterSingletonSe
 
         final DOMDataWriteTransaction t = this.domChain.newWriteOnlyTransaction();
         t.delete(LogicalDatastoreType.OPERATIONAL, getYangRibId());
-        final CheckedFuture<Void, TransactionCommitFailedException> cleanFuture = t.submit();
+        final ListenableFuture<Void> cleanFuture = t.submit();
 
         this.domChain.close();
         return cleanFuture;
