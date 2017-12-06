@@ -1,0 +1,7 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+2: Claudio D. Gasparini <claudio.gasparini@pantheon.tech>
+Submitted-by: Claudio D. Gasparini <claudio.gasparini@pantheon.tech>
+Submitted-at: Wed, 06 Dec 2017 17:15:25 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/66284
+Project: bgpcep
+Branch: refs/heads/stable/nitrogen
