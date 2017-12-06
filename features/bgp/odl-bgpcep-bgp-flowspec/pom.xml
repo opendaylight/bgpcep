@@ -33,11 +33,13 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-bmp-api</artifactId>
+            <artifactId>bgp-flowspec</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-flowspec</artifactId>
+            <artifactId>odl-bgpcep-bmp-api</artifactId>
+            <classifier>features</classifier>
+            <type>xml</type>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
