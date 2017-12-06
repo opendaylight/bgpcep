@@ -44,8 +44,10 @@
             <artifactId>netty-buffer</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.bgpcep</groupId>
-            <artifactId>concepts</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>odl-bgpcep-concepts</artifactId>
+            <type>xml</type>
+            <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.mdsal.model</groupId>

@@ -33,7 +33,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-pcep-dependencies</artifactId>
+            <artifactId>odl-bgpcep-extras-dependencies</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
