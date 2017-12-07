@@ -27,7 +27,6 @@ import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,6 +52,8 @@ import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivat
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.util.HexDumpBGPFileParser;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.ipv4.routes.Ipv4Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv6.routes.ipv6.routes.Ipv6Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateAddressFamily;
@@ -80,7 +81,7 @@ public class ParserToSalTest extends AbstractConcurrentDataBrokerTest {
     private BGPMock mock;
     private AbstractRIBExtensionProviderActivator baseact, lsact;
     private RIBExtensionProviderContext ext1, ext2;
-    private final String localAddress = "127.0.0.1";
+    private final IpAddress localAddress = new IpAddress(new Ipv4Address("127.0.0.1"));
 
     @Mock
     private BGPDispatcher dispatcher;
@@ -142,7 +143,7 @@ public class ParserToSalTest extends AbstractConcurrentDataBrokerTest {
     }
 
     @Test
-    public void testWithLinkstate() throws InterruptedException, ExecutionException, ReadFailedException {
+    public void testWithLinkstate() throws ReadFailedException {
         final List<BgpTableType> tables = ImmutableList.of(new BgpTableTypeImpl(LinkstateAddressFamily.class,
             LinkstateSubsequentAddressFamily.class));
         final RIBImpl rib = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(TEST_RIB_ID),
@@ -161,7 +162,7 @@ public class ParserToSalTest extends AbstractConcurrentDataBrokerTest {
     }
 
     @Test
-    public void testWithoutLinkstate() throws InterruptedException, ExecutionException, ReadFailedException {
+    public void testWithoutLinkstate() throws ReadFailedException {
         final List<BgpTableType> tables = ImmutableList.of(new BgpTableTypeImpl(Ipv4AddressFamily.class,
             UnicastSubsequentAddressFamily.class));
         final RIBImpl rib = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(TEST_RIB_ID), AS_NUMBER, BGP_ID,
@@ -188,8 +189,7 @@ public class ParserToSalTest extends AbstractConcurrentDataBrokerTest {
         });
     }
 
-    private void assertTablesExists(final List<BgpTableType> expectedTables)
-        throws InterruptedException, ExecutionException, ReadFailedException {
+    private void assertTablesExists(final List<BgpTableType> expectedTables) throws ReadFailedException {
         readDataOperational(getDataBroker(), BGP_IID, bgpRib -> {
             final List<Tables> tables = bgpRib.getRib().get(0).getLocRib().getTables();
             assertFalse(tables.isEmpty());
