@@ -105,9 +105,19 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
     private static final AsNumber AS_NUMBER = new AsNumber(30L);
     private static final Ipv4Address BGP_ID = new Ipv4Address("1.1.1.2");
     private static final String LOCAL_IP = "1.1.1.4";
-    private final IpAddress neighbor = new IpAddress(new Ipv4Address(LOCAL_IP));
     private static final int LOCAL_PORT = 12345;
-    private final BgpTableType ipv4tt = new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+    private static final String RIB_ID = "1.1.1.2";
+    private static final YangInstanceIdentifier PEER_PATH = YangInstanceIdentifier.builder()
+            .node(BgpRib.QNAME).node(Rib.QNAME)
+            .nodeWithKey(Rib.QNAME, QName.create(Rib.QNAME, "id").intern(), RIB_ID)
+            .node(Peer.QNAME).nodeWithKey(Peer.QNAME, AdjRibInWriter.PEER_ID_QNAME, "bgp://1.1.1.2").build();
+    private static final YangInstanceIdentifier TABLE_PATH = PEER_PATH.node(AdjRibIn.QNAME).node(Tables.QNAME)
+            .node(RibSupportUtils.toYangTablesKey(new TablesKey(Ipv4AddressFamily.class,
+                    UnicastSubsequentAddressFamily.class))).node(Attributes.QNAME)
+            .node(QName.create(Attributes.QNAME, "uptodate"));
+    private final IpAddress neighbor = new IpAddress(new Ipv4Address(LOCAL_IP));
+    private final BgpTableType ipv4tt = new BgpTableTypeImpl(Ipv4AddressFamily.class,
+            UnicastSubsequentAddressFamily.class);
     private Open classicOpen;
     @Mock
     private EventLoop eventLoop;
@@ -121,13 +131,6 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
     private DOMTransactionChain domChain;
     @Mock
     private DOMDataWriteTransaction tx;
-    private static final String RIB_ID = "1.1.1.2";
-    private static final YangInstanceIdentifier PEER_PATH = YangInstanceIdentifier.builder().node(BgpRib.QNAME).node(Rib.QNAME)
-        .nodeWithKey(Rib.QNAME, QName.create(Rib.QNAME, "id").intern(), RIB_ID)
-        .node(Peer.QNAME).nodeWithKey(Peer.QNAME, AdjRibInWriter.PEER_ID_QNAME, "bgp://1.1.1.2").build();
-    private static final YangInstanceIdentifier TABLE_PATH = PEER_PATH.node(AdjRibIn.QNAME).node(Tables.QNAME)
-        .node(RibSupportUtils.toYangTablesKey(new TablesKey(Ipv4AddressFamily.class,
-            UnicastSubsequentAddressFamily.class))).node(Attributes.QNAME).node(QName.create(Attributes.QNAME, "uptodate"));
 
     @Override
     @Before
@@ -136,15 +139,18 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         new EmbeddedChannel();
         final List<BgpParameters> tlvs = Lists.newArrayList();
         this.classicOpen = new OpenBuilder().setMyAsNumber(AS_NUMBER.getValue().intValue()).setHoldTimer(HOLD_TIMER)
-            .setVersion(new ProtocolVersion((short) 4)).setBgpParameters(tlvs).setBgpIdentifier(BGP_ID).build();
+                .setVersion(new ProtocolVersion((short) 4)).setBgpParameters(tlvs).setBgpIdentifier(BGP_ID).build();
 
         final List<OptionalCapabilities> capa = Lists.newArrayList();
-        capa.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class,
-            new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
-                .setAfi(this.ipv4tt.getAfi()).setSafi(this.ipv4tt.getSafi()).build())
-                .setGracefulRestartCapability(new GracefulRestartCapabilityBuilder().build()).build())
-            .setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(AS_NUMBER).build()).build()).build());
-        capa.add(new OptionalCapabilitiesBuilder().setCParameters(BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY).build());
+        capa.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder()
+                .addAugmentation(CParameters1.class,
+                        new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
+                                .setAfi(this.ipv4tt.getAfi()).setSafi(this.ipv4tt.getSafi()).build())
+                                .setGracefulRestartCapability(new GracefulRestartCapabilityBuilder().build()).build())
+                .setAs4BytesCapability(new As4BytesCapabilityBuilder()
+                        .setAsNumber(AS_NUMBER).build()).build()).build());
+        capa.add(new OptionalCapabilitiesBuilder()
+                .setCParameters(BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY).build());
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capa).build());
 
         doReturn(null).when(mock(ChannelFuture.class)).addListener(any());
@@ -159,11 +165,15 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         }).when(this.eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
         doReturn("TestingChannel").when(this.speakerListener).toString();
         doReturn(true).when(this.speakerListener).isWritable();
-        doReturn(new InetSocketAddress(InetAddress.getByName(BGP_ID.getValue()), 179)).when(this.speakerListener).remoteAddress();
-        doReturn(new InetSocketAddress(InetAddress.getByName(LOCAL_IP), LOCAL_PORT)).when(this.speakerListener).localAddress();
+        doReturn(new InetSocketAddress(InetAddress.getByName(BGP_ID.getValue()), 179))
+                .when(this.speakerListener).remoteAddress();
+        doReturn(new InetSocketAddress(InetAddress.getByName(LOCAL_IP), LOCAL_PORT))
+                .when(this.speakerListener).localAddress();
         doReturn(this.pipeline).when(this.speakerListener).pipeline();
-        doReturn(this.pipeline).when(this.pipeline).replace(any(ChannelHandler.class), any(String.class), any(ChannelHandler.class));
-        doReturn(null).when(this.pipeline).replace(Matchers.<Class<ChannelHandler>>any(), any(String.class), any(ChannelHandler.class));
+        doReturn(this.pipeline).when(this.pipeline).replace(any(ChannelHandler.class),
+                any(String.class), any(ChannelHandler.class));
+        doReturn(null).when(this.pipeline).replace(Matchers.<Class<ChannelHandler>>any(),
+                any(String.class), any(ChannelHandler.class));
         doReturn(this.pipeline).when(this.pipeline).addLast(any(ChannelHandler.class));
         final ChannelFuture futureChannel = mock(ChannelFuture.class);
         doReturn(null).when(futureChannel).addListener(any());
@@ -177,11 +187,11 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         doNothing().when(listener).close();
 
         doReturn(Collections.singletonMap(DOMDataTreeChangeService.class, dOMDataTreeChangeService))
-            .when(this.domBroker).getSupportedExtensions();
+                .when(this.domBroker).getSupportedExtensions();
         doNothing().when(this.tx).merge(eq(LogicalDatastoreType.OPERATIONAL),
-            any(YangInstanceIdentifier.class), any(NormalizedNode.class));
+                any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         doNothing().when(this.tx).put(eq(LogicalDatastoreType.OPERATIONAL),
-            any(YangInstanceIdentifier.class), any(NormalizedNode.class));
+                any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         doNothing().when(this.tx).delete(any(LogicalDatastoreType.class), any(YangInstanceIdentifier.class));
         final CheckedFuture<?, ?> future = mock(CheckedFuture.class);
         doAnswer(invocation -> {
@@ -196,26 +206,30 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
     @Test
     public void testHandleMessageAfterException() throws InterruptedException {
         final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(TABLES_KEY,
-            BasePathSelectionModeFactory.createBestPathSelectionStrategy());
+                BasePathSelectionModeFactory.createBestPathSelectionStrategy());
         final RIBImpl ribImpl = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(RIB_ID), AS_NUMBER,
-            new BgpId(RIB_ID), null, this.ribExtension, this.serverDispatcher, this.mappingService.getCodecFactory(),
-            this.domBroker, ImmutableList.of(this.ipv4tt), pathTables, this.ribExtension.getClassLoadingStrategy());
+                new BgpId(RIB_ID), null, this.ribExtension, this.serverDispatcher,
+                this.mappingService.getCodecFactory(), this.domBroker, ImmutableList.of(this.ipv4tt),
+                pathTables, this.ribExtension.getClassLoadingStrategy());
         ribImpl.instantiateServiceInstance();
         ribImpl.onGlobalContextUpdated(this.schemaContext);
 
-        final BGPPeer bgpPeer = new BGPPeer(LOCAL_IP, ribImpl, PeerRole.Ibgp, null, AFI_SAFIS_ADVERTIZED,
-            Collections.emptySet());
+        final BGPPeer bgpPeer = new BGPPeer(neighbor, ribImpl, PeerRole.Ibgp, null, AFI_SAFIS_ADVERTIZED,
+                Collections.emptySet());
         bgpPeer.instantiateServiceInstance();
-        final BGPSessionImpl bgpSession = new BGPSessionImpl(bgpPeer, this.speakerListener, this.classicOpen, this.classicOpen.getHoldTimer(), null);
+        final BGPSessionImpl bgpSession = new BGPSessionImpl(bgpPeer, this.speakerListener, this.classicOpen,
+                this.classicOpen.getHoldTimer(), null);
         bgpSession.setChannelExtMsgCoder(this.classicOpen);
         bgpPeer.onSessionUp(bgpSession);
 
-        final List<Ipv4Prefix> prefs = Lists.newArrayList(new Ipv4Prefix("8.0.1.0/28"), new Ipv4Prefix("127.0.0.1/32"), new Ipv4Prefix("2.2.2.2/24"));
+        final List<Ipv4Prefix> prefs = Lists.newArrayList(new Ipv4Prefix("8.0.1.0/28"),
+                new Ipv4Prefix("127.0.0.1/32"), new Ipv4Prefix("2.2.2.2/24"));
         final UpdateBuilder wrongMessage = new UpdateBuilder();
         wrongMessage.setNlri(new NlriBuilder().setNlri(prefs).build());
         final Origin origin = new OriginBuilder().setValue(BgpOrigin.Igp).build();
         final AsPath asPath = new AsPathBuilder().setSegments(Collections.emptyList()).build();
-        final CNextHop nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("127.0.0.1")).build()).build();
+        final CNextHop nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
+                .setGlobal(new Ipv4Address("127.0.0.1")).build()).build();
         final AttributesBuilder ab = new AttributesBuilder();
         wrongMessage.setAttributes(ab.setOrigin(origin).setAsPath(asPath).setCNextHop(nextHop).build());
 
@@ -223,39 +237,46 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         correct.setAttributes(ab.setLocalPref(new LocalPrefBuilder().setPref((long) 100).build()).build());
 
         bgpSession.handleMessage(correct.build());
-        verify(this.tx, times(4)).merge(eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class), any(NormalizedNode.class));
+        verify(this.tx, times(4)).merge(eq(LogicalDatastoreType.OPERATIONAL),
+                any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         bgpSession.handleMessage(wrongMessage.build());
-        verify(this.tx, times(4)).merge(eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class), any(NormalizedNode.class));
+        verify(this.tx, times(4)).merge(eq(LogicalDatastoreType.OPERATIONAL),
+                any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         bgpSession.handleMessage(new UpdateBuilder().build());
-        verify(this.tx, times(4)).merge(eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class), any(NormalizedNode.class));
+        verify(this.tx, times(4)).merge(eq(LogicalDatastoreType.OPERATIONAL),
+                any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         verify(this.tx).delete(eq(LogicalDatastoreType.OPERATIONAL), eq(PEER_PATH));
         verify(this.tx, times(0)).merge(eq(LogicalDatastoreType.OPERATIONAL), eq(TABLE_PATH),
-            eq(ImmutableNodes.leafNode(ATTRIBUTES_UPTODATE_FALSE.getNodeType(), Boolean.TRUE)));
+                eq(ImmutableNodes.leafNode(ATTRIBUTES_UPTODATE_FALSE.getNodeType(), Boolean.TRUE)));
     }
 
     @Test
     public void testUseCase1() throws InterruptedException {
         final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(TABLES_KEY,
-            BasePathSelectionModeFactory.createBestPathSelectionStrategy());
+                BasePathSelectionModeFactory.createBestPathSelectionStrategy());
         final RIBImpl ribImpl = new RIBImpl(this.clusterSingletonServiceProvider, new RibId(RIB_ID), AS_NUMBER,
-            new BgpId(RIB_ID), null, this.ribExtension, this.serverDispatcher, this.mappingService.getCodecFactory(),
-            this.domBroker, ImmutableList.of(this.ipv4tt), pathTables, this.ribExtension.getClassLoadingStrategy());
+                new BgpId(RIB_ID), null, this.ribExtension, this.serverDispatcher,
+                this.mappingService.getCodecFactory(), this.domBroker, ImmutableList.of(this.ipv4tt), pathTables,
+                this.ribExtension.getClassLoadingStrategy());
         ribImpl.instantiateServiceInstance();
         ribImpl.onGlobalContextUpdated(this.schemaContext);
 
-        final BGPPeer bgpPeer = new BGPPeer(LOCAL_IP, ribImpl, PeerRole.Ibgp, null, AFI_SAFIS_ADVERTIZED,
-            Collections.emptySet());
+        final BGPPeer bgpPeer = new BGPPeer(neighbor, ribImpl, PeerRole.Ibgp, null, AFI_SAFIS_ADVERTIZED,
+                Collections.emptySet());
         bgpPeer.instantiateServiceInstance();
-        final BGPSessionImpl bgpSession = new BGPSessionImpl(bgpPeer, this.speakerListener, this.classicOpen, this.classicOpen.getHoldTimer(), null);
+        final BGPSessionImpl bgpSession = new BGPSessionImpl(bgpPeer, this.speakerListener, this.classicOpen,
+                this.classicOpen.getHoldTimer(), null);
         bgpSession.setChannelExtMsgCoder(this.classicOpen);
         bgpPeer.onSessionUp(bgpSession);
 
-        final List<Ipv4Prefix> prefs = Lists.newArrayList(new Ipv4Prefix("8.0.1.0/28"), new Ipv4Prefix("127.0.0.1/32"), new Ipv4Prefix("2.2.2.2/24"));
+        final List<Ipv4Prefix> prefs = Lists.newArrayList(new Ipv4Prefix("8.0.1.0/28"),
+                new Ipv4Prefix("127.0.0.1/32"), new Ipv4Prefix("2.2.2.2/24"));
         final UpdateBuilder wrongMessage = new UpdateBuilder();
         wrongMessage.setNlri(new NlriBuilder().setNlri(prefs).build());
         final Origin origin = new OriginBuilder().setValue(BgpOrigin.Igp).build();
         final AsPath asPath = new AsPathBuilder().setSegments(Collections.emptyList()).build();
-        final CNextHop nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("127.0.0.1")).build()).build();
+        final CNextHop nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
+                .setGlobal(new Ipv4Address("127.0.0.1")).build()).build();
         final AttributesBuilder ab = new AttributesBuilder();
         wrongMessage.setAttributes(ab.setOrigin(origin).setAsPath(asPath).setCNextHop(nextHop).build());
 
@@ -263,12 +284,14 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         correct.setAttributes(ab.setLocalPref(new LocalPrefBuilder().setPref((long) 100).build()).build());
 
         bgpSession.handleMessage(correct.build());
-        verify(this.tx, times(4)).merge(eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class), any(NormalizedNode.class));
+        verify(this.tx, times(4)).merge(eq(LogicalDatastoreType.OPERATIONAL),
+                any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         bgpSession.handleMessage(new UpdateBuilder().build());
-        verify(this.tx, times(5)).merge(eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class), any(NormalizedNode.class));
+        verify(this.tx, times(5)).merge(eq(LogicalDatastoreType.OPERATIONAL),
+                any(YangInstanceIdentifier.class), any(NormalizedNode.class));
 
         verify(this.tx).merge(eq(LogicalDatastoreType.OPERATIONAL), eq(TABLE_PATH),
-            eq(ImmutableNodes.leafNode(ATTRIBUTES_UPTODATE_FALSE.getNodeType(), Boolean.TRUE)));
+                eq(ImmutableNodes.leafNode(ATTRIBUTES_UPTODATE_FALSE.getNodeType(), Boolean.TRUE)));
         verify(this.tx, times(0)).delete(eq(LogicalDatastoreType.OPERATIONAL), eq(PEER_PATH));
     }
 }
