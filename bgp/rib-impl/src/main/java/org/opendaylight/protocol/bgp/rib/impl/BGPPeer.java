@@ -11,6 +11,7 @@ import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.rib.impl.AdjRibInWriter.isAnnounceNone;
 import static org.opendaylight.protocol.bgp.rib.impl.AdjRibInWriter.isLearnNone;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.collect.ImmutableMap;
@@ -55,8 +56,8 @@ import org.opendaylight.protocol.bgp.rib.spi.state.BGPSessionState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTimersState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTransportState;
 import org.opendaylight.protocol.concepts.AbstractRegistration;
+import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.prefixes.DestinationIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.prefixes.destination.ipv4.Ipv4Prefixes;
@@ -102,6 +103,13 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
 
     @GuardedBy("this")
     private final Set<TablesKey> tables = new HashSet<>();
+    private final RIB rib;
+    private final String name;
+    private final Map<TablesKey, AdjRibOutListener> adjRibOutListenerSet = new HashMap<>();
+    private final RpcProviderRegistry rpcRegistry;
+    private final PeerRole peerRole;
+    private final Optional<SimpleRoutingPolicy> simpleRoutingPolicy;
+    private final Set<AbstractRegistration> tableRegistration = new HashSet<>();
     @GuardedBy("this")
     private BGPSession session;
     @GuardedBy("this")
@@ -112,36 +120,90 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
     private AdjRibInWriter ribWriter;
     @GuardedBy("this")
     private EffectiveRibInWriter effRibInWriter;
-
-    private final RIB rib;
-    private final String name;
-    private final Map<TablesKey, AdjRibOutListener> adjRibOutListenerSet = new HashMap<>();
-    private final RpcProviderRegistry rpcRegistry;
     private RoutedRpcRegistration<BgpPeerRpcService> rpcRegistration;
-    private final PeerRole peerRole;
-    private final Optional<SimpleRoutingPolicy> simpleRoutingPolicy;
     private YangInstanceIdentifier peerIId;
-    private final Set<AbstractRegistration> tableRegistration = new HashSet<>();
 
-    public BGPPeer(final String name, final RIB rib, final PeerRole role, final SimpleRoutingPolicy peerStatus,
-            final RpcProviderRegistry rpcRegistry,
+    public BGPPeer(final IpAddress neighborAddress, final RIB rib, final PeerRole role,
+            final SimpleRoutingPolicy peerStatus, final RpcProviderRegistry rpcRegistry,
             @Nonnull final Set<TablesKey> afiSafisAdvertized,
             @Nonnull final Set<TablesKey> afiSafisGracefulAdvertized) {
         //FIXME BUG-6971 Once Peer Group is implemented, pass it
-        super(rib.getInstanceIdentifier(), null, new IpAddress(new Ipv4Address(name)), afiSafisAdvertized,
+        super(rib.getInstanceIdentifier(), null, neighborAddress, afiSafisAdvertized,
                 afiSafisGracefulAdvertized);
         this.peerRole = role;
         this.simpleRoutingPolicy = Optional.ofNullable(peerStatus);
         this.rib = requireNonNull(rib);
-        this.name = name;
+        this.name = Ipv4Util.toStringIP(neighborAddress);
         this.rpcRegistry = rpcRegistry;
         this.chain = rib.createPeerChain(this);
     }
 
-    public BGPPeer(final String name, final RIB rib, final PeerRole role,
+    @VisibleForTesting
+    BGPPeer(final IpAddress neighborAddress, final RIB rib, final PeerRole role,
             final RpcProviderRegistry rpcRegistry, @Nonnull final Set<TablesKey> afiSafisAdvertized,
             @Nonnull final Set<TablesKey> afiSafisGracefulAdvertized) {
-        this(name, rib, role, null, rpcRegistry, afiSafisAdvertized, afiSafisGracefulAdvertized);
+        this(neighborAddress, rib, role, null, rpcRegistry, afiSafisAdvertized, afiSafisGracefulAdvertized);
+    }
+
+    private static Attributes nextHopToAttribute(final Attributes attrs, final MpReachNlri mpReach) {
+        if (attrs.getCNextHop() == null && mpReach.getCNextHop() != null) {
+            final AttributesBuilder attributesBuilder = new AttributesBuilder(attrs);
+            attributesBuilder.setCNextHop(mpReach.getCNextHop());
+            return attributesBuilder.build();
+        }
+        return attrs;
+    }
+
+    /**
+     * Creates MPReach for the prefixes to be handled in the same way as linkstate routes
+     *
+     * @param message Update message containing prefixes in NLRI
+     * @return MpReachNlri with prefixes from the nlri field
+     */
+    private static MpReachNlri prefixesToMpReach(final Update message) {
+        final List<Ipv4Prefixes> prefixes = new ArrayList<>();
+        for (final Ipv4Prefix p : message.getNlri().getNlri()) {
+            prefixes.add(new Ipv4PrefixesBuilder().setPrefix(p).build());
+        }
+        final MpReachNlriBuilder b = new MpReachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(
+                UnicastSubsequentAddressFamily.class).setAdvertizedRoutes(
+                new AdvertizedRoutesBuilder().setDestinationType(
+                        new DestinationIpv4CaseBuilder().setDestinationIpv4(
+                                new DestinationIpv4Builder().setIpv4Prefixes(prefixes).build()).build()).build());
+        if (message.getAttributes() != null) {
+            b.setCNextHop(message.getAttributes().getCNextHop());
+        }
+        return b.build();
+    }
+
+    /**
+     * Create MPUnreach for the prefixes to be handled in the same way as linkstate routes
+     *
+     * @param message            Update message containing withdrawn routes
+     * @param isAnyNlriAnnounced
+     * @return MpUnreachNlri with prefixes from the withdrawn routes field
+     */
+    private static MpUnreachNlri prefixesToMpUnreach(final Update message, final boolean isAnyNlriAnnounced) {
+        final List<Ipv4Prefixes> prefixes = new ArrayList<>();
+        for (final Ipv4Prefix p : message.getWithdrawnRoutes().getWithdrawnRoutes()) {
+            boolean nlriAnounced = false;
+            if (isAnyNlriAnnounced) {
+                nlriAnounced = message.getNlri().getNlri().contains(p);
+            }
+
+            if (!nlriAnounced) {
+                prefixes.add(new Ipv4PrefixesBuilder().setPrefix(p).build());
+            }
+        }
+        return new MpUnreachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).setWithdrawnRoutes(
+                new WithdrawnRoutesBuilder().setDestinationType(
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4CaseBuilder().setDestinationIpv4(
+                                new DestinationIpv4Builder().setIpv4Prefixes(prefixes).build()).build()).build()).build();
+    }
+
+    private static Map<TablesKey, SendReceive> mapTableTypesFamilies(final List<AddressFamilies> addPathTablesType) {
+        return ImmutableMap.copyOf(addPathTablesType.stream().collect(Collectors.toMap(af -> new TablesKey(af.getAfi(), af.getSafi()),
+                BgpAddPathTableType::getSendReceive)));
     }
 
     public void instantiateServiceInstance() {
@@ -234,62 +296,6 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
         if (mpUnreach != null) {
             this.ribWriter.removeRoutes(mpUnreach);
         }
-    }
-
-    private static Attributes nextHopToAttribute(final Attributes attrs, final MpReachNlri mpReach) {
-        if (attrs.getCNextHop() == null && mpReach.getCNextHop() != null) {
-            final AttributesBuilder attributesBuilder = new AttributesBuilder(attrs);
-            attributesBuilder.setCNextHop(mpReach.getCNextHop());
-            return attributesBuilder.build();
-        }
-        return attrs;
-    }
-
-    /**
-     * Creates MPReach for the prefixes to be handled in the same way as linkstate routes
-     *
-     * @param message Update message containing prefixes in NLRI
-     * @return MpReachNlri with prefixes from the nlri field
-     */
-    private static MpReachNlri prefixesToMpReach(final Update message) {
-        final List<Ipv4Prefixes> prefixes = new ArrayList<>();
-        for (final Ipv4Prefix p : message.getNlri().getNlri()) {
-            prefixes.add(new Ipv4PrefixesBuilder().setPrefix(p).build());
-        }
-        final MpReachNlriBuilder b = new MpReachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(
-                UnicastSubsequentAddressFamily.class).setAdvertizedRoutes(
-                new AdvertizedRoutesBuilder().setDestinationType(
-                        new DestinationIpv4CaseBuilder().setDestinationIpv4(
-                                new DestinationIpv4Builder().setIpv4Prefixes(prefixes).build()).build()).build());
-        if (message.getAttributes() != null) {
-            b.setCNextHop(message.getAttributes().getCNextHop());
-        }
-        return b.build();
-    }
-
-    /**
-     * Create MPUnreach for the prefixes to be handled in the same way as linkstate routes
-     *
-     * @param message            Update message containing withdrawn routes
-     * @param isAnyNlriAnnounced
-     * @return MpUnreachNlri with prefixes from the withdrawn routes field
-     */
-    private static MpUnreachNlri prefixesToMpUnreach(final Update message, final boolean isAnyNlriAnnounced) {
-        final List<Ipv4Prefixes> prefixes = new ArrayList<>();
-        for (final Ipv4Prefix p : message.getWithdrawnRoutes().getWithdrawnRoutes()) {
-            boolean nlriAnounced = false;
-            if (isAnyNlriAnnounced) {
-                nlriAnounced = message.getNlri().getNlri().contains(p);
-            }
-
-            if (!nlriAnounced) {
-                prefixes.add(new Ipv4PrefixesBuilder().setPrefix(p).build());
-            }
-        }
-        return new MpUnreachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).setWithdrawnRoutes(
-                new WithdrawnRoutesBuilder().setDestinationType(
-                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4CaseBuilder().setDestinationIpv4(
-                                new DestinationIpv4Builder().setIpv4Prefixes(prefixes).build()).build()).build()).build();
     }
 
     @Override
@@ -467,11 +473,6 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
     @Override
     public void markUptodate(final TablesKey tablesKey) {
         this.ribWriter.markTableUptodate(tablesKey);
-    }
-
-    private static Map<TablesKey, SendReceive> mapTableTypesFamilies(final List<AddressFamilies> addPathTablesType) {
-        return ImmutableMap.copyOf(addPathTablesType.stream().collect(Collectors.toMap(af -> new TablesKey(af.getAfi(), af.getSafi()),
-                BgpAddPathTableType::getSendReceive)));
     }
 
     @Override

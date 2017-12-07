@@ -11,6 +11,8 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
 
 import com.google.common.collect.Lists;
 import io.netty.channel.Channel;
@@ -33,6 +35,7 @@ import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.LocalPreferenceAttributeParser;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.ipv4.routes.Ipv4Route;
@@ -78,14 +81,11 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.ModificationType;
 
 public class PeerTest extends AbstractRIBTestSetup {
 
+    private final IpAddress neighborAddress = new IpAddress(new Ipv4Address("127.0.0.1"));
     private ApplicationPeer peer;
-
     private BGPSessionImpl session;
-
     private Map<YangInstanceIdentifier, NormalizedNode<?, ?>> routes;
-
     private BGPPeer classic;
-    private final Ipv4Address neighborAddress = new Ipv4Address("127.0.0.1");
 
     @Override
     @Before
@@ -96,20 +96,21 @@ public class PeerTest extends AbstractRIBTestSetup {
     }
 
     private void overrideMockedBehaviour() {
-        Mockito.doAnswer(invocation -> {
+        doAnswer(invocation -> {
             final Object[] args = invocation.getArguments();
             final NormalizedNode<?, ?> node = (NormalizedNode<?, ?>) args[2];
             if (node.getIdentifier().getNodeType().equals(Ipv4Route.QNAME) || node.getNodeType().equals(PREFIX_QNAME)) {
                 this.routes.put((YangInstanceIdentifier) args[1], node);
             }
             return args[1];
-        }).when(getTransaction()).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(YangInstanceIdentifier.class), Mockito.any(NormalizedNode.class));
+        }).when(getTransaction()).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL),
+                any(YangInstanceIdentifier.class), any(NormalizedNode.class));
 
-        Mockito.doAnswer(invocation -> {
+        doAnswer(invocation -> {
             final Object[] args = invocation.getArguments();
             this.routes.remove(args[1]);
             return args[1];
-        }).when(getTransaction()).delete(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(YangInstanceIdentifier.class));
+        }).when(getTransaction()).delete(Mockito.eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class));
     }
 
     @Test
@@ -117,9 +118,11 @@ public class PeerTest extends AbstractRIBTestSetup {
         final Ipv4Prefix first = new Ipv4Prefix("127.0.0.2/32");
         final Ipv4Prefix second = new Ipv4Prefix("127.0.0.1/32");
         final Ipv4Prefix third = new Ipv4Prefix("127.0.0.3/32");
-        this.peer = new ApplicationPeer(new ApplicationRibId(this.neighborAddress.getValue()), this.neighborAddress, getRib());
+        this.peer = new ApplicationPeer(new ApplicationRibId(this.neighborAddress.getIpv4Address().getValue()),
+                this.neighborAddress.getIpv4Address(), getRib());
         this.peer.instantiateServiceInstance(null, null);
-        final YangInstanceIdentifier base = getRib().getYangRibId().node(LocRib.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(KEY));
+        final YangInstanceIdentifier base = getRib().getYangRibId().node(LocRib.QNAME)
+                .node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(KEY));
         this.peer.onDataTreeChanged(ipv4Input(base, ModificationType.WRITE, first, second, third));
         assertEquals(3, this.routes.size());
 
@@ -129,21 +132,27 @@ public class PeerTest extends AbstractRIBTestSetup {
 
     @Test
     public void testClassicPeer() throws Exception {
-        this.classic = new BGPPeer(this.neighborAddress.getValue(), getRib(), PeerRole.Ibgp, null, Collections.emptySet(),
-                Collections.emptySet());
+        this.classic = new BGPPeer(this.neighborAddress, getRib(), PeerRole.Ibgp, null,
+                Collections.emptySet(), Collections.emptySet());
         this.classic.instantiateServiceInstance();
         this.mockSession();
-        assertEquals(this.neighborAddress.getValue(), this.classic.getName());
+        assertEquals(this.neighborAddress.getIpv4Address().getValue(), this.classic.getName());
         this.classic.onSessionUp(this.session);
         Assert.assertArrayEquals(new byte[]{1, 1, 1, 1}, this.classic.getRawIdentifier());
-        assertEquals("BGPPeer{name=127.0.0.1, tables=[TablesKey [_afi=class org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily, _safi=class org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily]]}", this.classic.toString());
+        assertEquals("BGPPeer{name=127.0.0.1, tables=[TablesKey" +
+                " [_afi=class org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang" +
+                ".bgp.types.rev130919.Ipv4AddressFamily, _safi=class org.opendaylight.yang.gen." +
+                "v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily]]}",
+                this.classic.toString());
 
-        final List<Ipv4Prefix> prefs = Lists.newArrayList(new Ipv4Prefix("8.0.1.0/28"), new Ipv4Prefix("127.0.0.1/32"), new Ipv4Prefix("2.2.2.2/24"));
+        final List<Ipv4Prefix> prefs = Lists.newArrayList(new Ipv4Prefix("8.0.1.0/28"),
+                new Ipv4Prefix("127.0.0.1/32"), new Ipv4Prefix("2.2.2.2/24"));
         final UpdateBuilder ub = new UpdateBuilder();
         ub.setNlri(new NlriBuilder().setNlri(prefs).build());
         final Origin origin = new OriginBuilder().setValue(BgpOrigin.Igp).build();
         final AsPath asPath = new AsPathBuilder().setSegments(Collections.emptyList()).build();
-        final CNextHop nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("127.0.0.1")).build()).build();
+        final CNextHop nextHop = new Ipv4NextHopCaseBuilder()
+                .setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("127.0.0.1")).build()).build();
         final AttributesBuilder ab = new AttributesBuilder();
         ub.setAttributes(ab.setOrigin(origin).setAsPath(asPath).setCNextHop(nextHop).build());
         try {
@@ -163,13 +172,15 @@ public class PeerTest extends AbstractRIBTestSetup {
         assertEquals(3, this.routes.size());
 
         //create new peer so that it gets advertized routes from RIB
-        final BGPPeer testingPeer = new BGPPeer(this.neighborAddress.getValue(), getRib(), PeerRole.Ibgp, null,
+        final BGPPeer testingPeer = new BGPPeer(this.neighborAddress, getRib(), PeerRole.Ibgp, null,
                 Collections.emptySet(), Collections.emptySet());
         testingPeer.instantiateServiceInstance();
         testingPeer.onSessionUp(this.session);
         assertEquals(3, this.routes.size());
 
-        final List<Ipv4Prefix> prefs2 = Lists.newArrayList(new Ipv4Prefix("8.0.1.0/28"), new Ipv4Prefix("8.0.1.16/28"));
+        final List<Ipv4Prefix> prefs2 = Lists.newArrayList(
+                new Ipv4Prefix("8.0.1.0/28"),
+                new Ipv4Prefix("8.0.1.16/28"));
         ub.setNlri(new NlriBuilder().setNlri(prefs2).build());
         ub.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setWithdrawnRoutes(prefs).build());
         this.classic.onMessage(this.session, ub.build());
@@ -179,9 +190,14 @@ public class PeerTest extends AbstractRIBTestSetup {
                 new AttributesBuilder().addAugmentation(
                         Attributes2.class,
                         new Attributes2Builder().setMpUnreachNlri(
-                                new MpUnreachNlriBuilder().setAfi(AFI).setSafi(SAFI).build()).build()).build()).build());
+                                new MpUnreachNlriBuilder()
+                                        .setAfi(AFI)
+                                        .setSafi(SAFI)
+                                        .build()).build()).build()).build());
         this.classic.onMessage(this.session, new RouteRefreshBuilder().setAfi(AFI).setSafi(SAFI).build());
-        this.classic.onMessage(this.session, new RouteRefreshBuilder().setAfi(Ipv6AddressFamily.class).setSafi(SAFI).build());
+        this.classic.onMessage(this.session, new RouteRefreshBuilder()
+                .setAfi(Ipv6AddressFamily.class)
+                .setSafi(SAFI).build());
         assertEquals(2, this.routes.size());
         this.classic.releaseConnection();
     }
@@ -190,21 +206,29 @@ public class PeerTest extends AbstractRIBTestSetup {
         final EventLoop eventLoop = Mockito.mock(EventLoop.class);
         final Channel channel = Mockito.mock(Channel.class);
         final ChannelPipeline pipeline = Mockito.mock(ChannelPipeline.class);
-        Mockito.doReturn(null).when(eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
-        Mockito.doReturn(eventLoop).when(channel).eventLoop();
-        Mockito.doReturn(Boolean.TRUE).when(channel).isWritable();
-        Mockito.doReturn(null).when(channel).close();
-        Mockito.doReturn(pipeline).when(channel).pipeline();
+        doReturn(null).when(eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
+        doReturn(eventLoop).when(channel).eventLoop();
+        doReturn(Boolean.TRUE).when(channel).isWritable();
+        doReturn(null).when(channel).close();
+        doReturn(pipeline).when(channel).pipeline();
         Mockito.doCallRealMethod().when(channel).toString();
-        Mockito.doReturn(pipeline).when(pipeline).addLast(Mockito.any(ChannelHandler.class));
-        Mockito.doReturn(new DefaultChannelPromise(channel)).when(channel).writeAndFlush(any(Notification.class));
-        Mockito.doReturn(new InetSocketAddress("localhost", 12345)).when(channel).remoteAddress();
-        Mockito.doReturn(new InetSocketAddress("localhost", 12345)).when(channel).localAddress();
+        doReturn(pipeline).when(pipeline).addLast(any(ChannelHandler.class));
+        doReturn(new DefaultChannelPromise(channel)).when(channel).writeAndFlush(any(Notification.class));
+        doReturn(new InetSocketAddress("localhost", 12345)).when(channel).remoteAddress();
+        doReturn(new InetSocketAddress("localhost", 12345)).when(channel).localAddress();
         final List<BgpParameters> params = Lists.newArrayList(new BgpParametersBuilder().setOptionalCapabilities(
-                Lists.newArrayList(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(
-                        CParameters1.class, new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
-                                .setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).build()).build()).build()).build())).build());
-        final Open openObj = new OpenBuilder().setBgpIdentifier(new Ipv4Address("1.1.1.1")).setHoldTimer(50).setMyAsNumber(72).setBgpParameters(params).build();
+                Lists.newArrayList(new OptionalCapabilitiesBuilder().setCParameters(
+                        new CParametersBuilder().addAugmentation(
+                                CParameters1.class, new CParameters1Builder().setMultiprotocolCapability(
+                                        new MultiprotocolCapabilityBuilder()
+                                                .setAfi(Ipv4AddressFamily.class)
+                                                .setSafi(UnicastSubsequentAddressFamily.class)
+                                                .build()).build()).build()).build())).build());
+        final Open openObj = new OpenBuilder()
+                .setBgpIdentifier(new Ipv4Address("1.1.1.1"))
+                .setHoldTimer(50)
+                .setMyAsNumber(72)
+                .setBgpParameters(params).build();
         this.session = new BGPSessionImpl(this.classic, channel, openObj, 30, null);
         this.session.setChannelExtMsgCoder(openObj);
     }
