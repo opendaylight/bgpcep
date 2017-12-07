@@ -224,7 +224,7 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
             final AfiSafis afisSAfis = requireNonNull(neighbor.getAfiSafis());
             final Set<TablesKey> afiSafisAdvertized = OpenConfigMappingUtil
                     .toTableKey(afisSAfis.getAfiSafi(), tableTypeRegistry);
-            this.bgpPeer = new BGPPeer(Ipv4Util.toStringIP(this.neighborAddress), rib,
+            this.bgpPeer = new BGPPeer(this.neighborAddress, rib,
                     OpenConfigMappingUtil.toPeerRole(neighbor), getSimpleRoutingPolicy(neighbor),
                     BgpPeer.this.rpcRegistry, afiSafisAdvertized, Collections.emptySet());
             final List<BgpParameters> bgpParameters = getBgpParameters(neighbor, rib, tableTypeRegistry);
