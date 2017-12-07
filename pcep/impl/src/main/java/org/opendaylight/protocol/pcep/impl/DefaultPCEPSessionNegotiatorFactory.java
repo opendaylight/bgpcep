@@ -27,21 +27,20 @@ public final class DefaultPCEPSessionNegotiatorFactory extends AbstractPCEPSessi
         this(spf, maxUnknownMessages, null);
     }
 
-    public DefaultPCEPSessionNegotiatorFactory(final PCEPSessionProposalFactory spf, final int maxUnknownMessages, final Tls tlsConfiguration) {
+    public DefaultPCEPSessionNegotiatorFactory(final PCEPSessionProposalFactory spf, final int maxUnknownMessages,
+            final Tls tlsConfiguration) {
         this.spf = requireNonNull(spf);
         this.maxUnknownMessages = maxUnknownMessages;
         this.tlsConfiguration = tlsConfiguration;
     }
 
-    public DefaultPCEPSessionNegotiatorFactory(final PCEPSessionProposalFactory spf, final PcepDispatcherConfig config) {
-        this(spf, config.getMaxUnknownMessages(), config.getTls());
-    }
-
     @Override
-    protected AbstractPCEPSessionNegotiator createNegotiator(final Promise<PCEPSessionImpl> promise, final PCEPSessionListener listener,
-            final Channel channel, final short sessionId, final PCEPPeerProposal peerProposal) {
+    protected AbstractPCEPSessionNegotiator createNegotiator(final Promise<PCEPSessionImpl> promise,
+            final PCEPSessionListener listener, final Channel channel, final short sessionId,
+            final PCEPPeerProposal peerProposal) {
         return new DefaultPCEPSessionNegotiator(promise, channel, listener, sessionId, this.maxUnknownMessages,
-                this.spf.getSessionProposal((InetSocketAddress)channel.remoteAddress(), sessionId, peerProposal), this.tlsConfiguration);
+                this.spf.getSessionProposal((InetSocketAddress)channel.remoteAddress(), sessionId, peerProposal),
+                this.tlsConfiguration);
     }
 
     @Override

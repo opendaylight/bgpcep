@@ -34,7 +34,7 @@ import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDependenciesProvider, AutoCloseable {
+public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDependencies, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyProviderBean.class);
 
     private static final String STATEFUL_NOT_DEFINED =
@@ -87,7 +87,7 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
         }
     }
 
-    synchronized void start(final PCEPTopologyConfigDependencies configDependencies) {
+    synchronized void start(final PCEPTopologyConfiguration configDependencies) {
         Preconditions.checkState(this.pcepTopoProviderCSS == null,
                 "Previous instance %s was not closed.", this);
         try {
@@ -130,7 +130,7 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
         @GuardedBy("this")
         private boolean serviceInstantiated;
 
-        PCEPTopologyProviderBeanCSS(final PCEPTopologyConfigDependencies configDependencies) {
+        PCEPTopologyProviderBeanCSS(final PCEPTopologyConfiguration configDependencies) {
             this.sgi = configDependencies.getSchedulerDependency().getIdentifier();
             this.pcepTopoProvider = PCEPTopologyProvider
                     .create(PCEPTopologyProviderBean.this, configDependencies);

@@ -34,8 +34,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
-import org.opendaylight.protocol.pcep.PCEPPeerProposal;
-import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
+import org.opendaylight.protocol.pcep.PCEPDispatcherDependencies;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.spi.MessageRegistry;
 import org.slf4j.Logger;
@@ -80,23 +79,20 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     }
 
     @Override
-    public final synchronized ChannelFuture createServer(final InetSocketAddress address,
-            final PCEPSessionListenerFactory listenerFactory, final PCEPPeerProposal peerProposal) {
-        return createServer(address, KeyMapping.getKeyMapping(), listenerFactory, peerProposal);
-    }
+    public final synchronized ChannelFuture createServer(final PCEPDispatcherDependencies dispatcherDependencies) {
+        this.keys = dispatcherDependencies.getKeys();
 
-    @Override
-    public final synchronized ChannelFuture createServer(final InetSocketAddress address, final KeyMapping keys,
-            final PCEPSessionListenerFactory listenerFactory, final PCEPPeerProposal peerProposal) {
-        this.keys = keys;
-
+        @SuppressWarnings("unchecked")
         final ChannelPipelineInitializer initializer = (ch, promise) -> {
             ch.pipeline().addLast(this.hf.getDecoders());
-            ch.pipeline().addLast("negotiator", this.snf.getSessionNegotiator(listenerFactory, ch, promise, peerProposal));
+            ch.pipeline().addLast("negotiator", this.snf
+                    .getSessionNegotiator(dispatcherDependencies.getListenerFactory(), ch, promise,
+                            dispatcherDependencies.getPeerProposal()));
             ch.pipeline().addLast(this.hf.getEncoders());
         };
 
         final ServerBootstrap b = createServerBootstrap(initializer);
+        final InetSocketAddress address = dispatcherDependencies.getAddress();
         final ChannelFuture f = b.bind(address);
         LOG.debug("Initiated server {} at {}.", f, address);
 

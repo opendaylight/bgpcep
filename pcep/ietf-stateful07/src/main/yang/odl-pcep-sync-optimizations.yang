@@ -62,12 +62,16 @@ module odl-pcep-sync-optimizations {
         }
     }
 
+    grouping speaker-entity-id {
+        leaf speaker-entity-id-value {
+            type binary;
+        }
+    }
+
     grouping speaker-entity-id-tlv {
         container speaker-entity-id {
             uses pcep:tlv;
-            leaf speaker-entity-id-value {
-                type binary;
-            }
+            uses speaker-entity-id;
         }
     }
 

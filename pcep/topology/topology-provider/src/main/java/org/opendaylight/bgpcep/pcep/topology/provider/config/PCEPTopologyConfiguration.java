@@ -10,21 +10,30 @@ package org.opendaylight.bgpcep.pcep.topology.provider.config;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.net.InetSocketAddress;
+import javax.annotation.Nonnull;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.protocol.concepts.KeyMapping;
+import org.opendaylight.protocol.pcep.SpeakerIdMapping;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 
-public final class PCEPTopologyConfigDependencies {
+public final class PCEPTopologyConfiguration {
     private final InetSocketAddress address;
     private final KeyMapping keys;
     private final InstructionScheduler scheduler;
     private final TopologyId topologyId;
     private final short rpcTimeout;
+    private final SpeakerIdMapping speakerIds;
 
-    public PCEPTopologyConfigDependencies(final InetSocketAddress address, final KeyMapping keys,
-            final InstructionScheduler scheduler, final TopologyId topologyId, final short rpcTimeout) {
+    public PCEPTopologyConfiguration(
+            @Nonnull final InetSocketAddress address,
+            @Nonnull final KeyMapping keys,
+            @Nonnull final SpeakerIdMapping speakerIds,
+            @Nonnull final InstructionScheduler scheduler,
+            @Nonnull final TopologyId topologyId,
+            final short rpcTimeout) {
         this.address = checkNotNull(address);
         this.keys = checkNotNull(keys);
+        this.speakerIds = checkNotNull(speakerIds);
         this.scheduler = checkNotNull(scheduler);
         this.topologyId = checkNotNull(topologyId);
         this.rpcTimeout = rpcTimeout;
@@ -48,5 +57,9 @@ public final class PCEPTopologyConfigDependencies {
 
     public KeyMapping getKeys() {
         return this.keys;
+    }
+
+    public SpeakerIdMapping getSpeakerIds() {
+        return this.speakerIds;
     }
 }
