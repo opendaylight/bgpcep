@@ -263,7 +263,7 @@ class AbstractAddPathTest extends AbstractConcurrentDataBrokerTest {
         final BgpParameters bgpParameters, final PeerRole peerRole, final BGPPeerRegistry bgpPeerRegistry) {
         final IpAddress ipAddress = new IpAddress(peerAddress);
 
-        final BGPPeer bgpPeer = new BGPPeer(peerAddress.getValue(), ribImpl, peerRole, null,
+        final BGPPeer bgpPeer = new BGPPeer(new IpAddress(peerAddress), ribImpl, peerRole, null,
             AFI_SAFIS_ADVERTIZED, Collections.emptySet());
         final List<BgpParameters> tlvs = Lists.newArrayList(bgpParameters);
         bgpPeerRegistry.addPeer(ipAddress, bgpPeer,

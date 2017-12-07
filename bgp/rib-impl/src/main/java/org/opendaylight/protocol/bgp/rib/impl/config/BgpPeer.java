@@ -65,7 +65,6 @@ import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public final class BgpPeer implements PeerBean, BGPPeerStateConsumer, BGPPeerRuntimeMXBean {
 
     private static final Logger LOG = LoggerFactory.getLogger(BgpPeer.class);
@@ -242,7 +241,7 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer, BGPPeerRun
                     "Missing mandatory AFIs/SAFIs");
             final Set<TablesKey> afiSafisAdvertized = OpenConfigMappingUtil
                 .toTableKey(afisSAfis.getAfiSafi(), tableTypeRegistry);
-            this.bgpPeer = new BGPPeer(Ipv4Util.toStringIP(this.neighborAddress), rib,
+            this.bgpPeer = new BGPPeer(this.neighborAddress, rib,
                 OpenConfigMappingUtil.toPeerRole(neighbor), getSimpleRoutingPolicy(neighbor), BgpPeer.this.rpcRegistry,
                 afiSafisAdvertized, Collections.emptySet());
             final List<BgpParameters> bgpParameters = getBgpParameters(neighbor, rib, tableTypeRegistry);
