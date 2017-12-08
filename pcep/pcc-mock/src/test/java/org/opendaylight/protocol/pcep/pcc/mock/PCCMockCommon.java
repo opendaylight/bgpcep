@@ -39,6 +39,7 @@ import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
+import org.opendaylight.protocol.pcep.SpeakerIdMapping;
 import org.opendaylight.protocol.pcep.ietf.stateful07.StatefulActivator;
 import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
@@ -231,6 +232,7 @@ public abstract class PCCMockCommon {
 
     class DispatcherDependencies implements PCEPDispatcherDependencies {
         final KeyMapping keys = KeyMapping.getKeyMapping();
+        final SpeakerIdMapping ids = SpeakerIdMapping.getSpeakerIdMap();
         private final InetSocketAddress address;
         private final TestingSessionListenerFactory listenerFactory;
         private final PCEPPeerProposal peerProposal;
@@ -252,6 +254,11 @@ public abstract class PCCMockCommon {
         @Override
         public KeyMapping getKeys() {
             return keys;
+        }
+
+        @Override
+        public SpeakerIdMapping getSpeakerIdMapping() {
+            return ids;
         }
 
         @Override

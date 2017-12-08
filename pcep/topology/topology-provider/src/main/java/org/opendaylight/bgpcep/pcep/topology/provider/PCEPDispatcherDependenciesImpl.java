@@ -17,6 +17,7 @@ import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPDispatcherDependencies;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
+import org.opendaylight.protocol.pcep.SpeakerIdMapping;
 
 public final class PCEPDispatcherDependenciesImpl implements PCEPDispatcherDependencies {
     private final ServerSessionManager manager;
@@ -38,6 +39,11 @@ public final class PCEPDispatcherDependenciesImpl implements PCEPDispatcherDepen
     @Override
     public KeyMapping getKeys() {
         return this.topologyConfigDependencies.getKeys();
+    }
+
+    @Override
+    public SpeakerIdMapping getSpeakerIdMapping() {
+        return this.topologyConfigDependencies.getSpeakerIds();
     }
 
     @Override

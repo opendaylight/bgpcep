@@ -23,6 +23,7 @@
             <node-id>43.43.43.43</node-id>
             <session-config xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep:config">
                 <password>topsecret</password>
+                <speaker-entity-id-value xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep:sync:optimizations:config">AQIDBA==</speaker-entity-id-value>
             </session-config>
         </node>
     </topology>

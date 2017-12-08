@@ -27,6 +27,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.protocol.concepts.KeyMapping;
+import org.opendaylight.protocol.pcep.SpeakerIdMapping;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev171025.pcep.config.SessionConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.config.rev171025.PcepTopologyTypeConfig;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
@@ -115,8 +116,9 @@ public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener
                 .getInetSocketAddress(config.getListenAddress(), config.getListenPort());
 
         final KeyMapping keys = PCEPTopologyProviderUtil.contructKeys(topology);
+        final SpeakerIdMapping speakerIds = PCEPTopologyProviderUtil.contructSpeakersId(topology);
         final PCEPTopologyConfiguration dependencies = new PCEPTopologyConfiguration(
-                inetAddress, keys, instructionScheduler, topology.getTopologyId(),
+                inetAddress, keys, speakerIds, instructionScheduler, topology.getTopologyId(),
                 config.getRpcTimeout());
 
         final PCEPTopologyProviderBean pcepTopologyProviderBean = (PCEPTopologyProviderBean) this.container

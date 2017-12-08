@@ -398,6 +398,11 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
     }
 
     @Override
+    public Open getLocalOpen() {
+        return this.sessionState.getLocalOpen();
+    }
+
+    @Override
     public final void channelInactive(final ChannelHandlerContext ctx) {
         LOG.debug("Channel {} inactive.", ctx.channel());
         this.endOfInput();

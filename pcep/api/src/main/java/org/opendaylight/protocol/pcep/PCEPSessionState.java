@@ -10,6 +10,7 @@ package org.opendaylight.protocol.pcep;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.pcep.session.state.LocalPref;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.pcep.session.state.Messages;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.pcep.session.state.PeerPref;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 
 /**
  * Exposes Session state
@@ -35,4 +36,11 @@ public interface PCEPSessionState {
      * @return peer preferences
      */
     PeerPref getPeerPref();
+
+    /**
+     * The local (PCE) Open Message.
+     *
+     * @return Open
+     */
+    Open getLocalOpen();
 }

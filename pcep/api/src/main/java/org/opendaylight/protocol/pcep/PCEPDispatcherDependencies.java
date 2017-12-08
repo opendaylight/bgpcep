@@ -34,6 +34,14 @@ public interface PCEPDispatcherDependencies {
     KeyMapping getKeys();
 
     /**
+     * PCEP Speaker Id mapping.
+     *
+     * @return map containing Keys
+     */
+    @Nonnull
+    SpeakerIdMapping getSpeakerIdMapping();
+
+    /**
      * ListenerFactory to create listeners for clients.
      *
      * @return ListenerFactory
