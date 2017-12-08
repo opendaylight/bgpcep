@@ -9,9 +9,6 @@ package org.opendaylight.protocol.pcep.impl;
 
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.Promise;
-import javax.annotation.Nonnull;
-import org.opendaylight.protocol.pcep.PCEPPeerProposal;
-import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactoryDependencies;
 import org.opendaylight.protocol.pcep.SessionNegotiator;
@@ -31,14 +28,14 @@ public abstract class AbstractPCEPSessionNegotiatorFactory implements PCEPSessio
     /**
      * Create a new negotiator. This method needs to be implemented by subclasses to actually provide a negotiator.
      *
+     * @param snd       PCEP Session Negotiator dependencies
      * @param promise   Session promise to be completed by the negotiator
-     * @param listener  PCEPSessionListener
      * @param channel   Associated channel
      * @param sessionId Session ID assigned to the resulting session
      * @return a PCEP session negotiator
      */
     protected abstract AbstractPCEPSessionNegotiator createNegotiator(
-            @Nonnull PCEPSessionNegotiatorFactoryDependencies sessionNegotiatorDependencies,
+            PCEPSessionNegotiatorFactoryDependencies snd,
             Promise<PCEPSessionImpl> promise,
             Channel channel, short sessionId);
 
