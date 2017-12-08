@@ -9,6 +9,7 @@ module odl-pcep-stateful-stats {
     import yang-ext { prefix ext; revision-date 2013-07-09; }
     import pcep-session-stats { prefix pss; revision-date 2017-11-13; }
     import network-pcep-topology-stats { prefix npts; revision-date 2017-11-13; }
+    import odl-pcep-sync-optimizations { prefix opso; revision-date 2017-10-25; }
 
     description
         "This module contains the PCEP Stateful stats YANG definitions for
@@ -89,5 +90,13 @@ module odl-pcep-stateful-stats {
         description "Remote peer's (PCC) advertised stateful capabilities.";
 
         uses stateful-preferences;
+    }
+
+    augment "/nt:network-topology/nt:topology/nt:node/npts:pcep-session-state/npts:local-pref" {
+        when "../../../nt:topology-types/pn:topology-pcep";
+        ext:augment-identifier pcep-entity-id-stats-aug;
+        description "PCEP Entity Identifier";
+
+        uses opso:speaker-entity-id;
     }
 }
