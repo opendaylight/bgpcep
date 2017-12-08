@@ -22,6 +22,30 @@
       "revId": "56a12f15570db9224e940258f1feb59f2d9a0624",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_91bf5fd0",
+        "filename": "bgp/evpn/src/main/yang/odl-bgp-evpn.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2017-12-08T08:40:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a1969be_9bcddf60",
+      "range": {
+        "startLine": 33,
+        "startChar": 4,
+        "endLine": 33,
+        "endChar": 26
+      },
+      "revId": "56a12f15570db9224e940258f1feb59f2d9a0624",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
