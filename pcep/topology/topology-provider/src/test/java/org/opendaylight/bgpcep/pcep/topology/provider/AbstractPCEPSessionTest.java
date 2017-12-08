@@ -40,6 +40,7 @@ import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
+import org.opendaylight.protocol.pcep.SpeakerIdMapping;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiator;
 import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
@@ -143,7 +144,7 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
                 .getActualTypeArguments()[0]).newInstance();
 
         final PCEPTopologyConfiguration configDep = new PCEPTopologyConfiguration(ra, KeyMapping.getKeyMapping(),
-                this.scheduler, TEST_TOPOLOGY_ID, RPC_TIMEOUT);
+                SpeakerIdMapping.getSpeakerIdMap(), this.scheduler, TEST_TOPOLOGY_ID, RPC_TIMEOUT);
         this.manager = new ServerSessionManager(this.topologyDependencies, listenerFactory, configDep);
         startSessionManager();
         this.neg = new DefaultPCEPSessionNegotiator(this.promise, this.clientListener,

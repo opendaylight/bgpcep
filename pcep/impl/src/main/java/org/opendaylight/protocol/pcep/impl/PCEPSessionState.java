@@ -28,6 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObject;
 
 final class PCEPSessionState {
+    private final Open localOpen;
     private long sentMsgCount = 0;
     private long receivedMsgCount = 0;
     private long sentErrMsgCount = 0;
@@ -44,6 +45,7 @@ final class PCEPSessionState {
         requireNonNull(remoteOpen);
         requireNonNull(localOpen);
         requireNonNull(channel);
+        this.localOpen = localOpen;
         this.peerPref = getRemotePref(remoteOpen, channel);
         this.localPref = getLocalPref(localOpen, channel);
         this.lastReceivedErrorBuilder = new LastReceivedErrorBuilder();
@@ -119,5 +121,9 @@ final class PCEPSessionState {
         peerBuilder.setIpAddress(((InetSocketAddress) channel.localAddress()).getAddress().getHostAddress());
         peerBuilder.setSessionId(open.getSessionId().intValue());
         return peerBuilder.build();
+    }
+
+    public Open getLocalOpen() {
+        return localOpen;
     }
 }
