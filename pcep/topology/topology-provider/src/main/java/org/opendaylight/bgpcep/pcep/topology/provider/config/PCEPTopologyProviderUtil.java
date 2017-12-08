@@ -16,12 +16,14 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.protocol.concepts.KeyMapping;
+import org.opendaylight.protocol.pcep.SpeakerIdMapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.rfc2385.cfg.rev160324.Rfc2385Key;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.config.rev171025.PcepNodeConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.TopologyTypes1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.sync.optimizations.config.rev171025.PcepNodeSyncConfig;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypes;
@@ -78,5 +80,24 @@ final class PCEPTopologyProviderUtil {
             }
             topology.close();
         }
+    }
+
+    static SpeakerIdMapping contructSpeakersId(final Topology topology) {
+        final SpeakerIdMapping ret = SpeakerIdMapping.getSpeakerIdMap();
+        topology.getNode().stream()
+                .filter(Objects::nonNull)
+                .filter(node -> node.getAugmentation(PcepNodeConfig.class) != null)
+                .filter(node -> node.getAugmentation(PcepNodeConfig.class).getSessionConfig() != null)
+                .filter(node -> node.getAugmentation(PcepNodeConfig.class).getSessionConfig()
+                        .getAugmentation(PcepNodeSyncConfig.class) != null)
+                .forEach(node -> {
+                    final PcepNodeConfig config = node.getAugmentation(PcepNodeConfig.class);
+                    final PcepNodeSyncConfig nodeSyncConfig = config.getSessionConfig()
+                            .getAugmentation(PcepNodeSyncConfig.class);
+                    final InetAddress address = InetAddresses.forString(node.getNodeId().getValue());
+                    ret.put(address, nodeSyncConfig.getSpeakerEntityIdValue());
+                });
+
+        return ret;
     }
 }
