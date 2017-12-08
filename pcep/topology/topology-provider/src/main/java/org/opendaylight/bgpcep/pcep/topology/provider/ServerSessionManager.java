@@ -258,7 +258,8 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
     @Override
     public void setPeerSpecificProposal(final InetSocketAddress address, final TlvsBuilder openBuilder) {
         requireNonNull(address);
-        this.peerProposal.setPeerProposal(createNodeId(address.getAddress()), openBuilder);
+        final byte[] speakerId = this.pcepDispatcherDependencies.getSpeakerIdMapping().get(address.getAddress());
+        this.peerProposal.setPeerProposal(createNodeId(address.getAddress()), openBuilder, speakerId);
     }
 
     short getRpcTimeout() {
