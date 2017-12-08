@@ -10,7 +10,6 @@ package org.opendaylight.protocol.pcep;
 
 import java.net.InetSocketAddress;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.opendaylight.protocol.concepts.KeyMapping;
 
 /**
@@ -32,4 +31,12 @@ public interface PCEPDispatcherDependencies extends PCEPSessionNegotiatorFactory
      */
     @Nonnull
     KeyMapping getKeys();
+
+    /**
+     * PCEP Speaker Id mapping.
+     *
+     * @return map containing Keys
+     */
+    @Nonnull
+    SpeakerIdMapping getSpeakerIdMapping();
 }
