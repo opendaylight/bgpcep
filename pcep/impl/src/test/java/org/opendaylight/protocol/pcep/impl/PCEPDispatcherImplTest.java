@@ -11,6 +11,7 @@ package org.opendaylight.protocol.pcep.impl;
 import static java.util.Objects.requireNonNull;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
 import io.netty.bootstrap.Bootstrap;
@@ -40,6 +41,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPCapability;
+import org.opendaylight.protocol.pcep.PCEPDispatcherDependencies;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
@@ -59,6 +61,10 @@ public class PCEPDispatcherImplTest {
 
     @Mock
     private Channel mockChannel;
+    @Mock
+    private PCEPDispatcherDependencies dispatcherDependencies;
+    @Mock
+    private PCEPSessionListenerFactory listenerFactory;
 
     private PCCMock pccMock;
 
@@ -67,7 +73,7 @@ public class PCEPDispatcherImplTest {
         MockitoAnnotations.initMocks(this);
         final List<PCEPCapability> capList = new ArrayList<>();
         final PCEPSessionProposalFactory sessionProposal = new BasePCEPSessionProposalFactory(DEAD_TIMER, KEEP_ALIVE,
-            capList);
+                capList);
         final EventLoopGroup eventLoopGroup;
         if (Epoll.isAvailable()) {
             eventLoopGroup = new EpollEventLoopGroup();
@@ -75,18 +81,21 @@ public class PCEPDispatcherImplTest {
             eventLoopGroup = new NioEventLoopGroup();
         }
         final MessageRegistry msgReg = ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance()
-            .getMessageHandlerRegistry();
+                .getMessageHandlerRegistry();
         this.dispatcher = new PCEPDispatcherImpl(msgReg, new DefaultPCEPSessionNegotiatorFactory(sessionProposal, 0),
-            eventLoopGroup, eventLoopGroup);
+                eventLoopGroup, eventLoopGroup);
 
-        Mockito.doReturn("mockChannel").when(this.mockChannel).toString();
+        doReturn(KeyMapping.getKeyMapping()).when(this.dispatcherDependencies).getKeys();
+        doReturn(null).when(this.dispatcherDependencies).getPeerProposal();
+
+        doReturn("mockChannel").when(this.mockChannel).toString();
         final PCEPDispatcherImpl dispatcher2 = new PCEPDispatcherImpl(msgReg,
-            new DefaultPCEPSessionNegotiatorFactory(sessionProposal, 0),
-            eventLoopGroup, eventLoopGroup);
+                new DefaultPCEPSessionNegotiatorFactory(sessionProposal, 0),
+                eventLoopGroup, eventLoopGroup);
         this.disp2Spy = Mockito.spy(dispatcher2);
 
         this.pccMock = new PCCMock(new DefaultPCEPSessionNegotiatorFactory(sessionProposal, 0),
-            new PCEPHandlerFactory(msgReg));
+                new PCEPHandlerFactory(msgReg));
     }
 
     @Test
@@ -95,14 +104,17 @@ public class PCEPDispatcherImplTest {
         final InetSocketAddress serverAddr = new InetSocketAddress("0.0.0.0", port);
         final InetSocketAddress clientAddr1 = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
         final InetSocketAddress clientAddr2 = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
-        final ChannelFuture futureChannel = this.dispatcher.createServer(serverAddr,
-            SimpleSessionListener::new, null);
+
+        doReturn(serverAddr).when(this.dispatcherDependencies).getAddress();
+        doReturn(this.listenerFactory).when(this.dispatcherDependencies).getListenerFactory();
+        doReturn(new SimpleSessionListener()).when(this.listenerFactory).getSessionListener();
+        final ChannelFuture futureChannel = this.dispatcher.createServer(this.dispatcherDependencies);
         waitFutureSuccess(futureChannel);
         final PCEPSessionImpl session1 = (PCEPSessionImpl) this.pccMock.createClient(clientAddr1,
-            RETRY_TIMER, CONNECT_TIMEOUT, SimpleSessionListener::new).get();
+                RETRY_TIMER, CONNECT_TIMEOUT, SimpleSessionListener::new).get();
 
         final PCEPSessionImpl session2 = (PCEPSessionImpl) this.pccMock.createClient(clientAddr2,
-            RETRY_TIMER, CONNECT_TIMEOUT, SimpleSessionListener::new).get();
+                RETRY_TIMER, CONNECT_TIMEOUT, SimpleSessionListener::new).get();
 
         Assert.assertTrue(futureChannel.channel().isActive());
         assertEquals(clientAddr1.getAddress().getHostAddress(), session1.getPeerPref().getIpAddress());
@@ -123,15 +135,20 @@ public class PCEPDispatcherImplTest {
         final int port = InetSocketAddressUtil.getRandomPort();
         final InetSocketAddress serverAddr = new InetSocketAddress("0.0.0.0", port);
         final InetSocketAddress clientAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
-        waitFutureSuccess(this.dispatcher.createServer(serverAddr, SimpleSessionListener::new, null));
+
+        doReturn(serverAddr).when(this.dispatcherDependencies).getAddress();
+        doReturn(this.listenerFactory).when(this.dispatcherDependencies).getListenerFactory();
+        doReturn(new SimpleSessionListener()).when(this.listenerFactory).getSessionListener();
+
+        waitFutureSuccess(this.dispatcher.createServer(this.dispatcherDependencies));
         final Future<PCEPSession> futureClient = this.pccMock.createClient(clientAddr, RETRY_TIMER, CONNECT_TIMEOUT,
-            SimpleSessionListener::new);
+                SimpleSessionListener::new);
         waitFutureSuccess(futureClient);
         final PCEPSessionImpl session1 = (PCEPSessionImpl) futureClient.get();
 
         try {
             this.pccMock.createClient(clientAddr, RETRY_TIMER, CONNECT_TIMEOUT,
-                SimpleSessionListener::new).get();
+                    SimpleSessionListener::new).get();
             Assert.fail();
         } catch (final ExecutionException e) {
             Assert.assertTrue(e.getMessage().contains("A conflicting session for address"));
@@ -144,10 +161,13 @@ public class PCEPDispatcherImplTest {
     public void testReconectClient() throws InterruptedException, ExecutionException {
         final int port = InetSocketAddressUtil.getRandomPort();
         final InetSocketAddress clientAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
-        waitFutureSuccess(this.dispatcher.createServer(new InetSocketAddress("0.0.0.0", port),
-            SimpleSessionListener::new, null));
+
+        doReturn(new InetSocketAddress("0.0.0.0", port)).when(this.dispatcherDependencies).getAddress();
+        doReturn(this.listenerFactory).when(this.dispatcherDependencies).getListenerFactory();
+        doReturn(new SimpleSessionListener()).when(this.listenerFactory).getSessionListener();
+        waitFutureSuccess(this.dispatcher.createServer(this.dispatcherDependencies));
         final PCEPSessionImpl session1 = (PCEPSessionImpl) this.pccMock.createClient(clientAddr,
-            RETRY_TIMER, CONNECT_TIMEOUT, SimpleSessionListener::new).get();
+                RETRY_TIMER, CONNECT_TIMEOUT, SimpleSessionListener::new).get();
 
         assertEquals(clientAddr.getAddress(), session1.getRemoteAddress());
         assertEquals(DEAD_TIMER, session1.getDeadTimerValue().shortValue());
@@ -155,7 +175,7 @@ public class PCEPDispatcherImplTest {
         waitFutureSuccess(session1.closeChannel());
 
         final PCEPSessionImpl session2 = (PCEPSessionImpl) this.pccMock.createClient(clientAddr,
-            RETRY_TIMER, CONNECT_TIMEOUT, SimpleSessionListener::new).get();
+                RETRY_TIMER, CONNECT_TIMEOUT, SimpleSessionListener::new).get();
 
         assertEquals(clientAddr.getAddress(), session1.getRemoteAddress());
         assertEquals(DEAD_TIMER, session2.getDeadTimerValue().shortValue());
@@ -172,8 +192,11 @@ public class PCEPDispatcherImplTest {
         final KeyMapping keys = KeyMapping.getKeyMapping(clientAddr1.getAddress(), "CLIENT1_ADDRESS");
         keys.put(clientAddr2.getAddress(), "CLIENT2_ADDRESS".getBytes());
 
-        final ChannelFuture futureChannel = this.disp2Spy.createServer(new InetSocketAddress("0.0.0.0", port),
-            SimpleSessionListener::new, null);
+        doReturn(new InetSocketAddress("0.0.0.0", port)).when(this.dispatcherDependencies).getAddress();
+        doReturn(this.listenerFactory).when(this.dispatcherDependencies).getListenerFactory();
+        doReturn(new SimpleSessionListener()).when(this.listenerFactory).getSessionListener();
+
+        final ChannelFuture futureChannel = this.disp2Spy.createServer(this.dispatcherDependencies);
         waitFutureSuccess(futureChannel);
         Mockito.verify(this.disp2Spy).createServerBootstrap(any(PCEPDispatcherImpl.ChannelPipelineInitializer.class));
     }
@@ -197,21 +220,28 @@ public class PCEPDispatcherImplTest {
             this.executor = requireNonNull(GlobalEventExecutor.INSTANCE);
         }
 
+        private static void setChannelFactory(final Bootstrap b) {
+            try {
+                b.channel(NioSocketChannel.class);
+            } catch (final IllegalStateException ignored) {
+            }
+        }
+
         Future<PCEPSession> createClient(final InetSocketAddress address, final int retryTimer,
-            final int connectTimeout, final PCEPSessionListenerFactory listenerFactory) {
+                final int connectTimeout, final PCEPSessionListenerFactory listenerFactory) {
             return createClient(address, retryTimer, connectTimeout, (ch, promise) -> {
                 ch.pipeline().addLast(this.factory.getDecoders());
                 ch.pipeline().addLast("negotiator", this.negotiatorFactory.getSessionNegotiator(listenerFactory, ch,
-                    promise, null));
+                        promise, null));
                 ch.pipeline().addLast(this.factory.getEncoders());
             });
         }
 
         Future<PCEPSession> createClient(final InetSocketAddress address, final int retryTimer,
-            final int connectTimeout, final PCEPDispatcherImpl.ChannelPipelineInitializer initializer) {
+                final int connectTimeout, final PCEPDispatcherImpl.ChannelPipelineInitializer initializer) {
             final Bootstrap b = new Bootstrap();
             final PCEPProtocolSessionPromise p = new PCEPProtocolSessionPromise<>(this.executor, address, retryTimer,
-                connectTimeout, b);
+                    connectTimeout, b);
             b.option(ChannelOption.SO_KEEPALIVE, Boolean.TRUE).handler(new ChannelInitializer<SocketChannel>() {
                 @Override
                 protected void initChannel(final SocketChannel ch) {
@@ -223,13 +253,6 @@ public class PCEPDispatcherImplTest {
             setChannelFactory(b);
             p.connect();
             return p;
-        }
-
-        private static void setChannelFactory(final Bootstrap b) {
-            try {
-                b.channel(NioSocketChannel.class);
-            } catch (final IllegalStateException ignored) {
-            }
         }
 
         private void setWorkerGroup(final Bootstrap b) {
