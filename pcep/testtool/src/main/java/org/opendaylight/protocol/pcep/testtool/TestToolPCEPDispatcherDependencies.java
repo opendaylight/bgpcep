@@ -13,11 +13,13 @@ import javax.annotation.Nonnull;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPDispatcherDependencies;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
+import org.opendaylight.protocol.pcep.SpeakerIdMapping;
 
 public final class TestToolPCEPDispatcherDependencies implements PCEPDispatcherDependencies {
     private final PCEPSessionListenerFactory listenerFactory = new TestingSessionListenerFactory();
     private final InetSocketAddress address;
     private final KeyMapping keys = KeyMapping.getKeyMapping();
+    private final SpeakerIdMapping speakerIds = SpeakerIdMapping.getSpeakerIdMap();
 
     TestToolPCEPDispatcherDependencies(@Nonnull final InetSocketAddress address) {
         this.address = address;
@@ -31,6 +33,11 @@ public final class TestToolPCEPDispatcherDependencies implements PCEPDispatcherD
     @Override
     public KeyMapping getKeys() {
         return this.keys;
+    }
+
+    @Override
+    public SpeakerIdMapping getSpeakerIdMapping() {
+        return this.speakerIds;
     }
 
     @Override

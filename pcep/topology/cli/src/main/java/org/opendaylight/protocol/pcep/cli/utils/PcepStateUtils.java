@@ -8,12 +8,14 @@
 package org.opendaylight.protocol.pcep.cli.utils;
 
 import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 import org.apache.karaf.shell.table.ShellTable;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev171113.PcepEntityIdStatsAug;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev171113.StatefulCapabilitiesStatsAug;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev171113.StatefulMessagesStatsAug;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.Error;
@@ -88,6 +90,11 @@ public final class PcepStateUtils {
         addHeader(table, "Local preferences");
         final LocalPref localPref = pcepSessionState.getLocalPref();
         showPreferences(table, localPref);
+        final PcepEntityIdStatsAug entAug = localPref.getAugmentation(PcepEntityIdStatsAug.class);
+        if (entAug != null) {
+            table.addRow().addContent("Speaker Entity Identifier",
+                    Arrays.toString(entAug.getSpeakerEntityIdValue()));
+        }
 
         addHeader(table, "Peer preferences");
         final PeerPref peerPref = pcepSessionState.getPeerPref();

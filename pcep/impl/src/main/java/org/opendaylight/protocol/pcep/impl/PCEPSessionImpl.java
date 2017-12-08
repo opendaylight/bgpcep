@@ -63,8 +63,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
     /**
      * System.nanoTime value about when was sent the last message Protected to be updated also in tests.
      */
-    @VisibleForTesting
-    protected volatile long lastMessageSentAt;
+    private volatile long lastMessageSentAt;
 
     /**
      * System.nanoTime value about when was received the last message
@@ -345,7 +344,8 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
              * session DOWN event.
              */
             close();
-            this.listener.onSessionTerminated(this, new PCEPCloseTermination(TerminationReason.forValue(((CloseMessage) msg).getCCloseMessage().getCClose().getReason())));
+            this.listener.onSessionTerminated(this, new PCEPCloseTermination(TerminationReason
+                    .forValue(((CloseMessage) msg).getCCloseMessage().getCClose().getReason())));
         } else {
             // This message needs to be handled by the user
             if (msg instanceof PcerrMessage) {
@@ -395,6 +395,11 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
     @Override
     public PeerPref getPeerPref() {
         return this.sessionState.getPeerPref();
+    }
+
+    @Override
+    public Open getLocalOpen() {
+        return this.sessionState.getLocalOpen();
     }
 
     @Override
