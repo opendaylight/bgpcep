@@ -115,7 +115,7 @@ public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener
                 .getInetSocketAddress(config.getListenAddress(), config.getListenPort());
 
         final KeyMapping keys = PCEPTopologyProviderUtil.contructKeys(topology);
-        final PCEPTopologyConfigDependencies dependencies = new PCEPTopologyConfigDependencies(
+        final PCEPTopologyConfiguration dependencies = new PCEPTopologyConfiguration(
                 inetAddress, keys, instructionScheduler, topology.getTopologyId(),
                 config.getRpcTimeout());
 
