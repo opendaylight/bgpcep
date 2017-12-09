@@ -87,7 +87,7 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
         }
     }
 
-    synchronized void start(final PCEPTopologyConfigDependencies configDependencies) {
+    synchronized void start(final PCEPTopologyConfiguration configDependencies) {
         Preconditions.checkState(this.pcepTopoProviderCSS == null,
                 "Previous instance %s was not closed.", this);
         try {
@@ -130,7 +130,7 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
         @GuardedBy("this")
         private boolean serviceInstantiated;
 
-        PCEPTopologyProviderBeanCSS(final PCEPTopologyConfigDependencies configDependencies) {
+        PCEPTopologyProviderBeanCSS(final PCEPTopologyConfiguration configDependencies) {
             this.sgi = configDependencies.getSchedulerDependency().getIdentifier();
             this.pcepTopoProvider = PCEPTopologyProvider
                     .create(PCEPTopologyProviderBean.this, configDependencies);

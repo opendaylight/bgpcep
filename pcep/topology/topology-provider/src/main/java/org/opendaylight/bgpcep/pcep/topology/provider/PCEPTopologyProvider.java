@@ -16,7 +16,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import java.net.InetSocketAddress;
 import java.util.List;
-import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyConfigDependencies;
+import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyConfiguration;
 import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyProviderDependenciesProvider;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
@@ -49,8 +49,21 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference {
     private RoutedRpcRegistration<NetworkTopologyPcepService> element;
     private Channel channel;
 
+    private PCEPTopologyProvider(final InetSocketAddress address, final KeyMapping keys,
+            final PCEPTopologyProviderDependenciesProvider dependenciesProvider,
+            final InstanceIdentifier<Topology> topology, final ServerSessionManager manager,
+            final InstructionScheduler scheduler) {
+        super(topology);
+        this.dependenciesProvider = requireNonNull(dependenciesProvider);
+        this.address = address;
+        this.topology = requireNonNull(topology);
+        this.keys = keys;
+        this.manager = requireNonNull(manager);
+        this.scheduler = scheduler;
+    }
+
     public static PCEPTopologyProvider create(final PCEPTopologyProviderDependenciesProvider dependenciesProvider,
-            final PCEPTopologyConfigDependencies configDependencies) {
+            final PCEPTopologyConfiguration configDependencies) {
         final List<PCEPCapability> capabilities = dependenciesProvider.getPCEPDispatcher()
                 .getPCEPSessionNegotiatorFactory().getPCEPSessionProposalFactory().getCapabilities();
         boolean statefulCapability = false;
@@ -77,19 +90,6 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference {
 
         return new PCEPTopologyProvider(configDependencies.getAddress(), configDependencies.getKeys(),
                 dependenciesProvider, topology, manager, configDependencies.getSchedulerDependency());
-    }
-
-    private PCEPTopologyProvider(final InetSocketAddress address, final KeyMapping keys,
-            final PCEPTopologyProviderDependenciesProvider dependenciesProvider,
-            final InstanceIdentifier<Topology> topology, final ServerSessionManager manager,
-            final InstructionScheduler scheduler) {
-        super(topology);
-        this.dependenciesProvider = requireNonNull(dependenciesProvider);
-        this.address = address;
-        this.topology = requireNonNull(topology);
-        this.keys = keys;
-        this.manager = requireNonNull(manager);
-        this.scheduler = scheduler;
     }
 
     public void instantiateServiceInstance() {
