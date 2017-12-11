@@ -201,9 +201,11 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
 
     @Override
     public synchronized void close() {
-        if (this.state != State.IDLE && !this.terminationReasonNotified) {
-            this.writeAndFlush(new NotifyBuilder().setErrorCode(BGPError.CEASE.getCode())
-                    .setErrorSubcode(BGPError.CEASE.getSubcode()).build());
+        if (this.state != State.IDLE) {
+            if (!this.terminationReasonNotified) {
+                this.writeAndFlush(new NotifyBuilder().setErrorCode(BGPError.CEASE.getCode())
+                        .setErrorSubcode(BGPError.CEASE.getSubcode()).build());
+            }
             this.closeWithoutMessage();
         }
     }
@@ -258,9 +260,9 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
             final Short errorCode,
             final Short errorSubcode) {
         this.terminationReasonNotified = true;
+        this.closeWithoutMessage();
         this.listener.onSessionTerminated(this, new BGPTerminationReason(
                 BGPError.forValue(errorCode, errorSubcode)));
-        this.closeWithoutMessage();
     }
 
     synchronized void endOfInput() {
@@ -304,14 +306,15 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         return this.channel.newFailedFuture(new NonWritableChannelException());
     }
 
-    private synchronized void closeWithoutMessage() {
+    @VisibleForTesting
+    synchronized void closeWithoutMessage() {
         if (this.state == State.IDLE) {
             return;
         }
         LOG.info("Closing session: {}", this);
         this.channel.close().addListener((ChannelFutureListener) future -> Preconditions.checkArgument(future.isSuccess(), "Channel failed to close: %s", future.cause()));
-        this.state = State.IDLE;
         removePeerSession();
+        this.state = State.IDLE;
         this.sessionState.setSessionState(this.state);
     }
 
@@ -410,8 +413,13 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     @VisibleForTesting
     synchronized void sessionUp() {
         this.state = State.UP;
-        this.sessionState.setSessionState(this.state);
-        this.listener.onSessionUp(this);
+        try {
+            this.sessionState.setSessionState(this.state);
+            this.listener.onSessionUp(this);
+        } catch (final Exception e) {
+            handleException(e);
+            throw e;
+        }
     }
 
     public synchronized State getState() {
@@ -461,11 +469,20 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
 
     @Override
     public synchronized void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
-        LOG.warn("BGP session encountered error", cause);
+        handleException(cause);
+    }
+
+    /**
+     * Handle exception occurred in the PCEP session. The session in error state should be closed
+     * properly so that it can be restored later.
+     */
+    @VisibleForTesting
+    void handleException(final Throwable cause) {
+        LOG.warn("BGP session {} encountered error", this, cause);
         if (cause.getCause() instanceof BGPDocumentedException) {
             this.terminate((BGPDocumentedException) cause.getCause());
         } else {
-            this.close();
+            this.terminate(new BGPDocumentedException(BGPError.CEASE));
         }
     }
 
