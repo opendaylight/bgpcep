@@ -40,6 +40,8 @@ import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
+import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
+import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
 import org.opendaylight.protocol.bgp.rib.spi.State;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -246,5 +248,28 @@ public class BGPSessionImplTest {
         Assert.assertEquals(BGPError.HOLD_TIMER_EXPIRED.getCode(), error.getErrorCode().shortValue());
         Assert.assertEquals(BGPError.HOLD_TIMER_EXPIRED.getSubcode(), error.getErrorSubcode().shortValue());
         Mockito.verify(this.speakerListener).close();
+    }
+
+    @Test
+    public void testSessionRecoveryOnException() throws Exception {
+        final BGPSessionListener listener = mock(BGPSessionListener.class);
+        Mockito.doThrow(new RuntimeException("Mocked runtime exception."))
+                .when(listener).onSessionUp(Matchers.any());
+        this.bgpSession = Mockito.spy(new BGPSessionImpl(listener, this.speakerListener, this.classicOpen,
+                this.classicOpen.getHoldTimer(), null));
+        this.bgpSession.setChannelExtMsgCoder(this.classicOpen);
+
+        Mockito.verify(this.bgpSession, Mockito.never()).handleException(Matchers.any());
+        Mockito.verify(this.bgpSession, Mockito.never()).writeAndFlush(Matchers.any(Notification.class));
+        Mockito.verify(this.bgpSession, Mockito.never()).terminate(Matchers.any(BGPDocumentedException.class));
+        try {
+            this.bgpSession.sessionUp();
+            Assert.fail();  // expect the exception to be populated
+        } catch (final RuntimeException ignored) {}
+        Assert.assertNotEquals(State.UP, this.bgpSession.getState());
+        Mockito.verify(this.bgpSession).handleException(Matchers.any());
+        Mockito.verify(this.bgpSession).writeAndFlush(Matchers.any(Notification.class));
+        Mockito.verify(this.bgpSession).terminate(Matchers.any(BGPDocumentedException.class));
+        Mockito.verify(listener).onSessionTerminated(this.bgpSession, new BGPTerminationReason(BGPError.CEASE));
     }
 }
