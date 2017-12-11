@@ -18,21 +18,21 @@ public interface PCEPSessionState {
     /**
      * The statistics of PCEP received/sent messages from the PCE point of view.
      *
-     * @return <code>org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev171113.pcep.session.state.Messages</code> <code>messages</code>, or <code>null</code> if not present
+     * @return messages
      */
     Messages getMessages();
 
     /**
      * The local (PCE) preferences.
      *
-     * @return <code>org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev171113.pcep.session.state.LocalPref</code> <code>localPref</code>, or <code>null</code> if not present
+     * @return local preferences
      */
     LocalPref getLocalPref();
 
     /**
      * The remote peer (PCC) preferences.
      *
-     * @return <code>org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev171113.pcep.session.state.PeerPref</code> <code>peerPref</code>, or <code>null</code> if not present
+     * @return peer preferences
      */
     PeerPref getPeerPref();
 }
