@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Listener for the client.
  */
-public final class SimpleSessionListener implements BGPSessionListener, ListenerCheck {
+public class SimpleSessionListener implements BGPSessionListener, ListenerCheck {
 
     private static final Logger LOG = LoggerFactory.getLogger(SimpleSessionListener.class);
     @GuardedBy("this")
