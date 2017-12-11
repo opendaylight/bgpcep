@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
 import com.google.common.base.MoreObjects;
+import java.util.Objects;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 
 public final class BGPTerminationReason {
@@ -19,6 +20,17 @@ public final class BGPTerminationReason {
 
     public String getErrorMessage() {
         return this.error.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.error);
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        return (o instanceof BGPTerminationReason) &&
+                Objects.equals(this.error, ((BGPTerminationReason) o).error);
     }
 
     @Override
