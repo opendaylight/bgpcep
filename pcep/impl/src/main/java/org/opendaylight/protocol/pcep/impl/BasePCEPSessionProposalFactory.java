@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -36,7 +38,7 @@ public final class BasePCEPSessionProposalFactory implements PCEPSessionProposal
 
         this.deadTimer = deadTimer;
         this.keepAlive = keepAlive;
-        this.capabilities = capabilities;
+        this.capabilities = requireNonNull(capabilities);
     }
 
     private void addTlvs(final InetSocketAddress address, final TlvsBuilder builder) {
