@@ -12,11 +12,14 @@ import static java.util.Objects.requireNonNull;
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
+import javax.annotation.Nonnull;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
+import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactoryDependencies;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.app.config.rev160707.PcepDispatcherConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.app.config.rev160707.pcep.dispatcher.config.Tls;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 
 public final class DefaultPCEPSessionNegotiatorFactory extends AbstractPCEPSessionNegotiatorFactory {
     private final PCEPSessionProposalFactory spf;
@@ -27,7 +30,8 @@ public final class DefaultPCEPSessionNegotiatorFactory extends AbstractPCEPSessi
         this(spf, maxUnknownMessages, null);
     }
 
-    public DefaultPCEPSessionNegotiatorFactory(final PCEPSessionProposalFactory spf, final int maxUnknownMessages, final Tls tlsConfiguration) {
+    private DefaultPCEPSessionNegotiatorFactory(final PCEPSessionProposalFactory spf, final int maxUnknownMessages,
+            final Tls tlsConfiguration) {
         this.spf = requireNonNull(spf);
         this.maxUnknownMessages = maxUnknownMessages;
         this.tlsConfiguration = tlsConfiguration;
@@ -38,10 +42,22 @@ public final class DefaultPCEPSessionNegotiatorFactory extends AbstractPCEPSessi
     }
 
     @Override
-    protected AbstractPCEPSessionNegotiator createNegotiator(final Promise<PCEPSessionImpl> promise, final PCEPSessionListener listener,
-            final Channel channel, final short sessionId, final PCEPPeerProposal peerProposal) {
-        return new DefaultPCEPSessionNegotiator(promise, channel, listener, sessionId, this.maxUnknownMessages,
-                this.spf.getSessionProposal((InetSocketAddress)channel.remoteAddress(), sessionId, peerProposal), this.tlsConfiguration);
+    protected AbstractPCEPSessionNegotiator createNegotiator(
+            final PCEPSessionNegotiatorFactoryDependencies sessionNegotiatorDependencies,
+            final Promise<PCEPSessionImpl> promise,
+            final Channel channel,
+            final short sessionId) {
+
+        final Open proposal = this.spf.getSessionProposal((InetSocketAddress) channel.remoteAddress(), sessionId,
+                sessionNegotiatorDependencies.getPeerProposal());
+        return new DefaultPCEPSessionNegotiator(
+                promise,
+                channel,
+                sessionNegotiatorDependencies.getListenerFactory().getSessionListener(),
+                sessionId,
+                this.maxUnknownMessages,
+                proposal,
+                this.tlsConfiguration);
     }
 
     @Override

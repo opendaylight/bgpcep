@@ -34,7 +34,7 @@ import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDependenciesProvider, AutoCloseable {
+public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDependencies, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyProviderBean.class);
 
     private static final String STATEFUL_NOT_DEFINED =
