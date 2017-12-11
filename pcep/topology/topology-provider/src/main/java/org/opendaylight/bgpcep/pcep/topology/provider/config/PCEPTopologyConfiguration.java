@@ -13,7 +13,11 @@ import java.net.InetSocketAddress;
 import javax.annotation.Nonnull;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.protocol.concepts.KeyMapping;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public final class PCEPTopologyConfiguration {
     private final InetSocketAddress address;
@@ -21,6 +25,7 @@ public final class PCEPTopologyConfiguration {
     private final InstructionScheduler scheduler;
     private final TopologyId topologyId;
     private final short rpcTimeout;
+    private final InstanceIdentifier<Topology> topology;
 
     public PCEPTopologyConfiguration(
             @Nonnull final InetSocketAddress address,
@@ -33,12 +38,21 @@ public final class PCEPTopologyConfiguration {
         this.scheduler = checkNotNull(scheduler);
         this.topologyId = checkNotNull(topologyId);
         this.rpcTimeout = rpcTimeout;
+        this.topology = InstanceIdentifier.builder(NetworkTopology.class)
+                .child(Topology.class, new TopologyKey(this.topologyId)).build();
     }
 
+    @Nonnull
     public TopologyId getTopologyId() {
         return this.topologyId;
     }
 
+    @Nonnull
+    public InstanceIdentifier<Topology> getTopology() {
+        return this.topology;
+    }
+
+    @Nonnull
     public InstructionScheduler getSchedulerDependency() {
         return this.scheduler;
     }
@@ -47,10 +61,12 @@ public final class PCEPTopologyConfiguration {
         return this.rpcTimeout;
     }
 
+    @Nonnull
     public InetSocketAddress getAddress() {
         return this.address;
     }
 
+    @Nonnull
     public KeyMapping getKeys() {
         return this.keys;
     }
