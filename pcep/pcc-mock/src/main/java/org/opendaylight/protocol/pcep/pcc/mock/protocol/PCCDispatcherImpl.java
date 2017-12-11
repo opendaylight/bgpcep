@@ -29,9 +29,11 @@ import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.protocol.concepts.KeyMapping;
+import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
+import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactoryDependencies;
 import org.opendaylight.protocol.pcep.impl.PCEPHandlerFactory;
 import org.opendaylight.protocol.pcep.pcc.mock.api.PCCDispatcher;
 import org.opendaylight.protocol.pcep.spi.MessageRegistry;
@@ -56,56 +58,6 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
         this.factory = new PCEPHandlerFactory(registry);
     }
 
-    @Override
-    public Future<PCEPSession> createClient(@Nonnull final InetSocketAddress remoteAddress, final long reconnectTime,
-        @Nonnull final PCEPSessionListenerFactory listenerFactory, @Nonnull final PCEPSessionNegotiatorFactory<? extends PCEPSession> negotiatorFactory,
-        @Nullable final KeyMapping keys, @Nonnull final InetSocketAddress localAddress) {
-        return createClient(remoteAddress, reconnectTime, listenerFactory, negotiatorFactory, keys, localAddress, BigInteger.ONE);
-    }
-
-    @Override
-    public Future<PCEPSession> createClient(@Nonnull final InetSocketAddress remoteAddress, final long reconnectTime,
-        @Nonnull final PCEPSessionListenerFactory listenerFactory, @Nonnull final PCEPSessionNegotiatorFactory negotiatorFactory,
-        @Nonnull final KeyMapping keys, @Nonnull final InetSocketAddress localAddress, @Nonnull final BigInteger dbVersion) {
-        final Bootstrap b = new Bootstrap();
-        b.group(this.workerGroup);
-        b.localAddress(localAddress);
-        final KeyMapping optionalKey = keys;
-        setChannelFactory(b, optionalKey);
-        b.option(ChannelOption.SO_KEEPALIVE, true);
-        b.option(ChannelOption.SO_REUSEADDR, true);
-        b.option(ChannelOption.RCVBUF_ALLOCATOR, new io.netty.channel.FixedRecvByteBufAllocator(1));
-        final long retryTimer = reconnectTime == -1 ? 0 : reconnectTime;
-        final PCCReconnectPromise promise = new PCCReconnectPromise(remoteAddress, (int) retryTimer, CONNECT_TIMEOUT, b);
-        final ChannelInitializer<SocketChannel> channelInitializer = new ChannelInitializer<SocketChannel>() {
-            @Override
-            protected void initChannel(final SocketChannel ch) throws Exception {
-                ch.pipeline().addLast(PCCDispatcherImpl.this.factory.getDecoders());
-                ch.pipeline().addLast("negotiator", negotiatorFactory.getSessionNegotiator(listenerFactory, ch, promise, new PCCPeerProposal(dbVersion)));
-                ch.pipeline().addLast(PCCDispatcherImpl.this.factory.getEncoders());
-                ch.pipeline().addLast(new ChannelInboundHandlerAdapter() {
-                    @Override
-                    public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
-                        if (promise.isCancelled()) {
-                            return;
-                        }
-
-                        if (!promise.isInitialConnectFinished()) {
-                            LOG.debug("Connection to {} was dropped during negotiation, reattempting", remoteAddress);
-                            return;
-                        }
-                        LOG.debug("Reconnecting after connection to {} was dropped", remoteAddress);
-                        PCCDispatcherImpl.this.createClient(remoteAddress, reconnectTime, listenerFactory, negotiatorFactory,
-                            keys, localAddress, dbVersion);
-                    }
-                });
-            }
-        };
-        b.handler(channelInitializer);
-        promise.connect();
-        return promise;
-    }
-
     private static void setChannelFactory(final Bootstrap bootstrap, final KeyMapping keys) {
         if (Epoll.isAvailable()) {
             bootstrap.channel(EpollSocketChannel.class);
@@ -120,6 +72,85 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
                 throw new UnsupportedOperationException(Epoll.unavailabilityCause().getCause());
             }
         }
+    }
+
+    @Override
+    public Future<PCEPSession> createClient(
+            @Nonnull final InetSocketAddress remoteAddress,
+            final long reconnectTime,
+            @Nonnull final PCEPSessionListenerFactory listenerFactory,
+            @Nonnull final PCEPSessionNegotiatorFactory<? extends PCEPSession> negotiatorFactory,
+            @Nullable final KeyMapping keys,
+            @Nonnull final InetSocketAddress localAddress) {
+        return createClient(remoteAddress, reconnectTime, listenerFactory, negotiatorFactory, keys,
+                localAddress, BigInteger.ONE);
+    }
+
+    @Override
+    public Future<PCEPSession> createClient(
+            @Nonnull final InetSocketAddress remoteAddress,
+            final long reconnectTime,
+            @Nonnull final PCEPSessionListenerFactory listenerFactory,
+            @Nonnull final PCEPSessionNegotiatorFactory negotiatorFactory,
+            @Nullable final KeyMapping keys,
+            @Nonnull final InetSocketAddress localAddress,
+            @Nonnull final BigInteger dbVersion) {
+        final Bootstrap b = new Bootstrap();
+        b.group(this.workerGroup);
+        b.localAddress(localAddress);
+        final KeyMapping optionalKey = keys;
+        setChannelFactory(b, optionalKey);
+        b.option(ChannelOption.SO_KEEPALIVE, true);
+        b.option(ChannelOption.SO_REUSEADDR, true);
+        b.option(ChannelOption.RCVBUF_ALLOCATOR, new io.netty.channel.FixedRecvByteBufAllocator(1));
+        final long retryTimer = reconnectTime == -1 ? 0 : reconnectTime;
+        final PCCReconnectPromise promise =
+                new PCCReconnectPromise(remoteAddress, (int) retryTimer, CONNECT_TIMEOUT, b);
+        final ChannelInitializer<SocketChannel> channelInitializer = new ChannelInitializer<SocketChannel>() {
+            @Override
+            protected void initChannel(final SocketChannel ch) throws Exception {
+                ch.pipeline().addLast(PCCDispatcherImpl.this.factory.getDecoders());
+                ch.pipeline().addLast("negotiator", negotiatorFactory.getSessionNegotiator(
+                        new PCEPSessionNegotiatorFactoryDependencies() {
+                            @Override
+                            public PCEPSessionListenerFactory getListenerFactory() {
+                                return listenerFactory;
+                            }
+
+                            @Override
+                            public PCEPPeerProposal getPeerProposal() {
+                                return new PCCPeerProposal(dbVersion);
+                            }
+                        }
+                        , ch, promise));
+                ch.pipeline().addLast(PCCDispatcherImpl.this.factory.getEncoders());
+                ch.pipeline().addLast(new ChannelInboundHandlerAdapter() {
+                    @Override
+                    public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
+                        if (promise.isCancelled()) {
+                            return;
+                        }
+
+                        if (!promise.isInitialConnectFinished()) {
+                            LOG.debug("Connection to {} was dropped during negotiation, reattempting", remoteAddress);
+                            return;
+                        }
+                        LOG.debug("Reconnecting after connection to {} was dropped", remoteAddress);
+                        PCCDispatcherImpl.this.createClient(
+                                remoteAddress,
+                                reconnectTime,
+                                listenerFactory,
+                                negotiatorFactory,
+                                keys,
+                                localAddress,
+                                dbVersion);
+                    }
+                });
+            }
+        };
+        b.handler(channelInitializer);
+        promise.connect();
+        return promise;
     }
 
     @Override

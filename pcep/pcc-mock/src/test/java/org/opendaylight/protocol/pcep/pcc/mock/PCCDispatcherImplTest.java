@@ -8,6 +8,7 @@
 
 package org.opendaylight.protocol.pcep.pcc.mock;
 
+import static org.mockito.Mockito.doReturn;
 import static org.opendaylight.protocol.pcep.pcc.mock.PCCMockCommon.checkSessionListenerNotNull;
 import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
@@ -25,9 +26,12 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
+import org.opendaylight.protocol.pcep.PCEPDispatcherDependencies;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
@@ -49,8 +53,12 @@ public class PCCDispatcherImplTest {
     private EventLoopGroup workerGroup;
     private EventLoopGroup bossGroup;
 
+    @Mock
+    PCEPDispatcherDependencies dispatcherDependencies;
+
     @Before
     public void setUp() {
+        MockitoAnnotations.initMocks(this);
         this.workerGroup = new NioEventLoopGroup();
         this.bossGroup = new NioEventLoopGroup();
         this.dispatcher = new PCCDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry());
@@ -58,6 +66,9 @@ public class PCCDispatcherImplTest {
             this.nf, this.bossGroup, this.workerGroup);
         this.serverAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
         this.clientAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(0);
+        doReturn(KeyMapping.getKeyMapping()).when(this.dispatcherDependencies).getKeys();
+        doReturn(this.serverAddress).when(this.dispatcherDependencies).getAddress();
+        doReturn(null).when(this.dispatcherDependencies).getPeerProposal();
     }
 
     @After
@@ -76,7 +87,9 @@ public class PCCDispatcherImplTest {
         final Future<PCEPSession> futureSession = this.dispatcher.createClient(this.serverAddress, 1, new TestingSessionListenerFactory(),
             this.nf, KeyMapping.getKeyMapping(), this.clientAddress);
         final TestingSessionListenerFactory slf = new TestingSessionListenerFactory();
-        final ChannelFuture futureServer = this.pcepDispatcher.createServer(this.serverAddress, slf, null);
+        doReturn(slf).when(this.dispatcherDependencies).getListenerFactory();
+
+        final ChannelFuture futureServer = this.pcepDispatcher.createServer(this.dispatcherDependencies);
         waitFutureSuccess(futureServer);
         final Channel channel = futureServer.channel();
         Assert.assertNotNull(futureSession.get());
@@ -93,7 +106,8 @@ public class PCCDispatcherImplTest {
             this.nf, this.bossGroup, this.workerGroup);
 
         final TestingSessionListenerFactory slf2 = new TestingSessionListenerFactory();
-        final ChannelFuture future2 = this.pcepDispatcher.createServer(this.serverAddress, slf2, null);
+        doReturn(slf2).when(this.dispatcherDependencies).getListenerFactory();
+        final ChannelFuture future2 = this.pcepDispatcher.createServer(this.dispatcherDependencies);
         waitFutureSuccess(future2);
         final Channel channel2 = future2.channel();
         final TestingSessionListener sl2 = checkSessionListenerNotNull(slf2, this.clientAddress.getAddress().getHostAddress());
