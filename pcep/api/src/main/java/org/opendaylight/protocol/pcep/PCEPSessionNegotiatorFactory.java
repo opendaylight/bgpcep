@@ -9,24 +9,29 @@ package org.opendaylight.protocol.pcep;
 
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.Promise;
+import javax.annotation.Nonnull;
 
 /**
- * Factory for creating PCEP session negotiator
+ * Factory for creating PCEP session negotiator.
  *
- * @param <S>
+ * @param <S extends PCEPSession>
  */
 public interface PCEPSessionNegotiatorFactory<S extends PCEPSession> {
 
     /**
-     * Creates PCEPSessionNegotiator instance for income attributes
+     * Creates PCEPSessionNegotiator instance for income attributes.
      *
-     * @param sessionListenerFactory
-     * @param channel
-     * @param promise
-     * @param peerProposal for including information from peer to our Open message
+     * @param sessionNegotiatorDependencies contains PCEPSessionNegotiator dependencies
+     * @param channel                       session channel
+     * @param promise                       session promise
      * @return PCEPSessionNegotiator instance
      */
-    SessionNegotiator getSessionNegotiator(PCEPSessionListenerFactory sessionListenerFactory, Channel channel, Promise<S> promise, final PCEPPeerProposal peerProposal);
+    @Nonnull
+    SessionNegotiator getSessionNegotiator(
+            @Nonnull PCEPSessionNegotiatorFactoryDependencies sessionNegotiatorDependencies,
+            @Nonnull Channel channel,
+            @Nonnull Promise<S> promise);
 
+    @Nonnull
     PCEPSessionProposalFactory getPCEPSessionProposalFactory();
 }

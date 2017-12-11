@@ -9,10 +9,11 @@ package org.opendaylight.protocol.pcep.impl;
 
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.Promise;
+import javax.annotation.Nonnull;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
-import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
+import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactoryDependencies;
 import org.opendaylight.protocol.pcep.SessionNegotiator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,21 +31,23 @@ public abstract class AbstractPCEPSessionNegotiatorFactory implements PCEPSessio
     /**
      * Create a new negotiator. This method needs to be implemented by subclasses to actually provide a negotiator.
      *
-     * @param promise Session promise to be completed by the negotiator
-     * @param listener PCEPSessionListener
-     * @param channel Associated channel
+     * @param promise   Session promise to be completed by the negotiator
+     * @param listener  PCEPSessionListener
+     * @param channel   Associated channel
      * @param sessionId Session ID assigned to the resulting session
      * @return a PCEP session negotiator
      */
-    protected abstract AbstractPCEPSessionNegotiator createNegotiator(Promise<PCEPSessionImpl> promise, PCEPSessionListener listener,
-            Channel channel, short sessionId, final PCEPPeerProposal peerProposal);
+    protected abstract AbstractPCEPSessionNegotiator createNegotiator(
+            @Nonnull PCEPSessionNegotiatorFactoryDependencies sessionNegotiatorDependencies,
+            Promise<PCEPSessionImpl> promise,
+            Channel channel, short sessionId);
 
     @Override
-    public final SessionNegotiator getSessionNegotiator(final PCEPSessionListenerFactory factory,
-            final Channel channel, final Promise<PCEPSessionImpl> promise, final PCEPPeerProposal peerProposal) {
+    public final SessionNegotiator getSessionNegotiator(final PCEPSessionNegotiatorFactoryDependencies dependencies,
+            final Channel channel, final Promise<PCEPSessionImpl> promise) {
 
         LOG.debug("Instantiating bootstrap negotiator for channel {}", channel);
-        return new PCEPSessionNegotiator(channel, promise, factory, this, peerProposal);
+        return new PCEPSessionNegotiator(channel, promise, dependencies, this);
     }
 
     public PCEPPeerRegistry getSessionRegistry() {
