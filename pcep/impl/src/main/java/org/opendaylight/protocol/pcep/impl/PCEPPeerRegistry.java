@@ -8,12 +8,12 @@
 
 package org.opendaylight.protocol.pcep.impl;
 
-import com.google.common.base.Optional;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.GuardedBy;
@@ -56,7 +56,7 @@ final class PCEPPeerRegistry {
         if (sessionReference != null) {
             return Optional.of(sessionReference);
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     protected synchronized Optional<SessionReference> removeSessionReference(final byte[] clientAddress) {
@@ -64,7 +64,7 @@ final class PCEPPeerRegistry {
         if (sessionReference != null) {
             return Optional.of(sessionReference);
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     protected synchronized void putSessionReference(final byte[] clientAddress, final SessionReference sessionReference) {

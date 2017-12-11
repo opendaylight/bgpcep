@@ -65,18 +65,6 @@ final class PCEPSessionState {
         return this.msgsBuilder.build();
     }
 
-    void reset() {
-        this.receivedMsgCount = 0;
-        this.sentMsgCount = 0;
-        this.receivedErrMsgCount = 0;
-        this.sentErrMsgCount = 0;
-        this.lastSentMsgTimestamp = 0;
-        this.lastReceivedErrorBuilder.setErrorType((short) 0);
-        this.lastReceivedErrorBuilder.setErrorValue((short) 0);
-        this.lastSentErrorBuilder.setErrorType((short) 0);
-        this.lastSentErrorBuilder.setErrorValue((short) 0);
-    }
-
     public LocalPref getLocalPref() {
         return this.localPref;
     }

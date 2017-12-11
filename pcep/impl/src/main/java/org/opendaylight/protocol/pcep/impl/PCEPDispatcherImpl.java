@@ -34,8 +34,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
-import org.opendaylight.protocol.pcep.PCEPPeerProposal;
-import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
+import org.opendaylight.protocol.pcep.PCEPDispatcherDependencies;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.spi.MessageRegistry;
 import org.slf4j.Logger;
@@ -48,7 +47,7 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPDispatcherImpl.class);
     private static final Integer SOCKET_BACKLOG_SIZE = 128;
     private static final long TIMEOUT = 10;
-    private final PCEPSessionNegotiatorFactory snf;
+    private final PCEPSessionNegotiatorFactory<PCEPSessionImpl> snf;
     private final PCEPHandlerFactory hf;
     private final EventLoopGroup bossGroup;
     private final EventLoopGroup workerGroup;
@@ -65,7 +64,7 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
      * @param workerGroup       handles the traffic of accepted connection
      */
     public PCEPDispatcherImpl(@Nonnull final MessageRegistry registry,
-            @Nonnull final PCEPSessionNegotiatorFactory negotiatorFactory,
+            @Nonnull final PCEPSessionNegotiatorFactory<PCEPSessionImpl> negotiatorFactory,
             @Nonnull final EventLoopGroup bossGroup, @Nonnull final EventLoopGroup workerGroup) {
         this.snf = requireNonNull(negotiatorFactory);
         this.hf = new PCEPHandlerFactory(registry);
@@ -80,23 +79,18 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     }
 
     @Override
-    public final synchronized ChannelFuture createServer(final InetSocketAddress address,
-            final PCEPSessionListenerFactory listenerFactory, final PCEPPeerProposal peerProposal) {
-        return createServer(address, KeyMapping.getKeyMapping(), listenerFactory, peerProposal);
-    }
+    public final synchronized ChannelFuture createServer(final PCEPDispatcherDependencies dispatcherDependencies) {
+        this.keys = dispatcherDependencies.getKeys();
 
-    @Override
-    public final synchronized ChannelFuture createServer(final InetSocketAddress address, final KeyMapping keys,
-            final PCEPSessionListenerFactory listenerFactory, final PCEPPeerProposal peerProposal) {
-        this.keys = keys;
-
-        final ChannelPipelineInitializer initializer = (ch, promise) -> {
+        @SuppressWarnings("unchecked") final ChannelPipelineInitializer initializer = (ch, promise) -> {
             ch.pipeline().addLast(this.hf.getDecoders());
-            ch.pipeline().addLast("negotiator", this.snf.getSessionNegotiator(listenerFactory, ch, promise, peerProposal));
+            ch.pipeline().addLast("negotiator", this.snf
+                    .getSessionNegotiator(dispatcherDependencies, ch, promise));
             ch.pipeline().addLast(this.hf.getEncoders());
         };
 
         final ServerBootstrap b = createServerBootstrap(initializer);
+        final InetSocketAddress address = dispatcherDependencies.getAddress();
         final ChannelFuture f = b.bind(address);
         LOG.debug("Initiated server {} at {}.", f, address);
 
@@ -149,7 +143,7 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     }
 
     @Override
-    public final PCEPSessionNegotiatorFactory<?> getPCEPSessionNegotiatorFactory() {
+    public final PCEPSessionNegotiatorFactory<PCEPSessionImpl> getPCEPSessionNegotiatorFactory() {
         return this.snf;
     }
 
