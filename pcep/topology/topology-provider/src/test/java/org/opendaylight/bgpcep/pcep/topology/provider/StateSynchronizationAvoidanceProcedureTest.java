@@ -119,7 +119,7 @@ public class StateSynchronizationAvoidanceProcedureTest extends
             return pcc;
         });
 
-        this.listener.onSessionDown(session, new IllegalArgumentException());
+        this.listener.onSessionDown(session, new IllegalArgumentException("Simulate Exception"));
         this.listener = (Stateful07TopologySessionListener) getSessionListener();
 
         //session up - expect sync (LSP-DBs do not match)
