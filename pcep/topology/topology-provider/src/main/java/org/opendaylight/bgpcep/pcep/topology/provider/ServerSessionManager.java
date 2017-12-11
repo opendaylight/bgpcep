@@ -22,10 +22,12 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.concurrent.GuardedBy;
+import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyConfiguration;
+import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyProviderDependencies;
 import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.protocol.pcep.PCEPDispatcherDependencies;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
@@ -71,22 +73,22 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
     private final Map<NodeId, TopologyNodeState> state = new HashMap<>();
     private final TopologySessionListenerFactory listenerFactory;
     private final InstanceIdentifier<Topology> topology;
-    private final DataBroker broker;
     private final PCEPStatefulPeerProposal peerProposal;
     private final short rpcTimeout;
-    private final TopologySessionStatsRegistry statsRegistry;
+    private final PCEPTopologyProviderDependencies dependenciesProvider;
+    private final PCEPDispatcherDependencies pcepDispatcherDependencies;
 
-    public ServerSessionManager(final DataBroker broker,
-            final InstanceIdentifier<Topology> topology,
+    public ServerSessionManager(
+            final PCEPTopologyProviderDependencies dependenciesProvider,
             final TopologySessionListenerFactory listenerFactory,
-            final TopologySessionStatsRegistry statsRegistry,
-            final short rpcTimeout) {
-        this.broker = requireNonNull(broker);
-        this.topology = requireNonNull(topology);
-        this.statsRegistry = requireNonNull(statsRegistry);
+            final PCEPTopologyConfiguration configDependencies) {
+        this.dependenciesProvider = requireNonNull(dependenciesProvider);
+        this.topology = requireNonNull(configDependencies.getTopology());
         this.listenerFactory = requireNonNull(listenerFactory);
-        this.peerProposal = PCEPStatefulPeerProposal.createStatefulPeerProposal(this.broker, this.topology);
-        this.rpcTimeout = rpcTimeout;
+        this.peerProposal = PCEPStatefulPeerProposal
+                .createStatefulPeerProposal(this.dependenciesProvider.getDataBroker(), this.topology);
+        this.rpcTimeout = configDependencies.getRpcTimeout();
+        this.pcepDispatcherDependencies = new PCEPDispatcherDependenciesImpl(this, configDependencies);
     }
 
     private static NodeId createNodeId(final InetAddress addr) {
@@ -99,7 +101,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
     synchronized ListenableFuture<Void> instantiateServiceInstance() {
         final TopologyKey key = InstanceIdentifier.keyOf(this.topology);
         final TopologyId topologyId = key.getTopologyId();
-        final WriteTransaction tx = this.broker.newWriteOnlyTransaction();
+        final WriteTransaction tx = this.dependenciesProvider.getDataBroker().newWriteOnlyTransaction();
         tx.put(LogicalDatastoreType.OPERATIONAL, this.topology, new TopologyBuilder().setKey(key)
                 .setTopologyId(topologyId).setTopologyTypes(new TopologyTypesBuilder()
                         .addAugmentation(TopologyTypes1.class, new TopologyTypes1Builder().setTopologyPcep(
@@ -122,7 +124,8 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
         return future;
     }
 
-    synchronized void releaseNodeState(final TopologyNodeState nodeState, final PCEPSession session, final boolean persistNode) {
+    synchronized void releaseNodeState(final TopologyNodeState nodeState, final PCEPSession session,
+            final boolean persistNode) {
         if (this.isClosed.get()) {
             LOG.error("Session Manager has already been closed.");
             return;
@@ -134,10 +137,12 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
         }
     }
 
-    synchronized TopologyNodeState takeNodeState(final InetAddress address, final TopologySessionListener sessionListener, final boolean retrieveNode) {
+    synchronized TopologyNodeState takeNodeState(final InetAddress address,
+            final TopologySessionListener sessionListener, final boolean retrieveNode) {
         final NodeId id = createNodeId(address);
         if (this.isClosed.get()) {
-            LOG.error("Server Session Manager is closed. Unable to create topology node {} with listener {}", id, sessionListener);
+            LOG.error("Server Session Manager is closed. Unable to create topology node {} with listener {}",
+                    id, sessionListener);
             return null;
         }
 
@@ -145,14 +150,16 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
         TopologyNodeState ret = this.state.get(id);
 
         if (ret == null) {
-            ret = new TopologyNodeState(this.broker, this.topology, id, DEFAULT_HOLD_STATE_NANOS);
+            ret = new TopologyNodeState(this.dependenciesProvider.getDataBroker(), this.topology, id,
+                    DEFAULT_HOLD_STATE_NANOS);
             LOG.debug("Created topology node {} for id {} at {}", ret, id, ret.getNodeId());
             this.state.put(id, ret);
         }
         // if another listener requests the same session, close it
         final TopologySessionListener existingSessionListener = this.nodes.get(id);
         if (existingSessionListener != null && !sessionListener.equals(existingSessionListener)) {
-            LOG.error("New session listener {} is in conflict with existing session listener {} on node {}, closing the existing one.", existingSessionListener, sessionListener, id);
+            LOG.error("New session listener {} is in conflict with existing session listener {} on node {}," +
+                    " closing the existing one.", existingSessionListener, sessionListener, id);
             existingSessionListener.close();
         }
         ret.taken(retrieveNode);
@@ -166,7 +173,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
         return this.listenerFactory.createTopologySessionListener(this);
     }
 
-    protected final synchronized TopologySessionListener checkSessionPresence(final NodeId nodeId) {
+    private synchronized TopologySessionListener checkSessionPresence(final NodeId nodeId) {
         // Get the listener corresponding to the node
         final TopologySessionListener l = this.nodes.get(nodeId);
         if (l == null) {
@@ -231,7 +238,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
             nodeState.close();
         }
         this.state.clear();
-        final WriteTransaction t = this.broker.newWriteOnlyTransaction();
+        final WriteTransaction t = this.dependenciesProvider.getDataBroker().newWriteOnlyTransaction();
         t.delete(LogicalDatastoreType.OPERATIONAL, this.topology);
         final ListenableFuture<Void> future = t.submit();
         Futures.addCallback(future, new FutureCallback<Void>() {
@@ -261,11 +268,15 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
     @Override
     public synchronized void bind(final KeyedInstanceIdentifier<Node, NodeKey> nodeId,
             final PcepSessionState sessionState) {
-        this.statsRegistry.bind(nodeId, sessionState);
+        this.dependenciesProvider.getStateRegistry().bind(nodeId, sessionState);
     }
 
     @Override
     public synchronized void unbind(final KeyedInstanceIdentifier<Node, NodeKey> nodeId) {
-        this.statsRegistry.unbind(nodeId);
+        this.dependenciesProvider.getStateRegistry().unbind(nodeId);
+    }
+
+    PCEPDispatcherDependencies getPCEPDispatcherDependencies(){
+        return this.pcepDispatcherDependencies;
     }
 }
