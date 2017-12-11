@@ -7,16 +7,15 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import com.google.common.base.Optional;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
 import java.util.Comparator;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import org.opendaylight.protocol.pcep.PCEPPeerProposal;
-import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
+import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactoryDependencies;
 import org.opendaylight.protocol.pcep.impl.PCEPPeerRegistry.SessionReference;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.slf4j.Logger;
@@ -27,19 +26,15 @@ public class PCEPSessionNegotiator extends AbstractSessionNegotiator {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPSessionNegotiator.class);
 
     private static final Comparator<byte[]> COMPARATOR = UnsignedBytes.lexicographicalComparator();
-
-    private final PCEPSessionListenerFactory factory;
-
     private final AbstractPCEPSessionNegotiatorFactory negFactory;
-    private final PCEPPeerProposal peerProposal;
+    private final PCEPSessionNegotiatorFactoryDependencies nfd;
 
     public PCEPSessionNegotiator(final Channel channel, final Promise<PCEPSessionImpl> promise,
-            final PCEPSessionListenerFactory factory,
-        final AbstractPCEPSessionNegotiatorFactory negFactory, final PCEPPeerProposal peerProposal) {
+            final PCEPSessionNegotiatorFactoryDependencies dependencies,
+            final AbstractPCEPSessionNegotiatorFactory negFactory) {
         super(promise, channel);
-        this.factory = factory;
+        this.nfd = dependencies;
         this.negFactory = negFactory;
-        this.peerProposal = peerProposal;
     }
 
     @Override
@@ -76,8 +71,7 @@ public class PCEPSessionNegotiator extends AbstractSessionNegotiator {
 
             final Short sessionId = sessionReg.nextSession(clientAddress);
             final AbstractPCEPSessionNegotiator n = this.negFactory
-                    .createNegotiator(this.promise, this.factory.getSessionListener(),
-                    this.channel, sessionId, this.peerProposal);
+                    .createNegotiator(this.nfd, this.promise, this.channel, sessionId);
 
             sessionReg.putSessionReference(clientAddress, new SessionReference() {
                 @Override

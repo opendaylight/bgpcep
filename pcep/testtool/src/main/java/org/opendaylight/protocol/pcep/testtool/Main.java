@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.protocol.pcep.PCEPCapability;
+import org.opendaylight.protocol.pcep.PCEPDispatcherDependencies;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.ietf.stateful07.PCEPStatefulCapability;
 import org.opendaylight.protocol.pcep.ietf.stateful07.StatefulActivator;
@@ -127,8 +128,11 @@ public final class Main {
         try (final StatefulActivator activator07 = new StatefulActivator()) {
             activator07.start(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance());
 
-            final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry(), new DefaultPCEPSessionNegotiatorFactory(spf, MAX_UNKNOWN_MESSAGES), new NioEventLoopGroup(), new NioEventLoopGroup());
-            dispatcher.createServer(address, new TestingSessionListenerFactory(), null).get();
+            final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(
+                    ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry(),
+                    new DefaultPCEPSessionNegotiatorFactory(spf, MAX_UNKNOWN_MESSAGES),
+                    new NioEventLoopGroup(), new NioEventLoopGroup());
+            dispatcher.createServer(new TestToolPCEPDispatcherDependencies(address)).get();
         }
     }
 }

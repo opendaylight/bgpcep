@@ -25,7 +25,6 @@ import io.netty.channel.EventLoop;
 import io.netty.util.concurrent.Promise;
 import java.lang.reflect.ParameterizedType;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -34,8 +33,12 @@ import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyConfiguration;
+import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyProviderDependencies;
 import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
+import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
+import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiator;
 import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
@@ -65,51 +68,45 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerFactory>
-    extends AbstractConcurrentDataBrokerTest {
+        extends AbstractConcurrentDataBrokerTest {
 
-    private static final String TEST_TOPOLOGY_NAME = "testtopo";
-    static final InstanceIdentifier<Topology> TOPO_IID = InstanceIdentifier.builder(NetworkTopology.class)
-            .child(Topology.class, new TopologyKey(new TopologyId(TEST_TOPOLOGY_NAME))).build();
-    private static final String IPV4_MASK = "/32";
     static final short DEAD_TIMER = 30;
     static final short KEEP_ALIVE = 10;
     static final short RPC_TIMEOUT = 4;
-
+    private static final TopologyId TEST_TOPOLOGY_ID = new TopologyId("testtopo");
+    static final InstanceIdentifier<Topology> TOPO_IID = InstanceIdentifier.builder(NetworkTopology.class)
+            .child(Topology.class, new TopologyKey(TEST_TOPOLOGY_ID)).build();
+    private static final String IPV4_MASK = "/32";
     final String testAddress = InetSocketAddressUtil.getRandomLoopbackIpAddress();
     final NodeId nodeId = new NodeId("pcc://" + this.testAddress);
     protected final InstanceIdentifier<PathComputationClient> pathComputationClientIId = TOPO_IID.builder()
-        .child(Node.class, new NodeKey(this.nodeId)).augmentation(Node1.class).child(PathComputationClient.class
-        ).build();
+            .child(Node.class, new NodeKey(this.nodeId)).augmentation(Node1.class).child(PathComputationClient.class
+            ).build();
     final String eroIpPrefix = this.testAddress + IPV4_MASK;
     final String newDestinationAddress = InetSocketAddressUtil.getRandomLoopbackIpAddress();
     final String dstIpPrefix = this.newDestinationAddress + IPV4_MASK;
-
+    private final Open localPrefs = new OpenBuilder().setDeadTimer((short) 30).setKeepalive((short) 10)
+            .setSessionId((short) 0).build();
+    private final Open remotePrefs = this.localPrefs;
     List<Notification> receivedMsgs;
-
+    ServerSessionManager manager;
+    NetworkTopologyPcepService topologyRpcs;
     @Mock
     private EventLoop eventLoop;
-
     @Mock
     private Channel clientListener;
-
     @Mock
     private ChannelPipeline pipeline;
-
     @Mock
     private ChannelFuture channelFuture;
-
     @Mock
     private TopologySessionStatsRegistry statsRegistry;
-
-    private final Open localPrefs = new OpenBuilder().setDeadTimer((short) 30).setKeepalive((short) 10)
-        .setSessionId((short) 0).build();
-
-    private final Open remotePrefs = this.localPrefs;
-
-    ServerSessionManager manager;
-
-    NetworkTopologyPcepService topologyRpcs;
-
+    @Mock
+    private PCEPTopologyProviderDependencies topologyDependencies;
+    @Mock
+    private InstructionScheduler scheduler;
+    @Mock
+    private Promise<PCEPSessionImpl> promise;
     private DefaultPCEPSessionNegotiator neg;
 
     @Before
@@ -125,37 +122,42 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
         doReturn("TestingChannel").when(this.clientListener).toString();
         doReturn(this.pipeline).when(this.clientListener).pipeline();
         doReturn(this.pipeline).when(this.pipeline).replace(any(ChannelHandler.class), any(String.class),
-            any(ChannelHandler.class));
+                any(ChannelHandler.class));
         doReturn(this.eventLoop).when(this.clientListener).eventLoop();
         doNothing().when(this.statsRegistry).bind(any(), any());
         doNothing().when(this.statsRegistry).unbind(any());
         doReturn(null).when(this.eventLoop).schedule(any(Runnable.class), any(long.class),
-            any(TimeUnit.class));
+                any(TimeUnit.class));
         doReturn(true).when(this.clientListener).isActive();
-        final SocketAddress ra = new InetSocketAddress(this.testAddress, 4189);
+        final InetSocketAddress ra = new InetSocketAddress(this.testAddress, 4189);
         doReturn(ra).when(this.clientListener).remoteAddress();
-        final SocketAddress la = new InetSocketAddress(this.testAddress, InetSocketAddressUtil.getRandomPort());
+        final InetSocketAddress la = new InetSocketAddress(this.testAddress, InetSocketAddressUtil.getRandomPort());
         doReturn(la).when(this.clientListener).localAddress();
 
         doReturn(mock(ChannelFuture.class)).when(this.clientListener).close();
 
-        final T listenerFactory = (T) ((Class) ((ParameterizedType) this.getClass().getGenericSuperclass())
-            .getActualTypeArguments()[0]).newInstance();
-        this.manager = new ServerSessionManager(getDataBroker(), TOPO_IID, listenerFactory, this.statsRegistry,
-                RPC_TIMEOUT);
+        doReturn(getDataBroker()).when(this.topologyDependencies).getDataBroker();
+        doReturn(this.statsRegistry).when(this.topologyDependencies).getStateRegistry();
+
+        @SuppressWarnings("unchecked") final T listenerFactory = (T) ((Class) ((ParameterizedType) this.getClass().getGenericSuperclass())
+                .getActualTypeArguments()[0]).newInstance();
+
+        final PCEPTopologyConfiguration configDep = new PCEPTopologyConfiguration(ra, KeyMapping.getKeyMapping(),
+                this.scheduler, TEST_TOPOLOGY_ID, RPC_TIMEOUT);
+        this.manager = new ServerSessionManager(this.topologyDependencies, listenerFactory, configDep);
         startSessionManager();
-        this.neg = new DefaultPCEPSessionNegotiator(mock(Promise.class), this.clientListener,
-            this.manager.getSessionListener(), (short) 1, 5, this.localPrefs);
+        this.neg = new DefaultPCEPSessionNegotiator(this.promise, this.clientListener,
+                this.manager.getSessionListener(), (short) 1, 5, this.localPrefs);
         this.topologyRpcs = new TopologyRPCs(this.manager);
     }
 
-    protected void startSessionManager() throws Exception {
+    void startSessionManager() throws Exception {
         final ListenableFuture<Void> future = this.manager.instantiateServiceInstance();
         future.get();
-        checkEquals(()-> assertFalse(this.manager.isClosed.get()));
+        checkEquals(() -> assertFalse(this.manager.isClosed.get()));
     }
 
-    protected void stopSessionManager() {
+    void stopSessionManager() {
         this.manager.closeServiceInstance();
     }
 
@@ -169,15 +171,15 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder();
         for (final String ipPrefix : ipPrefixes) {
             subobjBuilder.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(new IpPrefixBuilder().setIpPrefix(
-                new IpPrefix(new Ipv4Prefix(ipPrefix))).build()).build());
+                    new IpPrefix(new Ipv4Prefix(ipPrefix))).build()).build());
             subobjs.add(subobjBuilder.build());
         }
         return new EroBuilder().setSubobject(subobjs).build();
     }
 
     String getLastEroIpPrefix(final Ero ero) {
-        return ((IpPrefixCase)ero.getSubobject().get(ero.getSubobject().size() - 1).getSubobjectType()).getIpPrefix()
-            .getIpPrefix().getIpv4Prefix().getValue();
+        return ((IpPrefixCase) ero.getSubobject().get(ero.getSubobject().size() - 1).getSubobjectType()).getIpPrefix()
+                .getIpPrefix().getIpv4Prefix().getValue();
     }
 
     protected Open getLocalPref() {
