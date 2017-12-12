@@ -112,6 +112,17 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         super(serverSessionManager);
     }
 
+    private static LspDbVersion geLspDbVersionTlv(final Lsp lsp) {
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev171025.lsp.object
+                .lsp.Tlvs tlvs = lsp.getTlvs();
+        if (tlvs != null && tlvs.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+                .controller.pcep.sync.optimizations.rev171025.Tlvs1.class) != null) {
+            return tlvs.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller
+                    .pcep.sync.optimizations.rev171025.Tlvs1.class).getLspDbVersion();
+        }
+        return null;
+    }
+
     @Override
     protected void onSessionUp(final PCEPSession session, final PathComputationClientBuilder pccBuilder) {
         final InetAddress peerAddress = session.getRemoteAddress();
@@ -212,61 +223,6 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
 
     private void markAllLspAsStale() {
         this.staleLsps.addAll(this.lsps.keySet());
-    }
-
-    private class ResyncLspFunction implements AsyncFunction<Optional<ReportedLsp>, OperationResult> {
-
-        private final TriggerSyncArgs input;
-
-        public ResyncLspFunction(final TriggerSyncArgs input) {
-            this.input = input;
-        }
-
-        @Override
-        public ListenableFuture<OperationResult> apply(final Optional<ReportedLsp> rep) {
-            final Lsp reportedLsp = validateReportedLsp(rep, this.input);
-            if (reportedLsp == null || !rep.isPresent()) {
-                return OperationResults.createUnsent(PCEPErrors.UNKNOWN_PLSP_ID).future();
-            }
-            // mark lsp as stale
-            final ReportedLsp staleLsp = rep.get();
-            if (!staleLsp.getPath().isEmpty()) {
-                final Path1 path1 = staleLsp.getPath().get(0).getAugmentation(Path1.class);
-                if (path1 != null) {
-                    Stateful07TopologySessionListener.this.staleLsps.add(path1.getLsp().getPlspId());
-                }
-            }
-            updatePccState(PccSyncState.PcepTriggeredResync);
-            // create PCUpd with mandatory objects and LSP object set to 1
-            final SrpBuilder srpBuilder = new SrpBuilder();
-            srpBuilder.setOperationId(nextRequest());
-            srpBuilder.setProcessingRule(Boolean.TRUE);
-
-            final Optional<PathSetupType> maybePST = getPST(rep);
-            if (maybePST.isPresent()) {
-                srpBuilder.setTlvs(
-                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
-                                .rev171025.srp.object.srp.TlvsBuilder()
-                                .setPathSetupType(maybePST.get()).build());
-            }
-
-            final Srp srp = srpBuilder.build();
-            final Lsp lsp = new LspBuilder().setPlspId(reportedLsp.getPlspId()).setSync(Boolean.TRUE).build();
-
-            final Message msg = createPcepUpd(srp, lsp);
-            return sendMessage(msg, srp.getOperationId(), null);
-        }
-
-        private Message createPcepUpd(final Srp srp, final Lsp lsp) {
-            final UpdatesBuilder rb = new UpdatesBuilder();
-            rb.setSrp(srp);
-            rb.setLsp(lsp);
-            final PathBuilder pb = new PathBuilder();
-            rb.setPath(pb.build());
-            final PcupdMessageBuilder ub = new PcupdMessageBuilder(MESSAGE_HEADER);
-            ub.setUpdates(Collections.singletonList(rb.build()));
-            return new PcupdBuilder().setPcupdMessage(ub.build()).build();
-        }
     }
 
     private boolean handleErrorMessage(final PcerrMessage message) {
@@ -379,17 +335,6 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         return true;
     }
 
-    private static LspDbVersion geLspDbVersionTlv(final Lsp lsp) {
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev171025.lsp.object
-                .lsp.Tlvs tlvs = lsp.getTlvs();
-        if (tlvs != null && tlvs.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
-                .controller.pcep.sync.optimizations.rev171025.Tlvs1.class) != null) {
-            return tlvs.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller
-                    .pcep.sync.optimizations.rev171025.Tlvs1.class).getLspDbVersion();
-        }
-        return null;
-    }
-
     private Path buildPath(final Reports report, final Srp srp, final Lsp lsp) {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.pcep.client
                 .attributes.path.computation.client.reported.lsp.PathBuilder pb = new org.opendaylight.yang.gen.v1
@@ -446,70 +391,6 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         return new SrpIdNumber(this.requestId.getAndIncrement());
     }
 
-    private class AddFunction implements AsyncFunction<Optional<ReportedLsp>, OperationResult> {
-
-        private final AddLspArgs input;
-        private final InstanceIdentifier<ReportedLsp> lsp;
-
-        public AddFunction(final AddLspArgs input, final InstanceIdentifier<ReportedLsp> lsp) {
-            this.input = input;
-            this.lsp = lsp;
-        }
-
-        @Override
-        public ListenableFuture<OperationResult> apply(final Optional<ReportedLsp> rep) {
-            if (rep.isPresent()) {
-                LOG.debug("Node {} already contains lsp {} at {}", this.input.getNode(), this.input.getName(),
-                        this.lsp);
-                return OperationResults.createUnsent(PCEPErrors.USED_SYMBOLIC_PATH_NAME).future();
-            }
-            if (!Stateful07TopologySessionListener.this.initiationCapability.get()) {
-                return OperationResults.createUnsent(PCEPErrors.CAPABILITY_NOT_SUPPORTED).future();
-            }
-
-            // Build the request
-            final RequestsBuilder rb = new RequestsBuilder();
-            final Arguments2 args = this.input.getArguments().getAugmentation(Arguments2.class);
-            final Lsp inputLsp = (args != null) ? args.getLsp() : null;
-            if (inputLsp == null) {
-                return OperationResults.createUnsent(PCEPErrors.LSP_MISSING).future();
-            }
-
-            rb.fieldsFrom(this.input.getArguments());
-
-            final TlvsBuilder tlvsBuilder;
-            if (inputLsp.getTlvs() != null) {
-                tlvsBuilder = new TlvsBuilder(inputLsp.getTlvs());
-            } else {
-                tlvsBuilder = new TlvsBuilder();
-            }
-            tlvsBuilder.setSymbolicPathName(
-                    new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(this.input.getName()
-                            .getBytes(StandardCharsets.UTF_8))).build());
-
-            final SrpBuilder srpBuilder = new SrpBuilder();
-            srpBuilder.setOperationId(nextRequest());
-            srpBuilder.setProcessingRule(Boolean.TRUE);
-            if (!PSTUtil.isDefaultPST(args.getPathSetupType())) {
-                srpBuilder.setTlvs(
-                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf
-                                .stateful.rev171025.srp.object.srp.TlvsBuilder()
-                                .setPathSetupType(args.getPathSetupType()).build());
-            }
-            rb.setSrp(srpBuilder.build());
-
-            rb.setLsp(new LspBuilder().setAdministrative(inputLsp.isAdministrative()).setDelegate(
-                    inputLsp.isDelegate()).setPlspId(new PlspId(0L)).setTlvs(tlvsBuilder.build()).build());
-
-            final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(MESSAGE_HEADER);
-            ib.setRequests(Collections.singletonList(rb.build()));
-
-            // Send the message
-            return sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(),
-                    rb.getSrp().getOperationId(), this.input.getArguments().getMetadata());
-        }
-    }
-
     @Override
     public synchronized ListenableFuture<OperationResult> addLsp(final AddLspArgs input) {
         Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null
@@ -562,53 +443,6 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         rb.setLsp(new LspBuilder().setRemove(Boolean.FALSE).setPlspId(reportedLsp.getPlspId())
                 .setDelegate(reportedLsp.isDelegate()).build());
         return rb.build();
-    }
-
-    private class UpdateFunction implements AsyncFunction<Optional<ReportedLsp>, OperationResult> {
-
-        private final UpdateLspArgs input;
-
-        public UpdateFunction(final UpdateLspArgs input) {
-            this.input = input;
-        }
-
-        @Override
-        public ListenableFuture<OperationResult> apply(final Optional<ReportedLsp> rep) {
-            final Lsp reportedLsp = validateReportedLsp(rep, this.input);
-            if (reportedLsp == null) {
-                return OperationResults.createUnsent(PCEPErrors.UNKNOWN_PLSP_ID).future();
-            }
-            // create mandatory objects
-            final Arguments3 args = this.input.getArguments().getAugmentation(Arguments3.class);
-            final SrpBuilder srpBuilder = new SrpBuilder();
-            srpBuilder.setOperationId(nextRequest());
-            srpBuilder.setProcessingRule(Boolean.TRUE);
-            if ((args != null && args.getPathSetupType() != null)) {
-                if (!PSTUtil.isDefaultPST(args.getPathSetupType())) {
-                    srpBuilder.setTlvs(
-                            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
-                                    .rev171025.srp.object.srp.TlvsBuilder()
-                                    .setPathSetupType(args.getPathSetupType()).build());
-                }
-            } else {
-                final Optional<PathSetupType> maybePST = getPST(rep);
-                if (maybePST.isPresent()) {
-                    srpBuilder.setTlvs(
-                            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
-                                    .rev171025.srp.object.srp.TlvsBuilder()
-                                    .setPathSetupType(maybePST.get()).build());
-                }
-            }
-            final Srp srp = srpBuilder.build();
-            final Lsp inputLsp = (args != null) ? args.getLsp() : null;
-            final LspBuilder lspBuilder = new LspBuilder().setPlspId(reportedLsp.getPlspId());
-            if (inputLsp != null) {
-                lspBuilder.setDelegate(inputLsp.isDelegate() != null && inputLsp.isDelegate())
-                        .setTlvs(inputLsp.getTlvs())
-                        .setAdministrative(inputLsp.isAdministrative() != null && inputLsp.isAdministrative());
-            }
-            return redelegate(reportedLsp, srp, lspBuilder.build(), this.input);
-        }
     }
 
     private ListenableFuture<OperationResult> redelegate(final Lsp reportedLsp, final Srp srp, final Lsp lsp,
@@ -766,7 +600,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
      * exists in the LSP database, the PCE MUST update the LSP database and
      * clear the stale marker from the LSP
      *
-     * @param plspId
+     * @param plspId id
      */
     private synchronized void unmarkStaleLsp(final PlspId plspId) {
         this.staleLsps.remove(plspId);
@@ -775,7 +609,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     /**
      * Purge any LSPs from the LSP database that are still marked as stale
      *
-     * @param ctx
+     * @param ctx message context
      */
     private synchronized void purgeStaleLsps(final MessageContext ctx) {
         for (final PlspId plspId : this.staleLsps) {
@@ -785,17 +619,17 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     }
 
     @Override
-    public synchronized boolean isInitiationCapability() {
+    public boolean isInitiationCapability() {
         return this.initiationCapability.get();
     }
 
     @Override
-    public synchronized boolean isStatefulCapability() {
+    public boolean isStatefulCapability() {
         return this.statefulCapability.get();
     }
 
     @Override
-    public synchronized boolean isLspUpdateCapability() {
+    public boolean isLspUpdateCapability() {
         return this.lspUpdateCapability.get();
     }
 
@@ -807,6 +641,172 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         final Stateful1 stateful1 = stateful.getAugmentation(Stateful1.class);
         if (stateful1 != null && stateful1.isInitiation() != null) {
             this.initiationCapability.set(stateful1.isInitiation());
+        }
+    }
+
+    private class ResyncLspFunction implements AsyncFunction<Optional<ReportedLsp>, OperationResult> {
+
+        private final TriggerSyncArgs input;
+
+        ResyncLspFunction(final TriggerSyncArgs input) {
+            this.input = input;
+        }
+
+        @Override
+        public ListenableFuture<OperationResult> apply(final Optional<ReportedLsp> rep) {
+            final Lsp reportedLsp = validateReportedLsp(rep, this.input);
+            if (reportedLsp == null || !rep.isPresent()) {
+                return OperationResults.createUnsent(PCEPErrors.UNKNOWN_PLSP_ID).future();
+            }
+            // mark lsp as stale
+            final ReportedLsp staleLsp = rep.get();
+            if (!staleLsp.getPath().isEmpty()) {
+                final Path1 path1 = staleLsp.getPath().get(0).getAugmentation(Path1.class);
+                if (path1 != null) {
+                    Stateful07TopologySessionListener.this.staleLsps.add(path1.getLsp().getPlspId());
+                }
+            }
+            updatePccState(PccSyncState.PcepTriggeredResync);
+            // create PCUpd with mandatory objects and LSP object set to 1
+            final SrpBuilder srpBuilder = new SrpBuilder();
+            srpBuilder.setOperationId(nextRequest());
+            srpBuilder.setProcessingRule(Boolean.TRUE);
+
+            final Optional<PathSetupType> maybePST = getPST(rep);
+            if (maybePST.isPresent()) {
+                srpBuilder.setTlvs(
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
+                                .rev171025.srp.object.srp.TlvsBuilder()
+                                .setPathSetupType(maybePST.get()).build());
+            }
+
+            final Srp srp = srpBuilder.build();
+            final Lsp lsp = new LspBuilder().setPlspId(reportedLsp.getPlspId()).setSync(Boolean.TRUE).build();
+
+            final Message msg = createPcepUpd(srp, lsp);
+            return sendMessage(msg, srp.getOperationId(), null);
+        }
+
+        private Message createPcepUpd(final Srp srp, final Lsp lsp) {
+            final UpdatesBuilder rb = new UpdatesBuilder();
+            rb.setSrp(srp);
+            rb.setLsp(lsp);
+            final PathBuilder pb = new PathBuilder();
+            rb.setPath(pb.build());
+            final PcupdMessageBuilder ub = new PcupdMessageBuilder(MESSAGE_HEADER);
+            ub.setUpdates(Collections.singletonList(rb.build()));
+            return new PcupdBuilder().setPcupdMessage(ub.build()).build();
+        }
+    }
+
+    private class AddFunction implements AsyncFunction<Optional<ReportedLsp>, OperationResult> {
+
+        private final AddLspArgs input;
+        private final InstanceIdentifier<ReportedLsp> lsp;
+
+        public AddFunction(final AddLspArgs input, final InstanceIdentifier<ReportedLsp> lsp) {
+            this.input = input;
+            this.lsp = lsp;
+        }
+
+        @Override
+        public ListenableFuture<OperationResult> apply(final Optional<ReportedLsp> rep) {
+            if (rep.isPresent()) {
+                LOG.debug("Node {} already contains lsp {} at {}", this.input.getNode(), this.input.getName(),
+                        this.lsp);
+                return OperationResults.createUnsent(PCEPErrors.USED_SYMBOLIC_PATH_NAME).future();
+            }
+            if (!Stateful07TopologySessionListener.this.initiationCapability.get()) {
+                return OperationResults.createUnsent(PCEPErrors.CAPABILITY_NOT_SUPPORTED).future();
+            }
+
+            // Build the request
+            final RequestsBuilder rb = new RequestsBuilder();
+            final Arguments2 args = this.input.getArguments().getAugmentation(Arguments2.class);
+            final Lsp inputLsp = (args != null) ? args.getLsp() : null;
+            if (inputLsp == null) {
+                return OperationResults.createUnsent(PCEPErrors.LSP_MISSING).future();
+            }
+
+            rb.fieldsFrom(this.input.getArguments());
+
+            final TlvsBuilder tlvsBuilder;
+            if (inputLsp.getTlvs() != null) {
+                tlvsBuilder = new TlvsBuilder(inputLsp.getTlvs());
+            } else {
+                tlvsBuilder = new TlvsBuilder();
+            }
+            tlvsBuilder.setSymbolicPathName(
+                    new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(this.input.getName()
+                            .getBytes(StandardCharsets.UTF_8))).build());
+
+            final SrpBuilder srpBuilder = new SrpBuilder();
+            srpBuilder.setOperationId(nextRequest());
+            srpBuilder.setProcessingRule(Boolean.TRUE);
+            if (!PSTUtil.isDefaultPST(args.getPathSetupType())) {
+                srpBuilder.setTlvs(
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf
+                                .stateful.rev171025.srp.object.srp.TlvsBuilder()
+                                .setPathSetupType(args.getPathSetupType()).build());
+            }
+            rb.setSrp(srpBuilder.build());
+
+            rb.setLsp(new LspBuilder().setAdministrative(inputLsp.isAdministrative()).setDelegate(
+                    inputLsp.isDelegate()).setPlspId(new PlspId(0L)).setTlvs(tlvsBuilder.build()).build());
+
+            final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(MESSAGE_HEADER);
+            ib.setRequests(Collections.singletonList(rb.build()));
+
+            // Send the message
+            return sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(),
+                    rb.getSrp().getOperationId(), this.input.getArguments().getMetadata());
+        }
+    }
+
+    private class UpdateFunction implements AsyncFunction<Optional<ReportedLsp>, OperationResult> {
+
+        private final UpdateLspArgs input;
+
+        public UpdateFunction(final UpdateLspArgs input) {
+            this.input = input;
+        }
+
+        @Override
+        public ListenableFuture<OperationResult> apply(final Optional<ReportedLsp> rep) {
+            final Lsp reportedLsp = validateReportedLsp(rep, this.input);
+            if (reportedLsp == null) {
+                return OperationResults.createUnsent(PCEPErrors.UNKNOWN_PLSP_ID).future();
+            }
+            // create mandatory objects
+            final Arguments3 args = this.input.getArguments().getAugmentation(Arguments3.class);
+            final SrpBuilder srpBuilder = new SrpBuilder();
+            srpBuilder.setOperationId(nextRequest());
+            srpBuilder.setProcessingRule(Boolean.TRUE);
+            if ((args != null && args.getPathSetupType() != null)) {
+                if (!PSTUtil.isDefaultPST(args.getPathSetupType())) {
+                    srpBuilder.setTlvs(
+                            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
+                                    .rev171025.srp.object.srp.TlvsBuilder()
+                                    .setPathSetupType(args.getPathSetupType()).build());
+                }
+            } else {
+                final Optional<PathSetupType> maybePST = getPST(rep);
+                if (maybePST.isPresent()) {
+                    srpBuilder.setTlvs(
+                            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
+                                    .rev171025.srp.object.srp.TlvsBuilder()
+                                    .setPathSetupType(maybePST.get()).build());
+                }
+            }
+            final Srp srp = srpBuilder.build();
+            final Lsp inputLsp = (args != null) ? args.getLsp() : null;
+            final LspBuilder lspBuilder = new LspBuilder().setPlspId(reportedLsp.getPlspId());
+            if (inputLsp != null) {
+                lspBuilder.setDelegate(inputLsp.isDelegate() != null && inputLsp.isDelegate())
+                        .setTlvs(inputLsp.getTlvs())
+                        .setAdministrative(inputLsp.isAdministrative() != null && inputLsp.isAdministrative());
+            }
+            return redelegate(reportedLsp, srp, lspBuilder.build(), this.input);
         }
     }
 }
