@@ -21,9 +21,12 @@ public interface BgpTopologyDeployer {
 
     AbstractRegistration registerService(TopologyReferenceSingletonService topologyProviderService);
 
+    @Deprecated
     void createInstance(Topology topology);
 
+    @Deprecated
     void removeInstance(Topology topology);
 
+    @Deprecated
     InstanceIdentifier<Topology> getInstanceIdentifier();
 }

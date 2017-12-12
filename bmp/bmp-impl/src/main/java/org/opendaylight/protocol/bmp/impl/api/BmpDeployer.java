@@ -14,6 +14,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.moni
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev150512.MonitorId;
 
 @Beta
+@Deprecated
 public interface BmpDeployer {
     /**
      * Writes BmpMonitorConfig to Config DS
