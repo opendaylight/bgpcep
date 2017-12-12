@@ -11,17 +11,22 @@ import java.net.InetSocketAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder;
 
 /**
- * Stores usability for available capabilities
+ * Stores usability for available capabilities.
  */
 public interface PCEPCapability {
 
     /**
-     * Sets stateful capabilities tlv in incoming builder
+     * Sets stateful capabilities tlv in incoming builder.
      *
-     * @param address
+     * @param address peer address to assign capability proposal
      * @param builder for TLVs included in PCEPOpenObject
      */
     void setCapabilityProposal(InetSocketAddress address, TlvsBuilder builder);
 
+    /**
+     * Returs stateful capability state.
+     *
+     * @return true if capability is present
+     */
     boolean isStateful();
 }

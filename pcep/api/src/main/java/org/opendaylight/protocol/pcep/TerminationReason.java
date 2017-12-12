@@ -11,9 +11,12 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 
 public enum TerminationReason {
-    UNKNOWN((short) 1), EXP_DEADTIMER((short) 2), MALFORMED_MSG((short) 3), TOO_MANY_UNKNWN_REQS((short) 4), TOO_MANY_UNKNOWN_MSGS((short) 5);
+    UNKNOWN((short) 1),
+    EXP_DEADTIMER((short) 2),
+    MALFORMED_MSG((short) 3),
+    TOO_MANY_UNKNWN_REQS((short) 4),
+    TOO_MANY_UNKNOWN_MSGS((short) 5);
 
-    private short value;
     private static final Map<Short, TerminationReason> VALUE_MAP;
 
     static {
@@ -23,8 +26,20 @@ public enum TerminationReason {
         }
     }
 
+    private short value;
+
     TerminationReason(final short value) {
         this.value = value;
+    }
+
+    /**
+     * Gets termination reason for specific short value.
+     *
+     * @param valueArg corresponding to Termination reason
+     * @return corresponding TerminationReason item
+     */
+    public static TerminationReason forValue(final short valueArg) {
+        return VALUE_MAP.get(valueArg);
     }
 
     /**
@@ -34,15 +49,5 @@ public enum TerminationReason {
      */
     public short getShortValue() {
         return this.value;
-    }
-
-    /**
-     * Gets termination reason for specific short value.
-     *
-     * @param valueArg
-     * @return corresponding TerminationReason item
-     */
-    public static TerminationReason forValue(final short valueArg) {
-        return VALUE_MAP.get(valueArg);
     }
 }
