@@ -27,6 +27,7 @@ import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.bgpcep.pcep.topology.provider.session.stats.SessionStateImpl;
 import org.opendaylight.bgpcep.pcep.topology.provider.session.stats.TopologySessionStats;
@@ -102,8 +103,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
     private final ServerSessionManager serverSessionManager;
     private InstanceIdentifier<PathComputationClient> pccIdentifier;
     private TopologyNodeState nodeState;
-    @GuardedBy("this")
-    private boolean synced = false;
+    private AtomicBoolean synced = new AtomicBoolean(false);
     private PCEPSession session;
     private SyncOptimization syncOptimization;
     private boolean triggeredResyncInProcess;
@@ -152,7 +152,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         final PathComputationClientBuilder pccBuilder = new PathComputationClientBuilder();
 
         onSessionUp(session, pccBuilder);
-        this.synced = isSynchronized();
+        this.synced.set(isSynchronized());
 
         pccBuilder.setIpAddress(IpAddressBuilder.getDefaultInstance(peerAddress.getHostAddress()));
         final InstanceIdentifier<Node1> topologyAugment = state.getNodeId().augmentation(Node1.class);
@@ -203,7 +203,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         final MessageContext ctx = new MessageContext(this.nodeState.beginTransaction());
         updatePccNode(ctx, new PathComputationClientBuilder().setStateSync(pccSyncState).build());
         if (pccSyncState != PccSyncState.Synchronized) {
-            this.synced = false;
+            this.synced.set(false);
             this.triggeredResyncInProcess = true;
         }
         // All set, commit the modifications
@@ -324,6 +324,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
     @Override
     public void close() {
         if (this.session != null) {
+            LOG.info("Closing session {}", session);
             this.session.close(TerminationReason.UNKNOWN);
         }
     }
@@ -488,13 +489,10 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
      * @param ctx Message context
      */
     protected final synchronized void stateSynchronizationAchieved(final MessageContext ctx) {
-        if (this.synced) {
-            LOG.debug("State synchronization achieved while synchronized, not updating state");
+        if (this.synced.getAndSet(true)) {
+            LOG.debug("State synchronization achieved while synchronizing, not updating state");
             return;
         }
-
-        // Update synchronization flag
-        this.synced = true;
         if (this.triggeredResyncInProcess) {
             this.triggeredResyncInProcess = false;
         }
@@ -563,17 +561,11 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
             final Map<L, String> lsps, final boolean incrementalSynchro);
 
     final boolean isLspDbPersisted() {
-        if (this.syncOptimization != null) {
-            return this.syncOptimization.isSyncAvoidanceEnabled();
-        }
-        return false;
+        return this.syncOptimization != null && this.syncOptimization.isSyncAvoidanceEnabled();
     }
 
     final boolean isLspDbRetreived() {
-        if (this.syncOptimization != null) {
-            return this.syncOptimization.isDbVersionPresent();
-        }
-        return false;
+        return this.syncOptimization != null && this.syncOptimization.isDbVersionPresent();
     }
 
     /**
@@ -583,35 +575,28 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
      * @return
      */
     final boolean isIncrementalSynchro() {
-        if (this.syncOptimization != null) {
-            return this.syncOptimization.isSyncAvoidanceEnabled() && this.syncOptimization.isDeltaSyncEnabled();
-        }
-        return false;
+        return this.syncOptimization != null &&
+                this.syncOptimization.isSyncAvoidanceEnabled() &&
+                this.syncOptimization.isDeltaSyncEnabled();
     }
 
     final boolean isTriggeredInitialSynchro() {
-        if (this.syncOptimization != null) {
-            return this.syncOptimization.isTriggeredInitSyncEnabled();
-        }
-        return false;
+        return this.syncOptimization != null &&
+                this.syncOptimization.isTriggeredInitSyncEnabled();
     }
 
     final boolean isTriggeredReSyncEnabled() {
-        if (this.syncOptimization != null) {
-            return this.syncOptimization.isTriggeredReSyncEnabled();
-        }
-        return false;
+        return this.syncOptimization != null &&
+                this.syncOptimization.isTriggeredReSyncEnabled();
     }
 
     protected final boolean isSynchronized() {
-        if (this.syncOptimization != null) {
-            return this.syncOptimization.doesLspDbMatch();
-        }
-        return false;
+        return this.syncOptimization != null &&
+                this.syncOptimization.doesLspDbMatch();
     }
 
     @Override
-    public int getDelegatedLspsCount() {
+    public synchronized int getDelegatedLspsCount() {
         return Math.toIntExact(this.lspData.values().stream()
                 .map(ReportedLsp::getPath).filter(Objects::nonNull).filter(pathList -> !pathList.isEmpty())
                 // pick the first path, as delegate status should be same in each path
@@ -623,8 +608,8 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
     }
 
     @Override
-    public synchronized boolean isSessionSynchronized() {
-        return this.synced;
+    public boolean isSessionSynchronized() {
+        return this.synced.get();
     }
 
     @Override

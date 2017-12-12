@@ -126,7 +126,7 @@ public final class SessionStateImpl implements PcepSessionState {
                 .build();
     }
 
-    private synchronized StatefulCapabilitiesStatsAug createStatefulCapabilities() {
+    private StatefulCapabilitiesStatsAug createStatefulCapabilities() {
         return new StatefulCapabilitiesStatsAugBuilder()
                 .setActive(this.topologySessionStats.isLspUpdateCapability())
                 .setInstantiation(this.topologySessionStats.isInitiationCapability())
@@ -135,14 +135,14 @@ public final class SessionStateImpl implements PcepSessionState {
     }
 
     @Override
-    public synchronized Messages getMessages() {
+    public Messages getMessages() {
         return new MessagesBuilder(this.pcepSessionState.getMessages())
                 .setReplyTime(setReplyTime())
                 .addAugmentation(StatefulMessagesStatsAug.class, createStatefulMessages())
                 .build();
     }
 
-    private synchronized StatefulMessagesStatsAug createStatefulMessages() {
+    private StatefulMessagesStatsAug createStatefulMessages() {
         return new StatefulMessagesStatsAugBuilder()
                 .setLastReceivedRptMsgTimestamp(this.lastReceivedRptMsgTimestamp.longValue())
                 .setReceivedRptMsgCount(this.receivedRptMsgCount.longValue())
@@ -164,17 +164,17 @@ public final class SessionStateImpl implements PcepSessionState {
     }
 
     @Override
-    public synchronized LocalPref getLocalPref() {
+    public LocalPref getLocalPref() {
         return this.localPref;
     }
 
     @Override
-    public synchronized PeerPref getPeerPref() {
+    public PeerPref getPeerPref() {
         return this.peerPref;
     }
 
     @Override
-    public synchronized Integer getDelegatedLspsCount() {
+    public Integer getDelegatedLspsCount() {
         return this.topologySessionStats.getDelegatedLspsCount();
     }
 
