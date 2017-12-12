@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.pcep;
 
 import java.util.EventListener;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 /**
@@ -19,16 +20,16 @@ public interface PCEPSessionListener extends EventListener {
      *
      * @param session Peer address families which we accepted
      */
-    void onSessionUp(PCEPSession session);
+    void onSessionUp(@Nonnull PCEPSession session);
 
     /**
      * Fired when the session went down because of an IO error. Implementation should take care of closing underlying
      * session.
      *
-     * @param session that went down
-     * @param e Exception that was thrown as the cause of session being down
+     * @param session   that went down
+     * @param exception Exception that was thrown as the cause of session being down
      */
-    void onSessionDown(PCEPSession session, Exception e);
+    void onSessionDown(@Nonnull PCEPSession session, @Nonnull Exception exception);
 
     /**
      * Fired when the session is terminated locally. The session has already been closed and transitioned to IDLE state.
@@ -36,12 +37,12 @@ public interface PCEPSessionListener extends EventListener {
      *
      * @param reason the cause why the session went down
      */
-    void onSessionTerminated(PCEPSession session, PCEPTerminationReason reason);
+    void onSessionTerminated(@Nonnull PCEPSession session, @Nonnull PCEPTerminationReason reason);
 
     /**
      * Fired when a normal protocol message is received.
      *
      * @param message Protocol message
      */
-    void onMessage(PCEPSession session, Message message);
+    void onMessage(@Nonnull PCEPSession session, @Nonnull Message message);
 }

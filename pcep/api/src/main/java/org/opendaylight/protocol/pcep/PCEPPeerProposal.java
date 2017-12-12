@@ -8,19 +8,18 @@
 package org.opendaylight.protocol.pcep;
 
 import java.net.InetSocketAddress;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder;
 
 /**
- * Proposal from peer for establishment of PCEP session
+ * Proposal from peer for establishment of PCEP session.
  */
 public interface PCEPPeerProposal {
-
     /**
-     * Sets specific TLVs into incoming builder
+     * Sets specific TLVs into incoming builder.
      *
-     * @param address
-     * @param openBuilder
+     * @param address     pcep speaker address
+     * @param openBuilder to assign specific proposal
      */
-    void setPeerSpecificProposal(InetSocketAddress address, TlvsBuilder openBuilder);
-
+    void setPeerSpecificProposal(@Nonnull InetSocketAddress address, @Nonnull TlvsBuilder openBuilder);
 }
