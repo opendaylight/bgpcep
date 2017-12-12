@@ -278,8 +278,8 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
     }
 
     @Override
-    public final synchronized void onSessionDown(final PCEPSession session, final Exception e) {
-        LOG.warn("Session {} went down unexpectedly", session, e);
+    public final synchronized void onSessionDown(final PCEPSession session, final Exception exception) {
+        LOG.warn("Session {} went down unexpectedly", session, exception);
         tearDown(session);
     }
 

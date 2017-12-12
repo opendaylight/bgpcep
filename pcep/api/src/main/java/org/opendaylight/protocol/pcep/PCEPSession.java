@@ -9,6 +9,7 @@ package org.opendaylight.protocol.pcep;
 
 import io.netty.util.concurrent.Future;
 import java.net.InetAddress;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.Tlvs;
 
@@ -32,14 +33,35 @@ public interface PCEPSession extends PCEPSessionState, AutoCloseable {
 
     void close(TerminationReason reason);
 
-    Tlvs getRemoteTlvs();
-
-    InetAddress getRemoteAddress();
-
     /**
-     * Returns session characteristics of the local PCEP Speaker
+     * Returns session characteristics of the remote PCEP Speaker.
      *
      * @return Open message TLVs
      */
-    Tlvs localSessionCharacteristics();
+    Tlvs getRemoteTlvs();
+
+    /**
+     * Returns remote address.
+     *
+     * @return inet address
+     */
+    @Nonnull
+    InetAddress getRemoteAddress();
+
+    /**
+     * Returns session characteristics of the local PCEP Speaker.
+     *
+     * @return Open message TLVs
+     */
+    Tlvs getLocalTlvs();
+
+    /**
+     * Returns session characteristics of the local PCEP Speaker.
+     *
+     * @return Open message TLVs
+     */
+    @Deprecated
+    default Tlvs localSessionCharacteristics() {
+        return getLocalTlvs();
+    }
 }
