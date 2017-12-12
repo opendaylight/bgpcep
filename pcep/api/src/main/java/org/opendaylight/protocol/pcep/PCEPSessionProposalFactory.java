@@ -18,6 +18,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  */
 public interface PCEPSessionProposalFactory {
     /**
+     * Creates Open with session proposal.
+     *
      * @param address      serves as constraint, so that factory is able to return different proposals for different
      *                     addresses
      * @param sessionId    is used for creation of PCEPOpenObject
@@ -28,7 +30,7 @@ public interface PCEPSessionProposalFactory {
     Open getSessionProposal(@Nonnull InetSocketAddress address, int sessionId, @Nullable PCEPPeerProposal peerProposal);
 
     /**
-     * Returns list containing PCEP Capabilities
+     * Returns list containing PCEP Capabilities.
      *
      * @return PCEPCapabilities
      */

@@ -12,7 +12,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * Contains required dependencies for create SessionNegotiator
+ * Contains required dependencies for create SessionNegotiator.
  */
 public interface PCEPSessionNegotiatorFactoryDependencies {
     /**
@@ -24,9 +24,9 @@ public interface PCEPSessionNegotiatorFactoryDependencies {
     PCEPSessionListenerFactory getListenerFactory();
 
     /**
-     * Returns a non mandatory PeerProposal information used in our Open message.
+     * PeerProposal information used in our Open message.
      *
-     * @return by default null or peerProposal if implemented.
+     * @return peerProposal null by default since its not mandatory. Otherwise method should be override it.
      */
     @Nullable
     default PCEPPeerProposal getPeerProposal() {

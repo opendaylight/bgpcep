@@ -51,8 +51,8 @@ public class TestingSessionListener implements PCEPSessionListener, ListenerChec
     }
 
     @Override
-    public void onSessionDown(final PCEPSession session, final Exception e) {
-        LOG.debug("Session down. Cause : {} ", e, e);
+    public void onSessionDown(final PCEPSession session, final Exception exception) {
+        LOG.debug("Session down. Cause : {} ", exception, exception);
         this.up = false;
         this.session = null;
     }

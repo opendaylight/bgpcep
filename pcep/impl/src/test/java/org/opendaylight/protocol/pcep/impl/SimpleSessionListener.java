@@ -46,8 +46,8 @@ public class SimpleSessionListener implements PCEPSessionListener {
     }
 
     @Override
-    public void onSessionDown(final PCEPSession session, final Exception e) {
-        LOG.debug("Session down.", e);
+    public void onSessionDown(final PCEPSession session, final Exception exception) {
+        LOG.debug("Session down.", exception);
         this.up = false;
         // this.notifyAll();
     }

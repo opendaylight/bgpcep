@@ -431,7 +431,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
     }
 
     @Override
-    public Tlvs localSessionCharacteristics() {
+    public Tlvs getLocalTlvs() {
         return this.localOpen.getTlvs();
     }
 

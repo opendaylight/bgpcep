@@ -14,7 +14,7 @@ import javax.annotation.Nonnull;
 /**
  * Factory for creating PCEP session negotiator.
  *
- * @param <S>
+ * @param <S> PCEPSession implementation
  */
 public interface PCEPSessionNegotiatorFactory<S extends PCEPSession> {
 
@@ -33,7 +33,7 @@ public interface PCEPSessionNegotiatorFactory<S extends PCEPSession> {
             @Nonnull Promise<S> promise);
 
     /**
-     * Returns a PCEPSessionProposalFactory
+     * Returns a PCEPSessionProposalFactory.
      *
      * @return session factory
      */
