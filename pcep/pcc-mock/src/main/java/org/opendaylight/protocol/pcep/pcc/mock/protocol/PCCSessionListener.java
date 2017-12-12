@@ -66,8 +66,8 @@ public final class PCCSessionListener implements PCEPSessionListener, PCCSession
     }
 
     @Override
-    public void onSessionDown(final PCEPSession session, final Exception e) {
-        LOG.info("Session down with cause : {} or exception: {}", e.getCause(), e, e);
+    public void onSessionDown(final PCEPSession session, final Exception exception) {
+        LOG.info("Session down with cause : {} or exception: {}", exception.getCause(), exception, exception);
         this.tunnelManager.onSessionDown(this);
         try {
             session.close();

@@ -12,15 +12,14 @@ import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder;
 
 /**
- * Proposal from peer for establishment of PCEP session
+ * Proposal from peer for establishment of PCEP session.
  */
 public interface PCEPPeerProposal {
-
     /**
-     * Sets specific TLVs into incoming builder
+     * Sets specific TLVs into incoming builder.
      *
-     * @param address of the pcep speaker to be assigned given tlvs
-     * @param tlvs    builder, to attach tl's with more information to be sent under Open message
+     * @param address     pcep speaker address
+     * @param openBuilder to assign specific proposal
      */
-    void setPeerSpecificProposal(@Nonnull InetSocketAddress address, @Nonnull TlvsBuilder tlvs);
+    void setPeerSpecificProposal(@Nonnull InetSocketAddress address, @Nonnull TlvsBuilder openBuilder);
 }
