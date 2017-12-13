@@ -5,27 +5,4 @@ NOTIFICATION           | 0               \r
 UPDATE                 | $COUNT               \r
 Messages Sent          |                 \r
 NOTIFICATION           | 0               \r
-UPDATE                 | 4               \r
-                       |                 \r
-AFI state              |                 \r
-====================== |                 \r
-Family                 | IPV4UNICAST     \r
-Active                 | true            \r
-Prefixes               |                 \r
-Installed              | 0               \r
-Sent                   | $COUNT               \r
-Received               | 0               \r
-                       |                 \r
-AFI state              |                 \r
-====================== |                 \r
-Family                 | L2VPNEVPN       \r
-Active                 | false           \r
-                       |                 \r
-AFI state              |                 \r
-====================== |                 \r
-Family                 | L3VPNIPV4UNICAST\r
-Active                 | true            \r
-Prefixes               |                 \r
-Installed              | 0               \r
-Sent                   | 0               \r
-Received               | 0
+UPDATE                 | 4
