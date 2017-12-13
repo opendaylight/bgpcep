@@ -33,7 +33,8 @@ public final class FileWatcherImpl implements FileWatcher, AutoCloseable {
         this.watchService = FileSystems.getDefault().newWatchService();
         final File file = new File(DEFAULT_APP_CONFIG_FILE_PATH);
         if (!file.exists()) {
-            if (file.mkdirs()) {
+            if (!file.mkdirs()) {
+                LOG.warn("Failed to create config directory {}", DEFAULT_APP_CONFIG_FILE_PATH);
                 return;
             }
         }
