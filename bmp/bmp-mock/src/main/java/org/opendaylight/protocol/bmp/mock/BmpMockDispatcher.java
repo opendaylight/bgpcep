@@ -15,14 +15,17 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoop;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.concurrent.TimeUnit;
 import org.opendaylight.protocol.bmp.api.BmpSessionFactory;
 import org.opendaylight.protocol.bmp.impl.BmpHandlerFactory;
 import org.opendaylight.protocol.bmp.spi.registry.BmpMessageRegistry;
@@ -34,7 +37,7 @@ final class BmpMockDispatcher {
     private static final Logger LOG = LoggerFactory.getLogger(BmpMockDispatcher.class);
     private static final int CONNECT_TIMEOUT = 2000;
     private static final int MAX_CONNECTIONS_COUNT = 128;
-
+    private static final int INITIAL_BACKOFF = 15_000;
     private final BmpHandlerFactory hf;
     private final BmpSessionFactory sessionFactory;
 
@@ -68,14 +71,16 @@ final class BmpMockDispatcher {
         return bootstrap;
     }
 
-    ChannelFuture createClient(final SocketAddress localAddress, final SocketAddress remoteAddress) {
+    ChannelFuture createClient(final SocketAddress localAddress, final InetSocketAddress remoteAddress) {
         requireNonNull(localAddress);
         requireNonNull(remoteAddress);
 
         // ideally we should use Bootstrap clones here
         final Bootstrap bootstrap = createClientInstance(localAddress);
+        bootstrap.remoteAddress(remoteAddress);
         final ChannelFuture channelFuture = bootstrap.connect(remoteAddress);
         LOG.info("BMP client {} <--> {} deployed", localAddress, remoteAddress);
+        channelFuture.addListener(new BootstrapListener(bootstrap, remoteAddress));
         return channelFuture;
     }
 
@@ -102,5 +107,31 @@ final class BmpMockDispatcher {
         final ChannelFuture channelFuture = serverBootstrap.bind(localAddress);
         LOG.info("Initiated BMP server at {}.", localAddress);
         return channelFuture;
+    }
+
+    private static class BootstrapListener implements ChannelFutureListener {
+        private final Bootstrap bootstrap;
+        private final InetSocketAddress address;
+        private long delay;
+
+        BootstrapListener(final Bootstrap bootstrap, final InetSocketAddress address) {
+            this.bootstrap = bootstrap;
+            this.address = address;
+            this.delay = INITIAL_BACKOFF;
+        }
+
+        @Override
+        public void operationComplete(final ChannelFuture cf) throws Exception {
+            if (cf.isCancelled()) {
+                LOG.debug("Connection {} cancelled!", cf);
+            } else if (cf.isSuccess()) {
+                LOG.debug("Connection {} succeeded!", cf);
+            } else {
+                final EventLoop loop = cf.channel().eventLoop();
+                loop.schedule(() -> this.bootstrap.connect().addListener(this), this.delay, TimeUnit.MILLISECONDS);
+                LOG.info("The connection try to BMP router {} failed. Next reconnection attempt in {} milliseconds.",
+                        this.address, this.delay);
+            }
+        }
     }
 }
