@@ -1,0 +1,34 @@
+#[run]
+#branch = True
+
+[report]
+exclude_lines =
+	pragma: no cover
+	pass
+	def __repr__
+	if __name__ == .__main__.:
+	if self\.debug
+	raise AssertionError
+	raise NotImplementedError
+	raise RuntimeError
+	if 0:
+	if False:
+
+ignore_errors = True
+
+[run]
+omit =
+	*/python?.?/*
+	*/lib-python/?.?/*.py
+	*/lib_pypy/_*.py
+	*/site-packages/ordereddict.py
+	*/site-packages/nose/*
+	*/__init__.py
+	/lib/exabgp/dep/*
+	/qa/*
+	/dev/*
+	/debian/*
+	/service/*
+
+#[path]
+#source =

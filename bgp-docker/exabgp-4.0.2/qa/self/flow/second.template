@@ -1,0 +1,25 @@
+process parsed-route-backend {
+	encoder json;
+	run ./log-syslog.py;
+}
+
+neighbor 127.0.0.1 {
+	description "router 2";
+	router-id 128.0.0.0;
+	local-address IP;
+	local-as 65534;
+	peer-as 65533;
+	hold-time 9;
+
+	capability {
+		graceful-restart;
+	}
+
+	api {
+		processes [ parsed-route-backend ];
+		receive {
+			parsed;
+			update;
+		}
+	}
+}

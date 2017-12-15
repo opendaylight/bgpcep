@@ -1,0 +1,59 @@
+language: python
+
+python:
+  - "2.6"
+  - "2.7"
+  - "pypy"
+
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -y python-pip python-dev
+
+install:
+  - sudo pip install coveralls
+  - sudo pip install psutil
+  - sudo pip install scrutinizer-ocular
+
+script:
+  - export INTERPRETER=python
+  - export SKIPCLEANUP=exabgp
+  - sbin/exabgp --version
+  - sbin/exabgp --fi > etc/exabgp/exabgp.env
+  - set pipefail
+  - ./qa/bin/parsing
+  - ./qa/bin/conversation
+  - ./sbin/exabgp etc/exabgp/api-open.conf --decode FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF:003C:02:0000001C4001010040020040030465016501800404000000C840050400000064000000002001010101
+  - env exabgp_log_enable=false nosetests --with-coverage ./qa/tests/*_test.py
+#  - coverage run -m unittest discover -s qa/tests -p *_test.py
+# now run the testsuite again with python3
+  - export INTERPRETER=python3
+  - sbin/exabgp --version
+  - sbin/exabgp --fi > etc/exabgp/exabgp.env
+  - set pipefail
+  - ./qa/bin/parsing
+  - ./qa/bin/conversation
+  - ./sbin/exabgp etc/exabgp/api-open.conf --decode FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF:003C:02:0000001C4001010040020040030465016501800404000000C840050400000064000000002001010101
+  - env exabgp_log_enable=false nosetests3 --with-coverage ./qa/tests/*_test.py
+
+after_success:
+  - coveralls
+  - ocular
+
+notifications:
+  irc:
+    channels: "irc.freenode.org#exabgp"
+    template:
+      - "%{repository}@%{branch}: %{message} (%{build_url})"
+    on_success: change
+    on_failure: change
+  email: true
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/48936e41bd3f866cce4e
+    # options: [always|never|change] default: always
+    on_success: always
+    on_failure: always
+    on_start: false
+
+sudo: required
+dist: trusty
