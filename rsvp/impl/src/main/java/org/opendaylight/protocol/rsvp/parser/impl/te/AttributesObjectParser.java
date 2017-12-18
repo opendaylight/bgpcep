@@ -32,12 +32,12 @@ import org.slf4j.LoggerFactory;
 public final class AttributesObjectParser extends AbstractRSVPObjectParser {
     public static final short CLASS_NUM = 197;
     public static final short CTYPE = 1;
-    protected static final int FLAG_TLV_TYPE = 1;
-    protected static final int FLAG_TLV_SIZE = 4;
-    protected static final int TLV_HEADER_SIZE = 4;
+    static final int FLAG_TLV_TYPE = 1;
+    static final int FLAG_TLV_SIZE = 4;
+    static final int TLV_HEADER_SIZE = 4;
     private static final Logger LOG = LoggerFactory.getLogger(AttributesObjectParser.class);
 
-    protected static List<FlagContainer> parseFlag(final ByteBuf byteBuf) {
+    static List<FlagContainer> parseFlag(final ByteBuf byteBuf) {
         final List<FlagContainer> flagList = new ArrayList<>();
         while (byteBuf.isReadable()) {
             final byte[] value = ByteArray.readBytes(byteBuf, FLAG_TLV_SIZE);
@@ -47,13 +47,13 @@ public final class AttributesObjectParser extends AbstractRSVPObjectParser {
         return flagList;
     }
 
-    protected static void serializeFlag(final List<FlagContainer> flagList, final ByteBuf bufferAux) {
+    static void serializeFlag(final List<FlagContainer> flagList, final ByteBuf bufferAux) {
         for (final FlagContainer flagContainer : flagList) {
             bufferAux.writeBytes(flagContainer.getFlags());
         }
     }
 
-    protected static void serializeTLV(final int tlvType, final int lenght, final ByteBuf value, final ByteBuf
+    static void serializeTLV(final int tlvType, final int lenght, final ByteBuf value, final ByteBuf
         auxBuffer) {
         auxBuffer.writeShort(tlvType);
         auxBuffer.writeShort(lenght);
