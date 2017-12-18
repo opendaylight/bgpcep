@@ -20,13 +20,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 public final class Ipv4NextHopParserSerializer implements NextHopParserSerializer {
     @Override
     public CNextHop parseNextHop(final ByteBuf buffer) throws BGPParsingException {
-        Preconditions.checkArgument(buffer.readableBytes() == Ipv4Util.IP4_LENGTH, "Length of byte array for NEXT_HOP should be %s, but is %s", buffer.readableBytes(), Ipv4Util.IP4_LENGTH);
+        Preconditions.checkArgument(buffer.readableBytes() == Ipv4Util.IP4_LENGTH,
+                "Length of byte array for NEXT_HOP should be %s, but is %s",
+                buffer.readableBytes(), Ipv4Util.IP4_LENGTH);
         return NextHopUtil.parseNextHop(buffer);
     }
 
     @Override
-    public void serializeNextHop(final CNextHop cNextHop, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(cNextHop instanceof Ipv4NextHopCase, "cNextHop is not a Ipv4 NextHop object.");
-        NextHopUtil.serializeNextHop( cNextHop, byteAggregator);
+    public void serializeNextHop(final CNextHop nextHop, final ByteBuf byteAggregator) {
+        Preconditions.checkArgument(nextHop instanceof Ipv4NextHopCase,
+                "cNextHop is not a Ipv4 NextHop object.");
+        NextHopUtil.serializeNextHop(nextHop, byteAggregator);
     }
 }

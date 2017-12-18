@@ -29,13 +29,14 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 /**
  * Class supporting IPv6 unicast RIBs.
  */
-final class IPv6RIBSupport extends AbstractIPRIBSupport {
+final class IPv6RIBSupport extends AbstractIPRibSupport {
 
     private static final IPv6RIBSupport SINGLETON = new IPv6RIBSupport();
 
     private IPv6RIBSupport() {
         super(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.Ipv6Prefix.class,
-                Ipv6AddressFamily.class, Ipv6RoutesCase.class, Ipv6Routes.class, Ipv6Route.class, DestinationIpv6.QNAME, Ipv6Prefixes.QNAME);
+                Ipv6AddressFamily.class, Ipv6RoutesCase.class, Ipv6Routes.class, Ipv6Route.class,
+                DestinationIpv6.QNAME, Ipv6Prefixes.QNAME);
     }
 
     static IPv6RIBSupport getInstance() {
@@ -45,22 +46,25 @@ final class IPv6RIBSupport extends AbstractIPRIBSupport {
     @Nonnull
     @Override
     protected DestinationType buildDestination(@Nonnull final Collection<MapEntryNode> routes) {
-        return new DestinationIpv6CaseBuilder().setDestinationIpv6(new DestinationIpv6Builder().setIpv6Prefixes(extractPrefixes(routes)).build()).build();
+        return new DestinationIpv6CaseBuilder().setDestinationIpv6(new DestinationIpv6Builder()
+                .setIpv6Prefixes(extractPrefixes(routes)).build()).build();
     }
 
     @Nonnull
     @Override
     protected DestinationType buildWithdrawnDestination(@Nonnull final Collection<MapEntryNode> routes) {
-        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.update.attributes.mp.unreach.nlri.withdrawn.routes
-                .destination.type.DestinationIpv6CaseBuilder().setDestinationIpv6(
-                        new DestinationIpv6Builder().setIpv6Prefixes(extractPrefixes(routes)).build()).build();
+        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.update
+                .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv6CaseBuilder()
+                .setDestinationIpv6(new DestinationIpv6Builder().setIpv6Prefixes(extractPrefixes(routes))
+                        .build()).build();
     }
 
     private List<Ipv6Prefixes> extractPrefixes(final Collection<MapEntryNode> routes) {
         final List<Ipv6Prefixes> prefs = new ArrayList<>(routes.size());
         for (final MapEntryNode route : routes) {
             final String prefix = (String) NormalizedNodes.findNode(route, routePrefixIdentifier()).get().getValue();
-            prefs.add(new Ipv6PrefixesBuilder().setPathId(PathIdUtil.buildPathId(route, routePathIdNid())).setPrefix(new Ipv6Prefix(prefix)).build());
+            prefs.add(new Ipv6PrefixesBuilder().setPathId(PathIdUtil.buildPathId(route, routePathIdNid()))
+                    .setPrefix(new Ipv6Prefix(prefix)).build());
         }
         return prefs;
     }

@@ -22,9 +22,9 @@ public final class Ipv6BgpPrefixSidParserTest {
 
     private final Ipv6BgpPrefixSidParser handler = new Ipv6BgpPrefixSidParser();
 
-    private final byte[] expected = new byte[] {0, (byte)0x80, 0};
+    private final byte[] expected = new byte[]{0, (byte) 0x80, 0};
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testWrongTlvType() {
         this.handler.serializeBgpPrefixSidTlv(() -> BgpPrefixSidTlv.class, Unpooled.EMPTY_BUFFER);
     }

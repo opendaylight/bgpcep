@@ -66,27 +66,35 @@ public final class Ipv4NlriParser implements NlriParser, NlriSerializer {
     }
 
     @Override
-    public void parseNlri(final ByteBuf nlri, final MpReachNlriBuilder builder, final PeerSpecificParserConstraint constraint) {
+    public void parseNlri(final ByteBuf nlri, final MpReachNlriBuilder builder,
+            final PeerSpecificParserConstraint constraint) {
         builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
-                new DestinationIpv4CaseBuilder().setDestinationIpv4(prefixes(nlri, constraint, builder.getAfi(), builder.getSafi())).build()).build());
+                new DestinationIpv4CaseBuilder().setDestinationIpv4(prefixes(nlri, constraint,
+                        builder.getAfi(), builder.getSafi())).build()).build());
     }
 
     @Override
-    public void parseNlri(final ByteBuf nlri, final MpUnreachNlriBuilder builder, final PeerSpecificParserConstraint constraint) {
-        builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4CaseBuilder().setDestinationIpv4(
-                prefixes(nlri, constraint, builder.getAfi(), builder.getSafi())).build()).build());
+    public void parseNlri(final ByteBuf nlri, final MpUnreachNlriBuilder builder,
+            final PeerSpecificParserConstraint constraint) {
+        builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.update
+                        .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4CaseBuilder()
+                        .setDestinationIpv4(prefixes(nlri, constraint, builder.getAfi(), builder.getSafi()))
+                        .build()).build());
     }
 
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(attribute instanceof Attributes, "Attribute parameter is not a PathAttribute object.");
+        Preconditions.checkArgument(attribute instanceof Attributes,
+                "Attribute parameter is not a PathAttribute object.");
         final Attributes pathAttributes = (Attributes) attribute;
         final Attributes1 pathAttributes1 = pathAttributes.getAugmentation(Attributes1.class);
         final Attributes2 pathAttributes2 = pathAttributes.getAugmentation(Attributes2.class);
         if (pathAttributes1 != null) {
             final AdvertizedRoutes advertizedRoutes = pathAttributes1.getMpReachNlri().getAdvertizedRoutes();
             if (advertizedRoutes != null && advertizedRoutes.getDestinationType() instanceof DestinationIpv4Case) {
-                final DestinationIpv4Case destinationIpv4Case = (DestinationIpv4Case) advertizedRoutes.getDestinationType();
+                final DestinationIpv4Case destinationIpv4Case =
+                        (DestinationIpv4Case) advertizedRoutes.getDestinationType();
                 for (final Ipv4Prefixes ipv4Prefix : destinationIpv4Case.getDestinationIpv4().getIpv4Prefixes()) {
                     PathIdUtil.writePathId(ipv4Prefix.getPathId(), byteAggregator);
                     ByteBufWriteUtil.writeMinimalPrefix(ipv4Prefix.getPrefix(), byteAggregator);
@@ -94,9 +102,14 @@ public final class Ipv4NlriParser implements NlriParser, NlriSerializer {
             }
         } else if (pathAttributes2 != null) {
             final WithdrawnRoutes withdrawnRoutes = pathAttributes2.getMpUnreachNlri().getWithdrawnRoutes();
-            if (withdrawnRoutes != null && withdrawnRoutes.getDestinationType() instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4Case) {
-                final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4Case destinationIpv4Case =
-                        (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4Case) withdrawnRoutes.getDestinationType();
+            if (withdrawnRoutes != null && withdrawnRoutes.getDestinationType() instanceof org.opendaylight.yang.gen
+                    .v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.update.attributes.mp.unreach.nlri
+                    .withdrawn.routes.destination.type.DestinationIpv4Case) {
+                final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.update
+                        .attributes.mp.unreach.nlri.withdrawn.routes.destination.type
+                        .DestinationIpv4Case destinationIpv4Case = (org.opendaylight.yang.gen.v1.urn.opendaylight
+                        .params.xml.ns.yang.bgp.inet.rev171207.update.attributes.mp.unreach.nlri.withdrawn.routes
+                        .destination.type.DestinationIpv4Case) withdrawnRoutes.getDestinationType();
                 for (final Ipv4Prefixes ipv4Prefix : destinationIpv4Case.getDestinationIpv4().getIpv4Prefixes()) {
                     PathIdUtil.writePathId(ipv4Prefix.getPathId(), byteAggregator);
                     ByteBufWriteUtil.writeMinimalPrefix(ipv4Prefix.getPrefix(), byteAggregator);
