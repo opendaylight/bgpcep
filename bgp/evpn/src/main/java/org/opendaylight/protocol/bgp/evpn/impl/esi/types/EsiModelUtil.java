@@ -20,15 +20,24 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 final class EsiModelUtil {
-    static final NodeIdentifier LD_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME, "local-discriminator").intern());
-    static final NodeIdentifier ARB_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME, "arbitrary").intern());
-    static final NodeIdentifier AS_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME, "as").intern());
-    static final NodeIdentifier LACP_MAC_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME, "ce-lacp-mac-address").intern());
-    static final NodeIdentifier PK_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME, "ce-lacp-port-key").intern());
-    static final NodeIdentifier BRIDGE_MAC_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME, "root-bridge-mac-address").intern());
-    static final NodeIdentifier RBP_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME, "root-bridge-priority").intern());
-    static final NodeIdentifier SYSTEM_MAC_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME, "system-mac-address").intern());
-    static final NodeIdentifier RD_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME, "router-id").intern());
+    static final NodeIdentifier LD_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME,
+            "local-discriminator").intern());
+    static final NodeIdentifier ARB_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME,
+            "arbitrary").intern());
+    static final NodeIdentifier AS_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME,
+            "as").intern());
+    static final NodeIdentifier LACP_MAC_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME,
+            "ce-lacp-mac-address").intern());
+    static final NodeIdentifier PK_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME,
+            "ce-lacp-port-key").intern());
+    static final NodeIdentifier BRIDGE_MAC_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME,
+            "root-bridge-mac-address").intern());
+    static final NodeIdentifier RBP_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME,
+            "root-bridge-priority").intern());
+    static final NodeIdentifier SYSTEM_MAC_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME,
+            "system-mac-address").intern());
+    static final NodeIdentifier RD_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME,
+            "router-id").intern());
 
     private EsiModelUtil() {
         throw new UnsupportedOperationException();
@@ -40,8 +49,9 @@ final class EsiModelUtil {
 
     static Arbitrary extractArbitrary(final ContainerNode esi) {
         final byte[] arbitrary = (byte[]) esi.getChild(ARB_NID).get().getValue();
-        Preconditions.checkArgument(arbitrary.length == ArbitraryParser.ARBITRARY_LENGTH, "Wrong length of array of bytes. Expected: %s Passed: %s " +
-            ";", ArbitraryParser.ARBITRARY_LENGTH, arbitrary.length);
+        Preconditions.checkArgument(arbitrary.length == ArbitraryParser.ARBITRARY_LENGTH,
+                "Wrong length of array of bytes. Expected: %s Passed: %s "
+                        + ";", ArbitraryParser.ARBITRARY_LENGTH, arbitrary.length);
         return new ArbitraryBuilder().setArbitrary(arbitrary).build();
     }
 

@@ -49,14 +49,16 @@ public final class SimpleEsiTypeRegistry implements EsiRegistry {
         return this.handlers.registerSerializer(esiType, serializer);
     }
 
-    public AutoCloseable registerEsiModelSerializer(final QName qName, final EsiSerializer serializer) {
-        return this.modelHandlers.register(new NodeIdentifier(qName), serializer);
+    public AutoCloseable registerEsiModelSerializer(final QName qname, final EsiSerializer serializer) {
+        return this.modelHandlers.register(new NodeIdentifier(qname), serializer);
     }
 
     @Override
     public Esi parseEsi(final ByteBuf buffer) {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
-        Preconditions.checkArgument(buffer.readableBytes() == CONTENT_LENGTH, "Wrong length of array of bytes. Passed: " + buffer.readableBytes() + ";");
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
+                "Array of bytes is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(buffer.readableBytes() == CONTENT_LENGTH,
+                "Wrong length of array of bytes. Passed: " + buffer.readableBytes() + ";");
 
         final EsiParser parser = this.handlers.getParser(EsiType.forValue(buffer.readByte()).getIntValue());
         if (parser == null) {
@@ -67,7 +69,8 @@ public final class SimpleEsiTypeRegistry implements EsiRegistry {
 
     @Override
     public Esi parseEsiModel(final ChoiceNode esiChoice) {
-        Preconditions.checkArgument(esiChoice != null && !esiChoice.getValue().isEmpty(), "ESI is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(esiChoice != null && !esiChoice.getValue().isEmpty(),
+                "ESI is mandatory. Can't be null or empty.");
         final ContainerNode cont = (ContainerNode) Iterables.getOnlyElement(esiChoice.getValue());
         final EsiSerializer serializer = this.modelHandlers.get(cont.getIdentifier());
         if (serializer != null) {

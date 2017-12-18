@@ -23,15 +23,24 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 
 final class NlriModelUtil {
-    static final NodeIdentifier ETI_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME, "ethernet-tag-id").intern());
-    static final NodeIdentifier VLAN_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME, "vlan-id").intern());
-    static final NodeIdentifier RD_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME, "route-distinguisher").intern());
-    static final NodeIdentifier ORI_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME, "orig-route-ip").intern());
-    static final NodeIdentifier MAC_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME, "mac-address").intern());
-    static final NodeIdentifier IP_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME, "ip-address").intern());
-    static final NodeIdentifier MPLS_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME, "mpls-label").intern());
-    static final NodeIdentifier MPLS1_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME, "mpls-label1").intern());
-    static final NodeIdentifier MPLS2_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME, "mpls-label2").intern());
+    static final NodeIdentifier ETI_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME,
+            "ethernet-tag-id").intern());
+    static final NodeIdentifier VLAN_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME,
+            "vlan-id").intern());
+    static final NodeIdentifier RD_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME,
+            "route-distinguisher").intern());
+    static final NodeIdentifier ORI_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME,
+            "orig-route-ip").intern());
+    static final NodeIdentifier MAC_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME,
+            "mac-address").intern());
+    static final NodeIdentifier IP_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME,
+            "ip-address").intern());
+    static final NodeIdentifier MPLS_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME,
+            "mpls-label").intern());
+    static final NodeIdentifier MPLS1_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME,
+            "mpls-label1").intern());
+    static final NodeIdentifier MPLS2_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME,
+            "mpls-label2").intern());
 
     private NlriModelUtil() {
         throw new UnsupportedOperationException();
@@ -63,7 +72,8 @@ final class NlriModelUtil {
         return null;
     }
 
-    static MplsLabel extractMplsLabel(final DataContainerNode<? extends PathArgument> evpn, final NodeIdentifier mplsNid) {
+    static MplsLabel extractMplsLabel(final DataContainerNode<? extends PathArgument> evpn,
+            final NodeIdentifier mplsNid) {
         if (evpn.getChild(mplsNid).isPresent()) {
             return new MplsLabel((Long) evpn.getChild(mplsNid).get().getValue());
         }

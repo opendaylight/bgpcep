@@ -26,7 +26,7 @@ public interface EvpnRegistry {
     @Nullable EvpnChoice parseEvpn(@Nonnull NlriType type, @Nonnull ByteBuf buffer);
 
     /**
-     * Encode input BGP Evpn to output buffer
+     * Encode input BGP Evpn to output buffer.
      *
      * @param evpn EvpnChoice
      * @param common encoded common Evpn
@@ -40,13 +40,13 @@ public interface EvpnRegistry {
      * @param evpnChoice ChoiceNode containing Evpn
      * @return EvpnChoice
      */
-    @Nonnull EvpnChoice serializeEvpnModel(@Nonnull ChoiceNode evpnChoice);
+    @Nullable EvpnChoice serializeEvpnModel(@Nonnull ChoiceNode evpnChoice);
 
     /**
-     * Create Route key from Evpn model
+     * Create Route key from Evpn model.
      *
      * @param evpnChoice ChoiceNode containing Evpn
      * @return EvpnChoice
      */
-    @Nonnull EvpnChoice serializeEvpnRouteKey(@Nonnull ChoiceNode evpnChoice);
+    @Nullable EvpnChoice serializeEvpnRouteKey(@Nonnull ChoiceNode evpnChoice);
 }

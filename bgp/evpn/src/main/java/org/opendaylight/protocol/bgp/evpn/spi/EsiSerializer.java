@@ -15,7 +15,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 public interface EsiSerializer {
     /**
-     * Serialize Ethernet Segment Identifier
+     * Serialize Ethernet Segment Identifier.
      *
      * @param esi    Ethernet Segment Identifier
      * @param buffer write in Bytebuf encoded ESI body
@@ -23,7 +23,7 @@ public interface EsiSerializer {
     void serializeEsi(@Nonnull Esi esi, @Nonnull ByteBuf buffer);
 
     /**
-     * Serialize Ethernet Segment Identifier Model
+     * Serialize Ethernet Segment Identifier Model.
      *
      * @param esi Ethernet Segment Identifier Model
      * @return Ethernet Segment Identifier

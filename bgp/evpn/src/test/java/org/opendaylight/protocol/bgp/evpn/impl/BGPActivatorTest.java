@@ -9,6 +9,8 @@ package org.opendaylight.protocol.bgp.evpn.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.opendaylight.protocol.bgp.evpn.impl.BGPActivator.EVPN_SAFI;
+import static org.opendaylight.protocol.bgp.evpn.impl.BGPActivator.L2VPN_AFI;
 
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
@@ -21,11 +23,12 @@ public class BGPActivatorTest {
     public void testActivator() throws Exception {
         final BGPActivator act = new BGPActivator();
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
-        assertNull(context.getAddressFamilyRegistry().classForFamily(25));
-        assertNull(context.getSubsequentAddressFamilyRegistry().classForFamily(70));
+        assertNull(context.getAddressFamilyRegistry().classForFamily(L2VPN_AFI));
+        assertNull(context.getSubsequentAddressFamilyRegistry().classForFamily(EVPN_SAFI));
         act.start(context);
-        assertEquals(L2vpnAddressFamily.class, context.getAddressFamilyRegistry().classForFamily(25));
-        assertEquals(EvpnSubsequentAddressFamily.class, context.getSubsequentAddressFamilyRegistry().classForFamily(70));
+        assertEquals(L2vpnAddressFamily.class, context.getAddressFamilyRegistry().classForFamily(L2VPN_AFI));
+        assertEquals(EvpnSubsequentAddressFamily.class, context.getSubsequentAddressFamilyRegistry()
+                .classForFamily(EVPN_SAFI));
         act.close();
     }
 }

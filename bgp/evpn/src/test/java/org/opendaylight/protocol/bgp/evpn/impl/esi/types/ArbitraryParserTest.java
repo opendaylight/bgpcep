@@ -29,10 +29,10 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 public final class ArbitraryParserTest {
-    private static final byte[] ARB_VALUE = {(byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, (byte) 0x05, (byte) 0x06, (byte) 0x07,
-        (byte) 0x08, (byte) 0x09};
-    private static final byte[] ARB_RESULT = {(byte) 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, (byte) 0x05, (byte) 0x06,
-        (byte) 0x07, (byte) 0x08, (byte) 0x09};
+    private static final byte[] ARB_VALUE = {(byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, (byte) 0x05,
+        (byte) 0x06, (byte) 0x07, (byte) 0x08, (byte) 0x09};
+    private static final byte[] ARB_RESULT = {(byte) 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04,
+        (byte) 0x05, (byte) 0x06, (byte) 0x07, (byte) 0x08, (byte) 0x09};
     private ArbitraryParser parser;
 
     @Before
@@ -44,7 +44,8 @@ public final class ArbitraryParserTest {
     public void parserTest() {
         final ByteBuf buff = Unpooled.buffer(VALUE_SIZE);
 
-        final ArbitraryCase arbitrary = new ArbitraryCaseBuilder().setArbitrary(new ArbitraryBuilder().setArbitrary(ARB_VALUE).build()).build();
+        final ArbitraryCase arbitrary = new ArbitraryCaseBuilder().setArbitrary(new ArbitraryBuilder()
+                .setArbitrary(ARB_VALUE).build()).build();
         this.parser.serializeEsi(arbitrary, buff);
         assertArrayEquals(ARB_RESULT, ByteArray.getAllBytes(buff));
 
@@ -52,7 +53,7 @@ public final class ArbitraryParserTest {
         assertEquals(arbitrary, acResult);
 
         final ContainerNode cont = createContBuilder(new NodeIdentifier(Arbitrary.QNAME))
-            .addChild(createValueBuilder(ARB_VALUE, ARB_NID).build()).build();
+                .addChild(createValueBuilder(ARB_VALUE, ARB_NID).build()).build();
         final Esi acmResult = this.parser.serializeEsi(cont);
         assertEquals(arbitrary, acmResult);
     }

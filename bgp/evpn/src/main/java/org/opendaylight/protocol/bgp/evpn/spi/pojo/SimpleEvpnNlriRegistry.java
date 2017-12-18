@@ -45,17 +45,19 @@ public final class SimpleEvpnNlriRegistry implements EvpnRegistry {
         return this.handlers.registerParser(esiType.getIntValue(), parser);
     }
 
-    public AutoCloseable registerNlriSerializer(final Class<? extends EvpnChoice> evpnClass, final EvpnSerializer serializer) {
+    public AutoCloseable registerNlriSerializer(final Class<? extends EvpnChoice> evpnClass,
+            final EvpnSerializer serializer) {
         return this.handlers.registerSerializer(evpnClass, serializer);
     }
 
-    public AutoCloseable registerNlriModelSerializer(final QName qName, final EvpnSerializer serializer) {
-        return this.modelHandlers.register(new NodeIdentifier(qName), serializer);
+    public AutoCloseable registerNlriModelSerializer(final QName qname, final EvpnSerializer serializer) {
+        return this.modelHandlers.register(new NodeIdentifier(qname), serializer);
     }
 
     @Override
     public EvpnChoice parseEvpn(final NlriType type, final ByteBuf buffer) {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
+                "Array of bytes is mandatory. Can't be null or empty.");
         final EvpnParser parser = this.handlers.getParser(type.getIntValue());
         if (parser == null) {
             return null;
@@ -83,7 +85,8 @@ public final class SimpleEvpnNlriRegistry implements EvpnRegistry {
     }
 
     private EvpnChoice getEvpnCase(final ChoiceNode evpnChoice, final SerializerInterface serializerInterface) {
-        Preconditions.checkArgument(evpnChoice != null && !evpnChoice.getValue().isEmpty(), "Evpn case is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(evpnChoice != null && !evpnChoice.getValue().isEmpty(),
+                "Evpn case is mandatory. Can't be null or empty.");
         final ContainerNode cont = (ContainerNode) Iterables.getOnlyElement(evpnChoice.getValue());
         final EvpnSerializer serializer = this.modelHandlers.get(cont.getIdentifier());
         if (serializer == null) {

@@ -30,13 +30,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171213.evpn.EvpnChoice;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.common.QName;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 
 public final class SimpleEvpnNlriRegistryTest {
-    public static final YangInstanceIdentifier.NodeIdentifier EVPN_NID = new YangInstanceIdentifier.NodeIdentifier(EvpnChoice.QNAME);
+    public static final NodeIdentifier EVPN_NID = new NodeIdentifier(EvpnChoice.QNAME);
 
     private class NotRegistered implements EvpnChoice {
         @Override
@@ -54,7 +54,8 @@ public final class SimpleEvpnNlriRegistryTest {
 
     @Test
     public void registryTest() {
-        final ByteBuf buff = SimpleEvpnNlriRegistry.getInstance().serializeEvpn(ETHERNET_AD_ROUTE_CASE, Unpooled.wrappedBuffer(ROUDE_DISTIN));
+        final ByteBuf buff = SimpleEvpnNlriRegistry.getInstance().serializeEvpn(ETHERNET_AD_ROUTE_CASE,
+                Unpooled.wrappedBuffer(ROUDE_DISTIN));
         assertArrayEquals(EthADRParserTest.RESULT, ByteArray.getAllBytes(buff));
         final EvpnChoice resultModel = SimpleEvpnNlriRegistry.getInstance().serializeEvpnModel(createEthADRModel());
         assertEquals(ETHERNET_AD_ROUTE_CASE, resultModel);
@@ -77,8 +78,10 @@ public final class SimpleEvpnNlriRegistryTest {
 
     @Test
     public void registryNullModelTest() {
-        final DataContainerNodeBuilder<YangInstanceIdentifier.NodeIdentifier, ChoiceNode> choice = Builders.choiceBuilder().withNodeIdentifier(EVPN_NID);
-        choice.addChild(createContBuilder(new YangInstanceIdentifier.NodeIdentifier(QName.create(Evpn.QNAME, "test").intern())).build()).build();
+        final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> choice = Builders.choiceBuilder()
+                .withNodeIdentifier(EVPN_NID);
+        choice.addChild(createContBuilder(new NodeIdentifier(QName.create(Evpn.QNAME, "test").intern()))
+                .build()).build();
         assertNull(SimpleEvpnNlriRegistry.getInstance().serializeEvpnModel(choice.build()));
     }
 }

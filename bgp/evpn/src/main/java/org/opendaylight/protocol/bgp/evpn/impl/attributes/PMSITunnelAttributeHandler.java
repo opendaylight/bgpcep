@@ -56,7 +56,7 @@ public final class PMSITunnelAttributeHandler implements AttributeParser, Attrib
 
     private static void parseMpls(final PmsiTunnelBuilder pmsiTunnelBuilder, final ByteBuf buffer) {
         final MplsLabel mpls = MplsLabelUtil.mplsLabelForByteBuf(buffer);
-        if(mpls.getValue() != 0) {
+        if (mpls.getValue() != 0) {
             pmsiTunnelBuilder.setMplsLabel(mpls);
         }
     }
@@ -88,7 +88,7 @@ public final class PMSITunnelAttributeHandler implements AttributeParser, Attrib
     }
 
     private static void serializeMpls(final MplsLabel mplsLabel, final ByteBuf body) {
-        if(mplsLabel == null) {
+        if (mplsLabel == null) {
             body.writeZero(MPLS_LENGTH);
         }
         body.writeBytes(MplsLabelUtil.byteBufForMplsLabel(mplsLabel));

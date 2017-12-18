@@ -32,16 +32,18 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 final class EthADRParser extends AbstractEvpnNlri {
-    protected static final NodeIdentifier ETH_AD_ROUTE_NID = new NodeIdentifier(EthernetADRoute.QNAME);
+    static final NodeIdentifier ETH_AD_ROUTE_NID = new NodeIdentifier(EthernetADRoute.QNAME);
     private static final int CONTENT_LENGTH = 17;
 
     @Override
     public EvpnChoice parseEvpn(final ByteBuf buffer) {
-        Preconditions.checkArgument(buffer.readableBytes() == CONTENT_LENGTH, "Wrong length of array of bytes. Passed: %s ;", buffer);
+        Preconditions.checkArgument(buffer.readableBytes() == CONTENT_LENGTH,
+                "Wrong length of array of bytes. Passed: %s ;", buffer);
         final Esi esi = SimpleEsiTypeRegistry.getInstance().parseEsi(buffer.readSlice(ESI_SIZE));
         final EthernetTagId eti = new EthernetTagIdBuilder().setVlanId(buffer.readUnsignedInt()).build();
         final MplsLabel label = mplsLabelForByteBuf(buffer);
-        final EthernetADRouteBuilder builder = new EthernetADRouteBuilder().setEsi(esi).setEthernetTagId(eti).setMplsLabel(label);
+        final EthernetADRouteBuilder builder = new EthernetADRouteBuilder()
+                .setEsi(esi).setEthernetTagId(eti).setMplsLabel(label);
         return new EthernetADRouteCaseBuilder().setEthernetADRoute(builder.build()).build();
     }
 
@@ -51,9 +53,20 @@ final class EthADRParser extends AbstractEvpnNlri {
     }
 
     @Override
-    public ByteBuf serializeBody(final EvpnChoice evpn) {
-        Preconditions.checkArgument(evpn instanceof EthernetADRouteCase, "Unknown evpn instance. Passed %s. Needed EthernetADRouteCase.", evpn.getClass());
-        return serializeBody(((EthernetADRouteCase) evpn).getEthernetADRoute());
+    public ByteBuf serializeBody(final EvpnChoice evpnChoice) {
+        Preconditions.checkArgument(evpnChoice instanceof EthernetADRouteCase,
+                "Unknown evpn instance. Passed %s. Needed EthernetADRouteCase.", evpnChoice.getClass());
+
+        final EthernetADRoute evpn = ((EthernetADRouteCase) evpnChoice).getEthernetADRoute();
+        final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
+        SimpleEsiTypeRegistry.getInstance().serializeEsi(evpn.getEsi(), body);
+        ByteBufWriteUtil.writeUnsignedInt(evpn.getEthernetTagId().getVlanId(), body);
+
+        final MplsLabel mpls = evpn.getMplsLabel();
+        if (mpls != null) {
+            body.writeBytes(byteBufForMplsLabel(evpn.getMplsLabel()));
+        }
+        return body;
     }
 
     @Override
@@ -73,17 +86,5 @@ final class EthADRParser extends AbstractEvpnNlri {
         builder.setEsi(serializeEsi(evpn));
         builder.setEthernetTagId(extractETI(evpn));
         return builder;
-    }
-
-    private static ByteBuf serializeBody(final EthernetADRoute evpn) {
-        final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
-        SimpleEsiTypeRegistry.getInstance().serializeEsi(evpn.getEsi(), body);
-        ByteBufWriteUtil.writeUnsignedInt(evpn.getEthernetTagId().getVlanId(), body);
-
-        final MplsLabel mpls = evpn.getMplsLabel();
-        if (mpls != null) {
-            body.writeBytes(byteBufForMplsLabel(evpn.getMplsLabel()));
-        }
-        return body;
     }
 }

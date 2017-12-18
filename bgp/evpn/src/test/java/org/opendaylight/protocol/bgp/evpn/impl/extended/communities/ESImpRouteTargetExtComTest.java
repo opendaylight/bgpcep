@@ -38,8 +38,9 @@ public class ESImpRouteTargetExtComTest {
     public void parserTest() throws BGPParsingException, BGPDocumentedException {
         final ByteBuf buff = Unpooled.buffer(COMMUNITY_VALUE_SIZE);
 
-        final EsImportRouteExtendedCommunityCase expected = new EsImportRouteExtendedCommunityCaseBuilder().setEsImportRouteExtendedCommunity(
-            new EsImportRouteExtendedCommunityBuilder().setEsImport(MAC).build()).build();
+        final EsImportRouteExtendedCommunityCase expected = new EsImportRouteExtendedCommunityCaseBuilder()
+                .setEsImportRouteExtendedCommunity(
+                        new EsImportRouteExtendedCommunityBuilder().setEsImport(MAC).build()).build();
         this.parser.serializeExtendedCommunity(expected, buff);
         assertArrayEquals(RESULT, ByteArray.getAllBytes(buff));
 

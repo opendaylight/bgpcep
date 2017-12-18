@@ -21,7 +21,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 
 public class TableTypeActivatorTest {
 
-    private static final BgpTableType EVPN = new BgpTableTypeImpl(L2vpnAddressFamily.class, EvpnSubsequentAddressFamily.class);
+    private static final BgpTableType EVPN = new BgpTableTypeImpl(
+            L2vpnAddressFamily.class, EvpnSubsequentAddressFamily.class);
 
     @Test
     public void testActivator() {

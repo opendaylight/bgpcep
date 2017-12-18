@@ -25,7 +25,8 @@ final class ArbitraryParser extends AbstractEsiType {
 
     @Override
     public void serializeBody(final Esi esiCase, final ByteBuf body) {
-        Preconditions.checkArgument(esiCase instanceof ArbitraryCase, "Unknown esi instance. Passed %s. Needed ArbitraryCase.", esiCase.getClass());
+        Preconditions.checkArgument(esiCase instanceof ArbitraryCase,
+                "Unknown esi instance. Passed %s. Needed ArbitraryCase.", esiCase.getClass());
         body.writeBytes(((ArbitraryCase) esiCase).getArbitrary().getArbitrary());
     }
 
@@ -42,6 +43,7 @@ final class ArbitraryParser extends AbstractEsiType {
 
     @Override
     public Esi parseEsi(final ByteBuf body) {
-        return new ArbitraryCaseBuilder().setArbitrary(new ArbitraryBuilder().setArbitrary(ByteArray.readBytes(body, ARBITRARY_LENGTH)).build()).build();
+        return new ArbitraryCaseBuilder().setArbitrary(new ArbitraryBuilder()
+                .setArbitrary(ByteArray.readBytes(body, ARBITRARY_LENGTH)).build()).build();
     }
 }

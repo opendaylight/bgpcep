@@ -35,13 +35,14 @@ import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 
 public class RouterIdParserTest {
-    public static final byte[] RESULT = {(byte) 0x04, (byte) 0x2A, (byte) 0x2A, (byte) 0x2A, (byte) 0x2A, (byte) 0x02, (byte) 0x02, (byte) 0x02,
-        (byte) 0x02, (byte) 0x00};
-    private static final byte[] VALUE = {(byte) 0x2A, (byte) 0x2A, (byte) 0x2A, (byte) 0x2A, (byte) 0x02, (byte) 0x02, (byte) 0x02,
-        (byte) 0x02, (byte) 0x00};
+    public static final byte[] RESULT = {(byte) 0x04, (byte) 0x2A, (byte) 0x2A, (byte) 0x2A, (byte) 0x2A, (byte) 0x02,
+        (byte) 0x02, (byte) 0x02, (byte) 0x02, (byte) 0x00};
+    private static final byte[] VALUE = {(byte) 0x2A, (byte) 0x2A, (byte) 0x2A, (byte) 0x2A, (byte) 0x02, (byte) 0x02,
+        (byte) 0x02, (byte) 0x02, (byte) 0x00};
     private static final Ipv4Address ROUTE_ID = new Ipv4Address("42.42.42.42");
-    public static final RouterIdGeneratedCase ROUTE_ID_CASE = new RouterIdGeneratedCaseBuilder().setRouterIdGenerated(new RouterIdGeneratedBuilder()
-        .setLocalDiscriminator(LD).setRouterId(ROUTE_ID).build()).build();
+    public static final RouterIdGeneratedCase ROUTE_ID_CASE = new RouterIdGeneratedCaseBuilder()
+            .setRouterIdGenerated(new RouterIdGeneratedBuilder()
+                    .setLocalDiscriminator(LD).setRouterId(ROUTE_ID).build()).build();
     private static final String ROUTE_ID_MODEL = "42.42.42.42";
     private RouterIdParser parser;
 

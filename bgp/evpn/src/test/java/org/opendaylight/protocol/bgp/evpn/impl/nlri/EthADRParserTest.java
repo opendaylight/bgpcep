@@ -44,7 +44,8 @@ public class EthADRParserTest {
     public static final byte[] RESULT = {
         (byte) 0x01, (byte) 0x19,
         (byte) 0x00, (byte) 0x01, (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, (byte) 0x01, (byte) 0x02,
-        (byte) 0x02, (byte) 0xf2, (byte) 0x0c, (byte) 0xdd, (byte) 0x80, (byte) 0x9f, (byte) 0xf7, (byte) 0x02, (byte) 0x02, (byte) 0x00,
+        (byte) 0x02, (byte) 0xf2, (byte) 0x0c, (byte) 0xdd, (byte) 0x80, (byte) 0x9f, (byte) 0xf7, (byte) 0x02,
+        (byte) 0x02, (byte) 0x00,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x0a, (byte) 0x05, (byte) 0xdc, (byte) 0x10
     };
     public static final byte[] ROUDE_DISTIN = {
@@ -52,12 +53,15 @@ public class EthADRParserTest {
     };
     static final EthernetTagId ETI = new EthernetTagIdBuilder().setVlanId(VLAN).build();
     public static final EthernetADRouteCase ETHERNET_AD_ROUTE_CASE_KEY = new EthernetADRouteCaseBuilder()
-        .setEthernetADRoute(new EthernetADRouteBuilder().setEsi(LAN_AUT_GEN_CASE).setEthernetTagId(ETI).build()).build();
-    public static final EthernetADRouteCase ETHERNET_AD_ROUTE_CASE = new EthernetADRouteCaseBuilder().setEthernetADRoute(new EthernetADRouteBuilder()
+        .setEthernetADRoute(new EthernetADRouteBuilder().setEsi(LAN_AUT_GEN_CASE)
+                .setEthernetTagId(ETI).build()).build();
+    public static final EthernetADRouteCase ETHERNET_AD_ROUTE_CASE = new EthernetADRouteCaseBuilder()
+            .setEthernetADRoute(new EthernetADRouteBuilder()
         .setEsi(LAN_AUT_GEN_CASE).setEthernetTagId(ETI).setMplsLabel(MPLS_LABEL).build()).build();
     static final byte[] WRONG_VALUE = {(byte) 0x00};
     private static final byte[] VALUE = {
-        (byte) 0x02, (byte) 0xf2, (byte) 0x0c, (byte) 0xdd, (byte) 0x80, (byte) 0x9f, (byte) 0xf7, (byte) 0x02, (byte) 0x02, (byte) 0x00,
+        (byte) 0x02, (byte) 0xf2, (byte) 0x0c, (byte) 0xdd, (byte) 0x80, (byte) 0x9f, (byte) 0xf7, (byte) 0x02,
+        (byte) 0x02, (byte) 0x00,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x0a, (byte) 0x05, (byte) 0xdc, (byte) 0x10
     };
     private EthADRParser parser;

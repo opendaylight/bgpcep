@@ -7,13 +7,13 @@
  */
 package org.opendaylight.protocol.bgp.evpn.impl.nlri;
 
-import static org.junit.Assert.assertArrayEquals;
+import static java.util.Collections.singletonList;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.RD;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
-import java.util.Collections;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.evpn.impl.esi.types.ESIActivator;
@@ -53,14 +53,17 @@ public class EvpnNlriAttributesParserTest {
         final Attributes att = new AttributesBuilder().addAugmentation(Attributes1.class,
             new Attributes1Builder().setMpReachNlri(createReach()).build()).build();
         this.parser.serializeAttribute(att, buffer);
-        assertArrayEquals(IncMultEthTagRParserTest.RESULT, ByteArray.getAllBytes(buffer));
+        Assert.assertArrayEquals(IncMultEthTagRParserTest.RESULT, ByteArray.getAllBytes(buffer));
     }
 
     private static MpReachNlri createReach() {
         final MpReachNlriBuilder mpReachExpected = new MpReachNlriBuilder();
         final AdvertizedRoutes wd = new AdvertizedRoutesBuilder().setDestinationType(new DestinationEvpnCaseBuilder()
-            .setDestinationEvpn(new DestinationEvpnBuilder().setEvpnDestination(Collections.singletonList(new EvpnDestinationBuilder()
-                .setRouteDistinguisher(RD).setEvpnChoice(IncMultEthTagRParserTest.createIncMultiCase()).build())).build()).build()).build();
+            .setDestinationEvpn(new DestinationEvpnBuilder().setEvpnDestination(
+                    singletonList(new EvpnDestinationBuilder()
+                            .setRouteDistinguisher(RD)
+                            .setEvpnChoice(IncMultEthTagRParserTest.createIncMultiCase())
+                            .build())).build()).build()).build();
         return mpReachExpected.setAdvertizedRoutes(wd).build();
     }
 
@@ -70,14 +73,20 @@ public class EvpnNlriAttributesParserTest {
         final Attributes att = new AttributesBuilder().addAugmentation(Attributes2.class,
             new Attributes2Builder().setMpUnreachNlri(createUnreach()).build()).build();
         this.parser.serializeAttribute(att, buffer);
-        assertArrayEquals(IncMultEthTagRParserTest.RESULT, ByteArray.getAllBytes(buffer));
+        Assert.assertArrayEquals(IncMultEthTagRParserTest.RESULT, ByteArray.getAllBytes(buffer));
     }
 
     private static MpUnreachNlri createUnreach() {
         final MpUnreachNlriBuilder mpReachExpected = new MpUnreachNlriBuilder();
-        final WithdrawnRoutes wd = new WithdrawnRoutesBuilder().setDestinationType(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171213.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationEvpnCaseBuilder()
-            .setDestinationEvpn(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171213.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.evpn._case.DestinationEvpnBuilder().setEvpnDestination(Collections.singletonList(new EvpnDestinationBuilder()
-                .setRouteDistinguisher(RD).setEvpnChoice(IncMultEthTagRParserTest.createIncMultiCase()).build())).build()).build()).build();
+        final WithdrawnRoutes wd = new WithdrawnRoutesBuilder()
+                .setDestinationType(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
+                        .rev171213.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type
+                        .DestinationEvpnCaseBuilder().setDestinationEvpn(new org.opendaylight.yang.gen.v1.urn
+                        .opendaylight.params.xml.ns.yang.bgp.evpn.rev171213.update.attributes.mp.unreach.nlri.withdrawn
+                        .routes.destination.type.destination.evpn._case.DestinationEvpnBuilder()
+                        .setEvpnDestination(singletonList(new EvpnDestinationBuilder()
+                        .setRouteDistinguisher(RD).setEvpnChoice(IncMultEthTagRParserTest.createIncMultiCase())
+                                .build())).build()).build()).build();
         return mpReachExpected.setWithdrawnRoutes(wd).build();
     }
 

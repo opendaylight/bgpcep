@@ -12,13 +12,11 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.IPV6;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.P_ADDRESS;
+import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.IP_ADDRESS;
 import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.P_MULTICAST;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import org.junit.Test;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
@@ -43,7 +41,7 @@ public class PAddressPMulticastGroupUtilTest {
     private static class MyPAddressPMulticastGroup implements PAddressPMulticastGroup {
         @Override
         public IpAddress getPAddress() {
-            return P_ADDRESS;
+            return IP_ADDRESS;
         }
 
         @Override
@@ -60,37 +58,30 @@ public class PAddressPMulticastGroupUtilTest {
     @Test
     public void parseIpAddress() throws Exception {
         final ByteBuf ipv4Actual = Unpooled.buffer();
-        PAddressPMulticastGroupUtil.serializeIpAddress(P_ADDRESS, ipv4Actual);
+        PAddressPMulticastGroupUtil.serializeIpAddress(IP_ADDRESS, ipv4Actual);
         assertArrayEquals(IPV4_ADDRESS_EXPECTED, ByteArray.readAllBytes(ipv4Actual));
         final ByteBuf ipv6Actual = Unpooled.buffer();
         PAddressPMulticastGroupUtil.serializeIpAddress(IPV6, ipv6Actual);
         assertArrayEquals(IPV6_ADDRESS_EXPECTED, ByteArray.readAllBytes(ipv6Actual));
-        assertEquals(P_ADDRESS, PAddressPMulticastGroupUtil.parseIpAddress(Ipv4Util.IP4_LENGTH, Unpooled.wrappedBuffer(IPV4_ADDRESS_EXPECTED)));
-        assertEquals(IPV6, PAddressPMulticastGroupUtil.parseIpAddress(Ipv6Util.IPV6_LENGTH, Unpooled.wrappedBuffer(IPV6_ADDRESS_EXPECTED)));
-        assertNull(PAddressPMulticastGroupUtil.parseIpAddress(6, Unpooled.wrappedBuffer(IPV4_ADDRESS_EXPECTED)));
+        assertEquals(IP_ADDRESS, PAddressPMulticastGroupUtil.parseIpAddress(Ipv4Util.IP4_LENGTH,
+                Unpooled.wrappedBuffer(IPV4_ADDRESS_EXPECTED)));
+        assertEquals(IPV6, PAddressPMulticastGroupUtil.parseIpAddress(Ipv6Util.IPV6_LENGTH,
+                Unpooled.wrappedBuffer(IPV6_ADDRESS_EXPECTED)));
+        assertNull(PAddressPMulticastGroupUtil.parseIpAddress(6,
+                Unpooled.wrappedBuffer(IPV4_ADDRESS_EXPECTED)));
     }
 
     @Test
     public void parseIpAddressPMulticastGroup() throws Exception {
         final PAddressPMulticastGroup pAddressPMulticastGroup = new MyPAddressPMulticastGroup();
         final ByteBuf pAddressPMulticastGroupActual = Unpooled.buffer();
-        PAddressPMulticastGroupUtil.serializeSenderPMulticastGroup(pAddressPMulticastGroup, pAddressPMulticastGroupActual);
+        PAddressPMulticastGroupUtil.serializeSenderPMulticastGroup(pAddressPMulticastGroup,
+                pAddressPMulticastGroupActual);
         assertArrayEquals(SENDER_P_MULTICAST_GROUP_EXPECTED, ByteArray.readAllBytes(pAddressPMulticastGroupActual));
 
-        final PAddressPMulticastGroup actual = PAddressPMulticastGroupUtil.parseSenderPMulticastGroup(Unpooled.wrappedBuffer
-            (SENDER_P_MULTICAST_GROUP_EXPECTED));
-        assertEquals(pAddressPMulticastGroup.getPAddress(), actual.getPAddress());
-        assertEquals(pAddressPMulticastGroup.getPMulticastGroup(), actual.getPMulticastGroup());
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testPrivateConstructor() throws Throwable {
-        final Constructor<PAddressPMulticastGroupUtil> constructor = PAddressPMulticastGroupUtil.class.getDeclaredConstructor();
-        constructor.setAccessible(true);
-        try {
-            constructor.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
+        final PAddressPMulticastGroup actual = PAddressPMulticastGroupUtil
+                .parseSenderPMulticastGroup(Unpooled.wrappedBuffer(SENDER_P_MULTICAST_GROUP_EXPECTED));
+        assertEquals(IP_ADDRESS, actual.getPAddress());
+        assertEquals(P_MULTICAST, actual.getPMulticastGroup());
     }
 }

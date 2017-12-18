@@ -52,7 +52,8 @@ import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContaine
 
 public class MACIpAdvRParserTest {
     private static final byte[] VALUE = {
-        (byte) 0x02, (byte) 0xf2, (byte) 0x0c, (byte) 0xdd, (byte) 0x80, (byte) 0x9f, (byte) 0xf7, (byte) 0x02, (byte) 0x02, (byte) 0x00,
+        (byte) 0x02, (byte) 0xf2, (byte) 0x0c, (byte) 0xdd, (byte) 0x80, (byte) 0x9f, (byte) 0xf7, (byte) 0x02,
+        (byte) 0x02, (byte) 0x00,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x0a,
         (byte) 0x30, (byte) 0xf2, (byte) 0x0c, (byte) 0xdd, (byte) 0x80, (byte) 0x9f, (byte) 0xf7,
         (byte) 0x20, (byte) 0x7f, (byte) 0x00, (byte) 0x00, (byte) 0x01,
@@ -62,7 +63,8 @@ public class MACIpAdvRParserTest {
     private static final byte[] RESULT = {
         (byte) 0x02, (byte) 0x28,
         (byte) 0x00, (byte) 0x01, (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, (byte) 0x01, (byte) 0x02,
-        (byte) 0x02, (byte) 0xf2, (byte) 0x0c, (byte) 0xdd, (byte) 0x80, (byte) 0x9f, (byte) 0xf7, (byte) 0x02, (byte) 0x02, (byte) 0x00,
+        (byte) 0x02, (byte) 0xf2, (byte) 0x0c, (byte) 0xdd, (byte) 0x80, (byte) 0x9f, (byte) 0xf7, (byte) 0x02,
+        (byte) 0x02, (byte) 0x00,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x0a,
         (byte) 0x30, (byte) 0xf2, (byte) 0x0c, (byte) 0xdd, (byte) 0x80, (byte) 0x9f, (byte) 0xf7,
         (byte) 0x20, (byte) 0x7f, (byte) 0x00, (byte) 0x00, (byte) 0x01,
@@ -70,16 +72,18 @@ public class MACIpAdvRParserTest {
         (byte) 0x05, (byte) 0xdc, (byte) 0x20
     };
     private static final byte[] VALUE2 = {
-        (byte) 0x02, (byte) 0xf2, (byte) 0x0c, (byte) 0xdd, (byte) 0x80, (byte) 0x9f, (byte) 0xf7, (byte) 0x02, (byte) 0x02, (byte) 0x00,
+        (byte) 0x02, (byte) 0xf2, (byte) 0x0c, (byte) 0xdd, (byte) 0x80, (byte) 0x9f, (byte) 0xf7, (byte) 0x02,
+        (byte) 0x02, (byte) 0x00,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x0a,
         (byte) 0x30, (byte) 0xf2, (byte) 0x0c, (byte) 0xdd, (byte) 0x80, (byte) 0x9f, (byte) 0xf7,
-        (byte) 0x80, 0x20, (byte) 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
-        (byte) 0x05, (byte) 0xdc, (byte) 0x10,
+        (byte) 0x80, 0x20, (byte) 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x01, (byte) 0x05, (byte) 0xdc, (byte) 0x10,
     };
     private static final byte[] RESULT2 = {
         (byte) 0x02, (byte) 0x31,
         (byte) 0x00, (byte) 0x01, (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, (byte) 0x01, (byte) 0x02,  //RD
-        (byte) 0x02, (byte) 0xf2, (byte) 0x0c, (byte) 0xdd, (byte) 0x80, (byte) 0x9f, (byte) 0xf7, (byte) 0x02, (byte) 0x02, (byte) 0x00, //ESI
+        (byte) 0x02, (byte) 0xf2, (byte) 0x0c, (byte) 0xdd, (byte) 0x80, (byte) 0x9f, (byte) 0xf7, (byte) 0x02,
+        (byte) 0x02, (byte) 0x00, //ESI
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x0a, // ETI
         (byte) 0x30, (byte) 0xf2, (byte) 0x0c, (byte) 0xdd, (byte) 0x80, (byte) 0x9f, (byte) 0xf7, // MAC
         (byte) 0x80,//IPV6
@@ -101,7 +105,8 @@ public class MACIpAdvRParserTest {
     @Test
     public void parserCase1Test() {
         final MacIpAdvRouteCase expected = createdExpectedResult();
-        assertArrayEquals(RESULT, ByteArray.getAllBytes(this.parser.serializeEvpn(expected, Unpooled.wrappedBuffer(ROUDE_DISTIN))));
+        assertArrayEquals(RESULT, ByteArray.getAllBytes(this.parser.serializeEvpn(expected,
+                Unpooled.wrappedBuffer(ROUDE_DISTIN))));
 
         final EvpnChoice result = this.parser.parseEvpn(Unpooled.wrappedBuffer(VALUE));
         assertEquals(expected, result);
@@ -113,13 +118,14 @@ public class MACIpAdvRParserTest {
     }
 
     static MacIpAdvRouteCase createdExpectedResult() {
-        return new MacIpAdvRouteCaseBuilder().setMacIpAdvRoute(new MacIpAdvRouteBuilder().setEsi(LAN_AUT_GEN_CASE).setEthernetTagId(ETI)
-            .setMacAddress(MAC).setIpAddress(IP).setMplsLabel1(MPLS_LABEL).setMplsLabel2(MPLS_LABEL2).build()).build();
+        return new MacIpAdvRouteCaseBuilder().setMacIpAdvRoute(new MacIpAdvRouteBuilder().setEsi(LAN_AUT_GEN_CASE)
+                .setEthernetTagId(ETI).setMacAddress(MAC).setIpAddress(IP).setMplsLabel1(MPLS_LABEL)
+                .setMplsLabel2(MPLS_LABEL2).build()).build();
     }
 
     static MacIpAdvRouteCase createdExpectedRouteKey() {
-        return new MacIpAdvRouteCaseBuilder().setMacIpAdvRoute(new MacIpAdvRouteBuilder().setEthernetTagId(ETI).setMacAddress(MAC)
-            .setIpAddress(IP).build()).build();
+        return new MacIpAdvRouteCaseBuilder().setMacIpAdvRoute(new MacIpAdvRouteBuilder().setEthernetTagId(ETI)
+                .setMacAddress(MAC).setIpAddress(IP).build()).build();
     }
 
     static ContainerNode createMacIpCont() {
@@ -140,17 +146,21 @@ public class MACIpAdvRParserTest {
     @Test
     public void parserCase2Test() {
 
-        final MacIpAdvRouteCase expected = new MacIpAdvRouteCaseBuilder().setMacIpAdvRoute(new MacIpAdvRouteBuilder().setEsi(LAN_AUT_GEN_CASE)
-            .setEthernetTagId(ETI).setMacAddress(MAC).setIpAddress(IPV6).setMplsLabel1(MPLS_LABEL).build()).build();
-        assertArrayEquals(RESULT2, ByteArray.getAllBytes(this.parser.serializeEvpn(expected,  Unpooled.wrappedBuffer(ROUDE_DISTIN))));
+        final MacIpAdvRouteCase expected = new MacIpAdvRouteCaseBuilder().setMacIpAdvRoute(new MacIpAdvRouteBuilder()
+                .setEsi(LAN_AUT_GEN_CASE).setEthernetTagId(ETI).setMacAddress(MAC).setIpAddress(IPV6)
+                .setMplsLabel1(MPLS_LABEL).build()).build();
+        assertArrayEquals(RESULT2, ByteArray.getAllBytes(this.parser.serializeEvpn(expected,
+                Unpooled.wrappedBuffer(ROUDE_DISTIN))));
 
         final EvpnChoice result = this.parser.parseEvpn(Unpooled.wrappedBuffer(VALUE2));
         assertEquals(expected, result);
 
         final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> choice = Builders.choiceBuilder();
         choice.withNodeIdentifier(MACIpAdvRParser.MAC_IP_ADV_ROUTE_NID);
-        final ContainerNode macIp = createContBuilder(MACIpAdvRParser.MAC_IP_ADV_ROUTE_NID).addChild(LanParserTest.createLanChoice()).addChild(createEti())
-            .addChild(createValueBuilder(MAC_MODEL, MAC_NID).build()).addChild(createValueBuilder(IPV6_MODEL, IP_NID).build())
+        final ContainerNode macIp = createContBuilder(MACIpAdvRParser.MAC_IP_ADV_ROUTE_NID)
+                .addChild(LanParserTest.createLanChoice()).addChild(createEti())
+            .addChild(createValueBuilder(MAC_MODEL, MAC_NID).build())
+                .addChild(createValueBuilder(IPV6_MODEL, IP_NID).build())
             .addChild(createValueBuilder(MPLS_LABEL_MODEL, MPLS1_NID).build()).build();
         final EvpnChoice modelResult = this.parser.serializeEvpnModel(macIp);
 

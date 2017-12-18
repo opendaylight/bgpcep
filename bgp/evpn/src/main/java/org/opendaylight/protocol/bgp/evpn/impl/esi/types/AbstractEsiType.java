@@ -28,7 +28,7 @@ abstract class AbstractEsiType implements EsiParser, EsiSerializer {
         buffer.writeBytes(body);
     }
 
-    protected abstract void serializeBody(final Esi esi, final ByteBuf buffer);
+    protected abstract void serializeBody(Esi esi, ByteBuf buffer);
 
     protected abstract EsiType getType();
 }
