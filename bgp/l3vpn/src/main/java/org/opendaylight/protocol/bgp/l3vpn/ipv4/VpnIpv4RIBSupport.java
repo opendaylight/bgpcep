@@ -29,12 +29,14 @@ final class VpnIpv4RIBSupport extends AbstractVpnRIBSupport {
      * the same model which populates it with route grouping instantiation, and by extension with
      * the route attributes container.
      */
-    public VpnIpv4RIBSupport() {
-        super(VpnIpv4RoutesCase.class, VpnIpv4Routes.class, VpnRoute.class, Ipv4AddressFamily.class, VpnIpv4Destination.QNAME);
+    VpnIpv4RIBSupport() {
+        super(VpnIpv4RoutesCase.class, VpnIpv4Routes.class, VpnRoute.class,
+                Ipv4AddressFamily.class, VpnIpv4Destination.QNAME);
     }
 
     @Override
-    protected IpPrefix extractPrefix(final DataContainerNode<? extends YangInstanceIdentifier.PathArgument> route, final YangInstanceIdentifier.NodeIdentifier prefixTypeNid) {
+    protected IpPrefix extractPrefix(final DataContainerNode<? extends YangInstanceIdentifier.PathArgument> route,
+            final YangInstanceIdentifier.NodeIdentifier prefixTypeNid) {
         if (route.getChild(prefixTypeNid).isPresent()) {
             final String prefixType = (String) route.getChild(prefixTypeNid).get().getValue();
             return new IpPrefix(new Ipv4Prefix(prefixType));
@@ -44,15 +46,15 @@ final class VpnIpv4RIBSupport extends AbstractVpnRIBSupport {
 
     @Override
     protected DestinationType getAdvertisedDestinationType(List<VpnDestination> dests) {
-        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev171207.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationVpnIpv4CaseBuilder().setVpnIpv4Destination(
-            new VpnIpv4DestinationBuilder().setVpnDestination(dests).build()
-        ).build();
+        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev171207.update
+                .attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationVpnIpv4CaseBuilder()
+                .setVpnIpv4Destination(new VpnIpv4DestinationBuilder().setVpnDestination(dests).build()).build();
     }
 
     @Override
     protected DestinationType getWithdrawnDestinationType(List<VpnDestination> dests) {
-        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev171207.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationVpnIpv4CaseBuilder().setVpnIpv4Destination(
-            new VpnIpv4DestinationBuilder().setVpnDestination(dests).build()
-        ).build();
+        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev171207.update
+                .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationVpnIpv4CaseBuilder()
+                .setVpnIpv4Destination(new VpnIpv4DestinationBuilder().setVpnDestination(dests).build()).build();
     }
 }

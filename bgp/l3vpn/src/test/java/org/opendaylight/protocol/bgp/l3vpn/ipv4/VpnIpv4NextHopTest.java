@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.l3vpn.ipv4;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Test;
@@ -30,7 +31,7 @@ public class VpnIpv4NextHopTest {
         final ByteBuf buffer = Unpooled.buffer();
         final byte[] nextHop = {0, 0, 0, 0, 0, 0, 0, 0, 42, 42, 42, 42};
         final CNextHop hop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
-            .setGlobal(new Ipv4Address("42.42.42.42")).build()).build();
+                .setGlobal(new Ipv4Address("42.42.42.42")).build()).build();
 
         HANDLER.serializeNextHop(hop, buffer);
         assertArrayEquals(nextHop, ByteArray.readAllBytes(buffer));

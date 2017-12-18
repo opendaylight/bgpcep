@@ -19,7 +19,8 @@ public class RibIpv4Activator extends AbstractRIBExtensionProviderActivator {
     @Override
     protected List<AutoCloseable> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context) {
         final List<AutoCloseable> regs = new ArrayList<>();
-        regs.add(context.registerRIBSupport(Ipv4AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class, new VpnIpv4RIBSupport()));
+        regs.add(context.registerRIBSupport(Ipv4AddressFamily.class,
+                MplsLabeledVpnSubsequentAddressFamily.class, new VpnIpv4RIBSupport()));
         return regs;
     }
 
