@@ -14,7 +14,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 
 public interface EsiParser {
     /**
-     * Parse Ethernet Segment Identifier
+     * Parse Ethernet Segment Identifier.
      *
      * @param buffer encoded ESI body in Bytebuf
      * @return Ethernet Segment Identifier

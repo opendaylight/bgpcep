@@ -38,17 +38,17 @@ final class OpaqueUtil {
     static boolean serializeOpaque(final Opaque opaque, final ByteBuf byteBuf) {
         final Short type = opaque.getOpaqueType();
         switch (type) {
-        case GENERIC_LSP_IDENTIFIER:
-            ByteBufWriteUtil.writeUnsignedByte(type, byteBuf);
-            writeGeneric(opaque.getOpaque(), byteBuf);
-            break;
-        case EXTENDED_TYPE:
-            ByteBufWriteUtil.writeUnsignedByte(type, byteBuf);
-            writeExtended(opaque.getOpaque(), opaque.getOpaqueExtendedType(), byteBuf);
-            break;
-        default:
-            LOG.debug("Skipping serialization of Opaque Value {}", opaque);
-            return false;
+            case GENERIC_LSP_IDENTIFIER:
+                ByteBufWriteUtil.writeUnsignedByte(type, byteBuf);
+                writeGeneric(opaque.getOpaque(), byteBuf);
+                break;
+            case EXTENDED_TYPE:
+                ByteBufWriteUtil.writeUnsignedByte(type, byteBuf);
+                writeExtended(opaque.getOpaque(), opaque.getOpaqueExtendedType(), byteBuf);
+                break;
+            default:
+                LOG.debug("Skipping serialization of Opaque Value {}", opaque);
+                return false;
         }
         return true;
     }
@@ -75,17 +75,17 @@ final class OpaqueUtil {
         final short type = buffer.readUnsignedByte();
         final OpaqueValueBuilder builder = new OpaqueValueBuilder();
         switch (type) {
-        case GENERIC_LSP_IDENTIFIER:
-            builder.setOpaque(buildOpaqueValue(buffer));
-            break;
-        case EXTENDED_TYPE:
-            buildExtended(builder, buffer);
-            break;
-        default:
-            final int length = buffer.readUnsignedShort();
-            buffer.skipBytes(length);
-            LOG.debug("Skipping parsing of Opaque Value {}", buffer);
-            return null;
+            case GENERIC_LSP_IDENTIFIER:
+                builder.setOpaque(buildOpaqueValue(buffer));
+                break;
+            case EXTENDED_TYPE:
+                buildExtended(builder, buffer);
+                break;
+            default:
+                final int length = buffer.readUnsignedShort();
+                buffer.skipBytes(length);
+                LOG.debug("Skipping parsing of Opaque Value {}", buffer);
+                return null;
         }
         builder.setOpaqueType(type);
         return builder.build();

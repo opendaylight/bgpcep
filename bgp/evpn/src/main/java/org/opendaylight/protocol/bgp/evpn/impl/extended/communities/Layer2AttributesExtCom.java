@@ -11,8 +11,6 @@ package org.opendaylight.protocol.bgp.evpn.impl.extended.communities;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
-import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171213.NormalizationType;
@@ -36,8 +34,15 @@ public class Layer2AttributesExtCom extends AbstractExtendedCommunities {
     private static final int THREE_BITS_SHIFT = 3;
     private static final int FIVE_BITS_SHIFT = 5;
 
+    private static short getFlagShort(final BitArray flags, final int index) {
+        short opMode = 0;
+        opMode |= flags.get(index + 1) ? 1 : 0;
+        opMode |= (flags.get(index) ? 1 : 0) << 1;
+        return opMode;
+    }
+
     @Override
-    public ExtendedCommunity parseExtendedCommunity(final ByteBuf body) throws BGPDocumentedException, BGPParsingException {
+    public ExtendedCommunity parseExtendedCommunity(final ByteBuf body) {
         final Layer2AttributesExtendedCommunityBuilder builder = new Layer2AttributesExtendedCommunityBuilder();
         final BitArray flags = BitArray.valueOf(body, FLAGS_SIZE);
         builder.setBackupPe(flags.get(BACKUP_PE_OFFSET));
@@ -50,21 +55,16 @@ public class Layer2AttributesExtCom extends AbstractExtendedCommunities {
         builder.setL2Mtu(body.readUnsignedShort());
         body.skipBytes(RESERVED);
         return new Layer2AttributesExtendedCommunityCaseBuilder()
-            .setLayer2AttributesExtendedCommunity(builder.build()).build();
-    }
-
-    private static short getFlagShort(final BitArray flags, final int index) {
-        short opMode= 0;
-        opMode |= flags.get(index + 1) ? 1 : 0;
-        opMode |= (flags.get(index) ? 1 : 0) << 1;
-        return opMode;
+                .setLayer2AttributesExtendedCommunity(builder.build()).build();
     }
 
     @Override
     public void serializeExtendedCommunity(final ExtendedCommunity extendedCommunity, final ByteBuf body) {
         Preconditions.checkArgument(extendedCommunity instanceof Layer2AttributesExtendedCommunityCase,
-            "The extended community %s is not EsImportRouteExtendedCommunityCaseCase type.", extendedCommunity);
-        final Layer2AttributesExtendedCommunity extCom = ((Layer2AttributesExtendedCommunityCase) extendedCommunity).getLayer2AttributesExtendedCommunity();
+                "The extended community %s is not EsImportRouteExtendedCommunityCaseCase type.",
+                extendedCommunity);
+        final Layer2AttributesExtendedCommunity extCom = ((Layer2AttributesExtendedCommunityCase) extendedCommunity)
+                .getLayer2AttributesExtendedCommunity();
         final BitArray flags = new BitArray(FLAGS_SIZE);
         flags.set(PRIMARY_PE_OFFSET, extCom.isPrimaryPe());
         flags.set(BACKUP_PE_OFFSET, extCom.isBackupPe());
@@ -73,17 +73,17 @@ public class Layer2AttributesExtCom extends AbstractExtendedCommunities {
         final byte[] res = flags.array();
         byte aux = 0;
         final OperationalMode modeOfOperation = extCom.getModeOfOperation();
-        if ( modeOfOperation != null) {
+        if (modeOfOperation != null) {
             aux = UnsignedBytes.checkedCast(modeOfOperation.getIntValue());
             aux = (byte) (aux << THREE_BITS_SHIFT);
-            res[res.length -1] = (byte) (res[res.length -1] | aux);
+            res[res.length - 1] = (byte) (res[res.length - 1] | aux);
         }
 
         final NormalizationType normalizationType = extCom.getOperatingPer();
-        if ( normalizationType != null) {
+        if (normalizationType != null) {
             aux = UnsignedBytes.checkedCast(normalizationType.getIntValue());
             aux = (byte) (aux << FIVE_BITS_SHIFT);
-            res[res.length -1] = (byte) (res[res.length -1] | aux);
+            res[res.length - 1] = (byte) (res[res.length - 1] | aux);
         }
         ByteBufWriteUtil.writeUnsignedShort((int) res[res.length - 1], body);
         ByteBufWriteUtil.writeUnsignedShort(extCom.getL2Mtu(), body);

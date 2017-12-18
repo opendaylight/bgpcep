@@ -40,17 +40,18 @@ import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContaine
 
 public class EthSegRParserTest {
     private static final byte[] VALUE = {
-        (byte) 0x02, (byte) 0xf2, (byte) 0x0c, (byte) 0xdd, (byte) 0x80, (byte) 0x9f, (byte) 0xf7, (byte) 0x02, (byte) 0x02, (byte) 0x00,
-        (byte) 0x20, (byte) 0x7f, (byte) 0x00, (byte) 0x00, (byte) 0x01
+        (byte) 0x02, (byte) 0xf2, (byte) 0x0c, (byte) 0xdd, (byte) 0x80, (byte) 0x9f, (byte) 0xf7, (byte) 0x02,
+        (byte) 0x02, (byte) 0x00, (byte) 0x20, (byte) 0x7f, (byte) 0x00, (byte) 0x00, (byte) 0x01
     };
     private static final byte[] RESULT = {
         (byte) 0x04, (byte) 0x17,
         (byte) 0x00, (byte) 0x01, (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, (byte) 0x01, (byte) 0x02,
-        (byte) 0x02, (byte) 0xf2, (byte) 0x0c, (byte) 0xdd, (byte) 0x80, (byte) 0x9f, (byte) 0xf7, (byte) 0x02, (byte) 0x02, (byte) 0x00,
-        (byte) 0x20, (byte) 0x7f, (byte) 0x00, (byte) 0x00, (byte) 0x01
+        (byte) 0x02, (byte) 0xf2, (byte) 0x0c, (byte) 0xdd, (byte) 0x80, (byte) 0x9f, (byte) 0xf7, (byte) 0x02,
+        (byte) 0x02, (byte) 0x00, (byte) 0x20, (byte) 0x7f, (byte) 0x00, (byte) 0x00, (byte) 0x01
     };
     private static final byte[] VALUE2 = {
-        (byte) 0x02, (byte) 0xf2, (byte) 0x0c, (byte) 0xdd, (byte) 0x80, (byte) 0x9f, (byte) 0xf7, (byte) 0x02, (byte) 0x02, (byte) 0x00,
+        (byte) 0x02, (byte) 0xf2, (byte) 0x0c, (byte) 0xdd, (byte) 0x80, (byte) 0x9f, (byte) 0xf7, (byte) 0x02,
+        (byte) 0x02, (byte) 0x00,
         (byte) 0x80,//IPV6
         (byte) 0x20, (byte) 0x01, (byte) 0x00, (byte) 0x00,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
@@ -60,7 +61,8 @@ public class EthSegRParserTest {
     private static final byte[] RESULT2 = {
         (byte) 0x04, (byte) 0x23,
         (byte) 0x00, (byte) 0x01, (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, (byte) 0x01, (byte) 0x02,
-        (byte) 0x02, (byte) 0xf2, (byte) 0x0c, (byte) 0xdd, (byte) 0x80, (byte) 0x9f, (byte) 0xf7, (byte) 0x02, (byte) 0x02, (byte) 0x00,
+        (byte) 0x02, (byte) 0xf2, (byte) 0x0c, (byte) 0xdd, (byte) 0x80, (byte) 0x9f, (byte) 0xf7, (byte) 0x02,
+        (byte) 0x02, (byte) 0x00,
         (byte) 0x80,//IPV6
         (byte) 0x20, (byte) 0x01, (byte) 0x00, (byte) 0x00,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
@@ -77,16 +79,20 @@ public class EthSegRParserTest {
 
     @Test
     public void parserTest() {
-        final EsRouteCase expected = new EsRouteCaseBuilder().setEsRoute(new EsRouteBuilder().setEsi(LAN_AUT_GEN_CASE).setOrigRouteIp(IP).build()).build();
-        assertArrayEquals(RESULT, ByteArray.getAllBytes(this.parser.serializeEvpn(expected, Unpooled.wrappedBuffer(ROUDE_DISTIN))));
+        final EsRouteCase expected = new EsRouteCaseBuilder().setEsRoute(new EsRouteBuilder()
+                .setEsi(LAN_AUT_GEN_CASE).setOrigRouteIp(IP).build()).build();
+        assertArrayEquals(RESULT, ByteArray.getAllBytes(this.parser.serializeEvpn(expected,
+                Unpooled.wrappedBuffer(ROUDE_DISTIN))));
 
         final EvpnChoice result = this.parser.parseEvpn(Unpooled.wrappedBuffer(VALUE));
         assertEquals(expected, result);
 
-        final DataContainerNodeBuilder<YangInstanceIdentifier.NodeIdentifier, ChoiceNode> choice = Builders.choiceBuilder();
+        final DataContainerNodeBuilder<YangInstanceIdentifier.NodeIdentifier, ChoiceNode> choice = Builders
+                .choiceBuilder();
         choice.withNodeIdentifier(EthSegRParser.ES_ROUTE_NID);
-        final ContainerNode arbitraryC = createContBuilder(EthSegRParser.ES_ROUTE_NID).addChild(LanParserTest.createLanChoice())
-            .addChild(createValueBuilder(IP_MODEL, ORI_NID).build()).build();
+        final ContainerNode arbitraryC = createContBuilder(EthSegRParser.ES_ROUTE_NID)
+                .addChild(LanParserTest.createLanChoice())
+                .addChild(createValueBuilder(IP_MODEL, ORI_NID).build()).build();
         final EvpnChoice modelResult = this.parser.serializeEvpnModel(arbitraryC);
         assertEquals(expected, modelResult);
 
@@ -96,16 +102,20 @@ public class EthSegRParserTest {
 
     @Test
     public void parser2Test() {
-        final EsRouteCase expected = new EsRouteCaseBuilder().setEsRoute(new EsRouteBuilder().setEsi(LAN_AUT_GEN_CASE).setOrigRouteIp(IPV6).build()).build();
-        assertArrayEquals(RESULT2, ByteArray.getAllBytes(this.parser.serializeEvpn(expected, Unpooled.wrappedBuffer(ROUDE_DISTIN))));
+        final EsRouteCase expected = new EsRouteCaseBuilder().setEsRoute(new EsRouteBuilder()
+                .setEsi(LAN_AUT_GEN_CASE).setOrigRouteIp(IPV6).build()).build();
+        assertArrayEquals(RESULT2, ByteArray.getAllBytes(this.parser.serializeEvpn(expected,
+                Unpooled.wrappedBuffer(ROUDE_DISTIN))));
 
         final EvpnChoice result = this.parser.parseEvpn(Unpooled.wrappedBuffer(VALUE2));
         assertEquals(expected, result);
 
-        final DataContainerNodeBuilder<YangInstanceIdentifier.NodeIdentifier, ChoiceNode> choice = Builders.choiceBuilder();
+        final DataContainerNodeBuilder<YangInstanceIdentifier.NodeIdentifier, ChoiceNode> choice = Builders
+                .choiceBuilder();
         choice.withNodeIdentifier(EthSegRParser.ES_ROUTE_NID);
-        final ContainerNode arbitraryC = createContBuilder(EthSegRParser.ES_ROUTE_NID).addChild(LanParserTest.createLanChoice())
-            .addChild(createValueBuilder(IPV6_MODEL, ORI_NID).build()).build();
+        final ContainerNode arbitraryC = createContBuilder(EthSegRParser.ES_ROUTE_NID)
+                .addChild(LanParserTest.createLanChoice())
+                .addChild(createValueBuilder(IPV6_MODEL, ORI_NID).build()).build();
         final EvpnChoice modelResult = this.parser.serializeEvpnModel(arbitraryC);
         assertEquals(expected, modelResult);
 

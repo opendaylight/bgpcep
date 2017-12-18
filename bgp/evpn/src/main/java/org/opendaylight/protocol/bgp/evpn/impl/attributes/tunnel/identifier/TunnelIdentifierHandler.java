@@ -21,7 +21,8 @@ public final class TunnelIdentifierHandler {
     private static final Logger LOG = LoggerFactory.getLogger(TunnelIdentifierHandler.class);
     private static final String SKIP_SERIALIZATION = "Skipping serialization of PMSI Tunnel Attribute {}";
     private static final String SKIP_PARSE = "Skipping parsing of PMSI Tunnel Attribute type {}";
-    private final HandlerRegistry<DataContainer, TunnelIdentifierParser, TunnelIdentifierSerializer> handlers = new HandlerRegistry<>();
+    private final HandlerRegistry<DataContainer, TunnelIdentifierParser, TunnelIdentifierSerializer> handlers =
+            new HandlerRegistry<>();
 
     public TunnelIdentifierHandler(final AddressFamilyRegistry addressFamilyRegistry) {
         final RsvpTeP2MpLspParser rsvpTeP2MpLspParser = new RsvpTeP2MpLspParser();

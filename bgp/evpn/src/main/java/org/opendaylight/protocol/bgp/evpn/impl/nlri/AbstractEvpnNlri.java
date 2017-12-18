@@ -39,7 +39,7 @@ abstract class AbstractEvpnNlri implements EvpnParser, EvpnSerializer {
 
     protected abstract NlriType getType();
 
-    protected abstract ByteBuf serializeBody(final EvpnChoice evpn);
+    protected abstract ByteBuf serializeBody(EvpnChoice evpn);
 
     protected static Esi serializeEsi(final ContainerNode evpn) {
         return SimpleEsiTypeRegistry.getInstance().parseEsiModel((ChoiceNode) evpn.getChild(ESI_NID).get());

@@ -16,7 +16,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.RouteDistinguisher;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.RouteDistinguisherBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableContainerNodeSchemaAwareBuilder;
@@ -43,12 +43,12 @@ public final class EvpnTestUtil {
     public static final String RD_MODEL = "1.2.3.4:258";
     public static final RouteDistinguisher RD = RouteDistinguisherBuilder.getDefaultInstance(RD_MODEL);
 
-    public static DataContainerNodeAttrBuilder<YangInstanceIdentifier.NodeIdentifier, ContainerNode> createContBuilder(final YangInstanceIdentifier
-        .NodeIdentifier nid) {
+    public static DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> createContBuilder(
+            final NodeIdentifier nid) {
         return ImmutableContainerNodeSchemaAwareBuilder.create().withNodeIdentifier(nid);
     }
 
-    public static <T> ImmutableLeafNodeBuilder<T> createValueBuilder(final T value, YangInstanceIdentifier.NodeIdentifier nid) {
+    public static <T> ImmutableLeafNodeBuilder<T> createValueBuilder(final T value, NodeIdentifier nid) {
         final ImmutableLeafNodeBuilder<T> valueBuilder = new ImmutableLeafNodeBuilder<>();
         valueBuilder.withNodeIdentifier(nid).withValue(value);
         return valueBuilder;

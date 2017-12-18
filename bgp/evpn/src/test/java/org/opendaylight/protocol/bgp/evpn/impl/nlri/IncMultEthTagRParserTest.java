@@ -59,7 +59,8 @@ public class IncMultEthTagRParserTest {
     public void parserTest() {
 
         final IncMultiEthernetTagResCase expected = IncMultEthTagRParserTest.createIncMultiCase();
-        assertArrayEquals(RESULT, ByteArray.getAllBytes(this.parser.serializeEvpn(expected, Unpooled.wrappedBuffer(ROUDE_DISTIN))));
+        assertArrayEquals(RESULT, ByteArray.getAllBytes(this.parser.serializeEvpn(expected,
+                Unpooled.wrappedBuffer(ROUDE_DISTIN))));
 
         final EvpnChoice result = this.parser.parseEvpn(Unpooled.wrappedBuffer(VALUE));
         assertEquals(expected, result);
@@ -75,9 +76,9 @@ public class IncMultEthTagRParserTest {
         assertEquals(expected, keyResult);
     }
 
-    public static IncMultiEthernetTagResCase createIncMultiCase() {
-        return new IncMultiEthernetTagResCaseBuilder().setIncMultiEthernetTagRes(new IncMultiEthernetTagResBuilder().setEthernetTagId(ETI)
-            .setOrigRouteIp(IP).build()).build();
+    static IncMultiEthernetTagResCase createIncMultiCase() {
+        return new IncMultiEthernetTagResCaseBuilder().setIncMultiEthernetTagRes(
+                new IncMultiEthernetTagResBuilder().setEthernetTagId(ETI).setOrigRouteIp(IP).build()).build();
     }
 
     @Test(expected = IllegalArgumentException.class)

@@ -29,18 +29,27 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 final class IncMultEthTagRParser extends AbstractEvpnNlri {
-    protected static final NodeIdentifier INC_MULT_ROUTE_NID = new NodeIdentifier(IncMultiEthernetTagRes.QNAME);
+    static final NodeIdentifier INC_MULT_ROUTE_NID = new NodeIdentifier(IncMultiEthernetTagRes.QNAME);
     private static final int CONTENT_LENGTH = 9;
     private static final int CONTENT_LENGTH2 = 21;
 
+    private static EvpnChoice serializeModel(final ContainerNode evpn) {
+        final IncMultiEthernetTagResBuilder builder = new IncMultiEthernetTagResBuilder();
+        builder.setEthernetTagId(extractETI(evpn));
+        builder.setOrigRouteIp(extractOrigRouteIp(evpn));
+        return new IncMultiEthernetTagResCaseBuilder().setIncMultiEthernetTagRes(builder.build()).build();
+    }
+
     @Override
     public EvpnChoice parseEvpn(final ByteBuf buffer) {
-        Preconditions.checkArgument(buffer.readableBytes() == CONTENT_LENGTH || buffer.readableBytes() == CONTENT_LENGTH2,
-            "Wrong length of array of bytes. Passed: %s ;", buffer);
+        Preconditions.checkArgument(buffer.readableBytes() == CONTENT_LENGTH
+                        || buffer.readableBytes() == CONTENT_LENGTH2,
+                "Wrong length of array of bytes. Passed: %s ;", buffer);
 
         final EthernetTagId eti = new EthernetTagIdBuilder().setVlanId(buffer.readUnsignedInt()).build();
         IpAddress ip = requireNonNull(EthSegRParser.parseOrigRouteIp(buffer));
-        final IncMultiEthernetTagResBuilder builder = new IncMultiEthernetTagResBuilder().setEthernetTagId(eti).setOrigRouteIp(ip);
+        final IncMultiEthernetTagResBuilder builder = new IncMultiEthernetTagResBuilder()
+                .setEthernetTagId(eti).setOrigRouteIp(ip);
         return new IncMultiEthernetTagResCaseBuilder().setIncMultiEthernetTagRes(builder.build()).build();
     }
 
@@ -50,31 +59,27 @@ final class IncMultEthTagRParser extends AbstractEvpnNlri {
     }
 
     @Override
-    public ByteBuf serializeBody(final EvpnChoice evpn) {
-        Preconditions.checkArgument(evpn instanceof IncMultiEthernetTagResCase, "Unknown evpn instance. Passed %s. Needed IncMultiEthernetTagResCase.",
-            evpn.getClass());
-        return serializeBody(((IncMultiEthernetTagResCase) evpn).getIncMultiEthernetTagRes());
-    }
+    public ByteBuf serializeBody(final EvpnChoice evpnChoice) {
+        Preconditions.checkArgument(evpnChoice instanceof IncMultiEthernetTagResCase,
+                "Unknown evpn instance. Passed %s. Needed IncMultiEthernetTagResCase.",
+                evpnChoice.getClass());
 
-    @Override
-    public EvpnChoice serializeEvpnModel(final ContainerNode evpn) {
-        return createRouteKey(evpn);
-    }
-
-    @Override
-    public EvpnChoice createRouteKey(final ContainerNode evpn) {
-        final IncMultiEthernetTagResBuilder builder = new IncMultiEthernetTagResBuilder();
-        builder.setEthernetTagId(extractETI(evpn));
-        builder.setOrigRouteIp(extractOrigRouteIp(evpn));
-        return new IncMultiEthernetTagResCaseBuilder().setIncMultiEthernetTagRes(builder.build()).build();
-    }
-
-    private static ByteBuf serializeBody(final IncMultiEthernetTagRes evpn) {
+        final IncMultiEthernetTagRes evpn = ((IncMultiEthernetTagResCase) evpnChoice).getIncMultiEthernetTagRes();
         final ByteBuf body = Unpooled.buffer();
         ByteBufWriteUtil.writeUnsignedInt(evpn.getEthernetTagId().getVlanId(), body);
         final ByteBuf orig = EthSegRParser.serializeOrigRouteIp(evpn.getOrigRouteIp());
         Preconditions.checkArgument(orig.readableBytes() > 0);
         body.writeBytes(orig);
         return body;
+    }
+
+    @Override
+    public EvpnChoice serializeEvpnModel(final ContainerNode evpn) {
+        return serializeModel(evpn);
+    }
+
+    @Override
+    public EvpnChoice createRouteKey(final ContainerNode evpn) {
+        return serializeModel(evpn);
     }
 }

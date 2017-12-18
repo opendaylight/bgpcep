@@ -26,7 +26,8 @@ final class RsvpTeP2MpLspParser implements TunnelIdentifierSerializer, TunnelIde
 
     @Override
     public int serialize(final TunnelIdentifier tunnelIdentifier, final ByteBuf buffer) {
-        Preconditions.checkArgument(tunnelIdentifier instanceof RsvpTeP2mpLsp, "The tunnelIdentifier %s is not RsvpTeP2mpLps type.", tunnelIdentifier);
+        Preconditions.checkArgument(tunnelIdentifier instanceof RsvpTeP2mpLsp,
+                "The tunnelIdentifier %s is not RsvpTeP2mpLps type.", tunnelIdentifier);
         final RsvpTeP2mpLps rsvpTeP2mpLsp = ((RsvpTeP2mpLsp) tunnelIdentifier).getRsvpTeP2mpLps();
         ByteBufWriteUtil.writeUnsignedInt(rsvpTeP2mpLsp.getP2mpId(), buffer);
         buffer.writeZero(RESERVED);

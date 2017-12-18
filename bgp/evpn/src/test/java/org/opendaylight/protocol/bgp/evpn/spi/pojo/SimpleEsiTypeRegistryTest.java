@@ -24,7 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171213.evpn.routes.evpn.routes.EvpnRoute;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.common.QName;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
@@ -32,10 +32,10 @@ import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContaine
 public class SimpleEsiTypeRegistryTest {
     private static final int ESI_TYPE_LENGTH = 10;
 
-    private class notRegistered implements Esi {
+    private class NotRegistered implements Esi {
         @Override
         public Class<? extends DataContainer> getImplementedInterface() {
-            return notRegistered.class;
+            return NotRegistered.class;
         }
     }
 
@@ -47,10 +47,12 @@ public class SimpleEsiTypeRegistryTest {
     @Test
     public void registryTest() {
         final ByteBuf buff = Unpooled.buffer(ESI_TYPE_LENGTH);
+
+        final SimpleEsiTypeRegistry reg = SimpleEsiTypeRegistry.getInstance();
         SimpleEsiTypeRegistry.getInstance().serializeEsi(ROUTE_ID_CASE, buff);
         assertArrayEquals(RouterIdParserTest.RESULT, ByteArray.getAllBytes(buff));
-        assertEquals(ROUTE_ID_CASE, SimpleEsiTypeRegistry.getInstance().parseEsiModel(RouterIdParserTest.createRouterIdCase()));
-        assertEquals(RouterIdParserTest.ROUTE_ID_CASE, SimpleEsiTypeRegistry.getInstance().parseEsi(Unpooled.wrappedBuffer(buff)));
+        assertEquals(ROUTE_ID_CASE, reg.parseEsiModel(RouterIdParserTest.createRouterIdCase()));
+        assertEquals(RouterIdParserTest.ROUTE_ID_CASE, reg.parseEsi(Unpooled.wrappedBuffer(buff)));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -61,14 +63,16 @@ public class SimpleEsiTypeRegistryTest {
     @Test
     public void registryNullTest() {
         final ByteBuf body = Unpooled.buffer();
-        SimpleEsiTypeRegistry.getInstance().serializeEsi(new notRegistered(), body);
+        SimpleEsiTypeRegistry.getInstance().serializeEsi(new NotRegistered(), body);
         assertEquals(0, body.readableBytes());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void registryNullModelTest() {
-        final DataContainerNodeBuilder<YangInstanceIdentifier.NodeIdentifier, ChoiceNode> noRegister = Builders.choiceBuilder();
-        noRegister.withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(QName.create(EvpnRoute.QNAME, "no-register").intern()));
+        final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> noRegister =
+                Builders.choiceBuilder();
+        noRegister.withNodeIdentifier(new NodeIdentifier(QName.create(EvpnRoute.QNAME,
+                "no-register").intern()));
         assertNull(SimpleEsiTypeRegistry.getInstance().parseEsiModel(noRegister.build()));
     }
 
