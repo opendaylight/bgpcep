@@ -41,9 +41,11 @@ final class MldpP2mpLspParser implements TunnelIdentifierSerializer, TunnelIdent
 
     @Override
     public int serialize(final TunnelIdentifier tunnelIdentifier, final ByteBuf buffer) {
-        Preconditions.checkArgument(tunnelIdentifier instanceof MldpP2mpLsp, "The tunnelIdentifier %s is not RsvpTeP2mpLps type.", tunnelIdentifier);
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.mldp
-            .p2mp.lsp.MldpP2mpLsp mldpP2mpLsp = ((MldpP2mpLsp) tunnelIdentifier).getMldpP2mpLsp();
+        Preconditions.checkArgument(tunnelIdentifier instanceof MldpP2mpLsp,
+                "The tunnelIdentifier %s is not RsvpTeP2mpLps type.", tunnelIdentifier);
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel.pmsi
+                .tunnel.tunnel.identifier.mldp.p2mp.lsp.MldpP2mpLsp mldpP2mpLsp =
+                ((MldpP2mpLsp) tunnelIdentifier).getMldpP2mpLsp();
 
         final ByteBuf opaqueValues = Unpooled.buffer();
         final int addressFamily = getAddressFamilyValue(mldpP2mpLsp.getAddressFamily());
@@ -79,13 +81,16 @@ final class MldpP2mpLspParser implements TunnelIdentifierSerializer, TunnelIdent
 
     @Override
     public TunnelIdentifier parse(final ByteBuf buffer) {
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.mldp
-            .p2mp.lsp.MldpP2mpLspBuilder mldpP2mpLsp = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.mldp
-            .p2mp.lsp.MldpP2mpLspBuilder();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel.pmsi
+                .tunnel.tunnel.identifier.mldp.p2mp.lsp.MldpP2mpLspBuilder mldpP2mpLsp =
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel
+                        .pmsi.tunnel.tunnel.identifier.mldp.p2mp.lsp.MldpP2mpLspBuilder();
         buffer.skipBytes(RESERVED);
-        final Class<? extends AddressFamily> addressFamily = this.addressFamilyRegistry.classForFamily(buffer.readUnsignedShort());
+        final Class<? extends AddressFamily> addressFamily = this.addressFamilyRegistry
+                .classForFamily(buffer.readUnsignedShort());
         if (addressFamily == null) {
-            LOG.debug("Skipping serialization of TunnelIdentifier {}, address family type  supported", ByteBufUtil.hexDump(buffer));
+            LOG.debug("Skipping serialization of TunnelIdentifier {}, address family type  supported",
+                    ByteBufUtil.hexDump(buffer));
             return null;
         }
         mldpP2mpLsp.setAddressFamily(addressFamily);

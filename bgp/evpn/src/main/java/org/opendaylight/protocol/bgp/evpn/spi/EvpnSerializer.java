@@ -15,6 +15,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 public interface EvpnSerializer {
     /**
+     * Serialize Evpn.
+     *
      * @param evpn   Evpn
      * @param buffer Encode common Evpn parts to output buffer
      * @return Encode Evpn to output buffer
@@ -23,7 +25,7 @@ public interface EvpnSerializer {
     ByteBuf serializeEvpn(@Nonnull EvpnChoice evpn, @Nonnull ByteBuf buffer);
 
     /**
-     * Serialize Evpn
+     * Serialize Evpn Model.
      *
      * @param evpn ChoiceNode containing Evpn
      * @return Evpn
@@ -32,7 +34,7 @@ public interface EvpnSerializer {
     EvpnChoice serializeEvpnModel(@Nonnull ContainerNode evpn);
 
     /**
-     * create Route key from Evpn model
+     * create Route key from Evpn model.
      *
      * @param evpn ContainerNode containing Evpn
      * @return Evpn

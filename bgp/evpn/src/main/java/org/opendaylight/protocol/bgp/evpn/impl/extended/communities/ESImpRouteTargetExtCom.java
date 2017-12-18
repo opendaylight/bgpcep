@@ -9,8 +9,6 @@ package org.opendaylight.protocol.bgp.evpn.impl.extended.communities;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
-import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.IetfYangUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
@@ -25,18 +23,20 @@ public final class ESImpRouteTargetExtCom extends AbstractExtendedCommunities {
     private static final int MAC_ADDRESS_LENGTH = 6;
 
     @Override
-    public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
+    public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer) {
         final MacAddress mac = IetfYangUtil.INSTANCE.macAddressFor(ByteArray.readBytes(buffer, MAC_ADDRESS_LENGTH));
 
         return new EsImportRouteExtendedCommunityCaseBuilder().setEsImportRouteExtendedCommunity(
-            new EsImportRouteExtendedCommunityBuilder().setEsImport(mac).build()).build();
+                new EsImportRouteExtendedCommunityBuilder().setEsImport(mac).build()).build();
     }
 
     @Override
     public void serializeExtendedCommunity(final ExtendedCommunity extendedCommunity, final ByteBuf byteAggregator) {
         Preconditions.checkArgument(extendedCommunity instanceof EsImportRouteExtendedCommunityCase,
-            "The extended community %s is not EsImportRouteExtendedCommunityCaseCase type.", extendedCommunity);
-        final EsImportRouteExtendedCommunity extCom = ((EsImportRouteExtendedCommunityCase) extendedCommunity).getEsImportRouteExtendedCommunity();
+                "The extended community %s is not EsImportRouteExtendedCommunityCaseCase type.",
+                extendedCommunity);
+        final EsImportRouteExtendedCommunity extCom = ((EsImportRouteExtendedCommunityCase) extendedCommunity)
+                .getEsImportRouteExtendedCommunity();
         byteAggregator.writeBytes(IetfYangUtil.INSTANCE.bytesFor(extCom.getEsImport()));
     }
 

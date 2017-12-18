@@ -27,7 +27,8 @@ final class RouterIdParser extends AbstractEsiType {
 
     @Override
     public void serializeBody(final Esi esi, final ByteBuf body) {
-        Preconditions.checkArgument(esi instanceof RouterIdGeneratedCase, "Unknown esi instance. Passed %s. Needed RouterIdGeneratedCase.", esi.getClass());
+        Preconditions.checkArgument(esi instanceof RouterIdGeneratedCase,
+                "Unknown esi instance. Passed %s. Needed RouterIdGeneratedCase.", esi.getClass());
         final RouterIdGenerated routerID = ((RouterIdGeneratedCase) esi).getRouterIdGenerated();
         ByteBufWriteUtil.writeIpv4Address(routerID.getRouterId(), body);
         ByteBufWriteUtil.writeUnsignedInt(routerID.getLocalDiscriminator(), body);
@@ -49,7 +50,8 @@ final class RouterIdParser extends AbstractEsiType {
 
     @Override
     public Esi parseEsi(final ByteBuf buffer) {
-        final RouterIdGenerated routerID = new RouterIdGeneratedBuilder().setRouterId(Ipv4Util.addressForByteBuf(buffer))
+        final RouterIdGenerated routerID = new RouterIdGeneratedBuilder()
+                .setRouterId(Ipv4Util.addressForByteBuf(buffer))
             .setLocalDiscriminator(buffer.readUnsignedInt()).build();
         return new RouterIdGeneratedCaseBuilder().setRouterIdGenerated(routerID).build();
     }

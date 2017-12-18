@@ -8,6 +8,7 @@
 
 package org.opendaylight.protocol.bgp.evpn.impl;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.protocol.bgp.evpn.impl.attributes.PMSITunnelAttributeHandler;
@@ -34,8 +35,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv6NextHopCase;
 
 public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
-    private static final int L2VPN_AFI = 25;
-    private static final int EVPN_SAFI = 70;
+    @VisibleForTesting
+    static final int L2VPN_AFI = 25;
+    @VisibleForTesting
+    static final int EVPN_SAFI = 70;
 
     @Override
     protected List<AutoCloseable> startImpl(final BGPExtensionProviderContext context) {
@@ -53,8 +56,10 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         return regs;
     }
 
-    private static void registerAttributesHandler(final BGPExtensionProviderContext context, final List<AutoCloseable> regs) {
-        final PMSITunnelAttributeHandler pmsiParser = new PMSITunnelAttributeHandler(context.getAddressFamilyRegistry());
+    private static void registerAttributesHandler(final BGPExtensionProviderContext context,
+            final List<AutoCloseable> regs) {
+        final PMSITunnelAttributeHandler pmsiParser =
+                new PMSITunnelAttributeHandler(context.getAddressFamilyRegistry());
         regs.add(context.registerAttributeParser(pmsiParser.getType(), pmsiParser));
         regs.add(context.registerAttributeSerializer(pmsiParser.getClazz(), pmsiParser));
     }
@@ -67,7 +72,8 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerNlriSerializer(EvpnRoutes.class, nlriHandler));
     }
 
-    private static void registerExtendedCommunities(final BGPExtensionProviderContext context, final List<AutoCloseable> regs) {
+    private static void registerExtendedCommunities(final BGPExtensionProviderContext context,
+            final List<AutoCloseable> regs) {
         final DefaultGatewayExtCom defGEC = new DefaultGatewayExtCom();
         regs.add(context.registerExtendedCommunityParser(defGEC.getType(true), defGEC.getSubType(), defGEC));
         regs.add(context.registerExtendedCommunitySerializer(DefaultGatewayExtendedCommunityCase.class, defGEC));
@@ -77,7 +83,8 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerExtendedCommunitySerializer(EsiLabelExtendedCommunityCase.class, esiLEC));
 
         final ESImpRouteTargetExtCom esImpEC = new ESImpRouteTargetExtCom();
-        regs.add(context.registerExtendedCommunityParser(esImpEC.getType(true), esImpEC.getSubType(), esImpEC));
+        regs.add(context.registerExtendedCommunityParser(esImpEC.getType(true),
+                esImpEC.getSubType(), esImpEC));
         regs.add(context.registerExtendedCommunitySerializer(EsImportRouteExtendedCommunityCase.class, esImpEC));
 
         final MACMobExtCom macEC = new MACMobExtCom();

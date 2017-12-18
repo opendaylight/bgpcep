@@ -27,7 +27,8 @@ final class ASGenParser extends AbstractEsiType {
 
     @Override
     public void serializeBody(final Esi esi, final ByteBuf body) {
-        Preconditions.checkArgument(esi instanceof AsGeneratedCase, "Unknown esi instance. Passed %s. Needed AsGeneratedCase.", esi.getClass());
+        Preconditions.checkArgument(esi instanceof AsGeneratedCase,
+                "Unknown esi instance. Passed %s. Needed AsGeneratedCase.", esi.getClass());
         final AsGenerated asGen = ((AsGeneratedCase) esi).getAsGenerated();
         writeUnsignedInt(asGen.getAs().getValue(), body);
         writeUnsignedInt(asGen.getLocalDiscriminator(), body);

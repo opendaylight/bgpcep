@@ -8,7 +8,6 @@
 
 package org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier;
 
-
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -27,17 +26,17 @@ import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifi
 import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.PIM_SSM_TREE_EXPECTED;
 import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.RSVP_TE_P2MP_LSP_LSP_EXPECTED;
 import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.buildBidirPimTreeAttribute;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.buildINGRESSREPLICATIONAttribute;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.buildMLDPMP2MPLSPAttribute;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.buildMLDPMP2MPLSPWrongAttribute;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.buildMLDPP2MPLSPIpv4Attribute;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.buildMLDPP2MPLSPIpv6Attribute;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.buildMLDPP2MPLSPL2vpnAttribute;
+import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.buildIngressReplicationAttribute;
+import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.buildMLDpMp2mPLspAttribute;
+import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.buildMldpMP2mpLspWrongAttribute;
+import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.buildMldpP2mpLspIpv4Attribute;
+import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.buildMldpP2mpLspIpv6Attribute;
+import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.buildMldpp2MPLspL2vpnAttribute;
 import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.buildNoSupportedFamilyAttribute;
 import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.buildNoSupportedOpaqueAttribute;
 import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.buildPimSMTreeAttribute;
 import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.buildPimSSMTreeAttribute;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.buildRSVPTEP2MPLSPLSPAttribute;
+import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.buildRsvpTep2MPLspAttribute;
 import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.buildWOTunnelInfAttribute;
 import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.TunnelIdentifierHandler.NO_TUNNEL_INFORMATION_PRESENT;
 
@@ -63,7 +62,8 @@ public class PMSITunnelAttributeHandlerTest {
     public void setUp() {
         final BGPExtensionProviderContext ctx = new SimpleBGPExtensionProviderContext();
 
-        final org.opendaylight.protocol.bgp.parser.impl.BGPActivator inetActivator = new org.opendaylight.protocol.bgp.parser.impl.BGPActivator();
+        final org.opendaylight.protocol.bgp.parser.impl.BGPActivator inetActivator =
+                new org.opendaylight.protocol.bgp.parser.impl.BGPActivator();
         inetActivator.start(ctx);
         final BGPActivator bgpActivator = new BGPActivator();
         bgpActivator.start(ctx);
@@ -77,7 +77,8 @@ public class PMSITunnelAttributeHandlerTest {
         this.handler.serializeAttribute(attributes, actual);
         assertArrayEquals(BIDIR_PIM_EXPECTED, ByteArray.readAllBytes(actual));
         final Attributes expected = buildBidirPimTreeAttribute();
-        final Attributes actualAttr = this.handler.parseAttributes(Unpooled.wrappedBuffer(BIDIR_PIM_EXPECTED), null);
+        final Attributes actualAttr = this.handler.parseAttributes(
+                Unpooled.wrappedBuffer(BIDIR_PIM_EXPECTED), null);
         assertEquals(expected, actualAttr);
     }
 
@@ -88,7 +89,8 @@ public class PMSITunnelAttributeHandlerTest {
         this.handler.serializeAttribute(attributes, actual);
         assertArrayEquals(PIM_SM_TREE_EXPECTED, ByteArray.readAllBytes(actual));
         final Attributes expected = buildPimSMTreeAttribute();
-        final Attributes actualAttr = this.handler.parseAttributes(Unpooled.wrappedBuffer(PIM_SM_TREE_EXPECTED), null);
+        final Attributes actualAttr = this.handler.parseAttributes(
+                Unpooled.wrappedBuffer(PIM_SM_TREE_EXPECTED), null);
         assertEquals(expected, actualAttr);
     }
 
@@ -103,28 +105,32 @@ public class PMSITunnelAttributeHandlerTest {
     @Test
     public void parsePimSSMTree() throws Exception {
         final Attributes expected = buildPimSSMTreeAttribute();
-        final Attributes actual = this.handler.parseAttributes(Unpooled.wrappedBuffer(PIM_SSM_TREE_EXPECTED), null);
+        final Attributes actual = this.handler.parseAttributes(
+                Unpooled.wrappedBuffer(PIM_SSM_TREE_EXPECTED), null);
         assertEquals(expected, actual);
     }
 
     @Test
     public void testMldpP2MpLsp() throws Exception {
         final ByteBuf actualIpv4 = Unpooled.buffer();
-        final Attributes expectedIpv4Att = buildMLDPP2MPLSPIpv4Attribute();
+        final Attributes expectedIpv4Att = buildMldpP2mpLspIpv4Attribute();
 
-        final BGPExtensionProviderContext providerContext = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance();
+        final BGPExtensionProviderContext providerContext = ServiceLoaderBGPExtensionProviderContext
+                .getSingletonInstance();
         providerContext.getAttributeRegistry().serializeAttribute(expectedIpv4Att, actualIpv4);
         assertArrayEquals(M_LDP_P2MP_LSP_EXPECTED_IPV4, ByteArray.readAllBytes(actualIpv4));
 
-        final Attributes actualIpv4Attribute = this.handler.parseAttributes(Unpooled.wrappedBuffer(M_LDP_P2MP_LSP_EXPECTED_IPV4_2), null);
+        final Attributes actualIpv4Attribute = this.handler.parseAttributes(
+                Unpooled.wrappedBuffer(M_LDP_P2MP_LSP_EXPECTED_IPV4_2), null);
         assertEquals(expectedIpv4Att, actualIpv4Attribute);
 
-        final Attributes expectedIpv6Att = buildMLDPP2MPLSPIpv6Attribute();
+        final Attributes expectedIpv6Att = buildMldpP2mpLspIpv6Attribute();
         final ByteBuf actualIpv6 = Unpooled.buffer();
         this.handler.serializeAttribute(expectedIpv6Att, actualIpv6);
         assertArrayEquals(M_LDP_P2MP_LSP_EXPECTED_IPV6, ByteArray.readAllBytes(actualIpv6));
 
-        final Attributes actualIpv6Attribute = this.handler.parseAttributes(Unpooled.wrappedBuffer(M_LDP_P2MP_LSP_EXPECTED_IPV6), null);
+        final Attributes actualIpv6Attribute = this.handler.parseAttributes(
+                Unpooled.wrappedBuffer(M_LDP_P2MP_LSP_EXPECTED_IPV6), null);
         assertEquals(expectedIpv6Att, actualIpv6Attribute);
 
         final ByteBuf actualL2vpn = Unpooled.buffer();
@@ -132,11 +138,13 @@ public class PMSITunnelAttributeHandlerTest {
         assertArrayEquals(new byte[0], ByteArray.readAllBytes(actualIpv4));
 
 
-        final Attributes actualWrongFamily = this.handler.parseAttributes(Unpooled.wrappedBuffer(M_LDP_P2MP_LSP_EXPECTED_WRONG_FAMILY), null);
+        final Attributes actualWrongFamily = this.handler.parseAttributes(
+                Unpooled.wrappedBuffer(M_LDP_P2MP_LSP_EXPECTED_WRONG_FAMILY), null);
         assertEquals(buildWOTunnelInfAttribute(), actualWrongFamily);
 
-        final Attributes expectedL2vpnAtt = buildMLDPP2MPLSPL2vpnAttribute();
-        final Attributes actualL2vpnAttribute = this.handler.parseAttributes(Unpooled.wrappedBuffer(M_LDP_P2MP_LSP_EXPECTED_L2VPN), null);
+        final Attributes expectedL2vpnAtt = buildMldpp2MPLspL2vpnAttribute();
+        final Attributes actualL2vpnAttribute = this.handler.parseAttributes(
+                Unpooled.wrappedBuffer(M_LDP_P2MP_LSP_EXPECTED_L2VPN), null);
         assertEquals(expectedL2vpnAtt, actualL2vpnAttribute);
 
         final ByteBuf actualL2vp = Unpooled.buffer();
@@ -150,38 +158,42 @@ public class PMSITunnelAttributeHandlerTest {
 
     @Test
     public void testRsvpteP2MplspLsp() throws Exception {
-        final Attributes expected = buildRSVPTEP2MPLSPLSPAttribute();
+        final Attributes expected = buildRsvpTep2MPLspAttribute();
         final ByteBuf actual = Unpooled.buffer();
         this.handler.serializeAttribute(expected, actual);
         assertArrayEquals(RSVP_TE_P2MP_LSP_LSP_EXPECTED, ByteArray.readAllBytes(actual));
-        final Attributes actualAttr = this.handler.parseAttributes(Unpooled.wrappedBuffer(RSVP_TE_P2MP_LSP_LSP_EXPECTED), null);
+        final Attributes actualAttr = this.handler.parseAttributes(
+                Unpooled.wrappedBuffer(RSVP_TE_P2MP_LSP_LSP_EXPECTED), null);
         assertEquals(expected, actualAttr);
     }
 
     @Test
     public void testIngressReplication() throws Exception {
-        final Attributes expected = buildINGRESSREPLICATIONAttribute();
+        final Attributes expected = buildIngressReplicationAttribute();
         final ByteBuf actual = Unpooled.buffer();
         this.handler.serializeAttribute(expected, actual);
         assertArrayEquals(INGRESS_REPLICATION_EXPECTED, ByteArray.readAllBytes(actual));
-        final Attributes actualAttr = this.handler.parseAttributes(Unpooled.wrappedBuffer(INGRESS_REPLICATION_EXPECTED), null);
+        final Attributes actualAttr = this.handler.parseAttributes(
+                Unpooled.wrappedBuffer(INGRESS_REPLICATION_EXPECTED), null);
         assertEquals(expected, actualAttr);
     }
 
     @Test
     public void testMldpmP2MpLsp() throws Exception {
-        final Attributes expected = buildMLDPMP2MPLSPAttribute();
+        final Attributes expected = buildMLDpMp2mPLspAttribute();
         final ByteBuf actual = Unpooled.buffer();
         this.handler.serializeAttribute(expected, actual);
         assertArrayEquals(M_LDP_MP_2_MP_LSP_EXPECTED, ByteArray.readAllBytes(actual));
 
-        final Attributes actualAttr = this.handler.parseAttributes(Unpooled.wrappedBuffer(M_LDP_MP_2_MP_LSP_EXPECTED), null);
+        final Attributes actualAttr = this.handler.parseAttributes(
+                Unpooled.wrappedBuffer(M_LDP_MP_2_MP_LSP_EXPECTED), null);
         assertEquals(expected, actualAttr);
 
-        final Attributes actualWrong = this.handler.parseAttributes(Unpooled.wrappedBuffer(M_LDP_MP_2_MP_LSP_WRONG), null);
+        final Attributes actualWrong = this.handler.parseAttributes(
+                Unpooled.wrappedBuffer(M_LDP_MP_2_MP_LSP_WRONG), null);
         assertEquals(buildWOTunnelInfAttribute(), actualWrong);
 
-        final Attributes wrongAttribute = buildMLDPMP2MPLSPWrongAttribute();
+        final Attributes wrongAttribute = buildMldpMP2mpLspWrongAttribute();
         final ByteBuf actualWrongBuf = Unpooled.buffer();
         this.handler.serializeAttribute(wrongAttribute, actualWrongBuf);
         assertArrayEquals(NO_TUNNEL_INFORMATION_PRESENT_EXPECTED, ByteArray.readAllBytes(actualWrongBuf));
@@ -195,23 +207,27 @@ public class PMSITunnelAttributeHandlerTest {
         this.handler.serializeAttribute(attributes, actual);
         assertArrayEquals(NO_TUNNEL_INFORMATION_PRESENT_EXPECTED, ByteArray.readAllBytes(actual));
         final Attributes expected = buildWOTunnelInfAttribute();
-        final Attributes actualAttr = this.handler.parseAttributes(Unpooled.wrappedBuffer(NO_TUNNEL_INFORMATION_PRESENT_EXPECTED), null);
+        final Attributes actualAttr = this.handler.parseAttributes(
+                Unpooled.wrappedBuffer(NO_TUNNEL_INFORMATION_PRESENT_EXPECTED), null);
         assertEquals(expected, actualAttr);
     }
 
     @Test
-    public void testTunnelIdentifierUtil() throws Throwable {
-        final TunnelIdentifierHandler tunnelIdentifierHandler = new TunnelIdentifierHandler(ServiceLoaderBGPExtensionProviderContext
-            .getSingletonInstance().getAddressFamilyRegistry());
+    public void testTunnelIdentifierUtil() {
+        final TunnelIdentifierHandler tunnelIdentifierHandler =
+                new TunnelIdentifierHandler(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance()
+                        .getAddressFamilyRegistry());
         assertNull(tunnelIdentifierHandler.parse(1, Unpooled.buffer()));
         assertNull(tunnelIdentifierHandler.parse(125, Unpooled.buffer()));
-        assertEquals(NO_TUNNEL_INFORMATION_PRESENT, tunnelIdentifierHandler.serialize(new MockTunnelIdentifier(), Unpooled.buffer()));
+        assertEquals(NO_TUNNEL_INFORMATION_PRESENT, tunnelIdentifierHandler
+                .serialize(new MockTunnelIdentifier(), Unpooled.buffer()));
     }
 
     @Test
-    public void testPMSITunnelAttributeParser() throws Throwable {
-        final PMSITunnelAttributeHandler pmsiHandler = new PMSITunnelAttributeHandler(ServiceLoaderBGPExtensionProviderContext
-            .getSingletonInstance().getAddressFamilyRegistry());
+    public void testPMSITunnelAttributeParser() {
+        final PMSITunnelAttributeHandler pmsiHandler =
+                new PMSITunnelAttributeHandler(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance()
+                        .getAddressFamilyRegistry());
         assertEquals(22, pmsiHandler.getType());
         final AttributesBuilder builder = new AttributesBuilder();
         final ByteBuf emptyBuffer = Unpooled.buffer();

@@ -38,8 +38,9 @@ public class ESILabelExtComTest {
     public void parserTest() throws BGPParsingException, BGPDocumentedException {
         final ByteBuf buff = Unpooled.buffer(COMMUNITY_VALUE_SIZE);
 
-        final EsiLabelExtendedCommunityCase expected = new EsiLabelExtendedCommunityCaseBuilder().setEsiLabelExtendedCommunity(
-            new EsiLabelExtendedCommunityBuilder().setSingleActiveMode(true).setEsiLabel(MPLS_LABEL).build()).build();
+        final EsiLabelExtendedCommunityCase expected = new EsiLabelExtendedCommunityCaseBuilder()
+                .setEsiLabelExtendedCommunity(new EsiLabelExtendedCommunityBuilder()
+                        .setSingleActiveMode(true).setEsiLabel(MPLS_LABEL).build()).build();
         this.parser.serializeExtendedCommunity(expected, buff);
         assertArrayEquals(RESULT, ByteArray.getAllBytes(buff));
 

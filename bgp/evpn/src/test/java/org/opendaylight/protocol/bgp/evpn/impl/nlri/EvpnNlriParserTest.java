@@ -50,13 +50,19 @@ public class EvpnNlriParserTest {
     private List<EvpnDestination> dest;
     private EvpnNlriParser parser;
 
+    static ChoiceNode createMACIpAdvChoice() {
+        final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> choice = Builders.choiceBuilder();
+        choice.withNodeIdentifier(EVPN_CHOICE_NID);
+        return choice.addChild(MACIpAdvRParserTest.createMacIpCont()).build();
+    }
+
     @Before
     public void setUp() {
         ESIActivator.registerEsiTypeParsers(new ArrayList<>());
         NlriActivator.registerNlriParsers(new ArrayList<>());
         this.dest = Collections.singletonList(new EvpnDestinationBuilder()
-            .setRouteDistinguisher(RD)
-            .setEvpnChoice(IncMultEthTagRParserTest.createIncMultiCase()).build());
+                .setRouteDistinguisher(RD)
+                .setEvpnChoice(IncMultEthTagRParserTest.createIncMultiCase()).build());
         this.parser = new EvpnNlriParser();
     }
 
@@ -77,10 +83,13 @@ public class EvpnNlriParserTest {
 
     private MpUnreachNlri createUnreach() {
         final MpUnreachNlriBuilder mpReachExpected = new MpUnreachNlriBuilder();
-        final WithdrawnRoutes wd = new WithdrawnRoutesBuilder().setDestinationType(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.
-            bgp.evpn.rev171213.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationEvpnCaseBuilder().setDestinationEvpn(
-            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171213.update.attributes.mp.unreach.nlri.withdrawn.routes.
-                destination.type.destination.evpn._case.DestinationEvpnBuilder().setEvpnDestination(this.dest).build()).build()).build();
+        final WithdrawnRoutes wd = new WithdrawnRoutesBuilder().setDestinationType(
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171213.update
+                        .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationEvpnCaseBuilder()
+                        .setDestinationEvpn(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
+                                .evpn.rev171213.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type
+                                .destination.evpn._case.DestinationEvpnBuilder()
+                                .setEvpnDestination(this.dest).build()).build()).build();
         return mpReachExpected.setWithdrawnRoutes(wd).build();
     }
 
@@ -90,8 +99,9 @@ public class EvpnNlriParserTest {
         this.parser.parseNlri(Unpooled.wrappedBuffer(IncMultEthTagRParserTest.RESULT), mpReach);
 
         final MpReachNlriBuilder mpReachExpected = new MpReachNlriBuilder();
-        final AdvertizedRoutes wd = new AdvertizedRoutesBuilder().setDestinationType(new DestinationEvpnCaseBuilder().setDestinationEvpn(
-            new DestinationEvpnBuilder().setEvpnDestination(this.dest).build()).build()).build();
+        final AdvertizedRoutes wd = new AdvertizedRoutesBuilder().setDestinationType(new DestinationEvpnCaseBuilder()
+                .setDestinationEvpn(new DestinationEvpnBuilder().setEvpnDestination(this.dest).build())
+                .build()).build();
         mpReachExpected.setAdvertizedRoutes(wd);
         assertEquals(mpReachExpected.build(), mpReach.build());
     }
@@ -112,30 +122,28 @@ public class EvpnNlriParserTest {
 
     @Test
     public void testExtractEvpnDestination() throws BGPParsingException {
-        final DataContainerNodeAttrBuilder<NodeIdentifier, UnkeyedListEntryNode> evpnBI = ImmutableUnkeyedListEntryNodeBuilder.create();
+        final DataContainerNodeAttrBuilder<NodeIdentifier, UnkeyedListEntryNode> evpnBI =
+                ImmutableUnkeyedListEntryNodeBuilder.create();
         evpnBI.withNodeIdentifier(EVPN_NID);
         evpnBI.withChild(createMACIpAdvChoice());
         evpnBI.withChild(createValueBuilder(RD_MODEL, RD_NID).build());
         final EvpnDestination destResult = EvpnNlriParser.extractEvpnDestination(evpnBI.build());
-        final EvpnDestination expected = new EvpnDestinationBuilder().setRouteDistinguisher(RD).setEvpnChoice(MACIpAdvRParserTest.createdExpectedResult()).build();
+        final EvpnDestination expected = new EvpnDestinationBuilder()
+                .setRouteDistinguisher(RD)
+                .setEvpnChoice(MACIpAdvRParserTest.createdExpectedResult()).build();
         assertEquals(expected, destResult);
-    }
-
-
-    public static ChoiceNode createMACIpAdvChoice() {
-        final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> choice = Builders.choiceBuilder();
-        choice.withNodeIdentifier(EVPN_CHOICE_NID);
-        return choice.addChild(MACIpAdvRParserTest.createMacIpCont()).build();
     }
 
     @Test
     public void testExtractRouteKey() throws BGPParsingException {
-        final DataContainerNodeAttrBuilder<NodeIdentifier, UnkeyedListEntryNode> evpnBI = ImmutableUnkeyedListEntryNodeBuilder.create();
+        final DataContainerNodeAttrBuilder<NodeIdentifier, UnkeyedListEntryNode> evpnBI =
+                ImmutableUnkeyedListEntryNodeBuilder.create();
         evpnBI.withNodeIdentifier(EVPN_CHOICE_NID);
         evpnBI.withChild(createValueBuilder(RD_MODEL, RD_NID).build());
         evpnBI.withChild(createMACIpAdvChoice());
         final EvpnDestination destResult = EvpnNlriParser.extractRouteKeyDestination(evpnBI.build());
-        final EvpnDestination expected = new EvpnDestinationBuilder().setRouteDistinguisher(RD).setEvpnChoice(MACIpAdvRParserTest.createdExpectedRouteKey()).build();
+        final EvpnDestination expected = new EvpnDestinationBuilder().setRouteDistinguisher(RD)
+                .setEvpnChoice(MACIpAdvRParserTest.createdExpectedRouteKey()).build();
         assertEquals(expected, destResult);
     }
 }

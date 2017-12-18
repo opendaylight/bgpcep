@@ -28,9 +28,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.ExtendedCommunity;
 
 public class Layer2AttributesExtComTest {
-    private static final byte[] EXPECTEDS = {(byte) 0x00, (byte) 0x07, (byte) 0x01, (byte) 0x01, (byte) 0x00, (byte) 0x00};
-    private static final byte[] EVPN_VPWS = {(byte) 0x00, (byte) 0x2f, (byte) 0x01, (byte) 0x01, (byte) 0x00, (byte) 0x00};
-    private static final byte[] EVPN_VPWS_2 = {(byte) 0x00, (byte) 0x57, (byte) 0x01, (byte) 0x01, (byte) 0x00, (byte) 0x00};
+    private static final byte[] EXPECTEDS = {(byte) 0x00, (byte) 0x07, (byte) 0x01, (byte) 0x01,
+        (byte) 0x00, (byte) 0x00};
+    private static final byte[] EVPN_VPWS = {(byte) 0x00, (byte) 0x2f, (byte) 0x01, (byte) 0x01,
+        (byte) 0x00, (byte) 0x00};
+    private static final byte[] EVPN_VPWS_2 = {(byte) 0x00, (byte) 0x57, (byte) 0x01, (byte) 0x01,
+        (byte) 0x00, (byte) 0x00};
     private Layer2AttributesExtCom parser;
 
     @Before
@@ -43,8 +46,8 @@ public class Layer2AttributesExtComTest {
         final ByteBuf buff = Unpooled.buffer(COMMUNITY_VALUE_SIZE);
 
         final Layer2AttributesExtendedCommunityCase expected = new Layer2AttributesExtendedCommunityCaseBuilder()
-            .setLayer2AttributesExtendedCommunity(new Layer2AttributesExtendedCommunityBuilder().setBackupPe(true)
-                .setControlWord(true).setPrimaryPe(true).setL2Mtu(257).build()).build();
+                .setLayer2AttributesExtendedCommunity(new Layer2AttributesExtendedCommunityBuilder().setBackupPe(true)
+                        .setControlWord(true).setPrimaryPe(true).setL2Mtu(257).build()).build();
         this.parser.serializeExtendedCommunity(expected, buff);
         final byte[] resultByte = ByteArray.getAllBytes(buff);
         assertArrayEquals(EXPECTEDS, resultByte);
@@ -58,11 +61,11 @@ public class Layer2AttributesExtComTest {
         final ByteBuf buff = Unpooled.buffer(COMMUNITY_VALUE_SIZE);
 
         final Layer2AttributesExtendedCommunityCase expected = new Layer2AttributesExtendedCommunityCaseBuilder()
-            .setLayer2AttributesExtendedCommunity(new Layer2AttributesExtendedCommunityBuilder().setBackupPe(true)
-                .setControlWord(true).setPrimaryPe(true).setL2Mtu(257)
-                .setModeOfOperation(OperationalMode.VlanAwareFxc)
-                .setOperatingPer(NormalizationType.SingleVid)
-                .build()).build();
+                .setLayer2AttributesExtendedCommunity(new Layer2AttributesExtendedCommunityBuilder().setBackupPe(true)
+                        .setControlWord(true).setPrimaryPe(true).setL2Mtu(257)
+                        .setModeOfOperation(OperationalMode.VlanAwareFxc)
+                        .setOperatingPer(NormalizationType.SingleVid)
+                        .build()).build();
         this.parser.serializeExtendedCommunity(expected, buff);
         final byte[] resultByte = ByteArray.getAllBytes(buff);
         assertArrayEquals(EVPN_VPWS, resultByte);
@@ -72,11 +75,11 @@ public class Layer2AttributesExtComTest {
 
         final ByteBuf buff2 = Unpooled.buffer(COMMUNITY_VALUE_SIZE);
         final Layer2AttributesExtendedCommunityCase expected2 = new Layer2AttributesExtendedCommunityCaseBuilder()
-            .setLayer2AttributesExtendedCommunity(new Layer2AttributesExtendedCommunityBuilder().setBackupPe(true)
-                .setControlWord(true).setPrimaryPe(true).setL2Mtu(257)
-                .setModeOfOperation(OperationalMode.VlanUnawareFxc)
-                .setOperatingPer(NormalizationType.DoubleVid)
-                .build()).build();
+                .setLayer2AttributesExtendedCommunity(new Layer2AttributesExtendedCommunityBuilder().setBackupPe(true)
+                        .setControlWord(true).setPrimaryPe(true).setL2Mtu(257)
+                        .setModeOfOperation(OperationalMode.VlanUnawareFxc)
+                        .setOperatingPer(NormalizationType.DoubleVid)
+                        .build()).build();
         this.parser.serializeExtendedCommunity(expected2, buff2);
         final byte[] resultByte2 = ByteArray.getAllBytes(buff2);
         assertArrayEquals(EVPN_VPWS_2, resultByte2);

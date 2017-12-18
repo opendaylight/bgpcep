@@ -20,9 +20,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tun
 final class MldpMp2mpLspParser implements TunnelIdentifierSerializer, TunnelIdentifierParser {
     @Override
     public int serialize(final TunnelIdentifier tunnelIdentifier, final ByteBuf buffer) {
-        Preconditions.checkArgument(tunnelIdentifier instanceof MldpMp2mpLsp, "The tunnelIdentifier %s is not MldpMp2mpLsp type.", tunnelIdentifier);
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.mldp.mp2mp.lsp.
-            MldpMp2mpLsp mldpMp2mpLsp = ((MldpMp2mpLsp) tunnelIdentifier).getMldpMp2mpLsp();
+        Preconditions.checkArgument(tunnelIdentifier instanceof MldpMp2mpLsp,
+                "The tunnelIdentifier %s is not MldpMp2mpLsp type.", tunnelIdentifier);
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel.pmsi
+                .tunnel.tunnel.identifier.mldp.mp2mp.lsp.MldpMp2mpLsp mldpMp2mpLsp =
+                ((MldpMp2mpLsp) tunnelIdentifier).getMldpMp2mpLsp();
         if (!OpaqueUtil.serializeOpaque(mldpMp2mpLsp, buffer)) {
             return NO_TUNNEL_INFORMATION_PRESENT;
         }
@@ -35,9 +37,10 @@ final class MldpMp2mpLspParser implements TunnelIdentifierSerializer, TunnelIden
         if (opaque == null) {
             return null;
         }
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.mldp.mp2mp.lsp.
-            MldpMp2mpLsp mldpMp2mpLsp = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.mldp.mp2mp.lsp.
-            MldpMp2mpLspBuilder(opaque).build();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel.pmsi
+                .tunnel.tunnel.identifier.mldp.mp2mp.lsp.MldpMp2mpLsp mldpMp2mpLsp =
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel
+                        .pmsi.tunnel.tunnel.identifier.mldp.mp2mp.lsp.MldpMp2mpLspBuilder(opaque).build();
         return new MldpMp2mpLspBuilder().setMldpMp2mpLsp(mldpMp2mpLsp).build();
     }
 }

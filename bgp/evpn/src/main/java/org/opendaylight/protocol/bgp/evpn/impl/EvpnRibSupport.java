@@ -52,7 +52,8 @@ final class EvpnRibSupport extends AbstractRIBSupport {
     private static final NodeIdentifier NLRI_ROUTES_LIST = NodeIdentifier.create(EvpnDestination.QNAME);
 
     private EvpnRibSupport() {
-        super(EvpnRoutesCase.class, EvpnRoutes.class, EvpnRoute.class, L2vpnAddressFamily.class, EvpnSubsequentAddressFamily.class, DestinationEvpn.QNAME);
+        super(EvpnRoutesCase.class, EvpnRoutes.class, EvpnRoute.class,
+                L2vpnAddressFamily.class, EvpnSubsequentAddressFamily.class, DestinationEvpn.QNAME);
     }
 
     static EvpnRibSupport getInstance() {
@@ -79,16 +80,18 @@ final class EvpnRibSupport extends AbstractRIBSupport {
     @Nonnull
     @Override
     protected DestinationType buildDestination(@Nonnull final Collection<MapEntryNode> routes) {
-        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171213.update.attributes.mp.reach.nlri.advertized
-            .routes.destination.type.DestinationEvpnCaseBuilder().setDestinationEvpn(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.
-            ns.yang.bgp.evpn.rev171213.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.evpn._case.
-            DestinationEvpnBuilder().setEvpnDestination(extractRoutes(routes)).build()).build();
+        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171213.update
+                .attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationEvpnCaseBuilder()
+                .setDestinationEvpn(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
+                        .rev171213.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination
+                        .evpn._case.DestinationEvpnBuilder().setEvpnDestination(extractRoutes(routes)).build()).build();
     }
 
     @Nonnull
     @Override
     protected DestinationType buildWithdrawnDestination(@Nonnull final Collection<MapEntryNode> routes) {
-        return new DestinationEvpnCaseBuilder().setDestinationEvpn(new DestinationEvpnBuilder().setEvpnDestination(extractRoutes(routes)).build()).build();
+        return new DestinationEvpnCaseBuilder().setDestinationEvpn(new DestinationEvpnBuilder()
+                .setEvpnDestination(extractRoutes(routes)).build()).build();
     }
 
     private static List<EvpnDestination> extractRoutes(final Collection<MapEntryNode> routes) {
@@ -99,7 +102,8 @@ final class EvpnRibSupport extends AbstractRIBSupport {
     protected void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
         final ContainerNode destination, final ContainerNode attributes, final ApplyRoute function) {
         if (destination != null) {
-            final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = destination.getChild(NLRI_ROUTES_LIST);
+            final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = destination
+                    .getChild(NLRI_ROUTES_LIST);
             if (maybeRoutes.isPresent()) {
                 final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
                 if (routes instanceof UnkeyedListNode) {

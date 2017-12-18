@@ -37,8 +37,9 @@ public class DefaultGatewayExtComTest {
     public void parserTest() throws BGPParsingException, BGPDocumentedException {
         final ByteBuf buff = Unpooled.buffer(COMMUNITY_VALUE_SIZE);
 
-        final DefaultGatewayExtendedCommunityCase expected = new DefaultGatewayExtendedCommunityCaseBuilder().setDefaultGatewayExtendedCommunity(
-            new DefaultGatewayExtendedCommunityBuilder().build()).build();
+        final DefaultGatewayExtendedCommunityCase expected = new DefaultGatewayExtendedCommunityCaseBuilder()
+                .setDefaultGatewayExtendedCommunity(
+                        new DefaultGatewayExtendedCommunityBuilder().build()).build();
         this.parser.serializeExtendedCommunity(expected, buff);
         assertArrayEquals(RESULT, ByteArray.getAllBytes(buff));
 

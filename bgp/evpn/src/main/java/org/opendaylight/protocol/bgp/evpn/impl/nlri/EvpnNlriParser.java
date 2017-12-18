@@ -60,7 +60,8 @@ public final class EvpnNlriParser implements NlriParser, NlriSerializer {
         return extractDestination(evpnChoice, EvpnRegistry::serializeEvpnModel);
     }
 
-    private static EvpnDestination extractDestination(final DataContainerNode<? extends PathArgument> evpnChoice, final ExtractionInterface extract) {
+    private static EvpnDestination extractDestination(final DataContainerNode<? extends PathArgument> evpnChoice,
+            final ExtractionInterface extract) {
         final EvpnRegistry reg = SimpleEvpnNlriRegistry.getInstance();
         final ChoiceNode cont = (ChoiceNode) evpnChoice.getChild(EVPN_CHOICE_NID).get();
         final EvpnChoice evpnValue = extract.check(reg, cont);
@@ -68,10 +69,12 @@ public final class EvpnNlriParser implements NlriParser, NlriSerializer {
             LOG.warn("Unrecognized Nlri {}", cont);
             return null;
         }
-        return new EvpnDestinationBuilder().setRouteDistinguisher(extractRouteDistinguisher(evpnChoice)).setEvpnChoice(evpnValue).build();
+        return new EvpnDestinationBuilder().setRouteDistinguisher(extractRouteDistinguisher(evpnChoice))
+                .setEvpnChoice(evpnValue).build();
     }
 
-    public static EvpnDestination extractRouteKeyDestination(final DataContainerNode<? extends PathArgument> evpnChoice) {
+    public static EvpnDestination extractRouteKeyDestination(
+            final DataContainerNode<? extends PathArgument> evpnChoice) {
         return extractDestination(evpnChoice, EvpnRegistry::serializeEvpnRouteKey);
     }
 
@@ -83,10 +86,11 @@ public final class EvpnNlriParser implements NlriParser, NlriSerializer {
         final List<EvpnDestination> dst = parseNlri(nlri);
 
         builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
-            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171213.update.attributes.mp.unreach.nlri.withdrawn.
-                routes.destination.type.DestinationEvpnCaseBuilder().setDestinationEvpn(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.
-                yang.bgp.evpn.rev171213.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.evpn._case.DestinationEvpnBuilder()
-                .setEvpnDestination(dst).build()).build()).build());
+            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171213.update.attributes
+                    .mp.unreach.nlri.withdrawn.routes.destination.type.DestinationEvpnCaseBuilder()
+                    .setDestinationEvpn(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
+                            .rev171213.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination
+                            .evpn._case.DestinationEvpnBuilder().setEvpnDestination(dst).build()).build()).build());
     }
 
     @Override
@@ -97,7 +101,8 @@ public final class EvpnNlriParser implements NlriParser, NlriSerializer {
         final List<EvpnDestination> dst = parseNlri(nlri);
 
         builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
-            new DestinationEvpnCaseBuilder().setDestinationEvpn(new DestinationEvpnBuilder().setEvpnDestination(dst).build()).build()).build());
+            new DestinationEvpnCaseBuilder().setDestinationEvpn(new DestinationEvpnBuilder()
+                    .setEvpnDestination(dst).build()).build()).build());
     }
 
     @Nullable
@@ -134,19 +139,22 @@ public final class EvpnNlriParser implements NlriParser, NlriSerializer {
         } else if (pathAttributes2 != null) {
             final MpUnreachNlri mpUnreachNlri = pathAttributes2.getMpUnreachNlri();
             final WithdrawnRoutes withdrawnRoutes = mpUnreachNlri.getWithdrawnRoutes();
-            if (withdrawnRoutes != null && withdrawnRoutes.getDestinationType() instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml
-                .ns.yang.bgp.evpn.rev171213.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationEvpnCase) {
-                final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171213.update.attributes.mp.unreach.nlri.withdrawn.
-                    routes.destination.type.DestinationEvpnCase evpnCase = (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml
-                    .ns.yang.bgp.evpn.rev171213.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationEvpnCase) mpUnreachNlri.getWithdrawnRoutes().getDestinationType();
+            if (withdrawnRoutes != null && withdrawnRoutes.getDestinationType()
+                    instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171213
+                    .update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationEvpnCase) {
+                final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171213.update
+                        .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationEvpnCase evpnCase =
+                        (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171213.update
+                                .attributes.mp.unreach.nlri.withdrawn.routes.destination.type
+                                .DestinationEvpnCase) mpUnreachNlri.getWithdrawnRoutes().getDestinationType();
                 serializeNlri(evpnCase.getDestinationEvpn().getEvpnDestination(), byteAggregator);
             }
         }
     }
 
-    public static void serializeNlri(final List<EvpnDestination> cEvpn, final ByteBuf output) {
+    public static void serializeNlri(final List<EvpnDestination> destinationList, final ByteBuf output) {
         ByteBuf nlriOutput = null;
-        for (final EvpnDestination dest : cEvpn) {
+        for (final EvpnDestination dest : destinationList) {
             final ByteBuf nlriCommon = Unpooled.buffer();
             serializeRouteDistinquisher(dest.getRouteDistinguisher(), nlriCommon);
             nlriOutput = SimpleEvpnNlriRegistry.getInstance().serializeEvpn(dest.getEvpnChoice(), nlriCommon);

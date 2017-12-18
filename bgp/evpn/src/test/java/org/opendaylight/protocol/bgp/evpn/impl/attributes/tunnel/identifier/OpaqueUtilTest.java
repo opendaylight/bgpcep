@@ -14,8 +14,6 @@ import static org.junit.Assert.assertEquals;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
@@ -26,7 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tun
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.mldp.p2mp.lsp.mldp.p2mp.lsp.OpaqueValueBuilder;
 
 public class OpaqueUtilTest {
-    private static final byte[] OPAQUE_WRONG= {
+    private static final byte[] OPAQUE_WRONG = {
         (byte) 0xfc, (byte) 0x00, (byte) 0x03, // Opaque Type - Length
         (byte) 0xb5, (byte) 0xeb, (byte) 0x2d,  //Value
     };
@@ -65,14 +63,16 @@ public class OpaqueUtilTest {
     };
 
     static final HexString OPAQUE_TEST = new HexString("07:00:0b:00:00:01:00:00:00:01:00:00:00:00");
-    static final HexString OPAQUE_TEST2 = new HexString ("07:00:0b:00:00:01:00:00:00:01:00:00:00:00:01:02");
-    private static final Opaque OPAQUE = new OpaqueValueBuilder().setOpaque(OPAQUE_TEST).setOpaqueType(OpaqueUtil.GENERIC_LSP_IDENTIFIER).build();
-    private static final Opaque OPAQUE_EXTENDED = new OpaqueValueBuilder().setOpaque(OPAQUE_TEST2).setOpaqueType((short) 2)
-        .setOpaqueType(OpaqueUtil.EXTENDED_TYPE).setOpaqueExtendedType(4).build();
-    private static final List<OpaqueValue> OPAQUE_VALUE_LIST = Arrays.asList((OpaqueValue) OPAQUE, (OpaqueValue) OPAQUE_EXTENDED);
+    static final HexString OPAQUE_TEST2 = new HexString("07:00:0b:00:00:01:00:00:00:01:00:00:00:00:01:02");
+    private static final Opaque OPAQUE = new OpaqueValueBuilder().setOpaque(OPAQUE_TEST)
+            .setOpaqueType(OpaqueUtil.GENERIC_LSP_IDENTIFIER).build();
+    private static final Opaque OPAQUE_EXTENDED = new OpaqueValueBuilder().setOpaque(OPAQUE_TEST2)
+            .setOpaqueType((short) 2).setOpaqueType(OpaqueUtil.EXTENDED_TYPE).setOpaqueExtendedType(4).build();
+    private static final List<OpaqueValue> OPAQUE_VALUE_LIST = Arrays.asList((OpaqueValue) OPAQUE,
+            (OpaqueValue) OPAQUE_EXTENDED);
 
     @Test
-    public void serializeOpaque() throws Exception {
+    public void serializeOpaque() {
         final ByteBuf actualOpaque = Unpooled.buffer();
         OpaqueUtil.serializeOpaque(OPAQUE, actualOpaque);
         assertArrayEquals(OPAQUE_EXPECTED, ByteArray.readAllBytes(actualOpaque));
@@ -95,21 +95,10 @@ public class OpaqueUtilTest {
     }
 
     @Test
-    public void parseOpaqueList() throws Exception {
+    public void parseOpaqueList() {
         final ByteBuf opaqueValues = Unpooled.buffer();
         OpaqueUtil.serializeOpaqueList(OPAQUE_VALUE_LIST, opaqueValues);
         assertArrayEquals(OPAQUE_VALUES_EXPECTED, ByteArray.readAllBytes(opaqueValues));
         assertEquals(OPAQUE_VALUE_LIST, OpaqueUtil.parseOpaqueList(Unpooled.wrappedBuffer(OPAQUE_VALUES_EXPECTED)));
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testPrivateConstructor() throws Throwable {
-        final Constructor<OpaqueUtil> c = OpaqueUtil.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
     }
 }

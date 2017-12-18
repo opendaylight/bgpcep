@@ -8,6 +8,7 @@
 
 package org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier;
 
+import static java.util.Collections.singletonList;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.IPV6;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.MPLS_LABEL;
 import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.OpaqueUtilTest.OPAQUE_TEST;
@@ -42,7 +43,7 @@ import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 final class PMSITunnelAttributeHandlerTestUtil {
     /**
-     * ATT - TYPE - ATT LENGTH
+     * ATT - TYPE - ATT LENGTH.
      * PMSI FLAG - PMSI TYPE 0- MPLS LABEL
      * No tunnel information present
      */
@@ -51,7 +52,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
         (byte) 0x01, (byte) 0x00, (byte) 0x05, (byte) 0xdc, (byte) 0x10
     };
     /**
-     * ATT - TYPE - ATT LENGTH
+     * ATT - TYPE - ATT LENGTH.
      * PMSI FLAG - PMSI TYPE 1- MPLS LABEL
      * mLDP P2MP LSP
      */
@@ -63,7 +64,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
         (byte) 0x01, (byte) 0x01, (byte) 0x01, (byte) 0x01,
     };
     /**
-     * ATT - TYPE - ATT LENGTH
+     * ATT - TYPE - ATT LENGTH.
      * PMSI FLAG - PMSI TYPE 2- MPLS LABEL
      * mLDP P2MP LSP
      */
@@ -88,7 +89,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
         (byte) 0x02
     };
     /**
-     * ATT - TYPE - ATT LENGTH
+     * ATT - TYPE - ATT LENGTH.
      * PMSI FLAG - PMSI TYPE 2- MPLS LABEL
      * mLDP P2MP LSP
      */
@@ -104,7 +105,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
         (byte) 0xb5, (byte) 0xeb, (byte) 0x2d, (byte) 0xd7, (byte) 0x6d, (byte) 0xf8, //Value
     };
     /**
-     * ATT - TYPE - ATT LENGTH
+     * ATT - TYPE - ATT LENGTH.
      * PMSI FLAG - PMSI TYPE 2- MPLS LABEL
      * mLDP P2MP LSP L2VPN
      */
@@ -129,7 +130,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
         (byte) 0x02
     };
     /**
-     * ATT - TYPE - ATT LENGTH
+     * ATT - TYPE - ATT LENGTH.
      * PMSI FLAG - PMSI TYPE 2- MPLS LABEL
      * mLDP P2MP LSP IPV4
      */
@@ -156,7 +157,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
         (byte) 0x02
     };
     /**
-     * ATT - TYPE - ATT LENGTH
+     * ATT - TYPE - ATT LENGTH.
      * PMSI FLAG - PMSI TYPE 2- MPLS LABEL
      * mLDP P2MP LSP IPV6
      */
@@ -184,7 +185,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
         (byte) 0x02
     };
     /**
-     * ATT - TYPE - ATT LENGTH
+     * ATT - TYPE - ATT LENGTH.
      * PMSI FLAG - PMSI TYPE 3- MPLS LABEL
      * PIM-SSM Tree
      */
@@ -195,7 +196,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
         (byte) 0x17, (byte) 0x01, (byte) 0x01, (byte) 0x01
     };
     /**
-     * ATT - TYPE - ATT LENGTH
+     * ATT - TYPE - ATT LENGTH.
      * PMSI FLAG - PMSI TYPE 4- MPLS LABEL
      * PIM-SM Tree
      */
@@ -206,7 +207,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
         (byte) 0x17, (byte) 0x01, (byte) 0x01, (byte) 0x01
     };
     /**
-     * ATT - TYPE - ATT LENGTH
+     * ATT - TYPE - ATT LENGTH.
      * PMSI FLAG - PMSI TYPE 5- MPLS LABEL
      * BIDIR-PIM Tree
      */
@@ -217,7 +218,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
         (byte) 0x17, (byte) 0x01, (byte) 0x01, (byte) 0x01
     };
     /**
-     * ATT - TYPE - ATT LENGTH
+     * ATT - TYPE - ATT LENGTH.
      * PMSI FLAG - PMSI TYPE 6- MPLS LABEL
      * Ingress Replication
      */
@@ -227,7 +228,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
         (byte) 0x01, (byte) 0x01, (byte) 0x01, (byte) 0x01
     };
     /**
-     * ATT - TYPE - ATT LENGTH
+     * ATT - TYPE - ATT LENGTH.
      * PMSI FLAG - PMSI TYPE 7- MPLS LABEL
      * mLDP MP2MP LSP
      */
@@ -242,7 +243,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
         (byte) 0x00, (byte) 0x00
     };
     /**
-     * ATT - TYPE - ATT LENGTH
+     * ATT - TYPE - ATT LENGTH.
      * PMSI FLAG - PMSI TYPE 7- MPLS LABEL
      * mLDP MP2MP LSP
      */
@@ -254,7 +255,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
     };
 
     static final IpAddress P_MULTICAST = new IpAddress(new Ipv4Address("23.1.1.1"));
-    static final IpAddress P_ADDRESS = new IpAddress(new Ipv4Address("1.1.1.1"));
+    static final IpAddress IP_ADDRESS = new IpAddress(new Ipv4Address("1.1.1.1"));
     private static final Short NO_SUPPORTED_OPAQUE = 200;
 
     static class MockTunnelIdentifier implements TunnelIdentifier {
@@ -264,12 +265,13 @@ final class PMSITunnelAttributeHandlerTestUtil {
         }
     }
 
-    static abstract class NonSupportedAddressFamily extends AddressFamily {
+    private abstract static class NonSupportedAddressFamily extends AddressFamily {
     }
 
     private static PAddressPMulticastGroup buildPAddressPMulticastGroup() {
-        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel.pmsi.tunnel.tunnel.identifier
-            .bidir.pim.tree.BidirPimTreeBuilder().setPAddress(P_ADDRESS).setPMulticastGroup(P_MULTICAST).build();
+        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel
+                .pmsi.tunnel.tunnel.identifier.bidir.pim.tree.BidirPimTreeBuilder()
+                .setPAddress(IP_ADDRESS).setPMulticastGroup(P_MULTICAST).build();
     }
 
     private static PmsiTunnelBuilder getPmsiTunnelBuilder() {
@@ -280,51 +282,59 @@ final class PMSITunnelAttributeHandlerTestUtil {
     }
 
     private static Attributes buildAttribute(final PmsiTunnelBuilder pmsiTunnelBuilder) {
-        return new AttributesBuilder().setUnrecognizedAttributes(Collections.emptyList()).addAugmentation(PmsiTunnelAugmentation.class,
+        return new AttributesBuilder().setUnrecognizedAttributes(Collections.emptyList())
+                .addAugmentation(PmsiTunnelAugmentation.class,
             new PmsiTunnelAugmentationBuilder().setPmsiTunnel(pmsiTunnelBuilder.build()).build()).build();
     }
 
     static Attributes buildBidirPimTreeAttribute() {
         final PmsiTunnelBuilder pmsiTunnelBuilder = getPmsiTunnelBuilder();
-        pmsiTunnelBuilder.setTunnelIdentifier(new BidirPimTreeBuilder().setBidirPimTree(new org.opendaylight.yang.gen.v1.urn.opendaylight.params
-            .xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.bidir.pim.tree.BidirPimTreeBuilder(buildPAddressPMulticastGroup()).build()).build());
+        pmsiTunnelBuilder.setTunnelIdentifier(new BidirPimTreeBuilder()
+                .setBidirPimTree(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel
+                        .rev160812.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.bidir.pim.tree
+                        .BidirPimTreeBuilder(buildPAddressPMulticastGroup()).build()).build());
         return buildAttribute(pmsiTunnelBuilder);
     }
 
     static Attributes buildPimSMTreeAttribute() {
         final PmsiTunnelBuilder pmsiTunnelBuilder = getPmsiTunnelBuilder();
-        pmsiTunnelBuilder.setTunnelIdentifier(new PimSmTreeBuilder().setPimSmTree(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
-            .yang.pmsi.tunnel.rev160812.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.pim.sm.tree.PimSmTreeBuilder(buildPAddressPMulticastGroup()).build()).build());
+        pmsiTunnelBuilder.setTunnelIdentifier(new PimSmTreeBuilder().setPimSmTree(new org.opendaylight.yang.gen.v1
+                .urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel.pmsi.tunnel.tunnel
+                .identifier.pim.sm.tree.PimSmTreeBuilder(buildPAddressPMulticastGroup()).build()).build());
         return buildAttribute(pmsiTunnelBuilder);
     }
 
     static Attributes buildPimSSMTreeAttribute() {
         final PmsiTunnelBuilder pmsiTunnelBuilder = getPmsiTunnelBuilder();
-        pmsiTunnelBuilder.setTunnelIdentifier(new PimSsmTreeBuilder().setPimSsmTree(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
-            .yang.pmsi.tunnel.rev160812.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.pim.ssm.tree.PimSsmTreeBuilder(buildPAddressPMulticastGroup()).build()).build());
+        pmsiTunnelBuilder.setTunnelIdentifier(new PimSsmTreeBuilder().setPimSsmTree(new org.opendaylight.yang.gen.v1
+                .urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel.pmsi.tunnel.tunnel
+                .identifier.pim.ssm.tree.PimSsmTreeBuilder(buildPAddressPMulticastGroup()).build()).build());
         return buildAttribute(pmsiTunnelBuilder);
     }
 
     static Attributes buildNoSupportedOpaqueAttribute() {
         final PmsiTunnelBuilder pmsiTunnelBuilder = getPmsiTunnelBuilder();
-        final List<OpaqueValue> nonSupported = Collections.singletonList(new OpaqueValueBuilder().setOpaque(OPAQUE_TEST).setOpaqueType(NO_SUPPORTED_OPAQUE).build());
-        pmsiTunnelBuilder.setTunnelIdentifier(buildMldpP2mpLsp(P_ADDRESS, Ipv4AddressFamily.class, nonSupported));
+        final List<OpaqueValue> nonSupported = singletonList(new OpaqueValueBuilder()
+                .setOpaque(OPAQUE_TEST).setOpaqueType(NO_SUPPORTED_OPAQUE).build());
+        pmsiTunnelBuilder.setTunnelIdentifier(buildMldpP2mpLsp(IP_ADDRESS, Ipv4AddressFamily.class, nonSupported));
         return buildAttribute(pmsiTunnelBuilder);
     }
 
     static Attributes buildNoSupportedFamilyAttribute() {
         final PmsiTunnelBuilder pmsiTunnelBuilder = getPmsiTunnelBuilder();
-        pmsiTunnelBuilder.setTunnelIdentifier(buildMldpP2mpLsp(P_ADDRESS, NonSupportedAddressFamily.class, createOpaqueList()));
+        pmsiTunnelBuilder.setTunnelIdentifier(buildMldpP2mpLsp(IP_ADDRESS, NonSupportedAddressFamily.class,
+                createOpaqueList()));
         return buildAttribute(pmsiTunnelBuilder);
     }
 
-    static Attributes buildMLDPP2MPLSPIpv4Attribute() {
+    static Attributes buildMldpP2mpLspIpv4Attribute() {
         final PmsiTunnelBuilder pmsiTunnelBuilder = getPmsiTunnelBuilder();
-        pmsiTunnelBuilder.setTunnelIdentifier(buildMldpP2mpLsp(P_ADDRESS, Ipv4AddressFamily.class, createOpaqueList()));
+        pmsiTunnelBuilder.setTunnelIdentifier(
+                buildMldpP2mpLsp(IP_ADDRESS, Ipv4AddressFamily.class, createOpaqueList()));
         return buildAttribute(pmsiTunnelBuilder);
     }
 
-    static Attributes buildMLDPP2MPLSPIpv6Attribute() {
+    static Attributes buildMldpP2mpLspIpv6Attribute() {
         final PmsiTunnelBuilder pmsiTunnelBuilder = new PmsiTunnelBuilder();
         pmsiTunnelBuilder.setLeafInformationRequired(true);
         pmsiTunnelBuilder.setMplsLabel(MPLS_LABEL);
@@ -332,54 +342,62 @@ final class PMSITunnelAttributeHandlerTestUtil {
         return buildAttribute(pmsiTunnelBuilder);
     }
 
-    static Attributes buildMLDPP2MPLSPL2vpnAttribute() {
+    static Attributes buildMldpp2MPLspL2vpnAttribute() {
         final PmsiTunnelBuilder pmsiTunnelBuilder = getPmsiTunnelBuilder();
-        pmsiTunnelBuilder.setTunnelIdentifier(buildMldpP2mpLsp(P_ADDRESS, L2vpnAddressFamily.class, createOpaqueList()));
+        pmsiTunnelBuilder.setTunnelIdentifier(
+                buildMldpP2mpLsp(IP_ADDRESS, L2vpnAddressFamily.class, createOpaqueList()));
         return buildAttribute(pmsiTunnelBuilder);
     }
 
-    private static TunnelIdentifier buildMldpP2mpLsp(final IpAddress pAddress, final Class<? extends AddressFamily> family, final List<OpaqueValue> opaqueList) {
+    private static TunnelIdentifier buildMldpP2mpLsp(final IpAddress ipAddress,
+            final Class<? extends AddressFamily> family, final List<OpaqueValue> opaqueList) {
         return new MldpP2mpLspBuilder().setMldpP2mpLsp(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml
             .ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.mldp.p2mp.lsp.MldpP2mpLspBuilder()
-            .setRootNodeAddress(pAddress).setAddressFamily(family).setOpaqueValue(opaqueList).build()).build();
+            .setRootNodeAddress(ipAddress).setAddressFamily(family).setOpaqueValue(opaqueList).build()).build();
     }
 
-    static Attributes buildRSVPTEP2MPLSPLSPAttribute() {
+    static Attributes buildRsvpTep2MPLspAttribute() {
         final PmsiTunnelBuilder pmsiTunnelBuilder = getPmsiTunnelBuilder();
-        pmsiTunnelBuilder.setTunnelIdentifier(new RsvpTeP2mpLspBuilder().setRsvpTeP2mpLps(new org.opendaylight.yang.gen.v1.urn.opendaylight.params
-            .xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.rsvp.te.p2mp.lsp.RsvpTeP2mpLpsBuilder()
-            .setP2mpId(3458L).setTunnelId(15).setExtendedTunnelId(P_ADDRESS).build()).build());
+        pmsiTunnelBuilder.setTunnelIdentifier(new RsvpTeP2mpLspBuilder()
+                .setRsvpTeP2mpLps(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel
+                        .rev160812.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.rsvp.te.p2mp.lsp.RsvpTeP2mpLpsBuilder()
+            .setP2mpId(3458L).setTunnelId(15).setExtendedTunnelId(IP_ADDRESS).build()).build());
         return buildAttribute(pmsiTunnelBuilder);
     }
 
-    static Attributes buildINGRESSREPLICATIONAttribute() {
+    static Attributes buildIngressReplicationAttribute() {
         final PmsiTunnelBuilder pmsiTunnelBuilder = getPmsiTunnelBuilder();
-        pmsiTunnelBuilder.setTunnelIdentifier(new IngressReplicationBuilder().setIngressReplication(new org.opendaylight.yang.gen.v1.urn
-            .opendaylight.params.xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.ingress.replication.IngressReplicationBuilder()
-            .setReceivingEndpointAddress(P_ADDRESS).build()).build());
+        pmsiTunnelBuilder.setTunnelIdentifier(new IngressReplicationBuilder().setIngressReplication(new org
+                .opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel.pmsi
+                .tunnel.tunnel.identifier.ingress.replication.IngressReplicationBuilder()
+                .setReceivingEndpointAddress(IP_ADDRESS).build()).build());
         return buildAttribute(pmsiTunnelBuilder);
     }
 
-    static Attributes buildMLDPMP2MPLSPWrongAttribute() {
+    static Attributes buildMldpMP2mpLspWrongAttribute() {
         final PmsiTunnelBuilder pmsiTunnelBuilder = getPmsiTunnelBuilder();
-        pmsiTunnelBuilder.setTunnelIdentifier(new MldpMp2mpLspBuilder().setMldpMp2mpLsp(new org.opendaylight.yang.gen.v1.urn.opendaylight.params
-            .xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.mldp.mp2mp.lsp
-            .MldpMp2mpLspBuilder().setOpaque(OPAQUE_TEST).setOpaqueType(NO_SUPPORTED_OPAQUE).build()).build());
+        pmsiTunnelBuilder.setTunnelIdentifier(new MldpMp2mpLspBuilder().setMldpMp2mpLsp(new org.opendaylight.yang.gen
+                .v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel.pmsi.tunnel.tunnel.identifier
+                .mldp.mp2mp.lsp.MldpMp2mpLspBuilder().setOpaque(OPAQUE_TEST).setOpaqueType(NO_SUPPORTED_OPAQUE)
+                .build()).build());
         return buildAttribute(pmsiTunnelBuilder);
     }
 
-    static Attributes buildMLDPMP2MPLSPAttribute() {
+    static Attributes buildMLDpMp2mPLspAttribute() {
         final PmsiTunnelBuilder pmsiTunnelBuilder = getPmsiTunnelBuilder();
-        pmsiTunnelBuilder.setTunnelIdentifier(new MldpMp2mpLspBuilder().setMldpMp2mpLsp(new org.opendaylight.yang.gen.v1.urn.opendaylight.params
-            .xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.mldp.mp2mp.lsp
-            .MldpMp2mpLspBuilder().setOpaque(OPAQUE_TEST).setOpaqueType(OpaqueUtil.GENERIC_LSP_IDENTIFIER).build()).build());
+        pmsiTunnelBuilder.setTunnelIdentifier(new MldpMp2mpLspBuilder().setMldpMp2mpLsp(new org.opendaylight.yang.gen
+                .v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel.pmsi.tunnel.tunnel
+                .identifier.mldp.mp2mp.lsp.MldpMp2mpLspBuilder().setOpaque(OPAQUE_TEST)
+                .setOpaqueType(OpaqueUtil.GENERIC_LSP_IDENTIFIER).build()).build());
         return buildAttribute(pmsiTunnelBuilder);
     }
 
     private static List<OpaqueValue> createOpaqueList() {
         final List<OpaqueValue> opaqueValues = new ArrayList<>();
-        opaqueValues.add(new OpaqueValueBuilder().setOpaque(OPAQUE_TEST).setOpaqueType(OpaqueUtil.GENERIC_LSP_IDENTIFIER).build());
-        opaqueValues.add(new OpaqueValueBuilder().setOpaque(OPAQUE_TEST2).setOpaqueType((short) 2).setOpaqueType(OpaqueUtil.EXTENDED_TYPE)
+        opaqueValues.add(new OpaqueValueBuilder().setOpaque(OPAQUE_TEST)
+                .setOpaqueType(OpaqueUtil.GENERIC_LSP_IDENTIFIER).build());
+        opaqueValues.add(new OpaqueValueBuilder().setOpaque(OPAQUE_TEST2)
+                .setOpaqueType((short) 2).setOpaqueType(OpaqueUtil.EXTENDED_TYPE)
             .setOpaqueExtendedType(4).build());
         return opaqueValues;
     }

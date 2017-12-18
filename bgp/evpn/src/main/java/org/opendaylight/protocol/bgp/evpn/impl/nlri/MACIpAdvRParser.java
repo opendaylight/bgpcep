@@ -59,7 +59,8 @@ final class MACIpAdvRParser extends AbstractEvpnNlri {
         } else {
             label2 = null;
         }
-        final MacIpAdvRouteBuilder builder = new MacIpAdvRouteBuilder().setEsi(esi).setEthernetTagId(eti).setMacAddress(mac).setIpAddress(ip)
+        final MacIpAdvRouteBuilder builder = new MacIpAdvRouteBuilder().setEsi(esi).setEthernetTagId(eti)
+                .setMacAddress(mac).setIpAddress(ip)
             .setMplsLabel1(label1).setMplsLabel2(label2);
         return new MacIpAdvRouteCaseBuilder().setMacIpAdvRoute(builder.build()).build();
     }
@@ -70,9 +71,33 @@ final class MACIpAdvRParser extends AbstractEvpnNlri {
     }
 
     @Override
-    public ByteBuf serializeBody(final EvpnChoice evpn) {
-        Preconditions.checkArgument(evpn instanceof MacIpAdvRouteCase, "Unknown evpn instance. Passed %s. Needed MacIpAdvRouteCase.", evpn.getClass());
-        return serializeBody((MacIpAdvRouteCase) evpn);
+    public ByteBuf serializeBody(final EvpnChoice evpnChoice) {
+        Preconditions.checkArgument(evpnChoice instanceof MacIpAdvRouteCase,
+                "Unknown evpn instance. Passed %s. Needed MacIpAdvRouteCase.", evpnChoice.getClass());
+
+        final ByteBuf body = Unpooled.buffer();
+        final MacIpAdvRoute evpn = ((MacIpAdvRouteCase) evpnChoice).getMacIpAdvRoute();
+        final Esi esi = evpn.getEsi();
+        if (esi != null) {
+            SimpleEsiTypeRegistry.getInstance().serializeEsi(evpn.getEsi(), body);
+        }
+        ByteBufWriteUtil.writeUnsignedInt(evpn.getEthernetTagId().getVlanId(), body);
+
+        final MacAddress mac = evpn.getMacAddress();
+        body.writeByte(MAC_ADDRESS_LENGTH * BITS_SIZE);
+        body.writeBytes(IetfYangUtil.INSTANCE.bytesFor(mac));
+        final ByteBuf ipAddress = serializeIp(evpn.getIpAddress());
+        Preconditions.checkArgument(ipAddress.readableBytes() > 0);
+        body.writeBytes(ipAddress);
+        final MplsLabel mpls1 = evpn.getMplsLabel1();
+        if (mpls1 != null) {
+            body.writeBytes(byteBufForMplsLabel(mpls1));
+        }
+        final MplsLabel mpls2 = evpn.getMplsLabel2();
+        if (mpls2 != null) {
+            body.writeBytes(byteBufForMplsLabel(mpls2));
+        }
+        return body;
     }
 
     @Override
@@ -95,32 +120,6 @@ final class MACIpAdvRParser extends AbstractEvpnNlri {
         builder.setMacAddress(extractMAC(evpn));
         builder.setIpAddress(extractIp(evpn));
         return builder;
-    }
-
-    private static ByteBuf serializeBody(final MacIpAdvRouteCase evpnCase) {
-        final ByteBuf body = Unpooled.buffer();
-        final MacIpAdvRoute evpn = evpnCase.getMacIpAdvRoute();
-        final Esi esi = evpn.getEsi();
-        if (esi != null) {
-            SimpleEsiTypeRegistry.getInstance().serializeEsi(evpn.getEsi(), body);
-        }
-        ByteBufWriteUtil.writeUnsignedInt(evpn.getEthernetTagId().getVlanId(), body);
-
-        final MacAddress mac = evpn.getMacAddress();
-        body.writeByte(MAC_ADDRESS_LENGTH * BITS_SIZE);
-        body.writeBytes(IetfYangUtil.INSTANCE.bytesFor(mac));
-        final ByteBuf ipAddress = serializeIp(evpn.getIpAddress());
-        Preconditions.checkArgument(ipAddress.readableBytes() > 0);
-        body.writeBytes(ipAddress);
-        final MplsLabel mpls1 = evpn.getMplsLabel1();
-        if (mpls1 != null) {
-            body.writeBytes(byteBufForMplsLabel(mpls1));
-        }
-        final MplsLabel mpls2 = evpn.getMplsLabel2();
-        if (mpls2 != null) {
-            body.writeBytes(byteBufForMplsLabel(mpls2));
-        }
-        return body;
     }
 
     private static ByteBuf serializeIp(final IpAddress ipAddress) {
