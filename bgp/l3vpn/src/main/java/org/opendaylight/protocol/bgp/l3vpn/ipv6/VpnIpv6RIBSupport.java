@@ -22,9 +22,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 
-/**
- * @author Kevin Wang
- */
 final class VpnIpv6RIBSupport extends AbstractVpnRIBSupport {
 
     /**
@@ -33,12 +30,14 @@ final class VpnIpv6RIBSupport extends AbstractVpnRIBSupport {
      * the same model which populates it with route grouping instantiation, and by extension with
      * the route attributes container.
      */
-    public VpnIpv6RIBSupport() {
-        super(VpnIpv6RoutesCase.class, VpnIpv6Routes.class, VpnRoute.class, Ipv6AddressFamily.class, VpnIpv6Destination.QNAME);
+    VpnIpv6RIBSupport() {
+        super(VpnIpv6RoutesCase.class, VpnIpv6Routes.class, VpnRoute.class,
+                Ipv6AddressFamily.class, VpnIpv6Destination.QNAME);
     }
 
     @Override
-    protected IpPrefix extractPrefix(final DataContainerNode<? extends YangInstanceIdentifier.PathArgument> route, final YangInstanceIdentifier.NodeIdentifier prefixTypeNid) {
+    protected IpPrefix extractPrefix(final DataContainerNode<? extends YangInstanceIdentifier.PathArgument> route,
+            final YangInstanceIdentifier.NodeIdentifier prefixTypeNid) {
         if (route.getChild(prefixTypeNid).isPresent()) {
             final String prefixType = (String) route.getChild(prefixTypeNid).get().getValue();
             return new IpPrefix(new Ipv6Prefix(prefixType));
@@ -48,13 +47,15 @@ final class VpnIpv6RIBSupport extends AbstractVpnRIBSupport {
 
     @Override
     protected DestinationType getAdvertisedDestinationType(List<VpnDestination> dests) {
-        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv6.rev171207.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationVpnIpv6CaseBuilder().setVpnIpv6Destination(
-            new VpnIpv6DestinationBuilder().setVpnDestination(dests).build()).build();
+        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv6.rev171207.update
+                .attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationVpnIpv6CaseBuilder()
+                .setVpnIpv6Destination(new VpnIpv6DestinationBuilder().setVpnDestination(dests).build()).build();
     }
 
     @Override
     protected DestinationType getWithdrawnDestinationType(List<VpnDestination> dests) {
-        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv6.rev171207.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationVpnIpv6CaseBuilder().setVpnIpv6Destination(
-            new VpnIpv6DestinationBuilder().setVpnDestination(dests).build()).build();
+        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv6.rev171207.update
+                .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationVpnIpv6CaseBuilder()
+                .setVpnIpv6Destination(new VpnIpv6DestinationBuilder().setVpnDestination(dests).build()).build();
     }
 }
