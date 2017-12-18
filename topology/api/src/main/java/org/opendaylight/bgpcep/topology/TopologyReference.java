@@ -11,7 +11,7 @@ import org.opendaylight.protocol.concepts.InstanceReference;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 
 /**
- * A reference to an Topology instance
+ * A reference to an Topology instance.
  */
 public interface TopologyReference extends InstanceReference<Topology> {
 
