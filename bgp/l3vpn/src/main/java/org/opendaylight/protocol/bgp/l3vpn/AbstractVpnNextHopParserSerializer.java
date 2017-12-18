@@ -15,9 +15,6 @@ import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.NextHopParserSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 
-/**
- * @author Kevin Wang
- */
 public abstract class AbstractVpnNextHopParserSerializer implements NextHopParserSerializer {
     private final int ipAddrLength;
     private final Class<?> ipNextHopCaseClazz;
@@ -29,15 +26,18 @@ public abstract class AbstractVpnNextHopParserSerializer implements NextHopParse
 
     @Override
     public CNextHop parseNextHop(final ByteBuf buffer) throws BGPParsingException {
-        Preconditions.checkArgument(buffer.readableBytes() == (this.ipAddrLength + RouteDistinguisherUtil.RD_LENGTH), "Length of byte array for NEXT_HOP should be %s, but is %s", this.ipAddrLength + RouteDistinguisherUtil.RD_LENGTH, buffer.readableBytes());
+        Preconditions.checkArgument(buffer.readableBytes() == (this.ipAddrLength + RouteDistinguisherUtil.RD_LENGTH),
+                "Length of byte array for NEXT_HOP should be %s, but is %s",
+                this.ipAddrLength + RouteDistinguisherUtil.RD_LENGTH, buffer.readableBytes());
         buffer.readBytes(RouteDistinguisherUtil.RD_LENGTH);
         return NextHopUtil.parseNextHop(buffer.readBytes(this.ipAddrLength));
     }
 
     @Override
-    public void serializeNextHop(final CNextHop cNextHop, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(this.ipNextHopCaseClazz.isInstance(cNextHop), "cNextHop is not a VPN %s NextHop object.", this.ipNextHopCaseClazz.getSimpleName());
+    public void serializeNextHop(final CNextHop nextHop, final ByteBuf byteAggregator) {
+        Preconditions.checkArgument(this.ipNextHopCaseClazz.isInstance(nextHop),
+                "cNextHop is not a VPN %s NextHop object.", this.ipNextHopCaseClazz.getSimpleName());
         byteAggregator.writeZero(RouteDistinguisherUtil.RD_LENGTH);
-        NextHopUtil.serializeNextHop(cNextHop, byteAggregator);
+        NextHopUtil.serializeNextHop(nextHop, byteAggregator);
     }
 }

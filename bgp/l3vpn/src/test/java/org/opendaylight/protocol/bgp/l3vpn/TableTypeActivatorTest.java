@@ -23,8 +23,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 
 public class TableTypeActivatorTest {
 
-    private static final BgpTableType IPV4 = new BgpTableTypeImpl(Ipv4AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class);
-    private static final BgpTableType IPV6 = new BgpTableTypeImpl(Ipv6AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class);
+    private static final BgpTableType IPV4 = new BgpTableTypeImpl(Ipv4AddressFamily.class,
+            MplsLabeledVpnSubsequentAddressFamily.class);
+    private static final BgpTableType IPV6 = new BgpTableTypeImpl(Ipv6AddressFamily.class,
+            MplsLabeledVpnSubsequentAddressFamily.class);
 
     @Test
     public void testActivator() {

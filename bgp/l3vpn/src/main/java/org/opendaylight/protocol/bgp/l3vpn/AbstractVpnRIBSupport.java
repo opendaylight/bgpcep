@@ -69,9 +69,11 @@ public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport {
      * @param containerClass Binding class of the container in routes choice, must not be null.
      * @param listClass      Binding class of the route list, nust not be null;
      */
-    protected AbstractVpnRIBSupport(final Class<? extends Routes> cazeClass, final Class<? extends DataObject> containerClass, final Class<? extends Route> listClass,
+    protected AbstractVpnRIBSupport(final Class<? extends Routes> cazeClass,
+            final Class<? extends DataObject> containerClass, final Class<? extends Route> listClass,
         final Class<? extends AddressFamily> afiClass, final QName vpnDstContainerClassQname) {
-        super(cazeClass, containerClass, listClass, afiClass, MplsLabeledVpnSubsequentAddressFamily.class, vpnDstContainerClassQname);
+        super(cazeClass, containerClass, listClass, afiClass,
+                MplsLabeledVpnSubsequentAddressFamily.class, vpnDstContainerClassQname);
         final QName classQname = BindingReflections.findQName(containerClass).intern();
         this.routeKey = QName.create(routeQName(), "route-key").intern();
         final QName vpnDstClassQname = QName.create(classQname, VpnDestination.QNAME.getLocalName());
@@ -91,9 +93,11 @@ public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport {
         return dst;
     }
 
-    protected abstract IpPrefix extractPrefix(final DataContainerNode<? extends PathArgument> route, final NodeIdentifier prefixTypeNid);
+    protected abstract IpPrefix extractPrefix(DataContainerNode<? extends PathArgument> route,
+            NodeIdentifier prefixTypeNid);
 
-    private RouteDistinguisher extractRouteDistinguisher(final DataContainerNode<? extends YangInstanceIdentifier.PathArgument> route) {
+    private RouteDistinguisher extractRouteDistinguisher(
+            final DataContainerNode<? extends YangInstanceIdentifier.PathArgument> route) {
         if (route.getChild(this.rdNid).isPresent()) {
             return RouteDistinguisherBuilder.getDefaultInstance((String) route.getChild(this.rdNid).get().getValue());
         }
@@ -139,9 +143,10 @@ public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport {
 
     @Override
     protected void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
-                                    final ContainerNode destination, final ContainerNode attributes, final ApplyRoute function) {
+        final ContainerNode destination, final ContainerNode attributes, final ApplyRoute function) {
         if (destination != null) {
-            final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = destination.getChild(this.nlriRoutesListNid);
+            final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes =
+                    destination.getChild(this.nlriRoutesListNid);
             if (maybeRoutes.isPresent()) {
                 final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
                 if (routes instanceof UnkeyedListNode) {
@@ -173,7 +178,8 @@ public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport {
             LOG.debug("Serializing Nlri: VpnDestination={}, IpPrefix={}", dest, prefix);
             AbstractVpnNlriParser.serializeLengtField(prefix, null, nlriByteBuf);
             RouteDistinguisherUtil.serializeRouteDistinquisher(dest.getRouteDistinguisher(), nlriByteBuf);
-            Preconditions.checkArgument(prefix.getIpv6Prefix() != null || prefix.getIpv4Prefix() != null, "Ipv6 or Ipv4 prefix is missing.");
+            Preconditions.checkArgument(prefix.getIpv6Prefix() != null || prefix.getIpv4Prefix() != null,
+                    "Ipv6 or Ipv4 prefix is missing.");
             LUNlriParser.serializePrefixField(prefix, nlriByteBuf);
         }
         buffer.writeBytes(nlriByteBuf);

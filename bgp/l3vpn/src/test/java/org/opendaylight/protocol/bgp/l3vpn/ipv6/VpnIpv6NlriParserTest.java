@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.l3vpn.ipv6;
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.Collections;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
@@ -38,9 +39,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev171207.l3vpn.ip.destination.type.VpnDestinationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
 
-/**
- * @author Kevin Wang
- */
 public class VpnIpv6NlriParserTest {
 
     private static final VpnIpv6NlriParser PARSER = new VpnIpv6NlriParser();
@@ -80,23 +78,25 @@ public class VpnIpv6NlriParserTest {
         (byte) 0x20, (byte) 0x01, (byte) 0x23, (byte) 0x45, (byte) 0x56, (byte) 0x89
     };
 
-    static final IpPrefix IPv6_PREFIX = new IpPrefix(new Ipv6Prefix("2001:2345:5689::/48"));
+    static final IpPrefix IPV6PREFIX = new IpPrefix(new Ipv6Prefix("2001:2345:5689::/48"));
     static final List<LabelStack> LABEL_STACK = Lists.newArrayList(
         new LabelStackBuilder().setLabelValue(new MplsLabel(355L)).build());
-    static final RouteDistinguisher DISTINGUISHER = RouteDistinguisherBuilder.getDefaultInstance("1.2.3.4:258");
-    static final VpnDestination IPV6_VPN = new VpnDestinationBuilder().setRouteDistinguisher(DISTINGUISHER).setPrefix(IPv6_PREFIX).setLabelStack(LABEL_STACK).build();
-    private static final VpnDestination IPV6_VPN_WITHOUT_LABELS = new VpnDestinationBuilder().setRouteDistinguisher(DISTINGUISHER).setPrefix(IPv6_PREFIX).build();
+    static final RouteDistinguisher DISTINGUISHER = RouteDistinguisherBuilder
+            .getDefaultInstance("1.2.3.4:258");
+    static final VpnDestination IPV6_VPN = new VpnDestinationBuilder().setRouteDistinguisher(DISTINGUISHER)
+            .setPrefix(IPV6PREFIX).setLabelStack(LABEL_STACK).build();
+    private static final VpnDestination IPV6_VPN_WITHOUT_LABELS = new VpnDestinationBuilder()
+            .setRouteDistinguisher(DISTINGUISHER).setPrefix(IPV6PREFIX).build();
 
     @Test
     public void testMpReachNlri() throws BGPParsingException {
         final MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder();
         mpBuilder.setAfi(Ipv6AddressFamily.class);
         mpBuilder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
-            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv6.rev171207.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationVpnIpv6CaseBuilder().setVpnIpv6Destination(
-                new VpnIpv6DestinationBuilder().setVpnDestination(Lists.newArrayList(IPV6_VPN)).build()
-            ).build()
-            ).build()
-        ).build();
+            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv6.rev171207.update
+                    .attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationVpnIpv6CaseBuilder()
+                    .setVpnIpv6Destination(new VpnIpv6DestinationBuilder().setVpnDestination(
+                            Collections.singletonList(IPV6_VPN)).build()).build()).build()).build();
 
         final MpReachNlri mpReachExpected = mpBuilder.build();
 
@@ -121,20 +121,18 @@ public class VpnIpv6NlriParserTest {
 
         mpBuilder.setWithdrawnRoutes(
             new WithdrawnRoutesBuilder().setDestinationType(
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv6.rev171207.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationVpnIpv6CaseBuilder().setVpnIpv6Destination(
-                    new VpnIpv6DestinationBuilder().setVpnDestination(Lists.newArrayList(IPV6_VPN_WITHOUT_LABELS)).build()
-                ).build()
-            ).build()
-        ).build();
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv6.rev171207.update
+                        .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationVpnIpv6CaseBuilder()
+                        .setVpnIpv6Destination(new VpnIpv6DestinationBuilder().setVpnDestination(
+                                Collections.singletonList(IPV6_VPN_WITHOUT_LABELS)).build()).build()).build()).build();
         final MpUnreachNlri mpUnreachExpected1 = mpBuilder.build();
 
         mpBuilder.setWithdrawnRoutes(
             new WithdrawnRoutesBuilder().setDestinationType(
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv6.rev171207.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationVpnIpv6CaseBuilder().setVpnIpv6Destination(
-                    new VpnIpv6DestinationBuilder().setVpnDestination(Lists.newArrayList(IPV6_VPN)).build()
-                ).build()
-            ).build()
-        ).build();
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv6.rev171207.update
+                        .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationVpnIpv6CaseBuilder()
+                        .setVpnIpv6Destination(new VpnIpv6DestinationBuilder().setVpnDestination(
+                                Collections.singletonList(IPV6_VPN)).build()).build()).build()).build();
         final MpUnreachNlri mpUnreachExpected2 = mpBuilder.build();
 
         final MpUnreachNlriBuilder testBuilder = new MpUnreachNlriBuilder();

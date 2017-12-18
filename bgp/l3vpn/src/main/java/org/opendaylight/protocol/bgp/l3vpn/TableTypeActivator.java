@@ -22,10 +22,13 @@ import org.opendaylight.yangtools.concepts.AbstractRegistration;
 public final class TableTypeActivator extends AbstractBGPTableTypeRegistryProviderActivator {
 
     @Override
-    protected List<AbstractRegistration> startBGPTableTypeRegistryProviderImpl(final BGPTableTypeRegistryProvider provider) {
+    protected List<AbstractRegistration> startBGPTableTypeRegistryProviderImpl(
+            final BGPTableTypeRegistryProvider provider) {
         return Lists.newArrayList(
-                provider.registerBGPTableType(Ipv4AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class, L3VPNIPV4UNICAST.class),
-                provider.registerBGPTableType(Ipv6AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class, L3VPNIPV6UNICAST.class));
+                provider.registerBGPTableType(Ipv4AddressFamily.class,
+                        MplsLabeledVpnSubsequentAddressFamily.class, L3VPNIPV4UNICAST.class),
+                provider.registerBGPTableType(Ipv6AddressFamily.class,
+                        MplsLabeledVpnSubsequentAddressFamily.class, L3VPNIPV6UNICAST.class));
     }
 
 }
