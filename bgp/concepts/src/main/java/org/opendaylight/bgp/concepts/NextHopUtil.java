@@ -33,15 +33,17 @@ public final class NextHopUtil {
     /**
      * Writes serialized cnextHop IP address as byte value into ByteBuf.
      *
-     * @param cnextHop next hop to be serialized
+     * @param cnextHop       next hop to be serialized
      * @param byteAggregator where the next hop will be written
      */
     public static void serializeNextHop(final CNextHop cnextHop, final ByteBuf byteAggregator) {
         if (cnextHop instanceof Ipv4NextHopCase) {
-            byteAggregator.writeBytes(Ipv4Util.bytesForAddress(((Ipv4NextHopCase) cnextHop).getIpv4NextHop().getGlobal()));
+            byteAggregator.writeBytes(Ipv4Util.bytesForAddress(((Ipv4NextHopCase) cnextHop)
+                    .getIpv4NextHop().getGlobal()));
         } else if (cnextHop instanceof Ipv6NextHopCase) {
             final Ipv6NextHop nextHop = ((Ipv6NextHopCase) cnextHop).getIpv6NextHop();
-            Preconditions.checkArgument(nextHop.getGlobal() != null, "Ipv6 Next Hop is missing Global address.");
+            Preconditions.checkArgument(nextHop.getGlobal() != null,
+                    "Ipv6 Next Hop is missing Global address.");
             byteAggregator.writeBytes(Ipv6Util.bytesForAddress(nextHop.getGlobal()));
             if (nextHop.getLinkLocal() != null) {
                 byteAggregator.writeBytes(Ipv6Util.bytesForAddress(nextHop.getLinkLocal()));
@@ -59,15 +61,19 @@ public final class NextHopUtil {
      */
     public static CNextHop parseNextHop(final ByteBuf buffer) {
         switch (buffer.writerIndex()) {
-        case Ipv4Util.IP4_LENGTH:
-            return new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(Ipv4Util.addressForByteBuf(buffer)).build()).build();
-        case Ipv6Util.IPV6_LENGTH:
-            return new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder().setGlobal(Ipv6Util.addressForByteBuf(buffer)).build()).build();
-        case Ipv6Util.IPV6_LENGTH * 2:
-            return new Ipv6NextHopCaseBuilder().setIpv6NextHop(
-                    new Ipv6NextHopBuilder().setGlobal(Ipv6Util.addressForByteBuf(buffer)).setLinkLocal(Ipv6Util.addressForByteBuf(buffer)).build()).build();
-        default:
-            throw new IllegalArgumentException("Cannot parse NEXT_HOP attribute. Wrong bytes length: " + buffer.writerIndex());
+            case Ipv4Util.IP4_LENGTH:
+                return new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
+                        .setGlobal(Ipv4Util.addressForByteBuf(buffer)).build()).build();
+            case Ipv6Util.IPV6_LENGTH:
+                return new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder()
+                        .setGlobal(Ipv6Util.addressForByteBuf(buffer)).build()).build();
+            case Ipv6Util.IPV6_LENGTH * 2:
+                return new Ipv6NextHopCaseBuilder().setIpv6NextHop(
+                        new Ipv6NextHopBuilder().setGlobal(Ipv6Util.addressForByteBuf(buffer))
+                                .setLinkLocal(Ipv6Util.addressForByteBuf(buffer)).build()).build();
+            default:
+                throw new IllegalArgumentException("Cannot parse NEXT_HOP attribute. Wrong bytes length: "
+                        + buffer.writerIndex());
         }
     }
 }
