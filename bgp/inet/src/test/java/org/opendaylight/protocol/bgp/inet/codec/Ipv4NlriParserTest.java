@@ -52,27 +52,23 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 
 public class Ipv4NlriParserTest {
-    private final Ipv4NlriParser parser = new Ipv4NlriParser();
-
-    private final String ipPrefix1 = "1.2.3.4/32";
-    private final String ipPrefix2 = "1.2.3.5/32";
-    private final String additionalIpWD = "1.2.3.6/32";
-
-    private final List<Ipv4Prefixes> prefixes = new ArrayList<>();
-    private final ByteBuf inputBytes = Unpooled.buffer();
-
-    private static final byte[] MP_NLRI_BYTES = new byte[] {
+    private static final byte[] MP_NLRI_BYTES = new byte[]{
         0x0, 0x0, 0x0, 0x1, 0x18, 0x1, 0x1, 0x1,
         0x0, 0x0, 0x0, 0x2, 0x18, 0x1, 0x1, 0x1};
-
     private static final Ipv4Prefix DESTINATION = new Ipv4Prefix("1.1.1.0/24");
-
     private static final ArrayList<Ipv4Prefixes> PREFIXES = Lists.newArrayList(
             createIpv4Prefix(1L, DESTINATION),
             createIpv4Prefix(2L, DESTINATION));
-
-    private org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4Case ip4caseWD;
-    private org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4Case ip4caseWDWrong;
+    private final Ipv4NlriParser parser = new Ipv4NlriParser();
+    private final String ipPrefix1 = "1.2.3.4/32";
+    private final String ipPrefix2 = "1.2.3.5/32";
+    private final String additionalIpWD = "1.2.3.6/32";
+    private final List<Ipv4Prefixes> prefixes = new ArrayList<>();
+    private final ByteBuf inputBytes = Unpooled.buffer();
+    private org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.update.attributes.mp
+            .unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4Case ip4caseWD;
+    private org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.update.attributes.mp
+            .unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4Case ip4caseWDWrong;
     private DestinationIpv4Case ip4caseAD;
     private DestinationIpv4Case ip4caseADWrong;
 
@@ -81,6 +77,10 @@ public class Ipv4NlriParserTest {
 
     @Mock
     private MultiPathSupport muliPathSupport;
+
+    private static Ipv4Prefixes createIpv4Prefix(final long pathId, final Ipv4Prefix prefix) {
+        return new Ipv4PrefixesBuilder().setPathId(new PathId(pathId)).setPrefix(prefix).build();
+    }
 
     @Before
     public void setUp() {
@@ -91,15 +91,19 @@ public class Ipv4NlriParserTest {
         this.prefixes.add(new Ipv4PrefixesBuilder().setPrefix(prefix1).build());
         this.prefixes.add(new Ipv4PrefixesBuilder().setPrefix(prefix2).build());
 
-        this.ip4caseWD = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4CaseBuilder().setDestinationIpv4(
-                new DestinationIpv4Builder().setIpv4Prefixes(this.prefixes).build()).build();
-        this.ip4caseAD = new DestinationIpv4CaseBuilder().setDestinationIpv4(new DestinationIpv4Builder().setIpv4Prefixes(this.prefixes).build()).build();
+        this.ip4caseWD = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207
+                .update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4CaseBuilder()
+                .setDestinationIpv4(new DestinationIpv4Builder().setIpv4Prefixes(this.prefixes).build()).build();
+        this.ip4caseAD = new DestinationIpv4CaseBuilder().setDestinationIpv4(new DestinationIpv4Builder()
+                .setIpv4Prefixes(this.prefixes).build()).build();
 
         final ArrayList<Ipv4Prefixes> fakePrefixes = new ArrayList<>(this.prefixes);
         fakePrefixes.add(new Ipv4PrefixesBuilder().setPrefix(wrongPrefix).build());
-        this.ip4caseWDWrong = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4CaseBuilder().setDestinationIpv4(
-                new DestinationIpv4Builder().setIpv4Prefixes(fakePrefixes).build()).build();
-        this.ip4caseADWrong = new DestinationIpv4CaseBuilder().setDestinationIpv4(new DestinationIpv4Builder().setIpv4Prefixes(fakePrefixes).build()).build();
+        this.ip4caseWDWrong = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207
+                .update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4CaseBuilder()
+                .setDestinationIpv4(new DestinationIpv4Builder().setIpv4Prefixes(fakePrefixes).build()).build();
+        this.ip4caseADWrong = new DestinationIpv4CaseBuilder().setDestinationIpv4(new DestinationIpv4Builder()
+                .setIpv4Prefixes(fakePrefixes).build()).build();
 
         final ByteBuf buffer1 = Unpooled.buffer(5);
         ByteBufWriteUtil.writeMinimalPrefix(prefix1, buffer1);
@@ -125,7 +129,8 @@ public class Ipv4NlriParserTest {
         final MpUnreachNlriBuilder b = new MpUnreachNlriBuilder();
         b.setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class);
         this.parser.parseNlri(this.inputBytes, b);
-        assertNotNull("Withdrawn routes, destination type should not be null", b.getWithdrawnRoutes().getDestinationType());
+        assertNotNull("Withdrawn routes, destination type should not be null", b.getWithdrawnRoutes()
+                .getDestinationType());
 
         assertEquals(this.ip4caseWD.hashCode(), b.getWithdrawnRoutes().getDestinationType().hashCode());
         assertFalse(this.ip4caseWDWrong.hashCode() == b.getWithdrawnRoutes().getDestinationType().hashCode());
@@ -139,7 +144,8 @@ public class Ipv4NlriParserTest {
         final MpReachNlriBuilder b = new MpReachNlriBuilder();
         b.setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class);
         this.parser.parseNlri(this.inputBytes, b);
-        assertNotNull("Advertized routes, destination type should not be null", b.getAdvertizedRoutes().getDestinationType());
+        assertNotNull("Advertized routes, destination type should not be null", b.getAdvertizedRoutes()
+                .getDestinationType());
 
         assertEquals(this.ip4caseAD.hashCode(), b.getAdvertizedRoutes().getDestinationType().hashCode());
         assertFalse(this.ip4caseADWrong.hashCode() == b.getAdvertizedRoutes().getDestinationType().hashCode());
@@ -173,9 +179,10 @@ public class Ipv4NlriParserTest {
     public void parseUnreachNlriMultiPathTest() {
         final MpUnreachNlri mpUnreachNlri = new MpUnreachNlriBuilder().setWithdrawnRoutes(
                 new WithdrawnRoutesBuilder().setDestinationType(
-                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4CaseBuilder().setDestinationIpv4(
-                                new DestinationIpv4Builder().setIpv4Prefixes(
-                                        PREFIXES).build()).build()).build()).build();
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.update
+                                .attributes.mp.unreach.nlri.withdrawn.routes.destination.type
+                                .DestinationIpv4CaseBuilder().setDestinationIpv4(new DestinationIpv4Builder()
+                                .setIpv4Prefixes(PREFIXES).build()).build()).build()).build();
         final MpUnreachNlriBuilder mpUnreachNlriBuilder = new MpUnreachNlriBuilder();
         mpUnreachNlriBuilder.setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class);
         this.parser.parseNlri(Unpooled.wrappedBuffer(MP_NLRI_BYTES), mpUnreachNlriBuilder, this.constraint);
@@ -188,9 +195,5 @@ public class Ipv4NlriParserTest {
                 new Attributes2Builder().setMpUnreachNlri(mpUnreachNlri).build()).build();
         serializer.serializeAttribute(attributes, output);
         Assert.assertArrayEquals(MP_NLRI_BYTES, output.array());
-    }
-
-    private static Ipv4Prefixes createIpv4Prefix(final long pathId, final Ipv4Prefix prefix) {
-        return new Ipv4PrefixesBuilder().setPathId(new PathId(pathId)).setPrefix(prefix).build();
     }
 }

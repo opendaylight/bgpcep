@@ -35,16 +35,19 @@ import org.slf4j.LoggerFactory;
 /**
  * Common {@link org.opendaylight.protocol.bgp.rib.spi.RIBSupport} class for IPv4 and IPv6 addresses.
  */
-abstract class AbstractIPRIBSupport extends MultiPathAbstractRIBSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractIPRIBSupport.class);
+abstract class AbstractIPRibSupport extends MultiPathAbstractRIBSupport {
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractIPRibSupport.class);
     private final NodeIdentifier prefixNid;
     private final NodeIdentifier nlriRoutesList;
     private final ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects;
 
-    protected AbstractIPRIBSupport(final Class<? extends DataObject> prefixClass, final Class<? extends AddressFamily> addressFamilyClass,
-        final Class<? extends Routes> cazeClass, final Class<? extends DataObject> containerClass, final Class<? extends Route> listClass,
+    protected AbstractIPRibSupport(final Class<? extends DataObject> prefixClass,
+            final Class<? extends AddressFamily> addressFamilyClass,
+        final Class<? extends Routes> cazeClass,
+            final Class<? extends DataObject> containerClass, final Class<? extends Route> listClass,
         final QName destinationQname, final QName prefixesQname) {
-        super(cazeClass, containerClass, listClass, addressFamilyClass, UnicastSubsequentAddressFamily.class, "prefix", destinationQname);
+        super(cazeClass, containerClass, listClass, addressFamilyClass,
+                UnicastSubsequentAddressFamily.class, "prefix", destinationQname);
         this.prefixNid = new NodeIdentifier(routeKeyQName());
         this.nlriRoutesList = new NodeIdentifier(prefixesQname);
         this.cacheableNlriObjects = ImmutableSet.of(prefixClass);
@@ -75,7 +78,8 @@ abstract class AbstractIPRIBSupport extends MultiPathAbstractRIBSupport {
     protected void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
         final ContainerNode destination, final ContainerNode attributes, final ApplyRoute function) {
         if (destination != null) {
-            final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = destination.getChild(this.nlriRoutesList);
+            final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes =
+                    destination.getChild(this.nlriRoutesList);
             if (maybeRoutes.isPresent()) {
                 final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
                 if (routes instanceof UnkeyedListNode) {
@@ -94,14 +98,16 @@ abstract class AbstractIPRIBSupport extends MultiPathAbstractRIBSupport {
     }
 
     /**
-     * Prefix and Path Id are the route key
+     * Prefix and Path Id are the route key.
      *
      * @param prefixes UnkeyedListEntryNode containing route
      * @return Nid with Route Key
      */
     private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode prefixes) {
-        final Optional<DataContainerChild<? extends PathArgument, ?>> maybePrefixLeaf = prefixes.getChild(routePrefixIdentifier());
-        final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf = prefixes.getChild(routePathIdNid());
+        final Optional<DataContainerChild<? extends PathArgument, ?>> maybePrefixLeaf =
+                prefixes.getChild(routePrefixIdentifier());
+        final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf =
+                prefixes.getChild(routePathIdNid());
         Preconditions.checkState(maybePrefixLeaf.isPresent());
         final Object prefixValue = maybePrefixLeaf.get().getValue();
         return PathIdUtil.createNidKey(routeQName(), routeKeyQName(), pathIdQName(), prefixValue, maybePathIdLeaf);

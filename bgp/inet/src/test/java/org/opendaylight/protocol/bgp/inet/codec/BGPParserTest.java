@@ -70,15 +70,15 @@ public class BGPParserTest {
         messageRegistry = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry();
 
         final String name = "/up2.bin";
-        try (final InputStream is = BGPParserTest.class.getResourceAsStream(name)) {
+        try (InputStream is = BGPParserTest.class.getResourceAsStream(name)) {
             if (is == null) {
                 throw new IOException("Failed to get resource " + name);
             }
             final ByteArrayOutputStream bis = new ByteArrayOutputStream();
             final byte[] data = new byte[MAX_SIZE];
-            int nRead = 0;
-            while ((nRead = is.read(data, 0, data.length)) != -1) {
-                bis.write(data, 0, nRead);
+            int position;
+            while ((position = is.read(data, 0, data.length)) != -1) {
+                bis.write(data, 0, position);
             }
             bis.flush();
 
@@ -163,7 +163,8 @@ public class BGPParserTest {
         asPath.add(new SegmentsBuilder().setAsSequence(asNumbers).build());
 
         final Ipv6NextHopCase nextHop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(
-                new Ipv6NextHopBuilder().setGlobal(new Ipv6Address("2001:db8::1")).setLinkLocal(new Ipv6Address("fe80::c001:bff:fe7e:0")).build()).build();
+                new Ipv6NextHopBuilder().setGlobal(new Ipv6Address("2001:db8::1"))
+                        .setLinkLocal(new Ipv6Address("fe80::c001:bff:fe7e:0")).build()).build();
 
         final List<ClusterIdentifier> clusters = Lists.newArrayList(new ClusterIdentifier(new Ipv4Address("1.2.3.4")),
                 new ClusterIdentifier(new Ipv4Address("5.6.7.8")));
@@ -194,9 +195,11 @@ public class BGPParserTest {
         mpBuilder.setSafi(UnicastSubsequentAddressFamily.class);
         mpBuilder.setCNextHop(nextHop);
         mpBuilder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
-                new DestinationIpv6CaseBuilder().setDestinationIpv6(new DestinationIpv6Builder().setIpv6Prefixes(prefs).build()).build()).build());
+                new DestinationIpv6CaseBuilder().setDestinationIpv6(new DestinationIpv6Builder()
+                        .setIpv6Prefixes(prefs).build()).build()).build());
 
-        paBuilder.addAugmentation(Attributes1.class, new Attributes1Builder().setMpReachNlri(mpBuilder.build()).build());
+        paBuilder.addAugmentation(Attributes1.class, new Attributes1Builder()
+                .setMpReachNlri(mpBuilder.build()).build());
         assertEquals(paBuilder.getAugmentation(Attributes1.class).getMpReachNlri(),
                 attrs.getAugmentation(Attributes1.class).getMpReachNlri());
         paBuilder.setUnrecognizedAttributes(Collections.emptyList());

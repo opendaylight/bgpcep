@@ -24,8 +24,9 @@ public final class Ipv6NextHopParserSerializer implements NextHopParserSerialize
     }
 
     @Override
-    public void serializeNextHop(final CNextHop cNextHop, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(cNextHop instanceof Ipv6NextHopCase, "cNextHop is not a Ipv6 NextHop object.");
-        NextHopUtil.serializeNextHop(cNextHop,byteAggregator);
+    public void serializeNextHop(final CNextHop nextHop, final ByteBuf byteAggregator) {
+        Preconditions.checkArgument(nextHop instanceof Ipv6NextHopCase,
+                "cNextHop is not a Ipv6 NextHop object.");
+        NextHopUtil.serializeNextHop(nextHop, byteAggregator);
     }
 }
