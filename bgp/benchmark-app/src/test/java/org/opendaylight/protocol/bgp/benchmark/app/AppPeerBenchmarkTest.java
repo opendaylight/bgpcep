@@ -66,12 +66,12 @@ public class AppPeerBenchmarkTest extends AbstractConcurrentDataBrokerTest {
         final InstanceIdentifier<Ipv4Routes> routesIID = appPeerBenchmark.getIpv4RoutesIID();
 
         final AddPrefixInput addPrefix = new AddPrefixInputBuilder().setBatchsize(1L).setCount(1L)
-            .setNexthop(new Ipv4Address(NH)).setPrefix(new Ipv4Prefix(PREFIX)).build();
+                .setNexthop(new Ipv4Address(NH)).setPrefix(new Ipv4Prefix(PREFIX)).build();
 
         final RpcResult<AddPrefixOutput> addRpcResult = appPeerBenchmark.addPrefix(addPrefix).get();
         final Result addResult = addRpcResult.getResult().getResult();
-        checkEquals(()-> assertEquals(1, addResult.getCount().intValue()));
-        checkEquals(()-> assertEquals(1, addResult.getRate().intValue()));
+        checkEquals(() -> assertEquals(1, addResult.getCount().intValue()));
+        checkEquals(() -> assertEquals(1, addResult.getRate().intValue()));
 
         readDataConfiguration(getDataBroker(), routesIID, routes -> {
             assertNotNull(routes.getIpv4Route());
@@ -80,12 +80,12 @@ public class AppPeerBenchmarkTest extends AbstractConcurrentDataBrokerTest {
         });
 
         final DeletePrefixInput deletePrefix = new DeletePrefixInputBuilder().setBatchsize(1L).setCount(1L)
-            .setPrefix(new Ipv4Prefix(PREFIX)).build();
+                .setPrefix(new Ipv4Prefix(PREFIX)).build();
         final RpcResult<DeletePrefixOutput> deleteRpcResult = appPeerBenchmark
-            .deletePrefix(deletePrefix).get();
+                .deletePrefix(deletePrefix).get();
         final Result deleteResult = deleteRpcResult.getResult().getResult();
-        checkEquals(()-> assertEquals(1, deleteResult.getCount().intValue()));
-        checkEquals(()-> assertEquals(1, deleteResult.getRate().intValue()));
+        checkEquals(() -> assertEquals(1, deleteResult.getCount().intValue()));
+        checkEquals(() -> assertEquals(1, deleteResult.getRate().intValue()));
         readDataConfiguration(getDataBroker(), routesIID, routes -> {
             assertNotNull(routes.getIpv4Route());
             assertTrue(routes.getIpv4Route().isEmpty());

@@ -208,7 +208,7 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
 
     private long processRoutes(final Ipv4Prefix ipv4Prefix, final long count, final long batch,
         final Attributes attributes) {
-        WriteTransaction wTx = this.txChain.newWriteOnlyTransaction();
+        WriteTransaction wt = this.txChain.newWriteOnlyTransaction();
         String address = getAdddressFromPrefix(ipv4Prefix);
         final Stopwatch stopwatch = Stopwatch.createStarted();
         for (int i = 1; i <= count; i++) {
@@ -221,18 +221,18 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
                 ipv4RouteBuilder.setKey(routeKey);
                 ipv4RouteBuilder.setAttributes(attributes);
                 final Ipv4Route ipv4Route = ipv4RouteBuilder.build();
-                wTx.put(LogicalDatastoreType.CONFIGURATION, routeIId,
+                wt.put(LogicalDatastoreType.CONFIGURATION, routeIId,
                         ipv4Route);
             } else {
-                wTx.delete(LogicalDatastoreType.CONFIGURATION, routeIId);
+                wt.delete(LogicalDatastoreType.CONFIGURATION, routeIId);
             }
             if (i % batch == 0) {
-                wTx.submit();
-                wTx = this.txChain.newWriteOnlyTransaction();
+                wt.submit();
+                wt = this.txChain.newWriteOnlyTransaction();
             }
             address = increasePrefix(address);
         }
-        wTx.submit();
+        wt.submit();
         return stopwatch.stop().elapsed(TimeUnit.MILLISECONDS);
     }
 
