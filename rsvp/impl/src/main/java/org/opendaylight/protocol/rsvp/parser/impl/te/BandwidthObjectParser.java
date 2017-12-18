@@ -22,7 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 public final class BandwidthObjectParser extends AbstractRSVPObjectParser {
     public static final short CLASS_NUM = 5;
     public static final short CTYPE = 1;
-    protected static final Integer BODY_SIZE = 4;
+    static final Integer BODY_SIZE = 4;
 
     @Override
     protected RsvpTeObject localParseObject(final ByteBuf byteBuf) throws RSVPParsingException {

@@ -23,13 +23,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 public final class SessionAttributeLspObjectParser extends AbstractRSVPObjectParser {
     public static final short CLASS_NUM = 207;
     public static final short CTYPE = 7;
-    protected static final int LOCAL_PROTECTION = 7;
-    protected static final int LABEL_RECORDING = 6;
-    protected static final int SE_STYLE = 5;
+    static final int LOCAL_PROTECTION = 7;
+    static final int LABEL_RECORDING = 6;
+    static final int SE_STYLE = 5;
     private static final int BODY_SIZE_C7 = 4;
     private static final int PADDING = 4;
 
-    protected static int getPadding(final int length) {
+    static int getPadding(final int length) {
         return (PADDING - (length % PADDING)) % PADDING;
     }
 
