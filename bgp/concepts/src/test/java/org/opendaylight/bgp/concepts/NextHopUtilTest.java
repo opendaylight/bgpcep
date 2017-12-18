@@ -14,8 +14,6 @@ import static org.junit.Assert.fail;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import org.junit.Test;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -30,35 +28,37 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 
 public class NextHopUtilTest {
 
-    private static final byte[] ipv4B = { 42, 42, 42, 42 };
-    private static final byte[] ipv6B = { 0x20, 1, 0x0d, (byte) 0xb8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 };
-    private static final byte[] ipv6lB = { 0x20, 1, 0x0d, (byte) 0xb8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, (byte) 0xfe, (byte) 0x80, 0, 0, 0, 0, 0, 0, (byte) 0xc0, 1, 0x0b, (byte) 0xff, (byte) 0xfe, 0x7e, 0, 0 };
+    private static final byte[] IPV4B = {42, 42, 42, 42};
+    private static final byte[] IPV6B = {0x20, 1, 0x0d, (byte) 0xb8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+    private static final byte[] IPV6LB = {0x20, 1, 0x0d, (byte) 0xb8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        1, (byte) 0xfe, (byte) 0x80, 0, 0, 0, 0, 0, 0, (byte) 0xc0, 1, 0x0b, (byte) 0xff, (byte) 0xfe, 0x7e, 0, 0};
 
-    private static final Ipv4Address ipv4 = new Ipv4Address("42.42.42.42");
-    private static final Ipv6Address ipv6 = new Ipv6Address("2001:db8::1");
-    private static final Ipv6Address ipv6l = new Ipv6Address("fe80::c001:bff:fe7e:0");
+    private static final Ipv4Address IPV4 = new Ipv4Address("42.42.42.42");
+    private static final Ipv6Address IPV6 = new Ipv6Address("2001:db8::1");
+    private static final Ipv6Address IPV6L = new Ipv6Address("fe80::c001:bff:fe7e:0");
 
     @Test
     public void testSerializeNextHop() {
-        CNextHop hop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(ipv4).build()).build();
+        CNextHop hop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
+                .setGlobal(IPV4).build()).build();
         final ByteBuf buffer = Unpooled.buffer();
         NextHopUtil.serializeNextHop(hop, buffer);
-        assertArrayEquals(ipv4B, ByteArray.readAllBytes(buffer));
+        assertArrayEquals(IPV4B, ByteArray.readAllBytes(buffer));
 
-        hop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder().setGlobal(ipv6).build()).build();
+        hop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder().setGlobal(IPV6).build()).build();
         buffer.clear();
         NextHopUtil.serializeNextHop(hop, buffer);
-        assertArrayEquals(ipv6B, ByteArray.readAllBytes(buffer));
+        assertArrayEquals(IPV6B, ByteArray.readAllBytes(buffer));
 
-        hop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder().setGlobal(ipv6).setLinkLocal(ipv6l).build()).build();
+        hop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder().setGlobal(IPV6)
+                .setLinkLocal(IPV6L).build()).build();
         buffer.clear();
         NextHopUtil.serializeNextHop(hop, buffer);
-        assertArrayEquals(ipv6lB, ByteArray.readAllBytes(buffer));
+        assertArrayEquals(IPV6LB, ByteArray.readAllBytes(buffer));
 
         buffer.clear();
 
-        hop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder().setLinkLocal(ipv6l).build()).build();
+        hop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder().setLinkLocal(IPV6L).build()).build();
         buffer.clear();
         try {
             NextHopUtil.serializeNextHop(hop, buffer);
@@ -77,45 +77,34 @@ public class NextHopUtilTest {
     public void testParseNextHop() {
         CNextHop hop = null;
         try {
-            hop = NextHopUtil.parseNextHop(Unpooled.wrappedBuffer(ipv4B));
+            hop = NextHopUtil.parseNextHop(Unpooled.wrappedBuffer(IPV4B));
         } catch (final IllegalArgumentException e) {
             fail("This exception should not happen");
         }
-        assertEquals(ipv4, ((Ipv4NextHopCase) hop).getIpv4NextHop().getGlobal());
+        assertEquals(IPV4, ((Ipv4NextHopCase) hop).getIpv4NextHop().getGlobal());
 
         try {
-            hop = NextHopUtil.parseNextHop(Unpooled.wrappedBuffer(ipv6B));
+            hop = NextHopUtil.parseNextHop(Unpooled.wrappedBuffer(IPV6B));
         } catch (final IllegalArgumentException e) {
             fail("This exception should not happen");
         }
-        assertEquals(ipv6, ((Ipv6NextHopCase) hop).getIpv6NextHop().getGlobal());
+        assertEquals(IPV6, ((Ipv6NextHopCase) hop).getIpv6NextHop().getGlobal());
         assertNull(((Ipv6NextHopCase) hop).getIpv6NextHop().getLinkLocal());
 
         try {
-            hop = NextHopUtil.parseNextHop(Unpooled.wrappedBuffer(ipv6lB));
+            hop = NextHopUtil.parseNextHop(Unpooled.wrappedBuffer(IPV6LB));
         } catch (final IllegalArgumentException e) {
             fail("This exception should not happen");
         }
-        assertEquals(ipv6, ((Ipv6NextHopCase) hop).getIpv6NextHop().getGlobal());
-        assertEquals(ipv6l, ((Ipv6NextHopCase) hop).getIpv6NextHop().getLinkLocal());
+        assertEquals(IPV6, ((Ipv6NextHopCase) hop).getIpv6NextHop().getGlobal());
+        assertEquals(IPV6L, ((Ipv6NextHopCase) hop).getIpv6NextHop().getLinkLocal());
 
-        final byte[] wrong = new byte[] { (byte) 0x20, (byte) 0x01, (byte) 0x0d };
+        final byte[] wrong = new byte[]{(byte) 0x20, (byte) 0x01, (byte) 0x0d};
         try {
             NextHopUtil.parseNextHop(Unpooled.wrappedBuffer(wrong));
             fail("Exception should happen");
         } catch (final IllegalArgumentException e) {
             assertEquals("Cannot parse NEXT_HOP attribute. Wrong bytes length: 3", e.getMessage());
-        }
-    }
-
-    @Test(expected=UnsupportedOperationException.class)
-    public void testPrivateConstructor() throws Throwable {
-        final Constructor<NextHopUtil> c = NextHopUtil.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (InvocationTargetException e) {
-            throw e.getCause();
         }
     }
 }
