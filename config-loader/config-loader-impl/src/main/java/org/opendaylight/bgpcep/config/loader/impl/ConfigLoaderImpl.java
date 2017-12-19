@@ -74,8 +74,7 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
         final NormalizedNode<?, ?> dto;
         try {
             dto = parseDefaultConfigFile(config, filename);
-        } catch (final IOException | XMLStreamException | ParserConfigurationException | SAXException
-                | URISyntaxException e) {
+        } catch (final IOException | XMLStreamException e) {
             LOG.warn("Failed to parse config file {}", filename, e);
             return;
         }
@@ -84,7 +83,7 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
     }
 
     private NormalizedNode<?, ?> parseDefaultConfigFile(final ConfigFileProcessor config, final String filename)
-            throws IOException, XMLStreamException, ParserConfigurationException, SAXException, URISyntaxException {
+            throws IOException, XMLStreamException {
         final NormalizedNodeResult result = new NormalizedNodeResult();
         final NormalizedNodeStreamWriter streamWriter = ImmutableNormalizedNodeStreamWriter.from(result);
 
@@ -94,11 +93,14 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
 
             final SchemaNode schemaNode = SchemaContextUtil
                     .findDataSchemaNode(this.schemaContext, config.getSchemaPath());
-            final XmlParserStream xmlParser = XmlParserStream.create(streamWriter, this.schemaContext, schemaNode);
-            xmlParser.parse(reader);
-            resourceAsStream.close();
-            reader.close();
-            xmlParser.close();
+            try (XmlParserStream xmlParser = XmlParserStream.create(streamWriter, this.schemaContext, schemaNode)) {
+                xmlParser.parse(reader);
+            } catch (final URISyntaxException | XMLStreamException | IOException | ParserConfigurationException
+                    | SAXException e) {
+                LOG.warn("Failed to parse xml", e);
+            } finally {
+                reader.close();
+            }
         }
 
         return result.getResult();
