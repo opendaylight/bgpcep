@@ -34,7 +34,7 @@ final class PCEPTopologyProviderUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyProviderUtil.class);
 
-    private static final long TIMEOUT_NS = TimeUnit.SECONDS.toNanos(5);
+    private static final long TIMEOUT_NS = TimeUnit.SECONDS.toNanos(10);
 
     private PCEPTopologyProviderUtil() {
         throw new UnsupportedOperationException();
@@ -73,6 +73,7 @@ final class PCEPTopologyProviderUtil {
         return aug != null && aug.getTopologyPcep() != null;
     }
 
+    @SuppressWarnings("IllegalCatch")
     static void closeTopology(@Nullable final PCEPTopologyProviderBean topology, @Nonnull final TopologyId topologyId) {
         if (topology != null) {
             try {

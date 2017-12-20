@@ -78,7 +78,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
     private final PCEPTopologyProviderDependencies dependenciesProvider;
     private final PCEPDispatcherDependencies pcepDispatcherDependencies;
 
-    public ServerSessionManager(
+    ServerSessionManager(
             final PCEPTopologyProviderDependencies dependenciesProvider,
             final TopologySessionListenerFactory listenerFactory,
             final PCEPTopologyConfiguration configDependencies) {
@@ -96,7 +96,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
     }
 
     /**
-     * Create Base Topology
+     * Create Base Topology.
      */
     synchronized ListenableFuture<Void> instantiateServiceInstance() {
         final TopologyKey key = InstanceIdentifier.keyOf(this.topology);
@@ -116,8 +116,8 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
             }
 
             @Override
-            public void onFailure(final Throwable t) {
-                LOG.error("Failed to create PCEP Topology {}.", topologyId.getValue(), t);
+            public void onFailure(final Throwable throwable) {
+                LOG.error("Failed to create PCEP Topology {}.", topologyId.getValue(), throwable);
                 ServerSessionManager.this.isClosed.set(true);
             }
         }, MoreExecutors.directExecutor());
@@ -158,8 +158,8 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
         // if another listener requests the same session, close it
         final TopologySessionListener existingSessionListener = this.nodes.get(id);
         if (existingSessionListener != null && !sessionListener.equals(existingSessionListener)) {
-            LOG.error("New session listener {} is in conflict with existing session listener {} on node {}," +
-                    " closing the existing one.", existingSessionListener, sessionListener, id);
+            LOG.error("New session listener {} is in conflict with existing session listener {} on node {},"
+                    + " closing the existing one.", existingSessionListener, sessionListener, id);
             existingSessionListener.close();
         }
         ret.taken(retrieveNode);
@@ -248,8 +248,8 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
             }
 
             @Override
-            public void onFailure(final Throwable t) {
-                LOG.warn("Failed to remove Topology {}", ServerSessionManager.this.topology, t);
+            public void onFailure(final Throwable throwable) {
+                LOG.warn("Failed to remove Topology {}", ServerSessionManager.this.topology, throwable);
             }
         }, MoreExecutors.directExecutor());
         return future;
@@ -277,7 +277,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
         this.dependenciesProvider.getStateRegistry().unbind(nodeId);
     }
 
-    PCEPDispatcherDependencies getPCEPDispatcherDependencies(){
+    PCEPDispatcherDependencies getPCEPDispatcherDependencies() {
         return this.pcepDispatcherDependencies;
     }
 }

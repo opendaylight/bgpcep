@@ -23,19 +23,12 @@ final class PCEPRequest {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPRequest.class);
 
     private static final long MINIMUM_ELAPSED_TIME = 1;
-
-    enum State {
-        UNSENT,
-        UNACKED,
-        DONE,
-    }
-
     private final SettableFuture<OperationResult> future;
     private final Metadata metadata;
-    private volatile State state;
     @GuardedBy("this")
     private final Stopwatch stopwatch;
     private final Timer timer;
+    private volatile State state;
 
     PCEPRequest(final Metadata metadata) {
         this.future = SettableFuture.create();
@@ -49,7 +42,7 @@ final class PCEPRequest {
         return this.future;
     }
 
-    public Metadata getMetadata() {
+    Metadata getMetadata() {
         return this.metadata;
     }
 
@@ -73,16 +66,16 @@ final class PCEPRequest {
     synchronized void done() {
         OperationResult result;
         switch (this.state) {
-        case UNSENT:
-            result = OperationResults.UNSENT;
-            break;
-        case UNACKED:
-            result = OperationResults.NOACK;
-            break;
-        case DONE:
-            return;
-        default:
-            return;
+            case UNSENT:
+                result = OperationResults.UNSENT;
+                break;
+            case UNACKED:
+                result = OperationResults.NOACK;
+                break;
+            case DONE:
+                return;
+            default:
+                return;
         }
         done(result);
     }
@@ -98,8 +91,14 @@ final class PCEPRequest {
         final long elapsedNanos = this.stopwatch.elapsed().toNanos();
         final long elapsedMillis = TimeUnit.NANOSECONDS.toMillis(elapsedNanos);
         if (elapsedMillis == 0 && elapsedNanos > 0) {
-            return  MINIMUM_ELAPSED_TIME;
+            return MINIMUM_ELAPSED_TIME;
         }
         return elapsedMillis;
+    }
+
+    enum State {
+        UNSENT,
+        UNACKED,
+        DONE,
     }
 }

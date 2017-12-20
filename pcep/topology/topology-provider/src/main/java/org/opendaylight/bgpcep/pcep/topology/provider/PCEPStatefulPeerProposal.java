@@ -10,6 +10,7 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import static java.util.Objects.requireNonNull;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.concurrent.ExecutionException;
@@ -46,7 +47,8 @@ final class PCEPStatefulPeerProposal {
         this.topologyId = requireNonNull(topologyId);
     }
 
-    public static PCEPStatefulPeerProposal createStatefulPeerProposal(final DataBroker dataBroker,
+    @VisibleForTesting
+    static PCEPStatefulPeerProposal createStatefulPeerProposal(final DataBroker dataBroker,
             final InstanceIdentifier<Topology> topologyId) {
         return new PCEPStatefulPeerProposal(dataBroker, topologyId);
     }
@@ -54,7 +56,7 @@ final class PCEPStatefulPeerProposal {
     void setPeerProposal(final NodeId nodeId, final TlvsBuilder openTlvsBuilder, final byte[] speakerId) {
         if (isSynOptimizationEnabled(openTlvsBuilder)) {
             Optional<LspDbVersion> result = Optional.absent();
-            try (final ReadOnlyTransaction rTx = this.dataBroker.newReadOnlyTransaction()) {
+            try (ReadOnlyTransaction rTx = this.dataBroker.newReadOnlyTransaction()) {
                 final ListenableFuture<Optional<LspDbVersion>> future = rTx.read(
                         LogicalDatastoreType.OPERATIONAL,
                         this.topologyId.child(Node.class, new NodeKey(nodeId)).augmentation(Node1.class)
@@ -65,7 +67,6 @@ final class PCEPStatefulPeerProposal {
                 } catch (final InterruptedException | ExecutionException e) {
                     LOG.warn("Failed to read toplogy {}.", InstanceIdentifier.keyOf(
                             PCEPStatefulPeerProposal.this.topologyId), e);
-
                 }
             }
             if (speakerId == null && !result.isPresent()) {

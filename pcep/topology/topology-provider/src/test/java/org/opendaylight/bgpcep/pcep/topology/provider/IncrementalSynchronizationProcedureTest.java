@@ -8,7 +8,6 @@
 
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createLsp;
@@ -44,7 +43,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.PccSyncState;
 
-public class IncrementalSynchronizationProcedureTest extends AbstractPCEPSessionTest<Stateful07TopologySessionListenerFactory> {
+public class IncrementalSynchronizationProcedureTest
+        extends AbstractPCEPSessionTest<Stateful07TopologySessionListenerFactory> {
 
     private Stateful07TopologySessionListener listener;
 
@@ -71,7 +71,8 @@ public class IncrementalSynchronizationProcedureTest extends AbstractPCEPSession
         this.listener = (Stateful07TopologySessionListener) getSessionListener();
 
         //session up - expect sync (LSP-DBs do not match)
-        final LspDbVersion localDbVersion = new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.valueOf(2L)).build();
+        final LspDbVersion localDbVersion = new LspDbVersionBuilder()
+                .setLspDbVersionValue(BigInteger.valueOf(2L)).build();
         session = getPCEPSession(getOpen(localDbVersion), getOpen(null));
         this.listener.onSessionUp(session);
         readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
@@ -119,9 +120,9 @@ public class IncrementalSynchronizationProcedureTest extends AbstractPCEPSession
         return new OpenBuilder(super.getLocalPref()).setTlvs(new TlvsBuilder().addAugmentation(Tlvs1.class,
             new Tlvs1Builder().setStateful(new StatefulBuilder().addAugmentation(Stateful1.class,
                 new Stateful1Builder().setInitiation(Boolean.TRUE).build())
-            .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.
-                optimizations.rev171025.Stateful1.class, new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml
-                .ns.yang.controller.pcep.sync.optimizations.rev171025.Stateful1Builder()
+            .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync
+                    .optimizations.rev171025.Stateful1.class, new org.opendaylight.yang.gen.v1.urn.opendaylight.params
+                    .xml.ns.yang.controller.pcep.sync.optimizations.rev171025.Stateful1Builder()
                 .setIncludeDbVersion(Boolean.TRUE).setDeltaLspSyncCapability(Boolean.TRUE).build())
             .build()).build()).addAugmentation(Tlvs3.class, new Tlvs3Builder().setLspDbVersion(dbVersion).build())
             .build()).build();
@@ -129,12 +130,13 @@ public class IncrementalSynchronizationProcedureTest extends AbstractPCEPSession
 
     private Pcrpt getPcrpt(final Long val, final String pathname) {
         return MsgBuilderUtil.createPcRtpMessage(new LspBuilder().setPlspId(new PlspId(val)).setTlvs(
-            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev171025.lsp.
-                object.lsp.TlvsBuilder().setLspIdentifiers(new LspIdentifiersBuilder().setLspId(new LspId(val)).build())
+            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev171025.lsp
+                    .object.lsp.TlvsBuilder().setLspIdentifiers(new LspIdentifiersBuilder()
+                    .setLspId(new LspId(val)).build())
                 .setSymbolicPathName(new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(
                     pathname.getBytes())).build()).addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params
-                .xml.ns.yang.controller.pcep.sync.optimizations.rev171025.Tlvs1.class, new org.opendaylight.yang.gen.v1.
-                urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev171025.Tlvs1Builder()
+                .xml.ns.yang.controller.pcep.sync.optimizations.rev171025.Tlvs1.class, new org.opendaylight.yang.gen.v1
+                    .urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev171025.Tlvs1Builder()
                 .setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.valueOf(val)).build())
                 .build()).build()).setPlspId(new PlspId(val)
         ).setSync(true).setRemove(false).setOperational(OperationalStatus.Active).build(), Optional.absent(),
@@ -143,13 +145,14 @@ public class IncrementalSynchronizationProcedureTest extends AbstractPCEPSession
 
     private Pcrpt getSyncPcrt() {
         return MsgBuilderUtil.createPcRtpMessage(createLsp(0, false, Optional.of(
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev171025.
-                    lsp.object.lsp.TlvsBuilder().addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.
-                        xml.ns.yang.controller.pcep.sync.optimizations.rev171025.Tlvs1.class,
-                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync
-                        .optimizations.rev171025.Tlvs1Builder().setLspDbVersion(new LspDbVersionBuilder()
-                        .setLspDbVersionValue(BigInteger.valueOf(3L)).build()).build()).build()),
-            true, false), Optional.absent(),
-            createPath(Collections.emptyList()));
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev171025
+                        .lsp.object.lsp.TlvsBuilder().addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight
+                                .params.xml.ns.yang.controller.pcep.sync.optimizations.rev171025.Tlvs1.class,
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync
+                                .optimizations.rev171025.Tlvs1Builder().setLspDbVersion(
+                                new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.valueOf(3L))
+                                        .build()).build()).build()),
+                true, false), Optional.absent(),
+                createPath(Collections.emptyList()));
     }
 }

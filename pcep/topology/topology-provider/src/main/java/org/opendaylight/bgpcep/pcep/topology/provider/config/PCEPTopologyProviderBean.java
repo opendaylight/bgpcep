@@ -87,6 +87,7 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
         }
     }
 
+    @SuppressWarnings("IllegalCatch")
     synchronized void start(final PCEPTopologyConfiguration configDependencies) {
         Preconditions.checkState(this.pcepTopoProviderCSS == null,
                 "Previous instance %s was not closed.", this);
@@ -124,9 +125,9 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
 
     private class PCEPTopologyProviderBeanCSS implements ClusterSingletonService, AutoCloseable {
         private final ServiceGroupIdentifier sgi;
+        private final PCEPTopologyProvider pcepTopoProvider;
         private ServiceRegistration<?> serviceRegistration;
         private ClusterSingletonServiceRegistration cssRegistration;
-        private final PCEPTopologyProvider pcepTopoProvider;
         @GuardedBy("this")
         private boolean serviceInstantiated;
 
@@ -169,6 +170,7 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
         }
 
         @Override
+        @SuppressWarnings("IllegalCatch")
         public synchronized void close() {
             if (this.cssRegistration != null) {
                 try {

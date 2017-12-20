@@ -31,8 +31,8 @@ import org.slf4j.LoggerFactory;
 public final class PCEPTopologyProvider extends DefaultTopologyReference {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyProvider.class);
 
-    private static final String STATEFUL_NOT_DEFINED = "Stateful capability not defined, aborting PCEP Topology" +
-            " Provider instantiation";
+    private static final String STATEFUL_NOT_DEFINED = "Stateful capability not defined, aborting PCEP Topology"
+            + " Provider instantiation";
     private final ServerSessionManager manager;
     private final PCEPTopologyProviderDependencies dependenciesProvider;
     private final PCEPTopologyConfiguration configDependencies;
@@ -70,6 +70,7 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference {
         return new PCEPTopologyProvider(configDependencies, dependenciesProvider, manager);
     }
 
+    @SuppressWarnings("IllegalCatch")
     public void instantiateServiceInstance() {
         final RpcProviderRegistry rpcRegistry = this.dependenciesProvider.getRpcProviderRegistry();
 

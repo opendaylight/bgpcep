@@ -16,35 +16,45 @@ import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
 
 /**
- * Provides required dependencies for PCEPTopologyProviderProvider instantiation
+ * Provides required dependencies for PCEPTopologyProviderProvider instantiation.
  */
 @Beta
 public interface PCEPTopologyProviderDependencies {
     /**
+     * Provides PCEPDispatcher.
+     *
      * @return PCEPDispatcher
      */
     @Nonnull
     PCEPDispatcher getPCEPDispatcher();
 
     /**
+     * Provides RpcProviderRegistry.
+     *
      * @return RpcProviderRegistry
      */
     @Nonnull
     RpcProviderRegistry getRpcProviderRegistry();
 
     /**
+     * Provides DataBroker.
+     *
      * @return DataBroker
      */
     @Nonnull
     DataBroker getDataBroker();
 
     /**
+     * Provides TopologySessionListenerFactory.
+     *
      * @return TopologySessionListenerFactory
      */
     @Nonnull
     TopologySessionListenerFactory getTopologySessionListenerFactory();
 
     /**
+     * Provides TopologySessionStatsRegistry.
+     *
      * @return TopologySessionStateRegistry
      */
     @Nonnull

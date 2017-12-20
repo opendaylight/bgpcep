@@ -140,8 +140,8 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
         doReturn(getDataBroker()).when(this.topologyDependencies).getDataBroker();
         doReturn(this.statsRegistry).when(this.topologyDependencies).getStateRegistry();
 
-        @SuppressWarnings("unchecked") final T listenerFactory = (T) ((Class) ((ParameterizedType) this.getClass().getGenericSuperclass())
-                .getActualTypeArguments()[0]).newInstance();
+        @SuppressWarnings("unchecked") final T listenerFactory = (T) ((Class) ((ParameterizedType) this.getClass()
+                .getGenericSuperclass()).getActualTypeArguments()[0]).newInstance();
 
         final PCEPTopologyConfiguration configDep = new PCEPTopologyConfiguration(ra, KeyMapping.getKeyMapping(),
                 SpeakerIdMapping.getSpeakerIdMap(), this.scheduler, TEST_TOPOLOGY_ID, RPC_TIMEOUT);

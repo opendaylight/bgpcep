@@ -42,41 +42,41 @@ final class TopologyRPCs implements NetworkTopologyPcepService {
     @Override
     public Future<RpcResult<AddLspOutput>> addLsp(final AddLspInput input) {
         return Futures.transform(this.manager.addLsp(input),
-                input1 -> SuccessfulRpcResult.create(new AddLspOutputBuilder(input1).build()),
-                MoreExecutors.directExecutor());
+            input1 -> SuccessfulRpcResult.create(new AddLspOutputBuilder(input1).build()),
+            MoreExecutors.directExecutor());
     }
 
     @Override
     public Future<RpcResult<RemoveLspOutput>> removeLsp(final RemoveLspInput input) {
         return Futures.transform(this.manager.removeLsp(input),
-                input1 -> SuccessfulRpcResult.create(new RemoveLspOutputBuilder(input1).build()),
-                MoreExecutors.directExecutor());
+            input1 -> SuccessfulRpcResult.create(new RemoveLspOutputBuilder(input1).build()),
+            MoreExecutors.directExecutor());
     }
 
     @Override
     public Future<RpcResult<TriggerSyncOutput>> triggerSync(final TriggerSyncInput input) {
         return Futures.transform(this.manager.triggerSync(input),
-                input1 -> SuccessfulRpcResult.create(new TriggerSyncOutputBuilder(input1).build()),
-                MoreExecutors.directExecutor());
+            input1 -> SuccessfulRpcResult.create(new TriggerSyncOutputBuilder(input1).build()),
+            MoreExecutors.directExecutor());
     }
 
     @Override
     public Future<RpcResult<UpdateLspOutput>> updateLsp(final UpdateLspInput input) {
         return Futures.transform(this.manager.updateLsp(input),
-                input1 -> SuccessfulRpcResult.create(new UpdateLspOutputBuilder(input1).build()),
-                MoreExecutors.directExecutor());
+            input1 -> SuccessfulRpcResult.create(new UpdateLspOutputBuilder(input1).build()),
+            MoreExecutors.directExecutor());
     }
 
     @Override
     public Future<RpcResult<EnsureLspOperationalOutput>> ensureLspOperational(final EnsureLspOperationalInput input) {
         return Futures.transform(this.manager.ensureLspOperational(input),
-                input1 -> SuccessfulRpcResult.create(new EnsureLspOperationalOutputBuilder(input1).build()),
-                MoreExecutors.directExecutor());
+            input1 -> SuccessfulRpcResult.create(new EnsureLspOperationalOutputBuilder(input1).build()),
+            MoreExecutors.directExecutor());
     }
 
     @Override
     public Future<RpcResult<Void>> tearDownSession(final TearDownSessionInput input) {
         return Futures.transform(this.manager.tearDownSession(input),
-                input1 -> SuccessfulRpcResult.create(null), MoreExecutors.directExecutor());
+            input1 -> SuccessfulRpcResult.create(null), MoreExecutors.directExecutor());
     }
 }

@@ -17,35 +17,35 @@ import com.google.common.annotations.Beta;
 public interface TopologySessionStats {
 
     /**
-     * Returns true if session is synchronized
+     * Returns true if session is synchronized.
      *
      * @return status
      */
     boolean isSessionSynchronized();
 
     /**
-     * return true if Initiation Capability is advertized
+     * return true if Initiation Capability is advertized.
      *
      * @return status
      */
     boolean isInitiationCapability();
 
     /**
-     * return true if Stateful Capability is advertized
+     * return true if Stateful Capability is advertized.
      *
      * @return status
      */
     boolean isStatefulCapability();
 
     /**
-     * return true if Lsp Update Capability is advertized
+     * return true if Lsp Update Capability is advertized.
      *
      * @return status
      */
     boolean isLspUpdateCapability();
 
     /**
-     * return the number of delegated LSPs (tunnels) from PCC
+     * return the number of delegated LSPs (tunnels) from PCC.
      *
      * @return status
      */

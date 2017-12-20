@@ -105,7 +105,9 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
     private TopologyNodeState nodeState;
     private AtomicBoolean synced = new AtomicBoolean(false);
     private PCEPSession session;
+    @GuardedBy("this")
     private SyncOptimization syncOptimization;
+    @GuardedBy("this")
     private boolean triggeredResyncInProcess;
 
     AbstractTopologySessionListener(final ServerSessionManager serverSessionManager) {
@@ -186,15 +188,15 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
             }
 
             @Override
-            public void onFailure(final Throwable t) {
+            public void onFailure(final Throwable throwable) {
                 LOG.error("Failed to update internal state for session {}, terminating it",
-                        AbstractTopologySessionListener.this.session, t);
+                        AbstractTopologySessionListener.this.session, throwable);
                 AbstractTopologySessionListener.this.session.close(TerminationReason.UNKNOWN);
             }
         }, MoreExecutors.directExecutor());
     }
 
-    void updatePccState(final PccSyncState pccSyncState) {
+    synchronized void updatePccState(final PccSyncState pccSyncState) {
         if (this.nodeState == null) {
             LOG.info("Server Session Manager is closed.");
             AbstractTopologySessionListener.this.session.close(TerminationReason.UNKNOWN);
@@ -210,30 +212,30 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         Futures.addCallback(ctx.trans.submit(), new FutureCallback<Void>() {
             @Override
             public void onSuccess(final Void result) {
-                LOG.trace("Internal state for session {} updated successfully", AbstractTopologySessionListener.this.session);
+                LOG.trace("Internal state for session {} updated successfully",
+                        AbstractTopologySessionListener.this.session);
             }
 
             @Override
-            public void onFailure(final Throwable t) {
-                LOG.error("Failed to update internal state for session {}", AbstractTopologySessionListener.this.session, t);
+            public void onFailure(final Throwable throwable) {
+                LOG.error("Failed to update internal state for session {}",
+                        AbstractTopologySessionListener.this.session, throwable);
                 AbstractTopologySessionListener.this.session.close(TerminationReason.UNKNOWN);
             }
         }, MoreExecutors.directExecutor());
     }
 
-    boolean isTriggeredSyncInProcess() {
+    synchronized boolean isTriggeredSyncInProcess() {
         return this.triggeredResyncInProcess;
     }
 
     /**
      * Tear down the given PCEP session. It's OK to call this method even after the session
      * is already down. It always clear up the current session status.
-     *
-     * @param session
      */
     @GuardedBy("this")
+    @SuppressWarnings("IllegalCatch")
     private synchronized void tearDown(final PCEPSession session) {
-
         requireNonNull(session);
         this.serverSessionManager.releaseNodeState(this.nodeState, session, isLspDbPersisted());
         if (this.nodeState != null) {
@@ -313,8 +315,8 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
             }
 
             @Override
-            public void onFailure(final Throwable t) {
-                LOG.error("Failed to update internal state for session {}, closing it", session, t);
+            public void onFailure(final Throwable throwable) {
+                LOG.error("Failed to update internal state for session {}, closing it", session, throwable);
                 ctx.notifyRequests();
                 session.close(TerminationReason.UNKNOWN);
             }
@@ -382,7 +384,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
     }
 
     /**
-     * Update an LSP in the data store
+     * Update an LSP in the data store.
      *
      * @param ctx       Message context
      * @param id        Revision-specific LSP identifier
@@ -438,10 +440,12 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         this.lspData.put(name, rl);
     }
 
-    private List<Path> makeBeforeBreak(final ReportedLspBuilder rlb, final ReportedLsp previous, final String name, final boolean remove) {
+    private List<Path> makeBeforeBreak(final ReportedLspBuilder rlb, final ReportedLsp previous, final String name,
+            final boolean remove) {
         // just one path should be reported
         Preconditions.checkState(rlb.getPath().size() == 1);
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspId reportedLspId = rlb.getPath().get(0).getLspId();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspId reportedLspId =
+                rlb.getPath().get(0).getLspId();
         final List<Path> updatedPaths;
         //lspId = 0 and remove = false -> tunnel is down, still exists but no path is signaled
         //remove existing tunnel's paths now, as explicit path remove will not come
@@ -524,6 +528,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         this.lspData.remove(name);
     }
 
+    @SuppressWarnings("OverloadMethodsDeclarationOrder")
     protected abstract void onSessionUp(PCEPSession session, PathComputationClientBuilder pccBuilder);
 
     /**
@@ -548,51 +553,45 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
      * @return null if the node does not exists, or operational data
      */
     final synchronized <T extends DataObject> ListenableFuture<Optional<T>>
-    readOperationalData(final InstanceIdentifier<T> id) {
+        readOperationalData(final InstanceIdentifier<T> id) {
         if (this.nodeState == null) {
             return null;
         }
         return this.nodeState.readOperationalData(id);
     }
 
-    protected abstract Object validateReportedLsp(final Optional<ReportedLsp> rep, final LspId input);
+    protected abstract Object validateReportedLsp(Optional<ReportedLsp> rep, LspId input);
 
-    protected abstract void loadLspData(final Node node, final Map<String, ReportedLsp> lspData,
-            final Map<L, String> lsps, final boolean incrementalSynchro);
+    protected abstract void loadLspData(Node node, Map<String, ReportedLsp> lspData, Map<L, String> lsps,
+            boolean incrementalSynchro);
 
-    final boolean isLspDbPersisted() {
+    private boolean isLspDbPersisted() {
         return this.syncOptimization != null && this.syncOptimization.isSyncAvoidanceEnabled();
     }
 
-    final boolean isLspDbRetreived() {
+    private boolean isLspDbRetreived() {
         return this.syncOptimization != null && this.syncOptimization.isDbVersionPresent();
     }
 
     /**
      * Is Incremental synchronization if LSP-DB-VERSION are included,
-     * LSP-DB-VERSION TLV values doesnt match, and  LSP-SYNC-CAPABILITY is enabled
-     *
-     * @return
+     * LSP-DB-VERSION TLV values doesnt match, and  LSP-SYNC-CAPABILITY is enabled.
      */
     final boolean isIncrementalSynchro() {
-        return this.syncOptimization != null &&
-                this.syncOptimization.isSyncAvoidanceEnabled() &&
-                this.syncOptimization.isDeltaSyncEnabled();
+        return this.syncOptimization != null && this.syncOptimization.isSyncAvoidanceEnabled()
+                && this.syncOptimization.isDeltaSyncEnabled();
     }
 
-    final boolean isTriggeredInitialSynchro() {
-        return this.syncOptimization != null &&
-                this.syncOptimization.isTriggeredInitSyncEnabled();
+    final synchronized boolean isTriggeredInitialSynchro() {
+        return this.syncOptimization != null && this.syncOptimization.isTriggeredInitSyncEnabled();
     }
 
-    final boolean isTriggeredReSyncEnabled() {
-        return this.syncOptimization != null &&
-                this.syncOptimization.isTriggeredReSyncEnabled();
+    final synchronized boolean isTriggeredReSyncEnabled() {
+        return this.syncOptimization != null && this.syncOptimization.isTriggeredReSyncEnabled();
     }
 
-    protected final boolean isSynchronized() {
-        return this.syncOptimization != null &&
-                this.syncOptimization.doesLspDbMatch();
+    final synchronized boolean isSynchronized() {
+        return this.syncOptimization != null && this.syncOptimization.doesLspDbMatch();
     }
 
     @Override
