@@ -11,6 +11,7 @@ package org.opendaylight.protocol.pcep.auto.bandwidth.extension;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -53,6 +54,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 
 public class PcRptMessageCodecTest {
 
+    private static final List<Bandwidth> BW = Collections.singletonList(new Bandwidth(new byte[]{0, 0, 0, 1}));
     private SimplePCEPExtensionProviderContext ctx;
     private BaseParserExtensionActivator act;
     private StatefulActivator statefulAct;
@@ -65,7 +67,8 @@ public class PcRptMessageCodecTest {
         this.act.start(this.ctx);
         this.statefulAct = new StatefulActivator();
         this.statefulAct.start(this.ctx);
-        this.autoBwActivator = new org.opendaylight.protocol.pcep.auto.bandwidth.extension.Activator(5);
+        this.autoBwActivator = new org.opendaylight.protocol.pcep.auto.bandwidth.extension
+                .Activator(5);
         this.autoBwActivator.start(this.ctx);
     }
 
@@ -79,7 +82,7 @@ public class PcRptMessageCodecTest {
     @Test
     public void testGetValidReportsPositive() {
         final PcRptMessageCodec codec = new PcRptMessageCodec(this.ctx.getObjectHandlerRegistry());
-        final BandwidthUsage bw = new BandwidthUsageBuilder().setBwSample(Lists.newArrayList(new Bandwidth(new byte[] {0, 0, 0, 1}))).build();
+        final BandwidthUsage bw = new BandwidthUsageBuilder().setBwSample(BW).build();
         final Ipv4Builder builder = new Ipv4Builder();
         builder.setIpv4TunnelSenderAddress(new Ipv4Address("127.0.1.1"));
         builder.setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(new Ipv4Address("127.0.1.2")));
@@ -87,8 +90,10 @@ public class PcRptMessageCodecTest {
         final AddressFamily afiLsp = new Ipv4CaseBuilder().setIpv4(builder.build()).build();
         final LspId lspId = new LspId(1L);
         final TunnelId tunnelId = new TunnelId(1);
-        final LspIdentifiers identifier = new LspIdentifiersBuilder().setAddressFamily(afiLsp).setLspId(lspId).setTunnelId(tunnelId).build();
-        final Lsp lsp = new LspBuilder().setPlspId(new PlspId(1L)).setTlvs(new TlvsBuilder().setLspIdentifiers(identifier).build()).build();
+        final LspIdentifiers identifier = new LspIdentifiersBuilder().setAddressFamily(afiLsp)
+                .setLspId(lspId).setTunnelId(tunnelId).build();
+        final Lsp lsp = new LspBuilder().setPlspId(new PlspId(1L))
+                .setTlvs(new TlvsBuilder().setLspIdentifiers(identifier).build()).build();
         final Ero ero = new EroBuilder().build();
         final List<Object> objects = Lists.newArrayList(lsp, ero, bw);
         final Reports validReports = codec.getValidReports(objects, Collections.emptyList());
@@ -99,7 +104,7 @@ public class PcRptMessageCodecTest {
     @Test
     public void testGetValidReportsNegative() {
         final PcRptMessageCodec codec = new PcRptMessageCodec(this.ctx.getObjectHandlerRegistry());
-        final BandwidthUsage bw = new BandwidthUsageBuilder().setBwSample(Lists.newArrayList(new Bandwidth(new byte[] {0, 0, 0, 1}))).build();
+        final BandwidthUsage bw = new BandwidthUsageBuilder().setBwSample(BW).build();
         final Ipv4Builder builder = new Ipv4Builder();
         builder.setIpv4TunnelSenderAddress(new Ipv4Address("127.0.1.1"));
         builder.setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(new Ipv4Address("127.0.1.2")));
@@ -115,8 +120,7 @@ public class PcRptMessageCodecTest {
     public void testserializeObject() {
         final PcRptMessageCodec codec = new PcRptMessageCodec(this.ctx.getObjectHandlerRegistry());
         final BandwidthBuilder bwBuilder = new BandwidthBuilder();
-        bwBuilder.addAugmentation(Bandwidth1.class, new Bandwidth1Builder().setBwSample(
-                Lists.newArrayList(new Bandwidth(new byte[] {0, 0, 0, 1}))).build());
+        bwBuilder.addAugmentation(Bandwidth1.class, new Bandwidth1Builder().setBwSample(BW).build());
         final ByteBuf buffer = Unpooled.buffer();
         codec.serializeObject(bwBuilder.build(), buffer);
         Assert.assertTrue(buffer.readableBytes() > 0);
@@ -124,9 +128,15 @@ public class PcRptMessageCodecTest {
 
     @Test
     public void testReportMsgWithRro() throws PCEPDeserializerException {
-        final byte[] parseHexBinary = DatatypeConverter.parseHexBinary("2010003c0084a019001100106e79636e7932316372735f7432313231001200100a0000d2004008490a0000d40a0000d4001f0006000005dd700000000710001401080a000706200001080a0000d420000910001400000000000000000000000005050100051000084998968005500008513a43b70810002401080a0000d42020030801010000000001080a00070620000308010100000000");
-        final Pcrpt msg = (Pcrpt) this.ctx.getMessageHandlerRegistry().parseMessage(10, Unpooled.wrappedBuffer(parseHexBinary), Collections.emptyList());
-        Assert.assertNotNull(msg.getPcrptMessage().getReports().get(0).getPath().getBandwidth().getAugmentation(Bandwidth1.class));
+        final byte[] parseHexBinary = DatatypeConverter
+                .parseHexBinary("2010003c0084a019001100106e79636e7932316372735f7432313231001200100a0"
+                        + "000d2004008490a0000d40a0000d4001f0006000005dd700000000710001401080a000706200001080a0000d420"
+                        + "000910001400000000000000000000000005050100051000084998968005500008513a43b70810002401080a000"
+                        + "0d42020030801010000000001080a00070620000308010100000000");
+        final Pcrpt msg = (Pcrpt) this.ctx.getMessageHandlerRegistry().parseMessage(10,
+                Unpooled.wrappedBuffer(parseHexBinary), Collections.emptyList());
+        Assert.assertNotNull(msg.getPcrptMessage().getReports().get(0).getPath()
+                .getBandwidth().getAugmentation(Bandwidth1.class));
     }
 
 }
