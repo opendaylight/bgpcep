@@ -46,6 +46,8 @@ final class PCEPTopologyProviderUtil {
                 .filter(Objects::nonNull)
                 .filter(node -> node.getAugmentation(PcepNodeConfig.class) != null)
                 .filter(node -> node.getAugmentation(PcepNodeConfig.class).getSessionConfig() != null)
+                .filter(node -> node.getAugmentation(PcepNodeConfig.class)
+                        .getSessionConfig().getPassword() != null)
                 .filter(node -> !node.getAugmentation(PcepNodeConfig.class)
                         .getSessionConfig().getPassword().getValue().isEmpty())
                 .forEach(node -> {

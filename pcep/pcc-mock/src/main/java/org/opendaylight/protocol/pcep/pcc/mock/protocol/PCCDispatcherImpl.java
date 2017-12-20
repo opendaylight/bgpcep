@@ -82,8 +82,7 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
         final Bootstrap b = new Bootstrap();
         b.group(this.workerGroup);
         b.localAddress(localAddress);
-        final KeyMapping optionalKey = keys;
-        setChannelFactory(b, optionalKey);
+        setChannelFactory(b, keys);
         b.option(ChannelOption.SO_KEEPALIVE, true);
         b.option(ChannelOption.SO_REUSEADDR, true);
         b.option(ChannelOption.RCVBUF_ALLOCATOR, new io.netty.channel.FixedRecvByteBufAllocator(1));
