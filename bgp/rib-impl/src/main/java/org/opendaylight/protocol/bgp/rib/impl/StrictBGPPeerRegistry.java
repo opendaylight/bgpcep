@@ -63,9 +63,6 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
 
     private static final Logger LOG = LoggerFactory.getLogger(StrictBGPPeerRegistry.class);
 
-    // TODO remove backwards compatibility
-    public static final StrictBGPPeerRegistry GLOBAL = new StrictBGPPeerRegistry();
-
     @GuardedBy("this")
     private final Map<IpAddress, BGPSessionListener> peers = Maps.newHashMap();
     @GuardedBy("this")
@@ -78,7 +75,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     private final Set<PeerRegistrySessionListener> sessionListeners = new HashSet<>();
 
     public static BGPPeerRegistry instance() {
-        return GLOBAL;
+        return new StrictBGPPeerRegistry();
     }
 
     @Override
