@@ -24,7 +24,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.
 
 public class PCEPBandwidthUsageObjectCodecTest {
 
-    private static final byte[] BW_BYTES = new byte[] { 0x05, 0x50, 0x00, 0x0C, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x40, 0x00};
+    private static final byte[] BW_BYTES = new byte[]{0x05, 0x50, 0x00, 0x0C, 0x00, 0x00, 0x10, 0x00,
+        0x00, 0x00, 0x40, 0x00};
 
     @Test
     public void testCodec() throws PCEPDeserializerException {
@@ -32,10 +33,12 @@ public class PCEPBandwidthUsageObjectCodecTest {
         assertEquals(5, codec.getType());
 
         final BandwidthUsageBuilder builder = new BandwidthUsageBuilder();
-        builder.setBwSample(Lists.newArrayList(new Bandwidth(new byte [] {0x00, 0x00, 0x10, 0x00}), new Bandwidth(new byte[] {0x00, 0x00, 0x40, 0x00})));
+        builder.setBwSample(Lists.newArrayList(new Bandwidth(new byte[]{0x00, 0x00, 0x10, 0x00}),
+                new Bandwidth(new byte[]{0x00, 0x00, 0x40, 0x00})));
         builder.setIgnore(false);
         builder.setProcessingRule(false);
-        final BandwidthUsage parsedObject = codec.parseObject(new ObjectHeaderImpl(false, false), Unpooled.wrappedBuffer(BW_BYTES, 4, BW_BYTES.length - 4));
+        final BandwidthUsage parsedObject = codec.parseObject(new ObjectHeaderImpl(false, false),
+                Unpooled.wrappedBuffer(BW_BYTES, 4, BW_BYTES.length - 4));
         assertEquals(builder.build(), parsedObject);
 
         final ByteBuf buffer = Unpooled.buffer(BW_BYTES.length);

@@ -28,7 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 
 public class BandwidthUsageObjectCodec implements ObjectParser, ObjectSerializer {
 
-    public static final int CLASS = 5;
+    static final int CLASS = 5;
 
     private static final int BW_LENGTH = 4;
 
@@ -40,10 +40,11 @@ public class BandwidthUsageObjectCodec implements ObjectParser, ObjectSerializer
 
     @Override
     public BandwidthUsage parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(bytes != null && bytes.isReadable(),
+                "Array of bytes is mandatory. Can't be null or empty.");
         if (bytes.readableBytes() % BW_LENGTH != 0) {
-            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.readableBytes() + "; Expected multiple of "
-                    + BW_LENGTH + ".");
+            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.readableBytes()
+                    + "; Expected multiple of " + BW_LENGTH + ".");
         }
         final BandwidthUsageBuilder builder = new BandwidthUsageBuilder();
         builder.setIgnore(header.isIgnore());
@@ -58,7 +59,8 @@ public class BandwidthUsageObjectCodec implements ObjectParser, ObjectSerializer
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof BandwidthUsage, "Wrong instance of PCEPObject. Passed %s. Needed BandwidthUsage.", object.getClass());
+        Preconditions.checkArgument(object instanceof BandwidthUsage,
+                "Wrong instance of PCEPObject. Passed %s. Needed BandwidthUsage.", object.getClass());
         final List<Bandwidth> bwSample = ((BandwidthUsage) object).getBwSample();
         final ByteBuf body = Unpooled.buffer(bwSample.size() * BW_LENGTH);
         for (final Bandwidth bw : bwSample) {
