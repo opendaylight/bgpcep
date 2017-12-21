@@ -9,9 +9,17 @@
 package org.opendaylight.protocol.bmp.api;
 
 import io.netty.channel.Channel;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public interface BmpSessionFactory {
-
-    BmpSession getSession(Channel channel, BmpSessionListenerFactory sessionListenerFactory);
-
+    /**
+     * Creates Bmp Session.
+     *
+     * @param channel                generated channel
+     * @param sessionListenerFactory listener factory
+     * @return bmp session
+     */
+    @Nonnull BmpSession getSession(@Nonnull Channel channel,
+            @Nullable BmpSessionListenerFactory sessionListenerFactory);
 }

@@ -8,13 +8,14 @@
 
 package org.opendaylight.protocol.bmp.mock;
 
+import static org.mockito.Mockito.verify;
+import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
+
 import com.google.common.base.Optional;
-import com.google.common.util.concurrent.Uninterruptibles;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.nio.NioEventLoopGroup;
 import java.net.InetSocketAddress;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
@@ -44,11 +45,11 @@ public class BmpMockTest {
     public void setUp() {
         final BmpExtensionProviderContext ctx = new SimpleBmpExtensionProviderContext();
         this.bmpActivator = new BmpActivator(
-                ServiceLoaderBGPExtensionProviderContext.getSingletonInstance());
+            ServiceLoaderBGPExtensionProviderContext.getSingletonInstance());
         this.bmpActivator.start(ctx);
         this.bmpDispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(),
-                ctx.getBmpMessageRegistry(),
-                new DefaultBmpSessionFactory());
+            ctx.getBmpMessageRegistry(),
+            new DefaultBmpSessionFactory());
     }
 
     @After
@@ -63,7 +64,7 @@ public class BmpMockTest {
         final BmpSessionListenerFactory bmpSessionListenerFactory = () -> BmpMockTest.this.sessionListener;
         final ChannelFuture futureServer = this.bmpDispatcher.createServer(serverAddr,
                 bmpSessionListenerFactory, Optional.absent());
-        waitFutureComplete(futureServer);
+        waitFutureSuccess(futureServer);
         final Channel serverChannel;
         final int sessionUpWait;
         if (futureServer.isSuccess()) {
@@ -82,12 +83,12 @@ public class BmpMockTest {
             "--pre_policy_routes",
             "3"});
 
-        Mockito.verify(this.sessionListener, Mockito.timeout(TimeUnit.SECONDS.toMillis(sessionUpWait)))
+        verify(this.sessionListener, Mockito.timeout(TimeUnit.SECONDS.toMillis(sessionUpWait)))
                 .onSessionUp(Mockito.any(BmpSession.class));
         //1 * Initiate message + 3 * PeerUp Notification + 9 * Route Monitoring message
-        Mockito.verify(this.sessionListener, Mockito.timeout(TimeUnit.SECONDS.toMillis(10))
-                .times(13))
-                .onMessage(Mockito.any(Notification.class));
+        verify(this.sessionListener, Mockito.timeout(TimeUnit.SECONDS.toMillis(10))
+            .times(13))
+            .onMessage(Mockito.any(Notification.class));
 
         if (serverChannel != null) {
             serverChannel.close().sync();
@@ -104,7 +105,7 @@ public class BmpMockTest {
             "--peers_count", "3", "--pre_policy_routes", "3", "--passive"});
         final ChannelFuture futureServer = this.bmpDispatcher.createClient(serverAddr,
                 bmpSessionListenerFactory, Optional.absent());
-        waitFutureComplete(futureServer);
+        waitFutureSuccess(futureServer);
         final Channel serverChannel;
         final int sessionUpWait;
         if (futureServer.isSuccess()) {
@@ -116,21 +117,15 @@ public class BmpMockTest {
             sessionUpWait = 40;
         }
 
-        Mockito.verify(this.sessionListener, Mockito.timeout(TimeUnit.SECONDS.toMillis(sessionUpWait)))
-                .onSessionUp(Mockito.any(BmpSession.class));
+        verify(this.sessionListener, Mockito.timeout(TimeUnit.SECONDS.toMillis(sessionUpWait)))
+            .onSessionUp(Mockito.any(BmpSession.class));
         //1 * Initiate message + 3 * PeerUp Notification + 9 * Route Monitoring message
-        Mockito.verify(this.sessionListener, Mockito.timeout(TimeUnit.SECONDS.toMillis(10))
-                .times(13))
-                .onMessage(Mockito.any(Notification.class));
+        verify(this.sessionListener, Mockito.timeout(TimeUnit.SECONDS.toMillis(10))
+            .times(13))
+            .onMessage(Mockito.any(Notification.class));
 
         if (serverChannel != null) {
             serverChannel.close().sync();
         }
-    }
-
-    static void waitFutureComplete(final ChannelFuture future) throws InterruptedException {
-        final CountDownLatch latch = new CountDownLatch(1);
-        future.addListener(future1 -> latch.countDown());
-        Uninterruptibles.awaitUninterruptibly(latch, 10, TimeUnit.SECONDS);
     }
 }
