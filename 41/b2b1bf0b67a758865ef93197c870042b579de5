@@ -1,0 +1,7 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+2: Claudio David Gasparini <claudio.gasparini@pantheon.tech>
+Submitted-by: Claudio David Gasparini <claudio.gasparini@pantheon.tech>
+Submitted-at: Thu, 21 Dec 2017 10:35:01 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/66668
+Project: bgpcep
+Branch: refs/heads/master
