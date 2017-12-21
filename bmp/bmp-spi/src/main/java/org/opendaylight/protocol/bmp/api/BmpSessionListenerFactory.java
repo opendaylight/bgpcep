@@ -8,8 +8,11 @@
 
 package org.opendaylight.protocol.bmp.api;
 
+import javax.annotation.Nonnull;
+
 public interface BmpSessionListenerFactory {
 
+    @Nonnull
     BmpSessionListener getSessionListener();
 
 }
