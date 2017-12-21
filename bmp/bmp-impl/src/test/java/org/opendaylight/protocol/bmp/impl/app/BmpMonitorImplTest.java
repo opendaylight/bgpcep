@@ -308,7 +308,8 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
                 return router;
             });
 
-            waitWriteAndFlushSuccess(channel.writeAndFlush(TestUtil.createInitMsg("description", "name", "some info")));
+            waitWriteAndFlushSuccess(channel.writeAndFlush(TestUtil
+                    .createInitMsg("description", "name", "some info")));
 
             readDataOperational(getDataBroker(), MONITOR_IID, monitor -> {
                 assertFalse(monitor.getRouter().isEmpty());
