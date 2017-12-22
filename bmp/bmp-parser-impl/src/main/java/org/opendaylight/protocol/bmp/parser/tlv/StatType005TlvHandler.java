@@ -25,7 +25,8 @@ public class StatType005TlvHandler implements BmpTlvParser, BmpTlvSerializer {
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf output) {
-        Preconditions.checkArgument(tlv instanceof InvalidatedOriginatorIdTlv, "InvalidatedOriginatorIdTlv is mandatory.");
+        Preconditions.checkArgument(tlv instanceof InvalidatedOriginatorIdTlv,
+                "InvalidatedOriginatorIdTlv is mandatory.");
         TlvUtil.formatTlvCounter32(TYPE, ((InvalidatedOriginatorIdTlv) tlv).getCount(), output);
     }
 

@@ -25,7 +25,8 @@ public class StatType001TlvHandler implements BmpTlvParser, BmpTlvSerializer {
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf output) {
-        Preconditions.checkArgument(tlv instanceof DuplicatePrefixAdvertisementsTlv, "DuplicatePrefixAdvertisementsTlv is mandatory.");
+        Preconditions.checkArgument(tlv instanceof DuplicatePrefixAdvertisementsTlv,
+                "DuplicatePrefixAdvertisementsTlv is mandatory.");
         TlvUtil.formatTlvCounter32(TYPE, ((DuplicatePrefixAdvertisementsTlv) tlv).getCount(), output);
     }
 

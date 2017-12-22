@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bmp.parser.message;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.opendaylight.protocol.bmp.parser.message.TestUtil.createTerminationMsg;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Test;
@@ -58,7 +59,8 @@ public class TerminationHandlerTest extends AbstractBmpMessageTest {
 
     @Test
     public void testParseTerminationMessage() throws BmpDeserializationException {
-        final TerminationMessage parsedInitMsg = (TerminationMessage) getBmpMessageRegistry().parseMessage(Unpooled.copiedBuffer(TERMINATION_MESSAGE));
+        final TerminationMessage parsedInitMsg = (TerminationMessage) getBmpMessageRegistry()
+                .parseMessage(Unpooled.copiedBuffer(TERMINATION_MESSAGE));
         assertEquals(createTerminationMsg(), parsedInitMsg);
     }
 }

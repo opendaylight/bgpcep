@@ -25,7 +25,8 @@ public class MirrorInformationTlvHandler implements BmpTlvParser, BmpTlvSerializ
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf output) {
-        Preconditions.checkArgument(tlv instanceof MirrorInformationTlv, "MirrorInformationTlv is mandatory.");
+        Preconditions.checkArgument(tlv instanceof MirrorInformationTlv,
+                "MirrorInformationTlv is mandatory.");
         TlvUtil.formatTlvShort16(TYPE, ((MirrorInformationTlv) tlv).getCode().getIntValue(), output);
     }
 
@@ -34,6 +35,7 @@ public class MirrorInformationTlvHandler implements BmpTlvParser, BmpTlvSerializ
         if (buffer == null) {
             return null;
         }
-        return new MirrorInformationTlvBuilder().setCode(MirrorInformationCode.forValue(buffer.readUnsignedShort())).build();
+        return new MirrorInformationTlvBuilder()
+                .setCode(MirrorInformationCode.forValue(buffer.readUnsignedShort())).build();
     }
 }

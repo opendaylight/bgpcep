@@ -25,7 +25,8 @@ public class StatType012TlvHandler implements BmpTlvParser, BmpTlvSerializer {
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf output) {
-        Preconditions.checkArgument(tlv instanceof PrefixesTreatedAsWithdrawTlv, "PrefixesTreatedAsWithdrawTlv is mandatory.");
+        Preconditions.checkArgument(tlv instanceof PrefixesTreatedAsWithdrawTlv,
+                "PrefixesTreatedAsWithdrawTlv is mandatory.");
         TlvUtil.formatTlvCounter32(TYPE, ((PrefixesTreatedAsWithdrawTlv) tlv).getCount(), output);
     }
 

@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bmp.parser.message;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.opendaylight.protocol.bmp.parser.message.TestUtil.createStatsReportMsg;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Test;
@@ -93,7 +94,8 @@ public class StatisticsReportHandlerTest extends AbstractBmpMessageTest {
         (byte) 0x00,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,    // < - element 28
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,    // < - element 28
         (byte) 0x0A, (byte) 0x0A, (byte) 0x0A, (byte) 0x0A,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x48,
         (byte) 0x0A, (byte) 0x0A, (byte) 0x0A, (byte) 0x0A,
@@ -102,24 +104,33 @@ public class StatisticsReportHandlerTest extends AbstractBmpMessageTest {
 
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x0E,  // <- tlv counts
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x04, (byte) 0x00,
-        (byte) 0x00, (byte) 0x00, (byte) 0x08, (byte) 0x00, (byte) 0x01, (byte) 0x00, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x10,
-        (byte) 0x00, (byte) 0x02, (byte) 0x00, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x0B, (byte) 0x00, (byte) 0x03, (byte) 0x00,
-        (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x35, (byte) 0x00, (byte) 0x04, (byte) 0x00, (byte) 0x04, (byte) 0x00, (byte) 0x00,
-        (byte) 0x00, (byte) 0x42, (byte) 0x00, (byte) 0x05, (byte) 0x00, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x46, (byte) 0x00,
-        (byte) 0x06, (byte) 0x00, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x37, (byte) 0x00, (byte) 0x07, (byte) 0x00, (byte) 0x08,
-        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x0A, (byte) 0x00, (byte) 0x08, (byte) 0x00,
-        (byte) 0x08, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x64,
+        (byte) 0x00, (byte) 0x00, (byte) 0x08, (byte) 0x00, (byte) 0x01, (byte) 0x00, (byte) 0x04, (byte) 0x00,
+        (byte) 0x00, (byte) 0x00, (byte) 0x10,
+        (byte) 0x00, (byte) 0x02, (byte) 0x00, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x0B,
+        (byte) 0x00, (byte) 0x03, (byte) 0x00,
+        (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x35, (byte) 0x00, (byte) 0x04, (byte) 0x00,
+        (byte) 0x04, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x42, (byte) 0x00, (byte) 0x05, (byte) 0x00, (byte) 0x04, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x46, (byte) 0x00,
+        (byte) 0x06, (byte) 0x00, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x37, (byte) 0x00,
+        (byte) 0x07, (byte) 0x00, (byte) 0x08,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x0A,
+        (byte) 0x00, (byte) 0x08, (byte) 0x00,
+        (byte) 0x08, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+        (byte) 0x64,
 
         (byte) 0x00, (byte) 0x09, //  <- per afi safi adj rib routes type
         (byte) 0x00, (byte) 0x0B, //  <- length
         (byte) 0x00, (byte) 0x01, //  <- afi
         (byte) 0x01,              //  <- safi
-        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x09, //  <- value
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+        (byte) 0x09, //  <- value
         (byte) 0x00, (byte) 0x0A, //  <- per afi safi local rib routes type
         (byte) 0x00, (byte) 0x0B, //  <- length
         (byte) 0x00, (byte) 0x01, //  <- afi
         (byte) 0x01,              //  <- safi
-        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x0A, //  <- value
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+        (byte) 0x0A, //  <- value
         (byte) 0x00, (byte) 0x0B, //  <- updates treated as withdraw
         (byte) 0x00, (byte) 0x04, // <- length
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x0B, //  <- value
@@ -140,7 +151,8 @@ public class StatisticsReportHandlerTest extends AbstractBmpMessageTest {
 
     @Test
     public void testParseStatsReportMessage() throws BmpDeserializationException {
-        final StatsReportsMessage parsedStatsReportsMsg = (StatsReportsMessage) getBmpMessageRegistry().parseMessage(Unpooled.copiedBuffer(STATS_REPORT));
+        final StatsReportsMessage parsedStatsReportsMsg = (StatsReportsMessage) getBmpMessageRegistry()
+                .parseMessage(Unpooled.copiedBuffer(STATS_REPORT));
         assertEquals(createStatsReportMsg(), parsedStatsReportsMsg);
     }
 }

@@ -42,8 +42,10 @@ public class StatType009TlvHandler implements BmpTlvParser, BmpTlvSerializer {
     public void serializeTlv(final Tlv tlv, final ByteBuf output) {
         Preconditions.checkArgument(tlv instanceof PerAfiSafiAdjRibInTlv, "PerAfiSafiAdjRibInTlv is mandatory.");
         final ByteBuf buffer = Unpooled.buffer();
-        ByteBufWriteUtil.writeUnsignedShort(this.afiRegistry.numberForClass(((PerAfiSafiAdjRibInTlv) tlv).getAfi()), buffer);
-        ByteBufWriteUtil.writeUnsignedByte(this.safiRegistry.numberForClass(((PerAfiSafiAdjRibInTlv) tlv).getSafi()).shortValue(), buffer);
+        ByteBufWriteUtil.writeUnsignedShort(this.afiRegistry.numberForClass(((PerAfiSafiAdjRibInTlv) tlv)
+                .getAfi()), buffer);
+        ByteBufWriteUtil.writeUnsignedByte(this.safiRegistry.numberForClass(((PerAfiSafiAdjRibInTlv) tlv)
+                .getSafi()).shortValue(), buffer);
         ByteBufWriteUtil.writeUnsignedLong(((PerAfiSafiAdjRibInTlv) tlv).getCount().getValue(), buffer);
         TlvUtil.formatTlv(TYPE, buffer, output);
     }
@@ -54,8 +56,8 @@ public class StatType009TlvHandler implements BmpTlvParser, BmpTlvSerializer {
             return null;
         }
         return new PerAfiSafiAdjRibInTlvBuilder()
-                       .setAfi(this.afiRegistry.classForFamily(buffer.readUnsignedShort()))
-                       .setSafi(this.safiRegistry.classForFamily(buffer.readUnsignedByte()))
-                       .setCount(new Gauge64(new BigInteger(ByteArray.readAllBytes(buffer)))).build();
+                .setAfi(this.afiRegistry.classForFamily(buffer.readUnsignedShort()))
+                .setSafi(this.safiRegistry.classForFamily(buffer.readUnsignedByte()))
+                .setCount(new Gauge64(new BigInteger(ByteArray.readAllBytes(buffer)))).build();
     }
 }

@@ -8,7 +8,6 @@
 
 package org.opendaylight.protocol.bmp.parser.message;
 
-
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Preconditions;
@@ -85,7 +84,7 @@ public class PeerUpHandler extends AbstractBmpPerPeerMessageParser<InformationBu
     @Override
     public Notification parseMessageBody(final ByteBuf bytes) throws BmpDeserializationException {
         final PeerUpNotificationBuilder peerUpNot = new PeerUpNotificationBuilder()
-            .setPeerHeader(parsePerPeerHeader(bytes));
+                .setPeerHeader(parsePerPeerHeader(bytes));
 
         if (peerUpNot.getPeerHeader().isIpv4()) {
             bytes.skipBytes(Ipv6Util.IPV6_LENGTH - Ipv4Util.IP4_LENGTH);
@@ -97,26 +96,26 @@ public class PeerUpHandler extends AbstractBmpPerPeerMessageParser<InformationBu
         peerUpNot.setRemotePort(new PortNumber(bytes.readUnsignedShort()));
         try {
             final Notification opSent = this.msgRegistry
-                .parseMessage(bytes.readSlice(getBgpMessageLength(bytes)), null);
+                    .parseMessage(bytes.readSlice(getBgpMessageLength(bytes)), null);
             requireNonNull(opSent,
-                "Error on parse Sent OPEN Message, Sent OPEN Message is null");
+                    "Error on parse Sent OPEN Message, Sent OPEN Message is null");
             Preconditions.checkArgument(opSent instanceof OpenMessage,
-                "An instance of OpenMessage notification is required");
+                    "An instance of OpenMessage notification is required");
             final OpenMessage sent = (OpenMessage) opSent;
 
             final Notification opRec = this.msgRegistry
-                .parseMessage(bytes.readSlice(getBgpMessageLength(bytes)), null);
+                    .parseMessage(bytes.readSlice(getBgpMessageLength(bytes)), null);
             requireNonNull(opRec,
-                "Error on parse Received  OPEN Message, Received  OPEN Message is null");
+                    "Error on parse Received  OPEN Message, Received  OPEN Message is null");
             Preconditions.checkArgument(opRec instanceof OpenMessage,
-                "An instance of OpenMessage notification is required");
+                    "An instance of OpenMessage notification is required");
             final OpenMessage received = (OpenMessage) opRec;
 
             peerUpNot.setSentOpen(new SentOpenBuilder(sent).build());
             peerUpNot.setReceivedOpen(new ReceivedOpenBuilder(received).build());
 
             final InformationBuilder infos = new InformationBuilder();
-            if ( bytes.isReadable() ) {
+            if (bytes.isReadable()) {
                 parseTlvs(infos, bytes);
                 peerUpNot.setInformation(infos.build());
             }
@@ -132,11 +131,11 @@ public class PeerUpHandler extends AbstractBmpPerPeerMessageParser<InformationBu
     protected void addTlv(final InformationBuilder builder, final Tlv tlv) {
         if (tlv instanceof StringTlv) {
             final ImmutableList.Builder<StringInformation> stringInfoListBuilder = ImmutableList.builder();
-            if ( builder.getStringInformation() != null ) {
+            if (builder.getStringInformation() != null) {
                 stringInfoListBuilder.addAll(builder.getStringInformation());
             }
             builder.setStringInformation(stringInfoListBuilder.add(new StringInformationBuilder().setStringTlv(
-                new StringTlvBuilder((StringTlv) tlv).build()).build()).build());
+                    new StringTlvBuilder((StringTlv) tlv).build()).build()).build());
         }
     }
 

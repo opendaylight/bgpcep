@@ -36,6 +36,7 @@ public class StatType008TlvHandler implements BmpTlvParser, BmpTlvSerializer {
         if (buffer == null) {
             return null;
         }
-        return new LocRibRoutesTlvBuilder().setCount(new Gauge64(new BigInteger(ByteArray.readAllBytes(buffer)))).build();
+        return new LocRibRoutesTlvBuilder()
+                .setCount(new Gauge64(new BigInteger(ByteArray.readAllBytes(buffer)))).build();
     }
 }

@@ -116,11 +116,11 @@ public final class TestUtil {
     }
 
     public static final Ipv4Address IPV4_ADDRESS_10 = new Ipv4Address("10.10.10.10");
-    public static final Ipv4Address IPV4_ADDRESS_20 = new Ipv4Address("20.20.20.20");
-    public static final Ipv4Address IPV4_ADDRESS_30 = new Ipv4Address("30.30.30.30");
-    public static final Ipv4Address IPV4_ADDRESS_40 = new Ipv4Address("40.40.40.40");
-    public static final Ipv4Address IPV4_ADDRESS_12 = new Ipv4Address("12.12.12.12");
-    public static final Ipv4Address IPV4_ADDRESS_100 = new Ipv4Address("100.100.100.100");
+    private static final Ipv4Address IPV4_ADDRESS_20 = new Ipv4Address("20.20.20.20");
+    private static final Ipv4Address IPV4_ADDRESS_30 = new Ipv4Address("30.30.30.30");
+    private static final Ipv4Address IPV4_ADDRESS_40 = new Ipv4Address("40.40.40.40");
+    private static final Ipv4Address IPV4_ADDRESS_12 = new Ipv4Address("12.12.12.12");
+    private static final Ipv4Address IPV4_ADDRESS_100 = new Ipv4Address("100.100.100.100");
     public static final AsNumber PEER_AS = new AsNumber(72L);
     public static final PortNumber PEER_LOCAL_PORT = new PortNumber(220);
     public static final PortNumber PEER_REMOTE_PORT = new PortNumber(5000);
@@ -134,20 +134,22 @@ public final class TestUtil {
         return initMsgBuilder.setTlvs(tlvsBuilder.build()).build();
     }
 
-    public static StringInformation createStringInfo(final String string) {
-        return new StringInformationBuilder().setStringTlv(new StringTlvBuilder().setStringInfo(string).build()).build();
+    private static StringInformation createStringInfo(final String string) {
+        return new StringInformationBuilder()
+                .setStringTlv(new StringTlvBuilder().setStringInfo(string).build()).build();
     }
 
     public static TerminationMessage createTerminationMsg() {
         final TerminationMessageBuilder terminatMsgBuilder = new TerminationMessageBuilder();
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.termination.TlvsBuilder tlvsBuilder =
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.termination.TlvsBuilder();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.termination
+                .TlvsBuilder tlvsBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+                .bmp.message.rev171207.termination.TlvsBuilder();
         tlvsBuilder.setReasonTlv(new ReasonTlvBuilder().setReason(Reason.AdministrativelyClosed).build());
         tlvsBuilder.setStringInformation(Lists.newArrayList(createStringInfo("error1"), createStringInfo("error1")));
         return terminatMsgBuilder.setTlvs(tlvsBuilder.build()).build();
     }
 
-    public static PeerHeader createPeerHeader(final Ipv4Address bgpId, final AdjRibInType ribType) {
+    private static PeerHeader createPeerHeader(final Ipv4Address bgpId, final AdjRibInType ribType) {
         final PeerHeaderBuilder peerHeaderBuilder = new PeerHeaderBuilder()
             .setAddress(new IpAddress(IPV4_ADDRESS_10))
             .setAs(PEER_AS)
@@ -160,11 +162,11 @@ public final class TestUtil {
         return peerHeaderBuilder.build();
     }
 
-    public static PeerHeader createPeerHeader(final Ipv4Address bgpId) {
+    private static PeerHeader createPeerHeader(final Ipv4Address bgpId) {
         return createPeerHeader(bgpId, AdjRibInType.PrePolicy);
     }
 
-    public static PeerHeader createPeerHeader() {
+    private static PeerHeader createPeerHeader() {
         return createPeerHeader(IPV4_ADDRESS_10);
     }
 
@@ -185,7 +187,7 @@ public final class TestUtil {
         return peerUpNotifBuilder.build();
     }
 
-    public static PeerUpNotification createPeerUpNotification() {
+    static PeerUpNotification createPeerUpNotification() {
         return createPeerUpNotification(IPV4_ADDRESS_10, false);
     }
 
@@ -199,7 +201,8 @@ public final class TestUtil {
 
     public static PeerDownNotification createPeerDownNotification(final Ipv4Address bgpId) {
         final NotificationBuilder notifBuilder = new NotificationBuilder()
-            .setNotification(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.peer.down.data.notification.NotificationBuilder()
+            .setNotification(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message
+                    .rev171207.peer.down.data.notification.NotificationBuilder()
             .setErrorCode((short) 1)
             .setErrorSubcode((short) 1).build());
         final PeerDownNotificationBuilder peerDownNotifBuilder = new PeerDownNotificationBuilder()
@@ -209,7 +212,7 @@ public final class TestUtil {
         return peerDownNotifBuilder.build();
     }
 
-    public static PeerDownNotification createPeerDownNotification() {
+    static PeerDownNotification createPeerDownNotification() {
         return createPeerDownNotification(IPV4_ADDRESS_10);
     }
 
@@ -224,7 +227,8 @@ public final class TestUtil {
 
     private static List<OptionalCapabilities> createOptionalCapabilities(final boolean multiprotocol) {
         final OptionalCapabilitiesBuilder optCapabilitiesBuilder = new OptionalCapabilitiesBuilder()
-            .setCParameters(new CParametersBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(70L)).build()).build());
+            .setCParameters(new CParametersBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder()
+                    .setAsNumber(new AsNumber(70L)).build()).build());
         final CParametersBuilder paramsBuilder = new CParametersBuilder();
         if (multiprotocol) {
             final CParameters1Builder params1Builder = new CParameters1Builder();
@@ -235,7 +239,8 @@ public final class TestUtil {
         }
         final OptionalCapabilitiesBuilder optCapabilitiesBuilder2 = new OptionalCapabilitiesBuilder()
             .setCParameters(paramsBuilder
-                    .setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(80L)).build()).build());
+                    .setAs4BytesCapability(new As4BytesCapabilityBuilder()
+                            .setAsNumber(new AsNumber(80L)).build()).build());
         final List<OptionalCapabilities> optCapabilities = Lists.newArrayList();
         optCapabilities.add(optCapabilitiesBuilder.build());
         optCapabilities.add(optCapabilitiesBuilder2.build());
@@ -257,7 +262,8 @@ public final class TestUtil {
         return createRouteMonitMsg(withNormalizedIpv4Prefixes, IPV4_ADDRESS_10, AdjRibInType.PrePolicy);
     }
 
-    public static RouteMonitoringMessage createRouteMonitMsg(final boolean withNormalizedIpv4Prefixes, final Ipv4Address bgpId, final AdjRibInType ribType) {
+    public static RouteMonitoringMessage createRouteMonitMsg(final boolean withNormalizedIpv4Prefixes,
+            final Ipv4Address bgpId, final AdjRibInType ribType) {
         final RouteMonitoringMessageBuilder routeMonitMsgBuilder = new RouteMonitoringMessageBuilder()
             .setPeerHeader(createPeerHeader(bgpId, ribType))
             .setUpdate(createUpdate(withNormalizedIpv4Prefixes));
@@ -267,8 +273,11 @@ public final class TestUtil {
     public static RouteMirroringMessage createRouteMirrorMsg(final Ipv4Address bgpId) {
         final RouteMirroringMessageBuilder routeMirrorMsgBuilder = new RouteMirroringMessageBuilder()
             .setPeerHeader(createPeerHeader(bgpId));
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.mirror.TlvsBuilder tlvsBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.mirror.TlvsBuilder();
-        tlvsBuilder.setMirrorInformationTlv(new MirrorInformationTlvBuilder().setCode(MirrorInformationCode.forValue(1)).build());
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.mirror
+                .TlvsBuilder tlvsBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+                .bmp.message.rev171207.mirror.TlvsBuilder();
+        tlvsBuilder.setMirrorInformationTlv(new MirrorInformationTlvBuilder()
+                .setCode(MirrorInformationCode.forValue(1)).build());
         routeMirrorMsgBuilder.setTlvs(tlvsBuilder.build());
         return routeMirrorMsgBuilder.build();
     }
@@ -287,14 +296,17 @@ public final class TestUtil {
     }
 
     private static Attributes createAttributes() {
-        final List<AsNumber> asSequences = Lists.newArrayList(new AsNumber(72L), new AsNumber(82L), new AsNumber(92L));
+        final List<AsNumber> asSequences = Lists.newArrayList(new AsNumber(72L), new AsNumber(82L),
+                new AsNumber(92L));
         final List<Segments> segments = Lists.newArrayList();
         final SegmentsBuilder segmentsBuild = new SegmentsBuilder();
         segmentsBuild.setAsSequence(asSequences).build();
 
         final AttributesBuilder attribBuilder = new AttributesBuilder()
-            .setAggregator(new AggregatorBuilder().setAsNumber(new AsNumber(72L)).setNetworkAddress(new Ipv4Address(IPV4_ADDRESS_20)).build())
-            .setAigp(new AigpBuilder().setAigpTlv(new AigpTlvBuilder().setMetric(new AccumulatedIgpMetric(BigInteger.ONE)).build()).build())
+            .setAggregator(new AggregatorBuilder().setAsNumber(new AsNumber(72L))
+                    .setNetworkAddress(new Ipv4Address(IPV4_ADDRESS_20)).build())
+            .setAigp(new AigpBuilder().setAigpTlv(new AigpTlvBuilder()
+                    .setMetric(new AccumulatedIgpMetric(BigInteger.ONE)).build()).build())
             .setAsPath(new AsPathBuilder().setSegments(segments).build())
             .setAtomicAggregate(new AtomicAggregateBuilder().build())
             .setClusterId(new ClusterIdBuilder().setCluster(Lists.newArrayList(new ClusterIdentifier(IPV4_ADDRESS_30),
@@ -338,41 +350,64 @@ public final class TestUtil {
     }
 
     private static List<WithdrawnRoutes> createWithdrawnRoutes() {
-        final WithdrawnRoutes w1 = new WithdrawnRoutesBuilder().setPrefix(new Ipv4Prefix("10.10.20.0/24")).build();
-        final WithdrawnRoutes w2 = new WithdrawnRoutesBuilder().setPrefix(new Ipv4Prefix("20.20.10.0/24")).build();
-        final WithdrawnRoutes w3 = new WithdrawnRoutesBuilder().setPrefix(new Ipv4Prefix("30.10.10.0/24")).build();
+        final WithdrawnRoutes w1 = new WithdrawnRoutesBuilder()
+                .setPrefix(new Ipv4Prefix("10.10.20.0/24")).build();
+        final WithdrawnRoutes w2 = new WithdrawnRoutesBuilder()
+                .setPrefix(new Ipv4Prefix("20.20.10.0/24")).build();
+        final WithdrawnRoutes w3 = new WithdrawnRoutesBuilder()
+                .setPrefix(new Ipv4Prefix("30.10.10.0/24")).build();
         return Lists.newArrayList(w1, w2, w3);
     }
 
     public static StatsReportsMessage createStatsReportMsg(final Ipv4Address bgpId) {
         final StatsReportsMessageBuilder statsReportMsgBuilder = new StatsReportsMessageBuilder();
         statsReportMsgBuilder.setPeerHeader(TestUtil.createPeerHeader(bgpId));
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.stat.TlvsBuilder tlvsBuilder =
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.stat.TlvsBuilder();
-        tlvsBuilder.setAdjRibsInRoutesTlv(new AdjRibsInRoutesTlvBuilder().setCount(new Gauge64(BigInteger.valueOf(10L))).build());
-        tlvsBuilder.setDuplicatePrefixAdvertisementsTlv(new DuplicatePrefixAdvertisementsTlvBuilder().setCount(new Counter32(16L)).build());
-        tlvsBuilder.setDuplicateWithdrawsTlv(new DuplicateWithdrawsTlvBuilder().setCount(new Counter32(11L)).build());
-        tlvsBuilder.setInvalidatedAsConfedLoopTlv(new InvalidatedAsConfedLoopTlvBuilder().setCount(new Counter32(55L)).build());
-        tlvsBuilder.setInvalidatedAsPathLoopTlv(new InvalidatedAsPathLoopTlvBuilder().setCount(new Counter32(66L)).build());
-        tlvsBuilder.setInvalidatedClusterListLoopTlv(new InvalidatedClusterListLoopTlvBuilder().setCount(new Counter32(53L)).build());
-        tlvsBuilder.setInvalidatedOriginatorIdTlv(new InvalidatedOriginatorIdTlvBuilder().setCount(new Counter32(70L)).build());
-        tlvsBuilder.setLocRibRoutesTlv(new LocRibRoutesTlvBuilder().setCount(new Gauge64(BigInteger.valueOf(100L))).build());
-        tlvsBuilder.setRejectedPrefixesTlv(new RejectedPrefixesTlvBuilder().setCount(new Counter32(8L)).build());
-        tlvsBuilder.setPerAfiSafiAdjRibInTlv(new PerAfiSafiAdjRibInTlvBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).setCount(new Gauge64(BigInteger.valueOf(9L))).build());
-        tlvsBuilder.setPerAfiSafiLocRibTlv(new PerAfiSafiLocRibTlvBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).setCount(new Gauge64(BigInteger.valueOf(10L))).build());
-        tlvsBuilder.setUpdatesTreatedAsWithdrawTlv(new UpdatesTreatedAsWithdrawTlvBuilder().setCount(new Counter32(11L)).build());
-        tlvsBuilder.setPrefixesTreatedAsWithdrawTlv(new PrefixesTreatedAsWithdrawTlvBuilder().setCount(new Counter32(12L)).build());
-        tlvsBuilder.setDuplicateUpdatesTlv(new DuplicateUpdatesTlvBuilder().setCount(new Counter32(13L)).build());
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.stat
+                .TlvsBuilder tlvsBuilder =
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.stat
+                        .TlvsBuilder();
+        tlvsBuilder.setAdjRibsInRoutesTlv(new AdjRibsInRoutesTlvBuilder()
+                .setCount(new Gauge64(BigInteger.valueOf(10L))).build());
+        tlvsBuilder.setDuplicatePrefixAdvertisementsTlv(new DuplicatePrefixAdvertisementsTlvBuilder()
+                .setCount(new Counter32(16L)).build());
+        tlvsBuilder.setDuplicateWithdrawsTlv(new DuplicateWithdrawsTlvBuilder()
+                .setCount(new Counter32(11L)).build());
+        tlvsBuilder.setInvalidatedAsConfedLoopTlv(new InvalidatedAsConfedLoopTlvBuilder()
+                .setCount(new Counter32(55L)).build());
+        tlvsBuilder.setInvalidatedAsPathLoopTlv(new InvalidatedAsPathLoopTlvBuilder()
+                .setCount(new Counter32(66L)).build());
+        tlvsBuilder.setInvalidatedClusterListLoopTlv(new InvalidatedClusterListLoopTlvBuilder()
+                .setCount(new Counter32(53L)).build());
+        tlvsBuilder.setInvalidatedOriginatorIdTlv(new InvalidatedOriginatorIdTlvBuilder()
+                .setCount(new Counter32(70L)).build());
+        tlvsBuilder.setLocRibRoutesTlv(new LocRibRoutesTlvBuilder()
+                .setCount(new Gauge64(BigInteger.valueOf(100L))).build());
+        tlvsBuilder.setRejectedPrefixesTlv(new RejectedPrefixesTlvBuilder()
+                .setCount(new Counter32(8L)).build());
+        tlvsBuilder.setPerAfiSafiAdjRibInTlv(new PerAfiSafiAdjRibInTlvBuilder()
+                .setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
+                .setCount(new Gauge64(BigInteger.valueOf(9L))).build());
+        tlvsBuilder.setPerAfiSafiLocRibTlv(new PerAfiSafiLocRibTlvBuilder()
+                .setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
+                .setCount(new Gauge64(BigInteger.valueOf(10L))).build());
+        tlvsBuilder.setUpdatesTreatedAsWithdrawTlv(new UpdatesTreatedAsWithdrawTlvBuilder()
+                .setCount(new Counter32(11L)).build());
+        tlvsBuilder.setPrefixesTreatedAsWithdrawTlv(new PrefixesTreatedAsWithdrawTlvBuilder()
+                .setCount(new Counter32(12L)).build());
+        tlvsBuilder.setDuplicateUpdatesTlv(new DuplicateUpdatesTlvBuilder()
+                .setCount(new Counter32(13L)).build());
         return statsReportMsgBuilder.setTlvs(tlvsBuilder.build()).build();
     }
 
-    public static StatsReportsMessage createStatsReportMsg() {
+    static StatsReportsMessage createStatsReportMsg() {
         return createStatsReportMsg(IPV4_ADDRESS_10);
     }
 
 
-    public static RouteMonitoringMessage createRouteMonMsgWithEndOfRibMarker(final Ipv4Address bgpId, final AdjRibInType ribType) {
-        return new RouteMonitoringMessageBuilder().setPeerHeader(createPeerHeader(bgpId, ribType)).setUpdate(createEndOfRibMarker()).build();
+    public static RouteMonitoringMessage createRouteMonMsgWithEndOfRibMarker(final Ipv4Address bgpId,
+            final AdjRibInType ribType) {
+        return new RouteMonitoringMessageBuilder().setPeerHeader(createPeerHeader(bgpId, ribType))
+                .setUpdate(createEndOfRibMarker()).build();
     }
 
     private static Update createEndOfRibMarker() {

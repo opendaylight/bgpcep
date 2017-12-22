@@ -11,6 +11,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.opendaylight.protocol.bmp.parser.message.TestUtil.createPeerDownFSM;
 import static org.opendaylight.protocol.bmp.parser.message.TestUtil.createPeerDownNotification;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Test;
@@ -38,7 +39,8 @@ public class PeerDownHandlerTest extends AbstractBmpMessageTest {
          * 00 00 00 0A - time stamp micro - 4 bytes
          *
          * 02 <- Reason why the session was terminated (2 - the local system closed the session)
-         * 00 18 <- the code of FSM event (24 - NotifMsgVerErr - An event is generated when a Notification message with "version error" is received.)
+         * 00 18 <- the code of FSM event (24 - NotifMsgVerErr - An event is generated when a
+          * Notification message with "version error" is received.)
          */
         (byte) 0x03, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x33, (byte) 0x02,
 
@@ -46,7 +48,8 @@ public class PeerDownHandlerTest extends AbstractBmpMessageTest {
         (byte) 0x00,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
         (byte) 0x0A, (byte) 0x0A, (byte) 0x0A, (byte) 0x0A,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x48,
         (byte) 0x0A, (byte) 0x0A, (byte) 0x0A, (byte) 0x0A,
@@ -93,7 +96,8 @@ public class PeerDownHandlerTest extends AbstractBmpMessageTest {
         (byte) 0x00,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
         (byte) 0x0A, (byte) 0x0A, (byte) 0x0A, (byte) 0x0A,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x48,
         (byte) 0x0A, (byte) 0x0A, (byte) 0x0A, (byte) 0x0A,
@@ -102,7 +106,8 @@ public class PeerDownHandlerTest extends AbstractBmpMessageTest {
 
         (byte) 0x01,
 
-        (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+        (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+        (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
         (byte) 0x00, (byte) 0x15,
         (byte) 0x03,
         (byte) 0x01,

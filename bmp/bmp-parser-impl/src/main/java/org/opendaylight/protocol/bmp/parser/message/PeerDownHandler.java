@@ -13,6 +13,7 @@ import static org.opendaylight.protocol.bmp.parser.message.PeerDownHandler.Reaso
 import static org.opendaylight.protocol.bmp.parser.message.PeerDownHandler.Reason.REASON_ONE;
 import static org.opendaylight.protocol.bmp.parser.message.PeerDownHandler.Reason.REASON_THREE;
 import static org.opendaylight.protocol.bmp.parser.message.PeerDownHandler.Reason.REASON_TWO;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import io.netty.buffer.ByteBuf;
@@ -45,20 +46,23 @@ public class PeerDownHandler extends AbstractBmpPerPeerMessageParser<PeerDownNot
     @Override
     public void serializeMessageBody(final Notification message, final ByteBuf buffer) {
         super.serializeMessageBody(message, buffer);
-        Preconditions.checkArgument(message instanceof PeerDownNotification, "An instance of PeerDownNotification is required");
+        Preconditions.checkArgument(message instanceof PeerDownNotification,
+                "An instance of PeerDownNotification is required");
         final PeerDownNotification peerDown = (PeerDownNotification) message;
         if (peerDown.isLocalSystemClosed()) {
             if (peerDown.getData() instanceof FsmEventCode) {
                 ByteBufWriteUtil.writeUnsignedByte(REASON_TWO.getValue(), buffer);
                 ByteBufWriteUtil.writeUnsignedShort(((FsmEventCode) peerDown.getData()).getFsmEventCode(), buffer);
-            } else if (peerDown.getData() instanceof
-                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.peer.down.data.Notification) {
+            } else if (peerDown.getData()
+                    instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207
+                    .peer.down.data.Notification) {
                 ByteBufWriteUtil.writeUnsignedByte(REASON_ONE.getValue(), buffer);
                 serializePDU(peerDown.getData(), buffer);
             }
         } else {
-            if (peerDown.getData() instanceof
-                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.peer.down.data.Notification) {
+            if (peerDown.getData()
+                    instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207
+                    .peer.down.data.Notification) {
                 ByteBufWriteUtil.writeUnsignedByte(REASON_THREE.getValue(), buffer);
                 serializePDU(peerDown.getData(), buffer);
             } else {
@@ -68,51 +72,58 @@ public class PeerDownHandler extends AbstractBmpPerPeerMessageParser<PeerDownNot
     }
 
     private void serializePDU(final Data data, final ByteBuf buffer) {
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.peer.down.data.Notification notification
-            = (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.peer.down.data.Notification) data;
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.peer.down.data
+                .Notification notification = (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp
+                .message.rev171207.peer.down.data.Notification) data;
         this.msgRegistry.serializeMessage(new NotifyBuilder(notification.getNotification()).build(), buffer);
     }
 
     @Override
     public Notification parseMessageBody(final ByteBuf bytes) throws BmpDeserializationException {
-        final PeerDownNotificationBuilder peerDown = new PeerDownNotificationBuilder().setPeerHeader(parsePerPeerHeader(bytes));
+        final PeerDownNotificationBuilder peerDown = new PeerDownNotificationBuilder()
+                .setPeerHeader(parsePerPeerHeader(bytes));
         final Reason reason = Reason.forValue(bytes.readUnsignedByte());
         if (reason != null) {
             switch (reason) {
-            case REASON_ONE:
-                peerDown.setLocalSystemClosed(true);
-                peerDown.setData(parseBgpNotificationMessage(bytes));
-                break;
-            case REASON_TWO:
-                peerDown.setLocalSystemClosed(true);
-                peerDown.setData(new FsmEventCodeBuilder().setFsmEventCode(bytes.readUnsignedShort()).build());
-                break;
-            case REASON_THREE:
-            case REASON_FOUR:
-                peerDown.setLocalSystemClosed(false);
-                peerDown.setData(parseBgpNotificationMessage(bytes));
-                break;
-            case REASON_FIVE:
-                peerDown.setLocalSystemClosed(false);
-                break;
-            default:
-                break;
+                case REASON_ONE:
+                    peerDown.setLocalSystemClosed(true);
+                    peerDown.setData(parseBgpNotificationMessage(bytes));
+                    break;
+                case REASON_TWO:
+                    peerDown.setLocalSystemClosed(true);
+                    peerDown.setData(new FsmEventCodeBuilder().setFsmEventCode(bytes.readUnsignedShort()).build());
+                    break;
+                case REASON_THREE:
+                case REASON_FOUR:
+                    peerDown.setLocalSystemClosed(false);
+                    peerDown.setData(parseBgpNotificationMessage(bytes));
+                    break;
+                case REASON_FIVE:
+                    peerDown.setLocalSystemClosed(false);
+                    break;
+                default:
+                    break;
             }
         }
 
         return peerDown.build();
     }
 
-    private org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.peer.down.data.Notification parseBgpNotificationMessage(final ByteBuf bytes) throws BmpDeserializationException {
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.peer.down.data.NotificationBuilder notificationCBuilder
-            = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.peer.down.data.NotificationBuilder();
+    private org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.peer.down.data
+            .Notification parseBgpNotificationMessage(final ByteBuf bytes) throws BmpDeserializationException {
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.peer.down.data
+                .NotificationBuilder notificationCBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params
+                .xml.ns.yang.bmp.message.rev171207.peer.down.data.NotificationBuilder();
 
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.peer.down.data.notification.NotificationBuilder notificationBuilder
-            = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.peer.down.data.notification.NotificationBuilder();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.peer.down.data
+                .notification.NotificationBuilder notificationBuilder = new org.opendaylight.yang.gen.v1.urn
+                .opendaylight.params.xml.ns.yang.bmp.message.rev171207.peer.down.data.notification
+                .NotificationBuilder();
         try {
             final Notification not = this.msgRegistry.parseMessage(bytes, null);
             requireNonNull(not, "Notify message may not be null.");
-            Preconditions.checkArgument(not instanceof NotifyMessage, "An instance of NotifyMessage is required");
+            Preconditions.checkArgument(not instanceof NotifyMessage,
+                    "An instance of NotifyMessage is required");
             notificationBuilder.fieldsFrom((NotifyMessage) not);
             notificationCBuilder.setNotification(notificationBuilder.build());
         } catch (final BGPDocumentedException | BGPParsingException e) {
@@ -128,8 +139,11 @@ public class PeerDownHandler extends AbstractBmpPerPeerMessageParser<PeerDownNot
     }
 
     public enum Reason {
-
-        REASON_ONE((short) 1), REASON_TWO((short) 2), REASON_THREE((short) 3), REASON_FOUR((short) 4), REASON_FIVE((short) 5);
+        REASON_ONE((short) 1),
+        REASON_TWO((short) 2),
+        REASON_THREE((short) 3),
+        REASON_FOUR((short) 4),
+        REASON_FIVE((short) 5);
 
         private static final Map<Short, Reason> VALUE_MAP;
 

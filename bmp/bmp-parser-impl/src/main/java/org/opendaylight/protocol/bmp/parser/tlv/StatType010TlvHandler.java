@@ -9,6 +9,9 @@
 package org.opendaylight.protocol.bmp.parser.tlv;
 
 import static java.util.Objects.requireNonNull;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedLong;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
@@ -21,7 +24,6 @@ import org.opendaylight.protocol.bmp.spi.parser.BmpTlvParser;
 import org.opendaylight.protocol.bmp.spi.parser.BmpTlvSerializer;
 import org.opendaylight.protocol.bmp.spi.parser.TlvUtil;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Gauge64;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.stat.tlvs.PerAfiSafiLocRibTlv;
@@ -42,9 +44,9 @@ public class StatType010TlvHandler implements BmpTlvParser, BmpTlvSerializer {
     public void serializeTlv(final Tlv tlv, final ByteBuf output) {
         Preconditions.checkArgument(tlv instanceof PerAfiSafiLocRibTlv, "PerAfiSafiLocRibInTlv is mandatory.");
         final ByteBuf buffer = Unpooled.buffer();
-        ByteBufWriteUtil.writeUnsignedShort(this.afiRegistry.numberForClass(((PerAfiSafiLocRibTlv) tlv).getAfi()), buffer);
-        ByteBufWriteUtil.writeUnsignedByte(this.safiRegistry.numberForClass(((PerAfiSafiLocRibTlv) tlv).getSafi()).shortValue(), buffer);
-        ByteBufWriteUtil.writeUnsignedLong(((PerAfiSafiLocRibTlv) tlv).getCount().getValue(), buffer);
+        writeUnsignedShort(this.afiRegistry.numberForClass(((PerAfiSafiLocRibTlv) tlv).getAfi()), buffer);
+        writeUnsignedByte(this.safiRegistry.numberForClass(((PerAfiSafiLocRibTlv) tlv).getSafi()).shortValue(), buffer);
+        writeUnsignedLong(((PerAfiSafiLocRibTlv) tlv).getCount().getValue(), buffer);
         TlvUtil.formatTlv(TYPE, buffer, output);
     }
 
@@ -54,8 +56,8 @@ public class StatType010TlvHandler implements BmpTlvParser, BmpTlvSerializer {
             return null;
         }
         return new PerAfiSafiLocRibTlvBuilder()
-                       .setAfi(this.afiRegistry.classForFamily(buffer.readUnsignedShort()))
-                       .setSafi(this.safiRegistry.classForFamily(buffer.readUnsignedByte()))
-                       .setCount(new Gauge64(new BigInteger(ByteArray.readAllBytes(buffer)))).build();
+                .setAfi(this.afiRegistry.classForFamily(buffer.readUnsignedShort()))
+                .setSafi(this.safiRegistry.classForFamily(buffer.readUnsignedByte()))
+                .setCount(new Gauge64(new BigInteger(ByteArray.readAllBytes(buffer)))).build();
     }
 }

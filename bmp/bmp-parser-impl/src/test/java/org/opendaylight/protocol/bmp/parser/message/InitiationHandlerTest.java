@@ -11,6 +11,7 @@ package org.opendaylight.protocol.bmp.parser.message;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.opendaylight.protocol.bmp.parser.message.TestUtil.createInitMsg;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Test;
@@ -39,13 +40,20 @@ public class InitiationHandlerTest extends AbstractBmpMessageTest {
          * 00 1C <- the length of STRING
          * 54 68 65 20 69 6E 66 6F 72 6D 61 74 69 6F 6E 20 66 69 65 6C 64 20 74 79 70 65 20 30 <- value of STRING
          */
-        (byte) 0x03, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x4B, (byte) 0x04, (byte) 0x00, (byte) 0x02, (byte) 0x00, (byte) 0x0E,
-        (byte) 0x53, (byte) 0x79, (byte) 0x73, (byte) 0x4E, (byte) 0x61, (byte) 0x6D, (byte) 0x65, (byte) 0x20, (byte) 0x74, (byte) 0x79,
-        (byte) 0x70, (byte) 0x65, (byte) 0x20, (byte) 0x32, (byte) 0x00, (byte) 0x01, (byte) 0x00, (byte) 0x0F, (byte) 0x53, (byte) 0x79,
-        (byte) 0x73, (byte) 0x44, (byte) 0x65, (byte) 0x73, (byte) 0x63, (byte) 0x72, (byte) 0x20, (byte) 0x74, (byte) 0x79, (byte) 0x70,
-        (byte) 0x65, (byte) 0x20, (byte) 0x31, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x1C, (byte) 0x54, (byte) 0x68, (byte) 0x65,
-        (byte) 0x20, (byte) 0x69, (byte) 0x6E, (byte) 0x66, (byte) 0x6F, (byte) 0x72, (byte) 0x6D, (byte) 0x61, (byte) 0x74, (byte) 0x69,
-        (byte) 0x6F, (byte) 0x6E, (byte) 0x20, (byte) 0x66, (byte) 0x69, (byte) 0x65, (byte) 0x6C, (byte) 0x64, (byte) 0x20, (byte) 0x74,
+        (byte) 0x03, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x4B, (byte) 0x04, (byte) 0x00, (byte) 0x02,
+        (byte) 0x00, (byte) 0x0E,
+        (byte) 0x53, (byte) 0x79, (byte) 0x73, (byte) 0x4E, (byte) 0x61, (byte) 0x6D, (byte) 0x65, (byte) 0x20,
+        (byte) 0x74, (byte) 0x79,
+        (byte) 0x70, (byte) 0x65, (byte) 0x20, (byte) 0x32, (byte) 0x00, (byte) 0x01, (byte) 0x00, (byte) 0x0F,
+        (byte) 0x53, (byte) 0x79,
+        (byte) 0x73, (byte) 0x44, (byte) 0x65, (byte) 0x73, (byte) 0x63, (byte) 0x72, (byte) 0x20, (byte) 0x74,
+        (byte) 0x79, (byte) 0x70,
+        (byte) 0x65, (byte) 0x20, (byte) 0x31, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x1C, (byte) 0x54,
+        (byte) 0x68, (byte) 0x65,
+        (byte) 0x20, (byte) 0x69, (byte) 0x6E, (byte) 0x66, (byte) 0x6F, (byte) 0x72, (byte) 0x6D, (byte) 0x61,
+        (byte) 0x74, (byte) 0x69,
+        (byte) 0x6F, (byte) 0x6E, (byte) 0x20, (byte) 0x66, (byte) 0x69, (byte) 0x65, (byte) 0x6C, (byte) 0x64,
+        (byte) 0x20, (byte) 0x74,
         (byte) 0x79, (byte) 0x70, (byte) 0x65, (byte) 0x20, (byte) 0x30
     };
 
@@ -58,7 +66,8 @@ public class InitiationHandlerTest extends AbstractBmpMessageTest {
 
     @Test
     public void testParseInitiationMessage() throws BmpDeserializationException {
-        final InitiationMessage parsedInitMsg = (InitiationMessage) getBmpMessageRegistry().parseMessage(Unpooled.copiedBuffer(INIT_MSG));
+        final InitiationMessage parsedInitMsg = (InitiationMessage) getBmpMessageRegistry()
+                .parseMessage(Unpooled.copiedBuffer(INIT_MSG));
         assertEquals(createInitMsg(SYS_DESCR, SYS_NAME, STR_INFO), parsedInitMsg);
     }
 }

@@ -11,6 +11,7 @@ package org.opendaylight.protocol.bmp.parser.message;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.opendaylight.protocol.bmp.parser.message.TestUtil.createRouteMonitMsg;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Test;
@@ -50,17 +51,20 @@ public class RouteMonitoringMessageHandlerTest extends AbstractBmpMessageTest {
         (byte) 0x00,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00,
         (byte) 0x0A, (byte) 0x0A, (byte) 0x0A, (byte) 0x0A,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x48,
         (byte) 0x0A, (byte) 0x0A, (byte) 0x0A, (byte) 0x0A,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x05,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x0A,
 
-        (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+        (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+        (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
         (byte) 0x00, (byte) 0x84,
         (byte) 0x02,
-        (byte) 0x00, (byte) 0x0C, (byte) 0x18, (byte) 0x0A, (byte) 0x0A, (byte) 0x14, (byte) 0x18, (byte) 0x14, (byte) 0x14,
+        (byte) 0x00, (byte) 0x0C, (byte) 0x18, (byte) 0x0A, (byte) 0x0A, (byte) 0x14, (byte) 0x18, (byte) 0x14,
+        (byte) 0x14,
         (byte) 0x0A, (byte) 0x18, (byte) 0x1E, (byte) 0x0A, (byte) 0x0A, (byte) 0x00, (byte) 0x55, (byte) 0x40,
         (byte) 0x01, (byte) 0x01, (byte) 0x00, (byte) 0x80, (byte) 0x1A, (byte) 0x0B, (byte) 0x01, (byte) 0x00,
         (byte) 0x0B, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
@@ -85,7 +89,8 @@ public class RouteMonitoringMessageHandlerTest extends AbstractBmpMessageTest {
 
     @Test
     public void testParseRouteMonitMessage() throws BmpDeserializationException {
-        final RouteMonitoringMessage parsedInitMsg = (RouteMonitoringMessage) getBmpMessageRegistry().parseMessage(Unpooled.copiedBuffer(ROUTE_MONIT_MSG));
+        final RouteMonitoringMessage parsedInitMsg = (RouteMonitoringMessage) getBmpMessageRegistry()
+                .parseMessage(Unpooled.copiedBuffer(ROUTE_MONIT_MSG));
         assertEquals(createRouteMonitMsg(true), parsedInitMsg);
     }
 }

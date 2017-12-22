@@ -37,7 +37,8 @@ public class InitiationHandler extends AbstractBmpMessageWithTlvParser<TlvsBuild
 
     @Override
     public void serializeMessageBody(final Notification message, final ByteBuf buffer) {
-        Preconditions.checkArgument(message instanceof InitiationMessage, "Incorrect instance of BGP message. The Initiation Message is expected.");
+        Preconditions.checkArgument(message instanceof InitiationMessage,
+                "Incorrect instance of BGP message. The Initiation Message is expected.");
         final InitiationMessage initiation = (InitiationMessage) message;
         serializeTlvs(initiation.getTlvs(), buffer);
     }
@@ -85,7 +86,8 @@ public class InitiationHandler extends AbstractBmpMessageWithTlvParser<TlvsBuild
         } else if (tlv instanceof StringTlv) {
             builder.setStringInformation(ImmutableList.<StringInformation>builder()
                     .addAll(builder.getStringInformation())
-                    .add(new StringInformationBuilder().setStringTlv(new StringTlvBuilder((StringTlv) tlv).build()).build()).build());
+                    .add(new StringInformationBuilder()
+                            .setStringTlv(new StringTlvBuilder((StringTlv) tlv).build()).build()).build());
         }
     }
 }

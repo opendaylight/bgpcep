@@ -25,7 +25,8 @@ public class StatType003TlvHandler implements BmpTlvParser, BmpTlvSerializer {
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf output) {
-        Preconditions.checkArgument(tlv instanceof InvalidatedClusterListLoopTlv, "InvalidatedClusterListLoopTlv is mandatory.");
+        Preconditions.checkArgument(tlv instanceof InvalidatedClusterListLoopTlv,
+                "InvalidatedClusterListLoopTlv is mandatory.");
         TlvUtil.formatTlvCounter32(TYPE, ((InvalidatedClusterListLoopTlv) tlv).getCount(), output);
     }
 

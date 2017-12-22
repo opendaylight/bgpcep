@@ -26,9 +26,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.termination.TlvsBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
-/**
- * Created by cgasparini on 13.5.2015.
- */
 public class TerminationHandler extends AbstractBmpMessageWithTlvParser<TlvsBuilder> {
 
     public TerminationHandler(final BmpTlvRegistry tlvRegistry) {
@@ -52,7 +49,8 @@ public class TerminationHandler extends AbstractBmpMessageWithTlvParser<TlvsBuil
 
     @Override
     public void serializeMessageBody(final Notification message, final ByteBuf buffer) {
-        Preconditions.checkArgument(message instanceof TerminationMessage, "An instance of Termination message is required");
+        Preconditions.checkArgument(message instanceof TerminationMessage,
+                "An instance of Termination message is required");
         final TerminationMessage terminationMsg = (TerminationMessage) message;
         serializeTlvs(terminationMsg.getTlvs(), buffer);
     }
@@ -80,7 +78,8 @@ public class TerminationHandler extends AbstractBmpMessageWithTlvParser<TlvsBuil
         } else if (tlv instanceof StringTlv) {
             builder.setStringInformation(ImmutableList.<StringInformation>builder()
                     .addAll(builder.getStringInformation())
-                    .add(new StringInformationBuilder().setStringTlv(new StringTlvBuilder((StringTlv) tlv).build()).build()).build());
+                    .add(new StringInformationBuilder()
+                            .setStringTlv(new StringTlvBuilder((StringTlv) tlv).build()).build()).build());
         }
     }
 }

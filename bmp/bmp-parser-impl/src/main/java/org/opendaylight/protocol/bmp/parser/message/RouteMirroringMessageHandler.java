@@ -38,14 +38,16 @@ public class RouteMirroringMessageHandler extends AbstractBmpPerPeerMessageParse
     @Override
     public void serializeMessageBody(final Notification message, final ByteBuf buffer) {
         super.serializeMessageBody(message, buffer);
-        Preconditions.checkArgument(message instanceof RouteMirroringMessage, "An instance of RouteMirroringMessage is required");
+        Preconditions.checkArgument(message instanceof RouteMirroringMessage,
+                "An instance of RouteMirroringMessage is required");
         final RouteMirroringMessage routeMirror = (RouteMirroringMessage) message;
         serializeTlvs(routeMirror.getTlvs(), buffer);
     }
 
     @Override
     public Notification parseMessageBody(final ByteBuf bytes) throws BmpDeserializationException {
-        final RouteMirroringMessageBuilder routeMirror = new RouteMirroringMessageBuilder().setPeerHeader(parsePerPeerHeader(bytes));
+        final RouteMirroringMessageBuilder routeMirror = new RouteMirroringMessageBuilder()
+                .setPeerHeader(parsePerPeerHeader(bytes));
         final TlvsBuilder tlvsBuilder = new TlvsBuilder();
         parseTlvs(tlvsBuilder, bytes);
         return routeMirror.setTlvs(tlvsBuilder.build()).build();

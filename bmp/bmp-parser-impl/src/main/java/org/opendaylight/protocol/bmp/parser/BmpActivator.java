@@ -114,20 +114,26 @@ public final class BmpActivator extends AbstractBmpExtensionProviderActivator {
 
         final StatisticsReportHandler statisticsReportHandler = new StatisticsReportHandler(this.messageRegistry,
                 context.getBmpStatisticsTlvRegistry());
-        regs.add(context.registerBmpMessageParser(statisticsReportHandler.getBmpMessageType(), statisticsReportHandler));
+        regs.add(context.registerBmpMessageParser(statisticsReportHandler.getBmpMessageType(),
+                statisticsReportHandler));
         regs.add(context.registerBmpMessageSerializer(StatsReportsMessage.class, statisticsReportHandler));
 
-        final RouteMonitoringMessageHandler routeMonitoringMessageHandler = new RouteMonitoringMessageHandler(this.messageRegistry);
-        regs.add(context.registerBmpMessageParser(routeMonitoringMessageHandler.getBmpMessageType(), routeMonitoringMessageHandler));
+        final RouteMonitoringMessageHandler routeMonitoringMessageHandler =
+                new RouteMonitoringMessageHandler(this.messageRegistry);
+        regs.add(context.registerBmpMessageParser(routeMonitoringMessageHandler.getBmpMessageType(),
+                routeMonitoringMessageHandler));
         regs.add(context.registerBmpMessageSerializer(RouteMonitoringMessage.class, routeMonitoringMessageHandler));
 
-        final RouteMirroringMessageHandler routeMirroringMessageHandler = new RouteMirroringMessageHandler(this.messageRegistry, context.getBmpRouteMirroringTlvRegistry());
-        regs.add(context.registerBmpMessageParser(routeMirroringMessageHandler.getBmpMessageType(), routeMirroringMessageHandler));
+        final RouteMirroringMessageHandler routeMirroringMessageHandler =
+                new RouteMirroringMessageHandler(this.messageRegistry, context.getBmpRouteMirroringTlvRegistry());
+        regs.add(context.registerBmpMessageParser(routeMirroringMessageHandler.getBmpMessageType(),
+                routeMirroringMessageHandler));
         regs.add(context.registerBmpMessageSerializer(RouteMirroringMessage.class, routeMirroringMessageHandler));
 
     }
 
-    private static void registerBmpTlvHandlers(final List<AutoCloseable> regs, final BmpExtensionProviderContext context) {
+    private static void registerBmpTlvHandlers(final List<AutoCloseable> regs,
+            final BmpExtensionProviderContext context) {
         final DescriptionTlvHandler descriptionTlvHandler = new DescriptionTlvHandler();
         regs.add(context.registerBmpInitiationTlvParser(DescriptionTlvHandler.TYPE, descriptionTlvHandler));
         regs.add(context.registerBmpInitiationTlvSerializer(DescriptionTlv.class, descriptionTlvHandler));
@@ -153,14 +159,16 @@ public final class BmpActivator extends AbstractBmpExtensionProviderActivator {
         regs.add(context.registerBmpRouteMirroringTlvSerializer(MirrorInformationTlv.class, informationTlvHandler));
     }
 
-    private void registerBmpStatTlvHandlers(final List<AutoCloseable> regs, final BmpExtensionProviderContext context) {
+    private void registerBmpStatTlvHandlers(final List<AutoCloseable> regs,
+            final BmpExtensionProviderContext context) {
         final StatType000TlvHandler statType000TlvHandler = new StatType000TlvHandler();
         regs.add(context.registerBmpStatisticsTlvParser(StatType000TlvHandler.TYPE, statType000TlvHandler));
         regs.add(context.registerBmpStatisticsTlvSerializer(RejectedPrefixesTlv.class, statType000TlvHandler));
 
         final StatType001TlvHandler statType001TlvHandler = new StatType001TlvHandler();
         regs.add(context.registerBmpStatisticsTlvParser(StatType001TlvHandler.TYPE, statType001TlvHandler));
-        regs.add(context.registerBmpStatisticsTlvSerializer(DuplicatePrefixAdvertisementsTlv.class, statType001TlvHandler));
+        regs.add(context.registerBmpStatisticsTlvSerializer(DuplicatePrefixAdvertisementsTlv.class,
+                statType001TlvHandler));
 
         final StatType002TlvHandler statType002TlvHandler = new StatType002TlvHandler();
         regs.add(context.registerBmpStatisticsTlvParser(StatType002TlvHandler.TYPE, statType002TlvHandler));
@@ -168,7 +176,8 @@ public final class BmpActivator extends AbstractBmpExtensionProviderActivator {
 
         final StatType003TlvHandler statType003TlvHandler = new StatType003TlvHandler();
         regs.add(context.registerBmpStatisticsTlvParser(StatType003TlvHandler.TYPE, statType003TlvHandler));
-        regs.add(context.registerBmpStatisticsTlvSerializer(InvalidatedClusterListLoopTlv.class, statType003TlvHandler));
+        regs.add(context.registerBmpStatisticsTlvSerializer(InvalidatedClusterListLoopTlv.class,
+                statType003TlvHandler));
 
         final StatType004TlvHandler statType004TlvHandler = new StatType004TlvHandler();
         regs.add(context.registerBmpStatisticsTlvParser(StatType004TlvHandler.TYPE, statType004TlvHandler));
@@ -190,11 +199,13 @@ public final class BmpActivator extends AbstractBmpExtensionProviderActivator {
         regs.add(context.registerBmpStatisticsTlvParser(StatType008TlvHandler.TYPE, statType008TlvHandler));
         regs.add(context.registerBmpStatisticsTlvSerializer(LocRibRoutesTlv.class, statType008TlvHandler));
 
-        final StatType009TlvHandler statType009TlvHandler = new StatType009TlvHandler(this.afiRegistry, this.safiRegistry);
+        final StatType009TlvHandler statType009TlvHandler =
+                new StatType009TlvHandler(this.afiRegistry, this.safiRegistry);
         regs.add(context.registerBmpStatisticsTlvParser(StatType009TlvHandler.TYPE, statType009TlvHandler));
         regs.add(context.registerBmpStatisticsTlvSerializer(PerAfiSafiAdjRibInTlv.class, statType009TlvHandler));
 
-        final StatType010TlvHandler statType010TlvHandler = new StatType010TlvHandler(this.afiRegistry, this.safiRegistry);
+        final StatType010TlvHandler statType010TlvHandler =
+                new StatType010TlvHandler(this.afiRegistry, this.safiRegistry);
         regs.add(context.registerBmpStatisticsTlvParser(StatType010TlvHandler.TYPE, statType010TlvHandler));
         regs.add(context.registerBmpStatisticsTlvSerializer(PerAfiSafiLocRibTlv.class, statType010TlvHandler));
 

@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bmp.parser.message;
 
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.INT_BYTES_LENGTH;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -39,9 +40,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev171207.stat.tlvs.UpdatesTreatedAsWithdrawTlv;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
-/**
- * Created by cgasparini on 13.5.2015.
- */
 public class StatisticsReportHandler extends AbstractBmpPerPeerMessageParser<TlvsBuilder> {
 
     private static final int MESSAGE_TYPE = 1;
@@ -53,14 +51,16 @@ public class StatisticsReportHandler extends AbstractBmpPerPeerMessageParser<Tlv
     @Override
     public void serializeMessageBody(final Notification message, final ByteBuf buffer) {
         super.serializeMessageBody(message, buffer);
-        Preconditions.checkArgument(message instanceof StatsReportsMessage, "An instance of Statistics Reports message is required");
+        Preconditions.checkArgument(message instanceof StatsReportsMessage,
+                "An instance of Statistics Reports message is required");
         final StatsReportsMessage statsReport = (StatsReportsMessage) message;
         serializeTlvs(statsReport.getTlvs(), buffer);
     }
 
     @Override
     public Notification parseMessageBody(final ByteBuf bytes) throws BmpDeserializationException {
-        final StatsReportsMessageBuilder statReport = new StatsReportsMessageBuilder().setPeerHeader(parsePerPeerHeader(bytes));
+        final StatsReportsMessageBuilder statReport = new StatsReportsMessageBuilder()
+                .setPeerHeader(parsePerPeerHeader(bytes));
         final TlvsBuilder tlvsBuilder = new TlvsBuilder();
         bytes.skipBytes(INT_BYTES_LENGTH);
         parseTlvs(tlvsBuilder, bytes);
@@ -73,7 +73,7 @@ public class StatisticsReportHandler extends AbstractBmpPerPeerMessageParser<Tlv
         return MESSAGE_TYPE;
     }
 
-    protected void serializeTlvs(final Tlvs tlvs, final ByteBuf output) {
+    private void serializeTlvs(final Tlvs tlvs, final ByteBuf output) {
         final AtomicInteger counter = new AtomicInteger(0);
         final ByteBuf tlvsBuffer = Unpooled.buffer();
         serializeStatTlv(tlvs.getRejectedPrefixesTlv(), tlvsBuffer, counter);

@@ -25,7 +25,8 @@ public class StatType006TlvHandler implements BmpTlvParser, BmpTlvSerializer {
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf output) {
-        Preconditions.checkArgument(tlv instanceof InvalidatedAsConfedLoopTlv, "InvalidatedAsConfedLoopTlv is mandatory.");
+        Preconditions.checkArgument(tlv instanceof InvalidatedAsConfedLoopTlv,
+                "InvalidatedAsConfedLoopTlv is mandatory.");
         TlvUtil.formatTlvCounter32(TYPE, ((InvalidatedAsConfedLoopTlv) tlv).getCount(), output);
     }
 
