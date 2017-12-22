@@ -73,16 +73,16 @@ final class PCEPRequest {
     synchronized void done() {
         OperationResult result;
         switch (this.state) {
-        case UNSENT:
-            result = OperationResults.UNSENT;
-            break;
-        case UNACKED:
-            result = OperationResults.NOACK;
-            break;
-        case DONE:
-            return;
-        default:
-            return;
+            case UNSENT:
+                result = OperationResults.UNSENT;
+                break;
+            case UNACKED:
+                result = OperationResults.NOACK;
+                break;
+            case DONE:
+                return;
+            default:
+                return;
         }
         done(result);
     }

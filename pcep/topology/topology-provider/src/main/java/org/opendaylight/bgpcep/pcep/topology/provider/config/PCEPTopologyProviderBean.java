@@ -80,18 +80,19 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
     }
 
     @Override
-    public synchronized void close() {
+    public synchronized void close() throws Exception {
         if (this.pcepTopoProviderCSS != null) {
             this.pcepTopoProviderCSS.close();
             this.pcepTopoProviderCSS = null;
         }
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatch")
     synchronized void start(final PCEPTopologyConfiguration configDependencies) {
         Preconditions.checkState(this.pcepTopoProviderCSS == null,
                 "Previous instance %s was not closed.", this);
         try {
-            this.pcepTopoProviderCSS = new PCEPTopologyProviderBeanCSS(configDependencies);
+            this.pcepTopoProviderCSS = new PCEPTopologyProviderBeanCSS(configDependencies, this);
         } catch (final Exception e) {
             LOG.debug("Failed to create PCEPTopologyProvider {}", configDependencies.getTopologyId().getValue(), e);
         }
@@ -122,32 +123,37 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
         return this.stateRegistry;
     }
 
-    private class PCEPTopologyProviderBeanCSS implements ClusterSingletonService, AutoCloseable {
+    private static class PCEPTopologyProviderBeanCSS implements ClusterSingletonService, AutoCloseable {
         private final ServiceGroupIdentifier sgi;
+        private final PCEPTopologyProvider pcepTopoProvider;
         private ServiceRegistration<?> serviceRegistration;
         private ClusterSingletonServiceRegistration cssRegistration;
-        private final PCEPTopologyProvider pcepTopoProvider;
         @GuardedBy("this")
         private boolean serviceInstantiated;
 
-        PCEPTopologyProviderBeanCSS(final PCEPTopologyConfiguration configDependencies) {
+        PCEPTopologyProviderBeanCSS(final PCEPTopologyConfiguration configDependencies,
+                final PCEPTopologyProviderBean bean) {
             this.sgi = configDependencies.getSchedulerDependency().getIdentifier();
-            this.pcepTopoProvider = PCEPTopologyProvider
-                    .create(PCEPTopologyProviderBean.this, configDependencies);
+            this.pcepTopoProvider = PCEPTopologyProvider.create(bean, configDependencies);
 
             final Dictionary<String, String> properties = new Hashtable<>();
             properties.put(PCEPTopologyProvider.class.getName(), configDependencies.getTopologyId().getValue());
-            this.serviceRegistration = PCEPTopologyProviderBean.this.bundleContext
+            this.serviceRegistration = bean.bundleContext
                     .registerService(DefaultTopologyReference.class.getName(), this.pcepTopoProvider, properties);
             LOG.info("PCEP Topology Provider service {} registered", getIdentifier().getValue());
-            this.cssRegistration = PCEPTopologyProviderBean.this.cssp.registerClusterSingletonService(this);
+            this.cssRegistration = bean.cssp.registerClusterSingletonService(this);
         }
 
         @Override
+        @SuppressWarnings("checkstyle:IllegalCatch")
         public synchronized void instantiateServiceInstance() {
             LOG.info("PCEP Topology Provider Singleton Service {} instantiated", getIdentifier().getValue());
             if (this.pcepTopoProvider != null) {
-                this.pcepTopoProvider.instantiateServiceInstance();
+                try {
+                    this.pcepTopoProvider.instantiateServiceInstance();
+                } catch (final Exception e) {
+                    LOG.error("Failed to instantiate PCEP Topology provider", e);
+                }
                 this.serviceInstantiated = true;
             }
         }
@@ -169,13 +175,9 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
         }
 
         @Override
-        public synchronized void close() {
+        public synchronized void close() throws Exception {
             if (this.cssRegistration != null) {
-                try {
-                    this.cssRegistration.close();
-                } catch (final Exception e) {
-                    LOG.debug("Failed to close PCEP Topology Provider service {}", this.sgi.getValue(), e);
-                }
+                this.cssRegistration.close();
                 this.cssRegistration = null;
             }
             if (this.serviceRegistration != null) {

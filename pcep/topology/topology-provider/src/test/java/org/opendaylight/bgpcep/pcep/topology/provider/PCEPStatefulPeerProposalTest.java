@@ -60,7 +60,7 @@ public class PCEPStatefulPeerProposalTest {
     @Mock
     private CheckedFuture<Optional<LspDbVersion>, ReadFailedException> listenableFutureMock;
     @Mock
-    private ReadOnlyTransaction rTxMock;
+    private ReadOnlyTransaction rt;
     private TlvsBuilder tlvsBuilder;
 
     @SuppressWarnings("unchecked")
@@ -72,9 +72,9 @@ public class PCEPStatefulPeerProposalTest {
                 new Tlvs1Builder().setStateful(
                         new StatefulBuilder().addAugmentation(Stateful1.class, new Stateful1Builder().build()).build())
                         .build());
-        doReturn(this.rTxMock).when(this.dataBroker).newReadOnlyTransaction();
-        doNothing().when(this.rTxMock).close();
-        doReturn(this.listenableFutureMock).when(this.rTxMock)
+        doReturn(this.rt).when(this.dataBroker).newReadOnlyTransaction();
+        doNothing().when(this.rt).close();
+        doReturn(this.listenableFutureMock).when(this.rt)
                 .read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
         doReturn(true).when(this.listenableFutureMock).isDone();
         doAnswer(invocation -> {

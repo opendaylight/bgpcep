@@ -26,41 +26,42 @@ final class SyncOptimization {
     private final boolean isTriggeredInitialSyncEnable;
     private final boolean isTriggeredReSyncEnable;
 
-    public SyncOptimization(final PCEPSession session) {
+    SyncOptimization(final PCEPSession session) {
         requireNonNull(session);
         final Tlvs remote = session.getRemoteTlvs();
-        final Tlvs local = session.localSessionCharacteristics();
+        final Tlvs local = session.getLocalTlvs();
         final LspDbVersion localLspDbVersion = getLspDbVersion(local);
         final LspDbVersion remoteLspDbVersion = getLspDbVersion(remote);
         this.dbVersionMatch = compareLspDbVersion(localLspDbVersion, remoteLspDbVersion);
         this.isSyncAvoidanceEnabled = isSyncAvoidance(local) && isSyncAvoidance(remote);
         this.isDeltaSyncEnabled = isDeltaSync(local) && isDeltaSync(remote);
         this.isDbVersionPresent = localLspDbVersion != null || remoteLspDbVersion != null;
-        this.isTriggeredInitialSyncEnable = isTriggeredInitialSync(local) && isTriggeredInitialSync(remote) &&
-            (this.isDeltaSyncEnabled || this.isSyncAvoidanceEnabled);
+        this.isTriggeredInitialSyncEnable = isTriggeredInitialSync(local) && isTriggeredInitialSync(remote)
+                && (this.isDeltaSyncEnabled || this.isSyncAvoidanceEnabled);
         this.isTriggeredReSyncEnable = isTriggeredReSync(local) && isTriggeredReSync(remote);
     }
 
-    public boolean doesLspDbMatch() {
+    boolean doesLspDbMatch() {
         return this.dbVersionMatch;
     }
 
-    public boolean isSyncAvoidanceEnabled() {
+    boolean isSyncAvoidanceEnabled() {
         return this.isSyncAvoidanceEnabled;
     }
 
-    public boolean isDeltaSyncEnabled() {
+    boolean isDeltaSyncEnabled() {
         return this.isDeltaSyncEnabled;
     }
 
-    public boolean isTriggeredInitSyncEnabled() {
+    boolean isTriggeredInitSyncEnabled() {
         return this.isTriggeredInitialSyncEnable;
     }
-    public boolean isTriggeredReSyncEnabled() {
+
+    boolean isTriggeredReSyncEnabled() {
         return this.isTriggeredReSyncEnable;
     }
 
-    public boolean isDbVersionPresent() {
+    boolean isDbVersionPresent() {
         return this.isDbVersionPresent;
     }
 
