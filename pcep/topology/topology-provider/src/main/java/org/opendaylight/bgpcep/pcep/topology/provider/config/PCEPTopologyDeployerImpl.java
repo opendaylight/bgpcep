@@ -60,6 +60,7 @@ public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener
     }
 
     public synchronized void init() {
+        LOG.info("PCEP Topology Deployer initialized");
         this.listenerRegistration = this.dataBroker.registerDataTreeChangeListener(
                 new DataTreeIdentifier<>(CONFIGURATION, this.networTopology.child(Topology.class)), this);
     }
@@ -69,8 +70,7 @@ public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener
         final List<DataObjectModification<Topology>> topoChanges = changes.stream()
                 .map(DataTreeModification::getRootNode)
                 .collect(Collectors.toList());
-        topoChanges.stream()
-                .iterator().forEachRemaining(topo -> {
+        topoChanges.stream().iterator().forEachRemaining(topo -> {
             switch (topo.getModificationType()) {
                 case SUBTREE_MODIFIED:
                     updateTopologyProvider(topo.getDataAfter());
@@ -81,6 +81,7 @@ public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener
                 case DELETE:
                     removeTopologyProvider(topo.getDataBefore());
                     break;
+                default:
             }
         });
     }
@@ -138,6 +139,7 @@ public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener
 
     @Override
     public synchronized void close() {
+        LOG.info("PCEP Topology Deployer closing");
         if (this.listenerRegistration != null) {
             this.listenerRegistration.close();
             this.listenerRegistration = null;
@@ -145,5 +147,6 @@ public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener
         this.pcepTopologyServices.entrySet().iterator()
                 .forEachRemaining(entry -> closeTopology(entry.getValue(), entry.getKey()));
         this.pcepTopologyServices.clear();
+        LOG.info("PCEP Topology Deployer closed");
     }
 }

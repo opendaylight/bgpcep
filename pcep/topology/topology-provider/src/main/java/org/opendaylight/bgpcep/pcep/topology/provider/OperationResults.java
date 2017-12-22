@@ -23,9 +23,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.operation.result.ErrorBuilder;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
-/**
- *
- */
 final class OperationResults implements OperationResult {
     static final OperationResults NOACK = new OperationResults(FailureType.NoAck);
     static final OperationResults SUCCESS = new OperationResults((FailureType)null);
@@ -56,13 +53,15 @@ final class OperationResults implements OperationResult {
     }
 
     public static OperationResults createUnsent(final PCEPErrors error) {
-        final List<Errors> e = error != null ? Collections.singletonList(getErrorFor(error)) : Collections.emptyList();
+        final List<Errors> e = error != null ? Collections.singletonList(getErrorFor(error))
+                : Collections.emptyList();
         return new OperationResults(FailureType.Unsent, Lists.transform(e, CONVERT_ERRORS));
     }
 
     private static Errors getErrorFor(final PCEPErrors error) {
         final ErrorsBuilder builder = new ErrorsBuilder();
-        builder.setErrorObject(new ErrorObjectBuilder().setType(error.getErrorType()).setValue(error.getErrorValue()).build());
+        builder.setErrorObject(new ErrorObjectBuilder().setType(error.getErrorType())
+                .setValue(error.getErrorValue()).build());
         return builder.build();
     }
 
@@ -76,6 +75,7 @@ final class OperationResults implements OperationResult {
         return this.error;
 
     }
+
     @Override
     public Class<? extends DataContainer> getImplementedInterface() {
         return OperationResult.class;

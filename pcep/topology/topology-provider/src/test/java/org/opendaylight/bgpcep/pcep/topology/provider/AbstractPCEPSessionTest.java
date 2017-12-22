@@ -140,8 +140,8 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
         doReturn(getDataBroker()).when(this.topologyDependencies).getDataBroker();
         doReturn(this.statsRegistry).when(this.topologyDependencies).getStateRegistry();
 
-        @SuppressWarnings("unchecked") final T listenerFactory = (T) ((Class) ((ParameterizedType) this.getClass().getGenericSuperclass())
-                .getActualTypeArguments()[0]).newInstance();
+        @SuppressWarnings("unchecked") final T listenerFactory = (T) ((Class) ((ParameterizedType) this.getClass()
+                .getGenericSuperclass()).getActualTypeArguments()[0]).newInstance();
 
         final PCEPTopologyConfiguration configDep = new PCEPTopologyConfiguration(ra, KeyMapping.getKeyMapping(),
                 SpeakerIdMapping.getSpeakerIdMap(), this.scheduler, TEST_TOPOLOGY_ID, RPC_TIMEOUT);
@@ -171,8 +171,8 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
         final List<Subobject> subobjs = new ArrayList<>(ipPrefixes.size());
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder();
         for (final String ipPrefix : ipPrefixes) {
-            subobjBuilder.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(new IpPrefixBuilder().setIpPrefix(
-                    new IpPrefix(new Ipv4Prefix(ipPrefix))).build()).build());
+            subobjBuilder.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(new IpPrefixBuilder()
+                    .setIpPrefix(new IpPrefix(new Ipv4Prefix(ipPrefix))).build()).build());
             subobjs.add(subobjBuilder.build());
         }
         return new EroBuilder().setSubobject(subobjs).build();

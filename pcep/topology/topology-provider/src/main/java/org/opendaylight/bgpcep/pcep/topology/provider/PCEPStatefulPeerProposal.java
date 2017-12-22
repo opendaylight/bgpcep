@@ -54,7 +54,7 @@ final class PCEPStatefulPeerProposal {
     void setPeerProposal(final NodeId nodeId, final TlvsBuilder openTlvsBuilder, final byte[] speakerId) {
         if (isSynOptimizationEnabled(openTlvsBuilder)) {
             Optional<LspDbVersion> result = Optional.absent();
-            try (final ReadOnlyTransaction rTx = this.dataBroker.newReadOnlyTransaction()) {
+            try (ReadOnlyTransaction rTx = this.dataBroker.newReadOnlyTransaction()) {
                 final ListenableFuture<Optional<LspDbVersion>> future = rTx.read(
                         LogicalDatastoreType.OPERATIONAL,
                         this.topologyId.child(Node.class, new NodeKey(nodeId)).augmentation(Node1.class)

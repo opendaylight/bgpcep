@@ -35,9 +35,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.OperationResult;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 
-/**
- *
- */
 final class TopologyProgramming implements NetworkTopologyPcepProgrammingService {
     private final InstructionScheduler scheduler;
     private final ServerSessionManager manager;
@@ -112,7 +109,8 @@ final class TopologyProgramming implements NetworkTopologyPcepProgrammingService
         b.setResult(AbstractInstructionExecutor.schedule(this.scheduler, new AbstractInstructionExecutor(input) {
             @Override
             protected ListenableFuture<OperationResult> invokeOperation() {
-                EnsureLspOperationalInputBuilder ensureLspOperationalInputBuilder = new EnsureLspOperationalInputBuilder();
+                EnsureLspOperationalInputBuilder ensureLspOperationalInputBuilder =
+                        new EnsureLspOperationalInputBuilder();
                 ensureLspOperationalInputBuilder.fieldsFrom(input);
                 return TopologyProgramming.this.manager.ensureLspOperational(ensureLspOperationalInputBuilder.build());
             }
