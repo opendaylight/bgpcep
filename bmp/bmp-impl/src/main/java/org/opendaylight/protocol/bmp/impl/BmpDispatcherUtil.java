@@ -39,7 +39,7 @@ public final class BmpDispatcherUtil {
     public static ChannelInitializer<AbstractChannel> createChannelWithDecoder(
             @Nonnull final BmpSessionFactory sessionFactory,
             @Nonnull final BmpHandlerFactory hf,
-            @Nullable final BmpSessionListenerFactory slf) {
+            @Nonnull final BmpSessionListenerFactory slf) {
         return new ChannelInitializer<AbstractChannel>() {
             @Override
             protected void initChannel(final AbstractChannel ch) throws Exception {
@@ -52,7 +52,7 @@ public final class BmpDispatcherUtil {
     public static ChannelInitializer<AbstractChannel> createChannelWithEncoder(
             @Nonnull final BmpSessionFactory sessionFactory,
             @Nonnull final BmpHandlerFactory hf,
-            @Nullable final BmpSessionListenerFactory slf) {
+            @Nonnull final BmpSessionListenerFactory slf) {
         return new ChannelInitializer<AbstractChannel>() {
             @Override
             protected void initChannel(final AbstractChannel ch) throws Exception {
@@ -68,7 +68,7 @@ public final class BmpDispatcherUtil {
     public static ServerBootstrap createServerBootstrap(
             @Nonnull final BmpSessionFactory sessionFactory,
             @Nonnull final BmpHandlerFactory hf,
-            @Nullable final BmpSessionListenerFactory slf,
+            @Nonnull final BmpSessionListenerFactory slf,
             @Nonnull CreateChannel createChannel,
             @Nonnull final EventLoopGroup bossGroup,
             @Nonnull final EventLoopGroup workerGroup,
@@ -80,7 +80,7 @@ public final class BmpDispatcherUtil {
     public static ServerBootstrap createServerBootstrap(
             @Nonnull final BmpSessionFactory sessionFactory,
             @Nonnull final BmpHandlerFactory hf,
-            @Nullable final BmpSessionListenerFactory slf,
+            @Nonnull final BmpSessionListenerFactory slf,
             @Nonnull CreateChannel createChannel,
             @Nonnull final EventLoopGroup bossGroup,
             @Nonnull final EventLoopGroup workerGroup,
@@ -175,10 +175,8 @@ public final class BmpDispatcherUtil {
 
     @FunctionalInterface
     public interface CreateChannel {
-        ChannelInitializer<AbstractChannel> create(
-                @Nonnull final BmpSessionFactory sessionFactory,
-                @Nonnull final BmpHandlerFactory hf,
-                @Nullable final BmpSessionListenerFactory slf);
+        ChannelInitializer<AbstractChannel> create(@Nonnull BmpSessionFactory sessionFactory,
+                @Nonnull BmpHandlerFactory hf, @Nonnull BmpSessionListenerFactory slf);
 
     }
 }

@@ -13,9 +13,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.opendaylight.protocol.bmp.parser.message.TestUtil.createRouteMonMsgWithEndOfRibMarker;
+import static org.opendaylight.protocol.bmp.parser.message.TestUtil.createRouteMonitMsg;
 import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
@@ -42,6 +43,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.binding.dom.adapter.BindingToNormalizedNodeCodec;
 import org.opendaylight.mdsal.binding.dom.codec.gen.impl.StreamWriterGenerator;
@@ -145,6 +147,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
     private ClusterSingletonServiceProvider clusterSSProv;
     @Mock
     private ClusterSingletonServiceProvider clusterSSProv2;
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
@@ -167,8 +170,10 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         doAnswer(invocationOnMock -> BmpMonitorImplTest.this.singletonService2.closeServiceInstance())
             .when(this.singletonServiceRegistration2).close();
 
-        this.mappingService = new BindingToNormalizedNodeCodec(GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(),
-            new BindingNormalizedNodeCodecRegistry(StreamWriterGenerator.create(JavassistUtils.forClassPool(ClassPool.getDefault()))));
+        this.mappingService = new BindingToNormalizedNodeCodec(GeneratedClassLoadingStrategy
+                .getTCCLClassLoadingStrategy(),
+            new BindingNormalizedNodeCodecRegistry(StreamWriterGenerator
+                    .create(JavassistUtils.forClassPool(ClassPool.getDefault()))));
         final ModuleInfoBackedContext moduleInfoBackedContext = ModuleInfoBackedContext.create();
         moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(InitiationMessage.class));
         moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(CParameters1.class));
@@ -199,7 +204,8 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
 
         final DOMDataWriteTransaction wTx = getDomBroker().newWriteOnlyTransaction();
         final ContainerNode parentNode = Builders.containerBuilder().withNodeIdentifier(
-            new NodeIdentifier(BmpMonitor.QNAME)).addChild(ImmutableNodes.mapNodeBuilder(Monitor.QNAME).build()).build();
+                new NodeIdentifier(BmpMonitor.QNAME))
+                .addChild(ImmutableNodes.mapNodeBuilder(Monitor.QNAME).build()).build();
         wTx.merge(LogicalDatastoreType.OPERATIONAL, YangInstanceIdentifier.of(BmpMonitor.QNAME), parentNode);
         wTx.submit();
 
@@ -288,159 +294,163 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         waitFutureSuccess(channelFuture);
     }
 
-    private Channel testMonitoringStation(final String remoteRouterIpAddr) throws InterruptedException {
+    private Channel testMonitoringStation(final String remoteRouterIpAddr) throws InterruptedException,
+            ReadFailedException {
         final Channel channel = connectTestClient(remoteRouterIpAddr, this.msgRegistry);
         final RouterId routerId = getRouterId(remoteRouterIpAddr);
-        try {
-            readDataOperational(getDataBroker(), MONITOR_IID, monitor -> {
-                assertFalse(monitor.getRouter().isEmpty());
-                // now find the current router instance
-                Router router = null;
-                for (final Router r : monitor.getRouter()) {
-                    if (routerId.equals(r.getRouterId())) {
-                        router = r;
-                        break;
-                    }
+
+        readDataOperational(getDataBroker(), MONITOR_IID, monitor -> {
+            assertFalse(monitor.getRouter().isEmpty());
+            // now find the current router instance
+            Router router = null;
+            for (final Router r : monitor.getRouter()) {
+                if (routerId.equals(r.getRouterId())) {
+                    router = r;
+                    break;
                 }
-                assertNotNull(router);
-                assertEquals(Status.Down, router.getStatus());
-                assertTrue(router.getPeer().isEmpty());
-                return router;
-            });
-
-            waitWriteAndFlushSuccess(channel.writeAndFlush(TestUtil
-                    .createInitMsg("description", "name", "some info")));
-
-            readDataOperational(getDataBroker(), MONITOR_IID, monitor -> {
-                assertFalse(monitor.getRouter().isEmpty());
-                Router retRouter = null;
-                for (final Router r : monitor.getRouter()) {
-                    if (routerId.equals(r.getRouterId())) {
-                        retRouter = r;
-                        break;
-                    }
-                }
-
-                assertEquals("some info;", retRouter.getInfo());
-                assertEquals("name", retRouter.getName());
-                assertEquals("description", retRouter.getDescription());
-                assertEquals(routerId, retRouter.getRouterId());
-                assertTrue(retRouter.getPeer().isEmpty());
-                assertEquals(Status.Up, retRouter.getStatus());
-                return retRouter;
-            });
-
-            waitWriteAndFlushSuccess(channel.writeAndFlush(TestUtil.createPeerUpNotification(PEER1, true)));
-            final KeyedInstanceIdentifier<Router, RouterKey> routerIId = MONITOR_IID.child(Router.class, new RouterKey(routerId));
-
-            readDataOperational(getDataBroker(), routerIId, router -> {
-                final List<Peer> peers = router.getPeer();
-                assertEquals(1, peers.size());
-                final Peer peer = peers.get(0);
-                assertEquals(PeerType.Global, peer.getType());
-                assertEquals(PEER_ID, peer.getPeerId());
-                assertEquals(PEER1, peer.getBgpId());
-                assertEquals(TestUtil.IPV4_ADDRESS_10, peer.getAddress().getIpv4Address());
-                assertEquals(TestUtil.PEER_AS, peer.getAs());
-                assertNull(peer.getPeerDistinguisher());
-                assertNull(peer.getStats());
-
-                assertNotNull(peer.getPrePolicyRib());
-                assertEquals(1, peer.getPrePolicyRib().getTables().size());
-                final Tables prePolicyTable = peer.getPrePolicyRib().getTables().get(0);
-                assertEquals(Ipv4AddressFamily.class, prePolicyTable.getAfi());
-                assertEquals(UnicastSubsequentAddressFamily.class, prePolicyTable.getSafi());
-                assertFalse(prePolicyTable.getAttributes().isUptodate());
-                assertNotNull(prePolicyTable.getRoutes());
-
-                assertNotNull(peer.getPostPolicyRib());
-                assertEquals(1, peer.getPostPolicyRib().getTables().size());
-                final Tables postPolicyTable = peer.getPrePolicyRib().getTables().get(0);
-                assertEquals(Ipv4AddressFamily.class, postPolicyTable.getAfi());
-                assertEquals(UnicastSubsequentAddressFamily.class, postPolicyTable.getSafi());
-                assertFalse(postPolicyTable.getAttributes().isUptodate());
-                assertNotNull(postPolicyTable.getRoutes());
-
-                assertNotNull(peer.getPeerSession());
-                final PeerSession peerSession = peer.getPeerSession();
-                assertEquals(TestUtil.IPV4_ADDRESS_10, peerSession.getLocalAddress().getIpv4Address());
-                assertEquals(TestUtil.PEER_LOCAL_PORT, peerSession.getLocalPort());
-                assertEquals(TestUtil.PEER_REMOTE_PORT, peerSession.getRemotePort());
-                assertEquals(Status.Up, peerSession.getStatus());
-                assertNotNull(peerSession.getReceivedOpen());
-                assertNotNull(peerSession.getSentOpen());
-                return router;
-            });
-
-
-            final StatsReportsMessage statsMsg = TestUtil.createStatsReportMsg(PEER1);
-            waitWriteAndFlushSuccess(channel.writeAndFlush(statsMsg));
-            final KeyedInstanceIdentifier<Peer, PeerKey> peerIId = routerIId.child(Peer.class, new PeerKey(PEER_ID));
-
-            readDataOperational(getDataBroker(), peerIId.child(Stats.class), peerStats -> {
-                assertNotNull(peerStats.getTimestampSec());
-                final Tlvs tlvs = statsMsg.getTlvs();
-                assertEquals(tlvs.getAdjRibsInRoutesTlv().getCount(), peerStats.getAdjRibsInRoutes());
-                assertEquals(tlvs.getDuplicatePrefixAdvertisementsTlv().getCount(), peerStats.getDuplicatePrefixAdvertisements());
-                assertEquals(tlvs.getDuplicateWithdrawsTlv().getCount(), peerStats.getDuplicateWithdraws());
-                assertEquals(tlvs.getInvalidatedAsConfedLoopTlv().getCount(), peerStats.getInvalidatedAsConfedLoop());
-                assertEquals(tlvs.getInvalidatedAsPathLoopTlv().getCount(), peerStats.getInvalidatedAsPathLoop());
-                assertEquals(tlvs.getInvalidatedClusterListLoopTlv().getCount(), peerStats.getInvalidatedClusterListLoop());
-                assertEquals(tlvs.getInvalidatedOriginatorIdTlv().getCount(), peerStats.getInvalidatedOriginatorId());
-                assertEquals(tlvs.getLocRibRoutesTlv().getCount(), peerStats.getLocRibRoutes());
-                assertEquals(tlvs.getRejectedPrefixesTlv().getCount(), peerStats.getRejectedPrefixes());
-                assertEquals(tlvs.getPerAfiSafiAdjRibInTlv().getCount().toString(), peerStats.getPerAfiSafiAdjRibInRoutes().getAfiSafi().get(0).getCount().toString());
-                assertEquals(tlvs.getPerAfiSafiLocRibTlv().getCount().toString(), peerStats.getPerAfiSafiLocRibRoutes().getAfiSafi().get(0).getCount().toString());
-                return peerStats;
-            });
-
-            // route mirror message test
-            final RouteMirroringMessage routeMirrorMsg = TestUtil.createRouteMirrorMsg(PEER1);
-            waitWriteAndFlushSuccess(channel.writeAndFlush(routeMirrorMsg));
-
-            readDataOperational(getDataBroker(), peerIId.child(Mirrors.class), routeMirrors -> {
-                assertNotNull(routeMirrors.getTimestampSec());
-                return routeMirrors;
-            });
-
-            waitWriteAndFlushSuccess(channel.writeAndFlush(TestUtil.createRouteMonitMsg(false, PEER1, AdjRibInType.PrePolicy)));
-            waitWriteAndFlushSuccess(channel.writeAndFlush(TestUtil.createRouteMonMsgWithEndOfRibMarker(PEER1, AdjRibInType.PrePolicy)));
-
-            readDataOperational(getDataBroker(), peerIId.child(PrePolicyRib.class), prePolicyRib -> {
-                assertTrue(!prePolicyRib.getTables().isEmpty());
-                final Tables tables = prePolicyRib.getTables().get(0);
-                assertTrue(tables.getAttributes().isUptodate());
-                assertEquals(3, ((Ipv4RoutesCase) tables.getRoutes()).getIpv4Routes().getIpv4Route().size());
-                return tables;
-            });
-
-            waitWriteAndFlushSuccess(channel.writeAndFlush(TestUtil.createRouteMonitMsg(false, PEER1, AdjRibInType.PostPolicy)));
-            waitWriteAndFlushSuccess(channel.writeAndFlush(TestUtil.createRouteMonMsgWithEndOfRibMarker(PEER1, AdjRibInType.PostPolicy)));
-
-            readDataOperational(getDataBroker(), peerIId.child(PostPolicyRib.class), postPolicyRib -> {
-                assertTrue(!postPolicyRib.getTables().isEmpty());
-                final Tables tables = postPolicyRib.getTables().get(0);
-                assertTrue(tables.getAttributes().isUptodate());
-                assertEquals(3, ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.bmp.monitor.monitor.router.peer.post.policy.rib.tables.routes.Ipv4RoutesCase)
-                    tables.getRoutes()).getIpv4Routes().getIpv4Route().size());
-                return tables;
-            });
-
-            waitWriteAndFlushSuccess(channel.writeAndFlush(TestUtil.createPeerDownNotification(PEER1)));
-
-            readDataOperational(getDataBroker(), routerIId, router -> {
-                final List<Peer> peersAfterDown = router.getPeer();
-                assertTrue(peersAfterDown.isEmpty());
-                return router;
-            });
-        } catch (final Exception e) {
-            final StringBuilder ex = new StringBuilder();
-            ex.append(e.getMessage()).append("\n");
-            for (final StackTraceElement element : e.getStackTrace()) {
-                ex.append(element.toString()).append("\n");
             }
-            fail(ex.toString());
-        }
+            assertNotNull(router);
+            assertEquals(Status.Down, router.getStatus());
+            assertTrue(router.getPeer().isEmpty());
+            return router;
+        });
+
+        waitWriteAndFlushSuccess(channel.writeAndFlush(TestUtil
+                .createInitMsg("description", "name", "some info")));
+
+        readDataOperational(getDataBroker(), MONITOR_IID, monitor -> {
+            assertFalse(monitor.getRouter().isEmpty());
+            Router retRouter = null;
+            for (final Router r : monitor.getRouter()) {
+                if (routerId.equals(r.getRouterId())) {
+                    retRouter = r;
+                    break;
+                }
+            }
+
+            assertEquals("some info;", retRouter.getInfo());
+            assertEquals("name", retRouter.getName());
+            assertEquals("description", retRouter.getDescription());
+            assertEquals(routerId, retRouter.getRouterId());
+            assertTrue(retRouter.getPeer().isEmpty());
+            assertEquals(Status.Up, retRouter.getStatus());
+            return retRouter;
+        });
+
+        waitWriteAndFlushSuccess(channel.writeAndFlush(TestUtil.createPeerUpNotification(PEER1, true)));
+        final KeyedInstanceIdentifier<Router, RouterKey> routerIId =
+                MONITOR_IID.child(Router.class, new RouterKey(routerId));
+
+        readDataOperational(getDataBroker(), routerIId, router -> {
+            final List<Peer> peers = router.getPeer();
+            assertEquals(1, peers.size());
+            final Peer peer = peers.get(0);
+            assertEquals(PeerType.Global, peer.getType());
+            assertEquals(PEER_ID, peer.getPeerId());
+            assertEquals(PEER1, peer.getBgpId());
+            assertEquals(TestUtil.IPV4_ADDRESS_10, peer.getAddress().getIpv4Address());
+            assertEquals(TestUtil.PEER_AS, peer.getAs());
+            assertNull(peer.getPeerDistinguisher());
+            assertNull(peer.getStats());
+
+            assertNotNull(peer.getPrePolicyRib());
+            assertEquals(1, peer.getPrePolicyRib().getTables().size());
+            final Tables prePolicyTable = peer.getPrePolicyRib().getTables().get(0);
+            assertEquals(Ipv4AddressFamily.class, prePolicyTable.getAfi());
+            assertEquals(UnicastSubsequentAddressFamily.class, prePolicyTable.getSafi());
+            assertFalse(prePolicyTable.getAttributes().isUptodate());
+            assertNotNull(prePolicyTable.getRoutes());
+
+            assertNotNull(peer.getPostPolicyRib());
+            assertEquals(1, peer.getPostPolicyRib().getTables().size());
+            final Tables postPolicyTable = peer.getPrePolicyRib().getTables().get(0);
+            assertEquals(Ipv4AddressFamily.class, postPolicyTable.getAfi());
+            assertEquals(UnicastSubsequentAddressFamily.class, postPolicyTable.getSafi());
+            assertFalse(postPolicyTable.getAttributes().isUptodate());
+            assertNotNull(postPolicyTable.getRoutes());
+
+            assertNotNull(peer.getPeerSession());
+            final PeerSession peerSession = peer.getPeerSession();
+            assertEquals(TestUtil.IPV4_ADDRESS_10, peerSession.getLocalAddress().getIpv4Address());
+            assertEquals(TestUtil.PEER_LOCAL_PORT, peerSession.getLocalPort());
+            assertEquals(TestUtil.PEER_REMOTE_PORT, peerSession.getRemotePort());
+            assertEquals(Status.Up, peerSession.getStatus());
+            assertNotNull(peerSession.getReceivedOpen());
+            assertNotNull(peerSession.getSentOpen());
+            return router;
+        });
+
+
+        final StatsReportsMessage statsMsg = TestUtil.createStatsReportMsg(PEER1);
+        waitWriteAndFlushSuccess(channel.writeAndFlush(statsMsg));
+        final KeyedInstanceIdentifier<Peer, PeerKey> peerIId = routerIId.child(Peer.class, new PeerKey(PEER_ID));
+
+        readDataOperational(getDataBroker(), peerIId.child(Stats.class), peerStats -> {
+            assertNotNull(peerStats.getTimestampSec());
+            final Tlvs tlvs = statsMsg.getTlvs();
+            assertEquals(tlvs.getAdjRibsInRoutesTlv().getCount(), peerStats.getAdjRibsInRoutes());
+            assertEquals(tlvs.getDuplicatePrefixAdvertisementsTlv().getCount(),
+                    peerStats.getDuplicatePrefixAdvertisements());
+            assertEquals(tlvs.getDuplicateWithdrawsTlv().getCount(), peerStats.getDuplicateWithdraws());
+            assertEquals(tlvs.getInvalidatedAsConfedLoopTlv().getCount(), peerStats.getInvalidatedAsConfedLoop());
+            assertEquals(tlvs.getInvalidatedAsPathLoopTlv().getCount(), peerStats.getInvalidatedAsPathLoop());
+            assertEquals(tlvs.getInvalidatedClusterListLoopTlv().getCount(),
+                    peerStats.getInvalidatedClusterListLoop());
+            assertEquals(tlvs.getInvalidatedOriginatorIdTlv().getCount(), peerStats.getInvalidatedOriginatorId());
+            assertEquals(tlvs.getLocRibRoutesTlv().getCount(), peerStats.getLocRibRoutes());
+            assertEquals(tlvs.getRejectedPrefixesTlv().getCount(), peerStats.getRejectedPrefixes());
+            assertEquals(tlvs.getPerAfiSafiAdjRibInTlv().getCount().toString(),
+                    peerStats.getPerAfiSafiAdjRibInRoutes().getAfiSafi().get(0).getCount().toString());
+            assertEquals(tlvs.getPerAfiSafiLocRibTlv().getCount().toString(),
+                    peerStats.getPerAfiSafiLocRibRoutes().getAfiSafi().get(0).getCount().toString());
+            return peerStats;
+        });
+
+        // route mirror message test
+        final RouteMirroringMessage routeMirrorMsg = TestUtil.createRouteMirrorMsg(PEER1);
+        waitWriteAndFlushSuccess(channel.writeAndFlush(routeMirrorMsg));
+
+        readDataOperational(getDataBroker(), peerIId.child(Mirrors.class), routeMirrors -> {
+            assertNotNull(routeMirrors.getTimestampSec());
+            return routeMirrors;
+        });
+
+        waitWriteAndFlushSuccess(channel.writeAndFlush(createRouteMonitMsg(false, PEER1,
+                AdjRibInType.PrePolicy)));
+        waitWriteAndFlushSuccess(channel.writeAndFlush(createRouteMonMsgWithEndOfRibMarker(PEER1,
+                AdjRibInType.PrePolicy)));
+
+        readDataOperational(getDataBroker(), peerIId.child(PrePolicyRib.class), prePolicyRib -> {
+            assertTrue(!prePolicyRib.getTables().isEmpty());
+            final Tables tables = prePolicyRib.getTables().get(0);
+            assertTrue(tables.getAttributes().isUptodate());
+            assertEquals(3, ((Ipv4RoutesCase) tables.getRoutes()).getIpv4Routes().getIpv4Route().size());
+            return tables;
+        });
+
+        waitWriteAndFlushSuccess(channel.writeAndFlush(createRouteMonitMsg(false, PEER1,
+                AdjRibInType.PostPolicy)));
+        waitWriteAndFlushSuccess(channel.writeAndFlush(createRouteMonMsgWithEndOfRibMarker(PEER1,
+                AdjRibInType.PostPolicy)));
+
+        readDataOperational(getDataBroker(), peerIId.child(PostPolicyRib.class), postPolicyRib -> {
+            assertTrue(!postPolicyRib.getTables().isEmpty());
+            final Tables tables = postPolicyRib.getTables().get(0);
+            assertTrue(tables.getAttributes().isUptodate());
+            assertEquals(3, ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
+                    .rev171207.bmp.monitor.monitor.router.peer.post.policy.rib.tables.routes.Ipv4RoutesCase)
+                    tables.getRoutes()).getIpv4Routes().getIpv4Route().size());
+            return tables;
+        });
+
+        waitWriteAndFlushSuccess(channel.writeAndFlush(TestUtil.createPeerDownNotification(PEER1)));
+
+        readDataOperational(getDataBroker(), routerIId, router -> {
+            final List<Peer> peersAfterDown = router.getPeer();
+            assertTrue(peersAfterDown.isEmpty());
+            return router;
+        });
+
         return channel;
     }
 
@@ -450,8 +460,8 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
             this.ribExtension, this.mappingService.getCodecFactory(), getSchemaContext(), this.clusterSSProv2);
 
         final BmpMonitoringStation monitoringStation2 = new BmpMonitoringStationImpl(bmpDependecies,
-            this.dispatcher, new MonitorId("monitor2"), new InetSocketAddress(InetAddresses.
-            forString(MONITOR_LOCAL_ADDRESS_2), MONITOR_LOCAL_PORT), null);
+            this.dispatcher, new MonitorId("monitor2"),
+                new InetSocketAddress(InetAddresses.forString(MONITOR_LOCAL_ADDRESS_2), MONITOR_LOCAL_PORT), null);
 
         readDataOperational(getDataBroker(), BMP_II, monitor -> {
             assertEquals(2, monitor.getMonitor().size());

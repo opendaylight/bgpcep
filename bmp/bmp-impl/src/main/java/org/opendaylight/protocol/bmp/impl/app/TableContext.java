@@ -35,6 +35,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
@@ -42,22 +43,17 @@ import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableChoiceNodeBuilder;
 
-/**
- * Created by cgasparini on 22.5.2015.
- */
 @NotThreadSafe
 final class TableContext {
 
     private static final ContainerNode EMPTY_TABLE_ATTRIBUTES = ImmutableNodes.containerNode(BMP_ATTRIBUTES_QNAME);
 
     private static final InstanceIdentifier<MpReachNlri> MP_REACH_NLRI_II = InstanceIdentifier.create(Update.class)
-                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes.class)
-                .augmentation(Attributes1.class)
-                .child(MpReachNlri.class);
+            .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path
+                    .attributes.Attributes.class).augmentation(Attributes1.class).child(MpReachNlri.class);
     private static final InstanceIdentifier<MpUnreachNlri> MP_UNREACH_NLRI_II = InstanceIdentifier.create(Update.class)
-            .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes.class)
-            .augmentation(Attributes2.class)
-            .child(MpUnreachNlri.class);
+            .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path
+                    .attributes.Attributes.class).augmentation(Attributes2.class).child(MpUnreachNlri.class);
     private static final NodeIdentifier ROUTES_NODE_ID = new NodeIdentifier(BMP_ROUTES_QNAME);
 
     private final YangInstanceIdentifier tableId;
@@ -77,9 +73,12 @@ final class TableContext {
             .streamChild(this.tableSupport.routesContainerClass())
             .streamChild(this.tableSupport.routesListClass());
 
-        this.attributesCodec = routeListCodec.streamChild(Attributes.class).createCachingCodec(this.tableSupport.cacheableAttributeObjects());
-        this.reachNlriCodec = tree.getSubtreeCodec(MP_REACH_NLRI_II).createCachingCodec(this.tableSupport.cacheableNlriObjects());
-        this.unreachNlriCodec = tree.getSubtreeCodec(MP_UNREACH_NLRI_II).createCachingCodec(this.tableSupport.cacheableNlriObjects());
+        this.attributesCodec = routeListCodec.streamChild(Attributes.class)
+                .createCachingCodec(this.tableSupport.cacheableAttributeObjects());
+        this.reachNlriCodec = tree.getSubtreeCodec(MP_REACH_NLRI_II)
+                .createCachingCodec(this.tableSupport.cacheableNlriObjects());
+        this.unreachNlriCodec = tree.getSubtreeCodec(MP_UNREACH_NLRI_II)
+                .createCachingCodec(this.tableSupport.cacheableNlriObjects());
     }
 
     YangInstanceIdentifier getTableId() {
@@ -87,12 +86,14 @@ final class TableContext {
     }
 
     void createTable(final DOMDataWriteTransaction tx) {
-        final DataContainerNodeBuilder<YangInstanceIdentifier.NodeIdentifierWithPredicates, MapEntryNode> tb = ImmutableNodes.mapEntryBuilder();
-        tb.withNodeIdentifier((YangInstanceIdentifier.NodeIdentifierWithPredicates) this.tableId.getLastPathArgument());
+        final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> tb =
+                ImmutableNodes.mapEntryBuilder();
+        tb.withNodeIdentifier((NodeIdentifierWithPredicates) this.tableId.getLastPathArgument());
         tb.withChild(EMPTY_TABLE_ATTRIBUTES);
 
         // tableId is keyed, but that fact is not directly visible from YangInstanceIdentifier, see BUG-2796
-        final YangInstanceIdentifier.NodeIdentifierWithPredicates tableKey = (YangInstanceIdentifier.NodeIdentifierWithPredicates) this.tableId.getLastPathArgument();
+        final NodeIdentifierWithPredicates tableKey =
+                (NodeIdentifierWithPredicates) this.tableId.getLastPathArgument();
         for (final Map.Entry<QName, Object> e : tableKey.getKeyValues().entrySet()) {
             tb.withChild(ImmutableNodes.leafNode(e.getKey(), e.getValue()));
         }

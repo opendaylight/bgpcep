@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Sharable
-public class BmpMessageToByteEncoder extends MessageToByteEncoder<Notification> {
+public final class BmpMessageToByteEncoder extends MessageToByteEncoder<Notification> {
 
     private static final Logger LOG = LoggerFactory.getLogger(BmpMessageToByteEncoder.class);
 

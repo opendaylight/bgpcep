@@ -44,7 +44,7 @@ import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BmpDeployerImpl implements ClusteredDataTreeChangeListener<OdlBmpMonitors>, AutoCloseable {
+public final class BmpDeployerImpl implements ClusteredDataTreeChangeListener<OdlBmpMonitors>, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(BmpDeployerImpl.class);
 
     private static final long TIMEOUT_NS = TimeUnit.SECONDS.toNanos(5);
@@ -52,8 +52,9 @@ public class BmpDeployerImpl implements ClusteredDataTreeChangeListener<OdlBmpMo
             InstanceIdentifier.create(OdlBmpMonitors.class);
     private static final YangInstanceIdentifier BMP_MONITOR_YII =
             YangInstanceIdentifier.of(BmpMonitor.QNAME);
-    private final static ContainerNode EMPTY_PARENT_NODE = Builders.containerBuilder().withNodeIdentifier(
-            new NodeIdentifier(BmpMonitor.QNAME)).addChild(ImmutableNodes.mapNodeBuilder(Monitor.QNAME).build()).build();
+    private static final ContainerNode EMPTY_PARENT_NODE = Builders.containerBuilder().withNodeIdentifier(
+            new NodeIdentifier(BmpMonitor.QNAME)).addChild(ImmutableNodes.mapNodeBuilder(Monitor.QNAME)
+            .build()).build();
     private final BmpDispatcher dispatcher;
     @GuardedBy("this")
     private final Map<MonitorId, BmpMonitoringStationImpl> bmpMonitorServices = new HashMap<>();
@@ -101,6 +102,7 @@ public class BmpDeployerImpl implements ClusteredDataTreeChangeListener<OdlBmpMo
         }
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatch")
     private synchronized void updateBmpMonitor(final BmpMonitorConfig bmpConfig) {
         final MonitorId monitorId = bmpConfig.getMonitorId();
         final BmpMonitoringStationImpl oldService = this.bmpMonitorServices.remove(monitorId);
@@ -122,6 +124,7 @@ public class BmpDeployerImpl implements ClusteredDataTreeChangeListener<OdlBmpMo
 
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatch")
     private synchronized void removeBmpMonitor(final MonitorId monitorId) {
         final BmpMonitoringStation service = this.bmpMonitorServices.remove(monitorId);
         if (service != null) {

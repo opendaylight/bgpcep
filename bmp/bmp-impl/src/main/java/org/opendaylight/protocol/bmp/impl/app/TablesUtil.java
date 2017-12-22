@@ -18,9 +18,12 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 
 public final class TablesUtil {
 
-    public static final QName BMP_TABLES_QNAME = QName.create(BmpMonitor.QNAME.getNamespace(), BmpMonitor.QNAME.getRevision(), "tables").intern();
-    public static final QName BMP_ATTRIBUTES_QNAME = QName.create(BmpMonitor.QNAME.getNamespace(), BmpMonitor.QNAME.getRevision(), "attributes").intern();
-    public static final QName BMP_ROUTES_QNAME = QName.create(BmpMonitor.QNAME.getNamespace(), BmpMonitor.QNAME.getRevision(), "routes").intern();
+    public static final QName BMP_TABLES_QNAME = QName.create(BmpMonitor.QNAME.getNamespace(),
+            BmpMonitor.QNAME.getRevision(), "tables").intern();
+    public static final QName BMP_ATTRIBUTES_QNAME = QName.create(BmpMonitor.QNAME.getNamespace(),
+            BmpMonitor.QNAME.getRevision(), "attributes").intern();
+    public static final QName BMP_ROUTES_QNAME = QName.create(BmpMonitor.QNAME.getNamespace(),
+            BmpMonitor.QNAME.getRevision(), "routes").intern();
     public static final QName BMP_AFI_QNAME = QName.create(BMP_TABLES_QNAME, "afi").intern();
     public static final QName BMP_SAFI_QNAME = QName.create(BMP_TABLES_QNAME, "safi").intern();
 
@@ -29,7 +32,7 @@ public final class TablesUtil {
     }
 
     /**
-     * Creates Yang Instance Identifier path argument from supplied AFI and SAFI
+     * Creates Yang Instance Identifier path argument from supplied AFI and SAFI.
      *
      * @param afi Class representing AFI
      * @param safi Class representing SAFI
@@ -44,14 +47,15 @@ public final class TablesUtil {
     }
 
     /**
-     * Creates Yang Instance Identifier path argument from supplied QNAMES and AFI and SAFI
+     * Creates Yang Instance Identifier path argument from supplied QNAMES and AFI and SAFI.
      *
      * @param nodeName QName reprenting node
      * @param afi Class representing AFI
      * @param safi Class representing SAFI
      * @return NodeIdentifierWithPredicates for specified AFI, SAFI combination.
      */
-    public static NodeIdentifierWithPredicates toYangTablesKey(final QName nodeName, final Class<? extends AddressFamily> afi,
+    public static NodeIdentifierWithPredicates toYangTablesKey(final QName nodeName,
+            final Class<? extends AddressFamily> afi,
             final Class<? extends SubsequentAddressFamily> safi) {
         final QName afiQname = QName.create(nodeName, "afi").intern();
         final QName safiQname = QName.create(nodeName, "safi").intern();
@@ -62,12 +66,12 @@ public final class TablesUtil {
     }
 
     /**
-     * Creates Yang Instance Identifier path argument from supplied {@link TablesKey}
+     * Creates Yang Instance Identifier path argument from supplied {@link TablesKey}.
      *
-     * @param k Tables key representing table.
+     * @param tablesKey Tables key representing table.
      * @return NodeIdentifierWithPredicates of for specified AFI, SAFI combination.
      */
-    public static NodeIdentifierWithPredicates toYangTablesKey(final TablesKey k) {
-        return toYangTablesKey(k.getAfi(), k.getSafi());
+    public static NodeIdentifierWithPredicates toYangTablesKey(final TablesKey tablesKey) {
+        return toYangTablesKey(tablesKey.getAfi(), tablesKey.getSafi());
     }
 }

@@ -35,7 +35,7 @@ final class RouterSessionManager implements BmpSessionListenerFactory, AutoClose
     private final RIBExtensionConsumerContext extensions;
     private final BindingCodecTree tree;
 
-    public RouterSessionManager(final YangInstanceIdentifier yangMonitorId, final DOMDataBroker domDataBroker,
+    RouterSessionManager(final YangInstanceIdentifier yangMonitorId, final DOMDataBroker domDataBroker,
             final RIBExtensionConsumerContext extensions, final BindingCodecTree tree) {
         this.domDataBroker = domDataBroker;
         this.yangRoutersId = YangInstanceIdentifier.builder(yangMonitorId).node(Router.QNAME).build();

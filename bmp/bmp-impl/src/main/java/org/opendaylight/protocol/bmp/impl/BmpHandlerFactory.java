@@ -14,7 +14,7 @@ import io.netty.channel.ChannelOutboundHandler;
 
 import org.opendaylight.protocol.bmp.spi.registry.BmpMessageRegistry;
 
-public class BmpHandlerFactory {
+public final class BmpHandlerFactory {
     private final ChannelOutboundHandler encoder;
     private final BmpMessageRegistry registry;
 

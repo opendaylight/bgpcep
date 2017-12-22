@@ -51,7 +51,7 @@ import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BmpRouterImpl implements BmpRouter, TransactionChainListener {
+public final class BmpRouterImpl implements BmpRouter, TransactionChainListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(BmpRouterImpl.class);
 
@@ -73,7 +73,9 @@ public class BmpRouterImpl implements BmpRouter, TransactionChainListener {
     private BmpSession session;
     private RouterId routerId;
     private String routerIp;
+    @GuardedBy("this")
     private YangInstanceIdentifier routerYangIId;
+    @GuardedBy("this")
     private YangInstanceIdentifier peersYangIId;
 
     public BmpRouterImpl(final RouterSessionManager sessionManager) {
@@ -85,7 +87,7 @@ public class BmpRouterImpl implements BmpRouter, TransactionChainListener {
     }
 
     @Override
-    public void onSessionUp(final BmpSession session) {
+    public synchronized void onSessionUp(final BmpSession session) {
         this.session = session;
         this.routerIp = InetAddresses.toAddrString(this.session.getRemoteAddress());
         this.routerId = new RouterId(Ipv4Util.getIpAddress(this.session.getRemoteAddress()));
@@ -104,7 +106,7 @@ public class BmpRouterImpl implements BmpRouter, TransactionChainListener {
     }
 
     @Override
-    public void onSessionDown(final Exception e) {
+    public void onSessionDown(final Exception exception) {
         // we want to tear down as we want to do clean up like closing the transaction chain, etc.
         // even when datastore is not writable (routerYangIId == null / redundant session)
         tearDown();
@@ -122,22 +124,24 @@ public class BmpRouterImpl implements BmpRouter, TransactionChainListener {
     }
 
     @Override
-    public RouterId getRouterId() {
+    public synchronized RouterId getRouterId() {
         return this.routerId;
     }
 
     @Override
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public synchronized void close() {
         if (this.session != null) {
             try {
                 this.session.close();
-            } catch (final Exception e) {
-                LOG.error("Fail to close session.", e);
+            } catch (final Exception exc) {
+                LOG.error("Fail to close session.", exc);
             }
         }
     }
 
     @GuardedBy("this")
+    @SuppressWarnings("checkstyle:IllegalCatch")
     private synchronized void tearDown() {
         // the session has been teared down before
         if (this.session == null) {
@@ -155,7 +159,7 @@ public class BmpRouterImpl implements BmpRouter, TransactionChainListener {
                 it.remove();
             }
             this.domTxChain.close();
-        } catch(final Exception e) {
+        } catch (final Exception e) {
             LOG.error("Failed to properly close BMP application.", e);
         } finally {
             // remove session only when session is valid, otherwise
@@ -209,13 +213,15 @@ public class BmpRouterImpl implements BmpRouter, TransactionChainListener {
                 Builders.mapEntryBuilder()
                 .withNodeIdentifier(new NodeIdentifierWithPredicates(Router.QNAME, ROUTER_ID_QNAME, this.routerIp))
                 .withChild(ImmutableNodes.leafNode(ROUTER_NAME_QNAME, initiation.getTlvs().getNameTlv().getName()))
-                .withChild(ImmutableNodes.leafNode(ROUTER_DESCRIPTION_QNAME, initiation.getTlvs().getDescriptionTlv().getDescription()))
-                .withChild(ImmutableNodes.leafNode(ROUTER_INFO_QNAME, getStringInfo(initiation.getTlvs().getStringInformation())))
+                .withChild(ImmutableNodes.leafNode(ROUTER_DESCRIPTION_QNAME, initiation.getTlvs().getDescriptionTlv()
+                        .getDescription()))
+                .withChild(ImmutableNodes.leafNode(ROUTER_INFO_QNAME, getStringInfo(initiation.getTlvs()
+                        .getStringInformation())))
                 .withChild(ImmutableNodes.leafNode(ROUTER_STATUS_QNAME, UP)).build());
         wTx.submit();
     }
 
-    private void onPeerUp(final PeerUpNotification peerUp) {
+    private synchronized void onPeerUp(final PeerUpNotification peerUp) {
         final PeerId peerId = getPeerIdFromOpen(peerUp.getReceivedOpen());
         if (!getPeer(peerId).isPresent()) {
             final BmpRouterPeer peer = BmpRouterPeerImpl.createRouterPeer(this.domTxChain, this.peersYangIId, peerUp,
@@ -227,7 +233,7 @@ public class BmpRouterImpl implements BmpRouter, TransactionChainListener {
         }
     }
 
-    private void delegateToPeer(final Notification perPeerMessage) {
+    private synchronized void delegateToPeer(final Notification perPeerMessage) {
         final PeerId peerId = getPeerId((PeerHeader) perPeerMessage);
         final Optional<BmpRouterPeer> maybePeer = getPeer(peerId);
         if (maybePeer.isPresent()) {

@@ -8,13 +8,16 @@
 
 package org.opendaylight.protocol.bmp.impl.session;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doReturn;
+
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.embedded.EmbeddedChannel;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.bmp.api.BmpSession;
 import org.opendaylight.protocol.bmp.parser.message.TestUtil;
@@ -29,72 +32,57 @@ public class BmpSessionImplTest {
     @Mock
     private ChannelHandlerContext mockedHandlerContext;
 
+    private static InitiationMessage createInitMsg() {
+        return TestUtil.createInitMsg("", "", "");
+    }
+
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        Mockito.doReturn(null).when(this.mockedHandlerContext).channel();
-        Mockito.doReturn(null).when(this.mockedHandlerContext).fireChannelInactive();
+        doReturn(null).when(this.mockedHandlerContext).channel();
+        doReturn(null).when(this.mockedHandlerContext).fireChannelInactive();
         this.listener = new BmpTestSessionListener();
         this.session = new BmpSessionImpl(this.listener);
         this.channel = new EmbeddedChannel(this.session);
-        Assert.assertTrue(this.listener.isUp());
+        assertTrue(this.listener.isUp());
     }
 
     @Test
     public void testOnInitiate() {
         this.channel.writeInbound(createInitMsg());
-        Assert.assertEquals(this.listener.getListMsg().size(), 1);
+        assertEquals(this.listener.getListMsg().size(), 1);
         this.channel.writeInbound(createInitMsg());
-        Assert.assertEquals(this.listener.getListMsg().size(), 2);
+        assertEquals(this.listener.getListMsg().size(), 2);
     }
 
     @Test
     public void testOnTerminationAfterInitiated() {
         this.channel.writeInbound(createInitMsg());
-        Assert.assertEquals(this.listener.getListMsg().size(), 1);
+        assertEquals(this.listener.getListMsg().size(), 1);
         this.channel.writeInbound(TestUtil.createTerminationMsg());
-        Assert.assertEquals(this.listener.getListMsg().size(), 1);
-        Assert.assertFalse(this.listener.isUp());
+        assertEquals(this.listener.getListMsg().size(), 1);
+        assertFalse(this.listener.isUp());
     }
 
     @Test
     public void testOnTermination() {
         this.channel.writeInbound(TestUtil.createTerminationMsg());
-        Assert.assertEquals(this.listener.getListMsg().size(), 0);
-        Assert.assertFalse(this.listener.isUp());
+        assertEquals(this.listener.getListMsg().size(), 0);
+        assertFalse(this.listener.isUp());
     }
 
     @Test
     public void testOnUnexpectedMessage() {
         this.channel.writeInbound(TestUtil.createPeerDownFSM());
-        Assert.assertEquals(this.listener.getListMsg().size(), 0);
-        Assert.assertFalse(this.listener.isUp());
+        assertEquals(this.listener.getListMsg().size(), 0);
+        assertFalse(this.listener.isUp());
     }
 
     @Test
-    public void testExceptionCaught() {
-        try {
-            this.session.exceptionCaught(this.mockedHandlerContext, new BmpDeserializationException(""));
-            Assert.assertEquals(this.listener.getListMsg().size(), 0);
-            Assert.assertFalse(this.listener.isUp());
-        } catch (final Exception e) {
-            Assert.fail(e.getMessage());
-        }
-    }
-
-    @Test
-    public void testChannelInactive() {
-        try {
-            this.session.channelInactive(this.mockedHandlerContext);
-            Assert.assertEquals(this.listener.getListMsg().size(), 0);
-            Assert.assertFalse(this.listener.isUp());
-        } catch (final Exception e) {
-            Assert.fail(e.getMessage());
-        }
-    }
-
-    private static InitiationMessage createInitMsg() {
-        return TestUtil.createInitMsg("", "", "");
+    public void testExceptionCaught() throws Exception {
+        this.session.exceptionCaught(this.mockedHandlerContext, new BmpDeserializationException(""));
+        assertEquals(this.listener.getListMsg().size(), 0);
+        assertFalse(this.listener.isUp());
     }
 
 }

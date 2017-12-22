@@ -13,7 +13,7 @@ import org.opendaylight.protocol.bmp.api.BmpSession;
 import org.opendaylight.protocol.bmp.api.BmpSessionFactory;
 import org.opendaylight.protocol.bmp.api.BmpSessionListenerFactory;
 
-public class DefaultBmpSessionFactory implements BmpSessionFactory {
+public final class DefaultBmpSessionFactory implements BmpSessionFactory {
 
     @Override
     public BmpSession getSession(final Channel channel, final BmpSessionListenerFactory sessionListenerFactory) {

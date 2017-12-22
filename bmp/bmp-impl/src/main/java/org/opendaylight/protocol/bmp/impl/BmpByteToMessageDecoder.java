@@ -20,7 +20,7 @@ import org.opendaylight.protocol.bmp.spi.registry.BmpMessageRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BmpByteToMessageDecoder extends ByteToMessageDecoder {
+public final class BmpByteToMessageDecoder extends ByteToMessageDecoder {
 
     private static final Logger LOG = LoggerFactory.getLogger(BmpByteToMessageDecoder.class);
     private final BmpMessageRegistry registry;

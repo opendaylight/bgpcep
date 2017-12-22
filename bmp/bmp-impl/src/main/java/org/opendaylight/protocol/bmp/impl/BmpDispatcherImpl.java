@@ -14,7 +14,6 @@ import static org.opendaylight.protocol.bmp.impl.BmpDispatcherUtil.createServerB
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.EventLoop;
@@ -70,7 +69,7 @@ public class BmpDispatcherImpl implements BmpDispatcher {
                 BmpDispatcherUtil::createChannelWithDecoder, slf, remoteAddress, this.workerGroup,
                 CONNECT_TIMEOUT, keys);
         final ChannelFuture channelPromise = bootstrap.connect();
-        channelPromise.addListener(new BootstrapListener(channelPromise, bootstrap, remoteAddress, slf, keys));
+        channelPromise.addListener(new BootstrapListener(bootstrap, remoteAddress, slf, keys));
         LOG.debug("Initiated BMP Client {} at {}.", channelPromise, remoteAddress);
         return channelPromise;
     }
@@ -102,7 +101,7 @@ public class BmpDispatcherImpl implements BmpDispatcher {
         private long delay;
         private Timer timer = new Timer();
 
-        BootstrapListener(final ChannelFuture channelPromise, final Bootstrap bootstrap,
+        BootstrapListener(final Bootstrap bootstrap,
                 final InetSocketAddress remoteAddress, final BmpSessionListenerFactory slf, final KeyMapping keys) {
             this.bootstrap = bootstrap;
             this.remoteAddress = remoteAddress;
@@ -117,11 +116,11 @@ public class BmpDispatcherImpl implements BmpDispatcher {
                 LOG.debug("Connection {} cancelled!", future);
             } else if (future.isSuccess()) {
                 LOG.debug("Connection {} succeeded!", future);
-                addCloseDetectListener(future.channel());
+                future.channel().closeFuture().addListener((ChannelFutureListener) channelFuture -> scheduleConnect());
             } else {
                 if (this.delay > MAXIMUM_BACKOFF) {
-                    LOG.warn("The time of maximum backoff has been exceeded. No further connection attempts with BMP " +
-                            "router {}.", this.remoteAddress);
+                    LOG.warn("The time of maximum backoff has been exceeded. No further connection attempts with BMP "
+                            + "router {}.", this.remoteAddress);
                     future.cancel(false);
                     return;
                 }
@@ -131,11 +130,6 @@ public class BmpDispatcherImpl implements BmpDispatcher {
                         this.remoteAddress, this.delay);
                 this.delay *= 2;
             }
-        }
-
-        private void addCloseDetectListener(Channel channel) {
-            //if the channel connection is lost, the ChannelFutureListener.operationComplete() will be called
-            channel.closeFuture().addListener((ChannelFutureListener) future -> scheduleConnect());
         }
 
         private void scheduleConnect() {

@@ -48,21 +48,21 @@ import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Created by cgasparini on 21.5.2015.
- */
 final class BmpRibInWriter {
 
     private static final Logger LOG = LoggerFactory.getLogger(BmpRibInWriter.class);
 
-    private static final LeafNode<Boolean> ATTRIBUTES_UPTODATE_FALSE = ImmutableNodes.leafNode(QName.create(BMP_ATTRIBUTES_QNAME, "uptodate"), Boolean.FALSE);
-    private static final LeafNode<Boolean> ATTRIBUTES_UPTODATE_TRUE = ImmutableNodes.leafNode(ATTRIBUTES_UPTODATE_FALSE.getNodeType(), Boolean.TRUE);
+    private static final LeafNode<Boolean> ATTRIBUTES_UPTODATE_FALSE =
+            ImmutableNodes.leafNode(QName.create(BMP_ATTRIBUTES_QNAME, "uptodate"), Boolean.FALSE);
+    private static final LeafNode<Boolean> ATTRIBUTES_UPTODATE_TRUE =
+            ImmutableNodes.leafNode(ATTRIBUTES_UPTODATE_FALSE.getNodeType(), Boolean.TRUE);
 
     private final DOMTransactionChain chain;
     private final Map<TablesKey, TableContext> tables;
 
 
-    private BmpRibInWriter(final YangInstanceIdentifier tablesRoot, final DOMTransactionChain chain, final RIBExtensionConsumerContext ribExtensions,
+    private BmpRibInWriter(final YangInstanceIdentifier tablesRoot, final DOMTransactionChain chain,
+            final RIBExtensionConsumerContext ribExtensions,
             final Set<TablesKey> tableTypes,  final BindingCodecTree tree) {
         this.chain = chain;
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
@@ -72,21 +72,21 @@ final class BmpRibInWriter {
         tx.submit();
     }
 
-    public static BmpRibInWriter create(@Nonnull final YangInstanceIdentifier tablesRootPath, @Nonnull final DOMTransactionChain chain,
+    public static BmpRibInWriter create(@Nonnull final YangInstanceIdentifier tablesRootPath,
+            @Nonnull final DOMTransactionChain chain,
             @Nonnull final RIBExtensionConsumerContext extensions, @Nonnull final Set<TablesKey> tableTypes,
             @Nonnull  final BindingCodecTree tree) {
         return new BmpRibInWriter(tablesRootPath, chain, extensions, tableTypes, tree);
     }
 
     /**
-     * Write on DS Adj-RIBs-In
-     *
-     * @param message
+     * Write on DS Adj-RIBs-In.
      */
     public void onMessage(final UpdateMessage message) {
 
         if (!checkEndOfRib(message)) {
-            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes attrs = message.getAttributes();
+            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path
+                    .attributes.Attributes attrs = message.getAttributes();
             MpReachNlri mpReach = null;
             if (message.getNlri() != null) {
                 mpReach = prefixesToMpReach(message);
@@ -111,16 +111,11 @@ final class BmpRibInWriter {
     }
 
     /**
-     * Create new table instance
-     *
-     * @param tableTypes
-     * @param yangTableRootIId
-     * @param tx
-     * @return
+     * Create new table instance.
      */
     private static ImmutableMap.Builder<TablesKey, TableContext> createTableInstance(final Set<TablesKey> tableTypes,
-        final YangInstanceIdentifier yangTableRootIId, final DOMDataWriteTransaction tx,
-        final RIBExtensionConsumerContext ribExtensions, final BindingCodecTree tree) {
+            final YangInstanceIdentifier yangTableRootIId, final DOMDataWriteTransaction tx,
+            final RIBExtensionConsumerContext ribExtensions, final BindingCodecTree tree) {
 
         final ImmutableMap.Builder<TablesKey, TableContext> tb = ImmutableMap.builder();
         for (final TablesKey k : tableTypes) {
@@ -135,15 +130,16 @@ final class BmpRibInWriter {
             final TableContext ctx = new TableContext(rs, idb.build(), tree);
             ctx.createTable(tx);
 
-            tx.put(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(BMP_ATTRIBUTES_QNAME).node(ATTRIBUTES_UPTODATE_FALSE.getNodeType()), ATTRIBUTES_UPTODATE_FALSE);
+            tx.put(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(BMP_ATTRIBUTES_QNAME)
+                    .node(ATTRIBUTES_UPTODATE_FALSE.getNodeType()), ATTRIBUTES_UPTODATE_FALSE);
             LOG.debug("Created table instance {}", ctx.getTableId());
             tb.put(k, ctx);
         }
         return tb;
     }
 
-    private synchronized void addRoutes(final MpReachNlri nlri, final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
-        .bgp.message.rev171207.path.attributes.Attributes attributes) {
+    private synchronized void addRoutes(final MpReachNlri nlri, final org.opendaylight.yang.gen.v1.urn.opendaylight
+            .params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes attributes) {
         final TablesKey key = new TablesKey(nlri.getAfi(), nlri.getSafi());
         final TableContext ctx = this.tables.get(key);
 
@@ -173,7 +169,7 @@ final class BmpRibInWriter {
     }
 
     /**
-     * Creates MPReach for the prefixes to be handled in the same way as linkstate routes
+     * Creates MPReach for the prefixes to be handled in the same way as linkstate routes.
      *
      * @param message Update message containing prefixes in NLRI
      * @return MpReachNlri with prefixes from the nlri field
@@ -194,7 +190,7 @@ final class BmpRibInWriter {
     }
 
     /**
-     * Create MPUnreach for the prefixes to be handled in the same way as linkstate routes
+     * Create MPUnreach for the prefixes to be handled in the same way as linkstate routes.
      *
      * @param message Update message containing withdrawn routes
      * @return MpUnreachNlri with prefixes from the withdrawn routes field
@@ -202,11 +198,13 @@ final class BmpRibInWriter {
     private static MpUnreachNlri prefixesToMpUnreach(final UpdateMessage message) {
         final List<Ipv4Prefixes> prefixes = new ArrayList<>();
         message.getWithdrawnRoutes().forEach(
-                w -> prefixes.add(new Ipv4PrefixesBuilder().setPrefix(w.getPrefix()).setPathId(w.getPathId()).build()));
-        return new MpUnreachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).setWithdrawnRoutes(
-            new WithdrawnRoutesBuilder().setDestinationType(
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4CaseBuilder().setDestinationIpv4(
-                    new DestinationIpv4Builder().setIpv4Prefixes(prefixes).build()).build()).build()).build();
+            w -> prefixes.add(new Ipv4PrefixesBuilder().setPrefix(w.getPrefix()).setPathId(w.getPathId()).build()));
+        return new MpUnreachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
+                .setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.update
+                                .attributes.mp.unreach.nlri.withdrawn.routes.destination.type
+                                .DestinationIpv4CaseBuilder().setDestinationIpv4(new DestinationIpv4Builder()
+                                .setIpv4Prefixes(prefixes).build()).build()).build()).build();
     }
 
     /**
@@ -254,7 +252,8 @@ final class BmpRibInWriter {
     private synchronized void markTableUptodated(final TablesKey tableTypes) {
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         final TableContext ctxPre = this.tables.get(tableTypes);
-        tx.merge(LogicalDatastoreType.OPERATIONAL, ctxPre.getTableId().node(BMP_ATTRIBUTES_QNAME).node(ATTRIBUTES_UPTODATE_TRUE.getNodeType()),
+        tx.merge(LogicalDatastoreType.OPERATIONAL, ctxPre.getTableId().node(BMP_ATTRIBUTES_QNAME)
+                        .node(ATTRIBUTES_UPTODATE_TRUE.getNodeType()),
                 ATTRIBUTES_UPTODATE_TRUE);
         tx.submit();
     }

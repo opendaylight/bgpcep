@@ -10,7 +10,7 @@ package org.opendaylight.protocol.bmp.impl;
 
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 
-public class BmpMessageHeaderDecoder extends LengthFieldBasedFrameDecoder {
+public final class BmpMessageHeaderDecoder extends LengthFieldBasedFrameDecoder {
 
     private static final int MAX_FRAME_SIZE = 65535;
 

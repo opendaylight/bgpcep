@@ -16,13 +16,13 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BmpTestSessionListener implements BmpSessionListener {
+public final class BmpTestSessionListener implements BmpSessionListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(BmpTestSessionListener.class);
     private final List<Notification> messages = Lists.newArrayList();
     private boolean up = false;
 
-    public boolean isUp () {
+    public boolean isUp() {
         return this.up;
     }
 
@@ -43,8 +43,8 @@ public class BmpTestSessionListener implements BmpSessionListener {
     }
 
     @Override
-    public void onSessionDown(final Exception e) {
-        LOG.debug("Session down.", e);
+    public void onSessionDown(final Exception throwable) {
+        LOG.debug("Session down.", throwable);
         this.up = false;
     }
 }

@@ -12,7 +12,6 @@ import static java.util.Objects.requireNonNull;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.EventLoop;
@@ -62,7 +61,7 @@ final class BmpMockDispatcher implements AutoCloseable {
                 CONNECT_TIMEOUT, KEY_MAPPING, true, false);
         final ChannelFuture channelFuture = bootstrap.connect(remoteAddress);
         LOG.info("BMP client {} <--> {} deployed", localAddress, remoteAddress);
-        channelFuture.addListener(new BootstrapListener(channelFuture, bootstrap, localAddress, remoteAddress));
+        channelFuture.addListener(new BootstrapListener(bootstrap, localAddress, remoteAddress));
         return channelFuture;
     }
 
@@ -88,8 +87,8 @@ final class BmpMockDispatcher implements AutoCloseable {
         private long delay;
         private Timer timer = new Timer();
 
-        BootstrapListener(final ChannelFuture channelPromise, final Bootstrap bootstrap,
-                final SocketAddress localAddress, final InetSocketAddress remoteAddress) {
+        BootstrapListener(final Bootstrap bootstrap, final SocketAddress localAddress,
+                final InetSocketAddress remoteAddress) {
             this.bootstrap = bootstrap;
             this.remoteAddress = remoteAddress;
             this.localAddress = localAddress;
@@ -102,18 +101,13 @@ final class BmpMockDispatcher implements AutoCloseable {
                 LOG.debug("Connection {} cancelled!", future);
             } else if (future.isSuccess()) {
                 LOG.debug("Connection {} succeeded!", future);
-                addCloseDetectListener(future.channel());
+                future.channel().closeFuture().addListener((ChannelFutureListener) channelFuture -> scheduleConnect());
             } else {
                 final EventLoop loop = future.channel().eventLoop();
                 loop.schedule(() -> this.bootstrap.connect().addListener(this), this.delay, TimeUnit.MILLISECONDS);
                 LOG.info("The connection try to BMP router {} failed. Next reconnection attempt in {} milliseconds.",
                         this.remoteAddress, this.delay);
             }
-        }
-
-        private void addCloseDetectListener(Channel channel) {
-            //if the channel connection is lost, the ChannelFutureListener.operationComplete() will be called
-            channel.closeFuture().addListener((ChannelFutureListener) future -> scheduleConnect());
         }
 
         private void scheduleConnect() {
