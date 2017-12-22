@@ -105,8 +105,6 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
 
     /**
      * Creates a new stateful topology session listener for given server session manager.
-     *
-     * @param serverSessionManager
      */
     Stateful07TopologySessionListener(final ServerSessionManager serverSessionManager) {
         super(serverSessionManager);

@@ -102,6 +102,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
     private final Map<String, ReportedLsp> lspData = new HashMap<>();
     private final ServerSessionManager serverSessionManager;
     private InstanceIdentifier<PathComputationClient> pccIdentifier;
+    @GuardedBy("this")
     private TopologyNodeState nodeState;
     private AtomicBoolean synced = new AtomicBoolean(false);
     private PCEPSession session;
@@ -228,18 +229,13 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
     /**
      * Tear down the given PCEP session. It's OK to call this method even after the session
      * is already down. It always clear up the current session status.
-     *
-     * @param session
      */
     @GuardedBy("this")
     private synchronized void tearDown(final PCEPSession session) {
 
         requireNonNull(session);
         this.serverSessionManager.releaseNodeState(this.nodeState, session, isLspDbPersisted());
-        if (this.nodeState != null) {
-            this.serverSessionManager.unbind(this.nodeState.getNodeId());
-            this.nodeState = null;
-        }
+        clearNodeState();
 
         try {
             if (this.session != null) {
@@ -322,10 +318,18 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
     }
 
     @Override
-    public void close() {
+    public synchronized void close() {
+        clearNodeState();
         if (this.session != null) {
             LOG.info("Closing session {}", session);
             this.session.close(TerminationReason.UNKNOWN);
+        }
+    }
+
+    private synchronized void clearNodeState() {
+        if (this.nodeState != null) {
+            this.serverSessionManager.unbind(this.nodeState.getNodeId());
+            this.nodeState = null;
         }
     }
 
