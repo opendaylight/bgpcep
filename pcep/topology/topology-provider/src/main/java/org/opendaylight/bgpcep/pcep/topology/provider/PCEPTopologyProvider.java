@@ -16,6 +16,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyConfiguration;
 import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyProviderDependencies;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
@@ -25,14 +26,10 @@ import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.topology.rev140113.NetworkTopologyContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev171025.NetworkTopologyPcepProgrammingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.NetworkTopologyPcepService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public final class PCEPTopologyProvider extends DefaultTopologyReference {
-    private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyProvider.class);
-
-    private static final String STATEFUL_NOT_DEFINED = "Stateful capability not defined, aborting PCEP Topology" +
-            " Provider instantiation";
+    private static final String STATEFUL_NOT_DEFINED = "Stateful capability not defined, aborting PCEP Topology"
+            + " Provider instantiation";
     private final ServerSessionManager manager;
     private final PCEPTopologyProviderDependencies dependenciesProvider;
     private final PCEPTopologyConfiguration configDependencies;
@@ -70,7 +67,7 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference {
         return new PCEPTopologyProvider(configDependencies, dependenciesProvider, manager);
     }
 
-    public void instantiateServiceInstance() {
+    public void instantiateServiceInstance() throws ExecutionException, InterruptedException {
         final RpcProviderRegistry rpcRegistry = this.dependenciesProvider.getRpcProviderRegistry();
 
         this.element = requireNonNull(rpcRegistry
@@ -81,16 +78,12 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference {
                 .addRoutedRpcImplementation(NetworkTopologyPcepProgrammingService.class,
                         new TopologyProgramming(configDependencies.getSchedulerDependency(), this.manager)));
         this.network.registerPath(NetworkTopologyContext.class, this.configDependencies.getTopology());
-        try {
-            this.manager.instantiateServiceInstance().get();
-            final ChannelFuture channelFuture = this.dependenciesProvider.getPCEPDispatcher()
-                    .createServer(this.manager.getPCEPDispatcherDependencies());
-            channelFuture.get();
-            this.channel = channelFuture.channel();
-        } catch (final Exception e) {
-            LOG.error("Failed to instantiate PCEP Topology provider", e);
-        }
 
+        this.manager.instantiateServiceInstance().get();
+        final ChannelFuture channelFuture = this.dependenciesProvider.getPCEPDispatcher()
+                .createServer(this.manager.getPCEPDispatcherDependencies());
+        channelFuture.get();
+        this.channel = channelFuture.channel();
     }
 
     public ListenableFuture<Void> closeServiceInstance() {

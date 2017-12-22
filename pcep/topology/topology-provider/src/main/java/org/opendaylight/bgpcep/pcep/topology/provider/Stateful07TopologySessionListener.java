@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
@@ -150,10 +151,6 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         }
     }
 
-    /**
-     * @param input
-     * @return
-     */
     @Override
     public synchronized ListenableFuture<OperationResult> triggerSync(final TriggerSyncArgs input) {
         if (isTriggeredInitialSynchro() && !isSynchronized()) {
@@ -390,7 +387,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     }
 
     @Override
-    public synchronized ListenableFuture<OperationResult> addLsp(final AddLspArgs input) {
+    public synchronized ListenableFuture<OperationResult> addLsp(@Nonnull final AddLspArgs input) {
         Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null
                 && input.getArguments() != null, MISSING_XML_TAG);
         LOG.trace("AddLspArgs {}", input);
@@ -404,7 +401,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     }
 
     @Override
-    public synchronized ListenableFuture<OperationResult> removeLsp(final RemoveLspArgs input) {
+    public synchronized ListenableFuture<OperationResult> removeLsp(@Nonnull final RemoveLspArgs input) {
         Preconditions.checkArgument(input != null && input.getName() != null
                 && input.getNode() != null, MISSING_XML_TAG);
         LOG.trace("RemoveLspArgs {}", input);
@@ -480,7 +477,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     }
 
     @Override
-    public synchronized ListenableFuture<OperationResult> updateLsp(final UpdateLspArgs input) {
+    public synchronized ListenableFuture<OperationResult> updateLsp(@Nonnull final UpdateLspArgs input) {
         Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null
                 && input.getArguments() != null, MISSING_XML_TAG);
         LOG.trace("UpdateLspArgs {}", input);
@@ -494,7 +491,8 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     }
 
     @Override
-    public synchronized ListenableFuture<OperationResult> ensureLspOperational(final EnsureLspOperationalInput input) {
+    public synchronized ListenableFuture<OperationResult> ensureLspOperational(
+            @Nonnull final EnsureLspOperationalInput input) {
         Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null
                 && input.getArguments() != null, MISSING_XML_TAG);
         final OperationalStatus op;
@@ -515,9 +513,9 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         return listenableFuture(f, input, op);
     }
 
-    private ListenableFuture<OperationResult> listenableFuture(final ListenableFuture<Optional<ReportedLsp>> f,
+    private ListenableFuture<OperationResult> listenableFuture(final ListenableFuture<Optional<ReportedLsp>> future,
             final EnsureLspOperationalInput input, final OperationalStatus op) {
-        return Futures.transform(f, rep -> {
+        return Futures.transform(future, rep -> {
             if (!rep.isPresent()) {
                 LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
                 return OperationResults.UNSENT;
@@ -565,11 +563,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     }
 
     /**
-     * Recover lspData and mark any LSPs in the LSP database that were previously reported by the PCC as stale
-     *
-     * @param lspData
-     * @param lsps
-     * @param incrementalSynchro
+     * Recover lspData and mark any LSPs in the LSP database that were previously reported by the PCC as stale.
      */
     @Override
     protected synchronized void loadLspData(final Node node, final Map<String, ReportedLsp> lspData,
@@ -596,7 +590,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     /**
      * When the PCC reports an LSP during state synchronization, if the LSP already
      * exists in the LSP database, the PCE MUST update the LSP database and
-     * clear the stale marker from the LSP
+     * clear the stale marker from the LSP.
      *
      * @param plspId id
      */
@@ -605,7 +599,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     }
 
     /**
-     * Purge any LSPs from the LSP database that are still marked as stale
+     * Purge any LSPs from the LSP database that are still marked as stale.
      *
      * @param ctx message context
      */
@@ -702,13 +696,13 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         private final AddLspArgs input;
         private final InstanceIdentifier<ReportedLsp> lsp;
 
-        public AddFunction(final AddLspArgs input, final InstanceIdentifier<ReportedLsp> lsp) {
+        AddFunction(final AddLspArgs input, final InstanceIdentifier<ReportedLsp> lsp) {
             this.input = input;
             this.lsp = lsp;
         }
 
         @Override
-        public ListenableFuture<OperationResult> apply(final Optional<ReportedLsp> rep) {
+        public ListenableFuture<OperationResult> apply(@Nonnull final Optional<ReportedLsp> rep) {
             if (rep.isPresent()) {
                 LOG.debug("Node {} already contains lsp {} at {}", this.input.getNode(), this.input.getName(),
                         this.lsp);
@@ -765,7 +759,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
 
         private final UpdateLspArgs input;
 
-        public UpdateFunction(final UpdateLspArgs input) {
+        UpdateFunction(final UpdateLspArgs input) {
             this.input = input;
         }
 

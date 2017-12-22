@@ -73,14 +73,15 @@ final class PCEPTopologyProviderUtil {
         return aug != null && aug.getTopologyPcep() != null;
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatch")
     static void closeTopology(@Nullable final PCEPTopologyProviderBean topology, @Nonnull final TopologyId topologyId) {
         if (topology != null) {
             try {
                 topology.closeServiceInstance().get(TIMEOUT_NS, TimeUnit.NANOSECONDS);
+                topology.close();
             } catch (final Exception e) {
                 LOG.error("Topology {} instance failed to close service instance", topologyId, e);
             }
-            topology.close();
         }
     }
 
