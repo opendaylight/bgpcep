@@ -43,7 +43,7 @@ public final class BitArray {
     private BitArray(final byte[] backingArray, final int size) {
         requireNonNull(backingArray, "Byte Array cannot be null");
         this.size = size;
-        this.backingArray = (backingArray == null) ? null : backingArray.clone();
+        this.backingArray = backingArray.clone();
         this.offset = (calculateBytes(this.size) * Byte.SIZE) - this.size;
     }
 

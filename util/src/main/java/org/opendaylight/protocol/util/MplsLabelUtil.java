@@ -30,7 +30,7 @@ public final class MplsLabelUtil {
      * @return MplsLabel object
      */
     public static MplsLabel mplsLabelForByteBuf(final ByteBuf buffer) {
-        return new MplsLabel(new Long(buffer.readUnsignedMedium() >> LABEL_OFFSET));
+        return new MplsLabel(Long.valueOf(buffer.readUnsignedMedium() >> LABEL_OFFSET));
     }
 
     /**
