@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.bgpcep.programming.NanotimeUtil;
 import org.opendaylight.bgpcep.programming.spi.ExecutionResult;
 import org.opendaylight.bgpcep.programming.spi.Instruction;
@@ -85,7 +86,9 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
     private final ServiceGroupIdentifier sgi;
     private final ClusterSingletonServiceRegistration csspReg;
     private final RpcProviderRegistry rpcProviderRegistry;
+    @GuardedBy("this")
     private RpcRegistration<ProgrammingService> reg;
+    @GuardedBy("this")
     private ServiceRegistration<?> serviceRegistration;
 
     private final class InstructionPusher implements QueueInstruction {
@@ -168,7 +171,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
     }
 
     @Override
-    public void instantiateServiceInstance() {
+    public synchronized void instantiateServiceInstance() {
         LOG.info("Instruction Queue service {} instantiated", this.sgi.getValue());
         this.reg = this.rpcProviderRegistry.addRpcImplementation(ProgrammingService.class, this);
 
@@ -411,7 +414,10 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
     public synchronized ListenableFuture<Void> closeServiceInstance() {
         LOG.info("Closing Instruction Queue service {}", this.sgi.getValue());
 
-        this.reg.close();
+        if (this.reg != null) {
+            this.reg.close();
+            this.reg = null;
+        }
         for (final InstructionImpl instruction : this.insns.values()) {
             instruction.tryCancel(null);
         }
