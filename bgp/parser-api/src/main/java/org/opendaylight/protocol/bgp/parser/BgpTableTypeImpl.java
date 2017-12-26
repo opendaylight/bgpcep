@@ -28,7 +28,8 @@ public final class BgpTableTypeImpl implements BgpTableType {
      * @param afi Address Family Identifier
      * @param safi Subsequent Address Family Identifier
      */
-    public BgpTableTypeImpl(final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi) {
+    public BgpTableTypeImpl(final Class<? extends AddressFamily> afi,
+            final Class<? extends SubsequentAddressFamily> safi) {
         this.afi = requireNonNull(afi, "Address family may not be null");
         this.safi = requireNonNull(safi, "Subsequent address family may not be null");
     }

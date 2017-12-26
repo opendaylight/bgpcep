@@ -22,8 +22,10 @@ public class TableTypeTest {
 
     @Test
     public void testTableTypes() {
-        final BgpTableType tt1 = new BgpTableTypeImpl(Ipv4AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class);
-        final BgpTableType tt2 = new BgpTableTypeImpl(Ipv6AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class);
+        final BgpTableType tt1 = new BgpTableTypeImpl(Ipv4AddressFamily.class,
+                MplsLabeledVpnSubsequentAddressFamily.class);
+        final BgpTableType tt2 = new BgpTableTypeImpl(Ipv6AddressFamily.class,
+                MplsLabeledVpnSubsequentAddressFamily.class);
 
         try {
             new BgpTableTypeImpl(null, MplsLabeledVpnSubsequentAddressFamily.class);

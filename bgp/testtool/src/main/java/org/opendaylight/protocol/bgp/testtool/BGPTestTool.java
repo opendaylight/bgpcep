@@ -54,8 +54,10 @@ final class BGPTestTool {
     void start(final Arguments arguments) {
         final BGPDispatcher dispatcher = initializeActivator();
 
-        final ArrayList<OptionalCapabilities> optCap = Lists.newArrayList(createMPCapability(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class),
-            createMPCapability(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class), createAs4BytesMPCapability(arguments.getAs()));
+        final ArrayList<OptionalCapabilities> optCap = Lists.newArrayList(createMPCapability(Ipv4AddressFamily.class,
+                UnicastSubsequentAddressFamily.class),
+            createMPCapability(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class),
+                createAs4BytesMPCapability(arguments.getAs()));
         if (arguments.getMultiPathSupport()) {
             optCap.add(createAddPathCapability());
         }
@@ -66,7 +68,8 @@ final class BGPTestTool {
         InetAddress address = localAddress.getAddress();
         int numberOfSpeakers = arguments.getSpeakerCount();
         do {
-            final BGPSessionListener sessionListener = new TestingListener(arguments.getNumberOfPrefixes(), arguments.getExtendedCommunities(),
+            final BGPSessionListener sessionListener = new TestingListener(arguments.getNumberOfPrefixes(),
+                    arguments.getExtendedCommunities(),
                 arguments.getMultiPathSupport());
             this.listeners.put(address.getHostAddress(), sessionListener);
             createPeer(dispatcher, arguments, new InetSocketAddress(address, port), sessionListener, bgpParameters);
@@ -80,33 +83,42 @@ final class BGPTestTool {
         final BGPExtensionProviderContext ctx = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance();
         activator.start(ctx);
 
-        final org.opendaylight.protocol.bgp.inet.BGPActivator inetActivator = new org.opendaylight.protocol.bgp.inet.BGPActivator();
+        final org.opendaylight.protocol.bgp.inet.BGPActivator inetActivator
+                = new org.opendaylight.protocol.bgp.inet.BGPActivator();
         inetActivator.start(ctx);
 
-        final org.opendaylight.protocol.bgp.evpn.impl.BGPActivator evpnActivator = new org.opendaylight.protocol.bgp.evpn.impl.BGPActivator();
+        final org.opendaylight.protocol.bgp.evpn.impl.BGPActivator evpnActivator = new org.opendaylight.protocol.bgp
+                .evpn.impl.BGPActivator();
         evpnActivator.start(ctx);
 
         final SimpleFlowspecExtensionProviderContext fsContext = new SimpleFlowspecExtensionProviderContext();
         final FlowspecActivator flowspecActivator = new FlowspecActivator(fsContext);
-        final org.opendaylight.protocol.bgp.flowspec.BGPActivator flowspecBGPActivator = new org.opendaylight.protocol.bgp.flowspec.BGPActivator(flowspecActivator);
+        final org.opendaylight.protocol.bgp.flowspec.BGPActivator flowspecBGPActivator
+                = new org.opendaylight.protocol.bgp.flowspec.BGPActivator(flowspecActivator);
         flowspecBGPActivator.start(ctx);
 
-        final org.opendaylight.protocol.bgp.labeled.unicast.BGPActivator labeledActivator = new org.opendaylight.protocol.bgp.labeled.unicast.BGPActivator();
+        final org.opendaylight.protocol.bgp.labeled.unicast.BGPActivator labeledActivator
+                = new org.opendaylight.protocol.bgp.labeled.unicast.BGPActivator();
         labeledActivator.start(ctx);
 
-        final org.opendaylight.protocol.bgp.l3vpn.ipv4.BgpIpv4Activator bgpIpv4Activator = new org.opendaylight.protocol.bgp.l3vpn.ipv4.BgpIpv4Activator();
+        final org.opendaylight.protocol.bgp.l3vpn.ipv4.BgpIpv4Activator bgpIpv4Activator
+                = new org.opendaylight.protocol.bgp.l3vpn.ipv4.BgpIpv4Activator();
         bgpIpv4Activator.start(ctx);
 
-        final org.opendaylight.protocol.bgp.l3vpn.ipv6.BgpIpv6Activator bgpIpv6Activator = new org.opendaylight.protocol.bgp.l3vpn.ipv6.BgpIpv6Activator();
+        final org.opendaylight.protocol.bgp.l3vpn.ipv6.BgpIpv6Activator bgpIpv6Activator
+                = new org.opendaylight.protocol.bgp.l3vpn.ipv6.BgpIpv6Activator();
         bgpIpv6Activator.start(ctx);
 
         return new BGPDispatcherImpl(ctx.getMessageRegistry(), new NioEventLoopGroup(), new NioEventLoopGroup(),
             new StrictBGPPeerRegistry());
     }
 
-    private static OptionalCapabilities createMPCapability(final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi) {
-        return new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class, new CParameters1Builder()
-            .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder().setAfi(afi).setSafi(safi).build()).build()).build()).build();
+    private static OptionalCapabilities createMPCapability(final Class<? extends AddressFamily> afi,
+            final Class<? extends SubsequentAddressFamily> safi) {
+        return new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder()
+                .addAugmentation(CParameters1.class, new CParameters1Builder()
+            .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder().setAfi(afi)
+                    .setSafi(safi).build()).build()).build()).build();
     }
 
     private static OptionalCapabilities createAs4BytesMPCapability(final AsNumber as) {
@@ -119,10 +131,13 @@ final class BGPTestTool {
     }
 
     private static OptionalCapabilities createAddPathCapability() {
-        return new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class, new CParameters1Builder()
-            .setAddPathCapability(new AddPathCapabilityBuilder().setAddressFamilies(Lists.newArrayList(new AddressFamiliesBuilder()
-                .setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).setSendReceive(SendReceive.Both).build()
-            )).build()).build()).build()).build();
+        return new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder()
+                .addAugmentation(CParameters1.class, new CParameters1Builder()
+                        .setAddPathCapability(new AddPathCapabilityBuilder()
+                                .setAddressFamilies(Lists.newArrayList(new AddressFamiliesBuilder()
+                                        .setAfi(Ipv4AddressFamily.class)
+                                        .setSafi(UnicastSubsequentAddressFamily.class)
+                                        .setSendReceive(SendReceive.Both).build())).build()).build()).build()).build();
     }
 
     void printCount(final String localAddress) {

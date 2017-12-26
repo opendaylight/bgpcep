@@ -18,7 +18,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 public final class BgpExtendedMessageUtil {
 
     public static final CParameters EXTENDED_MESSAGE_CAPABILITY =
-            new CParametersBuilder().setBgpExtendedMessageCapability(new BgpExtendedMessageCapabilityBuilder().build()).build();
+            new CParametersBuilder().setBgpExtendedMessageCapability(new BgpExtendedMessageCapabilityBuilder()
+                    .build()).build();
 
     private BgpExtendedMessageUtil() {
         throw new UnsupportedOperationException();

@@ -9,8 +9,6 @@ package org.opendaylight.protocol.bgp.parser;
 
 import static org.junit.Assert.assertEquals;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
@@ -59,12 +57,12 @@ public class APITest {
     public void testAsNumberUtil() {
         final List<BgpParameters> params = new ArrayList<>();
         final List<OptionalCapabilities> capas = new ArrayList<>();
-        capas.add(new OptionalCapabilitiesBuilder().setCParameters( new CParametersBuilder().addAugmentation(
-            CParameters1.class, new CParameters1Builder().setMultiprotocolCapability( new MultiprotocolCapabilityBuilder()
-                .build()).build()).build()).build());
+        capas.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(
+                CParameters1.class, new CParameters1Builder().setMultiprotocolCapability(
+                        new MultiprotocolCapabilityBuilder().build()).build()).build()).build());
         capas.add(new OptionalCapabilitiesBuilder().setCParameters(
-            new CParametersBuilder().setAs4BytesCapability( new As4BytesCapabilityBuilder().setAsNumber(
-                new AsNumber(35L)).build()).build()).build());
+                new CParametersBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(
+                        new AsNumber(35L)).build()).build()).build());
         params.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
         final Open open1 = new OpenBuilder().setBgpParameters(params).build();
         assertEquals(35L, AsNumberUtil.advertizedAsNumber(open1).getValue().longValue());
@@ -77,24 +75,14 @@ public class APITest {
     public void testBgpExtendedMessageUtil() {
         final List<BgpParameters> params = new ArrayList<>();
         final List<OptionalCapabilities> capas = new ArrayList<>();
-        capas.add(new OptionalCapabilitiesBuilder().setCParameters( new CParametersBuilder().addAugmentation(
-            CParameters1.class, new CParameters1Builder().setMultiprotocolCapability( new MultiprotocolCapabilityBuilder()
-                .build()).build()).build()).build());
+        capas.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(
+                CParameters1.class, new CParameters1Builder()
+                        .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
+                                .build()).build()).build()).build());
         capas.add(new OptionalCapabilitiesBuilder().setCParameters(
                 BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY).build());
         params.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
         final Open open1 = new OpenBuilder().setBgpParameters(params).build();
         assertEquals(true, BgpExtendedMessageUtil.advertizedBgpExtendedMessageCapability(open1));
-    }
-
-    @Test(expected=UnsupportedOperationException.class)
-    public void testAsNumberUtilPrivateConstructor() throws Throwable {
-        final Constructor<AsNumberUtil> c = AsNumberUtil.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
     }
 }

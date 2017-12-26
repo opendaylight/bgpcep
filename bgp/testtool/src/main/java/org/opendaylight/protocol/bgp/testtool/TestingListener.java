@@ -26,13 +26,13 @@ import org.slf4j.LoggerFactory;
  */
 final class TestingListener implements BGPSessionListener {
     private static final Logger LOG = LoggerFactory.getLogger(TestingListener.class);
-    private final int nPrefixes;
+    private final int nprefixes;
     private final List<String> extCom;
     private final boolean multiPathSupport;
     private LongAdder messageCounter = new LongAdder();
 
-    TestingListener(final int nPrefixes, final List<String> extCom, final boolean multiPathSupport) {
-        this.nPrefixes = nPrefixes;
+    TestingListener(final int nprefixes, final List<String> extCom, final boolean multiPathSupport) {
+        this.nprefixes = nprefixes;
         this.extCom = extCom;
         this.multiPathSupport = multiPathSupport;
     }
@@ -45,13 +45,15 @@ final class TestingListener implements BGPSessionListener {
     @Override
     public void onSessionUp(final BGPSession session) {
         LOG.info("Client Listener: Session Up.");
-        if (this.nPrefixes > 0) {
-            PrefixesBuilder.advertiseIpv4Prefixes(((BGPSessionImpl) session).getLimiter(), this.nPrefixes, this.extCom, this.multiPathSupport);
+        if (this.nprefixes > 0) {
+            PrefixesBuilder.advertiseIpv4Prefixes(((BGPSessionImpl) session).getLimiter(), this.nprefixes, this.extCom,
+                    this.multiPathSupport);
         }
     }
 
     @Override
-    public void onSessionDown(final BGPSession session, final Exception e) {
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    public void onSessionDown(final BGPSession session, final Exception exc) {
         LOG.info("Client Listener: Connection lost.");
         try {
             session.close();

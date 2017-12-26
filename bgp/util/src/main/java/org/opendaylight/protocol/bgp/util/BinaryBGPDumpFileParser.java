@@ -58,7 +58,8 @@ public final class BinaryBGPDumpFileParser {
                             // Parse length
                             final int length = ByteArray.bytesToInt(new byte[]{ byteArray[j], byteArray[j + 1] });
 
-                            Preconditions.checkArgument(length >= MINIMAL_LENGTH, "Invalid message at index " + start
+                            Preconditions.checkArgument(length >= MINIMAL_LENGTH,
+                                    "Invalid message at index " + start
                                     + ", length atribute is lower than " + MINIMAL_LENGTH);
 
                             final byte[] message = Arrays.copyOfRange(byteArray, start, start + length);

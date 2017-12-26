@@ -43,30 +43,33 @@ final class PrefixesBuilder {
     private static final Ipv4NextHopCase NEXT_HOP;
 
     static {
-        NEXT_HOP = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("127.1.1.1")).build()).build();
+        NEXT_HOP = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
+                .setGlobal(new Ipv4Address("127.1.1.1")).build()).build();
     }
 
     private PrefixesBuilder() {
         throw new UnsupportedOperationException();
     }
 
-    static void advertiseIpv4Prefixes(final ChannelOutputLimiter session, final int nPrefixes, final List<String> extCom, final boolean multipartSupport) {
+    static void advertiseIpv4Prefixes(final ChannelOutputLimiter session, final int nprefixes,
+            final List<String> extCom, final boolean multipartSupport) {
         Ipv4Prefix addressPrefix = new Ipv4Prefix("1.1.1.1/31");
-        for (int i = 0; i < nPrefixes; i++) {
+        for (int i = 0; i < nprefixes; i++) {
             buildAndSend(session, addressPrefix, extCom, multipartSupport);
             addressPrefix = incrementIpv4Prefix(addressPrefix);
         }
     }
 
-    private static void buildAndSend(final ChannelOutputLimiter session, final Ipv4Prefix addressPrefix, final List<String> extCom,
-        final boolean multipartSupport) {
+    private static void buildAndSend(final ChannelOutputLimiter session, final Ipv4Prefix addressPrefix,
+            final List<String> extCom, final boolean multipartSupport) {
         final Update upd = new UpdateBuilder().setAttributes(createAttributes(extCom, multipartSupport, addressPrefix))
                 .build();
         session.write(upd);
         session.flush();
     }
 
-    private static Attributes createAttributes(final List<String> extCom, final boolean multiPathSupport, final Ipv4Prefix addressPrefix) {
+    private static Attributes createAttributes(final List<String> extCom, final boolean multiPathSupport,
+            final Ipv4Prefix addressPrefix) {
         final AttributesBuilder attBuilder = new AttributesBuilder();
         attBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Egp).build());
         attBuilder.setAsPath(new AsPathBuilder().setSegments(Collections.emptyList()).build());
@@ -80,10 +83,12 @@ final class PrefixesBuilder {
             prefixes.setPathId(new PathId(5L));
         }
         attBuilder.addAugmentation(Attributes1.class, new Attributes1Builder().setMpReachNlri(
-            new MpReachNlriBuilder().setCNextHop(NEXT_HOP).setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
-                .setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
-                    new DestinationIpv4CaseBuilder().setDestinationIpv4(new DestinationIpv4Builder()
-                        .setIpv4Prefixes(Collections.singletonList(prefixes.build())).build()).build()).build()).build()).build());
+                new MpReachNlriBuilder().setCNextHop(NEXT_HOP).setAfi(Ipv4AddressFamily.class)
+                        .setSafi(UnicastSubsequentAddressFamily.class)
+                        .setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
+                                new DestinationIpv4CaseBuilder().setDestinationIpv4(new DestinationIpv4Builder()
+                                        .setIpv4Prefixes(Collections.singletonList(prefixes.build())).build())
+                                        .build()).build()).build()).build());
 
         return attBuilder.build();
     }

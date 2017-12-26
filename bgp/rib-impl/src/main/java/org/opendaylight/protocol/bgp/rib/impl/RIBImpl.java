@@ -100,6 +100,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
     private final YangInstanceIdentifier yangRibId;
     private final RIBSupportContextRegistryImpl ribContextRegistry;
     private final CodecsRegistryImpl codecsRegistry;
+    @GuardedBy("this")
     private ClusterSingletonServiceRegistration registration;
     private final DOMDataBrokerExtension service;
     private final Map<TransactionChain<?, ?>, LocRibWriter> txChainToLocRibWriter = new HashMap<>();

@@ -26,6 +26,7 @@ public interface BGPDispatcher{
      * @param retryTimer Retry timer
      * @return Future promising a client session
      */
+    @Deprecated
     Future<? extends BGPSession> createClient(InetSocketAddress remoteAddress, int retryTimer);
 
     /**

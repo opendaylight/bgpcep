@@ -34,24 +34,24 @@ final class BGPPeerBuilder {
     }
 
     static void createPeer(final BGPDispatcher dispatcher, final Arguments arguments,
-        final InetSocketAddress localAddress, final BGPSessionListener sessionListener,
-        final BgpParameters bgpParameters) {
+            final InetSocketAddress localAddress, final BGPSessionListener sessionListener,
+            final BgpParameters bgpParameters) {
         final AsNumber as = arguments.getAs();
         final BGPSessionPreferences proposal = new BGPSessionPreferences(as, arguments.getHoldTimer(),
-            new BgpId(localAddress.getAddress().getHostAddress()), as, Collections.singletonList(bgpParameters),
-            Optional.absent());
+                new BgpId(localAddress.getAddress().getHostAddress()), as, Collections.singletonList(bgpParameters),
+                Optional.absent());
         final BGPPeerRegistry strictBGPPeerRegistry = dispatcher.getBGPPeerRegistry();
         if (arguments.getInitiateConnection()) {
             for (final InetSocketAddress remoteAddress : arguments.getRemoteAddresses()) {
                 strictBGPPeerRegistry.addPeer(StrictBGPPeerRegistry.getIpAddress(remoteAddress), sessionListener,
-                    proposal);
+                        proposal);
                 addFutureListener(localAddress, ((BGPDispatcherImpl) dispatcher).createClient(localAddress,
-                    remoteAddress, RETRY_TIMER, true));
+                        remoteAddress, RETRY_TIMER, true));
             }
         } else {
             for (final InetSocketAddress remoteAddress : arguments.getRemoteAddresses()) {
                 strictBGPPeerRegistry.addPeer(StrictBGPPeerRegistry.getIpAddress(remoteAddress), sessionListener,
-                    proposal);
+                        proposal);
             }
             addFutureListener(localAddress, dispatcher.createServer(localAddress));
         }
@@ -60,6 +60,6 @@ final class BGPPeerBuilder {
 
     private static <T> void addFutureListener(final InetSocketAddress localAddress, final Future<T> future) {
         future.addListener(future1 -> Preconditions.checkArgument(future1.isSuccess(),
-            "Unable to start bgp session on %s", localAddress, future1.cause()));
+                "Unable to start bgp session on %s", localAddress, future1.cause()));
     }
 }

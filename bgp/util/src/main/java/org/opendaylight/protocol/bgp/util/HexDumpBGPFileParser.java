@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.Locale;
 import javax.annotation.concurrent.Immutable;
 import org.opendaylight.protocol.util.ByteArray;
 import org.slf4j.Logger;
@@ -54,8 +55,8 @@ public final class HexDumpBGPFileParser {
         }
     }
 
-    public static List<byte[]> parseMessages(final String c) {
-        final String content = clearWhiteSpaceToUpper(c);
+    public static List<byte[]> parseMessages(final String stringMessage) {
+        final String content = clearWhiteSpaceToUpper(stringMessage);
         final int sixteen = 16;
         final int four = 4;
         // search for 16 FFs
@@ -73,8 +74,8 @@ public final class HexDumpBGPFileParser {
 
             // Assert that message is longer than minimum 19(header.length == 19)
             // If length in BGP message would be 0, loop would never end
-            Preconditions.checkArgument(length >= MINIMAL_LENGTH, "Invalid message at index " + idx + ", length atribute is lower than "
-                    + MINIMAL_LENGTH);
+            Preconditions.checkArgument(length >= MINIMAL_LENGTH, "Invalid message at index "
+                    + idx + ", length atribute is lower than " + MINIMAL_LENGTH);
 
             final String hexMessage = content.substring(idx, messageEndIdx);
             final byte[] message = BaseEncoding.base16().decode(hexMessage);
@@ -88,6 +89,6 @@ public final class HexDumpBGPFileParser {
 
     @VisibleForTesting
     static String clearWhiteSpaceToUpper(final String line) {
-        return line.replaceAll("\\s", "").toUpperCase();
+        return line.replaceAll("\\s", "").toUpperCase(Locale.ENGLISH);
     }
 }

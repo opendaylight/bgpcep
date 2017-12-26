@@ -15,8 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * There are several errors documented in RFC4271 or in draft, that have specific meaning for the BGP. This exception is
- * used, when any of those errors occurs.
+ * There are several errors documented in RFC4271 or in draft, that have specific meaning for the BGP.
+ * This exception is used, when any of those errors occurs.
  */
 public final class BGPDocumentedException extends Exception {
 
@@ -77,7 +77,8 @@ public final class BGPDocumentedException extends Exception {
      * @param data data associated with the error
      * @param cause cause for the error
      */
-    public BGPDocumentedException(final String message, final BGPError error, final byte[] data, final Exception cause) {
+    public BGPDocumentedException(final String message, final BGPError error, final byte[] data,
+            final Exception cause) {
         super(message, cause);
         this.error = error;
         this.data = data == null ? null : Arrays.copyOf(data, data.length);

@@ -13,9 +13,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.RibKey;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
-/**
- *
- */
 public class DefaultRibReference implements RibReference {
     private final KeyedInstanceIdentifier<Rib, RibKey> instanceIdentifier;
 

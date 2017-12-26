@@ -47,7 +47,8 @@ import org.slf4j.LoggerFactory;
 
 final class CommunitiesBuilder {
     private static final Logger LOG = LoggerFactory.getLogger(CommunitiesBuilder.class);
-    private static final As4SpecificCommon AS_4_COMMON = new As4SpecificCommonBuilder().setAsNumber(new AsNumber(20L)).setLocalAdministrator(100).build();
+    private static final As4SpecificCommon AS_4_COMMON = new As4SpecificCommonBuilder()
+            .setAsNumber(new AsNumber(20L)).setLocalAdministrator(100).build();
     private static final Ipv4Address IPV4 = new Ipv4Address("192.168.1.0");
     private static final byte[] BYTE = new byte[]{(byte) 0x4f, (byte) 0x70, (byte) 0x00, (byte) 0x00};
     private static final int LA = 4660;
@@ -62,101 +63,107 @@ final class CommunitiesBuilder {
         for (String ec : extCom) {
             ExtendedCommunity community = null;
             switch (ec) {
-            case "as-4-generic-spec-extended-community":
-                community = CommunitiesBuilder.as4GenSpecBuild();
-                break;
-            case "as-4-route-target-extended-community":
-                community = CommunitiesBuilder.as4RTBuild();
-                break;
-            case "as-4-route-origin-extended-community":
-                community = CommunitiesBuilder.as4ROBuild();
-                break;
-            case "route-origin":
-                community = CommunitiesBuilder.rOBuild();
-                break;
-            case "route-target":
-                community = CommunitiesBuilder.rTBuild();
-                break;
-            case "route-origin-extended-community":
-                community = CommunitiesBuilder.rOECBuild();
-                break;
-            case "route-target-extended-community":
-                community = CommunitiesBuilder.rTECBuild();
-                break;
-            case "link-bandwidth-extended-community":
-                community = CommunitiesBuilder.linkBandBuild();
-                break;
-            case "opaque-extended-community":
-                community = CommunitiesBuilder.opaqueBuild();
-                break;
-            case "inet4-specific-extended-community":
-                community = CommunitiesBuilder.inet4Build();
-                break;
-            case "as-specific-extended-community":
-                community = CommunitiesBuilder.asSpecBuild();
-                break;
-            default:
-                LOG.debug("Not recognized Extended Community {}", ec);
-                break;
+                case "as-4-generic-spec-extended-community":
+                    community = CommunitiesBuilder.as4GenSpecBuild();
+                    break;
+                case "as-4-route-target-extended-community":
+                    community = CommunitiesBuilder.as4RTBuild();
+                    break;
+                case "as-4-route-origin-extended-community":
+                    community = CommunitiesBuilder.as4ROBuild();
+                    break;
+                case "route-origin":
+                    community = CommunitiesBuilder.rOBuild();
+                    break;
+                case "route-target":
+                    community = CommunitiesBuilder.rTBuild();
+                    break;
+                case "route-origin-extended-community":
+                    community = CommunitiesBuilder.rOECBuild();
+                    break;
+                case "route-target-extended-community":
+                    community = CommunitiesBuilder.rTECBuild();
+                    break;
+                case "link-bandwidth-extended-community":
+                    community = CommunitiesBuilder.linkBandBuild();
+                    break;
+                case "opaque-extended-community":
+                    community = CommunitiesBuilder.opaqueBuild();
+                    break;
+                case "inet4-specific-extended-community":
+                    community = CommunitiesBuilder.inet4Build();
+                    break;
+                case "as-specific-extended-community":
+                    community = CommunitiesBuilder.asSpecBuild();
+                    break;
+                default:
+                    LOG.debug("Not recognized Extended Community {}", ec);
+                    break;
             }
-            extendedCommunities.add(new ExtendedCommunitiesBuilder().setTransitive(true).setExtendedCommunity(community).build());
+            extendedCommunities.add(new ExtendedCommunitiesBuilder()
+                    .setTransitive(true).setExtendedCommunity(community).build());
         }
         return extendedCommunities;
     }
 
     private static ExtendedCommunity as4GenSpecBuild() {
         return new As4GenericSpecExtendedCommunityCaseBuilder()
-            .setAs4GenericSpecExtendedCommunity(new As4GenericSpecExtendedCommunityBuilder()
-                .setAs4SpecificCommon(AS_4_COMMON).build()).build();
+                .setAs4GenericSpecExtendedCommunity(new As4GenericSpecExtendedCommunityBuilder()
+                        .setAs4SpecificCommon(AS_4_COMMON).build()).build();
     }
 
     private static ExtendedCommunity as4RTBuild() {
         return new As4RouteTargetExtendedCommunityCaseBuilder().setAs4RouteTargetExtendedCommunity(
-            new As4RouteTargetExtendedCommunityBuilder().setAs4SpecificCommon(AS_4_COMMON).build()).build();
+                new As4RouteTargetExtendedCommunityBuilder().setAs4SpecificCommon(AS_4_COMMON).build()).build();
     }
 
     private static ExtendedCommunity as4ROBuild() {
         return new As4RouteOriginExtendedCommunityCaseBuilder().setAs4RouteOriginExtendedCommunity(
-            new As4RouteOriginExtendedCommunityBuilder().setAs4SpecificCommon(AS_4_COMMON).build()).build();
+                new As4RouteOriginExtendedCommunityBuilder().setAs4SpecificCommon(AS_4_COMMON).build()).build();
     }
 
     private static ExtendedCommunity rTBuild() {
         return new RouteTargetIpv4CaseBuilder().setRouteTargetIpv4(
-            new RouteTargetIpv4Builder().setGlobalAdministrator(IPV4).setLocalAdministrator(LA).build()).build();
+                new RouteTargetIpv4Builder().setGlobalAdministrator(IPV4).setLocalAdministrator(LA).build()).build();
     }
 
     private static ExtendedCommunity rOBuild() {
         return new RouteOriginIpv4CaseBuilder().setRouteOriginIpv4(
-            new RouteOriginIpv4Builder().setGlobalAdministrator(IPV4).setLocalAdministrator(LA).build()).build();
+                new RouteOriginIpv4Builder().setGlobalAdministrator(IPV4).setLocalAdministrator(LA).build()).build();
     }
 
     private static ExtendedCommunity linkBandBuild() {
-        return new LinkBandwidthCaseBuilder().setLinkBandwidthExtendedCommunity(new LinkBandwidthExtendedCommunityBuilder()
-            .setBandwidth(new Bandwidth(new Float32(BYTE))).build()).build();
+        return new LinkBandwidthCaseBuilder()
+                .setLinkBandwidthExtendedCommunity(new LinkBandwidthExtendedCommunityBuilder()
+                .setBandwidth(new Bandwidth(new Float32(BYTE))).build()).build();
     }
 
     private static ExtendedCommunity rOECBuild() {
         return new RouteOriginExtendedCommunityCaseBuilder().setRouteOriginExtendedCommunity(
-            new RouteOriginExtendedCommunityBuilder().setGlobalAdministrator(SHORT_AS).setLocalAdministrator(BYTE).build()).build();
+                new RouteOriginExtendedCommunityBuilder().setGlobalAdministrator(SHORT_AS)
+                        .setLocalAdministrator(BYTE).build()).build();
     }
 
     private static ExtendedCommunity rTECBuild() {
         return new RouteTargetExtendedCommunityCaseBuilder().setRouteTargetExtendedCommunity(
-            new RouteTargetExtendedCommunityBuilder().setGlobalAdministrator(SHORT_AS).setLocalAdministrator(BYTE).build()).build();
+                new RouteTargetExtendedCommunityBuilder().setGlobalAdministrator(SHORT_AS)
+                        .setLocalAdministrator(BYTE).build()).build();
     }
 
     private static ExtendedCommunity opaqueBuild() {
         return new OpaqueExtendedCommunityCaseBuilder().setOpaqueExtendedCommunity(
-            new OpaqueExtendedCommunityBuilder().setValue(BYTE).build()).build();
+                new OpaqueExtendedCommunityBuilder().setValue(BYTE).build()).build();
     }
 
     private static ExtendedCommunity inet4Build() {
         return new Inet4SpecificExtendedCommunityCaseBuilder().setInet4SpecificExtendedCommunity(
-            new Inet4SpecificExtendedCommunityBuilder().setGlobalAdministrator(IPV4).setLocalAdministrator(BYTE).build()).build();
+                new Inet4SpecificExtendedCommunityBuilder().setGlobalAdministrator(IPV4)
+                        .setLocalAdministrator(BYTE).build()).build();
     }
 
     private static ExtendedCommunity asSpecBuild() {
         return new AsSpecificExtendedCommunityCaseBuilder().setAsSpecificExtendedCommunity(
-            new AsSpecificExtendedCommunityBuilder().setGlobalAdministrator(SHORT_AS).setLocalAdministrator(BYTE).build()).build();
+                new AsSpecificExtendedCommunityBuilder().setGlobalAdministrator(SHORT_AS)
+                        .setLocalAdministrator(BYTE).build()).build();
     }
 }

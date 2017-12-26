@@ -9,12 +9,13 @@ package org.opendaylight.protocol.bgp.parser;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+import java.io.Serializable;
 import java.util.Map;
 
 
 /**
- * Possible errors from implemented RFCs and drafts. Each error consists of error code and error subcode (code/subcode
- * in comments).
+ * Possible errors from implemented RFCs and drafts. Each error consists of error code and error subcode
+ * (code/subcode in comments).
  *
  * @see <a href="http://tools.ietf.org/html/rfc4271#section-4.5">BGP Notification Message</a>
  */
@@ -140,7 +141,7 @@ public enum BGPError {
      */
     OUT_OF_RESOURCES((short) 6, (short) 8),
     /**
-     * Unsupported Capability 2/7
+     * Unsupported Capability. 2/7
      */
     UNSUPPORTED_CAPABILITY((short) 2, (short) 7);
 
@@ -161,21 +162,62 @@ public enum BGPError {
         this.errorId = new BGPErrorIdentifier(code, subcode);
     }
 
+    public static BGPError forValue(final int code, final int subcode) {
+        final BGPError e = VALUE_MAP.get(new BGPErrorIdentifier((short) code, (short) subcode));
+        Preconditions.checkArgument(e != null, "BGP Error code %s and subcode %s not recognized.",
+                code, subcode);
+        return e;
+    }
+
     public short getCode() {
-        return this.errorId.getCode();
+        return this.errorId.code;
     }
 
     public short getSubcode() {
-        return this.errorId.getSubCode();
+        return this.errorId.subcode;
     }
 
     private BGPErrorIdentifier getErrorIdentifier() {
         return this.errorId;
     }
 
-    public static BGPError forValue(final int code, final int subcode) {
-        final BGPError e = VALUE_MAP.get(new BGPErrorIdentifier((short) code, (short) subcode));
-        Preconditions.checkArgument(e != null, "BGP Error code %s and subcode %s not recognized.", code, subcode);
-        return e;
+    /**
+     * Caret for combination of Error-type and Error-value.
+     */
+    private static class BGPErrorIdentifier implements Serializable {
+        private static final long serialVersionUID = 5722575354944165734L;
+        final short code;
+        final short subcode;
+
+        BGPErrorIdentifier(final short code, final short subcode) {
+            this.code = code;
+            this.subcode = subcode;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + this.code;
+            result = prime * result + this.subcode;
+            return result;
+        }
+
+        @Override
+        public boolean equals(final java.lang.Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null || this.getClass() != obj.getClass()) {
+                return false;
+            }
+            final BGPErrorIdentifier other = (BGPErrorIdentifier) obj;
+            return this.code == other.code && this.subcode == other.subcode;
+        }
+
+        @Override
+        public String toString() {
+            return "type " + this.code + " value " + this.subcode;
+        }
     }
 }

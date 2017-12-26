@@ -37,18 +37,19 @@ final class Arguments implements ArgumentsInput {
     private static final int INITIAL_HOLD_TIME = 90;
     private static final String LOG_LEVEL = "log_level";
     private static final String REMOTE_ADDRESS_PARAMETER = "remoteAddress";
-    private static final String REMOTE_ADDRESS_PARAMETER_HELP = "IP address of remote BGP peer, which the tool can accept or initiate connect to that " +
-        "address (based on the mode)";
+    private static final String REMOTE_ADDRESS_PARAMETER_HELP = "IP address of remote BGP peer, which the tool"
+            + " can accept or initiate connect to that address (based on the mode)";
     private static final String LOCAL_ADDRESS_PARAMETER = "localAddress";
     private static final String LOCAL_ADDRESS_PARAMETER_HELP = "IP address of BGP speakers which the tools simulates";
     private static final String EXTENDED_COMMUNITIES_PARAMETER = "extended_communities";
-    private static final String EXTENDED_COMMUNITIES_PARAMETER_HELP = "Extended communities to be send. Format: x,x,x where x is each extended " +
-        "community from bgp-types.yang as as-4-generic-spec-extended-community, link-bandwidth-extended-community, ...";
+    private static final String EXTENDED_COMMUNITIES_PARAMETER_HELP = "Extended communities to be send. "
+            + "Format: x,x,x where x is each extended community from bgp-types.yang as "
+            + "as-4-generic-spec-extended-community, link-bandwidth-extended-community, ...";
     private static final String ACTIVE_CONNECTION_PARAMETER = "active";
     private static final String ACTIVE_CONNECTION_HELP = "Active initialization of the connection, by default false";
     private static final String HOLD_TIMER_PARAMETER = "holdtimer";
-    private static final String INITIAL_HOLD_TIME_HELP = "In seconds, value of the desired holdtimer. According to RFC4271, recommended value for " +
-        "deadtimer is 90 seconds(set by default)";
+    private static final String INITIAL_HOLD_TIME_HELP = "In seconds, value of the desired holdtimer."
+            + " According to RFC4271, recommended value for deadtimer is 90 seconds(set by default)";
     private static final String PREFIXES_PARAMETER = "prefixes";
     private static final String PREFIXES_PARAMETER_HELP = "Number of prefixes to be sent";
     private static final String MULTIPATH_PARAMETER = "multiPathSupport";
@@ -56,8 +57,8 @@ final class Arguments implements ArgumentsInput {
     private static final String AS_PARAMETER = "as";
     private static final String AS_PARAMETER_HELP = "Value of AS in the initial open message";
     private static final String SPEAKERS_COUNT = "speakersCount";
-    private static final String SPEAKERS_COUNT_HELP = "Number of simulated BGP speakers, when creating each speaker, use incremented " +
-        "local-address for binding";
+    private static final String SPEAKERS_COUNT_HELP = "Number of simulated BGP speakers, when creating each speaker,"
+            + " use incremented local-address for binding";
     private static final ArgumentParser ARGUMENT_PARSER = initializeArgumentParser();
     private final Namespace parseArgs;
 
@@ -85,21 +86,34 @@ final class Arguments implements ArgumentsInput {
     private static ArgumentParser initializeArgumentParser() {
         final ArgumentParser parser = ArgumentParsers.newArgumentParser(PROGRAM_NAME);
 
-        parser.addArgument("-i", toArgName(ACTIVE_CONNECTION_PARAMETER)).type(Boolean.class).setDefault(false).help(ACTIVE_CONNECTION_HELP);
-        parser.addArgument("-ho", toArgName(HOLD_TIMER_PARAMETER)).type(Integer.class).setDefault(INITIAL_HOLD_TIME).help(INITIAL_HOLD_TIME_HELP);
-        parser.addArgument("-pr", toArgName(PREFIXES_PARAMETER)).type(Integer.class).setDefault(0).help(PREFIXES_PARAMETER_HELP);
-        parser.addArgument("-sc", toArgName(SPEAKERS_COUNT)).type(Integer.class).setDefault(0).help(SPEAKERS_COUNT_HELP);
-        parser.addArgument("-mp", toArgName(MULTIPATH_PARAMETER)).type(Boolean.class).setDefault(false).help(MULTIPATH_PARAMETER_HELP);
-        parser.addArgument("-" + AS_PARAMETER, toArgName(AS_PARAMETER)).type((ArgumentTypeTool<AsNumber>) as -> new AsNumber(Long.valueOf(as)))
-            .setDefault(new AsNumber(64496L)).help(AS_PARAMETER_HELP);
-        parser.addArgument("-ec", toArgName(EXTENDED_COMMUNITIES_PARAMETER)).type((ArgumentTypeTool<List<String>>) extComInput ->
-            Arrays.asList(extComInput.split(","))).setDefault(Collections.emptyList()).help(EXTENDED_COMMUNITIES_PARAMETER_HELP);
-        parser.addArgument("-ll", toArgName(LOG_LEVEL)).type((ArgumentTypeTool<Level>) Level::toLevel).setDefault(Level.INFO).help("log levels");
-        parser.addArgument("-ra", toArgName(REMOTE_ADDRESS_PARAMETER)).type((ArgumentTypeTool<List<InetSocketAddress>>) input ->
-            InetSocketAddressUtil.parseAddresses(input, DEFAULT_REMOTE_PORT)).setDefault(Collections.singletonList(REMOTE_ADDRESS))
-            .help(REMOTE_ADDRESS_PARAMETER_HELP);
-        parser.addArgument("-la", toArgName(LOCAL_ADDRESS_PARAMETER)).type((ArgumentTypeTool<InetSocketAddress>) input ->
-            getInetSocketAddress(input, DEFAULT_LOCAL_PORT)).setDefault(LOCAL_ADDRESS).help(LOCAL_ADDRESS_PARAMETER_HELP);
+        parser.addArgument("-i", toArgName(ACTIVE_CONNECTION_PARAMETER)).type(Boolean.class)
+                .setDefault(false).help(ACTIVE_CONNECTION_HELP);
+        parser.addArgument("-ho", toArgName(HOLD_TIMER_PARAMETER)).type(Integer.class)
+                .setDefault(INITIAL_HOLD_TIME).help(INITIAL_HOLD_TIME_HELP);
+        parser.addArgument("-pr", toArgName(PREFIXES_PARAMETER)).type(Integer.class)
+                .setDefault(0).help(PREFIXES_PARAMETER_HELP);
+        parser.addArgument("-sc", toArgName(SPEAKERS_COUNT)).type(Integer.class)
+                .setDefault(0).help(SPEAKERS_COUNT_HELP);
+        parser.addArgument("-mp", toArgName(MULTIPATH_PARAMETER)).type(Boolean.class)
+                .setDefault(false).help(MULTIPATH_PARAMETER_HELP);
+        parser.addArgument("-" + AS_PARAMETER, toArgName(AS_PARAMETER))
+                .type((ArgumentTypeTool<AsNumber>) as -> new AsNumber(Long.valueOf(as)))
+                .setDefault(new AsNumber(64496L)).help(AS_PARAMETER_HELP);
+        parser.addArgument("-ec", toArgName(EXTENDED_COMMUNITIES_PARAMETER))
+                .type((ArgumentTypeTool<List<String>>) extComInput ->
+                        Arrays.asList(extComInput.split(","))).setDefault(Collections.emptyList())
+                .help(EXTENDED_COMMUNITIES_PARAMETER_HELP);
+        parser.addArgument("-ll", toArgName(LOG_LEVEL))
+                .type((ArgumentTypeTool<Level>) Level::toLevel).setDefault(Level.INFO).help("log levels");
+        parser.addArgument("-ra", toArgName(REMOTE_ADDRESS_PARAMETER))
+                .type((ArgumentTypeTool<List<InetSocketAddress>>) input ->
+                        InetSocketAddressUtil.parseAddresses(input, DEFAULT_REMOTE_PORT))
+                .setDefault(Collections.singletonList(REMOTE_ADDRESS))
+                .help(REMOTE_ADDRESS_PARAMETER_HELP);
+        parser.addArgument("-la", toArgName(LOCAL_ADDRESS_PARAMETER))
+                .type((ArgumentTypeTool<InetSocketAddress>) input ->
+                        getInetSocketAddress(input, DEFAULT_LOCAL_PORT))
+                .setDefault(LOCAL_ADDRESS).help(LOCAL_ADDRESS_PARAMETER_HELP);
         return parser;
     }
 

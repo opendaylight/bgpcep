@@ -8,9 +8,7 @@
 package org.opendaylight.protocol.bgp.parser;
 
 /**
- *
  * Used when something occurs during the parsing to get Update Message.
- *
  */
 public class BGPParsingException extends Exception {
     private static final long serialVersionUID = 1L;
@@ -28,7 +26,7 @@ public class BGPParsingException extends Exception {
      * Creates new BGPParsingException with specific message and cause.
      *
      * @param message exception message
-     * @param cause primary exception
+     * @param cause   primary exception
      */
     public BGPParsingException(final String message, final Exception cause) {
         super(message, cause);
