@@ -11,13 +11,14 @@ package org.opendaylight.protocol.bgp.rib.spi.state;
 import javax.annotation.Nonnull;
 
 /**
- *  Interface for acquiring BGP RIB State
+ * Interface for acquiring BGP RIB State.
  */
-public interface BGPRIBStateConsumer {
+public interface BGPRibStateConsumer {
     /**
-     * Returns RIB Operational State
+     * Returns RIB Operational State.
+     *
      * @return BGP RIB State
      */
     @Nonnull
-    BGPRIBState getRIBState();
+    BGPRibState getRIBState();
 }

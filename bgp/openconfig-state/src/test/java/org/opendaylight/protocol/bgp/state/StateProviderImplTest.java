@@ -37,7 +37,7 @@ import org.opendaylight.protocol.bgp.rib.spi.state.BGPErrorHandlingState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPGracelfulRestartState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerMessagesState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPRIBState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPSessionState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateConsumer;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTimersState;
@@ -139,7 +139,7 @@ public class StateProviderImplTest extends AbstractConcurrentDataBrokerTest {
     @Mock
     private BGPTableTypeRegistryConsumer tableTypeRegistry;
     @Mock
-    private BGPRIBState bgpRibState;
+    private BGPRibState bgpRibState;
     @Mock
     private BGPPeerState bgpPeerState;
     @Mock
@@ -158,7 +158,7 @@ public class StateProviderImplTest extends AbstractConcurrentDataBrokerTest {
     private BGPAfiSafiState bgpAfiSafiState;
 
     private final List<BGPPeerState> bgpPeerStates = new ArrayList<>();
-    private final List<BGPRIBState> bgpRibStates = new ArrayList<>();
+    private final List<BGPRibState> bgpRibStates = new ArrayList<>();
 
     @Before
     public void setUp() throws Exception {

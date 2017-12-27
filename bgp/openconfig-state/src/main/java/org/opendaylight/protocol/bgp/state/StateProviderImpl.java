@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.state;
 
 import static java.util.Objects.requireNonNull;
@@ -32,7 +31,7 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPRIBState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateConsumer;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.BgpBuilder;
@@ -106,7 +105,7 @@ public final class StateProviderImpl implements TransactionChainListener, AutoCl
 
     private synchronized void updateBGPStats(final WriteTransaction wtx) {
         final Set<String> oldStats = new HashSet<>(this.instanceIdentifiersCache.keySet());
-        this.stateCollector.getRibStats().stream().filter(BGPRIBState::isActive).forEach(bgpStateConsumer -> {
+        this.stateCollector.getRibStats().stream().filter(BGPRibState::isActive).forEach(bgpStateConsumer -> {
             final KeyedInstanceIdentifier<Rib, RibKey> ribId = bgpStateConsumer.getInstanceIdentifier();
             final List<BGPPeerState> peerStats = this.stateCollector.getPeerStats().stream()
                     .filter(BGPPeerState::isActive).filter(peerState -> ribId.equals(peerState.getInstanceIdentifier()))
@@ -122,7 +121,7 @@ public final class StateProviderImpl implements TransactionChainListener, AutoCl
         wtx.delete(LogicalDatastoreType.OPERATIONAL, bgpIID);
     }
 
-    private synchronized void storeOperationalState(final BGPRIBState bgpStateConsumer,
+    private synchronized void storeOperationalState(final BGPRibState bgpStateConsumer,
             final List<BGPPeerState> peerStats, final String ribId, final WriteTransaction wtx) {
         final Global global = GlobalUtil.buildGlobal(bgpStateConsumer, this.bgpTableTypeRegistry);
         final PeerGroups peerGroups = PeerGroupUtil.buildPeerGroups(peerStats);

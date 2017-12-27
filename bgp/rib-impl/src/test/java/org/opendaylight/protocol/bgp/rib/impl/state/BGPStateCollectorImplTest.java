@@ -19,12 +19,12 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerStateConsumer;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPRIBState;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPRIBStateConsumer;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibStateConsumer;
 
 public class BGPStateCollectorImplTest {
     @Mock
-    private BGPRIBStateConsumer bgpribStateConsumer;
+    private BGPRibStateConsumer bgpribStateConsumer;
     @Mock
     private BGPPeerStateConsumer bgpPeerStateConsumer;
 
@@ -32,13 +32,13 @@ public class BGPStateCollectorImplTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         doReturn(mock(BGPPeerState.class)).when(this.bgpPeerStateConsumer).getPeerState();
-        doReturn(mock(BGPRIBState.class)).when(this.bgpribStateConsumer).getRIBState();
+        doReturn(mock(BGPRibState.class)).when(this.bgpribStateConsumer).getRIBState();
     }
 
     @Test
     public void getRibStats() throws Exception {
         final BGPStateCollectorImpl collector = new BGPStateCollectorImpl();
-        final BGPRIBStateConsumer ribStateConsumerNull = null;
+        final BGPRibStateConsumer ribStateConsumerNull = null;
         collector.bind(ribStateConsumerNull);
         assertTrue(collector.getRibStats().isEmpty());
 

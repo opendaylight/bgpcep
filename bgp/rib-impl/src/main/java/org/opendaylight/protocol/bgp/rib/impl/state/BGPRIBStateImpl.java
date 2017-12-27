@@ -19,8 +19,8 @@ import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.protocol.bgp.rib.DefaultRibReference;
 import org.opendaylight.protocol.bgp.rib.impl.state.rib.TotalPathsCounter;
 import org.opendaylight.protocol.bgp.rib.impl.state.rib.TotalPrefixesCounter;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPRIBState;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPRIBStateConsumer;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibStateConsumer;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.RibKey;
@@ -28,7 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
-public class BGPRIBStateImpl extends DefaultRibReference implements BGPRIBState, BGPRIBStateConsumer {
+public class BGPRIBStateImpl extends DefaultRibReference implements BGPRibState, BGPRibStateConsumer {
     private final BgpId routeId;
     private final AsNumber localAs;
     @GuardedBy("this")
@@ -107,7 +107,7 @@ public class BGPRIBStateImpl extends DefaultRibReference implements BGPRIBState,
     }
 
     @Override
-    public final BGPRIBState getRIBState() {
+    public final BGPRibState getRIBState() {
         return this;
     }
 }

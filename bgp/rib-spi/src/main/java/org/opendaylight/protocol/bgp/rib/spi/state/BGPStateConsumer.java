@@ -21,7 +21,7 @@ public interface BGPStateConsumer {
      * @return ribs stats
      */
     @Nonnull
-    List<BGPRIBState> getRibStats();
+    List<BGPRibState> getRibStats();
 
     /**
      * List of Registered BGP Peer State.

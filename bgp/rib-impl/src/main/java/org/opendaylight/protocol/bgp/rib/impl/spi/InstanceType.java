@@ -14,11 +14,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerStateConsumer;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPRIBStateConsumer;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibStateConsumer;
 
 public enum InstanceType {
 
-    RIB("ribImpl", ImmutableList.of(RIB.class, RibReference.class, BGPRIBStateConsumer.class)),
+    RIB("ribImpl", ImmutableList.of(RIB.class, RibReference.class, BGPRibStateConsumer.class)),
 
     PEER("bgpPeer", ImmutableList.of(BGPPeerStateConsumer.class)),
 
