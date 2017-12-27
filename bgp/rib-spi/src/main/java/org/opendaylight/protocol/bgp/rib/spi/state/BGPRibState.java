@@ -8,7 +8,6 @@
 
 package org.opendaylight.protocol.bgp.rib.spi.state;
 
-
 import java.util.Map;
 import javax.annotation.Nonnull;
 import org.opendaylight.protocol.bgp.rib.RibReference;
@@ -17,20 +16,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 
 /**
- * Representing RIB Operational State information
+ * Representing RIB Operational State information.
  * -PeerGroup States.
  * Total Paths / Total Prefixes counters, representing the paths / prefixes installed on Loc-rib
  */
-public interface BGPRIBState extends RibReference {
+public interface BGPRibState extends RibReference {
     /**
-     * Indicates whether this instance is being actively managed and updated
+     * Indicates whether this instance is being actively managed and updated.
      *
      * @return active
      */
     boolean isActive();
 
     /**
-     * Prefixes count per tablesKey Type
+     * Prefixes count per tablesKey Type.
      *
      * @return Prefixes count
      */
@@ -38,7 +37,7 @@ public interface BGPRIBState extends RibReference {
     Map<TablesKey, Long> getPrefixesCount();
 
     /**
-     * Mapped Total Paths Count per TableKey
+     * Mapped Total Paths Count per TableKey.
      *
      * @return Prefixes count
      */
@@ -46,37 +45,38 @@ public interface BGPRIBState extends RibReference {
     Map<TablesKey, Long> getPathsCount();
 
     /**
-     * Total Paths Installed
+     * Total Paths Installed.
      *
      * @return count
      */
     long getTotalPathsCount();
 
     /**
-     * Total Prefixes Installed
+     * Total Prefixes Installed.
      *
      * @return count
      */
     long getTotalPrefixesCount();
 
     /**
-     * Total Path Installed per specific TableKey
+     * Total Path Installed per specific TableKey.
      *
      * @param tablesKey table key
      * @return count
      */
-    long getPathCount(TablesKey tablesKey);
+    long getPathCount(@Nonnull TablesKey tablesKey);
 
     /**
-     * Total Prefixes Installed per specific TableKey
+     * Total Prefixes Installed per specific TableKey.
      *
      * @param tablesKey table key
      * @return count
      */
-    long getPrefixesCount(TablesKey tablesKey);
+    @SuppressWarnings("checkstyle:OverloadMethodsDeclarationOrder")
+    long getPrefixesCount(@Nonnull TablesKey tablesKey);
 
     /**
-     * AS
+     * AS.
      *
      * @return as
      */
@@ -84,7 +84,8 @@ public interface BGPRIBState extends RibReference {
     AsNumber getAs();
 
     /**
-     * BGP identifier
+     * BGP identifier.
+     *
      * @return BGP identifier
      */
     @Nonnull

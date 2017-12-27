@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.state;
 
 import static org.junit.Assert.assertNull;
@@ -19,11 +18,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPRIBState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibState;
 
 public class GlobalUtilTest {
     @Mock
-    private BGPRIBState ribState;
+    private BGPRibState ribState;
     @Mock
     private BGPTableTypeRegistryConsumer tableRegistry;
 
