@@ -18,7 +18,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.LeafNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
 public final class PeerRoleUtil {
-    public static final NodeIdentifier PEER_ROLE_NID = new NodeIdentifier(QName.create(Peer.QNAME, "peer-role").intern());
+    public static final NodeIdentifier PEER_ROLE_NID = new NodeIdentifier(QName.create(Peer.QNAME,
+            "peer-role").intern());
 
     private PeerRoleUtil() {
         throw new UnsupportedOperationException();
@@ -34,16 +35,16 @@ public final class PeerRoleUtil {
 
     public static String roleForString(final PeerRole role) {
         switch (role) {
-        case Ebgp:
-            return "ebgp";
-        case Ibgp:
-            return "ibgp";
-        case RrClient:
-            return "rr-client";
-        case Internal:
-            return "internal";
-        default:
-            throw new IllegalArgumentException("Unhandled role " + role);
+            case Ebgp:
+                return "ebgp";
+            case Ibgp:
+                return "ibgp";
+            case RrClient:
+                return "rr-client";
+            case Internal:
+                return "internal";
+            default:
+                throw new IllegalArgumentException("Unhandled role " + role);
         }
     }
 }

@@ -12,6 +12,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yangtools.yang.common.QName;
 
 public interface Ipv4Route extends Route {
-    QName QNAME = org.opendaylight.yangtools.yang.common.QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet",
+    QName QNAME = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet",
         "2015-03-05", "ipv4-route").intern();
 }

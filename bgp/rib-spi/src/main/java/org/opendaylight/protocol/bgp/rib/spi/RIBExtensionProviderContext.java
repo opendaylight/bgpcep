@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 
@@ -20,11 +21,13 @@ public interface RIBExtensionProviderContext extends RIBExtensionConsumerContext
     /**
      * Register a RIBSupport instance for a particular AFI/SAFI combination.
      *
-     * @param afi Address Family identifier
-     * @param safi Subsequent Address Family identifier
+     * @param afi     Address Family identifier
+     * @param safi    Subsequent Address Family identifier
      * @param support T RIBSupport instance
      * @return Registration handle. Call {@link RIBSupportRegistration#close()} method to remove it.
      * @throws NullPointerException if any of the arguments is null
      */
-    <T extends RIBSupport> RIBSupportRegistration<T> registerRIBSupport(Class<? extends AddressFamily> afi, Class<? extends SubsequentAddressFamily> safi, T support);
+    <T extends RIBSupport> RIBSupportRegistration<T> registerRIBSupport(
+            @Nonnull Class<? extends AddressFamily> afi,
+            @Nonnull Class<? extends SubsequentAddressFamily> safi, T support);
 }

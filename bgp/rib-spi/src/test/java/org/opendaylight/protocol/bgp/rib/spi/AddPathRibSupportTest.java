@@ -18,7 +18,6 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 public class AddPathRibSupportTest {
 
     private static final NodeIdentifier QNAME = new NodeIdentifier(QName.create("test").intern());
-    private static class AddPathRibSupportLocalTest implements AddPathRibSupport{}
 
     @Test
     public void defaultAddPathRibSupport() {
@@ -26,5 +25,8 @@ public class AddPathRibSupportTest {
         assertEquals((Long) NON_PATH_ID, test.extractPathId(null));
         assertNull(test.getRouteIdAddPath(NON_PATH_ID, null));
         assertEquals(QNAME, test.createRouteKeyPathArgument(QNAME));
+    }
+
+    private static class AddPathRibSupportLocalTest implements AddPathRibSupport {
     }
 }

@@ -9,6 +9,7 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
 import java.util.function.BiConsumer;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -18,6 +19,31 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
  * A collection of peers sharing the same export policy.
  */
 public interface PeerExportGroup {
+    /**
+     * Transform outgoing attributes according to policy per Peer.
+     *
+     * @param role       root Peer role
+     * @param attributes attributes container
+     * @return return attributes container after apply policy
+     */
+    @Nonnull
+    ContainerNode effectiveAttributes(@Nonnull PeerRole role, @Nonnull ContainerNode attributes);
+
+    /**
+     * Returns if peer is present.
+     *
+     * @param routePeerId PeerId
+     * @return true if peer is present on this export group
+     */
+    boolean containsPeer(@Nonnull PeerId routePeerId);
+
+    /**
+     * Applies the given action for each entry in this PeerExportGroup on synchronized mode.
+     *
+     * @param action action to be applied
+     */
+    void forEach(@Nonnull BiConsumer<PeerId, YangInstanceIdentifier> action);
+
     final class PeerExporTuple {
         private final YangInstanceIdentifier yii;
         private final PeerRole role;
@@ -35,27 +61,4 @@ public interface PeerExportGroup {
             return this.role;
         }
     }
-
-    /**
-     * Transform outgoing attributes according to policy per Peer
-     *
-     * @param role root Peer role
-     * @param attributes attributes container
-     * @return return attributes container after apply policy
-     */
-    ContainerNode effectiveAttributes(PeerRole role, ContainerNode attributes);
-
-    /**
-     *
-     * @param routePeerId PeerId
-     * @return true if peer is present on this export group
-     */
-    boolean containsPeer(PeerId routePeerId);
-
-    /**
-     * Applies the given action for each entry in this PeerExportGroup on synchronized mode
-     *
-     * @param action action to be applied
-     */
-    void forEach(BiConsumer<PeerId, YangInstanceIdentifier> action);
 }

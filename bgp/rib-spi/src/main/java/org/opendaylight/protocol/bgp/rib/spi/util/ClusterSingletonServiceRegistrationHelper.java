@@ -35,12 +35,13 @@ public final class ClusterSingletonServiceRegistrationHelper {
      * execute repeated registration attempts while catching RuntimeException. If registration is not successful,
      * RuntimeException is re-thrown.
      *
-     * @param singletonProvider
-     * @param clusterSingletonService
+     * @param singletonProvider Cluster Singleton Service Provider
+     * @param clusterSingletonService Cluster Singleton Service
      * @param maxAttempts             Upper bound for registration retries count.
      * @param sleepTime               Sleep time between registration retries in milliseconds.
      * @return Registration
      */
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public static ClusterSingletonServiceRegistration registerSingletonService(
         final ClusterSingletonServiceProvider singletonProvider,
         final ClusterSingletonService clusterSingletonService, final int maxAttempts, final int sleepTime) {
@@ -69,8 +70,8 @@ public final class ClusterSingletonServiceRegistrationHelper {
      * RuntimeException is re-thrown. 10 registration attempts will be tried with 10 ms pause between each
      * other.
      *
-     * @param singletonProvider
-     * @param clusterSingletonService
+     * @param singletonProvider Cluster Singleton Service Provider
+     * @param clusterSingletonService Cluster Singleton Service
      * @return Registration
      */
     public static ClusterSingletonServiceRegistration registerSingletonService(final ClusterSingletonServiceProvider

@@ -13,7 +13,7 @@ import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrate
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 
 /**
  * Interface for acquiring AdjRIBsIn factories. In order for a model-driven RIB implementation to work correctly, it
@@ -24,28 +24,33 @@ public interface RIBExtensionConsumerContext {
 
     /**
      * Acquire a RIB implementation factory for a AFI/SAFI combination.
+     *
      * @param key AFI/SAFI key
-     * @return RIBSupport instance, or null if the AFI/SAFI is
-     *         not implemented.
+     * @return RIBSupport instance, or null if the AFI/SAFI is not implemented.
      */
-    @Nullable RIBSupport getRIBSupport(@Nonnull TablesKey key);
+    @Nullable
+    RIBSupport getRIBSupport(@Nonnull TablesKey key);
 
     /**
      * Acquire a RIB implementation factory for a AFI/SAFI combination.
-     * @param afi Address Family Identifier
+     *
+     * @param afi  Address Family Identifier
      * @param safi Subsequent Address Family identifier
-     * @return RIBSupport instance, or null if the AFI/SAFI is
-     *         not implemented.
+     * @return RIBSupport instance, or null if the AFI/SAFI is not implemented.
      */
-    @Nullable RIBSupport getRIBSupport(@Nonnull Class<? extends AddressFamily> afi, @Nonnull Class<? extends SubsequentAddressFamily> safi);
+    @Nullable
+    RIBSupport getRIBSupport(@Nonnull Class<? extends AddressFamily> afi,
+        @Nonnull Class<? extends SubsequentAddressFamily> safi);
 
     /**
      * Acquire a RIB implementation factory for a AFI/SAFI combination.
+     *
      * @param key Tables key with AFI/SAFI
      * @return RIBSupport instance, or null if the AFI/SAFI is
-     *         not implemented.
+     *     not implemented.
      */
-    @Nullable RIBSupport getRIBSupport(YangInstanceIdentifier.NodeIdentifierWithPredicates key);
+    @Nullable
+    RIBSupport getRIBSupport(@Nonnull NodeIdentifierWithPredicates key);
 
 
     /**
@@ -54,5 +59,6 @@ public interface RIBExtensionConsumerContext {
      *
      * @return Class loading strategy for loading YANG modeled classes.
      */
-    @Nonnull GeneratedClassLoadingStrategy getClassLoadingStrategy();
+    @Nonnull
+    GeneratedClassLoadingStrategy getClassLoadingStrategy();
 }

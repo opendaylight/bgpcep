@@ -9,7 +9,8 @@ package org.opendaylight.protocol.bgp.rib.spi;
 
 import org.opendaylight.yangtools.concepts.AbstractObjectRegistration;
 
-public abstract class AbstractRIBSupportRegistration<T extends RIBSupport> extends AbstractObjectRegistration<T> implements RIBSupportRegistration<T> {
+public abstract class AbstractRIBSupportRegistration<T extends RIBSupport>
+        extends AbstractObjectRegistration<T> implements RIBSupportRegistration<T> {
     protected AbstractRIBSupportRegistration(final T instance) {
         super(instance);
     }
