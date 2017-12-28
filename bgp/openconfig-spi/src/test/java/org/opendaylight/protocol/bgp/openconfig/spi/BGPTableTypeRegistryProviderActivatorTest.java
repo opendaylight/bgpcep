@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.bgp.openconfig.spi;
 
+import static org.junit.Assert.assertTrue;
+
 import java.util.Collections;
 import java.util.List;
 import org.junit.Assert;
@@ -21,16 +23,19 @@ public class BGPTableTypeRegistryProviderActivatorTest {
 
     @Test
     public void testBGPTableTypeRegistryProviderActivator() {
-        final AbstractBGPTableTypeRegistryProviderActivator activator = new AbstractBGPTableTypeRegistryProviderActivator(){
-            @Override
-            protected List<AbstractRegistration> startBGPTableTypeRegistryProviderImpl(
-                    final BGPTableTypeRegistryProvider provider) {
-                return Collections.singletonList(provider.registerBGPTableType(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, IPV4UNICAST.class));
-            }};
+        final AbstractBGPTableTypeRegistryProviderActivator activator =
+            new AbstractBGPTableTypeRegistryProviderActivator() {
+                @Override
+                protected List<AbstractRegistration> startBGPTableTypeRegistryProviderImpl(
+                        final BGPTableTypeRegistryProvider provider) {
+                    return Collections.singletonList(provider.registerBGPTableType(Ipv4AddressFamily.class,
+                            UnicastSubsequentAddressFamily.class, IPV4UNICAST.class));
+                }
+            };
 
         final SimpleBGPTableTypeRegistryProvider provider = new SimpleBGPTableTypeRegistryProvider();
         activator.startBGPTableTypeRegistryProvider(provider);
-        Assert.assertTrue(provider.getTableType(IPV4UNICAST.class).isPresent());
+        assertTrue(provider.getTableType(IPV4UNICAST.class).isPresent());
         activator.stopBGPTableTypeRegistryProvider();
         Assert.assertFalse(provider.getTableType(IPV4UNICAST.class).isPresent());
         activator.close();
