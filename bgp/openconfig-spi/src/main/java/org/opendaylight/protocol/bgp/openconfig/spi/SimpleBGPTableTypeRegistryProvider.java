@@ -34,7 +34,8 @@ public final class SimpleBGPTableTypeRegistryProvider implements BGPTableTypeReg
             final Class<? extends SubsequentAddressFamily> safi, final Class<? extends AfiSafiType> afiSafiType) {
         final BgpTableType tableType = new BgpTableTypeImpl(afi, safi);
         final Class<? extends AfiSafiType> prev = this.tableTypes.putIfAbsent(tableType, afiSafiType);
-        Preconditions.checkState(prev == null, "AFI %s SAFI %s is already registered with %s", afi, safi, prev);
+        Preconditions.checkState(prev == null, "AFI %s SAFI %s is already registered with %s",
+                afi, safi, prev);
         final TablesKey tableKey = new TablesKey(tableType.getAfi(), tableType.getSafi());
         this.tableKeys.put(tableKey, afiSafiType);
 

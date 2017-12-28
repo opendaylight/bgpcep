@@ -34,7 +34,8 @@ public final class BGPMock implements Closeable {
 
     private static final Logger LOG = LoggerFactory.getLogger(BGPMock.class);
 
-    static final Notification CONNECTION_LOST_MAGIC_MSG = new NotifyBuilder().setErrorCode(BGPError.CEASE.getCode()).build();
+    static final Notification CONNECTION_LOST_MAGIC_MSG = new NotifyBuilder()
+            .setErrorCode(BGPError.CEASE.getCode()).build();
 
     @GuardedBy("this")
     private final List<byte[]> allPreviousByteMessages;

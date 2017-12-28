@@ -22,7 +22,7 @@ public interface BGPTableTypeRegistryConsumer {
     /**
      * Looks for BgpTableType based on OpenConfig AFI/SAFI.
      *
-     * @param afiSafiType
+     * @param afiSafiType afiSafi Type
      * @return Optional of BgpTableType or empty, if the table type is not supported.
      */
     @Nonnull
@@ -31,7 +31,7 @@ public interface BGPTableTypeRegistryConsumer {
     /**
      * Looks for BgpTableType based on OpenConfig AFI/SAFI.
      *
-     * @param afiSafiType
+     * @param afiSafiType afiSafi Type
      * @return Optional of TableKey or empty, if the table type is not supported.
      */
     @Nonnull
@@ -40,7 +40,7 @@ public interface BGPTableTypeRegistryConsumer {
     /**
      * Looks for AfiSafiType based on BgpTableType.
      *
-     * @param bgpTableType
+     * @param bgpTableType Bgp TableType
      * @return Optional of OpenConfig AFI/SAFI or empty, if the table type is not supported.
      */
     @Nonnull
@@ -49,7 +49,7 @@ public interface BGPTableTypeRegistryConsumer {
     /**
      * Looks for AfiSafiType based on TablesKey.
      *
-     * @param tablesKey
+     * @param tablesKey Tables Key
      * @return Optional of OpenConfig AFI/SAFI or empty, if the table type is not supported.
      */
     @Nonnull

@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.bgp.openconfig.spi;
 
+import static org.mockito.Mockito.verify;
+
 import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,12 +30,13 @@ public class SimpleBGPTableTypeRegistryProviderActivatorTest {
     @Test
     public void testSimpleBGPTableTypeRegistryProviderActivator() {
         final SimpleBGPTableTypeRegistryProvider provider = new SimpleBGPTableTypeRegistryProvider();
-        final SimpleBGPTableTypeRegistryProviderActivator activator = new SimpleBGPTableTypeRegistryProviderActivator(provider,
-                Collections.singletonList(this.providerActivator));
+        final SimpleBGPTableTypeRegistryProviderActivator activator =
+                new SimpleBGPTableTypeRegistryProviderActivator(provider,
+                        Collections.singletonList(this.providerActivator));
         activator.start();
-        Mockito.verify(this.providerActivator).startBGPTableTypeRegistryProvider(Mockito.any());
+        verify(this.providerActivator).startBGPTableTypeRegistryProvider(Mockito.any());
         activator.close();
-        Mockito.verify(this.providerActivator).stopBGPTableTypeRegistryProvider();
+        verify(this.providerActivator).stopBGPTableTypeRegistryProvider();
     }
 
 }
