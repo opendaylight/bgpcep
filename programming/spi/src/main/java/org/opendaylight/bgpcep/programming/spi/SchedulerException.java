@@ -10,7 +10,6 @@ package org.opendaylight.bgpcep.programming.spi;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.submit.instruction.output.result.failure._case.Failure;
 
 public class SchedulerException extends Exception {
-    private static final long serialVersionUID = 1L;
     private final Failure failure;
 
     public SchedulerException(final String message, final Failure failure) {
