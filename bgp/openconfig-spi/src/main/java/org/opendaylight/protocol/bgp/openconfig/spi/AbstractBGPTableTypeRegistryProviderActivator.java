@@ -15,13 +15,15 @@ import java.util.List;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 
-public abstract class AbstractBGPTableTypeRegistryProviderActivator implements AutoCloseable, BGPTableTypeRegistryProviderActivator {
+public abstract class AbstractBGPTableTypeRegistryProviderActivator
+        implements AutoCloseable, BGPTableTypeRegistryProviderActivator {
 
     @GuardedBy("this")
     private List<AbstractRegistration> registrations;
 
     @GuardedBy("this")
-    protected abstract List<AbstractRegistration> startBGPTableTypeRegistryProviderImpl(BGPTableTypeRegistryProvider provider);
+    protected abstract List<AbstractRegistration> startBGPTableTypeRegistryProviderImpl(
+            BGPTableTypeRegistryProvider provider);
 
     @Override
     public final synchronized void startBGPTableTypeRegistryProvider(final BGPTableTypeRegistryProvider provider) {

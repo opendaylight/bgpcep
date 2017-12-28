@@ -30,15 +30,18 @@ public class SimpleBGPTableTypeRegistryProviderTest {
     @Before
     public void setUp() {
         this.provider = new SimpleBGPTableTypeRegistryProvider();
-        this.registration = this.provider.registerBGPTableType(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, IPV4UNICAST.class);
+        this.registration = this.provider.registerBGPTableType(Ipv4AddressFamily.class,
+                UnicastSubsequentAddressFamily.class, IPV4UNICAST.class);
     }
 
     @Test
     public void testBGPTableTypeRegistryProvider() {
 
-        final Optional<Class<? extends AfiSafiType>> afiSafiType = this.provider.getAfiSafiType(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
+        final Optional<Class<? extends AfiSafiType>> afiSafiType = this.provider.getAfiSafiType(
+                new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
         Assert.assertTrue(afiSafiType.isPresent());
-        final Optional<Class<? extends AfiSafiType>> afiSafiType2 = this.provider.getAfiSafiType(new BgpTableTypeImpl(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class));
+        final Optional<Class<? extends AfiSafiType>> afiSafiType2 = this.provider.getAfiSafiType(
+                new BgpTableTypeImpl(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class));
         Assert.assertFalse(afiSafiType2.isPresent());
 
         final Optional<BgpTableType> tableType = this.provider.getTableType(IPV4UNICAST.class);
@@ -51,9 +54,10 @@ public class SimpleBGPTableTypeRegistryProviderTest {
         Assert.assertFalse(tableType3.isPresent());
     }
 
-    @Test(expected=IllegalStateException.class)
+    @Test(expected = IllegalStateException.class)
     public void testDuplicatedRegistration() {
-        this.provider.registerBGPTableType(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, IPV4UNICAST.class);
+        this.provider.registerBGPTableType(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class,
+                IPV4UNICAST.class);
     }
 
 }

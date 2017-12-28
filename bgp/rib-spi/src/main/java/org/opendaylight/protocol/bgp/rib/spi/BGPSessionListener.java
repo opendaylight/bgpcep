@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.rib.spi;
 
 import java.util.EventListener;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -48,7 +49,7 @@ public interface BGPSessionListener extends PeerRPCs, EventListener {
      *
      * @param reason the cause why the session went down
      */
-    void onSessionTerminated(@Nonnull BGPSession session, @Nonnull BGPTerminationReason reason);
+    void onSessionTerminated(@Nullable BGPSession session, @Nonnull BGPTerminationReason reason);
 
     /**
      * Fired when a normal protocol message is received.

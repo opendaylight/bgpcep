@@ -30,7 +30,8 @@ public final class SimpleBGPTableTypeRegistryProviderActivator implements AutoCl
     public void start() {
         LOG.info("Starting {} BGPTableTypeRegistryProviderActivator instances", this.extensionActivators.size());
 
-        this.extensionActivators.forEach(activator -> activator.startBGPTableTypeRegistryProvider(this.providerContext));
+        this.extensionActivators.forEach(activator
+            -> activator.startBGPTableTypeRegistryProvider(this.providerContext));
     }
 
     @Override
