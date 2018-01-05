@@ -41,14 +41,25 @@ public final class BGPPeerAcceptorImpl implements AutoCloseable {
     private AutoCloseable listenerRegistration;
 
     public BGPPeerAcceptorImpl(final IpAddress bindingAddress, final PortNumber portNumber,
-        final BGPDispatcher bgpDispatcher) {
+            final BGPDispatcher bgpDispatcher) {
         this.bgpDispatcher = requireNonNull(bgpDispatcher);
         this.address = getAddress(requireNonNull(bindingAddress), requireNonNull(portNumber));
         if (!PlatformDependent.isWindows() && !PlatformDependent.isRoot()
-            && portNumber.getValue() < PRIVILEGED_PORTS) {
-            throw new AccessControlException("Unable to bind port " + portNumber.getValue() +
-                " while running as non-root user.");
+                && portNumber.getValue() < PRIVILEGED_PORTS) {
+            throw new AccessControlException("Unable to bind port " + portNumber.getValue()
+                    + " while running as non-root user.");
         }
+    }
+
+    private static InetSocketAddress getAddress(final IpAddress ipAddress, final PortNumber portNumber) {
+        final InetAddress inetAddr;
+        try {
+            inetAddr = InetAddress.getByName(ipAddress.getIpv4Address() != null
+                    ? ipAddress.getIpv4Address().getValue() : ipAddress.getIpv6Address().getValue());
+        } catch (final UnknownHostException e) {
+            throw new IllegalArgumentException("Illegal binding address " + ipAddress, e);
+        }
+        return new InetSocketAddress(inetAddr, portNumber.getValue());
     }
 
     public void start() {
@@ -58,32 +69,19 @@ public final class BGPPeerAcceptorImpl implements AutoCloseable {
         // Validate future success
         this.futureChannel.addListener(future -> {
             Preconditions.checkArgument(future.isSuccess(), "Unable to start bgp server on %s",
-                this.address, future.cause());
+                    this.address, future.cause());
             final Channel channel = this.futureChannel.channel();
             if (Epoll.isAvailable()) {
                 this.listenerRegistration = this.bgpDispatcher.getBGPPeerRegistry().registerPeerRegisterListener(
-                    new BGPPeerAcceptorImpl.PeerRegistryListenerImpl(channel.config()));
+                        new BGPPeerAcceptorImpl.PeerRegistryListenerImpl(channel.config()));
             }
         });
     }
 
-    private static InetSocketAddress getAddress(final IpAddress ipAddress, final PortNumber portNumber) {
-        final InetAddress inetAddr;
-        try {
-            inetAddr = InetAddress.getByName(ipAddress.getIpv4Address() != null ?
-                ipAddress.getIpv4Address().getValue() : ipAddress.getIpv6Address().getValue());
-        } catch (final UnknownHostException e) {
-            throw new IllegalArgumentException("Illegal binding address " + ipAddress, e);
-        }
-        return new InetSocketAddress(inetAddr, portNumber.getValue());
-    }
-
     /**
      * This closes the acceptor and no new bgp connections will be accepted
-     * Connections already established will be preserved
-     *
-     * @throws Exception
-     */
+     * Connections already established will be preserved.
+     **/
     @Override
     public void close() throws Exception {
         this.futureChannel.cancel(true);

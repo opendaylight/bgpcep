@@ -28,7 +28,8 @@ public class BGPPeerAcceptorImplTest extends AbstractBGPDispatcherTest {
     @Test
     public void testBGPPeerAcceptorImpl() throws Exception {
         final InetSocketAddress inetServerAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
-        final IpAddress serverIpAddress = new IpAddress(new Ipv4Address(InetSocketAddressUtil.toHostAndPort(inetServerAddress).getHost()));
+        final IpAddress serverIpAddress = new IpAddress(new Ipv4Address(InetSocketAddressUtil
+                .toHostAndPort(inetServerAddress).getHost()));
         final PortNumber portNumber = new PortNumber(InetSocketAddressUtil.toHostAndPort(inetServerAddress).getPort());
         this.registry.addPeer(serverIpAddress, this.serverListener, createPreferences(inetServerAddress));
 
