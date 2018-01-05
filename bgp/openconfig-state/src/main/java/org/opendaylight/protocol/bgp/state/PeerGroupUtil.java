@@ -30,7 +30,7 @@ public final class PeerGroupUtil {
     }
 
     /**
-     * Build Openconfig PeerGroups containing Peer group stats from a list of BGPPeerGroupState
+     * Build Openconfig PeerGroups containing Peer group stats from a list of BGPPeerGroupState.
      *
      * @param bgpStateConsumer providing BGPPeerGroupState
      * @return PeerGroups containing Peer group stats
@@ -38,35 +38,35 @@ public final class PeerGroupUtil {
     @Nullable
     public static PeerGroups buildPeerGroups(@Nonnull final List<BGPPeerState> bgpStateConsumer) {
         final Map<String, List<BGPPeerState>> peerGroups = bgpStateConsumer.stream()
-            .filter(state -> state.getGroupId() != null)
-            .collect(Collectors.groupingBy(BGPPeerState::getGroupId));
+                .filter(state -> state.getGroupId() != null)
+                .collect(Collectors.groupingBy(BGPPeerState::getGroupId));
         if (peerGroups.isEmpty()) {
             return null;
         }
 
         final List<PeerGroup> peerGroupsList = peerGroups.entrySet().stream()
-            .map(entry -> buildPeerGroupState(entry.getKey(), entry.getValue()))
-            .collect(Collectors.toList());
+                .map(entry -> buildPeerGroupState(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
         return new PeerGroupsBuilder().setPeerGroup(peerGroupsList).build();
     }
 
     /**
-     * Build Openconfig PeerGroup containing Peer group stats from BGPPeerGroupState
+     * Build Openconfig PeerGroup containing Peer group stats from BGPPeerGroupState.
      *
      * @param groupId Peer group Id
-     * @param groups providing state of the group
+     * @param groups  providing state of the group
      * @return PeerGroups containing Peer group stats
      */
     @Nonnull
     public static PeerGroup buildPeerGroupState(@Nonnull final String groupId, @Nonnull List<BGPPeerState> groups) {
         final PeerGroupStateAugmentation groupState = new PeerGroupStateAugmentationBuilder()
-            .setTotalPrefixes(groups.stream().mapToLong(BGPPeerState::getTotalPrefixes).sum())
-            .setTotalPaths(groups.stream().mapToLong(BGPPeerState::getTotalPathsCount).sum())
-            .build();
+                .setTotalPrefixes(groups.stream().mapToLong(BGPPeerState::getTotalPrefixes).sum())
+                .setTotalPaths(groups.stream().mapToLong(BGPPeerState::getTotalPathsCount).sum())
+                .build();
 
         return new PeerGroupBuilder()
-            .setPeerGroupName(groupId)
-            .setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.
-                StateBuilder().addAugmentation(PeerGroupStateAugmentation.class, groupState).build()).build();
+                .setPeerGroupName(groupId)
+                .setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group
+                        .StateBuilder().addAugmentation(PeerGroupStateAugmentation.class, groupState).build()).build();
     }
 }

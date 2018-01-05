@@ -12,8 +12,6 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.doReturn;
 import static org.opendaylight.protocol.bgp.state.StateProviderImplTest.TABLES_KEY;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,17 +31,6 @@ public class GlobalUtilTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         doReturn(Optional.empty()).when(this.tableRegistry).getAfiSafiType(Mockito.eq(TABLES_KEY));
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testGlobalUtilPrivateConstructor() throws Throwable {
-        final Constructor<GlobalUtil> c = GlobalUtil.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
     }
 
     @Test
