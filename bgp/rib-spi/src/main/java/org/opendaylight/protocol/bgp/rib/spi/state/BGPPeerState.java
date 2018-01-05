@@ -14,7 +14,7 @@ import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 
 /**
- * Representing operational state related to a particular BGP neighbor
+ * Representing operational state related to a particular BGP neighbor.
  * - Counters for BGP messages sent and received from the neighbor
  * - Operational state of timers associated with the BGP neighbor
  * - Operational state of the transport session associated with the BGP neighbor
@@ -25,14 +25,14 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
  */
 public interface BGPPeerState extends RibReference {
     /**
-     * Indicates whether this instance is being actively managed and updated
+     * Indicates whether this instance is being actively managed and updated.
      *
      * @return active
      */
     boolean isActive();
 
     /**
-     * PeerGroup Id
+     * PeerGroup Id.
      *
      * @return PeerGroup Id
      */
@@ -40,7 +40,7 @@ public interface BGPPeerState extends RibReference {
     String getGroupId();
 
     /**
-     * Return Neighbor Key/Address
+     * Return Neighbor Key/Address.
      *
      * @return neighbor Address
      */
@@ -48,7 +48,7 @@ public interface BGPPeerState extends RibReference {
     IpAddress getNeighborAddress();
 
     /**
-     * Paths installed under Effective-Rib-In for a BGP neighbor
+     * Paths installed under Effective-Rib-In for a BGP neighbor.
      * Represented per Prefixes, the cost of calculate paths per each Prefix on Effective-Rib-in is not worth
      * at this point, check comment under incrementPrefixesInstalled
      *
@@ -59,52 +59,63 @@ public interface BGPPeerState extends RibReference {
     }
 
     /**
-     * Prefixes installed under Effective-Rib-In for a BGP neighbor
+     * Prefixes installed under Effective-Rib-In for a BGP neighbor.
      *
      * @return Paths counter
      */
     long getTotalPrefixes();
 
     /**
-     * Error Handling State
+     * Error Handling State.
+     *
      * @return ErrorHandlingState
      */
     @Nonnull
     BGPErrorHandlingState getBGPErrorHandlingState();
 
     /**
-     * Afi Safi Operational State
+     * Afi Safi Operational State.
+     *
      * @return AfiSafiState
      */
     @Nonnull
     BGPAfiSafiState getBGPAfiSafiState();
 
     /**
-     * BGP Session Operational State
+     * BGP Session Operational State.
+     *
      * @return BGPSessionState
      */
-    @Nullable BGPSessionState getBGPSessionState();
+    @Nullable
+    BGPSessionState getBGPSessionState();
 
     /**
-     * BGP Message Operational State
+     * BGP Message Operational State.
+     *
      * @return BGPPeerMessagesState
      */
-    @Nullable BGPPeerMessagesState getBGPPeerMessagesState();
+    @Nullable
+    BGPPeerMessagesState getBGPPeerMessagesState();
 
     /**
-     * BGP Operation Timers State
+     * BGP Operation Timers State.
+     *
      * @return BGPTimersState
      */
-    @Nullable BGPTimersState getBGPTimersState();
+    @Nullable
+    BGPTimersState getBGPTimersState();
 
     /**
-     *  BGP Operational Transport State
+     * BGP Operational Transport State.
+     *
      * @return BGPTransportState
      */
-    @Nullable BGPTransportState getBGPTransportState();
+    @Nullable
+    BGPTransportState getBGPTransportState();
 
     /**
-     * BGP Operational GracelfulRestart State
+     * BGP Operational GracelfulRestart State.
+     *
      * @return BGPGracelfulRestartState
      */
     @Nonnull

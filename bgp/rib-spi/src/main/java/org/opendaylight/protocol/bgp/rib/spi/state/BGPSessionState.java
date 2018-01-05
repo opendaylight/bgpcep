@@ -8,49 +8,51 @@
 
 package org.opendaylight.protocol.bgp.rib.spi.state;
 
+import javax.annotation.Nonnull;
 import org.opendaylight.protocol.bgp.rib.spi.State;
 
 /**
- * BGP Operational Session State
+ * BGP Operational Session State.
  */
 public interface BGPSessionState {
     /**
-     * Internal session state
+     * Internal session state.
      *
      * @return Internal session state
      */
+    @Nonnull
     State getSessionState();
 
     /**
-     * Additional Path capability
+     * Additional Path capability.
      *
      * @return true if supported
      */
     boolean isAddPathCapabilitySupported();
 
     /**
-     * AS 4 Bytes capability
+     * AS 4 Bytes capability.
      *
      * @return true if supported
      */
     boolean isAsn32CapabilitySupported();
 
     /**
-     * Graceful Restart
+     * Graceful Restart.
      *
      * @return true if supported
      */
     boolean isGracefulRestartCapabilitySupported();
 
     /**
-     * Multiprotocol capability
+     * Multiprotocol capability.
      *
      * @return true if supported
      */
     boolean isMultiProtocolCapabilitySupported();
 
     /**
-     * Router Refresh Capability
+     * Router Refresh Capability.
      *
      * @return true if supported
      */

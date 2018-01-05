@@ -21,7 +21,8 @@ public class SimpleRIBExtensionTest {
 
     @Test
     public void testExtensionProvider() {
-        final ServiceLoaderRIBExtensionConsumerContext ctx = ServiceLoaderRIBExtensionConsumerContext.createConsumerContext();
+        final ServiceLoaderRIBExtensionConsumerContext ctx =
+                ServiceLoaderRIBExtensionConsumerContext.createConsumerContext();
         Assert.assertNull(ctx.getRIBSupport(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
         final TestActivator act = new TestActivator();
         act.startRIBExtensionProvider(ctx);
@@ -38,7 +39,8 @@ public class SimpleRIBExtensionTest {
             Mockito.doReturn(Route.class).when(support).routesListClass();
             Mockito.doReturn(DataObject.class).when(support).routesContainerClass();
             Mockito.doReturn(DataObject.class).when(support).routesCaseClass();
-            return Lists.newArrayList((AutoCloseable)context.registerRIBSupport(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, support));
+            return Lists.newArrayList((AutoCloseable)context.registerRIBSupport(Ipv4AddressFamily.class,
+                    UnicastSubsequentAddressFamily.class, support));
         }
     }
 }

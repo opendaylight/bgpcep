@@ -17,7 +17,8 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 public class PeerExportGroupTest {
     @Test
     public void defaultPeerExportGroupTest() {
-        final  PeerExportGroup.PeerExporTuple peerExportGroup = new PeerExportGroup.PeerExporTuple(YangInstanceIdentifier.EMPTY, PeerRole.Ebgp);
+        final  PeerExportGroup.PeerExporTuple peerExportGroup = new PeerExportGroup
+                .PeerExporTuple(YangInstanceIdentifier.EMPTY, PeerRole.Ebgp);
         assertEquals(PeerRole.Ebgp, peerExportGroup.getRole());
         assertEquals(YangInstanceIdentifier.EMPTY, peerExportGroup.getYii());
     }

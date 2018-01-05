@@ -12,11 +12,11 @@ import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
 
 /**
- * BGP Operational Graceful Restart State
+ * BGP Operational Graceful Restart State.
  */
 public interface BGPGracelfulRestartState {
     /**
-     * is Graceful Restart Supported advertized to neighbor
+     * is Graceful Restart Supported advertized to neighbor.
      *
      * @param tablesKey tables Key
      * @return true if Afi Safi was advertized to neighbor
@@ -24,15 +24,15 @@ public interface BGPGracelfulRestartState {
     boolean isGracefulRestartAdvertized(@Nonnull TablesKey tablesKey);
 
     /**
-     * is Graceful Restart Supported advertized by neighbor
+     * is Graceful Restart Supported advertized by neighbor.
      *
      * @param tablesKey tables Key
      * @return true if Afi Safi was advertized by neighbor
      */
-    boolean isGracefulRestartReceived(TablesKey tablesKey);
+    boolean isGracefulRestartReceived(@Nonnull TablesKey tablesKey);
 
     /**
-     * This flag indicates whether the local neighbor is currently restarting
+     * This flag indicates whether the local neighbor is currently restarting.
      *
      * @return local restarting state
      */
@@ -40,7 +40,7 @@ public interface BGPGracelfulRestartState {
 
     /**
      * The period of time (advertised by the peer) that the peer expects a restart of a
-     * BGP session to take
+     * BGP session to take.
      *
      * @return time
      */
@@ -48,7 +48,7 @@ public interface BGPGracelfulRestartState {
 
     /**
      * This flag indicates whether the remote neighbor is currently in the process of
-     * restarting, and hence received routes are currently stale
+     * restarting, and hence received routes are currently stale.
      *
      * @return peer is restarting
      */

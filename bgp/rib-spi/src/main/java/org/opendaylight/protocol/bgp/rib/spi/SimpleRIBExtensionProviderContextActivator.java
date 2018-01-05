@@ -15,8 +15,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Starts and stops RIBExtensionProviderActivator instances for a RIBExtensionProviderContext.
- *
- * @author Thomas Pantelis
  */
 public final class SimpleRIBExtensionProviderContextActivator implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(SimpleRIBExtensionProviderContextActivator.class);
@@ -33,7 +31,7 @@ public final class SimpleRIBExtensionProviderContextActivator implements AutoClo
     public void start() {
         LOG.info("Starting {} RIBExtensionProviderActivator instances", this.extensionActivators.size());
 
-        for(final RIBExtensionProviderActivator e : this.extensionActivators) {
+        for (final RIBExtensionProviderActivator e : this.extensionActivators) {
             e.startRIBExtensionProvider(this.providerContext);
         }
     }
@@ -42,7 +40,7 @@ public final class SimpleRIBExtensionProviderContextActivator implements AutoClo
     public void close() {
         LOG.info("Stopping {} RIBExtensionProviderActivator instances", this.extensionActivators.size());
 
-        for(final RIBExtensionProviderActivator e : this.extensionActivators) {
+        for (final RIBExtensionProviderActivator e : this.extensionActivators) {
             e.stopRIBExtensionProvider();
         }
     }
