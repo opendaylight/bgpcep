@@ -8,8 +8,10 @@
 
 package org.opendaylight.protocol.bgp.state;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentOperational;
 import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
@@ -26,7 +28,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
@@ -175,20 +176,24 @@ public class StateProviderImplTest extends AbstractConcurrentDataBrokerTest {
         doReturn(this.as).when(this.bgpRibState).getAs();
         doReturn(this.bgpId).when(this.bgpRibState).getRouteId();
 
-        Mockito.doAnswer(invocation -> this.totalPathsCounter.longValue()).when(this.bgpRibState).getTotalPathsCount();
-        Mockito.doAnswer(invocation -> this.totalPrefixesCounter.longValue()).when(this.bgpRibState).getTotalPrefixesCount();
-        Mockito.doAnswer(invocation -> this.totalPathsCounter.longValue()).when(this.bgpRibState).getPathCount(eq(TABLES_KEY));
-        Mockito.doAnswer(invocation -> this.totalPrefixesCounter.longValue()).when(this.bgpRibState).getPrefixesCount(eq(TABLES_KEY));
-        Mockito.doAnswer(invocation -> Collections.singletonMap(TABLES_KEY,
+        doAnswer(invocation -> this.totalPathsCounter.longValue())
+                .when(this.bgpRibState).getTotalPathsCount();
+        doAnswer(invocation -> this.totalPrefixesCounter.longValue())
+                .when(this.bgpRibState).getTotalPrefixesCount();
+        doAnswer(invocation -> this.totalPathsCounter.longValue())
+                .when(this.bgpRibState).getPathCount(eq(TABLES_KEY));
+        doAnswer(invocation -> this.totalPrefixesCounter.longValue())
+                .when(this.bgpRibState).getPrefixesCount(eq(TABLES_KEY));
+        doAnswer(invocation -> Collections.singletonMap(TABLES_KEY,
             this.totalPrefixesCounter.longValue())).when(this.bgpRibState).getPrefixesCount();
-        Mockito.doAnswer(invocation -> Collections.singletonMap(TABLES_KEY,
+        doAnswer(invocation -> Collections.singletonMap(TABLES_KEY,
             this.totalPathsCounter.longValue())).when(this.bgpRibState).getPathsCount();
 
         // Mock Peer
         doReturn("test-group").when(this.bgpPeerState).getGroupId();
         doReturn(iid).when(this.bgpPeerState).getInstanceIdentifier();
-        Mockito.doAnswer(invocation -> this.totalPrefixesCounter.longValue()).when(this.bgpPeerState).getTotalPrefixes();
-        Mockito.doAnswer(invocation -> this.totalPathsCounter.longValue()).when(this.bgpPeerState).getTotalPathsCount();
+        doAnswer(invocation -> this.totalPrefixesCounter.longValue()).when(this.bgpPeerState).getTotalPrefixes();
+        doAnswer(invocation -> this.totalPathsCounter.longValue()).when(this.bgpPeerState).getTotalPathsCount();
         doReturn(this.neighborAddress).when(this.bgpPeerState).getNeighborAddress();
         doReturn(this.bgpSessionState).when(this.bgpPeerState).getBGPSessionState();
         doReturn(this.bgpPeerMessagesState).when(this.bgpPeerState).getBGPPeerMessagesState();
@@ -247,7 +252,7 @@ public class StateProviderImplTest extends AbstractConcurrentDataBrokerTest {
         this.bgpRibStates.add(this.bgpRibState);
         readDataOperational(getDataBroker(), this.bgpInstanceIdentifier, bgpRib -> {
             final Global global = bgpRib.getGlobal();
-            Assert.assertEquals(globalExpected, global);
+            assertEquals(globalExpected, global);
             return bgpRib;
         });
 
@@ -257,7 +262,7 @@ public class StateProviderImplTest extends AbstractConcurrentDataBrokerTest {
         final Global globalExpected2 = buildGlobalExpected(1);
         readDataOperational(getDataBroker(), this.bgpInstanceIdentifier, bgpRib -> {
             final Global global = bgpRib.getGlobal();
-            Assert.assertEquals(globalExpected2, global);
+            assertEquals(globalExpected2, global);
             return bgpRib;
         });
 
@@ -267,7 +272,7 @@ public class StateProviderImplTest extends AbstractConcurrentDataBrokerTest {
         final Global globalExpected3 = buildGlobalExpected(0);
         readDataOperational(getDataBroker(), this.bgpInstanceIdentifier, bgpRib -> {
             final Global global = bgpRib.getGlobal();
-            Assert.assertEquals(globalExpected3, global);
+            assertEquals(globalExpected3, global);
             Assert.assertNull(bgpRib.getNeighbors());
             Assert.assertNull(bgpRib.getPeerGroups());
             return bgpRib;
@@ -289,18 +294,18 @@ public class StateProviderImplTest extends AbstractConcurrentDataBrokerTest {
         readDataOperational(getDataBroker(), this.bgpInstanceIdentifier, bgpRib -> {
             final Neighbors neighbors = bgpRib.getNeighbors();
             Assert.assertNotNull(neighbors);
-            Assert.assertEquals(peerGroupExpected, bgpRib.getPeerGroups().getPeerGroup().get(0));
+            assertEquals(peerGroupExpected, bgpRib.getPeerGroups().getPeerGroup().get(0));
             final Neighbor neighborResult = neighbors.getNeighbor().get(0);
-            Assert.assertEquals(this.neighborAddress, neighborResult.getNeighborAddress());
-            Assert.assertEquals(expectedAfiSafis, neighborResult.getAfiSafis());
-            Assert.assertEquals(expectedErrorHandling, neighborResult.getErrorHandling());
-            Assert.assertEquals(expectedGracefulRestart, neighborResult.getGracefulRestart());
-            Assert.assertEquals(expectedTransport, neighborResult.getTransport());
-            Assert.assertEquals(expectedTimers, neighborResult.getTimers());
-            final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.State stateResult =
-                    neighborResult.getState();
-            Assert.assertEquals(expectedBgpNeighborState, stateResult.getAugmentation(BgpNeighborStateAugmentation.class));
-            Assert.assertEquals(BgpNeighborState.SessionState.ESTABLISHED, stateResult
+            assertEquals(this.neighborAddress, neighborResult.getNeighborAddress());
+            assertEquals(expectedAfiSafis, neighborResult.getAfiSafis());
+            assertEquals(expectedErrorHandling, neighborResult.getErrorHandling());
+            assertEquals(expectedGracefulRestart, neighborResult.getGracefulRestart());
+            assertEquals(expectedTransport, neighborResult.getTransport());
+            assertEquals(expectedTimers, neighborResult.getTimers());
+            final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group
+                    .State stateResult = neighborResult.getState();
+            assertEquals(expectedBgpNeighborState, stateResult.getAugmentation(BgpNeighborStateAugmentation.class));
+            assertEquals(BgpNeighborState.SessionState.ESTABLISHED, stateResult
                     .getAugmentation(NeighborStateAugmentation.class).getSessionState());
             final List<Class<? extends BgpCapability>> supportedCapabilitiesResult = stateResult
                     .getAugmentation(NeighborStateAugmentation.class).getSupportedCapabilities();
@@ -366,17 +371,17 @@ public class StateProviderImplTest extends AbstractConcurrentDataBrokerTest {
 
     private static ErrorHandling buildErrorHandling() {
         final ErrorHandling errorHandling = new ErrorHandlingBuilder().setState(
-                new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.error.handling.
-                        StateBuilder().setTreatAsWithdraw(false)
+                new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.error
+                        .handling.StateBuilder().setTreatAsWithdraw(false)
                         .addAugmentation(NeighborErrorHandlingStateAugmentation.class,
-                                new NeighborErrorHandlingStateAugmentationBuilder().setErroneousUpdateMessages(1L).build()).build())
-                .build();
+                                new NeighborErrorHandlingStateAugmentationBuilder()
+                                        .setErroneousUpdateMessages(1L).build()).build()).build();
         return errorHandling;
     }
 
     private static Timers buildTimers() {
-        final Timers timers = new TimersBuilder().setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.
-                bgp.rev151009.bgp.neighbor.group.timers.StateBuilder()
+        final Timers timers = new TimersBuilder().setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang
+                .bgp.rev151009.bgp.neighbor.group.timers.StateBuilder()
                 .setConnectRetry(BigDecimal.valueOf(30))
                 .setHoldTime(BigDecimal.valueOf(90))
                 .setKeepaliveInterval(BigDecimal.valueOf(30))
@@ -416,18 +421,21 @@ public class StateProviderImplTest extends AbstractConcurrentDataBrokerTest {
         return gracefulRestart;
     }
 
-    private Global buildGlobalExpected(final long PrefixesAndPaths) {
+    private Global buildGlobalExpected(final long prefixesAndPaths) {
         return new GlobalBuilder()
-            .setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.
-                StateBuilder().setRouterId(new Ipv4Address(this.bgpId.getValue())).setTotalPrefixes(PrefixesAndPaths)
-                .setTotalPaths(PrefixesAndPaths).setAs(this.as).build())
-            .setAfiSafis(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.
-                AfiSafisBuilder().setAfiSafi(Collections.singletonList(new AfiSafiBuilder()
-                .setAfiSafiName(IPV4UNICAST.class).setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang
-                    .bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.afi.safi.StateBuilder().setEnabled(false)
-                    .addAugmentation(GlobalAfiSafiStateAugmentation.class, new GlobalAfiSafiStateAugmentationBuilder()
-                        .setTotalPaths(PrefixesAndPaths).setTotalPrefixes(PrefixesAndPaths).build()).build()).build()))
-                .build()).build();
+                .setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base
+                        .StateBuilder().setRouterId(new Ipv4Address(this.bgpId.getValue()))
+                        .setTotalPrefixes(prefixesAndPaths).setTotalPaths(prefixesAndPaths).setAs(this.as).build())
+                .setAfiSafis(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base
+                        .AfiSafisBuilder().setAfiSafi(Collections.singletonList(new AfiSafiBuilder()
+                        .setAfiSafiName(IPV4UNICAST.class).setState(new org.opendaylight.yang.gen.v1.http.openconfig
+                                .net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.afi.safi.StateBuilder()
+                                .setEnabled(false)
+                                .addAugmentation(GlobalAfiSafiStateAugmentation.class,
+                                        new GlobalAfiSafiStateAugmentationBuilder()
+                                                .setTotalPaths(prefixesAndPaths).setTotalPrefixes(prefixesAndPaths)
+                                                .build()).build()).build()))
+                        .build()).build();
     }
 
     private static PeerGroup buildGroupExpected() {

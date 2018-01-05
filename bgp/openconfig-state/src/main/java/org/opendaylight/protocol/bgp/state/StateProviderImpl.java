@@ -70,13 +70,14 @@ public final class StateProviderImpl implements TransactionChainListener, AutoCl
     private ScheduledFuture<?> scheduleTask;
 
     public StateProviderImpl(@Nonnull final DataBroker dataBroker, final int timeout,
-        @Nonnull final BGPTableTypeRegistryConsumer bgpTableTypeRegistry, @Nonnull final BGPStateConsumer stateCollector,
-        @Nonnull final String networkInstanceName) {
+            @Nonnull final BGPTableTypeRegistryConsumer bgpTableTypeRegistry,
+            @Nonnull final BGPStateConsumer stateCollector,
+            @Nonnull final String networkInstanceName) {
         this.dataBroker = requireNonNull(dataBroker);
         this.bgpTableTypeRegistry = requireNonNull(bgpTableTypeRegistry);
         this.stateCollector = requireNonNull(stateCollector);
         this.networkInstanceIId = InstanceIdentifier.create(NetworkInstances.class)
-            .child(NetworkInstance.class, new NetworkInstanceKey(networkInstanceName));
+                .child(NetworkInstance.class, new NetworkInstanceKey(networkInstanceName));
         this.timeout = timeout;
     }
 
@@ -84,6 +85,7 @@ public final class StateProviderImpl implements TransactionChainListener, AutoCl
         this.transactionChain = this.dataBroker.createTransactionChain(this);
         final TimerTask task = new TimerTask() {
             @Override
+            @SuppressWarnings("checkstyle:IllegalCatch")
             public void run() {
                 synchronized (StateProviderImpl.this) {
                     final WriteTransaction wTx = StateProviderImpl.this.transactionChain.newWriteOnlyTransaction();
@@ -99,44 +101,44 @@ public final class StateProviderImpl implements TransactionChainListener, AutoCl
         };
 
         this.scheduleTask = GlobalEventExecutor.INSTANCE.scheduleAtFixedRate(task, 0, this.timeout,
-            TimeUnit.SECONDS);
+                TimeUnit.SECONDS);
     }
 
-    private synchronized void updateBGPStats(final WriteTransaction wTx) {
+    private synchronized void updateBGPStats(final WriteTransaction wtx) {
         final Set<String> oldStats = new HashSet<>(this.instanceIdentifiersCache.keySet());
         this.stateCollector.getRibStats().stream().filter(BGPRIBState::isActive).forEach(bgpStateConsumer -> {
             final KeyedInstanceIdentifier<Rib, RibKey> ribId = bgpStateConsumer.getInstanceIdentifier();
             final List<BGPPeerState> peerStats = this.stateCollector.getPeerStats().stream()
                     .filter(BGPPeerState::isActive).filter(peerState -> ribId.equals(peerState.getInstanceIdentifier()))
                     .collect(Collectors.toList());
-            storeOperationalState(bgpStateConsumer, peerStats, ribId.getKey().getId().getValue(), wTx);
+            storeOperationalState(bgpStateConsumer, peerStats, ribId.getKey().getId().getValue(), wtx);
             oldStats.remove(ribId.getKey().getId().getValue());
         });
-        oldStats.forEach(ribId -> removeStoredOperationalState(ribId, wTx));
+        oldStats.forEach(ribId -> removeStoredOperationalState(ribId, wtx));
     }
 
-    private synchronized void removeStoredOperationalState(final String ribId, final WriteTransaction wTx) {
+    private synchronized void removeStoredOperationalState(final String ribId, final WriteTransaction wtx) {
         final InstanceIdentifier<Bgp> bgpIID = this.instanceIdentifiersCache.remove(ribId);
-        wTx.delete(LogicalDatastoreType.OPERATIONAL, bgpIID);
+        wtx.delete(LogicalDatastoreType.OPERATIONAL, bgpIID);
     }
 
     private synchronized void storeOperationalState(final BGPRIBState bgpStateConsumer,
-        final List<BGPPeerState> peerStats, final String ribId, final WriteTransaction wTx) {
+            final List<BGPPeerState> peerStats, final String ribId, final WriteTransaction wtx) {
         final Global global = GlobalUtil.buildGlobal(bgpStateConsumer, this.bgpTableTypeRegistry);
         final PeerGroups peerGroups = PeerGroupUtil.buildPeerGroups(peerStats);
         final Neighbors neighbors = NeighborUtil.buildNeighbors(peerStats, this.bgpTableTypeRegistry);
         InstanceIdentifier<Bgp> bgpIID = this.instanceIdentifiersCache.get(ribId);
         if (bgpIID == null) {
             final ProtocolKey protocolKey = new ProtocolKey(BGP.class, bgpStateConsumer.getInstanceIdentifier()
-                .getKey().getId().getValue());
+                    .getKey().getId().getValue());
             final KeyedInstanceIdentifier<Protocol, ProtocolKey> protocolIId = this.networkInstanceIId
-                .child(Protocols.class).child(Protocol.class, protocolKey);
+                    .child(Protocols.class).child(Protocol.class, protocolKey);
             bgpIID = protocolIId.augmentation(Protocol1.class).child(Bgp.class);
             this.instanceIdentifiersCache.put(ribId, bgpIID);
         }
 
         final Bgp bgp = new BgpBuilder().setGlobal(global).setNeighbors(neighbors).setPeerGroups(peerGroups).build();
-        wTx.put(LogicalDatastoreType.OPERATIONAL, bgpIID, bgp, WriteTransaction.CREATE_MISSING_PARENTS);
+        wtx.put(LogicalDatastoreType.OPERATIONAL, bgpIID, bgp, WriteTransaction.CREATE_MISSING_PARENTS);
     }
 
     @Override
@@ -153,7 +155,7 @@ public final class StateProviderImpl implements TransactionChainListener, AutoCl
 
     @Override
     public void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction,
-        final Throwable cause) {
+            final Throwable cause) {
         LOG.error("Transaction chain failed {}.", transaction != null ? transaction.getIdentifier() : null, cause);
     }
 
