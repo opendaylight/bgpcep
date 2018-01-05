@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.spi;
 
 import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
@@ -22,33 +23,35 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
  */
 interface AddPathRibSupport {
     /**
-     * Extract PathId from route change received
+     * Extract PathId from route change received.
      *
      * @param normalizedNode Path Id Container
      * @return pathId  The path identifier value
      */
-    default Long extractPathId(NormalizedNode<?, ?> normalizedNode) {
+    default Long extractPathId(@Nonnull NormalizedNode<?, ?> normalizedNode) {
         return NON_PATH_ID;
     }
 
     /**
-     * Construct a PathArgument to an AddPathRoute
+     * Construct a PathArgument to an AddPathRoute.
      *
      * @param pathId  The path identifier
      * @param routeId PathArgument leaf path
      * @return routeId PathArgument + pathId or Null in case Add-path is not supported
      */
-    @Nullable default PathArgument getRouteIdAddPath(long pathId, PathArgument routeId) {
+    @Nullable
+    default PathArgument getRouteIdAddPath(long pathId, @Nonnull PathArgument routeId) {
         return null;
     }
 
     /**
-     * Create a new Path Argument for route Key removing remove Path Id from key
-     * For non extension which doesnt support Multiple Path this step is not required
-     * @param routeKeyPathArgument  routeKey Path Argument
+     * Create a new Path Argument for route Key removing remove Path Id from key.
+     * For non extension which doesnt support Multiple Path this step is not required.
+     *
+     * @param routeKeyPathArgument routeKey Path Argument
      * @return new route Key
      */
-    default PathArgument createRouteKeyPathArgument(PathArgument routeKeyPathArgument) {
+    default @Nonnull PathArgument createRouteKeyPathArgument(@Nonnull PathArgument routeKeyPathArgument) {
         return routeKeyPathArgument;
     }
 }

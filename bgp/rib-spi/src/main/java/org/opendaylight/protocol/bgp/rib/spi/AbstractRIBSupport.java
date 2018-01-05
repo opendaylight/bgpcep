@@ -92,19 +92,23 @@ public abstract class AbstractRIBSupport implements RIBSupport {
      * @param safiClass SubsequentAddressFamily
      * @param destinationQname destination Qname
      */
-    protected AbstractRIBSupport(final Class<? extends Routes> cazeClass, final Class<? extends DataObject> containerClass,
-        final Class<? extends Route> listClass, final Class<? extends AddressFamily> afiClass, final Class<? extends SubsequentAddressFamily> safiClass,
+    protected AbstractRIBSupport(final Class<? extends Routes> cazeClass,
+            final Class<? extends DataObject> containerClass,
+        final Class<? extends Route> listClass, final Class<? extends AddressFamily> afiClass,
+            final Class<? extends SubsequentAddressFamily> safiClass,
         final QName destinationQname) {
         final QName qname = BindingReflections.findQName(containerClass).intern();
         this.routesContainerIdentifier = new NodeIdentifier(qname);
-        this.routeAttributesIdentifier = new NodeIdentifier(QName.create(qname, Attributes.QNAME.getLocalName().intern()));
+        this.routeAttributesIdentifier = new NodeIdentifier(QName.create(qname,
+                Attributes.QNAME.getLocalName().intern()));
         this.cazeClass = requireNonNull(cazeClass);
         this.containerClass = requireNonNull(containerClass);
         this.listClass = requireNonNull(listClass);
         this.routeQname = QName.create(qname, BindingReflections.findQName(listClass).intern().getLocalName());
         this.routesListIdentifier = new NodeIdentifier(this.routeQname);
         this.emptyRoutes = Builders.choiceBuilder().withNodeIdentifier(ROUTES).addChild(Builders.containerBuilder()
-            .withNodeIdentifier(routesContainerIdentifier()).withChild(ImmutableNodes.mapNodeBuilder(this.routeQname).build()).build()).build();
+            .withNodeIdentifier(routesContainerIdentifier()).withChild(ImmutableNodes.mapNodeBuilder(this.routeQname)
+                        .build()).build()).build();
         this.afiClass = afiClass;
         this.safiClass = safiClass;
         this.destinationNid = new NodeIdentifier(destinationQname);
@@ -180,14 +184,16 @@ public abstract class AbstractRIBSupport implements RIBSupport {
         final MpUnreachNlriBuilder mb = new MpUnreachNlriBuilder();
         mb.setAfi(this.getAfi());
         mb.setSafi(this.getSafi());
-        mb.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(buildWithdrawnDestination(routes)).build());
+        mb.setWithdrawnRoutes(new WithdrawnRoutesBuilder()
+                .setDestinationType(buildWithdrawnDestination(routes)).build());
         return mb.build();
     }
 
     @Nonnull
-    protected abstract DestinationType buildDestination(@Nonnull final Collection<MapEntryNode> routes);
+    protected abstract DestinationType buildDestination(@Nonnull Collection<MapEntryNode> routes);
+
     @Nonnull
-    protected abstract DestinationType buildWithdrawnDestination(@Nonnull final Collection<MapEntryNode> routes);
+    protected abstract DestinationType buildWithdrawnDestination(@Nonnull Collection<MapEntryNode> routes);
 
     /**
      * Return the {@link NodeIdentifier} of the AFI/SAFI-specific container under
@@ -213,8 +219,7 @@ public abstract class AbstractRIBSupport implements RIBSupport {
      * Given the destination as ContainerNode, implementation needs to parse the DOM model
      * from this point onward:
      *
-     * {@code /bgp-mp:mp-unreach-nlri/bgp-mp:withdrawn-routes/bgp-mp:destination-type }
-     *
+     * {@code /bgp-mp:mp-unreach-nlri/bgp-mp:withdrawn-routes/bgp-mp:destination-type}
      * and delete the routes from its RIBs.
      *
      * @param tx DOMDataWriteTransaction to be passed into implementation
@@ -231,8 +236,7 @@ public abstract class AbstractRIBSupport implements RIBSupport {
      * Given the destination as ContainerNode, implementation needs to parse the DOM model
      * from this point onward:
      *
-     * {@code /bgp-mp:mp-reach-nlri/bgp-mp:advertized-routes/bgp-mp:destination-type }
-     *
+     * {@code /bgp-mp:mp-reach-nlri/bgp-mp:advertized-routes/bgp-mp:destination-type}
      * and put the routes to its RIBs.
      *
      * @param tx DOMDataWriteTransaction to be passed into implementation
@@ -246,25 +250,29 @@ public abstract class AbstractRIBSupport implements RIBSupport {
         processDestination(tx, tablePath.node(routesNodeId), destination, attributes, this.putRoute);
     }
 
-    protected abstract void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath, final ContainerNode destination,
-        final ContainerNode attributes, final ApplyRoute applyFunction);
+    protected abstract void processDestination(DOMDataWriteTransaction tx, YangInstanceIdentifier routesPath,
+            ContainerNode destination, ContainerNode attributes, ApplyRoute applyFunction);
 
-    private static ContainerNode getDestination(final DataContainerChild<? extends PathArgument, ?> routes, final NodeIdentifier destinationId) {
+    private static ContainerNode getDestination(final DataContainerChild<? extends PathArgument, ?> routes,
+            final NodeIdentifier destinationId) {
         if (routes instanceof ContainerNode) {
-            final Optional<DataContainerChild<? extends PathArgument, ?>> maybeDestination = ((ContainerNode)routes).getChild(DESTINATION_TYPE);
+            final Optional<DataContainerChild<? extends PathArgument, ?>> maybeDestination =
+                    ((ContainerNode) routes).getChild(DESTINATION_TYPE);
             if (maybeDestination.isPresent()) {
                 final DataContainerChild<? extends PathArgument, ?> destination = maybeDestination.get();
                 if (destination instanceof ChoiceNode) {
-                    final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRet = ((ChoiceNode)destination).getChild(destinationId);
+                    final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRet =
+                            ((ChoiceNode) destination).getChild(destinationId);
                     if (maybeRet.isPresent()) {
                         final DataContainerChild<? extends PathArgument, ?> ret = maybeRet.get();
                         if (ret instanceof ContainerNode) {
-                            return (ContainerNode)ret;
+                            return (ContainerNode) ret;
                         }
 
                         LOG.debug("Specified node {} is not a container, ignoring it", ret);
                     } else {
-                        LOG.debug("Specified container {} is not present in destination {}", destinationId, destination);
+                        LOG.debug("Specified container {} is not present in destination {}",
+                                destinationId, destination);
                     }
                 } else {
                     LOG.warn("Destination {} is not a choice, ignoring it", destination);
@@ -305,18 +313,21 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     }
 
     @Override
-    public final void deleteRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath, final ContainerNode nlri) {
+    public final void deleteRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
+            final ContainerNode nlri) {
         deleteRoutes(tx, tablePath, nlri, ROUTES);
     }
 
     @Override
-    public final void putRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath, final ContainerNode nlri, final ContainerNode attributes) {
+    public final void putRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
+            final ContainerNode nlri, final ContainerNode attributes) {
         putRoutes(tx, tablePath, nlri, attributes, ROUTES);
     }
 
     @Nonnull
     @Override
-    public final Update buildUpdate(final Collection<MapEntryNode> advertised, final Collection<MapEntryNode> withdrawn, final Attributes attr) {
+    public final Update buildUpdate(final Collection<MapEntryNode> advertised, final Collection<MapEntryNode> withdrawn,
+            final Attributes attr) {
         final UpdateBuilder ub = new UpdateBuilder();
         final AttributesBuilder ab = new AttributesBuilder(attr);
         final CNextHop hop = ab.getCNextHop();
@@ -342,8 +353,9 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     }
 
     @Override
-    public final void deleteRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath, final ContainerNode nlri,
-            final NodeIdentifier routesNodeId) {
+    @SuppressWarnings("checkstyle:OverloadMethodsDeclarationOrder")
+    public final void deleteRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
+            final ContainerNode nlri, final NodeIdentifier routesNodeId) {
         final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = nlri.getChild(WITHDRAWN_ROUTES);
         if (maybeRoutes.isPresent()) {
             final ContainerNode destination = getDestination(maybeRoutes.get(), destinationContainerIdentifier());
@@ -356,8 +368,8 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     }
 
     @Override
-    public final void putRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath, final ContainerNode nlri,
-            final ContainerNode attributes, final NodeIdentifier routesNodeId) {
+    public final void putRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
+            final ContainerNode nlri, final ContainerNode attributes, final NodeIdentifier routesNodeId) {
         final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = nlri.getChild(ADVERTISED_ROUTES);
         if (maybeRoutes.isPresent()) {
             final ContainerNode destination = getDestination(maybeRoutes.get(), destinationContainerIdentifier());
@@ -371,23 +383,27 @@ public abstract class AbstractRIBSupport implements RIBSupport {
 
     private static final class DeleteRoute implements ApplyRoute {
         @Override
-        public final void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base, final NodeIdentifierWithPredicates routeKey,
-            final DataContainerNode<?> route, final ContainerNode attributes) {
+        public void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base,
+                final NodeIdentifierWithPredicates routeKey, final DataContainerNode<?> route,
+                final ContainerNode attributes) {
             tx.delete(LogicalDatastoreType.OPERATIONAL, base.node(routeKey));
         }
     }
 
     private final class PutRoute implements ApplyRoute {
         @Override
-        public void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base, final NodeIdentifierWithPredicates routeKey,
-            final DataContainerNode<?> route, final ContainerNode attributes) {
+        public void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base,
+                final NodeIdentifierWithPredicates routeKey, final DataContainerNode<?> route,
+                final ContainerNode attributes) {
             // Build the DataContainer data
-            final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> b = ImmutableNodes.mapEntryBuilder();
+            final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> b =
+                    ImmutableNodes.mapEntryBuilder();
             b.withNodeIdentifier(routeKey);
 
             route.getValue().forEach(b::withChild);
             // Add attributes
-            final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> cb = Builders.containerBuilder(attributes);
+            final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> cb =
+                    Builders.containerBuilder(attributes);
             cb.withNodeIdentifier(routeAttributesIdentifier());
             b.withChild(cb.build());
             tx.put(LogicalDatastoreType.OPERATIONAL, base.node(routeKey), b.build());

@@ -8,31 +8,39 @@
 
 package org.opendaylight.protocol.bgp.rib.spi.state;
 
+import javax.annotation.Nonnull;
+
 /**
- * Provider of BGP Operational state
+ * Provider of BGP Operational state.
  */
 public interface BGPStateProvider {
     /**
-     * register Rib state
+     * register Rib state.
+     *
      * @param bgpState rib State
      */
-    void bind(BGPRIBStateConsumer bgpState);
+    void bind(@Nonnull BGPRIBStateConsumer bgpState);
 
     /**
-     * Unregister Rib state
+     * Unregister Rib state.
+     *
      * @param bgpState Rib/Peer State
      */
-    void unbind(BGPRIBStateConsumer bgpState);
+    void unbind(@Nonnull BGPRIBStateConsumer bgpState);
 
     /**
-     * registerRib/Peer state
+     * registerRib/Peer state.
+     *
      * @param bgpState rib State
      */
-    void bind(BGPPeerStateConsumer bgpState);
+    @SuppressWarnings("checkstyle:OverloadMethodsDeclarationOrder")
+    void bind(@Nonnull BGPPeerStateConsumer bgpState);
 
     /**
-     * Unregister Peer state
+     * Unregister Peer state.
+     *
      * @param bgpState Peer State
      */
-    void unbind(BGPPeerStateConsumer bgpState);
+    @SuppressWarnings("checkstyle:OverloadMethodsDeclarationOrder")
+    void unbind(@Nonnull BGPPeerStateConsumer bgpState);
 }

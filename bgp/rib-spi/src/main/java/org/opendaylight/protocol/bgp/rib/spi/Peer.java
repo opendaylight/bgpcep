@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import javax.annotation.Nonnull;
 
 /**
  * Marker interface identifying a BGP peer.
@@ -18,18 +19,21 @@ public interface Peer {
      *
      * @return symbolic name.
      */
+    @Nonnull
     String getName();
 
     /**
-     * Return the peer's BGP identifier as raw bytearray
+     * Return the peer's BGP identifier as raw byte array.
+     *
      * @return byte[] raw identifier
      */
     byte[] getRawIdentifier();
 
     /**
-     *  Close Peers and performs asynchronously DS clean up
+     * Close Peers and performs asynchronously DS clean up.
      *
      * @return future
      */
+    @Nonnull
     ListenableFuture<?> close();
 }
