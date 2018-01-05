@@ -22,6 +22,30 @@
       "revId": "94fc15ce6d1ea711241852f63b0122280f0ffc85",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4fabe2b3_fbf59b3e",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/SimpleSessionListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2018-01-05T18:09:09Z",
+      "side": 0,
+      "message": "mock doesn\u0027t invoke the real method. e.g. onSessionUp(). For the new test added in BGPSessionImplTest, mocking isn\u0027t enough.  So is there any reason we should not leverage this existing dummy session listener? I don\u0027t see any bad thing about removing this final descriptor",
+      "parentUuid": "bc444bf8_b8702569",
+      "range": {
+        "startLine": 32,
+        "startChar": 7,
+        "endLine": 32,
+        "endChar": 12
+      },
+      "revId": "94fc15ce6d1ea711241852f63b0122280f0ffc85",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
