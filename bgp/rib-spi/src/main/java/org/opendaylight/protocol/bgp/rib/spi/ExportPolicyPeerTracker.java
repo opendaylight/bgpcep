@@ -23,39 +23,48 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
  */
 public interface ExportPolicyPeerTracker {
     /**
-     * Register Peer
-     * @param peerId Peer Id
-     * @param sendReceive send receive add ath configuration of the peer
-     * @param peerPath Yii of the peer
-     * @param peerRole Role of the peer
-     * @param simpleRoutingPolicy
+     * Register Peer.
+     *
+     * @param peerId              Peer Id
+     * @param sendReceive         send receive add ath configuration of the peer
+     * @param peerPath            Yii of the peer
+     * @param peerRole            Role of the peer
+     * @param simpleRoutingPolicy optional
      */
+    @Nonnull
     AbstractRegistration registerPeer(@Nonnull PeerId peerId, @Nullable SendReceive sendReceive,
             @Nonnull YangInstanceIdentifier peerPath, @Nonnull PeerRole peerRole,
-        @Nonnull Optional<SimpleRoutingPolicy> simpleRoutingPolicy);
+            @Nonnull Optional<SimpleRoutingPolicy> simpleRoutingPolicy);
 
     /**
-     * returns PeerExportGroup per role
+     * Returns PeerExportGroup per role.
+     *
      * @param role of desired PeerExportGroup
      * @return PeerExportGroup
      */
+    @Nonnull
     PeerExportGroup getPeerGroup(@Nonnull PeerRole role);
 
     /**
-     * check whether the peer supports the table
+     * Check whether the peer supports the table.
+     *
      * @param peerId of peer
      * @return true if peer supports table
      */
     boolean isTableSupported(@Nonnull PeerId peerId);
 
     /**
+     * Returns roles per PeerID.
+     *
      * @param peerId of peer
      * @return Role of peer
      */
+    @Nullable
     PeerRole getRole(@Nonnull YangInstanceIdentifier peerId);
 
     /**
-     * Check whether Peer supports Add Path
+     * Check whether Peer supports Add Path.
+     *
      * @param peerId of peer
      * @return true if add-path is supported
      */
@@ -63,14 +72,15 @@ public interface ExportPolicyPeerTracker {
 
     /**
      * Flags peers once empty structure has been created, then changes under it can
-     * be applied
+     * be applied.
      *
      * @param peerId of peer
      */
-    void registerPeerAsInitialized(PeerId peerId);
+    void registerPeerAsInitialized(@Nonnull PeerId peerId);
 
     /**
-     * check whether the peer supports the table
+     * Check whether the peer supports the table.
+     *
      * @param peerId of peer
      * @return true if peer supports table
      */

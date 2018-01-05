@@ -8,13 +8,15 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import javax.annotation.Nonnull;
 
 /**
  * Contains all Peer RPC methods related.
  */
 public interface PeerRPCs {
     /**
-     * Release Peer session
+     * Release Peer session.
      */
+    @Nonnull
     ListenableFuture<?> releaseConnection();
 }

@@ -18,19 +18,21 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
 
 public final class RouterIds {
-    private static final LoadingCache<String, UnsignedInteger> ROUTER_IDS = CacheBuilder.newBuilder().weakValues().build(new CacheLoader<String, UnsignedInteger>() {
-        @Override
-        public UnsignedInteger load(final String key) {
-            return UnsignedInteger.fromIntBits(InetAddresses.coerceToInteger(InetAddresses.forString(key)));
-        }
-    });
-    private static final LoadingCache<PeerId, UnsignedInteger> BGP_ROUTER_IDS = CacheBuilder.newBuilder().weakValues().build(new CacheLoader<PeerId, UnsignedInteger>() {
-        @Override
-        public UnsignedInteger load(final PeerId key) {
-            return routerIdForAddress(key.getValue().substring(BGP_PREFIX.length()));
-        }
-    });
+    private static final LoadingCache<String, UnsignedInteger> ROUTER_IDS =
+            CacheBuilder.newBuilder().weakValues().build(new CacheLoader<String, UnsignedInteger>() {
+                @Override
+                public UnsignedInteger load(final String key) {
+                    return UnsignedInteger.fromIntBits(InetAddresses.coerceToInteger(InetAddresses.forString(key)));
+                }
+            });
     private static final String BGP_PREFIX = "bgp://";
+    private static final LoadingCache<PeerId, UnsignedInteger> BGP_ROUTER_IDS =
+            CacheBuilder.newBuilder().weakValues().build(new CacheLoader<PeerId, UnsignedInteger>() {
+                @Override
+                public UnsignedInteger load(final PeerId key) {
+                    return routerIdForAddress(key.getValue().substring(BGP_PREFIX.length()));
+                }
+            });
 
     private RouterIds() {
         throw new UnsupportedOperationException();

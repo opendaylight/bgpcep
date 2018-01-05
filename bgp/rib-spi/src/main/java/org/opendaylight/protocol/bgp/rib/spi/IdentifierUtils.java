@@ -19,8 +19,10 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 
 public final class IdentifierUtils {
-    private static final Predicate<PathArgument> IS_PEER = input -> input instanceof NodeIdentifierWithPredicates && Peer.QNAME.equals(input.getNodeType());
-    private static final Predicate<PathArgument> IS_TABLES = input -> input instanceof NodeIdentifierWithPredicates && Tables.QNAME.equals(input.getNodeType());
+    private static final Predicate<PathArgument> IS_PEER = input -> input
+            instanceof NodeIdentifierWithPredicates && Peer.QNAME.equals(input.getNodeType());
+    private static final Predicate<PathArgument> IS_TABLES = input -> input
+            instanceof NodeIdentifierWithPredicates && Tables.QNAME.equals(input.getNodeType());
     private static final QName PEER_ID = QName.create(Peer.QNAME, "peer-id").intern();
 
     private IdentifierUtils() {
@@ -28,13 +30,16 @@ public final class IdentifierUtils {
     }
 
     // FIXME: implement as id.firstIdentifierOf(IS_PEER), null indicating not found
-    private static NodeIdentifierWithPredicates firstKeyOf(final YangInstanceIdentifier id, final Predicate<PathArgument> match) {
+    private static NodeIdentifierWithPredicates firstKeyOf(final YangInstanceIdentifier id,
+            final Predicate<PathArgument> match) {
         final PathArgument ret = id.getPathArguments().stream().filter(match::apply).findFirst().get();
-        Preconditions.checkArgument(ret instanceof NodeIdentifierWithPredicates, "Non-key peer identifier %s", ret);
+        Preconditions.checkArgument(ret instanceof NodeIdentifierWithPredicates,
+                "Non-key peer identifier %s", ret);
         return (NodeIdentifierWithPredicates) ret;
     }
 
-    private static YangInstanceIdentifier firstIdentifierOf(final YangInstanceIdentifier id, final Predicate<PathArgument> match) {
+    private static YangInstanceIdentifier firstIdentifierOf(final YangInstanceIdentifier id,
+            final Predicate<PathArgument> match) {
         final int idx = Iterables.indexOf(id.getPathArguments(), match);
         Preconditions.checkArgument(idx != -1, "Failed to find %s in %s", match, id);
         // we want the element at index idx to be included in the list

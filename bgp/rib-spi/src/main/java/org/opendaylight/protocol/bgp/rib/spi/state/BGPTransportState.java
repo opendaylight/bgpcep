@@ -14,11 +14,11 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 
 /**
- * BGP Operational Transport State
+ * BGP Operational Transport State.
  */
 public interface BGPTransportState {
     /**
-     * Local Port
+     * Local Port.
      *
      * @return port
      */
@@ -26,7 +26,7 @@ public interface BGPTransportState {
     PortNumber getLocalPort();
 
     /**
-     * Remote Address
+     * Remote Address.
      *
      * @return IpAddress
      */
@@ -34,7 +34,7 @@ public interface BGPTransportState {
     IpAddress getRemoteAddress();
 
     /**
-     * Remote Port
+     * Remote Port.
      *
      * @return port
      */

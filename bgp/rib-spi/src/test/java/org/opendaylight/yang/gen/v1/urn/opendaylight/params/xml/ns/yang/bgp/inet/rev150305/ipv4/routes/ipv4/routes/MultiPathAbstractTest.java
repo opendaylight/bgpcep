@@ -32,7 +32,8 @@ public final class MultiPathAbstractTest extends MultiPathAbstractRIBSupport {
         ImmutableMap.of(QName.create(Ipv4Route.QNAME, ROUTE_KEY).intern(), PREFIX));
 
     public MultiPathAbstractTest() {
-        super(Ipv4RoutesCase.class, Ipv4Routes.class, Ipv4Route.class, Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, ROUTE_KEY, Ipv4Prefixes.QNAME);
+        super(Ipv4RoutesCase.class, Ipv4Routes.class, Ipv4Route.class, Ipv4AddressFamily.class,
+                UnicastSubsequentAddressFamily.class, ROUTE_KEY, Ipv4Prefixes.QNAME);
     }
 
     @Nonnull
@@ -48,8 +49,8 @@ public final class MultiPathAbstractTest extends MultiPathAbstractRIBSupport {
     }
 
     @Override
-    protected void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath, final ContainerNode destination,
-        final ContainerNode attributes, final ApplyRoute applyFunction) {
+    protected void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
+            final ContainerNode destination, final ContainerNode attributes, final ApplyRoute applyFunction) {
         applyFunction.apply(tx, routesPath.node(Ipv4Route.QNAME), PREFIX_NII, destination, attributes);
     }
 

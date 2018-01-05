@@ -7,8 +7,10 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
+import javax.annotation.Nonnull;
+
 public interface RIBExtensionProviderActivator {
-    void startRIBExtensionProvider(RIBExtensionProviderContext context);
+    void startRIBExtensionProvider(@Nonnull RIBExtensionProviderContext context);
 
     void stopRIBExtensionProvider();
 }

@@ -9,15 +9,13 @@ package org.opendaylight.protocol.bgp.rib.spi;
 
 import static java.util.Objects.requireNonNull;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.ServiceLoader;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
-public final class ServiceLoaderRIBExtensionConsumerContext extends SimpleRIBExtensionProviderContext implements AutoCloseable {
+public final class ServiceLoaderRIBExtensionConsumerContext extends SimpleRIBExtensionProviderContext
+        implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(ServiceLoaderRIBExtensionConsumerContext.class);
     private final ServiceLoader<RIBExtensionProviderActivator> loader;
 
@@ -29,14 +27,16 @@ public final class ServiceLoaderRIBExtensionConsumerContext extends SimpleRIBExt
         }
     }
 
-    public static ServiceLoaderRIBExtensionConsumerContext createConsumerContext() {
-        final ServiceLoader<RIBExtensionProviderActivator> loader = ServiceLoader.load(RIBExtensionProviderActivator.class);
-        final ServiceLoaderRIBExtensionConsumerContext ctx = new ServiceLoaderRIBExtensionConsumerContext(loader);
+    @VisibleForTesting
+    static ServiceLoaderRIBExtensionConsumerContext createConsumerContext() {
+        final ServiceLoader<RIBExtensionProviderActivator> loader =
+                ServiceLoader.load(RIBExtensionProviderActivator.class);
 
-        return ctx;
+        return new ServiceLoaderRIBExtensionConsumerContext(loader);
     }
 
     @Override
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public void close() {
         for (RIBExtensionProviderActivator a : this.loader) {
             try {

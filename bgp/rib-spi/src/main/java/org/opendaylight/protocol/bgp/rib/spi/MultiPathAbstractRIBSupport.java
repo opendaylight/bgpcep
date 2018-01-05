@@ -23,7 +23,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgum
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
 /**
- * Implements common methods for Advertisement of Multiple Paths on ribSupport
+ * Implements common methods for Advertisement of Multiple Paths on ribSupport.
  */
 public abstract class MultiPathAbstractRIBSupport extends AbstractRIBSupport {
     private final QName routeKeyQname;
@@ -36,17 +36,19 @@ public abstract class MultiPathAbstractRIBSupport extends AbstractRIBSupport {
      * the same model which populates it with route grouping instantiation, and by extension with
      * the route attributes container.
      *
-     * @param cazeClass Binding class of the AFI/SAFI-specific case statement, must not be null
-     * @param containerClass Binding class of the container in routes choice, must not be null.
-     * @param listClass Binding class of the route list, nust not be null;
+     * @param cazeClass          Binding class of the AFI/SAFI-specific case statement, must not be null
+     * @param containerClass     Binding class of the container in routes choice, must not be null.
+     * @param listClass          Binding class of the route list, nust not be null;
      * @param addressFamilyClass address Family Class
-     * @param safiClass SubsequentAddressFamily
-     * @param routeKeyNaming Route Key name (prefix/ route-key / etc..)
-     * @param destinationQname destination Qname
+     * @param safiClass          SubsequentAddressFamily
+     * @param routeKeyNaming     Route Key name (prefix/ route-key / etc..)
+     * @param destinationQname   destination Qname
      */
-    protected MultiPathAbstractRIBSupport(final Class<? extends Routes> cazeClass, final Class<? extends DataObject> containerClass,
-        final Class<? extends Route> listClass, final Class<? extends AddressFamily> addressFamilyClass,
-        final Class<? extends SubsequentAddressFamily> safiClass, final String routeKeyNaming, final QName destinationQname) {
+    protected MultiPathAbstractRIBSupport(final Class<? extends Routes> cazeClass,
+            final Class<? extends DataObject> containerClass,
+            final Class<? extends Route> listClass, final Class<? extends AddressFamily> addressFamilyClass,
+            final Class<? extends SubsequentAddressFamily> safiClass, final String routeKeyNaming,
+            final QName destinationQname) {
         super(cazeClass, containerClass, listClass, addressFamilyClass, safiClass, destinationQname);
         this.routeKeyQname = QName.create(routeQName(), routeKeyNaming).intern();
         this.pathIdQname = QName.create(routeQName(), "path-id").intern();
@@ -68,7 +70,7 @@ public abstract class MultiPathAbstractRIBSupport extends AbstractRIBSupport {
     @Override
     public final Long extractPathId(final NormalizedNode<?, ?> data) {
         final Long pathId = PathIdUtil.extractPathId(data, this.routePathIdNid());
-        if(pathId == null) {
+        if (pathId == null) {
             return PathIdUtil.NON_PATH_ID;
         }
         return pathId;
@@ -82,7 +84,8 @@ public abstract class MultiPathAbstractRIBSupport extends AbstractRIBSupport {
 
     @Override
     public final PathArgument createRouteKeyPathArgument(final PathArgument routeKey) {
-        final ImmutableMap<QName, Object> keyValues = ImmutableMap.of(routeKeyQName(), PathIdUtil.getObjectKey(routeKey, routeKeyQName()));
+        final ImmutableMap<QName, Object> keyValues = ImmutableMap.of(routeKeyQName(),
+                PathIdUtil.getObjectKey(routeKey, routeKeyQName()));
         return new NodeIdentifierWithPredicates(routeQName(), keyValues);
     }
 

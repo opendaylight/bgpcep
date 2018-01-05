@@ -9,11 +9,11 @@
 package org.opendaylight.protocol.bgp.rib.spi.state;
 
 /**
- * BGP Operational Error Handling State
+ * BGP Operational Error Handling State.
  */
 public interface BGPErrorHandlingState {
     /**
-     * Erroneous Update Received count
+     * Erroneous Update Received count.
      *
      * @return count
      */

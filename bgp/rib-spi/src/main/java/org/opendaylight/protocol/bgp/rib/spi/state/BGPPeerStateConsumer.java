@@ -11,11 +11,12 @@ package org.opendaylight.protocol.bgp.rib.spi.state;
 import javax.annotation.Nullable;
 
 /**
- *  Interface for acquiring BGP Peer State
+ * Interface for acquiring BGP Peer State.
  */
 public interface BGPPeerStateConsumer {
     /**
-     * Returns Peer Operational State
+     * Returns Peer Operational State.
+     *
      * @return BGP Peer State
      */
     @Nullable

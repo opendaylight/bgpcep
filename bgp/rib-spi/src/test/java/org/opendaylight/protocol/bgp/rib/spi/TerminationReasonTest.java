@@ -16,8 +16,10 @@ public class TerminationReasonTest {
 
     @Test
     public void testTerminationReason() {
-        assertEquals(BGPError.BAD_PEER_AS.toString(), new BGPTerminationReason(BGPError.BAD_PEER_AS).getErrorMessage());
-        assertEquals("BGPTerminationReason{error=BAD_PEER_AS}", new BGPTerminationReason(BGPError.BAD_PEER_AS).toString());
+        assertEquals(BGPError.BAD_PEER_AS.toString(), new BGPTerminationReason(BGPError.BAD_PEER_AS)
+                .getErrorMessage());
+        assertEquals("BGPTerminationReason{error=BAD_PEER_AS}",
+                new BGPTerminationReason(BGPError.BAD_PEER_AS).toString());
     }
 
 }

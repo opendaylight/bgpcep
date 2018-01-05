@@ -18,22 +18,23 @@ import org.junit.Test;
 public class SimpleRIBExtensionProviderContextActivatorTest {
     private static boolean RIBACTIVATED;
 
+    @Test
+    public void test() throws Exception {
+        final List<RIBExtensionProviderActivator> extensionActivators = Collections.singletonList(new RibActivator());
+        final SimpleRIBExtensionProviderContextActivator activator =
+                new SimpleRIBExtensionProviderContextActivator(new SimpleRIBExtensionProviderContext(),
+                        extensionActivators);
+        activator.start();
+        assertTrue(RIBACTIVATED);
+        activator.close();
+        assertFalse(RIBACTIVATED);
+    }
+
     private static class RibActivator extends AbstractRIBExtensionProviderActivator {
         @Override
         protected List<AutoCloseable> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context) {
             RIBACTIVATED = true;
             return Collections.singletonList(() -> RIBACTIVATED = false);
         }
-    }
-
-    @Test
-    public void test() throws Exception {
-        final List<RIBExtensionProviderActivator> extensionActivators = Collections.singletonList(new RibActivator());
-        final SimpleRIBExtensionProviderContextActivator activator =
-            new SimpleRIBExtensionProviderContextActivator(new SimpleRIBExtensionProviderContext(), extensionActivators);
-        activator.start();
-        assertTrue(RIBACTIVATED);
-        activator.close();
-        assertFalse(RIBACTIVATED);
     }
 }

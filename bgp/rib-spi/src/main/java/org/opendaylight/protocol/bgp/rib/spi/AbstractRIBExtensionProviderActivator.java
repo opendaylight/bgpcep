@@ -32,6 +32,7 @@ public abstract class AbstractRIBExtensionProviderActivator implements AutoClose
     }
 
     @Override
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public final synchronized void stopRIBExtensionProvider() {
         if (this.registrations == null) {
             return;

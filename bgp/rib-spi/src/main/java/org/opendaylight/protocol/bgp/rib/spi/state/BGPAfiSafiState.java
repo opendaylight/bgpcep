@@ -13,11 +13,11 @@ import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
 
 /**
- * BGP Operational Afi SafiS State
+ * BGP Operational Afi SafiS State.
  */
 public interface BGPAfiSafiState extends BGPGracelfulRestartState {
     /**
-     * is AfiSafi Supported
+     * is AfiSafi Supported.
      *
      * @param tablesKey tables Key
      * @return true if Afi Safi was advertized to and by the neighbor
@@ -25,7 +25,7 @@ public interface BGPAfiSafiState extends BGPGracelfulRestartState {
     boolean isAfiSafiSupported(@Nonnull TablesKey tablesKey);
 
     /**
-     * Prefixes installed per specific tablekey
+     * Prefixes installed per specific tablekey.
      *
      * @param tablesKey tables Key
      * @return count
@@ -33,7 +33,7 @@ public interface BGPAfiSafiState extends BGPGracelfulRestartState {
     long getPrefixesInstalledCount(@Nonnull TablesKey tablesKey);
 
     /**
-     * Prefixed sent to the Peer count
+     * Prefixed sent to the Peer count.
      *
      * @param tablesKey tablesKey Type
      * @return Prefixes sent count
@@ -41,7 +41,7 @@ public interface BGPAfiSafiState extends BGPGracelfulRestartState {
     long getPrefixesSentCount(@Nonnull TablesKey tablesKey);
 
     /**
-     * Prefixed received from the peer count
+     * Prefixed received from the peer count.
      *
      * @param tablesKey tablesKey Type
      * @return Prefixed received count
@@ -49,7 +49,7 @@ public interface BGPAfiSafiState extends BGPGracelfulRestartState {
     long getPrefixesReceivedCount(@Nonnull TablesKey tablesKey);
 
     /**
-     * List of TablesKey - Afi Safi Advertized to the neighbor
+     * List of TablesKey - Afi Safi Advertized to the neighbor.
      *
      * @return TableKeys
      */
@@ -57,7 +57,7 @@ public interface BGPAfiSafiState extends BGPGracelfulRestartState {
     Set<TablesKey> getAfiSafisAdvertized();
 
     /**
-     * List of TablesKey - Afi Safi Advertized by neighbor
+     * List of TablesKey - Afi Safi Advertized by neighbor.
      *
      * @return TableKeys
      */
