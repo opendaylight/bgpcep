@@ -27,8 +27,8 @@ final class TopologyReferenceSingletonServiceImpl implements TopologyReferenceSi
     private final AbstractRegistration serviceRegistration;
     private final Topology configuration;
 
-    TopologyReferenceSingletonServiceImpl(final AbstractTopologyBuilder<?> topologyBuilder, final BgpTopologyDeployer deployer,
-            final Topology configuration) {
+    TopologyReferenceSingletonServiceImpl(final AbstractTopologyBuilder<?> topologyBuilder,
+            final BgpTopologyDeployer deployer, final Topology configuration) {
         this.configuration = requireNonNull(configuration);
         this.topologyBuilder = requireNonNull(topologyBuilder);
         this.serviceRegistration = deployer.registerService(this);
@@ -58,7 +58,8 @@ final class TopologyReferenceSingletonServiceImpl implements TopologyReferenceSi
 
     @Override
     public ServiceGroupIdentifier getIdentifier() {
-        return ServiceGroupIdentifier.create(getInstanceIdentifier().firstKeyOf(Topology.class).getTopologyId().getValue());
+        return ServiceGroupIdentifier.create(getInstanceIdentifier().firstKeyOf(Topology.class)
+                .getTopologyId().getValue());
     }
 
     @Override

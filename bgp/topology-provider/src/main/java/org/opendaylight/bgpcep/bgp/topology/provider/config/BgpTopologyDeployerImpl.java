@@ -80,8 +80,8 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
             final DataObjectModification<Topology> rootNode = change.getRootNode();
             final Topology dataBefore = rootNode.getDataBefore();
             final Topology dataAfter = rootNode.getDataAfter();
-            LOG.trace("BGP topology deployer configuration changed: modification type: [{}]," +
-                    " data before:[{}], data after: [{}]", rootNode.getModificationType(), dataBefore, dataAfter);
+            LOG.trace("BGP topology deployer configuration changed: modification type: [{}],"
+                    + " data before:[{}], data after: [{}]", rootNode.getModificationType(), dataBefore, dataAfter);
             switch (rootNode.getModificationType()) {
                 case DELETE:
                     filterTopologyBuilders(dataBefore)
@@ -89,13 +89,13 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
                     break;
                 case SUBTREE_MODIFIED:
                     filterTopologyBuilders(dataBefore).forEach(provider
-                            -> provider.onTopologyBuilderRemoved(dataBefore));
+                        -> provider.onTopologyBuilderRemoved(dataBefore));
                     filterTopologyBuilders(dataAfter).forEach(provider
-                            -> provider.onTopologyBuilderCreated(dataAfter));
+                        -> provider.onTopologyBuilderCreated(dataAfter));
                     break;
                 case WRITE:
                     filterTopologyBuilders(dataAfter).forEach(provider
-                            -> provider.onTopologyBuilderCreated(dataAfter));
+                        -> provider.onTopologyBuilderCreated(dataAfter));
                     break;
                 default:
                     break;
@@ -122,6 +122,7 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
     }
 
     @Override
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public AbstractRegistration registerService(final TopologyReferenceSingletonService topologyProviderService) {
         final Dictionary<String, String> properties = new Hashtable<>();
         properties.put("topology-id", topologyProviderService.getInstanceIdentifier()
@@ -139,8 +140,9 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
                 } catch (final Exception e) {
                     LOG.warn("Failed to close ClusterSingletonServiceRegistration {} for TopologyBuilder {}",
                             registerClusterSingletonService, topologyProviderService.getInstanceIdentifier(), e);
+                } finally {
+                    registerService.unregister();
                 }
-                registerService.unregister();
             }
         };
     }

@@ -49,9 +49,6 @@ import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends AbstractTopologyBuilder<T> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractReachabilityTopologyBuilder.class);
     private final Map<NodeId, NodeUsage> nodes = new HashMap<>();
@@ -94,16 +91,16 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
         return getInstanceIdentifier().child(Node.class, new NodeKey(ni));
     }
 
-    private static <T extends DataObject> T read(final ReadTransaction t, final InstanceIdentifier<T> id) {
-        final Optional<T> o;
+    private static <T extends DataObject> T read(final ReadTransaction rt, final InstanceIdentifier<T> id) {
+        final Optional<T> optional;
         try {
-            o = t.read(LogicalDatastoreType.OPERATIONAL, id).get();
+            optional = rt.read(LogicalDatastoreType.OPERATIONAL, id).get();
         } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Failed to read {}, assuming non-existent", id, e);
             return null;
         }
 
-        return o.orNull();
+        return optional.orNull();
     }
 
     private InstanceIdentifier<IgpNodeAttributes> ensureNodePresent(final ReadWriteTransaction trans, final NodeId ni) {
@@ -113,7 +110,8 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
         }
 
         final KeyedInstanceIdentifier<Node, NodeKey> nii = nodeInstanceId(ni);
-        final InstanceIdentifier<IgpNodeAttributes> ret = nii.builder().augmentation(Node1.class).child(IgpNodeAttributes.class).build();
+        final InstanceIdentifier<IgpNodeAttributes> ret = nii.builder().augmentation(Node1.class)
+                .child(IgpNodeAttributes.class).build();
 
         trans.merge(LogicalDatastoreType.OPERATIONAL, nii, new NodeBuilder().setKey(nii.getKey()).setNodeId(ni)
             .addAugmentation(Node1.class, new Node1Builder().setIgpNodeAttributes(
@@ -123,9 +121,9 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
         return ret;
     }
 
-    protected abstract Attributes getAttributes(final T value);
+    protected abstract Attributes getAttributes(T value);
 
-    protected abstract IpPrefix getPrefix(final T value);
+    protected abstract IpPrefix getPrefix(T value);
 
     @Override
     protected final void createObject(final ReadWriteTransaction trans, final InstanceIdentifier<T> id, final T value) {

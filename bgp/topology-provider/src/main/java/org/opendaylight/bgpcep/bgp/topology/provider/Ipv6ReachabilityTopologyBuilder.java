@@ -26,14 +26,13 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public final class Ipv6ReachabilityTopologyBuilder extends AbstractReachabilityTopologyBuilder<Ipv6Route> {
     public static final TopologyTypes IPV6_TOPOLOGY_TYPE = new TopologyTypesBuilder()
-    .addAugmentation(TopologyTypes1.class,
-            new TopologyTypes1Builder()
-    .setBgpIpv6ReachabilityTopology(new BgpIpv6ReachabilityTopologyBuilder().build()).build())
-    .build();
+            .addAugmentation(TopologyTypes1.class, new TopologyTypes1Builder()
+                    .setBgpIpv6ReachabilityTopology(new BgpIpv6ReachabilityTopologyBuilder().build()).build()).build();
 
     public Ipv6ReachabilityTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
             final TopologyId topologyId) {
-        super(dataProvider, locRibReference, topologyId, IPV6_TOPOLOGY_TYPE, Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class);
+        super(dataProvider, locRibReference, topologyId, IPV6_TOPOLOGY_TYPE, Ipv6AddressFamily.class,
+                UnicastSubsequentAddressFamily.class);
     }
 
     @Override
@@ -46,9 +45,9 @@ public final class Ipv6ReachabilityTopologyBuilder extends AbstractReachabilityT
         return new IpPrefix(value.getKey().getPrefix());
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     protected InstanceIdentifier<Ipv6Route> getRouteWildcard(final InstanceIdentifier<Tables> tablesId) {
-        return tablesId.child((Class)Ipv6Routes.class).child(Ipv6Route.class);
+        return tablesId.child((Class) Ipv6Routes.class).child(Ipv6Route.class);
     }
 }

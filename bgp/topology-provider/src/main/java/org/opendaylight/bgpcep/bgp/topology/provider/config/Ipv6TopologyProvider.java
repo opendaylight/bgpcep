@@ -15,6 +15,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.TopologyTypes1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 
 public final class Ipv6TopologyProvider extends AbstractBgpTopologyProvider {
 
@@ -23,13 +24,15 @@ public final class Ipv6TopologyProvider extends AbstractBgpTopologyProvider {
     }
 
     @Override
-    AbstractTopologyBuilder<?> createTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference, final TopologyId topologyId) {
+    AbstractTopologyBuilder<?> createTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
+            final TopologyId topologyId) {
         return new Ipv6ReachabilityTopologyBuilder(dataProvider, locRibReference, topologyId);
     }
 
     @Override
-    boolean topologyTypeFilter(final TopologyTypes1 topology) {
-        return topology.getBgpIpv6ReachabilityTopology() != null;
+    public boolean topologyTypeFilter(final Topology topology) {
+        final TopologyTypes1 topoAug = getTopologyAug(topology);
+        return topoAug != null && topoAug.getBgpIpv6ReachabilityTopology() != null;
     }
 
 }

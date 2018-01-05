@@ -35,7 +35,8 @@ public class UriBuilderTest {
 
     @Test
     public void test() {
-        final LinkstateRouteBuilder routeB = new LinkstateRouteBuilder().setProtocolId(ProtocolId.Direct).setIdentifier(new Identifier(BigInteger.TEN));
+        final LinkstateRouteBuilder routeB = new LinkstateRouteBuilder().setProtocolId(ProtocolId.Direct)
+                .setIdentifier(new Identifier(BigInteger.TEN));
         final UriBuilder a = new UriBuilder(routeB.build());
         assertEquals("bgpls://Direct:10/", a.toString());
 
@@ -50,20 +51,26 @@ public class UriBuilderTest {
         assertEquals("bgpls://Direct:10/&foo=25", a.toString());
 
         final LinkCaseBuilder linkB = new LinkCaseBuilder();
-        linkB.setLinkDescriptors(new LinkDescriptorsBuilder().setIpv4InterfaceAddress(new Ipv4InterfaceIdentifier("127.0.0.1"))
-            .setIpv4NeighborAddress(new Ipv4InterfaceIdentifier("20.20.20.20"))
-            .setMultiTopologyId(new TopologyIdentifier(55)).setLinkLocalIdentifier(1L).setLinkRemoteIdentifier(2L).build());
+        linkB.setLinkDescriptors(new LinkDescriptorsBuilder()
+                .setIpv4InterfaceAddress(new Ipv4InterfaceIdentifier("127.0.0.1"))
+                .setIpv4NeighborAddress(new Ipv4InterfaceIdentifier("20.20.20.20"))
+                .setMultiTopologyId(new TopologyIdentifier(55)).setLinkLocalIdentifier(1L)
+                .setLinkRemoteIdentifier(2L).build());
         final LocalNodeDescriptorsBuilder nodeB = new LocalNodeDescriptorsBuilder();
-        nodeB.setAsNumber(new AsNumber(12L)).setDomainId(new DomainIdentifier(15L)).setAreaId(new AreaIdentifier(17L));
-        nodeB.setCRouterIdentifier(new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(22L).build()).build());
+        nodeB.setAsNumber(new AsNumber(12L)).setDomainId(new DomainIdentifier(15L))
+                .setAreaId(new AreaIdentifier(17L));
+        nodeB.setCRouterIdentifier(new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder()
+                .setOspfRouterId(22L).build()).build());
         linkB.setLocalNodeDescriptors(nodeB.build());
         final RemoteNodeDescriptorsBuilder nodeR = new RemoteNodeDescriptorsBuilder();
         nodeR.setCRouterIdentifier(new IsisPseudonodeCaseBuilder().setIsisPseudonode(new IsisPseudonodeBuilder()
                 .setIsIsRouterIdentifier(new IsIsRouterIdentifierBuilder()
-                    .setIsoSystemId(new IsoSystemIdentifier(new byte[]{1, 2, 3, 4, 5, 6})).build()).setPsn((short)2).build()).build());
+                        .setIsoSystemId(new IsoSystemIdentifier(new byte[]{1, 2, 3, 4, 5, 6}))
+                        .build()).setPsn((short) 2).build()).build());
         linkB.setRemoteNodeDescriptors(nodeR.build());
         c.add(linkB.build());
         assertEquals("bgpls://1:Direct:10/type=foo&local-as=12&local-domain=15&local-area=17&local-router=22"
-            + "&remote-router=0102.0304.0506.02&ipv4-iface=127.0.0.1&ipv4-neigh=20.20.20.20&mt=55&local-id=1&remote-id=2", c.toString());
+                + "&remote-router=0102.0304.0506.02&ipv4-iface=127.0.0.1&ipv4-neigh=20.20.20.20&mt=55&local-id=1&"
+                + "remote-id=2", c.toString());
     }
 }

@@ -26,14 +26,13 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public final class Ipv4ReachabilityTopologyBuilder extends AbstractReachabilityTopologyBuilder<Ipv4Route> {
     public static final TopologyTypes IPV4_TOPOLOGY_TYPE = new TopologyTypesBuilder()
-    .addAugmentation(TopologyTypes1.class,
-            new TopologyTypes1Builder()
-    .setBgpIpv4ReachabilityTopology(new BgpIpv4ReachabilityTopologyBuilder().build()).build())
-    .build();
+            .addAugmentation(TopologyTypes1.class, new TopologyTypes1Builder()
+                    .setBgpIpv4ReachabilityTopology(new BgpIpv4ReachabilityTopologyBuilder().build()).build()).build();
 
     public Ipv4ReachabilityTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
             final TopologyId topologyId) {
-        super(dataProvider, locRibReference, topologyId, IPV4_TOPOLOGY_TYPE, Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+        super(dataProvider, locRibReference, topologyId, IPV4_TOPOLOGY_TYPE, Ipv4AddressFamily.class,
+                UnicastSubsequentAddressFamily.class);
     }
 
     @Override
@@ -46,9 +45,9 @@ public final class Ipv4ReachabilityTopologyBuilder extends AbstractReachabilityT
         return new IpPrefix(value.getKey().getPrefix());
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     protected InstanceIdentifier<Ipv4Route> getRouteWildcard(final InstanceIdentifier<Tables> tablesId) {
-        return tablesId.child((Class)Ipv4Routes.class).child(Ipv4Route.class);
+        return tablesId.child((Class) Ipv4Routes.class).child(Ipv4Route.class);
     }
 }

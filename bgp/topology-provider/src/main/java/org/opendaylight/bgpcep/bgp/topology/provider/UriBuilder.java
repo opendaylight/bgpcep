@@ -44,7 +44,8 @@ final class UriBuilder {
             this.sb.append(route.getDistinguisher().getValue().toString()).append(':');
         }
 
-        this.sb.append(route.getProtocolId().toString()).append(':').append(route.getIdentifier().getValue().toString()).append('/');
+        this.sb.append(route.getProtocolId().toString()).append(':')
+                .append(route.getIdentifier().getValue().toString()).append('/');
     }
 
     UriBuilder add(final String name, final Object value) {
@@ -55,8 +56,8 @@ final class UriBuilder {
     }
 
     UriBuilder add(final LinkCase link) {
-        add("local-", link.getLocalNodeDescriptors());
-        add("remote-", link.getRemoteNodeDescriptors());
+        addPrefix("local-", link.getLocalNodeDescriptors());
+        addPrefix("remote-", link.getRemoteNodeDescriptors());
 
         final LinkDescriptors ld = link.getLinkDescriptors();
         if (ld.getIpv4InterfaceAddress() != null) {
@@ -81,10 +82,10 @@ final class UriBuilder {
 
     private static String isoId(final byte[] bytes) {
         final StringBuilder sBuilder = new StringBuilder();
-        int i = 0;
-        while (i < bytes.length) {
-            sBuilder.append(BaseEncoding.base16().encode(new byte[] { bytes[i++], bytes[i++] }));
-            if (i != bytes.length) {
+        int id = 0;
+        while (id < bytes.length) {
+            sBuilder.append(BaseEncoding.base16().encode(new byte[] { bytes[id++], bytes[id++] }));
+            if (id != bytes.length) {
                 sBuilder.append(HEX_SEPARATOR);
             }
         }
@@ -111,8 +112,8 @@ final class UriBuilder {
         }
         if (routerIdentifier instanceof IsisPseudonodeCase) {
             final IsisPseudonode r = ((IsisPseudonodeCase) routerIdentifier).getIsisPseudonode();
-            return isoId(r.getIsIsRouterIdentifier().getIsoSystemId().getValue()) + '.' +
-                    BaseEncoding.base16().encode(new byte[] { UnsignedBytes.checkedCast(r.getPsn()) });
+            return isoId(r.getIsIsRouterIdentifier().getIsoSystemId().getValue()) + '.'
+                    + BaseEncoding.base16().encode(new byte[] { UnsignedBytes.checkedCast(r.getPsn()) });
         }
         if (routerIdentifier instanceof OspfNodeCase) {
             return ((OspfNodeCase) routerIdentifier).getOspfNode().getOspfRouterId().toString();
@@ -121,11 +122,12 @@ final class UriBuilder {
             final OspfPseudonode r = ((OspfPseudonodeCase) routerIdentifier).getOspfPseudonode();
             return r.getOspfRouterId().toString() + ':' + r.getLanInterface().getValue();
         }
-        LOG.warn("Unhandled router identifier type {}, fallback to toString()", routerIdentifier.getImplementedInterface());
+        LOG.warn("Unhandled router identifier type {}, fallback to toString()",
+                routerIdentifier.getImplementedInterface());
         return routerIdentifier.toString();
     }
 
-    UriBuilder add(final String prefix, final NodeIdentifier node) {
+    UriBuilder addPrefix(final String prefix, final NodeIdentifier node) {
         if (node.getAsNumber() != null) {
             add(prefix + "as", node.getAsNumber().getValue());
         }
@@ -148,7 +150,7 @@ final class UriBuilder {
 
     /**
      * Creates string representation of IS-IS Network Entity Title,
-     * based on Area Identifier and System Identifier
+     * based on Area Identifier and System Identifier.
      *
      * @param areaId IS-IS Area Identifier
      * @param systemId string representation of ISO SYSTEM-ID

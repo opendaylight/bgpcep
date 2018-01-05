@@ -39,7 +39,7 @@ abstract class AbstractBgpTopologyProvider implements BgpTopologyProvider, AutoC
     private final DataBroker dataBroker;
     private final BgpTopologyDeployer deployer;
 
-    public AbstractBgpTopologyProvider(final BgpTopologyDeployer deployer) {
+    AbstractBgpTopologyProvider(final BgpTopologyDeployer deployer) {
         this.deployer = deployer;
         this.registration = deployer.registerTopologyProvider(this);
         this.dataBroker = deployer.getDataBroker();
@@ -59,7 +59,8 @@ abstract class AbstractBgpTopologyProvider implements BgpTopologyProvider, AutoC
     @Override
     public final void onTopologyBuilderRemoved(final Topology topology) {
         LOG.debug("Removing topology builder instance {}", topology);
-        final TopologyReferenceSingletonService topologyBuilder = this.topologyBuilders.remove(topology.getTopologyId());
+        final TopologyReferenceSingletonService topologyBuilder =
+                this.topologyBuilders.remove(topology.getTopologyId());
         if (topologyBuilder != null) {
             topologyBuilder.close();
             LOG.debug("Topology builder instance removed {}", topologyBuilder);
@@ -71,17 +72,6 @@ abstract class AbstractBgpTopologyProvider implements BgpTopologyProvider, AutoC
         this.registration.close();
     }
 
-    @Override
-    public final boolean topologyTypeFilter(final Topology topology) {
-        final TopologyTypes topologyTypes = topology.getTopologyTypes();
-        if (topologyTypes == null) {
-            return false;
-        }
-
-        final TopologyTypes1 aug = topologyTypes.getAugmentation(TopologyTypes1.class);
-        return aug != null && topologyTypeFilter(aug);
-    }
-
     private TopologyReferenceSingletonService createInstance(final Topology topology) {
         final RibReference ribReference = new DefaultRibReference(InstanceIdentifier.create(BgpRib.class)
                 .child(Rib.class, new RibKey(topology.getAugmentation(Topology1.class).getRibId())));
@@ -90,9 +80,15 @@ abstract class AbstractBgpTopologyProvider implements BgpTopologyProvider, AutoC
         return new TopologyReferenceSingletonServiceImpl(topologyBuilder, this.deployer, topology);
     }
 
-    abstract AbstractTopologyBuilder<?> createTopologyBuilder(final DataBroker dataProvider,
-            final RibReference locRibReference, final TopologyId topologyId);
+    abstract AbstractTopologyBuilder<?> createTopologyBuilder(DataBroker dataProvider, RibReference locRibReference,
+            TopologyId topologyId);
 
-    abstract boolean topologyTypeFilter(TopologyTypes1 topology);
+    final TopologyTypes1 getTopologyAug(final Topology topology) {
+        final TopologyTypes topologyTypes = topology.getTopologyTypes();
+        if (topologyTypes == null) {
+            return null;
+        }
 
+        return topologyTypes.getAugmentation(TopologyTypes1.class);
+    }
 }
