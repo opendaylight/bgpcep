@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bc444bf8_b8702569",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/SimpleSessionListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-01-05T17:47:48Z",
+      "side": 0,
+      "message": "is there some reason for this? Why not mock BGPSessionListener instead?",
+      "range": {
+        "startLine": 32,
+        "startChar": 7,
+        "endLine": 32,
+        "endChar": 12
+      },
+      "revId": "94fc15ce6d1ea711241852f63b0122280f0ffc85",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
