@@ -8,21 +8,17 @@
 
 package org.opendaylight.protocol.bgp.rib.spi.state;
 
-/**
- * BGP Operational Timer State.
- */
-public interface BGPTimersState {
-    /**
-     * Negotiated Hold Time.
-     *
-     * @return Hold Time
-     */
-    long getNegotiatedHoldTime();
+import javax.annotation.Nonnull;
 
+/**
+ * Interface for acquiring BGP RIB State.
+ */
+public interface BGPRibStateConsumer {
     /**
-     * The time (MILLISECONDS) for how long session has been up or on idle state.
+     * Returns RIB Operational State.
      *
-     * @return time
+     * @return BGP RIB State
      */
-    long getUpTime();
+    @Nonnull
+    BGPRibState getRIBState();
 }

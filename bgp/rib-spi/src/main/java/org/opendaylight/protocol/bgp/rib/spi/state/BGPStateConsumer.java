@@ -9,20 +9,25 @@
 package org.opendaylight.protocol.bgp.rib.spi.state;
 
 import java.util.List;
+import javax.annotation.Nonnull;
 
 /**
- * Provides list with Operational State of BGP RIBs
+ * Provides list with Operational State of BGP RIBs.
  */
 public interface BGPStateConsumer {
     /**
-     * List of Registered BGP Rib States
+     * List of Registered BGP Rib States.
+     *
      * @return ribs stats
      */
-    List<BGPRIBState> getRibStats();
+    @Nonnull
+    List<BGPRibState> getRibStats();
 
     /**
-     * List of Registered BGP Peer State
+     * List of Registered BGP Peer State.
+     *
      * @return peers stats
      */
+    @Nonnull
     List<BGPPeerState> getPeerStats();
 }

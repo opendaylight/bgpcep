@@ -10,8 +10,6 @@ package org.opendaylight.protocol.bgp.rib.spi;
 import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.ImmutableMap;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
@@ -30,25 +28,18 @@ public class IdentifierUtilsTest {
     private static final QName TABLES_KEY_QNAME = QName.create(Tables.QNAME, "tables-key").intern();
     private static final TablesKey TK = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
     private static final PeerId PEER_ID = new PeerId("127.0.0.1");
-    private static final NodeIdentifierWithPredicates NIWP_PEER = new NodeIdentifierWithPredicates(Peer.QNAME, ImmutableMap.of(PEER_ID_QNAME, PEER_ID.getValue()));
-    private static final NodeIdentifierWithPredicates NIWP_TABLE = new NodeIdentifierWithPredicates(Tables.QNAME, ImmutableMap.of(TABLES_KEY_QNAME, TK));
+    private static final NodeIdentifierWithPredicates NIWP_PEER = new NodeIdentifierWithPredicates(Peer.QNAME,
+            ImmutableMap.of(PEER_ID_QNAME, PEER_ID.getValue()));
+    private static final NodeIdentifierWithPredicates NIWP_TABLE = new NodeIdentifierWithPredicates(Tables.QNAME,
+            ImmutableMap.of(TABLES_KEY_QNAME, TK));
     private static final YangInstanceIdentifier YII_PEER;
     private static final YangInstanceIdentifier YII_TABLE;
 
     static {
-        YII_PEER = YangInstanceIdentifier.builder().node(BgpRib.QNAME).node(Peer.QNAME).nodeWithKey(Peer.QNAME, PEER_ID_QNAME, PEER_ID.getValue()).build();
-        YII_TABLE = YangInstanceIdentifier.builder().node(LocRib.QNAME).node(Tables.QNAME).nodeWithKey(Tables.QNAME, TABLES_KEY_QNAME, TK).build();
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testPrivateConstructor() throws Throwable {
-        final Constructor<IdentifierUtils> c = IdentifierUtils.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
+        YII_PEER = YangInstanceIdentifier.builder().node(BgpRib.QNAME).node(Peer.QNAME)
+                .nodeWithKey(Peer.QNAME, PEER_ID_QNAME, PEER_ID.getValue()).build();
+        YII_TABLE = YangInstanceIdentifier.builder().node(LocRib.QNAME).node(Tables.QNAME)
+                .nodeWithKey(Tables.QNAME, TABLES_KEY_QNAME, TK).build();
     }
 
     @Test

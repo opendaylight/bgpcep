@@ -9,32 +9,32 @@
 package org.opendaylight.protocol.bgp.rib.spi.state;
 
 /**
- * BGP Peer Messages Operational State
+ * BGP Peer Messages Operational State.
  */
 public interface BGPPeerMessagesState {
     /**
-     * Update Messages Sent count
+     * Update Messages Sent count.
      *
      * @return count
      */
     long getUpdateMessagesSentCount();
 
     /**
-     * Notification Messages Sent count
+     * Notification Messages Sent count.
      *
      * @return count
      */
     long getNotificationMessagesSentCount();
 
     /**
-     * Update Messages Received count
+     * Update Messages Received count.
      *
      * @return count
      */
     long getUpdateMessagesReceivedCount();
 
     /**
-     * Notification Update Messages Received count
+     * Notification Update Messages Received count.
      *
      * @return count
      */

@@ -8,6 +8,10 @@
 
 package org.opendaylight.protocol.bgp.rib.spi;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.MockitoAnnotations.initMocks;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import java.util.ArrayList;
@@ -19,8 +23,6 @@ import javassist.ClassPool;
 import org.junit.After;
 import org.junit.Before;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.binding.dom.adapter.BindingToNormalizedNodeCodec;
@@ -66,10 +68,14 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 public abstract class AbstractRIBSupportTest {
     protected static final long PATH_ID = 1;
     protected static final Attributes ATTRIBUTES = new AttributesBuilder().build();
-    private static final InstanceIdentifier<LocRib> RIB = InstanceIdentifier.builder(BgpRib.class).child(Rib.class, new RibKey(new RibId("rib"))).child(LocRib.class).build();
-    private static final InstanceIdentifier<Attributes> ATTRIBUTES_IID = InstanceIdentifier.create(Update.class).child(Attributes.class);
-    private static final InstanceIdentifier<MpUnreachNlri> MP_UNREACH_IID = ATTRIBUTES_IID.augmentation(Attributes2.class).child(MpUnreachNlri.class);
-    private static final InstanceIdentifier<MpReachNlri> MP_REACH_IID = ATTRIBUTES_IID.augmentation(Attributes1.class).child(MpReachNlri.class);
+    private static final InstanceIdentifier<LocRib> RIB = InstanceIdentifier.builder(BgpRib.class)
+            .child(Rib.class, new RibKey(new RibId("rib"))).child(LocRib.class).build();
+    private static final InstanceIdentifier<Attributes> ATTRIBUTES_IID = InstanceIdentifier.create(Update.class)
+            .child(Attributes.class);
+    private static final InstanceIdentifier<MpUnreachNlri> MP_UNREACH_IID = ATTRIBUTES_IID
+            .augmentation(Attributes2.class).child(MpUnreachNlri.class);
+    private static final InstanceIdentifier<MpReachNlri> MP_REACH_IID = ATTRIBUTES_IID.augmentation(Attributes1.class)
+            .child(MpReachNlri.class);
 
     @Mock
     protected DOMDataWriteTransaction tx;
@@ -82,41 +88,51 @@ public abstract class AbstractRIBSupportTest {
 
     protected final void setUpTestCustomizer(final AbstractRIBSupport ribSupport) throws Exception {
         this.abstractRIBSupport = ribSupport;
-        this.moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(this.abstractRIBSupport.routesContainerClass()));
+        this.moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(this.abstractRIBSupport
+                .routesContainerClass()));
         this.mappingService.onGlobalContextUpdated(this.moduleInfoBackedContext.tryToCreateSchemaContext().get());
     }
 
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
-        Mockito.doAnswer(invocation -> {
+        initMocks(this);
+        doAnswer(invocation -> {
             final Object[] args = invocation.getArguments();
-            AbstractRIBSupportTest.this.insertedRoutes.add(AbstractRIBSupportTest.this.mappingService.fromNormalizedNode((YangInstanceIdentifier) args[1], (NormalizedNode<?, ?>) args[2]));
+            AbstractRIBSupportTest.this.insertedRoutes.add(AbstractRIBSupportTest.this.mappingService
+                    .fromNormalizedNode((YangInstanceIdentifier) args[1], (NormalizedNode<?, ?>) args[2]));
             return args[1];
-        }).when(this.tx).put(Mockito.any(LogicalDatastoreType.class), Mockito.any(YangInstanceIdentifier.class), Mockito.any(NormalizedNode.class));
+        }).when(this.tx).put(any(LogicalDatastoreType.class), any(YangInstanceIdentifier.class),
+                any(NormalizedNode.class));
 
-        Mockito.doAnswer(invocation -> {
+        doAnswer(invocation -> {
             final Object[] args = invocation.getArguments();
-            AbstractRIBSupportTest.this.deletedRoutes.add(AbstractRIBSupportTest.this.mappingService.fromYangInstanceIdentifier((YangInstanceIdentifier) args[1]));
+            AbstractRIBSupportTest.this.deletedRoutes.add(AbstractRIBSupportTest.this.mappingService
+                    .fromYangInstanceIdentifier((YangInstanceIdentifier) args[1]));
             return args[1];
-        }).when(this.tx).delete(Mockito.any(LogicalDatastoreType.class), Mockito.any(YangInstanceIdentifier.class));
+        }).when(this.tx).delete(any(LogicalDatastoreType.class), any(YangInstanceIdentifier.class));
         this.deletedRoutes = new ArrayList<>();
         this.insertedRoutes = new ArrayList<>();
 
-        this.mappingService = new BindingToNormalizedNodeCodec(GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(),
-            new BindingNormalizedNodeCodecRegistry(StreamWriterGenerator.create(JavassistUtils.forClassPool(ClassPool.getDefault()))));
+        this.mappingService = new BindingToNormalizedNodeCodec(GeneratedClassLoadingStrategy
+                .getTCCLClassLoadingStrategy(),
+            new BindingNormalizedNodeCodecRegistry(StreamWriterGenerator
+                    .create(JavassistUtils.forClassPool(ClassPool.getDefault()))));
         this.moduleInfoBackedContext = ModuleInfoBackedContext.create();
     }
 
     protected final ContainerNode createNlriWithDrawnRoute(final DestinationType destUnreach) {
-        final MpUnreachNlri mpReach = new MpUnreachNlriBuilder().setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(destUnreach).build()).build();
-        final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> result = this.mappingService.toNormalizedNode(MP_UNREACH_IID, mpReach);
+        final MpUnreachNlri mpReach = new MpUnreachNlriBuilder().setWithdrawnRoutes(new WithdrawnRoutesBuilder()
+                .setDestinationType(destUnreach).build()).build();
+        final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> result = this.mappingService
+                .toNormalizedNode(MP_UNREACH_IID, mpReach);
         return (ContainerNode) result.getValue();
     }
 
     protected final ContainerNode createNlriAdvertiseRoute(final DestinationType destReach) {
-        final MpReachNlri mpReach = new MpReachNlriBuilder().setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(destReach).build()).build();
-        final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> result = this.mappingService.toNormalizedNode(MP_REACH_IID, mpReach);
+        final MpReachNlri mpReach = new MpReachNlriBuilder().setAdvertizedRoutes(new AdvertizedRoutesBuilder()
+                .setDestinationType(destReach).build()).build();
+        final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> result = this.mappingService
+                .toNormalizedNode(MP_REACH_IID, mpReach);
         return (ContainerNode) result.getValue();
     }
 
@@ -153,18 +169,21 @@ public abstract class AbstractRIBSupportTest {
         return this.mappingService.toYangInstanceIdentifier(routesIId).node(getRouteListQname());
     }
 
+    @SuppressWarnings("checkstyle:OverloadMethodsDeclarationOrder")
     protected final Collection<MapEntryNode> createRoutes(final DataObject routes) {
-        Preconditions.checkArgument(routes.getImplementedInterface().equals(this.abstractRIBSupport.routesContainerClass()));
+        Preconditions.checkArgument(routes.getImplementedInterface()
+                .equals(this.abstractRIBSupport.routesContainerClass()));
         final InstanceIdentifier<DataObject> routesIId = routesIId();
-        final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> normalizedNode = this.mappingService.toNormalizedNode(routesIId, routes);
+        final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> normalizedNode = this.mappingService
+                .toNormalizedNode(routesIId, routes);
         final ContainerNode container = (ContainerNode) normalizedNode.getValue();
         final NodeIdentifier routeNid = new NodeIdentifier(getRouteListQname());
         return ((MapNode) container.getChild(routeNid).get()).getValue();
     }
 
     private QName getRouteListQname() {
-       return QName.create(BindingReflections.findQName(this.abstractRIBSupport.routesContainerClass()),
-           BindingReflections.findQName(this.abstractRIBSupport.routesListClass()).intern().getLocalName());
+        return QName.create(BindingReflections.findQName(this.abstractRIBSupport.routesContainerClass()),
+                BindingReflections.findQName(this.abstractRIBSupport.routesListClass()).intern().getLocalName());
     }
 
     protected final NodeIdentifierWithPredicates createRouteNIWP(final DataObject routes) {
