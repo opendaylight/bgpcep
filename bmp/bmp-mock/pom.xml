@@ -4,28 +4,15 @@
         xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.opendaylight.odlparent</groupId>
-        <artifactId>odlparent</artifactId>
-        <version>2.0.5</version>
-        <relativePath/>
+        <groupId>org.opendaylight.bgpcep</groupId>
+        <artifactId>config-parent</artifactId>
+        <version>0.9.0-SNAPSHOT</version>
+        <relativePath>../../config-parent</relativePath>
     </parent>
 
-    <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>bgp-bmp-mock</artifactId>
     <version>0.9.0-SNAPSHOT</version>
     <name>bmp-mock</name>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.opendaylight.bgpcep</groupId>
-                <artifactId>bgpcep-parent</artifactId>
-                <version>0.9.0-SNAPSHOT</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <dependencies>
         <dependency>
