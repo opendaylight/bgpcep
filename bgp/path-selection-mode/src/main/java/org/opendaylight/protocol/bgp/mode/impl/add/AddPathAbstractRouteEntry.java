@@ -14,17 +14,18 @@ import java.util.List;
 import java.util.Optional;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
-import org.opendaylight.protocol.bgp.mode.api.BestPath;
 import org.opendaylight.protocol.bgp.mode.spi.AbstractRouteEntry;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
+import org.opendaylight.protocol.bgp.rib.spi.RouteEntryDependenciesContainer;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
@@ -41,7 +42,7 @@ import org.slf4j.LoggerFactory;
  * where individual object overhead becomes the dominating factor.
  */
 @NotThreadSafe
-public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
+public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry<AddPathBestPath> {
 
     private static final Logger LOG = LoggerFactory.getLogger(AddPathAbstractRouteEntry.class);
     private List<AddPathBestPath> bestPath;
@@ -115,66 +116,86 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
     }
 
     @Override
-    public void updateRoute(final TablesKey localTK, final ExportPolicyPeerTracker peerPT, final YangInstanceIdentifier locRibTarget,
-        final RIBSupport ribSupport, final DOMDataWriteTransaction tx, final PathArgument routeIdPA) {
-        if(this.bestPathRemoved != null) {
+    public void updateBestPaths(final RouteEntryDependenciesContainer entryDependencies,
+            final DOMDataWriteTransaction tx, final NodeIdentifierWithPredicates routeIdPA) {
+        final RIBSupport ribSupport = entryDependencies.getRibSupport();
+        final ExportPolicyPeerTracker peerPT = entryDependencies.getExportPolicyPeerTracker();
+        if (this.bestPathRemoved != null) {
             this.bestPathRemoved.forEach(path -> {
                 final PathArgument routeIdAddPath = ribSupport.getRouteIdAddPath(path.getPathId(), routeIdPA);
-                final YangInstanceIdentifier pathAddPathTarget = ribSupport.routePath(locRibTarget.node(ROUTES_IDENTIFIER), routeIdAddPath);
+                final YangInstanceIdentifier pathAddPathTarget =
+                        ribSupport.routePath(entryDependencies.getLocRibTableTarget().node(ROUTES_IDENTIFIER), routeIdAddPath);
                 fillLocRib(pathAddPathTarget, null, tx);
             });
             this.bestPathRemoved = null;
         }
-        if(this.removedPaths != null) {
+        if (this.removedPaths != null) {
             this.removedPaths.forEach(removedPath -> {
                 final PathArgument routeIdAddPath = ribSupport.getRouteIdAddPath(removedPath.getPathId(), routeIdPA);
-                fillAdjRibsOut(true, null, null, null, routeIdPA, routeIdAddPath, RouterIds.createPeerId(removedPath.getRouteId()),
-                    peerPT, localTK, ribSupport, tx);
+                fillAdjRibsOut(true, null, null, null,
+                        routeIdPA, routeIdAddPath, RouterIds.createPeerId(removedPath.getRouteId()),
+                        peerPT, entryDependencies.getLocalTablesKey(), ribSupport, tx);
             });
             this.removedPaths = null;
         }
 
-        if(this.newBestPathToBeAdvertised != null) {
-            this.newBestPathToBeAdvertised.forEach(path -> addPathToDataStore(path, isFirstBestPath(this.bestPath.indexOf(path)), routeIdPA,
-                locRibTarget, ribSupport, peerPT, localTK, tx));
+        if (this.newBestPathToBeAdvertised != null) {
+            this.newBestPathToBeAdvertised.forEach(path -> addPathToDataStore(entryDependencies, path,
+                isFirstBestPath(this.bestPath.indexOf(path)), routeIdPA, peerPT, tx));
             this.newBestPathToBeAdvertised = null;
         }
     }
 
     @Override
-    public void writeRoute(final PeerId destPeer, final PathArgument routeId, final YangInstanceIdentifier rootPath, final PeerExportGroup peerGroup,
-        final TablesKey localTK, final ExportPolicyPeerTracker peerPT, final RIBSupport ribSup, final DOMDataWriteTransaction tx) {
+    public void initializeBestPaths(final RouteEntryDependenciesContainer entryDependencies,
+        final PeerId destPeer, final NodeIdentifierWithPredicates routeId, final YangInstanceIdentifier rootPath,
+            final PeerExportGroup peerGroup, final DOMDataWriteTransaction tx) {
+        final ExportPolicyPeerTracker peerPT = entryDependencies.getExportPolicyPeerTracker();
         final boolean destPeerSupAddPath = peerPT.isAddPathSupportedByPeer(destPeer);
-        if(this.bestPath != null) {
+        if (this.bestPath != null) {
             final PeerRole destPeerRole = getRoutePeerIdRole(peerPT, destPeer);
-            this.bestPath.stream().filter(path -> filterRoutes(path.getPeerId(), destPeer, peerPT, localTK, destPeerRole) &&
-                peersSupportsAddPathOrIsFirstBestPath(destPeerSupAddPath, isFirstBestPath(this.bestPath.indexOf(path))))
-                .forEach(path -> writeRoutePath(destPeer, routeId, peerPT, peerGroup, destPeerSupAddPath, path, rootPath, localTK, ribSup, tx));
+            final TablesKey localTk = entryDependencies.getLocalTablesKey();
+            final RIBSupport ribSup = entryDependencies.getRibSupport();
+            this.bestPath.stream()
+                    .filter(path -> filterRoutes(path.getPeerId(), destPeer, peerPT, localTk, destPeerRole) &&
+                            peersSupportsAddPathOrIsFirstBestPath(destPeerSupAddPath,
+                                    isFirstBestPath(this.bestPath.indexOf(path))))
+                    .forEach(path -> writeRoutePath(destPeer, routeId, peerPT, peerGroup,
+                            destPeerSupAddPath, path, rootPath, localTk, ribSup, tx));
         }
     }
 
-    private void writeRoutePath(final PeerId destPeer, final PathArgument routeId, final ExportPolicyPeerTracker peerPT,
-        final PeerExportGroup peerGroup, final boolean destPeerSupAddPath,
-        final BestPath path, final YangInstanceIdentifier rootPath, final TablesKey localTK, final RIBSupport ribSup, final DOMDataWriteTransaction tx) {
-        final PathArgument routeIdAddPath = ribSup.getRouteIdAddPath(path.getPathId(), routeId);
-        final ContainerNode effectiveAttributes = peerGroup.effectiveAttributes(getRoutePeerIdRole(peerPT,path.getPeerId()), path.getAttributes());
+    private void writeRoutePath(final PeerId destPeer, final NodeIdentifierWithPredicates routeId,
+            final ExportPolicyPeerTracker peerPT, final PeerExportGroup peerGroup, final boolean destPeerSupAddPath,
+            final AddPathBestPath path, final YangInstanceIdentifier rootPath, final TablesKey localTK,
+            final RIBSupport ribSup, final DOMDataWriteTransaction tx) {
+        final NodeIdentifierWithPredicates routeIdAddPath = ribSup.getRouteIdAddPath(path.getPathId(), routeId);
+        final ContainerNode effectiveAttributes = peerGroup
+                .effectiveAttributes(getRoutePeerIdRole(peerPT, path.getPeerId()), path.getAttributes());
         if (destPeerSupAddPath) {
-            writeRoute(destPeer, getAdjRibOutYII(ribSup, rootPath, routeIdAddPath, localTK), effectiveAttributes, createValue(routeIdAddPath, path), ribSup, tx);
+            writeRoute(destPeer, getAdjRibOutYII(ribSup, rootPath, routeIdAddPath, localTK), effectiveAttributes,
+                    createValue(routeIdAddPath, path), ribSup, tx);
         } else {
-            writeRoute(destPeer, getAdjRibOutYII(ribSup, rootPath, routeId, localTK), effectiveAttributes, createValue(routeId, path), ribSup, tx);
+            writeRoute(destPeer, getAdjRibOutYII(ribSup, rootPath, routeId, localTK), effectiveAttributes,
+                    createValue(routeId, path), ribSup, tx);
         }
     }
 
-    private void addPathToDataStore(final BestPath path, final boolean isFirstBestPath, final PathArgument routeIdPA, final YangInstanceIdentifier locRibTarget,
-        final RIBSupport ribSup, final ExportPolicyPeerTracker peerPT, final TablesKey localTK, final DOMDataWriteTransaction tx) {
-        final PathArgument routeIdAddPath = ribSup.getRouteIdAddPath(path.getPathId(), routeIdPA);
-        final YangInstanceIdentifier pathAddPathTarget = ribSup.routePath(locRibTarget.node(ROUTES_IDENTIFIER), routeIdAddPath);
+    private void addPathToDataStore(
+            final RouteEntryDependenciesContainer entryDependencies,
+            final AddPathBestPath path, final boolean isFirstBestPath,
+            final NodeIdentifierWithPredicates routeIdPA, final ExportPolicyPeerTracker peerPT,
+            final DOMDataWriteTransaction tx) {
+        final RIBSupport ribSup = entryDependencies.getRibSupport();
+        final NodeIdentifierWithPredicates routeIdAddPath = ribSup.getRouteIdAddPath(path.getPathId(), routeIdPA);
+        final YangInstanceIdentifier pathAddPathTarget = ribSup.routePath(entryDependencies.getLocRibTableTarget()
+                        .node(ROUTES_IDENTIFIER), routeIdAddPath);
         final MapEntryNode addPathValue = createValue(routeIdAddPath, path);
         final MapEntryNode value = createValue(routeIdPA, path);
         LOG.trace("Selected best value {}", addPathValue);
         fillLocRib(pathAddPathTarget, addPathValue, tx);
-        fillAdjRibsOut(isFirstBestPath, path.getAttributes(), value, addPathValue, routeIdPA, routeIdAddPath, path.getPeerId(), peerPT, localTK,
-            ribSup, tx);
+        fillAdjRibsOut(isFirstBestPath, path.getAttributes(), value, addPathValue, routeIdPA, routeIdAddPath,
+                path.getPeerId(), peerPT, entryDependencies.getLocalTablesKey(), ribSup, tx);
     }
 
     private void fillAdjRibsOut(final boolean isFirstBestPath, final ContainerNode attributes, final NormalizedNode<?, ?> value, final MapEntryNode addPathValue,
@@ -255,7 +276,8 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
     protected boolean isBestPathNew(final List<AddPathBestPath> newBestPathList) {
         this.oldNonAddPathBestPathTheSame = isNonAddPathBestPathTheSame(newBestPathList);
         filterRemovedPaths(newBestPathList);
-        if (this.bestPathRemoved != null && !this.bestPathRemoved.isEmpty() || newBestPathList != null && !newBestPathList.equals(this.bestPath)) {
+        if (this.bestPathRemoved != null && !this.bestPathRemoved.isEmpty()
+                || newBestPathList != null && !newBestPathList.equals(this.bestPath)) {
             this.newBestPathToBeAdvertised = new ArrayList<>(newBestPathList);
             if(this.bestPath != null) {
                 this.newBestPathToBeAdvertised.removeAll(this.bestPath);
@@ -283,7 +305,8 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
         this.bestPathRemoved = new ArrayList<>(this.bestPath);
         this.bestPath.forEach(oldBest -> {
             final Optional<AddPathBestPath> present = newBestPathList.stream()
-                .filter(newBest -> newBest.getPathId() == oldBest.getPathId() && newBest.getRouteKey() == oldBest.getRouteKey()).findAny();
+                .filter(newBest -> newBest.getPathId() == oldBest.getPathId()
+                        && newBest.getRouteKey() == oldBest.getRouteKey()).findAny();
             present.ifPresent(addPathBestPath -> this.bestPathRemoved.remove(oldBest));
         });
     }

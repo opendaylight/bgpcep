@@ -11,16 +11,17 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.primitives.UnsignedInteger;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
-import org.opendaylight.protocol.bgp.mode.api.BestPath;
 import org.opendaylight.protocol.bgp.mode.spi.AbstractRouteEntry;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
+import org.opendaylight.protocol.bgp.rib.spi.RouteEntryDependenciesContainer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
@@ -29,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @NotThreadSafe
-abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
+abstract class BaseAbstractRouteEntry extends AbstractRouteEntry<BaseBestPath> {
     private static final Logger LOG = LoggerFactory.getLogger(BaseAbstractRouteEntry.class);
     private static final ContainerNode[] EMPTY_ATTRIBUTES = new ContainerNode[0];
     private OffsetMap offsets = OffsetMap.EMPTY;
@@ -56,7 +57,7 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
      * Remove route
      *
      * @param routerId router ID in unsigned integer
-     * @param offset of removed route
+     * @param offset   of removed route
      * @return true if its the last route
      */
     protected final boolean removeRoute(final UnsignedInteger routerId, final int offset) {
@@ -84,7 +85,7 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
         final BaseBestPath newBestPath = selector.result();
         final boolean modified = newBestPath == null || !newBestPath.equals(this.bestPath);
         if (modified) {
-            if(this.offsets.isEmpty()) {
+            if (this.offsets.isEmpty()) {
                 this.removedBestPath = this.bestPath;
             }
             LOG.trace("Previous best {}, current best {}", this.bestPath, newBestPath);
@@ -94,54 +95,65 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
     }
 
     @Override
-    public int addRoute(final UnsignedInteger routerId, final Long remotePathId, final NodeIdentifier attributesIdentifier, final NormalizedNode<?, ?> data) {
+    public int addRoute(final UnsignedInteger routerId, final Long remotePathId,
+            final NodeIdentifier attributesIdentifier, final NormalizedNode<?, ?> data) {
         LOG.trace("Find {} in {}", attributesIdentifier, data);
-        final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(data, attributesIdentifier).orNull();
+        final ContainerNode advertisedAttrs
+                = (ContainerNode) NormalizedNodes.findNode(data, attributesIdentifier).orNull();
         return addRoute(routerId, advertisedAttrs);
     }
 
     @Override
-    public void updateRoute(final TablesKey localTK, final ExportPolicyPeerTracker peerPT, final YangInstanceIdentifier locRibTarget, final RIBSupport ribSup,
-        final DOMDataWriteTransaction tx, final PathArgument routeIdPA) {
+    public void updateBestPaths(final RouteEntryDependenciesContainer entryDependencies,
+            final DOMDataWriteTransaction tx, final NodeIdentifierWithPredicates routeIdPA) {
         if (this.removedBestPath != null) {
-            removePathFromDataStore(this.removedBestPath, routeIdPA, locRibTarget, peerPT, localTK, ribSup, tx);
+            removePathFromDataStore(entryDependencies, routeIdPA, tx);
             this.removedBestPath = null;
         }
         if (this.bestPath != null) {
-            addPathToDataStore(this.bestPath, routeIdPA, locRibTarget, ribSup, peerPT, localTK, tx);
+            addPathToDataStore(entryDependencies, this.bestPath, routeIdPA, tx);
         }
     }
 
     @Override
-    public void writeRoute(final PeerId destPeer, final PathArgument routeId, final YangInstanceIdentifier rootPath, final PeerExportGroup peerGroup,
-        final TablesKey localTK, final ExportPolicyPeerTracker peerPT, final RIBSupport ribSupport, final DOMDataWriteTransaction tx) {
+    public void initializeBestPaths(final RouteEntryDependenciesContainer entryDependencies,
+            final PeerId destPeer, final NodeIdentifierWithPredicates routeId,
+            final YangInstanceIdentifier rootPath, final PeerExportGroup peerGroup, final DOMDataWriteTransaction tx) {
         if (this.bestPath != null) {
+            final ExportPolicyPeerTracker peerPT = entryDependencies.getExportPolicyPeerTracker();
+            final TablesKey localTK = entryDependencies.getLocalTablesKey();
             final BaseBestPath path = this.bestPath;
             final PeerRole destPeerRole = getRoutePeerIdRole(peerPT, destPeer);
             if (filterRoutes(path.getPeerId(), destPeer, peerPT, localTK, destPeerRole)) {
-                final ContainerNode effAttrib = peerGroup.effectiveAttributes(getRoutePeerIdRole(peerPT,path.getPeerId()), path.getAttributes());
+                final RIBSupport ribSupport = entryDependencies.getRibSupport();
+                final ContainerNode effAttrib = peerGroup.effectiveAttributes(getRoutePeerIdRole(peerPT,
+                        path.getPeerId()), path.getAttributes());
                 writeRoute(destPeer, getAdjRibOutYII(ribSupport, rootPath, routeId, localTK), effAttrib,
-                    createValue(routeId, path), ribSupport, tx);
+                        createValue(routeId, path), ribSupport, tx);
             }
         }
     }
 
-    private void removePathFromDataStore(final BestPath path, final PathArgument routeIdPA, final YangInstanceIdentifier locRibTarget,
-        final ExportPolicyPeerTracker peerPT, final TablesKey localTK, final RIBSupport ribSup, final DOMDataWriteTransaction tx) {
-        LOG.trace("Best Path removed {}", path);
-        final PathArgument routeIdAddPath = ribSup.getRouteIdAddPath(path.getPathId(), routeIdPA);
+    private void removePathFromDataStore(final RouteEntryDependenciesContainer entryDependencies,
+            final PathArgument routeIdPA, final DOMDataWriteTransaction tx) {
+        LOG.trace("Best Path removed {}", this.removedBestPath);
+        final YangInstanceIdentifier locRibTarget = entryDependencies.getLocRibTableTarget();
+        final RIBSupport ribSup = entryDependencies.getRibSupport();
+        final PathArgument routeIdAddPath = ribSup.getRouteIdAddPath(this.removedBestPath.getPathId(), routeIdPA);
         final YangInstanceIdentifier pathTarget = ribSup.routePath(locRibTarget.node(ROUTES_IDENTIFIER), routeIdPA);
         YangInstanceIdentifier pathAddPathTarget = null;
         if (routeIdAddPath != null) {
             pathAddPathTarget = ribSup.routePath(locRibTarget.node(ROUTES_IDENTIFIER), routeIdAddPath);
         }
         fillLocRib(pathAddPathTarget == null ? pathTarget : pathAddPathTarget, null, tx);
-        fillAdjRibsOut(null, null, routeIdPA, path.getPeerId(), peerPT, localTK, ribSup, tx);
+        fillAdjRibsOut(entryDependencies, null, null, routeIdPA, this.removedBestPath.getPeerId(), tx);
     }
 
-    private void addPathToDataStore(final BestPath path, final PathArgument routeIdPA, final YangInstanceIdentifier locRibTarget,
-        final RIBSupport ribSup, final ExportPolicyPeerTracker peerPT, final TablesKey localTK, final DOMDataWriteTransaction tx) {
-        final PathArgument routeIdAddPath = ribSup.getRouteIdAddPath(path.getPathId(), routeIdPA);
+    private void addPathToDataStore(final RouteEntryDependenciesContainer entryDependencies, final BaseBestPath path,
+            final NodeIdentifierWithPredicates routeIdPA, final DOMDataWriteTransaction tx) {
+        final RIBSupport ribSup = entryDependencies.getRibSupport();
+        final YangInstanceIdentifier locRibTarget = entryDependencies.getLocRibTableTarget();
+        final NodeIdentifierWithPredicates routeIdAddPath = ribSup.getRouteIdAddPath(path.getPathId(), routeIdPA);
         final YangInstanceIdentifier pathTarget = ribSup.routePath(locRibTarget.node(ROUTES_IDENTIFIER), routeIdPA);
         final NormalizedNode<?, ?> value = createValue(routeIdPA, path);
         NormalizedNode<?, ?> addPathValue = null;
@@ -153,8 +165,9 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
             addPathValue = createValue(routeIdAddPath, path);
             LOG.trace("Selected best value {}", addPathValue);
         }
-        fillLocRib(pathAddPathTarget == null ? pathTarget : pathAddPathTarget, addPathValue == null ? value : addPathValue, tx);
-        fillAdjRibsOut(path.getAttributes(), value, routeIdPA, path.getPeerId(), peerPT, localTK, ribSup, tx);
+        fillLocRib(pathAddPathTarget == null ? pathTarget : pathAddPathTarget,
+                addPathValue == null ? value : addPathValue, tx);
+        fillAdjRibsOut(entryDependencies, path.getAttributes(), value, routeIdPA, path.getPeerId(), tx);
     }
 
     final OffsetMap getOffsets() {
@@ -162,9 +175,9 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
     }
 
     @VisibleForTesting
-    private void fillAdjRibsOut(final ContainerNode attributes, final NormalizedNode<?, ?> value,
-        final PathArgument routeId, final PeerId routePeerId, final ExportPolicyPeerTracker peerPT,
-        final TablesKey localTK, final RIBSupport ribSup, final DOMDataWriteTransaction tx) {
+    private void fillAdjRibsOut(final RouteEntryDependenciesContainer entryDependencies,
+            final ContainerNode attributes, final NormalizedNode<?, ?> value, final PathArgument routeId,
+            final PeerId routePeerId, final DOMDataWriteTransaction tx) {
         /*
          * We need to keep track of routers and populate adj-ribs-out, too. If we do not, we need to
          * expose from which client a particular route was learned from in the local RIB, and have
@@ -174,11 +187,14 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
          * if we have two eBGP peers, for example, there is no reason why we should perform the translation
          * multiple times.
          */
+        final ExportPolicyPeerTracker peerPT = entryDependencies.getExportPolicyPeerTracker();
+        final TablesKey localTK = entryDependencies.getLocalTablesKey();
+        final RIBSupport ribSup = entryDependencies.getRibSupport();
         for (final PeerRole role : PeerRole.values()) {
             final PeerExportGroup peerGroup = peerPT.getPeerGroup(role);
             if (peerGroup != null) {
                 final ContainerNode effAttrib = peerGroup.effectiveAttributes(getRoutePeerIdRole(peerPT, routePeerId),
-                    attributes);
+                        attributes);
                 peerGroup.forEach((destPeer, rootPath) -> {
                     if (!filterRoutes(routePeerId, destPeer, peerPT, localTK, getRoutePeerIdRole(peerPT, destPeer))) {
                         return;

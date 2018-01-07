@@ -38,7 +38,8 @@ abstract class AbstractAllPathsRouteEntry extends AddPathAbstractRouteEntry {
                 requireNonNull(key.getRouteId(), "Router ID may not be null");
                 if (attributes != null) {
                     final BestPathState state = new BestPathStateImpl(attributes);
-                    final AddPathBestPath bestPath = new AddPathBestPath(state, key, offset, this.offsets.getValue(this.pathsId, offset));
+                    final AddPathBestPath bestPath = new AddPathBestPath(state, key, offset,
+                            this.offsets.getValue(this.pathsId, offset));
                     newBestPathList.add(bestPath);
                 }
             }

@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
  * array members and array management features.
  */
 final class OffsetMap {
-    static final OffsetMap EMPTY = new OffsetMap(Collections.emptySet());
     private static final Logger LOG = LoggerFactory.getLogger(OffsetMap.class);
     private static final String NEGATIVEOFFSET = "Invalid negative offset %s";
     private static final String INVALIDOFFSET = "Invalid offset %s for %s router IDs";
@@ -43,6 +42,7 @@ final class OffsetMap {
             }
         });
     private static final Comparator<UnsignedInteger> COMPARATOR = UnsignedInteger::compareTo;
+    static final OffsetMap EMPTY = new OffsetMap(Collections.emptySet());
     private final UnsignedInteger[] routeKeys;
 
     private OffsetMap(final Set<UnsignedInteger> routerIds) {

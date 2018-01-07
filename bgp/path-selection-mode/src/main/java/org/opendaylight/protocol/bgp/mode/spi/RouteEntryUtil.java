@@ -20,16 +20,18 @@ public final class RouteEntryUtil {
         throw new UnsupportedOperationException();
     }
 
-    public static MapEntryNode createSimpleRouteValue(final PathArgument routeId, final BestPath path) {
+    public static MapEntryNode createSimpleRouteValue(final NodeIdentifierWithPredicates routeId, final BestPath path) {
         final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> b = Builders.mapEntryBuilder();
-        b.withNodeIdentifier((NodeIdentifierWithPredicates) routeId);
+        b.withNodeIdentifier(routeId);
         b.addChild(path.getAttributes());
         return b.build();
     }
 
-    public static MapEntryNode createComplexRouteValue(final PathArgument routeId, final BestPath path, final MapEntryNode mapValues) {
-        final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> mapEntryBuilder = Builders.mapEntryBuilder();
-        mapEntryBuilder.withNodeIdentifier((NodeIdentifierWithPredicates) routeId);
+    public static MapEntryNode createComplexRouteValue(final NodeIdentifierWithPredicates routeId, final BestPath path,
+            final MapEntryNode mapValues) {
+        final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> mapEntryBuilder =
+                Builders.mapEntryBuilder();
+        mapEntryBuilder.withNodeIdentifier(routeId);
         mapEntryBuilder.addChild(path.getAttributes());
         mapValues.getValue().forEach(mapEntryBuilder::addChild);
         return mapEntryBuilder.build();

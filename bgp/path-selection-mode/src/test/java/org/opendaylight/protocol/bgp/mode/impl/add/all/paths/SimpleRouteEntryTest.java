@@ -12,8 +12,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.mode.impl.AbstractRouteEntryTest;
@@ -38,9 +36,8 @@ public final class SimpleRouteEntryTest extends AbstractRouteEntryTest {
         this.testBARE.addRoute(ROUTER_ID, REMOTE_PATH_ID, this.ribSupport.routeAttributesIdentifier(), this.attributes);
         assertFalse(this.testBARE.isEmpty());
         assertTrue(this.testBARE.selectBest(AS));
-        /** Add AddPath Route **/
-        this.testBARE.updateRoute(TABLES_KEY, this.peerPT, LOC_RIB_TARGET, this.ribSupport, this.tx, ROUTE_ID_PA_ADD_PATH);
-        Map<YangInstanceIdentifier, Long> yiiCount = this.yIIChanges.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        this.testBARE.updateBestPaths(this.entryDep, this.tx, ROUTE_ID_PA_ADD_PATH);
+        final Map<YangInstanceIdentifier, Long> yiiCount = collectInfo();
         assertEquals(3, yiiCount.size());
         assertEquals(1, (long) yiiCount.get(this.routePaAddPathYii));
         assertEquals(1, (long) yiiCount.get(this.routeAddRiboutYii));
@@ -48,13 +45,13 @@ public final class SimpleRouteEntryTest extends AbstractRouteEntryTest {
     }
 
     private void testRemoveRoute() {
-        Map<YangInstanceIdentifier, Long> yiiCount = this.yIIChanges.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        Map<YangInstanceIdentifier, Long> yiiCount = collectInfo();
         assertEquals(3, yiiCount.size());
         assertEquals(1, (long) yiiCount.get(this.routePaAddPathYii));
         assertTrue(this.testBARE.removeRoute(ROUTER_ID, REMOTE_PATH_ID));
         assertTrue(this.testBARE.selectBest(AS));
-        this.testBARE.updateRoute(TABLES_KEY, this.peerPT, LOC_RIB_TARGET, this.ribSupport, this.tx, ROUTE_ID_PA_ADD_PATH);
-        yiiCount = this.yIIChanges.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        this.testBARE.updateBestPaths(this.entryDep, this.tx, ROUTE_ID_PA_ADD_PATH);
+        yiiCount = collectInfo();
         assertEquals(0, yiiCount.size());
         assertFalse(yiiCount.containsKey(this.routePaAddPathYii));
         assertFalse(yiiCount.containsKey(this.routeAddRiboutYii));

@@ -11,6 +11,7 @@ package org.opendaylight.protocol.bgp.mode.impl.add.n.paths;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
+import org.opendaylight.protocol.bgp.mode.api.BestPath;
 import org.opendaylight.protocol.bgp.mode.impl.add.AddPathAbstractRouteEntry;
 import org.opendaylight.protocol.bgp.mode.impl.add.AddPathBestPath;
 import org.opendaylight.protocol.bgp.mode.impl.add.RouteKey;
@@ -26,7 +27,8 @@ abstract class AbstractNPathsRouteEntry extends AddPathAbstractRouteEntry {
     public final boolean selectBest(final long localAs) {
         final List<AddPathBestPath> newBestPathList = new ArrayList<>();
         final List<RouteKey> keyList = this.offsets.getRouteKeysList();
-        final long maxSearch = this.nBestPaths < this.offsets.size() && this.nBestPaths != 0 ? this.nBestPaths : this.offsets.size();
+        final long maxSearch = this.nBestPaths < this.offsets.size()
+                && this.nBestPaths != 0 ? this.nBestPaths : this.offsets.size();
         for (long i = 0; i < maxSearch; ++i) {
             final AddPathBestPath newBest = selectBest(localAs, keyList);
             newBestPathList.add(newBest);

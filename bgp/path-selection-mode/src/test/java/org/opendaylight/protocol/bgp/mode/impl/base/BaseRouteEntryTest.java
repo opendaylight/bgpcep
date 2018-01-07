@@ -39,22 +39,22 @@ public class BaseRouteEntryTest extends AbstractRouteEntryTest {
     }
 
     private void testRemoveRoute() {
-        Map<YangInstanceIdentifier, Long> yiiCount = this.yIIChanges.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        Map<YangInstanceIdentifier, Long> yiiCount = this.yIIChanges.stream()
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
         assertEquals(8, yiiCount.size());
         assertEquals(1, (long) yiiCount.get(this.routePaYii));
         this.testBARE.removeRoute(ROUTER_ID, REMOTE_PATH_ID);
         this.testBARE.selectBest(AS);
-        this.testBARE.updateRoute(TABLES_KEY, this.peerPT, LOC_RIB_TARGET, this.ribSupport, this.tx, ROUTE_ID_PA);
-        yiiCount = this.yIIChanges.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        this.testBARE.updateBestPaths(this.entryDep, this.tx, ROUTE_ID_PA);
+        yiiCount = collectInfo();
         assertFalse(yiiCount.containsKey(this.routePaYii));
         assertFalse(yiiCount.containsKey(this.routeAddRiboutAttYii));
     }
 
     private void testInitializePeerWithExistentRoute() {
-        this.testBARE.writeRoute(PEER_ID, ROUTE_ID_PA, PEER_YII2, this.peg, TABLES_KEY, this.peerPT, this.ribSupport, this.tx);
+        this.testBARE.initializeBestPaths(this.entryDep, PEER_ID, ROUTE_ID_PA, PEER_YII2, this.peg, this.tx);
         assertEquals(8, this.yIIChanges.size());
-        final Map<YangInstanceIdentifier, Long> yiiCount = this.yIIChanges.stream()
-            .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        Map<YangInstanceIdentifier, Long> yiiCount = collectInfo();
         assertEquals(1, (long) yiiCount.get(this.routeRiboutYiiPeer2));
         assertEquals(1, (long) yiiCount.get(this.routeRiboutAttYiiPeer2));
     }
@@ -69,14 +69,14 @@ public class BaseRouteEntryTest extends AbstractRouteEntryTest {
         this.testBARE.addRoute(ROUTER_ID, REMOTE_PATH_ID, this.ribSupport.routeAttributesIdentifier(), this.attributes);
         assertFalse(this.testBARE.getOffsets().isEmpty());
         this.testBARE.selectBest(AS);
-        this.testBARE.updateRoute(TABLES_KEY, this.peerPT, LOC_RIB_TARGET, this.ribSupport, this.tx, ROUTE_ID_PA);
-        Map<YangInstanceIdentifier, Long> yiiCount = this.yIIChanges.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        this.testBARE.updateBestPaths(this.entryDep, this.tx, ROUTE_ID_PA);
+        Map<YangInstanceIdentifier, Long> yiiCount = collectInfo();
         assertEquals(3, yiiCount.size());
         assertEquals(1, (long) yiiCount.get(this.routePaYii));
         assertEquals(1, (long) yiiCount.get(this.routeRiboutYii));
         assertEquals(1, (long) yiiCount.get(this.routeRiboutAttYii));
-        this.testBARE.updateRoute(TABLES_KEY, this.peerPT, LOC_RIB_TARGET, this.ribSupport, this.tx, ROUTE_ID_PA_ADD_PATH);
-        yiiCount = this.yIIChanges.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        this.testBARE.updateBestPaths(this.entryDep, this.tx, ROUTE_ID_PA_ADD_PATH);
+        yiiCount = collectInfo();
         assertEquals(6, yiiCount.size());
         assertEquals(1, (long) yiiCount.get(this.routePaAddPathYii));
         assertEquals(1, (long) yiiCount.get(this.routeAddRiboutYii));
@@ -84,7 +84,7 @@ public class BaseRouteEntryTest extends AbstractRouteEntryTest {
     }
 
     private void testWriteEmptyBestPath() {
-        this.testBARE.writeRoute(PEER_ID, ROUTE_ID_PA, PEER_YII2, this.peg, TABLES_KEY, this.peerPT, this.ribSupport, this.tx);
+        this.testBARE.initializeBestPaths(this.entryDep, PEER_ID, ROUTE_ID_PA, PEER_YII2, this.peg, this.tx);
         assertEquals(0, this.yIIChanges.size());
     }
 }

@@ -9,7 +9,6 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
 import com.google.common.collect.ImmutableMap;
-import javax.annotation.Nonnull;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Routes;
@@ -76,14 +75,12 @@ public abstract class MultiPathAbstractRIBSupport extends AbstractRIBSupport {
         return pathId;
     }
 
-    @Nonnull
-    @Override
-    public final PathArgument getRouteIdAddPath(final long pathId, final PathArgument routeId) {
+    public final NodeIdentifierWithPredicates getRouteIdAddPath(final long pathId, final PathArgument routeId) {
         return PathIdUtil.createNidKey(pathId, routeId, routeQName(), pathIdQName(), routeKeyQName());
     }
 
     @Override
-    public final PathArgument createRouteKeyPathArgument(final PathArgument routeKey) {
+    public final NodeIdentifierWithPredicates createRouteKeyPathArgument(final NodeIdentifierWithPredicates routeKey) {
         final ImmutableMap<QName, Object> keyValues = ImmutableMap.of(routeKeyQName(),
                 PathIdUtil.getObjectKey(routeKey, routeKeyQName()));
         return new NodeIdentifierWithPredicates(routeQName(), keyValues);

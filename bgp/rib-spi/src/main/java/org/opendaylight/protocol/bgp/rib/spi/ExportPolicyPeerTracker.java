@@ -59,7 +59,7 @@ public interface ExportPolicyPeerTracker {
      * @param peerId of peer
      * @return Role of peer
      */
-    @Nullable
+    @Nonnull
     PeerRole getRole(@Nonnull YangInstanceIdentifier peerId);
 
     /**
