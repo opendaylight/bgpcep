@@ -13,6 +13,7 @@ import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createP
 import com.google.common.collect.Lists;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.Nonnull;
 import org.opendaylight.protocol.pcep.pcc.mock.api.LspType;
 import org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
@@ -23,7 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.IpPrefixCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.ip.prefix._case.IpPrefixBuilder;
 
-public final class PCCTunnelBuilder {
+final class PCCTunnelBuilder {
     private static final Subobject DEFAULT_ENDPOINT_HOP = getDefaultEROEndpointHop();
     private static final String ENDPOINT_ADDRESS = "1.1.1.1";
     private static final String ENDPOINT_PREFIX = ENDPOINT_ADDRESS + "/32";
@@ -33,7 +34,8 @@ public final class PCCTunnelBuilder {
         throw new UnsupportedOperationException();
     }
 
-    public static Map<PlspId, PCCTunnel> createTunnels(final String address, final int lsps) {
+    @Nonnull
+    static Map<PlspId, PCCTunnel> createTunnels(final String address, final int lsps) {
         final Map<PlspId, PCCTunnel> tunnels = new HashMap<>();
         for (int i = 1; i <= lsps; i++) {
             final PCCTunnel tunnel = new PCCTunnel(MsgBuilderUtil.getDefaultPathName(address, i), PCC_DELEGATION, LspType.PCC_LSP,

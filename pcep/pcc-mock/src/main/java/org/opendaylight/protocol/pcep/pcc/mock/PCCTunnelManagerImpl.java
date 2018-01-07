@@ -256,17 +256,18 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
     }
 
     private Tlvs buildTlvs(final PCCTunnel tunnel, final Long plspId, final Optional<List<Subobject>> subobjectsList) {
-        final List<Subobject> subObject = subobjectsList.isPresent() ? subobjectsList.get() : tunnel.getLspState().getEro().getSubobject();
+        final List<Subobject> subObject = subobjectsList.isPresent() ? subobjectsList.get() :
+                tunnel.getLspState().getEro().getSubobject();
         final String destinationAddress = getDestinationAddress(subObject, this.address);
 
-        return createLspTlvs(plspId, true, destinationAddress, this.address, this.address, Optional.of(tunnel.getPathName()),
-            this.syncOptimization.incrementLspDBVersion());
+        return createLspTlvs(plspId, true, destinationAddress, this.address, this.address,
+                Optional.of(tunnel.getPathName()), this.syncOptimization.incrementLspDBVersion());
     }
 
-    private void lazyTunnelInicialization() {
+    private synchronized void lazyTunnelInicialization() {
         if (this.tunnels.isEmpty()) {
             final BigInteger dbV = this.syncOptimization.getLocalLspDbVersionValue();
-            if (this.syncOptimization.isSyncAvoidanceEnabled() && !((dbV != null) && dbV.equals(BigInteger.ONE))) {
+            if (dbV != null && this.syncOptimization.isSyncAvoidanceEnabled() && !dbV.equals(BigInteger.ONE)) {
                 this.tunnels.putAll(PCCTunnelBuilder.createTunnels(this.address, dbV.intValue()));
             } else {
                 this.tunnels.putAll(PCCTunnelBuilder.createTunnels(this.address, this.lspsCount));
