@@ -153,7 +153,9 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
         final List<PeerBean> closedPeers = closeAllBindedPeers();
         closeRibService();
         initiateRibInstance(global, this.ribImpl);
-        closedPeers.forEach(peer -> peer.restart(this.ribImpl, this.tableTypeRegistry));
+        for(final PeerBean peer :closedPeers) {
+            peer.restart(this.ribImpl, this.tableTypeRegistry);
+        }
         if (this.instantiated.get()) {
             closedPeers.forEach(PeerBean::instantiateServiceInstance);
         }

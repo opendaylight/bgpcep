@@ -17,6 +17,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -73,10 +74,12 @@ final class AdjRibInWriter {
     private static final Logger LOG = LoggerFactory.getLogger(AdjRibInWriter.class);
 
     @VisibleForTesting
-    static final LeafNode<Boolean> ATTRIBUTES_UPTODATE_FALSE = ImmutableNodes.leafNode(QName.create(Attributes.QNAME, "uptodate"), Boolean.FALSE);
+    static final LeafNode<Boolean> ATTRIBUTES_UPTODATE_FALSE = ImmutableNodes.leafNode(QName.create(Attributes.QNAME,
+            "uptodate"), Boolean.FALSE);
     @VisibleForTesting
     static final QName PEER_ID_QNAME = QName.create(Peer.QNAME, "peer-id").intern();
-    private static final LeafNode<Boolean> ATTRIBUTES_UPTODATE_TRUE = ImmutableNodes.leafNode(ATTRIBUTES_UPTODATE_FALSE.getNodeType(), Boolean.TRUE);
+    private static final LeafNode<Boolean> ATTRIBUTES_UPTODATE_TRUE =
+            ImmutableNodes.leafNode(ATTRIBUTES_UPTODATE_FALSE.getNodeType(), Boolean.TRUE);
     private static final QName PEER_ROLE_QNAME = QName.create(Peer.QNAME, "peer-role").intern();
     private static final NodeIdentifier ADJRIBIN = new NodeIdentifier(AdjRibIn.QNAME);
     private static final NodeIdentifier ADJRIBOUT = new NodeIdentifier(AdjRibOut.QNAME);
@@ -86,12 +89,16 @@ final class AdjRibInWriter {
     private static final NodeIdentifier PEER_TABLES = new NodeIdentifier(SupportedTables.QNAME);
     private static final NodeIdentifier TABLES = new NodeIdentifier(Tables.QNAME);
     private static final QName SEND_RECEIVE = QName.create(SupportedTables.QNAME, "send-receive").intern();
-    private static final NodeIdentifier SIMPLE_ROUTING_POLICY_NID = new NodeIdentifier(QName.create(Peer.QNAME, "simple-routing-policy").intern());
+    private static final NodeIdentifier SIMPLE_ROUTING_POLICY_NID =
+            new NodeIdentifier(QName.create(Peer.QNAME, "simple-routing-policy").intern());
 
     // FIXME: is there a utility method to construct this?
-    private static final ContainerNode EMPTY_ADJRIBIN = Builders.containerBuilder().withNodeIdentifier(ADJRIBIN).addChild(ImmutableNodes.mapNodeBuilder(Tables.QNAME).build()).build();
-    private static final ContainerNode EMPTY_EFFRIBIN = Builders.containerBuilder().withNodeIdentifier(EFFRIBIN).addChild(ImmutableNodes.mapNodeBuilder(Tables.QNAME).build()).build();
-    private static final ContainerNode EMPTY_ADJRIBOUT = Builders.containerBuilder().withNodeIdentifier(ADJRIBOUT).addChild(ImmutableNodes.mapNodeBuilder(Tables.QNAME).build()).build();
+    private static final ContainerNode EMPTY_ADJRIBIN = Builders.containerBuilder()
+            .withNodeIdentifier(ADJRIBIN).addChild(ImmutableNodes.mapNodeBuilder(Tables.QNAME).build()).build();
+    private static final ContainerNode EMPTY_EFFRIBIN = Builders.containerBuilder()
+            .withNodeIdentifier(EFFRIBIN).addChild(ImmutableNodes.mapNodeBuilder(Tables.QNAME).build()).build();
+    private static final ContainerNode EMPTY_ADJRIBOUT = Builders.containerBuilder()
+            .withNodeIdentifier(ADJRIBOUT).addChild(ImmutableNodes.mapNodeBuilder(Tables.QNAME).build()).build();
 
     private final Map<TablesKey, TableContext> tables;
     private final YangInstanceIdentifier peerPath;
@@ -139,8 +146,9 @@ final class AdjRibInWriter {
         return transform(newPeerId, registry, tableTypes, addPathTablesType, null);
     }
 
-    AdjRibInWriter transform(final PeerId newPeerId, final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes,
-            final Map<TablesKey, SendReceive> addPathTablesType, @Nullable final RegisterAppPeerListener registerAppPeerListener) {
+    AdjRibInWriter transform(final PeerId newPeerId, final RIBSupportContextRegistry registry,
+            final Set<TablesKey> tableTypes, final Map<TablesKey, SendReceive> addPathTablesType,
+            @Nullable final RegisterAppPeerListener registerAppPeerListener) {
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
 
         final YangInstanceIdentifier newPeerPath;
@@ -172,17 +180,10 @@ final class AdjRibInWriter {
 
     /**
      * Create new table instances, potentially creating their empty entries
-     *
-     * @param newPeerPath
-     * @param registry
-     * @param tableTypes
-     * @param addPathTablesType
-     * @param tx
-     * @return
      */
     private ImmutableMap<TablesKey, TableContext> createNewTableInstances(final YangInstanceIdentifier newPeerPath,
-            final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes, final Map<TablesKey, SendReceive> addPathTablesType,
-            final DOMDataWriteTransaction tx) {
+            final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes,
+            final Map<TablesKey, SendReceive> addPathTablesType, final DOMDataWriteTransaction tx) {
 
         final Builder<TablesKey, TableContext> tb = ImmutableMap.builder();
         for (final TablesKey tableKey : tableTypes) {
@@ -203,31 +204,35 @@ final class AdjRibInWriter {
             final RIBSupportContext rs, final NodeIdentifierWithPredicates instanceIdentifierKey,
             final DOMDataWriteTransaction tx, final Builder<TablesKey, TableContext> tb) {
         // We will use table keys very often, make sure they are optimized
-        final InstanceIdentifierBuilder idb = YangInstanceIdentifier.builder(newPeerPath.node(EMPTY_ADJRIBIN.getIdentifier()).node(TABLES));
+        final InstanceIdentifierBuilder idb = YangInstanceIdentifier.builder(newPeerPath
+                .node(EMPTY_ADJRIBIN.getIdentifier()).node(TABLES));
         idb.nodeWithKey(instanceIdentifierKey.getNodeType(), instanceIdentifierKey.getKeyValues());
 
         final TableContext ctx = new TableContext(rs, idb.build());
         ctx.createEmptyTableStructure(tx);
 
-        tx.merge(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(Attributes.QNAME).node(ATTRIBUTES_UPTODATE_FALSE.getNodeType()), ATTRIBUTES_UPTODATE_FALSE);
+        tx.merge(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(Attributes.QNAME)
+                .node(ATTRIBUTES_UPTODATE_FALSE.getNodeType()), ATTRIBUTES_UPTODATE_FALSE);
         LOG.debug("Created table instance {}", ctx.getTableId());
         tb.put(tableKey, ctx);
     }
 
     private void installAdjRibsOutTables(final YangInstanceIdentifier newPeerPath, final RIBSupportContext rs,
-            final NodeIdentifierWithPredicates instanceIdentifierKey, final TablesKey tableKey, final SendReceive sendReceive,
-            final DOMDataWriteTransaction tx) {
+            final NodeIdentifierWithPredicates instanceIdentifierKey, final TablesKey tableKey,
+            final SendReceive sendReceive, final DOMDataWriteTransaction tx) {
         if (!isAnnounceNone(this.simpleRoutingPolicy)) {
             final NodeIdentifierWithPredicates supTablesKey = RibSupportUtils.toYangKey(SupportedTables.QNAME, tableKey);
-            final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> tt = Builders.mapEntryBuilder().withNodeIdentifier(supTablesKey);
+            final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> tt =
+                    Builders.mapEntryBuilder().withNodeIdentifier(supTablesKey);
             for (final Entry<QName, Object> e : supTablesKey.getKeyValues().entrySet()) {
                 tt.withChild(ImmutableNodes.leafNode(e.getKey(), e.getValue()));
             }
             if (sendReceive != null) {
-                tt.withChild(ImmutableNodes.leafNode(SEND_RECEIVE, sendReceive.toString().toLowerCase()));
+                tt.withChild(ImmutableNodes.leafNode(SEND_RECEIVE, sendReceive.toString().toLowerCase(Locale.ENGLISH)));
             }
             tx.put(LogicalDatastoreType.OPERATIONAL, newPeerPath.node(PEER_TABLES).node(supTablesKey), tt.build());
-            rs.createEmptyTableStructure(tx, newPeerPath.node(EMPTY_ADJRIBOUT.getIdentifier()).node(TABLES).node(instanceIdentifierKey));
+            rs.createEmptyTableStructure(tx, newPeerPath.node(EMPTY_ADJRIBOUT.getIdentifier())
+                    .node(TABLES).node(instanceIdentifierKey));
         }
     }
 
@@ -247,7 +252,8 @@ final class AdjRibInWriter {
         pb.withChild(ImmutableNodes.leafNode(PEER_ID, peerId));
         pb.withChild(ImmutableNodes.leafNode(PEER_ROLE, PeerRoleUtil.roleForString(this.role)));
         if (this.simpleRoutingPolicy.isPresent() && this.role != PeerRole.Internal) {
-            pb.withChild(ImmutableNodes.leafNode(SIMPLE_ROUTING_POLICY_NID, simpleRoutingPolicyString(this.simpleRoutingPolicy.get())));
+            pb.withChild(ImmutableNodes.leafNode(SIMPLE_ROUTING_POLICY_NID,
+                    simpleRoutingPolicyString(this.simpleRoutingPolicy.get())));
         }
         pb.withChild(ImmutableMapNodeBuilder.create().withNodeIdentifier(PEER_TABLES).build());
         pb.withChild(EMPTY_ADJRIBIN);
@@ -286,11 +292,13 @@ final class AdjRibInWriter {
     void markTableUptodate(final TablesKey tableTypes) {
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         final TableContext ctx = this.tables.get(tableTypes);
-        tx.merge(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(Attributes.QNAME).node(ATTRIBUTES_UPTODATE_TRUE.getNodeType()), ATTRIBUTES_UPTODATE_TRUE);
+        tx.merge(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(Attributes.QNAME)
+                .node(ATTRIBUTES_UPTODATE_TRUE.getNodeType()), ATTRIBUTES_UPTODATE_TRUE);
         tx.submit();
     }
 
-    void updateRoutes(final MpReachNlri nlri, final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes attributes) {
+    void updateRoutes(final MpReachNlri nlri, final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+            .bgp.message.rev171207.path.attributes.Attributes attributes) {
         final TablesKey key = new TablesKey(nlri.getAfi(), nlri.getSafi());
         final TableContext ctx = this.tables.get(key);
         if (ctx == null) {

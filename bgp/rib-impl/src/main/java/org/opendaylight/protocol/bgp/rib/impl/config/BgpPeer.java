@@ -27,12 +27,12 @@ import java.util.Objects;
 import java.util.Set;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.spi.MultiprotocolCapabilitiesUtil;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
@@ -59,7 +59,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
 
@@ -141,7 +140,6 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
 
     @Override
     public synchronized void close() {
-        closeSingletonService();
         if (this.serviceRegistration != null) {
             this.serviceRegistration.unregister();
             this.serviceRegistration = null;
@@ -158,24 +156,15 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
     @Override
     public synchronized ListenableFuture<Void> closeServiceInstance() {
         if (this.bgpPeerSingletonService != null) {
-            return this.bgpPeerSingletonService.closeServiceInstance();
+            final ListenableFuture<Void> fut = this.bgpPeerSingletonService.closeServiceInstance();
+            this.bgpPeerSingletonService = null;
+            return fut;
         }
         return Futures.immediateFuture(null);
     }
 
-    private void closeSingletonService() {
-        if (this.bgpPeerSingletonService != null) {
-            try {
-                this.bgpPeerSingletonService.close();
-                this.bgpPeerSingletonService = null;
-            } catch (final Exception e) {
-                LOG.warn("Failed to close peer instance", e);
-            }
-        }
-    }
-
     @Override
-    public Boolean containsEqualConfiguration(final Neighbor neighbor) {
+    public synchronized Boolean containsEqualConfiguration(final Neighbor neighbor) {
         final AfiSafis actAfiSafi = this.currentConfiguration.getAfiSafis();
         final AfiSafis extAfiSafi = neighbor.getAfiSafis();
         final List<AfiSafi> actualSafi = actAfiSafi != null ? actAfiSafi.getAfiSafi() : Collections.emptyList();
@@ -197,7 +186,7 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
     }
 
     @Override
-    public BGPPeerState getPeerState() {
+    public synchronized BGPPeerState getPeerState() {
         if (this.bgpPeerSingletonService == null) {
             return null;
         }
@@ -208,18 +197,22 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
         this.serviceRegistration = serviceRegistration;
     }
 
-    private final class BgpPeerSingletonService implements BGPPeerStateConsumer, AutoCloseable {
+    synchronized void removePeer(final BGPPeerRegistry bgpPeerRegistry) {
+        if (BgpPeer.this.currentConfiguration != null) {
+            bgpPeerRegistry.removePeer(BgpPeer.this.currentConfiguration.getNeighborAddress());
+        }
+    }
+
+    private final class BgpPeerSingletonService implements BGPPeerStateConsumer {
         private final boolean activeConnection;
         private final BGPDispatcher dispatcher;
         private final InetSocketAddress inetAddress;
         private final int retryTimer;
         private final KeyMapping keys;
-        private ClusterSingletonServiceRegistration registration;
         private final BGPPeer bgpPeer;
         private final IpAddress neighborAddress;
         private final BGPSessionPreferences prefs;
         private Future<Void> connection;
-        @GuardedBy("this")
         private boolean isServiceInstantiated;
 
         private BgpPeerSingletonService(final RIB rib, final Neighbor neighbor,
@@ -242,14 +235,6 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
                     OpenConfigMappingUtil.getPort(neighbor));
             this.retryTimer = OpenConfigMappingUtil.getRetryTimer(neighbor);
             this.keys = keyMapping;
-        }
-
-        @Override
-        public void close() throws Exception {
-            if (this.registration != null) {
-                this.registration.close();
-                this.registration = null;
-            }
         }
 
         private synchronized void instantiateServiceInstance() {
@@ -275,9 +260,7 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
                 this.connection = null;
             }
             final ListenableFuture<Void> future = this.bgpPeer.close();
-            if (BgpPeer.this.currentConfiguration != null) {
-                this.dispatcher.getBGPPeerRegistry().removePeer(BgpPeer.this.currentConfiguration.getNeighborAddress());
-            }
+            removePeer(this.dispatcher.getBGPPeerRegistry());
             return future;
         }
 

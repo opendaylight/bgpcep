@@ -33,13 +33,12 @@ import org.slf4j.LoggerFactory;
 public final class BGPProtocolSessionPromise<S extends BGPSession> extends DefaultPromise<S> {
     private static final Logger LOG = LoggerFactory.getLogger(BGPProtocolSessionPromise.class);
     private static final int CONNECT_TIMEOUT = 5000;
-
-    private InetSocketAddress address;
     private final int retryTimer;
     private final Bootstrap bootstrap;
-    private final BGPPeerRegistry peerRegistry;
     @GuardedBy("this")
     private final AutoCloseable listenerRegistration;
+    @GuardedBy("this")
+    private InetSocketAddress address;
     @GuardedBy("this")
     private ChannelFuture pending;
     @GuardedBy("this")
@@ -49,14 +48,13 @@ public final class BGPProtocolSessionPromise<S extends BGPSession> extends Defau
 
 
     public BGPProtocolSessionPromise(@Nonnull final InetSocketAddress remoteAddress, final int retryTimer,
-        @Nonnull final Bootstrap bootstrap, @Nonnull final BGPPeerRegistry peerRegistry) {
+            @Nonnull final Bootstrap bootstrap, @Nonnull final BGPPeerRegistry peerRegistry) {
         super(GlobalEventExecutor.INSTANCE);
         this.address = requireNonNull(remoteAddress);
         this.retryTimer = retryTimer;
         this.bootstrap = requireNonNull(bootstrap);
-        this.peerRegistry = requireNonNull(peerRegistry);
-        this.listenerRegistration = this.peerRegistry.registerPeerSessionListener(
-            new PeerRegistrySessionListenerImpl(this, StrictBGPPeerRegistry.getIpAddress(this.address)));
+        this.listenerRegistration = requireNonNull(peerRegistry).registerPeerSessionListener(
+                new PeerRegistrySessionListenerImpl(StrictBGPPeerRegistry.getIpAddress(this.address)));
     }
 
     public synchronized void connect() {
@@ -78,7 +76,7 @@ public final class BGPProtocolSessionPromise<S extends BGPSession> extends Defau
             this.bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, CONNECT_TIMEOUT);
             this.bootstrap.remoteAddress(this.address);
             final ChannelFuture connectFuture = this.bootstrap.connect();
-            connectFuture.addListener(new BootstrapConnectListener(lock));
+            connectFuture.addListener(new BootstrapConnectListener());
             this.pending = connectFuture;
         } catch (final Exception e) {
             LOG.warn("Failed to connect to {}", this.address, e);
@@ -86,14 +84,13 @@ public final class BGPProtocolSessionPromise<S extends BGPSession> extends Defau
         }
     }
 
-    public synchronized void reconnect() {
+    synchronized void reconnect() {
         if (this.retryTimer == 0) {
             LOG.debug("Retry timer value is 0. Reconnection will not be attempted");
             this.setFailure(this.pending.cause());
             return;
         }
 
-        final BGPProtocolSessionPromise<?> lock = this;
         final EventLoop loop = this.pending.channel().eventLoop();
         loop.schedule(() -> {
             synchronized (BGPProtocolSessionPromise.this) {
@@ -106,7 +103,7 @@ public final class BGPProtocolSessionPromise<S extends BGPSession> extends Defau
                 BGPProtocolSessionPromise.this.connectSkipped = false;
                 LOG.debug("Attempting to connect to {}", BGPProtocolSessionPromise.this.address);
                 final ChannelFuture reconnectFuture = BGPProtocolSessionPromise.this.bootstrap.connect();
-                reconnectFuture.addListener(new BootstrapConnectListener(lock));
+                reconnectFuture.addListener(new BootstrapConnectListener());
                 BGPProtocolSessionPromise.this.pending = reconnectFuture;
             }
         }, this.retryTimer, TimeUnit.SECONDS);
@@ -140,27 +137,23 @@ public final class BGPProtocolSessionPromise<S extends BGPSession> extends Defau
     }
 
     private class BootstrapConnectListener implements ChannelFutureListener {
-        @GuardedBy("this")
-        private final Object lock;
-
-        BootstrapConnectListener(final Object lock) {
-            this.lock = lock;
-        }
-
         @Override
         public void operationComplete(final ChannelFuture channelFuture) throws Exception {
-            synchronized (this.lock) {
-                BGPProtocolSessionPromise.LOG.debug("Promise {} connection resolved", this.lock);
+            synchronized (BGPProtocolSessionPromise.this) {
+                BGPProtocolSessionPromise.LOG.debug("Promise {} connection resolved", BGPProtocolSessionPromise.this);
                 Preconditions.checkState(BGPProtocolSessionPromise.this.pending.equals(channelFuture));
                 if (BGPProtocolSessionPromise.this.isCancelled()) {
                     if (channelFuture.isSuccess()) {
-                        BGPProtocolSessionPromise.LOG.debug("Closing channel for cancelled promise {}", this.lock);
+                        BGPProtocolSessionPromise.LOG.debug("Closing channel for cancelled promise {}",
+                                BGPProtocolSessionPromise.this);
                         channelFuture.channel().close();
                     }
                 } else if (channelFuture.isSuccess()) {
-                    BGPProtocolSessionPromise.LOG.debug("Promise {} connection successful", this.lock);
+                    BGPProtocolSessionPromise.LOG.debug("Promise {} connection successful",
+                            BGPProtocolSessionPromise.this);
                 } else {
-                    BGPProtocolSessionPromise.LOG.warn("Attempt to connect to {} failed", BGPProtocolSessionPromise.this.address, channelFuture.cause());
+                    BGPProtocolSessionPromise.LOG.warn("Attempt to connect to {} failed",
+                            BGPProtocolSessionPromise.this.address, channelFuture.cause());
                     BGPProtocolSessionPromise.this.reconnect();
                 }
             }
@@ -168,12 +161,9 @@ public final class BGPProtocolSessionPromise<S extends BGPSession> extends Defau
     }
 
     private class PeerRegistrySessionListenerImpl implements PeerRegistrySessionListener {
-        @GuardedBy("this")
-        private final Object lock;
         private final IpAddress peerAddress;
 
-        PeerRegistrySessionListenerImpl(final Object lock, final IpAddress peerAddress) {
-            this.lock = lock;
+        PeerRegistrySessionListenerImpl(final IpAddress peerAddress) {
             this.peerAddress = peerAddress;
         }
 
@@ -183,7 +173,7 @@ public final class BGPProtocolSessionPromise<S extends BGPSession> extends Defau
                 return;
             }
             BGPProtocolSessionPromise.LOG.debug("Callback for session creation with peer {} received", ip);
-            synchronized (this.lock) {
+            synchronized (BGPProtocolSessionPromise.this) {
                 BGPProtocolSessionPromise.this.peerSessionPresent = true;
             }
         }
@@ -194,7 +184,7 @@ public final class BGPProtocolSessionPromise<S extends BGPSession> extends Defau
                 return;
             }
             BGPProtocolSessionPromise.LOG.debug("Callback for session removal with peer {} received", ip);
-            synchronized (this.lock) {
+            synchronized (BGPProtocolSessionPromise.this) {
                 BGPProtocolSessionPromise.this.peerSessionPresent = false;
                 if (BGPProtocolSessionPromise.this.connectSkipped) {
                     BGPProtocolSessionPromise.this.connect();
