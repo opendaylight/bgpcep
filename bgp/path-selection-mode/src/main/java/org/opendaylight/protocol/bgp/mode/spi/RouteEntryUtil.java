@@ -22,13 +22,17 @@ public final class RouteEntryUtil {
 
     public static MapEntryNode createSimpleRouteValue(final PathArgument routeId, final BestPath path) {
         final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> b = Builders.mapEntryBuilder();
+        assert routeId instanceof NodeIdentifierWithPredicates;
         b.withNodeIdentifier((NodeIdentifierWithPredicates) routeId);
         b.addChild(path.getAttributes());
         return b.build();
     }
 
-    public static MapEntryNode createComplexRouteValue(final PathArgument routeId, final BestPath path, final MapEntryNode mapValues) {
-        final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> mapEntryBuilder = Builders.mapEntryBuilder();
+    public static MapEntryNode createComplexRouteValue(final PathArgument routeId, final BestPath path,
+            final MapEntryNode mapValues) {
+        assert routeId instanceof NodeIdentifierWithPredicates;
+        final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> mapEntryBuilder =
+                Builders.mapEntryBuilder();
         mapEntryBuilder.withNodeIdentifier((NodeIdentifierWithPredicates) routeId);
         mapEntryBuilder.addChild(path.getAttributes());
         mapValues.getValue().forEach(mapEntryBuilder::addChild);

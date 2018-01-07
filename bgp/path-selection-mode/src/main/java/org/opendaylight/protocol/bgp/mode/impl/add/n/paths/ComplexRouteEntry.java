@@ -38,12 +38,14 @@ final class ComplexRouteEntry extends AbstractNPathsRouteEntry {
     @Override
     public MapEntryNode createValue(final PathArgument routeId, final BestPath path) {
         final OffsetMap map = getOffsets();
+        assert path instanceof AddPathBestPath;
         final MapEntryNode mapValues = map.getValue(this.values, map.offsetOf(((AddPathBestPath) path).getRouteKey()));
         return RouteEntryUtil.createComplexRouteValue(routeId, path, mapValues);
     }
 
     @Override
-    public int addRoute(final UnsignedInteger routerId, final Long remotePathId, final NodeIdentifier attributesIdentifier, final NormalizedNode<?, ?> data) {
+    public int addRoute(final UnsignedInteger routerId, final Long remotePathId,
+            final NodeIdentifier attributesIdentifier, final NormalizedNode<?, ?> data) {
         final OffsetMap oldMap = getOffsets();
         final int offset = addRoute(new RouteKey(routerId, remotePathId), attributesIdentifier, data);
         final OffsetMap newMap = getOffsets();

@@ -14,7 +14,8 @@ import org.opendaylight.protocol.bgp.mode.impl.add.AddPathBestPath;
 import org.opendaylight.protocol.bgp.mode.impl.add.OffsetMap;
 import org.opendaylight.protocol.bgp.mode.impl.add.RouteKey;
 import org.opendaylight.protocol.bgp.mode.spi.RouteEntryUtil;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
@@ -32,14 +33,16 @@ final class ComplexRouteEntry extends AbstractAllPathsRouteEntry {
     }
 
     @Override
-    public MapEntryNode createValue(final YangInstanceIdentifier.PathArgument routeId, final BestPath path) {
+    public MapEntryNode createValue(final PathArgument routeId, final BestPath path) {
         final OffsetMap map = getOffsets();
+        assert path instanceof AddPathBestPath;
         final MapEntryNode mapValues = map.getValue(this.values, map.offsetOf(((AddPathBestPath) path).getRouteKey()));
         return RouteEntryUtil.createComplexRouteValue(routeId, path, mapValues);
     }
 
     @Override
-    public int addRoute(final UnsignedInteger routerId, final Long remotePathId, final YangInstanceIdentifier.NodeIdentifier attII, final NormalizedNode<?, ?> data) {
+    public int addRoute(final UnsignedInteger routerId, final Long remotePathId, final NodeIdentifier attII,
+            final NormalizedNode<?, ?> data) {
         final OffsetMap oldMap = getOffsets();
         final int offset = addRoute(new RouteKey(routerId, remotePathId), attII, data);
         final OffsetMap newMap = getOffsets();
