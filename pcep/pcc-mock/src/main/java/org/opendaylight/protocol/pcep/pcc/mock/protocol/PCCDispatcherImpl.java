@@ -27,7 +27,6 @@ import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSession;
@@ -58,27 +57,36 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
         this.factory = new PCEPHandlerFactory(registry);
     }
 
-    @Override
-    public Future<PCEPSession> createClient(
-            @Nonnull final InetSocketAddress remoteAddress,
-            final long reconnectTime,
-            @Nonnull final PCEPSessionListenerFactory listenerFactory,
-            @Nonnull final PCEPSessionNegotiatorFactory<? extends PCEPSession> negotiatorFactory,
-            @Nullable final KeyMapping keys,
-            @Nonnull final InetSocketAddress localAddress) {
-        return createClient(remoteAddress, reconnectTime, listenerFactory, negotiatorFactory, keys,
-                localAddress, BigInteger.ONE);
+    private static void setChannelFactory(final Bootstrap bootstrap, final KeyMapping keys) {
+        if (Epoll.isAvailable()) {
+            bootstrap.channel(EpollSocketChannel.class);
+            bootstrap.option(EpollChannelOption.EPOLL_MODE, EpollMode.LEVEL_TRIGGERED);
+        } else {
+            bootstrap.channel(NioSocketChannel.class);
+        }
+        if (!keys.isEmpty()) {
+            if (Epoll.isAvailable()) {
+                bootstrap.option(EpollChannelOption.TCP_MD5SIG, keys);
+            } else {
+                throw new UnsupportedOperationException(Epoll.unavailabilityCause().getCause());
+            }
+        }
     }
 
     @Override
-    public Future<PCEPSession> createClient(
-            @Nonnull final InetSocketAddress remoteAddress,
-            final long reconnectTime,
-            @Nonnull final PCEPSessionListenerFactory listenerFactory,
-            @Nonnull final PCEPSessionNegotiatorFactory negotiatorFactory,
-            @Nullable final KeyMapping keys,
-            @Nonnull final InetSocketAddress localAddress,
-            @Nonnull final BigInteger dbVersion) {
+    public Future<PCEPSession> createClient(final InetSocketAddress remoteAddress, final long reconnectTime,
+            final PCEPSessionListenerFactory listenerFactory,
+            final PCEPSessionNegotiatorFactory<? extends PCEPSession> negotiatorFactory, final KeyMapping keys,
+            final InetSocketAddress localAddress) {
+        return createClient(remoteAddress, reconnectTime, listenerFactory, negotiatorFactory, keys, localAddress,
+                BigInteger.ONE);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Future<PCEPSession> createClient(final InetSocketAddress remoteAddress, final long reconnectTime,
+            final PCEPSessionListenerFactory listenerFactory, final PCEPSessionNegotiatorFactory negotiatorFactory,
+            final KeyMapping keys, final InetSocketAddress localAddress, final BigInteger dbVersion) {
         final Bootstrap b = new Bootstrap();
         b.group(this.workerGroup);
         b.localAddress(localAddress);
@@ -134,22 +142,6 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
         b.handler(channelInitializer);
         promise.connect();
         return promise;
-    }
-
-    private static void setChannelFactory(final Bootstrap bootstrap, final KeyMapping keys) {
-        if (Epoll.isAvailable()) {
-            bootstrap.channel(EpollSocketChannel.class);
-            bootstrap.option(EpollChannelOption.EPOLL_MODE, EpollMode.LEVEL_TRIGGERED);
-        } else {
-            bootstrap.channel(NioSocketChannel.class);
-        }
-        if (!keys.isEmpty()) {
-            if (Epoll.isAvailable()) {
-                bootstrap.option(EpollChannelOption.TCP_MD5SIG, keys);
-            } else {
-                throw new UnsupportedOperationException(Epoll.unavailabilityCause().getCause());
-            }
-        }
     }
 
     @Override

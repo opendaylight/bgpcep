@@ -96,10 +96,10 @@ public final class Main {
                 address = new InetSocketAddress(InetAddress.getByName(ip[0]), Integer.parseInt(ip[1]));
                 i++;
             } else if (args[i].equalsIgnoreCase("-d") || args[i].equalsIgnoreCase("--deadtimer")) {
-                deadTimerValue = Integer.valueOf(args[i + 1]);
+                deadTimerValue = Integer.parseInt(args[i + 1]);
                 i++;
             } else if (args[i].equalsIgnoreCase("-ka") || args[i].equalsIgnoreCase("--keepalive")) {
-                keepAliveValue = Integer.valueOf(args[i + 1]);
+                keepAliveValue = Integer.parseInt(args[i + 1]);
                 i++;
             } else if (args[i].equalsIgnoreCase("--stateful")) {
                 stateful = true;

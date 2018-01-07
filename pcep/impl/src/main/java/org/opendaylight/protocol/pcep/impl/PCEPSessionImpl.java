@@ -301,13 +301,13 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
      * @param error documented error in RFC5440 or draft
      */
     @VisibleForTesting
-    public void handleMalformedMessage(final PCEPErrors error) {
+    void handleMalformedMessage(final PCEPErrors error) {
         final long ct = TICKER.read();
         this.sendErrorMessage(error);
         if (error == PCEPErrors.CAPABILITY_NOT_SUPPORTED) {
             this.unknownMessagesTimes.add(ct);
             while (ct - this.unknownMessagesTimes.peek() > MINUTE) {
-                this.unknownMessagesTimes.poll();
+                final Long poll = this.unknownMessagesTimes.poll();
             }
             if (this.unknownMessagesTimes.size() > this.maxUnknownMessages) {
                 this.terminate(TerminationReason.TOO_MANY_UNKNOWN_MSGS);
