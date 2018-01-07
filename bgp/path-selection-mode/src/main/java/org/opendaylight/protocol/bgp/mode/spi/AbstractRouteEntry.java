@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.mode.spi;
 
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.protocol.bgp.mode.api.BestPath;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
@@ -23,15 +24,26 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Routes;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractRouteEntry implements RouteEntry {
+public abstract class AbstractRouteEntry<T extends BestPath> implements RouteEntry {
     protected static final NodeIdentifier ROUTES_IDENTIFIER = new NodeIdentifier(Routes.QNAME);
     private static final Logger LOG = LoggerFactory.getLogger(AbstractRouteEntry.class);
+
+    /**
+     * Create value.
+     *
+     * @param routeId router ID pathArgument
+     * @param path    BestPath
+     * @return MapEntryNode
+     */
+    public abstract MapEntryNode createValue(NodeIdentifierWithPredicates routeId, T path);
 
     protected static void fillLocRib(final YangInstanceIdentifier routeTarget, final NormalizedNode<?, ?> value,
             final DOMDataWriteTransaction tx) {

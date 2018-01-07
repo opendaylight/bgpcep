@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.mode.impl.base;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.mockito.Mockito.doReturn;
 
 import java.util.Map;
 import org.junit.Before;
@@ -42,15 +43,15 @@ public class BaseRouteEntryTest extends AbstractRouteEntryTest {
         assertEquals(1, (long) yiiCount.get(this.routePaYii));
         this.testBARE.removeRoute(ROUTER_ID, REMOTE_PATH_ID);
         this.testBARE.selectBest(AS);
-        this.testBARE.updateRoute(TABLES_KEY, this.peerPT, LOC_RIB_TARGET, this.ribSupport, this.tx, ROUTE_ID_PA);
+        this.testBARE.updateBestPaths(this.entryDep, ROUTE_ID_PA, this.tx);
         yiiCount = collectInfo();
         assertFalse(yiiCount.containsKey(this.routePaYii));
         assertFalse(yiiCount.containsKey(this.routeAddRiboutAttYii));
     }
 
     private void testInitializePeerWithExistentRoute() {
-        this.testBARE.writeRoute(PEER_ID, ROUTE_ID_PA, PEER_YII2, this.peg, TABLES_KEY, this.peerPT, this.ribSupport,
-                this.tx);
+        doReturn(ROUTE_ID_PA).when(this.entryInfo).getRouteId();
+        this.testBARE.initializeBestPaths(this.entryDep, this.entryInfo, this.peg, this.tx);
         assertEquals(8, this.yiichanges.size());
         Map<YangInstanceIdentifier, Long> yiiCount = collectInfo();
         assertEquals(1, (long) yiiCount.get(this.routeRiboutYiiPeer2));
@@ -67,14 +68,13 @@ public class BaseRouteEntryTest extends AbstractRouteEntryTest {
         this.testBARE.addRoute(ROUTER_ID, REMOTE_PATH_ID, this.ribSupport.routeAttributesIdentifier(), this.attributes);
         assertFalse(this.testBARE.getOffsets().isEmpty());
         this.testBARE.selectBest(AS);
-        this.testBARE.updateRoute(TABLES_KEY, this.peerPT, LOC_RIB_TARGET, this.ribSupport, this.tx, ROUTE_ID_PA);
+        this.testBARE.updateBestPaths(this.entryDep, ROUTE_ID_PA, this.tx);
         Map<YangInstanceIdentifier, Long> yiiCount = collectInfo();
         assertEquals(3, yiiCount.size());
         assertEquals(1, (long) yiiCount.get(this.routePaYii));
         assertEquals(1, (long) yiiCount.get(this.routeRiboutYii));
         assertEquals(1, (long) yiiCount.get(this.routeRiboutAttYii));
-        this.testBARE.updateRoute(TABLES_KEY, this.peerPT, LOC_RIB_TARGET, this.ribSupport, this.tx,
-                ROUTE_ID_PA_ADD_PATH);
+        this.testBARE.updateBestPaths(this.entryDep, ROUTE_ID_PA_ADD_PATH, this.tx);
         yiiCount = collectInfo();
         assertEquals(6, yiiCount.size());
         assertEquals(1, (long) yiiCount.get(this.routePaAddPathYii));
@@ -83,8 +83,8 @@ public class BaseRouteEntryTest extends AbstractRouteEntryTest {
     }
 
     private void testWriteEmptyBestPath() {
-        this.testBARE.writeRoute(PEER_ID, ROUTE_ID_PA, PEER_YII2, this.peg, TABLES_KEY, this.peerPT, this.ribSupport,
-                this.tx);
+        doReturn(ROUTE_ID_PA).when(this.entryInfo).getRouteId();
+        this.testBARE.initializeBestPaths(this.entryDep, this.entryInfo, this.peg, this.tx);
         assertEquals(0, this.yiichanges.size());
     }
 }
