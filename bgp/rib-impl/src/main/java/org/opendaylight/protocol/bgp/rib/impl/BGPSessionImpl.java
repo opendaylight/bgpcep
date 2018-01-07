@@ -462,8 +462,9 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     @Override
     public synchronized void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
         LOG.warn("BGP session encountered error", cause);
-        if (cause.getCause() instanceof BGPDocumentedException) {
-            this.terminate((BGPDocumentedException) cause.getCause());
+        final Throwable docCause = cause.getCause();
+        if (docCause instanceof BGPDocumentedException) {
+            this.terminate((BGPDocumentedException) docCause);
         } else {
             this.close();
         }

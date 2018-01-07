@@ -182,8 +182,8 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
     }
 
     //FIXME BUG-196
-    public final void setAfiSafiGracefulRestartState(final int peerRestartTime, final boolean peerRestarting,
-        final boolean localRestarting) {
+    public synchronized final void setAfiSafiGracefulRestartState(final int peerRestartTime,
+            final boolean peerRestarting, final boolean localRestarting) {
         this.peerRestartTime = peerRestartTime;
         this.peerRestarting = peerRestarting;
         this.localRestarting = localRestarting;

@@ -42,7 +42,7 @@ public interface ExportPolicyPeerTracker {
      * @param role of desired PeerExportGroup
      * @return PeerExportGroup
      */
-    @Nonnull
+    @Nullable
     PeerExportGroup getPeerGroup(@Nonnull PeerRole role);
 
     /**

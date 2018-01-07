@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
@@ -20,5 +21,5 @@ public abstract class AbstractImportPolicy {
      * @param attributes received attributes
      * @return Filtered attributes, or null if the advertisement should be ignored.
      */
-    @Nullable public abstract ContainerNode effectiveAttributes(@Nullable ContainerNode attributes);
+    @Nullable public abstract ContainerNode effectiveAttributes(@Nonnull ContainerNode attributes);
 }

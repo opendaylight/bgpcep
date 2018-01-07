@@ -55,7 +55,8 @@ public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
     @Override
     public synchronized void start(final RIB rib, final Neighbor neighbor,
             final BGPTableTypeRegistryConsumer tableTypeRegistry) {
-        Preconditions.checkState(this.bgpAppPeerSingletonService == null, "Previous peer instance was not closed.");
+        Preconditions.checkState(this.bgpAppPeerSingletonService == null,
+                "Previous peer instance was not closed.");
         this.currentConfiguration = neighbor;
         this.bgpAppPeerSingletonService = new BgpAppPeerSingletonService(rib, createAppRibId(neighbor),
                 neighbor.getNeighborAddress().getIpv4Address());
@@ -95,13 +96,13 @@ public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
     }
 
     @Override
-    public Boolean containsEqualConfiguration(final Neighbor neighbor) {
+    public synchronized Boolean containsEqualConfiguration(final Neighbor neighbor) {
         return Objects.equals(this.currentConfiguration.getKey(), neighbor.getKey())
                 && OpenConfigMappingUtil.isApplicationPeer(neighbor);
     }
 
     @Override
-    public BGPPeerState getPeerState() {
+    public synchronized BGPPeerState getPeerState() {
         return this.bgpAppPeerSingletonService.getPeerState();
     }
 
@@ -109,7 +110,7 @@ public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
         this.serviceRegistration = serviceRegistration;
     }
 
-    private final class BgpAppPeerSingletonService implements BGPPeerStateConsumer {
+    private static final class BgpAppPeerSingletonService implements BGPPeerStateConsumer {
         private final ApplicationPeer applicationPeer;
         private final DOMDataTreeChangeService dataTreeChangeService;
         private final ApplicationRibId appRibId;

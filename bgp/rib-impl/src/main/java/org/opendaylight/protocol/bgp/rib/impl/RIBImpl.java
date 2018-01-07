@@ -108,7 +108,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
     private final ImportPolicyPeerTracker importPolicyPeerTracker;
     private final RibId ribId;
     private final Map<TablesKey, ExportPolicyPeerTracker> exportPolicyPeerTrackerMap;
-
+    @GuardedBy("this")
     private DOMTransactionChain domChain;
     @GuardedBy("this")
     private boolean isServiceInstantiated;
@@ -146,7 +146,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
         this.exportPolicyPeerTrackerMap = exportPolicies.build();
     }
 
-    private void startLocRib(final TablesKey key) {
+    private synchronized void startLocRib(final TablesKey key) {
         LOG.debug("Creating LocRib table for {}", key);
         // create locRibWriter for each table
         final DOMDataWriteTransaction tx = this.domChain.newWriteOnlyTransaction();

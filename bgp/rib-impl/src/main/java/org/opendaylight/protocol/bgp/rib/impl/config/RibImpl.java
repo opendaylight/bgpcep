@@ -211,7 +211,7 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
 
     @Override
     public String toString() {
-        return this.ribImpl != null ? this.ribImpl.toString() : null;
+        return this.ribImpl != null ? this.ribImpl.toString() : "";
     }
 
     private RIBImpl createRib(
