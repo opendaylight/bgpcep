@@ -11,6 +11,7 @@ package org.opendaylight.protocol.pcep.pcc.mock.api;
 import io.netty.util.concurrent.Future;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
+import javax.annotation.Nonnull;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
@@ -18,13 +19,15 @@ import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
 
 public interface PCCDispatcher {
 
-    Future<PCEPSession> createClient(final InetSocketAddress remoteAddress,
-            final long reconnectTime, final PCEPSessionListenerFactory listenerFactory,
-            final PCEPSessionNegotiatorFactory<? extends PCEPSession> negotiatorFactory, final KeyMapping keys,
-            final InetSocketAddress localAddress, final BigInteger dbVersion);
+    @Nonnull
+    Future<PCEPSession> createClient(@Nonnull InetSocketAddress remoteAddress,
+            long reconnectTime, @Nonnull PCEPSessionListenerFactory listenerFactory,
+            @Nonnull PCEPSessionNegotiatorFactory<? extends PCEPSession> negotiatorFactory, @Nonnull KeyMapping keys,
+            @Nonnull InetSocketAddress localAddress, @Nonnull BigInteger dbVersion);
 
-    Future<PCEPSession> createClient(final InetSocketAddress remoteAddress,
-                                     final long reconnectTime, final PCEPSessionListenerFactory listenerFactory,
-                                     final PCEPSessionNegotiatorFactory<? extends PCEPSession> negotiatorFactory, final KeyMapping keys,
-                                     final InetSocketAddress localAddress);
+    @Nonnull
+    Future<PCEPSession> createClient(@Nonnull InetSocketAddress remoteAddress,
+            long reconnectTime, @Nonnull PCEPSessionListenerFactory listenerFactory,
+            @Nonnull PCEPSessionNegotiatorFactory<? extends PCEPSession> negotiatorFactory, @Nonnull KeyMapping keys,
+            @Nonnull InetSocketAddress localAddress);
 }

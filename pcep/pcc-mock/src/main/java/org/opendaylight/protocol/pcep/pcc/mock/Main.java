@@ -73,10 +73,10 @@ public final class Main {
                     remoteAddress = InetSocketAddressUtil.parseAddresses(args[++argIdx], DEFAULT_REMOTE_PORT);
                     break;
                 case "--pcc":
-                    pccCount = Integer.valueOf(args[++argIdx]);
+                    pccCount = Integer.parseInt(args[++argIdx]);
                     break;
                 case "--lsp":
-                    lsps = Integer.valueOf(args[++argIdx]);
+                    lsps = Integer.parseInt(args[++argIdx]);
                     break;
                 case "--pcerr":
                     pcError = true;
@@ -96,20 +96,20 @@ public final class Main {
                     password = args[++argIdx];
                     break;
                 case "--reconnect":
-                    reconnectTime = Integer.valueOf(args[++argIdx]);
+                    reconnectTime = Integer.parseInt(args[++argIdx]);
                     break;
                 case "--redelegation-timeout":
-                    redelegationTimeout = Integer.valueOf(args[++argIdx]);
+                    redelegationTimeout = Integer.parseInt(args[++argIdx]);
                     break;
                 case "--state-timeout":
-                    stateTimeout = Integer.valueOf(args[++argIdx]);
+                    stateTimeout = Integer.parseInt(args[++argIdx]);
                     break;
                 case "--state-sync-avoidance":
                     //"--state-sync-avoidance 10, 5, 10
                     includeDbv = Boolean.TRUE;
                     final Long dbVersionAfterReconnect = Long.valueOf(args[++argIdx]);
-                    disonnectAfterXSeconds = Integer.valueOf(args[++argIdx]);
-                    reconnectAfterXSeconds = Integer.valueOf(args[++argIdx]);
+                    disonnectAfterXSeconds = Integer.parseInt(args[++argIdx]);
+                    reconnectAfterXSeconds = Integer.parseInt(args[++argIdx]);
                     syncOptDBVersion = BigInteger.valueOf(dbVersionAfterReconnect);
                     break;
                 case "--incremental-sync-procedure":
@@ -118,8 +118,8 @@ public final class Main {
                     incrementalSync = Boolean.TRUE;
                     //Version of database to be used after restart
                     final Long initialDbVersionAfterReconnect = Long.valueOf(args[++argIdx]);
-                    disonnectAfterXSeconds = Integer.valueOf(args[++argIdx]);
-                    reconnectAfterXSeconds = Integer.valueOf(args[++argIdx]);
+                    disonnectAfterXSeconds = Integer.parseInt(args[++argIdx]);
+                    reconnectAfterXSeconds = Integer.parseInt(args[++argIdx]);
                     syncOptDBVersion = BigInteger.valueOf(initialDbVersionAfterReconnect);
                     break;
                 case "--triggered-initial-sync":
@@ -136,14 +136,17 @@ public final class Main {
         }
 
         if (incrementalSync) {
-            Preconditions.checkArgument(syncOptDBVersion.intValue() > lsps, "Synchronization Database Version which will be used after " +
+            Preconditions.checkArgument(syncOptDBVersion.intValue() > lsps,
+                    "Synchronization Database Version which will be used after " +
                 "reconnectes requires to be higher than lsps");
         }
 
         final Optional<BigInteger> dBVersion = Optional.fromNullable(syncOptDBVersion);
-        final PCCsBuilder pccs = new PCCsBuilder(lsps, pcError, pccCount, localAddress, remoteAddress, ka, dt, password, reconnectTime, redelegationTimeout,
+        final PCCsBuilder pccs = new PCCsBuilder(lsps, pcError, pccCount, localAddress, remoteAddress, ka, dt,
+                password, reconnectTime, redelegationTimeout,
             stateTimeout, getCapabilities());
-        final TimerHandler timerHandler = new TimerHandler(pccs, dBVersion, disonnectAfterXSeconds, reconnectAfterXSeconds);
+        final TimerHandler timerHandler = new TimerHandler(pccs, dBVersion, disonnectAfterXSeconds,
+                reconnectAfterXSeconds);
         pccs.createPCCs(BigInteger.valueOf(lsps), Optional.fromNullable(timerHandler));
         if (!triggeredInitSync) {
             timerHandler.createDisconnectTask();
@@ -154,7 +157,8 @@ public final class Main {
         if (triggeredInitSync) {
             Preconditions.checkArgument(includeDbv);
         }
-        return new PCEPStatefulCapability(true, true, true, triggeredInitSync, triggeredResync, incrementalSync, includeDbv);
+        return new PCEPStatefulCapability(true, true, true, triggeredInitSync, triggeredResync,
+                incrementalSync, includeDbv);
     }
 
     private static ch.qos.logback.classic.Logger getRootLogger(final LoggerContext lc) {

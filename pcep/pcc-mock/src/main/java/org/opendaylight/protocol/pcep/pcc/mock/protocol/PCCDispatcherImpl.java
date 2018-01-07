@@ -27,7 +27,6 @@ import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSession;
@@ -59,26 +58,19 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
     }
 
     @Override
-    public Future<PCEPSession> createClient(
-            @Nonnull final InetSocketAddress remoteAddress,
-            final long reconnectTime,
-            @Nonnull final PCEPSessionListenerFactory listenerFactory,
-            @Nonnull final PCEPSessionNegotiatorFactory<? extends PCEPSession> negotiatorFactory,
-            @Nullable final KeyMapping keys,
-            @Nonnull final InetSocketAddress localAddress) {
-        return createClient(remoteAddress, reconnectTime, listenerFactory, negotiatorFactory, keys,
-                localAddress, BigInteger.ONE);
+    public Future<PCEPSession> createClient(final InetSocketAddress remoteAddress, final long reconnectTime,
+            final PCEPSessionListenerFactory listenerFactory,
+            final PCEPSessionNegotiatorFactory<? extends PCEPSession> negotiatorFactory, final KeyMapping keys,
+            final InetSocketAddress localAddress) {
+        return createClient(remoteAddress, reconnectTime, listenerFactory, negotiatorFactory, keys, localAddress,
+                BigInteger.ONE);
     }
 
     @Override
-    public Future<PCEPSession> createClient(
-            @Nonnull final InetSocketAddress remoteAddress,
-            final long reconnectTime,
-            @Nonnull final PCEPSessionListenerFactory listenerFactory,
-            @Nonnull final PCEPSessionNegotiatorFactory negotiatorFactory,
-            @Nullable final KeyMapping keys,
-            @Nonnull final InetSocketAddress localAddress,
-            @Nonnull final BigInteger dbVersion) {
+    @SuppressWarnings("unchecked")
+    public Future<PCEPSession> createClient(final InetSocketAddress remoteAddress, final long reconnectTime,
+            final PCEPSessionListenerFactory listenerFactory, final PCEPSessionNegotiatorFactory negotiatorFactory,
+            final KeyMapping keys, final InetSocketAddress localAddress, final BigInteger dbVersion) {
         final Bootstrap b = new Bootstrap();
         b.group(this.workerGroup);
         b.localAddress(localAddress);

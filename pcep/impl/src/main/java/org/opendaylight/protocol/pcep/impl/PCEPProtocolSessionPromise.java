@@ -58,7 +58,7 @@ public final class PCEPProtocolSessionPromise<S extends PCEPSession> extends Def
             this.b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, this.connectTimeout);
             this.b.remoteAddress(this.address);
             final ChannelFuture connectFuture = this.b.connect();
-            connectFuture.addListener(new BootstrapConnectListener(lock));
+            connectFuture.addListener(new BootstrapConnectListener());
             this.pending = connectFuture;
         } catch (Exception e) {
             LOG.info("Failed to connect to {}", this.address, e);
@@ -83,41 +83,44 @@ public final class PCEPProtocolSessionPromise<S extends PCEPSession> extends Def
     }
 
     private class BootstrapConnectListener implements ChannelFutureListener {
-        private final Object lock;
-
-        public BootstrapConnectListener(final Object lock) {
-            this.lock = lock;
-        }
-
         @Override
         public void operationComplete(final ChannelFuture cf) throws Exception {
-            synchronized (this.lock) {
-                PCEPProtocolSessionPromise.LOG.debug("Promise {} connection resolved", this.lock);
+            synchronized (PCEPProtocolSessionPromise.this) {
+                PCEPProtocolSessionPromise.LOG.debug("Promise {} connection resolved",
+                        PCEPProtocolSessionPromise.this);
                 Preconditions.checkState(PCEPProtocolSessionPromise.this.pending.equals(cf));
                 if (PCEPProtocolSessionPromise.this.isCancelled()) {
                     if (cf.isSuccess()) {
-                        PCEPProtocolSessionPromise.LOG.debug("Closing channel for cancelled promise {}", this.lock);
+                        PCEPProtocolSessionPromise.LOG.debug("Closing channel for cancelled promise {}",
+                                PCEPProtocolSessionPromise.this);
                         cf.channel().close();
                     }
                 } else if (cf.isSuccess()) {
-                    PCEPProtocolSessionPromise.LOG.debug("Promise {} connection successful", this.lock);
+                    PCEPProtocolSessionPromise.LOG.debug("Promise {} connection successful",
+                            PCEPProtocolSessionPromise.this);
                 } else {
-                    PCEPProtocolSessionPromise.LOG.debug("Attempt to connect to {} failed", PCEPProtocolSessionPromise.this.address, cf.cause());
+                    PCEPProtocolSessionPromise.LOG.debug("Attempt to connect to {} failed", 
+                            PCEPProtocolSessionPromise.this.address, cf.cause());
 
                     if (PCEPProtocolSessionPromise.this.retryTimer == 0) {
-                        PCEPProtocolSessionPromise.LOG.debug("Retry timer value is 0. Reconnection will not be attempted");
+                        PCEPProtocolSessionPromise.LOG
+                                .debug("Retry timer value is 0. Reconnection will not be attempted");
                         PCEPProtocolSessionPromise.this.setFailure(cf.cause());
                         return;
                     }
 
                     final EventLoop loop = cf.channel().eventLoop();
                     loop.schedule(() -> {
-                        PCEPProtocolSessionPromise.LOG.debug("Attempting to connect to {}", PCEPProtocolSessionPromise.this.address);
-                        final Future<Void> reconnectFuture = PCEPProtocolSessionPromise.this.b.connect();
-                        reconnectFuture.addListener(BootstrapConnectListener.this);
-                        PCEPProtocolSessionPromise.this.pending = reconnectFuture;
+                        synchronized (PCEPProtocolSessionPromise.this) {
+                            PCEPProtocolSessionPromise.LOG.debug("Attempting to connect to {}",
+                                    PCEPProtocolSessionPromise.this.address);
+                            final Future<Void> reconnectFuture = PCEPProtocolSessionPromise.this.b.connect();
+                            reconnectFuture.addListener(BootstrapConnectListener.this);
+                            PCEPProtocolSessionPromise.this.pending = reconnectFuture;
+                        }
                     }, PCEPProtocolSessionPromise.this.retryTimer, TimeUnit.SECONDS);
-                    PCEPProtocolSessionPromise.LOG.debug("Next reconnection attempt in {}s", PCEPProtocolSessionPromise.this.retryTimer);
+                    PCEPProtocolSessionPromise.LOG.debug("Next reconnection attempt in {}s",
+                            PCEPProtocolSessionPromise.this.retryTimer);
                 }
             }
         }
