@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.mode.impl.add.n.paths;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doReturn;
 
 import java.util.Map;
 import org.junit.Before;
@@ -28,7 +29,8 @@ public final class SimpleRouteEntryTest extends AbstractRouteEntryTest {
 
     @Test
     public void testSimpleRouteEntry() throws Exception {
-        this.testBARE = (SimpleRouteEntry) new AddPathBestNPathSelection(N_PATHS).createRouteEntry(false);
+        this.testBARE = (SimpleRouteEntry) new AddPathBestNPathSelection(N_PATHS)
+                .createRouteEntry(false);
         testWriteEmptyBestPath();
         testAddRouteSelectBestAndWriteOnDS();
         testRewriteSameRoute();
@@ -36,26 +38,30 @@ public final class SimpleRouteEntryTest extends AbstractRouteEntryTest {
         testRemoveRoute();
     }
 
+    /**
+     * Add non Add Path Route.
+     */
     @Test(expected = NullPointerException.class)
     public void testAddRouteSelectBestAndWriteOnDSs() {
-        /** Add non Add Path Route **/
         this.testBARE.addRoute(ROUTER_ID, REMOTE_PATH_ID, this.ribSupport.routeAttributesIdentifier(), this.attributes);
     }
 
     private void testWriteEmptyBestPath() {
-        this.testBARE.writeRoute(PEER_ID, ROUTE_ID_PA, PEER_YII2, this.peg, TABLES_KEY, this.peerPT, this.ribSupport,
-                this.tx);
+        doReturn(ROUTE_ID_PA).when(this.entryInfo).getRouteId();
+
+        this.testBARE.initializeBestPaths(this.entryDep, this.entryInfo, this.peg, this.tx);
         assertEquals(0, this.yiichanges.size());
     }
 
+    /**
+     * Add AddPath Route.
+     */
     private void testAddRouteSelectBestAndWriteOnDS() {
         this.testBARE.addRoute(ROUTER_ID, REMOTE_PATH_ID, this.ribSupport.routeAttributesIdentifier(),
                 this.attributes);
         assertFalse(this.testBARE.isEmpty());
         assertTrue(this.testBARE.selectBest(AS));
-        /** Add AddPath Route **/
-        this.testBARE.updateRoute(TABLES_KEY, this.peerPT, LOC_RIB_TARGET, this.ribSupport, this.tx,
-                ROUTE_ID_PA_ADD_PATH);
+        this.testBARE.updateBestPaths(this.entryDep, ROUTE_ID_PA_ADD_PATH, this.tx);
         final Map<YangInstanceIdentifier, Long> yiiCount = collectInfo();
         assertEquals(3, yiiCount.size());
         assertEquals(1, (long) yiiCount.get(this.routePaAddPathYii));
@@ -70,8 +76,9 @@ public final class SimpleRouteEntryTest extends AbstractRouteEntryTest {
 
     private void testInitializePeerWithExistentRoute() {
         assertEquals(3, this.yiichanges.size());
-        this.testBARE.writeRoute(PEER_ID, ROUTE_ID_PA_ADD_PATH, PEER_YII2, this.peg, TABLES_KEY, this.peerPT,
-                this.ribSupport, this.tx);
+        doReturn(ROUTE_ID_PA_ADD_PATH).when(this.entryInfo).getRouteId();
+
+        this.testBARE.initializeBestPaths(this.entryDep, this.entryInfo, this.peg, this.tx);
         assertEquals(5, this.yiichanges.size());
         final Map<YangInstanceIdentifier, Long> yiiCount = collectInfo();
         assertEquals(1, (long) yiiCount.get(this.routeAddRiboutYiiPeer2));
@@ -84,8 +91,7 @@ public final class SimpleRouteEntryTest extends AbstractRouteEntryTest {
         assertEquals(1, (long) yiiCount.get(this.routePaAddPathYii));
         assertTrue(this.testBARE.removeRoute(ROUTER_ID, REMOTE_PATH_ID));
         assertTrue(this.testBARE.selectBest(AS));
-        this.testBARE.updateRoute(TABLES_KEY, this.peerPT, LOC_RIB_TARGET, this.ribSupport, this.tx,
-                ROUTE_ID_PA_ADD_PATH);
+        this.testBARE.updateBestPaths(this.entryDep, ROUTE_ID_PA_ADD_PATH, this.tx);
         yiiCount = collectInfo();
         assertEquals(2, yiiCount.size());
         assertFalse(yiiCount.containsKey(this.routePaAddPathYii));

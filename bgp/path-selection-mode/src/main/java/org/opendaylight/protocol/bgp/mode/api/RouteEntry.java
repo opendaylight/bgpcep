@@ -9,16 +9,14 @@
 package org.opendaylight.protocol.bgp.mode.api;
 
 import com.google.common.primitives.UnsignedInteger;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
-import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
-import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryDependenciesContainer;
+import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryInfo;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
-import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
 /**
@@ -37,16 +35,6 @@ public interface RouteEntry {
      * @return return true if it was the last route on entry
      */
     boolean removeRoute(UnsignedInteger routerId, Long remotePathId);
-
-    /**
-     * Create value.
-     *
-     * @param routeId router ID pathArgument
-     * @param path    BestPath
-     * @return MapEntryNode
-     */
-    @Deprecated
-    MapEntryNode createValue(PathArgument routeId, BestPath path);
 
     /**
      * Indicates whether best has changed.
@@ -70,27 +58,25 @@ public interface RouteEntry {
     /**
      * Update LocRibOut and AdjRibsOut by removing stale best path and writing new best.
      *
-     * @param localTK      local Table Key
-     * @param peerPT       peer export policy
-     * @param locRibTarget YII local rib
-     * @param ribSupport   rib support
-     * @param tx           DOM transaction
-     * @param routeIdPA    router ID pathArgument
+     * @param entryDependencies entry Dependencies container
+     * @param routeIdPA         router ID pathArgument
+     * @param tx                DOM transaction
      */
-    void updateRoute(TablesKey localTK, ExportPolicyPeerTracker peerPT, YangInstanceIdentifier locRibTarget,
-            RIBSupport ribSupport, DOMDataWriteTransaction tx, PathArgument routeIdPA);
+    void updateBestPaths(
+            @Nonnull RouteEntryDependenciesContainer entryDependencies,
+            @Nonnull NodeIdentifierWithPredicates routeIdPA,
+            @Nonnull DOMDataWriteTransaction tx);
 
     /**
-     * Write Route on LocRibOut and AdjRibsOut.
+     * Initialize LocRibOut and AdjRibsOut for new peers with already present best paths.
      *
-     * @param peerId     destination peerId
-     * @param routeId    router ID path Argument
-     * @param rootPath   YII root path
-     * @param peerGroup  PeerExportGroup
-     * @param localTK    local Table Key
-     * @param ribSupport rib support
-     * @param tx         DOM transaction
+     * @param entryDependencies Route Entry Dependencies wrapper
+     * @param entryInfo         Route Entry Info wrapper
+     * @param tx                transaction
      */
-    void writeRoute(PeerId peerId, PathArgument routeId, YangInstanceIdentifier rootPath, PeerExportGroup peerGroup,
-            TablesKey localTK, ExportPolicyPeerTracker peerPT, RIBSupport ribSupport, DOMDataWriteTransaction tx);
+    void initializeBestPaths(
+            @Nonnull RouteEntryDependenciesContainer entryDependencies,
+            @Nonnull RouteEntryInfo entryInfo,
+            @Nullable PeerExportGroup peerGroup,
+            @Nonnull DOMDataWriteTransaction tx);
 }
