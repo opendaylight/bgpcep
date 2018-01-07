@@ -8,10 +8,9 @@
 package org.opendaylight.protocol.bgp.mode.impl.base;
 
 import com.google.common.primitives.UnsignedInteger;
-import org.opendaylight.protocol.bgp.mode.api.BestPath;
 import org.opendaylight.protocol.bgp.mode.spi.RouteEntryUtil;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
@@ -43,7 +42,7 @@ final class BaseComplexRouteEntry extends BaseAbstractRouteEntry {
     }
 
     @Override
-    public MapEntryNode createValue(final PathArgument routeId, final BestPath path) {
+    public MapEntryNode createValue(final NodeIdentifierWithPredicates routeId, final BaseBestPath path) {
         final OffsetMap map = getOffsets();
         final MapEntryNode mapValues = map.getValue(this.values, map.offsetOf(path.getRouterId()));
         return RouteEntryUtil.createComplexRouteValue(routeId, path, mapValues);

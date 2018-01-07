@@ -12,6 +12,7 @@ import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
@@ -40,7 +41,7 @@ interface AddPathRibSupport {
      * @return routeId PathArgument + pathId or Null in case Add-path is not supported
      */
     @Nullable
-    default PathArgument getRouteIdAddPath(long pathId, @Nonnull PathArgument routeId) {
+    default NodeIdentifierWithPredicates getRouteIdAddPath(long pathId, @Nonnull PathArgument routeId) {
         return null;
     }
 
@@ -51,7 +52,9 @@ interface AddPathRibSupport {
      * @param routeKeyPathArgument routeKey Path Argument
      * @return new route Key
      */
-    default @Nonnull PathArgument createRouteKeyPathArgument(@Nonnull PathArgument routeKeyPathArgument) {
+    default @Nonnull
+    NodeIdentifierWithPredicates createRouteKeyPathArgument(
+            @Nonnull NodeIdentifierWithPredicates routeKeyPathArgument) {
         return routeKeyPathArgument;
     }
 }
