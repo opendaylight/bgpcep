@@ -37,8 +37,7 @@ public final class SimpleRouteEntryTest extends AbstractRouteEntryTest {
                 .routeAttributesIdentifier(), this.attributes);
         assertFalse(this.testBARE.isEmpty());
         assertTrue(this.testBARE.selectBest(AS));
-        /** Add AddPath Route **/
-        this.testBARE.updateRoute(TABLES_KEY, this.peerPT, LOC_RIB_TARGET, this.ribSupport,
+        this.testBARE.updateBestPaths(this.entryDep,
                 this.tx, ROUTE_ID_PA_ADD_PATH);
         final Map<YangInstanceIdentifier, Long> yiiCount = collectInfo();
         assertEquals(3, yiiCount.size());
@@ -53,7 +52,7 @@ public final class SimpleRouteEntryTest extends AbstractRouteEntryTest {
         assertEquals(1, (long) yiiCount.get(this.routePaAddPathYii));
         assertTrue(this.testBARE.removeRoute(ROUTER_ID, REMOTE_PATH_ID));
         assertTrue(this.testBARE.selectBest(AS));
-        this.testBARE.updateRoute(TABLES_KEY, this.peerPT, LOC_RIB_TARGET, this.ribSupport,
+        this.testBARE.updateBestPaths(this.entryDep,
                 this.tx, ROUTE_ID_PA_ADD_PATH);
         yiiCount = collectInfo();
         assertEquals(0, yiiCount.size());
