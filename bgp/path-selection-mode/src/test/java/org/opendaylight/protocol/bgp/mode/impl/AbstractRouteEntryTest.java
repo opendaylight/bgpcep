@@ -34,6 +34,7 @@ import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
 import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup.PeerExporTuple;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
+import org.opendaylight.protocol.bgp.rib.spi.RouteEntryDependenciesContainer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv4.routes.Ipv4Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv4.routes.ipv4.routes.Ipv4Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
@@ -109,6 +110,8 @@ public abstract class AbstractRouteEntryTest {
     protected ExportPolicyPeerTracker peerPT;
     @Mock
     protected PeerExportGroup peg;
+    @Mock
+    protected RouteEntryDependenciesContainer entryDep;
     protected List<YangInstanceIdentifier> yiichanges;
     protected NormalizedNode<?, ?> attributes;
     protected YangInstanceIdentifier routePaYii;
@@ -148,6 +151,14 @@ public abstract class AbstractRouteEntryTest {
         mockExportPolicies();
         mockExportGroup();
         mockTransactionChain();
+        mockEntryDep();
+    }
+
+    private void mockEntryDep() {
+        doReturn(this.ribSupport).when(this.entryDep).getRibSupport();
+        doReturn(this.peerPT).when(this.entryDep).getExportPolicyPeerTracker();
+        doReturn(TABLES_KEY).when(this.entryDep).getLocalTablesKey();
+        doReturn(LOC_RIB_TARGET).when(this.entryDep).getLocRibTableTarget();
     }
 
     private void mockTransactionChain() {

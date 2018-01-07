@@ -43,8 +43,7 @@ public final class SimpleRouteEntryTest extends AbstractRouteEntryTest {
     }
 
     private void testWriteEmptyBestPath() {
-        this.testBARE.writeRoute(PEER_ID, ROUTE_ID_PA, PEER_YII2, this.peg, TABLES_KEY, this.peerPT, this.ribSupport,
-                this.tx);
+        this.testBARE.initializeBestPaths(this.entryDep,PEER_ID, ROUTE_ID_PA, PEER_YII2, this.peg,  this.tx);
         assertEquals(0, this.yiichanges.size());
     }
 
@@ -54,7 +53,7 @@ public final class SimpleRouteEntryTest extends AbstractRouteEntryTest {
         assertFalse(this.testBARE.isEmpty());
         assertTrue(this.testBARE.selectBest(AS));
         /** Add AddPath Route **/
-        this.testBARE.updateRoute(TABLES_KEY, this.peerPT, LOC_RIB_TARGET, this.ribSupport, this.tx,
+        this.testBARE.updateBestPaths(this.entryDep, this.tx,
                 ROUTE_ID_PA_ADD_PATH);
         final Map<YangInstanceIdentifier, Long> yiiCount = collectInfo();
         assertEquals(3, yiiCount.size());
@@ -70,8 +69,7 @@ public final class SimpleRouteEntryTest extends AbstractRouteEntryTest {
 
     private void testInitializePeerWithExistentRoute() {
         assertEquals(3, this.yiichanges.size());
-        this.testBARE.writeRoute(PEER_ID, ROUTE_ID_PA_ADD_PATH, PEER_YII2, this.peg, TABLES_KEY, this.peerPT,
-                this.ribSupport, this.tx);
+        this.testBARE.initializeBestPaths(this.entryDep,PEER_ID, ROUTE_ID_PA_ADD_PATH, PEER_YII2, this.peg,  this.tx);
         assertEquals(5, this.yiichanges.size());
         final Map<YangInstanceIdentifier, Long> yiiCount = collectInfo();
         assertEquals(1, (long) yiiCount.get(this.routeAddRiboutYiiPeer2));
@@ -84,7 +82,7 @@ public final class SimpleRouteEntryTest extends AbstractRouteEntryTest {
         assertEquals(1, (long) yiiCount.get(this.routePaAddPathYii));
         assertTrue(this.testBARE.removeRoute(ROUTER_ID, REMOTE_PATH_ID));
         assertTrue(this.testBARE.selectBest(AS));
-        this.testBARE.updateRoute(TABLES_KEY, this.peerPT, LOC_RIB_TARGET, this.ribSupport, this.tx,
+        this.testBARE.updateBestPaths(this.entryDep, this.tx,
                 ROUTE_ID_PA_ADD_PATH);
         yiiCount = collectInfo();
         assertEquals(2, yiiCount.size());
