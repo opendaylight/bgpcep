@@ -46,6 +46,30 @@
       "revId": "94fc15ce6d1ea711241852f63b0122280f0ffc85",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "91cc7605_818c8c07",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/SimpleSessionListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-01-08T09:05:40Z",
+      "side": 0,
+      "message": "Hi Kevin, basically you should try to\n\n- minimize the changes.\n- minimize the quantity of new code\n- keep it simple\n\nthis helps to make more easy the task of maintain the code. \nNot sure what kind of issues you had for say that mock the interface is not enough. I tested your test using:\n\nfinal BGPSessionListener listener \u003d mock(BGPSessionListener.class) ;\nMockito.doThrow(new RuntimeException(\"Mocked runtime exception.\"))\n.when(listener).onSessionUp(Matchers.any());\n\nand it passed without any issue.\nWith this 2 simple lines, I avoided to \n- change SimpleSessionListener class.\n- introduce a new class only for throw an exception.\n- everything related to the test is located in only one place.\n\nRegards, \n\nClaudio",
+      "parentUuid": "4fabe2b3_fbf59b3e",
+      "range": {
+        "startLine": 32,
+        "startChar": 7,
+        "endLine": 32,
+        "endChar": 12
+      },
+      "revId": "94fc15ce6d1ea711241852f63b0122280f0ffc85",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
