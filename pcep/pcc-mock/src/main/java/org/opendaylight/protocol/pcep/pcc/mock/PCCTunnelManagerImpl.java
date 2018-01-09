@@ -117,8 +117,9 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
             if (hasDelegation(tunnel, session)) {
                 //send report D=0
                 final Tlvs tlvs = buildTlvs(tunnel, plspId.getValue(), Optional.absent());
-                final Pcrpt pcrtp = createPcRtpMessage(new LspBuilder(update.getLsp()).setSync(true).setOperational(OperationalStatus.Up).setDelegate(false).
-                    setTlvs(tlvs).build(), Optional.of(createSrp(srpId)), tunnel.getLspState());
+                final Pcrpt pcrtp = createPcRtpMessage(new LspBuilder(update.getLsp()).setSync(true)
+                        .setOperational(OperationalStatus.Up).setDelegate(false)
+                        .setTlvs(tlvs).build(), Optional.of(createSrp(srpId)), tunnel.getLspState());
                 session.sendReport(pcrtp);
                 //start state timer
                 startStateTimeout(tunnel, plspId);
@@ -143,14 +144,16 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
         final long srpId = request.getSrp().getOperationId().getValue();
         if (tunnel != null) {
             //check if tunnel has no delegation
-            if ((tunnel.getType() == LspType.PCE_LSP) && ((tunnel.getDelegationHolder() == -1) || (tunnel.getDelegationHolder() == session.getId()))) {
+            if ((tunnel.getType() == LspType.PCE_LSP) && ((tunnel.getDelegationHolder() == -1)
+                    || (tunnel.getDelegationHolder() == session.getId()))) {
                 //set delegation
                 tunnel.cancelTimeouts();
                 setDelegation(plspId, session);
                 //send report
                 final Tlvs tlvs = buildTlvs(tunnel, plspId.getValue(), Optional.absent());
                 session.sendReport(createPcRtpMessage(
-                    new LspBuilder(request.getLsp()).setSync(true).setOperational(OperationalStatus.Up).setDelegate(true).setTlvs(tlvs).build(),
+                    new LspBuilder(request.getLsp()).setSync(true).setOperational(OperationalStatus.Up)
+                            .setDelegate(true).setTlvs(tlvs).build(),
                     Optional.of(createSrp(srpId)), tunnel.getLspState()));
             } else {
                 session.sendError(MsgBuilderUtil.createErrorMsg(PCEPErrors.LSP_NOT_PCE_INITIATED, srpId));
@@ -193,10 +196,12 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
 
     protected void addTunnel(final Requests request, final PCCSession session) {
         final PlspId plspId = new PlspId(this.plspIDsCounter.incrementAndGet());
-        final PCCTunnel tunnel = new PCCTunnel(request.getLsp().getTlvs().getSymbolicPathName().getPathName().getValue(),
-            session.getId(), LspType.PCE_LSP, reqToRptPath(request));
-        sendToAll(tunnel, plspId, request.getEro().getSubobject(), createSrp(request.getSrp().getOperationId().getValue()),
-            tunnel.getLspState(), new LspBuilder(request.getLsp()).addAugmentation(Lsp1.class, new Lsp1Builder().setCreate(true).build()).build());
+        final PCCTunnel tunnel = new PCCTunnel(request.getLsp().getTlvs().getSymbolicPathName()
+                .getPathName().getValue(), session.getId(), LspType.PCE_LSP, reqToRptPath(request));
+        sendToAll(tunnel, plspId, request.getEro().getSubobject(),
+                createSrp(request.getSrp().getOperationId().getValue()), tunnel.getLspState(),
+                new LspBuilder(request.getLsp())
+                        .addAugmentation(Lsp1.class, new Lsp1Builder().setCreate(true).build()).build());
         this.tunnels.put(plspId, tunnel);
     }
 
@@ -209,7 +214,8 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
                 if (hasDelegation(tunnel, session)) {
                     this.tunnels.remove(plspId);
                     sendToAll(tunnel, plspId, tunnel.getLspState().getEro().getSubobject(),
-                        new SrpBuilder(request.getSrp()).addAugmentation(Srp1.class, new Srp1Builder().setRemove(true).build()).build(),
+                        new SrpBuilder(request.getSrp())
+                                .addAugmentation(Srp1.class, new Srp1Builder().setRemove(true).build()).build(),
                         reqToRptPath(request), request.getLsp());
                 } else {
                     session.sendError(MsgBuilderUtil.createErrorMsg(PCEPErrors.UPDATE_REQ_FOR_NON_LSP, srpId));
@@ -243,10 +249,12 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
 
     @Override
     public void onMessagePcInitiate(@Nonnull final Requests request, @Nonnull final PCCSession session) {
-        if ((request.getSrp().getAugmentation(Srp1.class) != null) && request.getSrp().getAugmentation(Srp1.class).isRemove()) {
+        if ((request.getSrp().getAugmentation(Srp1.class) != null)
+                && request.getSrp().getAugmentation(Srp1.class).isRemove()) {
             //remove LSP
             removeTunnel(request, session);
-        } else if ((request.getLsp().isDelegate() != null) && request.getLsp().isDelegate() && (request.getEndpointsObj() == null)) {
+        } else if ((request.getLsp().isDelegate() != null) && request.getLsp().isDelegate()
+                && (request.getEndpointsObj() == null)) {
             //take LSP delegation
             takeDelegation(request, session);
         } else {
@@ -313,9 +321,7 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
     }
 
     /**
-     * Reports Missed Lsp when DbVersion doesnt match
-     *
-     * @param session
+     * Reports Missed Lsp when DbVersion doesnt match.
      */
     private void reportMissedLsp(final PCCSession session) {
         for (long missedLsp = this.syncOptimization.getRemoteLspDbVersionValue().longValue() + 1;
@@ -326,14 +332,16 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
         }
     }
 
-    private void createLspAndSendReport(final long plspId, final PCCTunnel tunnel, final PCCSession session, final Optional<Boolean> isSync, final Optional<Srp> srp) {
+    private void createLspAndSendReport(final long plspId, final PCCTunnel tunnel, final PCCSession session,
+            final Optional<Boolean> isSync, final Optional<Srp> srp) {
         final boolean delegation = hasDelegation(tunnel, session);
         if (delegation) {
             tunnel.cancelTimeouts();
         }
-        final String destinationAddress = getDestinationAddress(tunnel.getLspState().getEro().getSubobject(), this.address);
-        final Tlvs tlvs = createLspTlvs(plspId, true, destinationAddress, this.address, this.address, Optional.of(tunnel.getPathName()),
-            this.syncOptimization.incrementLspDBVersion());
+        final String destinationAddress
+                = getDestinationAddress(tunnel.getLspState().getEro().getSubobject(), this.address);
+        final Tlvs tlvs = createLspTlvs(plspId, true, destinationAddress, this.address,
+                this.address, Optional.of(tunnel.getPathName()), this.syncOptimization.incrementLspDBVersion());
 
         final boolean sync = isSync.isPresent() ? isSync.get() : this.syncOptimization.isSyncNeedIt();
         final Lsp lsp = createLsp(plspId, sync, Optional.fromNullable(tlvs), delegation, false);
@@ -354,8 +362,8 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
         if (this.syncOptimization.isSyncAvoidanceEnabled()) {
             tlv = createLspTlvsEndofSync(this.syncOptimization.incrementLspDBVersion().get());
         }
-        final Pcrpt pcrtp = createPcRtpMessage(createLsp(0, false, tlv, true, false), Optional.fromNullable(srp), createPath(Collections
-            .emptyList()));
+        final Pcrpt pcrtp = createPcRtpMessage(createLsp(0, false, tlv, true, false),
+                Optional.fromNullable(srp), createPath(Collections.emptyList()));
         session.sendReport(pcrtp);
     }
 
@@ -385,7 +393,8 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
         createLspAndSendReport(plspId.getValue(), tunnel, session, Optional.of(Boolean.TRUE), Optional.of(srp));
     }
 
-    private void sendToAll(final PCCTunnel tunnel, final PlspId plspId, final List<Subobject> subobjects, final Srp srp, final Path path, final Lsp lsp) {
+    private void sendToAll(final PCCTunnel tunnel, final PlspId plspId, final List<Subobject> subobjects, final Srp srp,
+            final Path path, final Lsp lsp) {
         for (final PCCSession session : this.sessions.values()) {
             final boolean isDelegated = hasDelegation(tunnel, session);
             final Tlvs tlvs = buildTlvs(tunnel, plspId.getValue(), Optional.of(subobjects));
@@ -396,7 +405,8 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
                     .setOperational(OperationalStatus.Up)
                     .setDelegate(isDelegated)
                     .setSync(true)
-                    .addAugmentation(Lsp1.class, new Lsp1Builder().setCreate(tunnel.getType() == LspType.PCE_LSP).build())
+                    .addAugmentation(Lsp1.class, new Lsp1Builder()
+                            .setCreate(tunnel.getType() == LspType.PCE_LSP).build())
                     .setTlvs(tlvs).build(),
                 Optional.fromNullable(srp), path);
             session.sendReport(pcRpt);

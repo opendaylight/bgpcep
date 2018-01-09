@@ -31,7 +31,7 @@ final class PCCSyncOptimization {
     private BigInteger lspDBVersion = BigInteger.ONE;
     private Boolean resynchronizing = Boolean.FALSE;
 
-    public PCCSyncOptimization(@Nonnull final PCCSession session) {
+    PCCSyncOptimization(@Nonnull final PCCSession session) {
         requireNonNull(session);
         final Tlvs remote = session.getRemoteTlvs();
         final Tlvs local = session.localSessionCharacteristics();
@@ -40,8 +40,8 @@ final class PCCSyncOptimization {
         this.dbVersionMatch = compareLspDbVersion(this.localLspDbVersion, this.remoteLspDbVersion);
         this.isSyncAvoidanceEnabled = isSyncAvoidance(local) && isSyncAvoidance(remote);
         this.isDeltaSyncEnabled = isDeltaSync(local) && isDeltaSync(remote);
-        this.isTriggeredInitialSynEnable = isTriggeredInitialSync(local) && isTriggeredInitialSync(remote) &&
-            (this.isDeltaSyncEnabled || this.isSyncAvoidanceEnabled);
+        this.isTriggeredInitialSynEnable = isTriggeredInitialSync(local) && isTriggeredInitialSync(remote)
+                && (this.isDeltaSyncEnabled || this.isSyncAvoidanceEnabled);
         this.isTriggeredReSyncEnable = isTriggeredReSync(local) && isTriggeredReSync(remote);
     }
 

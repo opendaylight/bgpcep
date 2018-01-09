@@ -44,8 +44,10 @@ import org.opendaylight.protocol.util.InetSocketAddressUtil;
 public class PCCDispatcherImplTest {
 
     private static final List<PCEPCapability> CAPS = new ArrayList<>();
-    private static final PCEPSessionProposalFactory PROPOSAL = new BasePCEPSessionProposalFactory(10, 40, CAPS);
-    private final DefaultPCEPSessionNegotiatorFactory nf = new DefaultPCEPSessionNegotiatorFactory(PROPOSAL, 0);
+    private static final PCEPSessionProposalFactory PROPOSAL
+            = new BasePCEPSessionProposalFactory(10, 40, CAPS);
+    private final DefaultPCEPSessionNegotiatorFactory nf
+            = new DefaultPCEPSessionNegotiatorFactory(PROPOSAL, 0);
     private PCCDispatcherImpl dispatcher;
     private PCEPDispatcher pcepDispatcher;
     private InetSocketAddress serverAddress;
@@ -61,8 +63,10 @@ public class PCCDispatcherImplTest {
         MockitoAnnotations.initMocks(this);
         this.workerGroup = new NioEventLoopGroup();
         this.bossGroup = new NioEventLoopGroup();
-        this.dispatcher = new PCCDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry());
-        this.pcepDispatcher = new PCEPDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry(),
+        this.dispatcher = new PCCDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance()
+                .getMessageHandlerRegistry());
+        this.pcepDispatcher = new PCEPDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance()
+                .getMessageHandlerRegistry(),
             this.nf, this.bossGroup, this.workerGroup);
         this.serverAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
         this.clientAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(0);
@@ -84,8 +88,9 @@ public class PCCDispatcherImplTest {
 
     @Test
     public void testClientReconnect() throws Exception {
-        final Future<PCEPSession> futureSession = this.dispatcher.createClient(this.serverAddress, 1, new TestingSessionListenerFactory(),
-            this.nf, KeyMapping.getKeyMapping(), this.clientAddress);
+        final Future<PCEPSession> futureSession = this.dispatcher
+                .createClient(this.serverAddress, 1, new TestingSessionListenerFactory(), this.nf,
+                        KeyMapping.getKeyMapping(), this.clientAddress);
         final TestingSessionListenerFactory slf = new TestingSessionListenerFactory();
         doReturn(slf).when(this.dispatcherDependencies).getListenerFactory();
 
@@ -94,7 +99,8 @@ public class PCCDispatcherImplTest {
         final Channel channel = futureServer.channel();
         Assert.assertNotNull(futureSession.get());
         checkSessionListenerNotNull(slf, this.clientAddress.getHostString());
-        final TestingSessionListener sl = checkSessionListenerNotNull(slf, this.clientAddress.getAddress().getHostAddress());
+        final TestingSessionListener sl
+                = checkSessionListenerNotNull(slf, this.clientAddress.getAddress().getHostAddress());
         Assert.assertNotNull(sl.getSession());
         Assert.assertTrue(sl.isUp());
         channel.close().get();
@@ -102,7 +108,8 @@ public class PCCDispatcherImplTest {
 
         this.workerGroup = new NioEventLoopGroup();
         this.bossGroup = new NioEventLoopGroup();
-        this.pcepDispatcher = new PCEPDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry(),
+        this.pcepDispatcher = new PCEPDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance()
+                .getMessageHandlerRegistry(),
             this.nf, this.bossGroup, this.workerGroup);
 
         final TestingSessionListenerFactory slf2 = new TestingSessionListenerFactory();
@@ -110,7 +117,8 @@ public class PCCDispatcherImplTest {
         final ChannelFuture future2 = this.pcepDispatcher.createServer(this.dispatcherDependencies);
         waitFutureSuccess(future2);
         final Channel channel2 = future2.channel();
-        final TestingSessionListener sl2 = checkSessionListenerNotNull(slf2, this.clientAddress.getAddress().getHostAddress());
+        final TestingSessionListener sl2
+                = checkSessionListenerNotNull(slf2, this.clientAddress.getAddress().getHostAddress());
         Assert.assertNotNull(sl2.getSession());
         Assert.assertTrue(sl2.isUp());
         channel2.close();

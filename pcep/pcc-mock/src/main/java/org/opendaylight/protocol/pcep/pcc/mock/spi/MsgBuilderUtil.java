@@ -73,7 +73,8 @@ public final class MsgBuilderUtil {
         return rptBuilder.build();
     }
 
-    public static Lsp createLsp(final long plspId, final boolean sync, final Optional<Tlvs> tlvs, final boolean isDelegatedLsp, final boolean remove) {
+    public static Lsp createLsp(final long plspId, final boolean sync, final Optional<Tlvs> tlvs,
+            final boolean isDelegatedLsp, final boolean remove) {
         final LspBuilder lspBuilder = new LspBuilder();
         lspBuilder.setAdministrative(true);
         lspBuilder.setDelegate(isDelegatedLsp);
@@ -87,7 +88,8 @@ public final class MsgBuilderUtil {
         return lspBuilder.build();
     }
 
-    public static Lsp createLsp(final long plspId, final boolean sync, final Optional<Tlvs> tlvs, final boolean isDelegatedLspe) {
+    public static Lsp createLsp(final long plspId, final boolean sync, final Optional<Tlvs> tlvs,
+            final boolean isDelegatedLspe) {
         return createLsp(plspId, sync, tlvs, isDelegatedLspe, false);
     }
 
@@ -105,8 +107,8 @@ public final class MsgBuilderUtil {
         return srpBuilder.build();
     }
 
-    public static Path updToRptPath(
-            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev171025.pcupd.message.pcupd.message.updates.Path path) {
+    public static Path updToRptPath(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf
+            .stateful.rev171025.pcupd.message.pcupd.message.updates.Path path) {
         final PathBuilder pathBuilder = new PathBuilder();
         if (path != null) {
             pathBuilder.fieldsFrom(path);
@@ -123,12 +125,14 @@ public final class MsgBuilderUtil {
     }
 
     public static Tlvs createLspTlvs(final long lspId, final boolean symbolicPathName, final String tunnelEndpoint,
-                                     final String tunnelSender, final String extendedTunnelAddress, final Optional<byte[]> symbolicName) {
-        return createLspTlvs(lspId, symbolicPathName, tunnelEndpoint, tunnelSender, extendedTunnelAddress, symbolicName, Optional.absent());
+            final String tunnelSender, final String extendedTunnelAddress, final Optional<byte[]> symbolicName) {
+        return createLspTlvs(lspId, symbolicPathName, tunnelEndpoint, tunnelSender, extendedTunnelAddress, symbolicName,
+                Optional.absent());
     }
 
     public static Tlvs createLspTlvs(final long lspId, final boolean symbolicPathName, final String tunnelEndpoint,
-                                     final String tunnelSender, final String extendedTunnelAddress, final Optional<byte[]> symbolicName, final Optional<BigInteger> lspDBVersion) {
+            final String tunnelSender, final String extendedTunnelAddress, final Optional<byte[]> symbolicName,
+            final Optional<BigInteger> lspDBVersion) {
         final TlvsBuilder tlvs = new TlvsBuilder().setLspIdentifiers(new LspIdentifiersBuilder()
                 .setLspId(new LspId(lspId))
                 .setAddressFamily(
@@ -150,8 +154,8 @@ public final class MsgBuilderUtil {
         }
 
         if (lspDBVersion.isPresent()) {
-            tlvs.addAugmentation(Tlvs1.class, new Tlvs1Builder().setLspDbVersion(new LspDbVersionBuilder().
-                setLspDbVersionValue(lspDBVersion.get()).build()).build());
+            tlvs.addAugmentation(Tlvs1.class, new Tlvs1Builder().setLspDbVersion(new LspDbVersionBuilder()
+                    .setLspDbVersionValue(lspDBVersion.get()).build()).build());
         }
         return tlvs.build();
     }
@@ -162,7 +166,7 @@ public final class MsgBuilderUtil {
         return Optional.of(tlvs);
     }
 
-    public static Pcerr createErrorMsg(@Nonnull final PCEPErrors e, final long srpId) {
+    public static Pcerr createErrorMsg(@Nonnull final PCEPErrors pcepErrors, final long srpId) {
         final PcerrMessageBuilder msgBuilder = new PcerrMessageBuilder();
         return new PcerrBuilder().setPcerrMessage(
             msgBuilder
@@ -175,7 +179,7 @@ public final class MsgBuilderUtil {
                                 .build())).build()).build())
                 .setErrors(
                     Collections.singletonList(new ErrorsBuilder().setErrorObject(
-                        new ErrorObjectBuilder().setType(e.getErrorType()).setValue(e.getErrorValue())
+                        new ErrorObjectBuilder().setType(pcepErrors.getErrorType()).setValue(pcepErrors.getErrorValue())
                             .build()).build())).build()).build();
     }
 
