@@ -45,6 +45,7 @@ public interface RouteEntry {
      * @param path BestPath
      * @return MapEntryNode
      */
+    @Deprecated
     MapEntryNode createValue(PathArgument routeId, BestPath path);
 
     /**

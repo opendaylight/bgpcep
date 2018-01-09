@@ -17,7 +17,7 @@ public final class RouteKey implements Comparable<RouteKey> {
 
     public RouteKey(final UnsignedInteger routerId, final Long remotePathId) {
         this.routerId = routerId;
-        this.remotePathId = remotePathId == null ? 0 : remotePathId;
+        this.remotePathId = remotePathId != null ? remotePathId : 0;
     }
 
     private Long getExternalPathId() {
@@ -65,6 +65,7 @@ public final class RouteKey implements Comparable<RouteKey> {
     @Override
     public int compareTo(@Nonnull final RouteKey otherRouteKey) {
         final int routeIdCompareTo = this.routerId.compareTo(otherRouteKey.getRouteId());
-        return routeIdCompareTo == 0 ? this.remotePathId.compareTo(otherRouteKey.getExternalPathId()) : routeIdCompareTo;
+        return routeIdCompareTo == 0 ? this.remotePathId.compareTo(otherRouteKey.getExternalPathId())
+                : routeIdCompareTo;
     }
 }

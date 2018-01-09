@@ -10,7 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static java.util.Objects.requireNonNull;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 
 /**
  * Combined key formed as a concatenation of source peer and route identifiers.
@@ -18,9 +18,9 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgum
  */
 final class RouteUpdateKey {
     private final PeerId peerId;
-    private final PathArgument routeId;
+    private final NodeIdentifierWithPredicates routeId;
 
-    RouteUpdateKey(final PeerId peerId, final PathArgument routeId) {
+    RouteUpdateKey(final PeerId peerId, final NodeIdentifierWithPredicates routeId) {
         this.peerId = requireNonNull(peerId);
         this.routeId = requireNonNull(routeId);
     }
@@ -29,7 +29,7 @@ final class RouteUpdateKey {
         return this.peerId;
     }
 
-    PathArgument getRouteId() {
+    NodeIdentifierWithPredicates getRouteId() {
         return this.routeId;
     }
 
