@@ -9,19 +9,17 @@
 package org.opendaylight.protocol.pcep.pcc.mock;
 
 import io.netty.channel.Channel;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.PCEPCapability;
-import org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 
 public final class PCCMockTest extends PCCMockCommon {
-    private final String[] mainInput = new String[] {"--local-address", this.localAddress.getHostString(), "--remote-address",
-        InetSocketAddressUtil.toHostAndPort(this.remoteAddress).toString(), "--pcc", "1", "--lsp", "3", "--log-level", "DEBUG", "-ka", "10", "-d", "40", "--reconnect", "-1",
+    private final String[] mainInput = new String[]{"--local-address", this.localAddress.getHostString(),
+        "--remote-address", InetSocketAddressUtil.toHostAndPort(this.remoteAddress).toString(), "--pcc", "1",
+        "--lsp", "3", "--log-level", "DEBUG", "-ka", "10", "-d", "40", "--reconnect", "-1",
         "--redelegation-timeout", "0", "--state-timeout", "-1"};
 
     @Test
@@ -32,7 +30,8 @@ public final class PCCMockTest extends PCCMockCommon {
         Thread.sleep(1000);
         //3 reported LSPs + syc
         final int numMessages = 4;
-        final TestingSessionListener sessionListener = checkSessionListener(numMessages, channel, factory, this.localAddress.getHostString());
+        final TestingSessionListener sessionListener = checkSessionListener(numMessages, channel, factory,
+                this.localAddress.getHostString());
         checkSession(sessionListener.getSession(), 40, 10);
     }
 
@@ -51,10 +50,10 @@ public final class PCCMockTest extends PCCMockCommon {
         final Channel channel2 = createServer(factory2, serverAddress3);
         final Channel channel3 = createServer(factory3, serverAddress4);
 
-        Main.main(new String[] {"--local-address", this.localAddress.getHostString(), "--remote-address",
-                InetSocketAddressUtil.toHostAndPort(serverAddress2).toString() + "," +
-                InetSocketAddressUtil.toHostAndPort(serverAddress3).toString() + "," +
-                InetSocketAddressUtil.toHostAndPort(serverAddress4).toString(),
+        Main.main(new String[]{"--local-address", this.localAddress.getHostString(), "--remote-address",
+            InetSocketAddressUtil.toHostAndPort(serverAddress2).toString() + ","
+                + InetSocketAddressUtil.toHostAndPort(serverAddress3).toString() + ","
+                + InetSocketAddressUtil.toHostAndPort(serverAddress4).toString(),
             "--pcc", "2"});
         Thread.sleep(1000);
         //PCE1
@@ -67,17 +66,6 @@ public final class PCCMockTest extends PCCMockCommon {
         //PCE3
         checkSessionListener(numMessages, channel3, factory3, this.localAddress.getHostString());
         checkSessionListener(numMessages, channel3, factory3, localAddress2);
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testPrivateConstructor() throws Throwable {
-        final Constructor<MsgBuilderUtil> c = MsgBuilderUtil.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
     }
 
     @Override

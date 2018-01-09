@@ -27,7 +27,8 @@ public class PCCServerPeerProposal implements PCEPPeerProposal {
     }
 
     @Override
-    public void setPeerSpecificProposal(@Nonnull final InetSocketAddress address, @Nonnull final TlvsBuilder openBuilder) {
+    public void setPeerSpecificProposal(@Nonnull final InetSocketAddress address,
+            @Nonnull final TlvsBuilder openBuilder) {
         requireNonNull(address);
         final LspDbVersionBuilder lspDbVersionBuilder = new LspDbVersionBuilder();
         if (this.isAfterReconnection) {
@@ -35,6 +36,7 @@ public class PCCServerPeerProposal implements PCEPPeerProposal {
         } else {
             this.isAfterReconnection = true;
         }
-        openBuilder.addAugmentation(Tlvs3.class, new Tlvs3Builder().setLspDbVersion(lspDbVersionBuilder.build()).build());
+        openBuilder.addAugmentation(Tlvs3.class, new Tlvs3Builder()
+                .setLspDbVersion(lspDbVersionBuilder.build()).build());
     }
 }

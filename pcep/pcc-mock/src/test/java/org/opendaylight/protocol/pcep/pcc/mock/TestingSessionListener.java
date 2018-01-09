@@ -66,12 +66,13 @@ public class TestingSessionListener implements PCEPSessionListener, ListenerChec
         return ImmutableList.copyOf(this.messages);
     }
 
-    boolean isUp () {
+    boolean isUp() {
         return this.up;
     }
 
     public PCEPSession getSession() {
-        Assert.assertEquals("Session up", true, Uninterruptibles.awaitUninterruptibly(this.sessionLatch, 10, TimeUnit.SECONDS));
+        Assert.assertEquals("Session up", true,
+                Uninterruptibles.awaitUninterruptibly(this.sessionLatch, 10, TimeUnit.SECONDS));
         return this.session;
     }
 

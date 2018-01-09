@@ -58,9 +58,9 @@ public class PCCTunnelManagerImplTest {
     private static final InetAddress ADDRESS = InetAddresses.forString("1.2.4.5");
     private static final Timer TIMER = new HashedWheelTimer();
     private static final byte[] SYMBOLIC_NAME = "tets".getBytes(StandardCharsets.UTF_8);
-    private static final Ero ERO = new EroBuilder()
-        .setSubobject(Lists.newArrayList(new SubobjectBuilder().setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(
-            new IpPrefixBuilder().setIpPrefix(new IpPrefix(new Ipv4Prefix("127.0.0.2/32"))).build()).build()).build())).build();
+    private static final Ero ERO = new EroBuilder().setSubobject(Lists.newArrayList(new SubobjectBuilder()
+        .setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(new IpPrefixBuilder()
+        .setIpPrefix(new IpPrefix(new Ipv4Prefix("127.0.0.2/32"))).build()).build()).build())).build();
     private final List<PCEPErrors> errorsSession1 = new ArrayList<>();
     private final List<PCEPErrors> errorsSession2 = new ArrayList<>();
     @Mock
@@ -314,10 +314,12 @@ public class PCCTunnelManagerImplTest {
         return updsBuilder.build();
     }
 
-    private static Requests createRequests(final long plspId, final Optional<Boolean> remove, final Optional<Boolean> delegate) {
+    private static Requests createRequests(final long plspId, final Optional<Boolean> remove,
+            final Optional<Boolean> delegate) {
         final RequestsBuilder reqBuilder = new RequestsBuilder();
         reqBuilder.setEro(ERO);
-        final LspBuilder lsp = new LspBuilder().setTlvs(new TlvsBuilder().setSymbolicPathName(new SymbolicPathNameBuilder().setPathName(
+        final LspBuilder lsp = new LspBuilder().setTlvs(new TlvsBuilder()
+            .setSymbolicPathName(new SymbolicPathNameBuilder().setPathName(
             new SymbolicPathName(SYMBOLIC_NAME)).build()).build()).setPlspId(new PlspId(plspId));
         if (delegate.isPresent()) {
             lsp.setDelegate(Boolean.TRUE);
@@ -340,6 +342,7 @@ public class PCCTunnelManagerImplTest {
         return createRequests(plspId, Optional.absent(), Optional.of(Boolean.TRUE));
     }
 
+    @SuppressWarnings("checkstyle:OverloadMethodsDeclarationOrder")
     private static Requests createRequests(final long plspId) {
         return createRequests(plspId, Optional.absent(), Optional.absent());
     }

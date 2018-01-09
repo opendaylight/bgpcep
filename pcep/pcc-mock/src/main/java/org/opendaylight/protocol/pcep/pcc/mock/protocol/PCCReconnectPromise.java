@@ -32,25 +32,26 @@ final class PCCReconnectPromise extends DefaultPromise<PCEPSession> {
     private final InetSocketAddress address;
     private final int retryTimer;
     private final int connectTimeout;
-    private final Bootstrap b;
+    private final Bootstrap bootstrap;
 
     @GuardedBy("this")
     private Future<?> pending;
 
     PCCReconnectPromise(final InetSocketAddress address, final int retryTimer,
-                        final int connectTimeout, final Bootstrap b) {
+                        final int connectTimeout, final Bootstrap bootstrap) {
         super(GlobalEventExecutor.INSTANCE);
         this.address = address;
         this.retryTimer = retryTimer;
         this.connectTimeout = connectTimeout;
-        this.b = b;
+        this.bootstrap = bootstrap;
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatch")
     synchronized void connect() {
         try {
-            this.b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, this.connectTimeout);
-            this.b.remoteAddress(this.address);
-            final ChannelFuture cf = this.b.connect();
+            this.bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, this.connectTimeout);
+            this.bootstrap.remoteAddress(this.address);
+            final ChannelFuture cf = this.bootstrap.connect();
             cf.addListener(new BootstrapConnectListener(this));
             this.pending = cf;
         } catch (final Exception e) {
@@ -101,7 +102,8 @@ final class PCCReconnectPromise extends DefaultPromise<PCEPSession> {
                 } else if (cf.isSuccess()) {
                     PCCReconnectPromise.LOG.debug("Promise connection is successful.");
                 } else {
-                    PCCReconnectPromise.LOG.debug("Attempt to connect to {} failed", PCCReconnectPromise.this.address, cf.cause());
+                    PCCReconnectPromise.LOG.debug("Attempt to connect to {} failed",
+                            PCCReconnectPromise.this.address, cf.cause());
 
                     if (PCCReconnectPromise.this.retryTimer == 0) {
                         PCCReconnectPromise.LOG.debug("Retry timer value is 0. Reconnection will not be attempted");
@@ -112,13 +114,15 @@ final class PCCReconnectPromise extends DefaultPromise<PCEPSession> {
                     final EventLoop loop = cf.channel().eventLoop();
                     loop.schedule(() -> {
                         synchronized (PCCReconnectPromise.this) {
-                            PCCReconnectPromise.LOG.debug("Attempting to connect to {}", PCCReconnectPromise.this.address);
-                            final Future<Void> reconnectFuture = PCCReconnectPromise.this.b.connect();
+                            PCCReconnectPromise.LOG.debug("Attempting to connect to {}",
+                                    PCCReconnectPromise.this.address);
+                            final Future<Void> reconnectFuture = PCCReconnectPromise.this.bootstrap.connect();
                             reconnectFuture.addListener(this);
                             PCCReconnectPromise.this.pending = reconnectFuture;
                         }
                     }, PCCReconnectPromise.this.retryTimer, TimeUnit.SECONDS);
-                    PCCReconnectPromise.LOG.debug("Next reconnection attempt in {}s", PCCReconnectPromise.this.retryTimer);
+                    PCCReconnectPromise.LOG.debug("Next reconnection attempt in {}s",
+                            PCCReconnectPromise.this.retryTimer);
                 }
             }
         }

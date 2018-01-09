@@ -54,7 +54,8 @@ public final class PCCSessionListener implements PCEPSessionListener, PCCSession
             final Updates upd = ((Pcupd) message).getPcupdMessage().getUpdates().get(0);
             this.tunnelManager.onMessagePcupd(upd, this);
         } else if (message instanceof Pcinitiate) {
-            this.tunnelManager.onMessagePcInitiate(((Pcinitiate) message).getPcinitiateMessage().getRequests().get(0), this);
+            this.tunnelManager.onMessagePcInitiate(((Pcinitiate) message)
+                    .getPcinitiateMessage().getRequests().get(0), this);
         }
     }
 
@@ -66,6 +67,7 @@ public final class PCCSessionListener implements PCEPSessionListener, PCCSession
     }
 
     @Override
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public void onSessionDown(final PCEPSession session, final Exception exception) {
         LOG.info("Session down with cause : {} or exception: {}", exception.getCause(), exception, exception);
         this.tunnelManager.onSessionDown(this);

@@ -12,12 +12,12 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.protocol.pcep.PCEPCapability;
@@ -50,7 +50,8 @@ public final class Main {
 
     public static void main(final String[] args) throws InterruptedException, ExecutionException, UnknownHostException {
         InetSocketAddress localAddress = new InetSocketAddress(LOCALHOST, DEFAULT_LOCAL_PORT);
-        List<InetSocketAddress> remoteAddress = Lists.newArrayList(new InetSocketAddress(LOCALHOST, DEFAULT_REMOTE_PORT));
+        List<InetSocketAddress> remoteAddress = Collections
+                .singletonList(new InetSocketAddress(LOCALHOST, DEFAULT_REMOTE_PORT));
         int pccCount = 1;
         int lsps = 1;
         boolean pcError = false;
@@ -137,8 +138,8 @@ public final class Main {
 
         if (incrementalSync) {
             Preconditions.checkArgument(syncOptDBVersion.intValue() > lsps,
-                    "Synchronization Database Version which will be used after " +
-                "reconnectes requires to be higher than lsps");
+                    "Synchronization Database Version which will be used after "
+                            + "reconnectes requires to be higher than lsps");
         }
 
         final Optional<BigInteger> dBVersion = Optional.fromNullable(syncOptDBVersion);

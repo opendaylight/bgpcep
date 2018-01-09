@@ -10,6 +10,7 @@ package org.opendaylight.protocol.pcep.pcc.mock;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Test;
@@ -26,7 +27,7 @@ public class PCCEndPointIpv4ObjectParserTest {
     private static final String IP1 = "1.2.3.4";
     private static final String IP2 = "1.2.3.5";
 
-    @Test(expected=PCEPDeserializerException.class)
+    @Test(expected = PCEPDeserializerException.class)
     public void testParseEmptyObject() throws PCEPDeserializerException {
         final ObjectHeader header = new ObjectHeaderImpl(false, false);
         final ByteBuf bytes = Unpooled.buffer();
@@ -48,14 +49,14 @@ public class PCCEndPointIpv4ObjectParserTest {
         assertFalse(output.isProcessingRule());
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testNullBytes() throws PCEPDeserializerException {
         final ObjectHeader header = new ObjectHeaderImpl(false, false);
         final ByteBuf bytes = null;
         new PCCEndPointIpv4ObjectParser().parseObject(header, bytes);
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testEmptyBytes() throws PCEPDeserializerException {
         final ObjectHeader header = new ObjectHeaderImpl(false, false);
         final ByteBuf bytes = Unpooled.buffer();

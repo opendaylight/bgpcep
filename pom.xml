@@ -41,6 +41,7 @@
         <module>binding-parent</module>
         <module>bundle-parent</module>
         <module>config-parent</module>
+        <module>testtool-parent</module>
 
         <!-- Common infra -->
         <module>concepts</module>

@@ -28,7 +28,7 @@ final class PCCTunnelBuilder {
     private static final Subobject DEFAULT_ENDPOINT_HOP = getDefaultEROEndpointHop();
     private static final String ENDPOINT_ADDRESS = "1.1.1.1";
     private static final String ENDPOINT_PREFIX = ENDPOINT_ADDRESS + "/32";
-    public static final int PCC_DELEGATION = -1;
+    static final int PCC_DELEGATION = -1;
 
     private PCCTunnelBuilder() {
         throw new UnsupportedOperationException();
@@ -38,8 +38,8 @@ final class PCCTunnelBuilder {
     static Map<PlspId, PCCTunnel> createTunnels(final String address, final int lsps) {
         final Map<PlspId, PCCTunnel> tunnels = new HashMap<>();
         for (int i = 1; i <= lsps; i++) {
-            final PCCTunnel tunnel = new PCCTunnel(MsgBuilderUtil.getDefaultPathName(address, i), PCC_DELEGATION, LspType.PCC_LSP,
-                createPath(Lists.newArrayList(DEFAULT_ENDPOINT_HOP)));
+            final PCCTunnel tunnel = new PCCTunnel(MsgBuilderUtil.getDefaultPathName(address, i),
+                    PCC_DELEGATION, LspType.PCC_LSP, createPath(Lists.newArrayList(DEFAULT_ENDPOINT_HOP)));
             tunnels.put(new PlspId((long) i), tunnel);
         }
         return tunnels;

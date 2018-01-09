@@ -201,8 +201,8 @@ public abstract class PCCMockCommon {
                     assertEquals(true, lsp.isSync());
                 }
                 final BigInteger actuaLspDBVersion = lsp.getTlvs().getAugmentation(org.opendaylight.yang.gen
-                        .v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev171025.Tlvs1.class)
-                        .getLspDbVersion().getLspDbVersionValue();
+                    .v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev171025.Tlvs1.class)
+                    .getLspDbVersion().getLspDbVersionValue();
                 assertEquals(expectedDbVersion, actuaLspDBVersion);
             }
         }
@@ -214,11 +214,10 @@ public abstract class PCCMockCommon {
         final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(3, this.localAddress.getAddress(),
                 0, -1, new HashedWheelTimer(), Optional.absent());
 
-        return pccDispatcher.createClient(this.remoteAddress, -1,
-                () -> {
-                    this.pccSessionListener = new PCCSessionListener(1, tunnelManager, false);
-                    return this.pccSessionListener;
-                }, snf, KeyMapping.getKeyMapping(), this.localAddress, dbVersion);
+        return pccDispatcher.createClient(this.remoteAddress, -1, () -> {
+            this.pccSessionListener = new PCCSessionListener(1, tunnelManager, false);
+            return this.pccSessionListener;
+        }, snf, KeyMapping.getKeyMapping(), this.localAddress, dbVersion);
     }
 
     private PCEPSessionNegotiatorFactory<PCEPSessionImpl> getSessionNegotiatorFactory() {

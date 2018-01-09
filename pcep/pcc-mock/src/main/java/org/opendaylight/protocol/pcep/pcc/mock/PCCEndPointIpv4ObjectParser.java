@@ -23,7 +23,8 @@ public class PCCEndPointIpv4ObjectParser extends PCEPEndPointsIpv4ObjectParser {
 
     @Override
     public Object parseObject(ObjectHeader header, ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(bytes != null && bytes.isReadable(),
+                "Array of bytes is mandatory. Can't be null or empty.");
         final EndpointsObjBuilder builder = new EndpointsObjBuilder();
         if (bytes.readableBytes() != Ipv4Util.IP4_LENGTH * 2) {
             throw new PCEPDeserializerException("Wrong length of array of bytes.");
