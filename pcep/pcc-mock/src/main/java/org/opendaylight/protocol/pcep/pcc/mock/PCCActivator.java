@@ -18,7 +18,8 @@ public class PCCActivator extends AbstractPCEPExtensionProviderActivator {
     @Override
     protected List<AutoCloseable> startImpl(final PCEPExtensionProviderContext context) {
         final List<AutoCloseable> regs = new ArrayList<>();
-        regs.add(context.registerObjectParser(PCCEndPointIpv4ObjectParser.CLASS, PCCEndPointIpv4ObjectParser.TYPE, new PCCEndPointIpv4ObjectParser()));
+        regs.add(context.registerObjectParser(PCCEndPointIpv4ObjectParser.CLASS, PCCEndPointIpv4ObjectParser.TYPE,
+                new PCCEndPointIpv4ObjectParser()));
         return regs;
     }
 

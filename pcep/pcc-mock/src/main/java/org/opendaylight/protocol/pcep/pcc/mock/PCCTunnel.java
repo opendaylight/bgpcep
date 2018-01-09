@@ -21,7 +21,7 @@ final class PCCTunnel {
     private Timeout redelegationTimeout;
     private Timeout stateTimeout;
 
-    public PCCTunnel(final byte[] pathName, final int delegationHolder, final LspType type, final Path lspState) {
+    PCCTunnel(final byte[] pathName, final int delegationHolder, final LspType type, final Path lspState) {
         if (pathName != null) {
             this.pathName = pathName.clone();
         } else {

@@ -40,6 +40,7 @@ public class SimpleSessionListener implements PCEPSessionListener {
     }
 
     @Override
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public void onSessionDown(final PCEPSession session, final Exception exception) {
         LOG.debug("Session down with cause : {} or exception: {}", exception.getCause(), exception, exception);
         try {

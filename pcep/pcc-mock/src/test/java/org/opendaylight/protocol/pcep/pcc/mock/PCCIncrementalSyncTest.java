@@ -29,8 +29,8 @@ public class PCCIncrementalSyncTest extends PCCMockCommon {
      */
     private final String[] mainInputIncrementalSync = new String[]{"--local-address", this.localAddress.getHostString(),
         "--remote-address", InetSocketAddressUtil.toHostAndPort(this.remoteAddress).toString(), "--pcc", "1", "--lsp",
-        this.lsp.toString(), "--log-level", "DEBUG", "-ka", "30", "-d", "120", "--reconnect", "-1", "--redelegation-timeout",
-        "0", "--state-timeout", "-1", "--incremental-sync-procedure", "10", "5", "5"};
+        this.lsp.toString(), "--log-level", "DEBUG", "-ka", "30", "-d", "120", "--reconnect", "-1",
+        "--redelegation-timeout", "0", "--state-timeout", "-1", "--incremental-sync-procedure", "10", "5", "5"};
 
     @Test
     public void testSessionIncrementalSyncEstablishment() throws Exception {
@@ -44,7 +44,8 @@ public class PCCIncrementalSyncTest extends PCCMockCommon {
         final int expetecdNumberOfLspAndEndOfSync = 3;
         final BigInteger expectedFinalDBVersion = BigInteger.valueOf(10);
         final TestingSessionListener sessionListenerAfterReconnect = getListener(factory);
-        checkResyncSession(Optional.absent(), expetecdNumberOfLspAndEndOfSync, 3, numberOflspAndDBv, expectedFinalDBVersion, sessionListenerAfterReconnect);
+        checkResyncSession(Optional.absent(), expetecdNumberOfLspAndEndOfSync, 3, numberOflspAndDBv,
+                expectedFinalDBVersion, sessionListenerAfterReconnect);
         channel.close().get();
     }
 

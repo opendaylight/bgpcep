@@ -96,8 +96,7 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
                             public PCEPPeerProposal getPeerProposal() {
                                 return new PCCPeerProposal(dbVersion);
                             }
-                        }
-                        , ch, promise));
+                        }, ch, promise));
                 ch.pipeline().addLast(PCCDispatcherImpl.this.factory.getEncoders());
                 ch.pipeline().addLast(new ChannelInboundHandlerAdapter() {
                     @Override

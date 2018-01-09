@@ -28,7 +28,8 @@ public class TimerHandler {
     private final PCCsBuilder pcCsBuilder;
     private boolean reconnectActive = false;
 
-    public TimerHandler(final PCCsBuilder pcCsBuilder, final Optional<BigInteger> syncOptDBVersion, final int disconnectAfter, final int reconnectAfter) {
+    public TimerHandler(final PCCsBuilder pcCsBuilder, final Optional<BigInteger> syncOptDBVersion,
+            final int disconnectAfter, final int reconnectAfter) {
         this.pcCsBuilder = pcCsBuilder;
         this.syncOptDBVersion = syncOptDBVersion;
         this.disconnectAfter = disconnectAfter;
@@ -41,7 +42,8 @@ public class TimerHandler {
             LOG.debug("Disconnects PCCs, reconnect after {} seconds", TimerHandler.this.reconnectAfter);
             TimerHandler.this.pccDispatcher.close();
             if (TimerHandler.this.reconnectAfter > 0) {
-                TimerHandler.this.timer.newTimeout(new ReconnectTask(), TimerHandler.this.reconnectAfter, TimeUnit.SECONDS);
+                TimerHandler.this.timer.newTimeout(new ReconnectTask(),
+                        TimerHandler.this.reconnectAfter, TimeUnit.SECONDS);
             }
         }
     }
@@ -50,7 +52,8 @@ public class TimerHandler {
         @Override
         public void run(final Timeout timeout) throws Exception {
             LOG.debug("Reconnecting PCCs}");
-            TimerHandler.this.pcCsBuilder.createPCCs(TimerHandler.this.syncOptDBVersion.isPresent() ? TimerHandler.this.syncOptDBVersion.get() : BigInteger.ONE, Optional.absent());
+            TimerHandler.this.pcCsBuilder.createPCCs(TimerHandler.this.syncOptDBVersion.isPresent()
+                    ? TimerHandler.this.syncOptDBVersion.get() : BigInteger.ONE, Optional.absent());
         }
     }
 

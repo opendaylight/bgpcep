@@ -32,13 +32,13 @@ public class PCCMock {
         final PCEPSessionNegotiatorFactory snf = new DefaultPCEPSessionNegotiatorFactory(proposal, 0);
         final HostAndPort serverHostAndPort = HostAndPort.fromString(args[0]);
         final InetSocketAddress serverAddr = new InetSocketAddress(serverHostAndPort.getHost(), serverHostAndPort
-            .getPortOrDefault(12345));
+                .getPortOrDefault(12345));
         final InetSocketAddress clientAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(0);
 
-        try (final PCCDispatcherImpl pccDispatcher = new PCCDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext
-            .getSingletonInstance().getMessageHandlerRegistry())) {
+        try (PCCDispatcherImpl pccDispatcher = new PCCDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext
+                .getSingletonInstance().getMessageHandlerRegistry())) {
             pccDispatcher.createClient(serverAddr, -1, SimpleSessionListener::new, snf,
-                KeyMapping.getKeyMapping(), clientAddr).get();
+                    KeyMapping.getKeyMapping(), clientAddr).get();
         }
     }
 }

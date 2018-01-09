@@ -18,14 +18,9 @@ import org.slf4j.LoggerFactory;
 
 public class TestingSessionListener implements PCEPSessionListener {
 
-    private final List<Message> messages = Lists.newArrayList();
-
-    private boolean up = false;
-
     private static final Logger LOG = LoggerFactory.getLogger(TestingSessionListener.class);
-
-    public TestingSessionListener() {
-    }
+    private final List<Message> messages = Lists.newArrayList();
+    private boolean up = false;
 
     @Override
     public void onMessage(final PCEPSession session, final Message message) {
@@ -50,11 +45,11 @@ public class TestingSessionListener implements PCEPSessionListener {
         LOG.debug("Session terminated. Cause : {}", cause);
     }
 
-    public List<Message> messages() {
+    List<Message> messages() {
         return this.messages;
     }
 
-    public boolean isUp () {
+    boolean isUp() {
         return this.up;
     }
 }
