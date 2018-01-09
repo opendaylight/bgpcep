@@ -12,10 +12,10 @@ import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 
 public class AddPathBestNPathSelection implements PathSelectionMode {
-    private final Long nBestPaths;
+    private final Long npaths;
 
-    public AddPathBestNPathSelection(final Long nBestPaths) {
-        this.nBestPaths = nBestPaths;
+    public AddPathBestNPathSelection(final Long npaths) {
+        this.npaths = npaths;
     }
 
     @Override
@@ -29,6 +29,6 @@ public class AddPathBestNPathSelection implements PathSelectionMode {
     }
 
     public Long getNBestPaths() {
-        return this.nBestPaths;
+        return this.npaths;
     }
 }

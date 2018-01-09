@@ -72,10 +72,12 @@ public abstract class AbstractRouteEntry implements RouteEntry {
 
     protected static boolean filterRoutes(final PeerId rootPeer, final PeerId destPeer,
             final ExportPolicyPeerTracker peerPT, final TablesKey localTK, final PeerRole destPeerRole) {
-        return !rootPeer.equals(destPeer) && isTableSupportedAndReady(destPeer, peerPT, localTK) && !PeerRole.Internal.equals(destPeerRole);
+        return !rootPeer.equals(destPeer) && isTableSupportedAndReady(destPeer, peerPT, localTK)
+                && !PeerRole.Internal.equals(destPeerRole);
     }
 
-    private static boolean isTableSupportedAndReady(final PeerId destPeer, final ExportPolicyPeerTracker peerPT, final TablesKey localTK) {
+    private static boolean isTableSupportedAndReady(final PeerId destPeer, final ExportPolicyPeerTracker peerPT,
+            final TablesKey localTK) {
         if (!peerPT.isTableSupported(destPeer) || !peerPT.isTableStructureInitialized(destPeer)) {
             LOG.trace("Route rejected, peer {} does not support this table type {}", destPeer, localTK);
             return false;
@@ -85,8 +87,8 @@ public abstract class AbstractRouteEntry implements RouteEntry {
 
     protected static YangInstanceIdentifier getAdjRibOutYII(final RIBSupport ribSup,
             final YangInstanceIdentifier rootPath, final PathArgument routeId, final TablesKey localTK) {
-        return ribSup.routePath(rootPath.node(AdjRibOut.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(localTK))
-            .node(ROUTES_IDENTIFIER), routeId);
+        return ribSup.routePath(rootPath.node(AdjRibOut.QNAME).node(Tables.QNAME)
+                .node(RibSupportUtils.toYangTablesKey(localTK)).node(ROUTES_IDENTIFIER), routeId);
     }
 
     protected PeerRole getRoutePeerIdRole(final ExportPolicyPeerTracker peerPT, final PeerId routePeerId) {

@@ -38,38 +38,52 @@ import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableUn
 
 public class BasePathSelectorTest {
 
-    public static final QName ATTRS_EXTENSION_Q = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2017-12-07", "attributes");
+    public static final QName ATTRS_EXTENSION_Q = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet",
+            "2017-12-07", "attributes");
     public static final QName AS_NUMBER_Q = QName.create(ATTRS_EXTENSION_Q, "as-number");
-    public static final NodeIdentifier SEGMENTS_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, Segments.QNAME.getLocalName()));
-    public static final NodeIdentifier SEQ_LEAFLIST_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, "as-sequence"));
-    public static final UnkeyedListEntryNode SEQ_SEGMENT = Builders.unkeyedListEntryBuilder().withNodeIdentifier(SEGMENTS_NID)
-        .addChild(Builders.orderedLeafSetBuilder().withNodeIdentifier(SEQ_LEAFLIST_NID)
-            .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue<>(AS_NUMBER_Q, 1L)).withValue(1L).build())
-            .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue<>(AS_NUMBER_Q, 2L)).withValue(2L).build())
-            .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue<>(AS_NUMBER_Q, 3L)).withValue(3L).build())
-            .build()).build();
-    private static final NodeIdentifier SET_LEAFLIST_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, "as-set"));
-    public static final UnkeyedListEntryNode SET_SEGMENT = Builders.unkeyedListEntryBuilder().withNodeIdentifier(SEGMENTS_NID)
-        .addChild(Builders.leafSetBuilder().withNodeIdentifier(SET_LEAFLIST_NID)
-            .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue<>(AS_NUMBER_Q, 10L)).withValue(10L).build())
-            .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue<>(AS_NUMBER_Q, 11L)).withValue(11L).build())
-            .build()).build();
-    private static final UnkeyedListEntryNode SEQ_SEGMENT2 = Builders.unkeyedListEntryBuilder().withNodeIdentifier(SEGMENTS_NID)
-        .addChild(Builders.orderedLeafSetBuilder().withNodeIdentifier(SEQ_LEAFLIST_NID)
-            .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue<>(AS_NUMBER_Q, 20L)).withValue(20L).build())
-            .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue<>(AS_NUMBER_Q, 2L)).withValue(2L).build())
-            .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue<>(AS_NUMBER_Q, 3L)).withValue(3L).build())
-            .build()).build();
+    public static final NodeIdentifier SEGMENTS_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q,
+            Segments.QNAME.getLocalName()));
+    public static final NodeIdentifier SEQ_LEAFLIST_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q,
+            "as-sequence"));
+    public static final UnkeyedListEntryNode SEQ_SEGMENT = Builders.unkeyedListEntryBuilder()
+            .withNodeIdentifier(SEGMENTS_NID).addChild(Builders.orderedLeafSetBuilder()
+                    .withNodeIdentifier(SEQ_LEAFLIST_NID)
+                    .addChild(Builders.leafSetEntryBuilder()
+                            .withNodeIdentifier(new NodeWithValue<>(AS_NUMBER_Q, 1L)).withValue(1L).build())
+                    .addChild(Builders.leafSetEntryBuilder()
+                            .withNodeIdentifier(new NodeWithValue<>(AS_NUMBER_Q, 2L)).withValue(2L).build())
+                    .addChild(Builders.leafSetEntryBuilder()
+                            .withNodeIdentifier(new NodeWithValue<>(AS_NUMBER_Q, 3L)).withValue(3L).build())
+                    .build()).build();
+    private static final NodeIdentifier SET_LEAFLIST_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q,
+            "as-set"));
+    public static final UnkeyedListEntryNode SET_SEGMENT = Builders.unkeyedListEntryBuilder()
+            .withNodeIdentifier(SEGMENTS_NID).addChild(Builders.leafSetBuilder().withNodeIdentifier(SET_LEAFLIST_NID)
+                    .addChild(Builders.leafSetEntryBuilder()
+                            .withNodeIdentifier(new NodeWithValue<>(AS_NUMBER_Q, 10L)).withValue(10L).build())
+                    .addChild(Builders.leafSetEntryBuilder()
+                            .withNodeIdentifier(new NodeWithValue<>(AS_NUMBER_Q, 11L)).withValue(11L).build())
+                    .build()).build();
+    private static final UnkeyedListEntryNode SEQ_SEGMENT2 = Builders.unkeyedListEntryBuilder()
+            .withNodeIdentifier(SEGMENTS_NID).addChild(Builders.orderedLeafSetBuilder()
+                    .withNodeIdentifier(SEQ_LEAFLIST_NID)
+                    .addChild(Builders.leafSetEntryBuilder()
+                            .withNodeIdentifier(new NodeWithValue<>(AS_NUMBER_Q, 20L)).withValue(20L).build())
+                    .addChild(Builders.leafSetEntryBuilder()
+                            .withNodeIdentifier(new NodeWithValue<>(AS_NUMBER_Q, 2L)).withValue(2L).build())
+                    .addChild(Builders.leafSetEntryBuilder()
+                            .withNodeIdentifier(new NodeWithValue<>(AS_NUMBER_Q, 3L)).withValue(3L).build())
+                    .build()).build();
     private static final QName LOCAL_PREF_Q_NAME = QName.create(ATTRS_EXTENSION_Q, "local-pref");
     private static final QName MULTI_EXIT_DISC_Q_NAME = QName.create(ATTRS_EXTENSION_Q, "multi-exit-disc");
     private static final QName ORIGIN_Q_NAME = QName.create(ATTRS_EXTENSION_Q, "origin");
     private static final QName AS_PATH_Q_NAME = QName.create(ATTRS_EXTENSION_Q, "as-path");
-    private final UnsignedInteger ROUTER_ID = RouterIds.routerIdForAddress("127.0.0.1");
+    private static final UnsignedInteger ROUTER_ID = RouterIds.routerIdForAddress("127.0.0.1");
     static final UnsignedInteger ROUTER_ID2 = RouterIds.routerIdForPeerId(new PeerId("bgp://127.0.0.1"));
-    private final UnsignedInteger ROUTER_ID3 = RouterIds.routerIdForPeerId(new PeerId("bgp://127.0.0.2"));
+    private static final UnsignedInteger ROUTER_ID3 = RouterIds.routerIdForPeerId(new PeerId("bgp://127.0.0.2"));
     private final BasePathSelector selector = new BasePathSelector(20L);
     private final BestPathStateImpl state = new BestPathStateImpl(createStateFromPrefMedOriginASPath().build());
-    private final BaseBestPath originBestPath = new BaseBestPath(this.ROUTER_ID, this.state);
+    private final BaseBestPath originBestPath = new BaseBestPath(ROUTER_ID, this.state);
 
     @Test
     public void testBestPathForEquality() {
@@ -86,7 +100,6 @@ public class BasePathSelectorTest {
 
     @Test
     public void testBestPathWithHigherLocalPref() {
-        DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder = createContBuilder(ATTRS_EXTENSION_Q);
         this.selector.processPath(ROUTER_ID2, createStateFromPrefMedOrigin());   // local-pref 123
         BaseBestPath processedPath = this.selector.result();
         assertEquals(123L, processedPath.getState().getLocalPref().longValue());
@@ -95,6 +108,8 @@ public class BasePathSelectorTest {
         processedPath = this.selector.result();
         assertEquals(321L, processedPath.getState().getLocalPref().longValue());
 
+        DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder =
+                createContBuilder(ATTRS_EXTENSION_Q);
         addLowerLocalRef(dataContBuilder); // prefer path with higher LOCAL_PREF
         this.selector.processPath(ROUTER_ID2, dataContBuilder.build());
         processedPath = this.selector.result();
@@ -103,7 +118,8 @@ public class BasePathSelectorTest {
 
     @Test
     public void testBestPathSelectionOptions() {
-        DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder = createStateFromPrefMedOriginASPath();
+        DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder
+                = createStateFromPrefMedOriginASPath();
         this.selector.processPath(ROUTER_ID2, dataContBuilder.build());
         BaseBestPath processedPath = this.selector.result();
         assertEquals(1, processedPath.getState().getOrigin().getIntValue());
@@ -143,7 +159,7 @@ public class BasePathSelectorTest {
 
     @Test
     public void testBestPathForNonEquality() {
-        this.selector.processPath(this.ROUTER_ID3, createStateFromPrefMedOrigin());
+        this.selector.processPath(ROUTER_ID3, createStateFromPrefMedOrigin());
         final BaseBestPath processedPath = this.selector.result();
 
         assertNotEquals(this.originBestPath.getPeerId(), processedPath.getPeerId());
@@ -155,7 +171,8 @@ public class BasePathSelectorTest {
     }
 
     private static ContainerNode createStateFromPrefMedOrigin() {
-        DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder = createContBuilder(ATTRS_EXTENSION_Q);
+        DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder
+                = createContBuilder(ATTRS_EXTENSION_Q);
         addLowerLocalRef(dataContBuilder);
         addLowerMultiExitDisc(dataContBuilder);
         addIgpOrigin(dataContBuilder);
@@ -163,7 +180,8 @@ public class BasePathSelectorTest {
     }
 
     static DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> createStateFromPrefMedOriginASPath() {
-        DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder = createContBuilder(ATTRS_EXTENSION_Q);
+        DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder
+                = createContBuilder(ATTRS_EXTENSION_Q);
         addHigherLocalRef(dataContBuilder);
         addHigherMultiExitDisc(dataContBuilder);
         addEgpOrigin(dataContBuilder);
@@ -171,35 +189,50 @@ public class BasePathSelectorTest {
         return dataContBuilder;
     }
 
-    private static void addLowerLocalRef(final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder) {
-        dataContBuilder.addChild(createContBuilder(LOCAL_PREF_Q_NAME).addChild(createValueBuilder(123L, LOCAL_PREF_Q_NAME, "pref").build()).build());
+    private static void addLowerLocalRef(
+            final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder) {
+        dataContBuilder.addChild(createContBuilder(LOCAL_PREF_Q_NAME)
+                .addChild(createValueBuilder(123L, LOCAL_PREF_Q_NAME, "pref").build()).build());
     }
 
-    private static void addHigherLocalRef(final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder) {
-        dataContBuilder.addChild(createContBuilder(LOCAL_PREF_Q_NAME).addChild(createValueBuilder(321L, LOCAL_PREF_Q_NAME, "pref").build()).build());
+    private static void addHigherLocalRef(
+            final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder) {
+        dataContBuilder.addChild(createContBuilder(LOCAL_PREF_Q_NAME)
+                .addChild(createValueBuilder(321L, LOCAL_PREF_Q_NAME, "pref").build()).build());
     }
 
-    private static void addLowerMultiExitDisc(final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder) {
-        dataContBuilder.addChild(createContBuilder(MULTI_EXIT_DISC_Q_NAME).addChild(createValueBuilder(1234L, MULTI_EXIT_DISC_Q_NAME, "med").build()).build());
+    private static void addLowerMultiExitDisc(
+            final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder) {
+        dataContBuilder.addChild(createContBuilder(MULTI_EXIT_DISC_Q_NAME)
+                .addChild(createValueBuilder(1234L, MULTI_EXIT_DISC_Q_NAME, "med").build()).build());
     }
 
-    private static void addHigherMultiExitDisc(final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder) {
-        dataContBuilder.addChild(createContBuilder(MULTI_EXIT_DISC_Q_NAME).addChild(createValueBuilder(4321L, MULTI_EXIT_DISC_Q_NAME, "med").build()).build());
+    private static void addHigherMultiExitDisc(
+            final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder) {
+        dataContBuilder.addChild(createContBuilder(MULTI_EXIT_DISC_Q_NAME)
+                .addChild(createValueBuilder(4321L, MULTI_EXIT_DISC_Q_NAME, "med").build()).build());
     }
 
-    private static void addIgpOrigin(final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder) {
-        dataContBuilder.addChild(createContBuilder(ORIGIN_Q_NAME).addChild(createValueBuilder("igp", ORIGIN_Q_NAME, "value").build()).build());
+    private static void addIgpOrigin(
+            final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder) {
+        dataContBuilder.addChild(createContBuilder(ORIGIN_Q_NAME)
+                .addChild(createValueBuilder("igp", ORIGIN_Q_NAME, "value").build()).build());
     }
 
-    private static void addEgpOrigin(final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder) {
-        dataContBuilder.addChild(createContBuilder(ORIGIN_Q_NAME).addChild(createValueBuilder("egp", ORIGIN_Q_NAME, "value").build()).build());
+    private static void addEgpOrigin(
+            final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder) {
+        dataContBuilder.addChild(createContBuilder(ORIGIN_Q_NAME)
+                .addChild(createValueBuilder("egp", ORIGIN_Q_NAME, "value").build()).build());
     }
 
-    private static void addAsPath(final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder, final UnkeyedListEntryNode segment) {
-        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> asPathContBuilder = ImmutableContainerNodeSchemaAwareBuilder.create();
+    private static void addAsPath(final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder,
+            final UnkeyedListEntryNode segment) {
+        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> asPathContBuilder
+                = ImmutableContainerNodeSchemaAwareBuilder.create();
         asPathContBuilder.withNodeIdentifier(new NodeIdentifier(AS_PATH_Q_NAME));
 
-        final CollectionNodeBuilder<UnkeyedListEntryNode, UnkeyedListNode> segments = ImmutableUnkeyedListNodeBuilder.create();
+        final CollectionNodeBuilder<UnkeyedListEntryNode, UnkeyedListNode> segments
+                = ImmutableUnkeyedListNodeBuilder.create();
         segments.withNodeIdentifier(SEGMENTS_NID);
         segments.addChild(segment);
         asPathContBuilder.addChild(segments.build());
@@ -211,7 +244,8 @@ public class BasePathSelectorTest {
         return ImmutableContainerNodeSchemaAwareBuilder.create().withNodeIdentifier(new NodeIdentifier(qname));
     }
 
-    private static <T> ImmutableLeafNodeBuilder<T> createValueBuilder(final T value, final QName qname, final String localName) {
+    private static <T> ImmutableLeafNodeBuilder<T> createValueBuilder(final T value, final QName qname,
+            final String localName) {
         final ImmutableLeafNodeBuilder<T> valueBuilder = new ImmutableLeafNodeBuilder<>();
         valueBuilder.withNodeIdentifier(new NodeIdentifier(QName.create(qname, localName))).withValue(value);
         return valueBuilder;
@@ -231,7 +265,8 @@ public class BasePathSelectorTest {
         sequences.add(new AsNumber(2L));
         sequences.add(new AsNumber(3L));
         final List<Segments> expected = new ArrayList<>();
-        expected.add(new SegmentsBuilder().setAsSet(Lists.newArrayList(new AsNumber(11L), new AsNumber(10L))).build());
+        expected.add(new SegmentsBuilder()
+                .setAsSet(Lists.newArrayList(new AsNumber(11L), new AsNumber(10L))).build());
         expected.add(new SegmentsBuilder().setAsSequence(sequences).build());
         // test
         final List<Segments> actual = this.state.extractSegments(builder.build());
@@ -243,14 +278,18 @@ public class BasePathSelectorTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testBgpOrigin() {
-        DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder = createContBuilder(ATTRS_EXTENSION_Q);
-        final ContainerNode containerIncom = dataContBuilder.addChild(createContBuilder(ORIGIN_Q_NAME).addChild(createValueBuilder("incomplete", ORIGIN_Q_NAME, "value").build()).build()).build();
-        this.selector.processPath(this.ROUTER_ID3, containerIncom);
+        DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder
+                = createContBuilder(ATTRS_EXTENSION_Q);
+        final ContainerNode containerIncom = dataContBuilder.addChild(createContBuilder(ORIGIN_Q_NAME)
+                .addChild(createValueBuilder("incomplete", ORIGIN_Q_NAME, "value")
+                        .build()).build()).build();
+        this.selector.processPath(ROUTER_ID3, containerIncom);
         final BaseBestPath processedPathIncom = this.selector.result();
         assertEquals(BgpOrigin.Incomplete, processedPathIncom.getState().getOrigin());
 
-        final ContainerNode containerException = dataContBuilder.addChild(createContBuilder(ORIGIN_Q_NAME).addChild(createValueBuilder("LOL", ORIGIN_Q_NAME, "value").build()).build()).build();
-        this.selector.processPath(this.ROUTER_ID3, containerException);
+        final ContainerNode containerException = dataContBuilder.addChild(createContBuilder(ORIGIN_Q_NAME)
+                .addChild(createValueBuilder("LOL", ORIGIN_Q_NAME, "value").build()).build()).build();
+        this.selector.processPath(ROUTER_ID3, containerException);
         final BaseBestPath processedPathException = this.selector.result();
         processedPathException.getState().getOrigin();
     }

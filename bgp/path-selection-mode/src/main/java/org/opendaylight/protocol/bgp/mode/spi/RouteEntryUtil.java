@@ -27,8 +27,10 @@ public final class RouteEntryUtil {
         return b.build();
     }
 
-    public static MapEntryNode createComplexRouteValue(final PathArgument routeId, final BestPath path, final MapEntryNode mapValues) {
-        final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> mapEntryBuilder = Builders.mapEntryBuilder();
+    public static MapEntryNode createComplexRouteValue(final PathArgument routeId, final BestPath path,
+            final MapEntryNode mapValues) {
+        final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> mapEntryBuilder
+                = Builders.mapEntryBuilder();
         mapEntryBuilder.withNodeIdentifier((NodeIdentifierWithPredicates) routeId);
         mapEntryBuilder.addChild(path.getAttributes());
         mapValues.getValue().forEach(mapEntryBuilder::addChild);

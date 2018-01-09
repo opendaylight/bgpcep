@@ -20,7 +20,8 @@ final class BaseComplexRouteEntry extends BaseAbstractRouteEntry {
     private MapEntryNode[] values = EMPTY_VALUES;
 
     @Override
-    public int addRoute(final UnsignedInteger routerId, final Long remotePathId, final NodeIdentifier attrII, final NormalizedNode<?, ?> data) {
+    public int addRoute(final UnsignedInteger routerId, final Long remotePathId, final NodeIdentifier attrII,
+            final NormalizedNode<?, ?> data) {
         final OffsetMap oldMap = getOffsets();
         final int offset = super.addRoute(routerId, remotePathId, attrII, data);
         final OffsetMap newMap = getOffsets();

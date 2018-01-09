@@ -22,8 +22,8 @@ final class ComplexRouteEntry extends AbstractNPathsRouteEntry {
     private static final MapEntryNode[] EMPTY_VALUES = new MapEntryNode[0];
     private MapEntryNode[] values = EMPTY_VALUES;
 
-    public ComplexRouteEntry(final Long nBestPaths) {
-        super(nBestPaths);
+    ComplexRouteEntry(final Long npaths) {
+        super(npaths);
     }
 
     @Override
@@ -43,7 +43,8 @@ final class ComplexRouteEntry extends AbstractNPathsRouteEntry {
     }
 
     @Override
-    public int addRoute(final UnsignedInteger routerId, final Long remotePathId, final NodeIdentifier attributesIdentifier, final NormalizedNode<?, ?> data) {
+    public int addRoute(final UnsignedInteger routerId, final Long remotePathId,
+            final NodeIdentifier attributesIdentifier, final NormalizedNode<?, ?> data) {
         final OffsetMap oldMap = getOffsets();
         final int offset = addRoute(new RouteKey(routerId, remotePathId), attributesIdentifier, data);
         final OffsetMap newMap = getOffsets();

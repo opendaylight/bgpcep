@@ -26,7 +26,8 @@ public class BaseBestPathTest {
     @Before
     public void setUp() throws Exception {
         final BasePathSelector selector = new BasePathSelector(20L);
-        selector.processPath(BasePathSelectorTest.ROUTER_ID2, BasePathSelectorTest.createStateFromPrefMedOriginASPath().build());
+        selector.processPath(BasePathSelectorTest.ROUTER_ID2,
+                BasePathSelectorTest.createStateFromPrefMedOriginASPath().build());
         this.baseBestPath = selector.result();
         this.baseBestPathCopy = selector.result();
     }
@@ -48,7 +49,8 @@ public class BaseBestPathTest {
 
     @Test
     public void testHashCodeAndEqual() throws Exception {
-        assertTrue(this.baseBestPath.equals(this.baseBestPathCopy) && this.baseBestPathCopy.equals(this.baseBestPath));
+        assertTrue(this.baseBestPath.equals(this.baseBestPathCopy)
+                && this.baseBestPathCopy.equals(this.baseBestPath));
         assertTrue(this.baseBestPath.hashCode() == this.baseBestPathCopy.hashCode());
         assertTrue(this.baseBestPath.getPathId() == PATH_ID);
     }

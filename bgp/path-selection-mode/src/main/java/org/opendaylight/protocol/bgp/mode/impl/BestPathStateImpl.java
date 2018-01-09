@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.concurrent.NotThreadSafe;
+import org.opendaylight.protocol.bgp.mode.BesthPathStateUtil;
 import org.opendaylight.protocol.bgp.mode.api.BestPathState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.attributes.AsPath;
@@ -54,7 +55,8 @@ public final class BestPathStateImpl implements BestPathState {
         private final NodeIdentifier asSeqNid;
 
         NamespaceSpecificIds(final QName namespace) {
-            NodeIdentifier container = new NodeIdentifier(QName.create(namespace, AsPath.QNAME.getLocalName().intern()));
+            NodeIdentifier container = new NodeIdentifier(QName.create(namespace,
+                    AsPath.QNAME.getLocalName().intern()));
             NodeIdentifier leaf = new NodeIdentifier(QName.create(namespace, "segments").intern());
             this.asPath = ImmutableList.of(container, leaf);
 
@@ -100,7 +102,8 @@ public final class BestPathStateImpl implements BestPathState {
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(BestPathStateImpl.class);
-    private static final Cache<QNameModule, NamespaceSpecificIds> PATH_CACHE = CacheBuilder.newBuilder().weakKeys().weakValues().build();
+    private static final Cache<QNameModule, NamespaceSpecificIds> PATH_CACHE = CacheBuilder.newBuilder()
+            .weakKeys().weakValues().build();
 
     private long peerAs = 0L;
     private int asPathLength = 0;
@@ -115,7 +118,8 @@ public final class BestPathStateImpl implements BestPathState {
     public BestPathStateImpl(final ContainerNode attributes) {
         final NamespaceSpecificIds col;
         try {
-            col = PATH_CACHE.get(attributes.getNodeType().getModule(), () -> new NamespaceSpecificIds(attributes.getNodeType()));
+            col = PATH_CACHE.get(attributes.getNodeType().getModule(),
+                () -> new NamespaceSpecificIds(attributes.getNodeType()));
         } catch (final ExecutionException e) {
             LOG.error("Error creating namespace-specific attributes collection.", e);
             throw new IllegalStateException("Error creating namespace-specific attributes collection.", e);
@@ -128,14 +132,14 @@ public final class BestPathStateImpl implements BestPathState {
 
     private static BgpOrigin fromString(final String originStr) {
         switch (originStr) {
-        case "igp":
-            return BgpOrigin.Igp;
-        case "egp":
-            return BgpOrigin.Egp;
-        case "incomplete":
-            return BgpOrigin.Incomplete;
-        default:
-            throw new IllegalArgumentException("Unhandled origin value " + originStr);
+            case "igp":
+                return BgpOrigin.Igp;
+            case "egp":
+                return BgpOrigin.Egp;
+            case "incomplete":
+                return BgpOrigin.Incomplete;
+            default:
+                throw new IllegalArgumentException("Unhandled origin value " + originStr);
         }
     }
 
@@ -144,33 +148,37 @@ public final class BestPathStateImpl implements BestPathState {
             return;
         }
 
-        final Optional<NormalizedNode<?, ?>> maybeLocalPref = NormalizedNodes.findNode(this.attributes, this.ids.getLocPref());
+        final Optional<NormalizedNode<?, ?>> maybeLocalPref
+                = NormalizedNodes.findNode(this.attributes, this.ids.getLocPref());
         if (maybeLocalPref.isPresent()) {
             this.localPref = (Long) maybeLocalPref.get().getValue();
         } else {
             this.localPref = null;
         }
 
-        final Optional<NormalizedNode<?, ?>> maybeMultiExitDisc = NormalizedNodes.findNode(this.attributes, this.ids.getMed());
+        final Optional<NormalizedNode<?, ?>> maybeMultiExitDisc
+                = NormalizedNodes.findNode(this.attributes, this.ids.getMed());
         if (maybeMultiExitDisc.isPresent()) {
             this.multiExitDisc = (Long) maybeMultiExitDisc.get().getValue();
         } else {
             this.multiExitDisc = null;
         }
 
-        final Optional<NormalizedNode<?, ?>> maybeOrigin = NormalizedNodes.findNode(this.attributes, this.ids.getOrig());
+        final Optional<NormalizedNode<?, ?>> maybeOrigin
+                = NormalizedNodes.findNode(this.attributes, this.ids.getOrig());
         if (maybeOrigin.isPresent()) {
             this.origin = fromString((String) maybeOrigin.get().getValue());
         } else {
             this.origin = null;
         }
 
-        final Optional<NormalizedNode<?, ?>> maybeSegments = NormalizedNodes.findNode(this.attributes, this.ids.getAsPath());
+        final Optional<NormalizedNode<?, ?>> maybeSegments
+                = NormalizedNodes.findNode(this.attributes, this.ids.getAsPath());
         if (maybeSegments.isPresent()) {
             final UnkeyedListNode segments = (UnkeyedListNode) maybeSegments.get();
             final List<Segments> segs = extractSegments(segments);
             if (!segs.isEmpty()) {
-                this.peerAs = getPeerAs(segs).getValue();
+                this.peerAs = BesthPathStateUtil.getPeerAs(segs).getValue();
                 this.asPathLength = countAsPath(segs);
             }
         }
@@ -222,25 +230,17 @@ public final class BestPathStateImpl implements BestPathState {
         return count;
     }
 
-    private static AsNumber getPeerAs(final List<Segments> segments) {
-        if (segments.isEmpty()) {
-            return new AsNumber(0L);
-        }
-        for (final Segments seg : segments) {
-            if (seg.getAsSequence() != null && !seg.getAsSequence().isEmpty()) {
-                return segments.get(0).getAsSequence().get(0);
-            }
-        }
-        return new AsNumber(0L);
-    }
+
 
     public List<Segments> extractSegments(final UnkeyedListNode segments) {
         // list segments
         final List<Segments> extracted = new ArrayList<>();
         for (final UnkeyedListEntryNode segment : segments.getValue()) {
             final SegmentsBuilder sb = new SegmentsBuilder();
-            // We are expecting that segment contains either as-sequence or as-set, so just one of them will be set, other would be null
-            sb.setAsSequence(extractAsList(segment, this.ids.getAsSeq())).setAsSet(extractAsList(segment, this.ids.getAsSet()));
+            // We are expecting that segment contains either as-sequence or as-set,
+            // so just one of them will be set, other would be null
+            sb.setAsSequence(extractAsList(segment, this.ids.getAsSeq()))
+                    .setAsSet(extractAsList(segment, this.ids.getAsSet()));
             extracted.add(sb.build());
         }
         return extracted;

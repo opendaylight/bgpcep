@@ -7,11 +7,14 @@
  */
 package org.opendaylight.protocol.bgp.mode.api;
 
+import javax.annotation.Nonnull;
+
 public interface PathSelectionMode extends AutoCloseable {
     /**
-     * Create a RouteEntry
+     * Create a RouteEntry.
+     *
      * @param isComplex true if is complex
      * @return ComplexRouteEntry if is complex otherwise a SimpleRouteEntry
      */
-    RouteEntry createRouteEntry(boolean isComplex);
+    @Nonnull RouteEntry createRouteEntry(boolean isComplex);
 }

@@ -52,6 +52,7 @@ public final class AddPathSelector extends AbstractBestPathSelector {
     }
 
     public AddPathBestPath result() {
-        return this.bestRouteKey == null ? null : new AddPathBestPath(this.bestState, this.bestRouteKey, this.bestOffsetPosition, this.bestPathId);
+        return this.bestRouteKey == null ? null : new AddPathBestPath(this.bestState, this.bestRouteKey,
+                this.bestOffsetPosition, this.bestPathId);
     }
 }

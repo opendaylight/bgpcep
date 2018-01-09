@@ -30,7 +30,8 @@ final class SimpleRouteEntry extends AbstractAllPathsRouteEntry {
     }
 
     @Override
-    public int addRoute(final UnsignedInteger routerId, final Long remotePathId, final NodeIdentifier attII, final NormalizedNode<?, ?> data) {
+    public int addRoute(final UnsignedInteger routerId, final Long remotePathId, final NodeIdentifier attII,
+            final NormalizedNode<?, ?> data) {
         return addRoute(new RouteKey(routerId, remotePathId), attII, data);
     }
 }

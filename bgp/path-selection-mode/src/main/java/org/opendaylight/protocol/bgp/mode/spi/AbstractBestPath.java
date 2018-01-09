@@ -23,7 +23,7 @@ public abstract class AbstractBestPath implements BestPath {
         this.state = requireNonNull(state);
     }
 
-    protected abstract MoreObjects.ToStringHelper addToStringAttributes(final MoreObjects.ToStringHelper toStringHelper);
+    protected abstract MoreObjects.ToStringHelper addToStringAttributes(MoreObjects.ToStringHelper toStringHelper);
 
     @VisibleForTesting
     public final BestPathState getState() {

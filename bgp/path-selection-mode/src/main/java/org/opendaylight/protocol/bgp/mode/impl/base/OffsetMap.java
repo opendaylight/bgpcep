@@ -31,18 +31,18 @@ import org.slf4j.LoggerFactory;
  * array members and array management features.
  */
 final class OffsetMap {
-    static final OffsetMap EMPTY = new OffsetMap(Collections.emptySet());
     private static final Logger LOG = LoggerFactory.getLogger(OffsetMap.class);
     private static final String NEGATIVEOFFSET = "Invalid negative offset %s";
     private static final String INVALIDOFFSET = "Invalid offset %s for %s router IDs";
-    private static final LoadingCache<Set<UnsignedInteger>, OffsetMap> OFFSETMAPS = CacheBuilder.newBuilder().weakValues().build(
-        new CacheLoader<Set<UnsignedInteger>, OffsetMap>() {
-            @Override
-            public OffsetMap load(@Nonnull final Set<UnsignedInteger> key) throws Exception {
-                return new OffsetMap(key);
-            }
-        });
+    private static final LoadingCache<Set<UnsignedInteger>, OffsetMap> OFFSETMAPS = CacheBuilder.newBuilder()
+            .weakValues().build(new CacheLoader<Set<UnsignedInteger>, OffsetMap>() {
+                @Override
+                public OffsetMap load(@Nonnull final Set<UnsignedInteger> key) {
+                    return new OffsetMap(key);
+                }
+            });
     private static final Comparator<UnsignedInteger> COMPARATOR = UnsignedInteger::compareTo;
+    static final OffsetMap EMPTY = new OffsetMap(Collections.emptySet());
     private final UnsignedInteger[] routeKeys;
 
     private OffsetMap(final Set<UnsignedInteger> routerIds) {

@@ -17,8 +17,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
 final class SimpleRouteEntry extends AbstractNPathsRouteEntry {
-    public SimpleRouteEntry(final Long nBestPaths) {
-        super(nBestPaths);
+    SimpleRouteEntry(final Long npaths) {
+        super(npaths);
     }
 
     @Override
@@ -33,7 +33,8 @@ final class SimpleRouteEntry extends AbstractNPathsRouteEntry {
     }
 
     @Override
-    public int addRoute(final UnsignedInteger routerId, final Long remotePathId, final NodeIdentifier attributesIdentifier, final NormalizedNode<?, ?> data) {
+    public int addRoute(final UnsignedInteger routerId, final Long remotePathId,
+            final NodeIdentifier attributesIdentifier, final NormalizedNode<?, ?> data) {
         return addRoute(new RouteKey(routerId, remotePathId), attributesIdentifier, data);
     }
 }

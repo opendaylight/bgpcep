@@ -15,24 +15,28 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 public interface BestPath {
 
     /**
+     * RouterId.
      *
      * @return the routerId (UnsignedInteger)
      */
     UnsignedInteger getRouterId();
 
     /**
+     * PeerId.
      *
      * @return the routerId (UnsignedInteger) converted to a PeerId
      */
     PeerId getPeerId();
 
     /**
+     * Attributes.
      *
      * @return the path attributes
      */
     ContainerNode getAttributes();
 
     /**
+     * PathId.
      *
      * @return pathId
      */
