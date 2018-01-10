@@ -27,8 +27,12 @@ import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.topology.rev140113.NetworkTopologyContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev171025.NetworkTopologyPcepProgrammingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.NetworkTopologyPcepService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class PCEPTopologyProvider extends DefaultTopologyReference {
+    private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyProvider.class);
+
     private static final String STATEFUL_NOT_DEFINED = "Stateful capability not defined, aborting PCEP Topology"
             + " Provider instantiation";
     private final ServerSessionManager manager;
@@ -71,6 +75,7 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference {
     }
 
     public void instantiateServiceInstance() throws ExecutionException, InterruptedException {
+        LOG.info("PCEP Topology Provider instantiated {}", this.configDependencies.getTopologyId());
         final RpcProviderRegistry rpcRegistry = this.dependenciesProvider.getRpcProviderRegistry();
 
         this.element = requireNonNull(rpcRegistry
@@ -82,7 +87,7 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference {
                         new TopologyProgramming(this.scheduler, this.manager)));
         this.network.registerPath(NetworkTopologyContext.class, this.configDependencies.getTopology());
 
-        this.manager.instantiateServiceInstance().get();
+        this.manager.instantiateServiceInstance()       ;
         final ChannelFuture channelFuture = this.dependenciesProvider.getPCEPDispatcher()
                 .createServer(this.manager.getPCEPDispatcherDependencies());
         channelFuture.get();
@@ -90,6 +95,7 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference {
     }
 
     public ListenableFuture<Void> closeServiceInstance() {
+        LOG.info("PCEP Topology Provider close service {}", this.configDependencies.getTopologyId());
         //FIXME return also channelClose once ListenableFuture implements wildcard
         this.channel.close().addListener((ChannelFutureListener) future ->
                 checkArgument(future.isSuccess(), "Channel failed to close: %s", future.cause()));
