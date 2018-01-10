@@ -27,6 +27,7 @@ import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyProvide
 import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.protocol.pcep.PCEPDispatcherDependencies;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSession;
@@ -98,7 +99,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
     /**
      * Create Base Topology.
      */
-    synchronized ListenableFuture<Void> instantiateServiceInstance() {
+    synchronized void instantiateServiceInstance() {
         final TopologyKey key = InstanceIdentifier.keyOf(this.topology);
         final TopologyId topologyId = key.getTopologyId();
         final WriteTransaction tx = this.dependenciesProvider.getDataBroker().newWriteOnlyTransaction();
@@ -107,21 +108,16 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
                         .addAugmentation(TopologyTypes1.class, new TopologyTypes1Builder().setTopologyPcep(
                                 new TopologyPcepBuilder().build()).build()).build())
                 .setNode(new ArrayList<>()).build(), true);
-        final ListenableFuture<Void> future = tx.submit();
-        Futures.addCallback(future, new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(final Void result) {
-                LOG.debug("PCEP Topology {} created successfully.", topologyId.getValue());
-                ServerSessionManager.this.isClosed.set(false);
-            }
+        LOG.trace("Create PCEP Topology {}", topologyId.getValue());
 
-            @Override
-            public void onFailure(final Throwable throwable) {
-                LOG.error("Failed to create PCEP Topology {}.", topologyId.getValue(), throwable);
-                ServerSessionManager.this.isClosed.set(true);
-            }
-        }, MoreExecutors.directExecutor());
-        return future;
+        try {
+            tx.submit().checkedGet();
+            LOG.info("PCEP Topology {} created successfully.", topologyId.getValue());
+            ServerSessionManager.this.isClosed.set(false);
+        } catch (TransactionCommitFailedException throwable) {
+            LOG.error("Failed to create PCEP Topology {}.", topologyId.getValue(), throwable);
+            ServerSessionManager.this.isClosed.set(true);
+        }
     }
 
     synchronized void releaseNodeState(final TopologyNodeState nodeState, final PCEPSession session,
