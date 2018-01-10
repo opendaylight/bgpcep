@@ -19,6 +19,7 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyConfiguration;
 import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyProviderDependencies;
+import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RoutedRpcRegistration;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
@@ -33,6 +34,7 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference {
     private final ServerSessionManager manager;
     private final PCEPTopologyProviderDependencies dependenciesProvider;
     private final PCEPTopologyConfiguration configDependencies;
+    private final InstructionScheduler scheduler;
     private RoutedRpcRegistration<NetworkTopologyPcepProgrammingService> network;
     private RoutedRpcRegistration<NetworkTopologyPcepService> element;
     private Channel channel;
@@ -40,15 +42,16 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference {
     private PCEPTopologyProvider(
             final PCEPTopologyConfiguration configDependencies,
             final PCEPTopologyProviderDependencies dependenciesProvider,
-            final ServerSessionManager manager) {
+            final ServerSessionManager manager, final InstructionScheduler scheduler) {
         super(configDependencies.getTopology());
         this.dependenciesProvider = requireNonNull(dependenciesProvider);
         this.configDependencies = configDependencies;
         this.manager = requireNonNull(manager);
+        this.scheduler = requireNonNull(scheduler);
     }
 
     public static PCEPTopologyProvider create(final PCEPTopologyProviderDependencies dependenciesProvider,
-            final PCEPTopologyConfiguration configDependencies) {
+            final InstructionScheduler scheduler, final PCEPTopologyConfiguration configDependencies) {
         final List<PCEPCapability> capabilities = dependenciesProvider.getPCEPDispatcher()
                 .getPCEPSessionNegotiatorFactory().getPCEPSessionProposalFactory().getCapabilities();
         final Optional<PCEPCapability> statefulCapability = capabilities
@@ -64,7 +67,7 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference {
         final ServerSessionManager manager = new ServerSessionManager(dependenciesProvider, listenerFactory,
                 configDependencies);
 
-        return new PCEPTopologyProvider(configDependencies, dependenciesProvider, manager);
+        return new PCEPTopologyProvider(configDependencies, dependenciesProvider, manager, scheduler);
     }
 
     public void instantiateServiceInstance() throws ExecutionException, InterruptedException {
@@ -76,7 +79,7 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference {
 
         this.network = requireNonNull(rpcRegistry
                 .addRoutedRpcImplementation(NetworkTopologyPcepProgrammingService.class,
-                        new TopologyProgramming(configDependencies.getSchedulerDependency(), this.manager)));
+                        new TopologyProgramming(this.scheduler, this.manager)));
         this.network.registerPath(NetworkTopologyContext.class, this.configDependencies.getTopology());
 
         this.manager.instantiateServiceInstance().get();

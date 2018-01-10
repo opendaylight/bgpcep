@@ -17,11 +17,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -44,6 +44,7 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
     private static final Logger LOG = LoggerFactory.getLogger(TopologyNodeState.class);
     private final Map<String, Metadata> metadata = new HashMap<>();
     private final KeyedInstanceIdentifier<Node, NodeKey> nodeId;
+    @GuardedBy("this")
     private final BindingTransactionChain chain;
     private final long holdStateNanos;
     private long lastReleased = 0;
@@ -83,7 +84,7 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
         // The session went down. Undo all the Topology changes we have done.
         // We might want to persist topology node for later re-use.
         if (!persist) {
-            final WriteTransaction trans = beginTransaction();
+            final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
             trans.delete(LogicalDatastoreType.OPERATIONAL, this.nodeId);
             Futures.addCallback(trans.submit(), new FutureCallback<Void>() {
                 @Override
@@ -136,12 +137,8 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
         return this.initialNodeState;
     }
 
-    WriteTransaction beginTransaction() {
-        return this.chain.newWriteOnlyTransaction();
-    }
-
-    ReadWriteTransaction rwTransaction() {
-        return this.chain.newReadWriteTransaction();
+    synchronized BindingTransactionChain getChain() {
+        return this.chain;
     }
 
     <T extends DataObject> ListenableFuture<Optional<T>> readOperationalData(final InstanceIdentifier<T> id) {
@@ -164,14 +161,14 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
     }
 
     @Override
-    public void close() {
+    public synchronized void close() {
         this.chain.close();
     }
 
-    private void putTopologyNode() {
+    private synchronized void putTopologyNode() {
         final Node node = new NodeBuilder().setKey(this.nodeId.getKey())
                 .setNodeId(this.nodeId.getKey().getNodeId()).build();
-        final WriteTransaction t = beginTransaction();
+        final WriteTransaction t = this.chain.newWriteOnlyTransaction();
         t.put(LogicalDatastoreType.OPERATIONAL, this.nodeId, node);
         t.submit();
     }

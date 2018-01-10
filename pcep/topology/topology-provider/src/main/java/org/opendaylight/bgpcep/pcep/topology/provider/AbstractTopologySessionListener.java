@@ -177,7 +177,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
             final InstanceIdentifier<Node1> topologyAugment) {
         final Node1 ta = new Node1Builder().setPathComputationClient(pccBuilder.build()).build();
 
-        final ReadWriteTransaction trans = state.rwTransaction();
+        final ReadWriteTransaction trans = state.getChain().newReadWriteTransaction();
         trans.put(LogicalDatastoreType.OPERATIONAL, topologyAugment, ta);
         LOG.trace("Peer data {} set to {}", topologyAugment, ta);
 
@@ -204,7 +204,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
             AbstractTopologySessionListener.this.session.close(TerminationReason.UNKNOWN);
             return;
         }
-        final MessageContext ctx = new MessageContext(this.nodeState.beginTransaction());
+        final MessageContext ctx = new MessageContext(this.nodeState.getChain().newWriteOnlyTransaction());
         updatePccNode(ctx, new PathComputationClientBuilder().setStateSync(pccSyncState).build());
         if (pccSyncState != PccSyncState.Synchronized) {
             this.synced.set(false);
@@ -298,7 +298,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
             session.close(TerminationReason.UNKNOWN);
             return;
         }
-        final MessageContext ctx = new MessageContext(this.nodeState.beginTransaction());
+        final MessageContext ctx = new MessageContext(this.nodeState.getChain().newWriteOnlyTransaction());
 
         if (onMessage(ctx, message)) {
             LOG.warn("Unhandled message {} on session {}", message, session);

@@ -11,9 +11,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.net.InetSocketAddress;
 import javax.annotation.Nonnull;
-import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.SpeakerIdMapping;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev171025.pcep.config.SessionConfig;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
@@ -23,25 +23,19 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public final class PCEPTopologyConfiguration {
     private final InetSocketAddress address;
     private final KeyMapping keys;
-    private final InstructionScheduler scheduler;
     private final TopologyId topologyId;
     private final short rpcTimeout;
     private final SpeakerIdMapping speakerIds;
     private final InstanceIdentifier<Topology> topology;
 
-    public PCEPTopologyConfiguration(
-            @Nonnull final InetSocketAddress address,
-            @Nonnull final KeyMapping keys,
-            @Nonnull final SpeakerIdMapping speakerIds,
-            @Nonnull final InstructionScheduler scheduler,
-            @Nonnull final TopologyId topologyId,
-            final short rpcTimeout) {
-        this.address = checkNotNull(address);
-        this.keys = checkNotNull(keys);
-        this.speakerIds = checkNotNull(speakerIds);
-        this.scheduler = checkNotNull(scheduler);
-        this.topologyId = checkNotNull(topologyId);
-        this.rpcTimeout = rpcTimeout;
+    public PCEPTopologyConfiguration(@Nonnull final SessionConfig config, @Nonnull final Topology topology) {
+        checkNotNull(topology);
+        this.address = PCEPTopologyProviderUtil.getInetSocketAddress(checkNotNull(config.getListenAddress()),
+                checkNotNull(config.getListenPort()));
+        this.keys = checkNotNull(PCEPTopologyProviderUtil.contructKeys(topology));
+        this.speakerIds = checkNotNull(PCEPTopologyProviderUtil.contructSpeakersId(topology));
+        this.topologyId = checkNotNull(topology.getTopologyId());
+        this.rpcTimeout = config.getRpcTimeout();
         this.topology = InstanceIdentifier.builder(NetworkTopology.class)
                 .child(Topology.class, new TopologyKey(this.topologyId)).build();
     }
@@ -54,11 +48,6 @@ public final class PCEPTopologyConfiguration {
     @Nonnull
     public InstanceIdentifier<Topology> getTopology() {
         return this.topology;
-    }
-
-    @Nonnull
-    public InstructionScheduler getSchedulerDependency() {
-        return this.scheduler;
     }
 
     public short getRpcTimeout() {

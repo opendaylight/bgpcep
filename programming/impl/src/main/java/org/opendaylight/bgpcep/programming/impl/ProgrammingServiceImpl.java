@@ -72,7 +72,7 @@ import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingletonService, InstructionScheduler,
+public final class ProgrammingServiceImpl implements ClusterSingletonService, InstructionScheduler,
         ProgrammingService {
     private static final Logger LOG = LoggerFactory.getLogger(ProgrammingServiceImpl.class);
 
@@ -166,7 +166,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
         this.qid = KeyedInstanceIdentifier.builder(InstructionsQueue.class,
                 new InstructionsQueueKey(this.instructionId)).build();
         this.sgi = ServiceGroupIdentifier.create(this.instructionId + "-service-group");
-        LOG.debug("Creating Programming Service {}.", this.sgi.getValue());
+        LOG.info("Creating Programming Service {}.", this.sgi.getValue());
         this.csspReg = cssp.registerClusterSingletonService(this);
     }
 

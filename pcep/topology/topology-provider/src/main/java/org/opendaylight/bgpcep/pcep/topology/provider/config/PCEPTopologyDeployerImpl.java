@@ -12,7 +12,6 @@ import static org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopology
 import static org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyProviderUtil.filterPcepTopologies;
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
 
-import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -26,8 +25,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
-import org.opendaylight.protocol.concepts.KeyMapping;
-import org.opendaylight.protocol.pcep.SpeakerIdMapping;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev171025.pcep.config.SessionConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.config.rev171025.PcepTopologyTypeConfig;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
@@ -91,6 +88,7 @@ public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener
             return;
         }
         final TopologyId topologyId = topology.getTopologyId();
+        LOG.info("Updating Topology {}", topologyId);
         final PCEPTopologyProviderBean previous = this.pcepTopologyServices.remove(topology.getTopologyId());
         closeTopology(previous, topologyId);
         createTopologyProvider(topology);
@@ -105,36 +103,27 @@ public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener
             LOG.warn("Topology Provider {} already exist. New instance won't be created", topologyId);
             return;
         }
+        LOG.info("Creating Topology {}", topologyId);
+        LOG.trace("Topology {}.", topology);
 
-        final PcepTopologyTypeConfig pcepTopo = topology.getAugmentation(PcepTopologyTypeConfig.class);
-
-        final SessionConfig config = pcepTopo.getSessionConfig();
-
+        final SessionConfig config = topology.getAugmentation(PcepTopologyTypeConfig.class).getSessionConfig();
         final InstructionScheduler instructionScheduler = this.instructionSchedulerFactory
-                .createInstructionScheduler(topologyId.getValue());
+            .createInstructionScheduler(topologyId.getValue());
 
-        final InetSocketAddress inetAddress = PCEPTopologyProviderUtil
-                .getInetSocketAddress(config.getListenAddress(), config.getListenPort());
-
-        final KeyMapping keys = PCEPTopologyProviderUtil.contructKeys(topology);
-        final SpeakerIdMapping speakerIds = PCEPTopologyProviderUtil.contructSpeakersId(topology);
-        final PCEPTopologyConfiguration dependencies = new PCEPTopologyConfiguration(
-                inetAddress, keys, speakerIds, instructionScheduler, topology.getTopologyId(),
-                config.getRpcTimeout());
+        final PCEPTopologyConfiguration dependencies = new PCEPTopologyConfiguration(config, topology);
 
         final PCEPTopologyProviderBean pcepTopologyProviderBean = (PCEPTopologyProviderBean) this.container
                 .getComponentInstance(PCEPTopologyProviderBean.class.getSimpleName());
         this.pcepTopologyServices.put(topologyId, pcepTopologyProviderBean);
-        pcepTopologyProviderBean.start(dependencies);
+        pcepTopologyProviderBean.start(dependencies, instructionScheduler);
     }
 
-    private synchronized void removeTopologyProvider(final Topology topo) {
-        if (!filterPcepTopologies(topo.getTopologyTypes())) {
+    private synchronized void removeTopologyProvider(final Topology topology) {
+        if (!filterPcepTopologies(topology.getTopologyTypes())) {
             return;
         }
-        final TopologyId topologyId = topo.getTopologyId();
-        final PCEPTopologyProviderBean topology = this.pcepTopologyServices.remove(topologyId);
-        closeTopology(topology, topologyId);
+        final TopologyId topologyId = topology.getTopologyId();
+        closeTopology(this.pcepTopologyServices.remove(topologyId), topologyId);
     }
 
     @Override
