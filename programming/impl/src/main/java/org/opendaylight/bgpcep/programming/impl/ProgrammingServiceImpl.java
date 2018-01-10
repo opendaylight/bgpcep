@@ -166,7 +166,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, ClusterSingl
         this.qid = KeyedInstanceIdentifier.builder(InstructionsQueue.class,
                 new InstructionsQueueKey(this.instructionId)).build();
         this.sgi = ServiceGroupIdentifier.create(this.instructionId + "-service-group");
-        LOG.debug("Creating Programming Service {}.", this.sgi.getValue());
+        LOG.info("Creating Programming Service {}.", this.sgi.getValue());
         this.csspReg = cssp.registerClusterSingletonService(this);
     }
 

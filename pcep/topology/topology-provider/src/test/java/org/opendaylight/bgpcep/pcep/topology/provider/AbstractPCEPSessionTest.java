@@ -26,6 +26,7 @@ import io.netty.util.concurrent.Promise;
 import java.lang.reflect.ParameterizedType;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
@@ -38,14 +39,16 @@ import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyProvide
 import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
-import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
-import org.opendaylight.protocol.pcep.SpeakerIdMapping;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiator;
 import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev171025.pcep.config.SessionConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Ero;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.EroBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject;
@@ -107,6 +110,10 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
     @Mock
     private InstructionScheduler scheduler;
     @Mock
+    private SessionConfig sessionConfig;
+    @Mock
+    private Topology topology;
+    @Mock
     private Promise<PCEPSessionImpl> promise;
     private DefaultPCEPSessionNegotiator neg;
 
@@ -142,9 +149,14 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
 
         @SuppressWarnings("unchecked") final T listenerFactory = (T) ((Class) ((ParameterizedType) this.getClass()
                 .getGenericSuperclass()).getActualTypeArguments()[0]).newInstance();
+        doReturn(new IpAddress(new Ipv4Address(this.testAddress))).when(this.sessionConfig).getListenAddress();
+        doReturn(new PortNumber(4189)).when(this.sessionConfig).getListenPort();
+        doReturn(RPC_TIMEOUT).when(this.sessionConfig).getRpcTimeout();
+        doReturn(TEST_TOPOLOGY_ID).when(this.topology).getTopologyId();
+        doReturn(Collections.emptyList()).when(this.topology).getNode();
 
-        final PCEPTopologyConfiguration configDep = new PCEPTopologyConfiguration(ra, KeyMapping.getKeyMapping(),
-                SpeakerIdMapping.getSpeakerIdMap(), this.scheduler, TEST_TOPOLOGY_ID, RPC_TIMEOUT);
+        final PCEPTopologyConfiguration configDep = new PCEPTopologyConfiguration(this.sessionConfig, this.topology,
+                this.scheduler);
         this.manager = new ServerSessionManager(this.topologyDependencies, listenerFactory, configDep);
         startSessionManager();
         this.neg = new DefaultPCEPSessionNegotiator(this.promise, this.clientListener,
