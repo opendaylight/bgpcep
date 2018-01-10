@@ -16,7 +16,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.opendaylight.protocol.util.CheckUtil.checkEquals;
 
-import com.google.common.util.concurrent.ListenableFuture;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
@@ -161,8 +160,7 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
     }
 
     void startSessionManager() throws Exception {
-        final ListenableFuture<Void> future = this.manager.instantiateServiceInstance();
-        future.get();
+        this.manager.instantiateServiceInstance();
         checkEquals(() -> assertFalse(this.manager.isClosed.get()));
     }
 
