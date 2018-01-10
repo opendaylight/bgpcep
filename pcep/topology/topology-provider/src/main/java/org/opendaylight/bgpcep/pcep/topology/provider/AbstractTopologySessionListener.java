@@ -31,7 +31,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.bgpcep.pcep.topology.provider.session.stats.SessionStateImpl;
 import org.opendaylight.bgpcep.pcep.topology.provider.session.stats.TopologySessionStats;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.protocol.pcep.PCEPCloseTermination;
@@ -168,34 +167,10 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
             pccBuilder.setReportedLsp(initialNodeState.getAugmentation(Node1.class)
                     .getPathComputationClient().getReportedLsp());
         }
-        writeNode(pccBuilder, state, topologyAugment);
+        final Node1 ta = new Node1Builder().setPathComputationClient(pccBuilder.build()).build();
+        state.storeNode(topologyAugment, ta, this.session);
         this.listenerState.init(psession);
         LOG.info("Session with {} attached to topology node {}", psession.getRemoteAddress(), state.getNodeId());
-    }
-
-    private void writeNode(final PathComputationClientBuilder pccBuilder, final TopologyNodeState state,
-            final InstanceIdentifier<Node1> topologyAugment) {
-        final Node1 ta = new Node1Builder().setPathComputationClient(pccBuilder.build()).build();
-
-        final ReadWriteTransaction trans = state.rwTransaction();
-        trans.put(LogicalDatastoreType.OPERATIONAL, topologyAugment, ta);
-        LOG.trace("Peer data {} set to {}", topologyAugment, ta);
-
-        // All set, commit the modifications
-        Futures.addCallback(trans.submit(), new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(final Void result) {
-                LOG.trace("Internal state for session {} updated successfully",
-                        AbstractTopologySessionListener.this.session);
-            }
-
-            @Override
-            public void onFailure(final Throwable throwable) {
-                LOG.error("Failed to update internal state for session {}, terminating it",
-                        AbstractTopologySessionListener.this.session, throwable);
-                AbstractTopologySessionListener.this.session.close(TerminationReason.UNKNOWN);
-            }
-        }, MoreExecutors.directExecutor());
     }
 
     synchronized void updatePccState(final PccSyncState pccSyncState) {
@@ -204,7 +179,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
             AbstractTopologySessionListener.this.session.close(TerminationReason.UNKNOWN);
             return;
         }
-        final MessageContext ctx = new MessageContext(this.nodeState.beginTransaction());
+        final MessageContext ctx = new MessageContext(this.nodeState.getChain().newWriteOnlyTransaction());
         updatePccNode(ctx, new PathComputationClientBuilder().setStateSync(pccSyncState).build());
         if (pccSyncState != PccSyncState.Synchronized) {
             this.synced.set(false);
@@ -214,13 +189,13 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         Futures.addCallback(ctx.trans.submit(), new FutureCallback<Void>() {
             @Override
             public void onSuccess(final Void result) {
-                LOG.trace("Internal state for session {} updated successfully",
+                LOG.trace("Pcc Internal state for session {} updated successfully",
                         AbstractTopologySessionListener.this.session);
             }
 
             @Override
             public void onFailure(final Throwable throwable) {
-                LOG.error("Failed to update internal state for session {}",
+                LOG.error("Failed to update Pcc internal state for session {}",
                         AbstractTopologySessionListener.this.session, throwable);
                 AbstractTopologySessionListener.this.session.close(TerminationReason.UNKNOWN);
             }
@@ -298,7 +273,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
             psession.close(TerminationReason.UNKNOWN);
             return;
         }
-        final MessageContext ctx = new MessageContext(this.nodeState.beginTransaction());
+        final MessageContext ctx = new MessageContext(this.nodeState.getChain().newWriteOnlyTransaction());
 
         if (onMessage(ctx, message)) {
             LOG.warn("Unhandled message {} on session {}", message, psession);
