@@ -153,20 +153,18 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
         @SuppressWarnings("checkstyle:IllegalCatch")
         public synchronized void instantiateServiceInstance() {
             LOG.info("PCEP Topology Provider Singleton Service {} instantiated", getIdentifier().getValue());
-            if (this.pcepTopoProvider != null) {
-                try {
-                    this.pcepTopoProvider.instantiateServiceInstance();
-                } catch (final Exception e) {
-                    LOG.error("Failed to instantiate PCEP Topology provider", e);
-                }
-                this.serviceInstantiated = true;
+            try {
+                this.pcepTopoProvider.instantiateServiceInstance();
+            } catch (final Exception e) {
+                LOG.error("Failed to instantiate PCEP Topology provider", e);
             }
+            this.serviceInstantiated = true;
         }
 
         @Override
         public synchronized ListenableFuture<Void> closeServiceInstance() {
             LOG.info("Close PCEP Topology Provider Singleton Service {}", getIdentifier().getValue());
-            if (this.pcepTopoProvider != null && this.serviceInstantiated) {
+            if (this.serviceInstantiated) {
                 this.serviceInstantiated = false;
                 return this.pcepTopoProvider.closeServiceInstance();
             }
