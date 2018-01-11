@@ -26,23 +26,26 @@ import org.opendaylight.bgpcep.config.loader.spi.ConfigFileProcessor;
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
 import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTestCustomizer;
-import org.opendaylight.yangtools.yang.model.api.SchemaContext;
+import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
+import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 
 public abstract class AbstractConfigLoader extends AbstractConcurrentDataBrokerTest {
     @GuardedBy("this")
     private final List<WatchEvent<?>> eventList = new ArrayList<>();
     protected ConfigLoaderImpl configLoader;
     @Mock
-    protected WatchService watchService;
+    private WatchService watchService;
     @Mock
-    protected ConfigFileProcessor processor;
+    ConfigFileProcessor processor;
     @Mock
     private WatchKey watchKey;
     @Mock
     private WatchEvent<?> watchEvent;
     @Mock
     private FileWatcher fileWatcher;
-    private BindingToNormalizedNodeCodec mappingService;
+    protected BindingToNormalizedNodeCodec mappingService;
+    protected BindingCodecTreeFactory bindingCodecTreeFactory;
+    protected DOMSchemaService schemaService;
 
     @Before
     public void setUp() throws Exception {
@@ -59,15 +62,16 @@ public abstract class AbstractConfigLoader extends AbstractConcurrentDataBrokerT
             clearEvent();
             return null;
         }).when(this.processor).loadConfiguration(any());
-        final SchemaContext schemaContext = getSchemaContext();
-        this.configLoader = new ConfigLoaderImpl(schemaContext, this.mappingService, this.fileWatcher);
+        this.configLoader = new ConfigLoaderImpl(getSchemaContext(), this.mappingService, this.fileWatcher);
         this.configLoader.init();
     }
 
     @Override
-    protected AbstractDataBrokerTestCustomizer createDataBrokerTestCustomizer() {
+    protected final AbstractDataBrokerTestCustomizer createDataBrokerTestCustomizer() {
         final AbstractDataBrokerTestCustomizer customizer = super.createDataBrokerTestCustomizer();
         this.mappingService = customizer.getBindingToNormalized();
+        this.bindingCodecTreeFactory = customizer.getBindingToNormalized();
+        this.schemaService = customizer.getSchemaService();
         return customizer;
     }
 
@@ -85,7 +89,7 @@ public abstract class AbstractConfigLoader extends AbstractConcurrentDataBrokerT
     }
 
     @After
-    public final void tearDown() throws Exception {
+    public void tearDown() throws Exception {
         this.configLoader.close();
     }
 }
