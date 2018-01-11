@@ -63,6 +63,13 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-routing-policy-config-loader</artifactId>
+                <classifier>features</classifier>
+                <type>xml</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>features-config-loader</artifactId>
                 <classifier>features</classifier>
                 <type>xml</type>
@@ -91,6 +98,11 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>bmp-monitors-config-loader</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>routing-policy-config-loader</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
