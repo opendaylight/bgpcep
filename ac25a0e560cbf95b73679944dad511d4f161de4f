@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "44797cd0_888b70cd",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-01-11T10:07:48Z",
+      "side": 1,
+      "message": "why the change?",
+      "range": {
+        "startLine": 263,
+        "startChar": 1,
+        "endLine": 265,
+        "endChar": 3
+      },
+      "revId": "ac25a0e560cbf95b73679944dad511d4f161de4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7d166ff9_112dd627",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-01-11T10:07:48Z",
+      "side": 1,
+      "message": "why the change?",
+      "range": {
+        "startLine": 315,
+        "startChar": 0,
+        "endLine": 316,
+        "endChar": 32
+      },
+      "revId": "ac25a0e560cbf95b73679944dad511d4f161de4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bbfd343a_f8e2a4d2",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 488,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-01-11T10:07:48Z",
+      "side": 1,
+      "message": "restore it, once findbug is forced, it will complain about split an Override method. \nAnyway you are validating it via\nonSessionTerminated(this.bgpSession, new BGPTerminationReason(BGPError.CEASE));",
+      "range": {
+        "startLine": 471,
+        "startChar": 0,
+        "endLine": 488,
+        "endChar": 5
+      },
+      "revId": "ac25a0e560cbf95b73679944dad511d4f161de4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "090cc199_ebb37895",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImplTest.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-01-11T10:07:48Z",
+      "side": 1,
+      "message": "line lenght",
+      "range": {
+        "startLine": 213,
+        "startChar": 0,
+        "endLine": 213,
+        "endChar": 147
+      },
+      "revId": "ac25a0e560cbf95b73679944dad511d4f161de4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
