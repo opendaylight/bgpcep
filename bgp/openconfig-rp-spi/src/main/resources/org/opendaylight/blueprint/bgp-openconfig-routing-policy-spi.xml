@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
+
+    <odl:specific-reference-list id="statementActivatorList"
+                                 interface="org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.StatementProviderActivator"/>
+
+    <bean id="statementRegistry"
+          class="org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.StatementRegistry"/>
+
+    <bean id="statementProviderActivator"
+          class="org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.SimpleBGPStatementProviderActivator"
+          init-method="start" destroy-method="close">
+        <argument ref="statementRegistry"/>
+        <argument ref="statementActivatorList"/>
+    </bean>
+
+    <service ref="statementRegistry">
+        <interfaces>
+            <value>org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.StatementRegistryProvider</value>
+            <value>org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.StatementRegistryConsumer</value>
+        </interfaces>
+    </service>
+</blueprint>
