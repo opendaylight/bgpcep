@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl.state;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -30,16 +31,22 @@ public class BGPStateCollectorImpl implements BGPStateProvider, BGPStateConsumer
     @Override
     public List<BGPRIBState> getRibStats() {
         synchronized (this.bgpRibStates) {
-            return ImmutableList.copyOf(this.bgpRibStates.stream().map(BGPRIBStateConsumer::getRIBState)
-                .collect(Collectors.toList()));
+            return ImmutableList.copyOf(this.bgpRibStates
+                    .stream()
+                    .map(BGPRIBStateConsumer::getRIBState)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList()));
         }
     }
 
     @Override
     public List<BGPPeerState> getPeerStats() {
         synchronized (this.bgpPeerStates) {
-            return ImmutableList.copyOf(this.bgpPeerStates.stream().map(BGPPeerStateConsumer::getPeerState)
-                .collect(Collectors.toList()));
+            return ImmutableList.copyOf(this.bgpPeerStates
+                    .stream()
+                    .map(BGPPeerStateConsumer::getPeerState)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList()));
         }
     }
 
