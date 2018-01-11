@@ -9,9 +9,11 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
 
+import javax.annotation.Nonnull;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryDependenciesContainer;
+import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 
@@ -49,5 +51,11 @@ public final class RouteEntryDependenciesContainerImpl implements RouteEntryDepe
     @Override
     public ExportPolicyPeerTracker getExportPolicyPeerTracker() {
         return exportPolicyPeerTracker;
+    }
+
+    @Override
+    public BGPRibRoutingPolicy getRoutingPolicies() {
+        //FIXME
+        return null;
     }
 }
