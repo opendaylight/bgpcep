@@ -10,6 +10,9 @@ package org.opendaylight.protocol.bgp.rib.spi.entry;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 
+/**
+ * Route Entry Key containing prefix.
+ */
 public interface RouteEntryKey {
     /**
      * Returns route containing prefix.
