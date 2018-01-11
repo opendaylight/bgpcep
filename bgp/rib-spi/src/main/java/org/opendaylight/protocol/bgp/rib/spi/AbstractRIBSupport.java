@@ -34,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.update.attributes.mp.unreach.nlri.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
@@ -66,7 +67,7 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     private static final NodeIdentifier DESTINATION_TYPE = new NodeIdentifier(DestinationType.QNAME);
     private static final NodeIdentifier ROUTES = new NodeIdentifier(Routes.QNAME);
     private static final ApplyRoute DELETE_ROUTE = new DeleteRoute();
-
+    public static final String ROUTE_KEY = "route-key";
     private final NodeIdentifier routesContainerIdentifier;
     private final NodeIdentifier routesListIdentifier;
     private final NodeIdentifier routeAttributesIdentifier;
@@ -79,24 +80,28 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     private final Class<? extends AddressFamily> afiClass;
     private final Class<? extends SubsequentAddressFamily> safiClass;
     private final NodeIdentifier destinationNid;
+    private final QName routesQname;
+    private final NodeIdentifierWithPredicates tableQname;
 
     /**
      * Default constructor. Requires the QName of the container augmented under the routes choice
      * node in instantiations of the rib grouping. It is assumed that this container is defined by
      * the same model which populates it with route grouping instantiation, and by extension with
      * the route attributes container.
-     * @param cazeClass Binding class of the AFI/SAFI-specific case statement, must not be null
-     * @param containerClass Binding class of the container in routes choice, must not be null.
-     * @param listClass Binding class of the route list, nust not be null;
-     * @param afiClass address Family Class
-     * @param safiClass SubsequentAddressFamily
+     *
+     * @param cazeClass        Binding class of the AFI/SAFI-specific case statement, must not be null
+     * @param containerClass   Binding class of the container in routes choice, must not be null.
+     * @param listClass        Binding class of the route list, nust not be null;
+     * @param afiClass         address Family Class
+     * @param safiClass        SubsequentAddressFamily
      * @param destinationQname destination Qname
      */
-    protected AbstractRIBSupport(final Class<? extends Routes> cazeClass,
+    protected AbstractRIBSupport(
+            final Class<? extends Routes> cazeClass,
             final Class<? extends DataObject> containerClass,
-        final Class<? extends Route> listClass, final Class<? extends AddressFamily> afiClass,
+            final Class<? extends Route> listClass, final Class<? extends AddressFamily> afiClass,
             final Class<? extends SubsequentAddressFamily> safiClass,
-        final QName destinationQname) {
+            final QName destinationQname) {
         final QName qname = BindingReflections.findQName(containerClass).intern();
         this.routesContainerIdentifier = new NodeIdentifier(qname);
         this.routeAttributesIdentifier = new NodeIdentifier(QName.create(qname,
@@ -105,37 +110,48 @@ public abstract class AbstractRIBSupport implements RIBSupport {
         this.containerClass = requireNonNull(containerClass);
         this.listClass = requireNonNull(listClass);
         this.routeQname = QName.create(qname, BindingReflections.findQName(listClass).intern().getLocalName());
+        this.routesQname = QName.create(qname, BindingReflections.findQName(this.containerClass).intern().getLocalName());
         this.routesListIdentifier = new NodeIdentifier(this.routeQname);
         this.emptyRoutes = Builders.choiceBuilder().withNodeIdentifier(ROUTES).addChild(Builders.containerBuilder()
-            .withNodeIdentifier(routesContainerIdentifier()).withChild(ImmutableNodes.mapNodeBuilder(this.routeQname)
+                .withNodeIdentifier(routesContainerIdentifier()).withChild(ImmutableNodes.mapNodeBuilder(this.routeQname)
                         .build()).build()).build();
         this.afiClass = afiClass;
         this.safiClass = safiClass;
         this.destinationNid = new NodeIdentifier(destinationQname);
+        this.tableQname = RibSupportUtils.toYangTablesKey(new TablesKey(afiClass, safiClass));
     }
 
-    @Nonnull
     @Override
     public final Class<? extends Routes> routesCaseClass() {
         return this.cazeClass;
     }
 
-    @Nonnull
     @Override
     public final Class<? extends DataObject> routesContainerClass() {
         return this.containerClass;
     }
 
-    @Nonnull
     @Override
     public final Class<? extends Route> routesListClass() {
         return this.listClass;
     }
 
-    @Nonnull
     @Override
     public final ChoiceNode emptyRoutes() {
         return this.emptyRoutes;
+    }
+
+    @Override
+    public final YangInstanceIdentifier buildRouteAttributeYii(final YangInstanceIdentifier ribYii,
+            final PathArgument routeKey) {
+        return YangInstanceIdentifier.builder(ribYii)
+                .node(this.tableQname)
+                .node(Routes.QNAME)
+                .node(this.routesQname)
+                .append(routeKey)
+                .node(this.routeQname)
+                .node(this.routeAttributesIdentifier)
+                .build();
     }
 
     public final QName routeQName() {
@@ -228,7 +244,7 @@ public abstract class AbstractRIBSupport implements RIBSupport {
      * @param routesNodeId NodeIdentifier
      */
     private void deleteDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
-        final ContainerNode destination, final NodeIdentifier routesNodeId) {
+            final ContainerNode destination, final NodeIdentifier routesNodeId) {
         processDestination(tx, tablePath.node(routesNodeId), destination, null, DELETE_ROUTE);
     }
 

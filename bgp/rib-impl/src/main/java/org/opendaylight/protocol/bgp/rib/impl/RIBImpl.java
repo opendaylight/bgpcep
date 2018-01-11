@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
@@ -46,8 +47,10 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPRIBStateImpl;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
+import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.RibId;
@@ -68,6 +71,8 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
@@ -344,5 +349,32 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
 
         this.domChain.close();
         return cleanFuture;
+    }
+
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public final Optional<ContainerNode> toNormalizedNodeAttribute(
+            final RIBSupport ribSupport,
+            final NodeIdentifierWithPredicates routeIdentifier,
+            final Optional<Attributes> attributes) {
+        if (!attributes.isPresent()) {
+            return Optional.empty();
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public final Optional<Attributes> getAttributes(
+            final RIBSupport ribSupport,
+            final NodeIdentifierWithPredicates routeIdentifier,
+            final NormalizedNode<?, ?> route) {
+        final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes
+                .findNode(route, ribSupport.routeAttributesIdentifier()).orElse(null);
+        if (advertisedAttrs == null) {
+            return Optional.empty();
+        }
+
+        return Optional.empty();
     }
 }

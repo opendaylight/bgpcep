@@ -47,7 +47,7 @@ interface AddPathRibSupport {
 
     /**
      * Create a new Path Argument for route Key removing remove Path Id from key.
-     * For non extension which doesnt support Multiple Path this step is not required.
+     * For extension which do not support Multiple Path this step is not required.
      *
      * @param routeKeyPathArgument routeKey Path Argument
      * @return new route Key
