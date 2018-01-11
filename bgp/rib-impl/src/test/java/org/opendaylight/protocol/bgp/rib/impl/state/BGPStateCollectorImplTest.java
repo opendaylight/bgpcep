@@ -31,12 +31,12 @@ public class BGPStateCollectorImplTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        doReturn(mock(BGPPeerState.class)).when(this.bgpPeerStateConsumer).getPeerState();
-        doReturn(mock(BGPRIBState.class)).when(this.bgpribStateConsumer).getRIBState();
     }
 
     @Test
-    public void getRibStats() throws Exception {
+    public void getRibStatsTest() throws Exception {
+        doReturn(mock(BGPPeerState.class)).when(this.bgpPeerStateConsumer).getPeerState();
+        doReturn(mock(BGPRIBState.class)).when(this.bgpribStateConsumer).getRIBState();
         final BGPStateCollectorImpl collector = new BGPStateCollectorImpl();
         final BGPRIBStateConsumer ribStateConsumerNull = null;
         collector.bind(ribStateConsumerNull);
@@ -53,6 +53,44 @@ public class BGPStateCollectorImplTest {
 
         collector.unbind(this.bgpribStateConsumer);
         collector.unbind(this.bgpPeerStateConsumer);
+        assertTrue(collector.getRibStats().isEmpty());
+        assertTrue(collector.getPeerStats().isEmpty());
+    }
+
+    @Test
+    public void getRibStatsEmptyPeerTest() throws Exception {
+        doReturn(mock(BGPRIBState.class)).when(this.bgpribStateConsumer).getRIBState();
+        doReturn(null).when(this.bgpPeerStateConsumer).getPeerState();
+        final BGPStateCollectorImpl collector = new BGPStateCollectorImpl();
+        final BGPRIBStateConsumer ribStateConsumerNull = null;
+        collector.bind(ribStateConsumerNull);
+        assertTrue(collector.getRibStats().isEmpty());
+
+        final BGPPeerStateConsumer peerStateConsumerNull = null;
+        collector.bind(peerStateConsumerNull);
+        assertTrue(collector.getPeerStats().isEmpty());
+
+        collector.bind(this.bgpribStateConsumer);
+        collector.bind(this.bgpPeerStateConsumer);
+        assertFalse(collector.getRibStats().isEmpty());
+        assertTrue(collector.getPeerStats().isEmpty());
+    }
+
+    @Test
+    public void getRibStatsEmptyRibTest() throws Exception {
+        doReturn(null).when(this.bgpribStateConsumer).getRIBState();
+        doReturn(null).when(this.bgpPeerStateConsumer).getPeerState();
+        final BGPStateCollectorImpl collector = new BGPStateCollectorImpl();
+        final BGPRIBStateConsumer ribStateConsumerNull = null;
+        collector.bind(ribStateConsumerNull);
+        assertTrue(collector.getRibStats().isEmpty());
+
+        final BGPPeerStateConsumer peerStateConsumerNull = null;
+        collector.bind(peerStateConsumerNull);
+        assertTrue(collector.getPeerStats().isEmpty());
+
+        collector.bind(this.bgpribStateConsumer);
+        collector.bind(this.bgpPeerStateConsumer);
         assertTrue(collector.getRibStats().isEmpty());
         assertTrue(collector.getPeerStats().isEmpty());
     }
