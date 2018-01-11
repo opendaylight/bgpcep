@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2018 AT&T Intellectual Property. All rights reserved.
+  ~
+  ~ This program and the accompanying materials are made available under the
+  ~ terms of the Eclipse Public License v1.0 which accompanies this distribution,
+  ~ and is available at http://www.eclipse.org/legal/epl-v10.html
+-->
+<!-- vi: set et smarttab sw=4 tabstop=4: -->
+<routing-policy xmlns="http://openconfig.net/yang/routing-policy">
+    <policy-definitions>
+        <policy-definition>
+            <name>basic-statements-test</name>
+            <statements>
+                <statement>
+                    <name>as-path-eq-length-test</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <as-path-length>
+                                <operator xmlns:x="http://openconfig.net/yang/policy-types">x:attribute-eq</operator>
+                                <value>2</value>
+                            </as-path-length>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <reject-route/>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>as-path-ge-length-test</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <as-path-length>
+                                <operator xmlns:x="http://openconfig.net/yang/policy-types">x:attribute-ge</operator>
+                                <value>2</value>
+                            </as-path-length>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <reject-route/>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>as-path-le-length-test</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <as-path-length>
+                                <operator xmlns:x="http://openconfig.net/yang/policy-types">x:attribute-le</operator>
+                                <value>2</value>
+                            </as-path-length>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <reject-route/>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>med-eq-test</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <med-eq>100</med-eq>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <reject-route/>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>origin-eq-test</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <origin-eq>IGP</origin-eq>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <reject-route/>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>nexthop-in-test</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <next-hop-in>192.168.2.2</next-hop-in>
+                            <next-hop-in>42.42.42.42</next-hop-in>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <reject-route/>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>local-pref-eq-test</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <local-pref-eq>100</local-pref-eq>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <reject-route/>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>multiple-append-test</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="all"</role-set>
+                            </match-role-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <set-route-origin>IGP</set-route-origin>
+                            <set-local-pref>100</set-local-pref>
+                            <set-next-hop>4.5.6.7</set-next-hop>
+                            <set-med>15</set-med>
+                        </bgp-actions>
+                    </actions>
+                </statement>
+            </statements>
+        </policy-definition>
+    </policy-definitions>
+</routing-policy>
