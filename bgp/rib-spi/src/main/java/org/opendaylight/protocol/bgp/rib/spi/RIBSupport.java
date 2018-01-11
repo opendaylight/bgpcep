@@ -26,6 +26,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 
 /**
@@ -190,6 +191,8 @@ public interface RIBSupport extends AddPathRibSupport {
 
     @Nonnull
     Class<? extends SubsequentAddressFamily> getSafi();
+
+    YangInstanceIdentifier buildRouteAttributeYii(PathArgument routeIdentifier);
 
     interface ApplyRoute {
         void apply(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier base,
