@@ -56,7 +56,7 @@ public final class InstructionSchedulerFactoryImpl implements InstructionSchedul
 
     @Override
     public InstructionScheduler createInstructionScheduler(final String instructionId) {
-        LOG.debug("Creating Instruction Scheduler {}.", instructionId);
+        LOG.info("Creating Instruction Scheduler {}.", instructionId);
 
         final ProgrammingServiceImpl programmingInst = new ProgrammingServiceImpl(this.dataProvider, this.notifs,
                 this.exec, this.rpcProviderRegistry, this.cssp, this.timer, instructionId);

@@ -144,7 +144,7 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
                 .getGenericSuperclass()).getActualTypeArguments()[0]).newInstance();
 
         final PCEPTopologyConfiguration configDep = new PCEPTopologyConfiguration(ra, KeyMapping.getKeyMapping(),
-                SpeakerIdMapping.getSpeakerIdMap(), this.scheduler, TEST_TOPOLOGY_ID, RPC_TIMEOUT);
+                SpeakerIdMapping.getSpeakerIdMap(), TEST_TOPOLOGY_ID, RPC_TIMEOUT);
         this.manager = new ServerSessionManager(this.topologyDependencies, listenerFactory, configDep);
         startSessionManager();
         this.neg = new DefaultPCEPSessionNegotiator(this.promise, this.clientListener,

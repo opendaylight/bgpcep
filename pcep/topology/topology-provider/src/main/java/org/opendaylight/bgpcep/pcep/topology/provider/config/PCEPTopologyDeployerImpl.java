@@ -111,7 +111,7 @@ public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener
         final SessionConfig config = pcepTopo.getSessionConfig();
 
         final InstructionScheduler instructionScheduler = this.instructionSchedulerFactory
-                .createInstructionScheduler(topologyId.getValue());
+            .createInstructionScheduler(topologyId.getValue());
 
         final InetSocketAddress inetAddress = PCEPTopologyProviderUtil
                 .getInetSocketAddress(config.getListenAddress(), config.getListenPort());
@@ -119,13 +119,13 @@ public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener
         final KeyMapping keys = PCEPTopologyProviderUtil.contructKeys(topology);
         final SpeakerIdMapping speakerIds = PCEPTopologyProviderUtil.contructSpeakersId(topology);
         final PCEPTopologyConfiguration dependencies = new PCEPTopologyConfiguration(
-                inetAddress, keys, speakerIds, instructionScheduler, topology.getTopologyId(),
+                inetAddress, keys, speakerIds, topology.getTopologyId(),
                 config.getRpcTimeout());
 
         final PCEPTopologyProviderBean pcepTopologyProviderBean = (PCEPTopologyProviderBean) this.container
                 .getComponentInstance(PCEPTopologyProviderBean.class.getSimpleName());
         this.pcepTopologyServices.put(topologyId, pcepTopologyProviderBean);
-        pcepTopologyProviderBean.start(dependencies);
+        pcepTopologyProviderBean.start(dependencies, instructionScheduler);
     }
 
     private synchronized void removeTopologyProvider(final Topology topo) {

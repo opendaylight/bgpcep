@@ -20,6 +20,7 @@ import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.bgpcep.pcep.topology.provider.PCEPTopologyProvider;
 import org.opendaylight.bgpcep.pcep.topology.provider.TopologySessionListenerFactory;
 import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
+import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
@@ -88,11 +89,13 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
-    synchronized void start(final PCEPTopologyConfiguration configDependencies) {
+    synchronized void start(final PCEPTopologyConfiguration configDependencies,
+            final InstructionScheduler instructionScheduler) {
         Preconditions.checkState(this.pcepTopoProviderCSS == null,
                 "Previous instance %s was not closed.", this);
         try {
-            this.pcepTopoProviderCSS = new PCEPTopologyProviderBeanCSS(configDependencies, this);
+            this.pcepTopoProviderCSS = new PCEPTopologyProviderBeanCSS(configDependencies,
+                    instructionScheduler, this);
         } catch (final Exception e) {
             LOG.debug("Failed to create PCEPTopologyProvider {}", configDependencies.getTopologyId().getValue(), e);
         }
@@ -126,15 +129,17 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
     private static class PCEPTopologyProviderBeanCSS implements ClusterSingletonService, AutoCloseable {
         private final ServiceGroupIdentifier sgi;
         private final PCEPTopologyProvider pcepTopoProvider;
+        private final InstructionScheduler scheduler;
         private ServiceRegistration<?> serviceRegistration;
         private ClusterSingletonServiceRegistration cssRegistration;
         @GuardedBy("this")
         private boolean serviceInstantiated;
 
         PCEPTopologyProviderBeanCSS(final PCEPTopologyConfiguration configDependencies,
-                final PCEPTopologyProviderBean bean) {
-            this.sgi = configDependencies.getSchedulerDependency().getIdentifier();
-            this.pcepTopoProvider = PCEPTopologyProvider.create(bean, configDependencies);
+                final InstructionScheduler instructionScheduler, final PCEPTopologyProviderBean bean) {
+            this.scheduler = instructionScheduler;
+            this.sgi = this.scheduler.getIdentifier();
+            this.pcepTopoProvider = PCEPTopologyProvider.create(bean, this.scheduler, configDependencies);
 
             final Dictionary<String, String> properties = new Hashtable<>();
             properties.put(PCEPTopologyProvider.class.getName(), configDependencies.getTopologyId().getValue());
@@ -184,6 +189,7 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
                 this.serviceRegistration.unregister();
                 this.serviceRegistration = null;
             }
+            this.scheduler.close();
         }
     }
 }
