@@ -66,7 +66,7 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     private static final NodeIdentifier DESTINATION_TYPE = new NodeIdentifier(DestinationType.QNAME);
     private static final NodeIdentifier ROUTES = new NodeIdentifier(Routes.QNAME);
     private static final ApplyRoute DELETE_ROUTE = new DeleteRoute();
-
+    public static final String ROUTE_KEY = "route-key";
     private final NodeIdentifier routesContainerIdentifier;
     private final NodeIdentifier routesListIdentifier;
     private final NodeIdentifier routeAttributesIdentifier;
@@ -79,6 +79,7 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     private final Class<? extends AddressFamily> afiClass;
     private final Class<? extends SubsequentAddressFamily> safiClass;
     private final NodeIdentifier destinationNid;
+    private final QName routesQname;
 
     /**
      * Default constructor. Requires the QName of the container augmented under the routes choice
@@ -92,11 +93,12 @@ public abstract class AbstractRIBSupport implements RIBSupport {
      * @param safiClass SubsequentAddressFamily
      * @param destinationQname destination Qname
      */
-    protected AbstractRIBSupport(final Class<? extends Routes> cazeClass,
+    protected AbstractRIBSupport(
+            final Class<? extends Routes> cazeClass,
             final Class<? extends DataObject> containerClass,
-        final Class<? extends Route> listClass, final Class<? extends AddressFamily> afiClass,
+            final Class<? extends Route> listClass, final Class<? extends AddressFamily> afiClass,
             final Class<? extends SubsequentAddressFamily> safiClass,
-        final QName destinationQname) {
+            final QName destinationQname) {
         final QName qname = BindingReflections.findQName(containerClass).intern();
         this.routesContainerIdentifier = new NodeIdentifier(qname);
         this.routeAttributesIdentifier = new NodeIdentifier(QName.create(qname,
@@ -105,6 +107,7 @@ public abstract class AbstractRIBSupport implements RIBSupport {
         this.containerClass = requireNonNull(containerClass);
         this.listClass = requireNonNull(listClass);
         this.routeQname = QName.create(qname, BindingReflections.findQName(listClass).intern().getLocalName());
+        this.routesQname = QName.create(qname, BindingReflections.findQName(this.containerClass).intern().getLocalName());
         this.routesListIdentifier = new NodeIdentifier(this.routeQname);
         this.emptyRoutes = Builders.choiceBuilder().withNodeIdentifier(ROUTES).addChild(Builders.containerBuilder()
             .withNodeIdentifier(routesContainerIdentifier()).withChild(ImmutableNodes.mapNodeBuilder(this.routeQname)
@@ -114,28 +117,34 @@ public abstract class AbstractRIBSupport implements RIBSupport {
         this.destinationNid = new NodeIdentifier(destinationQname);
     }
 
-    @Nonnull
     @Override
     public final Class<? extends Routes> routesCaseClass() {
         return this.cazeClass;
     }
 
-    @Nonnull
     @Override
     public final Class<? extends DataObject> routesContainerClass() {
         return this.containerClass;
     }
 
-    @Nonnull
     @Override
     public final Class<? extends Route> routesListClass() {
         return this.listClass;
     }
 
-    @Nonnull
     @Override
     public final ChoiceNode emptyRoutes() {
         return this.emptyRoutes;
+    }
+
+    @Override
+    public final YangInstanceIdentifier buildRouteAttributeYii(final PathArgument routeIdentifier) {
+        return YangInstanceIdentifier.builder()
+                .node(this.routesQname)
+                .append(routeIdentifier)
+                .node(this.routeQname)
+                .node(this.routeAttributesIdentifier)
+                .build();
     }
 
     public final QName routeQName() {
