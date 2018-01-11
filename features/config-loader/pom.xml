@@ -29,5 +29,6 @@
         <module>odl-bgpcep-topology-config-loader</module>
         <module>odl-bgpcep-protocols-config-loader</module>
         <module>odl-bgpcep-bmp-config-loader</module>
+        <module>odl-bgpcep-routing-policy-config-loader</module>
     </modules>
 </project>
