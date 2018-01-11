@@ -37,5 +37,6 @@
         <module>topology-config-loader</module>
         <module>protocols-config-loader</module>
         <module>bmp-monitors-config-loader</module>
+        <module>routing-policy-config-loader</module>
     </modules>
 </project>
