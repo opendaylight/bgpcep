@@ -13,8 +13,6 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
 import com.google.common.net.HostAndPort;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.List;
@@ -29,17 +27,6 @@ public class InetSocketAddressUtilTest {
     private static final String ADDRESSES_WO_PORT = ADDRESS1 + "," + ADDRESS2;
     private static final String ADDRESSES = ADDRESS1 + ":" + PORT1 + "," + ADDRESS2 + ":" + PORT2;
     private static final int DEFAULT_PORT = 179;
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testPrivateConstructor() throws Throwable {
-        final Constructor<InetSocketAddressUtil> c = InetSocketAddressUtil.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
 
     @Test
     public void parseAddresses() throws Exception {

@@ -11,24 +11,9 @@ import static org.junit.Assert.assertArrayEquals;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import org.junit.Test;
 
 public class EROSubobjectUtilTest {
-
-    @Test(expected = UnsupportedOperationException.class)
-    @SuppressWarnings({ "checkstyle:IllegalThrows", "checkstyle:avoidHidingCauseException" })
-    public void testPrivateConstructor() throws Throwable {
-        final Constructor<EROSubobjectUtil> c = EROSubobjectUtil.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
-
     @Test
     public void testFormatSubobject1() {
         final byte[] array = new byte[]{2, 3};
