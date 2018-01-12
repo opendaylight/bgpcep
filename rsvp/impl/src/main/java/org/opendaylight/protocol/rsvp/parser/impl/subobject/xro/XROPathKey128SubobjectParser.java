@@ -20,7 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 /**
  * Parser for { PathKey}.
  */
-public class XROPathKey128SubobjectParser extends CommonPathKeyParser implements XROSubobjectParser {
+public class XROPathKey128SubobjectParser implements XROSubobjectParser {
     public static final int TYPE = 65;
 
     protected static final int PCE128_ID_F_LENGTH = 16;
@@ -39,7 +39,8 @@ public class XROPathKey128SubobjectParser extends CommonPathKeyParser implements
 
         final SubobjectContainerBuilder builder = new SubobjectContainerBuilder();
         builder.setMandatory(mandatory);
-        builder.setSubobjectType(new PathKeyCaseBuilder().setPathKey(parsePathKey(PCE128_ID_F_LENGTH, buffer)).build());
+        builder.setSubobjectType(new PathKeyCaseBuilder()
+                .setPathKey(CommonPathKeyParser.parsePathKey(PCE128_ID_F_LENGTH, buffer)).build());
         return builder.build();
     }
 }

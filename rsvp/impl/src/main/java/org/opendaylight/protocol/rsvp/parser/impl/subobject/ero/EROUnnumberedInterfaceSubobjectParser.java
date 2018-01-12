@@ -22,8 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 /**
  * Parser for {@link UnnumberedCase}.
  */
-public class EROUnnumberedInterfaceSubobjectParser extends CommonUnnumberedInterfaceSubobjectParser implements
-    EROSubobjectParser, EROSubobjectSerializer {
+public class EROUnnumberedInterfaceSubobjectParser implements EROSubobjectParser, EROSubobjectSerializer {
 
     public static final int TYPE = 4;
 
@@ -34,26 +33,27 @@ public class EROUnnumberedInterfaceSubobjectParser extends CommonUnnumberedInter
     @Override
     public SubobjectContainer parseSubobject(final ByteBuf buffer, final boolean loose) throws RSVPParsingException {
         Preconditions.checkArgument(buffer != null && buffer.isReadable(),
-            "Array of bytes is mandatory. Can't be null or empty.");
+                "Array of bytes is mandatory. Can't be null or empty.");
         if (buffer.readableBytes() != CONTENT_LENGTH) {
             throw new RSVPParsingException("Wrong length of array of bytes. Passed: " + buffer.readableBytes()
-                + "; Expected: " + CONTENT_LENGTH + ".");
+                    + "; Expected: " + CONTENT_LENGTH + ".");
         }
         final SubobjectContainerBuilder builder = new SubobjectContainerBuilder();
         builder.setLoose(loose);
         buffer.skipBytes(RESERVED);
-        builder.setSubobjectType(parseUnnumeredInterface(buffer));
+        builder.setSubobjectType(CommonUnnumberedInterfaceSubobjectParser.parseUnnumeredInterface(buffer));
         return builder.build();
     }
 
     @Override
     public void serializeSubobject(final SubobjectContainer subobject, final ByteBuf buffer) {
         Preconditions.checkArgument(subobject.getSubobjectType() instanceof UnnumberedCase,
-            "Unknown subobject instance. Passed %s. Needed UnnumberedCase.",
-            subobject.getSubobjectType().getClass());
+                "Unknown subobject instance. Passed %s. Needed UnnumberedCase.",
+                subobject.getSubobjectType().getClass());
         final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
         body.writeZero(RESERVED);
-        serializeUnnumeredInterface(((UnnumberedCase) subobject.getSubobjectType()).getUnnumbered(), body);
+        CommonUnnumberedInterfaceSubobjectParser
+                .serializeUnnumeredInterface(((UnnumberedCase) subobject.getSubobjectType()).getUnnumbered(), body);
         EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), body, buffer);
     }
 }

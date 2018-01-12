@@ -10,6 +10,10 @@ package org.opendaylight.protocol.rsvp.parser.impl.te;
 
 final class TEObjectUtil {
 
+    private TEObjectUtil() {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+.
      * |            Length             | Class-Num(196)|   C-Type (1)  |

@@ -21,12 +21,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ProtectionCommonParser {
+public final class ProtectionCommonParser {
 
-    protected static final int BYTE_SIZE = 1;
-    protected static final short PROTECTION_SUBOBJECT_TYPE_1 = 1;
-    protected static final short PROTECTION_SUBOBJECT_TYPE_2 = 2;
-    protected static final int CONTENT_LENGTH_C2 = 8;
+    private static final int BYTE_SIZE = 1;
+    private static final short PROTECTION_SUBOBJECT_TYPE_1 = 1;
+    private static final short PROTECTION_SUBOBJECT_TYPE_2 = 2;
+    static final int CONTENT_LENGTH_C2 = 8;
     private static final int SECONDARY = 0;
     private static final int PROTECTING = 1;
     private static final int NOTIFICATION = 2;
@@ -36,7 +36,11 @@ public class ProtectionCommonParser {
     private static final int FLAGS_SIZE = 8;
     private static final Logger LOG = LoggerFactory.getLogger(ProtectionCommonParser.class);
 
-    protected static void serializeBodyType1(final ProtectionSubobject protObj, final ByteBuf output) {
+    private ProtectionCommonParser() {
+        throw new UnsupportedOperationException();
+    }
+
+    public static void serializeBodyType1(final ProtectionSubobject protObj, final ByteBuf output) {
         final BitArray flagBitArray = new BitArray(FLAGS_SIZE);
         flagBitArray.set(SECONDARY, protObj.isSecondary());
         flagBitArray.toByteBuf(output);
@@ -44,7 +48,7 @@ public class ProtectionCommonParser {
         output.writeByte(protObj.getLinkFlags().getIntValue());
     }
 
-    protected static void serializeBodyType2(final ProtectionSubobject protObj, final ByteBuf output) {
+    public static void serializeBodyType2(final ProtectionSubobject protObj, final ByteBuf output) {
         final BitArray flagBitArray = new BitArray(FLAGS_SIZE);
         flagBitArray.set(SECONDARY, protObj.isSecondary());
         flagBitArray.set(PROTECTING, protObj.isProtecting());
@@ -62,7 +66,7 @@ public class ProtectionCommonParser {
         output.writeZero(ByteBufWriteUtil.SHORT_BYTES_LENGTH);
     }
 
-    protected static ProtectionSubobject parseCommonProtectionBodyType2(final ByteBuf byteBuf) throws
+    public static ProtectionSubobject parseCommonProtectionBodyType2(final ByteBuf byteBuf) throws
         RSVPParsingException {
         if (byteBuf.readableBytes() != CONTENT_LENGTH_C2) {
             throw new RSVPParsingException("Wrong length of array of bytes. Passed: " + byteBuf.readableBytes() + "; "
@@ -92,7 +96,7 @@ public class ProtectionCommonParser {
         return sub.build();
     }
 
-    protected static ProtectionSubobject parseCommonProtectionBodyType1(final ByteBuf byteBuf) {
+    public static ProtectionSubobject parseCommonProtectionBodyType1(final ByteBuf byteBuf) {
         final BitArray bitArray = BitArray.valueOf(byteBuf.readByte());
         final ProtectionSubobjectBuilder sub = new ProtectionSubobjectBuilder();
         sub.setSecondary(bitArray.get(SECONDARY));
@@ -103,8 +107,8 @@ public class ProtectionCommonParser {
         return sub.build();
     }
 
-    protected static void serializeBody(final Short ctype, final ProtectionSubobject protObj,
-        final ByteBuf output) {
+    public static void serializeBody(final Short ctype, final ProtectionSubobject protObj,
+            final ByteBuf output) {
         output.writeZero(BYTE_SIZE);
         writeUnsignedByte(ctype, output);
         switch (ctype) {
@@ -120,7 +124,7 @@ public class ProtectionCommonParser {
         }
     }
 
-    protected static ProtectionSubobject parseCommonProtectionBody(final short ctype, final ByteBuf byteBuf)
+    public static ProtectionSubobject parseCommonProtectionBody(final short ctype, final ByteBuf byteBuf)
         throws RSVPParsingException {
         ProtectionSubobject protectionSubobject = null;
         switch (ctype) {

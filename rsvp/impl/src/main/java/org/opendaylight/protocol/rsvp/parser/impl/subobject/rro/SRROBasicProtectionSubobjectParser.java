@@ -27,8 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 /**
  * Parser for {@link BasicProtectionCase}.
  */
-public class SRROBasicProtectionSubobjectParser extends ProtectionCommonParser implements RROSubobjectParser,
-    RROSubobjectSerializer {
+public class SRROBasicProtectionSubobjectParser implements RROSubobjectParser, RROSubobjectSerializer {
 
     public static final int TYPE = 37;
     public static final Short CTYPE = 1;
@@ -41,7 +40,7 @@ public class SRROBasicProtectionSubobjectParser extends ProtectionCommonParser i
         //skip reserved
         buffer.readByte();
         final short cType = buffer.readUnsignedByte();
-        final ProtectionSubobject prot = parseCommonProtectionBody(cType, buffer);
+        final ProtectionSubobject prot = ProtectionCommonParser.parseCommonProtectionBody(cType, buffer);
         if (cType == CTYPE) {
             builder.setSubobjectType(new BasicProtectionCaseBuilder().setBasicProtection(new BasicProtectionBuilder()
                 .setProtectionSubobject(prot).build()).build());
@@ -61,7 +60,7 @@ public class SRROBasicProtectionSubobjectParser extends ProtectionCommonParser i
         final ProtectionSubobject protObj = ((BasicProtectionCase) subobject.getSubobjectType()).getBasicProtection()
             .getProtectionSubobject();
         final ByteBuf body = Unpooled.buffer();
-        serializeBody(CTYPE, protObj, body);
+        ProtectionCommonParser.serializeBody(CTYPE, protObj, body);
         RROSubobjectUtil.formatSubobject(TYPE, body, buffer);
     }
 }

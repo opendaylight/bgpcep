@@ -19,7 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 /**
  * Parser for { PathKey }.
  */
-public class EROPathKey128SubobjectParser extends CommonPathKeyParser implements EROSubobjectParser {
+public class EROPathKey128SubobjectParser implements EROSubobjectParser {
 
     public static final int TYPE = 65;
 
@@ -37,7 +37,8 @@ public class EROPathKey128SubobjectParser extends CommonPathKeyParser implements
         }
         final SubobjectContainerBuilder builder = new SubobjectContainerBuilder();
         builder.setLoose(loose);
-        builder.setSubobjectType(new PathKeyCaseBuilder().setPathKey(parsePathKey(PCE128_ID_F_LENGTH, buffer)).build());
+        builder.setSubobjectType(new PathKeyCaseBuilder()
+                .setPathKey(CommonPathKeyParser.parsePathKey(PCE128_ID_F_LENGTH, buffer)).build());
         return builder.build();
     }
 }

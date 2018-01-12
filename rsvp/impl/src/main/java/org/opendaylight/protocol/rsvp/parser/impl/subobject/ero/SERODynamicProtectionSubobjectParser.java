@@ -21,7 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 /**
  * Parser for {@link DynamicControlProtectionCase}.
  */
-public class SERODynamicProtectionSubobjectParser extends ProtectionCommonParser implements EROSubobjectSerializer {
+public class SERODynamicProtectionSubobjectParser implements EROSubobjectSerializer {
 
     public static final int TYPE = 37;
     public static final Short CTYPE = 2;
@@ -34,7 +34,7 @@ public class SERODynamicProtectionSubobjectParser extends ProtectionCommonParser
         final ProtectionSubobject protObj = ((DynamicControlProtectionCase) subobject.getSubobjectType())
             .getDynamicControlProtection().getProtectionSubobject();
         final ByteBuf body = Unpooled.buffer();
-        serializeBody(CTYPE, protObj, body);
+        ProtectionCommonParser.serializeBody(CTYPE, protObj, body);
         EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), body, buffer);
     }
 

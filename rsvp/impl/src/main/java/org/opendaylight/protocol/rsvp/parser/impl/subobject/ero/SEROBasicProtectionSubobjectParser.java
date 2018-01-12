@@ -25,8 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary.explicit.route.object.secondary.explicit.route.object.subobject.container.subobject.type.basic.protection._case.BasicProtectionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary.explicit.route.object.secondary.explicit.route.object.subobject.container.subobject.type.dynamic.control.protection._case.DynamicControlProtectionBuilder;
 
-public class SEROBasicProtectionSubobjectParser extends ProtectionCommonParser implements EROSubobjectParser,
-    EROSubobjectSerializer {
+public class SEROBasicProtectionSubobjectParser implements EROSubobjectParser, EROSubobjectSerializer {
     public static final int TYPE = 37;
     public static final Short CTYPE = 1;
 
@@ -39,7 +38,7 @@ public class SEROBasicProtectionSubobjectParser extends ProtectionCommonParser i
         //skip reserved
         buffer.readByte();
         final short cType = buffer.readUnsignedByte();
-        final ProtectionSubobject prot = parseCommonProtectionBody(cType, buffer);
+        final ProtectionSubobject prot = ProtectionCommonParser.parseCommonProtectionBody(cType, buffer);
         if (cType == CTYPE) {
             builder.setSubobjectType(new BasicProtectionCaseBuilder().setBasicProtection(new BasicProtectionBuilder()
                 .setProtectionSubobject(prot).build()).build());
@@ -59,7 +58,7 @@ public class SEROBasicProtectionSubobjectParser extends ProtectionCommonParser i
         final ProtectionSubobject protObj = ((BasicProtectionCase) subobject.getSubobjectType()).getBasicProtection()
             .getProtectionSubobject();
         final ByteBuf body = Unpooled.buffer();
-        serializeBody(CTYPE, protObj, body);
+        ProtectionCommonParser.serializeBody(CTYPE, protObj, body);
         EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), body, buffer);
     }
 }

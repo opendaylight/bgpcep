@@ -13,8 +13,6 @@ import static org.junit.Assert.assertNotNull;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -165,18 +163,4 @@ public class ServiceLoaderRSVPExtensionProviderContextTest {
         this.context.getLabelHandlerRegistry().serializeLabel(false, false, this.labelType, buffer);
         Mockito.verify(this.labelSerializer).serializeLabel(false, false, this.labelType, buffer);
     }
-
-    @Test(expected = UnsupportedOperationException.class)
-    @SuppressWarnings("checkstyle:IllegalThrows")
-    public void testPrivateConstructor() throws Throwable {
-        final Constructor<ServiceLoaderRSVPExtensionProviderContext> c =
-            ServiceLoaderRSVPExtensionProviderContext.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
-
 }

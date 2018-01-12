@@ -18,9 +18,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.PceId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.subobject.type.path.key._case.PathKeyBuilder;
 
-public class CommonPathKeyParser {
+public final class CommonPathKeyParser {
+
+    private CommonPathKeyParser() {
+        throw new UnsupportedOperationException();
+    }
+
     public static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route
-        .subobjects.subobject.type.path.key._case.PathKey parsePathKey(final int pceIdFLength, final ByteBuf buffer) {
+            .subobjects.subobject.type.path.key._case.PathKey parsePathKey(final int pceIdFLength,
+            final ByteBuf buffer) {
         final int pathKey = buffer.readUnsignedShort();
         final byte[] pceId = ByteArray.readBytes(buffer, pceIdFLength);
         final PathKeyBuilder pBuilder = new PathKeyBuilder();
@@ -30,7 +36,7 @@ public class CommonPathKeyParser {
     }
 
     public static ByteBuf serializePathKey(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
-        .rsvp.rev150820.explicit.route.subobjects.subobject.type.path.key._case.PathKey pk) {
+            .rsvp.rev150820.explicit.route.subobjects.subobject.type.path.key._case.PathKey pk) {
         final ByteBuf body = Unpooled.buffer();
         Preconditions.checkArgument(pk.getPathKey() != null, "PathKey is mandatory.");
         writeUnsignedShort(pk.getPathKey().getValue(), body);
