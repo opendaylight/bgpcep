@@ -29,8 +29,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary.explicit.route.object.secondary.explicit.route.object.subobject.container.subobject.type.DynamicControlProtectionCaseBuilder;
 
 public class TEObjectTest {
-    RSVPActivator act;
-    SimpleRSVPExtensionProviderContext context;
+    private RSVPActivator act;
+    private SimpleRSVPExtensionProviderContext context;
 
     @Before
     public void setUp() {
