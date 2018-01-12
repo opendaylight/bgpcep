@@ -8,21 +8,11 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
-import com.google.common.base.Optional;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableLeafNodeBuilder;
 
 public class PeerRoleUtilTest {
-    @Test
-    public void roleForChange() {
-        assertNull(PeerRoleUtil.roleForChange(Optional.fromNullable(null)));
-        assertEquals(PeerRole.Ebgp, PeerRoleUtil.roleForChange(Optional.of(new ImmutableLeafNodeBuilder<>()
-                .withNodeIdentifier(PeerRoleUtil.PEER_ROLE_NID).withValue("ebgp").build())));
-    }
-
     @Test
     public void roleForString() {
         assertEquals("ebgp", PeerRoleUtil.roleForString(PeerRole.Ebgp));
