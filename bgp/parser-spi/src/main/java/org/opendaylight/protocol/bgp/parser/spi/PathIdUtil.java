@@ -62,11 +62,7 @@ public final class PathIdUtil {
      * @return The path identifier from data change
      */
     public static Long extractPathId(final NormalizedNode<?, ?> data, final NodeIdentifier pathNii) {
-        final NormalizedNode<?, ?> pathId = NormalizedNodes.findNode(data, pathNii).orNull();
-        if (pathId == null) {
-            return null;
-        }
-        return (Long) pathId.getValue();
+        return (Long) NormalizedNodes.findNode(data, pathNii).map(NormalizedNode::getValue).orElse(null);
     }
 
     /**
@@ -131,7 +127,7 @@ public final class PathIdUtil {
             final QName pathIdQname, final Object routeKeyValue,
             final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf) {
         // FIXME: a cache here would mean we instantiate the same identifier for each route making comparison quicker.
-        final Object pathId = maybePathIdLeaf.isPresent() ? (maybePathIdLeaf.get()).getValue() : NON_PATH_ID;
+        final Object pathId = maybePathIdLeaf.isPresent() ? maybePathIdLeaf.get().getValue() : NON_PATH_ID;
         return createNodeIdentifierWithPredicates(routeQname, pathIdQname, pathId, routeKeyQname, routeKeyValue);
     }
 }
