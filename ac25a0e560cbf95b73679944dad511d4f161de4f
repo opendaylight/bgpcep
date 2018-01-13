@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4709b5d2_d1b94e7c",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2018-01-13T06:40:53Z",
+      "side": 1,
+      "message": "the original implementation is not correct. per the API doc for onSessionTerminated(), this method is \"Fired when the session is terminated locally. The session has already been closed and transitioned to IDLE state.\" However here the onSessionTerminated() is invoked when the session is still up.",
+      "parentUuid": "44797cd0_888b70cd",
+      "range": {
+        "startLine": 263,
+        "startChar": 1,
+        "endLine": 265,
+        "endChar": 3
+      },
+      "revId": "ac25a0e560cbf95b73679944dad511d4f161de4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7d166ff9_112dd627",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
         "patchSetId": 16
@@ -59,6 +83,30 @@
       "writtenOn": "2018-01-11T10:07:48Z",
       "side": 1,
       "message": "restore it, once findbug is forced, it will complain about split an Override method. \nAnyway you are validating it via\nonSessionTerminated(this.bgpSession, new BGPTerminationReason(BGPError.CEASE));",
+      "range": {
+        "startLine": 471,
+        "startChar": 0,
+        "endLine": 488,
+        "endChar": 5
+      },
+      "revId": "ac25a0e560cbf95b73679944dad511d4f161de4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "15fc5e38_96906e3b",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 488,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2018-01-13T06:40:53Z",
+      "side": 1,
+      "message": "I don\u0027t quite get the point.  This handleException() is also used by line 420. I don\u0027t think it\u0027s appropriate to invoke the exceptionCaught() method there, as it\u0027s a netty method.",
+      "parentUuid": "bbfd343a_f8e2a4d2",
       "range": {
         "startLine": 471,
         "startChar": 0,
