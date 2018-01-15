@@ -7,7 +7,7 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider.config;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
 
 import java.net.InetSocketAddress;
 import javax.annotation.Nonnull;
@@ -33,10 +33,10 @@ public final class PCEPTopologyConfiguration {
             @Nonnull final SpeakerIdMapping speakerIds,
             @Nonnull final TopologyId topologyId,
             final short rpcTimeout) {
-        this.address = checkNotNull(address);
-        this.keys = checkNotNull(keys);
-        this.speakerIds = checkNotNull(speakerIds);
-        this.topologyId = checkNotNull(topologyId);
+        this.address = requireNonNull(address);
+        this.keys = requireNonNull(keys);
+        this.speakerIds = requireNonNull(speakerIds);
+        this.topologyId = requireNonNull(topologyId);
         this.rpcTimeout = rpcTimeout;
         this.topology = InstanceIdentifier.builder(NetworkTopology.class)
                 .child(Topology.class, new TopologyKey(this.topologyId)).build();
