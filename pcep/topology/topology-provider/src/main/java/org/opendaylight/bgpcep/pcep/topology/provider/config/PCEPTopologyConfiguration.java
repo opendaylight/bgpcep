@@ -7,7 +7,7 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider.config;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
 
 import java.net.InetSocketAddress;
 import javax.annotation.Nonnull;
@@ -29,12 +29,12 @@ public final class PCEPTopologyConfiguration {
     private final InstanceIdentifier<Topology> topology;
 
     public PCEPTopologyConfiguration(@Nonnull final SessionConfig config, @Nonnull final Topology topology) {
-        checkNotNull(topology);
-        this.address = PCEPTopologyProviderUtil
-                .getInetSocketAddress(checkNotNull(config.getListenAddress()), checkNotNull(config.getListenPort()));
-        this.keys = checkNotNull(PCEPTopologyProviderUtil.contructKeys(topology));
-        this.speakerIds = checkNotNull(PCEPTopologyProviderUtil.contructSpeakersId(topology));
-        this.topologyId = checkNotNull(topology.getTopologyId());
+        requireNonNull(topology);
+        this.address = PCEPTopologyProviderUtil.getInetSocketAddress(requireNonNull(config.getListenAddress()),
+                requireNonNull(config.getListenPort()));
+        this.keys = requireNonNull(PCEPTopologyProviderUtil.contructKeys(topology));
+        this.speakerIds = requireNonNull(PCEPTopologyProviderUtil.contructSpeakersId(topology));
+        this.topologyId = requireNonNull(topology.getTopologyId());
         this.rpcTimeout = config.getRpcTimeout();
         this.topology = InstanceIdentifier.builder(NetworkTopology.class)
                 .child(Topology.class, new TopologyKey(this.topologyId)).build();
