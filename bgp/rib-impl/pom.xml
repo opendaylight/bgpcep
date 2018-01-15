@@ -291,6 +291,14 @@
                     </execution>
                 </executions>
             </plugin>
+
+			<!-- Disable offline link detection which breaks the build here -->
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<configuration>
+					<detectOfflineLinks>false</detectOfflineLinks>
+				</configuration>
+			</plugin>
         </plugins>
     </build>
 
