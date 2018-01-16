@@ -19,6 +19,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
@@ -32,7 +34,6 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPPeerStateImpl;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPSessionStateImpl;
-import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
@@ -41,8 +42,10 @@ import org.opendaylight.protocol.bgp.rib.spi.state.BGPErrorHandlingState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPSessionState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTimersState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTransportState;
+import org.opendaylight.protocol.concepts.AbstractRegistration;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.SendReceive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.ApplicationRibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
@@ -92,6 +95,8 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
     private ListenerRegistration<ApplicationPeer> registration;
     private final Set<NodeIdentifierWithPredicates> supportedTables = new HashSet<>();
     private final BGPSessionStateImpl bgpSessionState = new BGPSessionStateImpl();
+    private PeerId peerId;
+    private AbstractRegistration trackerRegistration;
 
     @FunctionalInterface
     interface RegisterAppPeerListener {
@@ -121,15 +126,10 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
         this.writerChain = this.rib.createPeerChain(this);
 
         final Optional<SimpleRoutingPolicy> simpleRoutingPolicy = Optional.of(SimpleRoutingPolicy.AnnounceNone);
-        final PeerId peerId = RouterIds.createPeerId(this.ipAddress);
+        this.peerId = RouterIds.createPeerId(this.ipAddress);
         final Set<TablesKey> localTables = this.rib.getLocalTablesKeys();
-        localTables.forEach(tablesKey -> {
-            final ExportPolicyPeerTracker exportTracker = this.rib.getExportPolicyPeerTracker(tablesKey);
-            if (exportTracker != null) {
-                exportTracker.registerPeer(peerId, null, this.peerIId, PeerRole.Internal, simpleRoutingPolicy);
-            }
-            this.supportedTables.add(RibSupportUtils.toYangTablesKey(tablesKey));
-        });
+        this.trackerRegistration = this.rib.getPeerTracker().registerPeer(this);
+        localTables.forEach(tablesKey -> this.supportedTables.add(RibSupportUtils.toYangTablesKey(tablesKey)));
         setAdvertizedGracefulRestartTableTypes(Collections.emptyList());
 
         this.adjRibInWriter = AdjRibInWriter.create(this.rib.getYangRibId(), PeerRole.Internal, simpleRoutingPolicy,
@@ -142,12 +142,10 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
                 }
             }
         };
-        this.adjRibInWriter = this.adjRibInWriter.transform(peerId, context, localTables, Collections.emptyMap(),
+        this.adjRibInWriter = this.adjRibInWriter.transform(this.peerId, context, localTables, Collections.emptyMap(),
                 registerAppPeerListener);
         this.effectiveRibInWriter = EffectiveRibInWriter
-                .create(this.rib.getService(), this.rib.createPeerChain(this), this.peerIId,
-                this.rib.getImportPolicyPeerTracker(), context, PeerRole.Internal,
-                localTables);
+                .create(this.rib, this.rib.createPeerChain(this), this.peerIId, localTables);
         this.bgpSessionState.registerMessagesCounter(this);
     }
 
@@ -208,14 +206,6 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
         tx.submit();
     }
 
-    /**
-     * Applies modification under table routes based on modification type instead of only put. BUG 4438
-     *
-     * @param node
-     * @param identifier
-     * @param tx
-     * @param routeTableIdentifier
-     */
     private synchronized void processRoutesTable(final DataTreeCandidateNode node,
             final YangInstanceIdentifier identifier, final DOMDataWriteTransaction tx,
             final YangInstanceIdentifier routeTableIdentifier) {
@@ -280,7 +270,21 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
             this.writerChain.close();
             this.writerChain = null;
         }
+        if (this.trackerRegistration != null) {
+            this.trackerRegistration.close();
+            this.trackerRegistration = null;
+        }
         return future;
+    }
+
+    @Override
+    public boolean isTableSupportedAndReady(final TablesKey tablesKey) {
+        return !(!supportsTable(tablesKey) || !isTableStructureInitialized(tablesKey));
+    }
+
+    private boolean isTableStructureInitialized(final TablesKey tablesKey) {
+        //FIXME TBD
+        return false;
     }
 
     @Override
@@ -289,8 +293,39 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
     }
 
     @Override
+    public PeerId getPeerId() {
+        return this.peerId;
+    }
+
+    @Override
+    public boolean supportsAddPathSupported(final TablesKey tableKey) {
+        return false;
+    }
+
+    @Nullable
+    @Override
+    public SendReceive getSupportedAddPathTables(@Nonnull final TablesKey tableKey) {
+        return null;
+    }
+
+    @Override
+    public boolean supportsTable(final TablesKey tableKey) {
+        return this.rib.supportsTable(tableKey);
+    }
+
+    @Override
+    public YangInstanceIdentifier getYii() {
+        return this.peerIId;
+    }
+
+    @Override
+    public PeerRole getRole() {
+        return PeerRole.Internal;
+    }
+
+    @Override
     public void onTransactionChainFailed(final TransactionChain<?, ?> chain,
-            final AsyncTransaction<?, ?> transaction, final Throwable cause) {
+        final AsyncTransaction<?, ?> transaction, final Throwable cause) {
         LOG.error("Transaction chain {} failed.", transaction != null ? transaction.getIdentifier() : null, cause);
     }
 

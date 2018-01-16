@@ -23,13 +23,12 @@ import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class CodecsRegistryImpl implements CodecsRegistry {
+public final class CodecsRegistryImpl implements CodecsRegistry {
 
     private static final Logger LOG = LoggerFactory.getLogger(CodecsRegistryImpl.class);
 
     private final LoadingCache<RIBSupport, Codecs> contexts = CacheBuilder.newBuilder()
         .build(new CacheLoader<RIBSupport, Codecs>(){
-
             @Override
             public Codecs load(final RIBSupport key) {
                 return createContext(key);
@@ -39,12 +38,14 @@ final class CodecsRegistryImpl implements CodecsRegistry {
     private final GeneratedClassLoadingStrategy classContext;
     private volatile BindingCodecTree latestCodecTree;
 
-    private CodecsRegistryImpl(final BindingCodecTreeFactory codecFactory, final GeneratedClassLoadingStrategy strategy) {
+    private CodecsRegistryImpl(final BindingCodecTreeFactory codecFactory,
+            final GeneratedClassLoadingStrategy strategy) {
         this.codecFactory = requireNonNull(codecFactory);
         this.classContext = requireNonNull(strategy);
     }
 
-    static CodecsRegistryImpl create(final BindingCodecTreeFactory codecFactory, final GeneratedClassLoadingStrategy classStrategy) {
+    public static CodecsRegistryImpl create(final BindingCodecTreeFactory codecFactory,
+            final GeneratedClassLoadingStrategy classStrategy) {
         return new CodecsRegistryImpl(codecFactory, classStrategy);
     }
 

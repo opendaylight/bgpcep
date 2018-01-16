@@ -14,11 +14,13 @@ import java.util.List;
 import org.opendaylight.protocol.bgp.mode.impl.add.AddPathAbstractRouteEntry;
 import org.opendaylight.protocol.bgp.mode.impl.add.AddPathBestPath;
 import org.opendaylight.protocol.bgp.mode.impl.add.RouteKey;
+import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 
 abstract class AbstractNPathsRouteEntry extends AddPathAbstractRouteEntry {
     private final long npaths;
 
-    AbstractNPathsRouteEntry(final Long npaths) {
+    AbstractNPathsRouteEntry(final Long npaths, final BGPPeerTracker peerTracker) {
+        super(peerTracker);
         this.npaths = npaths;
     }
 

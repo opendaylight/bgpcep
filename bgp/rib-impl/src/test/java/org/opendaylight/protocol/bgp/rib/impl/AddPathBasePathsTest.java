@@ -40,12 +40,11 @@ public class AddPathBasePathsTest extends AbstractAddPathTest {
         super.setUp();
         final TablesKey tk = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
         final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(tk,
-            BasePathSelectionModeFactory.createBestPathSelectionStrategy());
+            BasePathSelectionModeFactory.createBestPathSelectionStrategy(this.peerTracker));
 
         this.ribImpl = new RIBImpl(new RibId("test-rib"),
-            AS_NUMBER, new BgpId(RIB_ID), null, this.ribExtension, this.serverDispatcher,
-            this.mappingService.getCodecFactory(), getDomBroker(), TABLES_TYPE, pathTables,
-            this.ribExtension.getClassLoadingStrategy());
+            AS_NUMBER, new BgpId(RIB_ID), this.ribExtension, this.serverDispatcher, this.codecsRegistry,
+            getDomBroker(), ribPolicy, this.peerTracker, TABLES_TYPE, pathTables);
         this.ribImpl.instantiateServiceInstance();
         this.ribImpl.onGlobalContextUpdated(this.schemaContext);
         final ChannelFuture channelFuture = this.serverDispatcher.createServer(new InetSocketAddress(RIB_ID, PORT));

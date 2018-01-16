@@ -42,8 +42,10 @@ import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionPr
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.mock.BGPMock;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivator;
+import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
+import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.protocol.bgp.util.HexDumpBGPFileParser;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -70,7 +72,8 @@ import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 public class ParserToSalTest extends AbstractConcurrentDataBrokerTest {
 
     private static final String TEST_RIB_ID = "testRib";
-    private static final TablesKey TABLE_KEY = new TablesKey(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
+    private static final TablesKey TABLE_KEY = new TablesKey(LinkstateAddressFamily.class,
+            LinkstateSubsequentAddressFamily.class);
     private static final InstanceIdentifier<BgpRib> BGP_IID = InstanceIdentifier.create(BgpRib.class);
     private BGPMock mock;
     private AbstractRIBExtensionProviderActivator baseact, lsact;
@@ -78,17 +81,22 @@ public class ParserToSalTest extends AbstractConcurrentDataBrokerTest {
     private final IpAddress localAddress = new IpAddress(new Ipv4Address("127.0.0.1"));
 
     @Mock
+    private BGPRibRoutingPolicy ribPolicy;
+    @Mock
     private BGPDispatcher dispatcher;
     private BindingCodecTreeFactory codecFactory;
 
     private DOMSchemaService schemaService;
+    private BGPPeerTracker peerTracker = new BGPPeerTrackerImpl();
+    private CodecsRegistryImpl codecsRegistry;
 
     @Before
     public void setUp() throws Exception {
         super.setup();
         MockitoAnnotations.initMocks(this);
         final String hexMessages = "/bgp_hex.txt";
-        final List<byte[]> bgpMessages = HexDumpBGPFileParser.parseMessages(ParserToSalTest.class.getResourceAsStream(hexMessages));
+        final List<byte[]> bgpMessages = HexDumpBGPFileParser
+                .parseMessages(ParserToSalTest.class.getResourceAsStream(hexMessages));
         this.mock = new BGPMock(new EventBus("test"), ServiceLoaderBGPExtensionProviderContext
                 .getSingletonInstance().getMessageRegistry(), Lists.newArrayList(fixMessages(bgpMessages)));
 
@@ -103,6 +111,8 @@ public class ParserToSalTest extends AbstractConcurrentDataBrokerTest {
 
         this.baseact.startRIBExtensionProvider(this.ext1);
         this.lsact.startRIBExtensionProvider(this.ext2);
+        this.codecsRegistry = CodecsRegistryImpl.create(this.codecFactory,
+                GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
     }
 
     @Override
@@ -131,11 +141,12 @@ public class ParserToSalTest extends AbstractConcurrentDataBrokerTest {
     public void testWithLinkstate() throws InterruptedException, ExecutionException, ReadFailedException {
         final List<BgpTableType> tables = ImmutableList.of(new BgpTableTypeImpl(LinkstateAddressFamily.class,
                 LinkstateSubsequentAddressFamily.class));
+
         final RIBImpl rib = new RIBImpl(new RibId(TEST_RIB_ID),
-                AS_NUMBER, new BgpId("127.0.0.1"), null, this.ext2, this.dispatcher,
-                this.codecFactory, getDomBroker(), tables, Collections.singletonMap(TABLE_KEY,
-                BasePathSelectionModeFactory.createBestPathSelectionStrategy()),
-                GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
+                AS_NUMBER, new BgpId("127.0.0.1"), this.ext2, this.dispatcher,
+                codecsRegistry, getDomBroker(), this.ribPolicy, this.peerTracker, tables,
+                Collections.singletonMap(TABLE_KEY, BasePathSelectionModeFactory
+                        .createBestPathSelectionStrategy(this.peerTracker)));
         rib.instantiateServiceInstance();
         assertTablesExists(tables);
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
@@ -151,9 +162,10 @@ public class ParserToSalTest extends AbstractConcurrentDataBrokerTest {
         final List<BgpTableType> tables = ImmutableList.of(new BgpTableTypeImpl(Ipv4AddressFamily.class,
                 UnicastSubsequentAddressFamily.class));
         final RIBImpl rib = new RIBImpl(new RibId(TEST_RIB_ID), AS_NUMBER, BGP_ID,
-                null, this.ext1, this.dispatcher, this.codecFactory, getDomBroker(), tables,
-                Collections.singletonMap(TABLE_KEY, BasePathSelectionModeFactory.createBestPathSelectionStrategy()),
-                GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
+                this.ext1, this.dispatcher, this.codecsRegistry, getDomBroker(),
+                this.ribPolicy, this.peerTracker, tables,
+                Collections.singletonMap(TABLE_KEY, BasePathSelectionModeFactory
+                        .createBestPathSelectionStrategy(this.peerTracker)));
         rib.instantiateServiceInstance();
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
         assertTablesExists(tables);

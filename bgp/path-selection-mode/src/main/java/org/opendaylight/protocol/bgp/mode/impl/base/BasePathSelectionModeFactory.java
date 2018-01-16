@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.mode.impl.base;
 
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
+import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 
 public final class BasePathSelectionModeFactory {
 
@@ -15,7 +16,7 @@ public final class BasePathSelectionModeFactory {
         throw new UnsupportedOperationException();
     }
 
-    public static PathSelectionMode createBestPathSelectionStrategy() {
-        return new BasePathSelection();
+    public static PathSelectionMode createBestPathSelectionStrategy(final BGPPeerTracker peerTracker) {
+        return new BasePathSelection(peerTracker);
     }
 }

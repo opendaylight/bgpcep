@@ -14,6 +14,7 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.net.InetAddresses;
 import com.google.common.primitives.UnsignedInteger;
 import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
 
@@ -50,8 +51,16 @@ public final class RouterIds {
     }
 
     public static UnsignedInteger routerIdForPeerId(@Nonnull final PeerId peerId) {
-        Preconditions.checkArgument(peerId.getValue().startsWith(BGP_PREFIX), "Unhandled peer ID %s", peerId);
+        Preconditions.checkArgument(peerId.getValue().startsWith(BGP_PREFIX),
+                "Unhandled peer ID %s", peerId);
         return BGP_ROUTER_IDS.getUnchecked(peerId);
+    }
+
+    public static PeerId createPeerId(@Nonnull final IpAddress address) {
+        if (address.getIpv4Address() != null) {
+            return createPeerId(address.getIpv4Address());
+        }
+        return new PeerId(BGP_PREFIX + address.getIpv6Address().getValue());
     }
 
     public static PeerId createPeerId(@Nonnull final Ipv4Address address) {

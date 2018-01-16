@@ -10,9 +10,7 @@ package org.opendaylight.protocol.bgp.mode.api;
 
 import com.google.common.primitives.UnsignedInteger;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
-import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryDependenciesContainer;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryInfo;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -59,23 +57,23 @@ public interface RouteEntry {
      * Update LocRibOut and AdjRibsOut by removing stale best path and writing new best.
      *
      * @param entryDependencies entry Dependencies container
-     * @param tx                DOM transaction
      * @param routeIdPA         router ID pathArgument
+     * @param tx                DOM transaction
      */
     void updateBestPaths(
             @Nonnull RouteEntryDependenciesContainer entryDependencies,
-            @Nonnull DOMDataWriteTransaction tx,
-            @Nonnull NodeIdentifierWithPredicates routeIdPA);
+            @Nonnull NodeIdentifierWithPredicates routeIdPA,
+            @Nonnull DOMDataWriteTransaction tx);
 
     /**
      * Initialize LocRibOut and AdjRibsOut for new peers with already present best paths.
      *
-     * @param peerGroup PeerExportGroup
-     * @param tx        DOM transaction
+     * @param entryDependencies Route Entry Dependencies wrapper
+     * @param entryInfo         Route Entry Info wrapper
+     * @param tx                transaction
      */
     void initializeBestPaths(
             @Nonnull RouteEntryDependenciesContainer entryDependencies,
             @Nonnull RouteEntryInfo entryInfo,
-            @Nullable PeerExportGroup peerGroup,
             @Nonnull DOMDataWriteTransaction tx);
 }

@@ -12,6 +12,7 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import javax.annotation.Nullable;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
@@ -22,23 +23,23 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 
 final class RIBSupportContextRegistryImpl implements RIBSupportContextRegistry {
 
+    private final RIBExtensionConsumerContext extensionContext;
+    private final CodecsRegistry codecs;
     private final LoadingCache<RIBSupport, RIBSupportContextImpl> contexts = CacheBuilder.newBuilder()
-            .build(new CacheLoader<RIBSupport, RIBSupportContextImpl>(){
+            .build(new CacheLoader<RIBSupport, RIBSupportContextImpl>() {
                 @Override
                 public RIBSupportContextImpl load(final RIBSupport key) {
                     return createRIBSupportContext(key);
                 }
             });
 
-    private final RIBExtensionConsumerContext extensionContext;
-    private final CodecsRegistry codecs;
-
     private RIBSupportContextRegistryImpl(final RIBExtensionConsumerContext extensions, final CodecsRegistry codecs) {
         this.extensionContext = requireNonNull(extensions);
         this.codecs = requireNonNull(codecs);
     }
 
-    static RIBSupportContextRegistryImpl create(final RIBExtensionConsumerContext extensions, final CodecsRegistry codecs) {
+    static RIBSupportContextRegistryImpl create(final RIBExtensionConsumerContext extensions,
+            final CodecsRegistry codecs) {
         return new RIBSupportContextRegistryImpl(extensions, codecs);
     }
 
@@ -46,10 +47,20 @@ final class RIBSupportContextRegistryImpl implements RIBSupportContextRegistry {
         return new RIBSupportContextImpl(support, this.codecs);
     }
 
+    @Nullable
+    @Override
+    public RIBSupport getRIBSupport(final TablesKey key) {
+        final RIBSupportContext ribSupport = getRIBSupportContext(key);
+        if (ribSupport != null) {
+            return ribSupport.getRibSupport();
+        }
+        return null;
+    }
+
     @Override
     public RIBSupportContext getRIBSupportContext(final TablesKey key) {
         final RIBSupport ribSupport = this.extensionContext.getRIBSupport(key);
-        if(ribSupport != null) {
+        if (ribSupport != null) {
             return this.contexts.getUnchecked(ribSupport);
         }
         return null;
@@ -58,7 +69,7 @@ final class RIBSupportContextRegistryImpl implements RIBSupportContextRegistry {
     @Override
     public RIBSupportContext getRIBSupportContext(final NodeIdentifierWithPredicates key) {
         final RIBSupport ribSupport = this.extensionContext.getRIBSupport(key);
-        if(ribSupport != null) {
+        if (ribSupport != null) {
             return this.contexts.getUnchecked(ribSupport);
         }
         return null;
