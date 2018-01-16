@@ -8,8 +8,6 @@
 
 package org.opendaylight.protocol.bgp.parser.spi;
 
-import static java.util.Objects.requireNonNull;
-
 import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -23,18 +21,18 @@ public final class MultiPathSupportUtil {
 
     /**
      * Check is AFI/SAFI is supported by {@link MultiPathSupport} service.
+     *
      * @param constraints Peer specific constraint.
-     * @param afiSafi Required AFI/SAFI
+     * @param afiSafi     Required AFI/SAFI
      * @return True if AFI/SAFI is supported.
      */
-    public static boolean isTableTypeSupported(@Nullable final PeerSpecificParserConstraint constraints, @Nonnull final BgpTableType afiSafi) {
-        requireNonNull(afiSafi);
+    public static boolean isTableTypeSupported(@Nullable final PeerSpecificParserConstraint constraints,
+            @Nonnull final BgpTableType afiSafi) {
         if (constraints != null) {
             final Optional<MultiPathSupport> peerConstraint = constraints.getPeerConstraint(MultiPathSupport.class);
             return peerConstraint.isPresent() && peerConstraint.get().isTableTypeSupported(afiSafi);
         }
         return false;
-
     }
 
 }
