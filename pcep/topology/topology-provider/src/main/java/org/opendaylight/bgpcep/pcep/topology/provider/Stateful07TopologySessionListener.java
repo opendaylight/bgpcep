@@ -365,6 +365,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
 
     @Override
     protected boolean onMessage(final MessageContext ctx, final Message message) {
+        LOG.trace("on Message xtx {}, message {}", ctx, message);
         if (message instanceof PcerrMessage) {
             return handleErrorMessage((PcerrMessage) message);
         }

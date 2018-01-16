@@ -30,5 +30,5 @@
     </bean>
 
     <service ref="openconfigRIBPolicyConsumer"
-             interface="org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.BGPOpenconfigRIBRoutingPolicyConsumer"/>
+             interface="org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.BGPOpenconfigRIBRoutingPolicyProvider"/>
 </blueprint>

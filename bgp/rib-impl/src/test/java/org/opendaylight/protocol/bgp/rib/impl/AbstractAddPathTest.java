@@ -24,20 +24,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import javassist.ClassPool;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
-import org.opendaylight.mdsal.binding.dom.adapter.BindingToNormalizedNodeCodec;
-import org.opendaylight.mdsal.binding.dom.codec.gen.impl.StreamWriterGenerator;
-import org.opendaylight.mdsal.binding.dom.codec.impl.BindingNormalizedNodeCodecRegistry;
-import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
-import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
-import org.opendaylight.mdsal.binding.generator.util.JavassistUtils;
+import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
+import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTestCustomizer;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
@@ -60,7 +53,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv4.prefixes.DestinationIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv4.prefixes.destination.ipv4.Ipv4PrefixesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv4.routes.ipv4.routes.Ipv4Route;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv4Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv4CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.NotifyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.Open;
@@ -88,12 +80,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.CParameters1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.SendReceive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.mp.capabilities.AddPathCapabilityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.mp.capabilities.MultiprotocolCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.mp.capabilities.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.mp.capabilities.add.path.capability.AddressFamiliesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.update.attributes.MpReachNlriBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.update.attributes.mp.reach.nlri.AdvertizedRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
@@ -107,10 +96,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.Notification;
-import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 
-public abstract class AbstractAddPathTest extends AbstractConcurrentDataBrokerTest {
+public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
     private static final int RETRY_TIMER = 10;
     static final String RIB_ID = "127.0.0.1";
     static final BgpId BGP_ID = new BgpId(RIB_ID);
@@ -141,9 +129,6 @@ public abstract class AbstractAddPathTest extends AbstractConcurrentDataBrokerTe
     private BGPExtensionProviderContext context;
     private static final InstanceIdentifier<BgpRib> BGP_IID = InstanceIdentifier.create(BgpRib.class);
     protected SchemaContext schemaContext;
-    @Mock
-    protected ClusterSingletonServiceProvider clusterSingletonServiceProvider;
-    BindingToNormalizedNodeCodec mappingService;
     BGPDispatcherImpl serverDispatcher;
     RIBExtensionProviderContext ribExtension;
     private RIBActivator ribActivator;
@@ -154,10 +139,13 @@ public abstract class AbstractAddPathTest extends AbstractConcurrentDataBrokerTe
     protected StrictBGPPeerRegistry serverRegistry;
     protected BGPPeerTrackerImpl peerTracker = new BGPPeerTrackerImpl();
     protected CodecsRegistryImpl codecsRegistry;
+    protected BindingToNormalizedNodeCodec mappingService;
+    @Mock
+    protected ClusterSingletonServiceProvider clusterSingletonServiceProvider;
 
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+        super.setUp();
         this.ribActivator = new RIBActivator();
         this.ribExtension = new SimpleRIBExtensionProviderContext();
 
@@ -169,20 +157,8 @@ public abstract class AbstractAddPathTest extends AbstractConcurrentDataBrokerTe
         this.bgpActivator.start(this.context);
         this.inetActivator.start(this.context);
 
-        this.mappingService = new BindingToNormalizedNodeCodec(
-            GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(),
-            new BindingNormalizedNodeCodecRegistry(StreamWriterGenerator.create(
-                JavassistUtils.forClassPool(ClassPool.getDefault()))));
-        final ModuleInfoBackedContext moduleInfoBackedContext = ModuleInfoBackedContext.create();
-        moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(BgpParameters.class));
-        moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(MultiprotocolCapability.class));
-        moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(DestinationIpv4Case.class));
-        moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(AdvertizedRoutes.class));
-        moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(BgpRib.class));
-        moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(Attributes1.class));
-        moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(MpReachNlri.class));
-        this.mappingService.onGlobalContextUpdated(moduleInfoBackedContext.tryToCreateSchemaContext().get());
-        this.schemaContext = moduleInfoBackedContext.getSchemaContext();
+        this.schemaContext = getSchemaContext();
+
         if (!Epoll.isAvailable()) {
             this.worker = new NioEventLoopGroup();
             this.boss = new NioEventLoopGroup();
@@ -195,6 +171,13 @@ public abstract class AbstractAddPathTest extends AbstractConcurrentDataBrokerTe
 
         this.codecsRegistry = CodecsRegistryImpl.create(this.mappingService.getCodecFactory(),
                 this.ribExtension.getClassLoadingStrategy());
+    }
+
+    @Override
+    protected AbstractDataBrokerTestCustomizer createDataBrokerTestCustomizer() {
+        final AbstractDataBrokerTestCustomizer customizer = super.createDataBrokerTestCustomizer();
+        this.mappingService = customizer.getBindingToNormalized();
+        return customizer;
     }
 
     @After

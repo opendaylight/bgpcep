@@ -11,6 +11,8 @@ package org.opendaylight.protocol.bgp.rib.impl.config;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -22,7 +24,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTestCustomizer;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
@@ -65,10 +67,9 @@ public class RibImplTest extends AbstractConfig {
                         .setSendMax(Shorts.checkedCast(ALL_PATHS)).build()).build());
     }
 
+    private BindingCodecTreeFactory bindingCodecTreeFactory;
     @Mock
     private RIBExtensionConsumerContext extension;
-    @Mock
-    private BindingCodecTreeFactory bindingCodecTreeFactory;
     @Mock
     private DOMDataBroker domDataBroker;
     @Mock
@@ -85,30 +86,43 @@ public class RibImplTest extends AbstractConfig {
     public void setUp() throws Exception {
         super.setUp();
 
-        Mockito.doReturn(mock(GeneratedClassLoadingStrategy.class)).when(this.extension).getClassLoadingStrategy();
-        Mockito.doReturn(this.ribSupport).when(this.extension).getRIBSupport(any(TablesKey.class));
+        doReturn(GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy()).when(this.extension)
+                .getClassLoadingStrategy();
+        doReturn(this.ribSupport).when(this.extension).getRIBSupport(any(TablesKey.class));
         final NodeIdentifier nii = new NodeIdentifier(QName.create("", "test").intern());
-        Mockito.doReturn(nii).when(this.ribSupport).routeAttributesIdentifier();
-        Mockito.doReturn(ImmutableSet.of()).when(this.ribSupport).cacheableAttributeObjects();
+        doReturn(nii).when(this.ribSupport).routeAttributesIdentifier();
+        doReturn(ImmutableSet.of()).when(this.ribSupport).cacheableAttributeObjects();
         final ChoiceNode choiceNode = mock(ChoiceNode.class);
-        Mockito.doReturn(choiceNode).when(this.ribSupport).emptyRoutes();
-        Mockito.doReturn(nii).when(choiceNode).getIdentifier();
-        Mockito.doReturn(QName.create("", "test").intern()).when(choiceNode).getNodeType();
-        Mockito.doReturn(this.domTx).when(this.domDataBroker).createTransactionChain(any());
+        doReturn(choiceNode).when(this.ribSupport).emptyRoutes();
+        doReturn(nii).when(choiceNode).getIdentifier();
+        doReturn(QName.create("", "test").intern()).when(choiceNode).getNodeType();
+        doReturn(this.domTx).when(this.domDataBroker).createTransactionChain(any());
         final DOMDataTreeChangeService dOMDataTreeChangeService = mock(DOMDataTreeChangeService.class);
-        Mockito.doReturn(Collections.singletonMap(DOMDataTreeChangeService.class, dOMDataTreeChangeService))
+        doReturn(Collections.singletonMap(DOMDataTreeChangeService.class, dOMDataTreeChangeService))
                 .when(this.domDataBroker).getSupportedExtensions();
-        Mockito.doReturn(this.dataTreeRegistration).when(this.domSchemaService).registerSchemaContextListener(any());
-        Mockito.doNothing().when(this.dataTreeRegistration).close();
-        Mockito.doReturn(mock(ListenerRegistration.class)).when(dOMDataTreeChangeService)
+        doReturn(this.dataTreeRegistration).when(this.domSchemaService).registerSchemaContextListener(any());
+        doNothing().when(this.dataTreeRegistration).close();
+        doReturn(mock(ListenerRegistration.class)).when(dOMDataTreeChangeService)
                 .registerDataTreeChangeListener(any(), any());
-        Mockito.doNothing().when(this.serviceRegistration).unregister();
+        doNothing().when(this.serviceRegistration).unregister();
+    }
+
+    @Override
+    protected AbstractDataBrokerTestCustomizer createDataBrokerTestCustomizer() {
+        final AbstractDataBrokerTestCustomizer customizer = super.createDataBrokerTestCustomizer();
+        this.bindingCodecTreeFactory = customizer.getBindingToNormalized();
+        return customizer;
     }
 
     @Test
     public void testRibImpl() throws Exception {
-        final RibImpl ribImpl = new RibImpl(this.extension, this.dispatcher,
-                this.bindingCodecTreeFactory, this.domDataBroker, this.domSchemaService);
+        final RibImpl ribImpl = new RibImpl(
+                this.extension,
+                this.dispatcher,
+                this.policyProvider,
+                this.bindingCodecTreeFactory,
+                this.domDataBroker,
+                this.domSchemaService);
         ribImpl.setServiceRegistration(this.serviceRegistration);
         ribImpl.start(createGlobal(), "rib-test", this.tableTypeRegistry);
         verify(this.extension).getClassLoadingStrategy();

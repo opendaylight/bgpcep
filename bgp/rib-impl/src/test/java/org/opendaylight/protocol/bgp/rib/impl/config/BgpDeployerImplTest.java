@@ -38,7 +38,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
@@ -56,6 +55,7 @@ import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvid
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
+import org.opendaylight.protocol.bgp.rib.impl.DefaultRibPoliciesMockTest;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.InstanceType;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
@@ -106,7 +106,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({BgpDeployerImpl.class})
-public class BgpDeployerImplTest {
+public class BgpDeployerImplTest extends DefaultRibPoliciesMockTest {
     private static final String NETWORK_INSTANCE_NAME = "network-test";
     private static final AsNumber AS = new AsNumber(72L);
     private static final IpAddress IPADDRESS = new IpAddress(new Ipv4Address("127.0.0.1"));
@@ -159,7 +159,7 @@ public class BgpDeployerImplTest {
 
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+        super.setUp();
         final DOMDataBroker domDataBroker = mock(DOMDataBroker.class);
 
         doReturn(this.wTx).when(this.dataBroker).newWriteOnlyTransaction();
@@ -211,7 +211,11 @@ public class BgpDeployerImplTest {
 
         doReturn(this.dataTreeRegistration).when(schemaService).registerSchemaContextListener(any());
 
-        final RibImpl ribImpl = new RibImpl(extension, mock(BGPDispatcher.class), mock(BindingCodecTreeFactory.class),
+        final RibImpl ribImpl = new RibImpl(
+                extension,
+                mock(BGPDispatcher.class),
+                this.policyProvider,
+                mock(BindingCodecTreeFactory.class),
                 domDataBroker, schemaService);
         doReturn(ribImpl).when(this.blueprintContainer).getComponentInstance(eq("ribImpl"));
 

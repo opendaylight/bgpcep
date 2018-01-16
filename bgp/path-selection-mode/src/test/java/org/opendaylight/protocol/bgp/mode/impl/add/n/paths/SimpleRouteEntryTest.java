@@ -49,7 +49,7 @@ public final class SimpleRouteEntryTest extends AbstractRouteEntryTest {
     private void testWriteEmptyBestPath() {
         doReturn(ROUTE_ID_PA).when(this.entryInfo).getRouteId();
 
-        this.testBARE.initializeBestPaths(this.entryDep, this.entryInfo, this.peg, this.tx);
+        this.testBARE.initializeBestPaths(this.entryDep, this.entryInfo, this.tx);
         assertEquals(0, this.yiichanges.size());
     }
 
@@ -78,7 +78,7 @@ public final class SimpleRouteEntryTest extends AbstractRouteEntryTest {
         assertEquals(3, this.yiichanges.size());
         doReturn(ROUTE_ID_PA_ADD_PATH).when(this.entryInfo).getRouteId();
 
-        this.testBARE.initializeBestPaths(this.entryDep, this.entryInfo, this.peg, this.tx);
+        this.testBARE.initializeBestPaths(this.entryDep, this.entryInfo, this.tx);
         assertEquals(5, this.yiichanges.size());
         final Map<YangInstanceIdentifier, Long> yiiCount = collectInfo();
         assertEquals(1, (long) yiiCount.get(this.routeAddRiboutYiiPeer2));

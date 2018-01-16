@@ -29,7 +29,6 @@ public final class CodecsRegistryImpl implements CodecsRegistry {
 
     private final LoadingCache<RIBSupport, Codecs> contexts = CacheBuilder.newBuilder()
         .build(new CacheLoader<RIBSupport, Codecs>(){
-
             @Override
             public Codecs load(final RIBSupport key) {
                 return createContext(key);
@@ -39,12 +38,14 @@ public final class CodecsRegistryImpl implements CodecsRegistry {
     private final GeneratedClassLoadingStrategy classContext;
     private volatile BindingCodecTree latestCodecTree;
 
-    private CodecsRegistryImpl(final BindingCodecTreeFactory codecFactory, final GeneratedClassLoadingStrategy strategy) {
+    private CodecsRegistryImpl(final BindingCodecTreeFactory codecFactory,
+            final GeneratedClassLoadingStrategy strategy) {
         this.codecFactory = requireNonNull(codecFactory);
         this.classContext = requireNonNull(strategy);
     }
 
-    public static CodecsRegistryImpl create(final BindingCodecTreeFactory codecFactory, final GeneratedClassLoadingStrategy classStrategy) {
+    public static CodecsRegistryImpl create(final BindingCodecTreeFactory codecFactory,
+            final GeneratedClassLoadingStrategy classStrategy) {
         return new CodecsRegistryImpl(codecFactory, classStrategy);
     }
 

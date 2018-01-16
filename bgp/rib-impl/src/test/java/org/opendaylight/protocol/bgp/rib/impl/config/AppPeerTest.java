@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl.config;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.verify;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 import org.junit.Before;
@@ -40,24 +41,26 @@ public class AppPeerTest extends AbstractConfig {
     @Test
     public void testAppPeer() throws Exception {
         APP_PEER.start(this.rib, this.neighbor, this.tableTypeRegistry);
-        Mockito.verify(this.rib).getYangRibId();
-        Mockito.verify(this.rib).getService();
-        Mockito.verify(this.rib, times(1)).getLocalTablesKeys();
+
+        verify(this.rib).getYangRibId();
+        verify(this.rib).getService();
+        verify(this.rib, times(1)).getLocalTablesKeys();
+        verify(this.rib, times(0)).getRibSupportContext();
 
         APP_PEER.instantiateServiceInstance();
-        Mockito.verify(this.rib, times(2)).getYangRibId();
-        Mockito.verify(this.rib).getRibSupportContext();
-        Mockito.verify(this.rib, times(2)).getLocalTablesKeys();
-        Mockito.verify(this.domTx).newWriteOnlyTransaction();
+        verify(this.rib, times(2)).getYangRibId();
+        verify(this.rib, times(2)).getRibSupportContext();
+        verify(this.rib, times(2)).getLocalTablesKeys();
+        verify(this.domTx).newWriteOnlyTransaction();
 
         APP_PEER.closeServiceInstance();
         APP_PEER.close();
 
         APP_PEER.restart(this.rib, this.tableTypeRegistry);
         APP_PEER.instantiateServiceInstance();
-        Mockito.verify(this.rib, times(4)).getYangRibId();
-        Mockito.verify(this.rib, times(4)).getService();
-        Mockito.verify(this.listener, times(2)).close();
+        verify(this.rib, times(4)).getYangRibId();
+        verify(this.rib, times(4)).getService();
+        verify(this.listener, times(2)).close();
 
         assertTrue(APP_PEER.containsEqualConfiguration(this.neighbor));
         assertFalse(APP_PEER.containsEqualConfiguration(new NeighborBuilder()

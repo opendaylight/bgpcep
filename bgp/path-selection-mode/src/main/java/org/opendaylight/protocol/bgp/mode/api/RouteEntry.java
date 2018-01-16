@@ -10,9 +10,7 @@ package org.opendaylight.protocol.bgp.mode.api;
 
 import com.google.common.primitives.UnsignedInteger;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
-import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryDependenciesContainer;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryInfo;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -77,6 +75,5 @@ public interface RouteEntry {
     void initializeBestPaths(
             @Nonnull RouteEntryDependenciesContainer entryDependencies,
             @Nonnull RouteEntryInfo entryInfo,
-            @Nullable PeerExportGroup peerGroup,
             @Nonnull DOMDataWriteTransaction tx);
 }

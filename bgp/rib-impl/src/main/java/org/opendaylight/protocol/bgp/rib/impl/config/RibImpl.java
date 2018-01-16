@@ -26,18 +26,18 @@ import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
+import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.BGPOpenconfigRIBRoutingPolicyProvider;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeerTrackerImpl;
 import org.opendaylight.protocol.bgp.rib.impl.CodecsRegistryImpl;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
-import org.opendaylight.protocol.bgp.rib.impl.spi.ImportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
-import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
+import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPRIBState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPRIBStateConsumer;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
@@ -69,6 +69,7 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
     private final BindingCodecTreeFactory codecTreeFactory;
     private final DOMDataBroker domBroker;
     private final DOMSchemaService domSchemaService;
+    private final BGPOpenconfigRIBRoutingPolicyProvider policyProvider;
     private RIBImpl ribImpl;
     private ServiceRegistration<?> serviceRegistration;
     private ListenerRegistration<SchemaContextListener> schemaContextRegistration;
@@ -78,14 +79,19 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
 
     private ClusterIdentifier clusterId;
 
-    public RibImpl(final RIBExtensionConsumerContext contextProvider, final BGPDispatcher dispatcher,
-            final BindingCodecTreeFactory codecTreeFactory, final DOMDataBroker domBroker,
+    public RibImpl(
+            final RIBExtensionConsumerContext contextProvider,
+            final BGPDispatcher dispatcher,
+            final BGPOpenconfigRIBRoutingPolicyProvider policyProvider,
+            final BindingCodecTreeFactory codecTreeFactory,
+            final DOMDataBroker domBroker,
             final DOMSchemaService domSchemaService) {
         this.extensions = contextProvider;
         this.dispatcher = dispatcher;
         this.codecTreeFactory = codecTreeFactory;
         this.domBroker = domBroker;
         this.domSchemaService = domSchemaService;
+        this.policyProvider = policyProvider;
     }
 
     void start(final Global global, final String instanceName, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
@@ -198,16 +204,6 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
     }
 
     @Override
-    public ImportPolicyPeerTracker getImportPolicyPeerTracker() {
-        return this.ribImpl.getImportPolicyPeerTracker();
-    }
-
-    @Override
-    public ExportPolicyPeerTracker getExportPolicyPeerTracker(final TablesKey tablesKey) {
-        return this.ribImpl.getExportPolicyPeerTracker(tablesKey);
-    }
-
-    @Override
     public Set<TablesKey> getLocalTablesKeys() {
         return this.ribImpl.getLocalTablesKeys();
     }
@@ -215,6 +211,11 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
     @Override
     public boolean supportsTable(final TablesKey tableKey) {
         return this.ribImpl.supportsTable(tableKey);
+    }
+
+    @Override
+    public BGPRibRoutingPolicy getRibPolicies() {
+        return this.ribImpl.getRibPolicies();
     }
 
     @Override
@@ -236,13 +237,16 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
         this.asNumber = globalConfig.getAs();
         this.routerId = globalConfig.getRouterId();
         this.clusterId = getClusterIdentifier(globalConfig);
-
         final BGPPeerTrackerImpl peerTracker = new BGPPeerTrackerImpl();
         final Map<TablesKey, PathSelectionMode> pathSelectionModes = OpenConfigMappingUtil
                 .toPathSelectionMode(this.afiSafi, tableTypeRegistry, peerTracker).entrySet()
                 .stream()
                 .collect(Collectors.toMap(entry ->
                         new TablesKey(entry.getKey().getAfi(), entry.getKey().getSafi()), Map.Entry::getValue));
+
+        final ClusterIdentifier cId = (this.clusterId == null) ? new ClusterIdentifier(this.routerId) : this.clusterId;
+        final BGPRibRoutingPolicy ribPolicy = this.policyProvider.buildBGPRibPolicy(this.asNumber.getValue(),
+                this.routerId, cId, RoutingPolicyUtil.getApplyPolicy(global.getApplyPolicy()));
 
         final CodecsRegistryImpl codecsRegistry = CodecsRegistryImpl.create(codecTreeFactory,
                 this.extensions.getClassLoadingStrategy());
@@ -251,11 +255,11 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
                 new RibId(bgpInstanceName),
                 this.asNumber,
                 new BgpId(this.routerId),
-                this.clusterId,
                 this.extensions,
                 this.dispatcher,
                 codecsRegistry,
                 this.domBroker,
+                ribPolicy,
                 peerTracker,
                 toTableTypes(this.afiSafi, tableTypeRegistry),
                 pathSelectionModes);

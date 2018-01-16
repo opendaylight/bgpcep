@@ -28,8 +28,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTestCustomizer;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
@@ -68,10 +66,11 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.YangModuleInfo;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 
-public class ParserToSalTest extends AbstractConcurrentDataBrokerTest {
+public class ParserToSalTest extends DefaultRibPoliciesMockTest {
 
     private static final String TEST_RIB_ID = "testRib";
-    private static final TablesKey TABLE_KEY = new TablesKey(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
+    private static final TablesKey TABLE_KEY = new TablesKey(LinkstateAddressFamily.class,
+            LinkstateSubsequentAddressFamily.class);
     private static final InstanceIdentifier<BgpRib> BGP_IID = InstanceIdentifier.create(BgpRib.class);
     private BGPMock mock;
     private AbstractRIBExtensionProviderActivator baseact, lsact;
@@ -88,8 +87,7 @@ public class ParserToSalTest extends AbstractConcurrentDataBrokerTest {
 
     @Before
     public void setUp() throws Exception {
-        super.setup();
-        MockitoAnnotations.initMocks(this);
+        super.setUp();
         final String hexMessages = "/bgp_hex.txt";
         final List<byte[]> bgpMessages = HexDumpBGPFileParser
                 .parseMessages(ParserToSalTest.class.getResourceAsStream(hexMessages));
@@ -139,8 +137,8 @@ public class ParserToSalTest extends AbstractConcurrentDataBrokerTest {
                 LinkstateSubsequentAddressFamily.class));
 
         final RIBImpl rib = new RIBImpl(new RibId(TEST_RIB_ID),
-                AS_NUMBER, new BgpId("127.0.0.1"), null, this.ext2, this.dispatcher,
-                this.codecsRegistry, getDomBroker(),this.peerTracker, tables,
+                AS_NUMBER, new BgpId("127.0.0.1"), this.ext2, this.dispatcher,
+                codecsRegistry, getDomBroker(), this.policies, this.peerTracker, tables,
                 Collections.singletonMap(TABLE_KEY, BasePathSelectionModeFactory
                         .createBestPathSelectionStrategy(this.peerTracker)));
         rib.instantiateServiceInstance();
@@ -158,8 +156,8 @@ public class ParserToSalTest extends AbstractConcurrentDataBrokerTest {
         final List<BgpTableType> tables = ImmutableList.of(new BgpTableTypeImpl(Ipv4AddressFamily.class,
                 UnicastSubsequentAddressFamily.class));
         final RIBImpl rib = new RIBImpl(new RibId(TEST_RIB_ID), AS_NUMBER, BGP_ID,
-                null, this.ext1, this.dispatcher, this.codecsRegistry, getDomBroker(),
-                this.peerTracker, tables,
+                this.ext1, this.dispatcher, this.codecsRegistry, getDomBroker(),
+                this.policies, this.peerTracker, tables,
                 Collections.singletonMap(TABLE_KEY, BasePathSelectionModeFactory
                         .createBestPathSelectionStrategy(this.peerTracker)));
         rib.instantiateServiceInstance();

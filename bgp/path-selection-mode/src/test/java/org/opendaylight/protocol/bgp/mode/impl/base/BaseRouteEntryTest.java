@@ -51,7 +51,7 @@ public class BaseRouteEntryTest extends AbstractRouteEntryTest {
 
     private void testInitializePeerWithExistentRoute() {
         doReturn(ROUTE_ID_PA).when(this.entryInfo).getRouteId();
-        this.testBARE.initializeBestPaths(this.entryDep, this.entryInfo, this.peg, this.tx);
+        this.testBARE.initializeBestPaths(this.entryDep, this.entryInfo, this.tx);
         assertEquals(8, this.yiichanges.size());
         Map<YangInstanceIdentifier, Long> yiiCount = collectInfo();
         assertEquals(1, (long) yiiCount.get(this.routeRiboutYiiPeer2));
@@ -84,7 +84,7 @@ public class BaseRouteEntryTest extends AbstractRouteEntryTest {
 
     private void testWriteEmptyBestPath() {
         doReturn(ROUTE_ID_PA).when(this.entryInfo).getRouteId();
-        this.testBARE.initializeBestPaths(this.entryDep, this.entryInfo, this.peg, this.tx);
+        this.testBARE.initializeBestPaths(this.entryDep, this.entryInfo, this.tx);
         assertEquals(0, this.yiichanges.size());
     }
 }

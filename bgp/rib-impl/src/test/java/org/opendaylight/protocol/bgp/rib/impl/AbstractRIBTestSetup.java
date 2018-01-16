@@ -62,6 +62,7 @@ import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
+import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv4.routes.ipv4.routes.Ipv4Route;
@@ -99,8 +100,6 @@ public class AbstractRIBTestSetup {
 
     protected static final Class<? extends AddressFamily> AFI = Ipv4AddressFamily.class;
     protected static final Class<? extends SubsequentAddressFamily> SAFI = UnicastSubsequentAddressFamily.class;
-    protected static final QName AFI_QNAME = BindingReflections.findQName(AFI).intern();
-    protected static final QName SAFI_QNAME = BindingReflections.findQName(SAFI).intern();
     protected static final TablesKey KEY = new TablesKey(AFI, SAFI);
     protected static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, "prefix").intern();
     private static final ClusterIdentifier CLUSTER_ID = new ClusterIdentifier("128.0.0.1");
@@ -124,6 +123,8 @@ public class AbstractRIBTestSetup {
     @Mock
     private DOMTransactionChain domChain;
 
+    @Mock
+    private BGPRibRoutingPolicy ribPolicy;
     @Mock
     private DOMDataWriteTransaction domTransWrite;
 
@@ -182,10 +183,11 @@ public class AbstractRIBTestSetup {
         mockedMethods();
         doReturn(mock(ClusterSingletonServiceRegistration.class)).when(this.clusterSingletonServiceProvider)
                 .registerClusterSingletonService(any(ClusterSingletonService.class));
-        this.rib = new RIBImpl(new RibId("test"), new AsNumber(5L), RIB_ID, CLUSTER_ID, context,
-                this.dispatcher, codecsRegistry, this.dom, this.peerTracker, localTables,
+        this.rib = new RIBImpl(new RibId("test"), new AsNumber(5L), RIB_ID, context, this.dispatcher,
+                codecsRegistry, this.dom, this.ribPolicy, this.peerTracker, localTables,
                 Collections.singletonMap(new TablesKey(AFI, SAFI),
-                        BasePathSelectionModeFactory.createBestPathSelectionStrategy(this.peerTracker)));
+                        BasePathSelectionModeFactory.createBestPathSelectionStrategy(this.peerTracker))
+                );
         this.rib.onGlobalContextUpdated(schemaContext);
         this.ribSupport = getRib().getRibSupportContext().getRIBSupportContext(KEY).getRibSupport();
     }
