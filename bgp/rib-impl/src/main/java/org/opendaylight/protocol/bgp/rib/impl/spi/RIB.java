@@ -13,8 +13,9 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListen
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.RibReference;
-import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
+import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
+import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
@@ -86,18 +87,6 @@ public interface RIB extends RibReference {
      */
     DOMDataTreeChangeService getService();
 
-    ImportPolicyPeerTracker getImportPolicyPeerTracker();
-
-    /**
-     * Returns ExportPolicyPeerTracker for specific tableKey, where peer can register himself
-     * as supporting the table. Same export policy can be used to check which peers support respective
-     * table and announce then routes if required.
-     *
-     * @param tablesKey supported table
-     * @return ExportPolicyPeerTracker
-     */
-    ExportPolicyPeerTracker getExportPolicyPeerTracker(TablesKey tablesKey);
-
     /**
      * Returns true if RIB supports table.
      *
@@ -107,4 +96,18 @@ public interface RIB extends RibReference {
     boolean supportsTable(TablesKey tableKey);
 
     Set<TablesKey> getLocalTablesKeys();
+
+    /**
+     * Return Policies Container.
+     *
+     * @return policies
+     */
+    BGPRibRoutingPolicy getRibPolicies();
+
+    /**
+     * Returns peer tracker for the rib.
+     *
+     * @return peer tracker
+     */
+    BGPPeerTracker getPeerTracker();
 }

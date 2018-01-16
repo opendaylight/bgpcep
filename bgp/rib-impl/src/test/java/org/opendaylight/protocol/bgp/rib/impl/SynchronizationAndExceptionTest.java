@@ -46,6 +46,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
+import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
@@ -133,6 +134,8 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
     @Mock
     private DOMDataWriteTransaction tx;
 
+    private final BGPPeerTrackerImpl peerTracker = new BGPPeerTrackerImpl();
+
     @Override
     @Before
     public void setUp() throws Exception {
@@ -201,15 +204,19 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         }).when(future).addListener(any(Runnable.class), any(Executor.class));
         doReturn(future).when(this.tx).submit();
         doReturn(mock(Optional.class)).when(future).checkedGet();
+        this.codecsRegistry = CodecsRegistryImpl.create(this.mappingService.getCodecFactory(),
+                this.ribExtension.getClassLoadingStrategy());
     }
 
     @Test
     public void testHandleMessageAfterException() throws InterruptedException {
         final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(TABLES_KEY,
-            BasePathSelectionModeFactory.createBestPathSelectionStrategy());
+            BasePathSelectionModeFactory.createBestPathSelectionStrategy(this.peerTracker));
+
+
         final RIBImpl ribImpl = new RIBImpl( new RibId(RIB_ID), AS_NUMBER,
-            new BgpId(RIB_ID), null, this.ribExtension, this.serverDispatcher, this.codecsRegistry,
-            this.domBroker, ImmutableList.of(this.ipv4tt), pathTables);
+            new BgpId(RIB_ID), this.ribExtension, this.serverDispatcher, this.codecsRegistry,
+            this.domBroker, this.ribPolicy, this.peerTracker, ImmutableList.of(this.ipv4tt), pathTables);
         ribImpl.instantiateServiceInstance();
         ribImpl.onGlobalContextUpdated(this.schemaContext);
 
@@ -254,10 +261,10 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
     @Test
     public void testUseCase1() throws InterruptedException {
         final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(TABLES_KEY,
-            BasePathSelectionModeFactory.createBestPathSelectionStrategy());
+            BasePathSelectionModeFactory.createBestPathSelectionStrategy(this.peerTracker));
         final RIBImpl ribImpl = new RIBImpl( new RibId(RIB_ID), AS_NUMBER,
-            new BgpId(RIB_ID), null, this.ribExtension, this.serverDispatcher, this.codecsRegistry,
-            this.domBroker, ImmutableList.of(this.ipv4tt), pathTables);
+            new BgpId(RIB_ID), this.ribExtension, this.serverDispatcher, this.codecsRegistry,
+            this.domBroker, this.ribPolicy, this.peerTracker, ImmutableList.of(this.ipv4tt), pathTables);
         ribImpl.instantiateServiceInstance();
         ribImpl.onGlobalContextUpdated(this.schemaContext);
 

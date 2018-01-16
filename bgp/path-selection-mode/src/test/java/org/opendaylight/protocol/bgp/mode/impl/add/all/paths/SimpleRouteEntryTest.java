@@ -27,7 +27,8 @@ public final class SimpleRouteEntryTest extends AbstractRouteEntryTest {
 
     @Test
     public void testSimpleRouteEntry() throws Exception {
-        this.testBARE = (SimpleRouteEntry) new AllPathSelection().createRouteEntry(false);
+        this.testBARE = (SimpleRouteEntry) new AllPathSelection(this.peerTracker)
+                .createRouteEntry(false);
         testAddRouteSelectBestAndWriteOnDS();
         testRemoveRoute();
     }
@@ -37,8 +38,7 @@ public final class SimpleRouteEntryTest extends AbstractRouteEntryTest {
                 .routeAttributesIdentifier(), this.attributes);
         assertFalse(this.testBARE.isEmpty());
         assertTrue(this.testBARE.selectBest(AS));
-        this.testBARE.updateBestPaths(this.entryDep,
-                this.tx, ROUTE_ID_PA_ADD_PATH);
+        this.testBARE.updateBestPaths(this.entryDep, ROUTE_ID_PA_ADD_PATH, this.tx);
         final Map<YangInstanceIdentifier, Long> yiiCount = collectInfo();
         assertEquals(3, yiiCount.size());
         assertEquals(1, (long) yiiCount.get(this.routePaAddPathYii));
@@ -52,8 +52,7 @@ public final class SimpleRouteEntryTest extends AbstractRouteEntryTest {
         assertEquals(1, (long) yiiCount.get(this.routePaAddPathYii));
         assertTrue(this.testBARE.removeRoute(ROUTER_ID, REMOTE_PATH_ID));
         assertTrue(this.testBARE.selectBest(AS));
-        this.testBARE.updateBestPaths(this.entryDep,
-                this.tx, ROUTE_ID_PA_ADD_PATH);
+        this.testBARE.updateBestPaths(this.entryDep, ROUTE_ID_PA_ADD_PATH, this.tx);
         yiiCount = collectInfo();
         assertEquals(0, yiiCount.size());
         assertFalse(yiiCount.containsKey(this.routePaAddPathYii));

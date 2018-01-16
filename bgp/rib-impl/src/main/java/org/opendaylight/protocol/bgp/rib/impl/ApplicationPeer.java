@@ -19,6 +19,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
@@ -32,7 +34,6 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPPeerStateImpl;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPSessionStateImpl;
-import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
@@ -41,6 +42,7 @@ import org.opendaylight.protocol.bgp.rib.spi.state.BGPErrorHandlingState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPSessionState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTimersState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTransportState;
+import org.opendaylight.protocol.concepts.AbstractRegistration;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.SendReceive;
@@ -94,6 +96,7 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
     private final Set<NodeIdentifierWithPredicates> supportedTables = new HashSet<>();
     private final BGPSessionStateImpl bgpSessionState = new BGPSessionStateImpl();
     private PeerId peerId;
+    private AbstractRegistration trackerRegistration;
 
     @FunctionalInterface
     interface RegisterAppPeerListener {
@@ -125,13 +128,8 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
         final Optional<SimpleRoutingPolicy> simpleRoutingPolicy = Optional.of(SimpleRoutingPolicy.AnnounceNone);
         this.peerId = RouterIds.createPeerId(this.ipAddress);
         final Set<TablesKey> localTables = this.rib.getLocalTablesKeys();
-        localTables.forEach(tablesKey -> {
-            final ExportPolicyPeerTracker exportTracker = this.rib.getExportPolicyPeerTracker(tablesKey);
-            if (exportTracker != null) {
-                exportTracker.registerPeer(this.peerId, null, this.peerIId, PeerRole.Internal, simpleRoutingPolicy);
-            }
-            this.supportedTables.add(RibSupportUtils.toYangTablesKey(tablesKey));
-        });
+        this.trackerRegistration = this.rib.getPeerTracker().registerPeer(this);
+        localTables.forEach(tablesKey -> this.supportedTables.add(RibSupportUtils.toYangTablesKey(tablesKey)));
         setAdvertizedGracefulRestartTableTypes(Collections.emptyList());
 
         this.adjRibInWriter = AdjRibInWriter.create(this.rib.getYangRibId(), PeerRole.Internal, simpleRoutingPolicy,
@@ -147,9 +145,7 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
         this.adjRibInWriter = this.adjRibInWriter.transform(this.peerId, context, localTables, Collections.emptyMap(),
                 registerAppPeerListener);
         this.effectiveRibInWriter = EffectiveRibInWriter
-                .create(this.rib.getService(), this.rib.createPeerChain(this), this.peerIId,
-                this.rib.getImportPolicyPeerTracker(), context, PeerRole.Internal,
-                localTables);
+                .create(this.rib, this.rib.createPeerChain(this), this.peerIId, localTables);
         this.bgpSessionState.registerMessagesCounter(this);
     }
 
@@ -274,6 +270,10 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
             this.writerChain.close();
             this.writerChain = null;
         }
+        if (this.trackerRegistration != null) {
+            this.trackerRegistration.close();
+            this.trackerRegistration = null;
+        }
         return future;
     }
 
@@ -292,8 +292,9 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
         return false;
     }
 
+    @Nullable
     @Override
-    public SendReceive getSupportedAddPathTables(final TablesKey tableKey) {
+    public SendReceive getSupportedAddPathTables(@Nonnull final TablesKey tableKey) {
         return null;
     }
 

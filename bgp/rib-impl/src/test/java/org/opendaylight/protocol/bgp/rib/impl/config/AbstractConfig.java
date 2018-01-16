@@ -27,13 +27,12 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListen
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
+import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.BGPOpenconfigRIBRoutingPolicyConsumer;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
-import org.opendaylight.protocol.bgp.rib.impl.spi.AbstractImportPolicy;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
-import org.opendaylight.protocol.bgp.rib.impl.spi.ImportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
@@ -41,8 +40,6 @@ import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.BgpRib;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.RibKey;
@@ -79,9 +76,9 @@ class AbstractConfig {
     @Mock
     protected DOMDataWriteTransaction domDW;
     @Mock
-    private ImportPolicyPeerTracker importPolicyPeerTracker;
-    @Mock
     private DOMDataTreeChangeService dataTreeChangeService;
+    @Mock
+    protected BGPOpenconfigRIBRoutingPolicyConsumer policyConsumer;
     protected static final RibId RIB_ID = new RibId("test");
 
     @Before
@@ -92,11 +89,6 @@ class AbstractConfig {
                 .getInstanceIdentifier();
         Mockito.doReturn(this.domTx).when(this.rib).createPeerChain(any(TransactionChainListener.class));
         Mockito.doReturn(AS).when(this.rib).getLocalAs();
-        Mockito.doReturn(this.importPolicyPeerTracker).when(this.rib).getImportPolicyPeerTracker();
-        Mockito.doNothing().when(this.importPolicyPeerTracker)
-                .peerRoleChanged(any(YangInstanceIdentifier.class), any(PeerRole.class));
-        Mockito.doReturn(mock(AbstractImportPolicy.class))
-                .when(this.importPolicyPeerTracker).policyFor(any(PeerId.class));
         Mockito.doReturn(mock(RIBSupportContextRegistry.class)).when(this.rib).getRibSupportContext();
         Mockito.doReturn(Collections.emptySet()).when(this.rib).getLocalTablesKeys();
         Mockito.doNothing().when(this.domTx).close();
