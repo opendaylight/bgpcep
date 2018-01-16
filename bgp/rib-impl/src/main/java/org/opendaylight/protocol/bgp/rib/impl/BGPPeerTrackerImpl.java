@@ -25,8 +25,13 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 
 public final class BGPPeerTrackerImpl implements BGPPeerTracker {
     @GuardedBy("this")
-    private final List<Peer> peers = new ArrayList<>();
+    private final List<Peer> peers;
+    @GuardedBy("this")
     private Map<PeerRole, List<PeerId>> rolePerPeerId;
+
+    public BGPPeerTrackerImpl() {
+        this.peers = new ArrayList<>();
+    }
 
     @Override
     public synchronized AbstractRegistration registerPeer(final Peer peer) {

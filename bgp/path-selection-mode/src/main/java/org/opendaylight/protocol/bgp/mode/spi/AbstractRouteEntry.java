@@ -10,15 +10,16 @@ package org.opendaylight.protocol.bgp.mode.spi;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.Optional;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.mode.api.BestPath;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
-import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
-import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
+import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
+import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryDependenciesContainer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.peer.AdjRibOut;
@@ -67,7 +68,7 @@ public abstract class AbstractRouteEntry<T extends BestPath> implements RouteEnt
     }
 
     protected static void update(final PeerId destPeer, final YangInstanceIdentifier routeTarget,
-            final ContainerNode effAttr, final NormalizedNode<?, ?> value, final RIBSupport ribSup,
+            final Optional<ContainerNode> effAttr, final NormalizedNode<?, ?> value, final RIBSupport ribSup,
             final DOMDataWriteTransaction tx) {
         if (!writeRoute(destPeer, routeTarget, effAttr, value, ribSup, tx)) {
             deleteRoute(destPeer, routeTarget, tx);
@@ -75,12 +76,13 @@ public abstract class AbstractRouteEntry<T extends BestPath> implements RouteEnt
     }
 
     protected static boolean writeRoute(final PeerId destPeer, final YangInstanceIdentifier routeTarget,
-            final ContainerNode effAttrib, final NormalizedNode<?, ?> value, final RIBSupport ribSup,
+            final Optional<ContainerNode> effAttrib, final NormalizedNode<?, ?> value, final RIBSupport ribSup,
             final DOMDataWriteTransaction tx) {
-        if (effAttrib != null && value != null) {
+        if (effAttrib.isPresent() && value != null) {
             LOG.debug("Write route {} to peer AdjRibsOut {}", value, destPeer);
             tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget, value);
-            tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget.node(ribSup.routeAttributesIdentifier()), effAttrib);
+            tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget.node(ribSup.routeAttributesIdentifier()),
+                    effAttrib.get());
             return true;
         }
         return false;
@@ -92,34 +94,18 @@ public abstract class AbstractRouteEntry<T extends BestPath> implements RouteEnt
         tx.delete(LogicalDatastoreType.OPERATIONAL, routeTarget);
     }
 
-    protected static boolean filterRoutes(final PeerId rootPeer, final PeerId destPeer,
-            final ExportPolicyPeerTracker peerPT, final TablesKey localTK, final PeerRole destPeerRole) {
-        return !rootPeer.equals(destPeer) && isTableSupportedAndReady(destPeer, peerPT, localTK)
-                && !PeerRole.Internal.equals(destPeerRole);
+    protected boolean filterRoutes(final PeerId rootPeer, final PeerId destPeer, final TablesKey localTK) {
+        final Peer peer = this.peerTracker.getPeer(destPeer);
+        return !(peer == null
+                || !peer.supportsTable(localTK)
+                || PeerRole.Internal.equals(peer.getRole()))
+                && !rootPeer.equals(destPeer);
     }
 
-    private static boolean isTableSupportedAndReady(final PeerId destPeer, final ExportPolicyPeerTracker peerPT,
-            final TablesKey localTK) {
-        if (!peerPT.isTableSupported(destPeer) || !peerPT.isTableStructureInitialized(destPeer)) {
-            LOG.trace("Route rejected, peer {} does not support this table type {}", destPeer, localTK);
-            return false;
-        }
-        return true;
-    }
-
-    protected static YangInstanceIdentifier getAdjRibOutYII(final RIBSupport ribSup,
-            final YangInstanceIdentifier rootPath, final PathArgument routeId, final TablesKey localTK) {
-        return ribSup.routePath(rootPath.node(AdjRibOut.QNAME).node(Tables.QNAME)
-                .node(RibSupportUtils.toYangTablesKey(localTK)).node(ROUTES_IDENTIFIER), routeId);
-    }
-
-    protected PeerRole getRoutePeerIdRole(final ExportPolicyPeerTracker peerPT, final PeerId routePeerId) {
-        for (final PeerRole role : PeerRole.values()) {
-            final PeerExportGroup peerGroup = peerPT.getPeerGroup(role);
-            if (peerGroup != null && peerGroup.containsPeer(routePeerId)) {
-                return role;
-            }
-        }
-        return null;
+    protected final YangInstanceIdentifier getAdjRibOutYII(final RouteEntryDependenciesContainer entryDep,
+            final YangInstanceIdentifier rootPath, final PathArgument routeId) {
+        return entryDep.getRibSupport().routePath(rootPath.node(AdjRibOut.QNAME).node(Tables.QNAME)
+            .node(RibSupportUtils.toYangTablesKey(entryDep.getLocalTablesKey())).node(ROUTES_IDENTIFIER),
+                routeId);
     }
 }
