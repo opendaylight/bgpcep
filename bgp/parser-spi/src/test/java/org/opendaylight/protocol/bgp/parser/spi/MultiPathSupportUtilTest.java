@@ -59,10 +59,4 @@ public class MultiPathSupportUtilTest {
     public void testIsTableTypeSupportedNegativeNull() {
         Assert.assertFalse(MultiPathSupportUtil.isTableTypeSupported(null, AFI_SAFI));
     }
-
-    @Test(expected=NullPointerException.class)
-    public void testIsTableTypeSupportedNPE() {
-        MultiPathSupportUtil.isTableTypeSupported(null, null);
-    }
-
 }
