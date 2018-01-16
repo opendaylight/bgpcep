@@ -51,6 +51,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
+import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -153,6 +154,8 @@ public abstract class AbstractAddPathTest extends AbstractConcurrentDataBrokerTe
     private org.opendaylight.protocol.bgp.inet.BGPActivator inetActivator;
     protected StrictBGPPeerRegistry serverRegistry;
     protected BGPPeerTrackerImpl peerTracker = new BGPPeerTrackerImpl();
+    @Mock
+    protected BGPRibRoutingPolicy ribPolicy;
     protected CodecsRegistryImpl codecsRegistry;
 
     @Before

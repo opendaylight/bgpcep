@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.mode.spi;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.Optional;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.mode.api.BestPath;
@@ -18,6 +19,7 @@ import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
+import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryDependenciesContainer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.peer.AdjRibOut;
@@ -66,7 +68,7 @@ public abstract class AbstractRouteEntry<T extends BestPath> implements RouteEnt
     }
 
     protected static void update(final PeerId destPeer, final YangInstanceIdentifier routeTarget,
-            final ContainerNode effAttr, final NormalizedNode<?, ?> value, final RIBSupport ribSup,
+            final Optional<ContainerNode> effAttr, final NormalizedNode<?, ?> value, final RIBSupport ribSup,
             final DOMDataWriteTransaction tx) {
         if (!writeRoute(destPeer, routeTarget, effAttr, value, ribSup, tx)) {
             deleteRoute(destPeer, routeTarget, tx);
@@ -74,12 +76,13 @@ public abstract class AbstractRouteEntry<T extends BestPath> implements RouteEnt
     }
 
     protected static boolean writeRoute(final PeerId destPeer, final YangInstanceIdentifier routeTarget,
-            final ContainerNode effAttrib, final NormalizedNode<?, ?> value, final RIBSupport ribSup,
+            final Optional<ContainerNode> effAttrib, final NormalizedNode<?, ?> value, final RIBSupport ribSup,
             final DOMDataWriteTransaction tx) {
-        if (effAttrib != null && value != null) {
+        if (effAttrib.isPresent() && value != null) {
             LOG.debug("Write route {} to peer AdjRibsOut {}", value, destPeer);
             tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget, value);
-            tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget.node(ribSup.routeAttributesIdentifier()), effAttrib);
+            tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget.node(ribSup.routeAttributesIdentifier()),
+                    effAttrib.get());
             return true;
         }
         return false;
@@ -99,9 +102,10 @@ public abstract class AbstractRouteEntry<T extends BestPath> implements RouteEnt
                 && !rootPeer.equals(destPeer);
     }
 
-    protected static YangInstanceIdentifier getAdjRibOutYII(final RIBSupport ribSup,
-            final YangInstanceIdentifier rootPath, final PathArgument routeId, final TablesKey localTK) {
-        return ribSup.routePath(rootPath.node(AdjRibOut.QNAME).node(Tables.QNAME)
-                .node(RibSupportUtils.toYangTablesKey(localTK)).node(ROUTES_IDENTIFIER), routeId);
+    protected final YangInstanceIdentifier getAdjRibOutYII(final RouteEntryDependenciesContainer entryDep,
+            final YangInstanceIdentifier rootPath, final PathArgument routeId) {
+        return entryDep.getRibSupport().routePath(rootPath.node(AdjRibOut.QNAME).node(Tables.QNAME)
+            .node(RibSupportUtils.toYangTablesKey(entryDep.getLocalTablesKey())).node(ROUTES_IDENTIFIER),
+                routeId);
     }
 }
