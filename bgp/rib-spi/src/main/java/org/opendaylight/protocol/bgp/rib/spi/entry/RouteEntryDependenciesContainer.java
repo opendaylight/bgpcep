@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.rib.spi.entry;
 
 import javax.annotation.Nonnull;
-import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
@@ -43,14 +42,6 @@ public interface RouteEntryDependenciesContainer {
      */
     @Nonnull
     YangInstanceIdentifier getLocRibTableTarget();
-
-    /**
-     * Return the ExportPolicyPeerTracker which tracks peers.
-     *
-     * @return ExportPolicyPeerTracker
-     */
-    @Nonnull
-    ExportPolicyPeerTracker getExportPolicyPeerTracker();
 
     /**
      * Return routing policies defined per RIB.
