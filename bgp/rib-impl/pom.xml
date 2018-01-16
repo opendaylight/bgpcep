@@ -47,6 +47,10 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-openconfig-rp-spi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>bgp-inet</artifactId>
         </dependency>
         <dependency>
@@ -86,6 +90,11 @@
             <classifier>linux-x86_64</classifier>
         </dependency>
         <!-- Testing dependencies -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-openconfig-rp-impl</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>bgp-rib-spi</artifactId>

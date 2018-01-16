@@ -42,9 +42,11 @@ public class AddPathNPathsTest extends AbstractAddPathTest {
         final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(tk,
                 new AddPathBestNPathSelection(2L, this.peerTracker));
 
-        this.ribImpl = new RIBImpl(new RibId("test-rib"),
-            AS_NUMBER, new BgpId(RIB_ID), null, this.ribExtension, this.serverDispatcher,
-            this.codecsRegistry, getDomBroker(), this.peerTracker, TABLES_TYPE, pathTables);
+        final CodecsRegistryImpl codecsRegistry = CodecsRegistryImpl.create(this.mappingService.getCodecFactory(),
+                this.ribExtension.getClassLoadingStrategy());
+        this.ribImpl = new RIBImpl(new RibId("test-rib"), AS_NUMBER, new BgpId(RIB_ID), this.ribExtension,
+                this.serverDispatcher, codecsRegistry, getDomBroker(), ribPolicy, this.peerTracker, TABLES_TYPE,
+                pathTables);
 
         this.ribImpl.instantiateServiceInstance();
         this.ribImpl.onGlobalContextUpdated(this.schemaContext);

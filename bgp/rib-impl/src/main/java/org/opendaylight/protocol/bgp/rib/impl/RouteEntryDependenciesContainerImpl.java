@@ -9,8 +9,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
 
-import javax.annotation.Nonnull;
-import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryDependenciesContainer;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
@@ -21,22 +19,24 @@ public final class RouteEntryDependenciesContainerImpl implements RouteEntryDepe
     private final RIBSupport ribSupport;
     private final TablesKey tablesKey;
     private final YangInstanceIdentifier locRibTarget;
-    private final ExportPolicyPeerTracker exportPolicyPeerTracker;
+    private final BGPRibRoutingPolicy routingPolicies;
 
     public RouteEntryDependenciesContainerImpl(
             final RIBSupport ribSupport,
+            final BGPRibRoutingPolicy routingPolicies,
             final TablesKey tablesKey,
-            final YangInstanceIdentifier locRibTarget, final ExportPolicyPeerTracker exportPolicyPeerTracker) {
+            final YangInstanceIdentifier locRibTarget) {
         this.ribSupport = requireNonNull(ribSupport);
         this.tablesKey = requireNonNull(tablesKey);
+        this.routingPolicies = requireNonNull(routingPolicies);
         this.locRibTarget = requireNonNull(locRibTarget);
-        this.exportPolicyPeerTracker = requireNonNull(exportPolicyPeerTracker);
     }
 
     @Override
     public RIBSupport getRibSupport() {
         return this.ribSupport;
     }
+
 
     @Override
     public TablesKey getLocalTablesKey() {
@@ -49,13 +49,7 @@ public final class RouteEntryDependenciesContainerImpl implements RouteEntryDepe
     }
 
     @Override
-    public ExportPolicyPeerTracker getExportPolicyPeerTracker() {
-        return exportPolicyPeerTracker;
-    }
-
-    @Override
     public BGPRibRoutingPolicy getRoutingPolicies() {
-        //FIXME
-        return null;
+        return this.routingPolicies;
     }
 }

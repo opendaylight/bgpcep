@@ -54,6 +54,7 @@ import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrate
 import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
+import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.BGPOpenconfigRIBRoutingPolicyProvider;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
@@ -211,7 +212,11 @@ public class BgpDeployerImplTest {
 
         doReturn(this.dataTreeRegistration).when(schemaService).registerSchemaContextListener(any());
 
-        final RibImpl ribImpl = new RibImpl(extension, mock(BGPDispatcher.class), mock(BindingCodecTreeFactory.class),
+        final RibImpl ribImpl = new RibImpl(
+                extension,
+                mock(BGPDispatcher.class),
+                mock(BGPOpenconfigRIBRoutingPolicyProvider.class),
+                mock(BindingCodecTreeFactory.class),
                 domDataBroker, schemaService);
         doReturn(ribImpl).when(this.blueprintContainer).getComponentInstance(eq("ribImpl"));
 
