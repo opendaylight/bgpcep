@@ -117,7 +117,6 @@ public class RibImplTest extends AbstractConfig {
         assertEquals("RIBImpl{}", ribImpl.toString());
         assertEquals(Collections.singleton(new TablesKey(Ipv4AddressFamily.class,
                 UnicastSubsequentAddressFamily.class)), ribImpl.getLocalTablesKeys());
-        assertNotNull(ribImpl.getImportPolicyPeerTracker());
         assertNotNull(ribImpl.getService());
         assertNotNull(ribImpl.getInstanceIdentifier());
         assertEquals(AS, ribImpl.getLocalAs());
