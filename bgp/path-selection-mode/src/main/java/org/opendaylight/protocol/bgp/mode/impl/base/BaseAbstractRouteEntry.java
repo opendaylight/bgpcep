@@ -9,15 +9,17 @@ package org.opendaylight.protocol.bgp.mode.impl.base;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.primitives.UnsignedInteger;
+import java.util.Optional;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.protocol.bgp.mode.impl.BGPRouteEntryExportParametersImpl;
 import org.opendaylight.protocol.bgp.mode.spi.AbstractRouteEntry;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
-import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
-import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryDependenciesContainer;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryInfo;
+import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
+import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
@@ -121,23 +123,25 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry<BaseBestPath> {
 
     @Override
     public void initializeBestPaths(final RouteEntryDependenciesContainer entryDep,
-            final RouteEntryInfo entryInfo, final PeerExportGroup peerGroup, final DOMDataWriteTransaction tx) {
+            final RouteEntryInfo entryInfo, final DOMDataWriteTransaction tx) {
         if (this.bestPath != null) {
-            final TablesKey localTK = entryDep.getLocalTablesKey();
             final BaseBestPath path = this.bestPath;
-            final PeerId toPeerId = entryInfo.getToPeerId();
-            if (filterRoutes(path.getPeerId(), toPeerId, localTK)) {
+            final PeerId destPeer = entryInfo.getToPeerId();
+            final PeerRole destPeerRole = this.peerTracker.getRole(destPeer);
+            if (filterRoutes(path.getPeerId(), destPeer, entryDep.getLocalTablesKey())) {
                 final NodeIdentifierWithPredicates routeId = entryInfo.getRouteId();
                 final RIBSupport ribSupport = entryDep.getRibSupport();
                 NodeIdentifierWithPredicates routeIdDest = ribSupport.getRouteIdAddPath(path.getPathId(), routeId);
                 if (routeIdDest == null) {
                     routeIdDest = routeId;
                 }
-                final ContainerNode effAttrib = peerGroup.effectiveAttributes(
-                        this.peerTracker.getRole(path.getPeerId()), path.getAttributes());
-                final YangInstanceIdentifier rootPath = entryInfo.getRootPath();
-                writeRoute(toPeerId, getAdjRibOutYII(ribSupport, rootPath, routeIdDest, localTK), effAttrib,
-                        createValue(routeIdDest, path), ribSupport, tx);
+                final BGPRouteEntryExportParameters routeEntry = new BGPRouteEntryExportParametersImpl(
+                        entryInfo.getRouteId(), path.getPeerId(),
+                        this.peerTracker.getRole(path.getPeerId()), destPeer, destPeerRole);
+                final Optional<ContainerNode> effAttrib = entryDep.getRoutingPolicies()
+                        .applyExportPolicies(routeEntry, path.getAttributes());
+                writeRoute(destPeer, getAdjRibOutYII(entryDep, entryInfo.getRootPath(),
+                        routeIdDest), effAttrib, createValue(routeIdDest, path), entryDep.getRibSupport(), tx);
             }
         }
     }
@@ -193,21 +197,18 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry<BaseBestPath> {
          * multiple times.
          */
         final RIBSupport ribSup = routeEntryDep.getRibSupport();
-        final ExportPolicyPeerTracker peerPT = routeEntryDep.getExportPolicyPeerTracker();
         final TablesKey localTK = routeEntryDep.getLocalTablesKey();
-        for (final PeerRole role : PeerRole.values()) {
-            final PeerExportGroup peerGroup = peerPT.getPeerGroup(role);
-            if (peerGroup != null) {
-                final ContainerNode effAttrib = peerGroup
-                        .effectiveAttributes(this.peerTracker.getRole(fromPeerId), attributes);
-                peerGroup.forEach((destPeer, rootPath) -> {
-                    if (!filterRoutes(fromPeerId, destPeer, localTK)) {
-                        return;
-                    }
-                    update(destPeer, getAdjRibOutYII(ribSup, rootPath, routeIdPA, localTK), effAttrib, value, ribSup,
-                            tx);
-                });
-            }
-        }
+        final PeerRole fromPeerRole = this.peerTracker.getRole(fromPeerId);
+        final BGPRibRoutingPolicy routingPolicies = routeEntryDep.getRoutingPolicies();
+        this.peerTracker.getRoles().forEach((key, value1) -> value1.stream()
+                .filter(toPeer -> filterRoutes(fromPeerId, toPeer, localTK))
+                .forEach(toPeer -> {
+                    final BGPRouteEntryExportParameters routeEntry = new BGPRouteEntryExportParametersImpl(routeIdPA,
+                            fromPeerId, fromPeerRole, toPeer, key);
+                    final Optional<ContainerNode> effAttrib
+                            = routingPolicies.applyExportPolicies(routeEntry, attributes);
+                    update(toPeer, getAdjRibOutYII(routeEntryDep, this.peerTracker.getPeerRibInstanceIdentifier(toPeer),
+                            routeIdPA), effAttrib, value, ribSup, tx);
+                }));
     }
 }

@@ -61,9 +61,12 @@
     <argument ref="bgpTableTypeRegistry"/>
   </bean>
 
+  <reference id="policiesProvider" interface="org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.BGPOpenconfigRIBRoutingPolicyProvider"/>
+
   <bean id="ribImpl" class="org.opendaylight.protocol.bgp.rib.impl.config.RibImpl" scope="prototype">
     <argument ref="globalBgpExtensions"/>
     <argument ref="BGPDispatcher"/>
+    <argument ref="policiesProvider"/>
     <argument ref="codecTreeFactory"/>
     <argument ref="domDataBroker"/>
     <argument ref="domSchemaService"/>

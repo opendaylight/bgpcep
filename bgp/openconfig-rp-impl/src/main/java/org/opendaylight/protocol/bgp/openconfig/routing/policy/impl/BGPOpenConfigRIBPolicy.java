@@ -10,7 +10,7 @@ package org.opendaylight.protocol.bgp.openconfig.routing.policy.impl;
 
 import static java.util.Objects.requireNonNull;
 
-import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.BGPOpenconfigRIBRoutingPolicyConsumer;
+import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.BGPOpenconfigRIBRoutingPolicyProvider;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.OpenconfigPolicyConsumer;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.StatementRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
@@ -18,7 +18,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev1
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 
-public final class BGPOpenConfigRIBPolicy implements BGPOpenconfigRIBRoutingPolicyConsumer {
+public final class BGPOpenConfigRIBPolicy implements BGPOpenconfigRIBRoutingPolicyProvider {
     private final OpenconfigPolicyConsumer policyProvider;
     private final StatementRegistryConsumer statementRegistryConsumer;
 

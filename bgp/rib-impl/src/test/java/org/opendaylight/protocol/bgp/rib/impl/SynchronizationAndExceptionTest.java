@@ -201,15 +201,19 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         }).when(future).addListener(any(Runnable.class), any(Executor.class));
         doReturn(future).when(this.tx).submit();
         doReturn(mock(Optional.class)).when(future).checkedGet();
+        this.codecsRegistry = CodecsRegistryImpl.create(this.mappingService.getCodecFactory(),
+                this.ribExtension.getClassLoadingStrategy());
     }
 
     @Test
     public void testHandleMessageAfterException() throws InterruptedException {
         final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(TABLES_KEY,
             BasePathSelectionModeFactory.createBestPathSelectionStrategy(this.peerTracker));
+
+
         final RIBImpl ribImpl = new RIBImpl( new RibId(RIB_ID), AS_NUMBER,
-            new BgpId(RIB_ID), null, this.ribExtension, this.serverDispatcher, this.codecsRegistry,
-            this.domBroker, this.peerTracker, ImmutableList.of(this.ipv4tt), pathTables);
+            new BgpId(RIB_ID), this.ribExtension, this.serverDispatcher, this.codecsRegistry,
+            this.domBroker, this.ribPolicy, this.peerTracker, ImmutableList.of(this.ipv4tt), pathTables);
         ribImpl.instantiateServiceInstance();
         ribImpl.onGlobalContextUpdated(this.schemaContext);
 
@@ -256,8 +260,8 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(TABLES_KEY,
             BasePathSelectionModeFactory.createBestPathSelectionStrategy(this.peerTracker));
         final RIBImpl ribImpl = new RIBImpl( new RibId(RIB_ID), AS_NUMBER,
-            new BgpId(RIB_ID), null, this.ribExtension, this.serverDispatcher, this.codecsRegistry,
-            this.domBroker, this.peerTracker, ImmutableList.of(this.ipv4tt), pathTables);
+            new BgpId(RIB_ID), this.ribExtension, this.serverDispatcher, this.codecsRegistry,
+            this.domBroker, this.ribPolicy, this.peerTracker, ImmutableList.of(this.ipv4tt), pathTables);
         ribImpl.instantiateServiceInstance();
         ribImpl.onGlobalContextUpdated(this.schemaContext);
 

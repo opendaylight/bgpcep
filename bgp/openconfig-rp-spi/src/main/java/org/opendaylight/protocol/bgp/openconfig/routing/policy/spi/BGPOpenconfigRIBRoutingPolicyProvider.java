@@ -15,9 +15,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 
 /**
- * FIXME.
+ * Provider Routing Policies.
  */
-public interface BGPOpenconfigRIBRoutingPolicyConsumer {
+public interface BGPOpenconfigRIBRoutingPolicyProvider {
     /**
      * Builds BGPRIBRoutingPolicy from BGP Openconfig policy Configuration.
      *
