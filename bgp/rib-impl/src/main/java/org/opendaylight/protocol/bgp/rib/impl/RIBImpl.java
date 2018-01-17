@@ -247,6 +247,11 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
     }
 
     @Override
+    public boolean supportsTable(final TablesKey tableKey) {
+        return this.localTablesKeys.contains(tableKey);
+    }
+
+    @Override
     public DOMDataTreeChangeService getService() {
         return (DOMDataTreeChangeService) this.service;
     }
