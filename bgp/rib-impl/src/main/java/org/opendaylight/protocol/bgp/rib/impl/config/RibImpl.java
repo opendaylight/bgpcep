@@ -27,6 +27,7 @@ import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
+import org.opendaylight.protocol.bgp.rib.impl.CodecsRegistryImpl;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
@@ -228,6 +229,10 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
                 .stream()
                 .collect(Collectors.toMap(entry ->
                         new TablesKey(entry.getKey().getAfi(), entry.getKey().getSafi()), Map.Entry::getValue));
+
+        final CodecsRegistryImpl codecsRegistry = CodecsRegistryImpl.create(codecTreeFactory,
+                this.extensions.getClassLoadingStrategy());
+
         return new RIBImpl(
                 new RibId(bgpInstanceName),
                 this.asNumber,
@@ -235,11 +240,10 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
                 this.clusterId,
                 this.extensions,
                 this.dispatcher,
-                this.codecTreeFactory,
+                codecsRegistry,
                 this.domBroker,
                 toTableTypes(this.afiSafi, tableTypeRegistry),
-                pathSelectionModes,
-                this.extensions.getClassLoadingStrategy());
+                pathSelectionModes);
     }
 
     @Override

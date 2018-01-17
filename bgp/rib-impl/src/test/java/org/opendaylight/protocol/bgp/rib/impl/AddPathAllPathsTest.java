@@ -55,8 +55,8 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(TABLES_KEY, new AllPathSelection());
 
         this.ribImpl = new RIBImpl(new RibId("test-rib"), AS_NUMBER, BGP_ID, null,
-                this.ribExtension, this.serverDispatcher, this.mappingService.getCodecFactory(),
-            getDomBroker(), TABLES_TYPE, pathTables, this.ribExtension.getClassLoadingStrategy());
+                this.ribExtension, this.serverDispatcher, this.codecsRegistry,
+            getDomBroker(), TABLES_TYPE, pathTables);
 
         this.ribImpl.instantiateServiceInstance();
         this.ribImpl.onGlobalContextUpdated(this.schemaContext);
