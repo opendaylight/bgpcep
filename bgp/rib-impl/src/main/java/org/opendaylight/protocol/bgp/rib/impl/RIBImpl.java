@@ -13,7 +13,6 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.HashMap;
@@ -22,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.Future;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -36,10 +34,6 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataBrokerExtension;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
-import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
@@ -53,7 +47,6 @@ import org.opendaylight.protocol.bgp.rib.impl.state.BGPRIBStateImpl;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
-import org.opendaylight.protocol.bgp.rib.spi.util.ClusterSingletonServiceRegistrationHelper;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.BgpRib;
@@ -115,8 +108,8 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
 
     public RIBImpl(final RibId ribId, final AsNumber localAs, final BgpId localBgpId,
             final ClusterIdentifier clusterId, final RIBExtensionConsumerContext extensions, final BGPDispatcher dispatcher,
-            final BindingCodecTreeFactory codecFactory, final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
-            @Nonnull final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies, final GeneratedClassLoadingStrategy classStrategy) {
+            final CodecsRegistryImpl codecsRegistry, final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
+            @Nonnull final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies) {
         super(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(requireNonNull(ribId))),
                 localBgpId, localAs);
         this.localAs = requireNonNull(localAs);
@@ -127,7 +120,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
         this.domDataBroker = requireNonNull(domDataBroker);
         this.service = this.domDataBroker.getSupportedExtensions().get(DOMDataTreeChangeService.class);
         this.extensions = requireNonNull(extensions);
-        this.codecsRegistry = CodecsRegistryImpl.create(codecFactory, classStrategy);
+        this.codecsRegistry = codecsRegistry;
         this.ribContextRegistry = RIBSupportContextRegistryImpl.create(extensions, this.codecsRegistry);
         final InstanceIdentifierBuilder yangRibIdBuilder = YangInstanceIdentifier.builder().node(BgpRib.QNAME).node(Rib.QNAME);
         this.yangRibId = yangRibIdBuilder.nodeWithKey(Rib.QNAME, RIB_ID_QNAME, ribId.getValue()).build();
