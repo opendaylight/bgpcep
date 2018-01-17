@@ -13,7 +13,7 @@ import javax.annotation.Nonnull;
 /**
  * Marker interface identifying a BGP peer.
  */
-public interface Peer {
+public interface Peer extends PeerTrackerInformation {
     /**
      * Return peer's symbolic name.
      *
