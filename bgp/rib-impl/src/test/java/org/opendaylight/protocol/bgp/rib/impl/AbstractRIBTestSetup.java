@@ -173,14 +173,18 @@ public class AbstractRIBTestSetup {
 
         this.a1 = new RIBActivator();
         this.a1.startRIBExtensionProvider(context);
+
+        final CodecsRegistryImpl codecsRegistry = CodecsRegistryImpl.create(this.codecFactory,
+                GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
+
         mockedMethods();
         doReturn(mock(ClusterSingletonServiceRegistration.class)).when(this.clusterSingletonServiceProvider)
                 .registerClusterSingletonService(any(ClusterSingletonService.class));
         this.rib = new RIBImpl(new RibId("test"), new AsNumber(5L), RIB_ID, CLUSTER_ID, context,
-                this.dispatcher, this.codecFactory, this.dom, localTables,
+                this.dispatcher, codecsRegistry, this.dom, localTables,
                 Collections.singletonMap(new TablesKey(AFI, SAFI),
-                        BasePathSelectionModeFactory.createBestPathSelectionStrategy()),
-                GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
+                        BasePathSelectionModeFactory.createBestPathSelectionStrategy())
+        );
         this.rib.onGlobalContextUpdated(schemaContext);
         this.ribSupport = getRib().getRibSupportContext().getRIBSupportContext(KEY).getRibSupport();
     }
