@@ -99,5 +99,13 @@ public interface RIB extends AttributeBindingCodecSerializer, RibReference {
      */
     ExportPolicyPeerTracker getExportPolicyPeerTracker(TablesKey tablesKey);
 
+    /**
+     * Returns true if RIB supports table.
+     *
+     * @param tableKey table
+     * @return true if supported
+     */
+    boolean supportsTable(TablesKey tableKey);
+
     Set<TablesKey> getLocalTablesKeys();
 }
