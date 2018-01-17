@@ -211,6 +211,11 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
     }
 
     @Override
+    public boolean supportsTable(final TablesKey tableKey) {
+        return this.ribImpl.supportsTable(tableKey);
+    }
+
+    @Override
     public String toString() {
         return this.ribImpl != null ? this.ribImpl.toString() : "";
     }
