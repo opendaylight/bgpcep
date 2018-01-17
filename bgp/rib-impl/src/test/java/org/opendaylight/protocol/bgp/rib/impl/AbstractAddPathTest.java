@@ -152,6 +152,7 @@ public abstract class AbstractAddPathTest extends AbstractConcurrentDataBrokerTe
     private NioEventLoopGroup boss;
     private org.opendaylight.protocol.bgp.inet.BGPActivator inetActivator;
     protected StrictBGPPeerRegistry serverRegistry;
+    protected CodecsRegistryImpl codecsRegistry;
 
     @Before
     public void setUp() throws Exception {
@@ -190,6 +191,9 @@ public abstract class AbstractAddPathTest extends AbstractConcurrentDataBrokerTe
             this.serverRegistry);
         doReturn(Mockito.mock(ClusterSingletonServiceRegistration.class)).when(this.clusterSingletonServiceProvider)
             .registerClusterSingletonService(any(ClusterSingletonService.class));
+
+        this.codecsRegistry = CodecsRegistryImpl.create(this.mappingService.getCodecFactory(),
+                this.ribExtension.getClassLoadingStrategy());
     }
 
     @After
