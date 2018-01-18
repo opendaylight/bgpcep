@@ -111,6 +111,8 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
     private final PeerRole peerRole;
     private final Optional<SimpleRoutingPolicy> simpleRoutingPolicy;
     @GuardedBy("this")
+    private AbstractRegistration trackerRegistration;
+    @GuardedBy("this")
     private final Set<AbstractRegistration> tableRegistration = new HashSet<>();
     private final PeerId peerId;
     private final YangInstanceIdentifier peerIId;
@@ -142,7 +144,6 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
         this.peerId = RouterIds.createPeerId(neighborAddress);
         this.peerIId = this.rib.getYangRibId().node(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
                 .bgp.rib.rev171207.bgp.rib.rib.Peer.QNAME).node(IdentifierUtils.domPeerId(this.peerId));
-
         this.chain = rib.createPeerChain(this);
     }
 
@@ -364,6 +365,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
                              .rib.Peer.class, new PeerKey(this.peerId));
             this.rpcRegistration.registerPath(PeerContext.class, path);
         }
+        this.trackerRegistration = this.rib.getPeerTracker().registerPeer(this);
     }
 
     //try to add a support for old-school BGP-4, if peer did not advertise IPv4-Unicast MP capability
@@ -464,6 +466,10 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
     private void closeRegistration() {
         this.tableRegistration.iterator().forEachRemaining(AbstractRegistration::close);
         this.tableRegistration.clear();
+        if (this.trackerRegistration != null) {
+            this.trackerRegistration.close();
+            this.trackerRegistration = null;
+        }
     }
 
     @Override

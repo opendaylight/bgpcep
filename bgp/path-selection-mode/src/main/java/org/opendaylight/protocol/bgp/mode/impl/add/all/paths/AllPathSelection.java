@@ -8,13 +8,22 @@
 
 package org.opendaylight.protocol.bgp.mode.impl.add.all.paths;
 
+import static java.util.Objects.requireNonNull;
+
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
+import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 
 public class AllPathSelection implements PathSelectionMode {
+    private final BGPPeerTracker peerTracker;
+
+    public AllPathSelection(final BGPPeerTracker peerTracker) {
+        this.peerTracker = requireNonNull(peerTracker);
+    }
+
     @Override
     public RouteEntry createRouteEntry(final boolean isComplexRoute) {
-        return isComplexRoute ? new ComplexRouteEntry() : new SimpleRouteEntry();
+        return isComplexRoute ? new ComplexRouteEntry(this.peerTracker) : new SimpleRouteEntry(this.peerTracker);
     }
 
     @Override
