@@ -29,7 +29,7 @@ public final class SimpleRouteEntryTest extends AbstractRouteEntryTest {
 
     @Test
     public void testSimpleRouteEntry() throws Exception {
-        this.testBARE = (SimpleRouteEntry) new AddPathBestNPathSelection(N_PATHS)
+        this.testBARE = (SimpleRouteEntry) new AddPathBestNPathSelection(N_PATHS, this.peerTracker)
                 .createRouteEntry(false);
         testWriteEmptyBestPath();
         testAddRouteSelectBestAndWriteOnDS();
