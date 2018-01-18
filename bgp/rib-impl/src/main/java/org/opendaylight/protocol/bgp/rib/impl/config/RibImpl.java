@@ -28,6 +28,7 @@ import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
+import org.opendaylight.protocol.bgp.rib.impl.BGPPeerTrackerImpl;
 import org.opendaylight.protocol.bgp.rib.impl.CodecsRegistryImpl;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
@@ -35,6 +36,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ImportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
+import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
@@ -222,6 +224,11 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
     }
 
     @Override
+    public BGPPeerTracker getPeerTracker() {
+        return this.ribImpl.getPeerTracker();
+    }
+
+    @Override
     public String toString() {
         return this.ribImpl != null ? this.ribImpl.toString() : "";
     }
@@ -235,8 +242,10 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
         this.asNumber = globalConfig.getAs();
         this.routerId = globalConfig.getRouterId();
         this.clusterId = getClusterIdentifier(globalConfig);
+
+        final BGPPeerTrackerImpl peerTracker = new BGPPeerTrackerImpl();
         final Map<TablesKey, PathSelectionMode> pathSelectionModes = OpenConfigMappingUtil
-                .toPathSelectionMode(this.afiSafi, tableTypeRegistry).entrySet()
+                .toPathSelectionMode(this.afiSafi, tableTypeRegistry, peerTracker).entrySet()
                 .stream()
                 .collect(Collectors.toMap(entry ->
                         new TablesKey(entry.getKey().getAfi(), entry.getKey().getSafi()), Map.Entry::getValue));
@@ -253,6 +262,7 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
                 this.dispatcher,
                 codecsRegistry,
                 this.domBroker,
+                peerTracker,
                 toTableTypes(this.afiSafi, tableTypeRegistry),
                 pathSelectionModes);
     }

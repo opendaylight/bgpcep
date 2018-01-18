@@ -27,7 +27,8 @@ public final class SimpleRouteEntryTest extends AbstractRouteEntryTest {
 
     @Test
     public void testSimpleRouteEntry() throws Exception {
-        this.testBARE = (SimpleRouteEntry) new AllPathSelection().createRouteEntry(false);
+        this.testBARE = (SimpleRouteEntry) new AllPathSelection(this.peerTracker)
+                .createRouteEntry(false);
         testAddRouteSelectBestAndWriteOnDS();
         testRemoveRoute();
     }

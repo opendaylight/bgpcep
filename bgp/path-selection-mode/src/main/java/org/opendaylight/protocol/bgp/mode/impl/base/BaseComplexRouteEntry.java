@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.mode.impl.base;
 
 import com.google.common.primitives.UnsignedInteger;
 import org.opendaylight.protocol.bgp.mode.spi.RouteEntryUtil;
+import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
@@ -17,6 +18,10 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 final class BaseComplexRouteEntry extends BaseAbstractRouteEntry {
     private static final MapEntryNode[] EMPTY_VALUES = new MapEntryNode[0];
     private MapEntryNode[] values = EMPTY_VALUES;
+
+    BaseComplexRouteEntry(final BGPPeerTracker peerTracker) {
+        super(peerTracker);
+    }
 
     @Override
     public int addRoute(final UnsignedInteger routerId, final Long remotePathId, final NodeIdentifier attrII,
