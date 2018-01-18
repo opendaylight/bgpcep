@@ -45,6 +45,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPRIBStateImpl;
+import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
@@ -105,15 +106,23 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
     private final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies;
     private final ImportPolicyPeerTracker importPolicyPeerTracker;
     private final RibId ribId;
+    private final BGPPeerTracker peerTracker;
     private final Map<TablesKey, ExportPolicyPeerTracker> exportPolicyPeerTrackerMap;
     @GuardedBy("this")
     private DOMTransactionChain domChain;
     @GuardedBy("this")
     private boolean isServiceInstantiated;
 
-    public RIBImpl(final RibId ribId, final AsNumber localAs, final BgpId localBgpId,
-            final ClusterIdentifier clusterId, final RIBExtensionConsumerContext extensions, final BGPDispatcher dispatcher,
-            final CodecsRegistryImpl codecsRegistry, final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
+    public RIBImpl(final RibId ribId,
+            final AsNumber localAs,
+            final BgpId localBgpId,
+            final ClusterIdentifier clusterId,
+            final RIBExtensionConsumerContext extensions,
+            final BGPDispatcher dispatcher,
+            final CodecsRegistryImpl codecsRegistry,
+            final DOMDataBroker domDataBroker,
+            final BGPPeerTracker bgpPeerTracker,
+            final List<BgpTableType> localTables,
             @Nonnull final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies) {
         super(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(requireNonNull(ribId))),
                 localBgpId, localAs);
@@ -125,6 +134,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
         this.domDataBroker = requireNonNull(domDataBroker);
         this.service = this.domDataBroker.getSupportedExtensions().get(DOMDataTreeChangeService.class);
         this.extensions = requireNonNull(extensions);
+        this.peerTracker = requireNonNull(bgpPeerTracker);
         this.codecsRegistry = codecsRegistry;
         this.ribContextRegistry = RIBSupportContextRegistryImpl.create(extensions, this.codecsRegistry);
         final InstanceIdentifierBuilder yangRibIdBuilder = YangInstanceIdentifier.builder().node(BgpRib.QNAME).node(Rib.QNAME);
@@ -182,7 +192,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
         final DOMTransactionChain txChain = createPeerChain(this);
         PathSelectionMode pathSelectionStrategy = this.bestPathSelectionStrategies.get(key);
         if (pathSelectionStrategy == null) {
-            pathSelectionStrategy = BasePathSelectionModeFactory.createBestPathSelectionStrategy();
+            pathSelectionStrategy = BasePathSelectionModeFactory.createBestPathSelectionStrategy(this.peerTracker);
         }
 
         final LocRibWriter locRibWriter = LocRibWriter.create(this.ribContextRegistry, key, txChain,
@@ -254,6 +264,11 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
     @Override
     public boolean supportsTable(final TablesKey tableKey) {
         return this.localTablesKeys.contains(tableKey);
+    }
+
+    @Override
+    public BGPPeerTracker getPeerTracker() {
+        return this.peerTracker;
     }
 
     @Override

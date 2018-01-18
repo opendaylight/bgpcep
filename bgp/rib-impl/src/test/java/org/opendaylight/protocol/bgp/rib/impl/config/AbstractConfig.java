@@ -11,6 +11,9 @@ package org.opendaylight.protocol.bgp.rib.impl.config;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
 import com.google.common.util.concurrent.CheckedFuture;
@@ -29,6 +32,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
+import org.opendaylight.protocol.bgp.rib.impl.BGPPeerTrackerImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.AbstractImportPolicy;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
@@ -36,6 +40,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ImportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
+import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
@@ -83,63 +88,65 @@ class AbstractConfig {
     @Mock
     private DOMDataTreeChangeService dataTreeChangeService;
     protected static final RibId RIB_ID = new RibId("test");
+    private BGPPeerTracker peerTracker = new BGPPeerTrackerImpl();
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        Mockito.doReturn(InstanceIdentifier.create(BgpRib.class).child(org.opendaylight.yang.gen.v1.urn.opendaylight
+        doReturn(InstanceIdentifier.create(BgpRib.class).child(org.opendaylight.yang.gen.v1.urn.opendaylight
                 .params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.Rib.class, new RibKey(RIB_ID))).when(this.rib)
                 .getInstanceIdentifier();
-        Mockito.doReturn(this.domTx).when(this.rib).createPeerChain(any(TransactionChainListener.class));
-        Mockito.doReturn(AS).when(this.rib).getLocalAs();
-        Mockito.doReturn(this.importPolicyPeerTracker).when(this.rib).getImportPolicyPeerTracker();
-        Mockito.doNothing().when(this.importPolicyPeerTracker)
+        doReturn(this.domTx).when(this.rib).createPeerChain(any(TransactionChainListener.class));
+        doReturn(AS).when(this.rib).getLocalAs();
+        doReturn(this.importPolicyPeerTracker).when(this.rib).getImportPolicyPeerTracker();
+        doNothing().when(this.importPolicyPeerTracker)
                 .peerRoleChanged(any(YangInstanceIdentifier.class), any(PeerRole.class));
-        Mockito.doReturn(mock(AbstractImportPolicy.class))
+        doReturn(mock(AbstractImportPolicy.class))
                 .when(this.importPolicyPeerTracker).policyFor(any(PeerId.class));
-        Mockito.doReturn(mock(RIBSupportContextRegistry.class)).when(this.rib).getRibSupportContext();
-        Mockito.doReturn(Collections.emptySet()).when(this.rib).getLocalTablesKeys();
-        Mockito.doNothing().when(this.domTx).close();
-        Mockito.doReturn(this.domDW).when(this.domTx).newWriteOnlyTransaction();
-        Mockito.doNothing().when(this.domDW).put(eq(LogicalDatastoreType.OPERATIONAL),
+        doReturn(mock(RIBSupportContextRegistry.class)).when(this.rib).getRibSupportContext();
+        doReturn(Collections.emptySet()).when(this.rib).getLocalTablesKeys();
+        doNothing().when(this.domTx).close();
+        doReturn(this.domDW).when(this.domTx).newWriteOnlyTransaction();
+        doNothing().when(this.domDW).put(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(MapEntryNode.class));
-        Mockito.doNothing().when(this.domDW).delete(eq(LogicalDatastoreType.OPERATIONAL),
+        doNothing().when(this.domDW).delete(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class));
-        Mockito.doNothing().when(this.domDW).merge(eq(LogicalDatastoreType.OPERATIONAL),
+        doNothing().when(this.domDW).merge(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         final CheckedFuture<?, ?> checkedFuture = mock(CheckedFuture.class);
-        Mockito.doAnswer(invocation -> {
+        doAnswer(invocation -> {
             final Runnable callback = (Runnable) invocation.getArguments()[0];
             callback.run();
             return null;
         }).when(checkedFuture).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
-        Mockito.doReturn(checkedFuture).when(this.domDW).submit();
-        Mockito.doReturn(null).when(checkedFuture).checkedGet();
-        Mockito.doReturn(null).when(checkedFuture).get();
-        Mockito.doReturn(true).when(checkedFuture).isDone();
-        Mockito.doReturn("checkedFuture").when(checkedFuture).toString();
-        Mockito.doReturn(YangInstanceIdentifier.of(Rib.QNAME)).when(this.rib).getYangRibId();
-        Mockito.doReturn(this.dataTreeChangeService).when(this.rib).getService();
-        Mockito.doReturn(this.listener).when(this.dataTreeChangeService).registerDataTreeChangeListener(any(), any());
-        Mockito.doReturn(new BgpId("127.0.0.1")).when(this.rib).getBgpIdentifier();
-        Mockito.doReturn(true).when(this.future).cancel(true);
-        Mockito.doReturn(this.future).when(this.dispatcher)
+        doReturn(checkedFuture).when(this.domDW).submit();
+        doReturn(null).when(checkedFuture).checkedGet();
+        doReturn(null).when(checkedFuture).get();
+        doReturn(true).when(checkedFuture).isDone();
+        doReturn("checkedFuture").when(checkedFuture).toString();
+        doReturn(YangInstanceIdentifier.of(Rib.QNAME)).when(this.rib).getYangRibId();
+        doReturn(this.dataTreeChangeService).when(this.rib).getService();
+        doReturn(this.listener).when(this.dataTreeChangeService).registerDataTreeChangeListener(any(), any());
+        doReturn(new BgpId("127.0.0.1")).when(this.rib).getBgpIdentifier();
+        doReturn(true).when(this.future).cancel(true);
+        doReturn(this.future).when(this.dispatcher)
                 .createReconnectingClient(any(InetSocketAddress.class), anyInt(), any(KeyMapping.class));
-        Mockito.doReturn(this.dispatcher).when(this.rib).getDispatcher();
+        doReturn(this.dispatcher).when(this.rib).getDispatcher();
 
-        Mockito.doReturn(java.util.Optional.of(new BgpTableTypeImpl(Ipv4AddressFamily.class,
+        doReturn(java.util.Optional.of(new BgpTableTypeImpl(Ipv4AddressFamily.class,
                 UnicastSubsequentAddressFamily.class)))
                 .when(this.tableTypeRegistry).getTableType(any());
-        Mockito.doReturn(java.util.Optional.of(TABLES_KEY)).when(this.tableTypeRegistry).getTableKey(any());
-        Mockito.doReturn(Collections.singleton(new BgpTableTypeImpl(Ipv4AddressFamily.class,
+        doReturn(java.util.Optional.of(TABLES_KEY)).when(this.tableTypeRegistry).getTableKey(any());
+        doReturn(Collections.singleton(new BgpTableTypeImpl(Ipv4AddressFamily.class,
                 UnicastSubsequentAddressFamily.class)))
                 .when(this.rib).getLocalTables();
 
-        Mockito.doNothing().when(this.bgpPeerRegistry).addPeer(any(IpAddress.class),
+        doNothing().when(this.bgpPeerRegistry).addPeer(any(IpAddress.class),
                 any(BGPSessionListener.class), any(BGPSessionPreferences.class));
-        Mockito.doNothing().when(this.bgpPeerRegistry).removePeer(any(IpAddress.class));
-        Mockito.doReturn("registry").when(this.bgpPeerRegistry).toString();
-        Mockito.doNothing().when(this.listener).close();
-        Mockito.doReturn(this.bgpPeerRegistry).when(this.dispatcher).getBGPPeerRegistry();
+        doNothing().when(this.bgpPeerRegistry).removePeer(any(IpAddress.class));
+        doReturn("registry").when(this.bgpPeerRegistry).toString();
+        doNothing().when(this.listener).close();
+        doReturn(this.bgpPeerRegistry).when(this.dispatcher).getBGPPeerRegistry();
+        doReturn(peerTracker).when(this.rib).getPeerTracker();
     }
 }
