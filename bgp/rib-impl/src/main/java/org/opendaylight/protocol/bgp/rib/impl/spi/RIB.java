@@ -13,6 +13,7 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListen
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.RibReference;
+import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.entry.AttributeBindingCodecSerializer;
@@ -108,4 +109,11 @@ public interface RIB extends AttributeBindingCodecSerializer, RibReference {
     boolean supportsTable(TablesKey tableKey);
 
     Set<TablesKey> getLocalTablesKeys();
+
+    /**
+     * Returns peer tracker for the rib.
+     *
+     * @return peer tracker
+     */
+    BGPPeerTracker getPeerTracker();
 }
