@@ -26,7 +26,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
@@ -48,10 +47,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.LocRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.peer.AdjRibOut;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.Tables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Routes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -63,21 +59,17 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableContainerNodeBuilder;
 
-public abstract class AbstractRouteEntryTest {
+public abstract class AbstractRouteEntryTest extends BGPPeerTrackerMock {
     protected static final long REMOTE_PATH_ID = 1;
-    protected static final PeerId PEER_ID = new PeerId("bgp://42.42.42.42");
     protected static final YangInstanceIdentifier PEER_YII2 = YangInstanceIdentifier
             .of(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet:test",
                     "2015-03-05", "peer2"));
     protected static final long AS = 64444;
     protected static final UnsignedInteger ROUTER_ID = UnsignedInteger.ONE;
-    protected static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.class,
-            UnicastSubsequentAddressFamily.class);
     protected static final YangInstanceIdentifier LOC_RIB_TARGET =
             YangInstanceIdentifier.create(YangInstanceIdentifier.of(BgpRib.QNAME).node(LocRib.QNAME)
                     .node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(TABLES_KEY)).getPathArguments());
     private static final long PATH_ID = 1;
-    private static final PeerId PEER_ID2 = new PeerId("bgp://43.43.43.43");
     private static final String PREFIX = "1.2.3.4/32";
     private static final String PREFIX2 = "2.2.2.2/32";
     private static final YangInstanceIdentifier PEER_YII
@@ -115,6 +107,7 @@ public abstract class AbstractRouteEntryTest {
     protected RouteEntryDependenciesContainer entryDep;
     @Mock
     protected RouteEntryInfo entryInfo;
+
     protected List<YangInstanceIdentifier> yiichanges;
     protected NormalizedNode<?, ?> attributes;
     protected YangInstanceIdentifier routePaYii;
@@ -132,8 +125,8 @@ public abstract class AbstractRouteEntryTest {
     private YangInstanceIdentifier locRibOutTargetYii;
     private YangInstanceIdentifier locRibOutTargetYiiPeer2;
 
-    protected void setUp() {
-        MockitoAnnotations.initMocks(this);
+    public void setUp() {
+        super.setUp();
         this.yiichanges = new ArrayList<>();
         this.attributes = createAttr();
         this.locRibTargetYii = LOC_RIB_TARGET.node(ROUTES_IDENTIFIER);

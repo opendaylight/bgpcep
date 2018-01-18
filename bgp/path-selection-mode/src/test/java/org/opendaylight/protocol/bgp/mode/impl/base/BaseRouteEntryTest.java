@@ -29,7 +29,7 @@ public class BaseRouteEntryTest extends AbstractRouteEntryTest {
 
     @Test
     public void testBaseSimpleRouteEntry() throws Exception {
-        this.testBARE = new BaseSimpleRouteEntry();
+        this.testBARE = new BaseSimpleRouteEntry(this.peerTracker);
         testWriteEmptyBestPath();
         testAddRouteSelectBestAndWriteOnDS();
         testRewriteSameRoute();
