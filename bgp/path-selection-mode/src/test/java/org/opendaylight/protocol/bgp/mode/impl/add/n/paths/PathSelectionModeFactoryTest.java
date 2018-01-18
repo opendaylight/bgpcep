@@ -10,11 +10,12 @@ package org.opendaylight.protocol.bgp.mode.impl.add.n.paths;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
+import org.opendaylight.protocol.bgp.mode.impl.BGPPeerTrackerMock;
 
-public class PathSelectionModeFactoryTest {
+public class PathSelectionModeFactoryTest extends BGPPeerTrackerMock {
     @Test
     public void testCreateBestPathSelectionStrategy() throws Exception {
-        final PathSelectionMode psm = new AddPathBestNPathSelection(2L);
+        final PathSelectionMode psm = new AddPathBestNPathSelection(2L, this.peerTracker);
         Assert.assertTrue(psm.createRouteEntry(true) instanceof ComplexRouteEntry);
         Assert.assertTrue(psm.createRouteEntry(false) instanceof SimpleRouteEntry);
     }

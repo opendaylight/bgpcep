@@ -28,6 +28,7 @@ import org.opendaylight.protocol.bgp.mode.impl.add.n.paths.AddPathBestNPathSelec
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
+import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.BgpCommonAfiSafiList;
@@ -209,7 +210,8 @@ public final class OpenConfigMappingUtil {
         return timers != null ? timers.getConfig() : null;
     }
 
-    public static Map<BgpTableType, PathSelectionMode> toPathSelectionMode(final List<AfiSafi> afiSafis, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
+    public static Map<BgpTableType, PathSelectionMode> toPathSelectionMode(final List<AfiSafi> afiSafis,
+            final BGPTableTypeRegistryConsumer tableTypeRegistry, final BGPPeerTracker peerTracker) {
         final Map<BgpTableType, PathSelectionMode> pathSelectionModes = new HashMap<>();
         for (final AfiSafi afiSafi : afiSafis) {
             final BgpNeighborAddPathsConfig afiSafi2 = afiSafi.getAugmentation(AfiSafi2.class);
@@ -219,9 +221,9 @@ public final class OpenConfigMappingUtil {
                     final Short sendMax = afiSafi2.getSendMax();
                     final PathSelectionMode selectionMode;
                     if (sendMax > 1) {
-                        selectionMode = new AddPathBestNPathSelection(sendMax.longValue());
+                        selectionMode = new AddPathBestNPathSelection(sendMax.longValue(), peerTracker);
                     } else {
-                        selectionMode = new AllPathSelection();
+                        selectionMode = new AllPathSelection(peerTracker);
                     }
                     pathSelectionModes.put(bgpTableType.get(), selectionMode);
                 }

@@ -18,9 +18,14 @@ import org.opendaylight.protocol.bgp.mode.impl.BestPathStateImpl;
 import org.opendaylight.protocol.bgp.mode.impl.add.AddPathAbstractRouteEntry;
 import org.opendaylight.protocol.bgp.mode.impl.add.AddPathBestPath;
 import org.opendaylight.protocol.bgp.mode.impl.add.RouteKey;
+import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 abstract class AbstractAllPathsRouteEntry extends AddPathAbstractRouteEntry {
+    AbstractAllPathsRouteEntry(final BGPPeerTracker peerTracker) {
+        super(peerTracker);
+    }
+
     @Override
     public final boolean selectBest(final long localAs) {
         final List<AddPathBestPath> newBestPathList = new ArrayList<>();
