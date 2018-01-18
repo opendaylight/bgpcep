@@ -8,14 +8,19 @@
 
 package org.opendaylight.protocol.bgp.mode.impl.add.n.paths;
 
+import static java.util.Objects.requireNonNull;
+
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
+import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 
 public class AddPathBestNPathSelection implements PathSelectionMode {
     private final Long npaths;
+    private final BGPPeerTracker peerTracker;
 
-    public AddPathBestNPathSelection(final Long npaths) {
+    public AddPathBestNPathSelection(final Long npaths, final BGPPeerTracker peerTracker) {
         this.npaths = npaths;
+        this.peerTracker = requireNonNull(peerTracker);
     }
 
     @Override
@@ -25,7 +30,8 @@ public class AddPathBestNPathSelection implements PathSelectionMode {
 
     @Override
     public RouteEntry createRouteEntry(final boolean isComplex) {
-        return isComplex ? new ComplexRouteEntry(this.getNBestPaths()) : new SimpleRouteEntry(this.getNBestPaths());
+        return isComplex ? new ComplexRouteEntry(this.getNBestPaths(), this.peerTracker)
+                : new SimpleRouteEntry(this.getNBestPaths(), this.peerTracker);
     }
 
     public Long getNBestPaths() {

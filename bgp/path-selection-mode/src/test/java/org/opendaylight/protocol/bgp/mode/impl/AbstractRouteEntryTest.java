@@ -26,10 +26,13 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
+import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
 import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup.PeerExporTuple;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
@@ -115,6 +118,12 @@ public abstract class AbstractRouteEntryTest {
     protected RouteEntryDependenciesContainer entryDep;
     @Mock
     protected RouteEntryInfo entryInfo;
+    @Mock
+    protected BGPPeerTracker peerTracker;
+    @Mock
+    protected Peer peerMock;
+    @Mock
+    protected Peer peerMock2;
     protected List<YangInstanceIdentifier> yiichanges;
     protected NormalizedNode<?, ?> attributes;
     protected YangInstanceIdentifier routePaYii;
@@ -156,6 +165,21 @@ public abstract class AbstractRouteEntryTest {
         mockTransactionChain();
         mockEntryDep();
         mockEntryInfo();
+        mockPeerTracker();
+    }
+
+    private void mockPeerTracker() {
+        final PeerId pId = new PeerId("bgp://0.0.0.1");
+        doReturn(this.peerMock).when(this.peerTracker).getPeer(eq(pId));
+        doReturn(this.peerMock).when(this.peerTracker).getPeer(eq(PEER_ID));
+        doReturn(PeerRole.Ibgp).when(this.peerTracker).getRole(eq(pId));
+        doReturn(PeerRole.Ibgp).when(this.peerTracker).getRole(eq(PEER_ID));
+        doReturn(true).when(this.peerMock).supportsTable(Mockito.eq(TABLES_KEY));
+        doReturn(PeerRole.Ibgp).when(this.peerMock).getRole();
+
+
+        doReturn(this.peerMock2).when(this.peerTracker).getPeer(eq(PEER_ID2));
+        doReturn(false).when(this.peerMock2).supportsTable(Mockito.eq(TABLES_KEY));
     }
 
     private void mockEntryInfo() {

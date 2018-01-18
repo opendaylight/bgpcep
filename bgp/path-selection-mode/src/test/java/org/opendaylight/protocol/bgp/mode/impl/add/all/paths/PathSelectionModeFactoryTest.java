@@ -8,13 +8,25 @@
 package org.opendaylight.protocol.bgp.mode.impl.add.all.paths;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
+import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 
 public class PathSelectionModeFactoryTest {
+    @Mock
+    private BGPPeerTracker peerTracker;
+
+    @Before
+    public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
+    }
+
     @Test
     public void testCreateBestPathSelectionStrategy() throws Exception {
-        final PathSelectionMode psm = new AllPathSelection();
+        final PathSelectionMode psm = new AllPathSelection(this.peerTracker);
         Assert.assertTrue(psm.createRouteEntry(true) instanceof ComplexRouteEntry);
         Assert.assertTrue(psm.createRouteEntry(false) instanceof SimpleRouteEntry);
     }

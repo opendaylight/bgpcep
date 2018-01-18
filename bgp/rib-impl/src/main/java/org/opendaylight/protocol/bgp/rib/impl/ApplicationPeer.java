@@ -41,6 +41,7 @@ import org.opendaylight.protocol.bgp.rib.spi.state.BGPErrorHandlingState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPSessionState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTimersState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTransportState;
+import org.opendaylight.protocol.concepts.AbstractRegistration;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.SendReceive;
@@ -94,6 +95,7 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
     private final Set<NodeIdentifierWithPredicates> supportedTables = new HashSet<>();
     private final BGPSessionStateImpl bgpSessionState = new BGPSessionStateImpl();
     private PeerId peerId;
+    private AbstractRegistration trackerRegistration;
 
     @FunctionalInterface
     interface RegisterAppPeerListener {
@@ -151,6 +153,7 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
                 this.rib.getImportPolicyPeerTracker(), context, PeerRole.Internal,
                 localTables);
         this.bgpSessionState.registerMessagesCounter(this);
+        this.trackerRegistration = this.rib.getPeerTracker().registerPeer(this);
     }
 
     /**
@@ -273,6 +276,10 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
         if (this.writerChain != null) {
             this.writerChain.close();
             this.writerChain = null;
+        }
+        if (this.trackerRegistration != null) {
+            this.trackerRegistration.close();
+            this.trackerRegistration = null;
         }
         return future;
     }
