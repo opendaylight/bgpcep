@@ -8,12 +8,14 @@
 
 package org.opendaylight.protocol.bgp.mode.spi;
 
+import static java.util.Objects.requireNonNull;
+
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.mode.api.BestPath;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
-import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
-import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
+import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
+import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
@@ -33,8 +35,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractRouteEntry<T extends BestPath> implements RouteEntry {
-    protected static final NodeIdentifier ROUTES_IDENTIFIER = new NodeIdentifier(Routes.QNAME);
+
     private static final Logger LOG = LoggerFactory.getLogger(AbstractRouteEntry.class);
+
+    protected static final NodeIdentifier ROUTES_IDENTIFIER = new NodeIdentifier(Routes.QNAME);
+    protected final BGPPeerTracker peerTracker;
+
+    public AbstractRouteEntry(final BGPPeerTracker peerTracker) {
+        this.peerTracker = requireNonNull(peerTracker);
+    }
 
     /**
      * Create value.
@@ -82,34 +91,17 @@ public abstract class AbstractRouteEntry<T extends BestPath> implements RouteEnt
         tx.delete(LogicalDatastoreType.OPERATIONAL, routeTarget);
     }
 
-    protected static boolean filterRoutes(final PeerId rootPeer, final PeerId destPeer,
-            final ExportPolicyPeerTracker peerPT, final TablesKey localTK, final PeerRole destPeerRole) {
-        return !rootPeer.equals(destPeer) && isTableSupportedAndReady(destPeer, peerPT, localTK)
-                && !PeerRole.Internal.equals(destPeerRole);
-    }
-
-    private static boolean isTableSupportedAndReady(final PeerId destPeer, final ExportPolicyPeerTracker peerPT,
-            final TablesKey localTK) {
-        if (!peerPT.isTableSupported(destPeer) || !peerPT.isTableStructureInitialized(destPeer)) {
-            LOG.trace("Route rejected, peer {} does not support this table type {}", destPeer, localTK);
-            return false;
-        }
-        return true;
+    protected boolean filterRoutes(final PeerId rootPeer, final PeerId destPeer, final TablesKey localTK) {
+        final Peer peer = this.peerTracker.getPeer(destPeer);
+        return !(peer == null
+                || !peer.supportsTable(localTK)
+                || PeerRole.Internal.equals(peer.getRole()))
+                && !rootPeer.equals(destPeer);
     }
 
     protected static YangInstanceIdentifier getAdjRibOutYII(final RIBSupport ribSup,
             final YangInstanceIdentifier rootPath, final PathArgument routeId, final TablesKey localTK) {
         return ribSup.routePath(rootPath.node(AdjRibOut.QNAME).node(Tables.QNAME)
                 .node(RibSupportUtils.toYangTablesKey(localTK)).node(ROUTES_IDENTIFIER), routeId);
-    }
-
-    protected static PeerRole getRoutePeerIdRole(final ExportPolicyPeerTracker peerPT, final PeerId routePeerId) {
-        for (final PeerRole role : PeerRole.values()) {
-            final PeerExportGroup peerGroup = peerPT.getPeerGroup(role);
-            if (peerGroup != null && peerGroup.containsPeer(routePeerId)) {
-                return role;
-            }
-        }
-        return null;
     }
 }
