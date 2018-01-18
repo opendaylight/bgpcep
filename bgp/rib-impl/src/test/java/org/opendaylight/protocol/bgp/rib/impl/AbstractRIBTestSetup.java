@@ -58,6 +58,7 @@ import org.opendaylight.protocol.bgp.inet.RIBActivator;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
+import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
@@ -137,6 +138,7 @@ public class AbstractRIBTestSetup {
 
     @Mock
     private ClusterSingletonServiceProvider clusterSingletonServiceProvider;
+    private BGPPeerTracker peerTracker = new BGPPeerTrackerImpl();
 
     private static ModuleInfoBackedContext createClassLoadingStrategy() {
         final ModuleInfoBackedContext ctx = ModuleInfoBackedContext.create();
@@ -181,10 +183,9 @@ public class AbstractRIBTestSetup {
         doReturn(mock(ClusterSingletonServiceRegistration.class)).when(this.clusterSingletonServiceProvider)
                 .registerClusterSingletonService(any(ClusterSingletonService.class));
         this.rib = new RIBImpl(new RibId("test"), new AsNumber(5L), RIB_ID, CLUSTER_ID, context,
-                this.dispatcher, codecsRegistry, this.dom, localTables,
+                this.dispatcher, codecsRegistry, this.dom, this.peerTracker, localTables,
                 Collections.singletonMap(new TablesKey(AFI, SAFI),
-                        BasePathSelectionModeFactory.createBestPathSelectionStrategy())
-        );
+                        BasePathSelectionModeFactory.createBestPathSelectionStrategy(this.peerTracker)));
         this.rib.onGlobalContextUpdated(schemaContext);
         this.ribSupport = getRib().getRibSupportContext().getRIBSupportContext(KEY).getRibSupport();
     }
