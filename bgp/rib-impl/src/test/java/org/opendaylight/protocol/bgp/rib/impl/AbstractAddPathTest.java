@@ -152,6 +152,7 @@ public abstract class AbstractAddPathTest extends AbstractConcurrentDataBrokerTe
     private NioEventLoopGroup boss;
     private org.opendaylight.protocol.bgp.inet.BGPActivator inetActivator;
     protected StrictBGPPeerRegistry serverRegistry;
+    protected BGPPeerTrackerImpl peerTracker = new BGPPeerTrackerImpl();
     protected CodecsRegistryImpl codecsRegistry;
 
     @Before
