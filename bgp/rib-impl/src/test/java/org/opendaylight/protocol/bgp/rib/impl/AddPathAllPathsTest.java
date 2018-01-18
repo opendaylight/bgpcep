@@ -52,11 +52,12 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(TABLES_KEY, new AllPathSelection());
+        final Map<TablesKey, PathSelectionMode> pathTables
+                = ImmutableMap.of(TABLES_KEY, new AllPathSelection(this.peerTracker));
 
         this.ribImpl = new RIBImpl(new RibId("test-rib"), AS_NUMBER, BGP_ID, null,
                 this.ribExtension, this.serverDispatcher, this.codecsRegistry,
-            getDomBroker(), TABLES_TYPE, pathTables);
+            getDomBroker(), this.peerTracker, TABLES_TYPE, pathTables);
 
         this.ribImpl.instantiateServiceInstance();
         this.ribImpl.onGlobalContextUpdated(this.schemaContext);

@@ -12,6 +12,7 @@ import com.google.common.primitives.UnsignedInteger;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.mode.spi.AbstractRouteEntry;
+import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
@@ -38,6 +39,10 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry<BaseBestPath> {
     private ContainerNode[] values = EMPTY_ATTRIBUTES;
     private BaseBestPath bestPath;
     private BaseBestPath removedBestPath;
+
+    BaseAbstractRouteEntry(final BGPPeerTracker peerTracker) {
+        super(peerTracker);
+    }
 
     /**
      * Remove route.

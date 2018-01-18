@@ -18,6 +18,7 @@ import static org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectorTest.
 import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.UnsignedInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,10 +27,13 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
+import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
 import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup.PeerExporTuple;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
@@ -115,6 +119,10 @@ public abstract class AbstractRouteEntryTest {
     protected RouteEntryDependenciesContainer entryDep;
     @Mock
     protected RouteEntryInfo entryInfo;
+    @Mock
+    protected BGPPeerTracker peerTracker;
+    @Mock
+    protected Peer peerMock;
     protected List<YangInstanceIdentifier> yiichanges;
     protected NormalizedNode<?, ?> attributes;
     protected YangInstanceIdentifier routePaYii;
@@ -156,6 +164,20 @@ public abstract class AbstractRouteEntryTest {
         mockTransactionChain();
         mockEntryDep();
         mockEntryInfo();
+        mockPeerTracker();
+    }
+
+    private void mockPeerTracker() {
+        doReturn(this.peerMock).when(this.peerTracker).getPeer(any(PeerId.class));
+        doReturn(PEER_YII).when(this.peerMock).getPeerRibInstanceIdentifier();
+        doReturn(true).when(this.peerMock).supportsTable(Mockito.eq(TABLES_KEY));
+        doReturn(Collections.singletonMap(PeerRole.Ibgp, Collections.singletonList(PEER_ID)))
+                .when(this.peerTracker).getRoles();
+        doReturn(PeerRole.Ibgp).when(this.peerMock).getRole();
+        doReturn(PeerRole.Ibgp).when(this.peerTracker).getRole(any(PeerId.class));
+        doReturn(PEER_YII).when(this.peerTracker).getPeerRibInstanceIdentifier(any(PeerId.class));
+        doReturn(true).when(this.peerMock).supportsTable(Mockito.eq(TABLES_KEY));
+        doReturn(true).when(this.peerTracker).supportsAddPathSupported(any(), Mockito.eq(TABLES_KEY));
     }
 
     private void mockEntryInfo() {

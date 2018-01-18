@@ -8,10 +8,13 @@
 
 package org.opendaylight.protocol.bgp.mode.spi;
 
+import static java.util.Objects.requireNonNull;
+
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.mode.api.BestPath;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
+import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
@@ -33,8 +36,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractRouteEntry<T extends BestPath> implements RouteEntry {
-    protected static final NodeIdentifier ROUTES_IDENTIFIER = new NodeIdentifier(Routes.QNAME);
+
     private static final Logger LOG = LoggerFactory.getLogger(AbstractRouteEntry.class);
+
+    protected static final NodeIdentifier ROUTES_IDENTIFIER = new NodeIdentifier(Routes.QNAME);
+    protected final BGPPeerTracker peerTracker;
+
+    public AbstractRouteEntry(final BGPPeerTracker peerTracker) {
+        this.peerTracker = requireNonNull(peerTracker);
+    }
 
     /**
      * Create value.

@@ -13,6 +13,7 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListen
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.RibReference;
+import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
@@ -107,4 +108,11 @@ public interface RIB extends RibReference {
     boolean supportsTable(TablesKey tableKey);
 
     Set<TablesKey> getLocalTablesKeys();
+
+    /**
+     * Returns peer tracker for the rib.
+     *
+     * @return peer tracker
+     */
+    BGPPeerTracker getPeerTracker();
 }

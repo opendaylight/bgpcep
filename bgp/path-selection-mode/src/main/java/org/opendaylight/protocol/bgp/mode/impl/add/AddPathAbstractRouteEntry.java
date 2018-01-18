@@ -15,6 +15,7 @@ import java.util.Optional;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.mode.spi.AbstractRouteEntry;
+import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
@@ -55,6 +56,10 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry<AddPa
     private boolean oldNonAddPathBestPathTheSame;
     private List<AddPathBestPath> newBestPathToBeAdvertised;
     private List<RemovedPath> removedPaths;
+
+    public AddPathAbstractRouteEntry(final BGPPeerTracker peerTracker) {
+        super(peerTracker);
+    }
 
     private static final class RemovedPath {
         private final RouteKey key;

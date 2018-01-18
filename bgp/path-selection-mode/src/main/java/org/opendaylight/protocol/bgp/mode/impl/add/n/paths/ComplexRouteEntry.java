@@ -12,6 +12,7 @@ import org.opendaylight.protocol.bgp.mode.impl.add.AddPathBestPath;
 import org.opendaylight.protocol.bgp.mode.impl.add.OffsetMap;
 import org.opendaylight.protocol.bgp.mode.impl.add.RouteKey;
 import org.opendaylight.protocol.bgp.mode.spi.RouteEntryUtil;
+import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
@@ -21,8 +22,8 @@ final class ComplexRouteEntry extends AbstractNPathsRouteEntry {
     private static final MapEntryNode[] EMPTY_VALUES = new MapEntryNode[0];
     private MapEntryNode[] values = EMPTY_VALUES;
 
-    ComplexRouteEntry(final Long npaths) {
-        super(npaths);
+    ComplexRouteEntry(final Long npaths, final BGPPeerTracker peerTracker) {
+        super(npaths, peerTracker);
     }
 
     @Override
