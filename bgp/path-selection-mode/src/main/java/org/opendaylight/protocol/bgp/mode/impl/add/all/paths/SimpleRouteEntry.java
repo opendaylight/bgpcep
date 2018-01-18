@@ -12,12 +12,17 @@ import com.google.common.primitives.UnsignedInteger;
 import org.opendaylight.protocol.bgp.mode.impl.add.AddPathBestPath;
 import org.opendaylight.protocol.bgp.mode.impl.add.RouteKey;
 import org.opendaylight.protocol.bgp.mode.spi.RouteEntryUtil;
+import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
 final class SimpleRouteEntry extends AbstractAllPathsRouteEntry {
+    SimpleRouteEntry(final BGPPeerTracker peerTracker) {
+        super(peerTracker);
+    }
+
     @Override
     public boolean removeRoute(final UnsignedInteger routerId, final Long remotePathId) {
         final RouteKey key = new RouteKey(routerId, remotePathId);
