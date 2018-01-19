@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.mode.impl.add;
 
+import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
+
 import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedInteger;
 import java.util.ArrayList;
@@ -132,7 +134,9 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
         if (this.removedPaths != null) {
             this.removedPaths.forEach(removedPath -> {
                 final PathArgument routeIdAddPath = ribSupport.getRouteIdAddPath(removedPath.getPathId(), routeIdPA);
-                fillAdjRibsOut(true, null, null, null, routeIdPA, routeIdAddPath,
+                final PathArgument routeIdAddPathDefault = ribSupport.getRouteIdAddPath(NON_PATH_ID, routeIdPA);
+                fillAdjRibsOut(true, null, null, null,
+                        routeIdAddPathDefault, routeIdAddPath,
                         RouterIds.createPeerId(removedPath.getRouteId()), peerPT, localTK, ribSupport, tx);
             });
             this.removedPaths = null;
@@ -180,19 +184,21 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
             final YangInstanceIdentifier locRibTarget, final RIBSupport ribSup, final ExportPolicyPeerTracker peerPT,
             final TablesKey localTK, final DOMDataWriteTransaction tx) {
         final PathArgument routeIdAddPath = ribSup.getRouteIdAddPath(path.getPathId(), routeIdPA);
+        final PathArgument routeIdAddPathDefault = ribSup.getRouteIdAddPath(NON_PATH_ID, routeIdPA);
         final YangInstanceIdentifier pathAddPathTarget = ribSup.routePath(locRibTarget.node(ROUTES_IDENTIFIER),
                 routeIdAddPath);
+
         final MapEntryNode addPathValue = createValue(routeIdAddPath, path);
-        final MapEntryNode value = createValue(routeIdPA, path);
+        final MapEntryNode defaultValue = createValue(routeIdAddPathDefault, path);
         LOG.trace("Selected best value {}", addPathValue);
         fillLocRib(pathAddPathTarget, addPathValue, tx);
-        fillAdjRibsOut(isFirstBestPath, path.getAttributes(), value, addPathValue, routeIdPA, routeIdAddPath,
-                path.getPeerId(), peerPT, localTK,
-            ribSup, tx);
+        fillAdjRibsOut(isFirstBestPath, path.getAttributes(), defaultValue, addPathValue, routeIdAddPathDefault,
+                routeIdAddPath, path.getPeerId(), peerPT, localTK, ribSup, tx);
     }
 
     private void fillAdjRibsOut(final boolean isFirstBestPath, final ContainerNode attributes,
-            final NormalizedNode<?, ?> value, final MapEntryNode addPathValue, final PathArgument routeId,
+            final MapEntryNode defaultValue, final MapEntryNode addPathValue,
+            final PathArgument routeIdAddPathDefault,
             final PathArgument routeIdAddPath, final PeerId routePeerId, final ExportPolicyPeerTracker peerPT,
             final TablesKey localTK, final RIBSupport ribSup, final DOMDataWriteTransaction tx) {
         /*
@@ -217,8 +223,8 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
                             update(destPeer, getAdjRibOutYII(ribSup, rootPath, routeIdAddPath, localTK),
                                     effectiveAttributes, addPathValue, ribSup, tx);
                         } else if (!this.oldNonAddPathBestPathTheSame) {
-                            update(destPeer, getAdjRibOutYII(ribSup, rootPath, routeId, localTK),
-                                    effectiveAttributes, value, ribSup, tx);
+                            update(destPeer, getAdjRibOutYII(ribSup, rootPath, routeIdAddPathDefault, localTK),
+                                    effectiveAttributes, defaultValue, ribSup, tx);
                         }
                     }
                 });
