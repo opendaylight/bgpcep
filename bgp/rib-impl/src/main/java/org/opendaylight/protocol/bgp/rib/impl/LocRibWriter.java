@@ -192,6 +192,9 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
         if (!table.getDataBefore().isPresent() && this.exportPolicyPeerTracker.isTableSupported(peerIdOfNewPeer)) {
             this.exportPolicyPeerTracker.registerPeerAsInitialized(peerIdOfNewPeer);
             LOG.debug("Peer {} table has been created, inserting existent routes", peerIdOfNewPeer);
+            if (this.routeEntries.isEmpty()) {
+                return;
+            }
             final PeerRole newPeerRole = this.exportPolicyPeerTracker.getRole(IdentifierUtils.peerPath(rootPath));
             final PeerExportGroup peerGroup = this.exportPolicyPeerTracker.getPeerGroup(newPeerRole);
             this.routeEntries.entrySet().forEach(entry -> entry.getValue().writeRoute(peerIdOfNewPeer, entry.getKey(),
