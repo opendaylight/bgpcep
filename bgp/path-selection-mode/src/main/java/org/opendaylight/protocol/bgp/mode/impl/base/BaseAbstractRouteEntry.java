@@ -23,6 +23,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 import org.slf4j.Logger;
@@ -146,8 +147,8 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
             final TablesKey localTK, final DOMDataWriteTransaction tx) {
         final PathArgument routeIdAddPath = ribSup.getRouteIdAddPath(path.getPathId(), routeIdPA);
         final YangInstanceIdentifier pathTarget = ribSup.routePath(locRibTarget.node(ROUTES_IDENTIFIER), routeIdPA);
-        final NormalizedNode<?, ?> value = createValue(routeIdPA, path);
-        NormalizedNode<?, ?> addPathValue = null;
+        final MapEntryNode value = createValue(routeIdPA, path);
+        MapEntryNode addPathValue = null;
         YangInstanceIdentifier pathAddPathTarget = null;
         if (routeIdAddPath == null) {
             LOG.trace("Selected best value {}", value);
@@ -166,7 +167,7 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
     }
 
     @VisibleForTesting
-    private void fillAdjRibsOut(final ContainerNode attributes, final NormalizedNode<?, ?> value,
+    private void fillAdjRibsOut(final ContainerNode attributes, final MapEntryNode value,
             final PathArgument routeId, final PeerId routePeerId, final ExportPolicyPeerTracker peerPT,
             final TablesKey localTK, final RIBSupport ribSup, final DOMDataWriteTransaction tx) {
         /*
