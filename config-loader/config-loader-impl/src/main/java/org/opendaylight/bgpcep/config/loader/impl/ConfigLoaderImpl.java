@@ -147,6 +147,7 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
     }
 
     private class ConfigLoaderImplRunnable implements Runnable {
+        @GuardedBy("this")
         private final WatchService watchService;
 
         ConfigLoaderImplRunnable(final WatchService watchService) {
@@ -156,14 +157,14 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
         @Override
         public void run() {
             while (!Thread.currentThread().isInterrupted()) {
-                handleChanges(this.watchService);
+                handleChanges();
             }
         }
 
-        private synchronized void handleChanges(final WatchService watch) {
+        private synchronized void handleChanges() {
             final WatchKey key;
             try {
-                key = watch.take();
+                key = this.watchService.take();
             } catch (final InterruptedException | ClosedWatchServiceException e) {
                 if (!ConfigLoaderImpl.this.closed) {
                     LOG.warn(INTERRUPTED, e);
