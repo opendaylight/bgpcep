@@ -15,6 +15,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.nio.file.ClosedWatchServiceException;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
@@ -137,6 +138,7 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
     }
 
     private class ConfigLoaderImplRunnable implements Runnable {
+        @GuardedBy("this")
         private final WatchService watchService;
 
         ConfigLoaderImplRunnable(final WatchService watchService) {
@@ -146,15 +148,15 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
         @Override
         public void run() {
             while (!Thread.currentThread().isInterrupted()) {
-                handleChanges(this.watchService);
+                handleChanges();
             }
         }
 
-        private synchronized void handleChanges(final WatchService watchService) {
+        private synchronized void handleChanges() {
             final WatchKey key;
             try {
-                key = watchService.take();
-            } catch (final InterruptedException e) {
+                key = this.watchService.take();
+            } catch (final InterruptedException | ClosedWatchServiceException e) {
                 if (!ConfigLoaderImpl.this.closed) {
                     LOG.warn(INTERRUPTED, e);
                     Thread.currentThread().interrupt();
