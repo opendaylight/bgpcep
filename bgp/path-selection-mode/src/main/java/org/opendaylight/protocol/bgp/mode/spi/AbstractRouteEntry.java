@@ -91,7 +91,7 @@ public abstract class AbstractRouteEntry implements RouteEntry {
                 .node(RibSupportUtils.toYangTablesKey(localTK)).node(ROUTES_IDENTIFIER), routeId);
     }
 
-    protected PeerRole getRoutePeerIdRole(final ExportPolicyPeerTracker peerPT, final PeerId routePeerId) {
+    protected static PeerRole getRoutePeerIdRole(final ExportPolicyPeerTracker peerPT, final PeerId routePeerId) {
         for (final PeerRole role : PeerRole.values()) {
             final PeerExportGroup peerGroup = peerPT.getPeerGroup(role);
             if (peerGroup != null && peerGroup.containsPeer(routePeerId)) {
