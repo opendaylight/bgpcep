@@ -6,7 +6,7 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.bgpcep.config.loader.impl;
+package org.opendaylight.protocol.bgp.config.loader.impl;
 
 import static java.util.Objects.requireNonNull;
 
@@ -27,9 +27,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import org.opendaylight.bgpcep.config.loader.spi.ConfigFileProcessor;
-import org.opendaylight.bgpcep.config.loader.spi.ConfigLoader;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
+import org.opendaylight.protocol.bgp.config.loader.spi.ConfigFileProcessor;
+import org.opendaylight.protocol.bgp.config.loader.spi.ConfigLoader;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.stream.NormalizedNodeStreamWriter;
@@ -58,14 +58,12 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
     private boolean closed = false;
 
     public ConfigLoaderImpl(final SchemaContext schemaContext, final BindingNormalizedNodeSerializer bindingSerializer,
-            final FileWatcher fileWatcher) {
+            final String path, final WatchService watchService) {
         this.schemaContext = requireNonNull(schemaContext);
         this.bindingSerializer = requireNonNull(bindingSerializer);
-        this.path = requireNonNull(fileWatcher.getPathFile());
-        this.watcherThread = new Thread(new ConfigLoaderImplRunnable(requireNonNull(fileWatcher.getWatchService())));
-    }
-
-    public void init() {
+        this.path = requireNonNull(path);
+        requireNonNull(watchService);
+        this.watcherThread = new Thread(new ConfigLoaderImplRunnable(watchService));
         this.watcherThread.start();
         LOG.info("Config Loader service initiated");
     }
@@ -74,7 +72,8 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
         final NormalizedNode<?, ?> dto;
         try {
             dto = parseDefaultConfigFile(config, filename);
-        } catch (final IOException | XMLStreamException e) {
+        } catch (final IOException | XMLStreamException | ParserConfigurationException | SAXException
+                | URISyntaxException e) {
             LOG.warn("Failed to parse config file {}", filename, e);
             return;
         }
@@ -83,25 +82,17 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
     }
 
     private NormalizedNode<?, ?> parseDefaultConfigFile(final ConfigFileProcessor config, final String filename)
-            throws IOException, XMLStreamException {
+            throws IOException, XMLStreamException, ParserConfigurationException, SAXException, URISyntaxException {
         final NormalizedNodeResult result = new NormalizedNodeResult();
         final NormalizedNodeStreamWriter streamWriter = ImmutableNormalizedNodeStreamWriter.from(result);
 
-        try (InputStream resourceAsStream = new FileInputStream(new File(this.path, filename))) {
-            final XMLInputFactory factory = XMLInputFactory.newInstance();
-            final XMLStreamReader reader = factory.createXMLStreamReader(resourceAsStream);
+        final InputStream resourceAsStream = new FileInputStream(new File(this.path, filename));
+        final XMLInputFactory factory = XMLInputFactory.newInstance();
+        final XMLStreamReader reader = factory.createXMLStreamReader(resourceAsStream);
 
-            final SchemaNode schemaNode = SchemaContextUtil
-                    .findDataSchemaNode(this.schemaContext, config.getSchemaPath());
-            try (XmlParserStream xmlParser = XmlParserStream.create(streamWriter, this.schemaContext, schemaNode)) {
-                xmlParser.parse(reader);
-            } catch (final URISyntaxException | XMLStreamException | IOException | ParserConfigurationException
-                    | SAXException e) {
-                LOG.warn("Failed to parse xml", e);
-            } finally {
-                reader.close();
-            }
-        }
+        final SchemaNode schemaNode = SchemaContextUtil.findDataSchemaNode(this.schemaContext, config.getSchemaPath());
+        final XmlParserStream xmlParser = XmlParserStream.create(streamWriter, this.schemaContext, schemaNode);
+        xmlParser.parse(reader);
 
         return result.getResult();
     }
@@ -147,6 +138,7 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
     }
 
     private class ConfigLoaderImplRunnable implements Runnable {
+        @GuardedBy("this")
         private final WatchService watchService;
 
         ConfigLoaderImplRunnable(final WatchService watchService) {
@@ -156,14 +148,14 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
         @Override
         public void run() {
             while (!Thread.currentThread().isInterrupted()) {
-                handleChanges(this.watchService);
+                handleChanges();
             }
         }
 
-        private synchronized void handleChanges(final WatchService watch) {
+        private synchronized void handleChanges() {
             final WatchKey key;
             try {
-                key = watch.take();
+                key = this.watchService.take();
             } catch (final InterruptedException | ClosedWatchServiceException e) {
                 if (!ConfigLoaderImpl.this.closed) {
                     LOG.warn(INTERRUPTED, e);
