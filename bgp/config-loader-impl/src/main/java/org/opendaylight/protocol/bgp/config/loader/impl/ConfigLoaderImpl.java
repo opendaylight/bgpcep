@@ -8,10 +8,14 @@
 
 package org.opendaylight.protocol.bgp.config.loader.impl;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.nio.file.ClosedWatchServiceException;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
@@ -19,7 +23,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 import javax.annotation.concurrent.GuardedBy;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.config.loader.spi.ConfigFileProcessor;
@@ -35,6 +41,8 @@ import org.opendaylight.yangtools.yang.model.api.SchemaNode;
 import org.opendaylight.yangtools.yang.model.util.SchemaContextUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
+
 public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigLoaderImpl.class);
     private static final String INTERRUPTED = "InterruptedException";
@@ -46,36 +54,16 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
     private final BindingNormalizedNodeSerializer bindingSerializer;
     private final String path;
     private final Thread watcherThread;
+    @GuardedBy("this")
+    private boolean closed = false;
 
     public ConfigLoaderImpl(final SchemaContext schemaContext, final BindingNormalizedNodeSerializer bindingSerializer,
-        final String path, final WatchService watchService) {
-        this.schemaContext = Preconditions.checkNotNull(schemaContext);
-        this.bindingSerializer = Preconditions.checkNotNull(bindingSerializer);
-        this.path = Preconditions.checkNotNull(path);
-        Preconditions.checkNotNull(watchService);
-        this.watcherThread = new Thread(() -> {
-            try {
-                while (!Thread.currentThread().isInterrupted()) {
-                    try {
-                        final WatchKey key = watchService.take();
-                        if (key != null) {
-                            for (final WatchEvent event : key.pollEvents()) {
-                                handleEvent(event.context().toString());
-                            }
-                            final boolean reset = key.reset();
-                            if (!reset) {
-                                LOG.warn("Could not reset the watch key.");
-                                return;
-                            }
-                        }
-                    } catch (final InterruptedException e) {
-                        LOG.warn(INTERRUPTED, e);
-                    }
-                }
-            } catch (final Exception e) {
-                LOG.warn(INTERRUPTED, e);
-            }
-        });
+            final String path, final WatchService watchService) {
+        this.schemaContext = requireNonNull(schemaContext);
+        this.bindingSerializer = requireNonNull(bindingSerializer);
+        this.path = requireNonNull(path);
+        requireNonNull(watchService);
+        this.watcherThread = new Thread(new ConfigLoaderImplRunnable(watchService));
         this.watcherThread.start();
         LOG.info("Config Loader service initiated");
     }
@@ -84,7 +72,8 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
         final NormalizedNode<?, ?> dto;
         try {
             dto = parseDefaultConfigFile(config, filename);
-        } catch (final Exception e) {
+        } catch (final IOException | XMLStreamException | ParserConfigurationException | SAXException
+                | URISyntaxException e) {
             LOG.warn("Failed to parse config file {}", filename, e);
             return;
         }
@@ -92,7 +81,8 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
         config.loadConfiguration(dto);
     }
 
-    private NormalizedNode<?, ?> parseDefaultConfigFile(final ConfigFileProcessor config, final String filename) throws Exception {
+    private NormalizedNode<?, ?> parseDefaultConfigFile(final ConfigFileProcessor config, final String filename)
+            throws IOException, XMLStreamException, ParserConfigurationException, SAXException, URISyntaxException {
         final NormalizedNodeResult result = new NormalizedNodeResult();
         final NormalizedNodeStreamWriter streamWriter = ImmutableNormalizedNodeStreamWriter.from(result);
 
@@ -139,13 +129,56 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
         return this.bindingSerializer;
     }
 
-    private synchronized void handleEvent(final String filename) {
-        this.configServices.entrySet().stream().filter(entry -> Pattern.matches(entry.getKey(), filename)).
-            forEach(entry -> handleConfigFile(entry.getValue(), filename));
-    }
 
     @Override
-    public void close() throws Exception {
+    public synchronized void close() throws Exception {
+        LOG.info("Config Loader service closed");
+        this.closed = true;
         this.watcherThread.interrupt();
+    }
+
+    private class ConfigLoaderImplRunnable implements Runnable {
+        @GuardedBy("this")
+        private final WatchService watchService;
+
+        ConfigLoaderImplRunnable(final WatchService watchService) {
+            this.watchService = watchService;
+        }
+
+        @Override
+        public void run() {
+            while (!Thread.currentThread().isInterrupted()) {
+                handleChanges();
+            }
+        }
+
+        private synchronized void handleChanges() {
+            final WatchKey key;
+            try {
+                key = this.watchService.take();
+            } catch (final InterruptedException | ClosedWatchServiceException e) {
+                if (!ConfigLoaderImpl.this.closed) {
+                    LOG.warn(INTERRUPTED, e);
+                    Thread.currentThread().interrupt();
+                }
+                return;
+            }
+
+            if (key != null) {
+                for (final WatchEvent<?> event : key.pollEvents()) {
+                    handleEvent(event.context().toString());
+                }
+                final boolean reset = key.reset();
+                if (!reset) {
+                    LOG.warn("Could not reset the watch key.");
+                }
+            }
+        }
+
+        private synchronized void handleEvent(final String filename) {
+            ConfigLoaderImpl.this.configServices.entrySet().stream()
+                    .filter(entry -> Pattern.matches(entry.getKey(), filename))
+                    .forEach(entry -> handleConfigFile(entry.getValue(), filename));
+        }
     }
 }
