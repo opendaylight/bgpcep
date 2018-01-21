@@ -42,6 +42,7 @@
         <module>bundle-parent</module>
         <module>config-parent</module>
         <module>testtool-parent</module>
+        <module>single-feature-parent</module>
 
         <!-- Common infra -->
         <module>concepts</module>
