@@ -10,32 +10,20 @@ package org.opendaylight.protocol.util;
 import static org.junit.Assert.assertEquals;
 
 import ch.qos.logback.classic.Level;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LoggerUtilTest {
-
-    @Test(expected=UnsupportedOperationException.class)
-    public void testPrivateConstructor() throws Throwable {
-        final Constructor<LoggerUtil> c = LoggerUtil.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
-
     @Test
     public void initiateLogger() {
         LoggerUtil.initiateLogger(() -> Level.DEBUG);
-        final ch.qos.logback.classic.Logger protocolLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("org.opendaylight.protocol");
+        final ch.qos.logback.classic.Logger protocolLogger
+                = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("org.opendaylight.protocol");
         assertEquals(protocolLogger.getLevel(), Level.DEBUG);
 
-        final ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        final ch.qos.logback.classic.Logger logger
+                = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         assertEquals(logger.getLevel(), Level.OFF);
     }
 }

@@ -13,8 +13,6 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
 import com.google.common.net.HostAndPort;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.List;
@@ -30,21 +28,11 @@ public class InetSocketAddressUtilTest {
     private static final String ADDRESSES = ADDRESS1 + ":" + PORT1 + "," + ADDRESS2 + ":" + PORT2;
     private static final int DEFAULT_PORT = 179;
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void testPrivateConstructor() throws Throwable {
-        final Constructor<InetSocketAddressUtil> c = InetSocketAddressUtil.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
-
     @Test
     public void parseAddresses() throws Exception {
         final List<InetSocketAddress> actualResult = InetSocketAddressUtil.parseAddresses(ADDRESSES, DEFAULT_PORT);
-        Assert.assertEquals(Arrays.asList(new InetSocketAddress(ADDRESS1, PORT1), new InetSocketAddress(ADDRESS2, PORT2)), actualResult);
+        Assert.assertEquals(Arrays.asList(new InetSocketAddress(ADDRESS1, PORT1),
+                new InetSocketAddress(ADDRESS2, PORT2)), actualResult);
     }
 
     @Test
@@ -56,21 +44,26 @@ public class InetSocketAddressUtilTest {
 
     @Test
     public void parseAddressesDefaultPort() throws Exception {
-        final List<InetSocketAddress> actualResult = InetSocketAddressUtil.parseAddresses(ADDRESSES_WO_PORT, DEFAULT_PORT);
-        final List<InetSocketAddress> expected = Arrays.asList(new InetSocketAddress(ADDRESS1, DEFAULT_PORT), new InetSocketAddress(ADDRESS2, DEFAULT_PORT));
+        final List<InetSocketAddress> actualResult
+                = InetSocketAddressUtil.parseAddresses(ADDRESSES_WO_PORT, DEFAULT_PORT);
+        final List<InetSocketAddress> expected = Arrays.asList(new InetSocketAddress(ADDRESS1, DEFAULT_PORT),
+                new InetSocketAddress(ADDRESS2, DEFAULT_PORT));
         Assert.assertEquals(expected, actualResult);
     }
 
     @Test
     public void parseAddressesWithoutPort() throws Exception {
         final List<InetSocketAddress> actualResult = InetSocketAddressUtil.parseAddresses(ADDRESSES);
-        Assert.assertEquals(Arrays.asList(new InetSocketAddress(ADDRESS1, PORT1), new InetSocketAddress(ADDRESS2, PORT2)), actualResult);
+        Assert.assertEquals(Arrays.asList(new InetSocketAddress(ADDRESS1, PORT1),
+                new InetSocketAddress(ADDRESS2, PORT2)), actualResult);
     }
 
     @Test
     public void getInetSocketAddress() throws Exception {
-        assertEquals(new InetSocketAddress(ADDRESS1, PORT1), InetSocketAddressUtil.getInetSocketAddress(ADDRESS1 + ":" + PORT1, DEFAULT_PORT));
-        assertEquals(new InetSocketAddress(ADDRESS1, DEFAULT_PORT), InetSocketAddressUtil.getInetSocketAddress(ADDRESS1, DEFAULT_PORT));
+        assertEquals(new InetSocketAddress(ADDRESS1, PORT1),
+                InetSocketAddressUtil.getInetSocketAddress(ADDRESS1 + ":" + PORT1, DEFAULT_PORT));
+        assertEquals(new InetSocketAddress(ADDRESS1, DEFAULT_PORT),
+                InetSocketAddressUtil.getInetSocketAddress(ADDRESS1, DEFAULT_PORT));
     }
 
     @Test

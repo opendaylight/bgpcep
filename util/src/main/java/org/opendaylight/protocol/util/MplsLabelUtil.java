@@ -26,6 +26,7 @@ public final class MplsLabelUtil {
     /**
      * Creates and returns MplsLabel object from 20 leftmost bits in the incoming buffer.
      * Moves reader index by 3.
+     *
      * @param buffer expecting 3 bytes with 20 leftmost bits as label
      * @return MplsLabel object
      */
@@ -34,25 +35,28 @@ public final class MplsLabelUtil {
     }
 
     /**
-     * Serializes incoming MplsLabel without bottom bit
+     * Serializes incoming MplsLabel without bottom bit.
+     *
      * @param label MplsLabel object
-     * @return
+     * @return ByteBuf
      */
     public static ByteBuf byteBufForMplsLabel(final MplsLabel label) {
         return Unpooled.copyMedium(intForMplsLabel(label));
     }
 
     /**
-     * Serializes incoming MplsLabel with bottom bit
+     * Serializes incoming MplsLabel with bottom bit.
+     *
      * @param label MplsLabel object
-     * @return
+     * @return ByteBuf
      */
     public static ByteBuf byteBufForMplsLabelWithBottomBit(final MplsLabel label) {
         return Unpooled.copyMedium(intForMplsLabelWithBottomBit(label));
     }
 
     /**
-     * Makes a value of incoming label 20 leftmost bits in 24bit number
+     * Makes a value of incoming label 20 leftmost bits in 24bit number.
+     *
      * @param label object
      * @return shifted value
      */
@@ -61,7 +65,8 @@ public final class MplsLabelUtil {
     }
 
     /**
-     * Makes a value of incoming label 20 leftmost bits in 24bit number and sets bottom bit
+     * Makes a value of incoming label 20 leftmost bits in 24bit number and sets bottom bit.
+     *
      * @param label object
      * @return value with bottom bit
      */
@@ -71,7 +76,8 @@ public final class MplsLabelUtil {
     }
 
     /**
-     * Sets bottom bit of 3 byte value
+     * Sets bottom bit of 3 byte value.
+     *
      * @param value where 20 leftmost bits are label
      * @return value with set bottom bit
      */
@@ -80,6 +86,8 @@ public final class MplsLabelUtil {
     }
 
     /**
+     * Gets Bottom Bit.
+     *
      * @param slice with 20 leftmost bits as label
      * @return value of bottom bit
      */

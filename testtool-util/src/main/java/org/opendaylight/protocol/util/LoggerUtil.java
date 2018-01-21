@@ -42,8 +42,10 @@ public final class LoggerUtil {
         return consoleAppender;
     }
 
-    private static void setLogLevel(final ConsoleAppender<ILoggingEvent> consoleAppender, final Level level, final String clazz) {
-        final ch.qos.logback.classic.Logger protocolLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(clazz);
+    private static void setLogLevel(final ConsoleAppender<ILoggingEvent> consoleAppender,
+            final Level level, final String clazz) {
+        final ch.qos.logback.classic.Logger protocolLogger
+                = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(clazz);
         protocolLogger.addAppender(consoleAppender);
         protocolLogger.setLevel(level);
         protocolLogger.setAdditive(false);

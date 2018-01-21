@@ -15,7 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Created as a util for test tools
+ * Created as a util for test tools.
  */
 public final class InetSocketAddressUtil {
     private static final String SEPARATOR = ",";
@@ -25,7 +25,8 @@ public final class InetSocketAddressUtil {
     }
 
     public static List<InetSocketAddress> parseAddresses(final String address, final int defaultPort) {
-        return Lists.transform(Arrays.asList(address.split(SEPARATOR)), input -> getInetSocketAddress(input, defaultPort));
+        return Lists.transform(Arrays.asList(address.split(SEPARATOR)),
+            input -> getInetSocketAddress(input, defaultPort));
     }
 
     public static List<InetSocketAddress> parseAddresses(final String address) {
@@ -53,19 +54,19 @@ public final class InetSocketAddressUtil {
     }
 
     /**
-     * Generate a random high range port number
+     * Generate a random high range port number.
      *
      * @return A port number range from 20000 to 60000
      */
     public static int getRandomPort() {
-        final int randPort = 20000 + (int) Math.round(40000 * Math.random());
-        return randPort;
+        return 20000 + (int) Math.round(40000 * Math.random());
     }
 
     /**
-     * Generate a random loopback ip address
+     * Generate a random loopback ip address.
      * IP address range: 127.50.50.50 ~ 127.250.250.250
      * We did not utilize the whole 127./8 range to avoid using common addresses like 127.0.0.1
+     *
      * @return Generated random loopback IP address
      */
     public static String getRandomLoopbackIpAddress() {

@@ -137,6 +137,7 @@ public class CheckUtilTest extends AbstractConcurrentDataBrokerTest {
         storeTopo(LogicalDatastoreType.CONFIGURATION);
         checkPresentConfiguration(getDataBroker(), this.topologyIIdKeyed);
     }
+
     @Test
     public void testCheckPresentOperational() throws Exception {
         storeTopo(LogicalDatastoreType.OPERATIONAL);

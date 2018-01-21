@@ -30,8 +30,7 @@ public final class BitArray {
      * Creates a BitArray with fixed size of bits. For sizes smaller than
      * 8 the whole byte is allocated.
      *
-     * @param size Number of bits relevant for this BitArray. Needs to be
-     * greater than 0.
+     * @param size Number of bits relevant for this BitArray. Needs to be greater than 0.
      */
     public BitArray(final int size) {
         Preconditions.checkArgument(size >= 1, "Minimum size is 1 bit.");
@@ -51,8 +50,8 @@ public final class BitArray {
      * Returns a new BitArray created from bytes from given ByteBuf.
      *
      * @param buffer ByteBuf, whose readerIndex will be moved by
-     * minimum number of bytes required for the bit size.
-     * @param size Number of bits to be allocated in BitArray
+     *               minimum number of bytes required for the bit size.
+     * @param size   Number of bits to be allocated in BitArray
      * @return new BitArray
      */
     public static BitArray valueOf(final ByteBuf buffer, final int size) {
@@ -64,7 +63,7 @@ public final class BitArray {
     }
 
     /**
-     * Returns a new BitArray with given byte array as backing
+     * Returns a new BitArray with given byte array as backing.
      * array.
      *
      * @param bytes byte array
@@ -75,14 +74,24 @@ public final class BitArray {
     }
 
     /**
-     * Returns new BitArray with given byte as backing
+     * Returns new BitArray with given byte as backing.
      * array.
      *
-     * @param b unsigned byte
+     * @param info unsigned byte
      * @return new BitArray
      */
-    public static BitArray valueOf(final byte b) {
-        return new BitArray(new byte[] {b}, Byte.SIZE);
+    public static BitArray valueOf(final byte info) {
+        return new BitArray(new byte[]{info}, Byte.SIZE);
+    }
+
+    /**
+     * Calculates the size in bytes necessary for given number of bits.
+     *
+     * @param size size
+     * @return minimum byte size to contain the position of the bit
+     */
+    private static int calculateBytes(final int size) {
+        return (size + Byte.SIZE - 1) / Byte.SIZE;
     }
 
     /**
@@ -118,7 +127,7 @@ public final class BitArray {
     }
 
     /**
-     * Returns the backing byte array of this bitset
+     * Returns the backing byte array of this bitset.
      *
      * @return byte[]
      */
@@ -147,16 +156,6 @@ public final class BitArray {
     }
 
     /**
-     * Calculates the size in bytes necessary for given number of bits.
-     *
-     * @param size size
-     * @return minimum byte size to contain the position of the bit
-     */
-    private static int calculateBytes(final int size) {
-        return (size + Byte.SIZE - 1) / Byte.SIZE;
-    }
-
-    /**
      * Calculates which byte in byte array is going to be affected.
      *
      * @param index index of the bit to be changed
@@ -167,13 +166,13 @@ public final class BitArray {
     }
 
     /**
-     * Returns a byte where only one bit is set
+     * Returns a byte where only one bit is set.
      *
      * @param index bit index within full byte array
      * @return byte with one bit set
      */
     private byte mask(final int index) {
-        return (byte) (1 << ((this.size -1 - index) % Byte.SIZE));
+        return (byte) (1 << ((this.size - 1 - index) % Byte.SIZE));
     }
 
     @Override

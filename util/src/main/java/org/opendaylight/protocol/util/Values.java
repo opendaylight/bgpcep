@@ -27,7 +27,7 @@ public final class Values {
     public static final int UNSIGNED_BYTE_MAX_VALUE = 255;
 
     /**
-     * Maximum unsigned Integer value (2147483648);
+     * Maximum unsigned Integer value (2147483648).
      */
     public static final long UNSIGNED_INT_MAX_VALUE = (long) Integer.MAX_VALUE + 1;
 

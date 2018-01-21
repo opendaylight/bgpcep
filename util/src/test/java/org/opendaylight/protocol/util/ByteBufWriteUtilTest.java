@@ -26,8 +26,6 @@ import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -196,8 +194,8 @@ public class ByteBufWriteUtilTest {
 
     @Test
     public void testWriteIpv6Prefix() {
-        final byte[] result = { 0x20, (byte) 0x01, 0x0d, (byte) 0xb8, 0x00, 0x01, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x40 };
+        final byte[] result = { 0x20, (byte) 0x01, 0x0d, (byte) 0xb8, 0x00, 0x01, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00, 0x40 };
         final ByteBuf output = Unpooled.buffer(ByteBufWriteUtil.IPV6_PREFIX_BYTE_LENGTH);
         writeIpv6Prefix(new Ipv6Prefix("2001:db8:1:2::/64"), output);
         assertArrayEquals(result, output.array());
@@ -218,16 +216,5 @@ public class ByteBufWriteUtilTest {
         output.clear();
         writeFloat32(null, output);
         assertArrayEquals(FOUR_BYTE_ZEROS, output.array());
-    }
-
-    @Test(expected=UnsupportedOperationException.class)
-    public void testPrivateConstructor() throws Throwable {
-        final Constructor<ByteBufWriteUtil> c = ByteBufWriteUtil.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
     }
 }

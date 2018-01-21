@@ -10,8 +10,6 @@ package org.opendaylight.protocol.util;
 
 import static org.junit.Assert.assertEquals;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import org.junit.Test;
 
 public class StatisticsUtilTest {
@@ -26,20 +24,8 @@ public class StatisticsUtilTest {
         assertEquals("1:01:01:01", StatisticsUtil.formatElapsedTime(90061));
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testFormatElapsedTimeInvalidInput() {
         StatisticsUtil.formatElapsedTime(-1);
     }
-
-    @Test(expected=UnsupportedOperationException.class)
-    public void testPrivateConstructor() throws Throwable {
-        final Constructor<StatisticsUtil> c = StatisticsUtil.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
-
 }

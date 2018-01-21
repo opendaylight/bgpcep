@@ -49,6 +49,7 @@ public final class Ipv4Util {
 
     /**
      * From string ipAddress creates an InetAddress and puts it into ByteBuf.
+     *
      * @param ipAddress Ipv4 address
      * @return ByteBuf with filled in bytes from ipAddress
      */
@@ -75,9 +76,6 @@ public final class Ipv4Util {
 
     /**
      * Returns number of minimum bytes needed to cover all bits of prefix.
-     *
-     * @param prefix
-     * @return
      */
     public static int getPrefixLengthBytes(final String prefix) {
         return prefixBitsToBytes(Ipv4Util.getPrefixLength(prefix));
@@ -176,7 +174,7 @@ public final class Ipv4Util {
     /**
      * Converts InetAddress to IpAddress.
      *
-     * @param inetAddress
+     * @param inetAddress address
      * @return IpAddress
      */
     public static IpAddress getIpAddress(final InetAddress inetAddress) {
@@ -184,10 +182,10 @@ public final class Ipv4Util {
     }
 
     /**
-     * Converts IpAddress and PortNumber to InetSocketAddress
+     * Converts IpAddress and PortNumber to InetSocketAddress.
      *
-     * @param ipAddress
-     * @param port
+     * @param ipAddress address
+     * @param port      number
      * @return InetSocketAddress
      */
     public static InetSocketAddress toInetSocketAddress(final IpAddress ipAddress, final PortNumber port) {
@@ -196,7 +194,7 @@ public final class Ipv4Util {
     }
 
     /**
-     * Increment Address
+     * Increment Address.
      *
      * @param ipv4Address String containing Ipv4Address
      * @return String containing Ipv4Address incremented by 1
@@ -206,7 +204,7 @@ public final class Ipv4Util {
     }
 
     /**
-     * Increment Address
+     * Increment Address.
      *
      * @param ipv4Address ipv4 address to be incremented
      * @return new ipv4 address
@@ -217,12 +215,14 @@ public final class Ipv4Util {
 
     public static Ipv4Prefix incrementIpv4Prefix(final Ipv4Prefix ipv4Prefix) {
         final Map.Entry<Ipv4Address, Integer> splitIpv4Prefix = IetfInetUtil.INSTANCE.splitIpv4Prefix(ipv4Prefix);
-        return IetfInetUtil.INSTANCE.ipv4PrefixFor(incrementIpv4Address(splitIpv4Prefix.getKey()), splitIpv4Prefix.getValue());
+        return IetfInetUtil.INSTANCE.ipv4PrefixFor(incrementIpv4Address(splitIpv4Prefix.getKey()),
+                splitIpv4Prefix.getValue());
     }
 
     /**
-     * Get string representation of IpAddress
-     * @param ipAddress
+     * Get string representation of IpAddress.
+     *
+     * @param ipAddress address
      * @return String value of Ipv4Address or Ipv6Address
      */
     public static String toStringIP(final IpAddress ipAddress) {

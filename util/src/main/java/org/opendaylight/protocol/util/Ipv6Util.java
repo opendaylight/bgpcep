@@ -33,7 +33,7 @@ public final class Ipv6Util {
     }
 
     /**
-     * Creates uncompressed IP Address
+     * Creates uncompressed IP Address.
      *
      * @param ip to be uncompressed
      * @return Ipv6Address with same, but uncompressed, value

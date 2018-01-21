@@ -24,10 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Parses PCEP messages from a text file. Messages need to follow this formatting:
- *
+ * Parses PCEP messages from a text file. Messages need to follow this formatting.
  * Received PCEP Open message. Length:28.
- *
  * 20 01 00 1c 01 10 00 18 20 1e 78 03 00 10 00 04 00 00 00 05 00 1a 00 04 00 00 00 b4
  */
 public final class PCEPHexDumpParser {
@@ -51,8 +49,8 @@ public final class PCEPHexDumpParser {
         }
     }
 
-    private static List<byte[]> parseMessages(final String c) {
-        final String content = clearWhiteSpaceToUpper(c);
+    private static List<byte[]> parseMessages(final String msg) {
+        final String content = clearWhiteSpaceToUpper(msg);
 
         final List<byte[]> messages = Lists.newLinkedList();
         int idx = content.indexOf(LENGTH, 0);
@@ -66,8 +64,9 @@ public final class PCEPHexDumpParser {
 
             // Assert that message is longer than minimum 4(header.length == 4)
             // If length in PCEP message would be 0, loop would never end
-            Preconditions.checkArgument(length >= MINIMAL_LENGTH, "Invalid message at index " + idx + ", length atribute is lower than "
-                + MINIMAL_LENGTH);
+            Preconditions.checkArgument(length >= MINIMAL_LENGTH,
+                    "Invalid message at index " + idx + ", length atribute is lower than "
+                            + MINIMAL_LENGTH);
 
             // dot
             final String hexMessage = content.substring(messageIdx + 1, messageEndIdx);

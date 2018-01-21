@@ -10,7 +10,9 @@ package org.opendaylight.protocol.util;
 
 import ch.qos.logback.classic.Level;
 
-/** Marker for LoggerUtil **/
+/**
+ * Marker for LoggerUtil.
+ **/
 public interface ArgumentsInput {
     Level getLogLevel();
 }

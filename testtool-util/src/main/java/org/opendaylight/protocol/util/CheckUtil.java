@@ -62,7 +62,8 @@ public final class CheckUtil {
 
     @VisibleForTesting
     static <R, T extends DataObject> R readDataConfiguration(final DataBroker dataBroker,
-            final InstanceIdentifier<T> iid, final Function<T, R> function, final int timeout) throws ReadFailedException {
+            final InstanceIdentifier<T> iid, final Function<T, R> function, final int timeout)
+            throws ReadFailedException {
         return readData(dataBroker, CONFIGURATION, iid, function, timeout);
     }
 
@@ -72,7 +73,7 @@ public final class CheckUtil {
         AssertionError lastError = null;
         final Stopwatch sw = Stopwatch.createStarted();
         while (sw.elapsed(TimeUnit.SECONDS) <= timeout) {
-            try (final ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction()) {
+            try (ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction()) {
                 final Optional<T> data = tx.read(ldt, iid).checkedGet();
                 if (data.isPresent()) {
                     try {
@@ -112,7 +113,7 @@ public final class CheckUtil {
         AssertionError lastError = null;
         final Stopwatch sw = Stopwatch.createStarted();
         while (sw.elapsed(TimeUnit.SECONDS) <= 10) {
-            try (final ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction()) {
+            try (ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction()) {
                 final com.google.common.base.Optional<T> data = tx.read(ldt, iid).checkedGet();
                 try {
                     assert !data.isPresent();

@@ -17,8 +17,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.BitSet;
 import org.junit.Before;
@@ -26,7 +24,7 @@ import org.junit.Test;
 
 public class ByteArrayTest {
 
-    final byte[] before = new byte[] { 15, 28, 4, 6, 9, 10 };
+    private final byte[] before = new byte[] { 15, 28, 4, 6, 9, 10 };
 
     @Test
     public void testReadBytes() {
@@ -150,7 +148,8 @@ public class ByteArrayTest {
 
             int offset = 0;
             int numRead = 0;
-            while (offset < expectedBytes.length && (numRead = bytesIStream.read(expectedBytes, offset, actualBytes.length - offset)) >= 0) {
+            while (offset < expectedBytes.length
+                    && (numRead = bytesIStream.read(expectedBytes, offset, actualBytes.length - offset)) >= 0) {
                 offset += numRead;
             }
 
@@ -161,7 +160,7 @@ public class ByteArrayTest {
     }
 
     /**
-     * if less than 4 bytes are converted, zero bytes should be appended at the buffer's start
+     * if less than 4 bytes are converted, zero bytes should be appended at the buffer's start.
      */
     @Test
     public void testBytesToLong_prependingZeros() {
@@ -218,31 +217,20 @@ public class ByteArrayTest {
 
     @Test
     public void testBytesToHRString() {
-        byte[] b;
+        byte[] bytes;
 
         // test valid US-ASCII string
-        b = new byte[] { (byte) 79, (byte) 102, (byte) 45, (byte) 57, (byte) 107, (byte) 45, (byte) 48, (byte) 50 };
+        bytes = new byte[] { (byte) 79, (byte) 102, (byte) 45, (byte) 57, (byte) 107, (byte) 45, (byte) 48, (byte) 50 };
         final String expected = "Of-9k-02";
-        assertEquals(expected, ByteArray.bytesToHRString(b));
+        assertEquals(expected, ByteArray.bytesToHRString(bytes));
 
         // test Utf-8 restricted bytes
-        b = new byte[] { (byte) 246, (byte) 248, (byte) 254 };
-        assertEquals(Arrays.toString(b), ByteArray.bytesToHRString(b));
+        bytes = new byte[] { (byte) 246, (byte) 248, (byte) 254 };
+        assertEquals(Arrays.toString(bytes), ByteArray.bytesToHRString(bytes));
 
         // test unexpected continuation bytes
-        b = new byte[] { (byte) 128, (byte) 113, (byte) 98 };
-        assertEquals(Arrays.toString(b), ByteArray.bytesToHRString(b));
-    }
-
-    @Test(expected=UnsupportedOperationException.class)
-    public void testPrivateConstructor() throws Throwable {
-        final Constructor<ByteArray> c = ByteArray.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
+        bytes = new byte[] { (byte) 128, (byte) 113, (byte) 98 };
+        assertEquals(Arrays.toString(bytes), ByteArray.bytesToHRString(bytes));
     }
 
     @Test

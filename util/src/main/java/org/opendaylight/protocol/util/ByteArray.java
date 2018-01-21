@@ -95,7 +95,8 @@ public final class ByteArray {
      * @return a new byte array that is a sub-array of the original
      */
     public static byte[] subByte(final byte[] bytes, final int startIndex, final int length) {
-        Preconditions.checkArgument(checkLength(bytes, length) && checkStartIndex(bytes, startIndex, length), "Cannot create subByte, invalid arguments: Length: %s startIndex: %s", length, startIndex);
+        Preconditions.checkArgument(checkLength(bytes, length) && checkStartIndex(bytes, startIndex, length),
+                "Cannot create subByte, invalid arguments: Length: %s startIndex: %s", length, startIndex);
         final byte[] res = new byte[length];
         System.arraycopy(bytes, startIndex, res, 0, length);
         return res;
@@ -117,7 +118,8 @@ public final class ByteArray {
      * @return int
      */
     public static int bytesToInt(final byte[] bytes) {
-        Preconditions.checkArgument(bytes.length <= Integer.SIZE / Byte.SIZE, "Cannot convert bytes to integer. Byte array too big.");
+        Preconditions.checkArgument(bytes.length <= Integer.SIZE / Byte.SIZE,
+                "Cannot convert bytes to integer. Byte array too big.");
         final byte[] res;
         if (bytes.length != Integer.SIZE / Byte.SIZE) {
             res = new byte[Integer.SIZE / Byte.SIZE];
@@ -136,7 +138,8 @@ public final class ByteArray {
      * @return long
      */
     public static long bytesToLong(final byte[] bytes) {
-        Preconditions.checkArgument(bytes.length <= Long.SIZE / Byte.SIZE, "Cannot convert bytes to long.Byte array too big.");
+        Preconditions.checkArgument(bytes.length <= Long.SIZE / Byte.SIZE,
+                "Cannot convert bytes to long.Byte array too big.");
         final byte[] res;
         if (bytes.length != Long.SIZE / Byte.SIZE) {
             res = new byte[Long.SIZE / Byte.SIZE];
@@ -155,12 +158,13 @@ public final class ByteArray {
      * @return bytes array without first 'count' bytes
      */
     public static byte[] cutBytes(final byte[] bytes, final int count) {
-        Preconditions.checkArgument(bytes.length != 0 && count <= bytes.length && count > 0, "Cannot cut bytes, invalid arguments: Count: %s bytes.length: %s", count, bytes.length);
+        Preconditions.checkArgument(bytes.length != 0 && count <= bytes.length && count > 0,
+                "Cannot cut bytes, invalid arguments: Count: %s bytes.length: %s", count, bytes.length);
         return Arrays.copyOfRange(bytes, count, bytes.length);
     }
 
     /**
-     * Parses file to array of bytes
+     * Parses file to array of bytes.
      *
      * @param name path to file to by parsed
      * @return parsed array of bytes
@@ -168,13 +172,13 @@ public final class ByteArray {
     public static byte[] fileToBytes(final String name) throws IOException {
         final File file = new File(name);
         int offset = 0;
-        int numRead = 0;
+        int numRead;
 
         if (file.length() > Integer.MAX_VALUE) {
             throw new IOException("Too large file to load in byte array.");
         }
         final byte[] byteArray = new byte[(int) file.length()];
-        try (final FileInputStream fin = new FileInputStream(file)) {
+        try (FileInputStream fin = new FileInputStream(file)) {
             while (offset < byteArray.length) {
                 numRead = fin.read(byteArray, offset, byteArray.length - offset);
                 if (numRead >= 0) {
@@ -195,7 +199,8 @@ public final class ByteArray {
      * @return copied value aligned to right
      */
     public static byte copyBitsRange(final byte src, final int fromBit, final int length) {
-        Preconditions.checkArgument(fromBit >= 0 && fromBit <= Byte.SIZE - 1 && length >= 1 && length <= Byte.SIZE, "fromBit or toBit is out of range.");
+        Preconditions.checkArgument(fromBit >= 0 && fromBit <= Byte.SIZE - 1
+                && length >= 1 && length <= Byte.SIZE, "fromBit or toBit is out of range.");
         Preconditions.checkArgument(fromBit + length <= Byte.SIZE, "Out of range.");
 
         byte retByte = 0;

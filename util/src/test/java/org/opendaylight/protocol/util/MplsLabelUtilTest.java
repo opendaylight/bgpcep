@@ -10,9 +10,8 @@ package org.opendaylight.protocol.util;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
 import io.netty.buffer.Unpooled;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
 
@@ -24,7 +23,8 @@ public class MplsLabelUtilTest {
 
     @Test
     public void testCreateLabel() {
-        assertEquals(new MplsLabel(VAL1), MplsLabelUtil.mplsLabelForByteBuf(Unpooled.copiedBuffer(VAL1_LEFT_BYTES_BOTTOM)));
+        assertEquals(new MplsLabel(VAL1), MplsLabelUtil
+                .mplsLabelForByteBuf(Unpooled.copiedBuffer(VAL1_LEFT_BYTES_BOTTOM)));
     }
 
     @Test
@@ -37,17 +37,7 @@ public class MplsLabelUtilTest {
     public void testSerialization() {
         final MplsLabel label = new MplsLabel(VAL1);
         assertEquals(Unpooled.copiedBuffer(VAL1_LEFT_BYTES), MplsLabelUtil.byteBufForMplsLabel(label));
-        assertEquals(Unpooled.copiedBuffer(VAL1_LEFT_BYTES_BOTTOM), MplsLabelUtil.byteBufForMplsLabelWithBottomBit(label));
-    }
-
-    @Test(expected=UnsupportedOperationException.class)
-    public void testPrivateConstructor() throws Throwable {
-        final Constructor<MplsLabelUtil> c = MplsLabelUtil.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
+        assertEquals(Unpooled.copiedBuffer(VAL1_LEFT_BYTES_BOTTOM),
+            MplsLabelUtil.byteBufForMplsLabelWithBottomBit(label));
     }
 }
