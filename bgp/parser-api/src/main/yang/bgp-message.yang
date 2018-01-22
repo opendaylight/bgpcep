@@ -48,7 +48,7 @@ module bgp-message {
         description
             "Identifier of a single path. The identifier does not
              carry any semantic meaning beyond uniquely identifying
-             a path.";
+             a path. Default 0 value is reserved for non supported add-path key representation.";
     }
 
     grouping path-id-grouping {
