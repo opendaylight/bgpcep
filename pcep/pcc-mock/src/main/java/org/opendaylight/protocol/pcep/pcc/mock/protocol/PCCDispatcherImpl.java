@@ -107,7 +107,6 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
 
                         if (!promise.isInitialConnectFinished()) {
                             LOG.debug("Connection to {} was dropped during negotiation, reattempting", remoteAddress);
-                            return;
                         }
                         LOG.debug("Reconnecting after connection to {} was dropped", remoteAddress);
                         PCCDispatcherImpl.this.createClient(

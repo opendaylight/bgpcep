@@ -22,6 +22,7 @@ import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.Uninterruptibles;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.Future;
@@ -73,6 +74,8 @@ public abstract class PCCMockCommon {
     private PCEPDispatcher pceDispatcher;
     private PCEPExtensionProviderContext extensionProvider;
     private MessageRegistry messageRegistry;
+    protected EventLoopGroup bossGroup = new NioEventLoopGroup();
+    protected EventLoopGroup workedGroup = new NioEventLoopGroup();
 
     protected abstract List<PCEPCapability> getCapabilities();
 
@@ -83,8 +86,7 @@ public abstract class PCCMockCommon {
         final DefaultPCEPSessionNegotiatorFactory nf = new DefaultPCEPSessionNegotiatorFactory(proposal, 0);
         this.extensionProvider = ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance();
         this.messageRegistry = this.extensionProvider.getMessageHandlerRegistry();
-        this.pceDispatcher = new PCEPDispatcherImpl(this.messageRegistry, nf, new NioEventLoopGroup(),
-                new NioEventLoopGroup());
+        this.pceDispatcher = new PCEPDispatcherImpl(this.messageRegistry, nf, this.bossGroup, this.workedGroup);
     }
 
     static TestingSessionListener checkSessionListener(final int numMessages, final Channel channel,
