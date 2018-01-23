@@ -17,20 +17,15 @@ import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.ArrayList;
 import java.util.List;
-import javassist.ClassPool;
 import javax.annotation.concurrent.GuardedBy;
 import org.junit.After;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.bgpcep.config.loader.spi.ConfigFileProcessor;
+import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
 import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
-import org.opendaylight.mdsal.binding.dom.adapter.BindingToNormalizedNodeCodec;
-import org.opendaylight.mdsal.binding.dom.codec.gen.impl.StreamWriterGenerator;
-import org.opendaylight.mdsal.binding.dom.codec.impl.BindingNormalizedNodeCodecRegistry;
-import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
-import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
-import org.opendaylight.mdsal.binding.generator.util.JavassistUtils;
+import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTestCustomizer;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 
 public abstract class AbstractConfigLoader extends AbstractConcurrentDataBrokerTest {
@@ -40,24 +35,18 @@ public abstract class AbstractConfigLoader extends AbstractConcurrentDataBrokerT
     @Mock
     protected WatchService watchService;
     @Mock
+    protected ConfigFileProcessor processor;
+    @Mock
     private WatchKey watchKey;
     @Mock
     private WatchEvent<?> watchEvent;
     @Mock
-    protected ConfigFileProcessor processor;
-    @Mock
     private FileWatcher fileWatcher;
+    private BindingToNormalizedNodeCodec mappingService;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        final BindingToNormalizedNodeCodec mappingService = new BindingToNormalizedNodeCodec(
-                GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(),
-                new BindingNormalizedNodeCodecRegistry(
-                        StreamWriterGenerator.create(JavassistUtils.forClassPool(ClassPool.getDefault()))));
-        final ModuleInfoBackedContext moduleInfoBackedContext = ModuleInfoBackedContext.create();
-        registerModules(moduleInfoBackedContext);
-        mappingService.onGlobalContextUpdated(moduleInfoBackedContext.tryToCreateSchemaContext().get());
         doAnswer(invocation -> true).when(this.watchKey).reset();
         doReturn(this.eventList).when(this.watchKey).pollEvents();
         doReturn(this.watchKey).when(this.watchService).take();
@@ -71,9 +60,15 @@ public abstract class AbstractConfigLoader extends AbstractConcurrentDataBrokerT
             return null;
         }).when(this.processor).loadConfiguration(any());
         final SchemaContext schemaContext = getSchemaContext();
-        this.configLoader = new ConfigLoaderImpl(schemaContext,
-                mappingService, this.fileWatcher);
+        this.configLoader = new ConfigLoaderImpl(schemaContext, this.mappingService, this.fileWatcher);
         this.configLoader.init();
+    }
+
+    @Override
+    protected AbstractDataBrokerTestCustomizer createDataBrokerTestCustomizer() {
+        final AbstractDataBrokerTestCustomizer customizer = super.createDataBrokerTestCustomizer();
+        this.mappingService = customizer.getBindingToNormalized();
+        return customizer;
     }
 
     private synchronized void clearEvent() {
@@ -84,8 +79,6 @@ public abstract class AbstractConfigLoader extends AbstractConcurrentDataBrokerT
         return ClassLoader.getSystemClassLoader().getResource("initial").getPath();
     }
 
-    protected abstract void registerModules(ModuleInfoBackedContext moduleInfoBackedContext) throws Exception;
-
     protected synchronized void triggerEvent(final String filename) {
         doReturn(filename).when(this.watchEvent).context();
         this.eventList.add(this.watchEvent);
@@ -93,6 +86,6 @@ public abstract class AbstractConfigLoader extends AbstractConcurrentDataBrokerT
 
     @After
     public final void tearDown() throws Exception {
-        ((ConfigLoaderImpl) this.configLoader).close();
+        this.configLoader.close();
     }
 }

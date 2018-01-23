@@ -17,9 +17,7 @@ import static org.opendaylight.protocol.util.CheckUtil.checkPresentConfiguration
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.bgpcep.config.loader.impl.AbstractConfigLoader;
-import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.config.rev171207.OdlBmpMonitors;
-import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.model.api.SchemaPath;
 
 public class BmpMonitorConfigFileProcessorTest extends AbstractConfigLoader {
@@ -28,12 +26,6 @@ public class BmpMonitorConfigFileProcessorTest extends AbstractConfigLoader {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-    }
-
-    @Override
-    protected void registerModules(final ModuleInfoBackedContext moduleInfoBackedContext) throws Exception {
-        moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(OdlBmpMonitors.class));
-
     }
 
     @Test

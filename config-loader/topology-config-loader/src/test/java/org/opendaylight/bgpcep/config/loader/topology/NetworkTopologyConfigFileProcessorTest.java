@@ -16,23 +16,15 @@ import static org.opendaylight.protocol.util.CheckUtil.checkPresentConfiguration
 import org.junit.Test;
 import org.opendaylight.bgpcep.config.loader.impl.AbstractConfigLoader;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.model.api.SchemaPath;
 
 public class NetworkTopologyConfigFileProcessorTest extends AbstractConfigLoader {
-    @Override
-    protected void registerModules(final ModuleInfoBackedContext moduleInfoBackedContext) throws Exception {
-        moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(NetworkTopology.class));
-        moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(Topology.class));
-    }
-
     @Test
     public void configFileTest() throws ReadFailedException, InterruptedException {
         final KeyedInstanceIdentifier<Topology, TopologyKey> topologyIIdKeyed =

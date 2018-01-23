@@ -16,12 +16,10 @@ import static org.mockito.Mockito.verify;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.NetworkInstances;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstance;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.Protocols;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
-import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.model.api.SchemaPath;
 
 public class ConfigLoaderImplTest extends AbstractConfigLoader {
@@ -38,11 +36,6 @@ public class ConfigLoaderImplTest extends AbstractConfigLoader {
     @Override
     protected String getResourceFolder() {
         return ClassLoader.getSystemClassLoader().getResource("etc/opendaylight/bgpcep").getPath();
-    }
-
-    @Override
-    protected void registerModules(final ModuleInfoBackedContext moduleInfoBackedContext) throws Exception {
-        moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(NetworkInstances.class));
     }
 
     @Test
