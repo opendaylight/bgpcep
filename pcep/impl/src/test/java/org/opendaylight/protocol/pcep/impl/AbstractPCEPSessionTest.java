@@ -97,6 +97,7 @@ public class AbstractPCEPSessionTest {
         doReturn(this.pipeline).when(this.channel).pipeline();
         doReturn(this.address).when(this.channel).localAddress();
         doReturn(this.address).when(this.channel).remoteAddress();
+        doReturn(true).when(this.channel).isWritable();
         doReturn(this.eventLoop).when(this.channel).eventLoop();
         doReturn(true).when(this.future).cancel(false);
         doReturn(this.future).when(this.eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
