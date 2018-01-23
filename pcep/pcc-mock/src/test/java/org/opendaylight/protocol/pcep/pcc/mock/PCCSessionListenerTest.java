@@ -121,7 +121,7 @@ public class PCCSessionListenerTest {
     @Test
     public void testOnSessionDown() {
         final PCCSessionListener listener = new PCCSessionListener(1, this.tunnelManager, false);
-        listener.onSessionDown(this.mockedSession, new Exception());
+        listener.onSessionDown(this.mockedSession, new Exception("test exception"));
         verify(this.tunnelManager).onSessionDown(Mockito.any(PCCSession.class));
     }
 

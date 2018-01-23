@@ -317,7 +317,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
     }
 
     @Override
-    protected final void handleMessage(final Message msg) {
+    protected synchronized final void handleMessage(final Message msg) {
         cancelTimers();
 
         LOG.debug("Channel {} handling message {} in state {}", this.channel, msg, this.state);
