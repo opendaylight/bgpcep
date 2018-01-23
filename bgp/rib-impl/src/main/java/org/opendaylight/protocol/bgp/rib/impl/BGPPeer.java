@@ -371,6 +371,11 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
         final TablesKey key = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
         if (this.tables.add(key) && !announceNone) {
             createAdjRibOutListener(peerId, key, false);
+            final ExportPolicyPeerTracker exportTracker = this.rib.getExportPolicyPeerTracker(key);
+            if (exportTracker != null) {
+                this.tableRegistration.add(exportTracker.registerPeer(peerId,  null, this.peerIId,
+                        this.peerRole, this.simpleRoutingPolicy));
+            }
         }
     }
 
