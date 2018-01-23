@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.pcep.pcc.mock;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.opendaylight.protocol.pcep.pcc.mock.PCCMockCommon.checkSessionListenerNotNull;
 import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
@@ -23,7 +25,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -97,17 +98,15 @@ public class PCCDispatcherImplTest {
         final ChannelFuture futureServer = this.pcepDispatcher.createServer(this.dispatcherDependencies);
         waitFutureSuccess(futureServer);
         final Channel channel = futureServer.channel();
-        Assert.assertNotNull(futureSession.get());
+        final PCEPSession session = futureSession.get();
+        assertNotNull(session);
         checkSessionListenerNotNull(slf, this.clientAddress.getHostString());
         final TestingSessionListener sl
                 = checkSessionListenerNotNull(slf, this.clientAddress.getAddress().getHostAddress());
-        Assert.assertNotNull(sl.getSession());
-        Assert.assertTrue(sl.isUp());
+        assertNotNull(sl.getSession());
+        assertTrue(sl.isUp());
         channel.close().get();
-        closeEventLoopGroups();
 
-        this.workerGroup = new NioEventLoopGroup();
-        this.bossGroup = new NioEventLoopGroup();
         this.pcepDispatcher = new PCEPDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance()
                 .getMessageHandlerRegistry(),
             this.nf, this.bossGroup, this.workerGroup);
@@ -119,8 +118,8 @@ public class PCCDispatcherImplTest {
         final Channel channel2 = future2.channel();
         final TestingSessionListener sl2
                 = checkSessionListenerNotNull(slf2, this.clientAddress.getAddress().getHostAddress());
-        Assert.assertNotNull(sl2.getSession());
-        Assert.assertTrue(sl2.isUp());
+        assertNotNull(sl2.getSession());
+        assertTrue(sl2.isUp());
         channel2.close();
     }
 }
