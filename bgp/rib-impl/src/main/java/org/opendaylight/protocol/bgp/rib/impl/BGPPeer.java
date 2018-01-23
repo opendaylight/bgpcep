@@ -341,7 +341,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
                         peerIId, this.peerRole, this.simpleRoutingPolicy));
             }
         }
-        addBgp4Support(peerId, announceNone);
+        addBgp4Support(peerId, peerIId, announceNone);
 
         if (!isLearnNone(this.simpleRoutingPolicy)) {
             this.effRibInWriter = EffectiveRibInWriter.create(this.rib.getService(),
@@ -367,10 +367,15 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
     }
 
     //try to add a support for old-school BGP-4, if peer did not advertise IPv4-Unicast MP capability
-    private void addBgp4Support(final PeerId peerId, final boolean announceNone) {
+    private void addBgp4Support(final PeerId peerId, final YangInstanceIdentifier peerIId, final boolean announceNone) {
         final TablesKey key = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
         if (this.tables.add(key) && !announceNone) {
             createAdjRibOutListener(peerId, key, false);
+            final ExportPolicyPeerTracker exportTracker = this.rib.getExportPolicyPeerTracker(key);
+            if (exportTracker != null) {
+                this.tableRegistration.add(exportTracker.registerPeer(peerId,  null, peerIId,
+                        this.peerRole, this.simpleRoutingPolicy));
+            }
         }
     }
 
