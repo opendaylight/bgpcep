@@ -19,7 +19,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 
 //PeerGroupStateCliUtils sends Peer Group Operational State to PrintStream
 final class PeerGroupStateCliUtils {
-    @SuppressWarnings("checkstyle:HideUtilityClassConstructor")
     private PeerGroupStateCliUtils() {
         throw new UnsupportedOperationException();
     }

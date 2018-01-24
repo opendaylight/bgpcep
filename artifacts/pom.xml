@@ -27,11 +27,6 @@
         <dependencies>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>dependency-version-management</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
                 <artifactId>bmp-artifacts</artifactId>
                 <version>${project.version}</version>
                 <scope>import</scope>
