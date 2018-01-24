@@ -20,7 +20,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 //GlobalStateCliUtils sends Global Operational State to PrintStream
 final class GlobalStateCliUtils {
 
-    @SuppressWarnings("checkstyle:HideUtilityClassConstructor")
     private GlobalStateCliUtils() {
         throw new UnsupportedOperationException();
     }

@@ -28,14 +28,7 @@
         <dependencies>
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
-                <artifactId>bgpcep-artifacts</artifactId>
-                <version>${project.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.bgpcep</groupId>
-                <artifactId>dependency-version-management</artifactId>
+                <artifactId>bgpcep-parent</artifactId>
                 <version>${project.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
