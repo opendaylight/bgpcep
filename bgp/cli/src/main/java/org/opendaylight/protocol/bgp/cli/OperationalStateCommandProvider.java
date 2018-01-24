@@ -29,7 +29,7 @@ public final class OperationalStateCommandProvider extends OsgiCommandSupport {
     protected Object doExecute() throws Exception {
         BGPOperationalStateUtils.displayBgpOperationalState(this.dataBroker, this.session.getConsole(),
                 this.ribId, this.group, this.peer);
-        return null;
+        return new Object();
     }
 
     public void setDataBroker(final DataBroker dataBroker) {

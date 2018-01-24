@@ -26,7 +26,7 @@ public final class PcepStateCommandProvider extends OsgiCommandSupport {
     @Override
     protected Object doExecute() throws Exception {
         PcepStateUtils.displayNodeState(this.dataBroker, this.session.getConsole(), this.tpi, this.ni);
-        return null;
+        return new Object();
     }
 
     public void setDataBroker(final DataBroker dataBroker) {

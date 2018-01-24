@@ -45,7 +45,6 @@ public final class BGPOperationalStateUtils {
                 .child(NetworkInstance.class, new NetworkInstanceKey("global-bgp")).child(Protocols.class);
     }
 
-    @SuppressWarnings("checkstyle:HideUtilityClassConstructor")
     private BGPOperationalStateUtils() {
         throw new UnsupportedOperationException();
     }

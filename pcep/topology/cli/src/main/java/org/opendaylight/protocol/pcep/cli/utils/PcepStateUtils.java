@@ -39,7 +39,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * PcepStateUtils reads Pcep Topology Node state from DS and prints to stream.
  */
@@ -47,7 +46,6 @@ public final class PcepStateUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(PcepStateUtils.class);
 
-    @SuppressWarnings("checkstyle:HideUtilityClassConstructor")
     private PcepStateUtils() {
         throw new UnsupportedOperationException();
     }
