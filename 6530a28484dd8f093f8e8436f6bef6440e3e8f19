@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0cfd528d_7cff4155",
+        "filename": "pcep/topology/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractTopologySessionListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-01-24T19:04:58Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 170,
+        "startChar": 8,
+        "endLine": 170,
+        "endChar": 97
+      },
+      "revId": "6530a28484dd8f093f8e8436f6bef6440e3e8f19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "de4d6aab_399e12ce",
+        "filename": "pcep/topology/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/PCEPTopologyProvider.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-01-24T19:04:58Z",
+      "side": 1,
+      "message": "fix",
+      "range": {
+        "startLine": 90,
+        "startChar": 50,
+        "endLine": 90,
+        "endChar": 55
+      },
+      "revId": "6530a28484dd8f093f8e8436f6bef6440e3e8f19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ea0b5be5_ec523a85",
+        "filename": "pcep/topology/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/PCEPTopologyProvider.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-01-24T19:04:58Z",
+      "side": 1,
+      "message": "remove logs",
+      "range": {
+        "startLine": 77,
+        "startChar": 0,
+        "endLine": 101,
+        "endChar": 13
+      },
+      "revId": "6530a28484dd8f093f8e8436f6bef6440e3e8f19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2f299b61_e788ecad",
+        "filename": "pcep/topology/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/ServerSessionManager.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-01-24T19:04:58Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 111,
+        "startChar": 8,
+        "endLine": 111,
+        "endChar": 68
+      },
+      "revId": "6530a28484dd8f093f8e8436f6bef6440e3e8f19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "be645219_49385d7e",
+        "filename": "pcep/topology/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/ServerSessionManager.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-01-24T19:04:58Z",
+      "side": 1,
+      "message": "get",
+      "revId": "6530a28484dd8f093f8e8436f6bef6440e3e8f19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
