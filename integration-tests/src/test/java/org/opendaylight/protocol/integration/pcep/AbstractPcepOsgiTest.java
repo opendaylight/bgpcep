@@ -21,7 +21,7 @@ import org.osgi.framework.ServiceReference;
 public class AbstractPcepOsgiTest extends AbstractMdsalTestBase {
 
     @Inject
-    @Filter(timeout = 60 * 1000)
+    @Filter(timeout = 120 * 1000)
     BundleContext bundleContext;
     BindingAwareBroker broker = null;
 
