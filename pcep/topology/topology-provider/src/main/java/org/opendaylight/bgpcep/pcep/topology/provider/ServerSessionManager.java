@@ -19,6 +19,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.concurrent.GuardedBy;
@@ -98,7 +99,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
     /**
      * Create Base Topology.
      */
-    synchronized ListenableFuture<Void> instantiateServiceInstance() {
+    synchronized void instantiateServiceInstance() {
         final TopologyKey key = InstanceIdentifier.keyOf(this.topology);
         final TopologyId topologyId = key.getTopologyId();
         final WriteTransaction tx = this.dependenciesProvider.getDataBroker().newWriteOnlyTransaction();
@@ -107,21 +108,14 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
                         .addAugmentation(TopologyTypes1.class, new TopologyTypes1Builder().setTopologyPcep(
                                 new TopologyPcepBuilder().build()).build()).build())
                 .setNode(new ArrayList<>()).build(), true);
-        final ListenableFuture<Void> future = tx.submit();
-        Futures.addCallback(future, new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(final Void result) {
-                LOG.debug("PCEP Topology {} created successfully.", topologyId.getValue());
-                ServerSessionManager.this.isClosed.set(false);
-            }
-
-            @Override
-            public void onFailure(final Throwable throwable) {
-                LOG.error("Failed to create PCEP Topology {}.", topologyId.getValue(), throwable);
-                ServerSessionManager.this.isClosed.set(true);
-            }
-        }, MoreExecutors.directExecutor());
-        return future;
+        try {
+            tx.submit().get();
+            LOG.info("PCEP Topology {} created successfully.", topologyId.getValue());
+            ServerSessionManager.this.isClosed.set(false);
+        } catch (final ExecutionException | InterruptedException throwable) {
+            LOG.error("Failed to create PCEP Topology {}.", topologyId.getValue(), throwable);
+            ServerSessionManager.this.isClosed.set(true);
+        }
     }
 
     synchronized void releaseNodeState(final TopologyNodeState nodeState, final PCEPSession session,
