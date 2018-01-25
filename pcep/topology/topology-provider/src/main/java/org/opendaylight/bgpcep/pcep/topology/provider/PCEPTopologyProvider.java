@@ -82,7 +82,7 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference {
                         new TopologyProgramming(this.scheduler, this.manager)));
         this.network.registerPath(NetworkTopologyContext.class, this.configDependencies.getTopology());
 
-        this.manager.instantiateServiceInstance().get();
+        this.manager.instantiateServiceInstance();
         final ChannelFuture channelFuture = this.dependenciesProvider.getPCEPDispatcher()
                 .createServer(this.manager.getPCEPDispatcherDependencies());
         channelFuture.get();

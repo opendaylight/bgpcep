@@ -161,8 +161,7 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
     }
 
     void startSessionManager() throws Exception {
-        final ListenableFuture<Void> future = this.manager.instantiateServiceInstance();
-        future.get();
+        this.manager.instantiateServiceInstance();
         checkEquals(() -> assertFalse(this.manager.isClosed.get()));
     }
 
