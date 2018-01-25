@@ -14,9 +14,9 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.opendaylight.bgpcep</groupId>
-        <artifactId>config-parent</artifactId>
+        <artifactId>bgpcep-parent</artifactId>
         <version>0.9.0-SNAPSHOT</version>
-        <relativePath>../../config-parent</relativePath>
+        <relativePath>../../parent</relativePath>
     </parent>
 
     <artifactId>bgp-rib-spi</artifactId>
@@ -145,10 +145,10 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
                 <configuration>
-                    <failOnError>true</failOnError>
+                    <propertyExpansion>checkstyle.violationSeverity=warning</propertyExpansion>
                 </configuration>
             </plugin>
         </plugins>

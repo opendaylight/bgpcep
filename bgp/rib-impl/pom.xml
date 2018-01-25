@@ -14,9 +14,9 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.opendaylight.bgpcep</groupId>
-        <artifactId>config-parent</artifactId>
+        <artifactId>bgpcep-parent</artifactId>
         <version>0.9.0-SNAPSHOT</version>
-        <relativePath>../../config-parent</relativePath>
+        <relativePath>../../parent</relativePath>
     </parent>
 
     <artifactId>bgp-rib-impl</artifactId>
@@ -228,6 +228,21 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <configuration>
+                    <propertyExpansion>checkstyle.violationSeverity=warning</propertyExpansion>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.opendaylight.yangtools</groupId>
+                        <artifactId>checkstyle-logging</artifactId>
+                        <!-- FIXME: remove this declaration when bumping to 2.0.2 -->
+                        <version>2.0.1</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <extensions>true</extensions>
@@ -252,26 +267,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
-                    <!--parallel>classes</parallel>
-                    <forkCount>1C</forkCount>
-                    <perCoreThreadCount>true</perCoreThreadCount-->
-                    <runOrder>alphabetical</runOrder>
-                    <threadCount>1</threadCount>
-                    <reuseForks>false</reuseForks>
-                    <!-- Specific to generate mapping between tests and covered code -->
-                    <!--properties>
-                        <property>
-                            <name>listener</name>
-                            <value>org.sonar.java.jacoco.JUnitListener</value>
-                        </property>
-                    </properties-->
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

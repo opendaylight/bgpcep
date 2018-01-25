@@ -39,7 +39,6 @@
 
         <!-- Utility parents -->
         <module>binding-parent</module>
-        <module>config-parent</module>
         <module>testtool-parent</module>
         <module>single-feature-parent</module>
         <module>feature-repo-parent</module>

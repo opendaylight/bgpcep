@@ -10,9 +10,9 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.opendaylight.bgpcep</groupId>
-        <artifactId>config-parent</artifactId>
+        <artifactId>binding-parent</artifactId>
         <version>0.9.0-SNAPSHOT</version>
-        <relativePath>../config-parent</relativePath>
+        <relativePath>../binding-parent</relativePath>
     </parent>
     <artifactId>data-change-counter</artifactId>
     <packaging>bundle</packaging>
