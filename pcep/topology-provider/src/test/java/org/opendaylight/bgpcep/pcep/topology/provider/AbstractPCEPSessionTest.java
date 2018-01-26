@@ -9,17 +9,12 @@
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-import com.google.common.util.concurrent.CheckedFuture;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.MoreExecutors;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
@@ -33,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.Nullable;
 import org.junit.After;
 import org.junit.Before;
 import org.mockito.Mock;
@@ -45,7 +39,6 @@ import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopolo
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistration;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistrator;
 import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiator;
 import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
@@ -166,23 +159,12 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
         this.topologyRpcs = new TopologyRPCs(this.manager);
     }
 
-    protected void startSessionManager() throws TransactionCommitFailedException, InterruptedException {
+    protected void startSessionManager() throws InterruptedException {
         this.manager.setRuntimeRootRegistrator(this.registrator);
-        final CheckedFuture<Void, TransactionCommitFailedException> future = this.manager.instantiateServiceInstance();
+        this.manager.instantiateServiceInstance();
         final CountDownLatch lock = new CountDownLatch(1);
-        Futures.addCallback(future, new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(@Nullable final Void aVoid) {
-                lock.countDown();
-            }
-
-            @Override
-            public void onFailure(final Throwable throwable) {
-                // the test cannot continue
-                fail();
-            }
-        }, MoreExecutors.directExecutor());
-        future.checkedGet();
+        this.manager.instantiateServiceInstance();
+        lock.countDown();
         lock.await(5000, TimeUnit.MILLISECONDS);
         assertFalse(this.manager.isClosed.get());
     }

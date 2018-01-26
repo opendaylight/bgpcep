@@ -12,20 +12,25 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
+import org.opendaylight.protocol.pcep.PCEPSession;
+import org.opendaylight.protocol.pcep.TerminationReason;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.lsp.metadata.Metadata;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.Node1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
@@ -46,6 +51,7 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
     private final long holdStateNanos;
     private long lastReleased = 0;
     //cache initial node state, if any node was persisted
+    @GuardedBy("this")
     private Node initialNodeState = null;
 
     public TopologyNodeState(final DataBroker broker, final InstanceIdentifier<Topology> topology, final NodeId id, final long holdStateNanos) {
@@ -79,7 +85,7 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
         // The session went down. Undo all the Topology changes we have done.
         // We might want to persist topology node for later re-use.
         if (!persist) {
-            final WriteTransaction trans = beginTransaction();
+            final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
             trans.delete(LogicalDatastoreType.OPERATIONAL, this.nodeId);
             Futures.addCallback(trans.submit(), new FutureCallback<Void>() {
                 @Override
@@ -106,23 +112,17 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
 
         //try to get the topology's node
         if (retrieveNode) {
-            Futures.addCallback(readOperationalData(this.nodeId), new FutureCallback<Optional<Node>>() {
-
-                @Override
-                public void onSuccess(final Optional<Node> result) {
-                    if (!result.isPresent()) {
-                        putTopologyNode();
-                    } else {
-                        //cache retrieved node
-                        TopologyNodeState.this.initialNodeState = result.get();
-                    }
+            try {
+                final Optional<Node> prevNode = readOperationalData(this.nodeId).get();
+                if (!prevNode.isPresent()) {
+                    putTopologyNode();
+                } else {
+                    //cache retrieved node
+                    TopologyNodeState.this.initialNodeState = prevNode.get();
                 }
-
-                @Override
-                public void onFailure(final Throwable t) {
-                    LOG.error("Failed to get topology node {}", TopologyNodeState.this.nodeId, t);
-                }
-            });
+            } catch (final ExecutionException | InterruptedException throwable) {
+                LOG.error("Failed to get topology node {}", TopologyNodeState.this.nodeId, throwable);
+            }
         } else {
             putTopologyNode();
         }
@@ -132,15 +132,11 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
         return this.initialNodeState;
     }
 
-    WriteTransaction beginTransaction() {
-        return this.chain.newWriteOnlyTransaction();
+    synchronized BindingTransactionChain getChain() {
+        return this.chain;
     }
 
-    ReadWriteTransaction rwTransaction() {
-        return this.chain.newReadWriteTransaction();
-    }
-
-    <T extends DataObject> ListenableFuture<Optional<T>> readOperationalData(final InstanceIdentifier<T> id) {
+    synchronized <T extends DataObject> ListenableFuture<Optional<T>> readOperationalData(final InstanceIdentifier<T> id) {
         try (final ReadOnlyTransaction t = this.chain.newReadOnlyTransaction()) {
             return t.read(LogicalDatastoreType.OPERATIONAL, id);
         }
@@ -158,15 +154,48 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
     }
 
     @Override
-    public void close() {
+    public synchronized void close() {
         this.chain.close();
     }
 
-    private void putTopologyNode() {
-        final Node node = new NodeBuilder().setKey(this.nodeId.getKey()).setNodeId(this.nodeId.getKey().getNodeId()).build();
-        final WriteTransaction t = beginTransaction();
-        t.put(LogicalDatastoreType.OPERATIONAL, this.nodeId, node);
-        t.submit();
+    private synchronized void putTopologyNode() {
+        final Node node = new NodeBuilder().setKey(this.nodeId.getKey())
+                .setNodeId(this.nodeId.getKey().getNodeId()).build();
+        final WriteTransaction t = this.chain.newWriteOnlyTransaction();
+        LOG.trace("Put topology Node {}, value {}", this.nodeId, node);
+        t.merge(LogicalDatastoreType.OPERATIONAL, this.nodeId, node);
+        Futures.addCallback(t.submit(), new FutureCallback<Void>() {
+            @Override
+            public void onSuccess(final Void result) {
+                LOG.trace("Topology Node stored {}, value {}", TopologyNodeState.this.nodeId, node);
+            }
+
+            @Override
+            public void onFailure(final Throwable throwable) {
+                LOG.trace("Put topology Node failed {}, value {}, {}", TopologyNodeState.this.nodeId, node, throwable);
+            }
+        }, MoreExecutors.directExecutor());
     }
 
+    public synchronized void storeNode(final InstanceIdentifier<Node1> topologyAugment, final Node1 ta,
+            final PCEPSession session) {
+        LOG.trace("Peer data {} set to {}", topologyAugment, ta);
+        final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
+        trans.put(LogicalDatastoreType.OPERATIONAL, topologyAugment, ta);
+
+        // All set, commit the modifications
+        Futures.addCallback(trans.submit(), new FutureCallback<Void>() {
+            @Override
+            public void onSuccess(final Void result) {
+                LOG.trace("Node stored {} for session {} updated successfully", topologyAugment, session);
+            }
+
+            @Override
+            public void onFailure(final Throwable throwable) {
+                LOG.error("Failed to store node {} for session {}, terminating it",
+                        topologyAugment, session, throwable);
+                session.close(TerminationReason.UNKNOWN);
+            }
+        }, MoreExecutors.directExecutor());
+    }
 }
