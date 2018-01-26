@@ -409,7 +409,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     }
 
     @Override
-    protected boolean onMessage(final MessageContext ctx, final Message message) {
+    protected synchronized boolean onMessage(final MessageContext ctx, final Message message) {
         if (message instanceof PcerrMessage) {
             return handleErrorMessage((PcerrMessage) message);
         }

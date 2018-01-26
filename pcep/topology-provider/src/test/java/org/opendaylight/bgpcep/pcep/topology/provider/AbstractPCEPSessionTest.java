@@ -170,19 +170,8 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
         this.manager.setRuntimeRootRegistrator(this.registrator);
         final CheckedFuture<Void, TransactionCommitFailedException> future = this.manager.instantiateServiceInstance();
         final CountDownLatch lock = new CountDownLatch(1);
-        Futures.addCallback(future, new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(@Nullable final Void aVoid) {
-                lock.countDown();
-            }
-
-            @Override
-            public void onFailure(final Throwable throwable) {
-                // the test cannot continue
-                fail();
-            }
-        }, MoreExecutors.directExecutor());
-        future.checkedGet();
+        this.manager.instantiateServiceInstance();
+        lock.countDown();
         lock.await(5000, TimeUnit.MILLISECONDS);
         assertFalse(this.manager.isClosed.get());
     }
