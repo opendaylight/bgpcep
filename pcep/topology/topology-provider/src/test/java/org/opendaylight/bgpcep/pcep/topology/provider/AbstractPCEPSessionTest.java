@@ -168,21 +168,9 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
 
     protected void startSessionManager() throws ExecutionException, InterruptedException {
         this.manager.setRuntimeRootRegistrator(this.registrator);
-        final ListenableFuture<Void> future = this.manager.instantiateServiceInstance();
         final CountDownLatch lock = new CountDownLatch(1);
-        Futures.addCallback(future, new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(@Nullable final Void aVoid) {
-                lock.countDown();
-            }
-
-            @Override
-            public void onFailure(final Throwable throwable) {
-                // the test cannot continue
-                fail();
-            }
-        }, MoreExecutors.directExecutor());
-        future.get();
+        this.manager.instantiateServiceInstance();
+        lock.countDown();
         lock.await(5000, TimeUnit.MILLISECONDS);
         assertFalse(this.manager.isClosed.get());
     }
