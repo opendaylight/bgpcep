@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
+import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyDeployerImpl;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -56,6 +57,7 @@ public final class TunnelProviderDeployer implements ClusteredDataTreeChangeList
             final BundleContext bundleContext,
             final ClusterSingletonServiceProvider cssp
     ) {
+        LOG.info("Creating Tunnel Provider Deployer");
         this.dependencies = new TunnelProviderDependencies(dataBroker, cssp, rpcProviderRegistry, bundleContext);
         this.networTopology = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class).build();
     }
@@ -73,6 +75,7 @@ public final class TunnelProviderDeployer implements ClusteredDataTreeChangeList
     }
 
     public synchronized void init() {
+        LOG.info("Instantiate tunnel topology deployer");
         this.listenerRegistration = this.dependencies.getDataBroker().registerDataTreeChangeListener(
                 new DataTreeIdentifier<>(CONFIGURATION, this.networTopology), this);
     }
@@ -118,10 +121,11 @@ public final class TunnelProviderDeployer implements ClusteredDataTreeChangeList
             LOG.warn("Tunnel Topology {} already exist. New instance won't be created", topologyId);
             return;
         }
+        LOG.debug("Create Tunnel Topology {}", topologyId);
 
         final PcepTunnelTopologyConfig config = topology.getAugmentation(PcepTunnelTopologyConfig.class);
-        final String pcepTopoID = config.getPcepTopologyReference().getValue();
-
+        final String pcepTopoID = StringUtils
+                .substringBetween(config.getPcepTopologyReference().getValue(), "=\"", "\"");
         final InstanceIdentifier<Topology> pcepTopoRef = InstanceIdentifier.builder(NetworkTopology.class)
                 .child(Topology.class, new TopologyKey(new TopologyId(pcepTopoID))).build();
 
@@ -152,6 +156,7 @@ public final class TunnelProviderDeployer implements ClusteredDataTreeChangeList
 
     @Override
     public synchronized void close() {
+        LOG.info("Closing tunnel topology deployer");
         if (this.listenerRegistration != null) {
             this.listenerRegistration.close();
             this.listenerRegistration = null;
