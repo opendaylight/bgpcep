@@ -39,7 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class TopologyStatsProviderImpl implements TransactionChainListener,
-        TopologySessionStatsRegistry,   AutoCloseable {
+        TopologySessionStatsRegistry, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(TopologyStatsProviderImpl.class);
     @GuardedBy("this")
@@ -54,20 +54,13 @@ public final class TopologyStatsProviderImpl implements TransactionChainListener
         this.timeout = timeout;
     }
 
-    public void init() {
+    public synchronized void init() {
         LOG.info("Initializing TopologyStatsProvider service.", this);
         this.transactionChain = this.dataBroker.createTransactionChain(this);
         final TimerTask task = new TimerTask() {
             @Override
             public void run() {
-                synchronized (TopologyStatsProviderImpl.this) {
-                    final WriteTransaction tx = TopologyStatsProviderImpl
-                            .this.transactionChain.newWriteOnlyTransaction();
-
-                    TopologyStatsProviderImpl.this.statsMap
-                            .forEach((key, value) -> updatePCEPStats(key, value, tx));
-                    tx.submit();
-                }
+                updatePcepStats();
             }
         };
 
@@ -75,26 +68,29 @@ public final class TopologyStatsProviderImpl implements TransactionChainListener
                 TimeUnit.SECONDS);
     }
 
-    private synchronized void updatePCEPStats(
-            final KeyedInstanceIdentifier<Node, NodeKey> nodeIId,
-            final PcepSessionState stats,
-            final WriteTransaction tx) {
+    private synchronized void updatePcepStats() {
+        final WriteTransaction tx = TopologyStatsProviderImpl.this.transactionChain.newWriteOnlyTransaction();
 
-        final PcepTopologyNodeStatsAug nodeStatsAug = new PcepTopologyNodeStatsAugBuilder()
-                .setPcepSessionState(new PcepSessionStateBuilder(stats).build()).build();
-        final InstanceIdentifier<PcepTopologyNodeStatsAug> statId =
-                nodeIId.augmentation(PcepTopologyNodeStatsAug.class);
-        tx.put(LogicalDatastoreType.OPERATIONAL, statId, nodeStatsAug);
+        for (final Map.Entry<KeyedInstanceIdentifier<Node, NodeKey>, PcepSessionState> entry
+                : this.statsMap.entrySet()) {
+            final PcepTopologyNodeStatsAug nodeStatsAug = new PcepTopologyNodeStatsAugBuilder()
+                    .setPcepSessionState(new PcepSessionStateBuilder(entry.getValue()).build()).build();
+            final InstanceIdentifier<PcepTopologyNodeStatsAug> statId =
+                    entry.getKey().augmentation(PcepTopologyNodeStatsAug.class);
+            tx.put(LogicalDatastoreType.OPERATIONAL, statId, nodeStatsAug);
+        }
+        tx.submit();
     }
 
     @Override
-    public void close() throws Exception {
+    public synchronized void close() throws Exception {
         LOG.info("Closing TopologyStatsProvider service.", this);
         this.scheduleTask.cancel(true);
         final WriteTransaction wTx = this.transactionChain.newWriteOnlyTransaction();
-        this.statsMap.keySet().iterator().forEachRemaining(statId ->
-                wTx.delete(LogicalDatastoreType.OPERATIONAL, statId));
-        wTx.submit().get();
+        for (final KeyedInstanceIdentifier<Node, NodeKey> statId : this.statsMap.keySet()) {
+            wTx.delete(LogicalDatastoreType.OPERATIONAL, statId);
+            wTx.submit().get();
+        }
         this.statsMap.clear();
         this.transactionChain.close();
     }
