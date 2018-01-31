@@ -21,7 +21,9 @@ import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameter
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.BgpMatchConditions;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.Conditions1;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.bgp.attribute.conditions.AsPathLength;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.bgp.match.conditions.MatchAsPathSet;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.bgp.match.conditions.MatchCommunitySet;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.bgp.match.conditions.MatchExtCommunitySet;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.policy.definitions.policy.definition.statements.statement.conditions.BgpConditions;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.BgpOriginAttrType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151009.AttributeComparison;
@@ -190,6 +192,23 @@ public final class BgpConditionsRegistry {
                 return false;
             }
         }
+
+        final MatchAsPathSet matchAsPathSet = conditions.getMatchAsPathSet();
+        if (matchCond != null) {
+            if (!this.bgpConditionsRegistry.get(MatchAsPathSet.class)
+                    .matchImportCondition(routeEntryInfo, routeEntryImportParameters, attributes, matchAsPathSet)) {
+                return false;
+            }
+        }
+
+        final MatchExtCommunitySet matchExtCommSet = conditions.getMatchExtCommunitySet();
+        if (matchExtCommSet != null) {
+            if (!this.bgpConditionsRegistry.get(MatchExtCommunitySet.class)
+                    .matchImportCondition(routeEntryInfo, routeEntryImportParameters, attributes, matchExtCommSet)) {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -226,6 +245,23 @@ public final class BgpConditionsRegistry {
                 return false;
             }
         }
+
+        final MatchAsPathSet matchAsPathSet = conditions.getMatchAsPathSet();
+        if (matchAsPathSet != null) {
+            if (!this.bgpConditionsRegistry.get(MatchAsPathSet.class)
+                    .matchExportCondition(routeEntryInfo, routeEntryExportParameters, attributes, matchAsPathSet)) {
+                return false;
+            }
+        }
+
+        final MatchExtCommunitySet matchExtCommSet = conditions.getMatchExtCommunitySet();
+        if (matchExtCommSet != null) {
+            if (!this.bgpConditionsRegistry.get(MatchExtCommunitySet.class)
+                    .matchExportCondition(routeEntryInfo, routeEntryExportParameters, attributes, matchExtCommSet)) {
+                return false;
+            }
+        }
+
         return true;
     }
 

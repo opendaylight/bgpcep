@@ -140,5 +140,11 @@
             <classifier>features</classifier>
             <type>xml</type>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>odl-bgpcep-bgp-openconfig-rp-statement</artifactId>
+            <classifier>features</classifier>
+            <type>xml</type>
+        </dependency>
     </dependencies>
 </project>
