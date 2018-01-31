@@ -12,11 +12,9 @@ import com.google.common.base.Preconditions;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsAugmentationPolicy;
-import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsPolicy;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.ConditionsPolicy;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.GenericConditionsPolicy;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.IGPConditionsPolicy;
@@ -205,10 +203,5 @@ final class ConditionsRegistryImpl {
             final BgpConditionsAugmentationPolicy conditionPolicy) {
         return this.bgpConditionsRegistry
                 .registerBgpConditionsAugmentationPolicy(conditionPolicyClass, conditionPolicy);
-    }
-
-    public AbstractRegistration registerBgpConditionsPolicy(
-            @Nonnull final BgpConditionsPolicy conditionPolicy) {
-        return this.bgpConditionsRegistry.registerBgpConditionsPolicy(conditionPolicy);
     }
 }

@@ -11,7 +11,6 @@ import javax.annotation.Nonnull;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.action.BgpActionAugPolicy;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.action.BgpActionPolicy;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsAugmentationPolicy;
-import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsPolicy;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.policy.definitions.policy.definition.statements.statement.actions.BgpActions;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.policy.definitions.policy.definition.statements.statement.conditions.BgpConditions;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
@@ -30,16 +29,6 @@ public interface BgpStatementRegistryProvider {
     <T extends Augmentation<BgpConditions>> AbstractRegistration registerBgpConditionsAugmentationPolicy(
             @Nonnull Class<T> conditionPolicyClass,
             @Nonnull BgpConditionsAugmentationPolicy<T> conditionPolicy);
-
-    /**
-     * Register BgpCondition Policy handler.
-     *
-     * @param conditionPolicy Condition policy handler
-     * @return registration ticket
-     */
-    @Nonnull
-    AbstractRegistration registerBgpConditionsPolicy(
-            @Nonnull BgpConditionsPolicy conditionPolicy);
 
     /**
      * Register BGP Action Policy Augmentation handler.

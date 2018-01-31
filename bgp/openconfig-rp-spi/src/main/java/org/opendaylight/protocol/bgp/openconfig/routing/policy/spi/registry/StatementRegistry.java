@@ -16,7 +16,6 @@ import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.action
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.action.BgpActionPolicy;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.action.IgpActionsPolicy;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsAugmentationPolicy;
-import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsPolicy;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.ConditionsPolicy;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.GenericConditionsPolicy;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.IGPConditionsPolicy;
@@ -124,11 +123,6 @@ public final class StatementRegistry implements StatementRegistryConsumer, State
             final Class<T> conditionPolicyClass,
             final BgpConditionsAugmentationPolicy<T> conditionPolicy) {
         return this.conditionsRegistry.registerBgpConditionsAugmentationPolicy(conditionPolicyClass, conditionPolicy);
-    }
-
-    @Override
-    public AbstractRegistration registerBgpConditionsPolicy(final BgpConditionsPolicy conditionPolicy) {
-        return this.conditionsRegistry.registerBgpConditionsPolicy(conditionPolicy);
     }
 
     @Override

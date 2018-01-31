@@ -13,7 +13,6 @@ import java.util.Map;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsAugmentationPolicy;
-import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsPolicy;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.Conditions1;
@@ -28,8 +27,6 @@ public final class BgpConditionsRegistry {
     @GuardedBy("this")
     private final Map<Class<? extends Augmentation<BgpConditions>>,
             BgpConditionsAugmentationPolicy> bgpConditionsRegistry = new HashMap<>();
-    @GuardedBy("this")
-    private BgpConditionsPolicy bgpConditionPolicy;
 
     public AbstractRegistration registerBgpConditionsAugmentationPolicy(
             final Class<? extends Augmentation<BgpConditions>> conditionPolicyClass,
@@ -50,20 +47,6 @@ public final class BgpConditionsRegistry {
         }
     }
 
-    public synchronized AbstractRegistration registerBgpConditionsPolicy(final BgpConditionsPolicy conditionPolicy) {
-        synchronized (this) {
-            this.bgpConditionPolicy = conditionPolicy;
-            return new AbstractRegistration() {
-                @Override
-                protected void removeRegistration() {
-                    synchronized (BgpConditionsRegistry.this) {
-                        BgpConditionsRegistry.this.bgpConditionPolicy = null;
-                    }
-                }
-            };
-        }
-    }
-
     public boolean matchExportConditions(
             final RouteEntryBaseAttributes entryInfo,
             final BGPRouteEntryExportParameters routeEntryExportParameters,
@@ -73,7 +56,7 @@ public final class BgpConditionsRegistry {
         if (bgpConditionsAug != null) {
             final BgpConditions bgpConditions = bgpConditionsAug.getBgpConditions();
             synchronized (this) {
-                if (!this.bgpConditionPolicy.matchExportCondition(entryInfo, routeEntryExportParameters, attributes,
+                if (!matchExportCondition(entryInfo, routeEntryExportParameters, attributes,
                         bgpConditions)) {
                     return false;
                 }
@@ -105,7 +88,7 @@ public final class BgpConditionsRegistry {
         if (bgpConditionsAug != null) {
             final BgpConditions bgpConditions = bgpConditionsAug.getBgpConditions();
             synchronized (this) {
-                if (!this.bgpConditionPolicy.matchImportCondition(entryInfo, routeEntryImportParameters, attributes,
+                if (!matchImportCondition(entryInfo, routeEntryImportParameters, attributes,
                         bgpConditions)) {
                     return false;
                 }
@@ -123,6 +106,25 @@ public final class BgpConditionsRegistry {
                 }
             }
         }
+        return true;
+    }
+
+
+    public boolean matchImportCondition(
+            final RouteEntryBaseAttributes routeEntryInfo,
+            final BGPRouteEntryImportParameters routeEntryImportParameters,
+            final Attributes attributes,
+            final BgpConditions conditions) {
+        //TBD
+        return true;
+    }
+
+    public boolean matchExportCondition(
+            final RouteEntryBaseAttributes routeEntryInfo,
+            final BGPRouteEntryExportParameters routeEntryExportParameters,
+            final Attributes attributes,
+            final BgpConditions conditions) {
+        //TBD
         return true;
     }
 }
