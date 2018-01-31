@@ -17,14 +17,14 @@
         <relativePath>../../../single-feature-parent</relativePath>
     </parent>
 
-    <artifactId>odl-bgpcep-bgp-openconfig-rp-impl</artifactId>
+    <artifactId>odl-bgpcep-bgp-openconfig-rp-statement</artifactId>
     <packaging>feature</packaging>
-    <name>OpenDaylight :: BGP :: Openconfig Routing Policy Impl</name>
+    <name>OpenDaylight :: BGP :: Openconfig Routing Policy Statements</name>
 
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-openconfig-rp-impl</artifactId>
+            <artifactId>bgp-openconfig-rp-statement</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
