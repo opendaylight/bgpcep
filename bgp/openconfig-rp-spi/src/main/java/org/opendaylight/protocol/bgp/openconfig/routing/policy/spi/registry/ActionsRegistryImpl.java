@@ -27,6 +27,8 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev15100
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.BgpSetMedType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.policy.definitions.policy.definition.statements.statement.actions.BgpActions;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.policy.definitions.policy.definition.statements.statement.actions.bgp.actions.SetAsPathPrepend;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.policy.definitions.policy.definition.statements.statement.actions.bgp.actions.SetCommunity;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.policy.definitions.policy.definition.statements.statement.actions.bgp.actions.SetExtCommunity;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.BgpOriginAttrType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.generic.actions.route.disposition.RejectRoute;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.igp.actions.IgpActions;
@@ -54,7 +56,7 @@ final class ActionsRegistryImpl {
     @GuardedBy("this")
     private final Map<Class<? extends Augmentation<Actions>>, ActionsPolicy> actionsRegistry = new HashMap<>();
     @GuardedBy("this")
-    private final Map<Class<? extends ChildOf<BgpActions>>, BgpActionPolicy> bgpActionsRegistry = new HashMap<>();
+    private final Map<Class<? extends ChildOf<BgpActions>>, BgpActionPolicy> bgpActions = new HashMap<>();
     @GuardedBy("this")
     private final Map<Class<? extends Augmentation<BgpActions>>, BgpActionAugPolicy> bgpAugActionsRegistry
             = new HashMap<>();
@@ -98,15 +100,15 @@ final class ActionsRegistryImpl {
     public AbstractRegistration registerBgpActionPolicy(
             final Class<? extends ChildOf<BgpActions>> bgpActionPolicyClass,
             final BgpActionPolicy bgpActionPolicy) {
-        synchronized (this.bgpActionsRegistry) {
-            final BgpActionPolicy prev = this.bgpActionsRegistry.putIfAbsent(bgpActionPolicyClass, bgpActionPolicy);
+        synchronized (this.bgpActions) {
+            final BgpActionPolicy prev = this.bgpActions.putIfAbsent(bgpActionPolicyClass, bgpActionPolicy);
             Preconditions.checkState(prev == null, "Action Policy %s already registered %s",
                     bgpActionPolicyClass, prev);
             return new AbstractRegistration() {
                 @Override
                 protected void removeRegistration() {
-                    synchronized (ActionsRegistryImpl.this.bgpActionsRegistry) {
-                        ActionsRegistryImpl.this.bgpActionsRegistry.remove(bgpActionPolicyClass);
+                    synchronized (ActionsRegistryImpl.this.bgpActions) {
+                        ActionsRegistryImpl.this.bgpActions.remove(bgpActionPolicyClass);
                     }
                 }
             };
@@ -200,10 +202,24 @@ final class ActionsRegistryImpl {
         final BgpOriginAttrType localOriginAction = bgpActions.getSetRouteOrigin();
         final BgpSetMedType medAction = bgpActions.getSetMed();
         final BgpNextHopType nhAction = bgpActions.getSetNextHop();
+        final SetCommunity setCommunityAction =  bgpActions.getSetCommunity();
+        final SetExtCommunity setExtCommunityAction =  bgpActions.getSetExtCommunity();
 
         if (asPrependAction != null) {
-            attributesUpdated = this.bgpActionsRegistry.get(SetAsPathPrepend.class)
+            attributesUpdated = this.bgpActions.get(SetAsPathPrepend.class)
                     .applyExportAction(routeEntryInfo, routeEntryExportParameters, attributesUpdated, asPrependAction);
+        }
+
+        if (setCommunityAction != null) {
+            attributesUpdated = this.bgpActions.get(SetCommunity.class)
+                    .applyExportAction(routeEntryInfo, routeEntryExportParameters, attributesUpdated,
+                            setCommunityAction);
+        }
+
+        if (setExtCommunityAction != null) {
+            attributesUpdated = this.bgpActions.get(SetExtCommunity.class)
+                    .applyExportAction(routeEntryInfo, routeEntryExportParameters, attributesUpdated,
+                            setExtCommunityAction);
         }
 
         boolean updated = false;
@@ -322,7 +338,7 @@ final class ActionsRegistryImpl {
     @SuppressWarnings("unchecked")
     private Attributes applyImportBGPActions(
             final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryImportParameters routeBaseParameters,
+            final BGPRouteEntryImportParameters routeParameters,
             final Attributes attributes,
             final Actions1 augmentation) {
         if (augmentation == null || augmentation.getBgpActions() == null) {
@@ -330,11 +346,24 @@ final class ActionsRegistryImpl {
         }
         Attributes attributesUpdated = attributes;
         final BgpActions bgpActions = augmentation.getBgpActions();
-
+        final SetCommunity setCommunityAction =  bgpActions.getSetCommunity();
+        final SetExtCommunity setExtCommunityAction =  bgpActions.getSetExtCommunity();
         final SetAsPathPrepend asPrependAction = bgpActions.getSetAsPathPrepend();
+
         if (asPrependAction != null) {
-            attributesUpdated = this.bgpActionsRegistry.get(asPrependAction.getClass())
-                    .applyImportAction(routeEntryInfo, routeBaseParameters, attributesUpdated, asPrependAction);
+            attributesUpdated = this.bgpActions.get(asPrependAction.getClass())
+                    .applyImportAction(routeEntryInfo, routeParameters, attributesUpdated, asPrependAction);
+        }
+
+        if (setCommunityAction != null) {
+            attributesUpdated = this.bgpActions.get(SetCommunity.class)
+                    .applyImportAction(routeEntryInfo, routeParameters, attributesUpdated,
+                            setCommunityAction);
+        }
+
+        if (setExtCommunityAction != null) {
+            attributesUpdated = this.bgpActions.get(SetExtCommunity.class)
+                    .applyImportAction(routeEntryInfo, routeParameters, attributesUpdated, setExtCommunityAction);
         }
 
         if (attributesUpdated == null) {
@@ -355,7 +384,7 @@ final class ActionsRegistryImpl {
             } else if (attributesUpdated == null) {
                 return null;
             }
-            attributesUpdated = handler.applyImportAction(routeEntryInfo, routeBaseParameters, attributesUpdated,
+            attributesUpdated = handler.applyImportAction(routeEntryInfo, routeParameters, attributesUpdated,
                     entry.getValue());
         }
         return attributesUpdated;

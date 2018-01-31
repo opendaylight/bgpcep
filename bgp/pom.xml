@@ -62,5 +62,6 @@
         <module>openconfig-state</module>
         <module>openconfig-rp-spi</module>
         <module>openconfig-rp-impl</module>
+        <module>openconfig-rp-statement</module>
     </modules>
 </project>

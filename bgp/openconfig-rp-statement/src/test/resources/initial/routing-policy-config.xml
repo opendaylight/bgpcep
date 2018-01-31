@@ -1,0 +1,869 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2018 AT&T Intellectual Property. All rights reserved.
+  ~
+  ~ This program and the accompanying materials are made available under the
+  ~ terms of the Eclipse Public License v1.0 which accompanies this distribution,
+  ~ and is available at http://www.eclipse.org/legal/epl-v10.html
+-->
+<!-- vi: set et smarttab sw=4 tabstop=4: -->
+<routing-policy xmlns="http://openconfig.net/yang/routing-policy">
+    <policy-definitions>
+        <policy-definition>
+            <name>default-odl-import-policy</name>
+            <statements>
+                <statement>
+                    <name>from-external</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <role-set>
+                                    /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ebgp"
+                                </role-set>
+                            </match-role-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <non-transitive-attributes-filter
+                                    xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
+                        </bgp-actions>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>from-non-external</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <role-set>
+                                    /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ebgp"
+                                </role-set>
+                                <match-set-options>INVERT</match-set-options>
+                            </match-role-set>
+                            <!--https://tools.ietf.org/html/rfc4456#section-8-->
+                            <match-originator-id-set-condition
+                                    xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <originator-id-set>
+                                    /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/originator-id-sets/originator-id-set[originator-set-name="local-originator-id"
+                                </originator-id-set>
+                                <match-set-options>INVERT</match-set-options>
+                            </match-originator-id-set-condition>
+                            <match-cluster-id-set-condition
+                                    xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <cluster-id-set>
+                                    /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/cluster-id-sets/cluster-id-set[cluster-set-name="local-cluster-id"
+                                </cluster-id-set>
+                                <match-set-options>INVERT</match-set-options>
+                            </match-cluster-id-set-condition>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <accept-route/>
+                    </actions>
+                </statement>
+            </statements>
+        </policy-definition>
+        <policy-definition>
+            <name>default-odl-export-policy</name>
+            <statements>
+                <statement>
+                    <name>to-odl-internal</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <role-set>
+                                    /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-internal"
+                                </role-set>
+                                <match-set-direction-options>TO</match-set-direction-options>
+                            </match-role-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <reject-route/>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>to-external</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <role-set>
+                                    /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="all"
+                                </role-set>
+                            </match-role-set>
+                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <role-set>
+                                    /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ebgp"
+                                </role-set>
+                                <match-set-direction-options>TO</match-set-direction-options>
+                            </match-role-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <non-transitive-attributes-filter
+                                    xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
+                            <set-as-path-prepend/>
+                        </bgp-actions>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>from-internal-to-internal</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <role-set>
+                                    /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ibgp"
+                                </role-set>
+                            </match-role-set>
+                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <role-set>
+                                    /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ibgp"
+                                </role-set>
+                                <match-set-direction-options>TO</match-set-direction-options>
+                            </match-role-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <reject-route/>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>from-external-to-internal</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <role-set>
+                                    /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ebgp"
+                                </role-set>
+                            </match-role-set>
+                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <role-set>
+                                    /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ibgp"
+                                </role-set>
+                                <match-set-direction-options>TO</match-set-direction-options>
+                            </match-role-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <accept-route/>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>from-odl-internal-to-internal-or-rr-client</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <role-set>
+                                    /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-internal"
+                                </role-set>
+                            </match-role-set>
+                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <role-set>
+                                    /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="ibgp-rr-client"
+                                </role-set>
+                                <match-set-direction-options>TO</match-set-direction-options>
+                            </match-role-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <accept-route/>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>from-rr-client-to-internal</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <role-set>
+                                    /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-rr-client"
+                                </role-set>
+                            </match-role-set>
+                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <role-set>
+                                    /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ibgp"
+                                </role-set>
+                                <match-set-direction-options>TO</match-set-direction-options>
+                            </match-role-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <set-cluster-id-prepend xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
+                            <set-originator-id-prepend
+                                    xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
+                        </bgp-actions>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>from-external-to-route-reflector</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <role-set>
+                                    /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ebgp"
+                                </role-set>
+                            </match-role-set>
+                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <role-set>
+                                    /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-rr-client"
+                                </role-set>
+                                <match-set-direction-options>TO</match-set-direction-options>
+                            </match-role-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <accept-route/>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>from-internal-or-rr-client-to-route-reflector</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <role-set>
+                                    /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="ibgp-rr-client"
+                                </role-set>
+                            </match-role-set>
+                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <role-set>
+                                    /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-rr-client"
+                                </role-set>
+                                <match-set-direction-options>TO</match-set-direction-options>
+                            </match-role-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <set-cluster-id-prepend xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
+                            <set-originator-id-prepend
+                                    xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
+                        </bgp-actions>
+                    </actions>
+                </statement>
+            </statements>
+        </policy-definition>
+        <policy-definition>
+            <name>ext-community-statements-test</name>
+            <statements>
+                <statement>
+                    <name>ext-community-any-test</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-ext-community-set>
+                                <ext-community-set>
+                                    /rpol:routing-policy/rpol:defined-sets/rpol:ext-community-sets/ext-community-set[ext-community-set-name="ext-community-set-name-test"
+                                </ext-community-set>
+                                <match-set-options>ANY</match-set-options>
+                            </match-ext-community-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <reject-route/>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>ext-community-all-test</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-ext-community-set>
+                                <ext-community-set>
+                                    /rpol:routing-policy/rpol:defined-sets/rpol:ext-community-sets/ext-community-set[ext-community-set-name="ext-community-set-name-test"
+                                </ext-community-set>
+                                <match-set-options>ALL</match-set-options>
+                            </match-ext-community-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <reject-route/>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>ext-community-invert-test</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-ext-community-set>
+                                <ext-community-set>
+                                    /rpol:routing-policy/rpol:defined-sets/rpol:ext-community-sets/ext-community-set[ext-community-set-name="ext-community-set-name-test"
+                                </ext-community-set>
+                                <match-set-options>INVERT</match-set-options>
+                            </match-ext-community-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <reject-route/>
+                    </actions>
+                </statement>
+            </statements>
+        </policy-definition>
+        <policy-definition>
+            <name>basic-statements-test</name>
+            <statements>
+                <statement>
+                    <name>reject-prefix-test</name>
+                    <conditions>
+                        <match-prefix-set>
+                            <prefix-set>
+                                /rpol:routing-policy/rpol:defined-sets/rpol:prefix-sets/prefix-set[prefix-set-name="test-prefix-set"
+                            </prefix-set>
+                        </match-prefix-set>
+                    </conditions>
+                    <actions>
+                        <reject-route/>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>reject-prefix-inverse-test</name>
+                    <conditions>
+                        <match-prefix-set>
+                            <prefix-set>
+                                /rpol:routing-policy/rpol:defined-sets/rpol:prefix-sets/prefix-set[prefix-set-name="test-prefix-set"
+                            </prefix-set>
+                            <match-set-options>INVERT</match-set-options>
+                        </match-prefix-set>
+                    </conditions>
+                    <actions>
+                        <reject-route/>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>as-path-eq-length-test</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <as-path-length>
+                                <operator xmlns:x="http://openconfig.net/yang/policy-types">x:attribute-eq</operator>
+                                <value>2</value>
+                            </as-path-length>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <reject-route/>
+                    </actions>
+                </statement>
+            </statements>
+        </policy-definition>
+        <policy-definition>
+            <name>match-as-path-set-test</name>
+            <statements>
+                <statement>
+                    <name>reject-match-as-path-any-set</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-as-path-set>
+                                <as-path-set>
+                                    /rpol:routing-policy/rpol:defined-sets/bgp-pol:bgp-defined-sets/bgp-pol:as-path-sets/bgp-pol:as-path-set/[as-path-set-name="test-as-path-set"
+                                </as-path-set>
+                                <match-set-options>ANY</match-set-options>
+                            </match-as-path-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <reject-route/>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>reject-match-as-path-all-set</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-as-path-set>
+                                <as-path-set>
+                                    /rpol:routing-policy/rpol:defined-sets/bgp-pol:bgp-defined-sets/bgp-pol:as-path-sets/bgp-pol:as-path-set/[as-path-set-name="test-as-path-set"
+                                </as-path-set>
+                                <match-set-options>ALL</match-set-options>
+                            </match-as-path-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <reject-route/>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>reject-match-as-path-inverse-set</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-as-path-set>
+                                <as-path-set>
+                                    /rpol:routing-policy/rpol:defined-sets/bgp-pol:bgp-defined-sets/bgp-pol:as-path-sets/bgp-pol:as-path-set/[as-path-set-name="test-as-path-set"
+                                </as-path-set>
+                                <match-set-options>INVERT</match-set-options>
+                            </match-as-path-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <reject-route/>
+                    </actions>
+                </statement>
+            </statements>
+        </policy-definition>
+        <policy-definition>
+            <name>community-statements-test</name>
+            <statements>
+                <statement>
+                    <name>community-any-test</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-community-set>
+                                <community-set>
+                                    /rpol:routing-policy/rpol:defined-sets/rpol:community-sets/community-set[community-set-name="community-set-name-test"
+                                </community-set>
+                                <match-set-options>ANY</match-set-options>
+                            </match-community-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <reject-route/>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>community-all-test</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-community-set>
+                                <community-set>
+                                    /rpol:routing-policy/rpol:defined-sets/rpol:community-sets/community-set[community-set-name="community-set-name-test"
+                                </community-set>
+                                <match-set-options>ALL</match-set-options>
+                            </match-community-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <reject-route/>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>community-invert-test</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-community-set>
+                                <community-set>
+                                    /rpol:routing-policy/rpol:defined-sets/rpol:community-sets/community-set[community-set-name="community-set-name-test"
+                                </community-set>
+                                <match-set-options>INVERT</match-set-options>
+                            </match-community-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <reject-route/>
+                    </actions>
+                </statement>
+            </statements>
+        </policy-definition>
+        <policy-definition>
+            <name>set-community-statements-test</name>
+            <statements>
+                <statement>
+                    <name>set-community-inline-add-test</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <role-set>
+                                    /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="all"
+                                </role-set>
+                            </match-role-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <set-community>
+                                <communities>
+                                    <as-number>65</as-number>
+                                    <semantics>10</semantics>
+                                </communities>
+                                <communities>
+                                    <as-number>66</as-number>
+                                    <semantics>11</semantics>
+                                </communities>
+                                <options>ADD</options>
+                            </set-community>
+                        </bgp-actions>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>set-community-inline-replace-test</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <role-set>
+                                    /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="all"
+                                </role-set>
+                            </match-role-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <set-community>
+                                <communities>
+                                    <as-number>65</as-number>
+                                    <semantics>10</semantics>
+                                </communities>
+                                <communities>
+                                    <as-number>66</as-number>
+                                    <semantics>11</semantics>
+                                </communities>
+                                <options>REPLACE</options>
+                            </set-community>
+                        </bgp-actions>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>set-community-inline-remove-test</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <role-set>
+                                    /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="all"
+                                </role-set>
+                            </match-role-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <set-community>
+                                <communities>
+                                    <as-number>65</as-number>
+                                    <semantics>10</semantics>
+                                </communities>
+                                <communities>
+                                    <as-number>66</as-number>
+                                    <semantics>11</semantics>
+                                </communities>
+                                <options>REMOVE</options>
+                            </set-community>
+                        </bgp-actions>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>set-community-reference-add-test</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <role-set>
+                                    /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="all"
+                                </role-set>
+                            </match-role-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <set-community>
+                                <community-set-ref>
+                                    /rpol:routing-policy/rpol:defined-sets/rpol:community-sets/community-set[community-set-name="community-set-name-test"
+                                </community-set-ref>
+                                <options>ADD</options>
+                            </set-community>
+                        </bgp-actions>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>set-community-reference-replace-test</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <role-set>
+                                    /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="all"
+                                </role-set>
+                            </match-role-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <set-community>
+                                <community-set-ref>
+                                    /rpol:routing-policy/rpol:defined-sets/rpol:community-sets/community-set[community-set-name="community-set-name-test"
+                                </community-set-ref>
+                                <options>REPLACE</options>
+                            </set-community>
+                        </bgp-actions>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>set-community-reference-remove-test</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <role-set>
+                                    /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="all"
+                                </role-set>
+                            </match-role-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <set-community>
+                                <community-set-ref>
+                                    /rpol:routing-policy/rpol:defined-sets/rpol:community-sets/community-set[community-set-name="community-set-name-test"
+                                </community-set-ref>
+                                <options>REMOVE</options>
+                            </set-community>
+                        </bgp-actions>
+                    </actions>
+                </statement>
+            </statements>
+        </policy-definition>
+        <policy-definition>
+            <name>set-ext-community-statements-test</name>
+            <statements>
+                <statement>
+                    <name>set-ext-community-inline-add-test</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <role-set>
+                                    /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="all"
+                                </role-set>
+                            </match-role-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <set-ext-community>
+                                <ext-community-member>
+                                    <encapsulation-extended-community>
+                                        <tunnel-type>vxlan</tunnel-type>
+                                    </encapsulation-extended-community>
+                                </ext-community-member>
+                                <ext-community-member>
+                                    <as-4-route-origin-extended-community>
+                                        <as-4-specific-common>
+                                            <as-number>65000</as-number>
+                                            <local-administrator>123</local-administrator>
+                                        </as-4-specific-common>
+                                    </as-4-route-origin-extended-community>
+                                </ext-community-member>
+                                <options>ADD</options>
+                            </set-ext-community>
+                        </bgp-actions>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>set-ext-community-inline-replace-test</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <role-set>
+                                    /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="all"
+                                </role-set>
+                            </match-role-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <set-ext-community>
+                                <ext-community-member>
+                                    <encapsulation-extended-community>
+                                        <tunnel-type>vxlan</tunnel-type>
+                                    </encapsulation-extended-community>
+                                </ext-community-member>
+                                <ext-community-member>
+                                    <as-4-route-origin-extended-community>
+                                        <as-4-specific-common>
+                                            <as-number>65000</as-number>
+                                            <local-administrator>123</local-administrator>
+                                        </as-4-specific-common>
+                                    </as-4-route-origin-extended-community>
+                                </ext-community-member>
+                                <options>REPLACE</options>
+                            </set-ext-community>
+                        </bgp-actions>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>set-ext-community-inline-remove-test</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <role-set>
+                                    /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="all"
+                                </role-set>
+                            </match-role-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <set-ext-community>
+                                <ext-community-member>
+                                    <encapsulation-extended-community>
+                                        <tunnel-type>vxlan</tunnel-type>
+                                    </encapsulation-extended-community>
+                                </ext-community-member>
+                                <ext-community-member>
+                                    <as-4-route-origin-extended-community>
+                                        <as-4-specific-common>
+                                            <as-number>65000</as-number>
+                                            <local-administrator>123</local-administrator>
+                                        </as-4-specific-common>
+                                    </as-4-route-origin-extended-community>
+                                </ext-community-member>
+                                <options>REMOVE</options>
+                            </set-ext-community>
+                        </bgp-actions>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>set-ext-community-reference-add-test</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <role-set>
+                                    /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="all"
+                                </role-set>
+                            </match-role-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <set-ext-community>
+                                <ext-community-set-ref>
+                                    /rpol:routing-policy/rpol:defined-sets/rpol:ext-community-sets/ext-community-set[ext-community-set-name="ext-community-set-name-test"
+                                </ext-community-set-ref>
+                                <options>ADD</options>
+                            </set-ext-community>
+                        </bgp-actions>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>set-ext-community-reference-replace-test</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <role-set>
+                                    /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="all"
+                                </role-set>
+                            </match-role-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <set-ext-community>
+                                <ext-community-set-ref>
+                                    /rpol:routing-policy/rpol:defined-sets/rpol:ext-community-sets/ext-community-set[ext-community-set-name="ext-community-set-name-test"
+                                </ext-community-set-ref>
+                                <options>REPLACE</options>
+                            </set-ext-community>
+                        </bgp-actions>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>set-ext-community-reference-remove-test</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <role-set>
+                                    /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="all"
+                                </role-set>
+                            </match-role-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <set-ext-community>
+                                <ext-community-set-ref>
+                                    /rpol:routing-policy/rpol:defined-sets/rpol:ext-community-sets/ext-community-set[ext-community-set-name="ext-community-set-name-test"
+                                </ext-community-set-ref>
+                                <options>REMOVE</options>
+                            </set-ext-community>
+                        </bgp-actions>
+                    </actions>
+                </statement>
+            </statements>
+        </policy-definition>
+    </policy-definitions>
+    <defined-sets>
+        <bgp-defined-sets xmlns="http://openconfig.net/yang/bgp-policy">
+            <role-sets xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                <role-set>
+                    <role-set-name>only-ibgp</role-set-name>
+                    <role>ibgp</role>
+                </role-set>
+                <role-set>
+                    <role-set-name>only-rr-client</role-set-name>
+                    <role>rr-client</role>
+                </role-set>
+                <role-set>
+                    <role-set-name>only-ebgp</role-set-name>
+                    <role>ebgp</role>
+                </role-set>
+                <role-set>
+                    <role-set-name>only-internal</role-set-name>
+                    <role>internal</role>
+                </role-set>
+                <role-set>
+                    <role-set-name>ibgp-rr-client</role-set-name>
+                    <role>ibgp</role>
+                    <role>rr-client</role>
+                </role-set>
+                <role-set>
+                    <role-set-name>all</role-set-name>
+                    <role>ebgp</role>
+                    <role>ibgp</role>
+                    <role>rr-client</role>
+                    <role>internal</role>
+                </role-set>
+            </role-sets>
+            <originator-id-sets xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                <originator-id-set>
+                    <originator-id-set-name>local-originator-id</originator-id-set-name>
+                    <local/>
+                </originator-id-set>
+            </originator-id-sets>
+            <cluster-id-sets xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                <cluster-id-set>
+                    <cluster-id-set-name>local-cluster-id</cluster-id-set-name>
+                    <local/>
+                </cluster-id-set>
+            </cluster-id-sets>
+            <as-path-sets>
+                <as-path-set>
+                    <as-path-set-name>test-as-path-set</as-path-set-name>
+                    <as-path-set-member>65</as-path-set-member>
+                    <as-path-set-member>64</as-path-set-member>
+                    <as-path-set-member>63</as-path-set-member>
+                </as-path-set>
+            </as-path-sets>
+            <ext-community-sets>
+                <ext-community-set>
+                    <ext-community-set-name>ext-community-set-name-test</ext-community-set-name>
+                    <ext-community-member>
+                        <encapsulation-extended-community>
+                            <tunnel-type>vxlan</tunnel-type>
+                        </encapsulation-extended-community>
+                    </ext-community-member>
+                    <ext-community-member>
+                        <as-4-route-origin-extended-community>
+                            <as-4-specific-common>
+                                <as-number>65000</as-number>
+                                <local-administrator>123</local-administrator>
+                            </as-4-specific-common>
+                        </as-4-route-origin-extended-community>
+                    </ext-community-member>
+                </ext-community-set>
+            </ext-community-sets>
+            <community-sets>
+                <community-set>
+                    <community-set-name>community-set-name-test</community-set-name>
+                    <communities>
+                        <as-number>65</as-number>
+                        <semantics>10</semantics>
+                    </communities>
+                    <communities>
+                        <as-number>66</as-number>
+                        <semantics>11</semantics>
+                    </communities>
+                </community-set>
+            </community-sets>
+        </bgp-defined-sets>
+        <prefix-sets>
+            <prefix-set>
+                <prefix-set-name>test-prefix-set</prefix-set-name>
+                <prefix>
+                    <ip-prefix>10.3.192.0/21</ip-prefix>
+                    <masklength-range>exact</masklength-range>
+                </prefix>
+                <prefix>
+                    <ip-prefix>10.3.191.0/21</ip-prefix>
+                    <masklength-range>21..24</masklength-range>
+                </prefix>
+            </prefix-set>
+        </prefix-sets>
+    </defined-sets>
+</routing-policy>

@@ -1,6 +1,6 @@
 module openconfig-bgp-policy {
 
-  yang-version "1";
+  yang-version "1.1";
 
   // namespace
   namespace "http://openconfig.net/yang/bgp-policy";
@@ -13,6 +13,7 @@ module openconfig-bgp-policy {
   import openconfig-policy-types { prefix pt; }
   import openconfig-bgp-types { prefix bgp-types; }
   import openconfig-extensions { prefix oc-ext; }
+  import bgp-types { prefix bgp-t; revision-date 2013-09-19; }
 
 
   // meta
@@ -137,9 +138,7 @@ module openconfig-bgp-policy {
           path "/rpol:routing-policy/rpol:defined-sets/" +
             "bgp-pol:bgp-defined-sets/bgp-pol:community-sets/" +
             "bgp-pol:community-set/bgp-pol:community-set-name";
-            //TODO: require-instance should be added when it's
-            //supported in YANG 1.1
-          //require-instance true;
+          require-instance true;
         }
         description
           "References a defined community set";
@@ -162,9 +161,7 @@ module openconfig-bgp-policy {
             "bgp-pol:bgp-defined-sets/bgp-pol:ext-community-sets/" +
             "bgp-pol:ext-community-set/" +
             "bgp-pol:ext-community-set-name";
-            //TODO: require-instance should be added when it's
-            //supported in YANG 1.1
-          //require-instance true;
+          require-instance true;
         }
         description "References a defined extended community set";
       }
@@ -185,9 +182,7 @@ module openconfig-bgp-policy {
           path "/rpol:routing-policy/rpol:defined-sets/" +
             "bgp-pol:bgp-defined-sets/bgp-pol:as-path-sets/" +
             "bgp-pol:as-path-set/bgp-pol:as-path-set-name";
-            //TODO: require-instance should be added when it's
-            //supported in YANG 1.1
-          //require-instance true;
+          require-instance true;
         }
         description "References a defined AS path set";
       }
@@ -306,12 +301,8 @@ module openconfig-bgp-policy {
               reference the set in match conditions";
           }
 
-          leaf-list community-member {
-            type union {
-              type bgp-types:bgp-std-community-type;
-              type bgp-types:bgp-community-regexp-type;
-              type bgp-types:bgp-well-known-community-type;
-            }
+          list communities {
+            uses bgp-t:community;
             description
               "members of the community set";
           }
@@ -334,15 +325,10 @@ module openconfig-bgp-policy {
               used to reference the set in match conditions";
           }
 
-          leaf-list ext-community-member {
-            type union {
-              type bgp-types:bgp-ext-community-type;
-              // TODO: is regexp support needed for extended
-              // communities?
-              type bgp-types:bgp-community-regexp-type;
-            }
+          list ext-community-member {
+            uses bgp-t:extended-community;
             description
-                "members of the extended community set";
+              "members of the extended community set";
           }
         }
       }
@@ -364,8 +350,7 @@ module openconfig-bgp-policy {
           }
 
           leaf-list as-path-set-member {
-            // TODO: need to refine typedef for AS path expressions
-            type string;
+            type inet:as-number;
             description
                 "AS path expression -- list of ASes in the set";
           }
@@ -429,11 +414,8 @@ module openconfig-bgp-policy {
             reference to an existing defined set.";
 
           case inline {
-            leaf-list communities {
-              type union {
-                type bgp-types:bgp-std-community-type;
-                type bgp-types:bgp-well-known-community-type;
-              }
+            list communities {
+              uses bgp-t:community;
               description
                 "Set the community values for the update inline with
                 a list.";
@@ -446,9 +428,7 @@ module openconfig-bgp-policy {
                   "bgp-pol:bgp-defined-sets/" +
                   "bgp-pol:community-sets/bgp-pol:community-set/" +
                   "bgp-pol:community-set-name";
-                  //TODO: require-instance should be added when it's
-                  //supported in YANG 1.1
-                //require-instance true;
+                require-instance true;
               }
               description
                 "References a defined community set by name";
@@ -479,15 +459,12 @@ module openconfig-bgp-policy {
             reference to an existing defined set.";
 
           case inline {
-            leaf-list communities {
-              type union {
-                type bgp-types:bgp-ext-community-type;
-                type bgp-types:bgp-well-known-community-type;
-              }
+            list ext-community-member {
+              uses bgp-t:extended-community;
               description
                 "Set the community values for the update inline with
                 a list.";
-            }
+              }
           }
           case reference {
             leaf ext-community-set-ref {
@@ -497,9 +474,7 @@ module openconfig-bgp-policy {
                   "bgp-pol:ext-community-sets/" +
                   "bgp-pol:ext-community-set/" +
                   "bgp-pol:ext-community-set-name";
-                  //TODO: require-instance should be added when it's
-                  //supported in YANG 1.1
-                //require-instance true;
+                require-instance true;
               }
               description
                 "References a defined extended community set by
