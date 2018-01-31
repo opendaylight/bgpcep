@@ -1,0 +1,99 @@
+module odl-bgp-policy {
+    yang-version 1.1;
+    namespace "urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy";
+    prefix "odl-bgp-policy";
+
+    import yang-ext { prefix ext; revision-date 2013-07-09; }
+    import openconfig-network-instance { prefix netinst; }
+    import openconfig-bgp { prefix openconfig-bgp; }
+    import bgp-rib { prefix rib; revision-date 2017-12-07; }
+    import openconfig-routing-policy { prefix rpol; }
+
+    organization "AT&T Services, Inc.";
+    contact "Claudio D. Gasparini <claudio.gasparini@pantheon.tech.com>";
+
+    description
+        "This module contains odl bgp policy model
+        to be used under openconfig policy model definitions.
+
+        Copyright (c) 2018 AT&T Intellectual Property. All rights reserved.
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2018-01-09" {
+        description
+            "ODL BGP policy models";
+    }
+
+    grouping match-role-set-condition {
+        container match-role-set {
+            presence
+                "The presence of this container indicates that the routes
+                should match the neighbor-roles-set referenced.";
+
+            description
+                "Match a referenced role-set according to the logic
+                defined in the match-set-options leaf";
+
+
+            leaf-list role {
+                type rib:peer-role;
+                description "References a defined neighbor roles set";
+            }
+            uses rpol:match-set-options-restricted-group;
+        }
+    }
+
+    augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:conditions {
+        ext:augment-identifier neighbor-announcer-condition;
+        container neighbor-announcer-condition {
+            uses match-role-set-condition;
+        }
+    }
+
+    augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:conditions {
+        ext:augment-identifier neighbor-announced-condition;
+        container neighbor-announced-condition {
+            uses match-role-set-condition;
+        }
+    }
+
+    augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions {
+        ext:augment-identifier reflect-attributes-actions;
+        container reflect-attributes-actions {
+            presence "Modify attributes so they are updated as per RFC4456 route reflection";
+        }
+    }
+
+    augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions {
+        ext:augment-identifier reflect-attributes-from-odl-internal-actions;
+        container reflect-attributes-from-odl-internal-actions {
+            presence "Modify attributes so they are updated as per RFC4456 route reflection, but without add ORIGINATOR_ID
+                      and CLUSTER_ID inside CLUSTER_LIST as required https://tools.ietf.org/html/rfc4456#section-8, BUG 4070";
+        }
+    }
+
+    augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions {
+        ext:augment-identifier to-external-export-actions;
+        container to-external-export-actions {
+            presence "Default ODL to external export policy action";
+        }
+    }
+
+    augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions {
+        ext:augment-identifier from-external-import-actions;
+        container from-external-import-actions {
+            presence "Default ODL from external import policy action";
+        }
+    }
+
+    augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions {
+        ext:augment-identifier from-non-external-import-actions;
+        container from-non-external-import-actions {
+            presence "Default ODL from non eBgp(iBgp, RR-client, application-peer) import policy action";
+        }
+    }
+}
