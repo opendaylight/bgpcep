@@ -27,13 +27,4 @@
             </session-config>
         </node>
     </topology>
-    <topology xmlns="urn:TBD:params:xml:ns:yang:network-topology">
-        <topology-id>pcep-tunnel-topology</topology-id>
-        <topology-types>
-            <topology-tunnel-pcep xmlns="urn:opendaylight:params:xml:ns:yang:topology:tunnel:pcep"></topology-tunnel-pcep>
-        </topology-types>
-        <pcep-topology-reference xmlns="urn:opendaylight:params:xml:ns:yang:topology:tunnel:pcep:config">
-            /topo:network-topology/topo:topology[topo:topology-id="pcep-topology"]
-        </pcep-topology-reference>
-    </topology>
 </network-topology>
