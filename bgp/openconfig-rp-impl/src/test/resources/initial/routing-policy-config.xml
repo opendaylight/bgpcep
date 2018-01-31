@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2018 AT&T Intellectual Property. All rights reserved.
+  ~
+  ~ This program and the accompanying materials are made available under the
+  ~ terms of the Eclipse Public License v1.0 which accompanies this distribution,
+  ~ and is available at http://www.eclipse.org/legal/epl-v10.html
+-->
+
+<!-- vi: set et smarttab sw=4 tabstop=4: -->
+
+<routing-policy xmlns="http://openconfig.net/yang/routing-policy">
+    <policy-definitions>
+        <policy-definition>
+            <name>default-odl-import-policy</name>
+            <statements>
+                <statement>
+                    <name>from-external</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ebgp"</role-set>
+                            </match-role-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <from-external-import-actions xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
+                    </actions>
+                </statement>
+            </statements>
+        </policy-definition>
+    </policy-definitions>
+    <defined-sets>
+        <roles-sets xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+            <role-sets>
+                <role-set-name>ebgp-only</role-set-name>
+                <role>ebgp</role>
+            </role-sets>
+        </roles-sets>
+        <prefix-sets>
+            <prefix-set>
+                <prefix-set-name>prefix-set</prefix-set-name>
+                <prefix>
+                    <ip-prefix>192.168.0.0/16</ip-prefix>
+                    <masklength-range>21..24</masklength-range>
+                </prefix>
+            </prefix-set>
+        </prefix-sets>
+        <neighbor-sets>
+            <neighbor-set>
+                <neighbor-set-name>neighbor-set</neighbor-set-name>
+                <neighbor>
+                    <address>123.42.13.8</address>
+                </neighbor>
+            </neighbor-set>
+        </neighbor-sets>
+        <tag-sets>
+            <tag-set>
+                <tag-set-name>tag-name</tag-set-name>
+                <tag>
+                    <value>2</value>
+                </tag>
+            </tag-set>
+        </tag-sets>
+    </defined-sets>
+</routing-policy>
