@@ -76,14 +76,6 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         this.handlerFactory = new BGPHandlerFactory(messageRegistry);
     }
 
-    @Override
-    public synchronized Future<BGPSessionImpl> createClient(
-            final InetSocketAddress remoteAddress,
-            final int retryTimer) {
-        return createClient(remoteAddress, retryTimer,
-                createClientBootStrap(KeyMapping.getKeyMapping(), false));
-    }
-
     private synchronized Future<BGPSessionImpl> createClient(final InetSocketAddress remoteAddress,
             final int retryTimer, final Bootstrap clientBootStrap) {
         final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(this.bgpPeerRegistry);
