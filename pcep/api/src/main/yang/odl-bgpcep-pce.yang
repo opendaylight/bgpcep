@@ -1,0 +1,74 @@
+module odl-bgpcep-pce {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:odl:bgpcep:pce";
+    prefix "pce";
+
+    import pcep-types { prefix pcep; revision-date 2013-10-05; }
+
+    organization "Pantheon Technologies, s.r.o.";
+    contact "Robert Varga <robert.varga@pantheon.tech>";
+
+    description
+        "This module contains the base data model of the PCE requests
+         made from the PCC to the PCE as per RFC4655 and RFC5440. This
+         is a basic model of a global PCE bound at the MD-SAL level.
+
+        Copyright (c)2018 Pantheon Technologies, s.r.o. and others. All rights reserved.
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2018-02-07" {
+        description
+            "Initial revision.";
+    }
+
+    rpc request-path-computation {
+        description
+            "Semantic equivalent of RFC5440 of what the PCC does when
+             it sends a PCReq message. It requests path computation
+             for specific parameters and expects either a PCRep or a PCErr.";
+        reference
+            "RFC5440";
+
+        input {
+            uses pcep:pcreq-message;
+        }
+        output {
+            choice reply {
+                case pcrep {
+                    uses pcep:pcrep-message;
+                }
+                case pcerr {
+                    uses pcep:pcerr-message;
+                }
+            }
+        }
+    }
+
+    rpc request-state-metrics {
+        description
+            "Semanting equivalent of RFC5886 of what the PCC does when
+             it sends a PCReq message. It requests state metrics of specified
+             kind, expecting either a PCMonRep or a PCErr.";
+        reference
+            "RFC5886";
+
+        input {
+            uses pcep:pcreq-message;
+        }
+        output {
+            choice reply {
+                case pcrep {
+                    uses pcep:pcrep-message;
+                }
+                case pcerr {
+                    uses pcep:pcerr-message;
+                }
+            }
+        }
+    }
+}
+
