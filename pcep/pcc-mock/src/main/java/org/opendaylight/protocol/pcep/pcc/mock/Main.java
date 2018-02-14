@@ -12,13 +12,11 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.protocol.pcep.PCEPCapability;
@@ -49,9 +47,10 @@ public final class Main {
         throw new UnsupportedOperationException();
     }
 
-    public static void main(final String[] args) throws InterruptedException, ExecutionException, UnknownHostException {
+    public static void main(final String[] args) throws InterruptedException, ExecutionException {
         InetSocketAddress localAddress = new InetSocketAddress(LOCALHOST, DEFAULT_LOCAL_PORT);
-        List<InetSocketAddress> remoteAddress = Lists.newArrayList(new InetSocketAddress(LOCALHOST, DEFAULT_REMOTE_PORT));
+        List<InetSocketAddress> remoteAddress = Collections
+                .singletonList(new InetSocketAddress(LOCALHOST, DEFAULT_REMOTE_PORT));
         int pccCount = 1;
         int lsps = 1;
         boolean pcError = false;
@@ -66,65 +65,88 @@ public final class Main {
         getRootLogger(lc).setLevel(ch.qos.logback.classic.Level.INFO);
         int argIdx = 0;
         while (argIdx < args.length) {
-            if (args[argIdx].equals("--local-address")) {
-                localAddress = InetSocketAddressUtil.getInetSocketAddress(args[++argIdx], DEFAULT_LOCAL_PORT);
-            } else if (args[argIdx].equals("--remote-address")) {
-                remoteAddress = InetSocketAddressUtil.parseAddresses(args[++argIdx], DEFAULT_REMOTE_PORT);
-            } else if (args[argIdx].equals("--pcc")) {
-                pccCount = Integer.valueOf(args[++argIdx]);
-            } else if (args[argIdx].equals("--lsp")) {
-                lsps = Integer.valueOf(args[++argIdx]);
-            } else if (args[argIdx].equals("--pcerr")) {
-                pcError = true;
-            } else if (args[argIdx].equals("--log-level")) {
-                getRootLogger(lc).setLevel(Level.toLevel(args[++argIdx], ch.qos.logback.classic.Level.INFO));
-            } else if (args[argIdx].equals("--keepalive") || args[argIdx].equals("-ka")) {
-                ka = Short.valueOf(args[++argIdx]);
-            } else if (args[argIdx].equals("--deadtimer") || args[argIdx].equals("-d")) {
-                dt = Short.valueOf(args[++argIdx]);
-            } else if (args[argIdx].equals("--password")) {
-                password = args[++argIdx];
-            } else if (args[argIdx].equals("--reconnect")) {
-                reconnectTime = Integer.valueOf(args[++argIdx]).intValue();
-            } else if (args[argIdx].equals("--redelegation-timeout")) {
-                redelegationTimeout = Integer.valueOf(args[++argIdx]);
-            } else if (args[argIdx].equals("--state-timeout")) {
-                stateTimeout = Integer.valueOf(args[++argIdx]);
-            } else if (args[argIdx].equals("--state-sync-avoidance")) {
-                //"--state-sync-avoidance 10, 5, 10
-                includeDbv = Boolean.TRUE;
-                final Long dbVersionAfterReconnect = Long.valueOf(args[++argIdx]);
-                disonnectAfterXSeconds = Integer.valueOf(args[++argIdx]);
-                reconnectAfterXSeconds = Integer.valueOf(args[++argIdx]);
-                syncOptDBVersion = BigInteger.valueOf(dbVersionAfterReconnect);
-            } else if (args[argIdx].equals("--incremental-sync-procedure")) {
-                //TODO Check that DBv > Lsp always ??
-                includeDbv = Boolean.TRUE;
-                incrementalSync = Boolean.TRUE;
-                //Version of database to be used after restart
-                final Long initialDbVersionAfterReconnect = Long.valueOf(args[++argIdx]);
-                disonnectAfterXSeconds = Integer.valueOf(args[++argIdx]);
-                reconnectAfterXSeconds = Integer.valueOf(args[++argIdx]);
-                syncOptDBVersion = BigInteger.valueOf(initialDbVersionAfterReconnect);
-            } else if (args[argIdx].equals("--triggered-initial-sync")) {
-                triggeredInitSync = Boolean.TRUE;
-            } else if (args[argIdx].equals("--triggered-re-sync")) {
-                triggeredResync = Boolean.TRUE;
-            } else {
-                LOG.warn("WARNING: Unrecognized argument: {}", args[argIdx]);
+            switch (args[argIdx]) {
+                case "--local-address":
+                    localAddress = InetSocketAddressUtil.getInetSocketAddress(args[++argIdx], DEFAULT_LOCAL_PORT);
+                    break;
+                case "--remote-address":
+                    remoteAddress = InetSocketAddressUtil.parseAddresses(args[++argIdx], DEFAULT_REMOTE_PORT);
+                    break;
+                case "--pcc":
+                    pccCount = Integer.parseInt(args[++argIdx]);
+                    break;
+                case "--lsp":
+                    lsps = Integer.parseInt(args[++argIdx]);
+                    break;
+                case "--pcerr":
+                    pcError = true;
+                    break;
+                case "--log-level":
+                    getRootLogger(lc).setLevel(Level.toLevel(args[++argIdx], Level.INFO));
+                    break;
+                case "--keepalive":
+                case "-ka":
+                    ka = Short.valueOf(args[++argIdx]);
+                    break;
+                case "--deadtimer":
+                case "-d":
+                    dt = Short.valueOf(args[++argIdx]);
+                    break;
+                case "--password":
+                    password = args[++argIdx];
+                    break;
+                case "--reconnect":
+                    reconnectTime = Integer.parseInt(args[++argIdx]);
+                    break;
+                case "--redelegation-timeout":
+                    redelegationTimeout = Integer.parseInt(args[++argIdx]);
+                    break;
+                case "--state-timeout":
+                    stateTimeout = Integer.parseInt(args[++argIdx]);
+                    break;
+                case "--state-sync-avoidance":
+                    //"--state-sync-avoidance 10, 5, 10
+                    includeDbv = Boolean.TRUE;
+                    final Long dbVersionAfterReconnect = Long.valueOf(args[++argIdx]);
+                    disonnectAfterXSeconds = Integer.parseInt(args[++argIdx]);
+                    reconnectAfterXSeconds = Integer.parseInt(args[++argIdx]);
+                    syncOptDBVersion = BigInteger.valueOf(dbVersionAfterReconnect);
+                    break;
+                case "--incremental-sync-procedure":
+                    //TODO Check that DBv > Lsp always ??
+                    includeDbv = Boolean.TRUE;
+                    incrementalSync = Boolean.TRUE;
+                    //Version of database to be used after restart
+                    final Long initialDbVersionAfterReconnect = Long.valueOf(args[++argIdx]);
+                    disonnectAfterXSeconds = Integer.parseInt(args[++argIdx]);
+                    reconnectAfterXSeconds = Integer.parseInt(args[++argIdx]);
+                    syncOptDBVersion = BigInteger.valueOf(initialDbVersionAfterReconnect);
+                    break;
+                case "--triggered-initial-sync":
+                    triggeredInitSync = Boolean.TRUE;
+                    break;
+                case "--triggered-re-sync":
+                    triggeredResync = Boolean.TRUE;
+                    break;
+                default:
+                    LOG.warn("WARNING: Unrecognized argument: {}", args[argIdx]);
+                    break;
             }
             argIdx++;
         }
 
         if (incrementalSync) {
-            Preconditions.checkArgument(syncOptDBVersion.intValue() > lsps, "Synchronization Database Version which will be used after " +
-                "reconnectes requires to be higher than lsps");
+            Preconditions.checkArgument(syncOptDBVersion.intValue() > lsps,
+                    "Synchronization Database Version which will be used after "
+                            + "reconnectes requires to be higher than lsps");
         }
 
         final Optional<BigInteger> dBVersion = Optional.fromNullable(syncOptDBVersion);
-        final PCCsBuilder pccs = new PCCsBuilder(lsps, pcError, pccCount, localAddress, remoteAddress, ka, dt, password, reconnectTime, redelegationTimeout,
+        final PCCsBuilder pccs = new PCCsBuilder(lsps, pcError, pccCount, localAddress, remoteAddress, ka, dt,
+                password, reconnectTime, redelegationTimeout,
             stateTimeout, getCapabilities());
-        final TimerHandler timerHandler = new TimerHandler(pccs, dBVersion, disonnectAfterXSeconds, reconnectAfterXSeconds);
+        final TimerHandler timerHandler = new TimerHandler(pccs, dBVersion, disonnectAfterXSeconds,
+                reconnectAfterXSeconds);
         pccs.createPCCs(BigInteger.valueOf(lsps), Optional.fromNullable(timerHandler));
         if (!triggeredInitSync) {
             timerHandler.createDisconnectTask();
@@ -135,10 +157,12 @@ public final class Main {
         if (triggeredInitSync) {
             Preconditions.checkArgument(includeDbv);
         }
-        return new PCEPStatefulCapability(true, true, true, triggeredInitSync, triggeredResync, incrementalSync, includeDbv);
+        return new PCEPStatefulCapability(true, true, true, triggeredInitSync, triggeredResync,
+                incrementalSync, includeDbv);
     }
 
     private static ch.qos.logback.classic.Logger getRootLogger(final LoggerContext lc) {
-        return Iterables.find(lc.getLoggerList(), input -> (input != null) ? input.getName().equals(Logger.ROOT_LOGGER_NAME) : false);
+        return lc.getLoggerList().stream().filter(input -> (input != null) && input.getName()
+            .equals(Logger.ROOT_LOGGER_NAME)).findFirst().get();
     }
 }
