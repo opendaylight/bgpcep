@@ -71,12 +71,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev171207.Config2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev171207.GlobalConfigAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev171207.GlobalConfigAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev171207.NeighborConfigAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev171207.NeighborConfigAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.ApplicationRibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.RibId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.SimpleRoutingPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
@@ -195,16 +192,6 @@ public final class OpenConfigMappingUtil {
         return new ClusterIdentifier(globalConfig.getRouterId());
     }
 
-    public static SimpleRoutingPolicy getSimpleRoutingPolicy(final Neighbor neighbor) {
-        if (neighbor.getConfig() != null) {
-            final NeighborConfigAugmentation augmentation = neighbor.getConfig().getAugmentation(NeighborConfigAugmentation.class);
-            if (augmentation != null) {
-                return augmentation.getSimpleRoutingPolicy();
-            }
-        }
-        return null;
-    }
-
     private static org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.timers.Config getTimersConfig(final Neighbor neighbor) {
         final Timers timers = neighbor.getTimers();
         return timers != null ? timers.getConfig() : null;
@@ -292,7 +279,7 @@ public final class OpenConfigMappingUtil {
     public static Neighbor fromBgpPeer(final List<AddressFamilies> addPathCapabilities,
         final List<BgpTableType> advertisedTables, final Integer holdTimer, final IpAddress ipAddress,
         final Boolean isActive, final Rfc2385Key password, final PortNumber portNumber, final Integer retryTimer,
-        final AsNumber remoteAs, final PeerRole peerRole, final SimpleRoutingPolicy simpleRoutingPolicy, final BGPTableTypeRegistryConsumer bgpTableTypeRegistryConsumer) {
+        final AsNumber remoteAs, final PeerRole peerRole, final BGPTableTypeRegistryConsumer bgpTableTypeRegistryConsumer) {
         final NeighborBuilder neighborBuilder = new NeighborBuilder();
         neighborBuilder.setNeighborAddress(ipAddress);
         neighborBuilder.setKey(new NeighborKey(ipAddress));
@@ -313,7 +300,6 @@ public final class OpenConfigMappingUtil {
                 .setPeerType(toPeerType(peerRole))
                 .setSendCommunity(CommunityType.NONE)
                 .setRouteFlapDamping(Boolean.FALSE)
-                .addAugmentation(NeighborConfigAugmentation.class, setNeighborAugmentation(simpleRoutingPolicy))
                 .build());
         neighborBuilder.setTimers(new TimersBuilder().setConfig(
             new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.timers.ConfigBuilder()
@@ -339,13 +325,6 @@ public final class OpenConfigMappingUtil {
             .build());
 
         return neighborBuilder.build();
-    }
-
-    private static NeighborConfigAugmentation setNeighborAugmentation(final SimpleRoutingPolicy simpleRoutingPolicy) {
-        if (simpleRoutingPolicy != null) {
-            return new NeighborConfigAugmentationBuilder().setSimpleRoutingPolicy(simpleRoutingPolicy).build();
-        }
-        return null;
     }
 
     public static PeerRole toPeerRole(final Neighbor neighbor) {
