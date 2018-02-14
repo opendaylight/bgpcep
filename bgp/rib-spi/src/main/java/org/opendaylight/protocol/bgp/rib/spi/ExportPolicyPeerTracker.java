@@ -8,14 +8,12 @@
 
 package org.opendaylight.protocol.bgp.rib.spi;
 
-import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.protocol.concepts.AbstractRegistration;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.SendReceive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.SimpleRoutingPolicy;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 
 /**
@@ -29,12 +27,10 @@ public interface ExportPolicyPeerTracker {
      * @param sendReceive         send receive add ath configuration of the peer
      * @param peerPath            Yii of the peer
      * @param peerRole            Role of the peer
-     * @param simpleRoutingPolicy optional
-     */
+l     */
     @Nonnull
     AbstractRegistration registerPeer(@Nonnull PeerId peerId, @Nullable SendReceive sendReceive,
-            @Nonnull YangInstanceIdentifier peerPath, @Nonnull PeerRole peerRole,
-            @Nonnull Optional<SimpleRoutingPolicy> simpleRoutingPolicy);
+            @Nonnull YangInstanceIdentifier peerPath, @Nonnull PeerRole peerRole);
 
     /**
      * Returns PeerExportGroup per role.

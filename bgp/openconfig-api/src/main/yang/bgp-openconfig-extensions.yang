@@ -113,12 +113,6 @@ module bgp-openconfig-extensions {
                       configured as a route reflector.";
                   }
             }
-            augment bgp/neighbors/neighbor/config {
-                ext:augment-identifier neighbor-config-augmentation;
-                leaf simple-routing-policy {
-                    type bgp-rib:simple-routing-policy;
-                }
-            }
             augment bgp/neighbors/neighbor/state {
                 ext:augment-identifier neighbor_state-augmentation;
                 uses bgp-op:bgp-neighbor_state;
