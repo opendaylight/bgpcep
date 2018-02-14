@@ -17,14 +17,12 @@ import static org.opendaylight.protocol.bgp.rib.impl.AdjRibInWriter.PEER_ID_QNAM
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.SendReceive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.SimpleRoutingPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
@@ -55,10 +53,10 @@ public class ExportPolicyPeerTrackerImplTest {
     public void testExportPolicyPeerTrackerImpl() throws Exception {
         final ExportPolicyPeerTrackerImpl exportPpt = new ExportPolicyPeerTrackerImpl(PD, TABLE_KEY);
 
-        TABLE_REGISTRATION.add(exportPpt.registerPeer(PEER_ID1, SendReceive.Both, YII_PEER1, PeerRole.RrClient, Optional.empty()));
-        TABLE_REGISTRATION.add(exportPpt.registerPeer(PEER_ID2, SendReceive.Receive, YII_PEER2, PeerRole.Ibgp, Optional.of(SimpleRoutingPolicy.AnnounceNone)));
-        TABLE_REGISTRATION.add(exportPpt.registerPeer(PEER_ID3, SendReceive.Send, YII_PEER3, PeerRole.Ebgp, Optional.of(SimpleRoutingPolicy.LearnNone)));
-        TABLE_REGISTRATION.add(exportPpt.registerPeer(PEER_ID4, null, YII_PEER4, PeerRole.Ibgp, Optional.empty()));
+        TABLE_REGISTRATION.add(exportPpt.registerPeer(PEER_ID1, SendReceive.Both, YII_PEER1, PeerRole.RrClient));
+        TABLE_REGISTRATION.add(exportPpt.registerPeer(PEER_ID2, SendReceive.Receive, YII_PEER2, PeerRole.Ibgp));
+        TABLE_REGISTRATION.add(exportPpt.registerPeer(PEER_ID3, SendReceive.Send, YII_PEER3, PeerRole.Ebgp));
+        TABLE_REGISTRATION.add(exportPpt.registerPeer(PEER_ID4, null, YII_PEER4, PeerRole.Ibgp));
 
         assertEquals(PeerRole.RrClient, exportPpt.getRole(YII_PEER1));
         assertEquals(PeerRole.Ibgp, exportPpt.getRole(YII_PEER2));
@@ -71,7 +69,7 @@ public class ExportPolicyPeerTrackerImplTest {
         assertTrue(exportPpt.getPeerGroup(PeerRole.Ibgp).containsPeer(PEER_ID4));
 
         assertTrue(exportPpt.isTableSupported(PEER_ID1));
-        assertFalse(exportPpt.isTableSupported(PEER_ID2));
+        assertTrue(exportPpt.isTableSupported(PEER_ID2));
         assertTrue(exportPpt.isTableSupported(PEER_ID3));
         assertTrue(exportPpt.isTableSupported(PEER_ID4));
         assertFalse(exportPpt.isTableSupported(PEER_ID5));

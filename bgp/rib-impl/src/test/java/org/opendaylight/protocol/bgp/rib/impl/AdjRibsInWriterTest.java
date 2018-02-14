@@ -9,13 +9,11 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.never;
 
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.CheckedFuture;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +31,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Rib;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.SimpleRoutingPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.peer.AdjRibIn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.peer.SupportedTables;
@@ -47,32 +44,26 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
 public class AdjRibsInWriterTest {
 
+    private static final TablesKey K4 = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+    private static final Map<TablesKey, SendReceive> ADD_PATH_TABLE_MAPS = Collections.singletonMap(K4, SendReceive.Both);
+    private final Set<TablesKey> tableTypes = Sets.newHashSet(K4);
+    private final String peerIp = "12.34.56.78";
     @Mock
     private DOMTransactionChain chain;
-
     @Mock
     private DOMDataWriteTransaction tx;
-
     @Mock
     private RIBSupportContextRegistry registry;
-
     @Mock
     private RIBSupportContext context;
-
     private AdjRibInWriter writer;
-
-    private static final TablesKey K4 = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
-    private final Set<TablesKey> tableTypes = Sets.newHashSet(K4);
-    private static final Map<TablesKey, SendReceive> ADD_PATH_TABLE_MAPS = Collections.singletonMap(K4, SendReceive.Both);
-
-    private final String peerIp = "12.34.56.78";
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         Mockito.doReturn("MockedTrans").when(this.tx).toString();
         Mockito.doReturn(this.tx).when(this.chain).newWriteOnlyTransaction();
-        final CheckedFuture<?, ?> checkedFuture =  Mockito.mock(CheckedFuture.class);
+        final CheckedFuture<?, ?> checkedFuture = Mockito.mock(CheckedFuture.class);
         Mockito.doNothing().when(checkedFuture).addListener(any(), any());
         Mockito.doReturn(checkedFuture).when(this.tx).submit();
         Mockito.doNothing().when(this.tx).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(YangInstanceIdentifier.class), Mockito.any(NormalizedNode.class));
@@ -83,41 +74,26 @@ public class AdjRibsInWriterTest {
 
     @Test
     public void testTransform() {
-        this.writer = AdjRibInWriter.create(YangInstanceIdentifier.of(Rib.QNAME), PeerRole.Ebgp, Optional.empty(), this.chain);
+        this.writer = AdjRibInWriter.create(YangInstanceIdentifier.of(Rib.QNAME), PeerRole.Ebgp, this.chain);
         assertNotNull(this.writer);
         final YangInstanceIdentifier peerPath = YangInstanceIdentifier.builder().node(Rib.QNAME).node(Peer.QNAME).nodeWithKey(Peer.QNAME,
-            AdjRibInWriter.PEER_ID_QNAME, this.peerIp).build();
+                AdjRibInWriter.PEER_ID_QNAME, this.peerIp).build();
         this.writer.transform(new PeerId(this.peerIp), this.registry, this.tableTypes, ADD_PATH_TABLE_MAPS);
         verifyPeerSkeletonInsertedCorrectly(peerPath);
         // verify supported tables were inserted for ipv4
         Mockito.verify(this.tx).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.eq(peerPath.node(SupportedTables.QNAME)
-            .node(RibSupportUtils.toYangKey(SupportedTables.QNAME, K4))), Mockito.any(NormalizedNode.class));
+                .node(RibSupportUtils.toYangKey(SupportedTables.QNAME, K4))), Mockito.any(NormalizedNode.class));
         verifyUptodateSetToFalse(peerPath);
     }
 
     private void verifyUptodateSetToFalse(final YangInstanceIdentifier peerPath) {
         final YangInstanceIdentifier path = peerPath.node(AdjRibIn.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(K4))
-            .node(Attributes.QNAME).node(AdjRibInWriter.ATTRIBUTES_UPTODATE_FALSE.getNodeType());
+                .node(Attributes.QNAME).node(AdjRibInWriter.ATTRIBUTES_UPTODATE_FALSE.getNodeType());
         Mockito.verify(this.tx).merge(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.eq(path), Mockito.eq(AdjRibInWriter.ATTRIBUTES_UPTODATE_FALSE));
     }
 
     private void verifyPeerSkeletonInsertedCorrectly(final YangInstanceIdentifier peerPath) {
         Mockito.verify(this.tx).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.eq(peerPath),
-            Mockito.eq(this.writer.peerSkeleton(IdentifierUtils.peerKey(peerPath), this.peerIp)));
-    }
-
-    @Test
-    public void testAnnounceNoneTransform() {
-        this.writer = AdjRibInWriter.create(YangInstanceIdentifier.of(Rib.QNAME), PeerRole.Ebgp, Optional.of(SimpleRoutingPolicy.AnnounceNone), this.chain);
-        assertNotNull(this.writer);
-        final YangInstanceIdentifier peerPath = YangInstanceIdentifier.builder().node(Rib.QNAME).node(Peer.QNAME).nodeWithKey(Peer.QNAME,
-            AdjRibInWriter.PEER_ID_QNAME, this.peerIp).build();
-        this.writer.transform(new PeerId(this.peerIp), this.registry, this.tableTypes, ADD_PATH_TABLE_MAPS);
-        verifyPeerSkeletonInsertedCorrectly(peerPath);
-        // verify supported tables were not inserted for ipv4, AnnounceNone
-        Mockito.verify(this.tx, never()).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.eq(peerPath.node(SupportedTables.QNAME)
-            .node(RibSupportUtils.toYangKey(SupportedTables.QNAME, K4))), Mockito.any(NormalizedNode.class));
-        verifyUptodateSetToFalse(peerPath);
-
+                Mockito.eq(this.writer.peerSkeleton(IdentifierUtils.peerKey(peerPath), this.peerIp)));
     }
 }
