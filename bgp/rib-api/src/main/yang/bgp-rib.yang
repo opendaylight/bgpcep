@@ -57,13 +57,6 @@ module bgp-rib {
         }
     }
 
-    typedef simple-routing-policy {
-        type enumeration {
-            enum announce-none { description "Don't announce routes to this peer"; }
-            enum learn-none { description "Don't learn routes from this peer"; }
-        }
-    }
-
     grouping route {
         uses bgp-msg:path-attributes;
     }
@@ -114,9 +107,6 @@ module bgp-rib {
                 leaf peer-role {
                     type peer-role;
                     mandatory true;
-                }
-                leaf simple-routing-policy {
-                    type simple-routing-policy;
                 }
                 list supported-tables {
                     key "afi safi";
