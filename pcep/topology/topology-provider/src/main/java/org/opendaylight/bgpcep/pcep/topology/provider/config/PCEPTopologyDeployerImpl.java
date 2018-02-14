@@ -70,10 +70,8 @@ public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener
         topoChanges.stream().iterator().forEachRemaining(topo -> {
             switch (topo.getModificationType()) {
                 case SUBTREE_MODIFIED:
-                    updateTopologyProvider(topo.getDataAfter());
-                    break;
                 case WRITE:
-                    createTopologyProvider(topo.getDataAfter());
+                    updateTopologyProvider(topo.getDataAfter());
                     break;
                 case DELETE:
                     removeTopologyProvider(topo.getDataBefore());
