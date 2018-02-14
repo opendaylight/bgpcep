@@ -16,7 +16,6 @@ import com.google.common.net.InetAddresses;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -48,7 +47,7 @@ public final class Main {
         throw new UnsupportedOperationException();
     }
 
-    public static void main(final String[] args) throws InterruptedException, ExecutionException, UnknownHostException {
+    public static void main(final String[] args) throws InterruptedException, ExecutionException {
         InetSocketAddress localAddress = new InetSocketAddress(LOCALHOST, DEFAULT_LOCAL_PORT);
         List<InetSocketAddress> remoteAddress = Collections
                 .singletonList(new InetSocketAddress(LOCALHOST, DEFAULT_REMOTE_PORT));
