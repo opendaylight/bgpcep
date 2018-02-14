@@ -68,7 +68,8 @@ public abstract class PCCMockCommon {
     private final int port = InetSocketAddressUtil.getRandomPort();
     final InetSocketAddress remoteAddress = InetSocketAddressUtil
             .getRandomLoopbackInetSocketAddress(this.port);
-    final InetSocketAddress localAddress = new InetSocketAddress("127.0.0.1", this.port);
+    final InetSocketAddress localAddress = InetSocketAddressUtil
+            .getRandomLoopbackInetSocketAddress(this.port);
     PCCSessionListener pccSessionListener;
     private PCEPDispatcher pceDispatcher;
     private PCEPExtensionProviderContext extensionProvider;

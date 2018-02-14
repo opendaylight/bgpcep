@@ -17,7 +17,6 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.protocol.concepts.KeyMapping;
@@ -70,8 +69,7 @@ final class PCCsBuilder {
         startActivators();
     }
 
-    void createPCCs(final BigInteger initialDBVersion, final Optional<TimerHandler> timerHandler)
-        throws InterruptedException, ExecutionException {
+    void createPCCs(final BigInteger initialDBVersion, final Optional<TimerHandler> timerHandler) {
         InetAddress currentAddress = this.localAddress.getAddress();
         this.pccDispatcher = new PCCDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance()
                 .getMessageHandlerRegistry());
@@ -88,8 +86,7 @@ final class PCCsBuilder {
     }
 
     private void createPCC(@Nonnull final InetSocketAddress plocalAddress,
-            final PCCTunnelManager tunnelManager, final BigInteger initialDBVersion)
-            throws InterruptedException, ExecutionException {
+            final PCCTunnelManager tunnelManager, final BigInteger initialDBVersion) {
         final PCEPSessionNegotiatorFactory<PCEPSessionImpl> snf = getSessionNegotiatorFactory();
         for (final InetSocketAddress pceAddress : this.remoteAddress) {
             this.pccDispatcher.createClient(pceAddress, this.reconnectTime, () -> new PCCSessionListener(
