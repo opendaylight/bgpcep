@@ -79,13 +79,13 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
         final PCCReconnectPromise promise = new PCCReconnectPromise(remoteAddress, (int) retryTimer, CONNECT_TIMEOUT, b);
         final ChannelInitializer<SocketChannel> channelInitializer = new ChannelInitializer<SocketChannel>() {
             @Override
-            protected void initChannel(final SocketChannel ch) throws Exception {
+            protected void initChannel(final SocketChannel ch) {
                 ch.pipeline().addLast(PCCDispatcherImpl.this.factory.getDecoders());
                 ch.pipeline().addLast("negotiator", negotiatorFactory.getSessionNegotiator(listenerFactory, ch, promise, new PCCPeerProposal(dbVersion)));
                 ch.pipeline().addLast(PCCDispatcherImpl.this.factory.getEncoders());
                 ch.pipeline().addLast(new ChannelInboundHandlerAdapter() {
                     @Override
-                    public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
+                    public void channelInactive(final ChannelHandlerContext ctx) {
                         if (promise.isCancelled()) {
                             return;
                         }
