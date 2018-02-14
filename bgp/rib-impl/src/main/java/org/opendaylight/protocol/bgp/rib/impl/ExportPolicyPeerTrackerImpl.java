@@ -24,7 +24,6 @@ import org.opendaylight.protocol.concepts.AbstractRegistration;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.SendReceive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.SimpleRoutingPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -60,9 +59,9 @@ final class ExportPolicyPeerTrackerImpl implements ExportPolicyPeerTracker {
     }
 
     private synchronized AbstractRegistration addToExportGroups(final PeerId peerId,
-        final YangInstanceIdentifier peerPath, final PeerRole peerRole) {
+            final YangInstanceIdentifier peerPath, final PeerRole peerRole) {
         final PeerExportGroupRegistry peerExp = this.groups.computeIfAbsent(peerRole,
-            k -> new PeerExportGroupImpl(this.policyDatabase.exportPolicyForRole(peerRole)));
+                k -> new PeerExportGroupImpl(this.policyDatabase.exportPolicyForRole(peerRole)));
 
         final AbstractRegistration registration = peerExp.registerPeer(peerId, new PeerExporTuple(peerPath, peerRole));
 
@@ -79,16 +78,12 @@ final class ExportPolicyPeerTrackerImpl implements ExportPolicyPeerTracker {
 
     @Override
     public synchronized AbstractRegistration registerPeer(final PeerId peerId, final SendReceive sendReceive,
-        final YangInstanceIdentifier peerPath, final PeerRole peerRole,
-        final Optional<SimpleRoutingPolicy> optSimpleRoutingPolicy) {
+            final YangInstanceIdentifier peerPath, final PeerRole peerRole) {
         if (sendReceive != null) {
             this.peerAddPathTables.put(peerId, sendReceive);
             LOG.debug("Supported Add BestPath table {} added to peer {}", sendReceive, peerId);
         }
-        final SimpleRoutingPolicy simpleRoutingPolicy = optSimpleRoutingPolicy.orElse(null);
-        if (SimpleRoutingPolicy.AnnounceNone != simpleRoutingPolicy) {
-            this.peerTables.put(peerId, false);
-        }
+        this.peerTables.put(peerId, false);
         this.peerRoles.put(peerPath, peerRole);
         LOG.debug("Supported table {} added to peer {} role {}", this.localTableKey, peerId, peerRole);
         final AbstractRegistration registration = addToExportGroups(peerId, peerPath, peerRole);

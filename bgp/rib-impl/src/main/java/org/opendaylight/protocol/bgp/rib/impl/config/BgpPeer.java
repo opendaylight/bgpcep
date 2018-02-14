@@ -11,7 +11,6 @@ package org.opendaylight.protocol.bgp.rib.impl.config;
 import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getHoldTimer;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getPeerAs;
-import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getSimpleRoutingPolicy;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -225,8 +224,7 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
             final Set<TablesKey> afiSafisAdvertized = OpenConfigMappingUtil
                     .toTableKey(afisSAfis.getAfiSafi(), tableTypeRegistry);
             this.bgpPeer = new BGPPeer(this.neighborAddress, rib,
-                    OpenConfigMappingUtil.toPeerRole(neighbor),
-                    getSimpleRoutingPolicy(neighbor), BgpPeer.this.rpcRegistry,
+                    OpenConfigMappingUtil.toPeerRole(neighbor), BgpPeer.this.rpcRegistry,
                     afiSafisAdvertized, Collections.emptySet());
             final List<BgpParameters> bgpParameters = getBgpParameters(neighbor, rib, tableTypeRegistry);
             final KeyMapping keyMapping = OpenConfigMappingUtil.getNeighborKey(neighbor);

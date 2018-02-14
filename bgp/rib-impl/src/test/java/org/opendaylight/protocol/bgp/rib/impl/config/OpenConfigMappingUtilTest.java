@@ -22,7 +22,6 @@ import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.SHORT;
 import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.createAfiSafi;
 import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.createNeighborExpected;
 import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.createTransport;
-import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getSimpleRoutingPolicy;
 import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil.INSTANCE;
 
 import com.google.common.collect.ImmutableList;
@@ -94,13 +93,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev171207.Config2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev171207.GlobalConfigAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev171207.GlobalConfigAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev171207.NeighborConfigAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev171207.NeighborConfigAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev171207.Protocol1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.ApplicationRibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.RibId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.SimpleRoutingPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
@@ -282,16 +278,6 @@ public class OpenConfigMappingUtilTest {
     }
 
     @Test
-    public void testGetSimpleRoutingPolicy() {
-        final NeighborBuilder neighborBuilder = new NeighborBuilder();
-        assertNull(getSimpleRoutingPolicy(neighborBuilder.build()));
-        neighborBuilder.setConfig(new ConfigBuilder()
-                .addAugmentation(NeighborConfigAugmentation.class,
-                        new NeighborConfigAugmentationBuilder().setSimpleRoutingPolicy(SimpleRoutingPolicy.LearnNone).build()).build());
-        assertEquals(SimpleRoutingPolicy.LearnNone, getSimpleRoutingPolicy(neighborBuilder.build()));
-    }
-
-    @Test
     public void isAppNeighbor() {
         assertFalse(OpenConfigMappingUtil.isApplicationPeer(new NeighborBuilder().setConfig(new ConfigBuilder().build()).build()));
         final Neighbor neighbor = new NeighborBuilder().setConfig(new ConfigBuilder()
@@ -444,7 +430,7 @@ public class OpenConfigMappingUtilTest {
 
     @Test
     public void fromBgpPeer() {
-        final Neighbor result = OpenConfigMappingUtil.fromBgpPeer(FAMILIES, TABLE_TYPES, 30, NEIGHBOR_ADDRESS, true, null, PORT_NUMBER, 30, AS, PeerRole.Ibgp, null, this.tableTypeRegistry);
+        final Neighbor result = OpenConfigMappingUtil.fromBgpPeer(FAMILIES, TABLE_TYPES, 30, NEIGHBOR_ADDRESS, true, null, PORT_NUMBER, 30, AS, PeerRole.Ibgp, this.tableTypeRegistry);
         final List<AfiSafi> afisafis = new ArrayList<>();
         afisafis.add(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
             .addAugmentation(AfiSafi1.class, new AfiSafi1Builder().setReceive(true).setSendMax(Shorts.checkedCast(ALL_PATHS)).build()).build());
