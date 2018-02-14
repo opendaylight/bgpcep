@@ -23,21 +23,21 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.IpPrefixCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.ip.prefix._case.IpPrefixBuilder;
 
-public final class PCCTunnelBuilder {
-    private static final Subobject DEFAULT_ENDPOINT_HOP = getDefaultEROEndpointHop();
+final class PCCTunnelBuilder {
+    static final int PCC_DELEGATION = -1;
     private static final String ENDPOINT_ADDRESS = "1.1.1.1";
     private static final String ENDPOINT_PREFIX = ENDPOINT_ADDRESS + "/32";
-    public static final int PCC_DELEGATION = -1;
+    private static final Subobject DEFAULT_ENDPOINT_HOP = getDefaultEROEndpointHop();
 
     private PCCTunnelBuilder() {
         throw new UnsupportedOperationException();
     }
 
-    public static Map<PlspId, PCCTunnel> createTunnels(final String address, final int lsps) {
+    static Map<PlspId, PCCTunnel> createTunnels(final String address, final int lsps) {
         final Map<PlspId, PCCTunnel> tunnels = new HashMap<>();
         for (int i = 1; i <= lsps; i++) {
-            final PCCTunnel tunnel = new PCCTunnel(MsgBuilderUtil.getDefaultPathName(address, i), PCC_DELEGATION, LspType.PCC_LSP,
-                createPath(Lists.newArrayList(DEFAULT_ENDPOINT_HOP)));
+            final PCCTunnel tunnel = new PCCTunnel(MsgBuilderUtil.getDefaultPathName(address, i),
+                    PCC_DELEGATION, LspType.PCC_LSP, createPath(Lists.newArrayList(DEFAULT_ENDPOINT_HOP)));
             tunnels.put(new PlspId((long) i), tunnel);
         }
         return tunnels;
@@ -47,7 +47,7 @@ public final class PCCTunnelBuilder {
         final SubobjectBuilder builder = new SubobjectBuilder();
         builder.setLoose(false);
         builder.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(new IpPrefixBuilder().setIpPrefix(
-            new IpPrefix(new Ipv4Prefix(ENDPOINT_PREFIX))).build()).build());
+                new IpPrefix(new Ipv4Prefix(ENDPOINT_PREFIX))).build()).build());
         return builder.build();
     }
 }
