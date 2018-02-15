@@ -16,16 +16,7 @@
     <argument ref="bmpSessionFactory"/>
   </bean>
 
-  <service ref="bmpDispatcher" interface="org.opendaylight.protocol.bmp.api.BmpDispatcher">
-    <!-- The following service properties specify the config system module and instance that correspond to
-         this OSGi service which enables the config system module to be restarted when this blueprint
-         container is restarted. -->
-    <service-properties>
-      <entry key="config-module-namespace" value="urn:opendaylight:params:xml:ns:yang:controller:bmp:impl"/>
-      <entry key="config-module-name" value="bmp-dispatcher-impl"/>
-      <entry key="config-instance-name" value="global-bmp-dispatcher"/>
-    </service-properties>
-  </service>
+  <service ref="bmpDispatcher" interface="org.opendaylight.protocol.bmp.api.BmpDispatcher"/>
 
   <reference id="dataBroker" interface="org.opendaylight.controller.md.sal.binding.api.DataBroker" odl:type="default"/>
   <reference id="domPingPongDataBroker" interface="org.opendaylight.controller.md.sal.dom.api.DOMDataBroker" odl:type="pingpong"/>

@@ -11,16 +11,7 @@
           factory-method="instance" destroy-method="close"/>
 
   <service ref="BGPPeerRegistry" interface="org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry"
-          odl:type="default">
-    <!-- The following service properties specify the config system module and instance that correspond to
-         this OSGi service which enables the config system module to be restarted when this blueprint
-         container is restarted. -->
-    <service-properties>
-      <entry key="config-module-namespace" value="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl"/>
-      <entry key="config-module-name" value="strict-bgp-peer-registry"/>
-      <entry key="config-instance-name" value="global-bgp-peer-registry"/>
-    </service-properties>
-  </service>
+          odl:type="default"/>
 
   <bean id="BGPDispatcher" class="org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImpl"  destroy-method="close">
     <argument>
@@ -31,16 +22,7 @@
     <argument ref="BGPPeerRegistry"/>
   </bean>
 
-  <service ref="BGPDispatcher" interface="org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher">
-    <!-- The following service properties specify the config system module and instance that correspond to
-         this OSGi service which enables the config system module to be restarted when this blueprint
-         container is restarted. -->
-    <service-properties>
-      <entry key="config-module-namespace" value="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl"/>
-      <entry key="config-module-name" value="bgp-dispatcher-impl"/>
-      <entry key="config-instance-name" value="global-bgp-dispatcher"/>
-    </service-properties>
-  </service>
+  <service ref="BGPDispatcher" interface="org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher"/>
 
   <reference id="dataBroker" interface="org.opendaylight.controller.md.sal.binding.api.DataBroker" odl:type="pingpong"/>
   <reference id="globalBgpExtensions" interface="org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext"/>
