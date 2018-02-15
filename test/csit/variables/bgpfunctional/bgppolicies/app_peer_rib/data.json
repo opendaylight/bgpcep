@@ -1,0 +1,22 @@
+{
+    "bgp-inet:ipv4-routes": {
+        "ipv4-route": [
+            {
+                "attributes": {
+                    "as-path": {},
+                    "ipv4-next-hop": {
+                        "global": "10.11.1.1"
+                    },
+                    "local-pref": {
+                        "pref": 100
+                    },
+                    "origin": {
+                        "value": "igp"
+                    }
+                },
+                "path-id": 0,
+                "prefix": "10.0.0.17/32"
+            }
+        ]
+    }
+}

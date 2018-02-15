@@ -1,0 +1,11 @@
+{
+    "topology": [
+        {
+            "topology-id": "example-ipv4-topology",
+            "server-provided": true,
+            "topology-types": {
+                "odl-bgp-topology-types:bgp-ipv4-reachability-topology": {}
+            }
+        }
+    ]
+}

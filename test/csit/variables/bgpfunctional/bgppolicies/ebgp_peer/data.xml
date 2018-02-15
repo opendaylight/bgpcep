@@ -1,0 +1,60 @@
+<neighbor xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
+    <neighbor-address>$IP</neighbor-address>
+    <route-reflector>
+        <config>
+            <route-reflector-client>false</route-reflector-client>
+        </config>
+    </route-reflector>
+    <timers>
+        <config>
+            <hold-time>$HOLDTIME</hold-time>
+        </config>
+    </timers>
+    <transport>
+        <config>
+            <remote-port>179</remote-port>
+            <passive-mode>$PASSIVE_MODE</passive-mode>
+        </config>
+    </transport>
+    <config>
+        <peer-type>EXTERNAL</peer-type>
+    </config>
+    <afi-safis>
+        <afi-safi>
+            <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV4-UNICAST</afi-safi-name>
+        </afi-safi>
+        <afi-safi>
+            <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV6-UNICAST</afi-safi-name>
+        </afi-safi>
+        <afi-safi>
+            <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV4-LABELLED-UNICAST</afi-safi-name>
+        </afi-safi>
+        <afi-safi>
+            <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV6-LABELLED-UNICAST</afi-safi-name>
+        </afi-safi>
+        <afi-safi>
+            <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV4-UNICAST</afi-safi-name>
+        </afi-safi>
+        <afi-safi>
+            <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV6-UNICAST</afi-safi-name>
+        </afi-safi>
+        <afi-safi>
+            <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L2VPN-EVPN</afi-safi-name>
+        </afi-safi>
+        <afi-safi>
+            <afi-safi-name>LINKSTATE</afi-safi-name>
+        </afi-safi>
+        <afi-safi>
+            <afi-safi-name>IPV4-FLOW</afi-safi-name>
+        </afi-safi>
+        <afi-safi>
+            <afi-safi-name>IPV6-FLOW</afi-safi-name>
+        </afi-safi>
+        <afi-safi>
+            <afi-safi-name>IPV4-L3VPN-FLOW</afi-safi-name>
+        </afi-safi>
+        <afi-safi>
+            <afi-safi-name>IPV6-L3VPN-FLOW</afi-safi-name>
+        </afi-safi>
+    </afi-safis>
+</neighbor>

@@ -1,0 +1,56 @@
+{
+    "bgp-vpn-ipv6:vpn-ipv6-routes": {
+        "vpn-route": [
+            {
+                "attributes": {
+                    "as-path": {
+                        "segments": [
+                            {
+                                "as-sequence": [
+                                    25186,
+                                    64512,
+                                    65000
+                                ]
+                            }
+                        ]
+                    },
+                    "communities": [
+                        {
+                            "as-number": 65000,
+                            "semantics": 33
+                        }
+                    ],
+                    "extended-communities": [
+                        {
+                            "route-target-extended-community": {
+                                "global-administrator": 10283,
+                                "local-administrator": "BPlceA=="
+                            },
+                            "transitive": true
+                        }
+                    ],
+                    "ipv6-next-hop": {
+                        "global": "::ffff"
+                    },
+                    "local-pref": {
+                        "pref": 100
+                    },
+                    "origin": {
+                        "value": "igp"
+                    },
+                    "originator-id": {
+                        "originator": "57.35.2.240"
+                    }
+                },
+                "label-stack": [
+                    {
+                        "label-value": 926
+                    }
+                ],
+                "prefix": "2001:4b50:20c0::/48",
+                "route-distinguisher": "0:3215:583457597",
+                "route-key": "cAAADI8ixts9IAFLUCDA"
+            }
+        ]
+    }
+}

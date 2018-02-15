@@ -1,0 +1,16 @@
+<ipv4-route xmlns="urn:opendaylight:params:xml:ns:yang:bgp-inet">
+    <path-id>0</path-id>
+    <prefix>10.0.0.17/32</prefix>
+    <attributes>
+        <as-path></as-path>
+        <origin>
+            <value>igp</value>
+        </origin>
+        <local-pref>
+            <pref>100</pref>
+        </local-pref>
+        <ipv4-next-hop>
+            <global>10.11.1.1</global>
+        </ipv4-next-hop>
+    </attributes>
+</ipv4-route>
