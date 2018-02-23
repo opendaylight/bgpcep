@@ -165,6 +165,9 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
 
     @Override
     public synchronized Boolean containsEqualConfiguration(final Neighbor neighbor) {
+        if (this.currentConfiguration == null) {
+            return false;
+        }
         final AfiSafis actAfiSafi = this.currentConfiguration.getAfiSafis();
         final AfiSafis extAfiSafi = neighbor.getAfiSafis();
         final List<AfiSafi> actualSafi = actAfiSafi != null ? actAfiSafi.getAfiSafi() : Collections.emptyList();
