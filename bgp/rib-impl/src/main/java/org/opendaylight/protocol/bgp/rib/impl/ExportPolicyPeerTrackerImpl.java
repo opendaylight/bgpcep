@@ -12,6 +12,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.protocol.bgp.rib.impl.spi.PeerExportGroupRegistry;
@@ -25,17 +26,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.SimpleRoutingPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * There is one ExportPolicyPeerTracker per table
- *  - peerTables: keep track of registered peers, the ones which support this table.
- *  - peerTables: flag indicates whether the structure of the peer has been created, and therefore it can start
- *  to be updated.
- *  - peerAddPathTables: keeps track of peer which supports Additional Path for this table and which Add Path
- *  configuration they are using.
- *  - groups: Contains peers grouped by peerRole and therefore sharing the same export policy.
+ * - peerTables: keep track of registered peers, the ones which support this table.
+ * - peerTables: flag indicates whether the structure of the peer has been created, and therefore it can start
+ * to be updated.
+ * - peerAddPathTables: keeps track of peer which supports Additional Path for this table and which Add Path
+ * configuration they are using.
+ * - groups: Contains peers grouped by peerRole and therefore sharing the same export policy.
  */
 @ThreadSafe
 final class ExportPolicyPeerTrackerImpl implements ExportPolicyPeerTracker {
@@ -137,5 +139,65 @@ final class ExportPolicyPeerTrackerImpl implements ExportPolicyPeerTracker {
     @Override
     public synchronized boolean isTableStructureInitialized(final PeerId peerId) {
         return this.peerTables.get(peerId);
+    }
+
+    final class PeerExportGroupImpl implements PeerExportGroupRegistry {
+        @GuardedBy("this")
+        private final Map<PeerId, PeerExporTuple> peers = new HashMap<>();
+        private final AbstractExportPolicy policy;
+
+        public PeerExportGroupImpl(final AbstractExportPolicy policy) {
+            this.policy = requireNonNull(policy);
+        }
+
+        @Override
+        public ContainerNode effectiveAttributes(final PeerRole role, final ContainerNode attributes) {
+            return attributes == null || role == null ? null : this.policy.effectiveAttributes(role, attributes);
+        }
+
+        @Override
+        public boolean containsPeer(final PeerId routePeerId) {
+            synchronized (this.peers) {
+                return this.peers.containsKey(routePeerId);
+            }
+        }
+
+        @Override
+        public void forEach(final BiConsumer<PeerId, YangInstanceIdentifier> action) {
+            synchronized (ExportPolicyPeerTrackerImpl.this) {
+                synchronized (this.peers) {
+                    for (final Map.Entry<PeerId, PeerExporTuple> pid : this.peers.entrySet()) {
+                        action.accept(pid.getKey(), pid.getValue().getYii());
+                    }
+                }
+            }
+        }
+
+        @Override
+        public AbstractRegistration registerPeer(final PeerId peerId, final PeerExporTuple peerExporTuple) {
+            synchronized (ExportPolicyPeerTrackerImpl.this) {
+                synchronized (this.peers) {
+                    this.peers.put(peerId, peerExporTuple);
+                }
+
+                return new AbstractRegistration() {
+                    @Override
+                    protected void removeRegistration() {
+                        synchronized (ExportPolicyPeerTrackerImpl.this) {
+                            synchronized (PeerExportGroupImpl.this.peers) {
+                                PeerExportGroupImpl.this.peers.remove(peerId);
+                            }
+                        }
+                    }
+                };
+            }
+        }
+
+        @Override
+        public boolean isEmpty() {
+            synchronized (this.peers) {
+                return this.peers.isEmpty();
+            }
+        }
     }
 }
