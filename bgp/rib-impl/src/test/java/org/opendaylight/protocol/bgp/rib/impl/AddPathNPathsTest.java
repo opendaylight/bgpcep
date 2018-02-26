@@ -44,7 +44,7 @@ public class AddPathNPathsTest extends AbstractAddPathTest {
 
         this.ribImpl = new RIBImpl(new RibId("test-rib"),
             AS_NUMBER, new BgpId(RIB_ID), null, this.ribExtension, this.serverDispatcher,
-            this.codecsRegistry, getDomBroker(), this.peerTracker, TABLES_TYPE, pathTables);
+            this.codecsRegistry, getDomBroker(), this.policies, this.peerTracker, TABLES_TYPE,  pathTables, this.mappingService);
 
         this.ribImpl.instantiateServiceInstance();
         this.ribImpl.onGlobalContextUpdated(this.schemaContext);

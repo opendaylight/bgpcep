@@ -47,9 +47,18 @@ final class RIBSupportContextRegistryImpl implements RIBSupportContextRegistry {
     }
 
     @Override
+    public RIBSupport getRIBSupport(final TablesKey key) {
+        final RIBSupportContext ribSupport = getRIBSupportContext(key);
+        if (ribSupport != null) {
+            return ribSupport.getRibSupport();
+        }
+        return null;
+    }
+
+    @Override
     public RIBSupportContext getRIBSupportContext(final TablesKey key) {
         final RIBSupport ribSupport = this.extensionContext.getRIBSupport(key);
-        if(ribSupport != null) {
+        if (ribSupport != null) {
             return this.contexts.getUnchecked(ribSupport);
         }
         return null;
@@ -58,7 +67,7 @@ final class RIBSupportContextRegistryImpl implements RIBSupportContextRegistry {
     @Override
     public RIBSupportContext getRIBSupportContext(final NodeIdentifierWithPredicates key) {
         final RIBSupport ribSupport = this.extensionContext.getRIBSupport(key);
-        if(ribSupport != null) {
+        if (ribSupport != null) {
             return this.contexts.getUnchecked(ribSupport);
         }
         return null;

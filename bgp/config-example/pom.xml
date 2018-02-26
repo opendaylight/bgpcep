@@ -55,6 +55,7 @@
                     <includes>
                         <include>**/network-topology-config.xml</include>
                         <include>**/protocols-config.xml</include>
+                        <include>**/routing-policy-config.xml</include>
                     </includes>
                 </configuration>
             </plugin>
@@ -87,6 +88,18 @@
                                 </artifact>
                             </artifacts>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
 final class EvpnRibSupport extends AbstractRIBSupport {
     private static final EvpnRibSupport SINGLETON = new EvpnRibSupport();
     private static final Logger LOG = LoggerFactory.getLogger(EvpnRibSupport.class);
-    private static final QName ROUTE_KEY = QName.create(EvpnRoute.QNAME, "route-key").intern();
+    private static final QName ROUTE_KEY_QNAME = QName.create(EvpnRoute.QNAME, ROUTE_KEY).intern();
     private static final NodeIdentifier NLRI_ROUTES_LIST = NodeIdentifier.create(EvpnDestination.QNAME);
 
     private EvpnRibSupport() {
@@ -123,7 +123,7 @@ final class EvpnRibSupport extends AbstractRIBSupport {
         final ByteBuf buffer = Unpooled.buffer();
         final EvpnDestination dest = EvpnNlriParser.extractRouteKeyDestination(evpn);
         EvpnNlriParser.serializeNlri(Collections.singletonList(dest), buffer);
-        return new NodeIdentifierWithPredicates(routeQName(), ROUTE_KEY, ByteArray.encodeBase64(buffer));
+        return new NodeIdentifierWithPredicates(routeQName(), ROUTE_KEY_QNAME, ByteArray.encodeBase64(buffer));
     }
 
 }

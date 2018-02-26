@@ -45,7 +45,7 @@ public abstract class AbstractFlowspecRIBSupport<T extends AbstractFlowspecNlriP
         final QName dstContainerClassQName,
         final T nlriParser
     ) {
-        super(cazeClass, containerClass, listClass, afiClass, safiClass, "route-key", dstContainerClassQName);
+        super(cazeClass, containerClass, listClass, afiClass, safiClass, ROUTE_KEY, dstContainerClassQName);
 
         this.nlriParser = requireNonNull(nlriParser);
     }

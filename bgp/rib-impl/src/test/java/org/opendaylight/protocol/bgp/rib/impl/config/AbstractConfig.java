@@ -24,7 +24,6 @@ import java.util.concurrent.Executor;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
@@ -33,6 +32,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeerTrackerImpl;
+import org.opendaylight.protocol.bgp.rib.impl.DefaultRibPoliciesMockTest;
 import org.opendaylight.protocol.bgp.rib.impl.spi.AbstractImportPolicy;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
@@ -62,9 +62,10 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.osgi.framework.ServiceRegistration;
 
-class AbstractConfig {
-    static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+class AbstractConfig extends DefaultRibPoliciesMockTest {
     protected static final AsNumber AS = new AsNumber(72L);
+    protected static final RibId RIB_ID = new RibId("test");
+    static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
     @Mock
     protected RIB rib;
     @Mock
@@ -87,12 +88,11 @@ class AbstractConfig {
     private ImportPolicyPeerTracker importPolicyPeerTracker;
     @Mock
     private DOMDataTreeChangeService dataTreeChangeService;
-    protected static final RibId RIB_ID = new RibId("test");
     private BGPPeerTracker peerTracker = new BGPPeerTrackerImpl();
 
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+        super.setUp();
         doReturn(InstanceIdentifier.create(BgpRib.class).child(org.opendaylight.yang.gen.v1.urn.opendaylight
                 .params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.Rib.class, new RibKey(RIB_ID))).when(this.rib)
                 .getInstanceIdentifier();
@@ -147,6 +147,7 @@ class AbstractConfig {
         doReturn("registry").when(this.bgpPeerRegistry).toString();
         doNothing().when(this.listener).close();
         doReturn(this.bgpPeerRegistry).when(this.dispatcher).getBGPPeerRegistry();
-        doReturn(peerTracker).when(this.rib).getPeerTracker();
+        doReturn(this.peerTracker).when(this.rib).getPeerTracker();
+        doReturn(this.policies).when(this.rib).getRibPolicies();
     }
 }

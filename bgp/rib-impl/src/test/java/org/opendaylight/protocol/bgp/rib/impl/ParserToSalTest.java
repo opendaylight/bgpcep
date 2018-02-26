@@ -22,19 +22,13 @@ import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
-import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTestCustomizer;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
-import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.protocol.bgp.inet.RIBActivator;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
@@ -49,11 +43,8 @@ import org.opendaylight.protocol.bgp.util.HexDumpBGPFileParser;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv4.routes.ipv4.routes.Ipv4Route;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv6.routes.ipv6.routes.Ipv6Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev171207.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev171207.LinkstateSubsequentAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev171207.linkstate.routes.linkstate.routes.LinkstateRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
@@ -65,10 +56,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.YangModuleInfo;
-import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 
-public class ParserToSalTest extends AbstractConcurrentDataBrokerTest {
+public class ParserToSalTest extends DefaultRibPoliciesMockTest {
 
     private static final String TEST_RIB_ID = "testRib";
     private static final TablesKey TABLE_KEY = new TablesKey(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
@@ -80,16 +69,12 @@ public class ParserToSalTest extends AbstractConcurrentDataBrokerTest {
 
     @Mock
     private BGPDispatcher dispatcher;
-    private BindingCodecTreeFactory codecFactory;
-
-    private DOMSchemaService schemaService;
     private BGPPeerTracker peerTracker = new BGPPeerTrackerImpl();
     private CodecsRegistryImpl codecsRegistry;
 
     @Before
     public void setUp() throws Exception {
-        super.setup();
-        MockitoAnnotations.initMocks(this);
+        super.setUp();
         final String hexMessages = "/bgp_hex.txt";
         final List<byte[]> bgpMessages = HexDumpBGPFileParser
                 .parseMessages(ParserToSalTest.class.getResourceAsStream(hexMessages));
@@ -107,24 +92,8 @@ public class ParserToSalTest extends AbstractConcurrentDataBrokerTest {
 
         this.baseact.startRIBExtensionProvider(this.ext1);
         this.lsact.startRIBExtensionProvider(this.ext2);
-        this.codecsRegistry = CodecsRegistryImpl.create(this.codecFactory,
+        this.codecsRegistry = CodecsRegistryImpl.create(this.bindingCodecTreeFactory,
                 GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
-    }
-
-    @Override
-    protected Iterable<YangModuleInfo> getModuleInfos() throws Exception {
-        return ImmutableList.of(
-                BindingReflections.getModuleInfo(Ipv4Route.class),
-                BindingReflections.getModuleInfo(Ipv6Route.class),
-                BindingReflections.getModuleInfo(LinkstateRoute.class));
-    }
-
-    @Override
-    protected AbstractDataBrokerTestCustomizer createDataBrokerTestCustomizer() {
-        final AbstractDataBrokerTestCustomizer customizer = super.createDataBrokerTestCustomizer();
-        this.codecFactory = customizer.getBindingToNormalized();
-        this.schemaService = customizer.getSchemaService();
-        return customizer;
     }
 
     @After
@@ -134,15 +103,15 @@ public class ParserToSalTest extends AbstractConcurrentDataBrokerTest {
     }
 
     @Test
-    public void testWithLinkstate() throws InterruptedException, ExecutionException, ReadFailedException {
+    public void testWithLinkstate() throws ReadFailedException {
         final List<BgpTableType> tables = ImmutableList.of(new BgpTableTypeImpl(LinkstateAddressFamily.class,
                 LinkstateSubsequentAddressFamily.class));
 
         final RIBImpl rib = new RIBImpl(new RibId(TEST_RIB_ID),
                 AS_NUMBER, new BgpId("127.0.0.1"), null, this.ext2, this.dispatcher,
-                this.codecsRegistry, getDomBroker(),this.peerTracker, tables,
+                this.codecsRegistry, getDomBroker(), this.policies, this.peerTracker, tables,
                 Collections.singletonMap(TABLE_KEY, BasePathSelectionModeFactory
-                        .createBestPathSelectionStrategy(this.peerTracker)));
+                        .createBestPathSelectionStrategy(this.peerTracker)), this.mappingService);
         rib.instantiateServiceInstance();
         assertTablesExists(tables);
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
@@ -154,14 +123,14 @@ public class ParserToSalTest extends AbstractConcurrentDataBrokerTest {
     }
 
     @Test
-    public void testWithoutLinkstate() throws InterruptedException, ExecutionException, ReadFailedException {
+    public void testWithoutLinkstate() throws ReadFailedException {
         final List<BgpTableType> tables = ImmutableList.of(new BgpTableTypeImpl(Ipv4AddressFamily.class,
                 UnicastSubsequentAddressFamily.class));
         final RIBImpl rib = new RIBImpl(new RibId(TEST_RIB_ID), AS_NUMBER, BGP_ID,
                 null, this.ext1, this.dispatcher, this.codecsRegistry, getDomBroker(),
-                this.peerTracker, tables,
+                this.policies, this.peerTracker, tables,
                 Collections.singletonMap(TABLE_KEY, BasePathSelectionModeFactory
-                        .createBestPathSelectionStrategy(this.peerTracker)));
+                        .createBestPathSelectionStrategy(this.peerTracker)), this.mappingService);
         rib.instantiateServiceInstance();
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
         assertTablesExists(tables);
@@ -182,8 +151,7 @@ public class ParserToSalTest extends AbstractConcurrentDataBrokerTest {
         });
     }
 
-    private void assertTablesExists(final List<BgpTableType> expectedTables)
-            throws InterruptedException, ExecutionException, ReadFailedException {
+    private void assertTablesExists(final List<BgpTableType> expectedTables) throws ReadFailedException {
         readDataOperational(getDataBroker(), BGP_IID, bgpRib -> {
             final List<Tables> tables = bgpRib.getRib().get(0).getLocRib().getTables();
             assertFalse(tables.isEmpty());

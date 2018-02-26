@@ -61,13 +61,13 @@ import org.slf4j.LoggerFactory;
 
 @Beta
 public abstract class AbstractRIBSupport implements RIBSupport {
+    public static final String ROUTE_KEY = "route-key";
     private static final Logger LOG = LoggerFactory.getLogger(AbstractRIBSupport.class);
     private static final NodeIdentifier ADVERTISED_ROUTES = new NodeIdentifier(AdvertizedRoutes.QNAME);
     private static final NodeIdentifier WITHDRAWN_ROUTES = new NodeIdentifier(WithdrawnRoutes.QNAME);
     private static final NodeIdentifier DESTINATION_TYPE = new NodeIdentifier(DestinationType.QNAME);
     private static final NodeIdentifier ROUTES = new NodeIdentifier(Routes.QNAME);
     private static final ApplyRoute DELETE_ROUTE = new DeleteRoute();
-    public static final String ROUTE_KEY = "route-key";
     private final NodeIdentifier routesContainerIdentifier;
     private final NodeIdentifier routesListIdentifier;
     private final NodeIdentifier routeAttributesIdentifier;
@@ -178,7 +178,7 @@ public abstract class AbstractRIBSupport implements RIBSupport {
      * Build MpReachNlri object from DOM representation.
      *
      * @param routes Collection of MapEntryNode DOM representation of routes
-     * @param hop CNextHop as it was parsed from Attributes, to be included in MpReach object
+     * @param hop    CNextHop as it was parsed from Attributes, to be included in MpReach object
      * @return MpReachNlri
      */
     private MpReachNlri buildReach(final Collection<MapEntryNode> routes, final CNextHop hop) {
@@ -234,13 +234,13 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     /**
      * Given the destination as ContainerNode, implementation needs to parse the DOM model
      * from this point onward:
-     *
+     * <p>
      * {@code /bgp-mp:mp-unreach-nlri/bgp-mp:withdrawn-routes/bgp-mp:destination-type}
      * and delete the routes from its RIBs.
      *
-     * @param tx DOMDataWriteTransaction to be passed into implementation
-     * @param tablePath YangInstanceIdentifier to be passed into implementation
-     * @param destination ContainerNode DOM representation of NLRI in Update message
+     * @param tx           DOMDataWriteTransaction to be passed into implementation
+     * @param tablePath    YangInstanceIdentifier to be passed into implementation
+     * @param destination  ContainerNode DOM representation of NLRI in Update message
      * @param routesNodeId NodeIdentifier
      */
     private void deleteDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
@@ -251,18 +251,18 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     /**
      * Given the destination as ContainerNode, implementation needs to parse the DOM model
      * from this point onward:
-     *
+     * <p>
      * {@code /bgp-mp:mp-reach-nlri/bgp-mp:advertized-routes/bgp-mp:destination-type}
      * and put the routes to its RIBs.
      *
-     * @param tx DOMDataWriteTransaction to be passed into implementation
-     * @param tablePath YangInstanceIdentifier to be passed into implementation
-     * @param destination ContainerNode DOM representation of NLRI in Update message
-     * @param attributes ContainerNode to be passed into implementation
+     * @param tx           DOMDataWriteTransaction to be passed into implementation
+     * @param tablePath    YangInstanceIdentifier to be passed into implementation
+     * @param destination  ContainerNode DOM representation of NLRI in Update message
+     * @param attributes   ContainerNode to be passed into implementation
      * @param routesNodeId NodeIdentifier
      */
     private void putDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
-        final ContainerNode destination, final ContainerNode attributes, final NodeIdentifier routesNodeId) {
+            final ContainerNode destination, final ContainerNode attributes, final NodeIdentifier routesNodeId) {
         processDestination(tx, tablePath.node(routesNodeId), destination, attributes, this.putRoute);
     }
 

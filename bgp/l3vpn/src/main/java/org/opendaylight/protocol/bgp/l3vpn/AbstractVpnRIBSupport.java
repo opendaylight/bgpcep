@@ -75,7 +75,7 @@ public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport {
         super(cazeClass, containerClass, listClass, afiClass,
                 MplsLabeledVpnSubsequentAddressFamily.class, vpnDstContainerClassQname);
         final QName classQname = BindingReflections.findQName(containerClass).intern();
-        this.routeKey = QName.create(routeQName(), "route-key").intern();
+        this.routeKey = QName.create(routeQName(), ROUTE_KEY).intern();
         final QName vpnDstClassQname = QName.create(classQname, VpnDestination.QNAME.getLocalName());
         this.nlriRoutesListNid = NodeIdentifier.create(vpnDstClassQname);
         this.prefixTypeNid = NodeIdentifier.create(QName.create(vpnDstClassQname, "prefix").intern());

@@ -12,16 +12,16 @@ import static org.opendaylight.bgpcep.config.loader.routing.policy.OpenconfigRou
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import org.junit.Before;
-import org.opendaylight.bgpcep.config.loader.routing.policy.AbstractOpenconfigRoutingPolicyLoaderTest;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.AbstractStatementRegistryTest;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.StatementRegistry;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.PolicyDefinitions;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.policy.definitions.PolicyDefinition;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.policy.definitions.PolicyDefinitionKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.policy.definitions.policy.definition.statements.Statement;
 
-public class AbstractStatementRegistryConsumerTest extends AbstractOpenconfigRoutingPolicyLoaderTest {
+public class AbstractStatementRegistryConsumerTest extends AbstractStatementRegistryTest {
     protected StatementRegistry statementRegistry;
 
     @Before

@@ -106,9 +106,15 @@ public class RibImplTest extends AbstractConfig {
     }
 
     @Test
-    public void testRibImpl() throws Exception {
-        final RibImpl ribImpl = new RibImpl(this.extension, this.dispatcher,
-                this.bindingCodecTreeFactory, this.domDataBroker, this.domSchemaService);
+    public void testRibImpl() {
+        final RibImpl ribImpl = new RibImpl(
+                this.extension,
+                this.dispatcher,
+                this.policyProvider,
+                this.bindingCodecTreeFactory,
+                this.domDataBroker,
+                this.domSchemaService,
+                this.mappingService);
         ribImpl.setServiceRegistration(this.serviceRegistration);
         ribImpl.start(createGlobal(), "rib-test", this.tableTypeRegistry);
         verify(this.extension).getClassLoadingStrategy();

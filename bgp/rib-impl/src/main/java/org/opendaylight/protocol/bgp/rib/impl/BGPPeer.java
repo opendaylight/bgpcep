@@ -327,10 +327,9 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
         }
         addBgp4Support();
 
-        this.effRibInWriter = EffectiveRibInWriter.create(this.rib.getService(),
+        this.effRibInWriter = EffectiveRibInWriter.create(this.rib,
                 this.rib.createPeerChain(this),
                 this.peerIId, this.rib.getImportPolicyPeerTracker(),
-                this.rib.getRibSupportContext(),
                 this.peerRole,
                 this.tables);
         registerPrefixesCounters(this.effRibInWriter, this.effRibInWriter);
