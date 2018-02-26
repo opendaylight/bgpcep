@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
 
 public final class LinkstateRIBSupport extends AbstractRIBSupport {
     private static final Logger LOG = LoggerFactory.getLogger(LinkstateRIBSupport.class);
-    private static final QName ROUTE_KEY = QName.create(LinkstateRoute.QNAME, "route-key").intern();
+    private static final QName ROUTE_KEY_QNAME = QName.create(LinkstateRoute.QNAME, ROUTE_KEY).intern();
     private static final LinkstateRIBSupport SINGLETON = new LinkstateRIBSupport();
     private final NodeIdentifier route = new NodeIdentifier(LinkstateRoute.QNAME);
     private final NodeIdentifier nlriRoutesList = new NodeIdentifier(CLinkstateDestination.QNAME);
@@ -106,7 +106,7 @@ public final class LinkstateRIBSupport extends AbstractRIBSupport {
         final CLinkstateDestination cLinkstateDestination = LinkstateNlriParser.extractLinkstateDestination(linkstate);
         SimpleNlriTypeRegistry.getInstance().serializeNlriType(cLinkstateDestination, buffer);
 
-        return new NodeIdentifierWithPredicates(LinkstateRoute.QNAME, ROUTE_KEY, ByteArray.readAllBytes(buffer));
+        return new NodeIdentifierWithPredicates(LinkstateRoute.QNAME, ROUTE_KEY_QNAME, ByteArray.readAllBytes(buffer));
     }
 
     @Nonnull

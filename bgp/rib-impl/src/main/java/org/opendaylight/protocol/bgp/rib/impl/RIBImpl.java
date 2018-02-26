@@ -35,6 +35,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataBrokerExtension;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
+import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
@@ -50,6 +51,7 @@ import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
+import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.BgpTableType;
@@ -97,6 +99,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
     private final DOMDataBroker domDataBroker;
     private final RIBExtensionConsumerContext extensions;
     private final YangInstanceIdentifier yangRibId;
+    private final YangInstanceIdentifier yangTables;
     private final RIBSupportContextRegistryImpl ribContextRegistry;
     private final CodecsRegistryImpl codecsRegistry;
     @GuardedBy("this")
@@ -107,7 +110,10 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
     private final ImportPolicyPeerTracker importPolicyPeerTracker;
     private final RibId ribId;
     private final BGPPeerTracker peerTracker;
+    private final BGPRibRoutingPolicy ribPolicies;
     private final Map<TablesKey, ExportPolicyPeerTracker> exportPolicyPeerTrackerMap;
+    private final BindingNormalizedNodeSerializer bindingSerializer;
+
     @GuardedBy("this")
     private DOMTransactionChain domChain;
     @GuardedBy("this")
@@ -121,9 +127,12 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
             final BGPDispatcher dispatcher,
             final CodecsRegistryImpl codecsRegistry,
             final DOMDataBroker domDataBroker,
+            final BGPRibRoutingPolicy ribPolicies,
             final BGPPeerTracker bgpPeerTracker,
             final List<BgpTableType> localTables,
-            @Nonnull final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies) {
+            final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies,
+            final BindingNormalizedNodeSerializer bindingSerializer
+    ) {
         super(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(requireNonNull(ribId))),
                 localBgpId, localAs);
         this.localAs = requireNonNull(localAs);
@@ -134,11 +143,13 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
         this.domDataBroker = requireNonNull(domDataBroker);
         this.service = this.domDataBroker.getSupportedExtensions().get(DOMDataTreeChangeService.class);
         this.extensions = requireNonNull(extensions);
+        this.ribPolicies = requireNonNull(ribPolicies);
         this.peerTracker = requireNonNull(bgpPeerTracker);
         this.codecsRegistry = codecsRegistry;
         this.ribContextRegistry = RIBSupportContextRegistryImpl.create(extensions, this.codecsRegistry);
         final InstanceIdentifierBuilder yangRibIdBuilder = YangInstanceIdentifier.builder().node(BgpRib.QNAME).node(Rib.QNAME);
         this.yangRibId = yangRibIdBuilder.nodeWithKey(Rib.QNAME, RIB_ID_QNAME, ribId.getValue()).build();
+        this.yangTables = this.yangRibId.node(LocRib.QNAME).node(Tables.QNAME);
         this.bestPathSelectionStrategies = requireNonNull(bestPathSelectionStrategies);
         final ClusterIdentifier cId = clusterId == null ? new ClusterIdentifier(localBgpId) : clusterId;
         this.ribId = ribId;
@@ -152,6 +163,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
             exportPolicies.put(key, new ExportPolicyPeerTrackerImpl(policyDatabase, key));
         }
         this.exportPolicyPeerTrackerMap = exportPolicies.build();
+        this.bindingSerializer = requireNonNull(bindingSerializer);
     }
 
     private synchronized void startLocRib(final TablesKey key) {
@@ -264,6 +276,11 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
     @Override
     public boolean supportsTable(final TablesKey tableKey) {
         return this.localTablesKeys.contains(tableKey);
+    }
+
+    @Override
+    public BGPRibRoutingPolicy getRibPolicies() {
+        return this.ribPolicies;
     }
 
     @Override
@@ -381,7 +398,10 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
         if (!attributes.isPresent()) {
             return Optional.empty();
         }
-        return Optional.empty();
+        final InstanceIdentifier<Attributes> yii
+                = (InstanceIdentifier<Attributes>) this.bindingSerializer
+                .fromYangInstanceIdentifier(ribSupport.buildRouteAttributeYii(this.yangTables, routeIdentifier));
+        return Optional.of((ContainerNode) this.bindingSerializer.toNormalizedNode(yii, attributes.get()).getValue());
     }
 
     @Override
@@ -395,6 +415,8 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
             return Optional.empty();
         }
 
-        return Optional.empty();
+        return Optional.ofNullable((Attributes) this.bindingSerializer
+                .fromNormalizedNode(ribSupport.buildRouteAttributeYii(this.yangTables, routeIdentifier),
+                        advertisedAttrs).getValue());
     }
 }

@@ -38,7 +38,7 @@ public class AppPeerTest extends AbstractConfig {
     }
 
     @Test
-    public void testAppPeer() throws Exception {
+    public void testAppPeer() {
         APP_PEER.start(this.rib, this.neighbor, this.tableTypeRegistry);
         Mockito.verify(this.rib).getYangRibId();
         Mockito.verify(this.rib).getService();

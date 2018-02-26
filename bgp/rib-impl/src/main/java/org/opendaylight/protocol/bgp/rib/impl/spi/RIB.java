@@ -17,6 +17,7 @@ import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.entry.AttributeBindingCodecSerializer;
+import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
@@ -109,6 +110,13 @@ public interface RIB extends AttributeBindingCodecSerializer, RibReference {
     boolean supportsTable(TablesKey tableKey);
 
     Set<TablesKey> getLocalTablesKeys();
+
+    /**
+     * Return Policies Container.
+     *
+     * @return policies
+     */
+    BGPRibRoutingPolicy getRibPolicies();
 
     /**
      * Returns peer tracker for the rib.

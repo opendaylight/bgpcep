@@ -30,8 +30,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.mdsal.binding.dom.adapter.BindingToNormalizedNodeCodec;
 import org.opendaylight.mdsal.binding.dom.codec.gen.impl.StreamWriterGenerator;
 import org.opendaylight.mdsal.binding.dom.codec.impl.BindingNormalizedNodeCodecRegistry;
@@ -110,7 +108,7 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 
-public abstract class AbstractAddPathTest extends AbstractConcurrentDataBrokerTest {
+public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
     private static final int RETRY_TIMER = 10;
     static final String RIB_ID = "127.0.0.1";
     static final BgpId BGP_ID = new BgpId(RIB_ID);
@@ -120,7 +118,7 @@ public abstract class AbstractAddPathTest extends AbstractConcurrentDataBrokerTe
     static final Ipv4Address PEER4 = new Ipv4Address("127.0.0.5");
     static final Ipv4Address PEER5 = new Ipv4Address("127.0.0.6");
     static final Ipv4Address PEER6 = new Ipv4Address("127.0.0.7");
-    static final AsNumber AS_NUMBER = new AsNumber(72L);
+    static final AsNumber AS_NUMBER = new AsNumber(AS);
     static final int PORT = InetSocketAddressUtil.getRandomPort();
     static final Ipv4Prefix PREFIX1 = new Ipv4Prefix("1.1.1.1/32");
     private static final ClusterIdentifier CLUSTER_ID = new ClusterIdentifier(RIB_ID);
@@ -157,7 +155,7 @@ public abstract class AbstractAddPathTest extends AbstractConcurrentDataBrokerTe
 
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+        super.setUp();
         this.ribActivator = new RIBActivator();
         this.ribExtension = new SimpleRIBExtensionProviderContext();
 

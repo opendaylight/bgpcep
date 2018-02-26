@@ -69,7 +69,7 @@ abstract class AbstractLabeledUnicastRIBSupport extends MultiPathAbstractRIBSupp
     AbstractLabeledUnicastRIBSupport(final Class<? extends Routes> cazeClass, final Class<? extends DataObject> containerClass,
         final Class<? extends Route> listClass, final Class<? extends AddressFamily> addressFamilyClass,
         final Class<? extends SubsequentAddressFamily> safiClass, final QName destinationQname) {
-        super(cazeClass, containerClass, listClass, addressFamilyClass, safiClass, "route-key", destinationQname);
+        super(cazeClass, containerClass, listClass, addressFamilyClass, safiClass, ROUTE_KEY, destinationQname);
     }
 
     @Override

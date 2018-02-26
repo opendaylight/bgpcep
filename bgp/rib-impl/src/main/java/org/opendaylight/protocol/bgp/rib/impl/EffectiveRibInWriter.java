@@ -21,18 +21,24 @@ import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.ClusteredDOMDataTreeChangeListener;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.AbstractImportPolicy;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ImportPolicyPeerTracker;
+import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.state.peer.PrefixesInstalledCounters;
 import org.opendaylight.protocol.bgp.rib.impl.state.peer.PrefixesReceivedCounters;
+import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
+import org.opendaylight.protocol.bgp.rib.spi.entry.AttributeBindingCodecSerializer;
+import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
+import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.peer.AdjRibIn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.peer.EffectiveRibIn;
@@ -46,7 +52,6 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.ModificationType;
@@ -78,21 +83,29 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         private final DOMTransactionChain chain;
         private final Map<TablesKey, LongAdder> prefixesReceived;
         private final Map<TablesKey, LongAdder> prefixesInstalled;
+        private final BGPRibRoutingPolicy ribPolicies;
+        private final BGPPeerTracker peerTracker;
+        private final AttributeBindingCodecSerializer attBindingCodecSerializer;
+        private final PeerId peerId;
 
-        AdjInTracker(final DOMDataTreeChangeService service, final RIBSupportContextRegistry registry,
-                final DOMTransactionChain chain, final YangInstanceIdentifier peerIId,
+        AdjInTracker(final RIB rib,
+                final DOMTransactionChain chain,
+                final YangInstanceIdentifier peerIId,
                 @Nonnull final Set<TablesKey> tables) {
-            this.registry = requireNonNull(registry);
+            this.registry = requireNonNull(rib.getRibSupportContext());
             this.chain = requireNonNull(chain);
             this.peerIId = requireNonNull(peerIId);
             this.effRibTables = this.peerIId.node(EffectiveRibIn.QNAME).node(Tables.QNAME);
             this.prefixesInstalled = buildPrefixesTables(tables);
             this.prefixesReceived = buildPrefixesTables(tables);
-
+            this.ribPolicies = requireNonNull(rib.getRibPolicies());
+            this.peerTracker = requireNonNull(rib.getPeerTracker());
+            this.attBindingCodecSerializer = rib;
+            this.peerId = IdentifierUtils.peerId((NodeIdentifierWithPredicates) peerIId.getLastPathArgument());
             final DOMDataTreeIdentifier treeId = new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL,
                     this.peerIId.node(AdjRibIn.QNAME).node(Tables.QNAME));
             LOG.debug("Registered Effective RIB on {}", this.peerIId);
-            this.reg = service.registerDataTreeChangeListener(treeId, this);
+            this.reg = requireNonNull(rib.getService()).registerDataTreeChangeListener(treeId, this);
         }
 
         private Map<TablesKey, LongAdder> buildPrefixesTables(final Set<TablesKey> tables) {
@@ -119,22 +132,38 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                 case APPEARED:
                 case SUBTREE_MODIFIED:
                 case WRITE:
-                    tx.put(LogicalDatastoreType.OPERATIONAL, routeId, route.getDataAfter().get());
+                    final NormalizedNode<?, ?> advRoute = route.getDataAfter().get();
+                    tx.put(LogicalDatastoreType.OPERATIONAL, routeId, advRoute);
                     CountersUtil.increment(this.prefixesReceived.get(tablesKey), tablesKey);
                     // Lookup per-table attributes from RIBSupport
-                    final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(route.getDataAfter(), ribSupport.routeAttributesIdentifier()).orElse(null);
-                    final ContainerNode effectiveAttrs;
 
-                    if (advertisedAttrs != null) {
-                        effectiveAttrs = policy.effectiveAttributes(advertisedAttrs);
+                    final NodeIdentifierWithPredicates routeIdentifier = ribSupport
+                            .createRouteKeyPathArgument((NodeIdentifierWithPredicates) route.getIdentifier());
+                    Optional<Attributes> advertisedAttrs = this.attBindingCodecSerializer
+                            .getAttributes(ribSupport, routeIdentifier, advRoute);
+
+                    final Optional<Attributes> effectiveAttrs;
+                    if (advertisedAttrs.isPresent()) {
+                        final PeerRole peerRole = this.peerTracker.getRole(this.peerId);
+                        final BGPRouteEntryImportParameters ribPolicyParameters =
+                                new BGPRouteEntryImportParametersImpl(
+                                        (NodeIdentifierWithPredicates) route.getIdentifier(), this.peerId, peerRole);
+                        effectiveAttrs = this.ribPolicies
+                                .applyImportPolicies(ribPolicyParameters, advertisedAttrs.get());
+                        LOG.debug("Route {} effective attributes {} towards {}", route.getIdentifier(), effectiveAttrs,
+                                routeId);
+
                     } else {
-                        effectiveAttrs = null;
+                        effectiveAttrs = Optional.empty();
                     }
 
                     LOG.debug("Route {} effective attributes {} towards {}", route.getIdentifier(), effectiveAttrs, routeId);
 
-                    if (effectiveAttrs != null) {
-                        tx.put(LogicalDatastoreType.OPERATIONAL, routeId.node(ribSupport.routeAttributesIdentifier()), effectiveAttrs);
+                    final Optional<ContainerNode> normEffAtt = this.attBindingCodecSerializer
+                            .toNormalizedNodeAttribute(ribSupport, routeIdentifier, effectiveAttrs);
+                    if (normEffAtt.isPresent()) {
+                        tx.put(LogicalDatastoreType.OPERATIONAL,
+                                routeId.node(ribSupport.routeAttributesIdentifier()), normEffAtt.get());
                         if (route.getModificationType() == ModificationType.WRITE) {
                             CountersUtil.increment(this.prefixesInstalled.get(tablesKey), tablesKey);
                         }
@@ -334,26 +363,20 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     private final AdjInTracker adjInTracker;
     private final AbstractImportPolicy importPolicy;
 
-    static EffectiveRibInWriter create(@Nonnull final DOMDataTreeChangeService service,
+    static EffectiveRibInWriter create(@Nonnull final RIB rib,
             @Nonnull final DOMTransactionChain chain,
             @Nonnull final YangInstanceIdentifier peerIId,
             @Nonnull final ImportPolicyPeerTracker importPolicyPeerTracker,
-            @Nonnull final RIBSupportContextRegistry registry,
             final PeerRole peerRole,
             @Nonnull final Set<TablesKey> tables) {
-        return new EffectiveRibInWriter(service, chain, peerIId, importPolicyPeerTracker, registry, peerRole, tables);
+        return new EffectiveRibInWriter(rib, chain, peerIId, importPolicyPeerTracker, peerRole, tables);
     }
 
-    private EffectiveRibInWriter(final DOMDataTreeChangeService service,
-            final DOMTransactionChain chain,
-            final YangInstanceIdentifier peerIId,
-            final ImportPolicyPeerTracker importPolicyPeerTracker,
-            final RIBSupportContextRegistry registry,
-            final PeerRole peerRole,
-            @Nonnull final Set<TablesKey> tables) {
+    private EffectiveRibInWriter(final RIB rib, final DOMTransactionChain chain, final YangInstanceIdentifier peerIId,
+            final ImportPolicyPeerTracker importPolicyPeerTracker, final PeerRole peerRole, @Nonnull final Set<TablesKey> tables) {
         importPolicyPeerTracker.peerRoleChanged(peerIId, peerRole);
         this.importPolicy = importPolicyPeerTracker.policyFor(IdentifierUtils.peerId((NodeIdentifierWithPredicates) peerIId.getLastPathArgument()));
-        this.adjInTracker = new AdjInTracker(service, registry, chain, peerIId, tables);
+        this.adjInTracker = new AdjInTracker(rib, chain, peerIId, tables);
     }
 
     @Override

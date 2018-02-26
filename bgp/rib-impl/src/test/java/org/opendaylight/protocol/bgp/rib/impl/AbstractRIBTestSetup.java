@@ -95,12 +95,10 @@ import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 
-public class AbstractRIBTestSetup {
+public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
 
     protected static final Class<? extends AddressFamily> AFI = Ipv4AddressFamily.class;
     protected static final Class<? extends SubsequentAddressFamily> SAFI = UnicastSubsequentAddressFamily.class;
-    protected static final QName AFI_QNAME = BindingReflections.findQName(AFI).intern();
-    protected static final QName SAFI_QNAME = BindingReflections.findQName(SAFI).intern();
     protected static final TablesKey KEY = new TablesKey(AFI, SAFI);
     protected static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, "prefix").intern();
     private static final ClusterIdentifier CLUSTER_ID = new ClusterIdentifier("128.0.0.1");
@@ -183,9 +181,11 @@ public class AbstractRIBTestSetup {
         doReturn(mock(ClusterSingletonServiceRegistration.class)).when(this.clusterSingletonServiceProvider)
                 .registerClusterSingletonService(any(ClusterSingletonService.class));
         this.rib = new RIBImpl(new RibId("test"), new AsNumber(5L), RIB_ID, CLUSTER_ID, context,
-                this.dispatcher, codecsRegistry, this.dom, this.peerTracker, localTables,
+                this.dispatcher, codecsRegistry, this.dom, this.policies, this.peerTracker, localTables,
                 Collections.singletonMap(new TablesKey(AFI, SAFI),
-                        BasePathSelectionModeFactory.createBestPathSelectionStrategy(this.peerTracker)));
+                        BasePathSelectionModeFactory.createBestPathSelectionStrategy(this.peerTracker)),
+                this.mappingService
+                );
         this.rib.onGlobalContextUpdated(schemaContext);
         this.ribSupport = getRib().getRibSupportContext().getRIBSupportContext(KEY).getRibSupport();
     }
