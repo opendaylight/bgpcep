@@ -1,6 +1,6 @@
 module bgp-vpn-ipv4 {
     namespace "urn:opendaylight:params:xml:ns:yang:bgp-vpn-ipv4";
-    prefix "bgp-vpn";
+    prefix "bgp-vpn-ipv4";
 
     import bgp-message { prefix bgp-msg; revision-date 2017-12-07; }
     import bgp-multiprotocol { prefix bgp-mp; revision-date 2017-12-07; }
