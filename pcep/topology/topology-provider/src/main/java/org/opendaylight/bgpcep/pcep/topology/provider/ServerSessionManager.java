@@ -223,9 +223,13 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
             LOG.error("Session Manager has already been closed.");
             return Futures.immediateFuture(null);
         }
-        this.nodes.values().iterator().forEachRemaining(TopologySessionListener::close);
+        for (final TopologySessionListener node : this.nodes.values()) {
+            node.close();
+        }
         this.nodes.clear();
-        this.state.values().iterator().forEachRemaining(TopologyNodeState::close);
+        for (final TopologyNodeState topologyNodeState : this.state.values()) {
+            topologyNodeState.close();
+        }
         this.state.clear();
 
         final WriteTransaction t = this.dependenciesProvider.getDataBroker().newWriteOnlyTransaction();
