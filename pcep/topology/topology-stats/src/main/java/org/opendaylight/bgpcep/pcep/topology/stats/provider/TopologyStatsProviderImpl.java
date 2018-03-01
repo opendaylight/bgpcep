@@ -89,8 +89,8 @@ public final class TopologyStatsProviderImpl implements TransactionChainListener
         final WriteTransaction wTx = this.transactionChain.newWriteOnlyTransaction();
         for (final KeyedInstanceIdentifier<Node, NodeKey> statId : this.statsMap.keySet()) {
             wTx.delete(LogicalDatastoreType.OPERATIONAL, statId);
-            wTx.submit().get();
         }
+        wTx.submit().get();
         this.statsMap.clear();
         this.transactionChain.close();
     }
