@@ -12,7 +12,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.protocol.concepts.KeyMapping;
@@ -24,7 +23,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controll
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.config.rev171025.PcepNodeConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.TopologyTypes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.sync.optimizations.config.rev171025.PcepNodeSyncConfig;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypes;
 import org.slf4j.Logger;
@@ -33,8 +31,6 @@ import org.slf4j.LoggerFactory;
 final class PCEPTopologyProviderUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyProviderUtil.class);
-
-    private static final long TIMEOUT_NS = TimeUnit.SECONDS.toNanos(5);
 
     private PCEPTopologyProviderUtil() {
         throw new UnsupportedOperationException();
@@ -73,19 +69,6 @@ final class PCEPTopologyProviderUtil {
         return aug != null && aug.getTopologyPcep() != null;
     }
 
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    static void closeTopology(@Nullable final PCEPTopologyProviderBean topology, @Nonnull final TopologyId topologyId) {
-        if (topology == null) {
-            return;
-        }
-        LOG.info("Removing Topology {}", topologyId);
-        try {
-            topology.closeServiceInstance().get(TIMEOUT_NS, TimeUnit.NANOSECONDS);
-            topology.close();
-        } catch (final Exception e) {
-            LOG.error("Topology {} instance failed to close service instance", topologyId, e);
-        }
-    }
 
     static SpeakerIdMapping contructSpeakersId(final Topology topology) {
         final SpeakerIdMapping ret = SpeakerIdMapping.getSpeakerIdMap();
