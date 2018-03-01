@@ -68,8 +68,23 @@ public class PCEPTopologyDeployerImpl implements PCEPTopologyDeployer, AutoClose
     }
 
     @Override
-    public synchronized void close() throws Exception {
-        this.pcepTopologyServices.values().forEach(PCEPTopologyProviderBean::closeServiceInstance);
-        this.pcepTopologyServices.values().forEach(PCEPTopologyProviderBean::close);
+    public synchronized void close() {
+        for (Map.Entry<TopologyId, PCEPTopologyProviderBean> entry:this.pcepTopologyServices.entrySet()) {
+            closeTopology(entry.getValue(), entry.getKey());
+        }
+    }
+
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    private synchronized void closeTopology(final PCEPTopologyProviderBean topology, final TopologyId topologyId) {
+        if (topology == null) {
+            return;
+        }
+        LOG.info("Removing Topology {}", topologyId);
+        try {
+            topology.closeServiceInstance().get(TIMEOUT_NS, TimeUnit.NANOSECONDS);
+            topology.close();
+        } catch (final Exception e) {
+            LOG.error("Topology {} instance failed to close service instance", topologyId, e);
+        }
     }
 }

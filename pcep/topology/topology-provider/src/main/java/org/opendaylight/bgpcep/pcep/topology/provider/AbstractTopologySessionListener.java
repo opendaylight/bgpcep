@@ -308,15 +308,19 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         Futures.addCallback(ctx.trans.submit(), new FutureCallback<Void>() {
             @Override
             public void onSuccess(final Void result) {
-                LOG.trace("Internal state for session {} updated successfully", session);
-                ctx.notifyRequests();
+                synchronized (AbstractTopologySessionListener.this) {
+                    LOG.trace("Internal state for session {} updated successfully", session);
+                    ctx.notifyRequests();
+                }
             }
 
             @Override
             public void onFailure(final Throwable t) {
-                LOG.error("Failed to update internal state for session {}, closing it", session, t);
-                ctx.notifyRequests();
-                session.close(TerminationReason.UNKNOWN);
+                synchronized (AbstractTopologySessionListener.this) {
+                    LOG.error("Failed to update internal state for session {}, closing it", session, t);
+                    ctx.notifyRequests();
+                    session.close(TerminationReason.UNKNOWN);
+                }
             }
         }, MoreExecutors.directExecutor());
     }
@@ -329,7 +333,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         }
     }
 
-    private final synchronized void unregister() {
+    private synchronized void unregister() {
         if (this.registration != null) {
             this.registration.close();
             LOG.trace("PCEP session {} is unregistered successfully.", this.session);
