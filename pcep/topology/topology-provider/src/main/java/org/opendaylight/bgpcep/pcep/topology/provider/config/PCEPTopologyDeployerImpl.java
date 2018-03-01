@@ -8,7 +8,6 @@
 package org.opendaylight.bgpcep.pcep.topology.provider.config;
 
 import static java.util.Objects.requireNonNull;
-import static org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyProviderUtil.closeTopology;
 import static org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyProviderUtil.filterPcepTopologies;
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
 
@@ -16,6 +15,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
@@ -40,6 +40,7 @@ public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener
 
     private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyDeployerImpl.class);
 
+    private static final long TIMEOUT_NS = TimeUnit.SECONDS.toNanos(5);
     private final BlueprintContainer container;
     private final InstanceIdentifier<NetworkTopology> networTopology;
     private final DataBroker dataBroker;
@@ -131,9 +132,25 @@ public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener
             this.listenerRegistration.close();
             this.listenerRegistration = null;
         }
-        this.pcepTopologyServices.entrySet().iterator()
-                .forEachRemaining(entry -> closeTopology(entry.getValue(), entry.getKey()));
+        for (Map.Entry<TopologyId, PCEPTopologyProviderBean> entry:this.pcepTopologyServices.entrySet()) {
+            closeTopology(entry.getValue(), entry.getKey());
+        }
         this.pcepTopologyServices.clear();
         LOG.info("PCEP Topology Deployer closed");
+    }
+
+
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    private synchronized void closeTopology(final PCEPTopologyProviderBean topology, final TopologyId topologyId) {
+        if (topology == null) {
+            return;
+        }
+        LOG.info("Removing Topology {}", topologyId);
+        try {
+            topology.closeServiceInstance().get(TIMEOUT_NS, TimeUnit.NANOSECONDS);
+            topology.close();
+        } catch (final Exception e) {
+            LOG.error("Topology {} instance failed to close service instance", topologyId, e);
+        }
     }
 }
