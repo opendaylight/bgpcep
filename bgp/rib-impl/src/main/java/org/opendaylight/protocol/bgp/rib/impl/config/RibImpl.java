@@ -35,7 +35,6 @@ import org.opendaylight.protocol.bgp.rib.impl.CodecsRegistryImpl;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
-import org.opendaylight.protocol.bgp.rib.impl.spi.ImportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
@@ -214,11 +213,6 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
 
     void setServiceRegistration(final ServiceRegistration<?> serviceRegistration) {
         this.serviceRegistration = serviceRegistration;
-    }
-
-    @Override
-    public ImportPolicyPeerTracker getImportPolicyPeerTracker() {
-        return this.ribImpl.getImportPolicyPeerTracker();
     }
 
     @Override

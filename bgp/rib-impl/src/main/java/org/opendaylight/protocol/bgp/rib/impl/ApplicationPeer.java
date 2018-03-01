@@ -145,9 +145,7 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
         this.adjRibInWriter = this.adjRibInWriter.transform(this.peerId, context, localTables, Collections.emptyMap(),
                 registerAppPeerListener);
         this.effectiveRibInWriter = EffectiveRibInWriter
-                .create(this.rib, this.rib.createPeerChain(this), this.peerIId,
-                this.rib.getImportPolicyPeerTracker(), PeerRole.Internal,
-                localTables);
+                .create(this.rib, this.rib.createPeerChain(this), this.peerIId, localTables);
         this.bgpSessionState.registerMessagesCounter(this);
         this.trackerRegistration = this.rib.getPeerTracker().registerPeer(this);
     }

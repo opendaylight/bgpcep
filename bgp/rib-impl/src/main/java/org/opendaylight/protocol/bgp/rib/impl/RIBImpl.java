@@ -41,7 +41,6 @@ import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
-import org.opendaylight.protocol.bgp.rib.impl.spi.ImportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
@@ -107,7 +106,6 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
     private final DOMDataBrokerExtension service;
     private final Map<TransactionChain<?, ?>, LocRibWriter> txChainToLocRibWriter = new HashMap<>();
     private final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies;
-    private final ImportPolicyPeerTracker importPolicyPeerTracker;
     private final RibId ribId;
     private final BGPPeerTracker peerTracker;
     private final BGPRibRoutingPolicy ribPolicies;
@@ -154,7 +152,6 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
         final ClusterIdentifier cId = clusterId == null ? new ClusterIdentifier(localBgpId) : clusterId;
         this.ribId = ribId;
         final PolicyDatabase policyDatabase = new PolicyDatabase(this.localAs.getValue(), localBgpId, cId);
-        this.importPolicyPeerTracker = new ImportPolicyPeerTrackerImpl(policyDatabase);
 
         final ImmutableMap.Builder<TablesKey, ExportPolicyPeerTracker> exportPolicies = new ImmutableMap.Builder<>();
         for (final BgpTableType t : this.localTables) {
@@ -321,11 +318,6 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
     @Override
     public CodecsRegistry getCodecsRegistry() {
         return this.codecsRegistry;
-    }
-
-    @Override
-    public ImportPolicyPeerTracker getImportPolicyPeerTracker() {
-        return this.importPolicyPeerTracker;
     }
 
     @Override

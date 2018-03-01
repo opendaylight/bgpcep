@@ -89,8 +89,6 @@ public interface RIB extends AttributeBindingCodecSerializer, RibReference {
      */
     DOMDataTreeChangeService getService();
 
-    ImportPolicyPeerTracker getImportPolicyPeerTracker();
-
     /**
      * Returns ExportPolicyPeerTracker for specific tableKey, where peer can register himself
      * as supporting the table. Same export policy can be used to check which peers support respective

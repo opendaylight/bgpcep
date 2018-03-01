@@ -62,7 +62,7 @@ public interface PeerTrackerInformation {
      *
      * @return Peer YangInstanceIdentifier
      */
-    @Nullable
+    @Nonnull
     YangInstanceIdentifier getPeerRibInstanceIdentifier();
 
     /**

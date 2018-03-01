@@ -24,8 +24,6 @@ import org.opendaylight.controller.md.sal.dom.api.ClusteredDOMDataTreeChangeList
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
-import org.opendaylight.protocol.bgp.rib.impl.spi.AbstractImportPolicy;
-import org.opendaylight.protocol.bgp.rib.impl.spi.ImportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
@@ -114,7 +112,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             return b.build();
         }
 
-        private void processRoute(final DOMDataWriteTransaction tx, final RIBSupport ribSupport, final AbstractImportPolicy policy,
+        private void processRoute(final DOMDataWriteTransaction tx, final RIBSupport ribSupport,
                 final YangInstanceIdentifier routesPath, final DataTreeCandidateNode route) {
             LOG.debug("Process route {}", route.getIdentifier());
             final YangInstanceIdentifier routeId = ribSupport.routePath(routesPath, route.getIdentifier());
@@ -197,11 +195,11 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                         // No-op
                         break;
                     case SUBTREE_MODIFIED:
-                        processModifiedRouteTables(child, childIdentifier, tx, ribSupport, EffectiveRibInWriter.this.importPolicy, childPath, childDataAfter);
+                        processModifiedRouteTables(child, childIdentifier, tx, ribSupport, childPath, childDataAfter);
                         break;
                     case APPEARED:
                     case WRITE:
-                        writeRouteTables(child, childIdentifier, tx, ribSupport, EffectiveRibInWriter.this.importPolicy, childPath, childDataAfter);
+                        writeRouteTables(child, childIdentifier, tx, ribSupport, childPath, childDataAfter);
 
                         break;
                     default:
@@ -212,17 +210,19 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         }
 
         private void processModifiedRouteTables(final DataTreeCandidateNode child, final PathArgument childIdentifier, final DOMDataWriteTransaction tx,
-                final RIBSupport ribSupport, final AbstractImportPolicy policy, final YangInstanceIdentifier childPath, final Optional<NormalizedNode<?, ?>> childDataAfter) {
+                final RIBSupport ribSupport, final YangInstanceIdentifier childPath, final Optional<NormalizedNode<?, ?>> childDataAfter) {
             if (TABLE_ROUTES.equals(childIdentifier)) {
                 for (final DataTreeCandidateNode route : ribSupport.changedRoutes(child)) {
-                    processRoute(tx, ribSupport, policy, childPath, route);
+                    processRoute(tx, ribSupport, childPath, route);
                 }
             } else {
                 tx.put(LogicalDatastoreType.OPERATIONAL, childPath, childDataAfter.get());
             }
         }
 
-        private void writeRouteTables(final DataTreeCandidateNode child, final PathArgument childIdentifier, final DOMDataWriteTransaction tx, final RIBSupport ribSupport, final AbstractImportPolicy policy, final YangInstanceIdentifier childPath, final Optional<NormalizedNode<?, ?>> childDataAfter) {
+        private void writeRouteTables(final DataTreeCandidateNode child, final PathArgument childIdentifier,
+                final DOMDataWriteTransaction tx, final RIBSupport ribSupport,
+                final YangInstanceIdentifier childPath, final Optional<NormalizedNode<?, ?>> childDataAfter) {
             if (TABLE_ROUTES.equals(childIdentifier)) {
                 final Collection<DataTreeCandidateNode> changedRoutes = ribSupport.changedRoutes(child);
                 if (!changedRoutes.isEmpty()) {
@@ -230,7 +230,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                     // Routes are special, as they may end up being filtered. The previous put conveniently
                     // ensured that we have them in at target, so a subsequent delete will not fail :)
                     for (final DataTreeCandidateNode route : changedRoutes) {
-                        processRoute(tx, ribSupport, policy, childPath, route);
+                        processRoute(tx, ribSupport, childPath, route);
                     }
                 }
             }
@@ -361,21 +361,16 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     }
 
     private final AdjInTracker adjInTracker;
-    private final AbstractImportPolicy importPolicy;
 
     static EffectiveRibInWriter create(@Nonnull final RIB rib,
             @Nonnull final DOMTransactionChain chain,
             @Nonnull final YangInstanceIdentifier peerIId,
-            @Nonnull final ImportPolicyPeerTracker importPolicyPeerTracker,
-            final PeerRole peerRole,
             @Nonnull final Set<TablesKey> tables) {
-        return new EffectiveRibInWriter(rib, chain, peerIId, importPolicyPeerTracker, peerRole, tables);
+        return new EffectiveRibInWriter(rib, chain, peerIId, tables);
     }
 
     private EffectiveRibInWriter(final RIB rib, final DOMTransactionChain chain, final YangInstanceIdentifier peerIId,
-            final ImportPolicyPeerTracker importPolicyPeerTracker, final PeerRole peerRole, @Nonnull final Set<TablesKey> tables) {
-        importPolicyPeerTracker.peerRoleChanged(peerIId, peerRole);
-        this.importPolicy = importPolicyPeerTracker.policyFor(IdentifierUtils.peerId((NodeIdentifierWithPredicates) peerIId.getLastPathArgument()));
+            @Nonnull final Set<TablesKey> tables) {
         this.adjInTracker = new AdjInTracker(rib, chain, peerIId, tables);
     }
 

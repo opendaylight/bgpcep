@@ -33,11 +33,9 @@ import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeerTrackerImpl;
 import org.opendaylight.protocol.bgp.rib.impl.DefaultRibPoliciesMockTest;
-import org.opendaylight.protocol.bgp.rib.impl.spi.AbstractImportPolicy;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
-import org.opendaylight.protocol.bgp.rib.impl.spi.ImportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
@@ -85,8 +83,6 @@ class AbstractConfig extends DefaultRibPoliciesMockTest {
     @Mock
     protected DOMDataWriteTransaction domDW;
     @Mock
-    private ImportPolicyPeerTracker importPolicyPeerTracker;
-    @Mock
     private DOMDataTreeChangeService dataTreeChangeService;
     private BGPPeerTracker peerTracker = new BGPPeerTrackerImpl();
 
@@ -98,11 +94,6 @@ class AbstractConfig extends DefaultRibPoliciesMockTest {
                 .getInstanceIdentifier();
         doReturn(this.domTx).when(this.rib).createPeerChain(any(TransactionChainListener.class));
         doReturn(AS).when(this.rib).getLocalAs();
-        doReturn(this.importPolicyPeerTracker).when(this.rib).getImportPolicyPeerTracker();
-        doNothing().when(this.importPolicyPeerTracker)
-                .peerRoleChanged(any(YangInstanceIdentifier.class), any(PeerRole.class));
-        doReturn(mock(AbstractImportPolicy.class))
-                .when(this.importPolicyPeerTracker).policyFor(any(PeerId.class));
         doReturn(mock(RIBSupportContextRegistry.class)).when(this.rib).getRibSupportContext();
         doReturn(Collections.emptySet()).when(this.rib).getLocalTablesKeys();
         doNothing().when(this.domTx).close();
