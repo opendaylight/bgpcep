@@ -285,15 +285,19 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         Futures.addCallback(ctx.trans.submit(), new FutureCallback<Void>() {
             @Override
             public void onSuccess(final Void result) {
-                LOG.trace("Internal state for session {} updated successfully", psession);
-                ctx.notifyRequests();
+                synchronized (AbstractTopologySessionListener.this) {
+                    LOG.trace("Internal state for session {} updated successfully", psession);
+                    ctx.notifyRequests();
+                }
             }
 
             @Override
             public void onFailure(final Throwable throwable) {
-                LOG.error("Failed to update internal state for session {}, closing it", psession, throwable);
-                ctx.notifyRequests();
-                psession.close(TerminationReason.UNKNOWN);
+                synchronized (AbstractTopologySessionListener.this) {
+                    LOG.error("Failed to update internal state for session {}, closing it", psession, throwable);
+                    ctx.notifyRequests();
+                    psession.close(TerminationReason.UNKNOWN);
+                }
             }
         }, MoreExecutors.directExecutor());
     }
