@@ -97,45 +97,37 @@ final class BGPRibPolicyImpl implements BGPRibRoutingPolicy {
     @Override
     public Optional<Attributes> applyImportPolicies(final BGPRouteEntryImportParameters policyParameters,
             final Attributes attributes) {
-        RouteAttributeContainer finalAttributes = routeAttributeContainerFalse(attributes);
+        RouteAttributeContainer currentAttributes = routeAttributeContainerFalse(attributes);
         for (final String policyName : this.importPolicy) {
             for (final Statement statement : this.statements.getUnchecked(policyName)) {
-                final Attributes currentAttributes = finalAttributes.getAttributes();
-                if (currentAttributes == null) {
-                    return Optional.empty();
-                }
-                finalAttributes = this.policyRegistry
-                        .applyImportStatement(this.ribBaseParameters, policyParameters, finalAttributes, statement);
+                currentAttributes = this.policyRegistry
+                        .applyImportStatement(this.ribBaseParameters, policyParameters, currentAttributes, statement);
             }
         }
-        if (!finalAttributes.anyConditionSatisfied()) {
+        if (!currentAttributes.anyConditionSatisfied()) {
             if (DefaultPolicyType.REJECTROUTE.equals(this.defaultImportPolicy)) {
                 return Optional.empty();
             }
         }
-        return Optional.ofNullable(finalAttributes.getAttributes());
+        return Optional.ofNullable(currentAttributes.getAttributes());
     }
 
     @Override
     public Optional<Attributes> applyExportPolicies(final BGPRouteEntryExportParameters policyParameters,
             final Attributes attributes) {
-        RouteAttributeContainer finalAttributes = routeAttributeContainerFalse(attributes);
+        RouteAttributeContainer currentAttributes = routeAttributeContainerFalse(attributes);
         for (final String policyName : this.exportPolicy) {
             for (final Statement statement : this.statements.getUnchecked(policyName)) {
-                final Attributes currentAttributes = finalAttributes.getAttributes();
-                if (currentAttributes == null) {
-                    return Optional.empty();
-                }
-                finalAttributes = this.policyRegistry.applyExportStatement(
-                        this.ribBaseParameters, policyParameters, finalAttributes, statement);
+                currentAttributes = this.policyRegistry.applyExportStatement(
+                        this.ribBaseParameters, policyParameters, currentAttributes, statement);
             }
         }
-        if (!finalAttributes.anyConditionSatisfied()) {
+        if (!currentAttributes.anyConditionSatisfied()) {
             if (DefaultPolicyType.REJECTROUTE.equals(this.defaultExportPolicy)) {
                 return Optional.empty();
             }
         }
 
-        return Optional.ofNullable(finalAttributes.getAttributes());
+        return Optional.ofNullable(currentAttributes.getAttributes());
     }
 }

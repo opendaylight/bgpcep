@@ -65,13 +65,14 @@ final class ConditionsRegistryImpl {
                 .registerBgpConditionsAugmentationPolicy(conditionPolicyClass, conditionPolicy);
     }
 
-    public <T extends ChildOf<BgpMatchConditions>> AbstractRegistration registerBgpConditionsPolicy(
+    public <T extends ChildOf<BgpMatchConditions>, N> AbstractRegistration registerBgpConditionsPolicy(
             final Class<T> conditionPolicyClass,
-            final BgpConditionsPolicy<T> conditionPolicy) {
+            final BgpConditionsPolicy<T, N> conditionPolicy) {
         return this.bgpConditionsRegistry
                 .registerBgpConditionsPolicy(conditionPolicyClass, conditionPolicy);
     }
 
+    @SuppressWarnings("unchecked")
     boolean matchExportConditions(
             final RouteEntryBaseAttributes entryInfo,
             final BGPRouteEntryExportParameters routeEntryExportParameters,
@@ -96,8 +97,8 @@ final class ConditionsRegistryImpl {
                 if (handler == null) {
                     continue;
                 }
-                if (!handler.matchExportCondition(entryInfo, routeEntryExportParameters, attributes,
-                        (Augmentation<Conditions>) entry.getValue())) {
+                if (!handler.matchExportCondition(entryInfo, routeEntryExportParameters,
+                        handler.getConditionParameter(attributes), entry.getValue())) {
                     return false;
                 }
             }
@@ -106,6 +107,7 @@ final class ConditionsRegistryImpl {
         return true;
     }
 
+    @SuppressWarnings("unchecked")
     boolean matchImportConditions(
             final RouteEntryBaseAttributes entryInfo,
             final BGPRouteEntryImportParameters routeEntryImportParameters,
@@ -129,8 +131,8 @@ final class ConditionsRegistryImpl {
                 final ConditionsAugPolicy handler = this.conditionsRegistry.get(entry.getKey());
                 if (handler != null) {
                     final Augmentation<Conditions> conditionConfig = (Augmentation<Conditions>) entry.getValue();
-                    if (!handler.matchImportCondition(entryInfo, routeEntryImportParameters, attributes,
-                            conditionConfig)) {
+                    if (!handler.matchImportCondition(entryInfo, routeEntryImportParameters,
+                            handler.getConditionParameter(attributes), conditionConfig)) {
                         return false;
                     }
                 }

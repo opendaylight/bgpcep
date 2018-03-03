@@ -75,9 +75,9 @@ public final class BgpConditionsRegistry {
         }
     }
 
-    public <T extends ChildOf<BgpMatchConditions>> AbstractRegistration registerBgpConditionsPolicy(
+    public <T extends ChildOf<BgpMatchConditions>, N> AbstractRegistration registerBgpConditionsPolicy(
             final Class<T> conditionPolicyClass,
-            final BgpConditionsPolicy<T> conditionPolicy) {
+            final BgpConditionsPolicy<T, N> conditionPolicy) {
         synchronized (this.bgpConditionsRegistry) {
             final BgpConditionsPolicy prev
                     = this.bgpConditionsRegistry.putIfAbsent(conditionPolicyClass, conditionPolicy);
@@ -102,13 +102,11 @@ public final class BgpConditionsRegistry {
             final Conditions conditions) {
         final Conditions1 bgpConditionsAug = conditions.getAugmentation(Conditions1.class);
         if (bgpConditionsAug != null) {
-            final BgpConditions bgpConditions = bgpConditionsAug.getBgpConditions();
 
-            synchronized (this) {
-                if (!matchExportCondition(entryInfo, routeEntryExportParameters, attributes,
-                        bgpConditions)) {
-                    return false;
-                }
+            final BgpConditions bgpConditions = bgpConditionsAug.getBgpConditions();
+            if (!matchExportCondition(entryInfo, routeEntryExportParameters, attributes,
+                    bgpConditions)) {
+                return false;
             }
             final Map<Class<? extends Augmentation<?>>, Augmentation<?>> bgpAug = BindingReflections
                     .getAugmentations(bgpConditions);
@@ -117,8 +115,8 @@ public final class BgpConditionsRegistry {
                 if (handler == null) {
                     continue;
                 }
-                if (!handler.matchExportCondition(entryInfo, routeEntryExportParameters, attributes,
-                        entry.getValue())) {
+                if (!handler.matchExportCondition(entryInfo, routeEntryExportParameters,
+                        handler.getConditionParameter(attributes), entry.getValue())) {
                     return false;
                 }
             }
@@ -149,8 +147,8 @@ public final class BgpConditionsRegistry {
                 if (handler == null) {
                     continue;
                 }
-                if (!handler.matchImportCondition(entryInfo, routeEntryImportParameters, attributes,
-                        entry.getValue())) {
+                if (!handler.matchImportCondition(entryInfo, routeEntryImportParameters,
+                        handler.getConditionParameter(attributes), entry.getValue())) {
                     return false;
                 }
             }
@@ -187,24 +185,27 @@ public final class BgpConditionsRegistry {
 
         final MatchCommunitySet matchCond = conditions.getMatchCommunitySet();
         if (matchCond != null) {
-            if (!this.bgpConditionsRegistry.get(MatchCommunitySet.class)
-                    .matchImportCondition(routeEntryInfo, routeEntryImportParameters, attributes, matchCond)) {
+            final BgpConditionsPolicy handler = this.bgpConditionsRegistry.get(MatchCommunitySet.class);
+            if (!handler.matchImportCondition(routeEntryInfo, routeEntryImportParameters,
+                    handler.getConditionParameter(attributes), matchCond)) {
                 return false;
             }
         }
 
         final MatchAsPathSet matchAsPathSet = conditions.getMatchAsPathSet();
         if (matchCond != null) {
-            if (!this.bgpConditionsRegistry.get(MatchAsPathSet.class)
-                    .matchImportCondition(routeEntryInfo, routeEntryImportParameters, attributes, matchAsPathSet)) {
+            final BgpConditionsPolicy handler = this.bgpConditionsRegistry.get(MatchAsPathSet.class);
+            if (!handler.matchImportCondition(routeEntryInfo, routeEntryImportParameters,
+                    handler.getConditionParameter(attributes), matchAsPathSet)) {
                 return false;
             }
         }
 
         final MatchExtCommunitySet matchExtCommSet = conditions.getMatchExtCommunitySet();
         if (matchExtCommSet != null) {
-            if (!this.bgpConditionsRegistry.get(MatchExtCommunitySet.class)
-                    .matchImportCondition(routeEntryInfo, routeEntryImportParameters, attributes, matchExtCommSet)) {
+            final BgpConditionsPolicy handler = this.bgpConditionsRegistry.get(MatchAsPathSet.class);
+            if (!handler.matchImportCondition(routeEntryInfo, routeEntryImportParameters,
+                    handler.getConditionParameter(attributes), matchExtCommSet)) {
                 return false;
             }
         }
@@ -240,24 +241,27 @@ public final class BgpConditionsRegistry {
 
         final MatchCommunitySet matchCond = conditions.getMatchCommunitySet();
         if (matchCond != null) {
-            if (!this.bgpConditionsRegistry.get(MatchCommunitySet.class)
-                    .matchExportCondition(routeEntryInfo, routeEntryExportParameters, attributes, matchCond)) {
+            final BgpConditionsPolicy handler = this.bgpConditionsRegistry.get(MatchCommunitySet.class);
+            if (!handler.matchExportCondition(routeEntryInfo, routeEntryExportParameters,
+                    handler.getConditionParameter(attributes), matchCond)) {
                 return false;
             }
         }
 
         final MatchAsPathSet matchAsPathSet = conditions.getMatchAsPathSet();
         if (matchAsPathSet != null) {
-            if (!this.bgpConditionsRegistry.get(MatchAsPathSet.class)
-                    .matchExportCondition(routeEntryInfo, routeEntryExportParameters, attributes, matchAsPathSet)) {
+            final BgpConditionsPolicy handler = this.bgpConditionsRegistry.get(MatchAsPathSet.class);
+            if (!handler.matchExportCondition(routeEntryInfo, routeEntryExportParameters,
+                    handler.getConditionParameter(attributes), matchAsPathSet)) {
                 return false;
             }
         }
 
         final MatchExtCommunitySet matchExtCommSet = conditions.getMatchExtCommunitySet();
         if (matchExtCommSet != null) {
-            if (!this.bgpConditionsRegistry.get(MatchExtCommunitySet.class)
-                    .matchExportCondition(routeEntryInfo, routeEntryExportParameters, attributes, matchExtCommSet)) {
+            final BgpConditionsPolicy handler = this.bgpConditionsRegistry.get(MatchExtCommunitySet.class);
+            if (!handler.matchExportCondition(routeEntryInfo, routeEntryExportParameters,
+                    handler.getConditionParameter(attributes), matchExtCommSet)) {
                 return false;
             }
         }

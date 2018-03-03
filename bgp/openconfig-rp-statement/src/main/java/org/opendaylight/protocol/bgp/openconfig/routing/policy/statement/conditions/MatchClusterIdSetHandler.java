@@ -32,6 +32,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.RoutingPolicy;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.DefinedSets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.attributes.ClusterId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180109.BgpClusterIdSets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180109.MatchClusterIdSetCondition;
@@ -44,7 +45,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  * Match a set of Cluster Id(ALL, NAY, INVERT).
  */
 public final class MatchClusterIdSetHandler
-        implements BgpConditionsAugmentationPolicy<MatchClusterIdSetCondition> {
+        implements BgpConditionsAugmentationPolicy<MatchClusterIdSetCondition, ClusterId> {
     private static final InstanceIdentifier<ClusterIdSets> CLUSTERS_ID_SETS_IID
             = InstanceIdentifier.create(RoutingPolicy.class).child(DefinedSets.class)
             .augmentation(DefinedSets1.class).child(BgpDefinedSets.class)
@@ -73,10 +74,10 @@ public final class MatchClusterIdSetHandler
     public boolean matchImportCondition(
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryImportParameters routeEntryImportParameters,
-            final Attributes attributes,
+            final ClusterId clusterId,
             final MatchClusterIdSetCondition conditions) {
 
-        return matchClusterIdCondition(routeEntryInfo.getClusterId(), attributes,
+        return matchClusterIdCondition(routeEntryInfo.getClusterId(), clusterId,
                 conditions.getMatchClusterIdSetCondition());
     }
 
@@ -84,15 +85,20 @@ public final class MatchClusterIdSetHandler
     public boolean matchExportCondition(
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryExportParameters routeEntryExportParameters,
-            final Attributes attributes,
+            final ClusterId clusterId,
             final MatchClusterIdSetCondition conditions) {
-        return matchClusterIdCondition(routeEntryInfo.getClusterId(), attributes,
+        return matchClusterIdCondition(routeEntryInfo.getClusterId(), clusterId,
                 conditions.getMatchClusterIdSetCondition());
+    }
+
+    @Override
+    public ClusterId getConditionParameter(final Attributes attributes) {
+        return attributes.getClusterId();
     }
 
     private boolean matchClusterIdCondition(
             final ClusterIdentifier localClusterId,
-            final Attributes attributes, final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl
+            final ClusterId clusterId, final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl
             .bgp._default.policy.rev180109.match.cluster.id.set.condition.grouping
             .MatchClusterIdSetCondition matchClusterIdSetCondition) {
         final ClusterIdSet clusterIdSet = this.sets.getUnchecked(StringUtils
@@ -103,7 +109,7 @@ public final class MatchClusterIdSetHandler
         }
         final MatchSetOptionsType matchOption = matchClusterIdSetCondition.getMatchSetOptions();
 
-        if (attributes.getClusterId() != null) {
+        if (clusterId != null) {
             List<ClusterIdentifier> newList = new ArrayList<>();
             if (clusterIdSet.getClusterId() != null) {
                 newList.addAll(clusterIdSet.getClusterId());
@@ -112,7 +118,7 @@ public final class MatchClusterIdSetHandler
                 newList.add(localClusterId);
             }
 
-            final List<ClusterIdentifier> matchClusterList = attributes.getClusterId().getCluster();
+            final List<ClusterIdentifier> matchClusterList = clusterId.getCluster();
             if (matchOption.equals(MatchSetOptionsType.ALL)) {
                 return matchClusterList.containsAll(newList) && newList.containsAll(matchClusterList);
             }

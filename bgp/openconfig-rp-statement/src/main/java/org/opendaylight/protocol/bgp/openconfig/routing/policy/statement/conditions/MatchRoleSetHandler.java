@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -45,7 +46,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 /**
  * Match a Peer Role (FROM, TO).
  */
-public final class MatchRoleSetHandler implements BgpConditionsAugmentationPolicy<MatchRoleSetCondition> {
+public final class MatchRoleSetHandler implements BgpConditionsAugmentationPolicy<MatchRoleSetCondition, Void> {
     private static final InstanceIdentifier<RoleSets> ROLE_SET_IID
             = InstanceIdentifier.create(RoutingPolicy.class).child(DefinedSets.class)
             .augmentation(DefinedSets1.class).child(BgpDefinedSets.class)
@@ -88,7 +89,7 @@ public final class MatchRoleSetHandler implements BgpConditionsAugmentationPolic
     public boolean matchImportCondition(
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryImportParameters routeEntryImportParameters,
-            final Attributes attributes,
+            final Void attributes,
             final MatchRoleSetCondition conditions) {
 
         final List<MatchRoleSet> neighCond = conditions.getMatchRoleSet();
@@ -109,7 +110,7 @@ public final class MatchRoleSetHandler implements BgpConditionsAugmentationPolic
     public boolean matchExportCondition(
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryExportParameters routeEntryExportParameters,
-            final Attributes attributes,
+            final Void attributes,
             final MatchRoleSetCondition conditions) {
         final List<MatchRoleSet> neighCond = conditions.getMatchRoleSet();
 
@@ -125,5 +126,11 @@ public final class MatchRoleSetHandler implements BgpConditionsAugmentationPolic
             }
         }
         return true;
+    }
+
+    @Nullable
+    @Override
+    public Void getConditionParameter(@Nonnull final Attributes attributes) {
+        return null;
     }
 }

@@ -28,9 +28,9 @@ public interface BgpStatementRegistryProvider {
      * @return registration ticket
      */
     @Nonnull
-    <T extends ChildOf<BgpMatchConditions>> AbstractRegistration registerBgpConditionsPolicy(
+    <T extends ChildOf<BgpMatchConditions>, N> AbstractRegistration registerBgpConditionsPolicy(
             @Nonnull Class<T> conditionPolicyClass,
-            @Nonnull BgpConditionsPolicy<T> conditionPolicy);
+            @Nonnull BgpConditionsPolicy<T, N> conditionPolicy);
 
     /**
      * Register BGP Action Policy Augmentation handler.
@@ -52,9 +52,9 @@ public interface BgpStatementRegistryProvider {
      * @return registration ticket
      */
     @Nonnull
-    <T extends Augmentation<BgpConditions>> AbstractRegistration registerBgpConditionsAugmentationPolicy(
+    <T extends Augmentation<BgpConditions>, N> AbstractRegistration registerBgpConditionsAugmentationPolicy(
             @Nonnull Class<T> conditionPolicyClass,
-            @Nonnull BgpConditionsAugmentationPolicy<T> conditionPolicy);
+            @Nonnull BgpConditionsAugmentationPolicy<T, N> conditionPolicy);
 
     /**
      * Register BGP Action Policy Augmentation handler.

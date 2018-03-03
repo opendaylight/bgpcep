@@ -9,6 +9,7 @@
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
@@ -17,7 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 /**
  * Condition Policy: Check if route matches defined condition.
  */
-public interface ConditionsPolicy<T> {
+public interface ConditionsPolicy<T, N> {
     /**
      * Check if route matches defined condition (Import Policy).
      *
@@ -30,7 +31,7 @@ public interface ConditionsPolicy<T> {
     boolean matchImportCondition(
             @Nonnull RouteEntryBaseAttributes routeEntryInfo,
             @Nonnull BGPRouteEntryImportParameters routeEntryImportParameters,
-            @Nonnull Attributes attributes,
+            @Nullable N attributes,
             @Nonnull T conditions);
 
     /**
@@ -45,6 +46,15 @@ public interface ConditionsPolicy<T> {
     boolean matchExportCondition(
             @Nonnull RouteEntryBaseAttributes routeEntryInfo,
             @Nonnull BGPRouteEntryExportParameters routeEntryExportParameters,
-            @Nonnull Attributes attributes,
+            @Nullable N attributes,
             T conditions);
+
+    /**
+     * Returns the specific attribute to check if match condition.
+     *
+     * @param attributes route attributes
+     * @return specific attribute
+     */
+    @Nullable
+    N getConditionParameter(@Nonnull Attributes attributes);
 }

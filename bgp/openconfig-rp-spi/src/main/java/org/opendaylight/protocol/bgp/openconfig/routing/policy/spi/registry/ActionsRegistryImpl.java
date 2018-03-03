@@ -13,7 +13,6 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.base.Preconditions;
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.action.ActionsAugPolicy;
@@ -112,6 +111,7 @@ final class ActionsRegistryImpl {
         }
     }
 
+    @SuppressWarnings("unchecked")
     Attributes applyExportAction(
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryExportParameters routeEntryExportParameters,
@@ -122,29 +122,115 @@ final class ActionsRegistryImpl {
             return null;
         }
         Attributes attributesUpdated = attributes;
-        attributesUpdated = applyExportBGPActions(routeEntryInfo, routeEntryExportParameters,
-                attributesUpdated, actions.getAugmentation(Actions1.class));
+        final Actions1 augmentation = actions.getAugmentation(Actions1.class);
+        if (augmentation != null && augmentation.getBgpActions() != null) {
+            final BgpActions bgpAction = augmentation.getBgpActions();
+
+            final SetAsPathPrepend asPrependAction = bgpAction.getSetAsPathPrepend();
+            final Long localPrefPrependAction = bgpAction.getSetLocalPref();
+            final BgpOriginAttrType localOriginAction = bgpAction.getSetRouteOrigin();
+            final BgpSetMedType medAction = bgpAction.getSetMed();
+            final BgpNextHopType nhAction = bgpAction.getSetNextHop();
+            final SetCommunity setCommunityAction = bgpAction.getSetCommunity();
+            final SetExtCommunity setExtCommunityAction = bgpAction.getSetExtCommunity();
+
+            if (asPrependAction != null) {
+                attributesUpdated = this.bgpActions.get(SetAsPathPrepend.class)
+                        .applyExportAction(routeEntryInfo, routeEntryExportParameters, attributesUpdated,
+                                asPrependAction);
+            }
+
+            if (attributesUpdated == null) {
+                return null;
+            }
+
+            if (setCommunityAction != null) {
+                attributesUpdated = this.bgpActions.get(SetCommunity.class)
+                        .applyExportAction(routeEntryInfo, routeEntryExportParameters, attributesUpdated,
+                                setCommunityAction);
+            }
+
+            if (attributesUpdated == null) {
+                return null;
+            }
+
+            if (setExtCommunityAction != null) {
+                attributesUpdated = this.bgpActions.get(SetExtCommunity.class)
+                        .applyExportAction(routeEntryInfo, routeEntryExportParameters, attributesUpdated,
+                                setExtCommunityAction);
+            }
+
+            boolean updated = false;
+            if (localPrefPrependAction != null || localOriginAction != null
+                    || medAction != null || nhAction != null) {
+                updated = true;
+            }
+
+            if (updated) {
+                final AttributesBuilder attributesUpdatedBuilder = new AttributesBuilder(attributes);
+                if (localPrefPrependAction != null) {
+                    attributesUpdatedBuilder.setLocalPref(new LocalPrefBuilder()
+                            .setPref(localPrefPrependAction).build());
+                }
+
+                if (localOriginAction != null) {
+                    attributesUpdatedBuilder.setOrigin(new OriginBuilder()
+                            .setValue(BgpOrigin.forValue(localOriginAction.getIntValue())).build());
+                }
+
+                if (medAction != null) {
+                    attributesUpdatedBuilder.setMultiExitDisc(new MultiExitDiscBuilder()
+                            .setMed(medAction.getUint32()).build());
+                }
+
+                if (nhAction != null) {
+                    final IpAddress address = nhAction.getIpAddress();
+                    if (address != null) {
+                        CNextHop nhNew;
+                        if (address.getIpv4Address() != null) {
+                            nhNew = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
+                                    .setGlobal(address.getIpv4Address()).build()).build();
+                        } else {
+                            nhNew = new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder()
+                                    .setGlobal(address.getIpv6Address()).build()).build();
+                        }
+
+                        attributesUpdatedBuilder.setCNextHop(nhNew);
+                    }
+                }
+                attributesUpdated = attributesUpdatedBuilder.build();
+            }
+
+            final Map<Class<? extends Augmentation<?>>, Augmentation<?>> bgpConditionsAug = BindingReflections
+                    .getAugmentations(bgpAction);
+
+            if (bgpConditionsAug != null) {
+                for (final Map.Entry<Class<? extends Augmentation<?>>, Augmentation<?>> entry
+                        : bgpConditionsAug.entrySet()) {
+                    final BgpActionAugPolicy handler = this.bgpAugActionsRegistry.get(entry.getKey());
+                    if (handler == null) {
+                        continue;
+                    } else if (attributesUpdated == null) {
+                        return null;
+                    }
+                    attributesUpdated = handler.applyExportAction(routeEntryInfo, routeEntryExportParameters,
+                            attributesUpdated, entry.getValue());
+                }
+            }
+        }
+
         if (attributesUpdated == null) {
             return null;
         }
-        attributesUpdated = applyExportAugActions(routeEntryInfo, routeEntryExportParameters,
-                attributesUpdated, actions);
-        return attributesUpdated;
-    }
 
-    @SuppressWarnings("unchecked")
-    private Attributes applyExportAugActions(
-            final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryExportParameters routeEntryExportParameters,
-            @Nonnull final Attributes attributes,
-            final Actions actions) {
+        // Export Actions Aug
         final Map<Class<? extends Augmentation<?>>, Augmentation<?>> conditionsAug = BindingReflections
                 .getAugmentations(actions);
 
         if (conditionsAug == null) {
             return attributes;
         }
-        Attributes attributesUpdated = attributes;
+
         for (final Map.Entry<Class<? extends Augmentation<?>>, Augmentation<?>> entry : conditionsAug.entrySet()) {
             final ActionsAugPolicy handler = this.actionsRegistry.get(entry.getKey());
             if (attributesUpdated == null) {
@@ -155,192 +241,85 @@ final class ActionsRegistryImpl {
             attributesUpdated = handler.applyExportAction(routeEntryInfo, routeEntryExportParameters,
                     attributesUpdated, (Augmentation<Actions>) entry.getValue());
         }
+
         return attributesUpdated;
     }
 
     @SuppressWarnings("unchecked")
-    private Attributes applyExportBGPActions(
+    Attributes applyImportAction(
             final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryExportParameters routeEntryExportParameters,
-            @Nonnull final Attributes attributes,
-            final Actions1 augmentation) {
-        if (augmentation == null || augmentation.getBgpActions() == null) {
-            return attributes;
+            final BGPRouteEntryImportParameters routeParameters,
+            final Attributes attributes,
+            final Actions actions) {
+        if (actions.getRouteDisposition() instanceof RejectRoute) {
+            return null;
         }
         Attributes attributesUpdated = attributes;
-        final BgpActions actions = augmentation.getBgpActions();
+        final Actions1 augmentation = actions.getAugmentation(Actions1.class);
 
-        final SetAsPathPrepend asPrependAction = actions.getSetAsPathPrepend();
-        final Long localPrefPrependAction = actions.getSetLocalPref();
-        final BgpOriginAttrType localOriginAction = actions.getSetRouteOrigin();
-        final BgpSetMedType medAction = actions.getSetMed();
-        final BgpNextHopType nhAction = actions.getSetNextHop();
-        final SetCommunity setCommunityAction =  actions.getSetCommunity();
-        final SetExtCommunity setExtCommunityAction =  actions.getSetExtCommunity();
+        if (augmentation != null && augmentation.getBgpActions() != null) {
+            final BgpActions bgpAction = augmentation.getBgpActions();
+            final SetCommunity setCommunityAction = bgpAction.getSetCommunity();
+            final SetExtCommunity setExtCommunityAction = bgpAction.getSetExtCommunity();
+            final SetAsPathPrepend asPrependAction = bgpAction.getSetAsPathPrepend();
 
-        if (asPrependAction != null) {
-            attributesUpdated = this.bgpActions.get(SetAsPathPrepend.class)
-                    .applyExportAction(routeEntryInfo, routeEntryExportParameters, attributesUpdated, asPrependAction);
-        }
-
-        if (setCommunityAction != null) {
-            attributesUpdated = this.bgpActions.get(SetCommunity.class)
-                    .applyExportAction(routeEntryInfo, routeEntryExportParameters, attributesUpdated,
-                            setCommunityAction);
-        }
-
-        if (setExtCommunityAction != null) {
-            attributesUpdated = this.bgpActions.get(SetExtCommunity.class)
-                    .applyExportAction(routeEntryInfo, routeEntryExportParameters, attributesUpdated,
-                            setExtCommunityAction);
-        }
-
-        boolean updated = false;
-        if (localPrefPrependAction != null || localOriginAction != null
-                || medAction != null || nhAction != null) {
-            updated = true;
-        }
-
-        if (updated) {
-            final AttributesBuilder attributesUpdatedBuilder = new AttributesBuilder(attributes);
-            if (localPrefPrependAction != null) {
-                attributesUpdatedBuilder.setLocalPref(new LocalPrefBuilder().setPref(localPrefPrependAction).build());
+            if (asPrependAction != null) {
+                attributesUpdated = this.bgpActions.get(asPrependAction.getClass())
+                        .applyImportAction(routeEntryInfo, routeParameters, attributesUpdated, asPrependAction);
             }
 
-            if (localOriginAction != null) {
-                attributesUpdatedBuilder.setOrigin(new OriginBuilder()
-                        .setValue(BgpOrigin.forValue(localOriginAction.getIntValue())).build());
+            if (attributesUpdated == null) {
+                return null;
             }
 
-            if (medAction != null) {
-                attributesUpdatedBuilder.setMultiExitDisc(new MultiExitDiscBuilder()
-                        .setMed(medAction.getUint32()).build());
+            if (setCommunityAction != null) {
+                attributesUpdated = this.bgpActions.get(SetCommunity.class)
+                        .applyImportAction(routeEntryInfo, routeParameters, attributesUpdated,
+                                setCommunityAction);
             }
 
-            if (nhAction != null) {
-                final IpAddress address = nhAction.getIpAddress();
-                if (address != null) {
-                    CNextHop nhNew;
-                    if (address.getIpv4Address() != null) {
-                        nhNew = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
-                                .setGlobal(address.getIpv4Address()).build()).build();
-                    } else {
-                        nhNew = new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder()
-                                .setGlobal(address.getIpv6Address()).build()).build();
-                    }
-
-                    attributesUpdatedBuilder.setCNextHop(nhNew);
-                }
+            if (attributesUpdated == null) {
+                return null;
             }
-            attributesUpdated = attributesUpdatedBuilder.build();
-        }
 
-        final Map<Class<? extends Augmentation<?>>, Augmentation<?>> conditionsAug = BindingReflections
-                .getAugmentations(actions);
+            if (setExtCommunityAction != null) {
+                attributesUpdated = this.bgpActions.get(SetExtCommunity.class)
+                        .applyImportAction(routeEntryInfo, routeParameters, attributesUpdated, setExtCommunityAction);
+            }
 
-        if (conditionsAug != null) {
-            for (final Map.Entry<Class<? extends Augmentation<?>>, Augmentation<?>> entry : conditionsAug.entrySet()) {
+            if (attributesUpdated == null) {
+                return null;
+            }
+
+            final Map<Class<? extends Augmentation<?>>, Augmentation<?>> bgpConditionsAug = BindingReflections
+                    .getAugmentations(bgpAction);
+
+            if (bgpConditionsAug == null) {
+                return attributes;
+            }
+
+            for (final Map.Entry<Class<? extends Augmentation<?>>, Augmentation<?>> entry
+                    : bgpConditionsAug.entrySet()) {
                 final BgpActionAugPolicy handler = this.bgpAugActionsRegistry.get(entry.getKey());
                 if (handler == null) {
                     continue;
                 } else if (attributesUpdated == null) {
                     return null;
                 }
-                attributesUpdated = handler.applyExportAction(routeEntryInfo, routeEntryExportParameters,
-                        attributesUpdated, entry.getValue());
+                attributesUpdated = handler.applyImportAction(routeEntryInfo, routeParameters, attributesUpdated,
+                        entry.getValue());
             }
-        }
-
-        return attributesUpdated;
-    }
-
-    Attributes applyImportAction(
-            final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryImportParameters routeBaseParameters,
-            final Attributes attributes,
-            final Actions actions) {
-        requireNonNull(attributes);
-        if (actions.getRouteDisposition() instanceof RejectRoute) {
-            return null;
-        }
-        Attributes attributesUpdated = attributes;
-        attributesUpdated = applyImportBGPActions(routeEntryInfo, routeBaseParameters,
-                attributesUpdated, actions.getAugmentation(Actions1.class));
-        if (attributesUpdated == null) {
-            return null;
-        }
-        attributesUpdated = applyImportAugActions(routeEntryInfo, routeBaseParameters, attributesUpdated,
-                actions);
-        return attributesUpdated;
-    }
-
-    @SuppressWarnings("unchecked")
-    private Attributes applyImportBGPActions(
-            final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryImportParameters routeParameters,
-            final Attributes attributes,
-            final Actions1 augmentation) {
-        if (augmentation == null || augmentation.getBgpActions() == null) {
-            return attributes;
-        }
-        Attributes attributesUpdated = attributes;
-        final BgpActions actions = augmentation.getBgpActions();
-        final SetCommunity setCommunityAction =  actions.getSetCommunity();
-        final SetExtCommunity setExtCommunityAction =  actions.getSetExtCommunity();
-        final SetAsPathPrepend asPrependAction = actions.getSetAsPathPrepend();
-
-        if (asPrependAction != null) {
-            attributesUpdated = this.bgpActions.get(asPrependAction.getClass())
-                    .applyImportAction(routeEntryInfo, routeParameters, attributesUpdated, asPrependAction);
-        }
-
-        if (setCommunityAction != null) {
-            attributesUpdated = this.bgpActions.get(SetCommunity.class)
-                    .applyImportAction(routeEntryInfo, routeParameters, attributesUpdated,
-                            setCommunityAction);
-        }
-
-        if (setExtCommunityAction != null) {
-            attributesUpdated = this.bgpActions.get(SetExtCommunity.class)
-                    .applyImportAction(routeEntryInfo, routeParameters, attributesUpdated, setExtCommunityAction);
-        }
-
-        if (attributesUpdated == null) {
-            return null;
-        }
-
-        final Map<Class<? extends Augmentation<?>>, Augmentation<?>> conditionsAug = BindingReflections
-                .getAugmentations(actions);
-
-        if (conditionsAug == null) {
-            return attributes;
-        }
-
-        for (final Map.Entry<Class<? extends Augmentation<?>>, Augmentation<?>> entry : conditionsAug.entrySet()) {
-            final BgpActionAugPolicy handler = this.bgpAugActionsRegistry.get(entry.getKey());
-            if (handler == null) {
-                continue;
-            } else if (attributesUpdated == null) {
+            if (attributesUpdated == null) {
                 return null;
             }
-            attributesUpdated = handler.applyImportAction(routeEntryInfo, routeParameters, attributesUpdated,
-                    entry.getValue());
         }
-        return attributesUpdated;
-    }
-
-    @SuppressWarnings("unchecked")
-    private Attributes applyImportAugActions(final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryImportParameters routeBaseParameters,
-            @Nonnull final Attributes attributes,
-            final Actions actions) {
+        // Augmented Actions
         final Map<Class<? extends Augmentation<?>>, Augmentation<?>> conditionsAug = BindingReflections
                 .getAugmentations(actions);
 
         if (conditionsAug == null) {
-            return attributes;
+            return attributesUpdated;
         }
-        Attributes attributesUpdated = attributes;
         for (final Map.Entry<Class<? extends Augmentation<?>>, Augmentation<?>> entry : conditionsAug.entrySet()) {
             final ActionsAugPolicy handler = this.actionsRegistry.get(entry.getKey());
             if (handler == null) {
@@ -348,7 +327,7 @@ final class ActionsRegistryImpl {
             } else if (attributesUpdated == null) {
                 return null;
             }
-            attributesUpdated = handler.applyImportAction(routeEntryInfo, routeBaseParameters, attributesUpdated,
+            attributesUpdated = handler.applyImportAction(routeEntryInfo, routeParameters, attributesUpdated,
                     (Augmentation<Actions>) entry.getValue());
         }
         return attributesUpdated;

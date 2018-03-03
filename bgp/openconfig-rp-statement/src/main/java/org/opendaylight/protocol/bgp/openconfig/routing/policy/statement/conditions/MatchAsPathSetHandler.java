@@ -48,7 +48,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 /**
  * Match a set of AS (All, ANY, INVERT).
  */
-public final class MatchAsPathSetHandler implements BgpConditionsPolicy<MatchAsPathSet> {
+public final class MatchAsPathSetHandler implements BgpConditionsPolicy<MatchAsPathSet, AsPath> {
     private static final InstanceIdentifier<AsPathSets> AS_PATHS_SETS_IID
             = InstanceIdentifier.create(RoutingPolicy.class).child(DefinedSets.class)
             .augmentation(DefinedSets1.class).child(BgpDefinedSets.class)
@@ -77,9 +77,9 @@ public final class MatchAsPathSetHandler implements BgpConditionsPolicy<MatchAsP
     public boolean matchImportCondition(
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryImportParameters routeEntryImportParameters,
-            final Attributes attributes,
+            final AsPath asPath,
             final MatchAsPathSet conditions) {
-        return matchAsPathSetCondition(attributes.getAsPath(), conditions.getAsPathSet(),
+        return matchAsPathSetCondition(asPath, conditions.getAsPathSet(),
                 conditions.getMatchSetOptions());
     }
 
@@ -88,11 +88,16 @@ public final class MatchAsPathSetHandler implements BgpConditionsPolicy<MatchAsP
     public boolean matchExportCondition(
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryExportParameters routeEntryExportParameters,
-            final Attributes attributes,
+            final AsPath asPath,
             final MatchAsPathSet conditions) {
-        return matchAsPathSetCondition(attributes.getAsPath(), conditions.getAsPathSet(),
+        return matchAsPathSetCondition(asPath, conditions.getAsPathSet(),
                 conditions.getMatchSetOptions());
 
+    }
+
+    @Override
+    public AsPath getConditionParameter(final Attributes attributes) {
+        return attributes.getAsPath();
     }
 
 
