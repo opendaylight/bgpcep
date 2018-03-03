@@ -14,5 +14,5 @@ import org.opendaylight.yangtools.yang.binding.Augmentation;
 /**
  * Condition Policy: Check if route matches defined condition.
  */
-public interface ConditionsAugPolicy extends ConditionsPolicy<Augmentation<Conditions>> {
+public interface ConditionsAugPolicy<N> extends ConditionsPolicy<Augmentation<Conditions>, N> {
 }

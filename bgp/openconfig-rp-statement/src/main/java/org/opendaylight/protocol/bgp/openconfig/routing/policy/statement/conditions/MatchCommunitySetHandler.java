@@ -26,7 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
  * Match a set of Communities (ALL, ANY, INVERT).
  */
 public final class MatchCommunitySetHandler
-        extends AbstractCommunityHandler implements BgpConditionsPolicy<MatchCommunitySet> {
+        extends AbstractCommunityHandler implements BgpConditionsPolicy<MatchCommunitySet, List<Communities>> {
     public MatchCommunitySetHandler(final DataBroker databroker) {
         super(databroker);
     }
@@ -36,20 +36,23 @@ public final class MatchCommunitySetHandler
     public boolean matchImportCondition(
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryImportParameters routeEntryImportParameters,
-            final Attributes attributes,
+            final List<Communities> communities,
             final MatchCommunitySet conditions) {
-        return matchCondition(attributes.getCommunities(), conditions.getCommunitySet(),
-                conditions.getMatchSetOptions());
+        return matchCondition(communities, conditions.getCommunitySet(), conditions.getMatchSetOptions());
     }
 
     @Override
     public boolean matchExportCondition(
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryExportParameters routeEntryExportParameters,
-            final Attributes attributes,
+            final List<Communities> communities,
             final MatchCommunitySet conditions) {
-        return matchCondition(attributes.getCommunities(), conditions.getCommunitySet(),
-                conditions.getMatchSetOptions());
+        return matchCondition(communities, conditions.getCommunitySet(), conditions.getMatchSetOptions());
+    }
+
+    @Override
+    public List<Communities> getConditionParameter(final Attributes attributes) {
+        return attributes.getCommunities();
     }
 
     private boolean matchCondition(

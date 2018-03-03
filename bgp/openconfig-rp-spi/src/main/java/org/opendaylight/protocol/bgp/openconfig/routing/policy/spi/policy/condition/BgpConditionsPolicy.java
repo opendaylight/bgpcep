@@ -13,5 +13,5 @@ import org.opendaylight.yangtools.yang.binding.ChildOf;
 /**
  * Condition Policy: Check if route matches defined condition.
  */
-public interface BgpConditionsPolicy<T extends ChildOf<BgpMatchConditions>> extends ConditionsPolicy<T> {
+public interface BgpConditionsPolicy<T extends ChildOf<BgpMatchConditions>, N> extends ConditionsPolicy<T, N> {
 }

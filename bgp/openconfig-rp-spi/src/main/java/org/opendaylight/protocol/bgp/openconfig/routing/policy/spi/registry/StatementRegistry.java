@@ -89,9 +89,9 @@ public final class StatementRegistry implements StatementRegistryConsumer, State
     }
 
     @Override
-    public <T extends ChildOf<BgpMatchConditions>> AbstractRegistration registerBgpConditionsPolicy(
+    public <T extends ChildOf<BgpMatchConditions>, N> AbstractRegistration registerBgpConditionsPolicy(
             final Class<T> conditionPolicyClass,
-            final BgpConditionsPolicy<T> conditionPolicy) {
+            final BgpConditionsPolicy<T, N> conditionPolicy) {
         return this.conditionsRegistry.registerBgpConditionsPolicy(conditionPolicyClass, conditionPolicy);
     }
 
@@ -103,9 +103,9 @@ public final class StatementRegistry implements StatementRegistryConsumer, State
     }
 
     @Override
-    public <T extends Augmentation<BgpConditions>> AbstractRegistration registerBgpConditionsAugmentationPolicy(
+    public <T extends Augmentation<BgpConditions>, N> AbstractRegistration registerBgpConditionsAugmentationPolicy(
             final Class<T> conditionPolicyClass,
-            final BgpConditionsAugmentationPolicy<T> conditionPolicy) {
+            final BgpConditionsAugmentationPolicy<T, N> conditionPolicy) {
         return this.conditionsRegistry.registerBgpConditionsAugmentationPolicy(conditionPolicyClass, conditionPolicy);
     }
 

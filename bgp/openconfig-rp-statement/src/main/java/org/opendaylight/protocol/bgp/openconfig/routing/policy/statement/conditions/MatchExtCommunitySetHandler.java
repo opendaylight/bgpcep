@@ -25,7 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
  * Math a set of External Communities (ALL, ANY, INVERT).
  */
 public final class MatchExtCommunitySetHandler extends AbstractExtCommunityHandler
-        implements BgpConditionsPolicy<MatchExtCommunitySet> {
+        implements BgpConditionsPolicy<MatchExtCommunitySet, List<ExtendedCommunities>> {
 
     public MatchExtCommunitySetHandler(final DataBroker databroker) {
         super(databroker);
@@ -66,9 +66,9 @@ public final class MatchExtCommunitySetHandler extends AbstractExtCommunityHandl
     public boolean matchImportCondition(
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryImportParameters routeEntryImportParameters,
-            final Attributes attributes,
+            final List<ExtendedCommunities> extendedCommunities,
             final MatchExtCommunitySet conditions) {
-        return matchCondition(attributes.getExtendedCommunities(), conditions.getExtCommunitySet(),
+        return matchCondition(extendedCommunities, conditions.getExtCommunitySet(),
                 conditions.getMatchSetOptions());
     }
 
@@ -76,9 +76,14 @@ public final class MatchExtCommunitySetHandler extends AbstractExtCommunityHandl
     public boolean matchExportCondition(
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryExportParameters routeEntryExportParameters,
-            final Attributes attributes,
+            final List<ExtendedCommunities> extendedCommunities,
             final MatchExtCommunitySet conditions) {
-        return matchCondition(attributes.getExtendedCommunities(), conditions.getExtCommunitySet(),
+        return matchCondition(extendedCommunities, conditions.getExtCommunitySet(),
                 conditions.getMatchSetOptions());
+    }
+
+    @Override
+    public List<ExtendedCommunities> getConditionParameter(final Attributes attributes) {
+        return attributes.getExtendedCommunities();
     }
 }
