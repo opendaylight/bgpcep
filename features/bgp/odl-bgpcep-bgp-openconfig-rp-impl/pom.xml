@@ -31,7 +31,18 @@
             <artifactId>odl-bgpcep-bgp-openconfig-rp-spi</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
-            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>odl-bgpcep-bgp-openconfig</artifactId>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>odl-bgpcep-config-loader-spi</artifactId>
+            <classifier>features</classifier>
+            <type>xml</type>
         </dependency>
     </dependencies>
 </project>
