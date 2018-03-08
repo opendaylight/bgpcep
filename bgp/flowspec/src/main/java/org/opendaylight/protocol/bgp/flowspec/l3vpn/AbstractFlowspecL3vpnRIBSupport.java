@@ -23,11 +23,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.RouteDistinguisher;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 
-public abstract class AbstractFlowspecL3vpnRIBSupport<T extends AbstractFlowspecL3vpnNlriParser> extends AbstractFlowspecRIBSupport<T> {
+public abstract class AbstractFlowspecL3vpnRIBSupport
+        <T extends AbstractFlowspecL3vpnNlriParser, C extends Routes, R extends Route, S extends Identifier>
+        extends AbstractFlowspecRIBSupport<T, C, R, S> {
     private final NodeIdentifier routeDistinguisherNID;
 
     protected AbstractFlowspecL3vpnRIBSupport(
@@ -38,8 +41,10 @@ public abstract class AbstractFlowspecL3vpnRIBSupport<T extends AbstractFlowspec
         final Class<? extends AddressFamily> afiClass,
         final T flowspecNlriParser
     ) {
-        super(cazeClass, containerClass, listClass, afiClass, FlowspecL3vpnSubsequentAddressFamily.class, dstContainerClassQName, flowspecNlriParser);
-        this.routeDistinguisherNID = new NodeIdentifier(QName.create(routeQName(), "route-distinguisher").intern());
+        super(cazeClass, containerClass, listClass, afiClass, FlowspecL3vpnSubsequentAddressFamily.class,
+                dstContainerClassQName, flowspecNlriParser);
+        this.routeDistinguisherNID
+                = new NodeIdentifier(QName.create(routeQName(), "route-distinguisher").intern());
     }
 
     @Nonnull

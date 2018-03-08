@@ -15,6 +15,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -24,7 +25,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 /**
  * Implements common methods for Advertisement of Multiple Paths on ribSupport.
  */
-public abstract class MultiPathAbstractRIBSupport extends AbstractRIBSupport {
+public abstract class MultiPathAbstractRIBSupport<C extends Routes, R extends Route, N extends Identifier>
+        extends AbstractRIBSupport<C, R, N> {
     private final QName routeKeyQname;
     private final QName pathIdQname;
     private final NodeIdentifier pathIdNid;
@@ -67,7 +69,7 @@ public abstract class MultiPathAbstractRIBSupport extends AbstractRIBSupport {
     }
 
     @Override
-    public final Long extractPathId(final NormalizedNode<?, ?> data) {
+    public final long extractPathId(final NormalizedNode<?, ?> data) {
         final Long pathId = PathIdUtil.extractPathId(data, this.routePathIdNid());
         if (pathId == null) {
             return PathIdUtil.NON_PATH_ID;

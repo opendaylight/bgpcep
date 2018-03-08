@@ -10,11 +10,7 @@ package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.doReturn;
 import static org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.RouteAttributeContainer.routeAttributeContainerFalse;
-import static org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.ExportAttributeTestUtil.CLUSTER;
-import static org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.ExportAttributeTestUtil.IPV4;
-import static org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.ExportAttributeTestUtil.LOCAL_AS;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,16 +19,10 @@ import org.opendaylight.protocol.bgp.openconfig.routing.policy.impl.PolicyRIBBas
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.RouteAttributeContainer;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.policy.definitions.policy.definition.statements.Statement;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv4.routes.ipv4.routes.Ipv4Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
-import org.opendaylight.yangtools.yang.common.QName;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 
 public class ImportDefaultStatementTest extends AbstractStatementRegistryConsumerTest {
-    private static final NodeIdentifierWithPredicates ROUTE_ID_PA
-            = new NodeIdentifierWithPredicates(Ipv4Route.QNAME,
-            ImmutableMap.of(QName.create(Ipv4Route.QNAME, "prefix").intern(), "1.2.3.4/32"));
     @Mock
     private BGPRouteEntryImportParameters importParameters;
     private List<Statement> defaultImportStatements;
@@ -44,7 +34,6 @@ public class ImportDefaultStatementTest extends AbstractStatementRegistryConsume
     public void setUp() throws Exception {
         super.setUp();
         this.defaultImportStatements = loadStatement("default-odl-import-policy");
-        doReturn(ROUTE_ID_PA).when(this.importParameters).getRouteId();
         this.baseAttributes = new PolicyRIBBaseParametersImpl(LOCAL_AS, IPV4, CLUSTER);
     }
 

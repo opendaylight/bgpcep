@@ -59,12 +59,4 @@ public interface RouteEntryDependenciesContainer {
      */
     @Nonnull
     BGPRibRoutingPolicy getRoutingPolicies();
-
-    /**
-     * Return Binding route attributes Binding Codec Serializer.
-     *
-     * @return BGPRibRoutingPolicy
-     */
-    @Nonnull
-    AttributeBindingCodecSerializer getAttributeBindingCodecSerializer();
 }

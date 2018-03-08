@@ -11,7 +11,6 @@ import static java.util.Objects.requireNonNull;
 
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
-import org.opendaylight.protocol.bgp.rib.spi.entry.AttributeBindingCodecSerializer;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryDependenciesContainer;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
@@ -56,12 +55,6 @@ public final class RouteEntryDependenciesContainerImpl implements RouteEntryDepe
 
     @Override
     public BGPRibRoutingPolicy getRoutingPolicies() {
-        //FIXME
-        return null;
-    }
-
-    @Override
-    public AttributeBindingCodecSerializer getAttributeBindingCodecSerializer() {
         //FIXME
         return null;
     }

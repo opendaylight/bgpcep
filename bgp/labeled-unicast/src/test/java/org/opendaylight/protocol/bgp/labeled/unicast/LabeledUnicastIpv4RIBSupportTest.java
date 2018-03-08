@@ -12,7 +12,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
@@ -149,10 +148,9 @@ public class LabeledUnicastIpv4RIBSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testRouteIdAddPath() {
-        final NodeIdentifierWithPredicates expected = createRouteNIWP(ROUTES);
-        final NodeIdentifierWithPredicates prefixNii = new NodeIdentifierWithPredicates(RIB_SUPPORT.routeQName(),
-            ImmutableMap.of(RIB_SUPPORT.routeKeyQName(), LABEL_KEY));
-        Assert.assertEquals(expected, RIB_SUPPORT.getRouteIdAddPath(AbstractRIBSupportTest.PATH_ID, prefixNii));
+        final LabeledUnicastRouteKey oldKey
+                = new LabeledUnicastRouteKey(new PathId(100L), ROUTE_KEY.getRouteKey());
+        Assert.assertEquals(ROUTE_KEY, RIB_SUPPORT.createNewRouteKey(AbstractRIBSupportTest.PATH_ID, oldKey));
     }
 
     @Test
@@ -163,7 +161,7 @@ public class LabeledUnicastIpv4RIBSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testExtractPathId() {
-        Assert.assertEquals((Long) NON_PATH_ID, RIB_SUPPORT.extractPathId(null));
+        Assert.assertEquals(NON_PATH_ID, RIB_SUPPORT.extractPathId(null));
     }
 
     @Test
@@ -192,15 +190,15 @@ public class LabeledUnicastIpv4RIBSupportTest extends AbstractRIBSupportTest {
     public void testChangedRoutes() {
         final Routes emptyCase = new LabeledUnicastRoutesCaseBuilder().build();
         DataTreeCandidateNode tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(emptyCase)).getRootNode();
-        Assert.assertTrue(RIB_SUPPORT.changedRoutes(tree).isEmpty());
+        Assert.assertTrue(RIB_SUPPORT.changedDOMRoutes(tree).isEmpty());
 
         final Routes emptyRoutes = new LabeledUnicastRoutesCaseBuilder().setLabeledUnicastRoutes(new LabeledUnicastRoutesBuilder().build()).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(emptyRoutes)).getRootNode();
-        Assert.assertTrue(RIB_SUPPORT.changedRoutes(tree).isEmpty());
+        Assert.assertTrue(RIB_SUPPORT.changedDOMRoutes(tree).isEmpty());
 
         final Routes routes = new LabeledUnicastRoutesCaseBuilder().setLabeledUnicastRoutes(ROUTES).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(routes)).getRootNode();
-        final Collection<DataTreeCandidateNode> result = RIB_SUPPORT.changedRoutes(tree);
+        final Collection<DataTreeCandidateNode> result = RIB_SUPPORT.changedDOMRoutes(tree);
         Assert.assertFalse(result.isEmpty());
     }
 }

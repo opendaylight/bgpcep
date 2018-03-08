@@ -12,7 +12,6 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.doReturn;
 import static org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.RouteAttributeContainer.routeAttributeContainerFalse;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -23,13 +22,9 @@ import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.Rout
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.policy.definitions.policy.definition.statements.Statement;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv4.routes.ipv4.routes.Ipv4Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.attributes.AsPathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.attributes.as.path.SegmentsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
-import org.opendaylight.yangtools.yang.common.QName;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 
 public class AsPathLength extends AbstractStatementRegistryTest {
     @Mock
@@ -50,11 +45,6 @@ public class AsPathLength extends AbstractStatementRegistryTest {
 
     @Test
     public void testASPathLengthEq() {
-        doReturn(new YangInstanceIdentifier.NodeIdentifierWithPredicates(Ipv4Route.QNAME,
-                ImmutableMap.of(QName.create(Ipv4Route.QNAME, "prefix").intern(), "10.3.191.0/22")))
-                .when(this.exportParameters).getRouteId();
-        doReturn(PeerRole.Ibgp).when(this.exportParameters).getFromPeerRole();
-
         final AsPathBuilder asPath = new AsPathBuilder();
         asPath.setSegments(Collections.singletonList(new SegmentsBuilder()
                 .setAsSequence(Arrays.asList(
@@ -93,11 +83,6 @@ public class AsPathLength extends AbstractStatementRegistryTest {
 
     @Test
     public void testASPathLengthGe() {
-        doReturn(new YangInstanceIdentifier.NodeIdentifierWithPredicates(Ipv4Route.QNAME,
-                ImmutableMap.of(QName.create(Ipv4Route.QNAME, "prefix").intern(), "10.3.191.0/22")))
-                .when(this.exportParameters).getRouteId();
-        doReturn(PeerRole.Ibgp).when(this.exportParameters).getFromPeerRole();
-
         final AsPathBuilder asPath = new AsPathBuilder();
         asPath.setSegments(Collections.singletonList(new SegmentsBuilder()
                 .setAsSequence(Arrays.asList(
@@ -135,11 +120,6 @@ public class AsPathLength extends AbstractStatementRegistryTest {
 
     @Test
     public void testASPathLengthLe() {
-        doReturn(new YangInstanceIdentifier.NodeIdentifierWithPredicates(Ipv4Route.QNAME,
-                ImmutableMap.of(QName.create(Ipv4Route.QNAME, "prefix").intern(), "10.3.191.0/22")))
-                .when(this.exportParameters).getRouteId();
-        doReturn(PeerRole.Ibgp).when(this.exportParameters).getFromPeerRole();
-
         final AsPathBuilder asPath = new AsPathBuilder();
         asPath.setSegments(Collections.singletonList(new SegmentsBuilder()
                 .setAsSequence(Arrays.asList(
@@ -162,9 +142,7 @@ public class AsPathLength extends AbstractStatementRegistryTest {
         assertNotNull(result.getAttributes());
 
         asPath.setSegments(Collections.singletonList(new SegmentsBuilder()
-                .setAsSequence(Arrays.asList(
-                        AsNumber.getDefaultInstance("3")))
-                .build()));
+                .setAsSequence(Collections.singletonList(AsNumber.getDefaultInstance("3"))).build()));
 
         attributeContainer = routeAttributeContainerFalse(new AttributesBuilder().setAsPath(asPath.build()).build());
         result = this.statementRegistry.applyExportStatement(

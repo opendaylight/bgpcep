@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.evpn.impl.nlri.EvpnNlriParser;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
@@ -27,9 +26,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171213.evpn.destination.EvpnDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171213.evpn.routes.EvpnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171213.evpn.routes.evpn.routes.EvpnRoute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171213.evpn.routes.evpn.routes.EvpnRouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171213.evpn.routes.evpn.routes.EvpnRouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171213.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.evpn._case.DestinationEvpn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171213.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationEvpnCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171213.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.evpn._case.DestinationEvpnBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.PathId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.destination.DestinationType;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -45,7 +48,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class EvpnRibSupport extends AbstractRIBSupport {
+final class EvpnRibSupport extends AbstractRIBSupport<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+        .bgp.evpn.rev171213.bgp.rib.rib.peer.adj.rib.in.tables.routes.EvpnRoutesCase, EvpnRoute, EvpnRouteKey> {
     private static final EvpnRibSupport SINGLETON = new EvpnRibSupport();
     private static final Logger LOG = LoggerFactory.getLogger(EvpnRibSupport.class);
     private static final QName ROUTE_KEY_QNAME = QName.create(EvpnRoute.QNAME, ROUTE_KEY).intern();
@@ -60,13 +64,11 @@ final class EvpnRibSupport extends AbstractRIBSupport {
         return SINGLETON;
     }
 
-    @Nonnull
     @Override
     public ImmutableCollection<Class<? extends DataObject>> cacheableAttributeObjects() {
         return ImmutableSet.of();
     }
 
-    @Nonnull
     @Override
     public ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects() {
         return ImmutableSet.of();
@@ -77,9 +79,8 @@ final class EvpnRibSupport extends AbstractRIBSupport {
         return true;
     }
 
-    @Nonnull
     @Override
-    protected DestinationType buildDestination(@Nonnull final Collection<MapEntryNode> routes) {
+    protected DestinationType buildDestination(final Collection<MapEntryNode> routes) {
         return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171213.update
                 .attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationEvpnCaseBuilder()
                 .setDestinationEvpn(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
@@ -87,9 +88,8 @@ final class EvpnRibSupport extends AbstractRIBSupport {
                         .evpn._case.DestinationEvpnBuilder().setEvpnDestination(extractRoutes(routes)).build()).build();
     }
 
-    @Nonnull
     @Override
-    protected DestinationType buildWithdrawnDestination(@Nonnull final Collection<MapEntryNode> routes) {
+    protected DestinationType buildWithdrawnDestination(final Collection<MapEntryNode> routes) {
         return new DestinationEvpnCaseBuilder().setDestinationEvpn(new DestinationEvpnBuilder()
                 .setEvpnDestination(extractRoutes(routes)).build()).build();
     }
@@ -126,4 +126,30 @@ final class EvpnRibSupport extends AbstractRIBSupport {
         return new NodeIdentifierWithPredicates(routeQName(), ROUTE_KEY_QNAME, ByteArray.encodeBase64(buffer));
     }
 
+    @Override
+    public EvpnRouteKey extractRouteKey(final EvpnRoute route) {
+        return route.getKey();
+    }
+
+    @Override
+    public EvpnRoute createRoute(final EvpnRoute route, final EvpnRouteKey routeKey, final PathId pathId,
+            final Attributes attributes) {
+        final EvpnRouteBuilder builder;
+        if (route != null) {
+            builder = new EvpnRouteBuilder(route);
+        } else {
+            builder = new EvpnRouteBuilder();
+        }
+        return builder.setRouteKey(routeKey.getRouteKey()).setAttributes(attributes).build();
+    }
+
+    @Override
+    public Collection<EvpnRoute> changedRoutes(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
+            .yang.bgp.evpn.rev171213.bgp.rib.rib.peer.adj.rib.in.tables.routes.EvpnRoutesCase routes) {
+        final EvpnRoutes routeCont = routes.getEvpnRoutes();
+        if (routeCont == null) {
+            return Collections.emptyList();
+        }
+        return routeCont.getEvpnRoute();
+    }
 }

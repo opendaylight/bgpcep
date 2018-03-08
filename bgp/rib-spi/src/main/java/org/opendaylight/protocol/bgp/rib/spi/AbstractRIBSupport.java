@@ -34,12 +34,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.update.attributes.mp.unreach.nlri.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.Identifier;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -60,7 +64,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Beta
-public abstract class AbstractRIBSupport implements RIBSupport {
+public abstract class AbstractRIBSupport<C extends Routes, R extends Route, N extends Identifier>
+        implements RIBSupport<C, R, N> {
     public static final String ROUTE_KEY = "route-key";
     private static final Logger LOG = LoggerFactory.getLogger(AbstractRIBSupport.class);
     private static final NodeIdentifier ADVERTISED_ROUTES = new NodeIdentifier(AdvertizedRoutes.QNAME);
@@ -309,7 +314,7 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     }
 
     @Override
-    public final Collection<DataTreeCandidateNode> changedRoutes(final DataTreeCandidateNode routes) {
+    public final Collection<DataTreeCandidateNode> changedDOMRoutes(final DataTreeCandidateNode routes) {
         final DataTreeCandidateNode myRoutes = routes.getModifiedChild(this.routesContainerIdentifier);
         if (myRoutes == null) {
             return Collections.emptySet();
@@ -326,6 +331,12 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     @Override
     public final YangInstanceIdentifier routePath(final YangInstanceIdentifier routesPath, final PathArgument routeId) {
         return routesPath.node(this.routesContainerIdentifier).node(routeNid()).node(routeId);
+    }
+
+    @Override
+    public final InstanceIdentifier<R> createRouteIId(
+            final KeyedInstanceIdentifier<Tables, TablesKey> tableIId, final N key) {
+        return tableIId.child((Class) routesContainerClass()).child(routesListClass(), key);
     }
 
     @Override

@@ -91,7 +91,7 @@ public class VpnIpv4RIBSupportTest extends AbstractRIBSupportTest {
 
 
     @Test
-    public void testEmptyRoute() throws Exception {
+    public void testEmptyRoute() {
         final Routes empty = new VpnIpv4RoutesCaseBuilder().setVpnIpv4Routes(new VpnIpv4RoutesBuilder()
                 .setVpnRoute(Collections.emptyList()).build()).build();
         final ChoiceNode emptyRoutes = RIB_SUPPORT.emptyRoutes();
@@ -131,7 +131,7 @@ public class VpnIpv4RIBSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testRouteIdAddPath() {
-        Assert.assertNull(RIB_SUPPORT.getRouteIdAddPath(AbstractRIBSupportTest.PATH_ID, null));
+        Assert.assertNull(RIB_SUPPORT.createNewRouteKey(AbstractRIBSupportTest.PATH_ID, null));
     }
 
     @Test
@@ -143,7 +143,7 @@ public class VpnIpv4RIBSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testExtractPathId() {
-        assertEquals((Long) NON_PATH_ID, RIB_SUPPORT.extractPathId(null));
+        assertEquals(NON_PATH_ID, RIB_SUPPORT.extractPathId(null));
     }
 
     @Test
@@ -172,16 +172,16 @@ public class VpnIpv4RIBSupportTest extends AbstractRIBSupportTest {
         final Routes emptyCase = new VpnIpv4RoutesCaseBuilder().build();
         DataTreeCandidateNode tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(),
                 createRoutes(emptyCase)).getRootNode();
-        assertTrue(RIB_SUPPORT.changedRoutes(tree).isEmpty());
+        assertTrue(RIB_SUPPORT.changedDOMRoutes(tree).isEmpty());
 
         final Routes emptyRoutes = new VpnIpv4RoutesCaseBuilder().setVpnIpv4Routes(
                 new VpnIpv4RoutesBuilder().build()).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(emptyRoutes)).getRootNode();
-        assertTrue(RIB_SUPPORT.changedRoutes(tree).isEmpty());
+        assertTrue(RIB_SUPPORT.changedDOMRoutes(tree).isEmpty());
 
         final Routes routes = new VpnIpv4RoutesCaseBuilder().setVpnIpv4Routes(ROUTES).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(routes)).getRootNode();
-        final Collection<DataTreeCandidateNode> result = RIB_SUPPORT.changedRoutes(tree);
+        final Collection<DataTreeCandidateNode> result = RIB_SUPPORT.changedDOMRoutes(tree);
         Assert.assertFalse(result.isEmpty());
     }
 }

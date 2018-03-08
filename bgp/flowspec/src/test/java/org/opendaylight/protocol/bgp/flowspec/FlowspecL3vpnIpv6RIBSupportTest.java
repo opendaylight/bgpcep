@@ -99,7 +99,7 @@ public class FlowspecL3vpnIpv6RIBSupportTest extends AbstractRIBSupportTest {
     }
 
     @Test
-    public void testEmptyRoute() throws Exception {
+    public void testEmptyRoute() {
         final Routes empty = new FlowspecL3vpnIpv6RoutesCaseBuilder().setFlowspecL3vpnIpv6Routes(
             new FlowspecL3vpnIpv6RoutesBuilder().setFlowspecL3vpnRoute(Collections.emptyList()).build()).build();
         final ChoiceNode emptyRoutes = RIB_SUPPORT.emptyRoutes();
@@ -141,11 +141,9 @@ public class FlowspecL3vpnIpv6RIBSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testRouteIdAddPath() {
-        final YangInstanceIdentifier.NodeIdentifierWithPredicates expected = createRouteNIWP(new FlowspecL3vpnIpv6RoutesBuilder().
-            setFlowspecL3vpnRoute(Collections.singletonList(ROUTE)).build());
-        final YangInstanceIdentifier.NodeIdentifierWithPredicates prefixNii = new YangInstanceIdentifier.NodeIdentifierWithPredicates(RIB_SUPPORT.routeQName(),
-            ImmutableMap.of(RIB_SUPPORT.routeKeyQName(), ROUTE_KEY.getRouteKey()));
-        Assert.assertEquals(expected, RIB_SUPPORT.getRouteIdAddPath(AbstractRIBSupportTest.PATH_ID, prefixNii));
+        final FlowspecL3vpnRouteKey oldRouteKey
+                = new FlowspecL3vpnRouteKey(new PathId(10L), ROUTE_KEY.getRouteKey());
+        Assert.assertEquals(ROUTE_KEY, RIB_SUPPORT.createNewRouteKey(AbstractRIBSupportTest.PATH_ID, oldRouteKey));
     }
 
     @Test
@@ -156,7 +154,7 @@ public class FlowspecL3vpnIpv6RIBSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testExtractPathId() {
-        Assert.assertEquals((Long) NON_PATH_ID, RIB_SUPPORT.extractPathId(null));
+        Assert.assertEquals(NON_PATH_ID, RIB_SUPPORT.extractPathId(null));
     }
 
     @Test
@@ -185,16 +183,16 @@ public class FlowspecL3vpnIpv6RIBSupportTest extends AbstractRIBSupportTest {
     public void testChangedRoutes() {
         final Routes emptyCase = new FlowspecL3vpnIpv6RoutesCaseBuilder().build();
         DataTreeCandidateNode tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(emptyCase)).getRootNode();
-        Assert.assertTrue(RIB_SUPPORT.changedRoutes(tree).isEmpty());
+        Assert.assertTrue(RIB_SUPPORT.changedDOMRoutes(tree).isEmpty());
 
         final Routes emptyRoutes = new FlowspecL3vpnIpv6RoutesCaseBuilder().setFlowspecL3vpnIpv6Routes(new FlowspecL3vpnIpv6RoutesBuilder().build()).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(emptyRoutes)).getRootNode();
-        Assert.assertTrue(RIB_SUPPORT.changedRoutes(tree).isEmpty());
+        Assert.assertTrue(RIB_SUPPORT.changedDOMRoutes(tree).isEmpty());
 
         final Routes routes = new FlowspecL3vpnIpv6RoutesCaseBuilder().setFlowspecL3vpnIpv6Routes(new FlowspecL3vpnIpv6RoutesBuilder()
             .setFlowspecL3vpnRoute(Collections.singletonList(ROUTE)).build()).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(routes)).getRootNode();
-        final Collection<DataTreeCandidateNode> result = RIB_SUPPORT.changedRoutes(tree);
+        final Collection<DataTreeCandidateNode> result = RIB_SUPPORT.changedDOMRoutes(tree);
         Assert.assertFalse(result.isEmpty());
     }
 }

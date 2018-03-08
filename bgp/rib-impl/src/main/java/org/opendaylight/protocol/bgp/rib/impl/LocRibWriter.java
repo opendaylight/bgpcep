@@ -234,7 +234,7 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
     private void updateRoutesEntries(final DataTreeCandidateNode child, final PeerId peerId,
             final Map<RouteUpdateKey, RouteEntry> routes) {
         final UnsignedInteger routerId = RouterIds.routerIdForPeerId(peerId);
-        final Collection<DataTreeCandidateNode> modifiedRoutes = this.ribSupport.changedRoutes(child);
+        final Collection<DataTreeCandidateNode> modifiedRoutes = this.ribSupport.changedDOMRoutes(child);
         for (final DataTreeCandidateNode route : modifiedRoutes) {
             final NodeIdentifierWithPredicates routeId = this.ribSupport
                     .createRouteKeyPathArgument((NodeIdentifierWithPredicates) route.getIdentifier());

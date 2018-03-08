@@ -29,7 +29,7 @@ interface AddPathRibSupport {
      * @param normalizedNode Path Id Container
      * @return pathId  The path identifier value
      */
-    default Long extractPathId(@Nonnull NormalizedNode<?, ?> normalizedNode) {
+    default long extractPathId(@Nonnull NormalizedNode<?, ?> normalizedNode) {
         return NON_PATH_ID;
     }
 

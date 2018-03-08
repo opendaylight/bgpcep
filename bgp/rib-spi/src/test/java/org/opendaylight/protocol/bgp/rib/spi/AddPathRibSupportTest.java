@@ -28,7 +28,7 @@ public class AddPathRibSupportTest {
     @Test
     public void defaultAddPathRibSupport() {
         final AddPathRibSupportLocalTest test = new AddPathRibSupportLocalTest();
-        assertEquals((Long) NON_PATH_ID, test.extractPathId(null));
+        assertEquals(NON_PATH_ID, test.extractPathId(null));
         assertNull(test.getRouteIdAddPath(NON_PATH_ID, null));
         assertEquals(QNAME, test.createRouteKeyPathArgument(QNAME));
     }

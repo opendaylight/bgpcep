@@ -109,9 +109,9 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
 
         final RIBImpl rib = new RIBImpl(new RibId(TEST_RIB_ID),
                 AS_NUMBER, new BgpId("127.0.0.1"), null, this.ext2, this.dispatcher,
-                this.codecsRegistry, getDomBroker(), this.policies, this.peerTracker, tables,
+                this.codecsRegistry, getDomBroker(), getDataBroker(), this.policies, this.peerTracker, tables,
                 Collections.singletonMap(TABLE_KEY, BasePathSelectionModeFactory
-                        .createBestPathSelectionStrategy(this.peerTracker)), this.mappingService);
+                        .createBestPathSelectionStrategy(this.peerTracker)));
         rib.instantiateServiceInstance();
         assertTablesExists(tables);
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
@@ -127,10 +127,10 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
         final List<BgpTableType> tables = ImmutableList.of(new BgpTableTypeImpl(Ipv4AddressFamily.class,
                 UnicastSubsequentAddressFamily.class));
         final RIBImpl rib = new RIBImpl(new RibId(TEST_RIB_ID), AS_NUMBER, BGP_ID,
-                null, this.ext1, this.dispatcher, this.codecsRegistry, getDomBroker(),
+                null, this.ext1, this.dispatcher, this.codecsRegistry, getDomBroker(), getDataBroker(),
                 this.policies, this.peerTracker, tables,
                 Collections.singletonMap(TABLE_KEY, BasePathSelectionModeFactory
-                        .createBestPathSelectionStrategy(this.peerTracker)), this.mappingService);
+                        .createBestPathSelectionStrategy(this.peerTracker)));
         rib.instantiateServiceInstance();
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
         assertTablesExists(tables);

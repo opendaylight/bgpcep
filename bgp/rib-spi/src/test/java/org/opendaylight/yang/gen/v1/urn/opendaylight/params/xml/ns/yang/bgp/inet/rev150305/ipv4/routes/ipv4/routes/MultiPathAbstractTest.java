@@ -11,56 +11,63 @@ package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ine
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
-import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.MultiPathAbstractRIBSupport;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.PathId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.destination.DestinationType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 
 public final class MultiPathAbstractTest extends MultiPathAbstractRIBSupport {
     private static final String ROUTE_KEY = "prefix";
     private static final String PREFIX = "1.2.3.4/32";
 
-    private static final NodeIdentifierWithPredicates PREFIX_NII = new NodeIdentifierWithPredicates(Ipv4Route.QNAME,
-        ImmutableMap.of(QName.create(Ipv4Route.QNAME, ROUTE_KEY).intern(), PREFIX));
+    private static final NodeIdentifierWithPredicates PREFIX_NII = new NodeIdentifierWithPredicates(org.opendaylight
+            .yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv4.routes.ipv4.routes.Ipv4Route.QNAME,
+            ImmutableMap.of(QName.create(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
+                    .rev171207.ipv4.routes.ipv4.routes.Ipv4Route.QNAME, ROUTE_KEY).intern(), PREFIX));
 
     public MultiPathAbstractTest() {
-        super(Ipv4RoutesCase.class, Ipv4Routes.class, Ipv4Route.class, Ipv4AddressFamily.class,
-                UnicastSubsequentAddressFamily.class, ROUTE_KEY, Ipv4Prefixes.QNAME);
+        super(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv4.routes.ipv4
+                        .routes.Ipv4RoutesCase.class,
+                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv4.routes.ipv4.
+                        routes.Ipv4Routes.class, org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
+                        .inet.rev171207.ipv4.routes.ipv4.routes.Ipv4Route.class, Ipv4AddressFamily.class,
+                UnicastSubsequentAddressFamily.class, ROUTE_KEY, org.opendaylight.yang.gen.v1.urn.opendaylight.params
+                        .xml.ns.yang.bgp.inet.rev171207.ipv4.routes.ipv4.routes.Ipv4Prefixes.QNAME);
     }
 
-    @Nonnull
     @Override
-    protected DestinationType buildDestination(@Nonnull final Collection<MapEntryNode> routes) {
+    protected DestinationType buildDestination(final Collection routes) {
         return null;
     }
 
-    @Nonnull
     @Override
-    protected DestinationType buildWithdrawnDestination(@Nonnull final Collection<MapEntryNode> routes) {
+    protected DestinationType buildWithdrawnDestination(final Collection routes) {
         return null;
     }
 
     @Override
     protected void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
             final ContainerNode destination, final ContainerNode attributes, final ApplyRoute applyFunction) {
-        applyFunction.apply(tx, routesPath.node(Ipv4Route.QNAME), PREFIX_NII, destination, attributes);
+        applyFunction.apply(tx, routesPath.node(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+                .bgp.inet.rev171207.ipv4.routes.ipv4.routes.Ipv4Route.QNAME), PREFIX_NII, destination, attributes);
     }
 
-    @Nonnull
     @Override
     public ImmutableCollection<Class<? extends DataObject>> cacheableAttributeObjects() {
         return null;
     }
 
-    @Nonnull
     @Override
     public ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects() {
         return null;
@@ -69,5 +76,21 @@ public final class MultiPathAbstractTest extends MultiPathAbstractRIBSupport {
     @Override
     public boolean isComplexRoute() {
         return false;
+    }
+
+    @Override
+    public Identifier extractRouteKey(final Route route) {
+        return null;
+    }
+
+    @Override
+    public Route createRoute(final Route route, final Identifier routeKey, final PathId pathId
+            , final Attributes attributes) {
+        return null;
+    }
+
+    @Override
+    public Collection changedRoutes(final Routes routes) {
+        return null;
     }
 }

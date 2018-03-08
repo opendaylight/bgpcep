@@ -165,7 +165,7 @@ public class MultiPathAbstractRIBSupportTest {
         final NodeIdentifier nii = new NodeIdentifier(PATH_ID_QNAME);
         final ContainerNode cont = ImmutableContainerNodeSchemaAwareBuilder.create().withNodeIdentifier(nii)
                 .addChild(new ImmutableLeafNodeBuilder<>().withNodeIdentifier(nii).withValue(PATH_ID).build()).build();
-        assertEquals((Long) PATH_ID, MULTI_PATH_ABSTRACT_TEST.extractPathId(cont));
+        assertEquals(PATH_ID, MULTI_PATH_ABSTRACT_TEST.extractPathId(cont));
     }
 
     @Test
@@ -247,9 +247,9 @@ public class MultiPathAbstractRIBSupportTest {
 
     @Test
     public void changedRoutes() throws Exception {
-        Assert.assertTrue(MULTI_PATH_ABSTRACT_TEST.changedRoutes(this.emptyTree).isEmpty());
-        Assert.assertTrue(MULTI_PATH_ABSTRACT_TEST.changedRoutes(this.emptySubTree).isEmpty());
-        Assert.assertNotNull(MULTI_PATH_ABSTRACT_TEST.changedRoutes(this.subTree));
+        Assert.assertTrue(MULTI_PATH_ABSTRACT_TEST.changedDOMRoutes(this.emptyTree).isEmpty());
+        Assert.assertTrue(MULTI_PATH_ABSTRACT_TEST.changedDOMRoutes(this.emptySubTree).isEmpty());
+        Assert.assertNotNull(MULTI_PATH_ABSTRACT_TEST.changedDOMRoutes(this.subTree));
     }
 
     @Test

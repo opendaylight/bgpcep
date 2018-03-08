@@ -44,8 +44,6 @@ import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.BgpRib;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.RibKey;
@@ -92,7 +90,13 @@ class AbstractConfig extends DefaultRibPoliciesMockTest {
         doReturn(InstanceIdentifier.create(BgpRib.class).child(org.opendaylight.yang.gen.v1.urn.opendaylight
                 .params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.Rib.class, new RibKey(RIB_ID))).when(this.rib)
                 .getInstanceIdentifier();
-        doReturn(this.domTx).when(this.rib).createPeerChain(any(TransactionChainListener.class));
+        doReturn(this.domTx).when(this.rib).createPeerDOMChain(any(TransactionChainListener.class));
+        doAnswer(invocation -> {
+            final Object[] args = invocation.getArguments();
+            return getDataBroker().createTransactionChain((TransactionChainListener) args[0]);
+        }).when(this.rib).createPeerChain(any(TransactionChainListener.class));
+
+        doReturn(getDataBroker()).when(this.rib).getDataBroker();
         doReturn(AS).when(this.rib).getLocalAs();
         doReturn(mock(RIBSupportContextRegistry.class)).when(this.rib).getRibSupportContext();
         doReturn(Collections.emptySet()).when(this.rib).getLocalTablesKeys();

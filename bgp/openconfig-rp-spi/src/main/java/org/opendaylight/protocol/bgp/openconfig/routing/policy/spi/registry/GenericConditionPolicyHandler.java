@@ -14,6 +14,7 @@ import static org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -44,6 +45,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 
+@SuppressFBWarnings("DLS_DEAD_LOCAL_STORE")
 final class GenericConditionPolicyHandler {
     private static final InstanceIdentifier<PrefixSets> PREFIXES_SET_IID
             = InstanceIdentifier.create(RoutingPolicy.class).child(DefinedSets.class)
@@ -122,17 +124,22 @@ final class GenericConditionPolicyHandler {
     public boolean matchImportCondition(final BGPRouteEntryImportParameters routeEntryImportParameters,
             final GenericConditions conditions) {
         final MatchPrefixSet prefixSet = conditions.getMatchPrefixSet();
-        return prefixSet == null
-                || !matchPrefix(routeEntryImportParameters.getRouteId(), conditions.getMatchPrefixSet());
+        //FIXME
+        return false;
+        /*return prefixSet == null
+                || !matchPrefix(routeEntryImportParameters.getRouteId(), conditions.getMatchPrefixSet());*/
     }
 
     public boolean matchExportCondition(final BGPRouteEntryExportParameters routeEntryExportParameters,
             final GenericConditions conditions) {
         final MatchPrefixSet prefixSet = conditions.getMatchPrefixSet();
-        return prefixSet == null
-                || matchPrefix(routeEntryExportParameters.getRouteId(), conditions.getMatchPrefixSet());
+        //FIXME
+        return false;
+        /*return prefixSet == null
+                || matchPrefix(routeEntryExportParameters.getRouteId(), conditions.getMatchPrefixSet());*/
     }
 
+    @SuppressFBWarnings("UPM_UNCALLED_PRIVATE_METHOD")
     private boolean matchPrefix(
             final NodeIdentifierWithPredicates routeId,
             final MatchPrefixSet matchPrefixSet) {

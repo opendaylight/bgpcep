@@ -129,7 +129,7 @@ public class VpnIpv6RIBSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testRouteIdAddPath() {
-        Assert.assertNull(RIB_SUPPORT.getRouteIdAddPath(AbstractRIBSupportTest.PATH_ID, null));
+        Assert.assertNull(RIB_SUPPORT.createNewRouteKey(AbstractRIBSupportTest.PATH_ID, null));
     }
 
     @Test
@@ -141,7 +141,7 @@ public class VpnIpv6RIBSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testExtractPathId() {
-        assertEquals((Long) NON_PATH_ID, RIB_SUPPORT.extractPathId(null));
+        assertEquals(NON_PATH_ID, RIB_SUPPORT.extractPathId(null));
     }
 
     @Test
@@ -170,16 +170,16 @@ public class VpnIpv6RIBSupportTest extends AbstractRIBSupportTest {
         final Routes emptyCase = new VpnIpv6RoutesCaseBuilder().build();
         DataTreeCandidateNode tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(),
                 createRoutes(emptyCase)).getRootNode();
-        Assert.assertTrue(RIB_SUPPORT.changedRoutes(tree).isEmpty());
+        Assert.assertTrue(RIB_SUPPORT.changedDOMRoutes(tree).isEmpty());
 
         final Routes emptyRoutes = new VpnIpv6RoutesCaseBuilder()
                 .setVpnIpv6Routes(new VpnIpv6RoutesBuilder().build()).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(emptyRoutes)).getRootNode();
-        Assert.assertTrue(RIB_SUPPORT.changedRoutes(tree).isEmpty());
+        Assert.assertTrue(RIB_SUPPORT.changedDOMRoutes(tree).isEmpty());
 
         final Routes routes = new VpnIpv6RoutesCaseBuilder().setVpnIpv6Routes(ROUTES).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(routes)).getRootNode();
-        final Collection<DataTreeCandidateNode> result = RIB_SUPPORT.changedRoutes(tree);
+        final Collection<DataTreeCandidateNode> result = RIB_SUPPORT.changedDOMRoutes(tree);
         Assert.assertFalse(result.isEmpty());
     }
 }

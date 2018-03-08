@@ -51,15 +51,14 @@
   </bean>
 
   <reference id="policiesProvider" interface="org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.BGPRibRoutingPolicyFactory"/>
-  <reference id="bindingNormalizedNodeSerializer" interface="org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer" />
   <bean id="ribImpl" class="org.opendaylight.protocol.bgp.rib.impl.config.RibImpl" scope="prototype">
     <argument ref="globalBgpExtensions"/>
     <argument ref="BGPDispatcher"/>
     <argument ref="policiesProvider"/>
     <argument ref="codecTreeFactory"/>
     <argument ref="domDataBroker"/>
+    <argument ref="dataBroker"/>
     <argument ref="domSchemaService"/>
-    <argument ref="bindingNormalizedNodeSerializer"/>
   </bean>
 
   <bean id="bgpPeer" class="org.opendaylight.protocol.bgp.rib.impl.config.BgpPeer" scope="prototype">

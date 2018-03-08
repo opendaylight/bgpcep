@@ -171,7 +171,7 @@ public final class LinkstateRIBSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testRouteIdAddPath() {
-        Assert.assertNull(RIB_SUPPORT.getRouteIdAddPath(AbstractRIBSupportTest.PATH_ID, null));
+        Assert.assertNull(RIB_SUPPORT.createNewRouteKey(AbstractRIBSupportTest.PATH_ID, null));
     }
 
     @Test
@@ -182,7 +182,7 @@ public final class LinkstateRIBSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testExtractPathId() {
-        Assert.assertEquals((Long) NON_PATH_ID, RIB_SUPPORT.extractPathId(null));
+        Assert.assertEquals(NON_PATH_ID, RIB_SUPPORT.extractPathId(null));
     }
 
     @Test
@@ -209,17 +209,17 @@ public final class LinkstateRIBSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testChangedRoutes() {
-        final Routes emptyCase = new LinkstateRoutesCaseBuilder().build();
+       final Routes emptyCase = new LinkstateRoutesCaseBuilder().build();
         DataTreeCandidateNode tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(emptyCase)).getRootNode();
-        Assert.assertTrue(RIB_SUPPORT.changedRoutes(tree).isEmpty());
+        Assert.assertTrue(RIB_SUPPORT.changedDOMRoutes(tree).isEmpty());
 
         final Routes emptyRoutes = new LinkstateRoutesCaseBuilder().setLinkstateRoutes(new LinkstateRoutesBuilder().build()).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(emptyRoutes)).getRootNode();
-        Assert.assertTrue(RIB_SUPPORT.changedRoutes(tree).isEmpty());
+        Assert.assertTrue(RIB_SUPPORT.changedDOMRoutes(tree).isEmpty());
 
         final Routes routes = new LinkstateRoutesCaseBuilder().setLinkstateRoutes(ROUTES).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(routes)).getRootNode();
-        final Collection<DataTreeCandidateNode> result = RIB_SUPPORT.changedRoutes(tree);
+        final Collection<DataTreeCandidateNode> result = RIB_SUPPORT.changedDOMRoutes(tree);
         Assert.assertFalse(result.isEmpty());
     }
 }

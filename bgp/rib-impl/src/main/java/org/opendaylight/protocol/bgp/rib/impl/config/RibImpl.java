@@ -17,15 +17,15 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.BGPRibRoutingPolicyFactory;
@@ -40,7 +40,6 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
-import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPRIBState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPRIBStateConsumer;
@@ -49,7 +48,6 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.g
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.Rib;
@@ -60,9 +58,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.model.api.SchemaContextListener;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
@@ -78,7 +73,6 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
     private final DOMDataBroker domBroker;
     private final DOMSchemaService domSchemaService;
     private final BGPRibRoutingPolicyFactory policyProvider;
-    private final BindingNormalizedNodeSerializer bindingSerializer;
     private RIBImpl ribImpl;
     private ServiceRegistration<?> serviceRegistration;
     private ListenerRegistration<SchemaContextListener> schemaContextRegistration;
@@ -87,6 +81,7 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
     private Ipv4Address routerId;
 
     private ClusterIdentifier clusterId;
+    private DataBroker dataBroker;
 
     public RibImpl(
             final RIBExtensionConsumerContext contextProvider,
@@ -94,16 +89,16 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
             final BGPRibRoutingPolicyFactory policyProvider,
             final BindingCodecTreeFactory codecTreeFactory,
             final DOMDataBroker domBroker,
-            final DOMSchemaService domSchemaService,
-            final BindingNormalizedNodeSerializer bindingSerializer
+            final DataBroker dataBroker,
+            final DOMSchemaService domSchemaService
     ) {
         this.extensions = contextProvider;
         this.dispatcher = dispatcher;
         this.codecTreeFactory = codecTreeFactory;
         this.domBroker = domBroker;
+        this.dataBroker = dataBroker;
         this.domSchemaService = domSchemaService;
         this.policyProvider = policyProvider;
-        this.bindingSerializer = bindingSerializer;
     }
 
     void start(final Global global, final String instanceName, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
@@ -151,8 +146,13 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
     }
 
     @Override
-    public DOMTransactionChain createPeerChain(final TransactionChainListener listener) {
+    public BindingTransactionChain createPeerChain(final TransactionChainListener listener) {
         return this.ribImpl.createPeerChain(listener);
+    }
+
+    @Override
+    public DOMTransactionChain createPeerDOMChain(final TransactionChainListener listener) {
+        return this.ribImpl.createPeerDOMChain(listener);
     }
 
     @Override
@@ -178,6 +178,11 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
     @Override
     public DOMDataTreeChangeService getService() {
         return this.ribImpl.getService();
+    }
+
+    @Override
+    public DataBroker getDataBroker() {
+        return this.ribImpl.getDataBroker();
     }
 
     ListenableFuture<Void> closeServiceInstance() {
@@ -275,11 +280,11 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
                 this.dispatcher,
                 codecsRegistry,
                 this.domBroker,
+                this.dataBroker,
                 ribPolicy,
                 peerTracker,
                 toTableTypes(this.afiSafi, tableTypeRegistry),
-                pathSelectionModes,
-                this.bindingSerializer);
+                pathSelectionModes);
     }
 
     @Override
@@ -291,20 +296,5 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
         if (this.ribImpl != null) {
             this.ribImpl.instantiateServiceInstance();
         }
-    }
-
-    @Override
-    public Optional<Attributes> getAttributes(
-            RIBSupport ribSupport,
-            NodeIdentifierWithPredicates routeIdentifier, NormalizedNode<?, ?> route) {
-        return this.ribImpl.getAttributes(ribSupport, routeIdentifier, route);
-    }
-
-    @Override
-    public Optional<ContainerNode> toNormalizedNodeAttribute(
-            final RIBSupport ribSupport,
-            final NodeIdentifierWithPredicates routeIdentifier,
-            final Optional<Attributes> attributes) {
-        return this.ribImpl.toNormalizedNodeAttribute(ribSupport, routeIdentifier, attributes);
     }
 }

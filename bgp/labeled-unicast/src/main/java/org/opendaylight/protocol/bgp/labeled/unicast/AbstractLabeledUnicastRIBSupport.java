@@ -27,6 +27,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labe
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev171207.labeled.unicast.LabelStackBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev171207.labeled.unicast.destination.CLabeledUnicastDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev171207.labeled.unicast.destination.CLabeledUnicastDestinationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev171207.labeled.unicast.routes.list.LabeledUnicastRoute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev171207.labeled.unicast.routes.list.LabeledUnicastRouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev171207.labeled.unicast.routes.list.LabeledUnicastRouteKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.PathId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
@@ -47,7 +52,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-abstract class AbstractLabeledUnicastRIBSupport extends MultiPathAbstractRIBSupport {
+abstract class AbstractLabeledUnicastRIBSupport<C extends Routes>
+        extends MultiPathAbstractRIBSupport<C, LabeledUnicastRoute, LabeledUnicastRouteKey> {
     private static final NodeIdentifier PREFIX_TYPE_NID = NodeIdentifier.create(QName.create(CLabeledUnicastDestination.QNAME, "prefix").intern());
     private static final NodeIdentifier LABEL_STACK_NID = NodeIdentifier.create(QName.create(CLabeledUnicastDestination.QNAME, "label-stack").intern());
     private static final NodeIdentifier LV_NID = NodeIdentifier.create(QName.create(CLabeledUnicastDestination.QNAME, "label-value").intern());
@@ -154,5 +160,29 @@ abstract class AbstractLabeledUnicastRIBSupport extends MultiPathAbstractRIBSupp
             }
         }
         return labels;
+    }
+
+    @Override
+    public final LabeledUnicastRouteKey createNewRouteKey(final PathId pathId, final LabeledUnicastRouteKey routeKey) {
+        return new LabeledUnicastRouteKey(pathId, routeKey.getRouteKey());
+    }
+
+    @Override
+    public final LabeledUnicastRouteKey extractRouteKey(final LabeledUnicastRoute route) {
+        return route.getKey();
+    }
+
+    @Override
+    public final LabeledUnicastRoute createRoute(final LabeledUnicastRoute route,
+            final LabeledUnicastRouteKey routeKey,
+            final PathId pathId,
+            final Attributes attributes) {
+        final LabeledUnicastRouteBuilder builder;
+        if (route != null) {
+            builder = new LabeledUnicastRouteBuilder(route);
+        } else {
+            builder = new LabeledUnicastRouteBuilder();
+        }
+        return builder.setRouteKey(routeKey.getRouteKey()).setPathId(pathId).setAttributes(attributes).build();
     }
 }

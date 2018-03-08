@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Verify;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
@@ -19,40 +18,36 @@ import java.util.Set;
 import java.util.concurrent.atomic.LongAdder;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
+import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
+import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.dom.api.ClusteredDOMDataTreeChangeListener;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
-import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
-import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.state.peer.PrefixesInstalledCounters;
 import org.opendaylight.protocol.bgp.rib.impl.state.peer.PrefixesReceivedCounters;
-import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
-import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
-import org.opendaylight.protocol.bgp.rib.spi.entry.AttributeBindingCodecSerializer;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.Peer;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.PeerKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.peer.AdjRibIn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.peer.EffectiveRibIn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.Tables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Routes;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.Identifier;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
-import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.ModificationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,41 +64,82 @@ import org.slf4j.LoggerFactory;
  */
 @NotThreadSafe
 final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesInstalledCounters, AutoCloseable {
-    private static final Logger LOG = LoggerFactory.getLogger(EffectiveRibInWriter.class);
     static final NodeIdentifier TABLE_ROUTES = new NodeIdentifier(Routes.QNAME);
+    private static final Logger LOG = LoggerFactory.getLogger(EffectiveRibInWriter.class);
+    private final AdjInTracker adjInTracker;
+
+    private EffectiveRibInWriter(final BGPRouteEntryImportParameters peer, final RIB rib,
+            final BindingTransactionChain chain,
+            final KeyedInstanceIdentifier<Peer, PeerKey> peerIId, final Set<TablesKey> tables) {
+        this.adjInTracker = new AdjInTracker(peer, rib, chain, peerIId, tables);
+    }
+
+    static EffectiveRibInWriter create(final BGPRouteEntryImportParameters peer, @Nonnull final RIB rib,
+            @Nonnull final BindingTransactionChain chain,
+            @Nonnull final KeyedInstanceIdentifier<Peer, PeerKey> peerIId,
+            @Nonnull final Set<TablesKey> tables) {
+        return new EffectiveRibInWriter(peer, rib, chain, peerIId, tables);
+    }
+
+    @Override
+    public void close() {
+        this.adjInTracker.close();
+    }
+
+    @Override
+    public long getPrefixedReceivedCount(final TablesKey tablesKey) {
+        return this.adjInTracker.getPrefixedReceivedCount(tablesKey);
+    }
+
+    @Override
+    public Set<TablesKey> getTableKeys() {
+        return this.adjInTracker.getTableKeys();
+    }
+
+    @Override
+    public boolean isSupported(final TablesKey tablesKey) {
+        return this.adjInTracker.isSupported(tablesKey);
+    }
+
+    @Override
+    public long getPrefixedInstalledCount(@Nonnull final TablesKey tablesKey) {
+        return this.adjInTracker.getPrefixedInstalledCount(tablesKey);
+    }
+
+    @Override
+    public long getTotalPrefixesInstalled() {
+        return this.adjInTracker.getTotalPrefixesInstalled();
+    }
 
     private final class AdjInTracker implements PrefixesReceivedCounters, PrefixesInstalledCounters, AutoCloseable,
-            ClusteredDOMDataTreeChangeListener {
+            ClusteredDataTreeChangeListener<Tables> {
         private final RIBSupportContextRegistry registry;
-        private final YangInstanceIdentifier peerIId;
-        private final YangInstanceIdentifier effRibTables;
+        private final KeyedInstanceIdentifier<Peer, PeerKey> peerIId;
+        private final InstanceIdentifier<EffectiveRibIn> effRibTables;
         private final ListenerRegistration<?> reg;
-        private final DOMTransactionChain chain;
+        private final BindingTransactionChain chain;
         private final Map<TablesKey, LongAdder> prefixesReceived;
         private final Map<TablesKey, LongAdder> prefixesInstalled;
         private final BGPRibRoutingPolicy ribPolicies;
-        private final BGPPeerTracker peerTracker;
-        private final AttributeBindingCodecSerializer attBindingCodecSerializer;
-        private final PeerId peerId;
+        private final BGPRouteEntryImportParameters peerImportParameters;
 
-        AdjInTracker(final RIB rib,
-                final DOMTransactionChain chain,
-                final YangInstanceIdentifier peerIId,
+        @SuppressWarnings("unchecked")
+        AdjInTracker(final BGPRouteEntryImportParameters peer, final RIB rib,
+                final BindingTransactionChain chain,
+                final KeyedInstanceIdentifier<Peer, PeerKey> peerIId,
                 @Nonnull final Set<TablesKey> tables) {
             this.registry = requireNonNull(rib.getRibSupportContext());
             this.chain = requireNonNull(chain);
             this.peerIId = requireNonNull(peerIId);
-            this.effRibTables = this.peerIId.node(EffectiveRibIn.QNAME).node(Tables.QNAME);
+            this.effRibTables = this.peerIId.child(EffectiveRibIn.class);
             this.prefixesInstalled = buildPrefixesTables(tables);
             this.prefixesReceived = buildPrefixesTables(tables);
             this.ribPolicies = requireNonNull(rib.getRibPolicies());
-            this.peerTracker = requireNonNull(rib.getPeerTracker());
-            this.attBindingCodecSerializer = rib;
-            this.peerId = IdentifierUtils.peerId((NodeIdentifierWithPredicates) peerIId.getLastPathArgument());
-            final DOMDataTreeIdentifier treeId = new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL,
-                    this.peerIId.node(AdjRibIn.QNAME).node(Tables.QNAME));
+            this.peerImportParameters = peer;
+            final DataTreeIdentifier treeId = new DataTreeIdentifier(LogicalDatastoreType.OPERATIONAL,
+                    this.peerIId.child(AdjRibIn.class).child(Tables.class));
             LOG.debug("Registered Effective RIB on {}", this.peerIId);
-            this.reg = requireNonNull(rib.getService()).registerDataTreeChangeListener(treeId, this);
+            this.reg = requireNonNull(rib.getDataBroker()).registerDataTreeChangeListener(treeId, this);
         }
 
         private Map<TablesKey, LongAdder> buildPrefixesTables(final Set<TablesKey> tables) {
@@ -112,172 +148,57 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             return b.build();
         }
 
-        private void processRoute(final DOMDataWriteTransaction tx, final RIBSupport ribSupport,
-                final YangInstanceIdentifier routesPath, final DataTreeCandidateNode route) {
-            LOG.debug("Process route {}", route.getIdentifier());
-            final YangInstanceIdentifier routeId = ribSupport.routePath(routesPath, route.getIdentifier());
-            final TablesKey tablesKey = new TablesKey(ribSupport.getAfi(), ribSupport.getSafi());
-            switch (route.getModificationType()) {
-                case DELETE:
-                case DISAPPEARED:
-                    tx.delete(LogicalDatastoreType.OPERATIONAL, routeId);
-                    LOG.debug("Route deleted. routeId={}", routeId);
-                    CountersUtil.decrement(this.prefixesInstalled.get(tablesKey), tablesKey);
-                    break;
-                case UNMODIFIED:
-                    // No-op
-                    break;
-                case APPEARED:
-                case SUBTREE_MODIFIED:
-                case WRITE:
-                    final NormalizedNode<?, ?> advRoute = route.getDataAfter().get();
-                    tx.put(LogicalDatastoreType.OPERATIONAL, routeId, advRoute);
-                    CountersUtil.increment(this.prefixesReceived.get(tablesKey), tablesKey);
-                    // Lookup per-table attributes from RIBSupport
-
-                    final NodeIdentifierWithPredicates routeIdentifier = ribSupport
-                            .createRouteKeyPathArgument((NodeIdentifierWithPredicates) route.getIdentifier());
-                    Optional<Attributes> advertisedAttrs = this.attBindingCodecSerializer
-                            .getAttributes(ribSupport, routeIdentifier, advRoute);
-
-                    final Optional<Attributes> effectiveAttrs;
-                    if (advertisedAttrs.isPresent()) {
-                        final PeerRole peerRole = this.peerTracker.getRole(this.peerId);
-                        final BGPRouteEntryImportParameters ribPolicyParameters =
-                                new BGPRouteEntryImportParametersImpl(
-                                        (NodeIdentifierWithPredicates) route.getIdentifier(), this.peerId, peerRole);
-                        effectiveAttrs = this.ribPolicies
-                                .applyImportPolicies(ribPolicyParameters, advertisedAttrs.get());
-                        LOG.debug("Route {} effective attributes {} towards {}", route.getIdentifier(), effectiveAttrs,
-                                routeId);
-
-                    } else {
-                        effectiveAttrs = Optional.empty();
-                    }
-
-                    LOG.debug("Route {} effective attributes {} towards {}", route.getIdentifier(), effectiveAttrs, routeId);
-
-                    final Optional<ContainerNode> normEffAtt = this.attBindingCodecSerializer
-                            .toNormalizedNodeAttribute(ribSupport, routeIdentifier, effectiveAttrs);
-                    if (normEffAtt.isPresent()) {
-                        tx.put(LogicalDatastoreType.OPERATIONAL,
-                                routeId.node(ribSupport.routeAttributesIdentifier()), normEffAtt.get());
-                        if (route.getModificationType() == ModificationType.WRITE) {
-                            CountersUtil.increment(this.prefixesInstalled.get(tablesKey), tablesKey);
-                        }
-                    } else {
-                        LOG.warn("Route {} advertised empty attributes", routeId);
-                        tx.delete(LogicalDatastoreType.OPERATIONAL, routeId);
-                    }
-                    break;
-                default:
-                    LOG.warn("Ignoring unhandled route {}", route);
-                    break;
-            }
-        }
-
-        private void processTableChildren(final DOMDataWriteTransaction tx, final RIBSupport ribSupport, final YangInstanceIdentifier tablePath, final Collection<DataTreeCandidateNode> children) {
-            for (final DataTreeCandidateNode child : children) {
-                final PathArgument childIdentifier = child.getIdentifier();
-                final Optional<NormalizedNode<?, ?>> childDataAfter = child.getDataAfter();
-                final TablesKey tablesKey = new TablesKey(ribSupport.getAfi(), ribSupport.getSafi());
-                LOG.debug("Process table {} type {}, dataAfter {}, dataBefore {}", childIdentifier, child
-                        .getModificationType(), childDataAfter, child.getDataBefore());
-                final YangInstanceIdentifier childPath = tablePath.node(childIdentifier);
-                switch (child.getModificationType()) {
+        @Override
+        @SuppressWarnings("unchecked")
+        public void onDataTreeChanged(@Nonnull final Collection<DataTreeModification<Tables>> changes) {
+            LOG.trace("Data changed called to effective RIB. Change : {}", changes);
+            WriteTransaction tx = null;
+            for (final DataTreeModification<Tables> tc : changes) {
+                final DataObjectModification<Tables> table = tc.getRootNode();
+                if (tx == null) {
+                    tx = this.chain.newWriteOnlyTransaction();
+                }
+                final DataObjectModification.ModificationType modificationType = table.getModificationType();
+                switch (modificationType) {
                     case DELETE:
-                    case DISAPPEARED:
-                        tx.delete(LogicalDatastoreType.OPERATIONAL, childPath);
-                        LOG.debug("Route deleted. routeId={}", childPath);
-                        CountersUtil.decrement(this.prefixesInstalled.get(tablesKey), tablesKey);
-                        break;
-                    case UNMODIFIED:
-                        // No-op
+                        final Tables removeTable = table.getDataBefore();
+                        final TablesKey tableKey = removeTable.getKey();
+                        final KeyedInstanceIdentifier<Tables, TablesKey> effectiveTablePath
+                                = this.effRibTables.child(Tables.class, tableKey);
+                        LOG.debug("Delete Effective Table {} modification type {}, "
+                                , effectiveTablePath, modificationType);
+                        tx.delete(LogicalDatastoreType.OPERATIONAL, effectiveTablePath);
+                        CountersUtil.decrement(this.prefixesInstalled.get(tableKey), tableKey);
                         break;
                     case SUBTREE_MODIFIED:
-                        processModifiedRouteTables(child, childIdentifier, tx, ribSupport, childPath, childDataAfter);
-                        break;
-                    case APPEARED:
-                    case WRITE:
-                        writeRouteTables(child, childIdentifier, tx, ribSupport, childPath, childDataAfter);
+                        final Tables before = table.getDataBefore();
+                        final Tables after = table.getDataAfter();
+                        final TablesKey tk = after.getKey();
+                        LOG.debug("Process table {} type {}, dataAfter {}, dataBefore {}",
+                                tk, modificationType, after, before);
 
+                        final KeyedInstanceIdentifier<Tables, TablesKey> tablePath
+                                = this.effRibTables.child(Tables.class, tk);
+                        final RIBSupport ribSupport = this.registry.getRIBSupport(tk);
+
+                        tx.put(LogicalDatastoreType.OPERATIONAL,
+                                tablePath.child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
+                                        .rib.rev171207.rib.tables.Attributes.class), after.getAttributes());
+
+                        final DataObjectModification routesChangesContainer =
+                                table.getModifiedChildContainer(ribSupport.routesContainerClass());
+
+                        if (routesChangesContainer == null) {
+                            return;
+                        }
+                        updateRoutes(tx, tk, ribSupport, tablePath, routesChangesContainer.getModifiedChildren());
+                        break;
+                    case WRITE:
+                        writeTable(tx, table.getDataAfter());
                         break;
                     default:
-                        LOG.warn("Ignoring unhandled child {}", child);
+                        LOG.warn("Ignoring unhandled root {}", table);
                         break;
-                }
-            }
-        }
-
-        private void processModifiedRouteTables(final DataTreeCandidateNode child, final PathArgument childIdentifier, final DOMDataWriteTransaction tx,
-                final RIBSupport ribSupport, final YangInstanceIdentifier childPath, final Optional<NormalizedNode<?, ?>> childDataAfter) {
-            if (TABLE_ROUTES.equals(childIdentifier)) {
-                for (final DataTreeCandidateNode route : ribSupport.changedRoutes(child)) {
-                    processRoute(tx, ribSupport, childPath, route);
-                }
-            } else {
-                tx.put(LogicalDatastoreType.OPERATIONAL, childPath, childDataAfter.get());
-            }
-        }
-
-        private void writeRouteTables(final DataTreeCandidateNode child, final PathArgument childIdentifier,
-                final DOMDataWriteTransaction tx, final RIBSupport ribSupport,
-                final YangInstanceIdentifier childPath, final Optional<NormalizedNode<?, ?>> childDataAfter) {
-            if (TABLE_ROUTES.equals(childIdentifier)) {
-                final Collection<DataTreeCandidateNode> changedRoutes = ribSupport.changedRoutes(child);
-                if (!changedRoutes.isEmpty()) {
-                    tx.put(LogicalDatastoreType.OPERATIONAL, childPath, childDataAfter.get());
-                    // Routes are special, as they may end up being filtered. The previous put conveniently
-                    // ensured that we have them in at target, so a subsequent delete will not fail :)
-                    for (final DataTreeCandidateNode route : changedRoutes) {
-                        processRoute(tx, ribSupport, childPath, route);
-                    }
-                }
-            }
-        }
-
-        private RIBSupportContext getRibSupport(final NodeIdentifierWithPredicates tableKey) {
-            return this.registry.getRIBSupportContext(tableKey);
-        }
-
-        private YangInstanceIdentifier effectiveTablePath(final NodeIdentifierWithPredicates tableKey) {
-            return this.effRibTables.node(tableKey);
-        }
-
-        private void modifyTable(final DOMDataWriteTransaction tx, final NodeIdentifierWithPredicates tableKey, final DataTreeCandidateNode table) {
-            final RIBSupportContext ribSupport = getRibSupport(tableKey);
-            final YangInstanceIdentifier tablePath = effectiveTablePath(tableKey);
-
-            processTableChildren(tx, ribSupport.getRibSupport(), tablePath, table.getChildNodes());
-        }
-
-        private void writeTable(final DOMDataWriteTransaction tx, final NodeIdentifierWithPredicates tableKey, final DataTreeCandidateNode table) {
-            final RIBSupportContext ribSupport = getRibSupport(tableKey);
-            final YangInstanceIdentifier tablePath = effectiveTablePath(tableKey);
-
-            // Create an empty table
-            LOG.trace("Create Empty table", tablePath);
-            ribSupport.createEmptyTableStructure(tx, tablePath);
-
-            processTableChildren(tx, ribSupport.getRibSupport(), tablePath, table.getChildNodes());
-        }
-
-        @Override
-        public void onDataTreeChanged(@Nonnull final Collection<DataTreeCandidate> changes) {
-            LOG.trace("Data changed called to effective RIB. Change : {}", changes);
-
-            // we have a lot of transactions created for 'nothing' because a lot of changes
-            // are skipped, so ensure we only create one transaction when we really need it
-            DOMDataWriteTransaction tx = null;
-            for (final DataTreeCandidate tc : changes) {
-                final YangInstanceIdentifier rootPath = tc.getRootPath();
-
-                final DataTreeCandidateNode root = tc.getRootNode();
-                for (final DataTreeCandidateNode table : root.getChildNodes()) {
-                    if (tx == null) {
-                        tx = this.chain.newWriteOnlyTransaction();
-                    }
-                    changeDataTree(tx, rootPath, root, table);
                 }
             }
             if (tx != null) {
@@ -285,37 +206,68 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             }
         }
 
-        private void changeDataTree(final DOMDataWriteTransaction tx, final YangInstanceIdentifier rootPath,
-                final DataTreeCandidateNode root, final DataTreeCandidateNode table) {
-            final PathArgument lastArg = table.getIdentifier();
-            Verify.verify(lastArg instanceof NodeIdentifierWithPredicates, "Unexpected type %s in path %s", lastArg.getClass(), rootPath);
-            final NodeIdentifierWithPredicates tableKey = (NodeIdentifierWithPredicates) lastArg;
-            final RIBSupport ribSupport = getRibSupport(tableKey).getRibSupport();
-            final ModificationType modificationType = root.getModificationType();
-            switch (modificationType) {
-                case DELETE:
-                case DISAPPEARED:
-                    final YangInstanceIdentifier effectiveTablePath = effectiveTablePath(tableKey);
-                    LOG.debug("Delete Effective Table {} modification type {}, ", effectiveTablePath, modificationType);
+        @SuppressWarnings("unchecked")
+        private void updateRoutes(
+                final WriteTransaction tx,
+                final TablesKey tableKey, final RIBSupport ribSupport,
+                final KeyedInstanceIdentifier<Tables, TablesKey> tablePath,
+                final Collection<DataObjectModification<? extends DataObject>> routeChanges) {
+            for (final DataObjectModification<? extends DataObject> routeChanged : routeChanges) {
+                switch (routeChanged.getModificationType()) {
+                    case SUBTREE_MODIFIED:
+                    case WRITE:
+                        writeRoutes(tx, tableKey, ribSupport, tablePath, (Route) routeChanged.getDataAfter());
+                        break;
+                    case DELETE:
+                        final Route routeDeleted = (Route) routeChanged.getDataBefore();
+                        final Identifier routeKey = ribSupport.extractRouteKey(routeDeleted);
+                        final InstanceIdentifier routeIID = ribSupport.createRouteIId(tablePath, routeKey);
+                        tx.delete(LogicalDatastoreType.OPERATIONAL, routeIID);
+                        break;
+                }
+            }
+        }
 
-                    // delete the corresponding effective table
-                    tx.delete(LogicalDatastoreType.OPERATIONAL, effectiveTablePath);
-                    final TablesKey tk = new TablesKey(ribSupport.getAfi(), ribSupport.getSafi());
-                    CountersUtil.decrement(this.prefixesInstalled.get(tk), tk);
-                    break;
-                case SUBTREE_MODIFIED:
-                    modifyTable(tx, tableKey, table);
-                    break;
-                case UNMODIFIED:
-                    LOG.info("Ignoring spurious notification on {} data {}", rootPath, table);
-                    break;
-                case APPEARED:
-                case WRITE:
-                    writeTable(tx, tableKey, table);
-                    break;
-                default:
-                    LOG.warn("Ignoring unhandled root {}", root);
-                    break;
+        @SuppressWarnings("unchecked")
+        private void writeRoutes(final WriteTransaction tx, final TablesKey tk, final RIBSupport ribSupport,
+                final KeyedInstanceIdentifier<Tables, TablesKey> tablePath, final Route route) {
+            final Identifier routeKey = ribSupport.extractRouteKey(route);
+            final InstanceIdentifier routeIID = ribSupport.createRouteIId(tablePath, routeKey);
+            CountersUtil.increment(this.prefixesReceived.get(tk), tk);
+            final Optional<Attributes> effAtt = this.ribPolicies
+                    .applyImportPolicies(this.peerImportParameters, route.getAttributes());
+            if (effAtt.isPresent()) {
+                CountersUtil.increment(this.prefixesInstalled.get(tk), tk);
+                tx.put(LogicalDatastoreType.OPERATIONAL, routeIID, route, true);
+                tx.put(LogicalDatastoreType.OPERATIONAL, routeIID.child(Attributes.class), effAtt.get());
+            } else {
+                tx.delete(LogicalDatastoreType.OPERATIONAL, routeIID);
+            }
+        }
+
+        @SuppressWarnings("unchecked")
+        private void writeTable(final WriteTransaction tx, final Tables table) {
+            if (table == null) {
+                return;
+            }
+            final TablesKey tableKey = table.getKey();
+            final KeyedInstanceIdentifier<Tables, TablesKey> tablePath
+                    = this.effRibTables.child(Tables.class, tableKey);
+
+            // Create an empty table
+            LOG.trace("Create Empty table", tablePath);
+            tx.put(LogicalDatastoreType.OPERATIONAL, tablePath, new TablesBuilder()
+                    .setAfi(tableKey.getAfi()).setSafi(tableKey.getSafi())
+                    .setAttributes(table.getAttributes()).build());
+
+            final RIBSupport ribSupport = this.registry.getRIBSupport(tableKey);
+            final Routes routes = table.getRoutes();
+            if (routes == null) {
+                return;
+            }
+            final Collection<? extends Route> changedRoutes = ribSupport.changedRoutes(routes);
+            for (final Route route : changedRoutes) {
+                writeRoutes(tx, tableKey, ribSupport, tablePath, route);
             }
         }
 
@@ -358,49 +310,5 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         public long getTotalPrefixesInstalled() {
             return this.prefixesInstalled.values().stream().mapToLong(LongAdder::longValue).sum();
         }
-    }
-
-    private final AdjInTracker adjInTracker;
-
-    static EffectiveRibInWriter create(@Nonnull final RIB rib,
-            @Nonnull final DOMTransactionChain chain,
-            @Nonnull final YangInstanceIdentifier peerIId,
-            @Nonnull final Set<TablesKey> tables) {
-        return new EffectiveRibInWriter(rib, chain, peerIId, tables);
-    }
-
-    private EffectiveRibInWriter(final RIB rib, final DOMTransactionChain chain, final YangInstanceIdentifier peerIId,
-            @Nonnull final Set<TablesKey> tables) {
-        this.adjInTracker = new AdjInTracker(rib, chain, peerIId, tables);
-    }
-
-    @Override
-    public void close() {
-        this.adjInTracker.close();
-    }
-
-    @Override
-    public long getPrefixedReceivedCount(final TablesKey tablesKey) {
-        return this.adjInTracker.getPrefixedReceivedCount(tablesKey);
-    }
-
-    @Override
-    public Set<TablesKey> getTableKeys() {
-        return this.adjInTracker.getTableKeys();
-    }
-
-    @Override
-    public boolean isSupported(final TablesKey tablesKey) {
-        return this.adjInTracker.isSupported(tablesKey);
-    }
-
-    @Override
-    public long getPrefixedInstalledCount(@Nonnull final TablesKey tablesKey) {
-        return this.adjInTracker.getPrefixedInstalledCount(tablesKey);
-    }
-
-    @Override
-    public long getTotalPrefixesInstalled() {
-        return this.adjInTracker.getTotalPrefixesInstalled();
     }
 }

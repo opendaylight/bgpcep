@@ -31,6 +31,7 @@ import org.opendaylight.mdsal.binding.dom.codec.impl.BindingNormalizedNodeCodecR
 import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
 import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.mdsal.binding.generator.util.JavassistUtils;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.AttributesBuilder;
@@ -66,7 +67,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
 public abstract class AbstractRIBSupportTest {
-    protected static final long PATH_ID = 1;
+    protected static final PathId PATH_ID = new PathId(1L);
     protected static final Attributes ATTRIBUTES = new AttributesBuilder().build();
     private static final InstanceIdentifier<LocRib> RIB = InstanceIdentifier.builder(BgpRib.class)
             .child(Rib.class, new RibKey(new RibId("rib"))).child(LocRib.class).build();
