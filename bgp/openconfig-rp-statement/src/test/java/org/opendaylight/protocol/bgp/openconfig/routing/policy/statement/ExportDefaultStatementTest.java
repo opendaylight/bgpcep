@@ -10,9 +10,6 @@ package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.doReturn;
 import static org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.RouteAttributeContainer.routeAttributeContainerFalse;
-import static org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.ExportAttributeTestUtil.CLUSTER;
-import static org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.ExportAttributeTestUtil.IPV4;
-import static org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.ExportAttributeTestUtil.LOCAL_AS;
 import static org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.ExportAttributeTestUtil.createClusterInput;
 import static org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.ExportAttributeTestUtil.createInputWithOriginator;
 import static org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.ExportAttributeTestUtil.createPathInput;
@@ -47,7 +44,6 @@ public class ExportDefaultStatementTest extends AbstractStatementRegistryConsume
     public void setUp() throws Exception {
         super.setUp();
         this.defaultExportStatements = loadStatement("default-odl-export-policy");
-        doReturn(ROUTE_ID_PA).when(this.exportParameters).getRouteId();
         this.baseAttributes = new PolicyRIBBaseParametersImpl(LOCAL_AS, IPV4, CLUSTER);
     }
 
@@ -168,7 +164,6 @@ public class ExportDefaultStatementTest extends AbstractStatementRegistryConsume
             final Statement statement, final PeerRole fromPeerRole,
             final RouteAttributeContainer attInput,
             final Attributes attExpected) {
-
         doReturn(fromPeerRole).when(this.exportParameters).getFromPeerRole();
 
         RouteAttributeContainer result = this.statementRegistry.applyExportStatement(

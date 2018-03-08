@@ -10,14 +10,21 @@ package org.opendaylight.protocol.bgp.rib.spi;
 import com.google.common.collect.ImmutableCollection;
 import java.util.Collection;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.Tables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.Identifier;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -33,7 +40,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNod
  * to register an implementation of this class and the RIB core then calls into it
  * to inquire about details specific to that particular model.
  */
-public interface RIBSupport extends AddPathRibSupport {
+public interface RIBSupport<C extends Routes, R extends Route, N extends Identifier> extends AddPathRibSupport {
     /**
      * Return the table-type-specific empty routes container, as augmented into the
      * bgp-rib model under /rib/tables/routes choice node. This needs to include all
@@ -149,7 +156,7 @@ public interface RIBSupport extends AddPathRibSupport {
      * @return collection of modified nodes or empty collection if no node was modified
      */
     @Nonnull
-    Collection<DataTreeCandidateNode> changedRoutes(@Nonnull DataTreeCandidateNode routes);
+    Collection<DataTreeCandidateNode> changedDOMRoutes(@Nonnull DataTreeCandidateNode routes);
 
     /**
      * Constructs an instance identifier path to routeId.
@@ -190,6 +197,50 @@ public interface RIBSupport extends AddPathRibSupport {
 
     @Nonnull
     Class<? extends SubsequentAddressFamily> getSafi();
+
+    /**
+     * Extract Routes from Route Container.
+     *
+     * @param routes container
+     * @return routes
+     */
+    @Nonnull
+    Collection<R> changedRoutes(@Nonnull C routes);
+
+    /**
+     * Creates Route Rib out Peer InstanceIdentifier.
+     *
+     * @param ribOutIId   table InstanceIdentifier
+     * @param newRouteKey route key
+     * @return InstanceIdentifier
+     */
+    @Nonnull
+    InstanceIdentifier<R> createRouteIId(
+            @Nonnull KeyedInstanceIdentifier<Tables, TablesKey> ribOutIId,
+            @Nonnull N newRouteKey);
+
+    /**
+     * Extract key route from route
+     *
+     * @param route container
+     * @return key
+     */
+    N extractRouteKey(R route);
+
+    @Nonnull
+    R createRoute(@Nullable R route, N routeKey, @Nullable PathId pathId, @Nonnull Attributes attributes);
+
+    /**
+     * Construct a PathArgument to an AddPathRoute.
+     *
+     * @param pathId  The path identifier
+     * @param routeKey RouteKey
+     * @return routeId PathArgument + pathId or Null in case Add-path is not supported
+     */
+    @Nullable
+    default Identifier createNewRouteKey(@Nonnull PathId pathId, @Nonnull N routeKey) {
+        return null;
+    }
 
     /**
      * Creates Yii for route entry.

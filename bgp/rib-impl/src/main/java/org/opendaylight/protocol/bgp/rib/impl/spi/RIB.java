@@ -9,6 +9,8 @@ package org.opendaylight.protocol.bgp.rib.impl.spi;
 
 import java.util.Set;
 import javax.annotation.Nonnull;
+import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
@@ -16,7 +18,6 @@ import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
-import org.opendaylight.protocol.bgp.rib.spi.entry.AttributeBindingCodecSerializer;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.BgpTableType;
@@ -27,7 +28,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 /**
  * Internal reference to a RIB instance.
  */
-public interface RIB extends AttributeBindingCodecSerializer, RibReference {
+public interface RIB extends RibReference {
     /**
      * RIB AS.
      *
@@ -54,7 +55,15 @@ public interface RIB extends AttributeBindingCodecSerializer, RibReference {
      * @param listener {@link TransactionChainListener} handling recovery
      * @return A new transaction chain.
      */
-    DOMTransactionChain createPeerChain(TransactionChainListener listener);
+    DOMTransactionChain createPeerDOMChain(TransactionChainListener listener);
+
+    /**
+     * Allocate a new transaction chain for use with a peer.
+     *
+     * @param listener {@link TransactionChainListener} handling recovery
+     * @return A new transaction chain.
+     */
+    BindingTransactionChain createPeerChain(TransactionChainListener listener);
 
     /**
      * Return the RIB extensions available to the RIB instance.
@@ -98,6 +107,13 @@ public interface RIB extends AttributeBindingCodecSerializer, RibReference {
      * @return ExportPolicyPeerTracker
      */
     ExportPolicyPeerTracker getExportPolicyPeerTracker(TablesKey tablesKey);
+
+    /**
+     * Return DataBroker
+     *
+     * @return DataTreeChangeService
+     */
+    DataBroker getDataBroker();
 
     /**
      * Returns true if RIB supports table.

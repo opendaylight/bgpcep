@@ -25,6 +25,8 @@ import org.opendaylight.protocol.bgp.labeled.unicast.LabeledUnicastIpv4RIBSuppor
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.PathId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Routes;
@@ -34,6 +36,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.RouteDistinguisherBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev171207.l3vpn.ip.destination.type.VpnDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev171207.l3vpn.ip.destination.type.VpnDestinationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev171207.l3vpn.ip.route.VpnRoute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev171207.l3vpn.ip.route.VpnRouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev171207.l3vpn.ip.route.VpnRouteKey;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -50,7 +55,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport {
+public abstract class AbstractVpnRIBSupport<C extends Routes> extends AbstractRIBSupport<C, VpnRoute, VpnRouteKey> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractVpnRIBSupport.class);
     private final NodeIdentifier nlriRoutesListNid;
     private final NodeIdentifier prefixTypeNid;
@@ -185,5 +190,26 @@ public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport {
         buffer.writeBytes(nlriByteBuf);
 
         return new NodeIdentifierWithPredicates(routeQName(), this.routeKey, ByteArray.encodeBase64(buffer));
+    }
+
+
+    @Override
+    public final VpnRouteKey extractRouteKey(final VpnRoute route) {
+        return route.getKey();
+    }
+
+    @Override
+    public final VpnRoute createRoute(
+            final VpnRoute route,
+            final VpnRouteKey vpnRouteKey,
+            final PathId pathId,
+            final Attributes attributes) {
+        final VpnRouteBuilder builder;
+        if (route != null) {
+            builder = new VpnRouteBuilder(route);
+        } else {
+            builder = new VpnRouteBuilder();
+        }
+        return builder.setRouteKey(vpnRouteKey.getRouteKey()).setPathId(pathId).setAttributes(attributes).build();
     }
 }

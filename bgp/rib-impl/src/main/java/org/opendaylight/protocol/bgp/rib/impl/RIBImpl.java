@@ -20,11 +20,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
+import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
@@ -35,7 +36,6 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataBrokerExtension;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
@@ -48,11 +48,9 @@ import org.opendaylight.protocol.bgp.rib.impl.state.BGPRIBStateImpl;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
-import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.RibId;
@@ -73,8 +71,6 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
-import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
@@ -96,9 +92,9 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
     private final Set<BgpTableType> localTables;
     private final Set<TablesKey> localTablesKeys;
     private final DOMDataBroker domDataBroker;
+    private final DataBroker dataBroker;
     private final RIBExtensionConsumerContext extensions;
     private final YangInstanceIdentifier yangRibId;
-    private final YangInstanceIdentifier yangTables;
     private final RIBSupportContextRegistryImpl ribContextRegistry;
     private final CodecsRegistryImpl codecsRegistry;
     @GuardedBy("this")
@@ -110,7 +106,6 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
     private final BGPPeerTracker peerTracker;
     private final BGPRibRoutingPolicy ribPolicies;
     private final Map<TablesKey, ExportPolicyPeerTracker> exportPolicyPeerTrackerMap;
-    private final BindingNormalizedNodeSerializer bindingSerializer;
 
     @GuardedBy("this")
     private DOMTransactionChain domChain;
@@ -125,11 +120,11 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
             final BGPDispatcher dispatcher,
             final CodecsRegistryImpl codecsRegistry,
             final DOMDataBroker domDataBroker,
+            final DataBroker dataBroker,
             final BGPRibRoutingPolicy ribPolicies,
             final BGPPeerTracker bgpPeerTracker,
             final List<BgpTableType> localTables,
-            final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies,
-            final BindingNormalizedNodeSerializer bindingSerializer
+            final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies
     ) {
         super(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(requireNonNull(ribId))),
                 localBgpId, localAs);
@@ -139,6 +134,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
         this.localTables = ImmutableSet.copyOf(localTables);
         this.localTablesKeys = new HashSet<>();
         this.domDataBroker = requireNonNull(domDataBroker);
+        this.dataBroker = requireNonNull(dataBroker);
         this.service = this.domDataBroker.getSupportedExtensions().get(DOMDataTreeChangeService.class);
         this.extensions = requireNonNull(extensions);
         this.ribPolicies = requireNonNull(ribPolicies);
@@ -147,7 +143,6 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
         this.ribContextRegistry = RIBSupportContextRegistryImpl.create(extensions, this.codecsRegistry);
         final InstanceIdentifierBuilder yangRibIdBuilder = YangInstanceIdentifier.builder().node(BgpRib.QNAME).node(Rib.QNAME);
         this.yangRibId = yangRibIdBuilder.nodeWithKey(Rib.QNAME, RIB_ID_QNAME, ribId.getValue()).build();
-        this.yangTables = this.yangRibId.node(LocRib.QNAME).node(Tables.QNAME);
         this.bestPathSelectionStrategies = requireNonNull(bestPathSelectionStrategies);
         final ClusterIdentifier cId = clusterId == null ? new ClusterIdentifier(localBgpId) : clusterId;
         this.ribId = ribId;
@@ -160,7 +155,6 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
             exportPolicies.put(key, new ExportPolicyPeerTrackerImpl(policyDatabase, key));
         }
         this.exportPolicyPeerTrackerMap = exportPolicies.build();
-        this.bindingSerializer = requireNonNull(bindingSerializer);
     }
 
     private synchronized void startLocRib(final TablesKey key) {
@@ -198,7 +192,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
 
     private synchronized void createLocRibWriter(final TablesKey key) {
         LOG.debug("Creating LocRIB writer for key {}", key);
-        final DOMTransactionChain txChain = createPeerChain(this);
+        final DOMTransactionChain txChain = createPeerDOMChain(this);
         PathSelectionMode pathSelectionStrategy = this.bestPathSelectionStrategies.get(key);
         if (pathSelectionStrategy == null) {
             pathSelectionStrategy = BasePathSelectionModeFactory.createBestPathSelectionStrategy(this.peerTracker);
@@ -254,7 +248,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
         LOG.error("Broken chain in RIB {} transaction {}", getInstanceIdentifier(), transaction != null ? transaction.getIdentifier() : null, cause);
         if (this.txChainToLocRibWriter.containsKey(chain)) {
             final LocRibWriter locRibWriter = this.txChainToLocRibWriter.remove(chain);
-            final DOMTransactionChain newChain = createPeerChain(this);
+            final DOMTransactionChain newChain = createPeerDOMChain(this);
             locRibWriter.restart(newChain);
             this.txChainToLocRibWriter.put(newChain, locRibWriter);
         }
@@ -291,13 +285,23 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
     }
 
     @Override
+    public DataBroker getDataBroker() {
+        return this.dataBroker;
+    }
+
+    @Override
     public YangInstanceIdentifier getYangRibId() {
         return this.yangRibId;
     }
 
     @Override
-    public DOMTransactionChain createPeerChain(final TransactionChainListener listener) {
+    public DOMTransactionChain createPeerDOMChain(final TransactionChainListener listener) {
         return this.domDataBroker.createTransactionChain(listener);
+    }
+
+    @Override
+    public BindingTransactionChain createPeerChain(final TransactionChainListener listener) {
+        return this.dataBroker.createTransactionChain(this);
     }
 
     @Override
@@ -378,37 +382,5 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
 
         this.domChain.close();
         return cleanFuture;
-    }
-
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public final Optional<ContainerNode> toNormalizedNodeAttribute(
-            final RIBSupport ribSupport,
-            final NodeIdentifierWithPredicates routeIdentifier,
-            final Optional<Attributes> attributes) {
-        if (!attributes.isPresent()) {
-            return Optional.empty();
-        }
-        final InstanceIdentifier<Attributes> yii
-                = (InstanceIdentifier<Attributes>) this.bindingSerializer
-                .fromYangInstanceIdentifier(ribSupport.buildRouteAttributeYii(this.yangTables, routeIdentifier));
-        return Optional.of((ContainerNode) this.bindingSerializer.toNormalizedNode(yii, attributes.get()).getValue());
-    }
-
-    @Override
-    public final Optional<Attributes> getAttributes(
-            final RIBSupport ribSupport,
-            final NodeIdentifierWithPredicates routeIdentifier,
-            final NormalizedNode<?, ?> route) {
-        final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes
-                .findNode(route, ribSupport.routeAttributesIdentifier()).orElse(null);
-        if (advertisedAttrs == null) {
-            return Optional.empty();
-        }
-
-        return Optional.ofNullable((Attributes) this.bindingSerializer
-                .fromNormalizedNode(ribSupport.buildRouteAttributeYii(this.yangTables, routeIdentifier),
-                        advertisedAttrs).getValue());
     }
 }

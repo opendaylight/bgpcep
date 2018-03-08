@@ -20,6 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -35,7 +36,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Common {@link org.opendaylight.protocol.bgp.rib.spi.RIBSupport} class for IPv4 and IPv6 addresses.
  */
-abstract class AbstractIPRibSupport extends MultiPathAbstractRIBSupport {
+abstract class AbstractIPRibSupport<C extends Routes, R extends Route, N extends Identifier>
+        extends MultiPathAbstractRIBSupport<C, R,N> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractIPRibSupport.class);
     private final NodeIdentifier prefixNid;
     private final NodeIdentifier nlriRoutesList;

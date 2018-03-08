@@ -12,10 +12,10 @@ import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.linkstate.impl.nlri.LinkstateNlriParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.pojo.SimpleNlriTypeRegistry;
@@ -27,9 +27,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev171207.linkstate.destination.CLinkstateDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev171207.linkstate.routes.LinkstateRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev171207.linkstate.routes.linkstate.routes.LinkstateRoute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev171207.linkstate.routes.linkstate.routes.LinkstateRouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev171207.linkstate.routes.linkstate.routes.LinkstateRouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev171207.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev171207.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.linkstate._case.DestinationLinkstate;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev171207.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.PathId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.destination.DestinationType;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -45,7 +49,9 @@ import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class LinkstateRIBSupport extends AbstractRIBSupport {
+public final class LinkstateRIBSupport extends AbstractRIBSupport<org.opendaylight.yang.gen.v1.urn.opendaylight.params
+        .xml.ns.yang.bgp.linkstate.rev171207.bgp.rib.rib.peer.adj.rib.in.tables.routes.LinkstateRoutesCase,
+        LinkstateRoute, LinkstateRouteKey> {
     private static final Logger LOG = LoggerFactory.getLogger(LinkstateRIBSupport.class);
     private static final QName ROUTE_KEY_QNAME = QName.create(LinkstateRoute.QNAME, ROUTE_KEY).intern();
     private static final LinkstateRIBSupport SINGLETON = new LinkstateRIBSupport();
@@ -53,8 +59,8 @@ public final class LinkstateRIBSupport extends AbstractRIBSupport {
     private final NodeIdentifier nlriRoutesList = new NodeIdentifier(CLinkstateDestination.QNAME);
 
     private LinkstateRIBSupport() {
-        super(LinkstateRoutesCase.class, LinkstateRoutes.class, LinkstateRoute.class, LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class,
-            DestinationLinkstate.QNAME);
+        super(LinkstateRoutesCase.class, LinkstateRoutes.class, LinkstateRoute.class, LinkstateAddressFamily.class,
+                LinkstateSubsequentAddressFamily.class, DestinationLinkstate.QNAME);
     }
 
     public static LinkstateRIBSupport getInstance() {
@@ -80,12 +86,14 @@ public final class LinkstateRIBSupport extends AbstractRIBSupport {
     protected void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
         final ContainerNode destination, final ContainerNode attributes, final ApplyRoute function) {
         if (destination != null) {
-            final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = destination.getChild(this.nlriRoutesList);
+            final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes
+                    = destination.getChild(this.nlriRoutesList);
             processRoute(maybeRoutes, routesPath, attributes, function, tx);
         }
     }
 
-    private void processRoute(final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes, final YangInstanceIdentifier routesPath,
+    private void processRoute(final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes,
+            final YangInstanceIdentifier routesPath,
         final ContainerNode attributes, final ApplyRoute function, final DOMDataWriteTransaction tx) {
         if (maybeRoutes.isPresent()) {
             final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
@@ -109,22 +117,53 @@ public final class LinkstateRIBSupport extends AbstractRIBSupport {
         return new NodeIdentifierWithPredicates(LinkstateRoute.QNAME, ROUTE_KEY_QNAME, ByteArray.readAllBytes(buffer));
     }
 
-    @Nonnull
     @Override
-    protected DestinationType buildDestination(@Nonnull final Collection<MapEntryNode> routes) {
+    protected DestinationType buildDestination(final Collection<MapEntryNode> routes) {
         return new DestinationLinkstateCaseBuilder().setDestinationLinkstate(
             new DestinationLinkstateBuilder().setCLinkstateDestination(extractRoutes(routes)).build()).build();
     }
 
-    @Nonnull
     @Override
-    protected DestinationType buildWithdrawnDestination(@Nonnull final Collection<MapEntryNode> routes) {
-        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev171207.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCaseBuilder().setDestinationLinkstate(
-            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev171207.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder().
-                setCLinkstateDestination(extractRoutes(routes)).build()).build();
+    protected DestinationType buildWithdrawnDestination(final Collection<MapEntryNode> routes) {
+        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev171207.update
+                .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCaseBuilder()
+                .setDestinationLinkstate(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
+                        .linkstate.rev171207.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type
+                        .destination.linkstate._case.DestinationLinkstateBuilder()
+                        .setCLinkstateDestination(extractRoutes(routes)).build()).build();
     }
 
     private static List<CLinkstateDestination> extractRoutes(final Collection<MapEntryNode> routes) {
         return routes.stream().map(LinkstateNlriParser::extractLinkstateDestination).collect(Collectors.toList());
+    }
+
+    @Override
+    public LinkstateRouteKey extractRouteKey(final LinkstateRoute route) {
+        return route.getKey();
+    }
+
+    @Override
+    public LinkstateRoute createRoute(
+            final LinkstateRoute route,
+            final LinkstateRouteKey routeKey,
+            final PathId pathId,
+            final Attributes attributes) {
+        final LinkstateRouteBuilder builder;
+        if (route != null) {
+            builder = new LinkstateRouteBuilder(route);
+        } else {
+            builder = new LinkstateRouteBuilder();
+        }
+        return builder.setRouteKey(routeKey.getRouteKey()).setAttributes(attributes).build();
+    }
+
+    @Override
+    public Collection<LinkstateRoute> changedRoutes(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
+            .yang.bgp.linkstate.rev171207.bgp.rib.rib.peer.adj.rib.in.tables.routes.LinkstateRoutesCase routes) {
+        final LinkstateRoutes routeCont = routes.getLinkstateRoutes();
+        if (routeCont == null) {
+            return Collections.emptyList();
+        }
+        return routeCont.getLinkstateRoute();
     }
 }

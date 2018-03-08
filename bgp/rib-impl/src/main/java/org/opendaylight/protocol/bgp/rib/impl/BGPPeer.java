@@ -48,6 +48,7 @@ import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
+import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPAfiSafiState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPErrorHandlingState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPSessionState;
@@ -95,7 +96,8 @@ import org.slf4j.LoggerFactory;
  * Class representing a peer. We have a single instance for each peer, which provides translation from BGP events into
  * RIB actions.
  */
-public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Peer, TransactionChainListener {
+public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportParameters,
+        BGPSessionListener, Peer, TransactionChainListener {
     private static final Logger LOG = LoggerFactory.getLogger(BGPPeer.class);
 
     @GuardedBy("this")
@@ -105,12 +107,14 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
     private final Map<TablesKey, AdjRibOutListener> adjRibOutListenerSet = new HashMap<>();
     private final RpcProviderRegistry rpcRegistry;
     private final PeerRole peerRole;
+    private final KeyedInstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib
+            .rev171207.bgp.rib.rib.Peer, PeerKey> peerIId;
     @GuardedBy("this")
     private AbstractRegistration trackerRegistration;
     @GuardedBy("this")
     private final Set<AbstractRegistration> tableRegistration = new HashSet<>();
     private final PeerId peerId;
-    private final YangInstanceIdentifier peerIId;
+    private final YangInstanceIdentifier peerYIId;
     @GuardedBy("this")
     private BGPSession session;
     @GuardedBy("this")
@@ -136,9 +140,11 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
         this.name = Ipv4Util.toStringIP(neighborAddress);
         this.rpcRegistry = rpcRegistry;
         this.peerId = RouterIds.createPeerId(neighborAddress);
-        this.peerIId = this.rib.getYangRibId().node(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+        this.peerIId = getInstanceIdentifier().child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
+                .yang.bgp.rib.rev171207.bgp.rib.rib.Peer.class, new PeerKey(this.peerId));
+        this.peerYIId = this.rib.getYangRibId().node(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
                 .bgp.rib.rev171207.bgp.rib.rib.Peer.QNAME).node(IdentifierUtils.domPeerId(this.peerId));
-        this.chain = rib.createPeerChain(this);
+        this.chain = rib.createPeerDOMChain(this);
     }
 
     private static Attributes nextHopToAttribute(final Attributes attrs, final MpReachNlri mpReach) {
@@ -322,12 +328,12 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
             final ExportPolicyPeerTracker exportTracker = this.rib.getExportPolicyPeerTracker(tablesKey);
             if (exportTracker != null) {
                 this.tableRegistration.add(exportTracker.registerPeer(this.peerId, this.addPathTableMaps.get(tablesKey),
-                        this.peerIId, this.peerRole));
+                        this.peerYIId, this.peerRole));
             }
         }
         addBgp4Support();
 
-        this.effRibInWriter = EffectiveRibInWriter.create(this.rib, this.rib.createPeerChain(this),
+        this.effRibInWriter = EffectiveRibInWriter.create(this, this.rib, this.rib.createPeerChain(this),
                 this.peerIId, this.tables);
         registerPrefixesCounters(this.effRibInWriter, this.effRibInWriter);
         this.ribWriter = this.ribWriter.transform(this.peerId, this.rib.getRibSupportContext(), this.tables,
@@ -352,7 +358,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
             createAdjRibOutListener(key, false);
             final ExportPolicyPeerTracker exportTracker = this.rib.getExportPolicyPeerTracker(key);
             if (exportTracker != null) {
-                this.tableRegistration.add(exportTracker.registerPeer(peerId,  null, this.peerIId,
+                this.tableRegistration.add(exportTracker.registerPeer(peerId,  null, this.peerYIId,
                         this.peerRole));
             }
         }
@@ -471,7 +477,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
 
     @Override
     public YangInstanceIdentifier getPeerRibInstanceIdentifier() {
-        return this.peerIId;
+        return this.peerYIId;
     }
 
     @Override
@@ -484,7 +490,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
             final AsyncTransaction<?, ?> transaction, final Throwable cause) {
         LOG.error("Transaction chain failed.", cause);
         this.chain.close();
-        this.chain = this.rib.createPeerChain(this);
+        this.chain = this.rib.createPeerDOMChain(this);
         this.ribWriter = AdjRibInWriter.create(this.rib.getYangRibId(), this.peerRole, this.chain);
         releaseConnection();
     }
@@ -531,5 +537,15 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
             return ((BGPSessionStateProvider) this.session).getBGPTransportState();
         }
         return null;
+    }
+
+    @Override
+    public PeerRole getFromPeerRole() {
+        return getRole();
+    }
+
+    @Override
+    public PeerId getFromPeerId() {
+        return getPeerId();
     }
 }

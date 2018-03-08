@@ -35,6 +35,7 @@ import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
+import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPAfiSafiState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPErrorHandlingState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPSessionState;
@@ -48,10 +49,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.Peer;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.PeerKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.peer.AdjRibIn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
@@ -75,7 +78,7 @@ import org.slf4j.LoggerFactory;
  * peer needs to have a BGP-ID that is configurable.
  */
 public class ApplicationPeer extends BGPPeerStateImpl implements org.opendaylight.protocol.bgp.rib.spi.Peer,
-        ClusteredDOMDataTreeChangeListener, TransactionChainListener {
+        BGPRouteEntryImportParameters, ClusteredDOMDataTreeChangeListener, TransactionChainListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(ApplicationPeer.class);
 
@@ -84,7 +87,8 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
     private final YangInstanceIdentifier adjRibsInId;
     private final Ipv4Address ipAddress;
     private final RIB rib;
-    private final YangInstanceIdentifier peerIId;
+    private final KeyedInstanceIdentifier<Peer, PeerKey> peerIId;
+    private final YangInstanceIdentifier peerYIId;
     private DOMTransactionChain chain;
     private DOMTransactionChain writerChain;
     private EffectiveRibInWriter effectiveRibInWriter;
@@ -92,7 +96,7 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
     private ListenerRegistration<ApplicationPeer> registration;
     private final Set<NodeIdentifierWithPredicates> supportedTables = new HashSet<>();
     private final BGPSessionStateImpl bgpSessionState = new BGPSessionStateImpl();
-    private PeerId peerId;
+    private final PeerId peerId;
     private AbstractRegistration trackerRegistration;
 
     @FunctionalInterface
@@ -110,24 +114,26 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
         final RIB targetRib = requireNonNull(rib);
         this.rawIdentifier = InetAddresses.forString(ipAddress.getValue()).getAddress();
         final NodeIdentifierWithPredicates peerIId = IdentifierUtils.domPeerId(RouterIds.createPeerId(ipAddress));
-        this.peerIId = targetRib.getYangRibId().node(Peer.QNAME).node(peerIId);
-        this.adjRibsInId = this.peerIId.node(AdjRibIn.QNAME).node(Tables.QNAME);
+        this.peerYIId = targetRib.getYangRibId().node(Peer.QNAME).node(peerIId);
+        this.adjRibsInId = this.peerYIId.node(AdjRibIn.QNAME).node(Tables.QNAME);
         this.rib = targetRib;
         this.ipAddress = ipAddress;
+        this.peerId = RouterIds.createPeerId(ipAddress);
+        this.peerIId = getInstanceIdentifier().child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
+                .yang.bgp.rib.rev171207.bgp.rib.rib.Peer.class, new PeerKey(this.peerId));
     }
 
     public synchronized void instantiateServiceInstance(final DOMDataTreeChangeService dataTreeChangeService,
             final DOMDataTreeIdentifier appPeerDOMId) {
         setActive(true);
-        this.chain = this.rib.createPeerChain(this);
-        this.writerChain = this.rib.createPeerChain(this);
+        this.chain = this.rib.createPeerDOMChain(this);
+        this.writerChain = this.rib.createPeerDOMChain(this);
 
-        this.peerId = RouterIds.createPeerId(this.ipAddress);
         final Set<TablesKey> localTables = this.rib.getLocalTablesKeys();
         localTables.forEach(tablesKey -> {
             final ExportPolicyPeerTracker exportTracker = this.rib.getExportPolicyPeerTracker(tablesKey);
             if (exportTracker != null) {
-                exportTracker.registerPeer(this.peerId, null, this.peerIId, PeerRole.Internal);
+                exportTracker.registerPeer(this.peerId, null, this.peerYIId, PeerRole.Internal);
             }
             this.supportedTables.add(RibSupportUtils.toYangTablesKey(tablesKey));
         });
@@ -145,7 +151,7 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
         this.adjRibInWriter = this.adjRibInWriter.transform(this.peerId, context, localTables, Collections.emptyMap(),
                 registerAppPeerListener);
         this.effectiveRibInWriter = EffectiveRibInWriter
-                .create(this.rib, this.rib.createPeerChain(this), this.peerIId, localTables);
+                .create(this, this.rib, this.rib.createPeerChain(this), this.peerIId, localTables);
         this.bgpSessionState.registerMessagesCounter(this);
         this.trackerRegistration = this.rib.getPeerTracker().registerPeer(this);
     }
@@ -305,7 +311,7 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
 
     @Override
     public YangInstanceIdentifier getPeerRibInstanceIdentifier() {
-        return this.peerIId;
+        return this.peerYIId;
     }
 
     @Override
@@ -347,5 +353,16 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
     @Override
     public BGPTransportState getBGPTransportState() {
         return this.bgpSessionState;
+    }
+
+
+    @Override
+    public PeerRole getFromPeerRole() {
+        return getRole();
+    }
+
+    @Override
+    public PeerId getFromPeerId() {
+        return getPeerId();
     }
 }

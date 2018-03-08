@@ -25,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -33,7 +34,9 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 
-public abstract class AbstractFlowspecRIBSupport<T extends AbstractFlowspecNlriParser> extends MultiPathAbstractRIBSupport {
+public abstract class AbstractFlowspecRIBSupport<T extends AbstractFlowspecNlriParser,
+        C extends Routes, R extends Route, S extends Identifier>
+        extends MultiPathAbstractRIBSupport<C, R, S> {
     protected final T nlriParser;
 
     protected AbstractFlowspecRIBSupport(
@@ -51,13 +54,11 @@ public abstract class AbstractFlowspecRIBSupport<T extends AbstractFlowspecNlriP
     }
 
     @Override
-    @Nonnull
     public final ImmutableCollection<Class<? extends DataObject>> cacheableAttributeObjects() {
         return ImmutableSet.of();
     }
 
     @Override
-    @Nonnull
     public final ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects() {
         return ImmutableSet.of();
     }
@@ -67,9 +68,8 @@ public abstract class AbstractFlowspecRIBSupport<T extends AbstractFlowspecNlriP
         return true;
     }
 
-    @Nonnull
     @Override
-    protected DestinationType buildDestination(@Nonnull final Collection<MapEntryNode> routes) {
+    protected DestinationType buildDestination(final Collection<MapEntryNode> routes) {
         final MapEntryNode routesCont = Iterables.getOnlyElement(routes);
         final PathId pathId = PathIdUtil.buildPathId(routesCont, routePathIdNid());
         return this.nlriParser.createAdvertizedRoutesDestinationType(

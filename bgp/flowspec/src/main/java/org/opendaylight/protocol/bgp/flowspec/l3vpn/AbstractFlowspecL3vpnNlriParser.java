@@ -16,7 +16,6 @@ import java.util.List;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.protocol.bgp.flowspec.AbstractFlowspecNlriParser;
 import org.opendaylight.protocol.bgp.flowspec.SimpleFlowspecTypeRegistry;
-import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.flowspec.destination.Flowspec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.flowspec.destination.FlowspecBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.RouteDistinguisher;
@@ -47,9 +46,6 @@ public abstract class AbstractFlowspecL3vpnNlriParser extends AbstractFlowspecNl
 
     /**
      * For flowspec-l3vpn, there is a route distinguisher field at the beginning of NLRI (8 bytes)
-     *
-     * @param nlri
-     * @return
      */
     private static RouteDistinguisher readRouteDistinguisher(final ByteBuf nlri) {
         final RouteDistinguisher rd = RouteDistinguisherUtil.parseRouteDistinguisher(nlri);
@@ -66,7 +62,7 @@ public abstract class AbstractFlowspecL3vpnNlriParser extends AbstractFlowspecNl
     }
 
     @Override
-    protected Object[] parseNlri(final ByteBuf nlri) throws BGPParsingException {
+    protected Object[] parseNlri(final ByteBuf nlri) {
         readNlriLength(nlri);
         return new Object[] {
             requireNonNull(readRouteDistinguisher(nlri)),
@@ -74,7 +70,7 @@ public abstract class AbstractFlowspecL3vpnNlriParser extends AbstractFlowspecNl
         };
     }
 
-    protected final List<Flowspec> parseL3vpnNlriFlowspecList(final ByteBuf nlri) throws BGPParsingException {
+    protected final List<Flowspec> parseL3vpnNlriFlowspecList(final ByteBuf nlri) {
         if (!nlri.isReadable()) {
             return null;
         }

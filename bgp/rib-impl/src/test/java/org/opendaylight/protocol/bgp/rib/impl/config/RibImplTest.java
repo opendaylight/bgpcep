@@ -113,8 +113,8 @@ public class RibImplTest extends AbstractConfig {
                 this.policyProvider,
                 this.bindingCodecTreeFactory,
                 this.domDataBroker,
-                this.domSchemaService,
-                this.mappingService);
+                getDataBroker(),
+                this.domSchemaService);
         ribImpl.setServiceRegistration(this.serviceRegistration);
         ribImpl.start(createGlobal(), "rib-test", this.tableTypeRegistry);
         verify(this.extension).getClassLoadingStrategy();

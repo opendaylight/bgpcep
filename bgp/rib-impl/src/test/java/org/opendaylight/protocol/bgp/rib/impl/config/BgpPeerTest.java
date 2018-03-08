@@ -132,7 +132,7 @@ public class BgpPeerTest extends AbstractConfig {
                 .setTransport(createTransport()).setAddPaths(createAddPath()).build();
 
         this.bgpPeer.start(this.rib, neighbor, this.tableTypeRegistry);
-        Mockito.verify(this.rib).createPeerChain(any());
+        Mockito.verify(this.rib).createPeerDOMChain(any());
         Mockito.verify(this.rib, times(2)).getLocalAs();
         Mockito.verify(this.rib).getLocalTables();
 
@@ -154,7 +154,7 @@ public class BgpPeerTest extends AbstractConfig {
 
         this.bgpPeer.restart(this.rib, this.tableTypeRegistry);
         this.bgpPeer.instantiateServiceInstance();
-        Mockito.verify(this.rib, times(2)).createPeerChain(any());
+        Mockito.verify(this.rib, times(2)).createPeerDOMChain(any());
         Mockito.verify(this.rib, times(4)).getLocalAs();
         Mockito.verify(this.rib, times(2)).getLocalTables();
 

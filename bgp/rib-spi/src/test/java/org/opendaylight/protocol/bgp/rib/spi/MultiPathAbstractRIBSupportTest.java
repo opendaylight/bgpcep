@@ -247,9 +247,9 @@ public class MultiPathAbstractRIBSupportTest {
 
     @Test
     public void changedRoutes() throws Exception {
-        Assert.assertTrue(MULTI_PATH_ABSTRACT_TEST.changedRoutes(this.emptyTree).isEmpty());
-        Assert.assertTrue(MULTI_PATH_ABSTRACT_TEST.changedRoutes(this.emptySubTree).isEmpty());
-        Assert.assertNotNull(MULTI_PATH_ABSTRACT_TEST.changedRoutes(this.subTree));
+        Assert.assertTrue(MULTI_PATH_ABSTRACT_TEST.changedDOMRoutes(this.emptyTree).isEmpty());
+        Assert.assertTrue(MULTI_PATH_ABSTRACT_TEST.changedDOMRoutes(this.emptySubTree).isEmpty());
+        Assert.assertNotNull(MULTI_PATH_ABSTRACT_TEST.changedDOMRoutes(this.subTree));
     }
 
     @Test

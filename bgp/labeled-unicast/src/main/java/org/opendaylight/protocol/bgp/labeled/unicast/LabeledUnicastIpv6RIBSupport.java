@@ -9,7 +9,7 @@
 package org.opendaylight.protocol.bgp.labeled.unicast;
 
 import java.util.Collection;
-import javax.annotation.Nonnull;
+import java.util.Collections;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev171207.LabeledUnicastSubsequentAddressFamily;
@@ -25,7 +25,9 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 
-final class LabeledUnicastIpv6RIBSupport extends AbstractLabeledUnicastRIBSupport {
+final class LabeledUnicastIpv6RIBSupport extends AbstractLabeledUnicastRIBSupport<org.opendaylight.yang.gen.v1.urn
+        .opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev171207.bgp.rib.rib.peer.adj.rib.in.tables
+        .routes.LabeledUnicastIpv6RoutesCase> {
     private static final LabeledUnicastIpv6RIBSupport SINGLETON = new LabeledUnicastIpv6RIBSupport();
 
     private LabeledUnicastIpv6RIBSupport() {
@@ -37,16 +39,14 @@ final class LabeledUnicastIpv6RIBSupport extends AbstractLabeledUnicastRIBSuppor
         return SINGLETON;
     }
 
-    @Nonnull
     @Override
-    protected DestinationType buildDestination(@Nonnull final Collection<MapEntryNode> routes) {
+    protected DestinationType buildDestination(final Collection<MapEntryNode> routes) {
         return new DestinationIpv6LabeledUnicastCaseBuilder().setDestinationIpv6LabeledUnicast(
             new DestinationIpv6LabeledUnicastBuilder().setCLabeledUnicastDestination(extractRoutes(routes)).build()).build();
     }
 
-    @Nonnull
     @Override
-    protected DestinationType buildWithdrawnDestination(@Nonnull final Collection<MapEntryNode> routes) {
+    protected DestinationType buildWithdrawnDestination(final Collection<MapEntryNode> routes) {
         return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev171207.update.attributes.mp.unreach
             .nlri.withdrawn.routes.destination.type.DestinationIpv6LabeledUnicastCaseBuilder().setDestinationIpv6LabeledUnicast(
             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev171207.update.attributes.mp
@@ -55,11 +55,22 @@ final class LabeledUnicastIpv6RIBSupport extends AbstractLabeledUnicastRIBSuppor
     }
 
     @Override
-    protected IpPrefix extractPrefix(final DataContainerNode<? extends YangInstanceIdentifier.PathArgument> route, final YangInstanceIdentifier.NodeIdentifier prefixTypeNid) {
+    protected IpPrefix extractPrefix(final DataContainerNode<? extends YangInstanceIdentifier.PathArgument> route,
+            final YangInstanceIdentifier.NodeIdentifier prefixTypeNid) {
         if (route.getChild(prefixTypeNid).isPresent()) {
             final String prefixType = (String) route.getChild(prefixTypeNid).get().getValue();
             return new IpPrefix(new Ipv6Prefix(prefixType));
         }
         return null;
+    }
+
+    @Override
+    public Collection<LabeledUnicastRoute> changedRoutes(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml
+            .ns.yang.bgp.labeled.unicast.rev171207.bgp.rib.rib.peer.adj.rib.in.tables.routes.LabeledUnicastIpv6RoutesCase routes) {
+        final LabeledUnicastIpv6Routes routeCont =  routes.getLabeledUnicastIpv6Routes();
+        if (routeCont == null) {
+            return Collections.emptyList();
+        }
+        return routeCont.getLabeledUnicastRoute();
     }
 }

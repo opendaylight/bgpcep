@@ -209,8 +209,7 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
             BasePathSelectionModeFactory.createBestPathSelectionStrategy(this.peerTracker));
         final RIBImpl ribImpl = new RIBImpl( new RibId(RIB_ID), AS_NUMBER,
             new BgpId(RIB_ID), null, this.ribExtension, this.serverDispatcher, this.codecsRegistry,
-            this.domBroker, this.policies, this.peerTracker, ImmutableList.of(this.ipv4tt), pathTables,
-                this.mappingService);
+            this.domBroker, getDataBroker(), this.policies, this.peerTracker, ImmutableList.of(this.ipv4tt), pathTables);
         ribImpl.instantiateServiceInstance();
         ribImpl.onGlobalContextUpdated(this.schemaContext);
 
@@ -258,8 +257,7 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
             BasePathSelectionModeFactory.createBestPathSelectionStrategy(this.peerTracker));
         final RIBImpl ribImpl = new RIBImpl( new RibId(RIB_ID), AS_NUMBER,
             new BgpId(RIB_ID), null, this.ribExtension, this.serverDispatcher, this.codecsRegistry,
-            this.domBroker, this.policies, this.peerTracker, ImmutableList.of(this.ipv4tt), pathTables,
-                this.mappingService);
+            this.domBroker, getDataBroker(), this.policies, this.peerTracker, ImmutableList.of(this.ipv4tt), pathTables);
         ribImpl.instantiateServiceInstance();
         ribImpl.onGlobalContextUpdated(this.schemaContext);
 

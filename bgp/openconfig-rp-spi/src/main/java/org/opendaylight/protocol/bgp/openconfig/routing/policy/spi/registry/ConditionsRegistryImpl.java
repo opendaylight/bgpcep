@@ -34,11 +34,12 @@ final class ConditionsRegistryImpl {
     @GuardedBy("this")
     private final Map<Class<? extends Augmentation<Conditions>>, ConditionsAugPolicy> conditionsRegistry
             = new HashMap<>();
-    private final GenericConditionPolicyHandler genericConditionHandler;
+    //TODO Implement match prefix
+    //private final GenericConditionPolicyHandler genericConditionHandler;
     private BgpConditionsRegistry bgpConditionsRegistry = new BgpConditionsRegistry();
 
     ConditionsRegistryImpl(final DataBroker databroker) {
-        this.genericConditionHandler = new GenericConditionPolicyHandler(databroker);
+    //    this.genericConditionHandler = new GenericConditionPolicyHandler(databroker);
     }
 
     AbstractRegistration registerConditionPolicy(final Class<? extends Augmentation<Conditions>> conditionPolicyClass,
@@ -78,10 +79,10 @@ final class ConditionsRegistryImpl {
             final BGPRouteEntryExportParameters routeEntryExportParameters,
             final Attributes attributes,
             final Conditions conditions) {
-        if (!this.genericConditionHandler
+      /*  if (!this.genericConditionHandler
                 .matchExportCondition(routeEntryExportParameters, conditions)) {
             return false;
-        }
+        }*/
 
         if (!this.bgpConditionsRegistry
                 .matchExportConditions(entryInfo, routeEntryExportParameters, attributes, conditions)) {
@@ -113,10 +114,10 @@ final class ConditionsRegistryImpl {
             final BGPRouteEntryImportParameters routeEntryImportParameters,
             final Attributes attributes,
             final Conditions conditions) {
-        if (!this.genericConditionHandler
+        /*if (!this.genericConditionHandler
                 .matchImportCondition(routeEntryImportParameters, conditions)) {
             return false;
-        }
+        }*/
 
         if (!this.bgpConditionsRegistry
                 .matchImportConditions(entryInfo, routeEntryImportParameters, attributes, conditions)) {
