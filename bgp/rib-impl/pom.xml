@@ -290,8 +290,6 @@
                     <dependency>
                         <groupId>org.opendaylight.yangtools</groupId>
                         <artifactId>checkstyle-logging</artifactId>
-                        <!-- FIXME: remove this declaration when bumping to 2.0.2 -->
-                        <version>2.0.1</version>
                     </dependency>
                 </dependencies>
             </plugin>
