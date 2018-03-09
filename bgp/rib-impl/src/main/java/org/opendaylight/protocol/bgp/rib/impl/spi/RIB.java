@@ -16,7 +16,6 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
-import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
@@ -99,19 +98,9 @@ public interface RIB extends RibReference {
     DOMDataTreeChangeService getService();
 
     /**
-     * Returns ExportPolicyPeerTracker for specific tableKey, where peer can register himself
-     * as supporting the table. Same export policy can be used to check which peers support respective
-     * table and announce then routes if required.
+     * Return DataBroker.
      *
-     * @param tablesKey supported table
-     * @return ExportPolicyPeerTracker
-     */
-    ExportPolicyPeerTracker getExportPolicyPeerTracker(TablesKey tablesKey);
-
-    /**
-     * Return DataBroker
-     *
-     * @return DataTreeChangeService
+     * @return DataBroker
      */
     DataBroker getDataBroker();
 

@@ -148,8 +148,7 @@ public final class IPv6RIBSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testExtractPathId() {
-       /* final NormalizedNode<?, ?> route = Iterables.getOnlyElement(createRoutes(ROUTES));
-        assertEquals(PATH_ID.getValue(), RIB_SUPPORT.extractPathId(route));*/
+        assertEquals(PATH_ID.getValue().longValue(), RIB_SUPPORT.extractPathId(ROUTES.getIpv6Route().get(0)));
     }
 
     @Test

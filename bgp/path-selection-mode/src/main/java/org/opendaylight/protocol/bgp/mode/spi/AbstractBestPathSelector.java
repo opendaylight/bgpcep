@@ -8,45 +8,33 @@
 
 package org.opendaylight.protocol.bgp.mode.spi;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.UnsignedInteger;
-import java.util.Collection;
-import java.util.Optional;
 import javax.annotation.Nonnull;
 import org.opendaylight.protocol.bgp.mode.api.BestPathState;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.OriginatorId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.attributes.OriginatorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
-import org.opendaylight.yangtools.yang.common.QName;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
-import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 
 public class AbstractBestPathSelector {
-    private static final Collection<YangInstanceIdentifier.PathArgument> ORIGINATOR_ID = ImmutableList.of(new
-        YangInstanceIdentifier.NodeIdentifier(OriginatorId.QNAME),
-            new YangInstanceIdentifier.NodeIdentifier(QName.create(OriginatorId.QNAME, "originator")));
-
-    private final Long ourAs;
+    private final long ourAs;
     protected UnsignedInteger bestOriginatorId = null;
     protected BestPathState bestState = null;
 
-    protected AbstractBestPathSelector(final Long ourAs) {
+    protected AbstractBestPathSelector(final long ourAs) {
         this.ourAs = ourAs;
     }
 
     /**
      * RFC 4456 mandates the use of Originator IDs instead of Router ID for
      * selection purposes.
-     * @param routerId routerID
-     * @param attrs router attributes
+     *
+     * @param routerId     routerID
+     * @param originatorId originator
      * @return returns originators Id if present otherwise routerId
      */
-    protected UnsignedInteger replaceOriginator(final UnsignedInteger routerId, final ContainerNode attrs) {
-        final Optional<NormalizedNode<?, ?>> maybeOriginatorId = NormalizedNodes.findNode(attrs, ORIGINATOR_ID);
-        if (maybeOriginatorId.isPresent()) {
-            return RouterIds.routerIdForAddress((String) maybeOriginatorId.get().getValue());
+    protected UnsignedInteger replaceOriginator(final UnsignedInteger routerId, final OriginatorId originatorId) {
+        if (originatorId != null) {
+            RouterIds.routerIdForAddress(originatorId.getOriginator().getValue());
         }
 
         return routerId;
@@ -123,7 +111,7 @@ public class AbstractBestPathSelector {
              *
              * FIXME: we should know this information from the peer directly.
              */
-            if (!this.ourAs.equals(bestAs) && this.ourAs.equals(newAs)) {
+            if (this.ourAs != bestAs && this.ourAs == newAs) {
                 return true;
             }
         }

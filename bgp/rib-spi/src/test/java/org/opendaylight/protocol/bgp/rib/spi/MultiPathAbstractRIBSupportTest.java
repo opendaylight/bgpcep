@@ -73,15 +73,11 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNod
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableContainerNodeBuilder;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableContainerNodeSchemaAwareBuilder;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableLeafNodeBuilder;
 
 public class MultiPathAbstractRIBSupportTest {
-    private static final long PATH_ID = 0;
     private static final String ROUTE_KEY = "prefix";
     private static final String PREFIX = "1.2.3.4/32";
     private static final QName PATH_ID_QNAME = QName.create(Ipv4Route.QNAME, "path-id").intern();
-    private static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, ROUTE_KEY).intern();
     private static final NodeIdentifierWithPredicates PREFIX_NII = new NodeIdentifierWithPredicates(Ipv4Route.QNAME,
         ImmutableMap.of(QName.create(Ipv4Route.QNAME, ROUTE_KEY).intern(), PREFIX));
     private static final MultiPathAbstractTest MULTI_PATH_ABSTRACT_TEST = new MultiPathAbstractTest();

@@ -13,122 +13,119 @@ import com.google.common.primitives.UnsignedInteger;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.LongAdder;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
+import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
+import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.dom.api.ClusteredDOMDataTreeChangeListener;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
-import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.state.rib.TotalPathsCounter;
 import org.opendaylight.protocol.bgp.rib.impl.state.rib.TotalPrefixesCounter;
-import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
-import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
-import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
+import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
-import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
+import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.Rib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.RibKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.LocRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.Peer;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.PeerKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.peer.EffectiveRibIn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Attributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.AttributesBuilder;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
-import org.opendaylight.yangtools.yang.common.QName;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.schema.LeafNode;
-import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
-import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
+import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.Identifier;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @NotThreadSafe
 final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPathsCounter,
-        ClusteredDOMDataTreeChangeListener {
+        ClusteredDataTreeChangeListener<Tables> {
 
     private static final Logger LOG = LoggerFactory.getLogger(LocRibWriter.class);
 
-    private static final LeafNode<Boolean> ATTRIBUTES_UPTODATE_TRUE = ImmutableNodes
-            .leafNode(QName.create(Attributes.QNAME, "uptodate"), Boolean.TRUE);
-
-    private final Map<NodeIdentifierWithPredicates, RouteEntry> routeEntries = new HashMap<>();
-    private final YangInstanceIdentifier locRibTarget;
-    private final NodeIdentifierWithPredicates tableKey;
-    private final ExportPolicyPeerTracker exportPolicyPeerTracker;
-    private final NodeIdentifier attributesIdentifier;
+    private final Map<Identifier, RouteEntry> routeEntries = new HashMap<>();
     private final Long ourAs;
     private final RIBSupport ribSupport;
-    private final YangInstanceIdentifier target;
-    private final DOMDataTreeChangeService service;
+    private final DataBroker dataBroker;
     private final PathSelectionMode pathSelectionMode;
     private final LongAdder totalPathsCounter = new LongAdder();
     private final LongAdder totalPrefixesCounter = new LongAdder();
     private final RouteEntryDependenciesContainerImpl entryDep;
-    private DOMTransactionChain chain;
+    private final BGPPeerTracker peerTracker;
+    private final KeyedInstanceIdentifier<Rib, RibKey> ribIId;
+    private final TablesKey tk;
+    private final KeyedInstanceIdentifier<Tables, TablesKey> locRibTableIID;
+    private BindingTransactionChain chain;
     @GuardedBy("this")
     private ListenerRegistration<LocRibWriter> reg;
 
-    private LocRibWriter(final RIBSupportContextRegistry registry, final DOMTransactionChain chain,
-            final YangInstanceIdentifier target, final Long ourAs, final DOMDataTreeChangeService service,
-            final ExportPolicyPeerTracker exportPolicyPeerTracker, final TablesKey tablesKey,
+    private LocRibWriter(final RIBSupportContextRegistry registry,
+            final BindingTransactionChain chain,
+            final KeyedInstanceIdentifier<Rib, RibKey> ribIId,
+            final Long ourAs,
+            final DataBroker dataBroker,
+            final BGPRibRoutingPolicy ribPolicies,
+            final BGPPeerTracker peerTracker,
+            final TablesKey tablesKey,
             final PathSelectionMode pathSelectionMode) {
         this.chain = requireNonNull(chain);
-        this.target = requireNonNull(target);
-        this.tableKey = RibSupportUtils.toYangTablesKey(requireNonNull(tablesKey));
-        this.locRibTarget = YangInstanceIdentifier.create(target.node(LocRib.QNAME).node(Tables.QNAME)
-                .node(this.tableKey).getPathArguments());
+        this.ribIId = requireNonNull(ribIId);
+        this.tk = requireNonNull(tablesKey);
+        this.locRibTableIID = ribIId.child(LocRib.class).child(Tables.class, this.tk);
         this.ourAs = requireNonNull(ourAs);
-        this.service = requireNonNull(service);
-        this.ribSupport = registry.getRIBSupportContext(tablesKey).getRibSupport();
-        this.attributesIdentifier = this.ribSupport.routeAttributesIdentifier();
-        this.exportPolicyPeerTracker = exportPolicyPeerTracker;
+        this.dataBroker = requireNonNull(dataBroker);
+        this.ribSupport = requireNonNull(registry.getRIBSupport(tablesKey));
+        this.peerTracker = peerTracker;
         this.pathSelectionMode = pathSelectionMode;
 
-        this.entryDep = new RouteEntryDependenciesContainerImpl(this.ribSupport,
-                tablesKey, this.locRibTarget, this.exportPolicyPeerTracker);
+        this.entryDep = new RouteEntryDependenciesContainerImpl(this.ribSupport, ribPolicies,
+                tablesKey, this.locRibTableIID);
         init();
-    }
-
-    private synchronized void init() {
-        final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
-        tx.merge(LogicalDatastoreType.OPERATIONAL, this.locRibTarget.node(Routes.QNAME), this.ribSupport.emptyRoutes());
-        tx.merge(LogicalDatastoreType.OPERATIONAL, this.locRibTarget.node(Attributes.QNAME)
-                .node(ATTRIBUTES_UPTODATE_TRUE.getNodeType()), ATTRIBUTES_UPTODATE_TRUE);
-        tx.submit();
-
-        final YangInstanceIdentifier tableId = this.target.node(Peer.QNAME).node(Peer.QNAME).node(EffectiveRibIn.QNAME)
-                .node(Tables.QNAME).node(this.tableKey);
-        final DOMDataTreeIdentifier wildcard = new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, tableId);
-        this.reg = this.service.registerDataTreeChangeListener(wildcard, this);
     }
 
     public static LocRibWriter create(@Nonnull final RIBSupportContextRegistry registry,
             @Nonnull final TablesKey tablesKey,
-            @Nonnull final DOMTransactionChain chain,
-            @Nonnull final YangInstanceIdentifier target,
+            @Nonnull final BindingTransactionChain chain,
+            @Nonnull final KeyedInstanceIdentifier<Rib, RibKey> ribIId,
             @Nonnull final AsNumber ourAs,
-            @Nonnull final DOMDataTreeChangeService service,
-            @Nonnull final ExportPolicyPeerTracker ep,
+            @Nonnull final DataBroker dataBroker,
+            final BGPRibRoutingPolicy ribPolicies,
+            @Nonnull final BGPPeerTracker peerTracker,
             @Nonnull final PathSelectionMode pathSelectionStrategy) {
-        return new LocRibWriter(registry, chain, target, ourAs.getValue(), service, ep, tablesKey,
-                pathSelectionStrategy);
+        return new LocRibWriter(registry, chain, ribIId, ourAs.getValue(), dataBroker, ribPolicies,
+                peerTracker, tablesKey, pathSelectionStrategy);
+    }
+
+    @SuppressWarnings("unchecked")
+    private synchronized void init() {
+        final WriteTransaction tx = this.chain.newWriteOnlyTransaction();
+        tx.merge(LogicalDatastoreType.OPERATIONAL,
+                this.locRibTableIID.builder().child(Attributes.class).build(),
+                new AttributesBuilder().setUptodate(true).build());
+        tx.submit();
+
+        final InstanceIdentifier<Tables> tableId = this.ribIId.builder().child(Peer.class)
+                .child(EffectiveRibIn.class).child(Tables.class, this.tk).build();
+        this.reg = this.dataBroker.registerDataTreeChangeListener(
+                new DataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, tableId), this);
     }
 
     /**
@@ -136,7 +133,7 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
      *
      * @param newChain new transaction chain
      */
-    synchronized void restart(@Nonnull final DOMTransactionChain newChain) {
+    synchronized void restart(@Nonnull final BindingTransactionChain newChain) {
         requireNonNull(newChain);
         close();
         this.chain = newChain;
@@ -153,7 +150,7 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
     }
 
     @Nonnull
-    private RouteEntry createEntry(final NodeIdentifierWithPredicates routeId) {
+    private RouteEntry createEntry(final Identifier routeId) {
         final RouteEntry ret = this.pathSelectionMode.createRouteEntry(this.ribSupport.isComplexRoute());
         this.routeEntries.put(routeId, ret);
         this.totalPrefixesCounter.increment();
@@ -168,10 +165,10 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
      * @param changes on supported table
      */
     @Override
-    public void onDataTreeChanged(final Collection<DataTreeCandidate> changes) {
+    public void onDataTreeChanged(final Collection<DataTreeModification<Tables>> changes) {
         LOG.trace("Received data change {} to LocRib {}", changes, this);
 
-        final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
+        final WriteTransaction tx = this.chain.newWriteOnlyTransaction();
         try {
             final Map<RouteUpdateKey, RouteEntry> toUpdate = update(tx, changes);
 
@@ -185,84 +182,94 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
         }
     }
 
-    private Map<RouteUpdateKey, RouteEntry> update(final DOMDataWriteTransaction tx,
-            final Collection<DataTreeCandidate> changes) {
+    @SuppressWarnings("unchecked")
+    private Map<RouteUpdateKey, RouteEntry> update(final WriteTransaction tx,
+            final Collection<DataTreeModification<Tables>> changes) {
         final Map<RouteUpdateKey, RouteEntry> ret = new HashMap<>();
-        changes.forEach(tc -> {
-            final DataTreeCandidateNode table = tc.getRootNode();
-            final YangInstanceIdentifier rootPath = tc.getRootPath();
-            final PeerId peerId = IdentifierUtils.peerKeyToPeerId(rootPath);
-            initializeTableWithExistentRoutes(table, peerId, rootPath, tx);
-            updateNodes(table, peerId, tx, ret);
-        });
+        for (final DataTreeModification<Tables> tc : changes) {
+            final DataObjectModification<Tables> table = tc.getRootNode();
+            final DataTreeIdentifier<Tables> rootPath = tc.getRootPath();
+            final KeyedInstanceIdentifier<Peer, PeerKey> peerKIid = (KeyedInstanceIdentifier<Peer, PeerKey>)
+                    rootPath.getRootIdentifier().firstIdentifierOf(Peer.class);
+            final UnsignedInteger peerUuid = RouterIds.routerIdForPeerId(peerKIid.getKey().getPeerId());
+            /*
+            Initialize Peer with routes under loc rib
+             */
+            if (!this.routeEntries.isEmpty() && table.getDataBefore() == null) {
+                final org.opendaylight.protocol.bgp.rib.spi.Peer peer
+                        = this.peerTracker.getPeer(peerKIid.getKey().getPeerId());
+                if (peer != null && peer.supportsTable(this.entryDep.getLocalTablesKey())) {
+                    LOG.debug("Peer {} table has been created, inserting existent routes", peer.getPeerId());
+                    this.routeEntries.forEach((key, value) -> value.initializeBestPaths(this.entryDep,
+                            new RouteEntryInfoImpl(peer, key), tx));
+                }
+            }
+            /*
+            Process new routes from Peer
+             */
+            updateNodes(table, peerUuid, tx, ret);
+        }
         return ret;
     }
 
-    private void initializeTableWithExistentRoutes(final DataTreeCandidateNode table, final PeerId peerIdOfNewPeer,
-            final YangInstanceIdentifier rootPath, final DOMDataWriteTransaction tx) {
-        if (!table.getDataBefore().isPresent() && this.exportPolicyPeerTracker.isTableSupported(peerIdOfNewPeer)) {
-            this.exportPolicyPeerTracker.registerPeerAsInitialized(peerIdOfNewPeer);
-            LOG.debug("Peer {} table has been created, inserting existent routes", peerIdOfNewPeer);
-            if (this.routeEntries.isEmpty()) {
-                return;
-            }
-            final PeerRole newPeerRole = this.exportPolicyPeerTracker.getRole(IdentifierUtils.peerPath(rootPath));
-            final PeerExportGroup peerGroup = this.exportPolicyPeerTracker.getPeerGroup(newPeerRole);
-            this.routeEntries.forEach((key, value) -> value.initializeBestPaths(this.entryDep,
-                    new RouteEntryInfoImpl(peerIdOfNewPeer, key, rootPath.getParent().getParent().getParent()),
-                    peerGroup, tx));
+    @SuppressWarnings("unchecked")
+    private void updateNodes(
+            final DataObjectModification<Tables> table,
+            final UnsignedInteger peerUuid,
+            final WriteTransaction tx,
+            final Map<RouteUpdateKey, RouteEntry> routes
+    ) {
+
+        final DataObjectModification<Attributes> attUpdate = table.getModifiedChildContainer(Attributes.class);
+
+        if (attUpdate != null && attUpdate.getDataAfter() != null) {
+            final Attributes newAttValue = attUpdate.getDataAfter();
+            LOG.trace("Uptodate found for {}", newAttValue);
+            tx.put(LogicalDatastoreType.OPERATIONAL, this.locRibTableIID.child(Attributes.class), newAttValue);
         }
+
+        final DataObjectModification routesChangesContainer =
+                table.getModifiedChildContainer(this.ribSupport.routesContainerClass());
+        if (routesChangesContainer == null) {
+            return;
+        }
+        updateRoutesEntries(routesChangesContainer.getModifiedChildren(), peerUuid, routes);
     }
 
-    private void updateNodes(final DataTreeCandidateNode table, final PeerId peerId, final DOMDataWriteTransaction tx,
-            final Map<RouteUpdateKey, RouteEntry> routes) {
-        for (final DataTreeCandidateNode child : table.getChildNodes()) {
-            LOG.debug("Modification type {}", child.getModificationType());
-            if (Attributes.QNAME.equals(child.getIdentifier().getNodeType())) {
-                if (child.getDataAfter().isPresent()) {
-                    // putting uptodate attribute in
-                    LOG.trace("Uptodate found for {}", child.getDataAfter());
-                    tx.put(LogicalDatastoreType.OPERATIONAL, this.locRibTarget.node(child.getIdentifier()),
-                            child.getDataAfter().get());
-                }
-                continue;
-            }
-            updateRoutesEntries(child, peerId, routes);
-        }
-    }
-
-    private void updateRoutesEntries(final DataTreeCandidateNode child, final PeerId peerId,
-            final Map<RouteUpdateKey, RouteEntry> routes) {
-        final UnsignedInteger routerId = RouterIds.routerIdForPeerId(peerId);
-        final Collection<DataTreeCandidateNode> modifiedRoutes = this.ribSupport.changedDOMRoutes(child);
-        for (final DataTreeCandidateNode route : modifiedRoutes) {
-            final NodeIdentifierWithPredicates routeId = this.ribSupport
-                    .createRouteKeyPathArgument((NodeIdentifierWithPredicates) route.getIdentifier());
-            RouteEntry entry = this.routeEntries.get(routeId);
-            final Optional<NormalizedNode<?, ?>> maybeData = route.getDataAfter();
-            final Optional<NormalizedNode<?, ?>> maybeDataBefore = route.getDataBefore();
-            if (maybeData.isPresent()) {
+    @SuppressWarnings("unchecked")
+    private void updateRoutesEntries(
+            final Collection<DataObjectModification<? extends DataObject>> routeChanges,
+            final UnsignedInteger routerId,
+            final Map<RouteUpdateKey, RouteEntry> routes
+    ) {
+        for (final DataObjectModification<? extends DataObject> route : routeChanges) {
+            final Identifier routeKey = ((InstanceIdentifier.IdentifiableItem) route.getIdentifier()).getKey();
+            RouteEntry entry = this.routeEntries.get(routeKey);
+            final Route newRoute = (Route) route.getDataAfter();
+            final Route oldRoute = (Route) route.getDataBefore();
+            if (newRoute != null) {
                 if (entry == null) {
-                    entry = createEntry(routeId);
+                    entry = createEntry(routeKey);
                 }
-                entry.addRoute(routerId, this.ribSupport.extractPathId(maybeData.get()),
-                        this.attributesIdentifier, maybeData.get());
+                final long pathId = this.ribSupport.extractPathId(newRoute);
+                entry.addRoute(routerId, pathId, newRoute);
                 this.totalPathsCounter.increment();
-            } else if (entry != null) {
+            } else if (oldRoute != null && entry != null) {
                 this.totalPathsCounter.decrement();
-                if (entry.removeRoute(routerId, this.ribSupport.extractPathId(maybeDataBefore.get()))) {
-                    this.routeEntries.remove(routeId);
+                final long pathId = this.ribSupport.extractPathId(oldRoute);
+                if (entry.removeRoute(routerId, pathId)) {
+                    this.routeEntries.remove(routeKey);
                     this.totalPrefixesCounter.decrement();
                     LOG.trace("Removed route from {}", routerId);
                 }
             }
-            final RouteUpdateKey routeUpdateKey = new RouteUpdateKey(peerId, routeId);
-            LOG.debug("Updated route {} entry {}", routeId, entry);
+            final RouteUpdateKey routeUpdateKey = new RouteUpdateKey(routerId, routeKey);
+            LOG.debug("Updated route {} entry {}", routeKey, entry);
             routes.put(routeUpdateKey, entry);
         }
     }
 
-    private void walkThrough(final DOMDataWriteTransaction tx,
+    private void walkThrough(final WriteTransaction tx,
             final Set<Map.Entry<RouteUpdateKey, RouteEntry>> toUpdate) {
         for (final Map.Entry<RouteUpdateKey, RouteEntry> e : toUpdate) {
             LOG.trace("Walking through {}", e);
@@ -284,5 +291,9 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
     @Override
     public long getPathsCount() {
         return this.totalPathsCounter.longValue();
+    }
+
+    public TablesKey getTableKey() {
+        return this.tk;
     }
 }

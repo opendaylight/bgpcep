@@ -10,14 +10,11 @@ package org.opendaylight.protocol.bgp.mode.api;
 
 import com.google.common.primitives.UnsignedInteger;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
-import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryDependenciesContainer;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryInfo;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
+import org.opendaylight.yangtools.yang.binding.Identifier;
 
 /**
  * A single route entry inside a route table. Maintains the attributes of
@@ -34,7 +31,7 @@ public interface RouteEntry {
      * @param remotePathId remote path Id received
      * @return return true if it was the last route on entry
      */
-    boolean removeRoute(UnsignedInteger routerId, Long remotePathId);
+    boolean removeRoute(@Nonnull UnsignedInteger routerId, long remotePathId);
 
     /**
      * Indicates whether best has changed.
@@ -49,23 +46,22 @@ public interface RouteEntry {
      *
      * @param routerId     router ID in unsigned integer format from an Ipv4Address
      * @param remotePathId remote path Id received
-     * @param attrII       route Attributes Identifier
-     * @param data         route Data change
+     * @param route        route Data change
      * @return returns the offset
      */
-    int addRoute(UnsignedInteger routerId, Long remotePathId, NodeIdentifier attrII, NormalizedNode<?, ?> data);
+    int addRoute(@Nonnull UnsignedInteger routerId, long remotePathId, @Nonnull Route route);
 
     /**
      * Update LocRibOut and AdjRibsOut by removing stale best path and writing new best.
      *
      * @param entryDependencies entry Dependencies container
-     * @param routeIdPA         router ID pathArgument
+     * @param routeKey          route key
      * @param tx                DOM transaction
      */
     void updateBestPaths(
             @Nonnull RouteEntryDependenciesContainer entryDependencies,
-            @Nonnull NodeIdentifierWithPredicates routeIdPA,
-            @Nonnull DOMDataWriteTransaction tx);
+            @Nonnull Identifier routeKey,
+            @Nonnull WriteTransaction tx);
 
     /**
      * Initialize LocRibOut and AdjRibsOut for new peers with already present best paths.
@@ -77,6 +73,5 @@ public interface RouteEntry {
     void initializeBestPaths(
             @Nonnull RouteEntryDependenciesContainer entryDependencies,
             @Nonnull RouteEntryInfo entryInfo,
-            @Nullable PeerExportGroup peerGroup,
-            @Nonnull DOMDataWriteTransaction tx);
+            @Nonnull WriteTransaction tx);
 }

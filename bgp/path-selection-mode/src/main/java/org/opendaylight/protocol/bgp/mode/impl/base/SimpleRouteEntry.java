@@ -8,10 +8,10 @@
 package org.opendaylight.protocol.bgp.mode.impl.base;
 
 import com.google.common.primitives.UnsignedInteger;
-import org.opendaylight.protocol.bgp.mode.spi.RouteEntryUtil;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
+import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
+import org.opendaylight.yangtools.yang.binding.Identifier;
 
 final class SimpleRouteEntry extends BaseAbstractRouteEntry {
     SimpleRouteEntry(final BGPPeerTracker peerTracker) {
@@ -19,12 +19,13 @@ final class SimpleRouteEntry extends BaseAbstractRouteEntry {
     }
 
     @Override
-    public boolean removeRoute(UnsignedInteger routerId, final Long remotePathId) {
-        return removeRoute(routerId, getOffsets().offsetOf(routerId));
+    public Route createRoute(final RIBSupport ribSup, final Identifier routeKey, final long pathId,
+            final BaseBestPath path) {
+        return ribSup.createRoute(null, routeKey, pathId, path.getAttributes());
     }
 
     @Override
-    public MapEntryNode createValue(final NodeIdentifierWithPredicates routeId, final BaseBestPath path) {
-        return RouteEntryUtil.createSimpleRouteValue(routeId, path);
+    public boolean removeRoute(UnsignedInteger routerId, final long remotePathId) {
+        return removeRoute(routerId, getOffsets().offsetOf(routerId));
     }
 }

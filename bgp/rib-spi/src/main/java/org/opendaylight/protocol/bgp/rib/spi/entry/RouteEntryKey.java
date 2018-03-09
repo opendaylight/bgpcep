@@ -8,17 +8,17 @@
 package org.opendaylight.protocol.bgp.rib.spi.entry;
 
 import javax.annotation.Nonnull;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
+import org.opendaylight.yangtools.yang.binding.Identifier;
 
 /**
  * Route Entry Key containing prefix.
  */
-public interface RouteEntryKey {
+public interface RouteEntryKey<N extends Identifier> {
     /**
      * Returns route containing prefix.
      *
      * @return Route key
      */
     @Nonnull
-    NodeIdentifierWithPredicates getRouteId();
+    N getRouteKey();
 }

@@ -14,6 +14,7 @@ import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
@@ -22,7 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 
-public class BGPPeerTrackerMock {
+public class BGPPeerTrackerMock extends AbstractConcurrentDataBrokerTest {
     protected static final PeerId PEER_ID = new PeerId("bgp://42.42.42.42");
     protected static final PeerId PEER_ID2 = new PeerId("bgp://43.43.43.43");
     protected static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.class,

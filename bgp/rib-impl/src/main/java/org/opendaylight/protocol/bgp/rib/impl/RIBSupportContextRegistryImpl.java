@@ -18,20 +18,18 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 
 final class RIBSupportContextRegistryImpl implements RIBSupportContextRegistry {
 
+    private final RIBExtensionConsumerContext extensionContext;
+    private final CodecsRegistry codecs;
     private final LoadingCache<RIBSupport, RIBSupportContextImpl> contexts = CacheBuilder.newBuilder()
-            .build(new CacheLoader<RIBSupport, RIBSupportContextImpl>(){
+            .build(new CacheLoader<RIBSupport, RIBSupportContextImpl>() {
                 @Override
                 public RIBSupportContextImpl load(final RIBSupport key) {
                     return createRIBSupportContext(key);
                 }
             });
-
-    private final RIBExtensionConsumerContext extensionContext;
-    private final CodecsRegistry codecs;
 
     private RIBSupportContextRegistryImpl(final RIBExtensionConsumerContext extensions, final CodecsRegistry codecs) {
         this.extensionContext = requireNonNull(extensions);
@@ -57,15 +55,6 @@ final class RIBSupportContextRegistryImpl implements RIBSupportContextRegistry {
 
     @Override
     public RIBSupportContext getRIBSupportContext(final TablesKey key) {
-        final RIBSupport ribSupport = this.extensionContext.getRIBSupport(key);
-        if (ribSupport != null) {
-            return this.contexts.getUnchecked(ribSupport);
-        }
-        return null;
-    }
-
-    @Override
-    public RIBSupportContext getRIBSupportContext(final NodeIdentifierWithPredicates key) {
         final RIBSupport ribSupport = this.extensionContext.getRIBSupport(key);
         if (ribSupport != null) {
             return this.contexts.getUnchecked(ribSupport);
