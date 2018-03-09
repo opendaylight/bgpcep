@@ -8,19 +8,25 @@
 
 package org.opendaylight.protocol.bgp.mode.api;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
-import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 public interface BestPathState {
+    @Nullable
     Long getLocalPref();
 
+    @Nullable
     Long getMultiExitDisc();
 
+    @Nullable
     BgpOrigin getOrigin();
 
-    Long getPeerAs();
+    long getPeerAs();
 
     int getAsPathLength();
 
-    ContainerNode getAttributes();
+    @Nonnull
+    Attributes getAttributes();
 }

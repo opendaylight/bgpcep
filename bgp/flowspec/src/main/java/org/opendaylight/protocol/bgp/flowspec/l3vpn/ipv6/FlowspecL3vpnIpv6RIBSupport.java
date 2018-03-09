@@ -39,7 +39,7 @@ public final class FlowspecL3vpnIpv6RIBSupport extends AbstractFlowspecL3vpnRIBS
     }
 
     @Override
-    public final FlowspecL3vpnRouteKey createNewRouteKey(final long pathId, final FlowspecL3vpnRouteKey routeKey) {
+    public final FlowspecL3vpnRouteKey createNewRouteIdentifier(final long pathId, final FlowspecL3vpnRouteKey routeKey) {
         return new FlowspecL3vpnRouteKey(new PathId(pathId), routeKey.getRouteKey());
     }
 

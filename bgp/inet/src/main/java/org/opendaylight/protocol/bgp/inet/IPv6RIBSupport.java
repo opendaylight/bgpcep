@@ -83,7 +83,7 @@ final class IPv6RIBSupport extends AbstractIPRibSupport<Ipv6Route, Ipv6RouteKey>
     }
 
     @Override
-    public Ipv6RouteKey createNewRouteKey(final long pathId, final Ipv6RouteKey routeKey) {
+    public Ipv6RouteKey createNewRouteIdentifier(final long pathId, final Ipv6RouteKey routeKey) {
         return new Ipv6RouteKey(new PathId(pathId), routeKey.getPrefix());
     }
 }

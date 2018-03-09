@@ -221,7 +221,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                         writeRoutes(tx, tableKey, ribSupport, tablePath, routeKey, (Route) routeChanged.getDataAfter());
                         break;
                     case DELETE:
-                        final InstanceIdentifier routeIID = ribSupport.createRouteIId(tablePath, routeKey);
+                        final InstanceIdentifier routeIID = ribSupport.createRouteIdentifier(tablePath, routeKey);
                         tx.delete(LogicalDatastoreType.OPERATIONAL, routeIID);
                         break;
                 }
@@ -232,7 +232,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         private void writeRoutes(final WriteTransaction tx, final TablesKey tk, final RIBSupport ribSupport,
                 final KeyedInstanceIdentifier<Tables, TablesKey> tablePath, final Identifier routeKey,
                 final Route route) {
-            final InstanceIdentifier routeIID = ribSupport.createRouteIId(tablePath, routeKey);
+            final InstanceIdentifier routeIID = ribSupport.createRouteIdentifier(tablePath, routeKey);
             CountersUtil.increment(this.prefixesReceived.get(tk), tk);
             final Optional<Attributes> effAtt = this.ribPolicies
                     .applyImportPolicies(this.peerImportParameters, route.getAttributes());

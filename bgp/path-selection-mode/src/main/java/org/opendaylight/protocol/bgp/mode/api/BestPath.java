@@ -9,8 +9,9 @@
 package org.opendaylight.protocol.bgp.mode.api;
 
 import com.google.common.primitives.UnsignedInteger;
+import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
-import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 public interface BestPath {
 
@@ -26,6 +27,7 @@ public interface BestPath {
      *
      * @return the routerId (UnsignedInteger) converted to a PeerId
      */
+    @Nonnull
     PeerId getPeerId();
 
     /**
@@ -33,7 +35,8 @@ public interface BestPath {
      *
      * @return the path attributes
      */
-    ContainerNode getAttributes();
+    @Nonnull
+    Attributes getAttributes();
 
     /**
      * PathId.

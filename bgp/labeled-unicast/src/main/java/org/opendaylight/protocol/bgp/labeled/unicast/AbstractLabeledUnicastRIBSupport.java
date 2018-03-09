@@ -165,7 +165,7 @@ abstract class AbstractLabeledUnicastRIBSupport
     }
 
     @Override
-    public final LabeledUnicastRouteKey createNewRouteKey(final long pathId, final LabeledUnicastRouteKey routeKey) {
+    public final LabeledUnicastRouteKey createNewRouteIdentifier(final long pathId, final LabeledUnicastRouteKey routeKey) {
         return new LabeledUnicastRouteKey(new PathId(pathId), routeKey.getRouteKey());
     }
 

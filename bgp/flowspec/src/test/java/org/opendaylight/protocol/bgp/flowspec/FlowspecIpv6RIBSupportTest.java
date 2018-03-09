@@ -144,7 +144,7 @@ public class FlowspecIpv6RIBSupportTest extends AbstractRIBSupportTest {
     @Test
     public void testRouteIdAddPath() {
         final FlowspecRouteKey oldKey = new FlowspecRouteKey(new PathId(100L), ROUTE_KEY.getRouteKey());
-        Assert.assertEquals(ROUTE_KEY, RIB_SUPPORT.createNewRouteKey(1L, oldKey));
+        Assert.assertEquals(ROUTE_KEY, RIB_SUPPORT.createNewRouteIdentifier(1L, oldKey));
     }
 
     @Test

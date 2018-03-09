@@ -11,19 +11,22 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.opendaylight.protocol.bgp.rib.impl.AdjRibInWriter.PEER_ID_QNAME;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.primitives.UnsignedInteger;
 import org.junit.Test;
+import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv4.routes.ipv4.routes.Ipv4RouteKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.Peer;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 
 public class RouteUpdateKeyTest {
-    private static final PeerId PEER_ID = new PeerId("127.0.0.1");
-    private static final PeerId PEER_ID_2 = new PeerId("127.0.0.2");
-    private static final NodeIdentifierWithPredicates NIWP_PEER = new NodeIdentifierWithPredicates(Peer.QNAME,
-        ImmutableMap.of(PEER_ID_QNAME, PEER_ID.getValue()));
+    private static final UnsignedInteger PEER_ID = RouterIds.routerIdForPeerId(new PeerId("bgp://127.0.0.1"));
+    private static final UnsignedInteger PEER_ID_2 = RouterIds.routerIdForPeerId(new PeerId("bgp://127.0.0.2"));
+    private static final Ipv4RouteKey NIWP_PEER = new Ipv4RouteKey(new PathId(1L),
+            new Ipv4Prefix("0.0.0.0/0"));
+    private static final Ipv4RouteKey NIWP_PEER2 = new Ipv4RouteKey(new PathId(1L),
+            new Ipv4Prefix("1.1.1.1/24"));
 
     @Test
     public void testRouteUpdateKey() {
@@ -34,8 +37,6 @@ public class RouteUpdateKeyTest {
         assertTrue(rk.equals(rk));
         assertFalse(rk.equals(null));
         assertFalse(rk.equals(new RouteUpdateKey(PEER_ID_2, NIWP_PEER)));
-        assertFalse(rk.equals(new RouteUpdateKey(PEER_ID, new NodeIdentifierWithPredicates(Peer.QNAME,
-            ImmutableMap.of(PEER_ID_QNAME, PEER_ID_2.getValue())))));
+        assertFalse(rk.equals(new RouteUpdateKey(PEER_ID_2, NIWP_PEER2)));
     }
-
 }

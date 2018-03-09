@@ -15,18 +15,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
  * Contains Peer destiny information for export route entry.
  */
 public interface BGPRouteEntryExportParameters extends BGPRouteEntryImportParameters {
+
     /**
-     * Peer id of Peer destiny for route entry.
+     * Peer id of Peer route entry destiny.
      *
-     * @return peer Id of announced Peer
+     * @return peer Id of announcer Peer
      */
     @Nonnull
     PeerId getToPeerId();
 
     /**
-     * Peer role of Peer destiny for route entry.
+     * Peer id of Peer route entry destiny.
      *
-     * @return peer role of announced Peer
+     * @return peer Role of announcer Peer
      */
     @Nonnull
     PeerRole getToPeerRole();

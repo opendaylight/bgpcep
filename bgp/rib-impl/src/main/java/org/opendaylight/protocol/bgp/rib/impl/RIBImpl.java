@@ -11,7 +11,6 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -46,7 +45,6 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPRIBStateImpl;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
-import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
@@ -84,7 +82,8 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
         SchemaContextListener, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(RIBImpl.class);
     private static final QName RIB_ID_QNAME = QName.create(Rib.QNAME, "id").intern();
-    private static final ContainerNode EMPTY_TABLE_ATTRIBUTES = ImmutableNodes.containerNode(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Attributes.QNAME);
+    private static final ContainerNode EMPTY_TABLE_ATTRIBUTES = ImmutableNodes.containerNode(org.opendaylight.yang
+            .gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Attributes.QNAME);
 
     private final BGPDispatcher dispatcher;
     private final AsNumber localAs;
@@ -99,13 +98,12 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
     private final CodecsRegistryImpl codecsRegistry;
     @GuardedBy("this")
     private ClusterSingletonServiceRegistration registration;
-    private final DOMDataBrokerExtension service;
+    private final DOMDataBrokerExtension domService;
     private final Map<TransactionChain<?, ?>, LocRibWriter> txChainToLocRibWriter = new HashMap<>();
     private final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies;
     private final RibId ribId;
     private final BGPPeerTracker peerTracker;
     private final BGPRibRoutingPolicy ribPolicies;
-    private final Map<TablesKey, ExportPolicyPeerTracker> exportPolicyPeerTrackerMap;
 
     @GuardedBy("this")
     private DOMTransactionChain domChain;
@@ -115,7 +113,6 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
     public RIBImpl(final RibId ribId,
             final AsNumber localAs,
             final BgpId localBgpId,
-            final ClusterIdentifier clusterId,
             final RIBExtensionConsumerContext extensions,
             final BGPDispatcher dispatcher,
             final CodecsRegistryImpl codecsRegistry,
@@ -135,7 +132,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
         this.localTablesKeys = new HashSet<>();
         this.domDataBroker = requireNonNull(domDataBroker);
         this.dataBroker = requireNonNull(dataBroker);
-        this.service = this.domDataBroker.getSupportedExtensions().get(DOMDataTreeChangeService.class);
+        this.domService = this.domDataBroker.getSupportedExtensions().get(DOMDataTreeChangeService.class);
         this.extensions = requireNonNull(extensions);
         this.ribPolicies = requireNonNull(ribPolicies);
         this.peerTracker = requireNonNull(bgpPeerTracker);
@@ -144,17 +141,12 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
         final InstanceIdentifierBuilder yangRibIdBuilder = YangInstanceIdentifier.builder().node(BgpRib.QNAME).node(Rib.QNAME);
         this.yangRibId = yangRibIdBuilder.nodeWithKey(Rib.QNAME, RIB_ID_QNAME, ribId.getValue()).build();
         this.bestPathSelectionStrategies = requireNonNull(bestPathSelectionStrategies);
-        final ClusterIdentifier cId = clusterId == null ? new ClusterIdentifier(localBgpId) : clusterId;
         this.ribId = ribId;
-        final PolicyDatabase policyDatabase = new PolicyDatabase(this.localAs.getValue(), localBgpId, cId);
 
-        final ImmutableMap.Builder<TablesKey, ExportPolicyPeerTracker> exportPolicies = new ImmutableMap.Builder<>();
         for (final BgpTableType t : this.localTables) {
             final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
             this.localTablesKeys.add(key);
-            exportPolicies.put(key, new ExportPolicyPeerTrackerImpl(policyDatabase, key));
         }
-        this.exportPolicyPeerTrackerMap = exportPolicies.build();
     }
 
     private synchronized void startLocRib(final TablesKey key) {
@@ -167,7 +159,8 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
         table.withChild(EMPTY_TABLE_ATTRIBUTES);
 
         final NodeIdentifierWithPredicates tableKey = RibSupportUtils.toYangTablesKey(key);
-        final InstanceIdentifierBuilder tableId = YangInstanceIdentifier.builder(this.yangRibId.node(LocRib.QNAME).node(Tables.QNAME));
+        final InstanceIdentifierBuilder tableId = YangInstanceIdentifier
+                .builder(this.yangRibId.node(LocRib.QNAME).node(Tables.QNAME));
         tableId.nodeWithKey(tableKey.getNodeType(), tableKey.getKeyValues());
         for (final Entry<QName, Object> e : tableKey.getKeyValues().entrySet()) {
             table.withChild(ImmutableNodes.leafNode(e.getKey(), e.getValue()));
@@ -184,7 +177,6 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
             } catch (final TransactionCommitFailedException e1) {
                 LOG.error("Failed to initiate LocRIB for key {}", key, e1);
             }
-            createLocRibWriter(key);
         } else {
             LOG.warn("There's no registered RIB Context for {}", key.getAfi());
         }
@@ -192,14 +184,22 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
 
     private synchronized void createLocRibWriter(final TablesKey key) {
         LOG.debug("Creating LocRIB writer for key {}", key);
-        final DOMTransactionChain txChain = createPeerDOMChain(this);
+        final BindingTransactionChain txChain = createPeerChain(this);
         PathSelectionMode pathSelectionStrategy = this.bestPathSelectionStrategies.get(key);
         if (pathSelectionStrategy == null) {
             pathSelectionStrategy = BasePathSelectionModeFactory.createBestPathSelectionStrategy(this.peerTracker);
         }
 
-        final LocRibWriter locRibWriter = LocRibWriter.create(this.ribContextRegistry, key, txChain,
-                getYangRibId(), this.localAs, getService(), this.exportPolicyPeerTrackerMap.get(key), pathSelectionStrategy);
+        final LocRibWriter locRibWriter = LocRibWriter.create(
+                this.ribContextRegistry,
+                key,
+                txChain,
+                getInstanceIdentifier(),
+                this.localAs,
+                getDataBroker(),
+                this.ribPolicies,
+                this.peerTracker,
+                pathSelectionStrategy);
         registerTotalPathCounter(key, locRibWriter);
         registerTotalPrefixesCounter(key, locRibWriter);
         this.txChainToLocRibWriter.put(txChain, locRibWriter);
@@ -244,11 +244,14 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
     }
 
     @Override
-    public synchronized void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction, final Throwable cause) {
-        LOG.error("Broken chain in RIB {} transaction {}", getInstanceIdentifier(), transaction != null ? transaction.getIdentifier() : null, cause);
+    public synchronized void onTransactionChainFailed(final TransactionChain<?, ?> chain,
+            final AsyncTransaction<?, ?> transaction, final Throwable cause) {
+        LOG.error("Broken chain in RIB {} transaction {}",
+                getInstanceIdentifier(), transaction != null ? transaction.getIdentifier() : null, cause);
         if (this.txChainToLocRibWriter.containsKey(chain)) {
             final LocRibWriter locRibWriter = this.txChainToLocRibWriter.remove(chain);
-            final DOMTransactionChain newChain = createPeerDOMChain(this);
+            final BindingTransactionChain newChain = createPeerChain(this);
+            startLocRib(locRibWriter.getTableKey());
             locRibWriter.restart(newChain);
             this.txChainToLocRibWriter.put(newChain, locRibWriter);
         }
@@ -281,7 +284,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
 
     @Override
     public DOMDataTreeChangeService getService() {
-        return (DOMDataTreeChangeService) this.service;
+        return (DOMDataTreeChangeService) this.domService;
     }
 
     @Override
@@ -295,13 +298,13 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
     }
 
     @Override
-    public DOMTransactionChain createPeerDOMChain(final TransactionChainListener listener) {
-        return this.domDataBroker.createTransactionChain(listener);
+    public BindingTransactionChain createPeerChain(final TransactionChainListener listener) {
+        return this.dataBroker.createTransactionChain(listener);
     }
 
     @Override
-    public BindingTransactionChain createPeerChain(final TransactionChainListener listener) {
-        return this.dataBroker.createTransactionChain(this);
+    public DOMTransactionChain createPeerDOMChain(final TransactionChainListener listener) {
+        return this.domDataBroker.createTransactionChain(listener);
     }
 
     @Override
@@ -322,11 +325,6 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
     @Override
     public CodecsRegistry getCodecsRegistry() {
         return this.codecsRegistry;
-    }
-
-    @Override
-    public ExportPolicyPeerTracker getExportPolicyPeerTracker(final TablesKey tablesKey) {
-        return this.exportPolicyPeerTrackerMap.get(tablesKey);
     }
 
     public synchronized void instantiateServiceInstance() {
@@ -362,6 +360,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
         LOG.debug("Effective RIB created.");
 
         this.localTablesKeys.forEach(this::startLocRib);
+        this.localTablesKeys.forEach(this::createLocRibWriter);
     }
 
     public synchronized ListenableFuture<Void> closeServiceInstance() {

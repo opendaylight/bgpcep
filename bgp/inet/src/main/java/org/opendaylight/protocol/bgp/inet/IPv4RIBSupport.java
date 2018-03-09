@@ -84,7 +84,7 @@ final class IPv4RIBSupport extends AbstractIPRibSupport<Ipv4Route, Ipv4RouteKey>
     }
 
     @Override
-    public Ipv4RouteKey createNewRouteKey(final long pathId, final Ipv4RouteKey routeKey) {
+    public Ipv4RouteKey createNewRouteIdentifier(final long pathId, final Ipv4RouteKey routeKey) {
         return new Ipv4RouteKey(new PathId(pathId), routeKey.getPrefix());
     }
 }

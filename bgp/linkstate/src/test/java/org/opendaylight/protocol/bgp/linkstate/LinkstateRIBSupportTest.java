@@ -171,7 +171,7 @@ public final class LinkstateRIBSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testRouteIdAddPath() {
-        Assert.assertNull(RIB_SUPPORT.createNewRouteKey(1L, null));
+        Assert.assertNull(RIB_SUPPORT.createNewRouteIdentifier(1L, null));
     }
 
     @Test

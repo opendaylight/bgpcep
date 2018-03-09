@@ -135,7 +135,7 @@ public final class IPv6RIBSupportTest extends AbstractRIBSupportTest {
     public void testRouteIdAddPath() {
         final Ipv6RouteKey expected = new Ipv6RouteKey(new PathId(1L), PREFIX);
         final Ipv6RouteKey oldKey = new Ipv6RouteKey(new PathId(100L), PREFIX);
-        assertEquals(expected, RIB_SUPPORT.createNewRouteKey(expected.getPathId().getValue(), oldKey));
+        assertEquals(expected, RIB_SUPPORT.createNewRouteIdentifier(expected.getPathId().getValue(), oldKey));
     }
 
     @Test
@@ -148,8 +148,7 @@ public final class IPv6RIBSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testExtractPathId() {
-       /* final NormalizedNode<?, ?> route = Iterables.getOnlyElement(createRoutes(ROUTES));
-        assertEquals(PATH_ID.getValue(), RIB_SUPPORT.extractPathId(route));*/
+        assertEquals(PATH_ID.getValue().longValue(), RIB_SUPPORT.extractPathId(ROUTES.getIpv6Route().get(0)));
     }
 
     @Test

@@ -53,7 +53,7 @@ public final class FlowspecIpv4RIBSupport extends AbstractFlowspecRIBSupport<Sim
     }
 
     @Override
-    public FlowspecRouteKey createNewRouteKey(final long pathId, final FlowspecRouteKey routeKey) {
+    public FlowspecRouteKey createNewRouteIdentifier(final long pathId, final FlowspecRouteKey routeKey) {
         return new FlowspecRouteKey(new PathId(pathId), routeKey.getRouteKey());
     }
 }

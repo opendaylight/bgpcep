@@ -7,12 +7,13 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
+import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID_VALUE;
+
 import com.google.common.collect.ImmutableCollection;
 import java.util.Collection;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
@@ -40,7 +41,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNod
  * to register an implementation of this class and the RIB core then calls into it
  * to inquire about details specific to that particular model.
  */
-public interface RIBSupport<R extends Route, N extends Identifier> extends AddPathRibSupport {
+public interface RIBSupport<R extends Route, N extends Identifier> {
     /**
      * Return the table-type-specific empty routes container, as augmented into the
      * bgp-rib model under /rib/tables/routes choice node. This needs to include all
@@ -199,19 +200,19 @@ public interface RIBSupport<R extends Route, N extends Identifier> extends AddPa
     Class<? extends SubsequentAddressFamily> getSafi();
 
     /**
-     * Creates Route Rib out Peer InstanceIdentifier.
+     * Creates Route table Peer InstanceIdentifier.
      *
-     * @param ribOutIId   table InstanceIdentifier
+     * @param tableKey    table InstanceIdentifier
      * @param newRouteKey route key
      * @return InstanceIdentifier
      */
     @Nonnull
-    InstanceIdentifier<R> createRouteIId(
-            @Nonnull KeyedInstanceIdentifier<Tables, TablesKey> ribOutIId,
+    InstanceIdentifier<R> createRouteIdentifier(
+            @Nonnull KeyedInstanceIdentifier<Tables, TablesKey> tableKey,
             @Nonnull N newRouteKey);
 
     @Nonnull
-    R createRoute(@Nullable R route, N routeKey, long pathId, @Nonnull Attributes attributes);
+    R createRoute(@Nullable R route, N routeKey, @Nullable long pathId, @Nonnull Attributes attributes);
 
     /**
      * Construct a PathArgument to an AddPathRoute.
@@ -221,7 +222,7 @@ public interface RIBSupport<R extends Route, N extends Identifier> extends AddPa
      * @return routeId PathArgument + pathId or Null in case Add-path is not supported
      */
     @Nullable
-    default Identifier createNewRouteKey(long pathId, @Nonnull N routeKey) {
+    default N createNewRouteIdentifier(@Nonnull long pathId, @Nonnull N routeKey) {
         return null;
     }
 
@@ -229,5 +230,27 @@ public interface RIBSupport<R extends Route, N extends Identifier> extends AddPa
         void apply(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier base,
                 @Nonnull NodeIdentifierWithPredicates routeKey,
                 @Nonnull DataContainerNode<?> route, ContainerNode attributes);
+    }
+
+    /**
+     * Extract PathId from route change received.
+     *
+     * @param route Path Id Container
+     * @return pathId  The path identifier value
+     */
+    default long extractPathId(@Nonnull R route) {
+        return NON_PATH_ID_VALUE;
+    }
+
+    /**
+     * Create a new Path Argument for route Key removing remove Path Id from key.
+     * For extension which do not support Multiple Path this step is not required.
+     *
+     * @param routeKey routeKey Path Argument
+     * @return new route Key
+     */
+    default @Nonnull
+    NodeIdentifierWithPredicates createRouteKeyPathArgument(@Nonnull NodeIdentifierWithPredicates routeKey) {
+        return routeKey;
     }
 }

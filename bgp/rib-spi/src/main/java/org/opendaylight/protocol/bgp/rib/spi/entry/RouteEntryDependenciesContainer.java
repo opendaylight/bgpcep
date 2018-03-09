@@ -8,11 +8,11 @@
 package org.opendaylight.protocol.bgp.rib.spi.entry;
 
 import javax.annotation.Nonnull;
-import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
 /**
  * Container wrapper for all dependencies related to Route Entry, required for process and storage.
@@ -39,18 +39,10 @@ public interface RouteEntryDependenciesContainer {
     /**
      * Returns the loc-rib table to be updated and to which  corresponds this Route Entry.
      *
-     * @return YangInstanceIdentifier containing the path to loc-rib table.
+     * @return InstanceIdentifier containing the path to loc-rib table.
      */
     @Nonnull
-    YangInstanceIdentifier getLocRibTableTarget();
-
-    /**
-     * Return the ExportPolicyPeerTracker which tracks peers.
-     *
-     * @return ExportPolicyPeerTracker
-     */
-    @Nonnull
-    ExportPolicyPeerTracker getExportPolicyPeerTracker();
+    KeyedInstanceIdentifier<Tables, TablesKey> getLocRibTableTarget();
 
     /**
      * Return routing policies defined per RIB.
