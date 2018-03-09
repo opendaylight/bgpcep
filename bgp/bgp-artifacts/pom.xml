@@ -206,6 +206,13 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-config-example</artifactId>
+                <version>${project.version}</version>
+                <type>xml</type>
+                <classifier>routing-policy-default-config</classifier>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>bgp-benchmark-app</artifactId>
                 <version>${project.version}</version>
             </dependency>

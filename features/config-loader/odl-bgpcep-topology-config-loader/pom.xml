@@ -28,15 +28,9 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-config-loader-impl</artifactId>
+            <artifactId>odl-bgpcep-protocols-config-loader</artifactId>
             <classifier>features</classifier>
             <type>xml</type>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>odl-mdsal-broker</artifactId>
-            <type>xml</type>
-            <classifier>features</classifier>
         </dependency>
     </dependencies>
 </project>

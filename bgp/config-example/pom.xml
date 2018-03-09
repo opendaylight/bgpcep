@@ -84,7 +84,7 @@
                                 <artifact>
                                     <file>${project.build.directory}/classes/initial/routing-policy-config.xml</file>
                                     <type>xml</type>
-                                    <classifier>routing-policy-initial-config</classifier>
+                                    <classifier>routing-policy-default-config</classifier>
                                 </artifact>
                             </artifacts>
                         </configuration>

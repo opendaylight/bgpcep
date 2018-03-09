@@ -19,6 +19,14 @@
                     <!-- if cluster-id is not present, it's value is the same as bgp-id -->
                     <!-- <route-reflector-cluster-id>192.0.2.3</route-reflector-cluster-id> -->
                 </config>
+                <apply-policy>
+                    <config>
+                        <default-export-policy>REJECT-ROUTE</default-export-policy>
+                        <default-import-policy>REJECT-ROUTE</default-import-policy>
+                        <import-policy>default-odl-import-policy</import-policy>
+                        <export-policy>default-odl-export-policy</export-policy>
+                    </config>
+                </apply-policy>
                 <afi-safis>
                     <afi-safi>
                         <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV4-UNICAST</afi-safi-name>
