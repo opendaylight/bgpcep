@@ -85,8 +85,6 @@ public abstract class AbstractRIBSupport<R extends Route, N extends Identifier>
     private final Class<? extends AddressFamily> afiClass;
     private final Class<? extends SubsequentAddressFamily> safiClass;
     private final NodeIdentifier destinationNid;
-    private final QName routesQname;
-    private final NodeIdentifierWithPredicates tableQname;
 
     /**
      * Default constructor. Requires the QName of the container augmented under the routes choice
@@ -115,7 +113,6 @@ public abstract class AbstractRIBSupport<R extends Route, N extends Identifier>
         this.containerClass = requireNonNull(containerClass);
         this.listClass = requireNonNull(listClass);
         this.routeQname = QName.create(qname, BindingReflections.findQName(listClass).intern().getLocalName());
-        this.routesQname = QName.create(qname, BindingReflections.findQName(this.containerClass).intern().getLocalName());
         this.routesListIdentifier = new NodeIdentifier(this.routeQname);
         this.emptyRoutes = Builders.choiceBuilder().withNodeIdentifier(ROUTES).addChild(Builders.containerBuilder()
                 .withNodeIdentifier(routesContainerIdentifier()).withChild(ImmutableNodes.mapNodeBuilder(this.routeQname)
@@ -123,7 +120,6 @@ public abstract class AbstractRIBSupport<R extends Route, N extends Identifier>
         this.afiClass = afiClass;
         this.safiClass = safiClass;
         this.destinationNid = new NodeIdentifier(destinationQname);
-        this.tableQname = RibSupportUtils.toYangTablesKey(new TablesKey(afiClass, safiClass));
     }
 
     @Override
@@ -321,7 +317,7 @@ public abstract class AbstractRIBSupport<R extends Route, N extends Identifier>
     }
 
     @Override
-    public final InstanceIdentifier<R> createRouteIId(
+    public final InstanceIdentifier<R> createRouteIdentifier(
             final KeyedInstanceIdentifier<Tables, TablesKey> tableIId, final N key) {
         return tableIId.child((Class) routesContainerClass()).child(routesListClass(), key);
     }

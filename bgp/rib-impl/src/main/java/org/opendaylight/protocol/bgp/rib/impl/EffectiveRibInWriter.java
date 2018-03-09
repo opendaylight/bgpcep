@@ -180,7 +180,9 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                         final KeyedInstanceIdentifier<Tables, TablesKey> tablePath
                                 = this.effRibTables.child(Tables.class, tk);
                         final RIBSupport ribSupport = this.registry.getRIBSupport(tk);
-
+                        if (ribSupport == null) {
+                            break;
+                        }
                         tx.put(LogicalDatastoreType.OPERATIONAL,
                                 tablePath.child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
                                         .rib.rev171207.rib.tables.Attributes.class), after.getAttributes());
@@ -221,7 +223,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                         writeRoutes(tx, tableKey, ribSupport, tablePath, routeKey, (Route) routeChanged.getDataAfter());
                         break;
                     case DELETE:
-                        final InstanceIdentifier routeIID = ribSupport.createRouteIId(tablePath, routeKey);
+                        final InstanceIdentifier routeIID = ribSupport.createRouteIdentifier(tablePath, routeKey);
                         tx.delete(LogicalDatastoreType.OPERATIONAL, routeIID);
                         break;
                 }
@@ -232,7 +234,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         private void writeRoutes(final WriteTransaction tx, final TablesKey tk, final RIBSupport ribSupport,
                 final KeyedInstanceIdentifier<Tables, TablesKey> tablePath, final Identifier routeKey,
                 final Route route) {
-            final InstanceIdentifier routeIID = ribSupport.createRouteIId(tablePath, routeKey);
+            final InstanceIdentifier routeIID = ribSupport.createRouteIdentifier(tablePath, routeKey);
             CountersUtil.increment(this.prefixesReceived.get(tk), tk);
             final Optional<Attributes> effAtt = this.ribPolicies
                     .applyImportPolicies(this.peerImportParameters, route.getAttributes());
@@ -263,7 +265,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
             final RIBSupport ribSupport = this.registry.getRIBSupport(tableKey);
             final Routes routes = newTable.getRoutes();
-            if (routes == null) {
+            if (ribSupport == null || routes == null) {
                 return;
             }
 

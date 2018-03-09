@@ -38,7 +38,6 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
-import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPRIBState;
@@ -146,13 +145,13 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
     }
 
     @Override
-    public BindingTransactionChain createPeerChain(final TransactionChainListener listener) {
-        return this.ribImpl.createPeerChain(listener);
+    public DOMTransactionChain createPeerDOMChain(final TransactionChainListener listener) {
+        return this.ribImpl.createPeerDOMChain(listener);
     }
 
     @Override
-    public DOMTransactionChain createPeerDOMChain(final TransactionChainListener listener) {
-        return this.ribImpl.createPeerDOMChain(listener);
+    public BindingTransactionChain createPeerChain(final TransactionChainListener listener) {
+        return this.ribImpl.createPeerChain(listener);
     }
 
     @Override
@@ -221,11 +220,6 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
     }
 
     @Override
-    public ExportPolicyPeerTracker getExportPolicyPeerTracker(final TablesKey tablesKey) {
-        return this.ribImpl.getExportPolicyPeerTracker(tablesKey);
-    }
-
-    @Override
     public Set<TablesKey> getLocalTablesKeys() {
         return this.ribImpl.getLocalTablesKeys();
     }
@@ -275,7 +269,6 @@ public final class RibImpl implements RIB, BGPRIBStateConsumer, AutoCloseable {
                 new RibId(bgpInstanceName),
                 this.asNumber,
                 new BgpId(this.routerId),
-                this.clusterId,
                 this.extensions,
                 this.dispatcher,
                 codecsRegistry,

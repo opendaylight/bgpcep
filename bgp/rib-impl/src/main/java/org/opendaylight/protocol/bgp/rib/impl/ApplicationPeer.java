@@ -10,6 +10,9 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Verify;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -31,7 +34,6 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPPeerStateImpl;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPSessionStateImpl;
-import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
@@ -51,9 +53,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.PeerKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.peer.AdjRibIn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.peer.AdjRibOut;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -85,10 +89,9 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
     private final byte[] rawIdentifier;
     private final String name;
     private final YangInstanceIdentifier adjRibsInId;
-    private final Ipv4Address ipAddress;
     private final RIB rib;
+    private final InstanceIdentifier<AdjRibOut> peerRibOutIId;
     private final KeyedInstanceIdentifier<Peer, PeerKey> peerIId;
-    private final YangInstanceIdentifier peerYIId;
     private DOMTransactionChain chain;
     private DOMTransactionChain writerChain;
     private EffectiveRibInWriter effectiveRibInWriter;
@@ -96,6 +99,14 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
     private ListenerRegistration<ApplicationPeer> registration;
     private final Set<NodeIdentifierWithPredicates> supportedTables = new HashSet<>();
     private final BGPSessionStateImpl bgpSessionState = new BGPSessionStateImpl();
+    private final LoadingCache<TablesKey, KeyedInstanceIdentifier<Tables, TablesKey>> tablesIId
+            = CacheBuilder.newBuilder()
+            .build(new CacheLoader<TablesKey, KeyedInstanceIdentifier<Tables, TablesKey>>() {
+                @Override
+                public KeyedInstanceIdentifier<Tables, TablesKey> load(final TablesKey tablesKey) {
+                    return ApplicationPeer.this.peerRibOutIId.child(Tables.class, tablesKey);
+                }
+            });
     private final PeerId peerId;
     private AbstractRegistration trackerRegistration;
 
@@ -114,13 +125,13 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
         final RIB targetRib = requireNonNull(rib);
         this.rawIdentifier = InetAddresses.forString(ipAddress.getValue()).getAddress();
         final NodeIdentifierWithPredicates peerIId = IdentifierUtils.domPeerId(RouterIds.createPeerId(ipAddress));
-        this.peerYIId = targetRib.getYangRibId().node(Peer.QNAME).node(peerIId);
-        this.adjRibsInId = this.peerYIId.node(AdjRibIn.QNAME).node(Tables.QNAME);
+        this.adjRibsInId = targetRib.getYangRibId().node(Peer.QNAME).node(peerIId)
+                .node(AdjRibIn.QNAME).node(Tables.QNAME);
         this.rib = targetRib;
-        this.ipAddress = ipAddress;
         this.peerId = RouterIds.createPeerId(ipAddress);
         this.peerIId = getInstanceIdentifier().child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
                 .yang.bgp.rib.rev171207.bgp.rib.rib.Peer.class, new PeerKey(this.peerId));
+        this.peerRibOutIId = this.peerIId.child(AdjRibOut.class);
     }
 
     public synchronized void instantiateServiceInstance(final DOMDataTreeChangeService dataTreeChangeService,
@@ -131,10 +142,6 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
 
         final Set<TablesKey> localTables = this.rib.getLocalTablesKeys();
         localTables.forEach(tablesKey -> {
-            final ExportPolicyPeerTracker exportTracker = this.rib.getExportPolicyPeerTracker(tablesKey);
-            if (exportTracker != null) {
-                exportTracker.registerPeer(this.peerId, null, this.peerYIId, PeerRole.Internal);
-            }
             this.supportedTables.add(RibSupportUtils.toYangTablesKey(tablesKey));
         });
         setAdvertizedGracefulRestartTableTypes(Collections.emptyList());
@@ -310,13 +317,13 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
     }
 
     @Override
-    public YangInstanceIdentifier getPeerRibInstanceIdentifier() {
-        return this.peerYIId;
+    public PeerRole getRole() {
+        return PeerRole.Internal;
     }
 
     @Override
-    public PeerRole getRole() {
-        return PeerRole.Internal;
+    public KeyedInstanceIdentifier<Tables, TablesKey> getRibOutIId(final TablesKey tablesKey) {
+        return this.tablesIId.getUnchecked(tablesKey);
     }
 
     @Override

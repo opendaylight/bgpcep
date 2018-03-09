@@ -10,6 +10,8 @@ package org.opendaylight.protocol.bgp.rib.spi;
 
 import com.google.common.collect.ImmutableMap;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.PathId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.PathIdGrouping;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
@@ -19,8 +21,6 @@ import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
-import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
 /**
  * Implements common methods for Advertisement of Multiple Paths on ribSupport.
@@ -69,16 +69,15 @@ public abstract class MultiPathAbstractRIBSupport<R extends Route, N extends Ide
     }
 
     @Override
-    public final long extractPathId(final NormalizedNode<?, ?> data) {
-        final Long pathId = PathIdUtil.extractPathId(data, this.routePathIdNid());
-        if (pathId == null) {
+    public final long extractPathId(final R route) {
+        if (route == null || route.getClass().isAssignableFrom(PathIdGrouping.class)) {
             return PathIdUtil.NON_PATH_ID_VALUE;
         }
-        return pathId;
-    }
-
-    public final NodeIdentifierWithPredicates getRouteIdAddPath(final long pathId, final PathArgument routeId) {
-        return PathIdUtil.createNidKey(pathId, routeId, routeQName(), pathIdQName(), routeKeyQName());
+        final PathId pathContainer = ((PathIdGrouping) route).getPathId();
+        if (pathContainer == null || pathContainer.getValue() == null) {
+            return PathIdUtil.NON_PATH_ID_VALUE;
+        }
+        return pathContainer.getValue();
     }
 
     @Override

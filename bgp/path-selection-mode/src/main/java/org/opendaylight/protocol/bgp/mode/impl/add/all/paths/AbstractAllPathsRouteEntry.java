@@ -19,7 +19,7 @@ import org.opendaylight.protocol.bgp.mode.impl.add.AddPathAbstractRouteEntry;
 import org.opendaylight.protocol.bgp.mode.impl.add.AddPathBestPath;
 import org.opendaylight.protocol.bgp.mode.impl.add.RouteKey;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
-import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
 
 abstract class AbstractAllPathsRouteEntry extends AddPathAbstractRouteEntry {
     AbstractAllPathsRouteEntry(final BGPPeerTracker peerTracker) {
@@ -39,7 +39,7 @@ abstract class AbstractAllPathsRouteEntry extends AddPathAbstractRouteEntry {
             /*we add the rest of path, regardless in what order they are, since this is all path case */
             for (final RouteKey key : keyList) {
                 final int offset = this.offsets.offsetOf(key);
-                final ContainerNode attributes = this.offsets.getValue(this.values, offset);
+                final Attributes attributes = this.offsets.getValue(this.values, offset);
                 requireNonNull(key.getRouteId(), "Router ID may not be null");
                 if (attributes != null) {
                     final BestPathState state = new BestPathStateImpl(attributes);
