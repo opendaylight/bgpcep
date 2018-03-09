@@ -20,7 +20,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 
 public class BaseRouteEntryTest extends AbstractRouteEntryTest {
 
-    private BaseSimpleRouteEntry testBARE;
+    private SimpleRouteEntry testBARE;
 
     @Before
     public void setUp() {
@@ -29,7 +29,7 @@ public class BaseRouteEntryTest extends AbstractRouteEntryTest {
 
     @Test
     public void testBaseSimpleRouteEntry() throws Exception {
-        this.testBARE = new BaseSimpleRouteEntry(this.peerTracker);
+        this.testBARE = new SimpleRouteEntry(this.peerTracker);
         testWriteEmptyBestPath();
         testAddRouteSelectBestAndWriteOnDS();
         testRewriteSameRoute();

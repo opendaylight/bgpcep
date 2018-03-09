@@ -15,11 +15,11 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
-final class BaseComplexRouteEntry extends BaseAbstractRouteEntry {
+final class ComplexRouteEntry extends BaseAbstractRouteEntry {
     private static final MapEntryNode[] EMPTY_VALUES = new MapEntryNode[0];
     private MapEntryNode[] values = EMPTY_VALUES;
 
-    BaseComplexRouteEntry(final BGPPeerTracker peerTracker) {
+    ComplexRouteEntry(final BGPPeerTracker peerTracker) {
         super(peerTracker);
     }
 

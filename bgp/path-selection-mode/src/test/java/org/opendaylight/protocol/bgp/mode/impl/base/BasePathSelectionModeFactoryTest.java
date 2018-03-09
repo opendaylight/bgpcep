@@ -17,7 +17,7 @@ public class BasePathSelectionModeFactoryTest extends BGPPeerTrackerMock {
     @Test
     public void testCreateBestPathSelectionStrategy() throws Exception {
         final PathSelectionMode psm = BasePathSelectionModeFactory.createBestPathSelectionStrategy(this.peerTracker);
-        Assert.assertTrue(psm.createRouteEntry(true) instanceof BaseComplexRouteEntry);
-        Assert.assertTrue(psm.createRouteEntry(false) instanceof BaseSimpleRouteEntry);
+        Assert.assertTrue(psm.createRouteEntry(true) instanceof ComplexRouteEntry);
+        Assert.assertTrue(psm.createRouteEntry(false) instanceof SimpleRouteEntry);
     }
 }

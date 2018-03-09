@@ -13,8 +13,8 @@ import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 
-final class BaseSimpleRouteEntry extends BaseAbstractRouteEntry {
-    BaseSimpleRouteEntry(final BGPPeerTracker peerTracker) {
+final class SimpleRouteEntry extends BaseAbstractRouteEntry {
+    SimpleRouteEntry(final BGPPeerTracker peerTracker) {
         super(peerTracker);
     }
 
