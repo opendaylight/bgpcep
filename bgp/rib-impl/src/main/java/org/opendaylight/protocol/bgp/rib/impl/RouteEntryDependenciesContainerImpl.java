@@ -9,28 +9,28 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
 
-import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryDependenciesContainer;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
 public final class RouteEntryDependenciesContainerImpl implements RouteEntryDependenciesContainer {
     private final RIBSupport ribSupport;
     private final TablesKey tablesKey;
-    private final YangInstanceIdentifier locRibTarget;
-    private final ExportPolicyPeerTracker exportPolicyPeerTracker;
+    private final KeyedInstanceIdentifier<Tables, TablesKey> locRibTarget;
+    private final BGPRibRoutingPolicy routingPolicies;
 
     public RouteEntryDependenciesContainerImpl(
             final RIBSupport ribSupport,
+            final BGPRibRoutingPolicy routingPolicies,
             final TablesKey tablesKey,
-            final YangInstanceIdentifier locRibTarget,
-            final ExportPolicyPeerTracker exportPolicyPeerTracker) {
+            final KeyedInstanceIdentifier<Tables, TablesKey> locRibTarget) {
         this.ribSupport = requireNonNull(ribSupport);
         this.tablesKey = requireNonNull(tablesKey);
+        this.routingPolicies = requireNonNull(routingPolicies);
         this.locRibTarget = requireNonNull(locRibTarget);
-        this.exportPolicyPeerTracker = requireNonNull(exportPolicyPeerTracker);
     }
 
     @Override
@@ -44,18 +44,12 @@ public final class RouteEntryDependenciesContainerImpl implements RouteEntryDepe
     }
 
     @Override
-    public YangInstanceIdentifier getLocRibTableTarget() {
+    public KeyedInstanceIdentifier<Tables, TablesKey> getLocRibTableTarget() {
         return this.locRibTarget;
     }
 
     @Override
-    public ExportPolicyPeerTracker getExportPolicyPeerTracker() {
-        return exportPolicyPeerTracker;
-    }
-
-    @Override
     public BGPRibRoutingPolicy getRoutingPolicies() {
-        //FIXME
-        return null;
+        return this.routingPolicies;
     }
 }

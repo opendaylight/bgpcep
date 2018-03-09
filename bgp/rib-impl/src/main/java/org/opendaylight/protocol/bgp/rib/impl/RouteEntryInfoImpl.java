@@ -9,39 +9,26 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
 
-import javax.annotation.Nonnull;
+import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryInfo;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
+import org.opendaylight.yangtools.yang.binding.Identifier;
 
-public final class RouteEntryInfoImpl implements RouteEntryInfo {
-    private final PeerId peerId;
-    private final NodeIdentifierWithPredicates key;
-    private final YangInstanceIdentifier rootPath;
+public final class RouteEntryInfoImpl<N extends Identifier> implements RouteEntryInfo<N> {
+    private final Peer peer;
+    private final N key;
 
-    public RouteEntryInfoImpl(final PeerId peerId, final NodeIdentifierWithPredicates key,
-            final YangInstanceIdentifier rootPath) {
-        this.peerId = requireNonNull(peerId);
+    public RouteEntryInfoImpl(final Peer peer, final N key) {
+        this.peer = requireNonNull(peer);
         this.key = requireNonNull(key);
-        this.rootPath = requireNonNull(rootPath);
     }
 
-    @Nonnull
     @Override
-    public PeerId getToPeerId() {
-        return this.peerId;
+    public Peer getToPeer() {
+        return this.peer;
     }
 
-    @Nonnull
     @Override
-    public NodeIdentifierWithPredicates getRouteId() {
+    public N getRouteKey() {
         return this.key;
-    }
-
-    @Nonnull
-    @Override
-    public YangInstanceIdentifier getRootPath() {
-        return this.rootPath;
     }
 }

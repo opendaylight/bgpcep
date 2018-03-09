@@ -207,9 +207,9 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
     public void testHandleMessageAfterException() {
         final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(TABLES_KEY,
             BasePathSelectionModeFactory.createBestPathSelectionStrategy(this.peerTracker));
-        final RIBImpl ribImpl = new RIBImpl( new RibId(RIB_ID), AS_NUMBER,
-            new BgpId(RIB_ID), null, this.ribExtension, this.serverDispatcher, this.codecsRegistry,
-            this.domBroker, getDataBroker(), this.policies, this.peerTracker, ImmutableList.of(this.ipv4tt), pathTables);
+        final RIBImpl ribImpl = new RIBImpl( new RibId(RIB_ID), AS_NUMBER,  new BgpId(RIB_ID), this.ribExtension,
+                this.serverDispatcher, this.codecsRegistry, this.domBroker, getDataBroker(), this.policies,
+                this.peerTracker, ImmutableList.of(this.ipv4tt), pathTables);
         ribImpl.instantiateServiceInstance();
         ribImpl.onGlobalContextUpdated(this.schemaContext);
 
@@ -238,13 +238,13 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         correct.setAttributes(ab.setLocalPref(new LocalPrefBuilder().setPref((long) 100).build()).build());
 
         bgpSession.handleMessage(correct.build());
-        verify(this.tx, times(4)).merge(eq(LogicalDatastoreType.OPERATIONAL),
+        verify(this.tx, times(2)).merge(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         bgpSession.handleMessage(wrongMessage.build());
-        verify(this.tx, times(4)).merge(eq(LogicalDatastoreType.OPERATIONAL),
+        verify(this.tx, times(2)).merge(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         bgpSession.handleMessage(new UpdateBuilder().build());
-        verify(this.tx, times(4)).merge(eq(LogicalDatastoreType.OPERATIONAL),
+        verify(this.tx, times(2)).merge(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         verify(this.tx).delete(eq(LogicalDatastoreType.OPERATIONAL), eq(PEER_PATH));
         verify(this.tx, times(0)).merge(eq(LogicalDatastoreType.OPERATIONAL), eq(TABLE_PATH),
@@ -254,10 +254,10 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
     @Test
     public void testUseCase1() {
         final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(TABLES_KEY,
-            BasePathSelectionModeFactory.createBestPathSelectionStrategy(this.peerTracker));
-        final RIBImpl ribImpl = new RIBImpl( new RibId(RIB_ID), AS_NUMBER,
-            new BgpId(RIB_ID), null, this.ribExtension, this.serverDispatcher, this.codecsRegistry,
-            this.domBroker, getDataBroker(), this.policies, this.peerTracker, ImmutableList.of(this.ipv4tt), pathTables);
+                BasePathSelectionModeFactory.createBestPathSelectionStrategy(this.peerTracker));
+        final RIBImpl ribImpl = new RIBImpl(new RibId(RIB_ID), AS_NUMBER, new BgpId(RIB_ID), this.ribExtension,
+                this.serverDispatcher, this.codecsRegistry, this.domBroker, getDataBroker(), this.policies,
+                this.peerTracker, ImmutableList.of(this.ipv4tt), pathTables);
         ribImpl.instantiateServiceInstance();
         ribImpl.onGlobalContextUpdated(this.schemaContext);
 
@@ -286,10 +286,10 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         correct.setAttributes(ab.setLocalPref(new LocalPrefBuilder().setPref((long) 100).build()).build());
 
         bgpSession.handleMessage(correct.build());
-        verify(this.tx, times(4)).merge(eq(LogicalDatastoreType.OPERATIONAL),
+        verify(this.tx, times(2)).merge(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         bgpSession.handleMessage(new UpdateBuilder().build());
-        verify(this.tx, times(5)).merge(eq(LogicalDatastoreType.OPERATIONAL),
+        verify(this.tx, times(3)).merge(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
 
         verify(this.tx).merge(eq(LogicalDatastoreType.OPERATIONAL), eq(TABLE_PATH),

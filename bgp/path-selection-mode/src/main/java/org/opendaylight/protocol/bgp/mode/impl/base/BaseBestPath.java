@@ -18,7 +18,7 @@ import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
 
 final class BaseBestPath extends AbstractBestPath {
-    private static final long PATH_ID = 0;
+    private static final short PATH_ID = 0;
     private final UnsignedInteger routerId;
 
     BaseBestPath(@Nonnull final UnsignedInteger routerId, @Nonnull final BestPathState state) {

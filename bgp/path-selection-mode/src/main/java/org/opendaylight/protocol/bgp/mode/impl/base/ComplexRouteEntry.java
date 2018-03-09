@@ -8,38 +8,35 @@
 package org.opendaylight.protocol.bgp.mode.impl.base;
 
 import com.google.common.primitives.UnsignedInteger;
-import org.opendaylight.protocol.bgp.mode.spi.RouteEntryUtil;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
-import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
+import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
+import org.opendaylight.yangtools.yang.binding.Identifier;
 
 final class ComplexRouteEntry extends BaseAbstractRouteEntry {
-    private static final MapEntryNode[] EMPTY_VALUES = new MapEntryNode[0];
-    private MapEntryNode[] values = EMPTY_VALUES;
+    private static final Route[] EMPTY_VALUES = new Route[0];
+    private Route[] values = EMPTY_VALUES;
 
     ComplexRouteEntry(final BGPPeerTracker peerTracker) {
         super(peerTracker);
     }
 
     @Override
-    public int addRoute(final UnsignedInteger routerId, final Long remotePathId, final NodeIdentifier attrII,
-            final NormalizedNode<?, ?> data) {
+    public int addRoute(final UnsignedInteger routerId, final long remotePathId, final Route route) {
         final OffsetMap oldMap = getOffsets();
-        final int offset = super.addRoute(routerId, remotePathId, attrII, data);
+        final int offset = super.addRoute(routerId, remotePathId, route);
         final OffsetMap newMap = getOffsets();
 
         if (!newMap.equals(oldMap)) {
             this.values = newMap.expand(oldMap, this.values, offset);
         }
 
-        newMap.setValue(this.values, offset, data);
+        newMap.setValue(this.values, offset, route);
         return offset;
     }
 
     @Override
-    public boolean removeRoute(final UnsignedInteger routerId, final Long remotePathId) {
+    public boolean removeRoute(final UnsignedInteger routerId, final long remotePathId) {
         final OffsetMap map = getOffsets();
         final int offset = map.offsetOf(routerId);
         this.values = map.removeValue(this.values, offset);
@@ -47,9 +44,10 @@ final class ComplexRouteEntry extends BaseAbstractRouteEntry {
     }
 
     @Override
-    public MapEntryNode createValue(final NodeIdentifierWithPredicates routeId, final BaseBestPath path) {
+    public Route createRoute(final RIBSupport ribSup, Identifier routeKey, final long pathId,
+            final BaseBestPath path) {
         final OffsetMap map = getOffsets();
-        final MapEntryNode mapValues = map.getValue(this.values, map.offsetOf(path.getRouterId()));
-        return RouteEntryUtil.createComplexRouteValue(routeId, path, mapValues);
+        final Route route = map.getValue(this.values, map.offsetOf(path.getRouterId()));
+        return ribSup.createRoute(route, routeKey, pathId, path.getAttributes());
     }
 }

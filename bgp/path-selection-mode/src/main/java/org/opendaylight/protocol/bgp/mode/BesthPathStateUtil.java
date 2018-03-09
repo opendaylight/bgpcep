@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.mode;
 
 import java.util.List;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.attributes.as.path.Segments;
 
 public final class BesthPathStateUtil {
@@ -16,15 +15,12 @@ public final class BesthPathStateUtil {
         throw new UnsupportedOperationException();
     }
 
-    public static AsNumber getPeerAs(final List<Segments> segments) {
-        if (segments.isEmpty()) {
-            return new AsNumber(0L);
-        }
+    public static long getPeerAs(final List<Segments> segments) {
         for (final Segments seg : segments) {
             if (seg.getAsSequence() != null && !seg.getAsSequence().isEmpty()) {
-                return segments.get(0).getAsSequence().get(0);
+                return segments.get(0).getAsSequence().get(0).getValue();
             }
         }
-        return new AsNumber(0L);
+        return 0;
     }
 }

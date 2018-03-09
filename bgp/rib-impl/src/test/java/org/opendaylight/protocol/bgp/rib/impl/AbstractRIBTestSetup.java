@@ -101,7 +101,6 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
     protected static final Class<? extends SubsequentAddressFamily> SAFI = UnicastSubsequentAddressFamily.class;
     protected static final TablesKey KEY = new TablesKey(AFI, SAFI);
     protected static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, "prefix").intern();
-    private static final ClusterIdentifier CLUSTER_ID = new ClusterIdentifier("128.0.0.1");
     private static final BgpId RIB_ID = new BgpId("127.0.0.1");
     private RIBImpl rib;
     private BindingCodecTreeFactory codecFactory;
@@ -181,12 +180,12 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         mockedMethods();
         doReturn(mock(ClusterSingletonServiceRegistration.class)).when(this.clusterSingletonServiceProvider)
                 .registerClusterSingletonService(any(ClusterSingletonService.class));
-        this.rib = new RIBImpl(new RibId("test"), new AsNumber(5L), RIB_ID, CLUSTER_ID, context,
-                this.dispatcher, codecsRegistry, this.dom, getDataBroker(), this.policies, this.peerTracker, localTables,
-                Collections.singletonMap(new TablesKey(AFI, SAFI),
-                        BasePathSelectionModeFactory.createBestPathSelectionStrategy(this.peerTracker)));
+        this.rib = new RIBImpl(new RibId("test"), new AsNumber(5L), RIB_ID, context,
+                this.dispatcher, codecsRegistry, this.dom, getDataBroker(), this.policies, this.peerTracker,
+                localTables, Collections.singletonMap(new TablesKey(AFI, SAFI),
+                BasePathSelectionModeFactory.createBestPathSelectionStrategy(this.peerTracker)));
         this.rib.onGlobalContextUpdated(schemaContext);
-        this.ribSupport = getRib().getRibSupportContext().getRIBSupportContext(KEY).getRibSupport();
+        this.ribSupport = getRib().getRibSupportContext().getRIBSupport(KEY);
     }
 
     @SuppressWarnings("unchecked")

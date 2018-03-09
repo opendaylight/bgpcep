@@ -10,35 +10,19 @@ package org.opendaylight.protocol.bgp.mode.spi;
 
 import static java.util.Objects.requireNonNull;
 
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import javax.annotation.Nonnull;
 import org.opendaylight.protocol.bgp.mode.api.BestPath;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
-import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.peer.AdjRibOut;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.Tables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Routes;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
-import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
-import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.opendaylight.yangtools.yang.binding.Identifier;
 
 public abstract class AbstractRouteEntry<T extends BestPath> implements RouteEntry {
-
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractRouteEntry.class);
-
-    protected static final NodeIdentifier ROUTES_IDENTIFIER = new NodeIdentifier(Routes.QNAME);
     protected final BGPPeerTracker peerTracker;
 
     public AbstractRouteEntry(final BGPPeerTracker peerTracker) {
@@ -46,62 +30,17 @@ public abstract class AbstractRouteEntry<T extends BestPath> implements RouteEnt
     }
 
     /**
-     * Create value.
-     *
-     * @param routeId router ID pathArgument
-     * @param path    BestPath
-     * @return MapEntryNode
+     * Create new Route with route jey created from passed parameters.
      */
-    public abstract MapEntryNode createValue(NodeIdentifierWithPredicates routeId, T path);
+    public abstract Route createRoute(@Nonnull RIBSupport ribSup, @Nonnull Identifier routeKey, long pathId, T path);
 
-    protected static void fillLocRib(final YangInstanceIdentifier routeTarget, final NormalizedNode<?, ?> value,
-            final DOMDataWriteTransaction tx) {
-        if (value != null) {
-            LOG.debug("Write route to LocRib {}", value);
-            tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget, value);
-        } else {
-            LOG.debug("Delete route from LocRib {}", routeTarget);
-            tx.delete(LogicalDatastoreType.OPERATIONAL, routeTarget);
-        }
-    }
-
-    protected static void update(final PeerId destPeer, final YangInstanceIdentifier routeTarget,
-            final ContainerNode effAttr, final NormalizedNode<?, ?> value, final RIBSupport ribSup,
-            final DOMDataWriteTransaction tx) {
-        if (!writeRoute(destPeer, routeTarget, effAttr, value, ribSup, tx)) {
-            deleteRoute(destPeer, routeTarget, tx);
-        }
-    }
-
-    protected static boolean writeRoute(final PeerId destPeer, final YangInstanceIdentifier routeTarget,
-            final ContainerNode effAttrib, final NormalizedNode<?, ?> value, final RIBSupport ribSup,
-            final DOMDataWriteTransaction tx) {
-        if (effAttrib != null && value != null) {
-            LOG.debug("Write route {} to peer AdjRibsOut {}", value, destPeer);
-            tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget, value);
-            tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget.node(ribSup.routeAttributesIdentifier()), effAttrib);
-            return true;
-        }
-        return false;
-    }
-
-    private static void deleteRoute(final PeerId destPeer, final YangInstanceIdentifier routeTarget,
-            final DOMDataWriteTransaction tx) {
-        LOG.trace("Removing {} from transaction for peer {}", routeTarget, destPeer);
-        tx.delete(LogicalDatastoreType.OPERATIONAL, routeTarget);
-    }
-
-    protected boolean filterRoutes(final PeerId rootPeer, final PeerId destPeer, final TablesKey localTK) {
-        final Peer peer = this.peerTracker.getPeer(destPeer);
-        return !(peer == null
-                || !peer.supportsTable(localTK)
-                || PeerRole.Internal.equals(peer.getRole()))
-                && !rootPeer.equals(destPeer);
-    }
-
-    protected static YangInstanceIdentifier getAdjRibOutYII(final RIBSupport ribSup,
-            final YangInstanceIdentifier rootPath, final PathArgument routeId, final TablesKey localTK) {
-        return ribSup.routePath(rootPath.node(AdjRibOut.QNAME).node(Tables.QNAME)
-                .node(RibSupportUtils.toYangTablesKey(localTK)).node(ROUTES_IDENTIFIER), routeId);
+    /**
+     * Returns true if route can be send.
+     */
+    protected boolean filterRoutes(final PeerId fromPeer, final Peer toPeer, final TablesKey localTK) {
+        return !(toPeer == null
+                || !toPeer.supportsTable(localTK)
+                || PeerRole.Internal.equals(toPeer.getRole()))
+                && !fromPeer.equals(toPeer.getPeerId());
     }
 }

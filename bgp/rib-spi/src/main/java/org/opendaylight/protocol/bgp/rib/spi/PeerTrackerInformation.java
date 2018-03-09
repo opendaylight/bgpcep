@@ -13,8 +13,9 @@ import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.SendReceive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
 /**
  * Exposes information required from peer to PeerTracker.
@@ -58,12 +59,13 @@ public interface PeerTrackerInformation {
     boolean supportsTable(@Nonnull TablesKey tableKey);
 
     /**
-     * Returns YangInstanceIdentifier pointing peer under specific rib.
+     * Creates Table Adj Rib Out Instance identifier.
      *
-     * @return Peer YangInstanceIdentifier
+     * @param tablekey table key
+     * @return instance identifier.
      */
     @Nonnull
-    YangInstanceIdentifier getPeerRibInstanceIdentifier();
+    KeyedInstanceIdentifier<Tables, TablesKey> getRibOutIId(@Nonnull TablesKey tablekey);
 
     /**
      * Returns Peer Role.
