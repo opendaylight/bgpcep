@@ -46,10 +46,11 @@ public final class StatementRegistry implements StatementRegistryConsumer, State
             final BGPRouteEntryExportParameters routeEntryExportParameters,
             final RouteAttributeContainer attributes,
             final Statement statement) {
-        if (!this.conditionsRegistry.matchExportConditions(
+        final Attributes att = attributes.getAttributes();
+        if (att == null || !this.conditionsRegistry.matchExportConditions(
                 routeEntryInfo,
                 routeEntryExportParameters,
-                attributes.getAttributes(),
+                att,
                 statement.getConditions())) {
             return attributes;
         }

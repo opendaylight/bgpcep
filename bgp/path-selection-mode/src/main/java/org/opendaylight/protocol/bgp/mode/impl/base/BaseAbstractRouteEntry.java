@@ -14,6 +14,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.mode.spi.AbstractRouteEntry;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
+import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryDependenciesContainer;
@@ -133,8 +134,9 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry<BaseBestPath> {
                 if (routeIdDest == null) {
                     routeIdDest = routeId;
                 }
+                final Peer fromPeer = this.peerTracker.getPeer(path.getPeerId());
                 final ContainerNode effAttrib = peerGroup.effectiveAttributes(
-                        this.peerTracker.getRole(path.getPeerId()), path.getAttributes());
+                        fromPeer.getRole(), path.getAttributes());
                 final YangInstanceIdentifier rootPath = entryInfo.getRootPath();
                 writeRoute(toPeerId, getAdjRibOutYII(ribSupport, rootPath, routeIdDest, localTK), effAttrib,
                         createValue(routeIdDest, path), ribSupport, tx);
@@ -198,8 +200,8 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry<BaseBestPath> {
         for (final PeerRole role : PeerRole.values()) {
             final PeerExportGroup peerGroup = peerPT.getPeerGroup(role);
             if (peerGroup != null) {
-                final ContainerNode effAttrib = peerGroup
-                        .effectiveAttributes(this.peerTracker.getRole(fromPeerId), attributes);
+                final Peer fromPeer = this.peerTracker.getPeer(fromPeerId);
+                final ContainerNode effAttrib = peerGroup.effectiveAttributes(fromPeer.getRole(), attributes);
                 peerGroup.forEach((destPeer, rootPath) -> {
                     if (!filterRoutes(fromPeerId, destPeer, localTK)) {
                         return;

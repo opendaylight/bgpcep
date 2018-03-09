@@ -19,6 +19,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.mode.spi.AbstractRouteEntry;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
+import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
@@ -180,8 +181,9 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry<AddPa
             final boolean destPeerSupAddPath, final AddPathBestPath path,
             final TablesKey localTK, final RIBSupport ribSup, final DOMDataWriteTransaction tx) {
         final NodeIdentifierWithPredicates routeId = entryInfo.getRouteId();
+        final Peer fromPeer = this.peerTracker.getPeer(path.getPeerId());
         final ContainerNode effectiveAttributes
-                = peerGroup.effectiveAttributes(this.peerTracker.getRole(path.getPeerId()), path.getAttributes());
+                = peerGroup.effectiveAttributes(fromPeer.getRole(), path.getAttributes());
         final NodeIdentifierWithPredicates routeIdAddPath = ribSup
                 .getRouteIdAddPath(destPeerSupAddPath ? path.getPathId() : NON_PATH_ID, routeId);
 
@@ -222,8 +224,9 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry<AddPa
         for (final PeerRole role : PeerRole.values()) {
             final PeerExportGroup peerGroup = peerPT.getPeerGroup(role);
             if (peerGroup != null) {
+                final Peer fromPeer = this.peerTracker.getPeer(routePeerId);
                 final ContainerNode effectiveAttributes = peerGroup.effectiveAttributes(
-                        this.peerTracker.getRole(routePeerId), attributes);
+                        fromPeer.getRole(), attributes);
                 peerGroup.forEach((destPeer, rootPath) -> {
                     final boolean destPeerSupAddPath = peerPT.isAddPathSupportedByPeer(destPeer);
                     if (filterRoutes(routePeerId, destPeer, localTK)

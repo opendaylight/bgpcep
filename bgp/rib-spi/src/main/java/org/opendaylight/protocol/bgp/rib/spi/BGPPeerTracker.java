@@ -16,7 +16,6 @@ import org.opendaylight.protocol.concepts.AbstractRegistration;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 
 /**
  * Tracks Peers under RIB.
@@ -40,46 +39,11 @@ public interface BGPPeerTracker {
     Peer getPeer(@Nonnull PeerId peerId);
 
     /**
-     * Returns if peer supports table.
-     *
-     * @param peerIdOfNewPeer PeerId
-     * @param tableKey        table
-     * @return true if Additional Path is supported for defined table
-     */
-    boolean supportsTable(@Nonnull PeerId peerIdOfNewPeer, @Nonnull TablesKey tableKey);
-
-    /**
      * Returns map of PeerId per PeerRole.
      * Role with none peerId will be filtered.
      *
-     * @return Returns map of PeerId group by PeerRole
+     * @return Returns map of Peer group by PeerRole
      */
     @Nonnull
-    Map<PeerRole, List<PeerId>> getRoles();
-
-    /**
-     * Returns if peer supports Additional Path for specific table.
-     *
-     * @param toPeer  peer ID
-     * @param localTK table
-     * @return true if Additional Path is supported for defined table
-     */
-    boolean supportsAddPathSupported(@Nonnull PeerId toPeer, @Nonnull TablesKey localTK);
-
-    /**
-     * Returns role of specific peer if present.
-     *
-     * @param peerId peer identifier
-     * @return role
-     */
-    @Nullable
-    PeerRole getRole(@Nonnull PeerId peerId);
-
-    /**
-     * Returns YangInstanceIdentifier pointing peer under specific rib.
-     *
-     * @return Peer YangInstanceIdentifier
-     */
-    @Nullable
-    YangInstanceIdentifier getPeerRibInstanceIdentifier(@Nonnull PeerId peerId);
+    List<Peer> getPeers();
 }

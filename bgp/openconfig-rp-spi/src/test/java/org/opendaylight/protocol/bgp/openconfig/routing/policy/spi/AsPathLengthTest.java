@@ -26,7 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.attributes.AsPathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.attributes.as.path.SegmentsBuilder;
 
-public class AsPathLength extends AbstractStatementRegistryTest {
+public class AsPathLengthTest extends AbstractStatementRegistryTest {
     @Mock
     private BGPRouteEntryExportParameters exportParameters;
     private List<Statement> basicStatements;

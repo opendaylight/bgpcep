@@ -44,12 +44,8 @@ public class BGPPeerTrackerMock {
         final PeerId pId = new PeerId("bgp://0.0.0.1");
         doReturn(this.peerMock).when(this.peerTracker).getPeer(eq(pId));
         doReturn(this.peerMock).when(this.peerTracker).getPeer(eq(PEER_ID));
-        doReturn(PeerRole.Ibgp).when(this.peerTracker).getRole(eq(pId));
-        doReturn(PeerRole.Ibgp).when(this.peerTracker).getRole(eq(PEER_ID));
         doReturn(true).when(this.peerMock).supportsTable(Mockito.eq(TABLES_KEY));
         doReturn(PeerRole.Ibgp).when(this.peerMock).getRole();
-
-
         doReturn(this.peerMock2).when(this.peerTracker).getPeer(eq(PEER_ID2));
         doReturn(false).when(this.peerMock2).supportsTable(Mockito.eq(TABLES_KEY));
     }

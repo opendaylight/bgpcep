@@ -15,7 +15,6 @@ import static org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.
 import static org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.ExportAttributeTestUtil.createPathInput;
 import static org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.ExportAttributeTestUtil.createPathInputWithAs;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,16 +23,10 @@ import org.opendaylight.protocol.bgp.openconfig.routing.policy.impl.PolicyRIBBas
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.RouteAttributeContainer;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.policy.definitions.policy.definition.statements.Statement;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv4.routes.ipv4.routes.Ipv4Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
-import org.opendaylight.yangtools.yang.common.QName;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 
 public class ExportDefaultStatementTest extends AbstractStatementRegistryConsumerTest {
-    private static final YangInstanceIdentifier.NodeIdentifierWithPredicates ROUTE_ID_PA
-            = new YangInstanceIdentifier.NodeIdentifierWithPredicates(Ipv4Route.QNAME,
-            ImmutableMap.of(QName.create(Ipv4Route.QNAME, "prefix").intern(), "1.2.3.4/32"));
     @Mock
     private BGPRouteEntryExportParameters exportParameters;
     private List<Statement> defaultExportStatements;
@@ -47,9 +40,6 @@ public class ExportDefaultStatementTest extends AbstractStatementRegistryConsume
         this.baseAttributes = new PolicyRIBBaseParametersImpl(LOCAL_AS, IPV4, CLUSTER);
     }
 
-    /**
-     * To eBGP.
-     */
     @Test
     public void testToEbgp() {
         final Statement statement = getStatementAndSetToRole("to-external", PeerRole.Ebgp);
@@ -63,10 +53,6 @@ public class ExportDefaultStatementTest extends AbstractStatementRegistryConsume
         assertApplyExportStatement(statement, PeerRole.RrClient, attributeContainer, expectedOutput);
     }
 
-
-    /**
-     * From iBGP To iBGP.
-     */
     @Test
     public void testFromInternalToInternal() {
         final Statement statement = getStatementAndSetToRole("from-internal-to-internal", PeerRole.Ibgp);
@@ -74,9 +60,6 @@ public class ExportDefaultStatementTest extends AbstractStatementRegistryConsume
         assertApplyExportStatement(statement, PeerRole.Ibgp, attributeContainer, null);
     }
 
-    /**
-     * From iBGP To iBGP.
-     */
     @Test
     public void testFromExternalToInternal() {
         final Statement statement = getStatementAndSetToRole("from-external-to-internal", PeerRole.Ibgp);
@@ -84,9 +67,6 @@ public class ExportDefaultStatementTest extends AbstractStatementRegistryConsume
         assertApplyExportStatement(statement, PeerRole.Ebgp, attributeContainer, attributeContainer.getAttributes());
     }
 
-    /**
-     * From Internal To iBGP.
-     */
     @Test
     public void testFromOdlInternalToInternal() {
         final Statement statement = getStatementAndSetToRole("from-odl-internal-to-internal-or-rr-client",
@@ -95,9 +75,6 @@ public class ExportDefaultStatementTest extends AbstractStatementRegistryConsume
         assertApplyExportStatement(statement, PeerRole.Internal, attributeContainer, createClusterInput());
     }
 
-    /**
-     * From RR-Client To iBGP.
-     */
     @Test
     public void testFromRRclientToInternal() {
         final Statement statement = getStatementAndSetToRole("from-rr-client-to-internal", PeerRole.Ibgp);
@@ -105,9 +82,6 @@ public class ExportDefaultStatementTest extends AbstractStatementRegistryConsume
         assertApplyExportStatement(statement, PeerRole.RrClient, attributeContainer, createInputWithOriginator());
     }
 
-    /**
-     * Any role To Internal.
-     */
     @Test
     public void testOdlInternal() {
         final Statement statement = getStatementAndSetToRole("to-odl-internal", PeerRole.Internal);
@@ -119,9 +93,6 @@ public class ExportDefaultStatementTest extends AbstractStatementRegistryConsume
         assertApplyExportStatement(statement, PeerRole.RrClient, attributeContainer, null);
     }
 
-    /**
-     * To RrClient.
-     */
     @Test
     public void testFromExternalToRRClient() {
         final Statement statement = getStatementAndSetToRole("from-external-to-route-reflector", PeerRole.RrClient);
@@ -129,9 +100,6 @@ public class ExportDefaultStatementTest extends AbstractStatementRegistryConsume
         assertApplyExportStatement(statement, PeerRole.Ebgp, attributeContainer, attributeContainer.getAttributes());
     }
 
-    /**
-     * To RrClient.
-     */
     @Test
     public void testFromInternalOrRRClientToRRClient() {
         final Statement statement = getStatementAndSetToRole("from-internal-or-rr-client-to-route-reflector",
@@ -143,11 +111,8 @@ public class ExportDefaultStatementTest extends AbstractStatementRegistryConsume
         assertApplyExportStatement(statement, PeerRole.RrClient, attributeContainer, expectedOutput);
     }
 
-    /**
-     * To RrClient.
-     */
     @Test
-    public void testFromOdlInternalRRClient() {
+    public void testFromOdlInternalToRRClient() {
         final Statement statement = getStatementAndSetToRole("from-odl-internal-to-internal-or-rr-client",
                 PeerRole.RrClient);
         final RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(createClusterInput());

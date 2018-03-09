@@ -21,7 +21,7 @@ public interface BGPRouteEntryExportParameters extends BGPRouteEntryImportParame
      * @return peer Id of announced Peer
      */
     @Nonnull
-    PeerId getToPeer();
+    PeerId getToPeerId();
 
     /**
      * Peer role of Peer destiny for route entry.

@@ -28,7 +28,6 @@ public class ImportDefaultStatementTest extends AbstractStatementRegistryConsume
     private List<Statement> defaultImportStatements;
     private PolicyRIBBaseParametersImpl baseAttributes;
 
-
     @Before
     @Override
     public void setUp() throws Exception {
@@ -37,9 +36,6 @@ public class ImportDefaultStatementTest extends AbstractStatementRegistryConsume
         this.baseAttributes = new PolicyRIBBaseParametersImpl(LOCAL_AS, IPV4, CLUSTER);
     }
 
-    /**
-     * From eBGP.
-     */
     @Test
     public void testFromEbgp() {
         final Statement statement = getStatement("from-external");
@@ -51,9 +47,6 @@ public class ImportDefaultStatementTest extends AbstractStatementRegistryConsume
                 ImportAttributeTestUtil.createOutput());
     }
 
-    /**
-     * From NonExternal.
-     */
     @Test
     public void testFromNonExternal() {
         final Statement statement = getStatement("from-non-external");
