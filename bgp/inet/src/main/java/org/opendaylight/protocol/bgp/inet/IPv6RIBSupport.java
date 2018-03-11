@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.inet;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
@@ -33,8 +32,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 /**
  * Class supporting IPv6 unicast RIBs.
  */
-final class IPv6RIBSupport extends AbstractIPRibSupport<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
-        .yang.bgp.inet.rev171207.bgp.rib.rib.peer.adj.rib.in.tables.routes.Ipv6RoutesCase, Ipv6Route, Ipv6RouteKey> {
+final class IPv6RIBSupport extends AbstractIPRibSupport<Ipv6Route, Ipv6RouteKey> {
 
     private static final IPv6RIBSupport SINGLETON = new IPv6RIBSupport();
 
@@ -73,11 +71,6 @@ final class IPv6RIBSupport extends AbstractIPRibSupport<org.opendaylight.yang.ge
     }
 
     @Override
-    public Ipv6RouteKey extractRouteKey(final Ipv6Route route) {
-        return route.getKey();
-    }
-
-    @Override
     public Ipv6Route createRoute(final Ipv6Route route, final Ipv6RouteKey routeKey, final PathId pathId,
             final Attributes attributes) {
         final Ipv6RouteBuilder builder;
@@ -87,16 +80,6 @@ final class IPv6RIBSupport extends AbstractIPRibSupport<org.opendaylight.yang.ge
             builder = new Ipv6RouteBuilder();
         }
         return builder.setPrefix(routeKey.getPrefix()).setPathId(pathId).setAttributes(attributes).build();
-    }
-
-    @Override
-    public Collection<Ipv6Route> changedRoutes(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
-            .bgp.inet.rev171207.bgp.rib.rib.peer.adj.rib.in.tables.routes.Ipv6RoutesCase routes) {
-        final Ipv6Routes routeCont = routes.getIpv6Routes();
-        if (routeCont == null) {
-            return Collections.emptyList();
-        }
-        return routeCont.getIpv6Route();
     }
 
     @Override

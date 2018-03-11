@@ -111,8 +111,8 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         return this.adjInTracker.getTotalPrefixesInstalled();
     }
 
-    private final class AdjInTracker implements PrefixesReceivedCounters, PrefixesInstalledCounters, AutoCloseable,
-            ClusteredDataTreeChangeListener<Tables> {
+    private static final class AdjInTracker implements PrefixesReceivedCounters, PrefixesInstalledCounters,
+            AutoCloseable, ClusteredDataTreeChangeListener<Tables> {
         private final RIBSupportContextRegistry registry;
         private final KeyedInstanceIdentifier<Peer, PeerKey> peerIId;
         private final InstanceIdentifier<EffectiveRibIn> effRibTables;
@@ -194,7 +194,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                         updateRoutes(tx, tk, ribSupport, tablePath, routesChangesContainer.getModifiedChildren());
                         break;
                     case WRITE:
-                        writeTable(tx, table.getDataAfter());
+                        writeTable(tx, table);
                         break;
                     default:
                         LOG.warn("Ignoring unhandled root {}", table);
@@ -213,14 +213,14 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                 final KeyedInstanceIdentifier<Tables, TablesKey> tablePath,
                 final Collection<DataObjectModification<? extends DataObject>> routeChanges) {
             for (final DataObjectModification<? extends DataObject> routeChanged : routeChanges) {
+                final Identifier routeKey
+                        = ((InstanceIdentifier.IdentifiableItem) routeChanged.getIdentifier()).getKey();
                 switch (routeChanged.getModificationType()) {
                     case SUBTREE_MODIFIED:
                     case WRITE:
-                        writeRoutes(tx, tableKey, ribSupport, tablePath, (Route) routeChanged.getDataAfter());
+                        writeRoutes(tx, tableKey, ribSupport, tablePath, routeKey, (Route) routeChanged.getDataAfter());
                         break;
                     case DELETE:
-                        final Route routeDeleted = (Route) routeChanged.getDataBefore();
-                        final Identifier routeKey = ribSupport.extractRouteKey(routeDeleted);
                         final InstanceIdentifier routeIID = ribSupport.createRouteIId(tablePath, routeKey);
                         tx.delete(LogicalDatastoreType.OPERATIONAL, routeIID);
                         break;
@@ -230,8 +230,8 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
         @SuppressWarnings("unchecked")
         private void writeRoutes(final WriteTransaction tx, final TablesKey tk, final RIBSupport ribSupport,
-                final KeyedInstanceIdentifier<Tables, TablesKey> tablePath, final Route route) {
-            final Identifier routeKey = ribSupport.extractRouteKey(route);
+                final KeyedInstanceIdentifier<Tables, TablesKey> tablePath, final Identifier routeKey,
+                final Route route) {
             final InstanceIdentifier routeIID = ribSupport.createRouteIId(tablePath, routeKey);
             CountersUtil.increment(this.prefixesReceived.get(tk), tk);
             final Optional<Attributes> effAtt = this.ribPolicies
@@ -246,11 +246,12 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         }
 
         @SuppressWarnings("unchecked")
-        private void writeTable(final WriteTransaction tx, final Tables table) {
-            if (table == null) {
+        private void writeTable(final WriteTransaction tx, final DataObjectModification<Tables> table) {
+            final Tables newTable = table.getDataAfter();
+            if (newTable == null) {
                 return;
             }
-            final TablesKey tableKey = table.getKey();
+            final TablesKey tableKey = newTable.getKey();
             final KeyedInstanceIdentifier<Tables, TablesKey> tablePath
                     = this.effRibTables.child(Tables.class, tableKey);
 
@@ -258,17 +259,21 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             LOG.trace("Create Empty table", tablePath);
             tx.put(LogicalDatastoreType.OPERATIONAL, tablePath, new TablesBuilder()
                     .setAfi(tableKey.getAfi()).setSafi(tableKey.getSafi())
-                    .setAttributes(table.getAttributes()).build());
+                    .setAttributes(newTable.getAttributes()).build());
 
             final RIBSupport ribSupport = this.registry.getRIBSupport(tableKey);
-            final Routes routes = table.getRoutes();
+            final Routes routes = newTable.getRoutes();
             if (routes == null) {
                 return;
             }
-            final Collection<? extends Route> changedRoutes = ribSupport.changedRoutes(routes);
-            for (final Route route : changedRoutes) {
-                writeRoutes(tx, tableKey, ribSupport, tablePath, route);
+
+            final DataObjectModification routesChangesContainer =
+                    table.getModifiedChildContainer(ribSupport.routesContainerClass());
+
+            if (routesChangesContainer == null) {
+                return;
             }
+            updateRoutes(tx, tableKey, ribSupport, tablePath, routesChangesContainer.getModifiedChildren());
         }
 
         @Override

@@ -22,8 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 
 public final class FlowspecIpv4RIBSupport extends AbstractFlowspecRIBSupport<SimpleFlowspecIpv4NlriParser,
-        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.bgp.rib.rib.peer
-                .adj.rib.in.tables.routes.FlowspecRoutesCase, FlowspecRoute, FlowspecRouteKey> {
+        FlowspecRoute, FlowspecRouteKey> {
 
     public FlowspecIpv4RIBSupport(SimpleFlowspecExtensionProviderContext context) {
         super(
@@ -43,11 +42,6 @@ public final class FlowspecIpv4RIBSupport extends AbstractFlowspecRIBSupport<Sim
         return new FlowspecIpv4RIBSupport(context);
     }
 
-    @Override
-    public FlowspecRouteKey extractRouteKey(final FlowspecRoute route) {
-        return route.getKey();
-    }
-
     @Nonnull
     @Override
     public FlowspecRoute createRoute(
@@ -62,16 +56,6 @@ public final class FlowspecIpv4RIBSupport extends AbstractFlowspecRIBSupport<Sim
             builder = new FlowspecRouteBuilder();
         }
         return builder.setRouteKey(routeKey.getRouteKey()).setPathId(pathId).setAttributes(attributes).build();
-    }
-
-    @Override
-    public Collection<FlowspecRoute> changedRoutes(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
-            .yang.bgp.flowspec.rev171207.bgp.rib.rib.peer.adj.rib.in.tables.routes.FlowspecRoutesCase routes) {
-        final FlowspecRoutes routesCont = routes.getFlowspecRoutes();
-        if (routesCont == null) {
-            return Collections.emptyList();
-        }
-        return routesCont.getFlowspecRoute();
     }
 
     @Override

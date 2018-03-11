@@ -29,8 +29,8 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 
 public abstract class AbstractFlowspecL3vpnRIBSupport
-        <T extends AbstractFlowspecL3vpnNlriParser, C extends Routes, R extends Route, S extends Identifier>
-        extends AbstractFlowspecRIBSupport<T, C, R, S> {
+        <T extends AbstractFlowspecL3vpnNlriParser, R extends Route, S extends Identifier>
+        extends AbstractFlowspecRIBSupport<T, R, S> {
     private final NodeIdentifier routeDistinguisherNID;
 
     protected AbstractFlowspecL3vpnRIBSupport(

@@ -48,8 +48,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class EvpnRibSupport extends AbstractRIBSupport<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
-        .bgp.evpn.rev171213.bgp.rib.rib.peer.adj.rib.in.tables.routes.EvpnRoutesCase, EvpnRoute, EvpnRouteKey> {
+final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoute, EvpnRouteKey> {
     private static final EvpnRibSupport SINGLETON = new EvpnRibSupport();
     private static final Logger LOG = LoggerFactory.getLogger(EvpnRibSupport.class);
     private static final QName ROUTE_KEY_QNAME = QName.create(EvpnRoute.QNAME, ROUTE_KEY).intern();
@@ -127,11 +126,6 @@ final class EvpnRibSupport extends AbstractRIBSupport<org.opendaylight.yang.gen.
     }
 
     @Override
-    public EvpnRouteKey extractRouteKey(final EvpnRoute route) {
-        return route.getKey();
-    }
-
-    @Override
     public EvpnRoute createRoute(final EvpnRoute route, final EvpnRouteKey routeKey, final PathId pathId,
             final Attributes attributes) {
         final EvpnRouteBuilder builder;
@@ -141,15 +135,5 @@ final class EvpnRibSupport extends AbstractRIBSupport<org.opendaylight.yang.gen.
             builder = new EvpnRouteBuilder();
         }
         return builder.setRouteKey(routeKey.getRouteKey()).setAttributes(attributes).build();
-    }
-
-    @Override
-    public Collection<EvpnRoute> changedRoutes(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
-            .yang.bgp.evpn.rev171213.bgp.rib.rib.peer.adj.rib.in.tables.routes.EvpnRoutesCase routes) {
-        final EvpnRoutes routeCont = routes.getEvpnRoutes();
-        if (routeCont == null) {
-            return Collections.emptyList();
-        }
-        return routeCont.getEvpnRoute();
     }
 }

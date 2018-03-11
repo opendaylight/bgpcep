@@ -52,8 +52,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-abstract class AbstractLabeledUnicastRIBSupport<C extends Routes>
-        extends MultiPathAbstractRIBSupport<C, LabeledUnicastRoute, LabeledUnicastRouteKey> {
+abstract class AbstractLabeledUnicastRIBSupport
+        extends MultiPathAbstractRIBSupport<LabeledUnicastRoute, LabeledUnicastRouteKey> {
     private static final NodeIdentifier PREFIX_TYPE_NID = NodeIdentifier.create(QName.create(CLabeledUnicastDestination.QNAME, "prefix").intern());
     private static final NodeIdentifier LABEL_STACK_NID = NodeIdentifier.create(QName.create(CLabeledUnicastDestination.QNAME, "label-stack").intern());
     private static final NodeIdentifier LV_NID = NodeIdentifier.create(QName.create(CLabeledUnicastDestination.QNAME, "label-value").intern());
@@ -165,11 +165,6 @@ abstract class AbstractLabeledUnicastRIBSupport<C extends Routes>
     @Override
     public final LabeledUnicastRouteKey createNewRouteKey(final PathId pathId, final LabeledUnicastRouteKey routeKey) {
         return new LabeledUnicastRouteKey(pathId, routeKey.getRouteKey());
-    }
-
-    @Override
-    public final LabeledUnicastRouteKey extractRouteKey(final LabeledUnicastRoute route) {
-        return route.getKey();
     }
 
     @Override

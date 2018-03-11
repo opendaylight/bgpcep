@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.inet;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
@@ -35,9 +34,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 /**
  * Class supporting IPv4 unicast RIBs.
  */
-final class IPv4RIBSupport extends AbstractIPRibSupport<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
-        .yang.bgp.inet.rev171207.bgp.rib.rib.peer.adj.rib.in.tables.routes.Ipv4RoutesCase,
-        Ipv4Route, Ipv4RouteKey> {
+final class IPv4RIBSupport extends AbstractIPRibSupport<Ipv4Route, Ipv4RouteKey> {
 
     private static final IPv4RIBSupport SINGLETON = new IPv4RIBSupport();
 
@@ -78,11 +75,6 @@ final class IPv4RIBSupport extends AbstractIPRibSupport<org.opendaylight.yang.ge
     }
 
     @Override
-    public Ipv4RouteKey extractRouteKey(final Ipv4Route route) {
-        return route.getKey();
-    }
-
-    @Override
     public Ipv4Route createRoute(final Ipv4Route route, final Ipv4RouteKey routeKey, final PathId pathId,
             final Attributes attributes) {
         final Ipv4RouteBuilder builder;
@@ -92,16 +84,6 @@ final class IPv4RIBSupport extends AbstractIPRibSupport<org.opendaylight.yang.ge
             builder = new Ipv4RouteBuilder();
         }
         return builder.setPrefix(routeKey.getPrefix()).setPathId(pathId).setAttributes(attributes).build();
-    }
-
-    @Override
-    public Collection<Ipv4Route> changedRoutes(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
-            .bgp.inet.rev171207.bgp.rib.rib.peer.adj.rib.in.tables.routes.Ipv4RoutesCase routes) {
-        final Ipv4Routes routeCont = routes.getIpv4Routes();
-        if (routeCont == null) {
-            return Collections.emptyList();
-        }
-        return routeCont.getIpv4Route();
     }
 
     @Override

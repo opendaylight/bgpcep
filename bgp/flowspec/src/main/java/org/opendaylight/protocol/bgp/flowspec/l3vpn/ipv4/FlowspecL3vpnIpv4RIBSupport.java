@@ -7,8 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.flowspec.l3vpn.ipv4;
 
-import java.util.Collection;
-import java.util.Collections;
 import org.opendaylight.protocol.bgp.flowspec.SimpleFlowspecExtensionProviderContext;
 import org.opendaylight.protocol.bgp.flowspec.l3vpn.AbstractFlowspecL3vpnRIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.bgp.rib.rib.loc.rib.tables.routes.FlowspecL3vpnIpv4RoutesCase;
@@ -22,8 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 
 public final class FlowspecL3vpnIpv4RIBSupport extends AbstractFlowspecL3vpnRIBSupport<FlowspecL3vpnIpv4NlriParser,
-        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.bgp.rib.rib.peer.adj
-                .rib.in.tables.routes.FlowspecL3vpnIpv4RoutesCase, FlowspecL3vpnRoute, FlowspecL3vpnRouteKey> {
+        FlowspecL3vpnRoute, FlowspecL3vpnRouteKey> {
 
     public FlowspecL3vpnIpv4RIBSupport(final SimpleFlowspecExtensionProviderContext context) {
         super(
@@ -48,11 +45,6 @@ public final class FlowspecL3vpnIpv4RIBSupport extends AbstractFlowspecL3vpnRIBS
     }
 
     @Override
-    public FlowspecL3vpnRouteKey extractRouteKey(final FlowspecL3vpnRoute route) {
-        return route.getKey();
-    }
-
-    @Override
     public FlowspecL3vpnRoute createRoute(
             final FlowspecL3vpnRoute route,
             final FlowspecL3vpnRouteKey routeKey,
@@ -65,15 +57,5 @@ public final class FlowspecL3vpnIpv4RIBSupport extends AbstractFlowspecL3vpnRIBS
             builder = new FlowspecL3vpnRouteBuilder();
         }
         return builder.setRouteKey(routeKey.getRouteKey()).setPathId(pathId).setAttributes(attributes).build();
-    }
-
-    @Override
-    public Collection<FlowspecL3vpnRoute> changedRoutes(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml
-            .ns.yang.bgp.flowspec.rev171207.bgp.rib.rib.peer.adj.rib.in.tables.routes.FlowspecL3vpnIpv4RoutesCase routes) {
-        final FlowspecL3vpnIpv4Routes routeCont = routes.getFlowspecL3vpnIpv4Routes();
-        if (routeCont == null) {
-            return Collections.emptyList();
-        }
-        return routeCont.getFlowspecL3vpnRoute();
     }
 }

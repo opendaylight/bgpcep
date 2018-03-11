@@ -36,8 +36,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Common {@link org.opendaylight.protocol.bgp.rib.spi.RIBSupport} class for IPv4 and IPv6 addresses.
  */
-abstract class AbstractIPRibSupport<C extends Routes, R extends Route, N extends Identifier>
-        extends MultiPathAbstractRIBSupport<C, R,N> {
+abstract class AbstractIPRibSupport<R extends Route, N extends Identifier> extends MultiPathAbstractRIBSupport<R,N> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractIPRibSupport.class);
     private final NodeIdentifier prefixNid;
     private final NodeIdentifier nlriRoutesList;

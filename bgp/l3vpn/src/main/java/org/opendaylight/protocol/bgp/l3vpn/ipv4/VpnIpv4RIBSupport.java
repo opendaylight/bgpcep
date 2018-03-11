@@ -7,8 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.l3vpn.ipv4;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import org.opendaylight.protocol.bgp.l3vpn.AbstractVpnRIBSupport;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
@@ -24,8 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 
-final class VpnIpv4RIBSupport extends AbstractVpnRIBSupport<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml
-        .ns.yang.bgp.vpn.ipv4.rev171207.bgp.rib.rib.peer.adj.rib.in.tables.routes.VpnIpv4RoutesCase> {
+final class VpnIpv4RIBSupport extends AbstractVpnRIBSupport {
     /**
      * Default constructor. Requires the QName of the container augmented under the routes choice
      * node in instantiations of the rib grouping. It is assumed that this container is defined by
@@ -59,15 +56,5 @@ final class VpnIpv4RIBSupport extends AbstractVpnRIBSupport<org.opendaylight.yan
         return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev171207.update
                 .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationVpnIpv4CaseBuilder()
                 .setVpnIpv4Destination(new VpnIpv4DestinationBuilder().setVpnDestination(dests).build()).build();
-    }
-
-    @Override
-    public Collection<VpnRoute> changedRoutes(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
-            .bgp.vpn.ipv4.rev171207.bgp.rib.rib.peer.adj.rib.in.tables.routes.VpnIpv4RoutesCase routes) {
-        final VpnIpv4Routes routeCont =  routes.getVpnIpv4Routes();
-        if (routeCont == null) {
-            return Collections.emptyList();
-        }
-        return routeCont.getVpnRoute();
     }
 }

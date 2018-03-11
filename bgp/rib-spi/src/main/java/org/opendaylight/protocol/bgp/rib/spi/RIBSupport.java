@@ -40,7 +40,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNod
  * to register an implementation of this class and the RIB core then calls into it
  * to inquire about details specific to that particular model.
  */
-public interface RIBSupport<C extends Routes, R extends Route, N extends Identifier> extends AddPathRibSupport {
+public interface RIBSupport<R extends Route, N extends Identifier> extends AddPathRibSupport {
     /**
      * Return the table-type-specific empty routes container, as augmented into the
      * bgp-rib model under /rib/tables/routes choice node. This needs to include all
@@ -199,15 +199,6 @@ public interface RIBSupport<C extends Routes, R extends Route, N extends Identif
     Class<? extends SubsequentAddressFamily> getSafi();
 
     /**
-     * Extract Routes from Route Container.
-     *
-     * @param routes container
-     * @return routes
-     */
-    @Nonnull
-    Collection<R> changedRoutes(@Nonnull C routes);
-
-    /**
      * Creates Route Rib out Peer InstanceIdentifier.
      *
      * @param ribOutIId   table InstanceIdentifier
@@ -218,14 +209,6 @@ public interface RIBSupport<C extends Routes, R extends Route, N extends Identif
     InstanceIdentifier<R> createRouteIId(
             @Nonnull KeyedInstanceIdentifier<Tables, TablesKey> ribOutIId,
             @Nonnull N newRouteKey);
-
-    /**
-     * Extract key route from route
-     *
-     * @param route container
-     * @return key
-     */
-    N extractRouteKey(R route);
 
     @Nonnull
     R createRoute(@Nullable R route, N routeKey, @Nullable PathId pathId, @Nonnull Attributes attributes);

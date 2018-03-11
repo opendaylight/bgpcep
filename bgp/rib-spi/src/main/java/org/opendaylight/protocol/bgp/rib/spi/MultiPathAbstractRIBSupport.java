@@ -25,8 +25,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 /**
  * Implements common methods for Advertisement of Multiple Paths on ribSupport.
  */
-public abstract class MultiPathAbstractRIBSupport<C extends Routes, R extends Route, N extends Identifier>
-        extends AbstractRIBSupport<C, R, N> {
+public abstract class MultiPathAbstractRIBSupport<R extends Route, N extends Identifier>
+        extends AbstractRIBSupport<R, N> {
     private final QName routeKeyQname;
     private final QName pathIdQname;
     private final NodeIdentifier pathIdNid;

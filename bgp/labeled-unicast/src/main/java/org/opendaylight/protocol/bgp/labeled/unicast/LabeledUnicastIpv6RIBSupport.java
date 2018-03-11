@@ -9,7 +9,6 @@
 package org.opendaylight.protocol.bgp.labeled.unicast;
 
 import java.util.Collection;
-import java.util.Collections;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev171207.LabeledUnicastSubsequentAddressFamily;
@@ -25,14 +24,12 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 
-final class LabeledUnicastIpv6RIBSupport extends AbstractLabeledUnicastRIBSupport<org.opendaylight.yang.gen.v1.urn
-        .opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev171207.bgp.rib.rib.peer.adj.rib.in.tables
-        .routes.LabeledUnicastIpv6RoutesCase> {
+final class LabeledUnicastIpv6RIBSupport extends AbstractLabeledUnicastRIBSupport {
     private static final LabeledUnicastIpv6RIBSupport SINGLETON = new LabeledUnicastIpv6RIBSupport();
 
     private LabeledUnicastIpv6RIBSupport() {
         super(LabeledUnicastIpv6RoutesCase.class, LabeledUnicastIpv6Routes.class, LabeledUnicastRoute.class,
-            Ipv4AddressFamily.class, LabeledUnicastSubsequentAddressFamily.class, DestinationIpv6LabeledUnicast.QNAME);
+                Ipv4AddressFamily.class, LabeledUnicastSubsequentAddressFamily.class, DestinationIpv6LabeledUnicast.QNAME);
     }
 
     static LabeledUnicastIpv6RIBSupport getInstance() {
@@ -42,16 +39,16 @@ final class LabeledUnicastIpv6RIBSupport extends AbstractLabeledUnicastRIBSuppor
     @Override
     protected DestinationType buildDestination(final Collection<MapEntryNode> routes) {
         return new DestinationIpv6LabeledUnicastCaseBuilder().setDestinationIpv6LabeledUnicast(
-            new DestinationIpv6LabeledUnicastBuilder().setCLabeledUnicastDestination(extractRoutes(routes)).build()).build();
+                new DestinationIpv6LabeledUnicastBuilder().setCLabeledUnicastDestination(extractRoutes(routes)).build()).build();
     }
 
     @Override
     protected DestinationType buildWithdrawnDestination(final Collection<MapEntryNode> routes) {
         return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev171207.update.attributes.mp.unreach
-            .nlri.withdrawn.routes.destination.type.DestinationIpv6LabeledUnicastCaseBuilder().setDestinationIpv6LabeledUnicast(
-            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev171207.update.attributes.mp
-                .unreach.nlri.withdrawn.routes.destination.type.destination.ipv6.labeled.unicast._case.DestinationIpv6LabeledUnicastBuilder()
-                .setCLabeledUnicastDestination(extractRoutes(routes)).build()).build();
+                .nlri.withdrawn.routes.destination.type.DestinationIpv6LabeledUnicastCaseBuilder().setDestinationIpv6LabeledUnicast(
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev171207.update.attributes.mp
+                        .unreach.nlri.withdrawn.routes.destination.type.destination.ipv6.labeled.unicast._case.DestinationIpv6LabeledUnicastBuilder()
+                        .setCLabeledUnicastDestination(extractRoutes(routes)).build()).build();
     }
 
     @Override
@@ -62,15 +59,5 @@ final class LabeledUnicastIpv6RIBSupport extends AbstractLabeledUnicastRIBSuppor
             return new IpPrefix(new Ipv6Prefix(prefixType));
         }
         return null;
-    }
-
-    @Override
-    public Collection<LabeledUnicastRoute> changedRoutes(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml
-            .ns.yang.bgp.labeled.unicast.rev171207.bgp.rib.rib.peer.adj.rib.in.tables.routes.LabeledUnicastIpv6RoutesCase routes) {
-        final LabeledUnicastIpv6Routes routeCont =  routes.getLabeledUnicastIpv6Routes();
-        if (routeCont == null) {
-            return Collections.emptyList();
-        }
-        return routeCont.getLabeledUnicastRoute();
     }
 }

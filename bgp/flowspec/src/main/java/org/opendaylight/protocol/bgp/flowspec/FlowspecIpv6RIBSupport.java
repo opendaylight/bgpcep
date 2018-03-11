@@ -7,8 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.flowspec;
 
-import java.util.Collection;
-import java.util.Collections;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.FlowspecSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.bgp.rib.rib.loc.rib.tables.routes.FlowspecIpv6RoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.flowspec.destination.ipv6.DestinationFlowspec;
@@ -21,8 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 
 public final class FlowspecIpv6RIBSupport extends AbstractFlowspecRIBSupport<SimpleFlowspecIpv6NlriParser,
-        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.bgp.rib.rib.peer.adj
-                .rib.in.tables.routes.FlowspecIpv6RoutesCase, FlowspecRoute, FlowspecRouteKey> {
+        FlowspecRoute, FlowspecRouteKey> {
 
     public FlowspecIpv6RIBSupport(SimpleFlowspecExtensionProviderContext context) {
         super(
@@ -43,11 +40,6 @@ public final class FlowspecIpv6RIBSupport extends AbstractFlowspecRIBSupport<Sim
     }
 
     @Override
-    public FlowspecRouteKey extractRouteKey(final FlowspecRoute route) {
-        return route.getKey();
-    }
-
-    @Override
     public FlowspecRoute createRoute(final FlowspecRoute route, final FlowspecRouteKey routeKey,
             final PathId pathId, final Attributes attributes) {
         final FlowspecRouteBuilder builder;
@@ -57,16 +49,6 @@ public final class FlowspecIpv6RIBSupport extends AbstractFlowspecRIBSupport<Sim
             builder = new FlowspecRouteBuilder();
         }
         return builder.setRouteKey(routeKey.getRouteKey()).setPathId(pathId).setAttributes(attributes).build();
-    }
-
-    @Override
-    public Collection<FlowspecRoute> changedRoutes(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
-            .yang.bgp.flowspec.rev171207.bgp.rib.rib.peer.adj.rib.in.tables.routes.FlowspecIpv6RoutesCase routes) {
-        final FlowspecIpv6Routes routesCont = routes.getFlowspecIpv6Routes();
-        if (routesCont == null) {
-            return Collections.emptyList();
-        }
-        return routesCont.getFlowspecRoute();
     }
 
     @Override

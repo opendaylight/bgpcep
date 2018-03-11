@@ -12,7 +12,6 @@ import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -49,9 +48,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class LinkstateRIBSupport extends AbstractRIBSupport<org.opendaylight.yang.gen.v1.urn.opendaylight.params
-        .xml.ns.yang.bgp.linkstate.rev171207.bgp.rib.rib.peer.adj.rib.in.tables.routes.LinkstateRoutesCase,
-        LinkstateRoute, LinkstateRouteKey> {
+public final class LinkstateRIBSupport extends AbstractRIBSupport<LinkstateRoute, LinkstateRouteKey> {
     private static final Logger LOG = LoggerFactory.getLogger(LinkstateRIBSupport.class);
     private static final QName ROUTE_KEY_QNAME = QName.create(LinkstateRoute.QNAME, ROUTE_KEY).intern();
     private static final LinkstateRIBSupport SINGLETON = new LinkstateRIBSupport();
@@ -138,11 +135,6 @@ public final class LinkstateRIBSupport extends AbstractRIBSupport<org.opendaylig
     }
 
     @Override
-    public LinkstateRouteKey extractRouteKey(final LinkstateRoute route) {
-        return route.getKey();
-    }
-
-    @Override
     public LinkstateRoute createRoute(
             final LinkstateRoute route,
             final LinkstateRouteKey routeKey,
@@ -155,15 +147,5 @@ public final class LinkstateRIBSupport extends AbstractRIBSupport<org.opendaylig
             builder = new LinkstateRouteBuilder();
         }
         return builder.setRouteKey(routeKey.getRouteKey()).setAttributes(attributes).build();
-    }
-
-    @Override
-    public Collection<LinkstateRoute> changedRoutes(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
-            .yang.bgp.linkstate.rev171207.bgp.rib.rib.peer.adj.rib.in.tables.routes.LinkstateRoutesCase routes) {
-        final LinkstateRoutes routeCont = routes.getLinkstateRoutes();
-        if (routeCont == null) {
-            return Collections.emptyList();
-        }
-        return routeCont.getLinkstateRoute();
     }
 }
