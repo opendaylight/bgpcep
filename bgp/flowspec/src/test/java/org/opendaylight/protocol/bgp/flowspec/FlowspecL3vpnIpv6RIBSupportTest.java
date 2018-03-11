@@ -143,7 +143,7 @@ public class FlowspecL3vpnIpv6RIBSupportTest extends AbstractRIBSupportTest {
     public void testRouteIdAddPath() {
         final FlowspecL3vpnRouteKey oldRouteKey
                 = new FlowspecL3vpnRouteKey(new PathId(10L), ROUTE_KEY.getRouteKey());
-        Assert.assertEquals(ROUTE_KEY, RIB_SUPPORT.createNewRouteKey(AbstractRIBSupportTest.PATH_ID, oldRouteKey));
+        Assert.assertEquals(ROUTE_KEY, RIB_SUPPORT.createNewRouteKey(1L, oldRouteKey));
     }
 
     @Test

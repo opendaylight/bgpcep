@@ -151,7 +151,7 @@ public class LabeledUnicastIpv6RIBSupportTest extends AbstractRIBSupportTest {
     public void testRouteIdAddPath() {
         final LabeledUnicastRouteKey oldKey
                 = new LabeledUnicastRouteKey(new PathId(100L), ROUTE_KEY.getRouteKey());
-        Assert.assertEquals(ROUTE_KEY, RIB_SUPPORT.createNewRouteKey(AbstractRIBSupportTest.PATH_ID, oldKey));
+        Assert.assertEquals(ROUTE_KEY, RIB_SUPPORT.createNewRouteKey(1L, oldKey));
     }
 
     @Test

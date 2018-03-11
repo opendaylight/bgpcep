@@ -135,7 +135,7 @@ public final class IPv6RIBSupportTest extends AbstractRIBSupportTest {
     public void testRouteIdAddPath() {
         final Ipv6RouteKey expected = new Ipv6RouteKey(new PathId(1L), PREFIX);
         final Ipv6RouteKey oldKey = new Ipv6RouteKey(new PathId(100L), PREFIX);
-        assertEquals(expected, RIB_SUPPORT.createNewRouteKey(AbstractRIBSupportTest.PATH_ID, oldKey));
+        assertEquals(expected, RIB_SUPPORT.createNewRouteKey(expected.getPathId().getValue(), oldKey));
     }
 
     @Test
