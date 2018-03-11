@@ -78,7 +78,7 @@ public final class MultiPathAbstractTest extends MultiPathAbstractRIBSupport {
     }
 
     @Override
-    public Route createRoute(final Route route, final Identifier routeKey, final PathId pathId
+    public Route createRoute(final Route route, final Identifier routeKey, final long pathId
             , final Attributes attributes) {
         return null;
     }

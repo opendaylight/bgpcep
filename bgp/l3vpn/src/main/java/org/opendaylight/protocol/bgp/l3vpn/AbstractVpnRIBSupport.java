@@ -17,7 +17,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.labeled.unicast.LUNlriParser;
@@ -113,15 +112,13 @@ public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport<VpnRoute,
 
     protected abstract DestinationType getWithdrawnDestinationType(List<VpnDestination> dests);
 
-    @Nonnull
     @Override
-    protected DestinationType buildDestination(@Nonnull final Collection<MapEntryNode> routes) {
+    protected DestinationType buildDestination(final Collection<MapEntryNode> routes) {
         return getAdvertisedDestinationType(extractRoutes(routes));
     }
 
-    @Nonnull
     @Override
-    protected DestinationType buildWithdrawnDestination(@Nonnull final Collection<MapEntryNode> routes) {
+    protected DestinationType buildWithdrawnDestination(final Collection<MapEntryNode> routes) {
         return getWithdrawnDestinationType(extractRoutes(routes));
     }
 
@@ -129,13 +126,11 @@ public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport<VpnRoute,
         return routes.stream().map(this::extractVpnDestination).collect(Collectors.toList());
     }
 
-    @Nonnull
     @Override
     public ImmutableCollection<Class<? extends DataObject>> cacheableAttributeObjects() {
         return ImmutableSet.of();
     }
 
-    @Nonnull
     @Override
     public ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects() {
         return ImmutableSet.of();
@@ -193,17 +188,14 @@ public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport<VpnRoute,
     }
 
     @Override
-    public final VpnRoute createRoute(
-            final VpnRoute route,
-            final VpnRouteKey vpnRouteKey,
-            final PathId pathId,
-            final Attributes attributes) {
+    public final VpnRoute createRoute(final VpnRoute route, final VpnRouteKey vpnRouteKey,
+            final long pathId, final Attributes attributes) {
         final VpnRouteBuilder builder;
         if (route != null) {
             builder = new VpnRouteBuilder(route);
         } else {
             builder = new VpnRouteBuilder();
         }
-        return builder.setRouteKey(vpnRouteKey.getRouteKey()).setPathId(pathId).setAttributes(attributes).build();
+        return builder.setRouteKey(vpnRouteKey.getRouteKey()).setPathId(new PathId(pathId)).setAttributes(attributes).build();
     }
 }

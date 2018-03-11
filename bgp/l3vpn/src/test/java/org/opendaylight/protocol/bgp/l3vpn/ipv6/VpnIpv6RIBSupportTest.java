@@ -14,6 +14,7 @@ import static org.opendaylight.protocol.bgp.l3vpn.ipv6.VpnIpv6NlriParserTest.DIS
 import static org.opendaylight.protocol.bgp.l3vpn.ipv6.VpnIpv6NlriParserTest.IPV6PREFIX;
 import static org.opendaylight.protocol.bgp.l3vpn.ipv6.VpnIpv6NlriParserTest.IPV6_VPN;
 import static org.opendaylight.protocol.bgp.l3vpn.ipv6.VpnIpv6NlriParserTest.LABEL_STACK;
+import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATHID;
 import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
 
 import com.google.common.collect.ImmutableSet;
@@ -23,7 +24,6 @@ import java.util.Collections;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupportTest;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.Attributes1;
@@ -61,7 +61,7 @@ public class VpnIpv6RIBSupportTest extends AbstractRIBSupportTest {
                     .setVpnIpv6Destination(new VpnIpv6DestinationBuilder()
                             .setVpnDestination(Collections.singletonList(IPV6_VPN)).build()).build();
     private static final VpnRouteKey ROUTE_KEY = new VpnRouteKey("cAABAQIDBAECIAEjRVaJ");
-    private static final VpnRoute ROUTE = new VpnRouteBuilder().setPathId(new PathId(NON_PATH_ID))
+    private static final VpnRoute ROUTE = new VpnRouteBuilder().setPathId(NON_PATHID)
             .setAttributes(ATTRIBUTES).setPrefix(IPV6PREFIX)
             .setLabelStack(LABEL_STACK).setRouteDistinguisher(DISTINGUISHER).setKey(ROUTE_KEY).build();
     private static final VpnIpv6Routes ROUTES = new VpnIpv6RoutesBuilder()
@@ -89,7 +89,7 @@ public class VpnIpv6RIBSupportTest extends AbstractRIBSupportTest {
     }
 
     @Test
-    public void testEmptyRoute() throws Exception {
+    public void testEmptyRoute() {
         final Routes empty = new VpnIpv6RoutesCaseBuilder().setVpnIpv6Routes(new VpnIpv6RoutesBuilder()
                 .setVpnRoute(Collections.emptyList()).build()).build();
         final ChoiceNode emptyRoutes = RIB_SUPPORT.emptyRoutes();
@@ -129,7 +129,7 @@ public class VpnIpv6RIBSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testRouteIdAddPath() {
-        Assert.assertNull(RIB_SUPPORT.createNewRouteKey(AbstractRIBSupportTest.PATH_ID, null));
+        Assert.assertNull(RIB_SUPPORT.createNewRouteKey(1L, null));
     }
 
     @Test
