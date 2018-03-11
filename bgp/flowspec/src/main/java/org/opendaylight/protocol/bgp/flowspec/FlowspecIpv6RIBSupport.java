@@ -41,18 +41,19 @@ public final class FlowspecIpv6RIBSupport extends AbstractFlowspecRIBSupport<Sim
 
     @Override
     public FlowspecRoute createRoute(final FlowspecRoute route, final FlowspecRouteKey routeKey,
-            final PathId pathId, final Attributes attributes) {
+            final long pathId, final Attributes attributes) {
         final FlowspecRouteBuilder builder;
         if (route != null) {
             builder = new FlowspecRouteBuilder(route);
         } else {
             builder = new FlowspecRouteBuilder();
         }
-        return builder.setRouteKey(routeKey.getRouteKey()).setPathId(pathId).setAttributes(attributes).build();
+        return builder.setRouteKey(routeKey.getRouteKey())
+                .setPathId(new PathId(pathId)).setAttributes(attributes).build();
     }
 
     @Override
-    public FlowspecRouteKey createNewRouteKey(final PathId pathId, final FlowspecRouteKey routeKey) {
-        return new FlowspecRouteKey(pathId, routeKey.getRouteKey());
+    public FlowspecRouteKey createNewRouteKey(final long pathId, final FlowspecRouteKey routeKey) {
+        return new FlowspecRouteKey(new PathId(pathId), routeKey.getRouteKey());
     }
 }

@@ -7,9 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.flowspec;
 
-import java.util.Collection;
-import java.util.Collections;
-import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.FlowspecSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.bgp.rib.rib.loc.rib.tables.routes.FlowspecRoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.flowspec.destination.ipv4.DestinationFlowspec;
@@ -42,24 +39,21 @@ public final class FlowspecIpv4RIBSupport extends AbstractFlowspecRIBSupport<Sim
         return new FlowspecIpv4RIBSupport(context);
     }
 
-    @Nonnull
     @Override
-    public FlowspecRoute createRoute(
-            final FlowspecRoute route,
-            final FlowspecRouteKey routeKey,
-            final PathId pathId,
-            final Attributes attributes) {
+    public FlowspecRoute createRoute(final FlowspecRoute route, final FlowspecRouteKey routeKey,
+            final long pathId, final Attributes attributes) {
         final FlowspecRouteBuilder builder;
         if (route != null) {
             builder = new FlowspecRouteBuilder(route);
         } else {
             builder = new FlowspecRouteBuilder();
         }
-        return builder.setRouteKey(routeKey.getRouteKey()).setPathId(pathId).setAttributes(attributes).build();
+        return builder.setRouteKey(routeKey.getRouteKey()).setPathId(new PathId(pathId))
+                .setAttributes(attributes).build();
     }
 
     @Override
-    public FlowspecRouteKey createNewRouteKey(final PathId pathId, final FlowspecRouteKey routeKey) {
-        return new FlowspecRouteKey(pathId, routeKey.getRouteKey());
+    public FlowspecRouteKey createNewRouteKey(final long pathId, final FlowspecRouteKey routeKey) {
+        return new FlowspecRouteKey(new PathId(pathId), routeKey.getRouteKey());
     }
 }

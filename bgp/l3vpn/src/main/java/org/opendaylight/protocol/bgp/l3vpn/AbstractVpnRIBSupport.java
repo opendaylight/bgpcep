@@ -196,7 +196,7 @@ public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport<VpnRoute,
     public final VpnRoute createRoute(
             final VpnRoute route,
             final VpnRouteKey vpnRouteKey,
-            final PathId pathId,
+            final long pathId,
             final Attributes attributes) {
         final VpnRouteBuilder builder;
         if (route != null) {
@@ -204,6 +204,7 @@ public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport<VpnRoute,
         } else {
             builder = new VpnRouteBuilder();
         }
-        return builder.setRouteKey(vpnRouteKey.getRouteKey()).setPathId(pathId).setAttributes(attributes).build();
+        return builder.setRouteKey(vpnRouteKey.getRouteKey()).setPathId(new PathId(pathId))
+                .setAttributes(attributes).build();
     }
 }

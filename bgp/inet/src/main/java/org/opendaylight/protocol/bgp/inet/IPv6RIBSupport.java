@@ -71,7 +71,7 @@ final class IPv6RIBSupport extends AbstractIPRibSupport<Ipv6Route, Ipv6RouteKey>
     }
 
     @Override
-    public Ipv6Route createRoute(final Ipv6Route route, final Ipv6RouteKey routeKey, final PathId pathId,
+    public Ipv6Route createRoute(final Ipv6Route route, final Ipv6RouteKey routeKey, final long pathId,
             final Attributes attributes) {
         final Ipv6RouteBuilder builder;
         if (route != null) {
@@ -79,11 +79,11 @@ final class IPv6RIBSupport extends AbstractIPRibSupport<Ipv6Route, Ipv6RouteKey>
         } else {
             builder = new Ipv6RouteBuilder();
         }
-        return builder.setPrefix(routeKey.getPrefix()).setPathId(pathId).setAttributes(attributes).build();
+        return builder.setPrefix(routeKey.getPrefix()).setPathId(new PathId(pathId)).setAttributes(attributes).build();
     }
 
     @Override
-    public Ipv6RouteKey createNewRouteKey(final PathId pathId, final Ipv6RouteKey routeKey) {
-        return new Ipv6RouteKey(pathId, routeKey.getPrefix());
+    public Ipv6RouteKey createNewRouteKey(final long pathId, final Ipv6RouteKey routeKey) {
+        return new Ipv6RouteKey(new PathId(pathId), routeKey.getPrefix());
     }
 }

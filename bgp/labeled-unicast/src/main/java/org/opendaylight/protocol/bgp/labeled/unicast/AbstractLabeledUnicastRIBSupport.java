@@ -135,7 +135,8 @@ abstract class AbstractLabeledUnicastRIBSupport
      * @param route DataContainer
      * @return LabeledUnicastDestination Object
      */
-    private CLabeledUnicastDestination extractCLabeledUnicastDestination(final DataContainerNode<? extends PathArgument> route) {
+    private CLabeledUnicastDestination extractCLabeledUnicastDestination(
+            final DataContainerNode<? extends PathArgument> route) {
         final CLabeledUnicastDestinationBuilder builder = new CLabeledUnicastDestinationBuilder();
         builder.setPrefix(extractPrefix(route, PREFIX_TYPE_NID));
         builder.setLabelStack(extractLabel(route, LABEL_STACK_NID, LV_NID));
@@ -143,10 +144,11 @@ abstract class AbstractLabeledUnicastRIBSupport
         return builder.build();
     }
 
-    protected abstract IpPrefix extractPrefix(final DataContainerNode<? extends PathArgument> route, final NodeIdentifier prefixTypeNid);
+    protected abstract IpPrefix extractPrefix(final DataContainerNode<? extends PathArgument> route,
+            final NodeIdentifier prefixTypeNid);
 
-    public static List<LabelStack> extractLabel(final DataContainerNode<? extends PathArgument> route, final NodeIdentifier labelStackNid,
-        final NodeIdentifier labelValueNid) {
+    public static List<LabelStack> extractLabel(final DataContainerNode<? extends PathArgument> route,
+            final NodeIdentifier labelStackNid, final NodeIdentifier labelValueNid) {
         final List<LabelStack> labels = new ArrayList<>();
         final Optional<DataContainerChild<? extends PathArgument, ?>> labelStacks = route.getChild(labelStackNid);
         if (labelStacks.isPresent()) {
@@ -163,21 +165,20 @@ abstract class AbstractLabeledUnicastRIBSupport
     }
 
     @Override
-    public final LabeledUnicastRouteKey createNewRouteKey(final PathId pathId, final LabeledUnicastRouteKey routeKey) {
-        return new LabeledUnicastRouteKey(pathId, routeKey.getRouteKey());
+    public final LabeledUnicastRouteKey createNewRouteKey(final long pathId, final LabeledUnicastRouteKey routeKey) {
+        return new LabeledUnicastRouteKey(new PathId(pathId), routeKey.getRouteKey());
     }
 
     @Override
-    public final LabeledUnicastRoute createRoute(final LabeledUnicastRoute route,
-            final LabeledUnicastRouteKey routeKey,
-            final PathId pathId,
-            final Attributes attributes) {
+    public final LabeledUnicastRoute createRoute(final LabeledUnicastRoute route, final LabeledUnicastRouteKey routeKey,
+            final long pathId, final Attributes attributes) {
         final LabeledUnicastRouteBuilder builder;
         if (route != null) {
             builder = new LabeledUnicastRouteBuilder(route);
         } else {
             builder = new LabeledUnicastRouteBuilder();
         }
-        return builder.setRouteKey(routeKey.getRouteKey()).setPathId(pathId).setAttributes(attributes).build();
+        return builder.setRouteKey(routeKey.getRouteKey()).setPathId(new PathId(pathId))
+                .setAttributes(attributes).build();
     }
 }

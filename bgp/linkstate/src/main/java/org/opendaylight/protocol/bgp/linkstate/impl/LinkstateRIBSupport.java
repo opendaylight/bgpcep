@@ -31,7 +31,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev171207.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev171207.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.linkstate._case.DestinationLinkstate;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev171207.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.destination.DestinationType;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -64,6 +63,18 @@ public final class LinkstateRIBSupport extends AbstractRIBSupport<LinkstateRoute
         return SINGLETON;
     }
 
+    private static NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode linkstate) {
+        final ByteBuf buffer = Unpooled.buffer();
+        final CLinkstateDestination cLinkstateDestination = LinkstateNlriParser.extractLinkstateDestination(linkstate);
+        SimpleNlriTypeRegistry.getInstance().serializeNlriType(cLinkstateDestination, buffer);
+
+        return new NodeIdentifierWithPredicates(LinkstateRoute.QNAME, ROUTE_KEY_QNAME, ByteArray.readAllBytes(buffer));
+    }
+
+    private static List<CLinkstateDestination> extractRoutes(final Collection<MapEntryNode> routes) {
+        return routes.stream().map(LinkstateNlriParser::extractLinkstateDestination).collect(Collectors.toList());
+    }
+
     @Override
     public ImmutableCollection<Class<? extends DataObject>> cacheableAttributeObjects() {
         return ImmutableSet.of();
@@ -81,7 +92,7 @@ public final class LinkstateRIBSupport extends AbstractRIBSupport<LinkstateRoute
 
     @Override
     protected void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
-        final ContainerNode destination, final ContainerNode attributes, final ApplyRoute function) {
+            final ContainerNode destination, final ContainerNode attributes, final ApplyRoute function) {
         if (destination != null) {
             final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes
                     = destination.getChild(this.nlriRoutesList);
@@ -91,7 +102,7 @@ public final class LinkstateRIBSupport extends AbstractRIBSupport<LinkstateRoute
 
     private void processRoute(final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes,
             final YangInstanceIdentifier routesPath,
-        final ContainerNode attributes, final ApplyRoute function, final DOMDataWriteTransaction tx) {
+            final ContainerNode attributes, final ApplyRoute function, final DOMDataWriteTransaction tx) {
         if (maybeRoutes.isPresent()) {
             final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
             if (routes instanceof UnkeyedListNode) {
@@ -106,18 +117,10 @@ public final class LinkstateRIBSupport extends AbstractRIBSupport<LinkstateRoute
         }
     }
 
-    private static NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode linkstate) {
-        final ByteBuf buffer = Unpooled.buffer();
-        final CLinkstateDestination cLinkstateDestination = LinkstateNlriParser.extractLinkstateDestination(linkstate);
-        SimpleNlriTypeRegistry.getInstance().serializeNlriType(cLinkstateDestination, buffer);
-
-        return new NodeIdentifierWithPredicates(LinkstateRoute.QNAME, ROUTE_KEY_QNAME, ByteArray.readAllBytes(buffer));
-    }
-
     @Override
     protected DestinationType buildDestination(final Collection<MapEntryNode> routes) {
         return new DestinationLinkstateCaseBuilder().setDestinationLinkstate(
-            new DestinationLinkstateBuilder().setCLinkstateDestination(extractRoutes(routes)).build()).build();
+                new DestinationLinkstateBuilder().setCLinkstateDestination(extractRoutes(routes)).build()).build();
     }
 
     @Override
@@ -130,16 +133,9 @@ public final class LinkstateRIBSupport extends AbstractRIBSupport<LinkstateRoute
                         .setCLinkstateDestination(extractRoutes(routes)).build()).build();
     }
 
-    private static List<CLinkstateDestination> extractRoutes(final Collection<MapEntryNode> routes) {
-        return routes.stream().map(LinkstateNlriParser::extractLinkstateDestination).collect(Collectors.toList());
-    }
-
     @Override
-    public LinkstateRoute createRoute(
-            final LinkstateRoute route,
-            final LinkstateRouteKey routeKey,
-            final PathId pathId,
-            final Attributes attributes) {
+    public LinkstateRoute createRoute(final LinkstateRoute route, final LinkstateRouteKey routeKey,
+            final long pathId, final Attributes attributes) {
         final LinkstateRouteBuilder builder;
         if (route != null) {
             builder = new LinkstateRouteBuilder(route);

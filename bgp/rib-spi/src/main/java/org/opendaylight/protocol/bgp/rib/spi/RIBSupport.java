@@ -211,7 +211,7 @@ public interface RIBSupport<R extends Route, N extends Identifier> extends AddPa
             @Nonnull N newRouteKey);
 
     @Nonnull
-    R createRoute(@Nullable R route, N routeKey, @Nullable PathId pathId, @Nonnull Attributes attributes);
+    R createRoute(@Nullable R route, N routeKey, long pathId, @Nonnull Attributes attributes);
 
     /**
      * Construct a PathArgument to an AddPathRoute.
@@ -221,7 +221,7 @@ public interface RIBSupport<R extends Route, N extends Identifier> extends AddPa
      * @return routeId PathArgument + pathId or Null in case Add-path is not supported
      */
     @Nullable
-    default Identifier createNewRouteKey(@Nonnull PathId pathId, @Nonnull N routeKey) {
+    default Identifier createNewRouteKey(long pathId, @Nonnull N routeKey) {
         return null;
     }
 
