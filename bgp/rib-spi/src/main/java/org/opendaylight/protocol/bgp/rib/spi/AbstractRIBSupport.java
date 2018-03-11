@@ -146,19 +146,6 @@ public abstract class AbstractRIBSupport<R extends Route, N extends Identifier>
         return this.emptyRoutes;
     }
 
-    @Override
-    public final YangInstanceIdentifier buildRouteAttributeYii(final YangInstanceIdentifier ribYii,
-            final PathArgument routeKey) {
-        return YangInstanceIdentifier.builder(ribYii)
-                .node(this.tableQname)
-                .node(Routes.QNAME)
-                .node(this.routesQname)
-                .append(routeKey)
-                .node(this.routeQname)
-                .node(this.routeAttributesIdentifier)
-                .build();
-    }
-
     public final QName routeQName() {
         return this.routeQname;
     }

@@ -225,15 +225,6 @@ public interface RIBSupport<R extends Route, N extends Identifier> extends AddPa
         return null;
     }
 
-    /**
-     * Creates Yii for route entry.
-     *
-     * @param ribYii Rib Yii
-     * @param routeKey route key
-     * @return Yii
-     */
-    YangInstanceIdentifier buildRouteAttributeYii(final YangInstanceIdentifier ribYii, PathArgument routeKey);
-
     interface ApplyRoute {
         void apply(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier base,
                 @Nonnull NodeIdentifierWithPredicates routeKey,
