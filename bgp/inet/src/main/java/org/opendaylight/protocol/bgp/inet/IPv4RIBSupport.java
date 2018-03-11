@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.inet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import javax.annotation.Nonnull;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.bgp.rib.rib.loc.rib.tables.routes.Ipv4RoutesCase;
@@ -58,16 +57,14 @@ final class IPv4RIBSupport extends AbstractIPRibSupport<Ipv4Route, Ipv4RouteKey>
         return prefs;
     }
 
-    @Nonnull
     @Override
-    protected DestinationType buildDestination(@Nonnull final Collection<MapEntryNode> routes) {
+    protected DestinationType buildDestination(final Collection<MapEntryNode> routes) {
         return new DestinationIpv4CaseBuilder().setDestinationIpv4(new DestinationIpv4Builder()
                 .setIpv4Prefixes(extractPrefixes(routes)).build()).build();
     }
 
-    @Nonnull
     @Override
-    protected DestinationType buildWithdrawnDestination(@Nonnull final Collection<MapEntryNode> routes) {
+    protected DestinationType buildWithdrawnDestination(final Collection<MapEntryNode> routes) {
         return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.update
                 .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4CaseBuilder()
                 .setDestinationIpv4(new DestinationIpv4Builder().setIpv4Prefixes(extractPrefixes(routes))
@@ -75,7 +72,7 @@ final class IPv4RIBSupport extends AbstractIPRibSupport<Ipv4Route, Ipv4RouteKey>
     }
 
     @Override
-    public Ipv4Route createRoute(final Ipv4Route route, final Ipv4RouteKey routeKey, final PathId pathId,
+    public Ipv4Route createRoute(final Ipv4Route route, final Ipv4RouteKey routeKey, final long pathId,
             final Attributes attributes) {
         final Ipv4RouteBuilder builder;
         if (route != null) {
@@ -83,11 +80,11 @@ final class IPv4RIBSupport extends AbstractIPRibSupport<Ipv4Route, Ipv4RouteKey>
         } else {
             builder = new Ipv4RouteBuilder();
         }
-        return builder.setPrefix(routeKey.getPrefix()).setPathId(pathId).setAttributes(attributes).build();
+        return builder.setPrefix(routeKey.getPrefix()).setPathId(new PathId(pathId)).setAttributes(attributes).build();
     }
 
     @Override
-    public Ipv4RouteKey createNewRouteKey(final PathId pathId, final Ipv4RouteKey routeKey) {
-        return new Ipv4RouteKey(pathId, routeKey.getPrefix());
+    public Ipv4RouteKey createNewRouteKey(final long pathId, final Ipv4RouteKey routeKey) {
+        return new Ipv4RouteKey(new PathId(pathId), routeKey.getPrefix());
     }
 }

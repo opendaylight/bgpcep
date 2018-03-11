@@ -10,7 +10,7 @@ package org.opendaylight.protocol.bgp.labeled.unicast;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
+import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID_VALUE;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -150,7 +150,7 @@ public class LabeledUnicastIpv4RIBSupportTest extends AbstractRIBSupportTest {
     public void testRouteIdAddPath() {
         final LabeledUnicastRouteKey oldKey
                 = new LabeledUnicastRouteKey(new PathId(100L), ROUTE_KEY.getRouteKey());
-        Assert.assertEquals(ROUTE_KEY, RIB_SUPPORT.createNewRouteKey(AbstractRIBSupportTest.PATH_ID, oldKey));
+        Assert.assertEquals(ROUTE_KEY, RIB_SUPPORT.createNewRouteKey(1L, oldKey));
     }
 
     @Test
@@ -161,7 +161,7 @@ public class LabeledUnicastIpv4RIBSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testExtractPathId() {
-        Assert.assertEquals(NON_PATH_ID, RIB_SUPPORT.extractPathId(null));
+        Assert.assertEquals(NON_PATH_ID_VALUE, RIB_SUPPORT.extractPathId(null));
     }
 
     @Test

@@ -156,25 +156,7 @@ public class MultiPathAbstractRIBSupportTest {
 
     @Test
     public void pathIdQName() {
-        final MultiPathAbstractTest multiPath = MULTI_PATH_ABSTRACT_TEST;
-        assertEquals(PATH_ID_QNAME, multiPath.pathIdQName());
-    }
-
-    @Test
-    public void extractPathId() {
-        final NodeIdentifier nii = new NodeIdentifier(PATH_ID_QNAME);
-        final ContainerNode cont = ImmutableContainerNodeSchemaAwareBuilder.create().withNodeIdentifier(nii)
-                .addChild(new ImmutableLeafNodeBuilder<>().withNodeIdentifier(nii).withValue(PATH_ID).build()).build();
-        assertEquals(PATH_ID, MULTI_PATH_ABSTRACT_TEST.extractPathId(cont));
-    }
-
-    @Test
-    public void getRouteIdAddPath() {
-        final NodeIdentifierWithPredicates routeIdPa =
-            new NodeIdentifierWithPredicates(Ipv4Route.QNAME,
-                    ImmutableMap.of(PATH_ID_QNAME, PATH_ID, PREFIX_QNAME, PREFIX));
-        assertEquals(routeIdPa, MULTI_PATH_ABSTRACT_TEST.getRouteIdAddPath(PATH_ID, PREFIX_NII));
-
+        assertEquals(PATH_ID_QNAME, MULTI_PATH_ABSTRACT_TEST.pathIdQName());
     }
 
     @Test
@@ -183,27 +165,27 @@ public class MultiPathAbstractRIBSupportTest {
     }
 
     @Test
-    public void routesCaseClass() throws Exception {
+    public void routesCaseClass() {
         assertEquals(Ipv4RoutesCase.class, MULTI_PATH_ABSTRACT_TEST.routesCaseClass());
     }
 
     @Test
-    public void routesContainerClass() throws Exception {
+    public void routesContainerClass() {
         assertEquals(Ipv4Routes.class, MULTI_PATH_ABSTRACT_TEST.routesContainerClass());
     }
 
     @Test
-    public void routesListClass() throws Exception {
+    public void routesListClass() {
         assertEquals(Ipv4Route.class, MULTI_PATH_ABSTRACT_TEST.routesListClass());
     }
 
     @Test
-    public void routeQName() throws Exception {
+    public void routeQName() {
         assertEquals(Ipv4Route.QNAME, MULTI_PATH_ABSTRACT_TEST.routeQName());
     }
 
     @Test
-    public void emptyRoutes() throws Exception {
+    public void emptyRoutes() {
         final ChoiceNode emptyRoutes = Builders.choiceBuilder().withNodeIdentifier(ROUTES_IDENTIFIER)
                 .addChild(Builders.containerBuilder().withNodeIdentifier(IPV4_ROUTES_IDENTIFIER)
                         .withChild(ImmutableNodes.mapNodeBuilder(MULTI_PATH_ABSTRACT_TEST.routeQName())
@@ -212,61 +194,61 @@ public class MultiPathAbstractRIBSupportTest {
     }
 
     @Test
-    public void routeNid() throws Exception {
+    public void routeNid() {
         assertEquals(new NodeIdentifier(Ipv4Route.QNAME), MULTI_PATH_ABSTRACT_TEST.routeNid());
     }
 
     @Test
-    public void getAfi() throws Exception {
+    public void getAfi() {
         assertEquals(Ipv4AddressFamily.class, MULTI_PATH_ABSTRACT_TEST.getAfi());
     }
 
     @Test
-    public void getSafi() throws Exception {
+    public void getSafi() {
         assertEquals(UnicastSubsequentAddressFamily.class, MULTI_PATH_ABSTRACT_TEST.getSafi());
     }
 
     @Test
-    public void routesContainerIdentifier() throws Exception {
+    public void routesContainerIdentifier() {
         assertEquals(IPV4_ROUTES_IDENTIFIER, MULTI_PATH_ABSTRACT_TEST.routesContainerIdentifier());
 
     }
 
     @Test
-    public void routeAttributesIdentifier() throws Exception {
+    public void routeAttributesIdentifier() {
         assertEquals(new NodeIdentifier(QName.create(Ipv4Routes.QNAME,
                 Attributes.QNAME.getLocalName().intern())), MULTI_PATH_ABSTRACT_TEST.routeAttributesIdentifier());
     }
 
     @Test
-    public void routePath() throws Exception {
+    public void routePath() {
         Assert.assertEquals(LOC_RIB_TARGET.node(ROUTES_IDENTIFIER)
                         .node(Ipv4Routes.QNAME).node(Ipv4Route.QNAME).node(PREFIX_NII),
             MULTI_PATH_ABSTRACT_TEST.routePath(LOC_RIB_TARGET.node(Routes.QNAME), PREFIX_NII));
     }
 
     @Test
-    public void changedRoutes() throws Exception {
+    public void changedRoutes() {
         Assert.assertTrue(MULTI_PATH_ABSTRACT_TEST.changedDOMRoutes(this.emptyTree).isEmpty());
         Assert.assertTrue(MULTI_PATH_ABSTRACT_TEST.changedDOMRoutes(this.emptySubTree).isEmpty());
         Assert.assertNotNull(MULTI_PATH_ABSTRACT_TEST.changedDOMRoutes(this.subTree));
     }
 
     @Test
-    public void putRoutes() throws Exception {
+    public void putRoutes() {
         MULTI_PATH_ABSTRACT_TEST.putRoutes(this.tx, LOC_RIB_TARGET, this.nlri, this.attributes);
         assertFalse(this.routes.isEmpty());
     }
 
     @Test
-    public void deleteRoutes() throws Exception {
+    public void deleteRoutes() {
         MULTI_PATH_ABSTRACT_TEST.deleteRoutes(this.tx, LOC_RIB_TARGET, this.nlri);
         assertTrue(this.routes.isEmpty());
     }
 
 
     @Test
-    public void buildUpdate() throws Exception {
+    public void buildUpdate() {
         final Ipv4NextHopCase nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
                 .setGlobal(new Ipv4Address("10.0.0.2")).build()).build();
         final Attributes attr = new AttributesBuilder().setCNextHop(nextHop).build();

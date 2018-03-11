@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.mode.impl.add;
 
-import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
+import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID_VALUE;
 
 import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedInteger;
@@ -143,7 +143,7 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry<AddPa
         if (this.removedPaths != null) {
             this.removedPaths.forEach(removedPath -> {
                 final PathArgument routeIdAddPath = ribSupport.getRouteIdAddPath(removedPath.getPathId(), routeIdPA);
-                final PathArgument routeIdAddPathDefault = ribSupport.getRouteIdAddPath(NON_PATH_ID, routeIdPA);
+                final PathArgument routeIdAddPathDefault = ribSupport.getRouteIdAddPath(NON_PATH_ID_VALUE, routeIdPA);
                 fillAdjRibsOut(true, null, null, null,
                         routeIdAddPathDefault, routeIdAddPath,
                         RouterIds.createPeerId(removedPath.getRouteId()),
@@ -185,7 +185,7 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry<AddPa
         final ContainerNode effectiveAttributes
                 = peerGroup.effectiveAttributes(fromPeer.getRole(), path.getAttributes());
         final NodeIdentifierWithPredicates routeIdAddPath = ribSup
-                .getRouteIdAddPath(destPeerSupAddPath ? path.getPathId() : NON_PATH_ID, routeId);
+                .getRouteIdAddPath(destPeerSupAddPath ? path.getPathId() : NON_PATH_ID_VALUE, routeId);
 
         writeRoute(entryInfo.getToPeerId(), getAdjRibOutYII(ribSup, entryInfo.getRootPath(), routeIdAddPath, localTK),
                 effectiveAttributes, createValue(routeIdAddPath, path), ribSup, tx);
@@ -196,7 +196,8 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry<AddPa
             final ExportPolicyPeerTracker peerPT, final DOMDataWriteTransaction tx) {
         final RIBSupport ribSup = entryDependencies.getRibSupport();
         final NodeIdentifierWithPredicates routeIdAddPath = ribSup.getRouteIdAddPath(path.getPathId(), routeIdPA);
-        final NodeIdentifierWithPredicates routeIdAddPathDefault = ribSup.getRouteIdAddPath(NON_PATH_ID, routeIdPA);
+        final NodeIdentifierWithPredicates routeIdAddPathDefault
+                = ribSup.getRouteIdAddPath(NON_PATH_ID_VALUE, routeIdPA);
         final YangInstanceIdentifier pathAddPathTarget = ribSup.routePath(entryDependencies.getLocRibTableTarget()
                 .node(ROUTES_IDENTIFIER), routeIdAddPath);
         final MapEntryNode addPathValue = createValue(routeIdAddPath, path);

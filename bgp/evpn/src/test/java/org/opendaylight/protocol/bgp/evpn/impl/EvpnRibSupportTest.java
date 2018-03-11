@@ -12,7 +12,7 @@ import static org.junit.Assert.assertNull;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.RD;
 import static org.opendaylight.protocol.bgp.evpn.impl.nlri.EthADRParserTest.ETHERNET_AD_ROUTE_CASE;
 import static org.opendaylight.protocol.bgp.evpn.impl.nlri.EthADRParserTest.ETHERNET_AD_ROUTE_CASE_KEY;
-import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
+import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID_VALUE;
 
 import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
@@ -148,7 +148,7 @@ public final class EvpnRibSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testRouteIdAddPath() {
-        Assert.assertNull(RIB_SUPPORT.createNewRouteKey(AbstractRIBSupportTest.PATH_ID, null));
+        Assert.assertNull(RIB_SUPPORT.createNewRouteKey(1L, null));
     }
 
     @Test
@@ -160,7 +160,7 @@ public final class EvpnRibSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testExtractPathId() {
-        assertEquals(NON_PATH_ID, RIB_SUPPORT.extractPathId(null));
+        assertEquals(NON_PATH_ID_VALUE, RIB_SUPPORT.extractPathId(null));
     }
 
     @Test

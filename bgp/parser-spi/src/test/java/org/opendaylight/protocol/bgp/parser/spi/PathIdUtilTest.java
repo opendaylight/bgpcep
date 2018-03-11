@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.bgp.parser.spi;
 
+import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Assert;
@@ -38,7 +40,7 @@ public class PathIdUtilTest {
 
     @Test
     public void testWritePathIdZero() {
-        PathIdUtil.writePathId(new PathId(0L), this.buffer);
+        PathIdUtil.writePathId(NON_PATH_ID, this.buffer);
         Assert.assertEquals(0, this.buffer.readableBytes());
     }
 

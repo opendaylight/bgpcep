@@ -16,6 +16,7 @@ import static org.opendaylight.protocol.bgp.l3vpn.ipv4.VpnIpv4NlriParserTest.IPV
 import static org.opendaylight.protocol.bgp.l3vpn.ipv4.VpnIpv4NlriParserTest.IPV4_VPN;
 import static org.opendaylight.protocol.bgp.l3vpn.ipv4.VpnIpv4NlriParserTest.LABEL_STACK;
 import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
+import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID_VALUE;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
@@ -23,7 +24,6 @@ import java.util.Collections;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupportTest;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.Attributes1;
@@ -61,7 +61,7 @@ public class VpnIpv4RIBSupportTest extends AbstractRIBSupportTest {
                             .setVpnDestination(Collections.singletonList(IPV4_VPN)).build()).build();
     private static final VpnRouteKey ROUTE_KEY = new VpnRouteKey("WAABAQIDBAECIgEW");
 
-    private static final VpnRoute ROUTE = new VpnRouteBuilder().setPathId(new PathId(NON_PATH_ID))
+    private static final VpnRoute ROUTE = new VpnRouteBuilder().setPathId(NON_PATH_ID)
             .setAttributes(ATTRIBUTES).setPrefix(IPV4_PREFIX)
         .setLabelStack(LABEL_STACK).setRouteDistinguisher(DISTINGUISHER).setKey(ROUTE_KEY).build();
     private static final VpnIpv4Routes ROUTES = new VpnIpv4RoutesBuilder()
@@ -131,7 +131,7 @@ public class VpnIpv4RIBSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testRouteIdAddPath() {
-        Assert.assertNull(RIB_SUPPORT.createNewRouteKey(AbstractRIBSupportTest.PATH_ID, null));
+        Assert.assertNull(RIB_SUPPORT.createNewRouteKey(1L, null));
     }
 
     @Test
@@ -143,7 +143,7 @@ public class VpnIpv4RIBSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testExtractPathId() {
-        assertEquals(NON_PATH_ID, RIB_SUPPORT.extractPathId(null));
+        assertEquals(NON_PATH_ID_VALUE, RIB_SUPPORT.extractPathId(null));
     }
 
     @Test

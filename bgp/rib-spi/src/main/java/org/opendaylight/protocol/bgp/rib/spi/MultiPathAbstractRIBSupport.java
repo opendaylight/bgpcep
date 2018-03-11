@@ -72,7 +72,7 @@ public abstract class MultiPathAbstractRIBSupport<R extends Route, N extends Ide
     public final long extractPathId(final NormalizedNode<?, ?> data) {
         final Long pathId = PathIdUtil.extractPathId(data, this.routePathIdNid());
         if (pathId == null) {
-            return PathIdUtil.NON_PATH_ID;
+            return PathIdUtil.NON_PATH_ID_VALUE;
         }
         return pathId;
     }

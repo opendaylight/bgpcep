@@ -10,9 +10,8 @@ package org.opendaylight.protocol.bgp.flowspec;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
+import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID_VALUE;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.Collections;
@@ -146,7 +145,7 @@ public class FlowspecIpv4RIBSupportTest extends AbstractRIBSupportTest {
     @Test
     public void testRouteIdAddPath() {
         final FlowspecRouteKey oldKey = new FlowspecRouteKey(new PathId(100L), ROUTE_KEY.getRouteKey());
-        Assert.assertEquals(ROUTE_KEY, RIB_SUPPORT.createNewRouteKey(AbstractRIBSupportTest.PATH_ID, oldKey));
+        Assert.assertEquals(ROUTE_KEY, RIB_SUPPORT.createNewRouteKey(1L, oldKey));
     }
 
     @Test
@@ -157,7 +156,7 @@ public class FlowspecIpv4RIBSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testExtractPathId() {
-        Assert.assertEquals(NON_PATH_ID, RIB_SUPPORT.extractPathId(null));
+        Assert.assertEquals(NON_PATH_ID_VALUE, RIB_SUPPORT.extractPathId(null));
     }
 
     @Test

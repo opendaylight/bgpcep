@@ -9,7 +9,7 @@ package org.opendaylight.protocol.bgp.rib.spi;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
+import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID_VALUE;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
@@ -28,8 +28,8 @@ public class AddPathRibSupportTest {
     @Test
     public void defaultAddPathRibSupport() {
         final AddPathRibSupportLocalTest test = new AddPathRibSupportLocalTest();
-        assertEquals(NON_PATH_ID, test.extractPathId(null));
-        assertNull(test.getRouteIdAddPath(NON_PATH_ID, null));
+        assertEquals(NON_PATH_ID_VALUE, test.extractPathId(null));
+        assertNull(test.getRouteIdAddPath(NON_PATH_ID_VALUE, null));
         assertEquals(QNAME, test.createRouteKeyPathArgument(QNAME));
     }
 

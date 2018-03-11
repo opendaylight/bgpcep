@@ -8,7 +8,7 @@
 
 package org.opendaylight.protocol.bgp.rib.spi;
 
-import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
+import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID_VALUE;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -30,7 +30,7 @@ interface AddPathRibSupport {
      * @return pathId  The path identifier value
      */
     default long extractPathId(@Nonnull NormalizedNode<?, ?> normalizedNode) {
-        return NON_PATH_ID;
+        return NON_PATH_ID_VALUE;
     }
 
     /**

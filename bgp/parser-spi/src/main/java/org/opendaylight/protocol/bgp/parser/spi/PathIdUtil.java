@@ -24,7 +24,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 
 public final class PathIdUtil {
-    public static final long NON_PATH_ID = 0;
+    public static final long NON_PATH_ID_VALUE = 0;
+    public static final PathId NON_PATH_ID = new PathId(NON_PATH_ID_VALUE);
 
     private PathIdUtil() {
         throw new UnsupportedOperationException();
@@ -129,7 +130,7 @@ public final class PathIdUtil {
             final QName pathIdQname, final Object routeKeyValue,
             final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf) {
         // FIXME: a cache here would mean we instantiate the same identifier for each route making comparison quicker.
-        final Object pathId = maybePathIdLeaf.isPresent() ? maybePathIdLeaf.get().getValue() : NON_PATH_ID;
+        final Object pathId = maybePathIdLeaf.isPresent() ? maybePathIdLeaf.get().getValue() : NON_PATH_ID_VALUE;
         return createNodeIdentifierWithPredicates(routeQname, pathIdQname, pathId, routeKeyQname, routeKeyValue);
     }
 }

@@ -13,7 +13,6 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.MultiPathAbstractRIBSupport;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
@@ -78,7 +77,7 @@ public final class MultiPathAbstractTest extends MultiPathAbstractRIBSupport {
     }
 
     @Override
-    public Route createRoute(final Route route, final Identifier routeKey, final PathId pathId
+    public Route createRoute(final Route route, final Identifier routeKey, final long pathId
             , final Attributes attributes) {
         return null;
     }

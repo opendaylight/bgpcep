@@ -9,6 +9,7 @@
 package org.opendaylight.protocol.bgp.benchmark.app;
 
 import static java.util.Objects.requireNonNull;
+import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
@@ -38,7 +39,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv4.routes.ipv4.routes.Ipv4Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv4.routes.ipv4.routes.Ipv4RouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv4.routes.ipv4.routes.Ipv4RouteKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.attributes.AsPath;
@@ -92,8 +92,6 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
 
     private static final String SLASH = "/";
     private static final String PREFIX = SLASH + "32";
-
-    private static final PathId PATH_ID = new PathId(0L);
 
     private final BindingTransactionChain txChain;
     private final RpcRegistration<OdlBgpAppPeerBenchmarkService> rpcRegistration;
@@ -212,7 +210,7 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
         String address = getAdddressFromPrefix(ipv4Prefix);
         final Stopwatch stopwatch = Stopwatch.createStarted();
         for (int i = 1; i <= count; i++) {
-            final Ipv4RouteKey routeKey = new Ipv4RouteKey(PATH_ID, createPrefix(address));
+            final Ipv4RouteKey routeKey = new Ipv4RouteKey(NON_PATH_ID, createPrefix(address));
             final KeyedInstanceIdentifier<Ipv4Route, Ipv4RouteKey> routeIId =
                 this.routesIId.child(Ipv4Route.class, routeKey);
             if (attributes != null) {
