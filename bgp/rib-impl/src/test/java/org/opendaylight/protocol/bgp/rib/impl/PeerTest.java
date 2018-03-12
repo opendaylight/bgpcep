@@ -11,6 +11,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 
@@ -105,14 +106,14 @@ public class PeerTest extends AbstractRIBTestSetup {
                 this.routes.put((YangInstanceIdentifier) args[1], node);
             }
             return args[1];
-        }).when(getTransaction()).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL),
+        }).when(getTransaction()).put(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
 
         doAnswer(invocation -> {
             final Object[] args = invocation.getArguments();
             this.routes.remove(args[1]);
             return args[1];
-        }).when(getTransaction()).delete(Mockito.eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class));
+        }).when(getTransaction()).delete(eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class));
     }
 
     @Test
@@ -141,10 +142,10 @@ public class PeerTest extends AbstractRIBTestSetup {
         assertEquals(this.neighborAddress.getIpv4Address().getValue(), this.classic.getName());
         this.classic.onSessionUp(this.session);
         Assert.assertArrayEquals(new byte[]{1, 1, 1, 1}, this.classic.getRawIdentifier());
-        assertEquals("BGPPeer{name=127.0.0.1, tables=[TablesKey" +
-                " [_afi=class org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang" +
-                ".bgp.types.rev130919.Ipv4AddressFamily, _safi=class org.opendaylight.yang.gen." +
-                "v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily]]}",
+        assertEquals("BGPPeer{name=127.0.0.1, tables=[TablesKey{_afi=class org.opendaylight.yang.gen.v1.urn"
+                        + ".opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily,"
+                        + " _safi=class org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types"
+                        + ".rev130919.UnicastSubsequentAddressFamily}]}",
                 this.classic.toString());
 
         final Nlri n1 = new NlriBuilder().setPrefix(new Ipv4Prefix("8.0.1.0/28")).build();
@@ -211,15 +212,15 @@ public class PeerTest extends AbstractRIBTestSetup {
     }
 
     private void mockSession() {
-        final EventLoop eventLoop = Mockito.mock(EventLoop.class);
-        final Channel channel = Mockito.mock(Channel.class);
-        final ChannelPipeline pipeline = Mockito.mock(ChannelPipeline.class);
+        final EventLoop eventLoop = mock(EventLoop.class);
+        final Channel channel = mock(Channel.class);
+        final ChannelPipeline pipeline = mock(ChannelPipeline.class);
         doReturn(null).when(eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
         doReturn(eventLoop).when(channel).eventLoop();
         doReturn(Boolean.TRUE).when(channel).isWritable();
         doReturn(null).when(channel).close();
         doReturn(pipeline).when(channel).pipeline();
-        Mockito.doCallRealMethod().when(channel).toString();
+        doCallRealMethod().when(channel).toString();
         doReturn(pipeline).when(pipeline).addLast(any(ChannelHandler.class));
         doReturn(new DefaultChannelPromise(channel)).when(channel).writeAndFlush(any(Notification.class));
         doReturn(new InetSocketAddress("localhost", 12345)).when(channel).remoteAddress();
