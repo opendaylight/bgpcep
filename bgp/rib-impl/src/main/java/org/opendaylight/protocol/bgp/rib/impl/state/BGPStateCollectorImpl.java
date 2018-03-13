@@ -16,24 +16,24 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerStateConsumer;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPRIBState;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPRIBStateConsumer;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibStateConsumer;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateConsumer;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateProvider;
 
 @ThreadSafe
 public class BGPStateCollectorImpl implements BGPStateProvider, BGPStateConsumer {
     @GuardedBy("this")
-    private final List<BGPRIBStateConsumer> bgpRibStates = new ArrayList<>();
+    private final List<BGPRibStateConsumer> bgpRibStates = new ArrayList<>();
     @GuardedBy("this")
     private final List<BGPPeerStateConsumer> bgpPeerStates = new ArrayList<>();
 
     @Override
-    public List<BGPRIBState> getRibStats() {
+    public List<BGPRibState> getRibStats() {
         synchronized (this.bgpRibStates) {
             return ImmutableList.copyOf(this.bgpRibStates
                     .stream()
-                    .map(BGPRIBStateConsumer::getRIBState)
+                    .map(BGPRibStateConsumer::getRIBState)
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList()));
         }
@@ -51,7 +51,7 @@ public class BGPStateCollectorImpl implements BGPStateProvider, BGPStateConsumer
     }
 
     @Override
-    public void bind(final BGPRIBStateConsumer bgpState) {
+    public void bind(final BGPRibStateConsumer bgpState) {
         if (bgpState == null) {
             return;
         }
@@ -61,7 +61,7 @@ public class BGPStateCollectorImpl implements BGPStateProvider, BGPStateConsumer
     }
 
     @Override
-    public void unbind(final BGPRIBStateConsumer bgpState) {
+    public void unbind(final BGPRibStateConsumer bgpState) {
         if (bgpState == null) {
             return;
         }

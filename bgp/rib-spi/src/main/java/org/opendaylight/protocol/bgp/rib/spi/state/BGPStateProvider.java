@@ -19,14 +19,14 @@ public interface BGPStateProvider {
      *
      * @param bgpState rib State
      */
-    void bind(@Nonnull BGPRIBStateConsumer bgpState);
+    void bind(@Nonnull BGPRibStateConsumer bgpState);
 
     /**
      * Unregister Rib state.
      *
      * @param bgpState Rib/Peer State
      */
-    void unbind(@Nonnull BGPRIBStateConsumer bgpState);
+    void unbind(@Nonnull BGPRibStateConsumer bgpState);
 
     /**
      * registerRib/Peer state.

@@ -28,9 +28,9 @@ public final class BGPTerminationReason {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        return (o instanceof BGPTerminationReason) &&
-                Objects.equals(this.error, ((BGPTerminationReason) o).error);
+    public boolean equals(final Object terminationReason) {
+        return (terminationReason instanceof BGPTerminationReason)
+                && Objects.equals(this.error, ((BGPTerminationReason) terminationReason).error);
     }
 
     @Override

@@ -114,9 +114,10 @@ public abstract class AbstractRIBSupport<R extends Route, N extends Identifier>
         this.listClass = requireNonNull(listClass);
         this.routeQname = QName.create(qname, BindingReflections.findQName(listClass).intern().getLocalName());
         this.routesListIdentifier = new NodeIdentifier(this.routeQname);
-        this.emptyRoutes = Builders.choiceBuilder().withNodeIdentifier(ROUTES).addChild(Builders.containerBuilder()
-                .withNodeIdentifier(routesContainerIdentifier()).withChild(ImmutableNodes.mapNodeBuilder(this.routeQname)
-                        .build()).build()).build();
+        this.emptyRoutes = Builders.choiceBuilder().withNodeIdentifier(ROUTES)
+                .addChild(Builders.containerBuilder()
+                .withNodeIdentifier(routesContainerIdentifier())
+                .withChild(ImmutableNodes.mapNodeBuilder(this.routeQname).build()).build()).build();
         this.afiClass = afiClass;
         this.safiClass = safiClass;
         this.destinationNid = new NodeIdentifier(destinationQname);
@@ -222,7 +223,7 @@ public abstract class AbstractRIBSupport<R extends Route, N extends Identifier>
     /**
      * Given the destination as ContainerNode, implementation needs to parse the DOM model
      * from this point onward:
-     * <p>
+     *
      * {@code /bgp-mp:mp-unreach-nlri/bgp-mp:withdrawn-routes/bgp-mp:destination-type}
      * and delete the routes from its RIBs.
      *
@@ -239,7 +240,7 @@ public abstract class AbstractRIBSupport<R extends Route, N extends Identifier>
     /**
      * Given the destination as ContainerNode, implementation needs to parse the DOM model
      * from this point onward:
-     * <p>
+     *
      * {@code /bgp-mp:mp-reach-nlri/bgp-mp:advertized-routes/bgp-mp:destination-type}
      * and put the routes to its RIBs.
      *
