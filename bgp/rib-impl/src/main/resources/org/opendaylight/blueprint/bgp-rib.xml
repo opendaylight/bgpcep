@@ -70,7 +70,7 @@
   <bean id="bgpStateCollector" class="org.opendaylight.protocol.bgp.rib.impl.state.BGPStateCollectorImpl"/>
   <service ref="bgpStateCollector" interface="org.opendaylight.protocol.bgp.rib.spi.state.BGPStateConsumer"/>
 
-  <reference-list id="ribStatsListener" interface="org.opendaylight.protocol.bgp.rib.spi.state.BGPRIBStateConsumer"
+  <reference-list id="ribStatsListener" interface="org.opendaylight.protocol.bgp.rib.spi.state.BGPRibStateConsumer"
     availability="optional">
       <reference-listener bind-method="bind" unbind-method="unbind">
           <ref component-id="bgpStateCollector"/>

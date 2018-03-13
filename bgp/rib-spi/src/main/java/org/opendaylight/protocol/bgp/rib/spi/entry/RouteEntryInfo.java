@@ -9,9 +9,7 @@ package org.opendaylight.protocol.bgp.rib.spi.entry;
 
 import javax.annotation.Nonnull;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
 import org.opendaylight.yangtools.yang.binding.Identifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 
 /**
  * RouteEntryInfo wrapper contains all related information from new best path.

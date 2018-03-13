@@ -93,13 +93,13 @@ public class MultiPathAbstractRIBSupportTest {
     private DataTreeCandidateNode subTree;
     private DOMDataWriteTransaction tx;
     private ContainerNode nlri;
-    private Map<YangInstanceIdentifier, NormalizedNode<?, ?>> routes;
+    private Map<YangInstanceIdentifier, NormalizedNode<?, ?>> routesMap;
     private ContainerNode attributes;
     private MapEntryNode mapEntryNode;
 
     @Before
     public void setUp() {
-        this.routes = new HashMap<>();
+        this.routesMap = new HashMap<>();
         MockitoAnnotations.initMocks(this);
         this.emptyTree = Mockito.mock(DataTreeCandidateNode.class);
         this.emptySubTree = Mockito.mock(DataTreeCandidateNode.class);
@@ -136,13 +136,13 @@ public class MultiPathAbstractRIBSupportTest {
 
         doAnswer(invocation -> {
             final Object[] args = invocation.getArguments();
-            MultiPathAbstractRIBSupportTest.this.routes.remove(args[1]);
+            MultiPathAbstractRIBSupportTest.this.routesMap.remove(args[1]);
             return args[1];
         }).when(this.tx).delete(Mockito.eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class));
         doAnswer(invocation -> {
             final Object[] args = invocation.getArguments();
             final NormalizedNode<?, ?> node1 = (NormalizedNode<?, ?>) args[2];
-            MultiPathAbstractRIBSupportTest.this.routes.put((YangInstanceIdentifier) args[1], node1);
+            MultiPathAbstractRIBSupportTest.this.routesMap.put((YangInstanceIdentifier) args[1], node1);
             return args[1];
         }).when(this.tx).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class),
                 any(NormalizedNode.class));
@@ -233,13 +233,13 @@ public class MultiPathAbstractRIBSupportTest {
     @Test
     public void putRoutes() {
         MULTI_PATH_ABSTRACT_TEST.putRoutes(this.tx, LOC_RIB_TARGET, this.nlri, this.attributes);
-        assertFalse(this.routes.isEmpty());
+        assertFalse(this.routesMap.isEmpty());
     }
 
     @Test
     public void deleteRoutes() {
         MULTI_PATH_ABSTRACT_TEST.deleteRoutes(this.tx, LOC_RIB_TARGET, this.nlri);
-        assertTrue(this.routes.isEmpty());
+        assertTrue(this.routesMap.isEmpty());
     }
 
 

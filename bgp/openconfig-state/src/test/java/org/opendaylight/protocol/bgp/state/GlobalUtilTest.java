@@ -19,11 +19,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPRIBState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibState;
 
 public class GlobalUtilTest {
     @Mock
-    private BGPRIBState ribState;
+    private BGPRibState ribState;
     @Mock
     private BGPTableTypeRegistryConsumer tableRegistry;
 
