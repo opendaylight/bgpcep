@@ -250,8 +250,8 @@ public interface RIBSupport<R extends Route, N extends Identifier> {
      * @param routeKey routeKey Path Argument
      * @return new route Key
      */
-    default @Nonnull
-    NodeIdentifierWithPredicates createRouteKeyPathArgument(@Nonnull NodeIdentifierWithPredicates routeKey) {
+    @Nonnull
+    default NodeIdentifierWithPredicates createRouteKeyPathArgument(@Nonnull NodeIdentifierWithPredicates routeKey) {
         return routeKey;
     }
 }
