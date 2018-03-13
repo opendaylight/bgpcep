@@ -23,7 +23,7 @@ import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 public interface PeerTrackerInformation {
 
     /**
-     * Returns PeerID
+     * Returns Peer id.
      *
      * @return PeerID
      */

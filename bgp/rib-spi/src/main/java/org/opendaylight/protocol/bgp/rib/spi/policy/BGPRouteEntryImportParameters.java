@@ -8,11 +8,8 @@
 package org.opendaylight.protocol.bgp.rib.spi.policy;
 
 import javax.annotation.Nonnull;
-import org.opendaylight.protocol.bgp.rib.spi.Peer;
-import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
-import org.opendaylight.yangtools.yang.binding.Identifier;
 
 /**
  * Contains Peer destiny information for import route entry.

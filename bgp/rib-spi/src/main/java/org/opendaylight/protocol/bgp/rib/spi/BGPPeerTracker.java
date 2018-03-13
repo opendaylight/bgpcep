@@ -9,13 +9,10 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
 import java.util.List;
-import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.protocol.concepts.AbstractRegistration;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
 
 /**
  * Tracks Peers under RIB.
@@ -30,7 +27,7 @@ public interface BGPPeerTracker {
     AbstractRegistration registerPeer(@Nonnull Peer peer);
 
     /**
-     * Returns Peer
+     * Returns Peer.
      *
      * @param peerId peer ID
      * @return Peer

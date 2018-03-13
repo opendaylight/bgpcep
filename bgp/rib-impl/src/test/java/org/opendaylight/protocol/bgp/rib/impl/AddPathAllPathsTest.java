@@ -33,7 +33,7 @@ import org.opendaylight.protocol.bgp.rib.spi.state.BGPErrorHandlingState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPGracelfulRestartState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerMessagesState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPRIBState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPSessionState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTimersState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTransportState;
@@ -180,9 +180,9 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         assertFalse(afiSafiStatePeer1.isPeerRestarting());
         assertTrue(afiSafiStatePeer1.isAfiSafiSupported(TABLES_KEY));
 
-        final BGPRIBState ribState = this.ribImpl.getRIBState();
+        final BGPRibState ribState = this.ribImpl.getRIBState();
         assertEquals(1, ribState.getPathsCount().size());
-        assertEquals(1L,  ribState.getPrefixesCount().size());
+        assertEquals(1L,  ribState.getTablesPrefixesCount().size());
         assertEquals(BGP_ID, ribState.getRouteId());
         assertEquals(AS_NUMBER, ribState.getAs());
         assertEquals(1L, ribState.getPathCount(TABLES_KEY));
