@@ -115,6 +115,7 @@ module bgp-openconfig-extensions {
             }
             augment bgp/neighbors/neighbor/config {
                 ext:augment-identifier neighbor-config-augmentation;
+                status deprecated;
                 leaf simple-routing-policy {
                     type bgp-rib:simple-routing-policy;
                 }

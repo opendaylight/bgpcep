@@ -58,6 +58,7 @@ module bgp-rib {
     }
 
     typedef simple-routing-policy {
+        status deprecated;
         type enumeration {
             enum announce-none { description "Don't announce routes to this peer"; }
             enum learn-none { description "Don't learn routes from this peer"; }
