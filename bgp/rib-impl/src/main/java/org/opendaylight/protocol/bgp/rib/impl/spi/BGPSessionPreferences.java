@@ -7,8 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
-import com.google.common.base.Optional;
 import java.util.List;
+import java.util.Optional;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
@@ -50,6 +50,10 @@ public final class BGPSessionPreferences {
         this.md5Password = md5Password;
     }
 
+    public BGPSessionPreferences(final AsNumber as, final int hold, final BgpId bgpId, final AsNumber remoteAs,
+            final List<BgpParameters> params) {
+        this(as, hold, bgpId, remoteAs, params, Optional.empty());
+    }
     /**
      * Returns my AS number.
      *

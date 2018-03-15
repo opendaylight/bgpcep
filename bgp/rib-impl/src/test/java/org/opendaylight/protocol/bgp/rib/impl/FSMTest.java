@@ -15,7 +15,6 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -29,6 +28,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
@@ -110,8 +110,8 @@ public class FSMTest {
 
 
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
-        final BGPSessionPreferences prefs = new BGPSessionPreferences(new AsNumber(30L), (short) 3, new BgpId("1.1.1.1"), new AsNumber(30L), tlvs,
-                Optional.absent());
+        final BGPSessionPreferences prefs = new BGPSessionPreferences(new AsNumber(30L), (short) 3,
+                new BgpId("1.1.1.1"), new AsNumber(30L), tlvs);
 
         final ChannelFuture f = mock(ChannelFuture.class);
         doReturn(null).when(f).addListener(any(GenericFutureListener.class));
@@ -151,7 +151,7 @@ public class FSMTest {
     }
 
     @Test
-    public void testAccSessionChar() throws InterruptedException {
+    public void testAccSessionChar() {
         this.clientSession.channelActive(null);
         assertEquals(1, this.receivedMsgs.size());
         assertTrue(this.receivedMsgs.get(0) instanceof Open);
@@ -163,7 +163,7 @@ public class FSMTest {
     }
 
     @Test
-    public void testNotAccChars() throws InterruptedException {
+    public void testNotAccChars() {
         this.clientSession.channelActive(null);
         assertEquals(1, this.receivedMsgs.size());
         assertTrue(this.receivedMsgs.get(0) instanceof Open);
@@ -243,10 +243,5 @@ public class FSMTest {
         assertTrue(this.receivedMsgs.get(1) instanceof Notify);
         final Notification m = this.receivedMsgs.get(this.receivedMsgs.size() - 1);
         assertEquals(BGPError.BAD_BGP_ID, BGPError.forValue(((Notify) m).getErrorCode(), ((Notify) m).getErrorSubcode()));
-    }
-
-    @After
-    public void tearDown() {
-
     }
 }

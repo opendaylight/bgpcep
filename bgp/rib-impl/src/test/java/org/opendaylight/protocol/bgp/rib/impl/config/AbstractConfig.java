@@ -81,6 +81,8 @@ class AbstractConfig extends DefaultRibPoliciesMockTest {
     @Mock
     protected DOMDataWriteTransaction domDW;
     @Mock
+    protected PeerGroupConfigLoader peerGroupLoader;
+    @Mock
     private DOMDataTreeChangeService dataTreeChangeService;
     private BGPPeerTracker peerTracker = new BGPPeerTrackerImpl();
 
@@ -144,5 +146,7 @@ class AbstractConfig extends DefaultRibPoliciesMockTest {
         doReturn(this.bgpPeerRegistry).when(this.dispatcher).getBGPPeerRegistry();
         doReturn(this.peerTracker).when(this.rib).getPeerTracker();
         doReturn(this.policies).when(this.rib).getRibPolicies();
+        doReturn(null).when(this.peerGroupLoader)
+                .getPeerGroup(any(InstanceIdentifier.class), any());
     }
 }

@@ -12,15 +12,19 @@ import com.google.common.util.concurrent.ListenableFuture;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
  * Common interface for BgpPeer and AppPeer beans
  */
 public interface PeerBean extends AutoCloseable {
 
-    void start(RIB rib, Neighbor neighbor, BGPTableTypeRegistryConsumer tableTypeRegistry);
+    void start(RIB rib, Neighbor neighbor, InstanceIdentifier<Bgp> bgpIid, PeerGroupConfigLoader peerGroupLoader,
+            BGPTableTypeRegistryConsumer tableTypeRegistry);
 
-    void restart(RIB rib, BGPTableTypeRegistryConsumer tableTypeRegistry);
+    void restart(RIB rib, InstanceIdentifier<Bgp> bgpIid, PeerGroupConfigLoader peerGroupLoader,
+            BGPTableTypeRegistryConsumer tableTypeRegistry);
 
     @Override
     void close();

@@ -21,7 +21,7 @@ import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.PORT;
 import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.SHORT;
 import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.createAfiSafi;
 import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.createNeighborExpected;
-import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.createTransport;
+import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.HOLDTIMER;
 import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil.INSTANCE;
 
 import com.google.common.collect.ImmutableList;
@@ -55,10 +55,13 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.n
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.ConfigBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.RouteReflectorBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.TimersBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Transport;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.TransportBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.transport.Config;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborKey;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.peer.group.PeerGroupBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.GlobalBuilder;
@@ -124,7 +127,8 @@ public class OpenConfigMappingUtilTest {
     private static final PathSelectionMode ADD_PATH_BEST_ALL_PATH_SELECTION = new AllPathSelection(PEER_TRACKER);
     private static final BgpTableType BGP_TABLE_TYPE_IPV4 = new BgpTableTypeImpl(Ipv4AddressFamily.class,
             UnicastSubsequentAddressFamily.class);
-    private static final BgpTableType BGP_TABLE_TYPE_IPV6 = new BgpTableTypeImpl(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class);
+    private static final BgpTableType BGP_TABLE_TYPE_IPV6
+            = new BgpTableTypeImpl(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class);
     private static final AfiSafi AFISAFI_IPV4 = new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class).build();
     private static final TablesKey K4 = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
 
@@ -140,19 +144,24 @@ public class OpenConfigMappingUtilTest {
 
     static {
         FAMILIES = new ArrayList<>();
-        FAMILIES.add(new AddressFamiliesBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
-            .setSendReceive(SendReceive.Both).build());
-        FAMILIES.add(new AddressFamiliesBuilder().setAfi(Ipv6AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
-            .setSendReceive(SendReceive.Send).build());
-        FAMILIES.add(new AddressFamiliesBuilder().setAfi(Ipv6AddressFamily.class).setSafi(MplsLabeledVpnSubsequentAddressFamily.class)
-            .setSendReceive(SendReceive.Receive).build());
+        FAMILIES.add(new AddressFamiliesBuilder()
+                .setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
+                .setSendReceive(SendReceive.Both).build());
+        FAMILIES.add(new AddressFamiliesBuilder()
+                .setAfi(Ipv6AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
+                .setSendReceive(SendReceive.Send).build());
+        FAMILIES.add(new AddressFamiliesBuilder()
+                .setAfi(Ipv6AddressFamily.class).setSafi(MplsLabeledVpnSubsequentAddressFamily.class)
+                .setSendReceive(SendReceive.Receive).build());
         TABLE_TYPES = new ArrayList<>();
         TABLE_TYPES.add(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
         TABLE_TYPES.add(new BgpTableTypeImpl(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class));
         AFISAFIS.add(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
-            .addAugmentation(AfiSafi2.class, new AfiSafi2Builder().setReceive(true).setSendMax(Shorts.checkedCast(N_PATHS)).build()).build());
+                .addAugmentation(AfiSafi2.class, new AfiSafi2Builder().setReceive(true)
+                        .setSendMax(Shorts.checkedCast(N_PATHS)).build()).build());
         AFISAFIS.add(new AfiSafiBuilder().setAfiSafiName(IPV6UNICAST.class)
-            .addAugmentation(AfiSafi2.class, new AfiSafi2Builder().setReceive(true).setSendMax(Shorts.checkedCast(ALL_PATHS)).build()).build());
+                .addAugmentation(AfiSafi2.class, new AfiSafi2Builder().setReceive(true)
+                        .setSendMax(Shorts.checkedCast(ALL_PATHS)).build()).build());
     }
 
     @Mock
@@ -162,13 +171,14 @@ public class OpenConfigMappingUtilTest {
     private RIB rib;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
         Mockito.doReturn(java.util.Optional.of(BGP_TABLE_TYPE_IPV4))
             .when(this.tableTypeRegistry).getTableType(IPV4UNICAST.class);
         Mockito.doReturn(java.util.Optional.of(BGP_TABLE_TYPE_IPV6))
             .when(this.tableTypeRegistry).getTableType(IPV6UNICAST.class);
-        Mockito.doReturn(java.util.Optional.of(new BgpTableTypeImpl(Ipv6AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class)))
+        Mockito.doReturn(java.util.Optional.of(new BgpTableTypeImpl(Ipv6AddressFamily.class,
+                MplsLabeledVpnSubsequentAddressFamily.class)))
             .when(this.tableTypeRegistry).getTableType(IPV6LABELLEDUNICAST.class);
         Mockito.doReturn(java.util.Optional.of(IPV4UNICAST.class))
             .when(this.tableTypeRegistry).getAfiSafiType(BGP_TABLE_TYPE_IPV4);
@@ -178,69 +188,118 @@ public class OpenConfigMappingUtilTest {
     }
 
     @Test
-    public void testGetRibInstanceName() throws Exception {
+    public void testGetRibInstanceName() {
         assertEquals(KEY, OpenConfigMappingUtil.getRibInstanceName(BGP_II));
     }
 
     @Test
-    public void testGetHoldTimer() throws Exception {
-        assertEquals(DEFAULT_TIMERS.toBigInteger().intValue(), OpenConfigMappingUtil.getHoldTimer(NEIGHBOR));
+    public void testGetHoldTimer() {
+        TimersBuilder builder = new TimersBuilder().setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net
+                .yang.bgp.rev151009.bgp.neighbor.group.timers.ConfigBuilder().setHoldTime(BigDecimal.TEN).build());
+
+        assertEquals(DEFAULT_TIMERS.toBigInteger().intValue(),
+                OpenConfigMappingUtil.getHoldTimer(NEIGHBOR, null));
+        assertEquals(HOLDTIMER,
+                OpenConfigMappingUtil.getHoldTimer(new NeighborBuilder().build(), null));
+
+        assertEquals(DEFAULT_TIMERS.toBigInteger().intValue(),
+                OpenConfigMappingUtil.getHoldTimer(NEIGHBOR, new PeerGroupBuilder().build()));
+        assertEquals(BigDecimal.TEN.intValue(), OpenConfigMappingUtil.getHoldTimer(NEIGHBOR, new PeerGroupBuilder()
+                .setTimers(builder.build()).build()));
     }
 
     @Test
-    public void testGetPeerAs() throws Exception {
-        assertEquals(AS, OpenConfigMappingUtil.getPeerAs(NEIGHBOR, null));
-        assertEquals(AS, OpenConfigMappingUtil.getPeerAs(new NeighborBuilder().build(), this.rib));
+    public void testGetPeerAs() {
+        assertEquals(AS, OpenConfigMappingUtil.getPeerAs(NEIGHBOR, null, null));
+        assertEquals(AS, OpenConfigMappingUtil.getPeerAs(new NeighborBuilder().build(), null, this.rib.getLocalAs()));
+
+        assertEquals(AS, OpenConfigMappingUtil.getPeerAs(NEIGHBOR, new PeerGroupBuilder().build(), null));
+        assertEquals(AS, OpenConfigMappingUtil.getPeerAs(new NeighborBuilder().build(), new PeerGroupBuilder().build(),
+                this.rib.getLocalAs()));
+
+        assertEquals(AS, OpenConfigMappingUtil.getPeerAs(null, new PeerGroupBuilder()
+                        .setConfig(new ConfigBuilder().setPeerAs(AS).build()).build(), null));
     }
 
     @Test
-    public void testIsActive() throws Exception {
-        assertTrue(OpenConfigMappingUtil.isActive(new NeighborBuilder().build()));
-        assertTrue(OpenConfigMappingUtil.isActive(new NeighborBuilder().setTransport(new TransportBuilder().build()).build()));
-        assertTrue(OpenConfigMappingUtil.isActive(new NeighborBuilder().setTransport(createTransport()).build()));
+    public void testIsActive() {
+        final TransportBuilder builder = new TransportBuilder();
+        assertTrue(OpenConfigMappingUtil.isActive(new NeighborBuilder().build(), null));
+        assertTrue(OpenConfigMappingUtil.isActive(new NeighborBuilder()
+                .setTransport(builder.build()).build(), null));
+
+        final Transport activeFalse = builder.setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp
+                .rev151009.bgp.neighbor.group.transport.ConfigBuilder().setPassiveMode(true).build()).build();
+        assertFalse(OpenConfigMappingUtil.isActive(new NeighborBuilder().setTransport(activeFalse).build(),
+                null));
+
+        assertTrue(OpenConfigMappingUtil.isActive(new NeighborBuilder().build(),
+                new PeerGroupBuilder().build()));
+        assertFalse(OpenConfigMappingUtil.isActive(new NeighborBuilder().build(),
+                new PeerGroupBuilder().setTransport(activeFalse).build()));
     }
 
     @Test
-    public void testGetRetryTimer() throws Exception {
-        assertEquals(DEFAULT_TIMERS.toBigInteger().intValue(), OpenConfigMappingUtil.getRetryTimer(NEIGHBOR));
-        assertEquals(DEFAULT_TIMERS.toBigInteger().intValue(), OpenConfigMappingUtil.getRetryTimer(new NeighborBuilder().build()));
+    public void testGetRetryTimer() {
+        assertEquals(DEFAULT_TIMERS.toBigInteger().intValue(),
+                OpenConfigMappingUtil.getRetryTimer(NEIGHBOR, null));
+        assertEquals(DEFAULT_TIMERS.toBigInteger().intValue(),
+                OpenConfigMappingUtil.getRetryTimer(new NeighborBuilder().build(), null));
+        TimersBuilder builder = new TimersBuilder().setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net
+                .yang.bgp.rev151009.bgp.neighbor.group.timers.ConfigBuilder().setConnectRetry(BigDecimal.TEN).build());
+        assertEquals(BigDecimal.TEN.intValue(), OpenConfigMappingUtil.getRetryTimer(new NeighborBuilder()
+                .setTimers(builder.build()).build(), null));
+
+        assertEquals(DEFAULT_TIMERS.toBigInteger().intValue(),
+                OpenConfigMappingUtil.getRetryTimer(NEIGHBOR, new PeerGroupBuilder().build()));
+        assertEquals(BigDecimal.TEN.intValue(), OpenConfigMappingUtil.getRetryTimer(NEIGHBOR,
+                new PeerGroupBuilder().setTimers(builder.build()).build()));
     }
 
     @Test
-    public void testGetNeighborKey() throws Exception {
+    public void testGetNeighborKey() {
         assertArrayEquals(MD5_PASSWORD.getBytes(StandardCharsets.US_ASCII),
             OpenConfigMappingUtil.getNeighborKey(NEIGHBOR).get(INSTANCE.inetAddressFor(NEIGHBOR_ADDRESS)));
         assertNull(OpenConfigMappingUtil.getNeighborKey(new NeighborBuilder().build()));
-        assertNull(OpenConfigMappingUtil.getNeighborKey(new NeighborBuilder().setConfig(new ConfigBuilder().build()).build()));
+        assertNull(OpenConfigMappingUtil.getNeighborKey(new NeighborBuilder().setConfig(new ConfigBuilder()
+                .build()).build()));
     }
 
     @Test
-    public void testGetNeighborInstanceIdentifier() throws Exception {
+    public void testGetNeighborInstanceIdentifier() {
         assertEquals(BGP_II.child(Neighbors.class).child(Neighbor.class, NEIGHBOR_KEY),
             OpenConfigMappingUtil.getNeighborInstanceIdentifier(BGP_II, NEIGHBOR_KEY));
 
     }
 
     @Test
-    public void testGetNeighborInstanceName() throws Exception {
-        assertEquals(NEIGHBOR_ADDRESS.getIpv4Address().getValue(),
-            OpenConfigMappingUtil.getNeighborInstanceName(BGP_II.child(Neighbors.class).child(Neighbor.class, NEIGHBOR_KEY)));
+    public void testGetNeighborInstanceName() {
+        assertEquals(NEIGHBOR_ADDRESS.getIpv4Address().getValue(), OpenConfigMappingUtil
+                .getNeighborInstanceName(BGP_II.child(Neighbors.class).child(Neighbor.class, NEIGHBOR_KEY)));
     }
 
     @Test
-    public void testGetPort() throws Exception {
-        assertEquals(PORT, OpenConfigMappingUtil.getPort(NEIGHBOR));
-        assertEquals(PORT, OpenConfigMappingUtil.getPort(new NeighborBuilder().setTransport(new TransportBuilder().build()).build()));
+    public void testGetPort() {
+        final TransportBuilder transport = new TransportBuilder();
+        assertEquals(PORT, OpenConfigMappingUtil.getPort(NEIGHBOR, null));
+        assertEquals(PORT, OpenConfigMappingUtil.getPort(new NeighborBuilder()
+                .setTransport(transport.build()).build(), null));
         assertEquals(PORT, OpenConfigMappingUtil.getPort(new NeighborBuilder().setTransport(
-            new TransportBuilder().setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.transport.
-                ConfigBuilder().build()).build()).build()));
-        assertEquals(PORT, OpenConfigMappingUtil.getPort(new NeighborBuilder().setTransport(
-            new TransportBuilder().setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.transport.
-                ConfigBuilder().addAugmentation(Config1.class, new Config1Builder().build()).build()).build()).build()));
+                transport.setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor
+                        .group.transport.ConfigBuilder().build()).build()).build(), null));
+        final PortNumber newPort = new PortNumber(111);
+        final Config portConfig = new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor
+                .group.transport.ConfigBuilder().addAugmentation(Config1.class, new Config1Builder()
+                .setRemotePort(newPort).build()).build();
+        assertEquals(newPort, OpenConfigMappingUtil.getPort(new NeighborBuilder().setTransport(
+                transport.setConfig(portConfig).build()).build(), null));
+
+        assertEquals(newPort, OpenConfigMappingUtil.getPort(new NeighborBuilder()
+                .setTransport(transport.setConfig(portConfig).build()).build(), new PeerGroupBuilder().build()));
     }
 
     @Test
-    public void testGetAfiSafiWithDefault() throws Exception {
+    public void testGetAfiSafiWithDefault() {
         final ImmutableList<AfiSafi> defaultValue = ImmutableList.of(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class).build());
         assertEquals(defaultValue, OpenConfigMappingUtil.getAfiSafiWithDefault(null, true));
         final AfiSafis afiSafi = new AfiSafisBuilder().build();

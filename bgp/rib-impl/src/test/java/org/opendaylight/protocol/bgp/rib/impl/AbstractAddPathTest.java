@@ -12,7 +12,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import io.netty.channel.epoll.Epoll;
@@ -257,7 +256,7 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
             this.worker, clientRegistry);
         clientRegistry.addPeer(new IpAddress(new Ipv4Address(RIB_ID)), sessionListener,
             new BGPSessionPreferences(AS_NUMBER, HOLDTIMER, new BgpId(peer),
-                AS_NUMBER, Lists.newArrayList(bgpParameters), Optional.absent()));
+                AS_NUMBER, Lists.newArrayList(bgpParameters)));
 
         return connectPeer(peer, clientDispatcher);
     }
@@ -270,7 +269,7 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
             AFI_SAFIS_ADVERTIZED, Collections.emptySet());
         final List<BgpParameters> tlvs = Lists.newArrayList(bgpParameters);
         bgpPeerRegistry.addPeer(ipAddress, bgpPeer,
-            new BGPSessionPreferences(AS_NUMBER, HOLDTIMER, new BgpId(RIB_ID), AS_NUMBER, tlvs, Optional.absent()));
+            new BGPSessionPreferences(AS_NUMBER, HOLDTIMER, new BgpId(RIB_ID), AS_NUMBER, tlvs));
         bgpPeer.instantiateServiceInstance();
         return bgpPeer;
     }

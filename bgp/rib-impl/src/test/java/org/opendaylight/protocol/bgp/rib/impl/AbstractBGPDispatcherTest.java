@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import io.netty.channel.Channel;
@@ -22,7 +21,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
-import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
@@ -50,7 +48,7 @@ import org.slf4j.LoggerFactory;
 
 public class AbstractBGPDispatcherTest {
     protected static final AsNumber AS_NUMBER = new AsNumber(30L);
-    protected static final int RETRY_TIMER = 1;
+    static final int RETRY_TIMER = 1;
     protected static final BgpTableType IPV_4_TT = new BgpTableTypeImpl(Ipv4AddressFamily.class,
         UnicastSubsequentAddressFamily.class);
     private static final short HOLD_TIMER = 30;
@@ -64,7 +62,7 @@ public class AbstractBGPDispatcherTest {
     private EventLoopGroup worker;
 
     @Before
-    public void setUp() throws BGPDocumentedException {
+    public void setUp() {
         if (!Epoll.isAvailable()) {
             this.boss = new NioEventLoopGroup();
             this.worker = new NioEventLoopGroup();
@@ -102,10 +100,10 @@ public class AbstractBGPDispatcherTest {
         capas.add(new OptionalCapabilitiesBuilder().setCParameters(BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY).build());
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
         final BgpId bgpId = new BgpId(new Ipv4Address(socketAddress.getAddress().getHostAddress()));
-        return new BGPSessionPreferences(AS_NUMBER, HOLD_TIMER, bgpId, AS_NUMBER, tlvs, Optional.absent());
+        return new BGPSessionPreferences(AS_NUMBER, HOLD_TIMER, bgpId, AS_NUMBER, tlvs);
     }
 
-    protected Channel createServer(final InetSocketAddress serverAddress) throws InterruptedException {
+    Channel createServer(final InetSocketAddress serverAddress) {
         this.registry.addPeer(new IpAddress(new Ipv4Address(serverAddress.getAddress().getHostAddress())),
             this.serverListener, createPreferences(serverAddress));
         LoggerFactory.getLogger(AbstractBGPDispatcherTest.class).info("createServer");

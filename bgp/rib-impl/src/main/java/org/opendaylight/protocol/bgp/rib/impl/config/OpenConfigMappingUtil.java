@@ -22,12 +22,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.add.all.paths.AllPathSelection;
 import org.opendaylight.protocol.bgp.mode.impl.add.n.paths.AddPathBestNPathSelection;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
-import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.util.Ipv4Util;
@@ -35,17 +36,20 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.r
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighborAddPathsConfig;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighborGroup;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.AfiSafisBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.ConfigBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.RouteReflector;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.RouteReflectorBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Timers;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.TimersBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Transport;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.TransportBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.transport.Config;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborKey;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.peer.group.PeerGroup;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.GlobalBuilder;
@@ -85,7 +89,7 @@ public final class OpenConfigMappingUtil {
     static final String APPLICATION_PEER_GROUP_NAME = "application-peers";
     private static final AfiSafi IPV4_AFISAFI = new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class).build();
     private static final List<AfiSafi> DEFAULT_AFISAFI = ImmutableList.of(IPV4_AFISAFI);
-    private static final int HOLDTIMER = 90;
+    static final int HOLDTIMER = 90;
     private static final int CONNECT_RETRY = 30;
     private static final PortNumber PORT = new PortNumber(179);
     private static final BigDecimal DEFAULT_KEEP_ALIVE = BigDecimal.valueOf(30);
@@ -99,42 +103,53 @@ public final class OpenConfigMappingUtil {
         return rootIdentifier.firstKeyOf(Protocol.class).getName();
     }
 
-    public static int getHoldTimer(final Neighbor neighbor) {
-        final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.timers.Config config =
-            getTimersConfig(neighbor);
+    @Nullable
+    private static Integer getHoldTimer(final Timers timers) {
+        if (timers == null) {
+            return null;
+        }
+        final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.timers
+                .Config config = timers.getConfig();
         if (config != null && config.getHoldTime() != null) {
             return config.getHoldTime().intValue();
         }
-        return HOLDTIMER;
+        return null;
     }
 
-    public static AsNumber getPeerAs(final Neighbor neighbor, final RIB rib) {
-        if (neighbor.getConfig() != null) {
-            final AsNumber peerAs = neighbor.getConfig().getPeerAs();
+    @Nullable
+    private static AsNumber getPeerAs(final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp
+            .rev151009.bgp.neighbor.group.Config config) {
+        if (config != null) {
+            final AsNumber peerAs = config.getPeerAs();
             if (peerAs != null) {
                 return peerAs;
             }
         }
-        return rib.getLocalAs();
+        return null;
     }
 
-    public static boolean isActive(final Neighbor neighbor) {
-        if (neighbor.getTransport() != null) {
-            final Config config = neighbor.getTransport().getConfig();
+    @Nullable
+    private static Boolean isActive(final Transport transport) {
+        if (transport != null) {
+            final Config config = transport.getConfig();
             if (config != null && config.isPassiveMode() != null) {
                 return !config.isPassiveMode();
             }
         }
-        return true;
+        return null;
     }
 
-    public static int getRetryTimer(final Neighbor neighbor) {
-        final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.timers.Config config =
-            getTimersConfig(neighbor);
+    @Nullable
+    private static Integer getRetryTimer(final Timers timers) {
+        if (timers == null) {
+            return null;
+        }
+        final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.timers
+                .Config config = timers.getConfig();
         if (config != null && config.getConnectRetry() != null) {
             return config.getConnectRetry().intValue();
         }
-        return CONNECT_RETRY;
+        return null;
     }
 
     public static KeyMapping getNeighborKey(final Neighbor neighbor) {
@@ -147,7 +162,8 @@ public final class OpenConfigMappingUtil {
         return null;
     }
 
-    public static InstanceIdentifier<Neighbor> getNeighborInstanceIdentifier(final InstanceIdentifier<Bgp> rootIdentifier,
+    public static InstanceIdentifier<Neighbor> getNeighborInstanceIdentifier(
+            final InstanceIdentifier<Bgp> rootIdentifier,
         final NeighborKey neighborKey) {
         return rootIdentifier.child(Neighbors.class).child(Neighbor.class, neighborKey);
     }
@@ -156,7 +172,8 @@ public final class OpenConfigMappingUtil {
         return Ipv4Util.toStringIP(rootIdentifier.firstKeyOf(Neighbor.class).getNeighborAddress());
     }
 
-    public static PortNumber getPort(final Neighbor neighbor) {
+    @Nullable
+    private static PortNumber getPort(@Nonnull final BgpNeighborGroup neighbor) {
         if (neighbor.getTransport() != null) {
             final Config config = neighbor.getTransport().getConfig();
             if (config != null && config.getAugmentation(Config1.class) != null) {
@@ -166,11 +183,12 @@ public final class OpenConfigMappingUtil {
                 }
             }
         }
-        return PORT;
+        return null;
     }
 
     //make sure IPv4 Unicast (RFC 4271) when required
-    public static List<AfiSafi> getAfiSafiWithDefault(final BgpCommonAfiSafiList afiSAfis, final boolean setDeafultIPv4) {
+    public static List<AfiSafi> getAfiSafiWithDefault(
+            final BgpCommonAfiSafiList afiSAfis, final boolean setDeafultIPv4) {
         if (afiSAfis == null || afiSAfis.getAfiSafi() == null) {
             return setDeafultIPv4 ? DEFAULT_AFISAFI : Collections.emptyList();
         }
@@ -190,11 +208,6 @@ public final class OpenConfigMappingUtil {
             return new ClusterIdentifier(globalConfigAugmentation.getRouteReflectorClusterId().getIpv4Address());
         }
         return new ClusterIdentifier(globalConfig.getRouterId());
-    }
-
-    private static org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.timers.Config getTimersConfig(final Neighbor neighbor) {
-        final Timers timers = neighbor.getTimers();
-        return timers != null ? timers.getConfig() : null;
     }
 
     public static Map<BgpTableType, PathSelectionMode> toPathSelectionMode(final List<AfiSafi> afiSafis,
@@ -327,7 +340,7 @@ public final class OpenConfigMappingUtil {
         return neighborBuilder.build();
     }
 
-    public static PeerRole toPeerRole(final Neighbor neighbor) {
+    public static PeerRole toPeerRole(final BgpNeighborGroup neighbor) {
         if (isRrClient(neighbor)) {
             return PeerRole.RrClient;
         }
@@ -336,9 +349,11 @@ public final class OpenConfigMappingUtil {
             final PeerType peerType = neighbor.getConfig().getPeerType();
             if (peerType == PeerType.EXTERNAL) {
                 return PeerRole.Ebgp;
+            } else if(peerType == PeerType.INTERNAL) {
+                return PeerRole.Ibgp;
             }
         }
-        return PeerRole.Ibgp;
+        return null;
     }
 
     static PeerType toPeerType(final PeerRole peerRole) {
@@ -356,7 +371,7 @@ public final class OpenConfigMappingUtil {
         return null;
     }
 
-    private static boolean isRrClient(final Neighbor neighbor) {
+    private static boolean isRrClient(final BgpNeighborGroup neighbor) {
         final RouteReflector routeReflector = neighbor.getRouteReflector();
         if (routeReflector != null && routeReflector.getConfig() != null) {
             return routeReflector.getConfig().isRouteReflectorClient();
@@ -452,5 +467,108 @@ public final class OpenConfigMappingUtil {
             .filter(Optional::isPresent)
             .map(Optional::get)
             .collect(Collectors.toSet());
+    }
+
+    @Nonnull
+    public static boolean isActive(final Neighbor neighbor, final PeerGroup peerGroup) {
+        Boolean activeConnection = null;
+        if (peerGroup != null) {
+            activeConnection = isActive(peerGroup.getTransport());
+        }
+
+        if (activeConnection == null) {
+            activeConnection = isActive(neighbor.getTransport());
+        }
+        if (activeConnection == null) {
+            return true;
+        }
+        return activeConnection;
+    }
+
+    @Nonnull
+    public static PeerRole toPeerRole(final Neighbor neighbor, final PeerGroup peerGroup) {
+        PeerRole role = null;
+        if (peerGroup != null) {
+            role = toPeerRole(peerGroup);
+        }
+
+        if (role == null) {
+            role = toPeerRole(neighbor);
+        }
+
+        if (role == null) {
+            return PeerRole.Ibgp;
+        }
+        return role;
+    }
+
+    public static int getHoldTimer(final Neighbor neighbor, final PeerGroup peerGroup) {
+        Integer hold = null;
+        if (peerGroup != null) {
+            hold = getHoldTimer(peerGroup.getTimers());
+        }
+
+        if (hold == null) {
+            hold = getHoldTimer(neighbor.getTimers());
+        }
+
+        if (hold == null) {
+            return HOLDTIMER;
+        }
+
+        return hold;
+    }
+
+    @Nonnull
+    public static AsNumber getPeerAs(final Neighbor neighbor, final PeerGroup peerGroup, final AsNumber localAs) {
+        AsNumber neighborAs = null;
+        if (peerGroup != null) {
+            neighborAs = getPeerAs(peerGroup.getConfig());
+        }
+
+        if (neighborAs == null) {
+            neighborAs = getPeerAs(neighbor.getConfig());
+        }
+
+        if (neighborAs == null) {
+            return localAs;
+        }
+        return neighborAs;
+    }
+
+    @Nonnull
+    public static int getRetryTimer(final Neighbor neighbor, final PeerGroup peerGroup) {
+        Integer retryTimer = null;
+        if (peerGroup != null) {
+            retryTimer = getRetryTimer(peerGroup.getTimers());
+        }
+
+        if (retryTimer == null) {
+            retryTimer = getRetryTimer(neighbor.getTimers());
+        }
+
+        if (retryTimer == null) {
+            return CONNECT_RETRY;
+        }
+
+        return retryTimer;
+    }
+
+    @Nonnull
+    public static PortNumber getPort(final Neighbor neighbor, final PeerGroup peerGroup) {
+        PortNumber port = null;
+        if (peerGroup != null) {
+            port = getPort(peerGroup);
+        }
+
+        if (port == null) {
+            port = getPort(neighbor);
+        }
+
+        if (port == null) {
+            return PORT;
+        }
+
+        return port;
     }
 }
