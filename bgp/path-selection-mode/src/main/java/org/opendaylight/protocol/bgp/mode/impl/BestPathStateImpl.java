@@ -71,7 +71,7 @@ public final class BestPathStateImpl implements BestPathState {
         }
         if (this.attributes.getAsPath() != null) {
             final List<Segments> segs = this.attributes.getAsPath().getSegments();
-            if (!segs.isEmpty()) {
+            if (segs != null && !segs.isEmpty()) {
                 this.peerAs = BesthPathStateUtil.getPeerAs(segs);
                 this.asPathLength = countAsPath(segs);
             }
