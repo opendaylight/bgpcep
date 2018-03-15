@@ -1,6 +1,6 @@
 module openconfig-bgp {
 
-  yang-version "1";
+  yang-version "1.1";
 
   // namespace
   namespace "http://openconfig.net/yang/bgp";
@@ -423,11 +423,8 @@ module openconfig-bgp {
 
     leaf peer-group {
       type leafref {
-        // we are at /bgp/neighbors/neighbor/
         path "/bgp/peer-groups/peer-group/peer-group-name";
-        //TODO: require-instance should be added when it's
-        //supported in YANG 1.1
-        //require-instance true;
+        require-instance true;
       }
       description
         "The peer-group with which this neighbor is associated";

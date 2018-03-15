@@ -69,9 +69,23 @@
                     </afi-safi>
                 </afi-safis>
             </global>
-            <neighbors xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
-                <neighbor xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
+            <neighbors>
+                <neighbor>
                     <neighbor-address>192.0.2.1</neighbor-address>
+                    <config>
+                        <peer-group>/bgp/neighbors/neighbor/bgp/peer-groups/peer-group[peer-group-name="internal-neighbor"]</peer-group>
+                    </config>
+                </neighbor>
+                <neighbor>
+                    <neighbor-address>192.0.2.6</neighbor-address>
+                    <config>
+                        <peer-group>application-peers</peer-group>
+                    </config>
+                </neighbor>
+            </neighbors>
+            <peer-groups>
+                <peer-group>
+                    <peer-group-name>internal-neighbor</peer-group-name>
                     <config>
                         <peer-type>INTERNAL</peer-type>
                         <peer-as>64496</peer-as>
@@ -134,14 +148,8 @@
                             <afi-safi-name>IPV6-L3VPN-FLOW</afi-safi-name>
                         </afi-safi>
                     </afi-safis>
-                </neighbor>
-                <neighbor xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
-                    <neighbor-address>192.0.2.6</neighbor-address>
-                    <config>
-                        <peer-group>application-peers</peer-group>
-                    </config>
-                </neighbor>
-            </neighbors>
+                </peer-group>
+            </peer-groups>
         </bgp>
     </protocol>
 </protocols>

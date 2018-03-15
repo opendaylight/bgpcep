@@ -24,10 +24,12 @@ import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerStateConsumer;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Config;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.ApplicationRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.ApplicationRibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.Tables;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.osgi.framework.ServiceRegistration;
@@ -53,8 +55,8 @@ public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
     }
 
     @Override
-    public synchronized void start(final RIB rib, final Neighbor neighbor,
-            final BGPTableTypeRegistryConsumer tableTypeRegistry) {
+    public synchronized void start(final RIB rib, final Neighbor neighbor, final InstanceIdentifier<Bgp> bgpIid,
+            final PeerGroupConfigLoader peerGroupLoader, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         Preconditions.checkState(this.bgpAppPeerSingletonService == null,
                 "Previous peer instance was not closed.");
         this.currentConfiguration = neighbor;
@@ -63,9 +65,10 @@ public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
     }
 
     @Override
-    public synchronized void restart(final RIB rib, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
+    public synchronized void restart(final RIB rib, final InstanceIdentifier<Bgp> bgpIid,
+            final PeerGroupConfigLoader peerGroupLoader, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         Preconditions.checkState(this.currentConfiguration != null);
-        start(rib, this.currentConfiguration, tableTypeRegistry);
+        start(rib, this.currentConfiguration, bgpIid, peerGroupLoader, tableTypeRegistry);
     }
 
     @Override
