@@ -383,7 +383,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
         }
     }
 
-    private ListenableFuture<Void> cleanup() {
+    private synchronized ListenableFuture<Void> cleanup() {
         // FIXME: BUG-196: support graceful
         this.adjRibOutListenerSet.values().forEach(AdjRibOutListener::close);
         this.adjRibOutListenerSet.clear();
@@ -450,7 +450,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
         return future;
     }
 
-    private void closeRegistration() {
+    private synchronized void closeRegistration() {
         if (this.trackerRegistration != null) {
             this.trackerRegistration.close();
             this.trackerRegistration = null;
