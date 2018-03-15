@@ -82,7 +82,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     }
 
     @Override
-    public void close() {
+    public synchronized void close() {
         this.adjInTracker.close();
     }
 
@@ -150,7 +150,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
         @Override
         @SuppressWarnings("unchecked")
-        public void onDataTreeChanged(@Nonnull final Collection<DataTreeModification<Tables>> changes) {
+        public synchronized void onDataTreeChanged(@Nonnull final Collection<DataTreeModification<Tables>> changes) {
             LOG.trace("Data changed called to effective RIB. Change : {}", changes);
             WriteTransaction tx = null;
             for (final DataTreeModification<Tables> tc : changes) {
