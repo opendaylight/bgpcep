@@ -767,6 +767,81 @@
                 </statement>
             </statements>
         </policy-definition>
+        <policy-definition>
+            <name>bgp-neighbor-statements-test</name>
+            <statements>
+                <statement>
+                    <name>reject-from-neighbor-test</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-bgp-neighbor-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <from-neighbor>
+                                    <neighbor-set>
+                                        /rpol:routing-policy/rpol:defined-sets/rpol:neighbor-sets/neighbor-set[neighbor-set-name="test-bgp-neighbor-set"
+                                    </neighbor-set>
+                                </from-neighbor>
+                            </match-bgp-neighbor-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <reject-route/>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>reject-from-neighbor-invert-test</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-bgp-neighbor-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <from-neighbor>
+                                    <neighbor-set>
+                                        /rpol:routing-policy/rpol:defined-sets/rpol:neighbor-sets/neighbor-set[neighbor-set-name="test-bgp-neighbor-set"
+                                    </neighbor-set>
+                                    <match-set-options>INVERT</match-set-options>
+                                </from-neighbor>
+                            </match-bgp-neighbor-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <reject-route/>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>reject-to-neighbor-test</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-bgp-neighbor-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <to-neighbor>
+                                    <neighbor-set>
+                                        /rpol:routing-policy/rpol:defined-sets/rpol:neighbor-sets/neighbor-set[neighbor-set-name="test-bgp-neighbor-set"
+                                    </neighbor-set>
+                                </to-neighbor>
+                            </match-bgp-neighbor-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <reject-route/>
+                    </actions>
+                </statement>
+                <statement>
+                    <name>reject-to-neighbor-invert-test</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-bgp-neighbor-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <to-neighbor>
+                                    <neighbor-set>
+                                        /rpol:routing-policy/rpol:defined-sets/rpol:neighbor-sets/neighbor-set[neighbor-set-name="test-bgp-neighbor-set"
+                                    </neighbor-set>
+                                    <match-set-options>INVERT</match-set-options>
+                                </to-neighbor>
+                            </match-bgp-neighbor-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <reject-route/>
+                    </actions>
+                </statement>
+            </statements>
+        </policy-definition>
     </policy-definitions>
     <defined-sets>
         <bgp-defined-sets xmlns="http://openconfig.net/yang/bgp-policy">
@@ -865,5 +940,16 @@
                 </prefix>
             </prefix-set>
         </prefix-sets>
+        <neighbor-sets>
+            <neighbor-set>
+                <neighbor-set-name>test-bgp-neighbor-set</neighbor-set-name>
+                <neighbor>
+                    <address>127.0.0.1</address>
+                </neighbor>
+                <neighbor>
+                    <address>127.0.0.2</address>
+                </neighbor>
+            </neighbor-set>
+        </neighbor-sets>
     </defined-sets>
 </routing-policy>

@@ -79,10 +79,6 @@ final class ConditionsRegistryImpl {
             final BGPRouteEntryExportParameters routeEntryExportParameters,
             final Attributes attributes,
             final Conditions conditions) {
-      /*  if (!this.genericConditionHandler
-                .matchExportCondition(routeEntryExportParameters, conditions)) {
-            return false;
-        }*/
 
         if (!this.bgpConditionsRegistry
                 .matchExportConditions(entryInfo, routeEntryExportParameters, attributes, conditions)) {

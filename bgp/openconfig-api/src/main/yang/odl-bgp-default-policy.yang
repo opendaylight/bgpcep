@@ -64,6 +64,37 @@ module odl-bgp-policy {
         }
     }
 
+    grouping bgp-neighbor {
+        leaf neighbor-set {
+          type leafref {
+            path "/rpol:routing-policy/rpol:defined-sets/rpol:neighbor-sets/rpol:neighbor-set/rpol:neighbor-set-name";
+            require-instance true;
+          }
+          description "References a defined neighbor set";
+        }
+        uses rpol:match-set-options-restricted-group;
+    }
+
+    grouping match-bgp-neighbor-grouping {
+        container match-bgp-neighbor-set {
+            presence
+                "The presence of this container indicates that the routes
+                should match the neighbour address of set referenced";
+
+            description
+                "Match a referenced neighbor set according to the logic
+                defined in the match-set-options-leaf";
+
+            container from-neighbor {
+                uses bgp-neighbor;
+            }
+
+            container to-neighbor {
+                uses bgp-neighbor;
+            }
+        }
+    }
+
     grouping match-originator-id-set-condition-grouping {
         description
             "Match a list of referenced originator-id-set according to the logic
@@ -198,6 +229,11 @@ module odl-bgp-policy {
             description "Enclosing container for defined role sets for matching";
             uses originator-id-set;
         }
+    }
+
+    augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:conditions/bgppol:bgp-conditions {
+        ext:augment-identifier match-bgp-neighbor-condition;
+        uses match-bgp-neighbor-grouping;
     }
 
     augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:conditions/bgppol:bgp-conditions {
