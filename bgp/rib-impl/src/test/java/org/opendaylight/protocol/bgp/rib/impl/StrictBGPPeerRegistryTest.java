@@ -12,7 +12,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Futures;
 import java.net.InetSocketAddress;
@@ -60,10 +59,10 @@ public class StrictBGPPeerRegistryTest {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         this.peerRegistry = new StrictBGPPeerRegistry();
-        this.mockPreferences =  new BGPSessionPreferences(LOCAL_AS, 1, new BgpId("0.0.0.1"), LOCAL_AS, Collections.emptyList(),
-                Optional.absent());
+        this.mockPreferences = new BGPSessionPreferences(LOCAL_AS, 1, new BgpId("0.0.0.1"), LOCAL_AS,
+                Collections.emptyList());
     }
 
     private static BGPSessionListener getMockSession() {
