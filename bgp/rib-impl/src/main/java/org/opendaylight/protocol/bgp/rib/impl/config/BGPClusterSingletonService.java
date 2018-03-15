@@ -35,10 +35,12 @@ import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.InstanceType;
 import org.opendaylight.protocol.bgp.rib.spi.util.ClusterSingletonServiceRegistrationHelper;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Config;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Neighbors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev171207.Config2;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.osgi.framework.BundleContext;
@@ -55,19 +57,24 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
     private final InstanceIdentifier<Bgp> bgpIid;
     @GuardedBy("this")
     private final Map<InstanceIdentifier<Neighbor>, PeerBean> peers = new HashMap<>();
+    @GuardedBy("this")
+    private final Map<String, List<PeerBean>> peersGroups = new HashMap<>();
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
     private final BlueprintContainer container;
     private final BundleContext bundleContext;
     private final ServiceGroupIdentifier serviceGroupIdentifier;
     private final AtomicBoolean instantiated = new AtomicBoolean(false);
+    private final PeerGroupConfigLoader peerGroupLoader;
     private RibImpl ribImpl;
 
     BGPClusterSingletonService(
+            @Nonnull final PeerGroupConfigLoader peerGroupLoader,
             @Nonnull final ClusterSingletonServiceProvider provider,
             @Nonnull final BGPTableTypeRegistryConsumer tableTypeRegistry,
             @Nonnull final BlueprintContainer container,
             @Nonnull final BundleContext bundleContext,
             @Nonnull final InstanceIdentifier<Bgp> bgpIid) {
+        this.peerGroupLoader = peerGroupLoader;
         this.tableTypeRegistry = tableTypeRegistry;
         this.container = container;
         this.bundleContext = bundleContext;
@@ -153,8 +160,8 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
         final List<PeerBean> closedPeers = closeAllBindedPeers();
         closeRibService();
         initiateRibInstance(global, this.ribImpl);
-        for(final PeerBean peer :closedPeers) {
-            peer.restart(this.ribImpl, this.tableTypeRegistry);
+        for (final PeerBean peer : closedPeers) {
+            peer.restart(this.ribImpl, this.bgpIid, this.peerGroupLoader, this.tableTypeRegistry);
         }
         if (this.instantiated.get()) {
             closedPeers.forEach(PeerBean::instantiateServiceInstance);
@@ -203,7 +210,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         LOG.info("BGPClusterSingletonService {} close", this.serviceGroupIdentifier.getValue());
         this.peers.values().iterator().forEachRemaining(PeerBean::close);
         this.ribImpl.close();
@@ -251,15 +258,27 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
                 getNeighborInstanceIdentifier(this.bgpIid, neighbor.getKey());
         initiatePeerInstance(neighborInstanceIdentifier, neighbor, bgpPeer);
         this.peers.put(neighborInstanceIdentifier, bgpPeer);
+
+        final String groupName = getPeerGroupName(neighbor.getConfig());
+        if (groupName != null) {
+            this.peersGroups.computeIfAbsent(groupName, k -> new ArrayList<>()).add(bgpPeer);
+        }
         LOG.debug("Peer instance created {}", bgpPeer);
+    }
+
+    private String getPeerGroupName(final Config config) {
+        if (config != null && config.getAugmentation(Config2.class) != null) {
+            return config.getAugmentation(Config2.class).getPeerGroup();
+        }
+        return null;
     }
 
     private synchronized void onNeighborUpdated(final PeerBean bgpPeer, final Neighbor neighbor) {
         LOG.debug("Updating Peer instance with configuration: {}", neighbor);
         closePeer(bgpPeer);
 
-        final InstanceIdentifier<Neighbor> neighborInstanceIdentifier = getNeighborInstanceIdentifier(this.bgpIid,
-                neighbor.getKey());
+        final InstanceIdentifier<Neighbor> neighborInstanceIdentifier
+                = getNeighborInstanceIdentifier(this.bgpIid, neighbor.getKey());
         initiatePeerInstance(neighborInstanceIdentifier, neighbor, bgpPeer);
         LOG.debug("Peer instance updated {}", bgpPeer);
     }
@@ -279,6 +298,14 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
     private synchronized void onNeighborRemoved(final Neighbor neighbor) {
         LOG.debug("Removing Peer instance: {}", neighbor);
         final PeerBean bgpPeer = this.peers.remove(getNeighborInstanceIdentifier(this.bgpIid, neighbor.getKey()));
+
+        final String groupName = getPeerGroupName(neighbor.getConfig());
+        if (groupName != null) {
+            this.peersGroups.computeIfPresent(groupName, (k, peers) -> {
+                peers.remove(bgpPeer);
+                return peers.isEmpty() ? null : peers;
+            });
+        }
         closePeer(bgpPeer);
     }
 
@@ -302,7 +329,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
             final Neighbor neighbor, final PeerBean bgpPeer) {
         final String peerInstanceName = getNeighborInstanceName(neighborIdentifier);
         if (this.ribImpl != null) {
-            bgpPeer.start(this.ribImpl, neighbor, this.tableTypeRegistry);
+            bgpPeer.start(this.ribImpl, neighbor, this.bgpIid, this.peerGroupLoader, this.tableTypeRegistry);
             if (bgpPeer instanceof BgpPeer) {
                 registerPeerInstance((BgpPeer) bgpPeer, peerInstanceName);
             } else if (bgpPeer instanceof AppPeer) {
@@ -311,6 +338,12 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
         }
         if (this.instantiated.get()) {
             bgpPeer.instantiateServiceInstance();
+        }
+    }
+
+    public synchronized void restartNeighbors(final String peerGroupName) {
+        for (final PeerBean peer : this.peersGroups.get(peerGroupName)) {
+            peer.restart(this.ribImpl, this.bgpIid, this.peerGroupLoader, this.tableTypeRegistry);
         }
     }
 }

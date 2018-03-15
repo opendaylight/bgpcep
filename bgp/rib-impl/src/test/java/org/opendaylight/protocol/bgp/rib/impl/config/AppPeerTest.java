@@ -39,7 +39,7 @@ public class AppPeerTest extends AbstractConfig {
 
     @Test
     public void testAppPeer() {
-        APP_PEER.start(this.rib, this.neighbor, this.tableTypeRegistry);
+        APP_PEER.start(this.rib, this.neighbor, null, this.peerGroupLoader, this.tableTypeRegistry);
         Mockito.verify(this.rib).getYangRibId();
         Mockito.verify(this.rib).getService();
         Mockito.verify(this.rib, times(1)).getLocalTablesKeys();
@@ -53,7 +53,7 @@ public class AppPeerTest extends AbstractConfig {
         APP_PEER.closeServiceInstance();
         APP_PEER.close();
 
-        APP_PEER.restart(this.rib, this.tableTypeRegistry);
+        APP_PEER.restart(this.rib, null, this.peerGroupLoader, this.tableTypeRegistry);
         APP_PEER.instantiateServiceInstance();
         Mockito.verify(this.rib, times(4)).getYangRibId();
         Mockito.verify(this.rib, times(2)).getService();

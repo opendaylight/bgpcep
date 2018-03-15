@@ -126,12 +126,12 @@ public class BgpPeerTest extends AbstractConfig {
     }
 
     @Test
-    public void testBgpPeer() throws Exception {
+    public void testBgpPeer() {
         final Neighbor neighbor = new NeighborBuilder().setAfiSafis(createAfiSafi()).setConfig(createConfig())
                 .setNeighborAddress(NEIGHBOR_ADDRESS).setRouteReflector(createRR()).setTimers(createTimers())
                 .setTransport(createTransport()).setAddPaths(createAddPath()).build();
 
-        this.bgpPeer.start(this.rib, neighbor, this.tableTypeRegistry);
+        this.bgpPeer.start(this.rib, neighbor, null, this.peerGroupLoader, this.tableTypeRegistry);
         Mockito.verify(this.rib).createPeerDOMChain(any());
         Mockito.verify(this.rib, times(2)).getLocalAs();
         Mockito.verify(this.rib).getLocalTables();
@@ -142,7 +142,7 @@ public class BgpPeerTest extends AbstractConfig {
                 anyInt(), any(KeyMapping.class));
 
         try {
-            this.bgpPeer.start(this.rib, neighbor, this.tableTypeRegistry);
+            this.bgpPeer.start(this.rib, neighbor, null, this.peerGroupLoader, this.tableTypeRegistry);
             fail("Expected Exception");
         } catch (final IllegalStateException expected) {
             assertEquals("Previous peer instance was not closed.", expected.getMessage());
@@ -152,7 +152,7 @@ public class BgpPeerTest extends AbstractConfig {
         this.bgpPeer.close();
         Mockito.verify(this.future).cancel(true);
 
-        this.bgpPeer.restart(this.rib, this.tableTypeRegistry);
+        this.bgpPeer.restart(this.rib, null, this.peerGroupLoader, this.tableTypeRegistry);
         this.bgpPeer.instantiateServiceInstance();
         Mockito.verify(this.rib, times(2)).createPeerDOMChain(any());
         Mockito.verify(this.rib, times(4)).getLocalAs();
@@ -171,7 +171,7 @@ public class BgpPeerTest extends AbstractConfig {
 
         final Neighbor neighborDiffConfig = new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS)
                 .setAfiSafis(createAfiSafi()).build();
-        this.bgpPeer.start(this.rib, neighborDiffConfig, this.tableTypeRegistry);
+        this.bgpPeer.start(this.rib, neighborDiffConfig, null, this.peerGroupLoader, this.tableTypeRegistry);
         assertTrue(this.bgpPeer.containsEqualConfiguration(neighborDiffConfig));
         this.bgpPeer.close();
     }
