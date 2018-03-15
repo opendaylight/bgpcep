@@ -22,6 +22,7 @@ import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.actions
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.actions.SetExtCommunityHandler;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.actions.SetOriginatorIdPrependHandler;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.conditions.MatchAsPathSetHandler;
+import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.conditions.MatchBgpNeighborSetHandler;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.conditions.MatchClusterIdSetHandler;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.conditions.MatchCommunitySetHandler;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.conditions.MatchExtCommunitySetHandler;
@@ -33,6 +34,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev15100
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.policy.definitions.policy.definition.statements.statement.actions.bgp.actions.SetAsPathPrepend;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.policy.definitions.policy.definition.statements.statement.actions.bgp.actions.SetCommunity;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.policy.definitions.policy.definition.statements.statement.actions.bgp.actions.SetExtCommunity;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180109.MatchBgpNeighborCondition;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180109.MatchClusterIdSetCondition;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180109.MatchOriginatorIdSetCondition;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180109.MatchRoleSetCondition;
@@ -49,7 +51,7 @@ public final class StatementActivator extends AbstractBGPStatementProviderActiva
 
     @Override
     protected synchronized List<AutoCloseable> startImpl(final StatementRegistryProvider provider) {
-        final List<AutoCloseable> registration = new ArrayList<>(12);
+        final List<AutoCloseable> registration = new ArrayList<>(13);
         registerActions(provider, registration);
         registerConditions(provider, registration);
         return registration;
@@ -73,6 +75,9 @@ public final class StatementActivator extends AbstractBGPStatementProviderActiva
 
         registration.add(provider.registerBgpConditionsPolicy(MatchCommunitySet.class,
                 new MatchCommunitySetHandler(this.dataBroker)));
+
+        registration.add(provider.registerBgpConditionsAugmentationPolicy(MatchBgpNeighborCondition.class,
+                new MatchBgpNeighborSetHandler(this.dataBroker)));
     }
 
     private void registerActions(final StatementRegistryProvider provider, final List<AutoCloseable> registration) {
