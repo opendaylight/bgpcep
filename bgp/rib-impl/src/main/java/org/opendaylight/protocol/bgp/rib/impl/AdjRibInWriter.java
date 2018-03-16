@@ -276,7 +276,17 @@ final class AdjRibInWriter {
         final TableContext ctx = this.tables.get(tableTypes);
         tx.merge(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(Attributes.QNAME)
                 .node(ATTRIBUTES_UPTODATE_TRUE.getNodeType()), ATTRIBUTES_UPTODATE_TRUE);
-        tx.submit();
+        Futures.addCallback(tx.submit(), new FutureCallback<Void>() {
+            @Override
+            public void onSuccess(final Void result) {
+                LOG.trace("Write Attributes uptodate, succeed");
+            }
+
+            @Override
+            public void onFailure(final Throwable throwable) {
+                LOG.error("Write Attributes uptodate failed", throwable);
+            }
+        }, MoreExecutors.directExecutor());
     }
 
     void updateRoutes(final MpReachNlri nlri, final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
@@ -291,7 +301,17 @@ final class AdjRibInWriter {
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         ctx.writeRoutes(tx, nlri, attributes);
         LOG.trace("Write routes {}", nlri);
-        tx.submit();
+        Futures.addCallback(tx.submit(), new FutureCallback<Void>() {
+            @Override
+            public void onSuccess(final Void result) {
+                LOG.trace("Write routes {}, succeed", nlri);
+            }
+
+            @Override
+            public void onFailure(final Throwable throwable) {
+                LOG.error("Write routes failed", throwable);
+            }
+        }, MoreExecutors.directExecutor());
     }
 
     void removeRoutes(final MpUnreachNlri nlri) {
@@ -304,6 +324,16 @@ final class AdjRibInWriter {
         LOG.trace("Removing routes {}", nlri);
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         ctx.removeRoutes(tx, nlri);
-        tx.submit();
+        Futures.addCallback(tx.submit(), new FutureCallback<Void>() {
+            @Override
+            public void onSuccess(final Void result) {
+                LOG.trace("Removing routes {}, succeed", nlri);
+            }
+
+            @Override
+            public void onFailure(final Throwable throwable) {
+                LOG.error("Removing routes failed", throwable);
+            }
+        }, MoreExecutors.directExecutor());
     }
 }
