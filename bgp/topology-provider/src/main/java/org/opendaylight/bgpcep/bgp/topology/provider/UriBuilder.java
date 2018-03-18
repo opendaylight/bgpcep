@@ -160,7 +160,7 @@ final class UriBuilder {
         final byte[] value = areaId.getValue();
         //first byte is AFI
         //ISIS area identifier might have variable length, but need to fit the IsoNetId pattern
-        return BaseEncoding.base16().encode(value, 0, 1) + HEX_SEPARATOR +
-                UriBuilder.isoId(Arrays.copyOfRange(value, 1, AREA_ID_MAX_SIZE)) + HEX_SEPARATOR + systemId;
+        return BaseEncoding.base16().encode(value, 0, 1) + HEX_SEPARATOR
+                + UriBuilder.isoId(Arrays.copyOfRange(value, 1, AREA_ID_MAX_SIZE)) + HEX_SEPARATOR + systemId;
     }
 }

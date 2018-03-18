@@ -278,12 +278,14 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         switch (state) {
         case INIT:
             if (obj instanceof Rro) {
-                final ReportedRouteBuilder rrBuilder = new ReportedRouteBuilder();
-                rrBuilder.setRro((Rro) obj);
+                builder.setRro((Rro) obj);
                 objects.remove(0);
                 final Object nextObj = objects.get(0);
-                if (nextObj instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reoptimization.bandwidth.object.ReoptimizationBandwidth) {
-                    rrBuilder.setReoptimizationBandwidth((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reoptimization.bandwidth.object.ReoptimizationBandwidth) nextObj);
+                if (nextObj instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types
+                        .rev131005.reoptimization.bandwidth.object.ReoptimizationBandwidth) {
+                    builder.setReoptimizationBandwidth((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
+                            .yang.pcep.types.rev131005.reoptimization.bandwidth.object
+                            .ReoptimizationBandwidth) nextObj);
                 }
                 return State.REPORTED_IN;
             }

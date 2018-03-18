@@ -11,9 +11,9 @@ package org.opendaylight.protocol.pcep.parser.tlv;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Sets;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.HashSet;
 import java.util.Set;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
@@ -33,10 +33,15 @@ public class PathSetupTypeTlvParser implements TlvParser, TlvSerializer {
     private static final short RSVP_TE_PST = 0;
     private static final String UNSUPPORTED_PST = "Unsupported path setup type.";
 
-    protected static final Set<Short> PSTS = Sets.newHashSet();
+    private static final Set<Short> PSTS = new HashSet<>();
 
     public PathSetupTypeTlvParser() {
         PSTS.add(RSVP_TE_PST);
+    }
+
+    public PathSetupTypeTlvParser(final short srTePst) {
+        this();
+        PSTS.add(srTePst);
     }
 
     @Override

@@ -14,8 +14,7 @@ public class SrPathSetupTypeTlvParser extends PathSetupTypeTlvParser {
     private static final short SR_TE_PST = 1;
 
     public SrPathSetupTypeTlvParser() {
-        super();
-        PSTS.add(SR_TE_PST);
+        super(SR_TE_PST);
     }
 
 }
