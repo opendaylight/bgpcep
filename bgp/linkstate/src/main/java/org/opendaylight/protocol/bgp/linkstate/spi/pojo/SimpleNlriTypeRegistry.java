@@ -46,7 +46,9 @@ public final class SimpleNlriTypeRegistry {
         return this.nlriRegistry.registerParser(type, parser);
     }
 
-    public AutoCloseable registerNlriSerializer(final Class<? extends ObjectType> clazzType, final NlriTypeCaseSerializer serializer) {
+    public AutoCloseable registerNlriSerializer(
+            final Class<? extends ObjectType> clazzType,
+            final NlriTypeCaseSerializer serializer) {
         return this.nlriRegistry.registerSerializer(clazzType, serializer);
     }
 
@@ -54,7 +56,9 @@ public final class SimpleNlriTypeRegistry {
         return this.tlvParsers.register(tlvType, parser);
     }
 
-    public <T> AutoCloseable registerTlvSerializer(final QName tlvQName, final LinkstateTlvParser.LinkstateTlvSerializer<T> serializer) {
+    public <T> AutoCloseable registerTlvSerializer(
+            final QName tlvQName,
+            final LinkstateTlvParser.LinkstateTlvSerializer<T> serializer) {
         return this.tlvSerializers.register(tlvQName, serializer);
     }
 
@@ -75,9 +79,11 @@ public final class SimpleNlriTypeRegistry {
         }
         requireNonNull(byteAggregator);
         final ObjectType objectType = nlri.getObjectType();
-        final NlriTypeCaseSerializer serializer = this.nlriRegistry.getSerializer((Class<? extends ObjectType>) objectType.getImplementedInterface());
+        final NlriTypeCaseSerializer serializer = this.nlriRegistry
+                .getSerializer((Class<? extends ObjectType>) objectType.getImplementedInterface());
         if (serializer == null) {
             LOG.warn("Linkstate NLRI serializer for Type: {} was not found.", objectType.getImplementedInterface());
+            return;
         }
         final ByteBuf nlriType = Unpooled.buffer();
         serializer.serializeTypeNlri(nlri, nlriType);
@@ -126,7 +132,8 @@ public final class SimpleNlriTypeRegistry {
         }
         requireNonNull(tlvQName);
         requireNonNull(buffer);
-        final LinkstateTlvParser.LinkstateTlvSerializer<T> tlvSerializer = (LinkstateTlvParser.LinkstateTlvSerializer<T>) this.tlvSerializers.get(tlvQName);
+        final LinkstateTlvParser.LinkstateTlvSerializer<T> tlvSerializer
+                = (LinkstateTlvParser.LinkstateTlvSerializer<T>) this.tlvSerializers.get(tlvQName);
         if (tlvSerializer == null) {
             LOG.warn("Linkstate TLV serializer for QName: {} was not found.", tlvQName);
             return;

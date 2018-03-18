@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message;
 
-
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Preconditions;
@@ -116,12 +115,12 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
      * @param messageLength Length of the BGP message
      * @param constraint Peer specific constraints
      * @return Parsed Update message body
-     * @throws BGPDocumentedException
      */
     @Override
-    public Update parseMessageBody(final ByteBuf buffer, final int messageLength, final PeerSpecificParserConstraint constraint)
-            throws BGPDocumentedException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Buffer cannot be null or empty.");
+    public Update parseMessageBody(final ByteBuf buffer, final int messageLength,
+            final PeerSpecificParserConstraint constraint) throws BGPDocumentedException {
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
+                "Buffer cannot be null or empty.");
 
         final UpdateBuilder builder = new UpdateBuilder();
         final boolean isMultiPathSupported = MultiPathSupportUtil.isTableTypeSupported(constraint,
@@ -148,7 +147,8 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
         }
         if (totalPathAttrLength > 0) {
             try {
-                final Attributes attributes = this.reg.parseAttributes(buffer.readSlice(totalPathAttrLength), constraint);
+                final Attributes attributes
+                        = this.reg.parseAttributes(buffer.readSlice(totalPathAttrLength), constraint);
                 builder.setAttributes(attributes);
             } catch (final RuntimeException | BGPParsingException e) {
                 // Catch everything else and turn it into a BGPDocumentedException
@@ -200,7 +200,7 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
                         new byte[] { OriginAttributeParser.TYPE });
             }
 
-            if (attrs == null || attrs.getAsPath() == null) {
+            if (attrs.getAsPath() == null) {
                 throw new BGPDocumentedException(BGPError.MANDATORY_ATTR_MISSING_MSG + "AS_PATH",
                         BGPError.WELL_KNOWN_ATTR_MISSING,
                         new byte[] { AsPathAttributeParser.TYPE });

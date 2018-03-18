@@ -32,10 +32,9 @@ public final class Util {
             buffer.writeByte(UnsignedBytes.checkedCast(value));
         } else if (value <= Values.UNSIGNED_SHORT_MAX_VALUE) {
             ByteBufWriteUtil.writeUnsignedShort(value, buffer);
-        } else if (value <= Values.UNSIGNED_INT_MAX_VALUE) {
-            ByteBufWriteUtil.writeUnsignedInt(UnsignedInts.toLong(value), buffer);
         } else {
-            buffer.writeLong(value);
+            //value <= Values.UNSIGNED_INT_MAX_VALUE
+            ByteBufWriteUtil.writeUnsignedInt(UnsignedInts.toLong(value), buffer);
         }
     }
 }

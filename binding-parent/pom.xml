@@ -41,10 +41,9 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <!-- FIXME: Enforce
                 <configuration>
-                     <propertyExpansion>checkstyle.violationSeverity=error</propertyExpansion>
-                 </configuration> -->
+                     <propertyExpansion>checkstyle.violationSeverity=warning</propertyExpansion>
+                 </configuration>
                 <dependencies>
                     <dependency>
                         <groupId>org.opendaylight.yangtools</groupId>
@@ -57,8 +56,7 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
                 <configuration>
-                    <!-- FIXME: Enforce  with true-->
-                    <failOnError>false</failOnError>
+                    <failOnError>true</failOnError>
                 </configuration>
             </plugin>
         </plugins>
