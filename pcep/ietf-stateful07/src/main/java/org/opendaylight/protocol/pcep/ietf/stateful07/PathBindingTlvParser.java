@@ -98,14 +98,14 @@ public final class PathBindingTlvParser implements TlvParser, TlvSerializer {
         if (codec == null) {
             throw new PCEPDeserializerException("Unsupported Path Binding Type: " + type);
         }
-        final PathBindingBuilder builder = new PathBindingBuilder();
-        return builder.setBindingTypeValue(codec.deserialize(buffer)).build();
+        return new PathBindingBuilder().setBindingTypeValue(codec.deserialize(buffer)).build();
     }
 
     private static final class MplsLabelCodec implements PathBindingTlvCodec {
 
         @Override
         public ByteBuf serialize(final BindingTypeValue bindingValue) {
+            Preconditions.checkArgument(bindingValue instanceof MplsLabel, "bindingValue is not MplsLabel");
             final MplsLabel mplsLabel = (MplsLabel) bindingValue;
             final ByteBuf value = Unpooled.buffer(MPLS_ENTRY_LENGTH);
             ByteBufWriteUtil.writeUnsignedInt(getMplsStackEntry(mplsLabel.getMplsLabel()), value);
@@ -129,6 +129,8 @@ public final class PathBindingTlvParser implements TlvParser, TlvSerializer {
 
         @Override
         public ByteBuf serialize(final BindingTypeValue bindingValue) {
+            Preconditions.checkArgument(bindingValue instanceof MplsLabelEntry,
+                    "bindingValue is not MplsLabelEntry");
             final MplsLabelEntry mplsEntry = (MplsLabelEntry) bindingValue;
             final ByteBuf value = Unpooled.buffer(MPLS_ENTRY_LENGTH);
             final long entry = getMplsStackEntry(mplsEntry.getLabel())

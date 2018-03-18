@@ -73,8 +73,8 @@ public final class PathIdUtil {
      * @param routeKeyQname routeKey Qname
      * @return key
      */
-    public static Object getObjectKey(final PathArgument routeId, final QName routeKeyQname) {
-        return ((NodeIdentifierWithPredicates) routeId).getKeyValues().get(routeKeyQname);
+    public static Object getObjectKey(final NodeIdentifierWithPredicates routeId, final QName routeKeyQname) {
+        return routeId.getKeyValues().get(routeKeyQname);
     }
 
     public static NodeIdentifierWithPredicates createNodeIdentifierWithPredicates(final QName routeQname,
