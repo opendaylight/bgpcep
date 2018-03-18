@@ -105,7 +105,7 @@ public class AsPathLengthTest extends AbstractStatementRegistryTest {
         assertNull(result.getAttributes());
 
         asPath.setSegments(Collections.singletonList(new SegmentsBuilder()
-                .setAsSequence(Arrays.asList(
+                .setAsSequence(Collections.singletonList(
                         AsNumber.getDefaultInstance("3")))
                 .build()));
 

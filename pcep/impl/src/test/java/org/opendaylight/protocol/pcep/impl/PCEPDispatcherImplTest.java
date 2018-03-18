@@ -144,16 +144,13 @@ public class PCEPDispatcherImplTest {
         final Future<PCEPSessionImpl> futureClient = this.pccMock.createClient(clientAddr, RETRY_TIMER, CONNECT_TIMEOUT,
                 SimpleSessionListener::new);
         waitFutureSuccess(futureClient);
-        final PCEPSessionImpl session1 = futureClient.get();
 
-        try {
+        try (PCEPSessionImpl ignored = futureClient.get()) {
             this.pccMock.createClient(clientAddr, RETRY_TIMER, CONNECT_TIMEOUT,
                     SimpleSessionListener::new).get();
             Assert.fail();
         } catch (final ExecutionException e) {
             Assert.assertTrue(e.getMessage().contains("A conflicting session for address"));
-        } finally {
-            session1.close();
         }
     }
 

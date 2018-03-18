@@ -58,13 +58,7 @@ public final class BgpTableTypeImpl implements BgpTableType {
 
     @Override
     public String toString() {
-        final StringBuilder builder = new StringBuilder();
-        builder.append("BgpTableTypeImpl [getAfi()=");
-        builder.append(getAfi());
-        builder.append(", getSafi()=");
-        builder.append(getSafi());
-        builder.append("]");
-        return builder.toString();
+        return "BgpTableTypeImpl [getAfi()=" + getAfi() + ", getSafi()=" + getSafi() + "]";
     }
 
     /**

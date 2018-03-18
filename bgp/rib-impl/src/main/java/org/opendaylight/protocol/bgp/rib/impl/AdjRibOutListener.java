@@ -199,7 +199,7 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
     private PathId extractPathId(final MapEntryNode ipv4Route) {
         final Optional<DataContainerChild<? extends PathArgument, ?>> pathId = ipv4Route
                 .getChild(this.routeKeyPathIdLeaf);
-        return pathId.isPresent() ? new PathId((Long) pathId.get().getValue()) : null;
+        return pathId.map(dataContainerChild -> new PathId((Long) dataContainerChild.getValue())).orElse(null);
     }
 
     public void close() {

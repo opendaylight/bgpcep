@@ -158,15 +158,9 @@ final class UriBuilder {
      */
     public static String toIsoNetId(final IsisAreaIdentifier areaId, final String systemId) {
         final byte[] value = areaId.getValue();
-        final StringBuilder sb = new StringBuilder();
         //first byte is AFI
-        sb.append(BaseEncoding.base16().encode(value, 0, 1));
-        sb.append(HEX_SEPARATOR);
         //ISIS area identifier might have variable length, but need to fit the IsoNetId pattern
-        sb.append(UriBuilder.isoId(Arrays.copyOfRange(value, 1, AREA_ID_MAX_SIZE)));
-        sb.append(HEX_SEPARATOR);
-        sb.append(systemId);
-
-        return sb.toString();
+        return BaseEncoding.base16().encode(value, 0, 1) + HEX_SEPARATOR +
+                UriBuilder.isoId(Arrays.copyOfRange(value, 1, AREA_ID_MAX_SIZE)) + HEX_SEPARATOR + systemId;
     }
 }
