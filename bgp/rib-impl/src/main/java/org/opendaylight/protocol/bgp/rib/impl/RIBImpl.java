@@ -199,7 +199,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
                 key,
                 txChain,
                 getInstanceIdentifier(),
-                this.localAs,
+                this.localAs.getValue(),
                 getDataBroker(),
                 this.ribPolicies,
                 this.peerTracker,
