@@ -35,14 +35,14 @@ public interface BGPPeerRegistry extends AutoCloseable {
      *
      * @param ip address of remote peer
      */
-    void removePeer(IpAddress ip);
+    void removePeer(@Nonnull IpAddress ip);
 
     /**
      * Remove peer session from registry.
      *
      * @param ip address of remote peer
      */
-    void removePeerSession(IpAddress ip);
+    void removePeerSession(@Nonnull IpAddress ip);
 
     /**
      * Check whether peer on provided IP address is present in this registry.
@@ -50,7 +50,7 @@ public interface BGPPeerRegistry extends AutoCloseable {
      * @param ip address of remote peer
      * @return true if peer is present false otherwise
      */
-    boolean isPeerConfigured(IpAddress ip);
+    boolean isPeerConfigured(@Nonnull IpAddress ip);
 
     /**
      * Get configured peer after BGP session was successfully established. Called by negotiators.
