@@ -34,7 +34,6 @@ import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.RibKey;
@@ -61,7 +60,7 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
     private static final Logger LOG = LoggerFactory.getLogger(LocRibWriter.class);
 
     private final Map<Identifier, RouteEntry> routeEntries = new HashMap<>();
-    private final Long ourAs;
+    private final long ourAs;
     private final RIBSupport ribSupport;
     private final DataBroker dataBroker;
     private final PathSelectionMode pathSelectionMode;
@@ -79,7 +78,7 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
     private LocRibWriter(final RIBSupport ribSupport,
             final BindingTransactionChain chain,
             final KeyedInstanceIdentifier<Rib, RibKey> ribIId,
-            final Long ourAs,
+            final long ribAs,
             final DataBroker dataBroker,
             final BGPRibRoutingPolicy ribPolicies,
             final BGPPeerTracker peerTracker,
@@ -89,7 +88,7 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
         this.ribIId = requireNonNull(ribIId);
         this.tk = requireNonNull(tablesKey);
         this.locRibTableIID = ribIId.child(LocRib.class).child(Tables.class, this.tk);
-        this.ourAs = requireNonNull(ourAs);
+        this.ourAs = ribAs;
         this.dataBroker = requireNonNull(dataBroker);
         this.ribSupport = requireNonNull(ribSupport);
         this.peerTracker = peerTracker;
@@ -104,12 +103,12 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
             @Nonnull final TablesKey tablesKey,
             @Nonnull final BindingTransactionChain chain,
             @Nonnull final KeyedInstanceIdentifier<Rib, RibKey> ribIId,
-            @Nonnull final AsNumber ourAs,
+            @Nonnull final long ourAs,
             @Nonnull final DataBroker dataBroker,
             final BGPRibRoutingPolicy ribPolicies,
             @Nonnull final BGPPeerTracker peerTracker,
             @Nonnull final PathSelectionMode pathSelectionStrategy) {
-        return new LocRibWriter(ribSupport, chain, ribIId, ourAs.getValue(), dataBroker, ribPolicies,
+        return new LocRibWriter(ribSupport, chain, ribIId, ourAs, dataBroker, ribPolicies,
                 peerTracker, tablesKey, pathSelectionStrategy);
     }
 
