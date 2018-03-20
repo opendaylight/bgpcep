@@ -24,7 +24,6 @@ import org.opendaylight.protocol.bgp.labeled.unicast.LabeledUnicastIpv4RIBSuppor
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
@@ -196,7 +195,6 @@ public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport<VpnRoute,
         } else {
             builder = new VpnRouteBuilder();
         }
-        return builder.setRouteKey(vpnRouteKey.getRouteKey()).setPathId(new PathId(pathId))
-                .setAttributes(attributes).build();
+        return builder.setRouteKey(vpnRouteKey.getRouteKey()).setAttributes(attributes).build();
     }
 }
