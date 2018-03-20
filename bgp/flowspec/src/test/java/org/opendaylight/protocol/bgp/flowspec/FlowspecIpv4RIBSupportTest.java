@@ -185,16 +185,16 @@ public class FlowspecIpv4RIBSupportTest extends AbstractRIBSupportTest {
     public void testChangedRoutes() {
         final Routes emptyCase = new FlowspecRoutesCaseBuilder().build();
         DataTreeCandidateNode tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(emptyCase)).getRootNode();
-        Assert.assertTrue(RIB_SUPPORT.changedDOMRoutes(tree).isEmpty());
+        Assert.assertTrue(RIB_SUPPORT.changedRoutes(tree).isEmpty());
 
         final Routes emptyRoutes = new FlowspecRoutesCaseBuilder().setFlowspecRoutes(new FlowspecRoutesBuilder().build()).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(emptyRoutes)).getRootNode();
-        Assert.assertTrue(RIB_SUPPORT.changedDOMRoutes(tree).isEmpty());
+        Assert.assertTrue(RIB_SUPPORT.changedRoutes(tree).isEmpty());
 
         final Routes routes = new FlowspecRoutesCaseBuilder().setFlowspecRoutes(new FlowspecRoutesBuilder()
             .setFlowspecRoute(Collections.singletonList(ROUTE)).build()).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(routes)).getRootNode();
-        final Collection<DataTreeCandidateNode> result = RIB_SUPPORT.changedDOMRoutes(tree);
+        final Collection<DataTreeCandidateNode> result = RIB_SUPPORT.changedRoutes(tree);
         Assert.assertFalse(result.isEmpty());
     }
 }

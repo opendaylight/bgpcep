@@ -191,15 +191,15 @@ public class LabeledUnicastIpv6RIBSupportTest extends AbstractRIBSupportTest {
     public void testChangedRoutes() {
         final Routes emptyCase = new LabeledUnicastIpv6RoutesCaseBuilder().build();
         DataTreeCandidateNode tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(emptyCase)).getRootNode();
-        Assert.assertTrue(RIB_SUPPORT.changedDOMRoutes(tree).isEmpty());
+        Assert.assertTrue(RIB_SUPPORT.changedRoutes(tree).isEmpty());
 
         final Routes emptyRoutes = new LabeledUnicastIpv6RoutesCaseBuilder().setLabeledUnicastIpv6Routes(new LabeledUnicastIpv6RoutesBuilder().build()).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(emptyRoutes)).getRootNode();
-        Assert.assertTrue(RIB_SUPPORT.changedDOMRoutes(tree).isEmpty());
+        Assert.assertTrue(RIB_SUPPORT.changedRoutes(tree).isEmpty());
 
         final Routes routes = new LabeledUnicastIpv6RoutesCaseBuilder().setLabeledUnicastIpv6Routes(ROUTES).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(routes)).getRootNode();
-        final Collection<DataTreeCandidateNode> result = RIB_SUPPORT.changedDOMRoutes(tree);
+        final Collection<DataTreeCandidateNode> result = RIB_SUPPORT.changedRoutes(tree);
         Assert.assertFalse(result.isEmpty());
     }
 }

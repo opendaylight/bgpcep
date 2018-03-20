@@ -7,8 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
-import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID_VALUE;
-
 import com.google.common.collect.ImmutableCollection;
 import java.util.Collection;
 import javax.annotation.Nonnull;
@@ -41,7 +39,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNod
  * to register an implementation of this class and the RIB core then calls into it
  * to inquire about details specific to that particular model.
  */
-public interface RIBSupport<R extends Route, N extends Identifier> {
+public interface RIBSupport<R extends Route, N extends Identifier> extends AddPathRibSupport<R, N> {
     /**
      * Return the table-type-specific empty routes container, as augmented into the
      * bgp-rib model under /rib/tables/routes choice node. This needs to include all
@@ -157,7 +155,7 @@ public interface RIBSupport<R extends Route, N extends Identifier> {
      * @return collection of modified nodes or empty collection if no node was modified
      */
     @Nonnull
-    Collection<DataTreeCandidateNode> changedDOMRoutes(@Nonnull DataTreeCandidateNode routes);
+    Collection<DataTreeCandidateNode> changedRoutes(@Nonnull DataTreeCandidateNode routes);
 
     /**
      * Constructs an instance identifier path to routeId.
@@ -211,47 +209,21 @@ public interface RIBSupport<R extends Route, N extends Identifier> {
             @Nonnull KeyedInstanceIdentifier<Tables, TablesKey> tableKey,
             @Nonnull N newRouteKey);
 
+    /**
+     * Creates a route with new path Id and attributes.
+     *
+     * @param route route
+     * @param routeKey route key
+     * @param pathId new path Id
+     * @param attributes route attributes
+     * @return Route
+     */
     @Nonnull
     R createRoute(@Nullable R route, N routeKey, @Nullable long pathId, @Nonnull Attributes attributes);
-
-    /**
-     * Construct a Route Key using new path Id for Families supporting additional path.
-     * Otherwise returns null.
-     *
-     * @param pathId  The path identifier
-     * @param routeKey RouteKey
-     * @return routeId PathArgument + pathId or Null in case Add-path is not supported
-     */
-    @Nullable
-    default N createNewRouteKey(@Nonnull long pathId, @Nonnull N routeKey) {
-        return null;
-    }
 
     interface ApplyRoute {
         void apply(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier base,
                 @Nonnull NodeIdentifierWithPredicates routeKey,
                 @Nonnull DataContainerNode<?> route, ContainerNode attributes);
-    }
-
-    /**
-     * Extract PathId from route change received.
-     *
-     * @param route Path Id Container
-     * @return pathId  The path identifier value
-     */
-    default long extractPathId(@Nonnull R route) {
-        return NON_PATH_ID_VALUE;
-    }
-
-    /**
-     * Create a new Path Argument for route Key removing remove Path Id from key.
-     * For extension which do not support Multiple Path this step is not required.
-     *
-     * @param routeKey routeKey Path Argument
-     * @return new route Key
-     */
-    @Nonnull
-    default NodeIdentifierWithPredicates createRouteKeyPathArgument(@Nonnull NodeIdentifierWithPredicates routeKey) {
-        return routeKey;
     }
 }

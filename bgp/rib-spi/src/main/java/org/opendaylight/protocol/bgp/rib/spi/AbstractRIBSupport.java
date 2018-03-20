@@ -298,7 +298,7 @@ public abstract class AbstractRIBSupport<R extends Route, N extends Identifier>
     }
 
     @Override
-    public final Collection<DataTreeCandidateNode> changedDOMRoutes(final DataTreeCandidateNode routes) {
+    public final Collection<DataTreeCandidateNode> changedRoutes(final DataTreeCandidateNode routes) {
         final DataTreeCandidateNode myRoutes = routes.getModifiedChild(this.routesContainerIdentifier);
         if (myRoutes == null) {
             return Collections.emptySet();

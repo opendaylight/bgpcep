@@ -116,7 +116,7 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
     }
 
     private void processSupportedFamilyRoutes(final DataTreeCandidateNode child) {
-        final Collection<DataTreeCandidateNode> changedRoutes = this.support.changedDOMRoutes(child);
+        final Collection<DataTreeCandidateNode> changedRoutes = this.support.changedRoutes(child);
         for (final DataTreeCandidateNode route : changedRoutes) {
             processRouteChange(route);
         }

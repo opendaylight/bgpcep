@@ -172,16 +172,16 @@ public class VpnIpv4RIBSupportTest extends AbstractRIBSupportTest {
         final Routes emptyCase = new VpnIpv4RoutesCaseBuilder().build();
         DataTreeCandidateNode tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(),
                 createRoutes(emptyCase)).getRootNode();
-        assertTrue(RIB_SUPPORT.changedDOMRoutes(tree).isEmpty());
+        assertTrue(RIB_SUPPORT.changedRoutes(tree).isEmpty());
 
         final Routes emptyRoutes = new VpnIpv4RoutesCaseBuilder().setVpnIpv4Routes(
                 new VpnIpv4RoutesBuilder().build()).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(emptyRoutes)).getRootNode();
-        assertTrue(RIB_SUPPORT.changedDOMRoutes(tree).isEmpty());
+        assertTrue(RIB_SUPPORT.changedRoutes(tree).isEmpty());
 
         final Routes routes = new VpnIpv4RoutesCaseBuilder().setVpnIpv4Routes(ROUTES).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(routes)).getRootNode();
-        final Collection<DataTreeCandidateNode> result = RIB_SUPPORT.changedDOMRoutes(tree);
+        final Collection<DataTreeCandidateNode> result = RIB_SUPPORT.changedRoutes(tree);
         Assert.assertFalse(result.isEmpty());
     }
 }
