@@ -40,7 +40,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.n
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Neighbors;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev171207.Config2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180321.NeighborPeerGroupConfig;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.osgi.framework.BundleContext;
@@ -267,8 +267,8 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
     }
 
     private String getPeerGroupName(final Config config) {
-        if (config != null && config.getAugmentation(Config2.class) != null) {
-            return config.getAugmentation(Config2.class).getPeerGroup();
+        if (config != null && config.getAugmentation(NeighborPeerGroupConfig.class) != null) {
+            return config.getAugmentation(NeighborPeerGroupConfig.class).getPeerGroup();
         }
         return null;
     }
@@ -342,7 +342,11 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
     }
 
     public synchronized void restartNeighbors(final String peerGroupName) {
-        for (final PeerBean peer : this.peersGroups.get(peerGroupName)) {
+        final List<PeerBean> peerGroup = this.peersGroups.get(peerGroupName);
+        if (peerGroup == null) {
+            return;
+        }
+        for (final PeerBean peer : peerGroup) {
             peer.restart(this.ribImpl, this.bgpIid, this.peerGroupLoader, this.tableTypeRegistry);
         }
     }

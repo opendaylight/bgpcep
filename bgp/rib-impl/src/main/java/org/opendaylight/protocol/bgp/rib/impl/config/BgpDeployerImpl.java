@@ -49,8 +49,8 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.re
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.Protocols;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.ProtocolsBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.Protocol;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev171207.Config2;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev171207.Protocol1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180321.NeighborPeerGroupConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180321.Protocol1;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -218,11 +218,11 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
 
     @Override
     public PeerGroup getPeerGroup(final InstanceIdentifier<Bgp> bgpIid, final Config config) {
-        if (config == null || config.getAugmentation(Config2.class) == null) {
+        if (config == null || config.getAugmentation(NeighborPeerGroupConfig.class) == null) {
             return null;
         }
 
-        final String setKey = StringUtils.substringBetween(config.getAugmentation(Config2.class)
+        final String setKey = StringUtils.substringBetween(config.getAugmentation(NeighborPeerGroupConfig.class)
                 .getPeerGroup(), "=\"", "\"");
 
         final InstanceIdentifier<PeerGroup> peerGroupsIid =
