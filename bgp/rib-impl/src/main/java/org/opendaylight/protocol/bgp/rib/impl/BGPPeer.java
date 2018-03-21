@@ -139,12 +139,15 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
     private RoutedRpcRegistration<BgpPeerRpcService> rpcRegistration;
     private Map<TablesKey, SendReceive> addPathTableMaps = Collections.emptyMap();
 
-    public BGPPeer(final IpAddress neighborAddress, final RIB rib, final PeerRole role,
+    public BGPPeer(
+            final IpAddress neighborAddress,
+            final String peerGroupName,
+            final RIB rib,
+            final PeerRole role,
             final RpcProviderRegistry rpcRegistry,
             final Set<TablesKey> afiSafisAdvertized,
             final Set<TablesKey> afiSafisGracefulAdvertized) {
-        //FIXME BUG-6971 Once Peer Group is implemented, pass it
-        super(rib.getInstanceIdentifier(), null, neighborAddress, afiSafisAdvertized,
+        super(rib.getInstanceIdentifier(), peerGroupName, neighborAddress, afiSafisAdvertized,
                 afiSafisGracefulAdvertized);
         this.peerRole = role;
         this.rib = requireNonNull(rib);
@@ -156,6 +159,18 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
         this.peerRibOutIId = this.peerIId.child(AdjRibOut.class);
         this.chain = rib.createPeerDOMChain(this);
     }
+
+    public BGPPeer(
+            final IpAddress neighborAddress,
+            final RIB rib,
+            final PeerRole role,
+            final RpcProviderRegistry rpcRegistry,
+            final Set<TablesKey> afiSafisAdvertized,
+            final Set<TablesKey> afiSafisGracefulAdvertized) {
+        this(neighborAddress, null, rib, role, rpcRegistry, afiSafisAdvertized,
+                afiSafisGracefulAdvertized);
+    }
+
 
     private static Attributes nextHopToAttribute(final Attributes attrs, final MpReachNlri mpReach) {
         if (attrs.getCNextHop() == null && mpReach.getCNextHop() != null) {
@@ -492,9 +507,11 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
             final AsyncTransaction<?, ?> transaction, final Throwable cause) {
         LOG.error("Transaction chain failed.", cause);
         this.chain.close();
+        //FIXME
+        /*
         this.chain = this.rib.createPeerDOMChain(this);
         this.ribWriter = AdjRibInWriter.create(this.rib.getYangRibId(), this.peerRole, this.chain);
-        releaseConnection();
+        releaseConnection();*/
     }
 
     @Override

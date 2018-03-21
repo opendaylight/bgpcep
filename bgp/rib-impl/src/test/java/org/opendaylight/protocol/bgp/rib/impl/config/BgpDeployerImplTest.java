@@ -54,7 +54,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.re
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.ProtocolKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151009.BGP;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.BgpTableType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev171207.Protocol1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180321.NetworkInstanceProtocol;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
@@ -74,7 +74,7 @@ public class BgpDeployerImplTest extends DefaultRibPoliciesMockTest {
     private static final String KEY = "bgp";
     private static final InstanceIdentifier<Bgp> BGP_II = NETWORK_II.child(Protocols.class)
             .child(Protocol.class, new ProtocolKey(BGP.class, KEY))
-            .augmentation(Protocol1.class).child(Bgp.class);
+            .augmentation(NetworkInstanceProtocol.class).child(Bgp.class);
     private static final InstanceIdentifier<Global> GLOBAL_II = BGP_II.child(Global.class);
     private static final InstanceIdentifier<Neighbors> NEIGHBORS_II = BGP_II.child(Neighbors.class);
 

@@ -27,7 +27,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.re
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.Protocol;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.ProtocolKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151009.BGP;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev171207.Protocol1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180321.NetworkInstanceProtocol;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,7 +85,7 @@ public final class BGPOperationalStateUtils {
     private static Bgp readGlobalFromDataStore(final DataBroker dataBroker, final String ribId) {
         final InstanceIdentifier<Bgp> bgpIID = PROTOCOLS_IID
                 .child(Protocol.class, new ProtocolKey(BGP.class, ribId))
-                .augmentation(Protocol1.class).child(Bgp.class);
+                .augmentation(NetworkInstanceProtocol.class).child(Bgp.class);
 
         final ReadOnlyTransaction rot = dataBroker.newReadOnlyTransaction();
 

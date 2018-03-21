@@ -48,10 +48,10 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev171207.AfiSafi1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev171207.AfiSafi1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev171207.Config1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev171207.Config1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180321.NeighborAddPathsConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180321.NeighborAddPathsConfigBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180321.NeighborTransportConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180321.NeighborTransportConfigBuilder;
 
 public class BgpPeerTest extends AbstractConfig {
     static final short SHORT = 0;
@@ -59,7 +59,8 @@ public class BgpPeerTest extends AbstractConfig {
     static final String MD5_PASSWORD = "123";
     static final PortNumber PORT = new PortNumber(179);
     static final AfiSafi AFI_SAFI_IPV4 = new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
-            .addAugmentation(AfiSafi1.class, new AfiSafi1Builder().setReceive(true).setSendMax(SHORT).build()).build();
+            .addAugmentation(NeighborAddPathsConfig.class, new NeighborAddPathsConfigBuilder()
+                       .setReceive(true).setSendMax(SHORT).build()).build();
     static final List<AfiSafi> AFI_SAFI = Collections.singletonList(AFI_SAFI_IPV4);
     private static final BigDecimal DEFAULT_TIMERS = BigDecimal.valueOf(30);
     private BgpPeer bgpPeer;
@@ -79,8 +80,8 @@ public class BgpPeerTest extends AbstractConfig {
     static Transport createTransport() {
         return new TransportBuilder().setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.
                 rev151009.bgp.neighbor.group.transport.ConfigBuilder().setMtuDiscovery(false)
-                .setPassiveMode(false).addAugmentation(Config1.class, new Config1Builder()
-                        .setRemotePort(PORT).build()).build()).build();
+                .setPassiveMode(false).addAugmentation(NeighborTransportConfig.class,
+                        new NeighborTransportConfigBuilder().setRemotePort(PORT).build()).build()).build();
     }
 
     static Timers createTimers() {
@@ -92,7 +93,7 @@ public class BgpPeerTest extends AbstractConfig {
                 .setConnectRetry(DEFAULT_TIMERS).build()).build();
     }
 
-    static RouteReflector createRR() {
+    private static RouteReflector createRR() {
         return new RouteReflectorBuilder().setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp
                 .rev151009.bgp.neighbor.group.route.reflector.ConfigBuilder()
                 .setRouteReflectorClusterId(RrClusterIdTypeBuilder.getDefaultInstance("127.0.0.1"))

@@ -147,6 +147,6 @@ class AbstractConfig extends DefaultRibPoliciesMockTest {
         doReturn(this.peerTracker).when(this.rib).getPeerTracker();
         doReturn(this.policies).when(this.rib).getRibPolicies();
         doReturn(null).when(this.peerGroupLoader)
-                .getPeerGroup(any(InstanceIdentifier.class), any());
+                .getPeerGroup(any(InstanceIdentifier.class), any(String.class));
     }
 }

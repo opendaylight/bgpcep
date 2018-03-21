@@ -25,6 +25,10 @@ module bgp-openconfig-extensions {
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
 
+    revision 2018-03-21 {
+        description "Augment Peer group with transport config.";
+    }
+
     revision 2017-12-07 {
         description "Add support for add-path in base BGP NLRI.";
     }
@@ -84,11 +88,14 @@ module bgp-openconfig-extensions {
     }
 
     augment /netinst:network-instances/netinst:network-instance/netinst:protocols/netinst:protocol {
+        ext:augment-identifier network-instance-protocol;
         uses openconfig-bgp:bgp-top {
             augment bgp/neighbors/neighbor/afi-safis/afi-safi {
+                ext:augment-identifier neighbor-add-paths-config;
                 uses openconfig-bgp:bgp-neighbor-add-paths_config;
             }
             augment bgp/global/afi-safis/afi-safi {
+                ext:augment-identifier global-add-paths-config;
                 uses openconfig-bgp:bgp-neighbor-add-paths_config;
             }
             augment bgp/global/afi-safis/afi-safi/state {
@@ -96,9 +103,11 @@ module bgp-openconfig-extensions {
                 uses bgp-op:bgp-global-afi-safi_state;
             }
             augment bgp/neighbors/neighbor/transport/config {
+                ext:augment-identifier neighbor-transport-config;
                 uses transport-config;
             }
             augment bgp/neighbors/neighbor/config {
+                ext:augment-identifier neighbor-peer-group-config;
                 description
                     "Augmentation to allow association of a neighbor with a
                      peer-group";
@@ -160,6 +169,10 @@ module bgp-openconfig-extensions {
             augment bgp/peer-groups/peer-group/state {
                 ext:augment-identifier peer-group_state-augmentation;
                 uses bgp-op:bgp-peer-group_state;
+            }
+            augment bgp/peer-groups/peer-group/transport/config {
+                ext:augment-identifier peer-group-transport-config;
+                uses transport-config;
             }
         }
     }

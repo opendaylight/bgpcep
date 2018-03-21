@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.concurrent.GuardedBy;
-import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
@@ -35,7 +34,6 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Config;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.peer.group.PeerGroup;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.peer.group.PeerGroupKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
@@ -49,8 +47,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.re
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.Protocols;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.ProtocolsBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.Protocol;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev171207.Config2;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev171207.Protocol1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180321.NetworkInstanceProtocol;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -111,8 +108,8 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
     public synchronized void init() {
         this.registration = this.dataBroker.registerDataTreeChangeListener(
                 new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION,
-                        this.networkInstanceIId.child(Protocols.class)
-                                .child(Protocol.class).augmentation(Protocol1.class).child(Bgp.class)), this);
+                        this.networkInstanceIId.child(Protocols.class).child(Protocol.class)
+                                .augmentation(NetworkInstanceProtocol.class).child(Bgp.class)), this);
         LOG.info("BGP Deployer {} started.", this.networkInstanceName);
     }
 
@@ -217,16 +214,9 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
     }
 
     @Override
-    public PeerGroup getPeerGroup(final InstanceIdentifier<Bgp> bgpIid, final Config config) {
-        if (config == null || config.getAugmentation(Config2.class) == null) {
-            return null;
-        }
-
-        final String setKey = StringUtils.substringBetween(config.getAugmentation(Config2.class)
-                .getPeerGroup(), "=\"", "\"");
-
+    public PeerGroup getPeerGroup(final InstanceIdentifier<Bgp> bgpIid, final String peerGroupName) {
         final InstanceIdentifier<PeerGroup> peerGroupsIid =
-        bgpIid.child(PeerGroups.class).child(PeerGroup.class, new PeerGroupKey(setKey));
+        bgpIid.child(PeerGroups.class).child(PeerGroup.class, new PeerGroupKey(peerGroupName));
         return this.peerGroups.getUnchecked(peerGroupsIid).orElse(null);
     }
 }

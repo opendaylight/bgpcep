@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.rib.impl.config;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Config;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.peer.group.PeerGroup;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -23,9 +22,9 @@ public interface PeerGroupConfigLoader {
      * Loads Peer GROUP configuration from CONFIG DS.
      *
      * @param instanceIdentifier Protocol BGP Instance identifier.
-     * @param neighbor           neighbor configuration containing possibly peer group config path.
+     * @param neighbor           peer Group name.
      * @return peer group or null.
      */
     @Nullable
-    PeerGroup getPeerGroup(@Nonnull InstanceIdentifier<Bgp> instanceIdentifier, @Nullable Config neighbor);
+    PeerGroup getPeerGroup(@Nonnull InstanceIdentifier<Bgp> instanceIdentifier, @Nonnull String neighbor);
 }

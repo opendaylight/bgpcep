@@ -34,25 +34,25 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.t
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4UNICAST;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV6UNICAST;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev171207.AfiSafi2;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev171207.AfiSafi2Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180321.GlobalAddPathsConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180321.GlobalAddPathsConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 
-public final class RIBTestsUtil {
-    static final Ipv4Address BGP_ID = new BgpId(new Ipv4Address("127.0.0.1"));
+final class RIBTestsUtil {
+    private static final Ipv4Address BGP_ID = new BgpId(new Ipv4Address("127.0.0.1"));
     private static final List<AfiSafi> AFISAFIS_IPV4 = new ArrayList<>();
     private static final List<AfiSafi> AFISAFIS_IPV6 = new ArrayList<>();
     private static final Long ALL_PATHS = 0L;
 
     static {
         AFISAFIS_IPV4.add(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
-                .addAugmentation(AfiSafi2.class, new AfiSafi2Builder().setReceive(true)
+                .addAugmentation(GlobalAddPathsConfig.class, new GlobalAddPathsConfigBuilder().setReceive(true)
                         .setSendMax(Shorts.checkedCast(ALL_PATHS)).build()).build());
     }
 
     static {
         AFISAFIS_IPV6.add(new AfiSafiBuilder().setAfiSafiName(IPV6UNICAST.class)
-                .addAugmentation(AfiSafi2.class, new AfiSafi2Builder().setReceive(true)
+                .addAugmentation(GlobalAddPathsConfig.class, new GlobalAddPathsConfigBuilder().setReceive(true)
                         .setSendMax(Shorts.checkedCast(ALL_PATHS)).build()).build());
     }
 

@@ -23,6 +23,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.concurrent.GuardedBy;
+import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
@@ -38,6 +39,7 @@ import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.AfiSafis;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Config;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.peer.group.PeerGroup;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
@@ -55,6 +57,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.mp.capabilities.AddPathCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.mp.capabilities.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.mp.capabilities.add.path.capability.AddressFamilies;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180321.NeighborPeerGroupConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -130,8 +133,8 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
         Preconditions.checkState(this.bgpPeerSingletonService == null,
                 "Previous peer instance was not closed.");
 
-        final PeerGroup peerGroup = peerGroupLoader.getPeerGroup(bgpIid, neighbor.getConfig());
-        this.bgpPeerSingletonService = new BgpPeerSingletonService(rib, neighbor, peerGroup, tableTypeRegistry);
+        this.bgpPeerSingletonService = new BgpPeerSingletonService(rib, neighbor, bgpIid, peerGroupLoader,
+                tableTypeRegistry);
         this.currentConfiguration = neighbor;
     }
 
@@ -222,10 +225,20 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
         private Future<Void> connection;
         private boolean isServiceInstantiated;
 
-        private BgpPeerSingletonService(final RIB rib, final Neighbor neighbor, final PeerGroup peerGroup,
-                final BGPTableTypeRegistryConsumer tableTypeRegistry) {
+        private BgpPeerSingletonService(final RIB rib, final Neighbor neighbor, final InstanceIdentifier<Bgp> bgpIid,
+                final PeerGroupConfigLoader peerGroupLoader, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
             this.neighborAddress = neighbor.getNeighborAddress();
 
+            PeerGroup peerGroup = null;
+            String peerGroupName = null;
+            final Config neighborConfig = neighbor.getConfig();
+            if (neighborConfig != null) {
+                final NeighborPeerGroupConfig pgConfig = neighborConfig.getAugmentation(NeighborPeerGroupConfig.class);
+                if (pgConfig != null) {
+                    peerGroupName = StringUtils.substringBetween(pgConfig.getPeerGroup(), "=\"", "\"");
+                    peerGroup = peerGroupLoader.getPeerGroup(bgpIid, peerGroupName);
+                }
+            }
             final AfiSafis afisSAfis;
             if (peerGroup != null && peerGroup.getAfiSafis() != null) {
                 afisSAfis = peerGroup.getAfiSafis();
@@ -238,7 +251,7 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
 
             final PeerRole role = OpenConfigMappingUtil.toPeerRole(neighbor, peerGroup);
 
-            this.bgpPeer = new BGPPeer(this.neighborAddress, rib, role, BgpPeer.this.rpcRegistry,
+            this.bgpPeer = new BGPPeer(this.neighborAddress, peerGroupName, rib, role, BgpPeer.this.rpcRegistry,
                     afiSafisAdvertized, Collections.emptySet());
 
             final List<BgpParameters> bgpParameters = getBgpParameters(afisSAfis, rib, tableTypeRegistry);
