@@ -39,8 +39,9 @@ public class ConfigLoaderImplTest extends AbstractConfigLoader {
     }
 
     @Test
-    public void configLoaderImplTest() throws Exception {
-        assertNotNull(ClassLoader.getSystemClassLoader().getResource("etc/opendaylight/bgpcep/protocols-config.xml"));
+    public void configLoaderImplTest() {
+        assertNotNull(ClassLoader.getSystemClassLoader()
+                .getResource("etc/opendaylight/bgpcep/protocols-config.xml"));
         final AbstractRegistration ticket = this.configLoader.registerConfigFile(this.processor);
         verify(this.processor).loadConfiguration(any());
 
