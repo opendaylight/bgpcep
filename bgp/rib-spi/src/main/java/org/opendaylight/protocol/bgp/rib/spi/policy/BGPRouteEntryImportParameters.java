@@ -8,8 +8,10 @@
 package org.opendaylight.protocol.bgp.rib.spi.policy;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 
 /**
  * Contains Peer destiny information for import route entry.
@@ -30,4 +32,12 @@ public interface BGPRouteEntryImportParameters {
      */
     @Nonnull
     PeerId getFromPeerId();
+
+    /**
+     * Peer id of Peer route entry announcer.
+     *
+     * @return peer Id of announcer Peer
+     */
+    @Nullable
+    ClusterIdentifier getFromClusterId();
 }

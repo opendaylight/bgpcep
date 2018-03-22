@@ -26,10 +26,12 @@ public final class SetClusterIdPrependHandler implements BgpActionAugPolicy<SetC
     @Override
     public Attributes applyImportAction(
             final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryImportParameters routeEntryImportParameters,
+            final BGPRouteEntryImportParameters importParameters,
             final Attributes attributes,
             final SetClusterIdPrepend bgpActions) {
-        return prependClusterId(attributes, routeEntryInfo.getClusterId());
+        final ClusterIdentifier clusterIdLocal = importParameters.getFromClusterId() == null
+                ? routeEntryInfo.getClusterId() : importParameters.getFromClusterId();
+        return prependClusterId(attributes, clusterIdLocal);
     }
 
     private Attributes prependClusterId(final Attributes attributes, final ClusterIdentifier clusterId) {
@@ -46,9 +48,11 @@ public final class SetClusterIdPrependHandler implements BgpActionAugPolicy<SetC
     @Override
     public Attributes applyExportAction(
             final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryExportParameters routeEntryExportParameters,
+            final BGPRouteEntryExportParameters exportParameters,
             final Attributes attributes,
             final SetClusterIdPrepend bgpActions) {
-        return prependClusterId(attributes, routeEntryInfo.getClusterId());
+        final ClusterIdentifier clusterIdLocal = exportParameters.getFromClusterId() == null
+                ? routeEntryInfo.getClusterId() : exportParameters.getFromClusterId();
+        return prependClusterId(attributes, clusterIdLocal);
     }
 }

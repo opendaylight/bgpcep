@@ -73,21 +73,24 @@ public final class MatchClusterIdSetHandler
     @Override
     public boolean matchImportCondition(
             final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryImportParameters routeEntryImportParameters,
-            final ClusterId clusterId,
+            final BGPRouteEntryImportParameters importParameters,
+            final ClusterId clusterIdAtt,
             final MatchClusterIdSetCondition conditions) {
-
-        return matchClusterIdCondition(routeEntryInfo.getClusterId(), clusterId,
+        final ClusterIdentifier clusterIdLocal = importParameters.getFromClusterId() == null
+                ? routeEntryInfo.getClusterId() : importParameters.getFromClusterId();
+        return matchClusterIdCondition(clusterIdLocal, clusterIdAtt,
                 conditions.getMatchClusterIdSetCondition());
     }
 
     @Override
     public boolean matchExportCondition(
             final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryExportParameters routeEntryExportParameters,
-            final ClusterId clusterId,
+            final BGPRouteEntryExportParameters exportParameters,
+            final ClusterId clusterIdAtt,
             final MatchClusterIdSetCondition conditions) {
-        return matchClusterIdCondition(routeEntryInfo.getClusterId(), clusterId,
+        final ClusterIdentifier clusterIdLocal = exportParameters.getFromClusterId() == null
+                ? routeEntryInfo.getClusterId() : exportParameters.getFromClusterId();
+        return matchClusterIdCondition(clusterIdLocal, clusterIdAtt,
                 conditions.getMatchClusterIdSetCondition());
     }
 

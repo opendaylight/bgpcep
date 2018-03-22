@@ -11,6 +11,7 @@ import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 
 public final class BGPRouteEntryExportParametersImpl implements BGPRouteEntryExportParameters {
     private final Peer fromPeer;
@@ -29,6 +30,11 @@ public final class BGPRouteEntryExportParametersImpl implements BGPRouteEntryExp
     @Override
     public PeerId getFromPeerId() {
         return this.fromPeer.getPeerId();
+    }
+
+    @Override
+    public ClusterIdentifier getFromClusterId() {
+        return this.fromPeer.getClusterId();
     }
 
     @Override
