@@ -25,8 +25,7 @@
                     </conditions>
                     <actions>
                         <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
-                            <non-transitive-attributes-filter
-                                    xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
+                            <non-transitive-attributes-filter xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
                         </bgp-actions>
                     </actions>
                 </statement>
@@ -41,15 +40,13 @@
                                 <match-set-options>INVERT</match-set-options>
                             </match-role-set>
                             <!--https://tools.ietf.org/html/rfc4456#section-8-->
-                            <match-originator-id-set-condition
-                                    xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                            <match-originator-id-set-condition xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
                                 <originator-id-set>
                                     /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/originator-id-sets/originator-id-set[originator-set-name="local-originator-id"
                                 </originator-id-set>
                                 <match-set-options>INVERT</match-set-options>
                             </match-originator-id-set-condition>
-                            <match-cluster-id-set-condition
-                                    xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                            <match-cluster-id-set-condition xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
                                 <cluster-id-set>
                                     /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/cluster-id-sets/cluster-id-set[cluster-set-name="local-cluster-id"
                                 </cluster-id-set>
@@ -101,8 +98,7 @@
                     </conditions>
                     <actions>
                         <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
-                            <non-transitive-attributes-filter
-                                    xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
+                            <non-transitive-attributes-filter xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
                             <set-as-path-prepend/>
                         </bgp-actions>
                     </actions>
@@ -190,8 +186,7 @@
                     <actions>
                         <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
                             <set-cluster-id-prepend xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
-                            <set-originator-id-prepend
-                                    xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
+                            <set-originator-id-prepend xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
                         </bgp-actions>
                     </actions>
                 </statement>
@@ -236,8 +231,7 @@
                     <actions>
                         <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
                             <set-cluster-id-prepend xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
-                            <set-originator-id-prepend
-                                    xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
+                            <set-originator-id-prepend xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
                         </bgp-actions>
                     </actions>
                 </statement>
