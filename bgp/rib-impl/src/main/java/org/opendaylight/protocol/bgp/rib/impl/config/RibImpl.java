@@ -9,7 +9,7 @@
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getAfiSafiWithDefault;
-import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getClusterIdentifier;
+import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getGlobalClusterIdentifier;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.toTableTypes;
 
 import com.google.common.base.Preconditions;
@@ -112,7 +112,7 @@ public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
         final Config globalConfig = global.getConfig();
         final AsNumber globalAs = globalConfig.getAs();
         final Ipv4Address globalRouterId = global.getConfig().getRouterId();
-        final ClusterIdentifier globalClusterId = getClusterIdentifier(globalConfig);
+        final ClusterIdentifier globalClusterId = getGlobalClusterIdentifier(globalConfig);
         return this.afiSafi.containsAll(globalAfiSafi) && globalAfiSafi.containsAll(this.afiSafi)
                 && globalAs.equals(this.asNumber)
                 && globalRouterId.getValue().equals(this.routerId.getValue())
@@ -252,7 +252,7 @@ public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
         final Config globalConfig = global.getConfig();
         this.asNumber = globalConfig.getAs();
         this.routerId = globalConfig.getRouterId();
-        this.clusterId = getClusterIdentifier(globalConfig);
+        this.clusterId = getGlobalClusterIdentifier(globalConfig);
         final BGPPeerTrackerImpl peerTracker = new BGPPeerTrackerImpl();
         final Map<TablesKey, PathSelectionMode> pathSelectionModes = OpenConfigMappingUtil
                 .toPathSelectionMode(this.afiSafi, tableTypeRegistry, peerTracker).entrySet()

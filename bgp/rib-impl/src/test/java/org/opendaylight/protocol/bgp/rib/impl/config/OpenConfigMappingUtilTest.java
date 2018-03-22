@@ -87,6 +87,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180321.GlobalConfigAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180321.NeighborAddPathsConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180321.NeighborAddPathsConfigBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180321.NeighborClusterIdConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180321.NeighborClusterIdConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180321.NeighborPeerGroupConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180321.NeighborPeerGroupConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180321.NeighborTransportConfig;
@@ -330,18 +332,31 @@ public class OpenConfigMappingUtilTest {
     }
 
     @Test
-    public void testGetClusterIdentifier() {
+    public void testGetGlobalClusterIdentifier() {
         final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base
                 .ConfigBuilder configBuilder = new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009
                 .bgp.global.base.ConfigBuilder();
         configBuilder.setRouterId(ROUTER_ID);
         assertEquals(ROUTER_ID.getValue(),
-                OpenConfigMappingUtil.getClusterIdentifier(configBuilder.build()).getValue());
+                OpenConfigMappingUtil.getGlobalClusterIdentifier(configBuilder.build()).getValue());
 
         configBuilder.addAugmentation(GlobalConfigAugmentation.class, new GlobalConfigAugmentationBuilder()
                 .setRouteReflectorClusterId(new RrClusterIdType(CLUSTER_ID)).build()).build();
         assertEquals(CLUSTER_ID.getValue(),
-                OpenConfigMappingUtil.getClusterIdentifier(configBuilder.build()).getValue());
+                OpenConfigMappingUtil.getGlobalClusterIdentifier(configBuilder.build()).getValue());
+    }
+
+    @Test
+    public void testGetNeighborClusterIdentifier() {
+        assertNull(OpenConfigMappingUtil.getNeighborClusterIdentifier(null));
+
+        final ConfigBuilder configBuilder = new ConfigBuilder();
+        assertNull(OpenConfigMappingUtil.getNeighborClusterIdentifier(configBuilder.build()));
+
+        configBuilder.addAugmentation(NeighborClusterIdConfig.class, new NeighborClusterIdConfigBuilder()
+                .setRouteReflectorClusterId(new RrClusterIdType(CLUSTER_ID)).build()).build();
+        assertEquals(CLUSTER_ID.getValue(),
+                OpenConfigMappingUtil.getNeighborClusterIdentifier(configBuilder.build()).getValue());
     }
 
     @Test
