@@ -75,12 +75,6 @@
                     <config>
                         <peer-group>/bgp/neighbors/neighbor/bgp/peer-groups/peer-group[peer-group-name="internal-neighbor"]</peer-group>
                     </config>
-                    <transport>
-                        <config>
-                            <remote-port>179</remote-port>
-                            <passive-mode>true</passive-mode>
-                        </config>
-                    </transport>
                 </neighbor>
                 <neighbor>
                     <neighbor-address>192.0.2.6</neighbor-address>
@@ -96,6 +90,12 @@
                         <peer-type>INTERNAL</peer-type>
                         <peer-as>64496</peer-as>
                     </config>
+                    <transport>
+                        <config>
+                            <remote-port>179</remote-port>
+                            <passive-mode>true</passive-mode>
+                        </config>
+                    </transport>
                     <timers>
                         <config>
                             <hold-time>180</hold-time>
