@@ -87,6 +87,15 @@ module bgp-openconfig-extensions {
         }
     }
 
+    grouping route-reflector-cluster-id-config {
+        leaf route-reflector-cluster-id {
+            type bgp-types:rr-cluster-id-type;
+            description
+              "Route-reflector cluster id to use when local router is
+              configured as a route reflector.";
+        }
+    }
+
     augment /netinst:network-instances/netinst:network-instance/netinst:protocols/netinst:protocol {
         ext:augment-identifier network-instance-protocol;
         uses openconfig-bgp:bgp-top {
@@ -113,14 +122,13 @@ module bgp-openconfig-extensions {
                      peer-group";
                 uses openconfig-bgp:bgp-neighbor-peer-group_config;
             }
+            augment bgp/neighbors/neighbor/config {
+                ext:augment-identifier neighbor-cluster-id-config;
+                uses route-reflector-cluster-id-config;
+            }
             augment bgp/global/config {
                 ext:augment-identifier global-config-augmentation;
-                leaf route-reflector-cluster-id {
-                    type bgp-types:rr-cluster-id-type;
-                    description
-                      "Route-reflector cluster id to use when local router is
-                      configured as a route reflector.";
-                  }
+                uses route-reflector-cluster-id-config;
             }
             augment bgp/neighbors/neighbor/state {
                 ext:augment-identifier neighbor_state-augmentation;
@@ -173,6 +181,10 @@ module bgp-openconfig-extensions {
             augment bgp/peer-groups/peer-group/transport/config {
                 ext:augment-identifier peer-group-transport-config;
                 uses transport-config;
+            }
+            augment bgp/peer-groups/peer-group/config {
+                ext:augment-identifier peer-group-cluster-id-config;
+                uses route-reflector-cluster-id-config;
             }
         }
     }
