@@ -9,6 +9,7 @@
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
 import static java.util.Objects.requireNonNull;
+import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getGlobalClusterIdentifier;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
@@ -60,6 +61,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180321.NeighborPeerGroupConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
@@ -250,9 +252,11 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
                     .toTableKey(afisSAfis.getAfiSafi(), tableTypeRegistry);
 
             final PeerRole role = OpenConfigMappingUtil.toPeerRole(neighbor, peerGroup);
+            final ClusterIdentifier clusterId = OpenConfigMappingUtil
+                    .getNeighborClusterIdentifier(neighbor.getConfig());
 
-            this.bgpPeer = new BGPPeer(this.neighborAddress, peerGroupName, rib, role, BgpPeer.this.rpcRegistry,
-                    afiSafisAdvertized, Collections.emptySet());
+            this.bgpPeer = new BGPPeer(this.neighborAddress, peerGroupName, rib, role, clusterId,
+                    BgpPeer.this.rpcRegistry, afiSafisAdvertized, Collections.emptySet());
 
             final List<BgpParameters> bgpParameters = getBgpParameters(afisSAfis, rib, tableTypeRegistry);
             final KeyMapping keyMapping = OpenConfigMappingUtil.getNeighborKey(neighbor);

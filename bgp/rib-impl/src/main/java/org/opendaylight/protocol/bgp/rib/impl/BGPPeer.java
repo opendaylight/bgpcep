@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
@@ -88,6 +89,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
@@ -104,6 +106,7 @@ import org.slf4j.LoggerFactory;
 public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportParameters,
         BGPSessionListener, Peer, TransactionChainListener {
     private static final Logger LOG = LoggerFactory.getLogger(BGPPeer.class);
+    private final ClusterIdentifier clusterId;
 
     private Set<TablesKey> tables = Collections.emptySet();
     private final RIB rib;
@@ -144,6 +147,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
             final String peerGroupName,
             final RIB rib,
             final PeerRole role,
+            final ClusterIdentifier clusterId,
             final RpcProviderRegistry rpcRegistry,
             final Set<TablesKey> afiSafisAdvertized,
             final Set<TablesKey> afiSafisGracefulAdvertized) {
@@ -151,6 +155,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
                 afiSafisGracefulAdvertized);
         this.peerRole = role;
         this.rib = requireNonNull(rib);
+        this.clusterId = clusterId;
         this.name = Ipv4Util.toStringIP(neighborAddress);
         this.rpcRegistry = rpcRegistry;
         this.peerId = RouterIds.createPeerId(neighborAddress);
@@ -160,14 +165,14 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
         this.chain = rib.createPeerDOMChain(this);
     }
 
-    public BGPPeer(
+    BGPPeer(
             final IpAddress neighborAddress,
             final RIB rib,
             final PeerRole role,
             final RpcProviderRegistry rpcRegistry,
             final Set<TablesKey> afiSafisAdvertized,
             final Set<TablesKey> afiSafisGracefulAdvertized) {
-        this(neighborAddress, null, rib, role, rpcRegistry, afiSafisAdvertized,
+        this(neighborAddress, null, rib, role, null, rpcRegistry, afiSafisAdvertized,
                 afiSafisGracefulAdvertized);
     }
 
@@ -498,6 +503,11 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
     }
 
     @Override
+    public ClusterIdentifier getClusterId() {
+        return this.clusterId;
+    }
+
+    @Override
     public KeyedInstanceIdentifier<Tables, TablesKey> getRibOutIId(final TablesKey tablesKey) {
         return this.tablesIId.getUnchecked(tablesKey);
     }
@@ -566,5 +576,10 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
     @Override
     public PeerId getFromPeerId() {
         return getPeerId();
+    }
+
+    @Override
+    public ClusterIdentifier getFromClusterId() {
+        return getClusterId();
     }
 }

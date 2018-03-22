@@ -43,7 +43,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 final class BGPRibPolicyImpl implements BGPRibRoutingPolicy {
     private static final InstanceIdentifier<RoutingPolicy> ROUTING_POLICY_IID
             = InstanceIdentifier.create(RoutingPolicy.class);
-    private static final List<String> EMPTY_POLICY = Collections.emptyList();
+    private static final List<String> DEFAULT_IMPORT_POLICY = Collections.singletonList("default-odl-import-policy");
+    private static final List<String> DEFAULT_EXPORT_POLICY = Collections.singletonList("default-odl-export-policy");
     private final DefaultPolicyType defaultExportPolicy;
     private final DefaultPolicyType defaultImportPolicy;
     private final List<String> exportPolicy;
@@ -69,11 +70,11 @@ final class BGPRibPolicyImpl implements BGPRibRoutingPolicy {
 
         List<String> epolicy = policyConfig.getExportPolicy();
         if (epolicy == null) {
-            epolicy = EMPTY_POLICY;
+            epolicy = DEFAULT_EXPORT_POLICY;
         }
         List<String> ipolicy = policyConfig.getImportPolicy();
         if (ipolicy == null) {
-            ipolicy = EMPTY_POLICY;
+            ipolicy = DEFAULT_IMPORT_POLICY;
         }
 
         this.defaultExportPolicy = requireNonNull(policyConfig.getDefaultExportPolicy());
