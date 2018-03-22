@@ -1,0 +1,6 @@
+<neighbor xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
+    <neighbor-address>$IP</neighbor-address>
+    <config>
+        <peer-group>/bgp/neighbors/neighbor/bgp/peer-groups/peer-group[peer-group-name="$PEER_GROUP_NAME"]</peer-group>
+    </config>
+</neighbor>

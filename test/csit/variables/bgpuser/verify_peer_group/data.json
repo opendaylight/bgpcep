@@ -1,0 +1,39 @@
+{
+    "bgp-openconfig-extensions:peer-group": [
+        {
+            "peer-group-name": "internal-neighbors",
+            "transport": {
+                "config": {
+                    "passive-mode": true
+                }
+            },
+            "config": {
+                "peer-type": "INTERNAL"
+            },
+            "afi-safis": {
+                "afi-safi": [
+                    {
+                        "afi-safi-name": "openconfig-bgp-types:IPV6-UNICAST"
+                    },
+                    {
+                        "afi-safi-name": "openconfig-bgp-types:IPV4-UNICAST"
+                    },
+                    {
+                        "afi-safi-name": "bgp-openconfig-extensions:LINKSTATE"
+                    }
+                ]
+            },
+            "timers": {
+                "config": {
+                    "hold-time": 180,
+                    "connect-retry": 5
+                }
+            },
+            "route-reflector": {
+                "config": {
+                    "route-reflector-client": false
+                }
+            }
+        }
+    ]
+}
