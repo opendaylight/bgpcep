@@ -14,7 +14,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.net.URISyntaxException;
+import java.nio.channels.FileChannel;
 import java.nio.file.ClosedWatchServiceException;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
@@ -87,7 +89,10 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
         final NormalizedNodeResult result = new NormalizedNodeResult();
         final NormalizedNodeStreamWriter streamWriter = ImmutableNormalizedNodeStreamWriter.from(result);
 
-        try (InputStream resourceAsStream = new FileInputStream(new File(this.path, filename))) {
+        final File file = new File(this.path, filename);
+        FileChannel channel = new RandomAccessFile(file, "rw").getChannel();
+        channel.lock();
+        try (InputStream resourceAsStream = new FileInputStream(file)) {
             final XMLInputFactory factory = XMLInputFactory.newInstance();
             final XMLStreamReader reader = factory.createXMLStreamReader(resourceAsStream);
 
@@ -99,6 +104,7 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
                     | SAXException e) {
                 LOG.warn("Failed to parse xml", e);
             } finally {
+                channel.close();
                 reader.close();
             }
         }
