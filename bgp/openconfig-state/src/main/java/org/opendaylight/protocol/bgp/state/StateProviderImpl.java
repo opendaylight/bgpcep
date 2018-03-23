@@ -49,6 +49,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev171207.Protocol1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.RibKey;
+import org.opendaylight.yangtools.util.ClassLoaderUtils;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
@@ -83,20 +84,24 @@ public final class StateProviderImpl implements TransactionChainListener, AutoCl
 
     public synchronized void init() {
         this.transactionChain = this.dataBroker.createTransactionChain(this);
+        final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+
         final TimerTask task = new TimerTask() {
             @Override
             @SuppressWarnings("checkstyle:IllegalCatch")
             public void run() {
-                synchronized (StateProviderImpl.this) {
-                    final WriteTransaction wTx = StateProviderImpl.this.transactionChain.newWriteOnlyTransaction();
-                    try {
-                        updateBGPStats(wTx);
-                    } catch (final Exception e) {
-                        LOG.warn("Failed to update BGP Stats", e);
-                    } finally {
-                        wTx.submit();
+                ClassLoaderUtils.runWithClassLoader(tccl, () -> {
+                    synchronized (StateProviderImpl.this) {
+                        final WriteTransaction wTx = StateProviderImpl.this.transactionChain.newWriteOnlyTransaction();
+                        try {
+                            updateBGPStats(wTx);
+                        } catch (final Exception e) {
+                            LOG.warn("Failed to update BGP Stats", e);
+                        } finally {
+                            wTx.submit();
+                        }
                     }
-                }
+                });
             }
         };
 
