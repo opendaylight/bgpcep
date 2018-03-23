@@ -243,7 +243,7 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
             if (peerGroup != null && peerGroup.getAfiSafis() != null) {
                 afisSAfis = peerGroup.getAfiSafis();
             } else {
-                afisSAfis = requireNonNull(neighbor.getAfiSafis());
+                afisSAfis = requireNonNull(neighbor.getAfiSafis(), "Missing mandatory AFIs/SAFIs");
             }
 
             final Set<TablesKey> afiSafisAdvertized = OpenConfigMappingUtil
