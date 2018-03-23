@@ -6,7 +6,7 @@ module bgp-vpn-ipv6 {
     import bgp-multiprotocol { prefix bgp-mp; revision-date 2017-12-07; }
     import bmp-monitor { prefix bmp-mon; revision-date 2017-12-07; }
     import bgp-rib { prefix bgp-rib; revision-date 2017-12-07; }
-    import bgp-vpn { prefix bgp-vpn; revision-date 2017-12-07; }
+    import bgp-vpn { prefix bgp-vpn; revision-date 2018-03-23; }
 
     organization "Brocade Communications Systems, Inc.";
     contact "Kevin Wang <kwang@brocade.com>";
@@ -21,6 +21,10 @@ module bgp-vpn-ipv6 {
         under the terms of the Eclipse Public License v1.0 which
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2018-03-23" {
+        description "Uses non add path labeled unicast model";
+    }
 
     revision "2017-12-07" {
         description "Add support for add-path in base BGP NLRI.";
