@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.testtool;
 
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.List;
 import java.util.concurrent.atomic.LongAdder;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl;
@@ -29,7 +30,7 @@ final class TestingListener implements BGPSessionListener {
     private final int nprefixes;
     private final List<String> extCom;
     private final boolean multiPathSupport;
-    private LongAdder messageCounter = new LongAdder();
+    private final LongAdder messageCounter = new LongAdder();
 
     TestingListener(final int nprefixes, final List<String> extCom, final boolean multiPathSupport) {
         this.nprefixes = nprefixes;
@@ -76,6 +77,7 @@ final class TestingListener implements BGPSessionListener {
     }
 
     @Override
+    @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Unrecognised NullableDecl")
     public ListenableFuture<?> releaseConnection() {
         LOG.info("Client Listener: Connection released.");
         return Futures.immediateFuture(null);
