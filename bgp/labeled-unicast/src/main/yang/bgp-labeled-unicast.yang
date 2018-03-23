@@ -27,6 +27,11 @@ module bgp-labeled-unicast {
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
 
+    revision "2018-03-23" {
+        description "Split labeled unicast from supporting Additional Path. Therefore model can be reused under
+        non supporting additional path families(L3VPN).";
+    }
+
     revision "2017-12-07" {
         description "Add support for add-path in base BGP NLRI.";
     }
@@ -57,6 +62,11 @@ module bgp-labeled-unicast {
     }
 
     grouping labeled-unicast {
+        uses labeled-unicast-non-path-id;
+        uses bgp-msg:path-id-grouping;
+    }
+
+    grouping labeled-unicast-non-path-id {
         reference "https://tools.ietf.org/html/rfc3107#section-3";
         list label-stack {
             description
@@ -70,7 +80,6 @@ module bgp-labeled-unicast {
         leaf prefix {
             type inet:ip-prefix;
         }
-        uses bgp-msg:path-id-grouping;
     }
 
     grouping labeled-unicast-destination {
