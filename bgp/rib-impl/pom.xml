@@ -338,6 +338,13 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <configuration>
+                    <violationSeverity>warn</violationSeverity>
+                </configuration>
+            </plugin>
             <!-- Disable offline link detection which breaks the build here -->
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
