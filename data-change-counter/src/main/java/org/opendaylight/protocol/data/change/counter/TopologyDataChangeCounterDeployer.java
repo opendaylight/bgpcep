@@ -12,7 +12,6 @@ import static java.util.Objects.requireNonNull;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
@@ -27,10 +26,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TopologyDataChangeCounterDeployer implements DataTreeChangeListener<DataChangeCounterConfig>,
-    AutoCloseable {
+        AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(TopologyDataChangeCounterDeployer.class);
     private static final InstanceIdentifier<DataChangeCounterConfig> DATA_CHANGE_COUNTER_IID =
-        InstanceIdentifier.builder(DataChangeCounterConfig.class).build();
+            InstanceIdentifier.builder(DataChangeCounterConfig.class).build();
     private final DataBroker dataBroker;
     @GuardedBy("this")
     private final Map<String, TopologyDataChangeCounter> counters = new HashMap<>();
@@ -42,13 +41,14 @@ public class TopologyDataChangeCounterDeployer implements DataTreeChangeListener
 
     public synchronized void register() {
         this.registration = this.dataBroker.registerDataTreeChangeListener(
-            new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, DATA_CHANGE_COUNTER_IID), this);
+                new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, DATA_CHANGE_COUNTER_IID), this);
         LOG.info("Data change counter Deployer initiated");
     }
 
 
     @Override
-    public synchronized void onDataTreeChanged(@Nonnull final Collection<DataTreeModification<DataChangeCounterConfig>> changes) {
+    public synchronized void onDataTreeChanged(
+            final Collection<DataTreeModification<DataChangeCounterConfig>> changes) {
         for (final DataTreeModification<DataChangeCounterConfig> dataTreeModification : changes) {
             final DataObjectModification<DataChangeCounterConfig> rootNode = dataTreeModification.getRootNode();
             switch (dataTreeModification.getRootNode().getModificationType()) {
@@ -59,6 +59,10 @@ public class TopologyDataChangeCounterDeployer implements DataTreeChangeListener
                 case WRITE:
                     final DataChangeCounterConfig change = rootNode.getDataAfter();
                     chandleCounterChange(change.getCounterId(), change.getTopologyName());
+                    break;
+                default:
+                    LOG.error("Unhandled modification Type: {}",
+                            dataTreeModification.getRootNode().getModificationType());
                     break;
             }
         }
@@ -76,7 +80,8 @@ public class TopologyDataChangeCounterDeployer implements DataTreeChangeListener
         deleteCounterChange(counterId);
         LOG.info("Data change counter Deployer created: {} / {}", counterId, topologyName);
 
-        final TopologyDataChangeCounter counter = new TopologyDataChangeCounter(this.dataBroker, counterId, topologyName);
+        final TopologyDataChangeCounter counter = new TopologyDataChangeCounter(this.dataBroker,
+                counterId, topologyName);
         this.counters.put(counterId, counter);
     }
 
