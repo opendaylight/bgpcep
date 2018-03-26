@@ -10,7 +10,6 @@ package org.opendaylight.protocol.data.change.counter;
 
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicLong;
-
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -35,31 +34,30 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class TopologyDataChangeCounter implements ClusteredDataTreeChangeListener<Topology>, TransactionChainListener, AutoCloseable {
+final class TopologyDataChangeCounter implements ClusteredDataTreeChangeListener<Topology>,
+        TransactionChainListener, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(TopologyDataChangeCounter.class);
 
     private final DataBroker dataBroker;
     private final String counterId;
     private final InstanceIdentifier<Counter> counterInstanceId;
-    private final BindingTransactionChain chain;
+    private final BindingTransactionChain bindingTx;
     private final AtomicLong count;
     private final ListenerRegistration<TopologyDataChangeCounter> registration;
-    private final String topologyName;
 
-    public TopologyDataChangeCounter(final DataBroker dataBroker, final String counterId, final String topologyName) {
+    TopologyDataChangeCounter(final DataBroker dataBroker, final String counterId, final String topologyName) {
         this.dataBroker = dataBroker;
-        this.topologyName = topologyName;
-        this.chain = this.dataBroker.createTransactionChain(this);
+        this.bindingTx = this.dataBroker.createTransactionChain(this);
         this.counterId = counterId;
         this.counterInstanceId = InstanceIdentifier.builder(DataChangeCounter.class)
-            .child(Counter.class, new CounterKey(this.counterId)).build();
+                .child(Counter.class, new CounterKey(this.counterId)).build();
         this.count = new AtomicLong(0);
         putCount(this.count.get());
         final InstanceIdentifier<Topology> topoIId = InstanceIdentifier.builder(NetworkTopology.class)
-            .child(Topology.class, new TopologyKey(new TopologyId(topologyName))).build();
+                .child(Topology.class, new TopologyKey(new TopologyId(topologyName))).build();
         this.registration = this.dataBroker.registerDataTreeChangeListener(
-            new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL, topoIId), this);
+                new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL, topoIId), this);
         LOG.debug("Data change counter {} initiated", this.counterId);
     }
 
@@ -79,20 +77,20 @@ final class TopologyDataChangeCounter implements ClusteredDataTreeChangeListener
         } catch (final TransactionCommitFailedException except) {
             LOG.warn("Error on remove data change counter {}", this.counterId, except);
         }
-        this.chain.close();
+        this.bindingTx.close();
         LOG.debug("Data change counter {} removed", this.counterId);
     }
 
-    private void putCount(final long count) {
-        final WriteTransaction wTx = this.chain.newWriteOnlyTransaction();
-        final Counter counter = new CounterBuilder().setId(this.counterId).setCount(count).build();
+    private void putCount(final long totalCount) {
+        final WriteTransaction wTx = this.bindingTx.newWriteOnlyTransaction();
+        final Counter counter = new CounterBuilder().setId(this.counterId).setCount(totalCount).build();
         wTx.put(LogicalDatastoreType.OPERATIONAL, this.counterInstanceId, counter);
         wTx.submit();
     }
 
     @Override
     public void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction,
-        final Throwable cause) {
+            final Throwable cause) {
         chain.close();
         LOG.warn("Transaction chain failure. Transaction: {}", transaction, cause);
     }
@@ -100,9 +98,5 @@ final class TopologyDataChangeCounter implements ClusteredDataTreeChangeListener
     @Override
     public void onTransactionChainSuccessful(final TransactionChain<?, ?> chain) {
         LOG.debug("Transaction chain successful. {}", chain);
-    }
-
-    public String getTopologyName() {
-        return this.topologyName;
     }
 }

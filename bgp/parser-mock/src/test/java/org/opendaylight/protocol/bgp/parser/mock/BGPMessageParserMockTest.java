@@ -16,9 +16,7 @@ import com.google.common.collect.Sets;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -82,14 +80,10 @@ public class BGPMessageParserMockTest {
     }
 
     /**
-     * Test if mock implementation of parser returns correct message
-     *
-     * @throws BGPParsingException
-     * @throws BGPDocumentedException
-     * @throws IOException
+     * Test if mock implementation of parser returns correct message.
      */
     @Test
-    public void testGetUpdateMessage() throws BGPParsingException, BGPDocumentedException, IOException {
+    public void testGetUpdateMessage() throws BGPParsingException, BGPDocumentedException {
         final Map<ByteBuf, Notification> updateMap = Maps.newHashMap();
         for (int i = 0; i < this.inputBytes.length; i++) {
             updateMap.put(Unpooled.copiedBuffer(this.inputBytes[i]), this.messages.get(i));
@@ -97,40 +91,39 @@ public class BGPMessageParserMockTest {
         final BGPMessageParserMock mockParser = new BGPMessageParserMock(updateMap);
 
         for (int i = 0; i < this.inputBytes.length; i++) {
-            assertEquals(this.messages.get(i), mockParser.parseMessage(Unpooled.copiedBuffer(this.inputBytes[i]), null));
+            assertEquals(this.messages.get(i),
+                    mockParser.parseMessage(Unpooled.copiedBuffer(this.inputBytes[i]), null));
         }
-        assertNotSame(this.messages.get(3), mockParser.parseMessage(Unpooled.copiedBuffer(this.inputBytes[8]), null));
+        assertNotSame(this.messages.get(3),
+                mockParser.parseMessage(Unpooled.copiedBuffer(this.inputBytes[8]), null));
     }
 
     /**
-     * Test if method throws IllegalArgumentException after finding no BGPUpdateMessage associated with given byte[] key
-     *
-     * @throws BGPDocumentedException
-     * @throws BGPParsingException
-     * @throws IOException
+     * Test if method throws IllegalArgumentException after finding no BGPUpdateMessage
+     * associated with given byte[] key.
      */
     @Test(expected = IllegalArgumentException.class)
-    public void testGetUpdateMessageException() throws BGPParsingException, BGPDocumentedException, IOException {
+    public void testGetUpdateMessageException() throws BGPParsingException, BGPDocumentedException {
         final Map<ByteBuf, Notification> updateMap = Maps.newHashMap();
         for (int i = 0; i < this.inputBytes.length; i++) {
             updateMap.put(Unpooled.copiedBuffer(this.inputBytes[i]), this.messages.get(i));
         }
         final BGPMessageParserMock mockParser = new BGPMessageParserMock(updateMap);
-        mockParser.parseMessage(Unpooled.copiedBuffer(new byte[] { 7, 4, 6 }), null);
+        mockParser.parseMessage(Unpooled.copiedBuffer(new byte[]{7, 4, 6}), null);
     }
 
     /**
-     * Helper method to fill inputBytes variable
+     * Helper method to fill inputBytes variable.
      *
      * @param fileNumber parameter to distinguish between files from which bytes are read
      */
     private byte[] fillInputBytes(final int fileNumber) throws Exception {
         final ByteArrayOutputStream bis = new ByteArrayOutputStream();
         final byte[] data = new byte[60];
-        int nRead = 0;
-        try (final InputStream is = this.getClass().getResourceAsStream("/up" + fileNumber + ".bin")) {
-            while ((nRead = is.read(data, 0, data.length)) != -1) {
-                bis.write(data, 0, nRead);
+        int read;
+        try (InputStream is = this.getClass().getResourceAsStream("/up" + fileNumber + ".bin")) {
+            while ((read = is.read(data, 0, data.length)) != -1) {
+                bis.write(data, 0, read);
             }
             bis.flush();
             is.close();
@@ -139,18 +132,19 @@ public class BGPMessageParserMockTest {
     }
 
     /**
-     * Helper method to fill messages variable
+     * Helper method to fill messages variable.
      *
      * @param asn this parameter is passed to ASNumber constructor
      */
-    private static Update fillMessages(final long asn) throws UnknownHostException {
+    private static Update fillMessages(final long asn) {
 
         final UpdateBuilder builder = new UpdateBuilder();
 
         final List<Segments> asPath = Lists.newArrayList();
         asPath.add(new SegmentsBuilder().setAsSequence(Lists.newArrayList(new AsNumber(asn))).build());
         final CNextHop nextHop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(
-            new Ipv6NextHopBuilder().setGlobal(new Ipv6Address("2001:db8::1")).setLinkLocal(new Ipv6Address("fe80::c001:bff:fe7e:0")).build()).build();
+                new Ipv6NextHopBuilder().setGlobal(new Ipv6Address("2001:db8::1"))
+                        .setLinkLocal(new Ipv6Address("fe80::c001:bff:fe7e:0")).build()).build();
 
         final Ipv6Prefix pref1 = new Ipv6Prefix("2001:db8:1:2::/64");
         final Ipv6Prefix pref2 = new Ipv6Prefix("2001:db8:1:1::/64");
@@ -165,12 +159,14 @@ public class BGPMessageParserMockTest {
         mpReachBuilder.setSafi(UnicastSubsequentAddressFamily.class);
         mpReachBuilder.setCNextHop(nextHop);
         mpReachBuilder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
-            new DestinationIpv6CaseBuilder().setDestinationIpv6(
-                new DestinationIpv6Builder().setIpv6Prefixes(Lists.newArrayList(
-                    new Ipv6PrefixesBuilder().setPrefix(pref1).build(),new Ipv6PrefixesBuilder().setPrefix(pref2).build(),
-                    new Ipv6PrefixesBuilder().setPrefix(pref3).build())).build()).build()).build());
+                new DestinationIpv6CaseBuilder().setDestinationIpv6(
+                        new DestinationIpv6Builder().setIpv6Prefixes(Lists.newArrayList(
+                                new Ipv6PrefixesBuilder().setPrefix(pref1).build(),
+                                new Ipv6PrefixesBuilder().setPrefix(pref2).build(),
+                                new Ipv6PrefixesBuilder().setPrefix(pref3).build())).build()).build()).build());
 
-        paBuilder.addAugmentation(Attributes1.class, new Attributes1Builder().setMpReachNlri(mpReachBuilder.build()).build());
+        paBuilder.addAugmentation(Attributes1.class,
+                new Attributes1Builder().setMpReachNlri(mpReachBuilder.build()).build());
 
         builder.setAttributes(paBuilder.build());
 
@@ -178,7 +174,7 @@ public class BGPMessageParserMockTest {
     }
 
     @Test
-    public void testGetOpenMessage() throws BGPParsingException, BGPDocumentedException, IOException {
+    public void testGetOpenMessage() throws BGPParsingException, BGPDocumentedException {
         final Map<ByteBuf, Notification> openMap = Maps.newHashMap();
 
         final Set<BgpTableType> type = Sets.newHashSet();
@@ -187,24 +183,27 @@ public class BGPMessageParserMockTest {
         final List<BgpParameters> params = Lists.newArrayList();
 
         final CParameters par = new CParametersBuilder().addAugmentation(CParameters1.class, new CParameters1Builder()
-            .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder().setAfi(Ipv4AddressFamily.class)
-                .setSafi(MplsLabeledVpnSubsequentAddressFamily.class).build()).build()).build();
+                .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder().setAfi(Ipv4AddressFamily.class)
+                        .setSafi(MplsLabeledVpnSubsequentAddressFamily.class).build()).build()).build();
         params.add(new BgpParametersBuilder().setOptionalCapabilities(Lists.newArrayList(
-            new OptionalCapabilitiesBuilder().setCParameters(par).build())).build());
+                new OptionalCapabilitiesBuilder().setCParameters(par).build())).build());
 
-        final byte[] input = new byte[] { 5, 8, 13, 21 };
+        final byte[] input = new byte[]{5, 8, 13, 21};
 
         openMap.put(Unpooled.copiedBuffer(input), new OpenBuilder().setMyAsNumber(30).setHoldTimer(30)
-            .setBgpParameters(params).setVersion(new ProtocolVersion((short) 4)).build());
+                .setBgpParameters(params).setVersion(new ProtocolVersion((short) 4)).build());
 
         final BGPMessageParserMock mockParser = new BGPMessageParserMock(openMap);
 
         final Set<BgpTableType> result = Sets.newHashSet();
-        for (final BgpParameters p : ((Open) mockParser.parseMessage(Unpooled.copiedBuffer(input), null)).getBgpParameters()) {
+        for (final BgpParameters p : ((Open) mockParser.parseMessage(Unpooled.copiedBuffer(input), null))
+                .getBgpParameters()) {
             for (final OptionalCapabilities capa : p.getOptionalCapabilities()) {
                 final CParameters cp = capa.getCParameters();
-                if (cp.getAugmentation(CParameters1.class) != null && cp.getAugmentation(CParameters1.class).getMultiprotocolCapability() != null) {
-                    final BgpTableType t = new BgpTableTypeImpl(cp.getAugmentation(CParameters1.class).getMultiprotocolCapability().getAfi(),
+                if (cp.getAugmentation(CParameters1.class) != null && cp.getAugmentation(CParameters1.class)
+                        .getMultiprotocolCapability() != null) {
+                    final BgpTableType t = new BgpTableTypeImpl(cp.getAugmentation(CParameters1.class)
+                            .getMultiprotocolCapability().getAfi(),
                             cp.getAugmentation(CParameters1.class).getMultiprotocolCapability().getSafi());
                     result.add(t);
                 }
