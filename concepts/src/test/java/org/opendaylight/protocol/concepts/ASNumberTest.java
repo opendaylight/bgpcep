@@ -16,13 +16,14 @@ import static org.junit.Assert.assertThat;
 
 import java.util.HashSet;
 import java.util.Set;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 
 public class ASNumberTest {
-    private AsNumber asn1, asn3, asn4;
+    private AsNumber asn1;
+    private AsNumber asn3;
+    private AsNumber asn4;
 
     @Before
     public void setUp() {

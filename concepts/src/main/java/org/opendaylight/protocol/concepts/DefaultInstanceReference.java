@@ -12,9 +12,6 @@ import static java.util.Objects.requireNonNull;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-/**
- *
- */
 public class DefaultInstanceReference<T extends DataObject> implements InstanceReference<T> {
     private final InstanceIdentifier<T> instanceIdentifier;
 

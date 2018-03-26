@@ -22,7 +22,7 @@ public final class KeyMapping extends HashMap<InetAddress, byte[]> {
         super();
     }
 
-    public static KeyMapping getKeyMapping(@Nonnull final InetAddress inetAddress, @Nullable final String password){
+    public static KeyMapping getKeyMapping(@Nonnull final InetAddress inetAddress, @Nullable final String password) {
         final KeyMapping keyMapping = new KeyMapping();
         if (!isNullOrEmpty(password)) {
             keyMapping.put(inetAddress, password.getBytes(StandardCharsets.US_ASCII));
@@ -30,7 +30,7 @@ public final class KeyMapping extends HashMap<InetAddress, byte[]> {
         return keyMapping;
     }
 
-    public static KeyMapping getKeyMapping(){
+    public static KeyMapping getKeyMapping() {
         return new KeyMapping();
     }
 }

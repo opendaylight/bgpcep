@@ -9,6 +9,7 @@ package org.opendaylight.protocol.concepts;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+
 import org.junit.Test;
 
 public class MultiRegistryTest {

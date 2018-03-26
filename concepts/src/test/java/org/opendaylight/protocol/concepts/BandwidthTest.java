@@ -22,7 +22,10 @@ import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 
 public class BandwidthTest {
-    private Bandwidth b1, b2, b3, b4;
+    private Bandwidth b1;
+    private Bandwidth b2;
+    private Bandwidth b3;
+    private Bandwidth b4;
 
     @Before
     public void setUp() {

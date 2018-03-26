@@ -10,21 +10,17 @@ package org.opendaylight.protocol.concepts;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
-
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * A registry which allows multiple values for a particular key. One of those is considered the best and returned as the
  * representative.
- *
  * When selecting the candidate, we evaluate the order of insertion, picking the value inserted first, but then we look
  * at all the other candidates and if there is one which is a subclass of the first one, we select that one.
  *
