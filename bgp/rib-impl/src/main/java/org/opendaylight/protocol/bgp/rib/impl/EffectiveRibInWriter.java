@@ -240,7 +240,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                     .applyImportPolicies(this.peerImportParameters, route.getAttributes());
             if (effAtt.isPresent()) {
                 CountersUtil.increment(this.prefixesInstalled.get(tk), tk);
-                tx.put(LogicalDatastoreType.OPERATIONAL, routeIID, route, true);
+                tx.put(LogicalDatastoreType.OPERATIONAL, routeIID, route);
                 tx.put(LogicalDatastoreType.OPERATIONAL, routeIID.child(Attributes.class), effAtt.get());
             } else {
                 tx.delete(LogicalDatastoreType.OPERATIONAL, routeIID);
@@ -261,6 +261,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             LOG.trace("Create Empty table", tablePath);
             tx.put(LogicalDatastoreType.OPERATIONAL, tablePath, new TablesBuilder()
                     .setAfi(tableKey.getAfi()).setSafi(tableKey.getSafi())
+                    .setRoutes(this.registry.getRIBSupport(tableKey).emptyRoutesContainer())
                     .setAttributes(newTable.getAttributes()).build());
 
             final RIBSupport ribSupport = this.registry.getRIBSupport(tableKey);

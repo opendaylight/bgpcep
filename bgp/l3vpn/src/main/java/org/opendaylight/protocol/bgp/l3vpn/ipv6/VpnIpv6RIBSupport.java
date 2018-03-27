@@ -12,11 +12,14 @@ import org.opendaylight.protocol.bgp.l3vpn.AbstractVpnRIBSupport;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.destination.DestinationType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv6.rev171207.bgp.rib.rib.loc.rib.tables.routes.VpnIpv6RoutesCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv6.rev171207.bgp.rib.rib.peer.effective.rib.in.tables.routes.VpnIpv6RoutesCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv6.rev171207.l3vpn.ipv6.destination.VpnIpv6Destination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv6.rev171207.l3vpn.ipv6.destination.VpnIpv6DestinationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv6.rev171207.l3vpn.ipv6.routes.VpnIpv6Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv6.rev171207.l3vpn.ipv6.routes.VpnIpv6RoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev171207.l3vpn.ip.destination.type.VpnDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev171207.l3vpn.ip.route.VpnRoute;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -57,5 +60,10 @@ final class VpnIpv6RIBSupport extends AbstractVpnRIBSupport {
         return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv6.rev171207.update
                 .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationVpnIpv6CaseBuilder()
                 .setVpnIpv6Destination(new VpnIpv6DestinationBuilder().setVpnDestination(dests).build()).build();
+    }
+
+    @Override
+    public Routes emptyRoutesContainer() {
+        return new VpnIpv6RoutesCaseBuilder().setVpnIpv6Routes(new VpnIpv6RoutesBuilder().build()).build();
     }
 }

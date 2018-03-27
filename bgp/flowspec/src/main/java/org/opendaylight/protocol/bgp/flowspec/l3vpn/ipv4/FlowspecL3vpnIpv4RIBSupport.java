@@ -10,13 +10,16 @@ package org.opendaylight.protocol.bgp.flowspec.l3vpn.ipv4;
 import org.opendaylight.protocol.bgp.flowspec.SimpleFlowspecExtensionProviderContext;
 import org.opendaylight.protocol.bgp.flowspec.l3vpn.AbstractFlowspecL3vpnRIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.bgp.rib.rib.loc.rib.tables.routes.FlowspecL3vpnIpv4RoutesCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.bgp.rib.rib.peer.effective.rib.in.tables.routes.FlowspecL3vpnIpv4RoutesCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.flowspec.l3vpn.destination.ipv4.DestinationFlowspecL3vpnIpv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.flowspec.l3vpn.ipv4.route.FlowspecL3vpnRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.flowspec.l3vpn.ipv4.route.FlowspecL3vpnRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.flowspec.l3vpn.ipv4.route.FlowspecL3vpnRouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.flowspec.l3vpn.ipv4.routes.FlowspecL3vpnIpv4Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.flowspec.l3vpn.ipv4.routes.FlowspecL3vpnIpv4RoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 
 public final class FlowspecL3vpnIpv4RIBSupport extends AbstractFlowspecL3vpnRIBSupport<FlowspecL3vpnIpv4NlriParser,
@@ -55,5 +58,11 @@ public final class FlowspecL3vpnIpv4RIBSupport extends AbstractFlowspecL3vpnRIBS
         }
         return builder.setRouteKey(routeKey.getRouteKey()).setPathId(new PathId(pathId))
                 .setAttributes(attributes).build();
+    }
+
+    @Override
+    public Routes emptyRoutesContainer() {
+        return new FlowspecL3vpnIpv4RoutesCaseBuilder()
+                .setFlowspecL3vpnIpv4Routes(new FlowspecL3vpnIpv4RoutesBuilder().build()).build();
     }
 }
