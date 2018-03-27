@@ -9,13 +9,16 @@ package org.opendaylight.protocol.bgp.flowspec;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.FlowspecSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.bgp.rib.rib.loc.rib.tables.routes.FlowspecRoutesCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.bgp.rib.rib.peer.effective.rib.in.tables.routes.FlowspecRoutesCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.flowspec.destination.ipv4.DestinationFlowspec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.flowspec.ipv4.route.FlowspecRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.flowspec.ipv4.route.FlowspecRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.flowspec.ipv4.route.FlowspecRouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.flowspec.routes.FlowspecRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev171207.flowspec.routes.FlowspecRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 
 public final class FlowspecIpv4RIBSupport extends AbstractFlowspecRIBSupport<SimpleFlowspecIpv4NlriParser,
@@ -50,6 +53,11 @@ public final class FlowspecIpv4RIBSupport extends AbstractFlowspecRIBSupport<Sim
         }
         return builder.setRouteKey(routeKey.getRouteKey()).setPathId(new PathId(pathId))
                 .setAttributes(attributes).build();
+    }
+
+    @Override
+    public Routes emptyRoutesContainer() {
+        return new FlowspecRoutesCaseBuilder().setFlowspecRoutes(new FlowspecRoutesBuilder().build()).build();
     }
 
     @Override
