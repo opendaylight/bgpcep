@@ -226,4 +226,14 @@ public interface RIBSupport<R extends Route, N extends Identifier> extends AddPa
                 @Nonnull NodeIdentifierWithPredicates routeKey,
                 @Nonnull DataContainerNode<?> route, ContainerNode attributes);
     }
+
+    /**
+     * Return the table-type-specific empty routes container, as augmented into the
+     * bgp-peer model under /peer/effect-rib-in/tables/routes choice node. This needs to include all
+     * the skeleton nodes under which the individual routes will be stored.
+     *
+     * @return Protocol-specific case in the routes choice, may not be null.
+     */
+    @Nonnull
+    Routes emptyRoutesContainer();
 }
