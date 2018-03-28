@@ -116,8 +116,7 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
     private Optional<PeerGroup> loadPeerGroup(final InstanceIdentifier<PeerGroup> peerGroupIid)
             throws ExecutionException, InterruptedException {
         final ReadOnlyTransaction tr = this.dataBroker.newReadOnlyTransaction();
-        final Optional<PeerGroup> result = tr.read(LogicalDatastoreType.CONFIGURATION, peerGroupIid).get().toJavaUtil();
-        return result;
+        return tr.read(LogicalDatastoreType.CONFIGURATION, peerGroupIid).get().toJavaUtil();
     }
 
     @Override

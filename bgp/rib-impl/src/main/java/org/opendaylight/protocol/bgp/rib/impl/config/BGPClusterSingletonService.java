@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
+import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
@@ -259,9 +260,14 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
         initiatePeerInstance(neighborInstanceIdentifier, neighbor, bgpPeer);
         this.peers.put(neighborInstanceIdentifier, bgpPeer);
 
-        final String groupName = getPeerGroupName(neighbor.getConfig());
+        final String groupName= getPeerGroupName(neighbor.getConfig());
+        String peerGroupName = null;
         if (groupName != null) {
-            this.peersGroups.computeIfAbsent(groupName, k -> new ArrayList<>()).add(bgpPeer);
+            peerGroupName = StringUtils.substringBetween(groupName, "=\"", "\"");
+        }
+
+        if (peerGroupName != null) {
+            this.peersGroups.computeIfAbsent(peerGroupName, k -> new ArrayList<>()).add(bgpPeer);
         }
         LOG.debug("Peer instance created {}", bgpPeer);
     }
@@ -347,7 +353,13 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
             return;
         }
         for (final PeerBean peer : peerGroup) {
+            try {
+                peer.closeServiceInstance().get();
+            } catch (final Exception e) {
+                LOG.error("Peer instance failed to close service instance", e);
+            }
             peer.restart(this.ribImpl, this.bgpIid, this.peerGroupLoader, this.tableTypeRegistry);
+            peer.instantiateServiceInstance();
         }
     }
 }
