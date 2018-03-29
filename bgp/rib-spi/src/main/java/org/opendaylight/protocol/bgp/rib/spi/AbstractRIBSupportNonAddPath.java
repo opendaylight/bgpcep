@@ -8,8 +8,6 @@
 
 package org.opendaylight.protocol.bgp.rib.spi;
 
-import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID_VALUE;
-
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
 import org.opendaylight.yangtools.yang.binding.Identifier;
@@ -39,11 +37,6 @@ public abstract class AbstractRIBSupportNonAddPath<R extends Route, N extends Id
     @Override
     public final NodeIdentifierWithPredicates createRouteKeyPathArgument(final NodeIdentifierWithPredicates routeKey) {
         return routeKey;
-    }
-
-    @Override
-    public final long extractPathId(@Nonnull R route) {
-        return NON_PATH_ID_VALUE;
     }
 
     @Override

@@ -9,15 +9,15 @@ package org.opendaylight.protocol.bgp.flowspec;
 
 import static java.util.Objects.requireNonNull;
 
+import com.google.common.annotations.Beta;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import java.util.Collection;
 import java.util.Optional;
-import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
-import org.opendaylight.protocol.bgp.rib.spi.MultiPathAbstractRIBSupport;
+import org.opendaylight.protocol.bgp.rib.spi.AdditionalPathAbstractRIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
@@ -34,9 +34,10 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 
+@Beta
 public abstract class AbstractFlowspecRIBSupport<T extends AbstractFlowspecNlriParser,
         R extends Route, S extends Identifier>
-        extends MultiPathAbstractRIBSupport<R, S> {
+        extends AdditionalPathAbstractRIBSupport<R, S> {
     protected final T nlriParser;
 
     protected AbstractFlowspecRIBSupport(
@@ -78,9 +79,8 @@ public abstract class AbstractFlowspecRIBSupport<T extends AbstractFlowspecNlriP
         );
     }
 
-    @Nonnull
     @Override
-    protected DestinationType buildWithdrawnDestination(@Nonnull final Collection<MapEntryNode> routes) {
+    protected DestinationType buildWithdrawnDestination(final Collection<MapEntryNode> routes) {
         final MapEntryNode routesCont = Iterables.getOnlyElement(routes);
         final PathId pathId = PathIdUtil.buildPathId(routesCont, routePathIdNid());
         return this.nlriParser.createWithdrawnDestinationType(

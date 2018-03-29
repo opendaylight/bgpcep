@@ -8,10 +8,6 @@
 
 package org.opendaylight.protocol.bgp.rib.spi;
 
-import com.google.common.collect.ImmutableMap;
-import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.PathId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.PathIdGrouping;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
@@ -20,16 +16,15 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 
 /**
  * Implements common methods for Advertisement of Multiple Paths on ribSupport.
  */
-public abstract class MultiPathAbstractRIBSupport<R extends Route, N extends Identifier>
+public abstract class AdditionalPathAbstractRIBSupport<R extends Route, N extends Identifier>
         extends AbstractRIBSupport<R, N> {
-    private final QName routeKeyQname;
     private final QName pathIdQname;
     private final NodeIdentifier pathIdNid;
+    private final QName routeKeyQname;
 
     /**
      * Default constructor. Requires the QName of the container augmented under the routes choice
@@ -45,15 +40,15 @@ public abstract class MultiPathAbstractRIBSupport<R extends Route, N extends Ide
      * @param routeKeyNaming     Route Key name (prefix/ route-key / etc..)
      * @param destinationQname   destination Qname
      */
-    protected MultiPathAbstractRIBSupport(final Class<? extends Routes> cazeClass,
+    protected AdditionalPathAbstractRIBSupport(final Class<? extends Routes> cazeClass,
             final Class<? extends DataObject> containerClass,
             final Class<? extends Route> listClass, final Class<? extends AddressFamily> addressFamilyClass,
             final Class<? extends SubsequentAddressFamily> safiClass, final String routeKeyNaming,
             final QName destinationQname) {
         super(cazeClass, containerClass, listClass, addressFamilyClass, safiClass, destinationQname);
-        this.routeKeyQname = QName.create(routeQName(), routeKeyNaming).intern();
         this.pathIdQname = QName.create(routeQName(), "path-id").intern();
         this.pathIdNid = new NodeIdentifier(this.pathIdQname);
+        this.routeKeyQname = QName.create(routeQName(), routeKeyNaming).intern();
     }
 
     protected final NodeIdentifier routePathIdNid() {
@@ -68,23 +63,5 @@ public abstract class MultiPathAbstractRIBSupport<R extends Route, N extends Ide
         return this.routeKeyQname;
     }
 
-    @Override
-    public final long extractPathId(final R route) {
-        if (route == null || route.getClass().isAssignableFrom(PathIdGrouping.class)) {
-            return PathIdUtil.NON_PATH_ID_VALUE;
-        }
-        final PathId pathContainer = ((PathIdGrouping) route).getPathId();
-        if (pathContainer == null || pathContainer.getValue() == null) {
-            return PathIdUtil.NON_PATH_ID_VALUE;
-        }
-        return pathContainer.getValue();
-    }
-
-    @Override
-    public final NodeIdentifierWithPredicates createRouteKeyPathArgument(final NodeIdentifierWithPredicates routeKey) {
-        final ImmutableMap<QName, Object> keyValues = ImmutableMap.of(routeKeyQName(),
-                PathIdUtil.getObjectKey(routeKey, routeKeyQName()));
-        return new NodeIdentifierWithPredicates(routeQName(), keyValues);
-    }
 
 }

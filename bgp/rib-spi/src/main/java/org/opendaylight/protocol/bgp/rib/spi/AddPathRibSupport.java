@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.rib.spi;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
@@ -21,15 +20,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgum
  * By default we implement non supported Multiple Path therefore
  * 0 Path Id is returned and null PathArgument
  */
-interface AddPathRibSupport<R extends Route, N extends Identifier> {
-    /**
-     * Extract PathId from route change received.
-     *
-     * @param route Path Id Container
-     * @return pathId  The path identifier value
-     */
-    long extractPathId(@Nonnull R route);
-
+interface AddPathRibSupport<N extends Identifier> {
     /**
      * Construct a PathArgument to an AddPathRoute.
      *

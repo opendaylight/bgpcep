@@ -91,8 +91,7 @@ public abstract class AbstractRIBSupport<R extends Route, N extends Identifier>
      * node in instantiations of the rib grouping. It is assumed that this container is defined by
      * the same model which populates it with route grouping instantiation, and by extension with
      * the route attributes container.
-     *
-     * @param cazeClass        Binding class of the AFI/SAFI-specific case statement, must not be null
+     *  @param cazeClass        Binding class of the AFI/SAFI-specific case statement, must not be null
      * @param containerClass   Binding class of the container in routes choice, must not be null.
      * @param listClass        Binding class of the route list, nust not be null;
      * @param afiClass         address Family Class
@@ -103,8 +102,7 @@ public abstract class AbstractRIBSupport<R extends Route, N extends Identifier>
             final Class<? extends Routes> cazeClass,
             final Class<? extends DataObject> containerClass,
             final Class<? extends Route> listClass, final Class<? extends AddressFamily> afiClass,
-            final Class<? extends SubsequentAddressFamily> safiClass,
-            final QName destinationQname) {
+            final Class<? extends SubsequentAddressFamily> safiClass, final QName destinationQname) {
         final QName qname = BindingReflections.findQName(containerClass).intern();
         this.routesContainerIdentifier = new NodeIdentifier(qname);
         this.routeAttributesIdentifier = new NodeIdentifier(QName.create(qname,
