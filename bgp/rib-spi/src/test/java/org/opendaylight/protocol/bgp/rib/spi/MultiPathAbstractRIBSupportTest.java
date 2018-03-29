@@ -156,11 +156,6 @@ public class MultiPathAbstractRIBSupportTest {
     }
 
     @Test
-    public void createRouteKeyPathArgument() {
-        assertEquals(PREFIX_NII, MULTI_PATH_ABSTRACT_TEST.createRouteKeyPathArgument(PREFIX_NII));
-    }
-
-    @Test
     public void routesCaseClass() {
         assertEquals(Ipv4RoutesCase.class, MULTI_PATH_ABSTRACT_TEST.routesCaseClass());
     }

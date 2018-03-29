@@ -11,8 +11,8 @@ import com.google.common.collect.Lists;
 import java.util.List;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev171207.LinkstateAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev171207.LinkstateSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.LinkstateAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.LinkstateSubsequentAddressFamily;
 
 /**
  * Activator for registering Linkstate AFI/SAFI to RIB.
@@ -20,6 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
     @Override
     protected List<AutoCloseable> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context) {
-        return Lists.newArrayList((AutoCloseable)context.registerRIBSupport(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class, LinkstateRIBSupport.getInstance()));
+        return Lists.newArrayList((AutoCloseable) context.registerRIBSupport(LinkstateAddressFamily.class,
+                LinkstateSubsequentAddressFamily.class, LinkstateRIBSupport.getInstance()));
     }
 }

@@ -14,7 +14,7 @@ import java.util.Optional;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
-import org.opendaylight.protocol.bgp.rib.spi.MultiPathAbstractRIBSupport;
+import org.opendaylight.protocol.bgp.rib.spi.AdditionalPathAbstractRIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
@@ -36,11 +36,13 @@ import org.slf4j.LoggerFactory;
 /**
  * Common {@link org.opendaylight.protocol.bgp.rib.spi.RIBSupport} class for IPv4 and IPv6 addresses.
  */
-abstract class AbstractIPRibSupport<R extends Route, N extends Identifier> extends MultiPathAbstractRIBSupport<R,N> {
+abstract class AbstractIPRibSupport<R extends Route, N extends Identifier>
+        extends AdditionalPathAbstractRIBSupport<R,N> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractIPRibSupport.class);
     private final NodeIdentifier prefixNid;
     private final NodeIdentifier nlriRoutesList;
     private final ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects;
+    private static final String ROUTE_KEY = "prefix";
 
     protected AbstractIPRibSupport(final Class<? extends DataObject> prefixClass,
             final Class<? extends AddressFamily> addressFamilyClass,
@@ -48,7 +50,7 @@ abstract class AbstractIPRibSupport<R extends Route, N extends Identifier> exten
             final Class<? extends DataObject> containerClass, final Class<? extends Route> listClass,
             final QName destinationQname, final QName prefixesQname) {
         super(cazeClass, containerClass, listClass, addressFamilyClass,
-                UnicastSubsequentAddressFamily.class, "prefix", destinationQname);
+                UnicastSubsequentAddressFamily.class, ROUTE_KEY, destinationQname);
         this.prefixNid = new NodeIdentifier(routeKeyQName());
         this.nlriRoutesList = new NodeIdentifier(prefixesQname);
         this.cacheableNlriObjects = ImmutableSet.of(prefixClass);
