@@ -18,7 +18,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.evpn.impl.nlri.EvpnNlriParser;
-import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
+import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupportNonAddPath;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171213.EvpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171213.L2vpnAddressFamily;
@@ -50,7 +50,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoute, EvpnRouteKey> {
+final class EvpnRibSupport extends AbstractRIBSupportNonAddPath<EvpnRoute, EvpnRouteKey> {
     private static final EvpnRibSupport SINGLETON = new EvpnRibSupport();
     private static final Logger LOG = LoggerFactory.getLogger(EvpnRibSupport.class);
     private static final QName ROUTE_KEY_QNAME = QName.create(EvpnRoute.QNAME, ROUTE_KEY).intern();

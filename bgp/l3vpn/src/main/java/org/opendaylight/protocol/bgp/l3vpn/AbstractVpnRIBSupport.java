@@ -21,7 +21,7 @@ import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.labeled.unicast.LUNlriParser;
 import org.opendaylight.protocol.bgp.labeled.unicast.LabeledUnicastIpv4RIBSupport;
-import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
+import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupportNonAddPath;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
@@ -53,7 +53,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport<VpnRoute, VpnRouteKey> {
+public abstract class AbstractVpnRIBSupport extends AbstractRIBSupportNonAddPath<VpnRoute, VpnRouteKey> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractVpnRIBSupport.class);
     private final NodeIdentifier nlriRoutesListNid;
     private final NodeIdentifier prefixTypeNid;
