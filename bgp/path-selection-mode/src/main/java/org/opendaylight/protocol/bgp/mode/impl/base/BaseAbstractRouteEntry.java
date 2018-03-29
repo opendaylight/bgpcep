@@ -233,7 +233,7 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry<BaseBestPath> {
                 LOG.debug("Write route {} to peer AdjRibsOut {}", route, toPeer.getPeerId());
                 tx.put(LogicalDatastoreType.OPERATIONAL, ribOutTarget, route);
                 tx.put(LogicalDatastoreType.OPERATIONAL, ribOutTarget.child(Attributes.class), effAttr.get());
-            } else if (fromPeer != null) {
+            } else {
                 LOG.trace("Removing {} from transaction for peer {}", ribOutTarget, toPeer.getPeerId());
                 tx.delete(LogicalDatastoreType.OPERATIONAL, ribOutTarget);
             }
