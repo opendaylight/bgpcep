@@ -20,7 +20,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
-import org.opendaylight.protocol.bgp.rib.spi.MultiPathAbstractRIBSupport;
+import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev171207.labeled.unicast.LabelStack;
@@ -53,10 +53,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 abstract class AbstractLabeledUnicastRIBSupport
-        extends MultiPathAbstractRIBSupport<LabeledUnicastRoute, LabeledUnicastRouteKey> {
-    private static final NodeIdentifier PREFIX_TYPE_NID = NodeIdentifier.create(QName.create(CLabeledUnicastDestination.QNAME, "prefix").intern());
-    private static final NodeIdentifier LABEL_STACK_NID = NodeIdentifier.create(QName.create(CLabeledUnicastDestination.QNAME, "label-stack").intern());
-    private static final NodeIdentifier LV_NID = NodeIdentifier.create(QName.create(CLabeledUnicastDestination.QNAME, "label-value").intern());
+        extends AbstractRIBSupport<LabeledUnicastRoute, LabeledUnicastRouteKey> {
+    private static final NodeIdentifier PREFIX_TYPE_NID
+            = NodeIdentifier.create(QName.create(CLabeledUnicastDestination.QNAME, "prefix").intern());
+    private static final NodeIdentifier LABEL_STACK_NID
+            = NodeIdentifier.create(QName.create(CLabeledUnicastDestination.QNAME, "label-stack").intern());
+    private static final NodeIdentifier LV_NID
+            = NodeIdentifier.create(QName.create(CLabeledUnicastDestination.QNAME, "label-value").intern());
     private static final NodeIdentifier NLRI_ROUTES_LIST = NodeIdentifier.create(CLabeledUnicastDestination.QNAME);
     private static final Logger LOG = LoggerFactory.getLogger(AbstractLabeledUnicastRIBSupport.class);
 
@@ -72,9 +75,12 @@ abstract class AbstractLabeledUnicastRIBSupport
      * @param safiClass SubsequentAddressFamily
      * @param destinationQname destination Qname
      */
-    AbstractLabeledUnicastRIBSupport(final Class<? extends Routes> cazeClass, final Class<? extends DataObject> containerClass,
-        final Class<? extends Route> listClass, final Class<? extends AddressFamily> addressFamilyClass,
-        final Class<? extends SubsequentAddressFamily> safiClass, final QName destinationQname) {
+    AbstractLabeledUnicastRIBSupport(final Class<? extends Routes> cazeClass,
+            final Class<? extends DataObject> containerClass,
+            final Class<? extends Route> listClass,
+            final Class<? extends AddressFamily> addressFamilyClass,
+            final Class<? extends SubsequentAddressFamily> safiClass,
+            final QName destinationQname) {
         super(cazeClass, containerClass, listClass, addressFamilyClass, safiClass, ROUTE_KEY, destinationQname);
     }
 
@@ -124,9 +130,9 @@ abstract class AbstractLabeledUnicastRIBSupport
         final CLabeledUnicastDestination dest = extractCLabeledUnicastDestination(labeledUnicast);
         LUNlriParser.serializeNlri(Collections.singletonList(dest), false, buffer);
         final String routeKeyValue = ByteArray.encodeBase64(buffer);
-        final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf = labeledUnicast.getChild(routePathIdNid());
-        final NodeIdentifierWithPredicates routeKey = PathIdUtil.createNidKey(routeQName(), routeKeyQName(), pathIdQName(), routeKeyValue, maybePathIdLeaf);
-        return routeKey;
+        final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf
+                = labeledUnicast.getChild(routePathIdNid());
+        return PathIdUtil.createNidKey(routeQName(), routeKeyQName(), pathIdQName(), routeKeyValue, maybePathIdLeaf);
     }
 
     /**
@@ -153,7 +159,8 @@ abstract class AbstractLabeledUnicastRIBSupport
         final Optional<DataContainerChild<? extends PathArgument, ?>> labelStacks = route.getChild(labelStackNid);
         if (labelStacks.isPresent()) {
             for (final UnkeyedListEntryNode label : ((UnkeyedListNode) labelStacks.get()).getValue()) {
-                final Optional<DataContainerChild<? extends PathArgument, ?>> labelStack = label.getChild(labelValueNid);
+                final Optional<DataContainerChild<? extends PathArgument, ?>> labelStack
+                        = label.getChild(labelValueNid);
                 if (labelStack.isPresent()) {
                     final LabelStackBuilder labelStackbuilder = new LabelStackBuilder();
                     labelStackbuilder.setLabelValue(new MplsLabel((Long) labelStack.get().getValue()));
@@ -178,6 +185,7 @@ abstract class AbstractLabeledUnicastRIBSupport
         } else {
             builder = new LabeledUnicastRouteBuilder();
         }
-        return builder.setRouteKey(routeKey.getRouteKey()).setPathId(new PathId(pathId)).setAttributes(attributes).build();
+        return builder.setRouteKey(routeKey.getRouteKey())
+                .setPathId(new PathId(pathId)).setAttributes(attributes).build();
     }
 }

@@ -133,12 +133,8 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry<BaseBestPath> {
         if (!filterRoutes(this.bestPath.getPeerId(), toPeer, localTK)) {
             return;
         }
-        final Identifier oldRouteKey = entryInfo.getRouteKey();
         final RIBSupport ribSupport = entryDep.getRibSupport();
-        Identifier newRouteKey = ribSupport.createNewRouteKey(this.bestPath.getPathId(), oldRouteKey);
-        if (newRouteKey == null) {
-            newRouteKey = oldRouteKey;
-        }
+        Identifier newRouteKey = ribSupport.createNewRouteKey(this.bestPath.getPathId(), entryInfo.getRouteKey());
         final BGPRouteEntryExportParameters routeEntry = new BGPRouteEntryExportParametersImpl(
                 this.peerTracker.getPeer(this.bestPath.getPeerId()), toPeer);
         final Optional<Attributes> effAttrib = entryDep.getRoutingPolicies()
@@ -159,9 +155,6 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry<BaseBestPath> {
         final KeyedInstanceIdentifier<Tables, TablesKey> locRibTarget = entryDep.getLocRibTableTarget();
         final RIBSupport ribSup = entryDep.getRibSupport();
         Identifier newRouteKey = ribSup.createNewRouteKey(this.removedBestPath.getPathId(), routeKey);
-        if (newRouteKey == null) {
-            newRouteKey = routeKey;
-        }
         final InstanceIdentifier routeTarget = ribSup.createRouteIdentifier(locRibTarget, newRouteKey);
         LOG.debug("Delete route from LocRib {}", routeTarget);
         tx.delete(LogicalDatastoreType.OPERATIONAL, routeTarget);
@@ -174,11 +167,6 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry<BaseBestPath> {
             final Identifier routeKey, final WriteTransaction tx) {
         final RIBSupport ribSup = entryDep.getRibSupport();
         Identifier newRouteKey = ribSup.createNewRouteKey(this.bestPath.getPathId(), routeKey);
-
-        if (newRouteKey == null) {
-            newRouteKey = routeKey;
-        }
-
         final Route route = createRoute(ribSup, newRouteKey, this.bestPath.getPathId(), this.bestPath);
         LOG.trace("Selected best route {}", route);
 
@@ -186,8 +174,6 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry<BaseBestPath> {
         final InstanceIdentifier routeTarget = ribSup.createRouteIdentifier(locRibTarget, newRouteKey);
         LOG.debug("Write route to LocRib {}", route);
         tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget, route);
-
-
         fillAdjRibsOut(this.bestPath.getAttributes(), route, newRouteKey, this.bestPath.getPeerId(),
                 entryDep, tx);
     }

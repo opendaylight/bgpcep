@@ -145,12 +145,6 @@ public final class IPv4RIBSupportTest extends AbstractRIBSupportTest {
                 .node(Routes.QNAME), prefixNii));
     }
 
-
-    @Test
-    public void testExtractPathId() {
-        assertEquals(PATH_ID.getValue().longValue(), RIB_SUPPORT.extractPathId(ROUTES.getIpv4Route().get(0)));
-    }
-
     @Test
     public void testRouteAttributesIdentifier() {
         assertEquals(new NodeIdentifier(QName.create(Ipv4Routes.QNAME, Attributes.QNAME.getLocalName().intern())),

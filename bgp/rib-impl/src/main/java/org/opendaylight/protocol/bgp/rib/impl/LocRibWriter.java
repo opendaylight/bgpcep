@@ -30,11 +30,13 @@ import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.rib.impl.state.rib.TotalPathsCounter;
 import org.opendaylight.protocol.bgp.rib.impl.state.rib.TotalPrefixesCounter;
+import org.opendaylight.protocol.bgp.rib.spi.AdditionalPathUtil;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.PathIdGrouping;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.RibKey;
@@ -250,12 +252,12 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
                 if (entry == null) {
                     entry = createEntry(routeKey);
                 }
-                final long pathId = this.ribSupport.extractPathId(newRoute);
+                final long pathId = AdditionalPathUtil.extractPathId((PathIdGrouping) newRoute);
                 entry.addRoute(routerId, pathId, newRoute);
                 this.totalPathsCounter.increment();
             } else if (oldRoute != null && entry != null) {
                 this.totalPathsCounter.decrement();
-                final long pathId = this.ribSupport.extractPathId(oldRoute);
+                final long pathId = AdditionalPathUtil.extractPathId((PathIdGrouping) oldRoute);
                 if (entry.removeRoute(routerId, pathId)) {
                     this.routeEntries.remove(routeKey);
                     this.totalPrefixesCounter.decrement();

@@ -85,25 +85,30 @@ public abstract class AbstractRIBSupport<R extends Route, N extends Identifier>
     private final Class<? extends AddressFamily> afiClass;
     private final Class<? extends SubsequentAddressFamily> safiClass;
     private final NodeIdentifier destinationNid;
+    private final QName pathIdQname;
+    private final NodeIdentifier pathIdNid;
+    private final QName routeKeyQname;
 
     /**
      * Default constructor. Requires the QName of the container augmented under the routes choice
      * node in instantiations of the rib grouping. It is assumed that this container is defined by
      * the same model which populates it with route grouping instantiation, and by extension with
      * the route attributes container.
-     *
-     * @param cazeClass        Binding class of the AFI/SAFI-specific case statement, must not be null
+     *  @param cazeClass        Binding class of the AFI/SAFI-specific case statement, must not be null
      * @param containerClass   Binding class of the container in routes choice, must not be null.
      * @param listClass        Binding class of the route list, nust not be null;
      * @param afiClass         address Family Class
      * @param safiClass        SubsequentAddressFamily
+     * @param routeKeyNaming     Route Key name (prefix/ route-key / etc..)
      * @param destinationQname destination Qname
      */
     protected AbstractRIBSupport(
             final Class<? extends Routes> cazeClass,
             final Class<? extends DataObject> containerClass,
-            final Class<? extends Route> listClass, final Class<? extends AddressFamily> afiClass,
+            final Class<? extends Route> listClass,
+            final Class<? extends AddressFamily> afiClass,
             final Class<? extends SubsequentAddressFamily> safiClass,
+            final String routeKeyNaming,
             final QName destinationQname) {
         final QName qname = BindingReflections.findQName(containerClass).intern();
         this.routesContainerIdentifier = new NodeIdentifier(qname);
@@ -121,6 +126,9 @@ public abstract class AbstractRIBSupport<R extends Route, N extends Identifier>
         this.afiClass = afiClass;
         this.safiClass = safiClass;
         this.destinationNid = new NodeIdentifier(destinationQname);
+        this.pathIdQname = QName.create(routeQName(), "path-id").intern();
+        this.pathIdNid = new NodeIdentifier(this.pathIdQname);
+        this.routeKeyQname = QName.create(routeQName(), routeKeyNaming).intern();
     }
 
     @Override
@@ -419,5 +427,17 @@ public abstract class AbstractRIBSupport<R extends Route, N extends Identifier>
             b.withChild(cb.build());
             tx.put(LogicalDatastoreType.OPERATIONAL, base.node(routeKey), b.build());
         }
+    }
+
+    protected final NodeIdentifier routePathIdNid() {
+        return this.pathIdNid;
+    }
+
+    protected final QName pathIdQName() {
+        return this.pathIdQname;
+    }
+
+    protected final QName routeKeyQName() {
+        return this.routeKeyQname;
     }
 }

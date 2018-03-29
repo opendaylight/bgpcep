@@ -145,12 +145,6 @@ public final class IPv6RIBSupportTest extends AbstractRIBSupportTest {
                 RIB_SUPPORT.routePath(getTablePath().node(Routes.QNAME), prefixNii));
     }
 
-
-    @Test
-    public void testExtractPathId() {
-        assertEquals(PATH_ID.getValue().longValue(), RIB_SUPPORT.extractPathId(ROUTES.getIpv6Route().get(0)));
-    }
-
     @Test
     public void testRouteAttributesIdentifier() {
         assertEquals(new NodeIdentifier(QName.create(Ipv6Routes.QNAME,

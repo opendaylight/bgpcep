@@ -11,7 +11,7 @@ package org.opendaylight.protocol.bgp.evpn.spi;
 import io.netty.buffer.ByteBuf;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev171213.esi.Esi;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.esi.Esi;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 
 public interface EsiRegistry {
