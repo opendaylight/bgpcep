@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import javassist.ClassPool;
 import org.junit.After;
 import org.junit.Before;
@@ -193,7 +192,7 @@ public abstract class AbstractRIBSupportTest {
     }
 
     @After
-    public final void tearDown() throws InterruptedException, ExecutionException {
+    public final void tearDown() {
         this.mappingService.close();
     }
 }

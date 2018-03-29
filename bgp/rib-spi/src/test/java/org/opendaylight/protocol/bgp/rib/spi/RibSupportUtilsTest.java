@@ -15,6 +15,7 @@ import static org.junit.Assert.assertTrue;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import org.junit.Test;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.peer.SupportedTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
@@ -33,6 +34,7 @@ public class RibSupportUtilsTest {
     private static final Class<? extends SubsequentAddressFamily> SAFI = UnicastSubsequentAddressFamily.class;
     private static final TablesKey TABLE_KEY = new TablesKey(Ipv4AddressFamily.class,
             UnicastSubsequentAddressFamily.class);
+    private static final PathId PATH_ID = new PathId(10L);
 
     static {
         final QName afi = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-rib?revision=2017-12-07",
