@@ -30,6 +30,10 @@ module odl-bgp-evpn {
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
 
+    revision "2018-03-29" {
+        description "Add support for add-path for all afi/safi.";
+    }
+
     revision "2017-12-13" {
         description "Support draft https://tools.ietf.org/html/draft-sajassi-bess-evpn-vpws-fxc-01";
     }
@@ -424,8 +428,9 @@ module odl-bgp-evpn {
                 leaf route-key {
                     type string;
                 }
-                key "route-key";
+                key "route-key path-id";
                 uses evpn;
+                uses bgp-msg:path-id-grouping;
                 uses bgp-rib:route {
                     augment "attributes" {
                         ext:augment-identifier pmsi-tunnel-augmentation;

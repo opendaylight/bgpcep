@@ -34,7 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv4.routes.ipv4.routes.Ipv4Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv4.routes.ipv4.routes.Ipv4Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv4.routes.ipv4.routes.Ipv4RoutesCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv4.routes.ipv4.routes.MultiPathAbstractTest;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv4.routes.ipv4.routes.RIBSupportTestImp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.AttributesBuilder;
@@ -74,13 +74,13 @@ import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableContainerNodeBuilder;
 
-public class MultiPathAbstractRIBSupportTest {
+public class RIBSupportTest {
     private static final String ROUTE_KEY = "prefix";
     private static final String PREFIX = "1.2.3.4/32";
     private static final QName PATH_ID_QNAME = QName.create(Ipv4Route.QNAME, "path-id").intern();
     private static final NodeIdentifierWithPredicates PREFIX_NII = new NodeIdentifierWithPredicates(Ipv4Route.QNAME,
         ImmutableMap.of(QName.create(Ipv4Route.QNAME, ROUTE_KEY).intern(), PREFIX));
-    private static final MultiPathAbstractTest MULTI_PATH_ABSTRACT_TEST = new MultiPathAbstractTest();
+    private static final RIBSupportTestImp ABSTRACT_RIB_SUPP_TEST = new RIBSupportTestImp();
     private static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.class,
             UnicastSubsequentAddressFamily.class);
     private static final YangInstanceIdentifier LOC_RIB_TARGET = YangInstanceIdentifier
@@ -136,13 +136,13 @@ public class MultiPathAbstractRIBSupportTest {
 
         doAnswer(invocation -> {
             final Object[] args = invocation.getArguments();
-            MultiPathAbstractRIBSupportTest.this.routesMap.remove(args[1]);
+            RIBSupportTest.this.routesMap.remove(args[1]);
             return args[1];
         }).when(this.tx).delete(Mockito.eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class));
         doAnswer(invocation -> {
             final Object[] args = invocation.getArguments();
             final NormalizedNode<?, ?> node1 = (NormalizedNode<?, ?>) args[2];
-            MultiPathAbstractRIBSupportTest.this.routesMap.put((YangInstanceIdentifier) args[1], node1);
+            RIBSupportTest.this.routesMap.put((YangInstanceIdentifier) args[1], node1);
             return args[1];
         }).when(this.tx).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class),
                 any(NormalizedNode.class));
@@ -152,93 +152,88 @@ public class MultiPathAbstractRIBSupportTest {
 
     @Test
     public void pathIdQName() {
-        assertEquals(PATH_ID_QNAME, MULTI_PATH_ABSTRACT_TEST.pathIdQName());
-    }
-
-    @Test
-    public void createRouteKeyPathArgument() {
-        assertEquals(PREFIX_NII, MULTI_PATH_ABSTRACT_TEST.createRouteKeyPathArgument(PREFIX_NII));
+        assertEquals(PATH_ID_QNAME, ABSTRACT_RIB_SUPP_TEST.pathIdQName());
     }
 
     @Test
     public void routesCaseClass() {
-        assertEquals(Ipv4RoutesCase.class, MULTI_PATH_ABSTRACT_TEST.routesCaseClass());
+        assertEquals(Ipv4RoutesCase.class, ABSTRACT_RIB_SUPP_TEST.routesCaseClass());
     }
 
     @Test
     public void routesContainerClass() {
-        assertEquals(Ipv4Routes.class, MULTI_PATH_ABSTRACT_TEST.routesContainerClass());
+        assertEquals(Ipv4Routes.class, ABSTRACT_RIB_SUPP_TEST.routesContainerClass());
     }
 
     @Test
     public void routesListClass() {
-        assertEquals(Ipv4Route.class, MULTI_PATH_ABSTRACT_TEST.routesListClass());
+        assertEquals(Ipv4Route.class, ABSTRACT_RIB_SUPP_TEST.routesListClass());
     }
 
     @Test
     public void routeQName() {
-        assertEquals(Ipv4Route.QNAME, MULTI_PATH_ABSTRACT_TEST.routeQName());
+        assertEquals(Ipv4Route.QNAME, ABSTRACT_RIB_SUPP_TEST.routeQName());
     }
 
     @Test
     public void emptyRoutes() {
         final ChoiceNode emptyRoutes = Builders.choiceBuilder().withNodeIdentifier(ROUTES_IDENTIFIER)
                 .addChild(Builders.containerBuilder().withNodeIdentifier(IPV4_ROUTES_IDENTIFIER)
-                        .withChild(ImmutableNodes.mapNodeBuilder(MULTI_PATH_ABSTRACT_TEST.routeQName())
+                        .withChild(ImmutableNodes.mapNodeBuilder(ABSTRACT_RIB_SUPP_TEST.routeQName())
                                 .build()).build()).build();
-        assertEquals(emptyRoutes, MULTI_PATH_ABSTRACT_TEST.emptyRoutes());
+        assertEquals(emptyRoutes, ABSTRACT_RIB_SUPP_TEST.emptyRoutes());
     }
 
     @Test
     public void routeNid() {
-        assertEquals(new NodeIdentifier(Ipv4Route.QNAME), MULTI_PATH_ABSTRACT_TEST.routeNid());
+        assertEquals(new NodeIdentifier(Ipv4Route.QNAME), ABSTRACT_RIB_SUPP_TEST.routeNid());
     }
 
     @Test
     public void getAfi() {
-        assertEquals(Ipv4AddressFamily.class, MULTI_PATH_ABSTRACT_TEST.getAfi());
+        assertEquals(Ipv4AddressFamily.class, ABSTRACT_RIB_SUPP_TEST.getAfi());
     }
 
     @Test
     public void getSafi() {
-        assertEquals(UnicastSubsequentAddressFamily.class, MULTI_PATH_ABSTRACT_TEST.getSafi());
+        assertEquals(UnicastSubsequentAddressFamily.class, ABSTRACT_RIB_SUPP_TEST.getSafi());
     }
 
     @Test
     public void routesContainerIdentifier() {
-        assertEquals(IPV4_ROUTES_IDENTIFIER, MULTI_PATH_ABSTRACT_TEST.routesContainerIdentifier());
+        assertEquals(IPV4_ROUTES_IDENTIFIER, ABSTRACT_RIB_SUPP_TEST.routesContainerIdentifier());
 
     }
 
     @Test
     public void routeAttributesIdentifier() {
         assertEquals(new NodeIdentifier(QName.create(Ipv4Routes.QNAME,
-                Attributes.QNAME.getLocalName().intern())), MULTI_PATH_ABSTRACT_TEST.routeAttributesIdentifier());
+                Attributes.QNAME.getLocalName().intern())), ABSTRACT_RIB_SUPP_TEST.routeAttributesIdentifier());
     }
 
     @Test
     public void routePath() {
         Assert.assertEquals(LOC_RIB_TARGET.node(ROUTES_IDENTIFIER)
                         .node(Ipv4Routes.QNAME).node(Ipv4Route.QNAME).node(PREFIX_NII),
-            MULTI_PATH_ABSTRACT_TEST.routePath(LOC_RIB_TARGET.node(Routes.QNAME), PREFIX_NII));
+            ABSTRACT_RIB_SUPP_TEST.routePath(LOC_RIB_TARGET.node(Routes.QNAME), PREFIX_NII));
     }
 
     @Test
     public void changedRoutes() {
-        Assert.assertTrue(MULTI_PATH_ABSTRACT_TEST.changedRoutes(this.emptyTree).isEmpty());
-        Assert.assertTrue(MULTI_PATH_ABSTRACT_TEST.changedRoutes(this.emptySubTree).isEmpty());
-        Assert.assertNotNull(MULTI_PATH_ABSTRACT_TEST.changedRoutes(this.subTree));
+        Assert.assertTrue(ABSTRACT_RIB_SUPP_TEST.changedRoutes(this.emptyTree).isEmpty());
+        Assert.assertTrue(ABSTRACT_RIB_SUPP_TEST.changedRoutes(this.emptySubTree).isEmpty());
+        Assert.assertNotNull(ABSTRACT_RIB_SUPP_TEST.changedRoutes(this.subTree));
     }
 
     @Test
     public void putRoutes() {
-        MULTI_PATH_ABSTRACT_TEST.putRoutes(this.tx, LOC_RIB_TARGET, this.nlri, this.attributes);
+        ABSTRACT_RIB_SUPP_TEST.putRoutes(this.tx, LOC_RIB_TARGET, this.nlri, this.attributes);
         assertFalse(this.routesMap.isEmpty());
     }
 
     @Test
     public void deleteRoutes() {
-        MULTI_PATH_ABSTRACT_TEST.deleteRoutes(this.tx, LOC_RIB_TARGET, this.nlri);
+        ABSTRACT_RIB_SUPP_TEST.deleteRoutes(this.tx, LOC_RIB_TARGET, this.nlri);
         assertTrue(this.routesMap.isEmpty());
     }
 
@@ -251,7 +246,7 @@ public class MultiPathAbstractRIBSupportTest {
         final Collection<MapEntryNode> routes = new HashSet<>();
 
         assertEquals(new UpdateBuilder().setAttributes(new AttributesBuilder().build()).build(),
-                MULTI_PATH_ABSTRACT_TEST.buildUpdate(routes, routes, attr));
+                ABSTRACT_RIB_SUPP_TEST.buildUpdate(routes, routes, attr));
 
         routes.add(this.mapEntryNode);
         final MpReachNlri mpReach = new MpReachNlriBuilder().setAfi(Ipv4AddressFamily.class)
@@ -261,7 +256,7 @@ public class MultiPathAbstractRIBSupportTest {
         final Attributes attMpR = new AttributesBuilder().addAugmentation(Attributes1.class,
                 new Attributes1Builder().setMpReachNlri(mpReach).build()).build();
         assertEquals(new UpdateBuilder().setAttributes(attMpR).build(),
-                MULTI_PATH_ABSTRACT_TEST.buildUpdate(routes, Collections.emptySet(), attr));
+                ABSTRACT_RIB_SUPP_TEST.buildUpdate(routes, Collections.emptySet(), attr));
 
         final MpUnreachNlri mpUnreach = new MpUnreachNlriBuilder().setAfi(Ipv4AddressFamily.class)
                 .setSafi(UnicastSubsequentAddressFamily.class)
@@ -270,6 +265,6 @@ public class MultiPathAbstractRIBSupportTest {
         final Attributes attMpU = new AttributesBuilder().addAugmentation(Attributes2.class,
                 new Attributes2Builder().setMpUnreachNlri(mpUnreach).build()).build();
         assertEquals(new UpdateBuilder().setAttributes(attMpU).build(),
-                MULTI_PATH_ABSTRACT_TEST.buildUpdate(Collections.emptySet(), routes, attr));
+                ABSTRACT_RIB_SUPP_TEST.buildUpdate(Collections.emptySet(), routes, attr));
     }
 }

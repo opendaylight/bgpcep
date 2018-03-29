@@ -16,7 +16,6 @@ import static org.opendaylight.protocol.bgp.l3vpn.ipv4.VpnIpv4NlriParserTest.IPV
 import static org.opendaylight.protocol.bgp.l3vpn.ipv4.VpnIpv4NlriParserTest.IPV4_VPN;
 import static org.opendaylight.protocol.bgp.l3vpn.ipv4.VpnIpv4NlriParserTest.LABEL_STACK;
 import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
-import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID_VALUE;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
@@ -24,6 +23,7 @@ import java.util.Collections;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupportTest;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.Attributes1;
@@ -36,9 +36,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev171207.l3vpn.ipv4.routes.VpnIpv4RoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev171207.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationVpnIpv4Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev171207.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationVpnIpv4CaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev171207.l3vpn.ip.route.VpnRoute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev171207.l3vpn.ip.route.VpnRouteBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev171207.l3vpn.ip.route.VpnRouteKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.route.VpnRoute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.route.VpnRouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.route.VpnRouteKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -59,7 +59,7 @@ public class VpnIpv4RIBSupportTest extends AbstractRIBSupportTest {
                     .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationVpnIpv4CaseBuilder()
                     .setVpnIpv4Destination(new VpnIpv4DestinationBuilder()
                             .setVpnDestination(Collections.singletonList(IPV4_VPN)).build()).build();
-    private static final VpnRouteKey ROUTE_KEY = new VpnRouteKey("WAABAQIDBAECIgEW");
+    private static final VpnRouteKey ROUTE_KEY = new VpnRouteKey(new PathId(0L), "WAABAQIDBAECIgEW");
 
     private static final VpnRoute ROUTE = new VpnRouteBuilder().setPathId(NON_PATH_ID)
             .setAttributes(ATTRIBUTES).setPrefix(IPV4_PREFIX)
@@ -131,7 +131,8 @@ public class VpnIpv4RIBSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testRouteIdAddPath() {
-        Assert.assertNull(RIB_SUPPORT.createNewRouteKey(1L, null));
+        final VpnRouteKey oldRouteKey = new VpnRouteKey(new PathId(10L), ROUTE_KEY.getRouteKey());
+        Assert.assertEquals(ROUTE_KEY, RIB_SUPPORT.createNewRouteKey(0L, oldRouteKey));
     }
 
     @Test
@@ -139,11 +140,6 @@ public class VpnIpv4RIBSupportTest extends AbstractRIBSupportTest {
         final NodeIdentifierWithPredicates prefixNii = createRouteNIWP(ROUTES);
         assertEquals(getRoutePath().node(prefixNii), RIB_SUPPORT
                 .routePath(getTablePath().node(Routes.QNAME), prefixNii));
-    }
-
-    @Test
-    public void testExtractPathId() {
-        assertEquals(NON_PATH_ID_VALUE, RIB_SUPPORT.extractPathId(null));
     }
 
     @Test

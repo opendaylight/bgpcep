@@ -10,8 +10,6 @@ package org.opendaylight.protocol.bgp.rib.spi;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
-import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 
@@ -20,16 +18,10 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgum
  * This interface exposes methods to access to Add Path information
  * By default we implement non supported Multiple Path therefore
  * 0 Path Id is returned and null PathArgument
+ * Deprecated: All families should support additional path
  */
-interface AddPathRibSupport<R extends Route, N extends Identifier> {
-    /**
-     * Extract PathId from route change received.
-     *
-     * @param route Path Id Container
-     * @return pathId  The path identifier value
-     */
-    long extractPathId(@Nonnull R route);
-
+@Deprecated
+interface AddPathRibSupport {
     /**
      * Construct a PathArgument to an AddPathRoute.
      *
@@ -50,17 +42,8 @@ interface AddPathRibSupport<R extends Route, N extends Identifier> {
      * @param routeKey routeKey Path Argument
      * @return new route Key
      */
-    @Nonnull
-    NodeIdentifierWithPredicates createRouteKeyPathArgument(@Nonnull NodeIdentifierWithPredicates routeKey);
-
-    /**
-     * Construct a Route Key using new path Id for Families supporting additional path.
-     * Otherwise returns null.
-     *
-     * @param pathId   The path identifier
-     * @param routeKey RouteKey
-     * @return routeId PathArgument + pathId or Null in case Add-path is not supported
-     */
-    @Nullable
-    N createNewRouteKey(@Nonnull long pathId, @Nonnull N routeKey);
+    @Deprecated
+    default NodeIdentifierWithPredicates createRouteKeyPathArgument(@Nonnull NodeIdentifierWithPredicates routeKey) {
+        return null;
+    }
 }

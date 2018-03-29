@@ -13,6 +13,7 @@ module bgp-linkstate {
     import bgp-segment-routing { prefix bgp-sr; revision-date 2015-10-14; }
     import bgp-epe { prefix bgp-epe; revision-date 2015-06-22; }
     import bmp-monitor { prefix bmp-mon; revision-date 2017-12-07; }
+    import yang-ext { prefix ext; revision-date 2013-07-09; }
 
     organization "Cisco Systems, Inc.";
     contact "Dana Kutenicsova <dkutenic@cisco.com>";
@@ -28,6 +29,10 @@ module bgp-linkstate {
         under the terms of the Eclipse Public License v1.0 which
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2018-03-29" {
+        description "Add support for add-path for all afi/safi.";
+    }
 
     revision "2017-12-07" {
         description "Add support for add-path in base BGP NLRI.";
@@ -741,9 +746,10 @@ module bgp-linkstate {
                         API contract of this model.";
                     type binary;
                 }
-                key "route-key";
+                key "route-key path-id";
 
                 uses linkstate;
+                uses bgp-msg:path-id-grouping;
 
                 uses bgp-rib:route {
                     augment attributes {
