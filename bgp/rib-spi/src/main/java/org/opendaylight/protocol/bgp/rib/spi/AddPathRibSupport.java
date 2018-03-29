@@ -8,8 +8,6 @@
 
 package org.opendaylight.protocol.bgp.rib.spi;
 
-import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID_VALUE;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
@@ -30,9 +28,7 @@ interface AddPathRibSupport<R extends Route, N extends Identifier> {
      * @param route Path Id Container
      * @return pathId  The path identifier value
      */
-    default long extractPathId(@Nonnull R route) {
-        return NON_PATH_ID_VALUE;
-    }
+    long extractPathId(@Nonnull R route);
 
     /**
      * Construct a PathArgument to an AddPathRoute.
@@ -55,20 +51,16 @@ interface AddPathRibSupport<R extends Route, N extends Identifier> {
      * @return new route Key
      */
     @Nonnull
-    default NodeIdentifierWithPredicates createRouteKeyPathArgument(@Nonnull NodeIdentifierWithPredicates routeKey) {
-        return routeKey;
-    }
+    NodeIdentifierWithPredicates createRouteKeyPathArgument(@Nonnull NodeIdentifierWithPredicates routeKey);
 
     /**
      * Construct a Route Key using new path Id for Families supporting additional path.
      * Otherwise returns null.
      *
-     * @param pathId  The path identifier
+     * @param pathId   The path identifier
      * @param routeKey RouteKey
      * @return routeId PathArgument + pathId or Null in case Add-path is not supported
      */
     @Nullable
-    default N createNewRouteKey(@Nonnull long pathId, @Nonnull N routeKey) {
-        return null;
-    }
+    N createNewRouteKey(@Nonnull long pathId, @Nonnull N routeKey);
 }

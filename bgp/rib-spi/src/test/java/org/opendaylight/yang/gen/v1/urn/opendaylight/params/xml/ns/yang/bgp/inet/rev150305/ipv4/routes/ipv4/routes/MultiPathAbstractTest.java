@@ -11,6 +11,8 @@ package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ine
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.MultiPathAbstractRIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
@@ -85,6 +87,12 @@ public final class MultiPathAbstractTest extends MultiPathAbstractRIBSupport {
 
     @Override
     public Routes emptyRoutesContainer() {
+        return null;
+    }
+
+    @Nullable
+    @Override
+    public Identifier createNewRouteKey(@Nonnull final long pathId, @Nonnull final Identifier routeKey) {
         return null;
     }
 }
