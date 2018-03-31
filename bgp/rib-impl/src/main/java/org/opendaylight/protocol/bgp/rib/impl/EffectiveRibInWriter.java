@@ -259,10 +259,12 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
             // Create an empty table
             LOG.trace("Create Empty table", tablePath);
-            tx.put(LogicalDatastoreType.OPERATIONAL, tablePath, new TablesBuilder()
-                    .setAfi(tableKey.getAfi()).setSafi(tableKey.getSafi())
-                    .setRoutes(this.registry.getRIBSupport(tableKey).emptyRoutesContainer())
-                    .setAttributes(newTable.getAttributes()).build());
+            if (table.getDataBefore() == null) {
+                tx.put(LogicalDatastoreType.OPERATIONAL, tablePath, new TablesBuilder()
+                        .setAfi(tableKey.getAfi()).setSafi(tableKey.getSafi())
+                        .setRoutes(this.registry.getRIBSupport(tableKey).emptyRoutesContainer())
+                        .setAttributes(newTable.getAttributes()).build());
+            }
 
             final RIBSupport ribSupport = this.registry.getRIBSupport(tableKey);
             final Routes routes = newTable.getRoutes();
