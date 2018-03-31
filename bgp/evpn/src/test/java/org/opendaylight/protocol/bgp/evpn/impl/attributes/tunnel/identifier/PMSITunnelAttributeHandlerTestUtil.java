@@ -269,7 +269,8 @@ final class PMSITunnelAttributeHandlerTestUtil {
         }
     }
 
-    private abstract static class NonSupportedAddressFamily extends AddressFamily {
+    private interface NonSupportedAddressFamily extends AddressFamily {
+
     }
 
     private static PAddressPMulticastGroup buildPAddressPMulticastGroup() {

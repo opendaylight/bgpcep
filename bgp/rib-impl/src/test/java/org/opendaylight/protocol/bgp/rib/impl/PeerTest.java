@@ -143,9 +143,9 @@ public class PeerTest extends AbstractRIBTestSetup {
         assertEquals(this.neighborAddress.getIpv4Address().getValue(), this.classic.getName());
         this.classic.onSessionUp(this.session);
         Assert.assertArrayEquals(new byte[]{1, 1, 1, 1}, this.classic.getRawIdentifier());
-        assertEquals("BGPPeer{name=127.0.0.1, tables=[TablesKey{_afi=class org.opendaylight.yang.gen.v1.urn"
+        assertEquals("BGPPeer{name=127.0.0.1, tables=[TablesKey{_afi=interface org.opendaylight.yang.gen.v1.urn"
                         + ".opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily,"
-                        + " _safi=class org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types"
+                        + " _safi=interface org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types"
                         + ".rev130919.UnicastSubsequentAddressFamily}]}",
                 this.classic.toString());
 
