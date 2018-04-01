@@ -17,8 +17,6 @@ import com.google.common.cache.LoadingCache;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -36,8 +34,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180109.BgpRoleSets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180109.MatchRoleSetCondition;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180109.MatchSetDirectionOptionsType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180109.match.role.set.condition.grouping.MatchRoleSet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180109.match.role.set.condition.grouping.match.role.set.FromRole;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180109.match.role.set.condition.grouping.match.role.set.ToRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180109.role.set.RoleSet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180109.role.set.RoleSetKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180109.routing.policy.defined.sets.bgp.defined.sets.RoleSets;
@@ -64,17 +63,6 @@ public final class MatchRoleSetHandler implements BgpConditionsAugmentationPolic
         this.dataBroker = requireNonNull(dataBroker);
     }
 
-    private boolean matchRoleCondition(final MatchRoleSet roleMatch, @Nonnull final PeerRole role) {
-        final List<PeerRole> roles = this.roleSets.getUnchecked(StringUtils
-                .substringBetween(roleMatch.getRoleSet(), "=\"", "\""));
-        final boolean found = roles.contains(role);
-        if (roleMatch.getMatchSetOptions().equals(MatchSetOptionsRestrictedType.ANY)) {
-            return found;
-        }
-        //INVERT Case
-        return !found;
-    }
-
     private List<PeerRole> loadRoleSets(final String key) throws ExecutionException, InterruptedException {
         final ReadOnlyTransaction tr = this.dataBroker.newReadOnlyTransaction();
         final Optional<RoleSet> result = tr.read(LogicalDatastoreType.CONFIGURATION,
@@ -88,49 +76,58 @@ public final class MatchRoleSetHandler implements BgpConditionsAugmentationPolic
     @Override
     public boolean matchImportCondition(
             final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryImportParameters routeEntryImportParameters,
+            final BGPRouteEntryImportParameters importParameters,
             final Void attributes,
             final MatchRoleSetCondition conditions) {
+        return matchNeighborRoleSetCondition(importParameters.getFromPeerRole(), null,
+                conditions.getMatchRoleSet());
+    }
 
-        final List<MatchRoleSet> neighCond = conditions.getMatchRoleSet();
+    private boolean matchNeighborRoleSetCondition(final PeerRole fromPeerRole, final PeerRole toPeerRole,
+            final MatchRoleSet matchRoleSet) {
 
-        for (final MatchRoleSet roleMatch : neighCond) {
-            if (roleMatch.getMatchSetDirectionOptions().equals(MatchSetDirectionOptionsType.TO)) {
-                return false;
-            } else {
-                if (!matchRoleCondition(roleMatch, routeEntryImportParameters.getFromPeerRole())) {
-                    return false;
-                }
-            }
+        final FromRole from = matchRoleSet.getFromRole();
+        Boolean match = null;
+        if (from != null) {
+            match = checkMatch(from.getRoleSet(), fromPeerRole, from.getMatchSetOptions());
         }
-        return true;
+        if (match != null && !match) {
+            return false;
+        }
+
+        final ToRole to = matchRoleSet.getToRole();
+        if (to != null) {
+            match = checkMatch(to.getRoleSet(), toPeerRole, to.getMatchSetOptions());
+        }
+
+        return match;
+    }
+
+    private boolean checkMatch(final String roleSetName, final PeerRole role,
+            final MatchSetOptionsRestrictedType matchSetOptions) {
+        final List<PeerRole> roles = this.roleSets.getUnchecked(StringUtils
+                .substringBetween(roleSetName, "=\"", "\""));
+
+        final boolean found = roles.contains(role);
+        if (MatchSetOptionsRestrictedType.ANY.equals(matchSetOptions)) {
+            return found;
+        }
+        //INVERT
+        return !found;
     }
 
     @Override
     public boolean matchExportCondition(
             final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryExportParameters routeEntryExportParameters,
+            final BGPRouteEntryExportParameters exportParameters,
             final Void attributes,
             final MatchRoleSetCondition conditions) {
-        final List<MatchRoleSet> neighCond = conditions.getMatchRoleSet();
-
-        for (final MatchRoleSet roleMatch : neighCond) {
-            PeerRole role;
-            if (roleMatch.getMatchSetDirectionOptions().equals(MatchSetDirectionOptionsType.TO)) {
-                role = routeEntryExportParameters.getToPeerRole();
-            } else {
-                role = routeEntryExportParameters.getFromPeerRole();
-            }
-            if (!matchRoleCondition(roleMatch, role)) {
-                return false;
-            }
-        }
-        return true;
+        return matchNeighborRoleSetCondition(exportParameters.getFromPeerRole(),
+                exportParameters.getToPeerRole(), conditions.getMatchRoleSet());
     }
 
-    @Nullable
     @Override
-    public Void getConditionParameter(@Nonnull final Attributes attributes) {
+    public Void getConditionParameter(final Attributes attributes) {
         return null;
     }
 }

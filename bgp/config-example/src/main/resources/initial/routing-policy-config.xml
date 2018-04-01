@@ -17,7 +17,9 @@
                     <conditions>
                         <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
                             <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
-                                <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ebgp"]</role-set>
+                                <from-role>
+                                    <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ebgp"]</role-set>
+                                </from-role>
                             </match-role-set>
                         </bgp-conditions>
                     </conditions>
@@ -32,8 +34,10 @@
                     <conditions>
                         <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
                             <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
-                                <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ebgp"]</role-set>
-                                <match-set-options>INVERT</match-set-options>
+                                <from-role>
+                                    <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ebgp"]</role-set>
+                                    <match-set-options>INVERT</match-set-options>
+                                </from-role>
                             </match-role-set>
                             <!--https://tools.ietf.org/html/rfc4456#section-8-->
                             <match-originator-id-set-condition xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
@@ -60,8 +64,9 @@
                     <conditions>
                         <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
                             <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
-                                <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-internal"]</role-set>
-                                <match-set-direction-options>TO</match-set-direction-options>
+                                <to-role>
+                                    <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-internal"]</role-set>
+                                </to-role>
                             </match-role-set>
                         </bgp-conditions>
                     </conditions>
@@ -74,11 +79,12 @@
                     <conditions>
                         <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
                             <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
-                                <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="all"]</role-set>
-                            </match-role-set>
-                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
-                                <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ebgp"]</role-set>
-                                <match-set-direction-options>TO</match-set-direction-options>
+                                <from-role>
+                                    <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="all"]</role-set>
+                                </from-role>
+                                <to-role>
+                                    <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ebgp"]</role-set>
+                                </to-role>
                             </match-role-set>
                         </bgp-conditions>
                     </conditions>
@@ -94,11 +100,12 @@
                     <conditions>
                         <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
                             <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
-                                <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ibgp"]</role-set>
-                            </match-role-set>
-                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
-                                <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ibgp"]</role-set>
-                                <match-set-direction-options>TO</match-set-direction-options>
+                                <from-role>
+                                    <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ibgp"]</role-set>
+                                </from-role>
+                                <to-role>
+                                    <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ibgp"]</role-set>
+                                </to-role>
                             </match-role-set>
                         </bgp-conditions>
                     </conditions>
@@ -111,11 +118,12 @@
                     <conditions>
                         <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
                             <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
-                                <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ebgp"]</role-set>
-                            </match-role-set>
-                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
-                                <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ibgp"]</role-set>
-                                <match-set-direction-options>TO</match-set-direction-options>
+                                <from-role>
+                                    <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ebgp"]</role-set>
+                                </from-role>
+                                <to-role>
+                                    <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ibgp"]</role-set>
+                                </to-role>
                             </match-role-set>
                         </bgp-conditions>
                     </conditions>
@@ -128,11 +136,12 @@
                     <conditions>
                         <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
                             <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
-                                <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-internal"]</role-set>
-                            </match-role-set>
-                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
-                                <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="ibgp-rr-client"]</role-set>
-                                <match-set-direction-options>TO</match-set-direction-options>
+                                <from-role>
+                                    <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-internal"]</role-set>
+                                </from-role>
+                                <to-role>
+                                    <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="ibgp-rr-client"]</role-set>
+                                </to-role>
                             </match-role-set>
                         </bgp-conditions>
                     </conditions>
@@ -145,11 +154,12 @@
                     <conditions>
                         <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
                             <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
-                                <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-rr-client"]</role-set>
-                            </match-role-set>
-                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
-                                <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ibgp"]</role-set>
-                                <match-set-direction-options>TO</match-set-direction-options>
+                                <from-role>
+                                    <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-rr-client"]</role-set>
+                                </from-role>
+                                <to-role>
+                                    <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ibgp"]</role-set>
+                                </to-role>
                             </match-role-set>
                         </bgp-conditions>
                     </conditions>
@@ -165,11 +175,12 @@
                     <conditions>
                         <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
                             <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
-                                <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ebgp"]</role-set>
-                            </match-role-set>
-                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
-                                <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-rr-client"]</role-set>
-                                <match-set-direction-options>TO</match-set-direction-options>
+                                <from-role>
+                                    <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ebgp"]</role-set>
+                                </from-role>
+                                <to-role>
+                                    <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-rr-client"]</role-set>
+                                </to-role>
                             </match-role-set>
                         </bgp-conditions>
                     </conditions>
@@ -182,11 +193,12 @@
                     <conditions>
                         <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
                             <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
-                                <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="ibgp-rr-client"]</role-set>
-                            </match-role-set>
-                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
-                                <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-rr-client"]</role-set>
-                                <match-set-direction-options>TO</match-set-direction-options>
+                                <from-role>
+                                    <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="ibgp-rr-client"]</role-set>
+                                </from-role>
+                                <to-role>
+                                    <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-rr-client"]</role-set>
+                                </to-role>
                             </match-role-set>
                         </bgp-conditions>
                     </conditions>
