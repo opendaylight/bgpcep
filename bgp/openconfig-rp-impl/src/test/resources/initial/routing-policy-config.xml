@@ -19,7 +19,9 @@
                     <conditions>
                         <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
                             <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
-                                <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ebgp"</role-set>
+                                <from-role>
+                                    <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ebgp"]</role-set>
+                                </from-role>
                             </match-role-set>
                         </bgp-conditions>
                     </conditions>

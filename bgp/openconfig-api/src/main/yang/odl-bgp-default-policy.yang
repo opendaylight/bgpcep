@@ -31,35 +31,29 @@ module odl-bgp-policy {
             "ODL BGP policy models";
     }
 
-    typedef match-set-direction-options-type {
-        type enumeration {
-            enum FROM {
-              description "from neighbor";
+    grouping match-role-condition-grouping {
+        leaf role-set {
+            type leafref {
+              path "/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set/role-set-name";
+              require-instance true;
             }
-            enum TO {
-              description "to neighbor";
-            }
+            description "References a defined neighbor roles set";
         }
-        default FROM;
+        uses rpol:match-set-options-restricted-group;
     }
 
     grouping match-role-set-condition-grouping {
-        description
-            "Match a list of referenced role-set according to the logic
-            defined in the match-set-options leaf";
-        list match-role-set {
-            leaf role-set {
-                type leafref {
-                  path "/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set/role-set-name";
-                  require-instance true;
-                }
-                description "References a defined neighbor roles set";
+        container match-role-set {
+            description
+                "Match a list of referenced role-set according to the logic
+                defined in the match-set-options leaf";
+
+            container from-role {
+                uses match-role-condition-grouping;
             }
 
-            uses rpol:match-set-options-restricted-group;
-
-            leaf match-set-direction-options {
-              type match-set-direction-options-type;
+            container to-role {
+                uses match-role-condition-grouping;
             }
         }
     }
