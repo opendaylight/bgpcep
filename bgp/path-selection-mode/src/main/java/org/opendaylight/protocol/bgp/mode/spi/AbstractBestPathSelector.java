@@ -100,7 +100,9 @@ public class AbstractBestPathSelector {
             if (this.bestState.getMultiExitDisc() != null || state.getMultiExitDisc() != null) {
                 final Long bmed = this.bestState.getMultiExitDisc();
                 final Long nmed = state.getMultiExitDisc();
-                return nmed > bmed;
+                if (!bmed.equals(nmed)) {
+                    return nmed > bmed;
+                }
             }
         } else {
             /*
