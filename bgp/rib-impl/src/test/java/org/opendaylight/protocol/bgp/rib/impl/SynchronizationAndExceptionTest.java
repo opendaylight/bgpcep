@@ -111,7 +111,7 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
     private static final YangInstanceIdentifier PEER_PATH = YangInstanceIdentifier.builder()
             .node(BgpRib.QNAME).node(Rib.QNAME)
             .nodeWithKey(Rib.QNAME, QName.create(Rib.QNAME, "id").intern(), RIB_ID)
-            .node(Peer.QNAME).nodeWithKey(Peer.QNAME, AdjRibInWriter.PEER_ID_QNAME, "bgp://1.1.1.4").build();
+            .node(Peer.QNAME).nodeWithKey(Peer.QNAME, AdjRibInWriter.PEER_ID_QNAME, "bgp://1.1.1.2").build();
     private static final YangInstanceIdentifier TABLE_PATH = PEER_PATH.node(AdjRibIn.QNAME).node(Tables.QNAME)
             .node(RibSupportUtils.toYangTablesKey(new TablesKey(Ipv4AddressFamily.class,
                     UnicastSubsequentAddressFamily.class))).node(Attributes.QNAME)
