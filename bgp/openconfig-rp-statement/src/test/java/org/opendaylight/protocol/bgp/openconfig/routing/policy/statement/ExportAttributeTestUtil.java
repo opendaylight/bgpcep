@@ -24,7 +24,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 
 public final class ExportAttributeTestUtil {
-    public static final long LOCAL_AS = 8;
+    public static final long REMOTE_AS = 8;
+    public static final AsNumber LOCAL_AS = new AsNumber(65L);
     public static final Ipv4Address IPV4 = new Ipv4Address("1.2.3.4");
     public static final ClusterIdentifier CLUSTER = new ClusterIdentifier(IPV4);
 
@@ -82,6 +83,6 @@ public final class ExportAttributeTestUtil {
 
     private static List<Segments> createSequenceWithLocalAs() {
         return Collections.singletonList(new SegmentsBuilder()
-                .setAsSequence(Collections.singletonList(new AsNumber(LOCAL_AS))).build());
+                .setAsSequence(Arrays.asList(new AsNumber(LOCAL_AS), new AsNumber(REMOTE_AS))).build());
     }
 }

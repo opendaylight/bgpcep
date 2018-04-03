@@ -26,6 +26,7 @@
                     <actions>
                         <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
                             <non-transitive-attributes-filter xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
+                            <local-as-path-prepend xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
                         </bgp-actions>
                     </actions>
                 </statement>
@@ -91,6 +92,7 @@
                     <actions>
                         <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
                             <non-transitive-attributes-filter xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
+                            <local-as-path-prepend xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
                             <set-as-path-prepend/>
                         </bgp-actions>
                     </actions>

@@ -260,6 +260,13 @@ module odl-bgp-policy {
     }
 
     augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions/bgp-pol:bgp-actions {
+        ext:augment-identifier local-as-path-prepend;
+        container local-as-path-prepend {
+            presence "Prepends local AS Path";
+        }
+    }
+
+    augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions/bgp-pol:bgp-actions {
         ext:augment-identifier set-cluster-id-prepend;
         container set-cluster-id-prepend {
 

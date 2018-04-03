@@ -201,7 +201,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     private static void validateAs(final AsNumber remoteAs, final Open openObj, final BGPSessionPreferences localPref)
             throws BGPDocumentedException {
         if (!remoteAs.equals(localPref.getExpectedRemoteAs())) {
-            LOG.warn("Unexpected remote AS number. Expecting {}, got {}", remoteAs, localPref.getExpectedRemoteAs());
+            LOG.warn("Unexpected remote AS number. Expecting {}, got {}", localPref.getExpectedRemoteAs(), remoteAs);
             throw new BGPDocumentedException("Peer AS number mismatch", BGPError.BAD_PEER_AS);
         }
 

@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.doReturn;
 import static org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.RouteAttributeContainer.routeAttributeContainerFalse;
+import static org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.ImportAttributeTestUtil.AS;
 
 import java.util.List;
 import org.junit.Before;
@@ -72,6 +73,7 @@ public class ImportDefaultStatementTest extends AbstractStatementRegistryConsume
             final Attributes attExpected) {
 
         doReturn(fromPeerRole).when(this.importParameters).getFromPeerRole();
+        doReturn(AS).when(this.importParameters).getFromPeerLocalAs();
 
         RouteAttributeContainer result = this.statementRegistry.applyImportStatement(
                 this.baseAttributes,

@@ -251,23 +251,22 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
 
             final Set<TablesKey> afiSafisAdvertized = OpenConfigMappingUtil
                     .toTableKey(afisSAfis.getAfiSafi(), tableTypeRegistry);
-
             final PeerRole role = OpenConfigMappingUtil.toPeerRole(neighbor, peerGroup);
             final ClusterIdentifier clusterId = OpenConfigMappingUtil
                     .getNeighborClusterIdentifier(neighbor.getConfig());
-
-            this.bgpPeer = new BGPPeer(this.neighborAddress, peerGroupName, rib, role, clusterId,
-                    BgpPeer.this.rpcRegistry, afiSafisAdvertized, Collections.emptySet());
-
             final List<BgpParameters> bgpParameters = getBgpParameters(afisSAfis, rib, tableTypeRegistry);
             final KeyMapping keyMapping = OpenConfigMappingUtil.getNeighborKey(neighbor);
             final IpAddress neighborLocalAddress = OpenConfigMappingUtil.getLocalAddress(neighbor.getTransport());
             int hold = OpenConfigMappingUtil.getHoldTimer(neighbor, peerGroup);
-            final AsNumber ribAs = rib.getLocalAs();
-            final AsNumber neighborAs = OpenConfigMappingUtil.getPeerAs(neighbor, peerGroup, ribAs);
+            final AsNumber globalAs = rib.getLocalAs();
+            final AsNumber neighborRemoteAs = OpenConfigMappingUtil
+                    .getRemotePeerAs(neighbor.getConfig(), peerGroup, globalAs);
+            final AsNumber neighborLocalAs = OpenConfigMappingUtil.getLocalPeerAs(neighbor.getConfig(), globalAs);
 
-            this.prefs = new BGPSessionPreferences(ribAs, hold, rib.getBgpIdentifier(),
-                    neighborAs, bgpParameters, getPassword(keyMapping));
+            this.bgpPeer = new BGPPeer(this.neighborAddress, peerGroupName, rib, role, clusterId, neighborLocalAs,
+                    BgpPeer.this.rpcRegistry, afiSafisAdvertized, Collections.emptySet());
+            this.prefs = new BGPSessionPreferences(neighborLocalAs, hold, rib.getBgpIdentifier(),
+                    neighborRemoteAs, bgpParameters, getPassword(keyMapping));
             this.activeConnection = OpenConfigMappingUtil.isActive(neighbor, peerGroup);
             this.retryTimer = OpenConfigMappingUtil.getRetryTimer(neighbor, peerGroup);
             this.dispatcher = rib.getDispatcher();

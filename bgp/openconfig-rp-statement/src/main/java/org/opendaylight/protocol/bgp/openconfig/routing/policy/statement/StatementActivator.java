@@ -16,6 +16,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.AbstractBGPStatementProviderActivator;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.StatementRegistryProvider;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.actions.AsPathPrepend;
+import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.actions.LocalAsPathPrependHandler;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.actions.NonTransitiveAttributesFilterHandler;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.actions.SetClusterIdPrependHandler;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.actions.SetCommunityHandler;
@@ -34,6 +35,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev15100
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.policy.definitions.policy.definition.statements.statement.actions.bgp.actions.SetAsPathPrepend;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.policy.definitions.policy.definition.statements.statement.actions.bgp.actions.SetCommunity;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.policy.definitions.policy.definition.statements.statement.actions.bgp.actions.SetExtCommunity;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180109.LocalAsPathPrepend;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180109.MatchBgpNeighborCondition;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180109.MatchClusterIdSetCondition;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180109.MatchOriginatorIdSetCondition;
@@ -51,7 +53,7 @@ public final class StatementActivator extends AbstractBGPStatementProviderActiva
 
     @Override
     protected synchronized List<AutoCloseable> startImpl(final StatementRegistryProvider provider) {
-        final List<AutoCloseable> registration = new ArrayList<>(13);
+        final List<AutoCloseable> registration = new ArrayList<>(14);
         registerActions(provider, registration);
         registerConditions(provider, registration);
         return registration;
@@ -82,6 +84,9 @@ public final class StatementActivator extends AbstractBGPStatementProviderActiva
 
     private void registerActions(final StatementRegistryProvider provider, final List<AutoCloseable> registration) {
         registration.add(provider.registerBgpActionPolicy(SetAsPathPrepend.class, new AsPathPrepend()));
+
+        registration.add(provider.registerBgpActionAugmentationPolicy(LocalAsPathPrepend.class,
+                new LocalAsPathPrependHandler()));
 
         registration.add(provider.registerBgpActionPolicy(SetCommunity.class,
                 new SetCommunityHandler(this.dataBroker)));

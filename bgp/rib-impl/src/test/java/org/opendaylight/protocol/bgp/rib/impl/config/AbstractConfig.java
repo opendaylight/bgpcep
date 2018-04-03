@@ -60,6 +60,7 @@ import org.osgi.framework.ServiceRegistration;
 
 class AbstractConfig extends DefaultRibPoliciesMockTest {
     protected static final AsNumber AS = new AsNumber(72L);
+    protected static final AsNumber lOCAL_AS = new AsNumber(73L);
     protected static final RibId RIB_ID = new RibId("test");
     static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
     @Mock

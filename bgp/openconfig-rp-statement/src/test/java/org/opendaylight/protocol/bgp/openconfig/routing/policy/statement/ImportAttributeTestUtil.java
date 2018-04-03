@@ -8,15 +8,18 @@
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement;
 
 import java.util.Collections;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.AttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.attributes.AsPathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.attributes.ClusterIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.attributes.LocalPrefBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.attributes.MultiExitDiscBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.attributes.Origin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.attributes.OriginBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.attributes.OriginatorIdBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.attributes.as.path.SegmentsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCase;
@@ -24,6 +27,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
 
 public final class ImportAttributeTestUtil {
+    static final AsNumber AS = new AsNumber(65L);
+
     private ImportAttributeTestUtil() {
         throw new UnsupportedOperationException();
     }
@@ -47,6 +52,9 @@ public final class ImportAttributeTestUtil {
         // origin pref
         attBuilder.setOrigin(createOrigin());
 
+        // as path
+        attBuilder.setAsPath(new AsPathBuilder().build());
+
         // multi-exit-disc pref
         attBuilder.setMultiExitDisc(new MultiExitDiscBuilder().setMed(0L).build());
         return attBuilder.build();
@@ -56,6 +64,8 @@ public final class ImportAttributeTestUtil {
         final AttributesBuilder attBuilder = new AttributesBuilder();
         attBuilder.setCNextHop(createNexHop());
         attBuilder.setOrigin(createOrigin());
+        attBuilder.setAsPath(new AsPathBuilder().setSegments(Collections.singletonList(new SegmentsBuilder()
+                .setAsSequence(Collections.singletonList(AS)).build())).build());
         return attBuilder.build();
     }
 

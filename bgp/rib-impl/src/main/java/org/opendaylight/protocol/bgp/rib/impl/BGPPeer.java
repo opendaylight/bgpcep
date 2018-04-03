@@ -31,7 +31,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
@@ -60,6 +59,7 @@ import org.opendaylight.protocol.bgp.rib.spi.state.BGPTimersState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTransportState;
 import org.opendaylight.protocol.concepts.AbstractRegistration;
 import org.opendaylight.protocol.util.Ipv4Util;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv4.prefixes.DestinationIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv4.prefixes.destination.ipv4.Ipv4Prefixes;
@@ -107,6 +107,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
         BGPSessionListener, Peer, TransactionChainListener {
     private static final Logger LOG = LoggerFactory.getLogger(BGPPeer.class);
     private final ClusterIdentifier clusterId;
+    private final AsNumber localAs;
 
     private Set<TablesKey> tables = Collections.emptySet();
     private final RIB rib;
@@ -148,6 +149,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
             final RIB rib,
             final PeerRole role,
             final ClusterIdentifier clusterId,
+            final AsNumber localAs,
             final RpcProviderRegistry rpcRegistry,
             final Set<TablesKey> afiSafisAdvertized,
             final Set<TablesKey> afiSafisGracefulAdvertized) {
@@ -156,6 +158,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
         this.peerRole = role;
         this.rib = requireNonNull(rib);
         this.clusterId = clusterId;
+        this.localAs = localAs;
         this.name = Ipv4Util.toStringIP(neighborAddress);
         this.rpcRegistry = rpcRegistry;
         this.peerIId = getInstanceIdentifier().child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
@@ -171,7 +174,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
             final RpcProviderRegistry rpcRegistry,
             final Set<TablesKey> afiSafisAdvertized,
             final Set<TablesKey> afiSafisGracefulAdvertized) {
-        this(neighborAddress, null, rib, role, null, rpcRegistry, afiSafisAdvertized,
+        this(neighborAddress, null, rib, role, null, null, rpcRegistry, afiSafisAdvertized,
                 afiSafisGracefulAdvertized);
     }
 
@@ -505,6 +508,16 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
     @Override
     public ClusterIdentifier getClusterId() {
         return this.clusterId;
+    }
+
+    @Override
+    public AsNumber getLocalAs() {
+        return this.localAs;
+    }
+
+    @Override
+    public AsNumber getFromPeerLocalAs() {
+        return getLocalAs();
     }
 
     @Override

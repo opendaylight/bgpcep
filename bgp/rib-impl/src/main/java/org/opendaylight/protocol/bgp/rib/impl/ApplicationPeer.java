@@ -21,8 +21,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
@@ -46,6 +44,7 @@ import org.opendaylight.protocol.bgp.rib.spi.state.BGPSessionState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTimersState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTransportState;
 import org.opendaylight.protocol.concepts.AbstractRegistration;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.SendReceive;
@@ -330,6 +329,11 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
     }
 
     @Override
+    public AsNumber getLocalAs() {
+        return null;
+    }
+
+    @Override
     public KeyedInstanceIdentifier<Tables, TablesKey> getRibOutIId(final TablesKey tablesKey) {
         return this.tablesIId.getUnchecked(tablesKey);
     }
@@ -384,5 +388,10 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
     @Override
     public ClusterIdentifier getFromClusterId() {
         return getClusterId();
+    }
+
+    @Override
+    public AsNumber getFromPeerLocalAs() {
+        return null;
     }
 }

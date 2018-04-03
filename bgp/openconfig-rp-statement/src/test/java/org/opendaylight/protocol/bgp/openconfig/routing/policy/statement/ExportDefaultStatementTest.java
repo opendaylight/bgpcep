@@ -14,7 +14,9 @@ import static org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.
 import static org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.ExportAttributeTestUtil.createInputWithOriginator;
 import static org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.ExportAttributeTestUtil.createPathInput;
 import static org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.ExportAttributeTestUtil.createPathInputWithAs;
+import static org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.ImportAttributeTestUtil.AS;
 
+import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,7 +47,8 @@ public class ExportDefaultStatementTest extends AbstractStatementRegistryConsume
         final Statement statement = getStatementAndSetToRole("to-external", PeerRole.Ebgp);
 
         final Attributes expectedOutput = createPathInputWithAs();
-        final RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(createPathInput(null));
+        final RouteAttributeContainer attributeContainer
+                = routeAttributeContainerFalse(createPathInput(Collections.emptyList()));
 
         assertApplyExportStatement(statement, PeerRole.Ebgp, attributeContainer, expectedOutput);
         assertApplyExportStatement(statement, PeerRole.Ibgp, attributeContainer, expectedOutput);
@@ -121,6 +124,7 @@ public class ExportDefaultStatementTest extends AbstractStatementRegistryConsume
 
     private Statement getStatementAndSetToRole(final String statementName, final PeerRole toPeerRole) {
         doReturn(toPeerRole).when(this.exportParameters).getToPeerRole();
+        doReturn(AS).when(this.exportParameters).getToPeerLocalAs();
         return this.defaultExportStatements.stream()
                 .filter(st -> st.getName().equals(statementName)).findFirst().get();
     }
