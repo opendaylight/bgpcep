@@ -9,6 +9,8 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.opendaylight.protocol.bgp.rib.impl.AbstractAddPathTest.AS_NUMBER;
 import static org.opendaylight.protocol.bgp.rib.impl.AbstractAddPathTest.BGP_ID;
 import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
@@ -83,8 +85,8 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
                 .getSingletonInstance().getMessageRegistry(), Lists.newArrayList(fixMessages(bgpMessages)));
 
         Mockito.doReturn(GlobalEventExecutor.INSTANCE.newSucceededFuture(null)).when(this.dispatcher)
-                .createReconnectingClient(Mockito.any(InetSocketAddress.class), Mockito.anyInt(),
-                        Mockito.any(KeyMapping.class));
+                .createReconnectingClient(any(InetSocketAddress.class), any(InetSocketAddress.class),
+                        anyInt(), any(KeyMapping.class));
 
         this.ext1 = new SimpleRIBExtensionProviderContext();
         this.ext2 = new SimpleRIBExtensionProviderContext();

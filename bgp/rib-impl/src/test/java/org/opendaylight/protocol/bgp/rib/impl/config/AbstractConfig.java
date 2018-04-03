@@ -126,8 +126,8 @@ class AbstractConfig extends DefaultRibPoliciesMockTest {
         doReturn(this.listener).when(this.dataTreeChangeService).registerDataTreeChangeListener(any(), any());
         doReturn(new BgpId("127.0.0.1")).when(this.rib).getBgpIdentifier();
         doReturn(true).when(this.future).cancel(true);
-        doReturn(this.future).when(this.dispatcher)
-                .createReconnectingClient(any(InetSocketAddress.class), anyInt(), any(KeyMapping.class));
+        doReturn(this.future).when(this.dispatcher).createReconnectingClient(any(InetSocketAddress.class),
+                any(InetSocketAddress.class), anyInt(), any(KeyMapping.class));
         doReturn(this.dispatcher).when(this.rib).getDispatcher();
 
         doReturn(java.util.Optional.of(new BgpTableTypeImpl(Ipv4AddressFamily.class,

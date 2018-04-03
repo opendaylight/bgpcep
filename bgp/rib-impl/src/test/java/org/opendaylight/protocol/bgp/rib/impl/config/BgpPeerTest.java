@@ -15,6 +15,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.math.BigDecimal;
 import java.net.InetSocketAddress;
@@ -133,14 +134,14 @@ public class BgpPeerTest extends AbstractConfig {
                 .setTransport(createTransport()).setAddPaths(createAddPath()).build();
 
         this.bgpPeer.start(this.rib, neighbor, null, this.peerGroupLoader, this.tableTypeRegistry);
-        Mockito.verify(this.rib).createPeerDOMChain(any());
-        Mockito.verify(this.rib, times(2)).getLocalAs();
-        Mockito.verify(this.rib).getLocalTables();
+        verify(this.rib).createPeerDOMChain(any());
+        verify(this.rib, times(2)).getLocalAs();
+        verify(this.rib).getLocalTables();
 
         this.bgpPeer.instantiateServiceInstance();
-        Mockito.verify(this.bgpPeerRegistry).addPeer(any(), any(), any());
-        Mockito.verify(this.dispatcher).createReconnectingClient(any(InetSocketAddress.class),
-                anyInt(), any(KeyMapping.class));
+        verify(this.bgpPeerRegistry).addPeer(any(), any(), any());
+        verify(this.dispatcher).createReconnectingClient(any(InetSocketAddress.class),
+                any(InetSocketAddress.class), anyInt(), any(KeyMapping.class));
 
         try {
             this.bgpPeer.start(this.rib, neighbor, null, this.peerGroupLoader, this.tableTypeRegistry);
@@ -151,24 +152,24 @@ public class BgpPeerTest extends AbstractConfig {
         this.bgpPeer.setServiceRegistration(this.serviceRegistration);
         this.bgpPeer.closeServiceInstance();
         this.bgpPeer.close();
-        Mockito.verify(this.future).cancel(true);
+        verify(this.future).cancel(true);
 
         this.bgpPeer.restart(this.rib, null, this.peerGroupLoader, this.tableTypeRegistry);
         this.bgpPeer.instantiateServiceInstance();
-        Mockito.verify(this.rib, times(2)).createPeerDOMChain(any());
-        Mockito.verify(this.rib, times(4)).getLocalAs();
-        Mockito.verify(this.rib, times(2)).getLocalTables();
+        verify(this.rib, times(2)).createPeerDOMChain(any());
+        verify(this.rib, times(4)).getLocalAs();
+        verify(this.rib, times(2)).getLocalTables();
 
         final Neighbor neighborExpected = createNeighborExpected(NEIGHBOR_ADDRESS);
         assertTrue(this.bgpPeer.containsEqualConfiguration(neighborExpected));
         assertFalse(this.bgpPeer.containsEqualConfiguration(createNeighborExpected(
                 new IpAddress(new Ipv4Address("127.0.0.2")))));
-        Mockito.verify(this.bgpPeerRegistry).removePeer(any(IpAddress.class));
+        verify(this.bgpPeerRegistry).removePeer(any(IpAddress.class));
 
         this.bgpPeer.closeServiceInstance();
         this.bgpPeer.close();
-        Mockito.verify(this.serviceRegistration).unregister();
-        Mockito.verify(this.future, times(2)).cancel(true);
+        verify(this.serviceRegistration).unregister();
+        verify(this.future, times(2)).cancel(true);
 
         final Neighbor neighborDiffConfig = new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS)
                 .setAfiSafis(createAfiSafi()).build();
