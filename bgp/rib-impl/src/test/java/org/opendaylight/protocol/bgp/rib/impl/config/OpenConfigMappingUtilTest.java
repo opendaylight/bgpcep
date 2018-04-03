@@ -129,6 +129,7 @@ public class OpenConfigMappingUtilTest {
             = new BgpTableTypeImpl(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class);
 
     private static final AsNumber AS = new AsNumber(72L);
+    private static final AsNumber GLOBAL_AS = new AsNumber(73L);
     private static final List<AddressFamilies> FAMILIES;
     private static final List<BgpTableType> TABLE_TYPES;
     private static final List<AfiSafi> AFISAFIS = new ArrayList<>();
@@ -201,16 +202,26 @@ public class OpenConfigMappingUtilTest {
     }
 
     @Test
-    public void testGetPeerAs() {
-        assertEquals(AS, OpenConfigMappingUtil.getPeerAs(NEIGHBOR, null, null));
-        assertEquals(AS, OpenConfigMappingUtil.getPeerAs(new NeighborBuilder().build(), null, this.rib.getLocalAs()));
-
-        assertEquals(AS, OpenConfigMappingUtil.getPeerAs(NEIGHBOR, new PeerGroupBuilder().build(), null));
-        assertEquals(AS, OpenConfigMappingUtil.getPeerAs(new NeighborBuilder().build(), new PeerGroupBuilder().build(),
+    public void testGetRemotePeerAs() {
+        final ConfigBuilder configBuilder = new ConfigBuilder();
+        assertEquals(AS, OpenConfigMappingUtil.getRemotePeerAs(NEIGHBOR.getConfig(), null, null));
+        assertEquals(AS, OpenConfigMappingUtil.getRemotePeerAs(configBuilder.build(), null,
                 this.rib.getLocalAs()));
 
-        assertEquals(AS, OpenConfigMappingUtil.getPeerAs(null, new PeerGroupBuilder()
+        assertEquals(AS, OpenConfigMappingUtil.getRemotePeerAs(NEIGHBOR.getConfig(),
+                new PeerGroupBuilder().build(), null));
+        assertEquals(AS, OpenConfigMappingUtil.getRemotePeerAs(configBuilder.build(), new PeerGroupBuilder().build(),
+                this.rib.getLocalAs()));
+
+        assertEquals(AS, OpenConfigMappingUtil.getRemotePeerAs(null, new PeerGroupBuilder()
                         .setConfig(new ConfigBuilder().setPeerAs(AS).build()).build(), null));
+    }
+
+    @Test
+    public void testGetLocalPeerAs() {
+        final ConfigBuilder configBuilder = new ConfigBuilder();
+        assertEquals(GLOBAL_AS,OpenConfigMappingUtil.getLocalPeerAs(null, GLOBAL_AS));
+        assertEquals(AS, OpenConfigMappingUtil.getLocalPeerAs(configBuilder.setLocalAs(AS).build(), GLOBAL_AS));
     }
 
     @Test

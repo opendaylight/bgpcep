@@ -263,11 +263,13 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
             final KeyMapping keyMapping = OpenConfigMappingUtil.getNeighborKey(neighbor);
             final IpAddress neighborLocalAddress = OpenConfigMappingUtil.getLocalAddress(neighbor.getTransport());
             int hold = OpenConfigMappingUtil.getHoldTimer(neighbor, peerGroup);
-            final AsNumber ribAs = rib.getLocalAs();
-            final AsNumber neighborAs = OpenConfigMappingUtil.getPeerAs(neighbor, peerGroup, ribAs);
+            final AsNumber globalAs = rib.getLocalAs();
+            final AsNumber neighborRemoteAs = OpenConfigMappingUtil
+                    .getRemotePeerAs(neighbor.getConfig(), peerGroup, globalAs);
+            final AsNumber neighborLocalAs = OpenConfigMappingUtil.getLocalPeerAs(neighbor.getConfig(), globalAs);
 
-            this.prefs = new BGPSessionPreferences(ribAs, hold, rib.getBgpIdentifier(),
-                    neighborAs, bgpParameters, getPassword(keyMapping));
+            this.prefs = new BGPSessionPreferences(neighborLocalAs, hold, rib.getBgpIdentifier(),
+                    neighborRemoteAs, bgpParameters, getPassword(keyMapping));
             this.activeConnection = OpenConfigMappingUtil.isActive(neighbor, peerGroup);
             this.retryTimer = OpenConfigMappingUtil.getRetryTimer(neighbor, peerGroup);
             this.dispatcher = rib.getDispatcher();

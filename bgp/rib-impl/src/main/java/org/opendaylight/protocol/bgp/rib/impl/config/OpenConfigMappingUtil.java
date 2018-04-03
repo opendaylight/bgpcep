@@ -97,7 +97,7 @@ public final class OpenConfigMappingUtil {
     }
 
     @Nullable
-    private static AsNumber getPeerAs(final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp
+    private static AsNumber getRemotePeerAs(final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp
             .rev151009.bgp.neighbor.group.Config config) {
         if (config != null) {
             final AsNumber peerAs = config.getPeerAs();
@@ -362,14 +362,15 @@ public final class OpenConfigMappingUtil {
     }
 
     @Nonnull
-    public static AsNumber getPeerAs(final Neighbor neighbor, final PeerGroup peerGroup, final AsNumber localAs) {
+    public static AsNumber getRemotePeerAs(final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009
+            .bgp.neighbor.group.Config config, final PeerGroup peerGroup, final AsNumber localAs) {
         AsNumber neighborAs = null;
         if (peerGroup != null) {
-            neighborAs = getPeerAs(peerGroup.getConfig());
+            neighborAs = getRemotePeerAs(peerGroup.getConfig());
         }
 
         if (neighborAs == null) {
-            neighborAs = getPeerAs(neighbor.getConfig());
+            neighborAs = getRemotePeerAs(config);
         }
 
         if (neighborAs == null) {
@@ -379,6 +380,17 @@ public final class OpenConfigMappingUtil {
     }
 
     @Nonnull
+    public static AsNumber getLocalPeerAs(@Nullable final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp
+            .rev151009.bgp.neighbor.group.Config config, @Nonnull final AsNumber globalAs) {
+        if (config != null) {
+            final AsNumber peerAs = config.getLocalAs();
+            if (peerAs != null) {
+                return peerAs;
+            }
+        }
+        return globalAs;
+    }
+
     public static int getRetryTimer(final Neighbor neighbor, final PeerGroup peerGroup) {
         Integer retryTimer = null;
         if (peerGroup != null) {
