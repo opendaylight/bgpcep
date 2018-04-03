@@ -105,6 +105,7 @@ public class BgpPeerTest extends AbstractConfig {
         return new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.
                 ConfigBuilder()
                 .setPeerAs(AS)
+                .setLocalAs(lOCAL_AS)
                 .setPeerType(PeerType.INTERNAL)
                 .setAuthPassword(MD5_PASSWORD)
                 .setRouteFlapDamping(false)

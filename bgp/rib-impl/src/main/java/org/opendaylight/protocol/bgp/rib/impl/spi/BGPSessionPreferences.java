@@ -19,16 +19,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 public final class BGPSessionPreferences {
 
     private final AsNumber as;
-
     private final int hold;
-
     private final BgpId bgpId;
-
     private final List<BgpParameters> params;
-
     private final AsNumber remoteAs;
-
     private final Optional<byte[]> md5Password;
+    private final Optional<AsNumber> localAs;
 
     /**
      * Creates a new DTO for Open message.
@@ -41,18 +37,19 @@ public final class BGPSessionPreferences {
      * @param md5Password - md5password
      */
     public BGPSessionPreferences(final AsNumber as, final int hold, final BgpId bgpId, final AsNumber remoteAs,
-            final List<BgpParameters> params, final Optional<byte[]> md5Password) {
+            final AsNumber localAs, final List<BgpParameters> params, final Optional<byte[]> md5Password) {
         this.as = as;
         this.hold = hold;
         this.bgpId = (bgpId != null) ? new BgpId(bgpId) : null;
         this.remoteAs = remoteAs;
         this.params = params;
         this.md5Password = md5Password;
+        this.localAs = Optional.ofNullable(localAs);
     }
 
     public BGPSessionPreferences(final AsNumber as, final int hold, final BgpId bgpId, final AsNumber remoteAs,
             final List<BgpParameters> params) {
-        this(as, hold, bgpId, remoteAs, params, Optional.empty());
+        this(as, hold, bgpId, remoteAs, null, params, Optional.empty());
     }
     /**
      * Returns my AS number.
@@ -60,7 +57,7 @@ public final class BGPSessionPreferences {
      * @return AS number
      */
     public AsNumber getMyAs() {
-        return this.as;
+        return this.localAs.orElse(this.as);
     }
 
     /**
