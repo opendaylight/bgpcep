@@ -12,7 +12,6 @@ import com.google.common.base.Preconditions;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import java.util.Collections;
-import java.util.Optional;
 import org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImpl;
 import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
@@ -38,8 +37,7 @@ final class BGPPeerBuilder {
             final BgpParameters bgpParameters) {
         final AsNumber as = arguments.getAs();
         final BGPSessionPreferences proposal = new BGPSessionPreferences(as, arguments.getHoldTimer(),
-                new BgpId(localAddress.getAddress().getHostAddress()), as, Collections.singletonList(bgpParameters),
-                Optional.empty());
+                new BgpId(localAddress.getAddress().getHostAddress()), as, Collections.singletonList(bgpParameters));
         final BGPPeerRegistry strictBGPPeerRegistry = dispatcher.getBGPPeerRegistry();
         if (arguments.getInitiateConnection()) {
             for (final InetSocketAddress remoteAddress : arguments.getRemoteAddresses()) {

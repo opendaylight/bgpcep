@@ -9,7 +9,6 @@
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
 import static java.util.Objects.requireNonNull;
-import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getGlobalClusterIdentifier;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
@@ -46,6 +45,8 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.p
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.open.message.BgpParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.open.message.bgp.parameters.OptionalCapabilities;
@@ -221,6 +222,7 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
         private final InetSocketAddress inetAddress;
         private final int retryTimer;
         private final KeyMapping keys;
+        private final InetSocketAddress localAddress;
         private final BGPPeer bgpPeer;
         private final IpAddress neighborAddress;
         private final BGPSessionPreferences prefs;
@@ -260,19 +262,24 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
 
             final List<BgpParameters> bgpParameters = getBgpParameters(afisSAfis, rib, tableTypeRegistry);
             final KeyMapping keyMapping = OpenConfigMappingUtil.getNeighborKey(neighbor);
-
+            final Ipv4Address localAddress = OpenConfigMappingUtil.getLocalAddress(neighbor.getTransport());
             int hold = OpenConfigMappingUtil.getHoldTimer(neighbor, peerGroup);
             final AsNumber ribAs = rib.getLocalAs();
             final AsNumber neighborAs = OpenConfigMappingUtil.getPeerAs(neighbor, peerGroup, ribAs);
 
             this.prefs = new BGPSessionPreferences(ribAs, hold, rib.getBgpIdentifier(),
-                    neighborAs, bgpParameters, getPassword(keyMapping));
+                    neighborAs, localAddress, bgpParameters, getPassword(keyMapping));
             this.activeConnection = OpenConfigMappingUtil.isActive(neighbor, peerGroup);
             this.retryTimer = OpenConfigMappingUtil.getRetryTimer(neighbor, peerGroup);
             this.dispatcher = rib.getDispatcher();
 
-            this.inetAddress = Ipv4Util.toInetSocketAddress(this.neighborAddress,
-                    OpenConfigMappingUtil.getPort(neighbor, peerGroup));
+            final PortNumber port = OpenConfigMappingUtil.getPort(neighbor, peerGroup);
+            this.inetAddress = Ipv4Util.toInetSocketAddress(this.neighborAddress, port);
+            if (localAddress != null) {
+                this.localAddress = Ipv4Util.toInetSocketAddress(new IpAddress(localAddress), port);
+            } else {
+                this.localAddress = null;
+            }
             this.keys = keyMapping;
         }
 
@@ -282,8 +289,8 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
             this.bgpPeer.instantiateServiceInstance();
             this.dispatcher.getBGPPeerRegistry().addPeer(this.neighborAddress, this.bgpPeer, this.prefs);
             if (this.activeConnection) {
-                this.connection = this.dispatcher.createReconnectingClient(this.inetAddress, this.retryTimer,
-                        this.keys);
+                this.connection = this.dispatcher.createReconnectingClient(this.inetAddress, this.localAddress,
+                        this.retryTimer, this.keys);
             }
         }
 

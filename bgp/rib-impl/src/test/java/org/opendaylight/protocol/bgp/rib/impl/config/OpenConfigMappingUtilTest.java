@@ -48,6 +48,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighborTransportConfig;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.AfiSafis;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.AfiSafisBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.ConfigBuilder;
@@ -75,6 +76,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.re
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.ProtocolKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151009.BGP;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.BgpTableType;
@@ -97,8 +99,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180321.PeerGroupTransportConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180321.PeerGroupTransportConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.MplsLabeledVpnSubsequentAddressFamily;
@@ -115,6 +115,7 @@ public class OpenConfigMappingUtilTest {
     private static final NeighborKey NEIGHBOR_KEY = new NeighborKey(NEIGHBOR_ADDRESS);
     private static final Ipv4Address ROUTER_ID = new Ipv4Address("1.2.3.4");
     private static final Ipv4Address CLUSTER_ID = new Ipv4Address("4.3.2.1");
+    private static final Ipv4Address LOCAL_HOST = new Ipv4Address("127.0.0.1");
 
     private static final Long ALL_PATHS = 0L;
     private static final Long N_PATHS = 2L;
@@ -126,11 +127,8 @@ public class OpenConfigMappingUtilTest {
             UnicastSubsequentAddressFamily.class);
     private static final BgpTableType BGP_TABLE_TYPE_IPV6
             = new BgpTableTypeImpl(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class);
-    private static final AfiSafi AFISAFI_IPV4 = new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class).build();
-    private static final TablesKey K4 = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
 
     private static final AsNumber AS = new AsNumber(72L);
-    private static final BgpId BGP_ID = new BgpId(NEIGHBOR_ADDRESS.getIpv4Address());
     private static final List<AddressFamilies> FAMILIES;
     private static final List<BgpTableType> TABLE_TYPES;
     private static final List<AfiSafi> AFISAFIS = new ArrayList<>();
@@ -296,6 +294,20 @@ public class OpenConfigMappingUtilTest {
                 new PeerGroupTransportConfigBuilder().setRemotePort(newPort).build()).build();
         assertEquals(newPort, OpenConfigMappingUtil.getPort(new NeighborBuilder().build(), new PeerGroupBuilder()
                 .setTransport(transport.setConfig(portConfigGroup).build()).build()));
+    }
+
+    @Test
+    public void testGetLocalAddress() {
+        assertNull(OpenConfigMappingUtil.getLocalAddress(null));
+        final TransportBuilder transport = new TransportBuilder();
+        assertNull(OpenConfigMappingUtil.getLocalAddress(transport.build()));
+        assertNull(OpenConfigMappingUtil.getLocalAddress(transport.setConfig(
+                new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.transport
+                        .ConfigBuilder().build()).build()));
+        assertEquals(LOCAL_HOST, OpenConfigMappingUtil.getLocalAddress(transport.setConfig(
+                new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.transport
+                        .ConfigBuilder().setLocalAddress(new BgpNeighborTransportConfig
+                        .LocalAddress(new IpAddress(new Ipv4Address(LOCAL_HOST.getValue())))).build()).build()));
     }
 
     @Test

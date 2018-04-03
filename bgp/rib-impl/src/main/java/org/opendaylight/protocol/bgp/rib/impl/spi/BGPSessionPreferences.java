@@ -9,7 +9,9 @@ package org.opendaylight.protocol.bgp.rib.impl.spi;
 
 import java.util.List;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 
@@ -19,16 +21,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 public final class BGPSessionPreferences {
 
     private final AsNumber as;
-
     private final int hold;
-
     private final BgpId bgpId;
-
     private final List<BgpParameters> params;
-
     private final AsNumber remoteAs;
-
     private final Optional<byte[]> md5Password;
+    private final Ipv4Address localAddress;
 
     /**
      * Creates a new DTO for Open message.
@@ -41,6 +39,7 @@ public final class BGPSessionPreferences {
      * @param md5Password - md5password
      */
     public BGPSessionPreferences(final AsNumber as, final int hold, final BgpId bgpId, final AsNumber remoteAs,
+            @Nullable final Ipv4Address localAddress,
             final List<BgpParameters> params, final Optional<byte[]> md5Password) {
         this.as = as;
         this.hold = hold;
@@ -48,12 +47,19 @@ public final class BGPSessionPreferences {
         this.remoteAs = remoteAs;
         this.params = params;
         this.md5Password = md5Password;
+        this.localAddress = localAddress;
+    }
+
+    public BGPSessionPreferences(final AsNumber as, final int hold, final BgpId bgpId, final AsNumber remoteAs,
+            final Ipv4Address localAddress, final List<BgpParameters> params) {
+        this(as, hold, bgpId, remoteAs, localAddress, params, Optional.empty());
     }
 
     public BGPSessionPreferences(final AsNumber as, final int hold, final BgpId bgpId, final AsNumber remoteAs,
             final List<BgpParameters> params) {
-        this(as, hold, bgpId, remoteAs, params, Optional.empty());
+        this(as, hold, bgpId, remoteAs, null, params, Optional.empty());
     }
+
     /**
      * Returns my AS number.
      *
@@ -79,6 +85,18 @@ public final class BGPSessionPreferences {
      */
     public BgpId getBgpId() {
         return this.bgpId;
+    }
+
+    /**
+     * Returns my Local Address.
+     *
+     * @return Ipv4Address local address
+     */
+    public Ipv4Address getLocalAddress() {
+        if (this.localAddress == null) {
+            return this.bgpId;
+        }
+        return this.localAddress;
     }
 
     /**
