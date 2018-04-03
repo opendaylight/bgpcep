@@ -119,7 +119,6 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
             .rev171207.bgp.rib.rib.Peer, PeerKey> peerIId;
     @GuardedBy("this")
     private AbstractRegistration trackerRegistration;
-    private final PeerId peerId;
     private final LoadingCache<TablesKey, KeyedInstanceIdentifier<Tables, TablesKey>> tablesIId
             = CacheBuilder.newBuilder()
             .build(new CacheLoader<TablesKey, KeyedInstanceIdentifier<Tables, TablesKey>>() {
@@ -141,6 +140,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
     private EffectiveRibInWriter effRibInWriter;
     private RoutedRpcRegistration<BgpPeerRpcService> rpcRegistration;
     private Map<TablesKey, SendReceive> addPathTableMaps = Collections.emptyMap();
+    private PeerId peerId;
 
     public BGPPeer(
             final IpAddress neighborAddress,
@@ -158,9 +158,8 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
         this.clusterId = clusterId;
         this.name = Ipv4Util.toStringIP(neighborAddress);
         this.rpcRegistry = rpcRegistry;
-        this.peerId = RouterIds.createPeerId(neighborAddress);
         this.peerIId = getInstanceIdentifier().child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
-                .yang.bgp.rib.rev171207.bgp.rib.rib.Peer.class, new PeerKey(this.peerId));
+                .yang.bgp.rib.rev171207.bgp.rib.rib.Peer.class, new PeerKey(RouterIds.createPeerId(neighborAddress)));
         this.peerRibOutIId = this.peerIId.child(AdjRibOut.class);
         this.chain = rib.createPeerDOMChain(this);
     }
@@ -342,6 +341,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
         LOG.info("Session with peer {} went up with tables {} and Add Path tables {}", this.name,
                 advertizedTableTypes, addPathTablesType);
         this.rawIdentifier = InetAddresses.forString(session.getBgpId().getValue()).getAddress();
+        this.peerId = RouterIds.createPeerId(session.getBgpId());
         final Set<TablesKey> setTables = advertizedTableTypes.stream().map(t -> new TablesKey(t.getAfi(), t.getSafi()))
                 .collect(Collectors.toSet());
         this.tables = ImmutableSet.copyOf(setTables);
