@@ -77,6 +77,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.attributes.AsPathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.attributes.ClusterIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.attributes.LocalPrefBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.attributes.MultiExitDiscBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.attributes.OriginBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.attributes.OriginatorIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.attributes.as.path.SegmentsBuilder;
@@ -311,6 +312,7 @@ public abstract class AbstractAddPathTest extends AbstractConcurrentDataBrokerTe
         attBuilder.setLocalPref(new LocalPrefBuilder().setPref(localPreference).build());
         attBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build());
         attBuilder.setAsPath(new AsPathBuilder().setSegments(Collections.emptyList()).build());
+        attBuilder.setMultiExitDisc(new MultiExitDiscBuilder().setMed(0L).build());
         if (clusterId != null) {
             attBuilder.setClusterId(new ClusterIdBuilder().setCluster(Collections.singletonList(clusterId)).build());
             attBuilder.setOriginatorId(new OriginatorIdBuilder().setOriginator(new Ipv4Address(clusterId)).build());
