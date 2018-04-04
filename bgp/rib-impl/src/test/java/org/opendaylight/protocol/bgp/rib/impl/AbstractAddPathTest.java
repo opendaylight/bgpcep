@@ -311,6 +311,7 @@ class AbstractAddPathTest extends AbstractConcurrentDataBrokerTest {
         attBuilder.setLocalPref(new LocalPrefBuilder().setPref(localPreference).build());
         attBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build());
         attBuilder.setAsPath(new AsPathBuilder().setSegments(Collections.emptyList()).build());
+        attBuilder.setMultiExitDisc(new MultiExitDiscBuilder().setMed(0L).build());
         if (clusterId != null) {
             attBuilder.setClusterId(new ClusterIdBuilder().setCluster(Collections.singletonList(clusterId)).build());
             attBuilder.setOriginatorId(new OriginatorIdBuilder().setOriginator(new Ipv4Address(clusterId)).build());
