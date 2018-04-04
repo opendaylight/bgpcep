@@ -1,0 +1,51 @@
+{
+    "bgp-vpn-ipv4:vpn-ipv4-routes": {
+        "vpn-route": [
+            {
+                "attributes": {
+                    "as-path": {
+                        "segments": [
+                            {
+                                "as-sequence": [
+                                    35000,
+                                    60000,
+                                    64000
+                                ]
+                            }
+                        ]
+                    },
+                    "communities": [
+                        {
+                            "as-number": 64000,
+                            "semantics": 43
+                        }
+                    ],
+                    "extended-communities": [
+                        {
+                            "route-target-extended-community": {
+                                "global-administrator": 24563,
+                                "local-administrator": "ByNLLg=="
+                            },
+                            "transitive": true
+                        }
+                    ],
+                    "ipv4-next-hop": {
+                        "global": "104.36.0.254"
+                    },
+                    "origin": {
+                        "value": "igp"
+                    }
+                },
+                "label-stack": [
+                    {
+                        "label-value": 256
+                    }
+                ],
+                "path-id": 0,
+                "prefix": "103.36.0.0/24",
+                "route-distinguisher": "0:3548:478513974",
+                "route-key": "WAAADdwchYs2ZyQA"
+            }
+        ]
+    }
+}
