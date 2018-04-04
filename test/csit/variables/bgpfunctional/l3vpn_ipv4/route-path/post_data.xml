@@ -1,4 +1,5 @@
 <vpn-route xmlns="urn:opendaylight:params:xml:ns:yang:bgp-vpn-ipv4">
+  <path-id>0</path-id>
   <route-key>vpn1</route-key>
   <label-stack>
     <label-value>123</label-value>

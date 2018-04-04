@@ -1,0 +1,29 @@
+{
+ "bgp-vpn-ipv4:vpn-ipv4-routes": {
+  "vpn-route": [
+   {
+    "attributes": {
+     "as-path": {},
+     "ipv4-next-hop": {
+      "global": "10.0.255.254"
+     },
+     "local-pref": {
+      "pref": 100
+     },
+     "origin": {
+      "value": "igp"
+     }
+    },
+    "label-stack": [
+     {
+      "label-value": 24005
+     }
+    ],
+    "path-id": 0,
+    "prefix": "1.1.1.0/24",
+    "route-distinguisher": "1.2.3.4:1",
+    "route-key": "WAABAQIDBAABAQEB"
+   }
+  ]
+ }
+}
