@@ -14,6 +14,7 @@
           },
           "as-path": {}
         },
+        "path-id": 0,
         "route-key": "ARYAAhmZmZkAAQLyDN2An/cAFAAAAAAK",
         "route-distinguisher": "429496729:1",
         "ethernet-a-d-route": {

@@ -21,6 +21,7 @@
           },
           "as-path": {}
         },
+        "path-id": 0,
         "route-key": "BBcAAhmZmZkAAQUBAQEBAAAH0AAgKysrKw==",
         "route-distinguisher": "429496729:1"
       }
