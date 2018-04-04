@@ -97,7 +97,7 @@ public class AddPathBasePathsTest extends AbstractAddPathTest {
         assertEquals(UPD_NA_100_EBGP, listener5.getListMsg().get(0));
 
         //the second best route
-        sendRouteAndCheckIsOnLocRib(session2, PREFIX1, 50, 1);
+        sendRouteAndCheckIsOnLocRib(session2, PREFIX1, 100, 1);
         checkReceivedMessages(listener4, 1);
         checkReceivedMessages(listener5, 1);
 
