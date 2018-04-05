@@ -186,6 +186,10 @@ module bgp-openconfig-extensions {
                 ext:augment-identifier peer-group-cluster-id-config;
                 uses route-reflector-cluster-id-config;
             }
+            augment bgp/peer-groups/peer-group/afi-safis/afi-safi {
+                ext:augment-identifier group-add-paths-config;
+                uses openconfig-bgp:bgp-neighbor-add-paths_config;
+            }
         }
     }
 
