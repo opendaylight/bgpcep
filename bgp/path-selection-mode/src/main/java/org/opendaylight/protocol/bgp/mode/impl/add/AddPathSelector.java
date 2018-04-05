@@ -13,6 +13,7 @@ import com.google.common.primitives.UnsignedInteger;
 import org.opendaylight.protocol.bgp.mode.api.BestPathState;
 import org.opendaylight.protocol.bgp.mode.impl.BestPathStateImpl;
 import org.opendaylight.protocol.bgp.mode.spi.AbstractBestPathSelector;
+import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +42,7 @@ public final class AddPathSelector extends AbstractBestPathSelector {
              */
             final BestPathState state = new BestPathStateImpl(attrs);
             if (this.bestOriginatorId == null || !isExistingPathBetter(state)) {
-                LOG.trace("Selecting path from router {}", key);
+                LOG.trace("Selecting path from router {}", RouterIds.createPeerId(key.getRouteId()).getValue());
                 this.bestOriginatorId = originatorId;
                 this.bestState = state;
                 this.bestRouteKey = key;

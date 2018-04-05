@@ -34,7 +34,7 @@ public class AbstractBestPathSelector {
      */
     protected UnsignedInteger replaceOriginator(final UnsignedInteger routerId, final OriginatorId originatorId) {
         if (originatorId != null) {
-            RouterIds.routerIdForAddress(originatorId.getOriginator().getValue());
+            return RouterIds.routerIdForAddress(originatorId.getOriginator().getValue());
         }
 
         return routerId;
