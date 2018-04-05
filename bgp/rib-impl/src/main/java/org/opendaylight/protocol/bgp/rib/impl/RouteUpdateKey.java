@@ -18,9 +18,9 @@ import org.opendaylight.yangtools.yang.binding.Identifier;
  */
 final class RouteUpdateKey {
     private final UnsignedInteger peerId;
-    private final Identifier routeId;
+    private final Object routeId;
 
-    RouteUpdateKey(final UnsignedInteger peerId, final Identifier routeKey) {
+    RouteUpdateKey(final UnsignedInteger peerId, final Object routeKey) {
         this.peerId = requireNonNull(peerId);
         this.routeId = requireNonNull(routeKey);
     }
@@ -29,7 +29,7 @@ final class RouteUpdateKey {
         return this.peerId;
     }
 
-    Identifier getRouteId() {
+    Object getRouteId() {
         return this.routeId;
     }
 

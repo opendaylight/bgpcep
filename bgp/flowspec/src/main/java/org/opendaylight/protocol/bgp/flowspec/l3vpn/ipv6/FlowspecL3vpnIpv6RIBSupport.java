@@ -22,8 +22,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 
-public final class FlowspecL3vpnIpv6RIBSupport extends AbstractFlowspecL3vpnRIBSupport<FlowspecL3vpnIpv6NlriParser,
-        FlowspecL3vpnRoute, FlowspecL3vpnRouteKey> {
+public final class FlowspecL3vpnIpv6RIBSupport extends AbstractFlowspecL3vpnRIBSupport<String,
+        FlowspecL3vpnIpv6NlriParser, FlowspecL3vpnRoute, FlowspecL3vpnRouteKey> {
     private FlowspecL3vpnIpv6RIBSupport(SimpleFlowspecExtensionProviderContext context) {
         super(
                 FlowspecL3vpnIpv6RoutesCase.class,
@@ -42,8 +42,8 @@ public final class FlowspecL3vpnIpv6RIBSupport extends AbstractFlowspecL3vpnRIBS
     }
 
     @Override
-    public final FlowspecL3vpnRouteKey createNewRouteKey(final long pathId, final FlowspecL3vpnRouteKey routeKey) {
-        return new FlowspecL3vpnRouteKey(new PathId(pathId), routeKey.getRouteKey());
+    public final FlowspecL3vpnRouteKey createNewRouteKey(final long pathId, final String routeKey) {
+        return new FlowspecL3vpnRouteKey(new PathId(pathId), routeKey);
     }
 
     @Override
@@ -57,6 +57,11 @@ public final class FlowspecL3vpnIpv6RIBSupport extends AbstractFlowspecL3vpnRIBS
         }
         return builder.setRouteKey(routeKey.getRouteKey()).setPathId(new PathId(pathId))
                 .setAttributes(attributes).build();
+    }
+
+    @Override
+    public String extractRouteKey(final FlowspecL3vpnRouteKey routeKey) {
+        return routeKey.getRouteKey();
     }
 
     @Override

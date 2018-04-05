@@ -149,8 +149,8 @@ public final class EvpnRibSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testRouteIdAddPath() {
-        final EvpnRouteKey oldRouteKey = new EvpnRouteKey(new PathId(10L), ROUTE_KEY.getRouteKey());
-        Assert.assertEquals(ROUTE_KEY, RIB_SUPPORT.createNewRouteKey(ROUTE_KEY.getPathId().getValue(), oldRouteKey));
+        assertEquals(ROUTE_KEY, RIB_SUPPORT.createNewRouteKey(ROUTE_KEY.getPathId().getValue(),
+                ROUTE_KEY.getRouteKey()));
     }
 
     @Test

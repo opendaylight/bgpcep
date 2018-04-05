@@ -13,11 +13,11 @@ import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryInfo;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 
-public final class RouteEntryInfoImpl<N extends Identifier> implements RouteEntryInfo<N> {
+public final class RouteEntryInfoImpl implements RouteEntryInfo {
     private final Peer peer;
-    private final N key;
+    private final Object key;
 
-    public RouteEntryInfoImpl(final Peer peer, final N key) {
+    public RouteEntryInfoImpl(final Peer peer, final Object key) {
         this.peer = requireNonNull(peer);
         this.key = requireNonNull(key);
     }
@@ -28,7 +28,7 @@ public final class RouteEntryInfoImpl<N extends Identifier> implements RouteEntr
     }
 
     @Override
-    public N getRouteKey() {
+    public Object getRouteKey() {
         return this.key;
     }
 }

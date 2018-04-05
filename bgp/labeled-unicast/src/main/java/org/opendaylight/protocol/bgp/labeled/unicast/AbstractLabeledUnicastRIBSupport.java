@@ -53,7 +53,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 abstract class AbstractLabeledUnicastRIBSupport
-        extends AbstractRIBSupport<LabeledUnicastRoute, LabeledUnicastRouteKey> {
+        extends AbstractRIBSupport<String, LabeledUnicastRoute, LabeledUnicastRouteKey> {
     private static final NodeIdentifier PREFIX_TYPE_NID
             = NodeIdentifier.create(QName.create(CLabeledUnicastDestination.QNAME, "prefix").intern());
     private static final NodeIdentifier LABEL_STACK_NID
@@ -172,8 +172,13 @@ abstract class AbstractLabeledUnicastRIBSupport
     }
 
     @Override
-    public final LabeledUnicastRouteKey createNewRouteKey(final long pathId, final LabeledUnicastRouteKey routeKey) {
-        return new LabeledUnicastRouteKey(new PathId(pathId), routeKey.getRouteKey());
+    public final LabeledUnicastRouteKey createNewRouteKey(final long pathId, final String routeKey) {
+        return new LabeledUnicastRouteKey(new PathId(pathId), routeKey);
+    }
+
+    @Override
+    public final String extractRouteKey(final LabeledUnicastRouteKey routeKey) {
+        return routeKey.getRouteKey();
     }
 
     @Override

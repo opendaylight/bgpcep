@@ -39,7 +39,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNod
  * to register an implementation of this class and the RIB core then calls into it
  * to inquire about details specific to that particular model.
  */
-public interface RIBSupport<R extends Route, N extends Identifier> extends AddPathRibSupport {
+public interface RIBSupport<S, R extends Route, I extends Identifier> extends AddPathRibSupport {
     /**
      * Return the table-type-specific empty routes container, as augmented into the
      * bgp-rib model under /rib/tables/routes choice node. This needs to include all
@@ -209,7 +209,7 @@ public interface RIBSupport<R extends Route, N extends Identifier> extends AddPa
     @Nonnull
     InstanceIdentifier<R> createRouteIdentifier(
             @Nonnull KeyedInstanceIdentifier<Tables, TablesKey> tableKey,
-            @Nonnull N newRouteKey);
+            @Nonnull I newRouteKey);
 
     /**
      * Creates a route with new path Id and attributes.
@@ -221,7 +221,17 @@ public interface RIBSupport<R extends Route, N extends Identifier> extends AddPa
      * @return Route
      */
     @Nonnull
-    R createRoute(@Nullable R route, N routeKey, @Nullable long pathId, @Nonnull Attributes attributes);
+    R createRoute(@Nullable R route, I routeKey, @Nullable long pathId, @Nonnull Attributes attributes);
+
+    /**
+     * Route Key is conformed by Route Key(Prefix / String /.. + Path Id), this methods extracts the identifier
+     * (Prefix / String /..).
+     *
+     * @param routeKey route key
+     * @return Identifier (String / Prefix / ..)
+     */
+    @Nonnull
+    S extractRouteKey(@Nonnull I routeKey);
 
     interface ApplyRoute {
         void apply(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier base,
@@ -248,5 +258,5 @@ public interface RIBSupport<R extends Route, N extends Identifier> extends AddPa
      * @return routeId PathArgument + pathId
      */
     @Nonnull
-    N createNewRouteKey(@Nonnull long pathId, @Nonnull N routeKey);
+    I createNewRouteKey(@Nonnull long pathId, @Nonnull S routeKey);
 }

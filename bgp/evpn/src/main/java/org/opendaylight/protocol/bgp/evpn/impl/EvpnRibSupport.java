@@ -52,7 +52,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoute, EvpnRouteKey> {
+final class EvpnRibSupport extends AbstractRIBSupport<String, EvpnRoute, EvpnRouteKey> {
     private static final EvpnRibSupport SINGLETON = new EvpnRibSupport();
     private static final String ROUTE_KEY = "route-key";
     private static final Logger LOG = LoggerFactory.getLogger(EvpnRibSupport.class);
@@ -147,12 +147,17 @@ final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoute, EvpnRouteKey> {
     }
 
     @Override
+    public String extractRouteKey(final EvpnRouteKey routeKey) {
+        return routeKey.getRouteKey();
+    }
+
+    @Override
     public Routes emptyRoutesContainer() {
         return new EvpnRoutesCaseBuilder().setEvpnRoutes(new EvpnRoutesBuilder().build()).build();
     }
 
     @Override
-    public EvpnRouteKey createNewRouteKey(final long pathId, final EvpnRouteKey routeKey) {
-        return new EvpnRouteKey(new PathId(pathId), routeKey.getRouteKey());
+    public EvpnRouteKey createNewRouteKey(final long pathId, final String routeKey) {
+        return new EvpnRouteKey(new PathId(pathId), routeKey);
     }
 }

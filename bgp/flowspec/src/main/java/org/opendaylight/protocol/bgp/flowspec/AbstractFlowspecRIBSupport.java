@@ -35,8 +35,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 
 @Beta
-public abstract class AbstractFlowspecRIBSupport<T extends AbstractFlowspecNlriParser,
-        R extends Route, S extends Identifier> extends AbstractRIBSupport<R, S> {
+public abstract class AbstractFlowspecRIBSupport<S, T extends AbstractFlowspecNlriParser,
+        R extends Route, I extends Identifier> extends AbstractRIBSupport<S, R, I> {
     protected final T nlriParser;
 
     protected AbstractFlowspecRIBSupport(

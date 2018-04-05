@@ -52,7 +52,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class LinkstateRIBSupport extends AbstractRIBSupport<LinkstateRoute, LinkstateRouteKey> {
+public final class LinkstateRIBSupport extends AbstractRIBSupport<byte[], LinkstateRoute, LinkstateRouteKey> {
     private static final String ROUTE_KEY = "route-key";
     private static final Logger LOG = LoggerFactory.getLogger(LinkstateRIBSupport.class);
     private static final QName ROUTE_KEY_QNAME = QName.create(LinkstateRoute.QNAME, ROUTE_KEY).intern();
@@ -155,12 +155,17 @@ public final class LinkstateRIBSupport extends AbstractRIBSupport<LinkstateRoute
     }
 
     @Override
+    public byte[] extractRouteKey(final LinkstateRouteKey routeKey) {
+        return routeKey.getRouteKey();
+    }
+
+    @Override
     public Routes emptyRoutesContainer() {
         return new LinkstateRoutesCaseBuilder().setLinkstateRoutes(new LinkstateRoutesBuilder().build()).build();
     }
 
     @Override
-    public LinkstateRouteKey createNewRouteKey(final long pathId, final LinkstateRouteKey routeKey) {
-        return new LinkstateRouteKey(new PathId(pathId), routeKey.getRouteKey());
+    public LinkstateRouteKey createNewRouteKey(final long pathId, final byte[] routeKey) {
+        return new LinkstateRouteKey(new PathId(pathId), routeKey);
     }
 }

@@ -138,47 +138,45 @@ public class LabeledUnicastIpv6RIBSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testCacheableNlriObjects() {
-        Assert.assertEquals(ImmutableSet.of(), RIB_SUPPORT.cacheableNlriObjects());
+        assertEquals(ImmutableSet.of(), RIB_SUPPORT.cacheableNlriObjects());
     }
 
     @Test
     public void testCacheableAttributeObjects() {
-        Assert.assertEquals(ImmutableSet.of(), RIB_SUPPORT.cacheableAttributeObjects());
+        assertEquals(ImmutableSet.of(), RIB_SUPPORT.cacheableAttributeObjects());
     }
 
     @Test
     public void testRouteIdAddPath() {
-        final LabeledUnicastRouteKey oldKey
-                = new LabeledUnicastRouteKey(new PathId(100L), ROUTE_KEY.getRouteKey());
-        Assert.assertEquals(ROUTE_KEY, RIB_SUPPORT.createNewRouteKey(1L, oldKey));
+        assertEquals(ROUTE_KEY, RIB_SUPPORT.createNewRouteKey(1L, ROUTE_KEY.getRouteKey()));
     }
 
     @Test
     public void testRoutePath() {
         final NodeIdentifierWithPredicates prefixNii = createRouteNIWP(ROUTES);
-        Assert.assertEquals(getRoutePath().node(prefixNii), RIB_SUPPORT.routePath(getTablePath().node(Routes.QNAME), prefixNii));
+        assertEquals(getRoutePath().node(prefixNii), RIB_SUPPORT.routePath(getTablePath().node(Routes.QNAME), prefixNii));
     }
 
     @Test
     public void testRouteAttributesIdentifier() {
-        Assert.assertEquals(new NodeIdentifier(QName.create(LabeledUnicastIpv6Routes.QNAME,
+        assertEquals(new NodeIdentifier(QName.create(LabeledUnicastIpv6Routes.QNAME,
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Attributes.QNAME.getLocalName().intern())),
             RIB_SUPPORT.routeAttributesIdentifier());
     }
 
     @Test
     public void testRoutesCaseClass() {
-        Assert.assertEquals(LabeledUnicastIpv6RoutesCase.class, RIB_SUPPORT.routesCaseClass());
+        assertEquals(LabeledUnicastIpv6RoutesCase.class, RIB_SUPPORT.routesCaseClass());
     }
 
     @Test
     public void testRoutesContainerClass() {
-        Assert.assertEquals(LabeledUnicastIpv6Routes.class, RIB_SUPPORT.routesContainerClass());
+        assertEquals(LabeledUnicastIpv6Routes.class, RIB_SUPPORT.routesContainerClass());
     }
 
     @Test
     public void testRoutesListClass() {
-        Assert.assertEquals(LabeledUnicastRoute.class, RIB_SUPPORT.routesListClass());
+        assertEquals(LabeledUnicastRoute.class, RIB_SUPPORT.routesListClass());
     }
 
     @Test

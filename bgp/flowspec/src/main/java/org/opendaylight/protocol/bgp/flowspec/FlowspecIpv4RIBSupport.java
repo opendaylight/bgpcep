@@ -21,7 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 
-public final class FlowspecIpv4RIBSupport extends AbstractFlowspecRIBSupport<SimpleFlowspecIpv4NlriParser,
+public final class FlowspecIpv4RIBSupport extends AbstractFlowspecRIBSupport<String, SimpleFlowspecIpv4NlriParser,
         FlowspecRoute, FlowspecRouteKey> {
 
     public FlowspecIpv4RIBSupport(SimpleFlowspecExtensionProviderContext context) {
@@ -56,12 +56,17 @@ public final class FlowspecIpv4RIBSupport extends AbstractFlowspecRIBSupport<Sim
     }
 
     @Override
+    public String extractRouteKey(final FlowspecRouteKey routeKey) {
+        return routeKey.getRouteKey();
+    }
+
+    @Override
     public Routes emptyRoutesContainer() {
         return new FlowspecRoutesCaseBuilder().setFlowspecRoutes(new FlowspecRoutesBuilder().build()).build();
     }
 
     @Override
-    public FlowspecRouteKey createNewRouteKey(final long pathId, final FlowspecRouteKey routeKey) {
-        return new FlowspecRouteKey(new PathId(pathId), routeKey.getRouteKey());
+    public FlowspecRouteKey createNewRouteKey(final long pathId, final String routeKey) {
+        return new FlowspecRouteKey(new PathId(pathId), routeKey);
     }
 }

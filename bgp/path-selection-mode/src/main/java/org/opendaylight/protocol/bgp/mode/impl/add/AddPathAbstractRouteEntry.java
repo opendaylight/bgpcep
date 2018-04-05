@@ -119,7 +119,7 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry<AddPa
     @Override
     public void updateBestPaths(
             final RouteEntryDependenciesContainer entryDependencies,
-            final Identifier routeKey,
+            final Object routeKey,
             final WriteTransaction tx) {
 
         final RIBSupport ribSupport = entryDependencies.getRibSupport();
@@ -173,7 +173,7 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry<AddPa
     private void writeRoutePath(final RouteEntryInfo entryInfo,
             final boolean destPeerSupAddPath, final AddPathBestPath path,
             final TablesKey localTK, final RouteEntryDependenciesContainer routeEntryDep, final WriteTransaction tx) {
-        final Identifier routeKey = entryInfo.getRouteKey();
+        final Object routeKey = entryInfo.getRouteKey();
         final RIBSupport ribSupport = routeEntryDep.getRibSupport();
         final BGPRouteEntryExportParameters baseExp = new BGPRouteEntryExportParametersImpl(
                 this.peerTracker.getPeer(path.getPeerId()), entryInfo.getToPeer());
@@ -197,7 +197,7 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry<AddPa
             final RouteEntryDependenciesContainer entryDep,
             final AddPathBestPath path,
             final boolean isFirstBestPath,
-            final Identifier routeKey,
+            final Object routeKey,
             final WriteTransaction tx) {
         final RIBSupport ribSup = entryDep.getRibSupport();
         final Identifier routeKeyAddPath = ribSup.createNewRouteKey(path.getPathId(), routeKey);

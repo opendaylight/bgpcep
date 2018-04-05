@@ -35,7 +35,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 /**
  * Class supporting IPv6 unicast RIBs.
  */
-final class IPv6RIBSupport extends AbstractIPRibSupport<Ipv6Route, Ipv6RouteKey> {
+final class IPv6RIBSupport extends AbstractIPRibSupport<Ipv6Prefix, Ipv6Route, Ipv6RouteKey> {
 
     private static final IPv6RIBSupport SINGLETON = new IPv6RIBSupport();
 
@@ -86,12 +86,17 @@ final class IPv6RIBSupport extends AbstractIPRibSupport<Ipv6Route, Ipv6RouteKey>
     }
 
     @Override
+    public Ipv6Prefix extractRouteKey(final Ipv6RouteKey routeKey) {
+        return routeKey.getPrefix();
+    }
+
+    @Override
     public Routes emptyRoutesContainer() {
         return new Ipv6RoutesCaseBuilder().setIpv6Routes(new Ipv6RoutesBuilder().build()).build();
     }
 
     @Override
-    public Ipv6RouteKey createNewRouteKey(final long pathId, final Ipv6RouteKey routeKey) {
-        return new Ipv6RouteKey(new PathId(pathId), routeKey.getPrefix());
+    public Ipv6RouteKey createNewRouteKey(final long pathId, final Ipv6Prefix prefix) {
+        return new Ipv6RouteKey(new PathId(pathId), prefix);
     }
 }

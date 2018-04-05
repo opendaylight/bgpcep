@@ -133,55 +133,57 @@ public class FlowspecIpv4RIBSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testCacheableNlriObjects() {
-        Assert.assertEquals(ImmutableSet.of(), RIB_SUPPORT.cacheableNlriObjects());
+        assertEquals(ImmutableSet.of(), RIB_SUPPORT.cacheableNlriObjects());
     }
 
     @Test
     public void testCacheableAttributeObjects() {
-        Assert.assertEquals(ImmutableSet.of(), RIB_SUPPORT.cacheableAttributeObjects());
+        assertEquals(ImmutableSet.of(), RIB_SUPPORT.cacheableAttributeObjects());
     }
 
     @Test
     public void testRouteIdAddPath() {
-        final FlowspecRouteKey oldKey = new FlowspecRouteKey(new PathId(100L), ROUTE_KEY.getRouteKey());
-        Assert.assertEquals(ROUTE_KEY, RIB_SUPPORT.createNewRouteKey(1L, oldKey));
+        assertEquals(ROUTE_KEY, RIB_SUPPORT.createNewRouteKey(1L, ROUTE_KEY.getRouteKey()));
     }
 
     @Test
     public void testRoutePath() {
         final NodeIdentifierWithPredicates prefixNii = createRouteNIWP(ROUTES);
-        Assert.assertEquals(getRoutePath().node(prefixNii), RIB_SUPPORT.routePath(getTablePath().node(Routes.QNAME), prefixNii));
+        assertEquals(getRoutePath().node(prefixNii),
+                RIB_SUPPORT.routePath(getTablePath().node(Routes.QNAME), prefixNii));
     }
 
     @Test
     public void testRouteAttributesIdentifier() {
-        Assert.assertEquals(new NodeIdentifier(QName.create(FlowspecRoutes.QNAME,
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Attributes.QNAME.getLocalName().intern())),
-            RIB_SUPPORT.routeAttributesIdentifier());
+        assertEquals(new NodeIdentifier(QName.create(FlowspecRoutes.QNAME,
+            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Attributes
+                    .QNAME.getLocalName().intern())), RIB_SUPPORT.routeAttributesIdentifier());
     }
 
     @Test
     public void testRoutesCaseClass() {
-        Assert.assertEquals(FlowspecRoutesCase.class, RIB_SUPPORT.routesCaseClass());
+        assertEquals(FlowspecRoutesCase.class, RIB_SUPPORT.routesCaseClass());
     }
 
     @Test
     public void testRoutesContainerClass() {
-        Assert.assertEquals(FlowspecRoutes.class, RIB_SUPPORT.routesContainerClass());
+        assertEquals(FlowspecRoutes.class, RIB_SUPPORT.routesContainerClass());
     }
 
     @Test
     public void testRoutesListClass() {
-        Assert.assertEquals(FlowspecRoute.class, RIB_SUPPORT.routesListClass());
+        assertEquals(FlowspecRoute.class, RIB_SUPPORT.routesListClass());
     }
 
     @Test
     public void testChangedRoutes() {
         final Routes emptyCase = new FlowspecRoutesCaseBuilder().build();
-        DataTreeCandidateNode tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(emptyCase)).getRootNode();
+        DataTreeCandidateNode tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(),
+                createRoutes(emptyCase)).getRootNode();
         Assert.assertTrue(RIB_SUPPORT.changedRoutes(tree).isEmpty());
 
-        final Routes emptyRoutes = new FlowspecRoutesCaseBuilder().setFlowspecRoutes(new FlowspecRoutesBuilder().build()).build();
+        final Routes emptyRoutes = new FlowspecRoutesCaseBuilder()
+                .setFlowspecRoutes(new FlowspecRoutesBuilder().build()).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(emptyRoutes)).getRootNode();
         Assert.assertTrue(RIB_SUPPORT.changedRoutes(tree).isEmpty());
 

@@ -64,8 +64,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Beta
-public abstract class AbstractRIBSupport<R extends Route, N extends Identifier>
-        implements RIBSupport<R, N> {
+public abstract class AbstractRIBSupport<S, R extends Route, I extends Identifier>
+        implements RIBSupport<S, R, I> {
     public static final String ROUTE_KEY = "route-key";
     private static final Logger LOG = LoggerFactory.getLogger(AbstractRIBSupport.class);
     private static final NodeIdentifier ADVERTISED_ROUTES = new NodeIdentifier(AdvertizedRoutes.QNAME);
@@ -327,7 +327,7 @@ public abstract class AbstractRIBSupport<R extends Route, N extends Identifier>
 
     @Override
     public final InstanceIdentifier<R> createRouteIdentifier(
-            final KeyedInstanceIdentifier<Tables, TablesKey> tableIId, final N key) {
+            final KeyedInstanceIdentifier<Tables, TablesKey> tableIId, final I key) {
         return tableIId.child((Class) routesContainerClass()).child(routesListClass(), key);
     }
 

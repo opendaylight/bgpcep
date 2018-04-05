@@ -55,7 +55,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport<VpnRoute, VpnRouteKey> {
+public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport<String, VpnRoute, VpnRouteKey> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractVpnRIBSupport.class);
     private static final String ROUTE_KEY = "route-key";
     private final NodeIdentifier nlriRoutesListNid;
@@ -206,7 +206,12 @@ public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport<VpnRoute,
     }
 
     @Override
-    public VpnRouteKey createNewRouteKey(final long pathId, final VpnRouteKey vpnRouteKey) {
-        return new VpnRouteKey(new PathId(pathId), vpnRouteKey.getRouteKey());
+    public VpnRouteKey createNewRouteKey(final long pathId, final String vpnRouteKey) {
+        return new VpnRouteKey(new PathId(pathId), vpnRouteKey);
+    }
+
+    @Override
+    public String extractRouteKey(final VpnRouteKey key) {
+        return key.getRouteKey();
     }
 }

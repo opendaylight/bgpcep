@@ -14,7 +14,6 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryDependenciesContainer;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
-import org.opendaylight.yangtools.yang.binding.Identifier;
 
 /**
  * A single route entry inside a route table. Maintains the attributes of
@@ -60,7 +59,7 @@ public interface RouteEntry {
      */
     void updateBestPaths(
             @Nonnull RouteEntryDependenciesContainer entryDependencies,
-            @Nonnull Identifier routeKey,
+            @Nonnull Object routeKey,
             @Nonnull WriteTransaction tx);
 
     /**

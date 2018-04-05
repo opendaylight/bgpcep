@@ -108,7 +108,7 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry<BaseBestPath> {
     @Override
     public void updateBestPaths(
             final RouteEntryDependenciesContainer entryDependencies,
-            final Identifier routeKey,
+            final Object routeKey,
             final WriteTransaction tx) {
         if (this.removedBestPath != null) {
             removePathFromDataStore(entryDependencies, routeKey, tx);
@@ -150,7 +150,7 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry<BaseBestPath> {
 
     @SuppressWarnings("unchecked")
     private void removePathFromDataStore(final RouteEntryDependenciesContainer entryDep,
-            final Identifier routeKey, final WriteTransaction tx) {
+            final Object routeKey, final WriteTransaction tx) {
         LOG.trace("Best Path removed {}", this.removedBestPath);
         final KeyedInstanceIdentifier<Tables, TablesKey> locRibTarget = entryDep.getLocRibTableTarget();
         final RIBSupport ribSup = entryDep.getRibSupport();
@@ -164,7 +164,7 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry<BaseBestPath> {
 
     @SuppressWarnings("unchecked")
     private void addPathToDataStore(final RouteEntryDependenciesContainer entryDep,
-            final Identifier routeKey, final WriteTransaction tx) {
+            final Object routeKey, final WriteTransaction tx) {
         final RIBSupport ribSup = entryDep.getRibSupport();
         Identifier newRouteKey = ribSup.createNewRouteKey(this.bestPath.getPathId(), routeKey);
         final Route route = createRoute(ribSup, newRouteKey, this.bestPath.getPathId(), this.bestPath);

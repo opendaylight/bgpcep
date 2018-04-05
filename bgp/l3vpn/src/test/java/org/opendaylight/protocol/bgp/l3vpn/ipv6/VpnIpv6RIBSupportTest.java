@@ -129,8 +129,7 @@ public class VpnIpv6RIBSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testRouteIdAddPath() {
-        final VpnRouteKey oldRouteKey = new VpnRouteKey(new PathId(10L), ROUTE_KEY.getRouteKey());
-        Assert.assertEquals(ROUTE_KEY, RIB_SUPPORT.createNewRouteKey(0L, oldRouteKey));
+        assertEquals(ROUTE_KEY, RIB_SUPPORT.createNewRouteKey(0L, ROUTE_KEY.getRouteKey()));
     }
 
     @Test

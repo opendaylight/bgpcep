@@ -32,7 +32,6 @@ import org.opendaylight.protocol.bgp.rib.impl.state.rib.TotalPathsCounter;
 import org.opendaylight.protocol.bgp.rib.impl.state.rib.TotalPrefixesCounter;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
-import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
@@ -62,7 +61,7 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
 
     private static final Logger LOG = LoggerFactory.getLogger(LocRibWriter.class);
 
-    private final Map<Identifier, RouteEntry> routeEntries = new HashMap<>();
+    private final Map<Object, RouteEntry> routeEntries = new HashMap<>();
     private final Long ourAs;
     private final RIBSupport ribSupport;
     private final DataBroker dataBroker;
@@ -151,7 +150,7 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
     }
 
     @Nonnull
-    private RouteEntry createEntry(final Identifier routeId) {
+    private RouteEntry createEntry(final Object routeId) {
         final RouteEntry ret = this.pathSelectionMode.createRouteEntry(this.ribSupport.isComplexRoute());
         this.routeEntries.put(routeId, ret);
         this.totalPrefixesCounter.increment();
@@ -244,7 +243,8 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
             final Map<RouteUpdateKey, RouteEntry> routes
     ) {
         for (final DataObjectModification<? extends DataObject> route : routeChanges) {
-            final Identifier routeKey = ((InstanceIdentifier.IdentifiableItem) route.getIdentifier()).getKey();
+            final Identifier routeKeyPathId = ((InstanceIdentifier.IdentifiableItem) route.getIdentifier()).getKey();
+            Object routeKey =  this.ribSupport.extractRouteKey(routeKeyPathId);
             RouteEntry entry = this.routeEntries.get(routeKey);
             final Route newRoute = (Route) route.getDataAfter();
             final Route oldRoute = (Route) route.getDataBefore();
