@@ -16,6 +16,24 @@
       "revId": "c98b6ebaaca98050c7e2bebe4709e918b15fba70",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c5afd87a_4defb2e9",
+        "filename": "bgp/path-selection-mode/src/main/java/org/opendaylight/protocol/bgp/mode/spi/AbstractBestPathSelector.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-04-05T16:44:37Z",
+      "side": 1,
+      "message": "if this check is skipped, it will continue until the end of the method where it returns true, right?",
+      "parentUuid": "cb8baeef_414a7ea8",
+      "revId": "c98b6ebaaca98050c7e2bebe4709e918b15fba70",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
