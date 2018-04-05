@@ -34,6 +34,24 @@
       "revId": "c98b6ebaaca98050c7e2bebe4709e918b15fba70",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bc2c8d6c_0d0dd66f",
+        "filename": "bgp/path-selection-mode/src/main/java/org/opendaylight/protocol/bgp/mode/spi/AbstractBestPathSelector.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2018-04-05T21:45:06Z",
+      "side": 1,
+      "message": "Since the rest of the steps* are essentially no-op right now, you are right, both approaches produce same result. But this* can change in future, so I prefer returning from right place for the right reason.",
+      "parentUuid": "c5afd87a_4defb2e9",
+      "revId": "c98b6ebaaca98050c7e2bebe4709e918b15fba70",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
