@@ -21,6 +21,10 @@ module bgp-rib {
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
 
+    revision "2018-03-29" {
+        description "Add support for add-path for all afi/safi.";
+    }
+
     revision "2017-12-07" {
         description "Add support for add-path in base BGP NLRI.";
     }
@@ -58,6 +62,15 @@ module bgp-rib {
     }
 
     grouping route {
+        uses bgp-msg:path-id-grouping;
+        leaf route-key {
+            description
+                "The sole function of this leaf
+                to act as the key in the list.
+                Its format does not form the
+                API contract of this model.";
+            type string;
+        }
         uses bgp-msg:path-attributes;
     }
 

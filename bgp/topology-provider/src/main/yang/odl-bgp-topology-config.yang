@@ -5,7 +5,7 @@ module odl-bgp-topology-config {
     prefix "bgp-topo-cfg";
 
     import network-topology { prefix nt; revision-date 2013-10-21; }
-    import bgp-rib { prefix rib; revision-date 2017-12-07; }
+    import bgp-rib { prefix rib; revision-date 2018-03-29; }
     import odl-bgp-topology-types { prefix topology-tpes; revision-date 2016-05-24; }
 
     organization "Cisco Systems, Inc.";

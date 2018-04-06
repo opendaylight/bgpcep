@@ -6,7 +6,7 @@ module odl-bgp-policy {
     import yang-ext { prefix ext; revision-date 2013-07-09; }
     import openconfig-network-instance { prefix netinst; }
     import openconfig-bgp { prefix openconfig-bgp; }
-    import bgp-rib { prefix rib; revision-date 2017-12-07; }
+    import bgp-rib { prefix rib; revision-date 2018-03-29; }
     import openconfig-routing-policy { prefix rpol; }
     import openconfig-bgp-policy { prefix bgppol; }
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
