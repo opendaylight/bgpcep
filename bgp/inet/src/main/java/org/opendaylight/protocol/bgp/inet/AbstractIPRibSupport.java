@@ -11,12 +11,11 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
-import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -42,31 +41,28 @@ abstract class AbstractIPRibSupport<R extends Route, N extends Identifier>
     private final NodeIdentifier prefixNid;
     private final NodeIdentifier nlriRoutesList;
     private final ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects;
-    private static final String ROUTE_KEY = "prefix";
 
-    protected AbstractIPRibSupport(final Class<? extends DataObject> prefixClass,
+    AbstractIPRibSupport(final Class<? extends DataObject> prefixClass,
             final Class<? extends AddressFamily> addressFamilyClass,
             final Class<? extends Routes> cazeClass,
             final Class<? extends DataObject> containerClass, final Class<? extends Route> listClass,
             final QName destinationQname, final QName prefixesQname) {
         super(cazeClass, containerClass, listClass, addressFamilyClass,
-                UnicastSubsequentAddressFamily.class, ROUTE_KEY, destinationQname);
-        this.prefixNid = new NodeIdentifier(routeKeyQName());
+                UnicastSubsequentAddressFamily.class, destinationQname);
         this.nlriRoutesList = new NodeIdentifier(prefixesQname);
         this.cacheableNlriObjects = ImmutableSet.of(prefixClass);
+        this.prefixNid = new NodeIdentifier(QName.create(routeQName(), "prefix").intern());
     }
 
-    protected final NodeIdentifier routePrefixIdentifier() {
+    final NodeIdentifier routePrefixIdentifier() {
         return this.prefixNid;
     }
 
-    @Nonnull
     @Override
     public final ImmutableCollection<Class<? extends DataObject>> cacheableAttributeObjects() {
         return ImmutableSet.of();
     }
 
-    @Nonnull
     @Override
     public final ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects() {
         return this.cacheableNlriObjects;
@@ -74,7 +70,7 @@ abstract class AbstractIPRibSupport<R extends Route, N extends Identifier>
 
     @Override
     public final boolean isComplexRoute() {
-        return false;
+        return true;
     }
 
     @Override

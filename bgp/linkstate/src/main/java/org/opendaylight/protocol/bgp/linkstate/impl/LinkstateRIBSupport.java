@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -37,7 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.destination.DestinationType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -53,7 +54,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class LinkstateRIBSupport extends AbstractRIBSupport<LinkstateRoute, LinkstateRouteKey> {
-    private static final String ROUTE_KEY = "route-key";
     private static final Logger LOG = LoggerFactory.getLogger(LinkstateRIBSupport.class);
     private static final QName ROUTE_KEY_QNAME = QName.create(LinkstateRoute.QNAME, ROUTE_KEY).intern();
     private static final LinkstateRIBSupport SINGLETON = new LinkstateRIBSupport();
@@ -62,7 +62,7 @@ public final class LinkstateRIBSupport extends AbstractRIBSupport<LinkstateRoute
 
     private LinkstateRIBSupport() {
         super(LinkstateRoutesCase.class, LinkstateRoutes.class, LinkstateRoute.class, LinkstateAddressFamily.class,
-                LinkstateSubsequentAddressFamily.class, ROUTE_KEY, DestinationLinkstate.QNAME);
+                LinkstateSubsequentAddressFamily.class, DestinationLinkstate.QNAME);
     }
 
     public static LinkstateRIBSupport getInstance() {
@@ -76,7 +76,7 @@ public final class LinkstateRIBSupport extends AbstractRIBSupport<LinkstateRoute
         final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf =
                 linkstate.getChild(routePathIdNid());
         return PathIdUtil.createNidKey(LinkstateRoute.QNAME, ROUTE_KEY_QNAME,
-                pathIdQName(), ByteArray.readAllBytes(buffer), maybePathIdLeaf);
+                pathIdQName(), Arrays.toString(ByteArray.readAllBytes(buffer)), maybePathIdLeaf);
     }
 
     private static List<CLinkstateDestination> extractRoutes(final Collection<MapEntryNode> routes) {
@@ -142,7 +142,7 @@ public final class LinkstateRIBSupport extends AbstractRIBSupport<LinkstateRoute
     }
 
     @Override
-    public LinkstateRoute createRoute(final LinkstateRoute route, final LinkstateRouteKey routeKey,
+    public LinkstateRoute createRoute(final LinkstateRoute route, final String routeKey,
             final long pathId, final Attributes attributes) {
         final LinkstateRouteBuilder builder;
         if (route != null) {
@@ -150,8 +150,7 @@ public final class LinkstateRIBSupport extends AbstractRIBSupport<LinkstateRoute
         } else {
             builder = new LinkstateRouteBuilder();
         }
-        return builder.setRouteKey(routeKey.getRouteKey()).setPathId(new PathId(pathId))
-                .setAttributes(attributes).build();
+        return builder.setKey(new LinkstateRouteKey(new PathId(pathId), routeKey)).setAttributes(attributes).build();
     }
 
     @Override
@@ -160,7 +159,7 @@ public final class LinkstateRIBSupport extends AbstractRIBSupport<LinkstateRoute
     }
 
     @Override
-    public LinkstateRouteKey createNewRouteKey(final long pathId, final LinkstateRouteKey routeKey) {
-        return new LinkstateRouteKey(new PathId(pathId), routeKey.getRouteKey());
+    public LinkstateRouteKey createRouteListKey(final long pathId, final String routeKey) {
+        return new LinkstateRouteKey(new PathId(pathId), routeKey);
     }
 }

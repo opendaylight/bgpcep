@@ -24,10 +24,10 @@ import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryInfo;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.Tables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
@@ -108,7 +108,7 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry<BaseBestPath> {
     @Override
     public void updateBestPaths(
             final RouteEntryDependenciesContainer entryDependencies,
-            final Identifier routeKey,
+            final String routeKey,
             final WriteTransaction tx) {
         if (this.removedBestPath != null) {
             removePathFromDataStore(entryDependencies, routeKey, tx);
@@ -134,13 +134,13 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry<BaseBestPath> {
             return;
         }
         final RIBSupport ribSupport = entryDep.getRibSupport();
-        Identifier newRouteKey = ribSupport.createNewRouteKey(this.bestPath.getPathId(), entryInfo.getRouteKey());
+        Identifier routeIdentifier = ribSupport.createRouteListKey(this.bestPath.getPathId(), entryInfo.getRouteKey());
         final BGPRouteEntryExportParameters routeEntry = new BGPRouteEntryExportParametersImpl(
                 this.peerTracker.getPeer(this.bestPath.getPeerId()), toPeer);
         final Optional<Attributes> effAttrib = entryDep.getRoutingPolicies()
                 .applyExportPolicies(routeEntry, this.bestPath.getAttributes());
-        final Route route = createRoute(ribSupport, newRouteKey, this.bestPath.getPathId(), this.bestPath);
-        InstanceIdentifier ribOutIId = ribSupport.createRouteIdentifier(toPeer.getRibOutIId(localTK), newRouteKey);
+        final Route route = createRoute(ribSupport, entryInfo.getRouteKey(), this.bestPath.getPathId(), this.bestPath);
+        InstanceIdentifier ribOutIId = ribSupport.createRouteIdentifier(toPeer.getRibOutIId(localTK), routeIdentifier);
         if (effAttrib.isPresent() && route != null) {
             LOG.debug("Write route {} to peer AdjRibsOut {}", route, toPeer.getPeerId());
             tx.put(LogicalDatastoreType.OPERATIONAL, ribOutIId, route);
@@ -150,31 +150,31 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry<BaseBestPath> {
 
     @SuppressWarnings("unchecked")
     private void removePathFromDataStore(final RouteEntryDependenciesContainer entryDep,
-            final Identifier routeKey, final WriteTransaction tx) {
+            final String routeKey, final WriteTransaction tx) {
         LOG.trace("Best Path removed {}", this.removedBestPath);
         final KeyedInstanceIdentifier<Tables, TablesKey> locRibTarget = entryDep.getLocRibTableTarget();
         final RIBSupport ribSup = entryDep.getRibSupport();
-        Identifier newRouteKey = ribSup.createNewRouteKey(this.removedBestPath.getPathId(), routeKey);
-        final InstanceIdentifier routeTarget = ribSup.createRouteIdentifier(locRibTarget, newRouteKey);
+        Identifier routeIdentifier = ribSup.createRouteListKey(this.removedBestPath.getPathId(), routeKey);
+        final InstanceIdentifier routeTarget = ribSup.createRouteIdentifier(locRibTarget, routeIdentifier);
         LOG.debug("Delete route from LocRib {}", routeTarget);
         tx.delete(LogicalDatastoreType.OPERATIONAL, routeTarget);
-        fillAdjRibsOut(null, null, newRouteKey, this.removedBestPath.getPeerId(),
+        fillAdjRibsOut(null, null, routeIdentifier, this.removedBestPath.getPeerId(),
                 entryDep, tx);
     }
 
     @SuppressWarnings("unchecked")
     private void addPathToDataStore(final RouteEntryDependenciesContainer entryDep,
-            final Identifier routeKey, final WriteTransaction tx) {
+            final String routeKey, final WriteTransaction tx) {
         final RIBSupport ribSup = entryDep.getRibSupport();
-        Identifier newRouteKey = ribSup.createNewRouteKey(this.bestPath.getPathId(), routeKey);
-        final Route route = createRoute(ribSup, newRouteKey, this.bestPath.getPathId(), this.bestPath);
+        final Route route = createRoute(ribSup, routeKey, this.bestPath.getPathId(), this.bestPath);
         LOG.trace("Selected best route {}", route);
 
+        Identifier routeIdentifier = ribSup.createRouteListKey(this.bestPath.getPathId(), routeKey);
         final KeyedInstanceIdentifier<Tables, TablesKey> locRibTarget = entryDep.getLocRibTableTarget();
-        final InstanceIdentifier routeTarget = ribSup.createRouteIdentifier(locRibTarget, newRouteKey);
+        final InstanceIdentifier routeTarget = ribSup.createRouteIdentifier(locRibTarget, routeIdentifier);
         LOG.debug("Write route to LocRib {}", route);
         tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget, route);
-        fillAdjRibsOut(this.bestPath.getAttributes(), route, newRouteKey, this.bestPath.getPeerId(),
+        fillAdjRibsOut(this.bestPath.getAttributes(), route, routeIdentifier, this.bestPath.getPeerId(),
                 entryDep, tx);
     }
 

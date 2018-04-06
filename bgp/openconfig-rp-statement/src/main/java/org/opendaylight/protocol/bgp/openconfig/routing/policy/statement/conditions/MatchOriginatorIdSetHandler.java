@@ -31,11 +31,11 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev1
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.attributes.OriginatorId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180109.BgpOriginatorIdSets;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180109.MatchOriginatorIdSetCondition;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180109.originator.id.set.OriginatorIdSet;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180109.originator.id.set.OriginatorIdSetKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180109.routing.policy.defined.sets.bgp.defined.sets.OriginatorIdSets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.BgpOriginatorIdSets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.MatchOriginatorIdSetCondition;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.originator.id.set.OriginatorIdSet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.originator.id.set.OriginatorIdSetKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.routing.policy.defined.sets.bgp.defined.sets.OriginatorIdSets;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
@@ -96,7 +96,7 @@ public final class MatchOriginatorIdSetHandler
     private boolean matchOriginatorCondition(
             final Ipv4Address localOriginatorId,
             final OriginatorId originatorId, final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl
-            .bgp._default.policy.rev180109.match.originator.id.set.condition.grouping
+            .bgp._default.policy.rev180329.match.originator.id.set.condition.grouping
             .MatchOriginatorIdSetCondition condition) {
 
         final OriginatorIdSet originatorIdSet = this.sets.getUnchecked(StringUtils

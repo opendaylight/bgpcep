@@ -22,12 +22,12 @@ final class BasePathSelection implements PathSelectionMode {
     }
 
     @Override
-    public RouteEntry createRouteEntry(final boolean isComplex) {
-        return isComplex ? new ComplexRouteEntry(this.peerTracker) : new SimpleRouteEntry(this.peerTracker);
+    public RouteEntry createRouteEntry() {
+        return new ComplexRouteEntry(this.peerTracker);
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         //no-op
     }
 }
