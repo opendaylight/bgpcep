@@ -70,6 +70,30 @@
       "revId": "8ad62f30c1c4f998ce77899c063f7e48fe48b873",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e071507e_1208160d",
+        "filename": "binding-parent/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 2759
+      },
+      "writtenOn": "2018-04-06T18:27:04Z",
+      "side": 1,
+      "message": "Yeah looks like it\u0027s not liking that change. I\u0027ll revert.",
+      "parentUuid": "aed178f7_669292ef",
+      "range": {
+        "startLine": 50,
+        "startChar": 25,
+        "endLine": 51,
+        "endChar": 48
+      },
+      "revId": "8ad62f30c1c4f998ce77899c063f7e48fe48b873",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
