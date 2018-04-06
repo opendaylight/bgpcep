@@ -15,6 +15,18 @@ public interface PathSelectionMode extends AutoCloseable {
      *
      * @param isComplex true if is complex
      * @return ComplexRouteEntry if is complex otherwise a SimpleRouteEntry
+     * @deprecated All routes are complex.
      */
-    @Nonnull RouteEntry createRouteEntry(boolean isComplex);
+    @Deprecated
+    default @Nonnull RouteEntry createRouteEntry(boolean isComplex) {
+        return createRouteEntry();
+    }
+
+    /**
+     * Create a RouteEntry.
+     *
+     * @return ComplexRouteEntry if is complex otherwise a SimpleRouteEntry
+     */
+    @Nonnull
+    RouteEntry createRouteEntry();
 }

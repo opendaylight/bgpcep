@@ -14,9 +14,8 @@ import org.opendaylight.protocol.bgp.mode.impl.BGPPeerTrackerMock;
 
 public class PathSelectionModeFactoryTest extends BGPPeerTrackerMock {
     @Test
-    public void testCreateBestPathSelectionStrategy() throws Exception {
+    public void testCreateBestPathSelectionStrategy() {
         final PathSelectionMode psm = new AddPathBestNPathSelection(2L, this.peerTracker);
         Assert.assertTrue(psm.createRouteEntry(true) instanceof ComplexRouteEntry);
-        Assert.assertTrue(psm.createRouteEntry(false) instanceof SimpleRouteEntry);
     }
 }

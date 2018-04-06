@@ -10,8 +10,7 @@ package org.opendaylight.protocol.bgp.mode.impl.base;
 import com.google.common.primitives.UnsignedInteger;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
-import org.opendaylight.yangtools.yang.binding.Identifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 
 final class ComplexRouteEntry extends BaseAbstractRouteEntry {
     private static final Route[] EMPTY_VALUES = new Route[0];
@@ -44,7 +43,7 @@ final class ComplexRouteEntry extends BaseAbstractRouteEntry {
     }
 
     @Override
-    public Route createRoute(final RIBSupport ribSup, Identifier routeKey, final long pathId,
+    public Route createRoute(final RIBSupport ribSup, String routeKey, final long pathId,
             final BaseBestPath path) {
         final OffsetMap map = getOffsets();
         final Route route = map.getValue(this.values, map.offsetOf(path.getRouterId()));
