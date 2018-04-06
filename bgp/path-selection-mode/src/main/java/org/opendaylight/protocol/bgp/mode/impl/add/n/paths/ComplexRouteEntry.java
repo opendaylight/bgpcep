@@ -13,7 +13,7 @@ import org.opendaylight.protocol.bgp.mode.impl.add.OffsetMap;
 import org.opendaylight.protocol.bgp.mode.impl.add.RouteKey;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 
 final class ComplexRouteEntry extends AbstractNPathsRouteEntry {

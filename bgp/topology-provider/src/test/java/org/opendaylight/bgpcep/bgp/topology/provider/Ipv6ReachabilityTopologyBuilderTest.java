@@ -19,20 +19,19 @@ import org.junit.Test;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv6.routes.Ipv6Routes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv6.routes.ipv6.routes.Ipv6Route;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv6.routes.ipv6.routes.Ipv6RouteBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv6.routes.ipv6.routes.Ipv6RouteKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv6.routes.Ipv6Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv6.routes.ipv6.routes.Ipv6Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv6.routes.ipv6.routes.Ipv6RouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv6.routes.ipv6.routes.Ipv6RouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.attributes.OriginBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.LocRib;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.Tables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.LocRib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
@@ -61,12 +60,11 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
         final InstanceIdentifier<Tables> path = LOC_RIB_REF.getInstanceIdentifier().builder().child(LocRib.class)
             .child(Tables.class, new TablesKey(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class)).build();
         this.ipv6RouteIID = path.builder().child((Class) Ipv6Routes.class)
-            .child(Ipv6Route.class, new Ipv6RouteKey(new PathId(PATH_ID),
-                new Ipv6Prefix(ROUTE_IP6PREFIX))).build();
+            .child(Ipv6Route.class, new Ipv6RouteKey(new PathId(PATH_ID), ROUTE_IP6PREFIX)).build();
     }
 
     @Test
-    public void testIpv6ReachabilityTopologyBuilder() throws TransactionCommitFailedException, ReadFailedException {
+    public void testIpv6ReachabilityTopologyBuilder() throws ReadFailedException {
         // create route
         updateIpv6Route(createIpv6Route(NEXT_HOP));
 
@@ -118,7 +116,7 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
             .setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build())
             .setCNextHop(new Ipv6NextHopCaseBuilder().setIpv6NextHop(
                 new Ipv6NextHopBuilder().setGlobal(new Ipv6Address(netxHop)).build()).build()).build();
-        return new Ipv6RouteBuilder().setKey(new Ipv6RouteKey(new PathId(PATH_ID), new Ipv6Prefix(ROUTE_IP6PREFIX)))
+        return new Ipv6RouteBuilder().setKey(new Ipv6RouteKey(new PathId(PATH_ID), ROUTE_IP6PREFIX))
             .setPrefix(new Ipv6Prefix(ROUTE_IP6PREFIX)).setAttributes(attribute).build();
     }
 }

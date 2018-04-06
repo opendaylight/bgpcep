@@ -24,10 +24,10 @@ import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryInfo;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.Tables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
@@ -108,7 +108,7 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry<BaseBestPath> {
     @Override
     public void updateBestPaths(
             final RouteEntryDependenciesContainer entryDependencies,
-            final Identifier routeKey,
+            final String routeKey,
             final WriteTransaction tx) {
         if (this.removedBestPath != null) {
             removePathFromDataStore(entryDependencies, routeKey, tx);
@@ -150,7 +150,7 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry<BaseBestPath> {
 
     @SuppressWarnings("unchecked")
     private void removePathFromDataStore(final RouteEntryDependenciesContainer entryDep,
-            final Identifier routeKey, final WriteTransaction tx) {
+            final String routeKey, final WriteTransaction tx) {
         LOG.trace("Best Path removed {}", this.removedBestPath);
         final KeyedInstanceIdentifier<Tables, TablesKey> locRibTarget = entryDep.getLocRibTableTarget();
         final RIBSupport ribSup = entryDep.getRibSupport();
@@ -164,7 +164,7 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry<BaseBestPath> {
 
     @SuppressWarnings("unchecked")
     private void addPathToDataStore(final RouteEntryDependenciesContainer entryDep,
-            final Identifier routeKey, final WriteTransaction tx) {
+            final String routeKey, final WriteTransaction tx) {
         final RIBSupport ribSup = entryDep.getRibSupport();
         Identifier newRouteKey = ribSup.createNewRouteKey(this.bestPath.getPathId(), routeKey);
         final Route route = createRoute(ribSup, newRouteKey, this.bestPath.getPathId(), this.bestPath);

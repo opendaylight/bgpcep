@@ -37,7 +37,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.destination.DestinationType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -54,14 +54,13 @@ import org.slf4j.LoggerFactory;
 
 final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoute, EvpnRouteKey> {
     private static final EvpnRibSupport SINGLETON = new EvpnRibSupport();
-    private static final String ROUTE_KEY = "route-key";
     private static final Logger LOG = LoggerFactory.getLogger(EvpnRibSupport.class);
     private static final QName ROUTE_KEY_QNAME = QName.create(EvpnRoute.QNAME, ROUTE_KEY).intern();
     private static final NodeIdentifier NLRI_ROUTES_LIST = NodeIdentifier.create(EvpnDestination.QNAME);
 
     private EvpnRibSupport() {
         super(EvpnRoutesCase.class, EvpnRoutes.class, EvpnRoute.class, L2vpnAddressFamily.class,
-                EvpnSubsequentAddressFamily.class, ROUTE_KEY, DestinationEvpn.QNAME);
+                EvpnSubsequentAddressFamily.class, DestinationEvpn.QNAME);
     }
 
     static EvpnRibSupport getInstance() {
@@ -152,7 +151,7 @@ final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoute, EvpnRouteKey> {
     }
 
     @Override
-    public EvpnRouteKey createNewRouteKey(final long pathId, final EvpnRouteKey routeKey) {
-        return new EvpnRouteKey(new PathId(pathId), routeKey.getRouteKey());
+    public EvpnRouteKey createNewRouteKey(final long pathId, final String routeKey) {
+        return new EvpnRouteKey(new PathId(pathId), routeKey);
     }
 }

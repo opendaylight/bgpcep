@@ -15,7 +15,7 @@ import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID_VA
 import com.google.common.primitives.UnsignedInteger;
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 
 public class BaseBestPathTest {
     private static final UnsignedInteger ROUTER_ID = UnsignedInteger.valueOf(2130706433);

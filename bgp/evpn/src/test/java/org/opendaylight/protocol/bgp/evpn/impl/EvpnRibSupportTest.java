@@ -41,8 +41,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.Attributes2;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Attributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -149,8 +149,8 @@ public final class EvpnRibSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testRouteIdAddPath() {
-        final EvpnRouteKey oldRouteKey = new EvpnRouteKey(new PathId(10L), ROUTE_KEY.getRouteKey());
-        Assert.assertEquals(ROUTE_KEY, RIB_SUPPORT.createNewRouteKey(ROUTE_KEY.getPathId().getValue(), oldRouteKey));
+        assertEquals(ROUTE_KEY, RIB_SUPPORT.createNewRouteKey(ROUTE_KEY.getPathId().getValue(),
+                ROUTE_KEY.getRouteKey()));
     }
 
     @Test

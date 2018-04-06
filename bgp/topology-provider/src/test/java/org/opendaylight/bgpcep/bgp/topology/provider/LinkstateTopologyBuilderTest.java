@@ -40,7 +40,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
@@ -79,9 +78,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.attributes.OriginBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.LocRib;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.Tables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.LocRib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IgpMetric;
@@ -101,8 +100,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
 
-    private static final byte[] LINKSTATE_ROUTE_KEY = Unpooled.wrappedBuffer(
-        StandardCharsets.UTF_8.encode("linkstate-route")).array();
+    private static final String LINKSTATE_ROUTE_KEY = Unpooled.wrappedBuffer(
+        StandardCharsets.UTF_8.encode("linkstate-route")).array().toString();
     private static final String ROUTER_1_ID = "127.0.0.1";
     private static final String ROUTER_2_ID = "127.0.0.2";
     private static final String NODE_1_PREFIX = "127.0.1.1/32";
@@ -130,7 +129,8 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
             .child(Tables.class, new TablesKey(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class))
             .build();
         this.linkstateRouteIID = path.builder().child((Class) LinkstateRoutes.class)
-            .child(LinkstateRoute.class, new LinkstateRouteKey(new PathId(0L), LINKSTATE_ROUTE_KEY)).build();
+            .child(LinkstateRoute.class, new LinkstateRouteKey(new PathId(0L), LINKSTATE_ROUTE_KEY.toString()))
+                .build();
 
     }
 
@@ -153,7 +153,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
     }
 
     @Test
-    public void testIsisLinkstateTopologyBuilder() throws TransactionCommitFailedException, ReadFailedException {
+    public void testIsisLinkstateTopologyBuilder() throws ReadFailedException {
         // create node
         updateLinkstateRoute(createLinkstateNodeRoute(ProtocolId.IsisLevel2, "node1", NODE_1_AS, ROUTER_1_ID));
         readDataOperational(getDataBroker(), this.linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
@@ -222,7 +222,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
     }
 
     @Test
-    public void testOspfLinkstateTopologyBuilder() throws TransactionCommitFailedException, ReadFailedException {
+    public void testOspfLinkstateTopologyBuilder() throws ReadFailedException {
         // create node
         updateLinkstateRoute(createLinkstateNodeRoute(ProtocolId.Ospf, "node1", NODE_1_AS, ROUTER_1_ID));
         readDataOperational(getDataBroker(), this.linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
