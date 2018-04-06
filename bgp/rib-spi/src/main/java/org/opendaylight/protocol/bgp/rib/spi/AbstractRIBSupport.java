@@ -33,10 +33,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.update.attributes.mp.unreach.nlri.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.Tables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
@@ -88,6 +88,7 @@ public abstract class AbstractRIBSupport<R extends Route, N extends Identifier>
     private final QName pathIdQname;
     private final NodeIdentifier pathIdNid;
     private final QName routeKeyQname;
+    private final NodeIdentifier routeKeyNodeId;
 
     /**
      * Default constructor. Requires the QName of the container augmented under the routes choice
@@ -99,7 +100,6 @@ public abstract class AbstractRIBSupport<R extends Route, N extends Identifier>
      * @param listClass        Binding class of the route list, nust not be null;
      * @param afiClass         address Family Class
      * @param safiClass        SubsequentAddressFamily
-     * @param routeKeyNaming     Route Key name (prefix/ route-key / etc..)
      * @param destinationQname destination Qname
      */
     protected AbstractRIBSupport(
@@ -108,7 +108,6 @@ public abstract class AbstractRIBSupport<R extends Route, N extends Identifier>
             final Class<? extends Route> listClass,
             final Class<? extends AddressFamily> afiClass,
             final Class<? extends SubsequentAddressFamily> safiClass,
-            final String routeKeyNaming,
             final QName destinationQname) {
         final QName qname = BindingReflections.findQName(containerClass).intern();
         this.routesContainerIdentifier = new NodeIdentifier(qname);
@@ -128,7 +127,8 @@ public abstract class AbstractRIBSupport<R extends Route, N extends Identifier>
         this.destinationNid = new NodeIdentifier(destinationQname);
         this.pathIdQname = QName.create(routeQName(), "path-id").intern();
         this.pathIdNid = new NodeIdentifier(this.pathIdQname);
-        this.routeKeyQname = QName.create(routeQName(), routeKeyNaming).intern();
+        this.routeKeyQname = QName.create(routeQName(), ROUTE_KEY).intern();
+        this.routeKeyNodeId = new NodeIdentifier(this.routeKeyQname);
     }
 
     @Override
@@ -439,5 +439,9 @@ public abstract class AbstractRIBSupport<R extends Route, N extends Identifier>
 
     protected final QName routeKeyQName() {
         return this.routeKeyQname;
+    }
+
+    protected final NodeIdentifier routeKeyNodeIdentifier() {
+        return this.routeKeyNodeId;
     }
 }

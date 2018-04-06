@@ -34,11 +34,11 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev1
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.attributes.ClusterId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180109.BgpClusterIdSets;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180109.MatchClusterIdSetCondition;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180109.cluster.id.set.ClusterIdSet;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180109.cluster.id.set.ClusterIdSetKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180109.routing.policy.defined.sets.bgp.defined.sets.ClusterIdSets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.BgpClusterIdSets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.MatchClusterIdSetCondition;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.cluster.id.set.ClusterIdSet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.cluster.id.set.ClusterIdSetKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.routing.policy.defined.sets.bgp.defined.sets.ClusterIdSets;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
@@ -102,7 +102,7 @@ public final class MatchClusterIdSetHandler
     private boolean matchClusterIdCondition(
             final ClusterIdentifier localClusterId,
             final ClusterId clusterId, final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl
-            .bgp._default.policy.rev180109.match.cluster.id.set.condition.grouping
+            .bgp._default.policy.rev180329.match.cluster.id.set.condition.grouping
             .MatchClusterIdSetCondition matchClusterIdSetCondition) {
         final ClusterIdSet clusterIdSet = this.sets.getUnchecked(StringUtils
                 .substringBetween(matchClusterIdSetCondition.getClusterIdSet(), "=\"", "\""));

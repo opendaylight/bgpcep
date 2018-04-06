@@ -14,10 +14,10 @@ import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.Tables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -173,7 +173,9 @@ public interface RIBSupport<R extends Route, N extends Identifier> extends AddPa
      * only have their key and attributes, complex routes are those which include more structured data.
      *
      * @return True if this is a complex route, false otherwise.
+     * @deprecated All routes are complex.
      */
+    @Deprecated
     boolean isComplexRoute();
 
     /**
@@ -218,10 +220,10 @@ public interface RIBSupport<R extends Route, N extends Identifier> extends AddPa
      * @param routeKey route key
      * @param pathId new path Id
      * @param attributes route attributes
-     * @return Route
+     * @return Route List key
      */
     @Nonnull
-    R createRoute(@Nullable R route, N routeKey, @Nullable long pathId, @Nonnull Attributes attributes);
+    R createRoute(@Nullable R route, String routeKey, @Nullable long pathId, @Nonnull Attributes attributes);
 
     interface ApplyRoute {
         void apply(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier base,
@@ -241,12 +243,12 @@ public interface RIBSupport<R extends Route, N extends Identifier> extends AddPa
 
 
     /**
-     * Construct a Route Key using new path Id for Families supporting additional path.
+     * Construct a Route List Key using new path Id for Families.
      *
      * @param pathId   The path identifier
      * @param routeKey RouteKey
-     * @return routeId PathArgument + pathId
+     * @return route list Key (RouteKey + pathId)
      */
     @Nonnull
-    N createNewRouteKey(@Nonnull long pathId, @Nonnull N routeKey);
+    N createRouteListKey(@Nonnull long pathId, @Nonnull String routeKey);
 }

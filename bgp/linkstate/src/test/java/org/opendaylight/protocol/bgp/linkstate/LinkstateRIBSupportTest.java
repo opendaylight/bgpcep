@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import org.junit.Assert;
@@ -56,7 +57,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.Attributes2;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -106,7 +107,7 @@ public final class LinkstateRIBSupportTest extends AbstractRIBSupportTest {
         final ByteBuf buffer = Unpooled.buffer();
         SimpleNlriTypeRegistry.getInstance().serializeNlriType(LINKSTATE_DESTINATION, buffer);
         final byte[] arrayKey = ByteArray.readAllBytes(buffer);
-        ROUTE_KEY = new LinkstateRouteKey(PATH_ID, arrayKey);
+        ROUTE_KEY = new LinkstateRouteKey(PATH_ID, Arrays.toString(arrayKey));
         ROUTE = new LinkstateRouteBuilder().setKey(ROUTE_KEY).setDistinguisher(RD).setIdentifier(ID).setObjectType(OBJECT_TYPE2)
             .setProtocolId(ProtocolId.IsisLevel1).setAttributes(new AttributesBuilder().build()).build();
         ROUTES = new LinkstateRoutesBuilder().setLinkstateRoute(Collections.singletonList(ROUTE)).build();
@@ -121,7 +122,8 @@ public final class LinkstateRIBSupportTest extends AbstractRIBSupportTest {
     @Test
     public void testDeleteRoutes() {
         RIB_SUPPORT.deleteRoutes(this.tx, getTablePath(), createNlriWithDrawnRoute(UNREACH_NLRI));
-        final InstanceIdentifier<LinkstateRoute> instanceIdentifier = (InstanceIdentifier<LinkstateRoute>) this.deletedRoutes.get(0);
+        final InstanceIdentifier<LinkstateRoute> instanceIdentifier
+                = (InstanceIdentifier<LinkstateRoute>) this.deletedRoutes.get(0);
         assertEquals(ROUTE_KEY, instanceIdentifier.firstKeyOf(LinkstateRoute.class));
     }
 
@@ -173,8 +175,8 @@ public final class LinkstateRIBSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testRouteIdAddPath() {
-        final LinkstateRouteKey oldRouteKey = new LinkstateRouteKey(new PathId(10L), ROUTE_KEY.getRouteKey());
-        Assert.assertEquals(ROUTE_KEY, RIB_SUPPORT.createNewRouteKey(ROUTE_KEY.getPathId().getValue(), oldRouteKey));
+        Assert.assertEquals(ROUTE_KEY, RIB_SUPPORT.createRouteListKey(ROUTE_KEY.getPathId().getValue(),
+                ROUTE_KEY.getRouteKey()));
     }
 
     @Test
@@ -186,7 +188,7 @@ public final class LinkstateRIBSupportTest extends AbstractRIBSupportTest {
     @Test
     public void testRouteAttributesIdentifier() {
         Assert.assertEquals(new NodeIdentifier(QName.create(LinkstateRoutes.QNAME,
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Attributes.QNAME.getLocalName().intern())),
+            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Attributes.QNAME.getLocalName().intern())),
             RIB_SUPPORT.routeAttributesIdentifier());
     }
 

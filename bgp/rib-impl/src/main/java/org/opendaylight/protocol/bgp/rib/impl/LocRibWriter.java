@@ -32,25 +32,22 @@ import org.opendaylight.protocol.bgp.rib.impl.state.rib.TotalPathsCounter;
 import org.opendaylight.protocol.bgp.rib.impl.state.rib.TotalPrefixesCounter;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
-import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.PathIdGrouping;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.Rib;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.RibKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.LocRib;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.Peer;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.PeerKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.peer.EffectiveRibIn;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.Tables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Attributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.AttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.RibKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.LocRib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.Peer;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.PeerKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.peer.EffectiveRibIn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.AttributesBuilder;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
@@ -62,7 +59,7 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
 
     private static final Logger LOG = LoggerFactory.getLogger(LocRibWriter.class);
 
-    private final Map<Identifier, RouteEntry> routeEntries = new HashMap<>();
+    private final Map<String, RouteEntry> routeEntries = new HashMap<>();
     private final Long ourAs;
     private final RIBSupport ribSupport;
     private final DataBroker dataBroker;
@@ -151,8 +148,8 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
     }
 
     @Nonnull
-    private RouteEntry createEntry(final Identifier routeId) {
-        final RouteEntry ret = this.pathSelectionMode.createRouteEntry(this.ribSupport.isComplexRoute());
+    private RouteEntry createEntry(final String routeId) {
+        final RouteEntry ret = this.pathSelectionMode.createRouteEntry();
         this.routeEntries.put(routeId, ret);
         this.totalPrefixesCounter.increment();
         LOG.trace("Created new entry for {}", routeId);
@@ -244,25 +241,32 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
             final Map<RouteUpdateKey, RouteEntry> routes
     ) {
         for (final DataObjectModification<? extends DataObject> route : routeChanges) {
-            final Identifier routeKey = ((InstanceIdentifier.IdentifiableItem) route.getIdentifier()).getKey();
-            RouteEntry entry = this.routeEntries.get(routeKey);
             final Route newRoute = (Route) route.getDataAfter();
             final Route oldRoute = (Route) route.getDataBefore();
+            String routeKey;
+            RouteEntry entry;
             if (newRoute != null) {
+                routeKey = newRoute.getRouteKey();
+                entry = this.routeEntries.get(routeKey);
+
                 if (entry == null) {
                     entry = createEntry(routeKey);
                 }
 
-                final long pathId = ((PathIdGrouping) newRoute).getPathId().getValue();
+                final long pathId = newRoute.getPathId().getValue();
                 entry.addRoute(routerId, pathId, newRoute);
                 this.totalPathsCounter.increment();
-            } else if (oldRoute != null && entry != null) {
-                this.totalPathsCounter.decrement();
-                final long pathId = ((PathIdGrouping) oldRoute).getPathId().getValue();
-                if (entry.removeRoute(routerId, pathId)) {
-                    this.routeEntries.remove(routeKey);
-                    this.totalPrefixesCounter.decrement();
-                    LOG.trace("Removed route from {}", routerId);
+            } else {
+                routeKey = oldRoute.getRouteKey();
+                entry = this.routeEntries.get(routeKey);
+                if(entry != null) {
+                    this.totalPathsCounter.decrement();
+                    final long pathId = oldRoute.getPathId().getValue();
+                    if (entry.removeRoute(routerId, pathId)) {
+                        this.routeEntries.remove(routeKey);
+                        this.totalPrefixesCounter.decrement();
+                        LOG.trace("Removed route from {}", routerId);
+                    }
                 }
             }
             final RouteUpdateKey routeUpdateKey = new RouteUpdateKey(routerId, routeKey);

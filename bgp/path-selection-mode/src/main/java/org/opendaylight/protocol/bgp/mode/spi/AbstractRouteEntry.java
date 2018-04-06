@@ -16,11 +16,10 @@ import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerRole;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
-import org.opendaylight.yangtools.yang.binding.Identifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 
 public abstract class AbstractRouteEntry<T extends BestPath> implements RouteEntry {
     protected final BGPPeerTracker peerTracker;
@@ -32,7 +31,7 @@ public abstract class AbstractRouteEntry<T extends BestPath> implements RouteEnt
     /**
      * Create new Route with route jey created from passed parameters.
      */
-    public abstract Route createRoute(@Nonnull RIBSupport ribSup, @Nonnull Identifier routeKey, long pathId, T path);
+    public abstract Route createRoute(@Nonnull RIBSupport ribSup, @Nonnull String routeKey, long pathId, T path);
 
     /**
      * Returns true if route can be send.
