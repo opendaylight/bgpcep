@@ -3,11 +3,11 @@ module bgp-inet {
         namespace "urn:opendaylight:params:xml:ns:yang:bgp-inet";
         prefix "bgp-inet";
 
-    import bgp-rib { prefix bgp-rib; revision-date 2017-12-07; }
+    import bgp-rib { prefix bgp-rib; revision-date 2018-03-29; }
     import bgp-multiprotocol { prefix bgp-mp; revision-date 2017-12-07; }
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import bgp-message { prefix bgp-msg; revision-date 2017-12-07; }
-    import bmp-monitor { prefix bmp-mon; revision-date 2017-12-07; }
+    import bmp-monitor { prefix bmp-mon; revision-date 2018-03-29; }
 
     organization "Cisco Systems, Inc.";
     contact "Dana Kutenicsova <dkutenic@cisco.com>";
@@ -23,6 +23,10 @@ module bgp-inet {
             accompanies this distribution, and is available at
             http://www.eclipse.org/legal/epl-v10.html";
 
+    revision "2018-03-29" {
+        description "Add support for add-path for all afi/safi.";
+    }
+
     revision "2017-12-07" {
         description "Add support for add-path in base BGP NLRI.";
     }
@@ -36,7 +40,6 @@ module bgp-inet {
         leaf prefix {
             type inet:ipv6-prefix;
         }
-        uses bgp-msg:path-id-grouping;
     }
 
     grouping ipv4-prefixes {
@@ -51,6 +54,7 @@ module bgp-inet {
         container destination-ipv6 {
             list ipv6-prefixes {
                 uses ipv6-prefix;
+                uses bgp-msg:path-id-grouping;
             }
         }
     }
@@ -58,11 +62,11 @@ module bgp-inet {
     grouping ipv4-routes {
         container ipv4-routes {
             list ipv4-route {
-                uses bgp-msg:ipv4-prefix-and-path-id;
-
-                key "prefix path-id";
-
+                key "route-key path-id";
                 uses bgp-rib:route;
+                leaf prefix {
+                    type inet:ipv4-prefix;
+                }
             }
         }
     }
@@ -80,9 +84,8 @@ module bgp-inet {
     grouping ipv6-routes {
         container ipv6-routes {
             list ipv6-route {
+                key "route-key path-id";
                 uses ipv6-prefix;
-
-                key "prefix path-id";
 
                 uses bgp-rib:route {
                     augment "attributes/bgp-prefix-sid/bgp-prefix-sid-tlvs/bgp-prefix-sid-tlv" {
