@@ -6,19 +6,17 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv4.routes.ipv4.routes;
+package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.routes.ipv4.routes;
 
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.destination.DestinationType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -33,18 +31,18 @@ public final class RIBSupportTestImp extends AbstractRIBSupport {
     private static final String PREFIX = "1.2.3.4/32";
 
     private static final NodeIdentifierWithPredicates PREFIX_NII = new NodeIdentifierWithPredicates(org.opendaylight
-            .yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv4.routes.ipv4.routes.Ipv4Route.QNAME,
+            .yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.routes.ipv4.routes.Ipv4Route.QNAME,
             ImmutableMap.of(QName.create(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
-                    .rev171207.ipv4.routes.ipv4.routes.Ipv4Route.QNAME, ROUTE_KEY).intern(), PREFIX));
+                    .rev180329.ipv4.routes.ipv4.routes.Ipv4Route.QNAME, ROUTE_KEY).intern(), PREFIX));
 
     public RIBSupportTestImp() {
-        super(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv4.routes.ipv4
+        super(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.routes.ipv4
                         .routes.Ipv4RoutesCase.class,
-                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv4.routes.ipv4.
+                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.routes.ipv4.
                         routes.Ipv4Routes.class, org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
-                        .inet.rev171207.ipv4.routes.ipv4.routes.Ipv4Route.class, Ipv4AddressFamily.class,
-                UnicastSubsequentAddressFamily.class, ROUTE_KEY, org.opendaylight.yang.gen.v1.urn.opendaylight.params
-                        .xml.ns.yang.bgp.inet.rev171207.ipv4.routes.ipv4.routes.Ipv4Prefixes.QNAME);
+                        .inet.rev180329.ipv4.routes.ipv4.routes.Ipv4Route.class, Ipv4AddressFamily.class,
+                UnicastSubsequentAddressFamily.class, org.opendaylight.yang.gen.v1.urn.opendaylight.params
+                        .xml.ns.yang.bgp.inet.rev180329.ipv4.routes.ipv4.routes.Ipv4Prefixes.QNAME);
     }
 
     @Override
@@ -61,7 +59,7 @@ public final class RIBSupportTestImp extends AbstractRIBSupport {
     protected void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
             final ContainerNode destination, final ContainerNode attributes, final ApplyRoute applyFunction) {
         applyFunction.apply(tx, routesPath.node(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
-                .bgp.inet.rev171207.ipv4.routes.ipv4.routes.Ipv4Route.QNAME), PREFIX_NII, destination, attributes);
+                .bgp.inet.rev180329.ipv4.routes.ipv4.routes.Ipv4Route.QNAME), PREFIX_NII, destination, attributes);
     }
 
     @Override
@@ -90,9 +88,8 @@ public final class RIBSupportTestImp extends AbstractRIBSupport {
         return null;
     }
 
-    @Nullable
     @Override
-    public Identifier createNewRouteKey(@Nonnull final long pathId, @Nonnull final Identifier routeKey) {
+    public Identifier createNewRouteKey(final long pathId, final String routeKey) {
         return null;
     }
 }

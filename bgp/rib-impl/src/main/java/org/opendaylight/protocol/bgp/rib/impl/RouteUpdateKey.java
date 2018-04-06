@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.primitives.UnsignedInteger;
-import org.opendaylight.yangtools.yang.binding.Identifier;
 
 /**
  * Combined key formed as a concatenation of source peer and route identifiers.
@@ -18,9 +17,9 @@ import org.opendaylight.yangtools.yang.binding.Identifier;
  */
 final class RouteUpdateKey {
     private final UnsignedInteger peerId;
-    private final Identifier routeId;
+    private final String routeId;
 
-    RouteUpdateKey(final UnsignedInteger peerId, final Identifier routeKey) {
+    RouteUpdateKey(final UnsignedInteger peerId, final String routeKey) {
         this.peerId = requireNonNull(peerId);
         this.routeId = requireNonNull(routeKey);
     }
@@ -29,7 +28,7 @@ final class RouteUpdateKey {
         return this.peerId;
     }
 
-    Identifier getRouteId() {
+    String getRouteId() {
         return this.routeId;
     }
 

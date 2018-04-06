@@ -15,10 +15,9 @@ import static org.junit.Assert.assertTrue;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.PathId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.peer.SupportedTables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.Tables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.peer.SupportedTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
@@ -34,12 +33,11 @@ public class RibSupportUtilsTest {
     private static final Class<? extends SubsequentAddressFamily> SAFI = UnicastSubsequentAddressFamily.class;
     private static final TablesKey TABLE_KEY = new TablesKey(Ipv4AddressFamily.class,
             UnicastSubsequentAddressFamily.class);
-    private static final PathId PATH_ID = new PathId(10L);
 
     static {
-        final QName afi = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-rib?revision=2017-12-07",
+        final QName afi = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-rib?revision=2018-03-29",
                 "afi");
-        final QName safi = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-rib?revision=2017-12-07",
+        final QName safi = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-rib?revision=2018-03-29",
                 "safi");
         NII = new NodeIdentifierWithPredicates(SupportedTables.QNAME, ImmutableMap.of(afi, Ipv4AddressFamily.QNAME,
                 safi, UnicastSubsequentAddressFamily.QNAME));
