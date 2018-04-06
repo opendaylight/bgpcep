@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7ccd9f0b_47770937",
+        "filename": "binding-parent/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-04-06T16:54:20Z",
+      "side": 1,
+      "message": "based on previous comment, might this be removed?",
+      "range": {
+        "startLine": 50,
+        "startChar": 25,
+        "endLine": 51,
+        "endChar": 48
+      },
+      "revId": "8ad62f30c1c4f998ce77899c063f7e48fe48b873",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
