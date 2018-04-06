@@ -9,12 +9,11 @@ package org.opendaylight.protocol.bgp.rib.spi.entry;
 
 import javax.annotation.Nonnull;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
-import org.opendaylight.yangtools.yang.binding.Identifier;
 
 /**
  * RouteEntryInfo wrapper contains all related information from new best path.
  */
-public interface RouteEntryInfo<N extends Identifier> extends RouteEntryKey<N> {
+public interface RouteEntryInfo {
     /**
      * peer Id where best path will be advertized.
      *
@@ -22,4 +21,12 @@ public interface RouteEntryInfo<N extends Identifier> extends RouteEntryKey<N> {
      */
     @Nonnull
     Peer getToPeer();
+
+    /**
+     * Returns route containing prefix.
+     *
+     * @return Route key
+     */
+    @Nonnull
+    String getRouteKey();
 }
