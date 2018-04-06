@@ -6,13 +6,13 @@ module bgp-linkstate {
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import bgp-message { prefix bgp-msg; revision-date 2017-12-07; }
     import bgp-multiprotocol { prefix bgp-mp; revision-date 2017-12-07; }
-    import bgp-rib { prefix bgp-rib; revision-date 2017-12-07; }
+    import bgp-rib { prefix bgp-rib; revision-date 2018-03-29; }
     import bgp-types { prefix bgp-t; revision-date 2013-09-19; }
     import network-concepts { prefix netc; revision-date 2013-11-25; }
     import rsvp { prefix rsvp; revision-date 2015-08-20; }
     import bgp-segment-routing { prefix bgp-sr; revision-date 2015-10-14; }
     import bgp-epe { prefix bgp-epe; revision-date 2015-06-22; }
-    import bmp-monitor { prefix bmp-mon; revision-date 2017-12-07; }
+    import bmp-monitor { prefix bmp-mon; revision-date 2018-03-29; }
     import yang-ext { prefix ext; revision-date 2013-07-09; }
 
     organization "Cisco Systems, Inc.";
@@ -395,6 +395,7 @@ module bgp-linkstate {
     grouping linkstate-destination {
         list c-linkstate-destination {
             uses linkstate;
+            uses bgp-msg:path-id-grouping;
         }
     }
 
@@ -738,19 +739,9 @@ module bgp-linkstate {
                     have any effects on keys, especially they
                     must not impact equality tests.";
 
-                leaf route-key {
-                    description
-                        "The sole function of this leaf
-                        to act as the key in the list.
-                        Its format does not form the
-                        API contract of this model.";
-                    type binary;
-                }
                 key "route-key path-id";
 
                 uses linkstate;
-                uses bgp-msg:path-id-grouping;
-
                 uses bgp-rib:route {
                     augment attributes {
                         uses linkstate-path-attribute;

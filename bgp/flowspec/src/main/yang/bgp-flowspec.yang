@@ -6,10 +6,10 @@ module bgp-flowspec {
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import bgp-message { prefix bgp-msg; revision-date 2017-12-07; }
     import bgp-multiprotocol { prefix bgp-mp; revision-date 2017-12-07; }
-    import bgp-rib { prefix bgp-rib; revision-date 2017-12-07; }
+    import bgp-rib { prefix bgp-rib; revision-date 2018-03-29; }
     import bgp-types { prefix bgp-t; revision-date 2013-09-19; }
     import network-concepts { prefix netc; revision-date 2013-11-25; }
-    import bmp-monitor { prefix bmp-mon; revision-date 2017-12-07; }
+    import bmp-monitor { prefix bmp-mon; revision-date 2018-03-29; }
 
     organization "Cisco Systems, Inc.";
     contact "Dana Kutenicsova <dkutenic@cisco.com>";
@@ -24,6 +24,10 @@ module bgp-flowspec {
         under the terms of the Eclipse Public License v1.0 which
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2018-03-29" {
+        description "Add support for add-path for all afi/safi.";
+    }
 
     revision "2017-12-07" {
         description "Add support for add-path in base BGP NLRI.";
@@ -220,7 +224,6 @@ module bgp-flowspec {
                 }
             }
         }
-        uses bgp-msg:path-id-grouping;
     }
 
     grouping flowspec-destination-group-ipv4 {
@@ -287,12 +290,14 @@ module bgp-flowspec {
     grouping flowspec-destination-ipv4 {
         container destination-flowspec {
             uses flowspec-destination-group-ipv4;
+            uses bgp-msg:path-id-grouping;
         }
     }
 
     grouping flowspec-destination-ipv6 {
         container destination-flowspec {
             uses flowspec-destination-group-ipv6;
+            uses bgp-msg:path-id-grouping;
         }
     }
 
@@ -307,6 +312,7 @@ module bgp-flowspec {
         container destination-flowspec-l3vpn-ipv4 {
             uses flowspec-l3vpn-rd;
             uses flowspec-destination-group-ipv4;
+            uses bgp-msg:path-id-grouping;
         }
     }
 
@@ -314,6 +320,7 @@ module bgp-flowspec {
         container destination-flowspec-l3vpn-ipv6 {
             uses flowspec-l3vpn-rd;
             uses flowspec-destination-group-ipv6;
+            uses bgp-msg:path-id-grouping;
         }
     }
 
@@ -466,14 +473,6 @@ module bgp-flowspec {
     }
 
     grouping flowspec-ipv4-route-list {
-        leaf route-key {
-            description
-                "The sole function of this leaf
-                to act as the key in the list.
-                Its format does not form the
-                API contract of this model.";
-            type string;
-        }
         uses flowspec-destination-group-ipv4;
         uses bgp-rib-route;
     }
@@ -496,14 +495,6 @@ module bgp-flowspec {
     grouping flowspec-ipv6-route-list {
         uses flowspec-destination-group-ipv6;
         uses bgp-rib-route;
-        leaf route-key {
-            description
-                "The sole function of this leaf
-                to act as the key in the list.
-                Its format does not form the
-                API contract of this model.";
-            type string;
-        }
     }
 
     grouping flowspec-ipv6-route {

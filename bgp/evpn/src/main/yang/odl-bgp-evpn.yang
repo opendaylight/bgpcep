@@ -8,8 +8,8 @@ module odl-bgp-evpn {
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import ietf-yang-types {prefix yang; revision-date 2013-07-15;}
     import network-concepts { prefix netc; revision-date 2013-11-25; }
-    import bgp-rib { prefix bgp-rib; revision-date 2017-12-07; }
-    import bmp-monitor { prefix bmp-mon; revision-date 2017-12-07; }
+    import bgp-rib { prefix bgp-rib; revision-date 2018-03-29; }
+    import bmp-monitor { prefix bmp-mon; revision-date 2018-03-29; }
     import bgp-message { prefix bgp-msg; revision-date 2017-12-07; }
     import bgp-multiprotocol { prefix bgp-mp; revision-date 2017-12-07; }
     import pmsi-tunnel { prefix pmsi; revision-date 2016-08-12; }
@@ -419,18 +419,15 @@ module odl-bgp-evpn {
     grouping evpn-destination {
         list evpn-destination {
             uses evpn;
+            uses bgp-msg:path-id-grouping;
         }
     }
 
     grouping evpn-routes {
         container evpn-routes {
             list evpn-route {
-                leaf route-key {
-                    type string;
-                }
                 key "route-key path-id";
                 uses evpn;
-                uses bgp-msg:path-id-grouping;
                 uses bgp-rib:route {
                     augment "attributes" {
                         ext:augment-identifier pmsi-tunnel-augmentation;
