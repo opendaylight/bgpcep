@@ -8,7 +8,7 @@ module bgp-openconfig-extensions {
     import openconfig-bgp { prefix openconfig-bgp; }
     import ietf-inet-types { prefix inet; }
     import yang-ext { prefix ext; revision-date 2013-07-09; }
-    import bgp-rib { prefix bgp-rib; revision-date 2017-12-07; }
+    import bgp-rib { prefix bgp-rib; revision-date 2018-03-29; }
     import openconfig-bgp-operational { prefix bgp-op; }
 
     organization "Cisco Systems, Inc.";
@@ -24,6 +24,10 @@ module bgp-openconfig-extensions {
         under the terms of the Eclipse Public License v1.0 which
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2018-03-29" {
+        description "Add support for add-path for all afi/safi.";
+    }
 
     revision 2018-03-21 {
         description "Augment Peer group with transport config.";

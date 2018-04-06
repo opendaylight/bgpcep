@@ -2,9 +2,9 @@ module bgp-vpn {
     namespace "urn:opendaylight:params:xml:ns:yang:bgp-vpn";
     prefix "bgp-vpn";
 
-    import bgp-labeled-unicast { prefix bgp-lu; revision-date 2017-12-07; }
+    import bgp-labeled-unicast { prefix bgp-lu; revision-date 2018-03-29; }
     import bgp-types { prefix bgp-t; revision-date 2013-09-19; }
-    import bgp-rib { prefix bgp-rib; revision-date 2017-12-07; }
+    import bgp-rib { prefix bgp-rib; revision-date 2018-03-29; }
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
 
     organization "Brocade Communications Systems, Inc.";
@@ -49,9 +49,6 @@ module bgp-vpn {
     grouping l3vpn-ip-route {
         list vpn-route {
             key "route-key path-id";
-            leaf route-key {
-                type string;
-            }
             uses l3vpn;
             uses bgp-rib:route;
         }
