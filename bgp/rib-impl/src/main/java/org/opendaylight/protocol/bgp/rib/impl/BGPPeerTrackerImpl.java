@@ -15,7 +15,7 @@ import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.protocol.concepts.AbstractRegistration;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 
 public final class BGPPeerTrackerImpl implements BGPPeerTracker {
     @GuardedBy("this")

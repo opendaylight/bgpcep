@@ -23,17 +23,17 @@ import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev171207.labeled.unicast.LabelStack;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev171207.labeled.unicast.LabelStackBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev171207.labeled.unicast.destination.CLabeledUnicastDestination;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev171207.labeled.unicast.destination.CLabeledUnicastDestinationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev171207.labeled.unicast.routes.list.LabeledUnicastRoute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev171207.labeled.unicast.routes.list.LabeledUnicastRouteBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev171207.labeled.unicast.routes.list.LabeledUnicastRouteKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.labeled.unicast.LabelStack;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.labeled.unicast.LabelStackBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.labeled.unicast.destination.CLabeledUnicastDestination;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.labeled.unicast.destination.CLabeledUnicastDestinationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.labeled.unicast.routes.list.LabeledUnicastRoute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.labeled.unicast.routes.list.LabeledUnicastRouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.labeled.unicast.routes.list.LabeledUnicastRouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.tables.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
@@ -81,7 +81,7 @@ abstract class AbstractLabeledUnicastRIBSupport
             final Class<? extends AddressFamily> addressFamilyClass,
             final Class<? extends SubsequentAddressFamily> safiClass,
             final QName destinationQname) {
-        super(cazeClass, containerClass, listClass, addressFamilyClass, safiClass, ROUTE_KEY, destinationQname);
+        super(cazeClass, containerClass, listClass, addressFamilyClass, safiClass, destinationQname);
     }
 
     @Override
@@ -172,12 +172,12 @@ abstract class AbstractLabeledUnicastRIBSupport
     }
 
     @Override
-    public final LabeledUnicastRouteKey createNewRouteKey(final long pathId, final LabeledUnicastRouteKey routeKey) {
-        return new LabeledUnicastRouteKey(new PathId(pathId), routeKey.getRouteKey());
+    public final LabeledUnicastRouteKey createRouteListKey(final long pathId, final String routeKey) {
+        return new LabeledUnicastRouteKey(new PathId(pathId), routeKey);
     }
 
     @Override
-    public final LabeledUnicastRoute createRoute(final LabeledUnicastRoute route, final LabeledUnicastRouteKey routeKey,
+    public final LabeledUnicastRoute createRoute(final LabeledUnicastRoute route, final String routeKey,
             final long pathId, final Attributes attributes) {
         final LabeledUnicastRouteBuilder builder;
         if (route != null) {
@@ -185,7 +185,7 @@ abstract class AbstractLabeledUnicastRIBSupport
         } else {
             builder = new LabeledUnicastRouteBuilder();
         }
-        return builder.setRouteKey(routeKey.getRouteKey())
-                .setPathId(new PathId(pathId)).setAttributes(attributes).build();
+        return builder.setKey(new LabeledUnicastRouteKey(new PathId(pathId), routeKey))
+                .setAttributes(attributes).build();
     }
 }

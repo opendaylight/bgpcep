@@ -15,7 +15,7 @@ import javax.annotation.Nonnull;
 import org.opendaylight.protocol.bgp.mode.api.BestPathState;
 import org.opendaylight.protocol.bgp.mode.spi.AbstractBestPath;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.PeerId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 
 public final class AddPathBestPath extends AbstractBestPath {
     private final RouteKey routeKey;
