@@ -60,8 +60,6 @@
         <module>data-change-counter</module>
         <module>testtool-util</module>
 
-        <module>distribution-karaf</module>
-
     </modules>
 
     <build>
@@ -137,6 +135,16 @@
           </plugin>
         </plugins>
       </build>
+    </profile>
+    <profile>
+      <id>karaf</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+
+      <modules>
+        <module>distribution-karaf</module>
+      </modules>
     </profile>
   </profiles>
 
