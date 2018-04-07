@@ -103,4 +103,17 @@
             </plugin>
         </plugins>
     </reporting>
+
+  <profiles>
+    <profile>
+      <id>karaf</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+
+      <modules>
+        <module>distribution-karaf</module>
+      </modules>
+    </profile>
+  </profiles>
 </project>
