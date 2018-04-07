@@ -1,6 +1,6 @@
-Attribute              | Value     
------------------------------------
-                       |           
-Peer Group state       |           
-====================== |           
-Peer Group Name        | test-group
+Attribute              │ Value
+───────────────────────┼───────────
+                       │
+Peer Group state       │
+====================== │
+Peer Group Name        │ test-group
