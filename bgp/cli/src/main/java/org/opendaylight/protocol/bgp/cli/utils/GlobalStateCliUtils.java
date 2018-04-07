@@ -10,7 +10,7 @@ package org.opendaylight.protocol.bgp.cli.utils;
 import static org.opendaylight.protocol.bgp.cli.utils.NeighborStateCliUtils.addHeader;
 
 import java.io.PrintStream;
-import org.apache.karaf.shell.table.ShellTable;
+import org.apache.karaf.shell.support.table.ShellTable;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.State;

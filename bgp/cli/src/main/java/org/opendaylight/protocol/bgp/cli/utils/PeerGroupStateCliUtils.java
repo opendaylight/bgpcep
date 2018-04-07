@@ -11,7 +11,7 @@ import static org.opendaylight.protocol.bgp.cli.utils.NeighborStateCliUtils.addH
 
 import java.io.PrintStream;
 import java.util.List;
-import org.apache.karaf.shell.table.ShellTable;
+import org.apache.karaf.shell.support.table.ShellTable;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.State;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.peer.group.PeerGroup;

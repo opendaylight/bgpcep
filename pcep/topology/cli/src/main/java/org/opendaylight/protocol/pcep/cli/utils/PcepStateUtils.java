@@ -10,7 +10,7 @@ package org.opendaylight.protocol.pcep.cli.utils;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
-import org.apache.karaf.shell.table.ShellTable;
+import org.apache.karaf.shell.support.table.ShellTable;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
