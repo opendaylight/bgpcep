@@ -1,7 +1,7 @@
-Attribute              | Value     
------------------------------------
-                       |           
-Peer Group state       |           
-====================== |           
-Peer Group Name        | test-group
-Total Prefixes         | 1         
+Attribute              │ Value
+───────────────────────┼───────────
+                       │
+Peer Group state       │
+====================== │
+Peer Group Name        │ test-group
+Total Prefixes         │ 1
