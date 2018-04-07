@@ -9,8 +9,8 @@ package org.opendaylight.protocol.pcep.cli;
 
 import static java.util.Objects.requireNonNull;
 
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.protocol.pcep.cli.utils.PcepStateUtils;
