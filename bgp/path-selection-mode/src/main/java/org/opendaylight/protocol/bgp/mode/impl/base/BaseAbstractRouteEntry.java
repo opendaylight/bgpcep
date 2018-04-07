@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 @NotThreadSafe
 abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
     private static final Logger LOG = LoggerFactory.getLogger(BaseAbstractRouteEntry.class);
-    private static final ContainerNode[] EMPTY_ATTRIBUTES = new ContainerNode[0];
     private OffsetMap offsets = OffsetMap.EMPTY;
     private ContainerNode[] values = EMPTY_ATTRIBUTES;
     private BaseBestPath bestPath;
@@ -46,7 +45,7 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
      * @return true if its the last route
      */
     protected final boolean removeRoute(final UnsignedInteger routerId, final int offset) {
-        this.values = this.offsets.removeValue(this.values, offset);
+        this.values = this.offsets.removeValue(this.values, offset, EMPTY_ATTRIBUTES);
         this.offsets = this.offsets.without(routerId);
         return this.offsets.isEmpty();
     }

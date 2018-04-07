@@ -28,7 +28,7 @@ final class ComplexRouteEntry extends AbstractAllPathsRouteEntry {
         final RouteKey key = new RouteKey(routerId, remotePathId);
         final OffsetMap map = getOffsets();
         final int offset = map.offsetOf(key);
-        this.values = map.removeValue(this.values, offset);
+        this.values = map.removeValue(this.values, offset, EMPTY_VALUES);
         return removeRoute(key, offset);
     }
 
