@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.parser;
 
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
-import java.util.Arrays;
 import org.opendaylight.protocol.util.Values;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +22,8 @@ public final class BGPDocumentedException extends Exception {
     private static final long serialVersionUID = -6212702584439430736L;
 
     private static final Logger LOG = LoggerFactory.getLogger(BGPDocumentedException.class);
+
+    private static final byte[] EMPTY = new byte[0];
 
     private final BGPError error;
 
@@ -81,7 +82,7 @@ public final class BGPDocumentedException extends Exception {
             final Exception cause) {
         super(message, cause);
         this.error = error;
-        this.data = data == null ? null : Arrays.copyOf(data, data.length);
+        this.data = data == null || data.length == 0 ? null : data.clone();
         LOG.error("Error = {}", error, this);
     }
 
@@ -91,7 +92,7 @@ public final class BGPDocumentedException extends Exception {
      * @return documented error
      */
     public BGPError getError() {
-        return this.error;
+        return error;
     }
 
     /**
@@ -100,7 +101,7 @@ public final class BGPDocumentedException extends Exception {
      * @return byte array data
      */
     public byte[] getData() {
-        return (this.data != null) ? Arrays.copyOf(this.data, this.data.length) : new byte[0];
+        return data != null ? data.clone() : EMPTY;
     }
 
     public static BGPDocumentedException badMessageLength(final String message, final int length) {
@@ -109,6 +110,5 @@ public final class BGPDocumentedException extends Exception {
         return new BGPDocumentedException(message, BGPError.BAD_MSG_LENGTH, new byte[] {
             UnsignedBytes.checkedCast(length / (Values.UNSIGNED_BYTE_MAX_VALUE + 1)),
             UnsignedBytes.checkedCast(length % (Values.UNSIGNED_BYTE_MAX_VALUE + 1)) });
-
     }
 }
