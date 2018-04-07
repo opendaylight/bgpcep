@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 @NotThreadSafe
 abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
     private static final Logger LOG = LoggerFactory.getLogger(BaseAbstractRouteEntry.class);
-    private static final ContainerNode[] EMPTY_ATTRIBUTES = new ContainerNode[0];
     private OffsetMap offsets = OffsetMap.EMPTY;
     private ContainerNode[] values = EMPTY_ATTRIBUTES;
     private BaseBestPath bestPath;
