@@ -38,7 +38,7 @@ final class BaseComplexRouteEntry extends BaseAbstractRouteEntry {
     public boolean removeRoute(final UnsignedInteger routerId, final Long remotePathId) {
         final OffsetMap map = getOffsets();
         final int offset = map.offsetOf(routerId);
-        this.values = map.removeValue(this.values, offset);
+        this.values = map.removeValue(this.values, offset, EMPTY_VALUES);
         return removeRoute(routerId, offset);
     }
 

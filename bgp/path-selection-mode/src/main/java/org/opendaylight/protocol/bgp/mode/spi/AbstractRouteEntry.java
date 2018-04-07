@@ -31,6 +31,8 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractRouteEntry implements RouteEntry {
     protected static final NodeIdentifier ROUTES_IDENTIFIER = new NodeIdentifier(Routes.QNAME);
+    protected static final ContainerNode[] EMPTY_ATTRIBUTES = new ContainerNode[0];
+
     private static final Logger LOG = LoggerFactory.getLogger(AbstractRouteEntry.class);
 
     protected static void fillLocRib(final YangInstanceIdentifier routeTarget, final NormalizedNode<?, ?> value,

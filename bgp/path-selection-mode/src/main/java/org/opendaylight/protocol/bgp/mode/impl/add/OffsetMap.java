@@ -43,12 +43,13 @@ public final class OffsetMap {
                 }
             });
     private static final Comparator<RouteKey> COMPARATOR = RouteKey::compareTo;
+    private static final RouteKey[] EMPTY_KEYS = new RouteKey[0];
     static final OffsetMap EMPTY = new OffsetMap(Collections.emptySet());
 
     private final RouteKey[] routeKeys;
 
     private OffsetMap(final Set<RouteKey> routerIds) {
-        final RouteKey[] array = routerIds.toArray(new RouteKey[0]);
+        final RouteKey[] array = routerIds.toArray(EMPTY_KEYS);
         Arrays.sort(array, COMPARATOR);
         this.routeKeys = array;
     }
@@ -79,7 +80,7 @@ public final class OffsetMap {
         if (index < 0) {
             LOG.trace("Router key not found", key);
         } else {
-            builder.add(removeValue(this.routeKeys, index));
+            builder.add(removeValue(this.routeKeys, index, EMPTY_KEYS));
         }
         return OFFSETMAPS.getUnchecked(builder.build());
     }
@@ -116,15 +117,21 @@ public final class OffsetMap {
         return ret;
     }
 
-    public <T> T[] removeValue(final T[] oldArray, final int offset) {
+    public <T> T[] removeValue(final T[] oldArray, final int offset, final T[] emptyArray) {
         final int length = oldArray.length;
         Preconditions.checkArgument(offset >= 0, NEGATIVEOFFSET, offset);
         Preconditions.checkArgument(offset < this.routeKeys.length, INVALIDOFFSET, offset, length);
 
-        final T[] ret = (T[]) Array.newInstance(oldArray.getClass().getComponentType(), length - 1);
+        final int newLength = length - 1;
+        if (newLength == 0) {
+            Preconditions.checkArgument(emptyArray.length == 0);
+            return emptyArray;
+        }
+
+        final T[] ret = (T[]) Array.newInstance(oldArray.getClass().getComponentType(), newLength);
         System.arraycopy(oldArray, 0, ret, 0, offset);
-        if (offset < length - 1) {
-            System.arraycopy(oldArray, offset + 1, ret, offset, length - offset - 1);
+        if (offset < newLength) {
+            System.arraycopy(oldArray, offset + 1, ret, offset, newLength - offset);
         }
 
         return ret;
