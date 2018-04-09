@@ -11,6 +11,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import javax.annotation.Nonnull;
@@ -97,6 +98,7 @@ public final class PCEPTunnelClusterSingletonService implements ClusterSingleton
     }
 
     @Override
+    @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Unrecognised NullableDecl")
     public synchronized ListenableFuture<Void> closeServiceInstance() {
         LOG.info("Close Service Instance PCEP Tunnel Topology Provider Singleton Service {}",
                 getIdentifier().getValue());
