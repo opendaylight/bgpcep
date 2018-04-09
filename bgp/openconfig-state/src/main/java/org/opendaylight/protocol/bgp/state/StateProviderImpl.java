@@ -8,18 +8,20 @@
 
 package org.opendaylight.protocol.bgp.state;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.ListenableFuture;
-import io.netty.util.concurrent.GlobalEventExecutor;
-import io.netty.util.concurrent.ScheduledFuture;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
@@ -77,6 +79,7 @@ public final class StateProviderImpl implements TransactionChainListener, Cluste
     private BindingTransactionChain transactionChain;
     @GuardedBy("this")
     private ScheduledFuture<?> scheduleTask;
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     public StateProviderImpl(@Nonnull final DataBroker dataBroker, final int timeout,
         @Nonnull BGPTableTypeRegistryConsumer bgpTableTypeRegistry, @Nonnull final BGPStateConsumer stateCollector,
@@ -110,8 +113,7 @@ public final class StateProviderImpl implements TransactionChainListener, Cluste
             }
         };
 
-        this.scheduleTask = GlobalEventExecutor.INSTANCE.scheduleAtFixedRate(task, 0, this.timeout,
-            TimeUnit.SECONDS);
+        this.scheduleTask = this.scheduler.scheduleAtFixedRate(task, 0, this.timeout, SECONDS);
     }
 
     private synchronized void updateBGPStats(final WriteTransaction wTx) {
@@ -157,6 +159,7 @@ public final class StateProviderImpl implements TransactionChainListener, Cluste
             this.singletonServiceRegistration.close();
             this.singletonServiceRegistration = null;
         }
+        this.scheduler.shutdown();
     }
 
     @Override
