@@ -12,6 +12,7 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
@@ -73,6 +74,7 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
         }
     }
 
+    @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Unrecognised NullableDecl")
     synchronized ListenableFuture<Void> closeServiceInstance() {
         if (this.pcepTopoProviderCSS != null) {
             return this.pcepTopoProviderCSS.closeServiceInstance();
@@ -162,6 +164,7 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
         }
 
         @Override
+        @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Unrecognised NullableDecl")
         public synchronized ListenableFuture<Void> closeServiceInstance() {
             LOG.info("Close PCEP Topology Provider Singleton Service {}", getIdentifier().getValue());
             if (this.serviceInstantiated) {
