@@ -9,14 +9,15 @@
 package org.opendaylight.bgpcep.pcep.topology.stats.provider;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
-import io.netty.util.concurrent.GlobalEventExecutor;
-import io.netty.util.concurrent.ScheduledFuture;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
@@ -48,6 +49,7 @@ public final class TopologyStatsProviderImpl implements TransactionChainListener
     private final int timeout;
     private BindingTransactionChain transactionChain;
     private ScheduledFuture<?> scheduleTask;
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     public TopologyStatsProviderImpl(@Nonnull final DataBroker dataBroker, final int timeout) {
         this.dataBroker = requireNonNull(dataBroker);
@@ -64,8 +66,7 @@ public final class TopologyStatsProviderImpl implements TransactionChainListener
             }
         };
 
-        this.scheduleTask = GlobalEventExecutor.INSTANCE.scheduleAtFixedRate(task, 0, this.timeout,
-                TimeUnit.SECONDS);
+        this.scheduleTask = this.scheduler.scheduleAtFixedRate(task, 0, this.timeout, SECONDS);
     }
 
     private synchronized void updatePcepStats() {
@@ -93,6 +94,7 @@ public final class TopologyStatsProviderImpl implements TransactionChainListener
         wTx.submit().get();
         this.statsMap.clear();
         this.transactionChain.close();
+        this.scheduler.shutdown();
     }
 
     @Override
