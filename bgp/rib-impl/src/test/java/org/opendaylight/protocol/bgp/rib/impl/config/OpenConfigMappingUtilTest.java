@@ -60,6 +60,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.n
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborKey;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.peer.group.PeerGroup;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.peer.group.PeerGroupBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Neighbors;
@@ -89,8 +90,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.GlobalConfigAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborAddPathsConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborAddPathsConfigBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborClusterIdConfig;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborClusterIdConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborPeerGroupConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborPeerGroupConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborTransportConfig;
@@ -371,15 +370,23 @@ public class OpenConfigMappingUtilTest {
 
     @Test
     public void testGetNeighborClusterIdentifier() {
-        assertNull(OpenConfigMappingUtil.getNeighborClusterIdentifier(null));
 
-        final ConfigBuilder configBuilder = new ConfigBuilder();
-        assertNull(OpenConfigMappingUtil.getNeighborClusterIdentifier(configBuilder.build()));
+        assertNull(OpenConfigMappingUtil.getNeighborClusterIdentifier(null, null));
 
-        configBuilder.addAugmentation(NeighborClusterIdConfig.class, new NeighborClusterIdConfigBuilder()
+        final PeerGroupBuilder peerGroup = new PeerGroupBuilder();
+        assertNull(OpenConfigMappingUtil.getNeighborClusterIdentifier(null, peerGroup.build()));
+
+        final RouteReflectorBuilder configBuilder = new RouteReflectorBuilder();
+        assertNull(OpenConfigMappingUtil.getNeighborClusterIdentifier(configBuilder.build(), peerGroup.build()));
+
+        configBuilder.setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor
+                .group.route.reflector.ConfigBuilder()
                 .setRouteReflectorClusterId(new RrClusterIdType(CLUSTER_ID)).build()).build();
-        assertEquals(CLUSTER_ID.getValue(),
-                OpenConfigMappingUtil.getNeighborClusterIdentifier(configBuilder.build()).getValue());
+        assertEquals(CLUSTER_ID.getValue(), OpenConfigMappingUtil.getNeighborClusterIdentifier(configBuilder.build(),
+                peerGroup.build()).getValue());
+
+        assertEquals(CLUSTER_ID.getValue(), OpenConfigMappingUtil.getNeighborClusterIdentifier(null,
+                peerGroup.setRouteReflector(configBuilder.build()).build()).getValue());
     }
 
     @Test

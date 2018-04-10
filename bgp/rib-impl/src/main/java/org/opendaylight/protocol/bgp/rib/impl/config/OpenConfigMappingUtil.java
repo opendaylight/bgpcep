@@ -56,11 +56,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.GlobalAddPathsConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.GlobalConfigAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborAddPathsConfig;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborClusterIdConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborPeerGroupConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborTransportConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.PeerGroupTransportConfig;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.RouteReflectorClusterIdConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
@@ -189,21 +187,34 @@ public final class OpenConfigMappingUtil {
 
     public static ClusterIdentifier getGlobalClusterIdentifier(final org.opendaylight.yang.gen.v1.http.openconfig.net
             .yang.bgp.rev151009.bgp.global.base.Config globalConfig) {
-        final RouteReflectorClusterIdConfig configAug
+        final GlobalConfigAugmentation globalConfigAugmentation
                 = globalConfig.getAugmentation(GlobalConfigAugmentation.class);
-        if (configAug != null && configAug.getRouteReflectorClusterId() != null) {
-            return new ClusterIdentifier(configAug.getRouteReflectorClusterId().getIpv4Address());
+        if (globalConfigAugmentation != null && globalConfigAugmentation.getRouteReflectorClusterId() != null) {
+            return new ClusterIdentifier(globalConfigAugmentation.getRouteReflectorClusterId().getIpv4Address());
         }
         return new ClusterIdentifier(globalConfig.getRouterId());
     }
 
     @Nullable
-    public static ClusterIdentifier getNeighborClusterIdentifier(@Nullable final org.opendaylight.yang.gen.v1.http
-            .openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Config config) {
-        if (config != null) {
-            final RouteReflectorClusterIdConfig configAug = config.getAugmentation(NeighborClusterIdConfig.class);
-            if (configAug != null && configAug.getRouteReflectorClusterId() != null) {
-                return new ClusterIdentifier(configAug.getRouteReflectorClusterId().getIpv4Address());
+    public static ClusterIdentifier getNeighborClusterIdentifier(
+            @Nullable final RouteReflector routeReflector,
+            @Nullable final PeerGroup peerGroup) {
+        if (peerGroup != null) {
+            final ClusterIdentifier clusteriId = extractClusterId(peerGroup.getRouteReflector());
+            if (clusteriId != null) {
+                return clusteriId;
+            }
+        }
+
+        return extractClusterId(routeReflector);
+    }
+
+    private static ClusterIdentifier extractClusterId(final RouteReflector routeReflector) {
+        if (routeReflector != null) {
+            final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.route
+                    .reflector.Config config = routeReflector.getConfig();
+            if (config != null && config.getRouteReflectorClusterId() != null) {
+                return new ClusterIdentifier(config.getRouteReflectorClusterId().getIpv4Address());
             }
         }
         return null;
