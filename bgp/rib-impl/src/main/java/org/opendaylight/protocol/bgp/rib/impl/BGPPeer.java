@@ -115,8 +115,8 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
     private final Map<TablesKey, AdjRibOutListener> adjRibOutListenerSet = new HashMap<>();
     private final RpcProviderRegistry rpcRegistry;
     private final PeerRole peerRole;
-    private final InstanceIdentifier<AdjRibOut> peerRibOutIId;
-    private final KeyedInstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib
+    private InstanceIdentifier<AdjRibOut> peerRibOutIId;
+    private KeyedInstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib
             .rev171207.bgp.rib.rib.Peer, PeerKey> peerIId;
     @GuardedBy("this")
     private AbstractRegistration trackerRegistration;
@@ -161,9 +161,6 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
         this.localAs = localAs;
         this.name = Ipv4Util.toStringIP(neighborAddress);
         this.rpcRegistry = rpcRegistry;
-        this.peerIId = getInstanceIdentifier().child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
-                .yang.bgp.rib.rev171207.bgp.rib.rib.Peer.class, new PeerKey(RouterIds.createPeerId(neighborAddress)));
-        this.peerRibOutIId = this.peerIId.child(AdjRibOut.class);
         this.chain = rib.createPeerDOMChain(this);
     }
 
@@ -345,6 +342,9 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
                 advertizedTableTypes, addPathTablesType);
         this.rawIdentifier = InetAddresses.forString(session.getBgpId().getValue()).getAddress();
         this.peerId = RouterIds.createPeerId(session.getBgpId());
+        this.peerIId = getInstanceIdentifier().child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
+                .yang.bgp.rib.rev171207.bgp.rib.rib.Peer.class, new PeerKey(this.peerId));
+        this.peerRibOutIId = this.peerIId.child(AdjRibOut.class);
         final Set<TablesKey> setTables = advertizedTableTypes.stream().map(t -> new TablesKey(t.getAfi(), t.getSafi()))
                 .collect(Collectors.toSet());
         this.tables = ImmutableSet.copyOf(setTables);
