@@ -345,15 +345,14 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
                 .rev180329.bgp.rib.rib.Peer, PeerKey> peerIId =
                 getInstanceIdentifier().child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
                 .yang.bgp.rib.rev180329.bgp.rib.rib.Peer.class, new PeerKey(this.peerId));
+        final Set<TablesKey> setTables = advertizedTableTypes.stream().map(t -> new TablesKey(t.getAfi(), t.getSafi()))
+                .collect(Collectors.toSet());
+        this.tables = ImmutableSet.copyOf(setTables);
         this.effRibInWriter = EffectiveRibInWriter.create(this, this.rib, this.rib.createPeerChain(this),
                 peerIId, this.tables);
         registerPrefixesCounters(this.effRibInWriter, this.effRibInWriter);
         this.peerRibOutIId = peerIId.child(AdjRibOut.class);
-
-        final Set<TablesKey> setTables = advertizedTableTypes.stream().map(t -> new TablesKey(t.getAfi(), t.getSafi()))
-                .collect(Collectors.toSet());
-        this.tables = ImmutableSet.copyOf(setTables);
-
+        this.effRibInWriter.init();
         setAdvertizedGracefulRestartTableTypes(advertizedGracefulRestartTableTypes.stream()
                 .map(t -> new TablesKey(t.getAfi(), t.getSafi())).collect(Collectors.toList()));
         this.addPathTableMaps = ImmutableMap.copyOf(mapTableTypesFamilies(addPathTablesType));

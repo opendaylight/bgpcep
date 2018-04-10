@@ -20,6 +20,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
@@ -111,12 +112,17 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         return this.adjInTracker.getTotalPrefixesInstalled();
     }
 
+    public void init() {
+        this.adjInTracker.init();
+    }
+
     private static final class AdjInTracker implements PrefixesReceivedCounters, PrefixesInstalledCounters,
             AutoCloseable, ClusteredDataTreeChangeListener<Tables> {
         private final RIBSupportContextRegistry registry;
         private final KeyedInstanceIdentifier<Peer, PeerKey> peerIId;
         private final InstanceIdentifier<EffectiveRibIn> effRibTables;
-        private final ListenerRegistration<?> reg;
+        private final DataBroker databroker;
+        private ListenerRegistration<?> reg;
         private final BindingTransactionChain chain;
         private final Map<TablesKey, LongAdder> prefixesReceived;
         private final Map<TablesKey, LongAdder> prefixesInstalled;
@@ -135,11 +141,15 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             this.prefixesInstalled = buildPrefixesTables(tables);
             this.prefixesReceived = buildPrefixesTables(tables);
             this.ribPolicies = requireNonNull(rib.getRibPolicies());
+            this.databroker = requireNonNull(rib.getDataBroker());
             this.peerImportParameters = peer;
+        }
+
+        public void init() {
             final DataTreeIdentifier treeId = new DataTreeIdentifier(LogicalDatastoreType.OPERATIONAL,
                     this.peerIId.child(AdjRibIn.class).child(Tables.class));
             LOG.debug("Registered Effective RIB on {}", this.peerIId);
-            this.reg = requireNonNull(rib.getDataBroker()).registerDataTreeChangeListener(treeId, this);
+            this.reg = requireNonNull(this.databroker).registerDataTreeChangeListener(treeId, this);
         }
 
         private Map<TablesKey, LongAdder> buildPrefixesTables(final Set<TablesKey> tables) {
@@ -284,7 +294,10 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
         @Override
         public synchronized void close() {
-            this.reg.close();
+            if (this.reg != null) {
+                this.reg.close();
+                this.reg = null;
+            }
             this.prefixesReceived.values().forEach(LongAdder::reset);
             this.prefixesInstalled.values().forEach(LongAdder::reset);
         }
