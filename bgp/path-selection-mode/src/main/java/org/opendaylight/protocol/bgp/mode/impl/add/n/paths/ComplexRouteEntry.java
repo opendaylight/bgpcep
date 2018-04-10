@@ -16,7 +16,6 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 
 final class ComplexRouteEntry extends AbstractNPathsRouteEntry {
-    private static final Route[] EMPTY_VALUES = new Route[0];
     private Route[] values = EMPTY_VALUES;
 
     ComplexRouteEntry(final long npaths, final BGPPeerTracker peerTracker) {
@@ -28,7 +27,7 @@ final class ComplexRouteEntry extends AbstractNPathsRouteEntry {
         final RouteKey key = new RouteKey(routerId, remotePathId);
         final OffsetMap map = getOffsets();
         final int offset = map.offsetOf(key);
-        this.values = map.removeValue(this.values, offset);
+        this.values = map.removeValue(this.values, offset, EMPTY_VALUES);
         return removeRoute(key, offset);
     }
 

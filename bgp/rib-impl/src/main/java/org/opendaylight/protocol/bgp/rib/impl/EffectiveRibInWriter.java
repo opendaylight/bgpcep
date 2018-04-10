@@ -220,7 +220,8 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                 switch (routeChanged.getModificationType()) {
                     case SUBTREE_MODIFIED:
                     case WRITE:
-                        writeRoutes(tx, tableKey, ribSupport, tablePath, routeKey, (Route) routeChanged.getDataAfter());
+                        writeRoutes(tx, tableKey, ribSupport, tablePath, routeKey, (Route) routeChanged.getDataAfter(),
+                                routeChanged.getDataBefore() != null);
                         break;
                     case DELETE:
                         final InstanceIdentifier routeIID = ribSupport.createRouteIdentifier(tablePath, routeKey);
@@ -233,7 +234,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         @SuppressWarnings("unchecked")
         private void writeRoutes(final WriteTransaction tx, final TablesKey tk, final RIBSupport ribSupport,
                 final KeyedInstanceIdentifier<Tables, TablesKey> tablePath, final Identifier routeKey,
-                final Route route) {
+                final Route route, final boolean existingRoute) {
             final InstanceIdentifier routeIID = ribSupport.createRouteIdentifier(tablePath, routeKey);
             CountersUtil.increment(this.prefixesReceived.get(tk), tk);
             final Optional<Attributes> effAtt = this.ribPolicies
@@ -242,7 +243,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                 CountersUtil.increment(this.prefixesInstalled.get(tk), tk);
                 tx.put(LogicalDatastoreType.OPERATIONAL, routeIID, route);
                 tx.put(LogicalDatastoreType.OPERATIONAL, routeIID.child(Attributes.class), effAtt.get());
-            } else {
+            } else if(existingRoute){
                 tx.delete(LogicalDatastoreType.OPERATIONAL, routeIID);
             }
         }

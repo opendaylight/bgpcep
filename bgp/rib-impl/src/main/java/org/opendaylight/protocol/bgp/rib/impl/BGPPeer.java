@@ -116,8 +116,6 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
     private final RpcProviderRegistry rpcRegistry;
     private final PeerRole peerRole;
     private InstanceIdentifier<AdjRibOut> peerRibOutIId;
-    private KeyedInstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib
-            .rev180329.bgp.rib.rib.Peer, PeerKey> peerIId;
     @GuardedBy("this")
     private AbstractRegistration trackerRegistration;
     private final LoadingCache<TablesKey, KeyedInstanceIdentifier<Tables, TablesKey>> tablesIId
@@ -335,6 +333,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
         if (this.session instanceof BGPSessionStateProvider) {
             ((BGPSessionStateProvider) this.session).registerMessagesCounter(this);
         }
+
         final List<AddressFamilies> addPathTablesType = session.getAdvertisedAddPathTableTypes();
         final Set<BgpTableType> advertizedTableTypes = session.getAdvertisedTableTypes();
         final List<BgpTableType> advertizedGracefulRestartTableTypes = session.getAdvertisedGracefulRestartTableTypes();
@@ -342,9 +341,14 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
                 advertizedTableTypes, addPathTablesType);
         this.rawIdentifier = InetAddresses.forString(session.getBgpId().getValue()).getAddress();
         this.peerId = RouterIds.createPeerId(session.getBgpId());
-        this.peerIId = getInstanceIdentifier().child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
+        final KeyedInstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib
+                .rev180329.bgp.rib.rib.Peer, PeerKey> peerIId =
+                getInstanceIdentifier().child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
                 .yang.bgp.rib.rev180329.bgp.rib.rib.Peer.class, new PeerKey(this.peerId));
-        this.peerRibOutIId = this.peerIId.child(AdjRibOut.class);
+        this.effRibInWriter = EffectiveRibInWriter.create(this, this.rib, this.rib.createPeerChain(this),
+                peerIId, this.tables);
+        registerPrefixesCounters(this.effRibInWriter, this.effRibInWriter);
+        this.peerRibOutIId = peerIId.child(AdjRibOut.class);
 
         final Set<TablesKey> setTables = advertizedTableTypes.stream().map(t -> new TablesKey(t.getAfi(), t.getSafi()))
                 .collect(Collectors.toSet());
@@ -361,11 +365,6 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
 
         addBgp4Support();
 
-        this.effRibInWriter = EffectiveRibInWriter.create(this, this.rib, this.rib.createPeerChain(this),
-                this.peerIId, this.tables);
-
-
-        registerPrefixesCounters(this.effRibInWriter, this.effRibInWriter);
         this.ribWriter = this.ribWriter.transform(this.peerId, this.rib.getRibSupportContext(), this.tables,
                 this.addPathTableMaps);
 
