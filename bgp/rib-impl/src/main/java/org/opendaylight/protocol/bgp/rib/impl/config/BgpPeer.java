@@ -253,7 +253,7 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
                     .toTableKey(afisSAfis.getAfiSafi(), tableTypeRegistry);
             final PeerRole role = OpenConfigMappingUtil.toPeerRole(neighbor, peerGroup);
             final ClusterIdentifier clusterId = OpenConfigMappingUtil
-                    .getNeighborClusterIdentifier(neighbor.getConfig());
+                    .getNeighborClusterIdentifier(neighbor.getRouteReflector(), peerGroup);
             final List<BgpParameters> bgpParameters = getBgpParameters(afisSAfis, rib, tableTypeRegistry);
             final KeyMapping keyMapping = OpenConfigMappingUtil.getNeighborKey(neighbor);
             final IpAddress neighborLocalAddress = OpenConfigMappingUtil.getLocalAddress(neighbor.getTransport());
