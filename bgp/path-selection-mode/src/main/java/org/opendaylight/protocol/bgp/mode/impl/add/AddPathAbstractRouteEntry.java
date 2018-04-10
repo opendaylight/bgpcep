@@ -48,11 +48,13 @@ import org.slf4j.LoggerFactory;
 public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry<AddPathBestPath> {
 
     private static final Logger LOG = LoggerFactory.getLogger(AddPathAbstractRouteEntry.class);
+    private static final Long[] EMPTY_PATHS_ID = new Long[0];
+
     private List<AddPathBestPath> bestPath;
     private List<AddPathBestPath> bestPathRemoved;
     protected OffsetMap offsets = OffsetMap.EMPTY;
-    protected Attributes[] values = new Attributes[0];
-    protected Long[] pathsId = new Long[0];
+    protected Attributes[] values = EMPTY_ATTRIBUTES;
+    protected Long[] pathsId =  EMPTY_PATHS_ID;
     private long pathIdCounter = 0L;
     private boolean oldNonAddPathBestPathTheSame;
     private List<AddPathBestPath> newBestPathToBeAdvertised;
@@ -106,8 +108,8 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry<AddPa
      */
     protected final boolean removeRoute(final RouteKey key, final int offset) {
         final long pathId = this.offsets.getValue(this.pathsId, offset);
-        this.values = this.offsets.removeValue(this.values, offset);
-        this.pathsId = this.offsets.removeValue(this.pathsId, offset);
+        this.values = this.offsets.removeValue(this.values, offset, EMPTY_ATTRIBUTES);
+        this.pathsId = this.offsets.removeValue(this.pathsId, offset, EMPTY_PATHS_ID);
         this.offsets = this.offsets.without(key);
         if (this.removedPaths == null) {
             this.removedPaths = new ArrayList<>();
