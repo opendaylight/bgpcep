@@ -1,0 +1,26 @@
+  <ipv4-route xmlns="urn:opendaylight:params:xml:ns:yang:bgp-inet">
+   <prefix>1.1.1.1/32</prefix>
+   <path-id>$PATHID</path-id>
+   <route-key>1.1.1.1/32</route-key>
+   <attributes>
+    <ipv4-next-hop>
+     <global>$NEXTHOP</global>
+    </ipv4-next-hop>
+    <as-path/>
+    <multi-exit-disc>
+     <med>0</med>
+    </multi-exit-disc>
+    <local-pref>
+     <pref>$LOCALPREF</pref>
+    </local-pref>
+    <originator-id>
+     <originator>41.41.41.41</originator>
+    </originator-id>
+    <origin>
+     <value>igp</value>
+    </origin>
+    <cluster-id>
+     <cluster>40.40.40.40</cluster>
+    </cluster-id>
+   </attributes>
+  </ipv4-route>
