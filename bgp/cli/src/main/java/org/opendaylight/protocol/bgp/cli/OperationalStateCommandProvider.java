@@ -7,16 +7,21 @@
  */
 package org.opendaylight.protocol.bgp.cli;
 
-import static java.util.Objects.requireNonNull;
-
+import org.apache.karaf.shell.api.action.Action;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
-import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.apache.karaf.shell.api.action.lifecycle.Reference;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
+import org.apache.karaf.shell.api.console.Session;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.protocol.bgp.cli.utils.BGPOperationalStateUtils;
 
+@Service
 @Command(scope = "bgp", name = "operational-state", description = "Shows BGP Operational State.")
-public final class OperationalStateCommandProvider extends OsgiCommandSupport {
+public final class OperationalStateCommandProvider implements Action {
+    @Reference
+    private Session session;
+    @Reference
     private DataBroker dataBroker;
     @Option(name = "-neighbor", aliases = {"--neighbor"}, description = "Neighbor address")
     private String peer;
@@ -26,13 +31,9 @@ public final class OperationalStateCommandProvider extends OsgiCommandSupport {
     private String group;
 
     @Override
-    protected Object doExecute() throws Exception {
+    public Object execute() {
         BGPOperationalStateUtils.displayBgpOperationalState(this.dataBroker, this.session.getConsole(),
                 this.ribId, this.group, this.peer);
         return null;
-    }
-
-    public void setDataBroker(final DataBroker dataBroker) {
-        this.dataBroker = requireNonNull(dataBroker);
     }
 }
