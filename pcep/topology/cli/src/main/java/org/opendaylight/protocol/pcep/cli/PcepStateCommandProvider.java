@@ -7,16 +7,21 @@
  */
 package org.opendaylight.protocol.pcep.cli;
 
-import static java.util.Objects.requireNonNull;
-
+import org.apache.karaf.shell.api.action.Action;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
-import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.apache.karaf.shell.api.action.lifecycle.Reference;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
+import org.apache.karaf.shell.api.console.Session;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.protocol.pcep.cli.utils.PcepStateUtils;
 
+@Service
 @Command(scope = "pcep", name = "node-state", description = "Shows PCEP Topology Node Session State.")
-public final class PcepStateCommandProvider extends OsgiCommandSupport {
+public final class PcepStateCommandProvider implements Action {
+    @Reference
+    private Session session;
+    @Reference
     private DataBroker dataBroker;
     @Option(name = "-topology-id", aliases = {"--tpi"}, description = "Topology Id", required = true)
     private String tpi;
@@ -24,12 +29,8 @@ public final class PcepStateCommandProvider extends OsgiCommandSupport {
     private String ni;
 
     @Override
-    protected Object doExecute() throws Exception {
+    public Object execute() {
         PcepStateUtils.displayNodeState(this.dataBroker, this.session.getConsole(), this.tpi, this.ni);
         return null;
-    }
-
-    public void setDataBroker(final DataBroker dataBroker) {
-        this.dataBroker = requireNonNull(dataBroker);
     }
 }
