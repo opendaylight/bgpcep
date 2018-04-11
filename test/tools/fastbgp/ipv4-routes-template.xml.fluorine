@@ -1,6 +1,8 @@
 <ipv4-routes xmlns="urn:opendaylight:params:xml:ns:yang:bgp-inet">
  <ipv4-route>
   <prefix>0.0.0.0/32</prefix>
+  <path-id>0</path-id>
+  <route-key>0.0.0.0/32</route-key>
   <attributes>
    <ipv4-next-hop>
     <global>192.0.2.1</global>
