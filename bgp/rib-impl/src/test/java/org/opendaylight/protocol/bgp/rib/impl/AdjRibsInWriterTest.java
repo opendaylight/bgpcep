@@ -78,7 +78,7 @@ public class AdjRibsInWriterTest {
         assertNotNull(this.writer);
         final YangInstanceIdentifier peerPath = YangInstanceIdentifier.builder().node(Rib.QNAME).node(Peer.QNAME).nodeWithKey(Peer.QNAME,
                 AdjRibInWriter.PEER_ID_QNAME, this.peerIp).build();
-        this.writer.transform(new PeerId(this.peerIp), this.registry, this.tableTypes, ADD_PATH_TABLE_MAPS);
+        this.writer.transform(new PeerId(this.peerIp), peerPath, this.registry, this.tableTypes, ADD_PATH_TABLE_MAPS);
         verifyPeerSkeletonInsertedCorrectly(peerPath);
         // verify supported tables were inserted for ipv4
         Mockito.verify(this.tx).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.eq(peerPath.node(SupportedTables.QNAME)
