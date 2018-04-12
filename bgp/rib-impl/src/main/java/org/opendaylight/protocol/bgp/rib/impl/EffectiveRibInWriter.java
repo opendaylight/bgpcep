@@ -75,7 +75,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     private final InstanceIdentifier<EffectiveRibIn> effRibTables;
     private final DataBroker databroker;
     private ListenerRegistration<?> reg;
-    private final BindingTransactionChain chain;
+    private BindingTransactionChain chain;
     private final Map<TablesKey, LongAdder> prefixesReceived;
     private final Map<TablesKey, LongAdder> prefixesInstalled;
     private final BGPRibRoutingPolicy ribPolicies;
@@ -113,6 +113,10 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     @Override
     @SuppressWarnings("unchecked")
     public synchronized void onDataTreeChanged(@Nonnull final Collection<DataTreeModification<Tables>> changes) {
+        if (this.chain == null) {
+            LOG.trace("Chain closed. Ignoring Changes : {}", changes);
+            return;
+        }
         LOG.trace("Data changed called to effective RIB. Change : {}", changes);
         WriteTransaction tx = null;
         for (final DataTreeModification<Tables> tc : changes) {
@@ -248,6 +252,10 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         if (this.reg != null) {
             this.reg.close();
             this.reg = null;
+        }
+        if (this.chain != null) {
+            this.chain.close();
+            this.chain = null;
         }
         this.prefixesReceived.values().forEach(LongAdder::reset);
         this.prefixesInstalled.values().forEach(LongAdder::reset);

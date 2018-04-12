@@ -17,7 +17,6 @@ import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -25,7 +24,6 @@ import java.util.Set;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.controller.md.sal.dom.api.ClusteredDOMDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
@@ -33,19 +31,14 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
-import org.opendaylight.protocol.bgp.rib.impl.state.BGPPeerStateImpl;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPSessionStateImpl;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
-import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPAfiSafiState;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPErrorHandlingState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPSessionState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTimersState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTransportState;
 import org.opendaylight.protocol.concepts.AbstractRegistration;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.SendReceive;
@@ -58,7 +51,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.peer.AdjRibOut;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
@@ -84,13 +76,10 @@ import org.slf4j.LoggerFactory;
  * For purposed of import policies such as Best Path Selection, application
  * peer needs to have a BGP-ID that is configurable.
  */
-public class ApplicationPeer extends BGPPeerStateImpl implements org.opendaylight.protocol.bgp.rib.spi.Peer,
-        BGPRouteEntryImportParameters, ClusteredDOMDataTreeChangeListener, TransactionChainListener {
+public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTreeChangeListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(ApplicationPeer.class);
 
-    private final byte[] rawIdentifier;
-    private final String name;
     private final YangInstanceIdentifier adjRibsInId;
     private final RIB rib;
     private final InstanceIdentifier<AdjRibOut> peerRibOutIId;
@@ -112,6 +101,7 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
             });
     private final PeerId peerId;
     private AbstractRegistration trackerRegistration;
+    private YangInstanceIdentifier peerPath;
 
     @FunctionalInterface
     interface RegisterAppPeerListener {
@@ -122,9 +112,8 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
     }
 
     public ApplicationPeer(final ApplicationRibId applicationRibId, final Ipv4Address ipAddress, final RIB rib) {
-        super(rib.getInstanceIdentifier(), "application-peers", new IpAddress(ipAddress),
-                rib.getLocalTablesKeys(), Collections.emptySet());
-        this.name = applicationRibId.getValue();
+        super(rib.getInstanceIdentifier(), applicationRibId.getValue(), "application-peers",
+                PeerRole.Internal, new IpAddress(ipAddress), rib.getLocalTablesKeys(), Collections.emptySet());
         final RIB targetRib = requireNonNull(rib);
         this.rawIdentifier = InetAddresses.forString(ipAddress.getValue()).getAddress();
         final NodeIdentifierWithPredicates peerIId = IdentifierUtils.domPeerId(RouterIds.createPeerId(ipAddress));
@@ -158,8 +147,11 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
                 }
             }
         };
-        this.adjRibInWriter = this.adjRibInWriter.transform(this.peerId, context, localTables, Collections.emptyMap(),
-                registerAppPeerListener);
+        this.peerPath = this.rib.getYangRibId()
+                .node(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib
+                        .rev180329.bgp.rib.rib.Peer.QNAME).node(IdentifierUtils.domPeerId(this.peerId));
+        this.adjRibInWriter = this.adjRibInWriter.transform(this.peerId, this.peerPath, context, localTables,
+                Collections.emptyMap(), registerAppPeerListener);
         this.effectiveRibInWriter = new EffectiveRibInWriter(this, this.rib,
                 this.rib.createPeerChain(this), this.peerIId, localTables);
         this.bgpSessionState.registerMessagesCounter(this);
@@ -257,11 +249,6 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
         }
     }
 
-    @Override
-    public String getName() {
-        return this.name;
-    }
-
     // FIXME ListenableFuture<?> should be used once closeServiceInstance uses wildcard too
     @Override
     @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Unrecognised NullableDecl")
@@ -276,7 +263,7 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
         }
         final ListenableFuture<Void> future;
         if (this.adjRibInWriter != null) {
-            future = this.adjRibInWriter.removePeer();
+            future = removePeer(this.chain, this.peerPath);
         } else {
             future = Futures.immediateFuture(null);
         }
@@ -296,16 +283,6 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
     }
 
     @Override
-    public byte[] getRawIdentifier() {
-        return Arrays.copyOf(this.rawIdentifier, this.rawIdentifier.length);
-    }
-
-    @Override
-    public PeerId getPeerId() {
-        return this.peerId;
-    }
-
-    @Override
     public boolean supportsAddPathSupported(final TablesKey tableKey) {
         return false;
     }
@@ -321,21 +298,6 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
     }
 
     @Override
-    public PeerRole getRole() {
-        return PeerRole.Internal;
-    }
-
-    @Override
-    public ClusterIdentifier getClusterId() {
-        return null;
-    }
-
-    @Override
-    public AsNumber getLocalAs() {
-        return null;
-    }
-
-    @Override
     public KeyedInstanceIdentifier<Tables, TablesKey> getRibOutIId(final TablesKey tablesKey) {
         return this.tablesIId.getUnchecked(tablesKey);
     }
@@ -344,21 +306,6 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
     public void onTransactionChainFailed(final TransactionChain<?, ?> chain,
         final AsyncTransaction<?, ?> transaction, final Throwable cause) {
         LOG.error("Transaction chain {} failed.", transaction != null ? transaction.getIdentifier() : null, cause);
-    }
-
-    @Override
-    public void onTransactionChainSuccessful(final TransactionChain<?, ?> chain) {
-        LOG.debug("Transaction chain {} successful.", chain);
-    }
-
-    @Override
-    public BGPErrorHandlingState getBGPErrorHandlingState() {
-        return this;
-    }
-
-    @Override
-    public BGPAfiSafiState getBGPAfiSafiState() {
-        return this;
     }
 
     @Override
@@ -374,26 +321,5 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
     @Override
     public BGPTransportState getBGPTransportState() {
         return this.bgpSessionState;
-    }
-
-
-    @Override
-    public PeerRole getFromPeerRole() {
-        return getRole();
-    }
-
-    @Override
-    public PeerId getFromPeerId() {
-        return getPeerId();
-    }
-
-    @Override
-    public ClusterIdentifier getFromClusterId() {
-        return getClusterId();
-    }
-
-    @Override
-    public AsNumber getFromPeerLocalAs() {
-        return null;
     }
 }
