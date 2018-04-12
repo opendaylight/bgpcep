@@ -16,7 +16,6 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
@@ -98,18 +97,16 @@ final class AdjRibInWriter {
             .withNodeIdentifier(ADJRIBOUT).addChild(ImmutableNodes.mapNodeBuilder(Tables.QNAME).build()).build();
 
     private final Map<TablesKey, TableContext> tables;
-    private final YangInstanceIdentifier peerPath;
     private final YangInstanceIdentifier ribPath;
     private final DOMTransactionChain chain;
     private final PeerRole role;
 
     private AdjRibInWriter(final YangInstanceIdentifier ribPath, final DOMTransactionChain chain, final PeerRole role,
-            final YangInstanceIdentifier peerPath, final Map<TablesKey, TableContext> tables) {
+            final Map<TablesKey, TableContext> tables) {
         this.ribPath = requireNonNull(ribPath);
         this.chain = requireNonNull(chain);
         this.tables = requireNonNull(tables);
         this.role = requireNonNull(role);
-        this.peerPath = peerPath;
     }
 
     /**
@@ -120,7 +117,7 @@ final class AdjRibInWriter {
      */
     static AdjRibInWriter create(@Nonnull final YangInstanceIdentifier ribId, @Nonnull final PeerRole role,
             @Nonnull final DOMTransactionChain chain) {
-        return new AdjRibInWriter(ribId, chain, role, null, Collections.emptyMap());
+        return new AdjRibInWriter(ribId, chain, role, Collections.emptyMap());
     }
 
     /**
@@ -129,24 +126,26 @@ final class AdjRibInWriter {
      * method returns, the old instance must not be reasonably used.
      *
      * @param newPeerId         new peer BGP identifier
+     * @param peerPath
      * @param registry          RIB extension registry
      * @param tableTypes        New tables, must not be null
      * @param addPathTablesType
      * @return New writer
      */
-    AdjRibInWriter transform(final PeerId newPeerId, final RIBSupportContextRegistry registry,
+    AdjRibInWriter transform(final PeerId newPeerId, final YangInstanceIdentifier peerPath,
+            final RIBSupportContextRegistry registry,
             final Set<TablesKey> tableTypes, final Map<TablesKey, SendReceive> addPathTablesType) {
-        return transform(newPeerId, registry, tableTypes, addPathTablesType, null);
+        return transform(newPeerId, peerPath, registry, tableTypes, addPathTablesType, null);
     }
 
-    AdjRibInWriter transform(final PeerId newPeerId, final RIBSupportContextRegistry registry,
-            final Set<TablesKey> tableTypes, final Map<TablesKey, SendReceive> addPathTablesType,
+    AdjRibInWriter transform(final PeerId newPeerId, final YangInstanceIdentifier peerPath,
+            final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes,
+            final Map<TablesKey, SendReceive> addPathTablesType,
             @Nullable final RegisterAppPeerListener registerAppPeerListener) {
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
 
-        final YangInstanceIdentifier newPeerPath;
-        newPeerPath = createEmptyPeerStructure(newPeerId, tx);
-        final ImmutableMap<TablesKey, TableContext> tb = createNewTableInstances(newPeerPath, registry, tableTypes,
+        createEmptyPeerStructure(newPeerId, peerPath, tx);
+        final ImmutableMap<TablesKey, TableContext> tb = createNewTableInstances(peerPath, registry, tableTypes,
                 addPathTablesType, tx);
 
         Futures.addCallback(tx.submit(), new FutureCallback<Void>() {
@@ -168,7 +167,7 @@ final class AdjRibInWriter {
                 }
             }
         }, MoreExecutors.directExecutor());
-        return new AdjRibInWriter(this.ribPath, this.chain, this.role, newPeerPath, tb);
+        return new AdjRibInWriter(this.ribPath, this.chain, this.role, tb);
     }
 
     /**
@@ -227,13 +226,12 @@ final class AdjRibInWriter {
                 .node(TABLES).node(instanceIdentifierKey));
     }
 
-    private YangInstanceIdentifier createEmptyPeerStructure(final PeerId newPeerId, final DOMDataWriteTransaction tx) {
+    private void createEmptyPeerStructure(final PeerId newPeerId,
+            final YangInstanceIdentifier peerPath, final DOMDataWriteTransaction tx) {
         final NodeIdentifierWithPredicates peerKey = IdentifierUtils.domPeerId(newPeerId);
-        final YangInstanceIdentifier newPeerPath = this.ribPath.node(Peer.QNAME).node(peerKey);
 
-        tx.put(LogicalDatastoreType.OPERATIONAL, newPeerPath, peerSkeleton(peerKey, newPeerId.getValue()));
-        LOG.debug("New peer {} structure installed.", newPeerPath);
-        return newPeerPath;
+        tx.put(LogicalDatastoreType.OPERATIONAL, peerPath, peerSkeleton(peerKey, newPeerId.getValue()));
+        LOG.debug("New peer {} structure installed.", peerPath);
     }
 
     @VisibleForTesting
@@ -247,30 +245,6 @@ final class AdjRibInWriter {
         pb.withChild(EMPTY_EFFRIBIN);
         pb.withChild(EMPTY_ADJRIBOUT);
         return pb.build();
-    }
-
-    @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Unrecognised NullableDecl")
-    synchronized ListenableFuture<Void> removePeer() {
-        if (this.peerPath != null) {
-
-            LOG.info("AdjRibInWriter closed per Peer {} removed", AdjRibInWriter.this.peerPath);
-            final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
-            tx.delete(LogicalDatastoreType.OPERATIONAL, this.peerPath);
-            final ListenableFuture<Void> future = tx.submit();
-            Futures.addCallback(future, new FutureCallback<Void>() {
-                @Override
-                public void onSuccess(final Void result) {
-                    LOG.debug("Peer {} removed", AdjRibInWriter.this.peerPath);
-                }
-
-                @Override
-                public void onFailure(final Throwable t) {
-                    LOG.warn("Failed to remove Peer {}", AdjRibInWriter.this.peerPath, t);
-                }
-            }, MoreExecutors.directExecutor());
-            return future;
-        }
-        return Futures.immediateFuture(null);
     }
 
     void markTableUptodate(final TablesKey tableTypes) {
