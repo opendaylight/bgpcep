@@ -1,0 +1,1 @@
+restconf/operational/bgp-rib:bgp-rib/rib/$BGP_RIB_OPENCONFIG/peer/bgp:%2F%2F$IP/adj-rib-out/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes
