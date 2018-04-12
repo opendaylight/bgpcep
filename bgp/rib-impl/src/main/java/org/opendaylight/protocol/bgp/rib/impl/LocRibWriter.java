@@ -144,7 +144,10 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
             this.reg.close();
             this.reg = null;
         }
-        this.chain.close();
+        if (this.chain != null) {
+            this.chain.close();
+            this.chain = null;
+        }
     }
 
     @Nonnull
@@ -163,9 +166,12 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
      * @param changes on supported table
      */
     @Override
-    public void onDataTreeChanged(final Collection<DataTreeModification<Tables>> changes) {
+    public synchronized void onDataTreeChanged(final Collection<DataTreeModification<Tables>> changes) {
+        if (this.chain == null) {
+            LOG.trace("Chain closed, ignoring received data change {} to LocRib {}", changes, this);
+            return;
+        }
         LOG.trace("Received data change {} to LocRib {}", changes, this);
-
         final WriteTransaction tx = this.chain.newWriteOnlyTransaction();
         try {
             final Map<RouteUpdateKey, RouteEntry> toUpdate = update(tx, changes);

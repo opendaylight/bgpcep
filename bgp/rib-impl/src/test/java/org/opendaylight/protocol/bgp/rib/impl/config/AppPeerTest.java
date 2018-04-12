@@ -45,7 +45,7 @@ public class AppPeerTest extends AbstractConfig {
         Mockito.verify(this.rib, times(1)).getLocalTablesKeys();
 
         APP_PEER.instantiateServiceInstance();
-        Mockito.verify(this.rib, times(2)).getYangRibId();
+        Mockito.verify(this.rib, times(3)).getYangRibId();
         Mockito.verify(this.rib, times(2)).getRibSupportContext();
         Mockito.verify(this.rib, times(2)).getLocalTablesKeys();
         Mockito.verify(this.domTx).newWriteOnlyTransaction();
@@ -55,7 +55,7 @@ public class AppPeerTest extends AbstractConfig {
 
         APP_PEER.restart(this.rib, null, this.peerGroupLoader, this.tableTypeRegistry);
         APP_PEER.instantiateServiceInstance();
-        Mockito.verify(this.rib, times(4)).getYangRibId();
+        Mockito.verify(this.rib, times(6)).getYangRibId();
         Mockito.verify(this.rib, times(2)).getService();
         Mockito.verify(this.listener).close();
 

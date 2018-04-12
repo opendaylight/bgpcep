@@ -18,11 +18,9 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.net.InetAddresses;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,7 +32,6 @@ import java.util.stream.Collectors;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RoutedRpcRegistration;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
@@ -43,17 +40,12 @@ import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.LocalPreferenceAttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
-import org.opendaylight.protocol.bgp.rib.impl.state.BGPPeerStateImpl;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPSessionStateProvider;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
-import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
-import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPAfiSafiState;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPErrorHandlingState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPSessionState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTimersState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTransportState;
@@ -82,7 +74,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev171207.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.BgpPeerRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.PeerContext;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.PeerKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.peer.AdjRibOut;
@@ -96,6 +87,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,18 +95,13 @@ import org.slf4j.LoggerFactory;
  * Class representing a peer. We have a single instance for each peer, which provides translation from BGP events into
  * RIB actions.
  */
-public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportParameters,
-        BGPSessionListener, Peer, TransactionChainListener {
+public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private static final Logger LOG = LoggerFactory.getLogger(BGPPeer.class);
-    private final ClusterIdentifier clusterId;
-    private final AsNumber localAs;
 
     private Set<TablesKey> tables = Collections.emptySet();
     private final RIB rib;
-    private final String name;
     private final Map<TablesKey, AdjRibOutListener> adjRibOutListenerSet = new HashMap<>();
     private final RpcProviderRegistry rpcRegistry;
-    private final PeerRole peerRole;
     private InstanceIdentifier<AdjRibOut> peerRibOutIId;
     @GuardedBy("this")
     private AbstractRegistration trackerRegistration;
@@ -130,8 +117,6 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
     @GuardedBy("this")
     private BGPSession session;
     @GuardedBy("this")
-    private byte[] rawIdentifier;
-    @GuardedBy("this")
     private DOMTransactionChain chain;
     @GuardedBy("this")
     private AdjRibInWriter ribWriter;
@@ -139,7 +124,8 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
     private EffectiveRibInWriter effRibInWriter;
     private RoutedRpcRegistration<BgpPeerRpcService> rpcRegistration;
     private Map<TablesKey, SendReceive> addPathTableMaps = Collections.emptyMap();
-    private PeerId peerId;
+    private YangInstanceIdentifier peerPath;
+    private boolean sessionUp;
 
     public BGPPeer(
             final IpAddress neighborAddress,
@@ -151,13 +137,9 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
             final RpcProviderRegistry rpcRegistry,
             final Set<TablesKey> afiSafisAdvertized,
             final Set<TablesKey> afiSafisGracefulAdvertized) {
-        super(rib.getInstanceIdentifier(), peerGroupName, neighborAddress, afiSafisAdvertized,
-                afiSafisGracefulAdvertized);
-        this.peerRole = role;
+        super(rib, Ipv4Util.toStringIP(neighborAddress), peerGroupName, role, clusterId,
+                localAs, neighborAddress, afiSafisAdvertized, afiSafisGracefulAdvertized);
         this.rib = requireNonNull(rib);
-        this.clusterId = clusterId;
-        this.localAs = localAs;
-        this.name = Ipv4Util.toStringIP(neighborAddress);
         this.rpcRegistry = rpcRegistry;
         this.chain = rib.createPeerDOMChain(this);
     }
@@ -330,6 +312,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
     @Override
     public synchronized void onSessionUp(final BGPSession session) {
         this.session = session;
+        this.sessionUp = true;
         if (this.session instanceof BGPSessionStateProvider) {
             ((BGPSessionStateProvider) this.session).registerMessagesCounter(this);
         }
@@ -364,8 +347,9 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
 
         addBgp4Support();
 
-        this.ribWriter = this.ribWriter.transform(this.peerId, this.rib.getRibSupportContext(), this.tables,
-                this.addPathTableMaps);
+        this.peerPath = createPeerPath();
+        this.ribWriter = this.ribWriter.transform(this.peerId, this.peerPath, this.rib.getRibSupportContext(),
+                this.tables, this.addPathTableMaps);
 
         if (this.rpcRegistry != null) {
             this.rpcRegistration = this.rpcRegistry.addRoutedRpcImplementation(BgpPeerRpcService.class,
@@ -415,9 +399,9 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
         this.tables = Collections.emptySet();
         this.addPathTableMaps = Collections.emptyMap();
         if (this.ribWriter != null) {
-            return this.ribWriter.removePeer();
+            this.ribWriter = null;
         }
-        return Futures.immediateFuture(null);
+        return removePeer(this.chain, this.peerPath);
     }
 
     @Override
@@ -448,16 +432,13 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
     }
 
     @Override
-    public String getName() {
-        return this.name;
-    }
-
-    @Override
     public synchronized ListenableFuture<Void> releaseConnection() {
+        LOG.info("Closing session with peer");
+        this.sessionUp = false;
+        closeRegistration();
         if (this.rpcRegistration != null) {
             this.rpcRegistration.close();
         }
-        closeRegistration();
         final ListenableFuture<Void> future = cleanup();
 
         if (this.session != null) {
@@ -479,16 +460,6 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
         }
     }
 
-    @Override
-    public synchronized byte[] getRawIdentifier() {
-        return Arrays.copyOf(this.rawIdentifier, this.rawIdentifier.length);
-    }
-
-    @Override
-    public PeerId getPeerId() {
-        return this.peerId;
-    }
-
     @SuppressFBWarnings("IS2_INCONSISTENT_SYNC")
     @Override
     public SendReceive getSupportedAddPathTables(final TablesKey tableKey) {
@@ -497,27 +468,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
 
     @Override
     public boolean supportsTable(final TablesKey tableKey) {
-        return this.tables.contains(tableKey);
-    }
-
-    @Override
-    public PeerRole getRole() {
-        return this.peerRole;
-    }
-
-    @Override
-    public ClusterIdentifier getClusterId() {
-        return this.clusterId;
-    }
-
-    @Override
-    public AsNumber getLocalAs() {
-        return this.localAs;
-    }
-
-    @Override
-    public AsNumber getFromPeerLocalAs() {
-        return getLocalAs();
+        return this.tables.contains(tableKey) && this.sessionUp;
     }
 
     @Override
@@ -530,7 +481,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
             final AsyncTransaction<?, ?> transaction, final Throwable cause) {
         LOG.error("Transaction chain failed.", cause);
         this.chain.close();
-        //FIXME
+        //FIXME BGPCEP-731
         /*
         this.chain = this.rib.createPeerDOMChain(this);
         this.ribWriter = AdjRibInWriter.create(this.rib.getYangRibId(), this.peerRole, this.chain);
@@ -538,23 +489,8 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
     }
 
     @Override
-    public void onTransactionChainSuccessful(final TransactionChain<?, ?> chain) {
-        LOG.debug("Transaction chain {} successful.", chain);
-    }
-
-    @Override
     public synchronized void markUptodate(final TablesKey tablesKey) {
         this.ribWriter.markTableUptodate(tablesKey);
-    }
-
-    @Override
-    public BGPErrorHandlingState getBGPErrorHandlingState() {
-        return this;
-    }
-
-    @Override
-    public BGPAfiSafiState getBGPAfiSafiState() {
-        return this;
     }
 
     @Override
@@ -579,20 +515,5 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
             return ((BGPSessionStateProvider) this.session).getBGPTransportState();
         }
         return null;
-    }
-
-    @Override
-    public PeerRole getFromPeerRole() {
-        return getRole();
-    }
-
-    @Override
-    public PeerId getFromPeerId() {
-        return getPeerId();
-    }
-
-    @Override
-    public ClusterIdentifier getFromClusterId() {
-        return getClusterId();
     }
 }
