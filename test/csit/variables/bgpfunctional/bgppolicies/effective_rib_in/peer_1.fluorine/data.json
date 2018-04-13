@@ -1,0 +1,33 @@
+{
+    "bgp-inet:ipv4-routes": {
+        "ipv4-route": [
+            {
+                "attributes": {
+                    "as-path": {},
+                    "communities": [
+                        {
+                            "as-number": 30741,
+                            "semantics": 0
+                        },
+                        {
+                            "as-number": 30741,
+                            "semantics": 30741
+                        }
+                    ],
+                    "ipv4-next-hop": {
+                        "global": "11.0.255.254"
+                    },
+                    "local-pref": {
+                        "pref": 100
+                    },
+                    "origin": {
+                        "value": "igp"
+                    }
+                },
+                "path-id": 0,
+                "prefix": "1.1.1.0/24",
+                "route-key": "1.1.1.0/24"
+            }
+        ]
+    }
+}

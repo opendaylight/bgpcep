@@ -1,6 +1,7 @@
 <ipv4-route xmlns="urn:opendaylight:params:xml:ns:yang:bgp-inet">
     <path-id>0</path-id>
     <prefix>10.0.0.17/32</prefix>
+    <route-key>10.0.0.17/32</route-key>
     <attributes>
         <as-path/>
         <origin>
