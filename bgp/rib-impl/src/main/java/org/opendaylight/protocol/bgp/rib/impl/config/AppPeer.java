@@ -12,6 +12,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Objects;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -90,6 +91,7 @@ public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
     }
 
     @Override
+    @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Unrecognised NullableDecl")
     public synchronized ListenableFuture<Void> closeServiceInstance() {
         if (this.bgpAppPeerSingletonService != null) {
             return this.bgpAppPeerSingletonService.closeServiceInstance();
@@ -135,6 +137,7 @@ public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
                     new DOMDataTreeIdentifier(LogicalDatastoreType.CONFIGURATION, yangIId));
         }
 
+        @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Unrecognised NullableDecl")
         public synchronized ListenableFuture<Void> closeServiceInstance() {
             if (!this.isServiceInstantiated) {
                 LOG.trace("Application peer already closed {}", this.appRibId.getValue());

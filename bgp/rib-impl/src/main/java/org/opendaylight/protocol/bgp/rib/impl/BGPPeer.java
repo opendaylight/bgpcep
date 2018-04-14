@@ -404,6 +404,7 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPRouteEntryImportPara
         }
     }
 
+    @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Unrecognised NullableDecl")
     private synchronized ListenableFuture<Void> cleanup() {
         // FIXME: BUG-196: support graceful
         this.adjRibOutListenerSet.values().forEach(AdjRibOutListener::close);

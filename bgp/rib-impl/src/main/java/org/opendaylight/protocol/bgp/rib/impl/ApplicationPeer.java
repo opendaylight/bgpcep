@@ -16,6 +16,7 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -263,6 +264,7 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
 
     // FIXME ListenableFuture<?> should be used once closeServiceInstance uses wildcard too
     @Override
+    @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Unrecognised NullableDecl")
     public synchronized ListenableFuture<Void> close() {
         setActive(false);
         if (this.registration != null) {

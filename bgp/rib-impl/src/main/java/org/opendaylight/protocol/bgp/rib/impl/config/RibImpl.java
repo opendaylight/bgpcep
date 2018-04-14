@@ -15,6 +15,7 @@ import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUti
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -184,6 +185,7 @@ public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
         return this.ribImpl.getDataBroker();
     }
 
+    @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Unrecognised NullableDecl")
     ListenableFuture<Void> closeServiceInstance() {
         if (this.ribImpl != null) {
             return this.ribImpl.closeServiceInstance();

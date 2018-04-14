@@ -14,6 +14,7 @@ import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -367,6 +368,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
         this.localTablesKeys.forEach(this::createLocRibWriter);
     }
 
+    @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Unrecognised NullableDecl")
     public synchronized ListenableFuture<Void> closeServiceInstance() {
         if (!this.isServiceInstantiated) {
             LOG.trace("RIB {} already closed", this.ribId.getValue());

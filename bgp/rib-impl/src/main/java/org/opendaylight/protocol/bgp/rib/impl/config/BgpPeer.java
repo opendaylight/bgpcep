@@ -14,6 +14,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -163,6 +164,7 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
     }
 
     @Override
+    @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Unrecognised NullableDecl")
     public synchronized ListenableFuture<Void> closeServiceInstance() {
         if (this.bgpPeerSingletonService != null) {
             final ListenableFuture<Void> fut = this.bgpPeerSingletonService.closeServiceInstance();
@@ -292,6 +294,7 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
             }
         }
 
+        @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Unrecognised NullableDecl")
         private synchronized ListenableFuture<Void> closeServiceInstance() {
             if (!this.isServiceInstantiated) {
                 LOG.info("Peer {} already closed", this.neighborAddress);
