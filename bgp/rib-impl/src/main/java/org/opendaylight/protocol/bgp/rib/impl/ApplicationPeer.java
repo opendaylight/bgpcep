@@ -162,6 +162,7 @@ public class ApplicationPeer extends BGPPeerStateImpl implements org.opendayligh
                 registerAppPeerListener);
         this.effectiveRibInWriter = new EffectiveRibInWriter(this, this.rib,
                 this.rib.createPeerChain(this), this.peerIId, localTables);
+        this.effectiveRibInWriter.init();
         this.bgpSessionState.registerMessagesCounter(this);
         this.trackerRegistration = this.rib.getPeerTracker().registerPeer(this);
     }
