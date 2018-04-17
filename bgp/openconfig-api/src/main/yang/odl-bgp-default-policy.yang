@@ -13,7 +13,7 @@ module odl-bgp-policy {
     import bgp-types { prefix bgp-t; revision-date 2018-03-29; }
 
     organization "AT&T Services, Inc.";
-    contact "Claudio D. Gasparini <claudio.gasparini@pantheon.tech.com>";
+    contact "Claudio D. Gasparini <claudio.gasparini@pantheon.tech>";
 
     description
         "This module contains odl bgp policy model

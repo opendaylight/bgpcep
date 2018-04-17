@@ -52,8 +52,6 @@ import org.slf4j.LoggerFactory;
 
 abstract class AbstractLabeledUnicastRIBSupport
         extends AbstractRIBSupport<LabeledUnicastRoute, LabeledUnicastRouteKey> {
-    private static final NodeIdentifier PREFIX_TYPE_NID
-            = NodeIdentifier.create(QName.create(CLabeledUnicastDestination.QNAME, "prefix").intern());
     private static final NodeIdentifier LABEL_STACK_NID
             = NodeIdentifier.create(QName.create(CLabeledUnicastDestination.QNAME, "label-stack").intern());
     private static final NodeIdentifier LV_NID
@@ -86,7 +84,8 @@ abstract class AbstractLabeledUnicastRIBSupport
     protected void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
         final ContainerNode destination, final ContainerNode attributes, final ApplyRoute function) {
         if (destination != null) {
-            final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = destination.getChild(NLRI_ROUTES_LIST);
+            final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes
+                    = destination.getChild(NLRI_ROUTES_LIST);
             if (maybeRoutes.isPresent()) {
                 final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
                 if (routes instanceof UnkeyedListNode) {
@@ -127,7 +126,7 @@ abstract class AbstractLabeledUnicastRIBSupport
     private CLabeledUnicastDestination extractCLabeledUnicastDestination(
             final DataContainerNode<? extends PathArgument> route) {
         final CLabeledUnicastDestinationBuilder builder = new CLabeledUnicastDestinationBuilder();
-        builder.setPrefix(extractPrefix(route, PREFIX_TYPE_NID));
+        builder.setPrefix(extractPrefix(route, prefixNid()));
         builder.setLabelStack(extractLabel(route, LABEL_STACK_NID, LV_NID));
         builder.setPathId(PathIdUtil.buildPathId(route, routePathIdNid()));
         return builder.build();

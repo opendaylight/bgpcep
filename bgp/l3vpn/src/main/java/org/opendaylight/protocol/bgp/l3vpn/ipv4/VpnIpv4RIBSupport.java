@@ -22,8 +22,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev180329.l3vpn.ipv4.routes.VpnIpv4RoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.destination.type.VpnDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.route.VpnRoute;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
-import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 
 final class VpnIpv4RIBSupport extends AbstractVpnRIBSupport {
     /**
@@ -38,13 +36,8 @@ final class VpnIpv4RIBSupport extends AbstractVpnRIBSupport {
     }
 
     @Override
-    protected IpPrefix extractPrefix(final DataContainerNode<? extends YangInstanceIdentifier.PathArgument> route,
-            final YangInstanceIdentifier.NodeIdentifier prefixTypeNid) {
-        if (route.getChild(prefixTypeNid).isPresent()) {
-            final String prefixType = (String) route.getChild(prefixTypeNid).get().getValue();
-            return new IpPrefix(new Ipv4Prefix(prefixType));
-        }
-        return null;
+    protected IpPrefix createPrefix(final String prefix) {
+        return new IpPrefix(new Ipv4Prefix(prefix));
     }
 
     @Override

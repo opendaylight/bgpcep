@@ -35,11 +35,6 @@
     <modules>
         <module>bgp-artifacts</module>
         <module>concepts</module>
-        <module>inet</module>
-        <module>linkstate</module>
-        <module>flowspec</module>
-        <module>l3vpn</module>
-        <module>labeled-unicast</module>
         <module>parser-api</module>
         <module>parser-spi</module>
         <module>parser-impl</module>
@@ -56,12 +51,18 @@
         <module>openconfig-spi</module>
         <module>path-selection-mode</module>
         <module>benchmark-app</module>
-        <module>evpn</module>
         <module>cli</module>
         <module>peer-acceptor</module>
         <module>openconfig-state</module>
         <module>openconfig-rp-spi</module>
         <module>openconfig-rp-impl</module>
         <module>openconfig-rp-statement</module>
+        <!--Extensions-->
+        <module>inet</module>
+        <module>linkstate</module>
+        <module>flowspec</module>
+        <module>l3vpn</module>
+        <module>labeled-unicast</module>
+        <module>evpn</module>
     </modules>
 </project>

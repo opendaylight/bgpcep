@@ -37,10 +37,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
-import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -53,10 +50,9 @@ import org.slf4j.LoggerFactory;
 
 public final class LinkstateRIBSupport extends AbstractRIBSupport<LinkstateRoute, LinkstateRouteKey> {
     private static final Logger LOG = LoggerFactory.getLogger(LinkstateRIBSupport.class);
-    private static final QName ROUTE_KEY_QNAME = QName.create(LinkstateRoute.QNAME, ROUTE_KEY).intern();
     private static final LinkstateRIBSupport SINGLETON = new LinkstateRIBSupport();
-    private final NodeIdentifier route = new NodeIdentifier(LinkstateRoute.QNAME);
-    private final NodeIdentifier nlriRoutesList = new NodeIdentifier(CLinkstateDestination.QNAME);
+    private final YangInstanceIdentifier.NodeIdentifier nlriRoutesList
+            = new YangInstanceIdentifier.NodeIdentifier(CLinkstateDestination.QNAME);
 
     private LinkstateRIBSupport() {
         super(LinkstateRoutesCase.class, LinkstateRoutes.class, LinkstateRoute.class, LinkstateAddressFamily.class,
@@ -73,7 +69,7 @@ public final class LinkstateRIBSupport extends AbstractRIBSupport<LinkstateRoute
         SimpleNlriTypeRegistry.getInstance().serializeNlriType(cLinkstateDestination, buffer);
         final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf =
                 linkstate.getChild(routePathIdNid());
-        return PathIdUtil.createNidKey(LinkstateRoute.QNAME, ROUTE_KEY_QNAME,
+        return PathIdUtil.createNidKey(routeQName(), routeKeyQName(),
                 pathIdQName(), Arrays.toString(ByteArray.readAllBytes(buffer)), maybePathIdLeaf);
     }
 
@@ -97,7 +93,7 @@ public final class LinkstateRIBSupport extends AbstractRIBSupport<LinkstateRoute
         if (maybeRoutes.isPresent()) {
             final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
             if (routes instanceof UnkeyedListNode) {
-                final YangInstanceIdentifier base = routesPath.node(routesContainerIdentifier()).node(this.route);
+                final YangInstanceIdentifier base = routesPath.node(routesContainerIdentifier()).node(routeNid());
                 for (final UnkeyedListEntryNode e : ((UnkeyedListNode) routes).getValue()) {
                     final NodeIdentifierWithPredicates routeKey = createRouteKey(e);
                     function.apply(tx, base, routeKey, e, attributes);

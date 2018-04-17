@@ -66,17 +66,6 @@ public final class PathIdUtil {
         return (Long) NormalizedNodes.findNode(data, pathNii).map(NormalizedNode::getValue).orElse(null);
     }
 
-    /**
-     * Get route key object ( prefgit stat  ix / key-value/ .. ).
-     *
-     * @param routeId       PathArgument containing the key
-     * @param routeKeyQname routeKey Qname
-     * @return key
-     */
-    public static Object getObjectKey(final NodeIdentifierWithPredicates routeId, final QName routeKeyQname) {
-        return routeId.getKeyValues().get(routeKeyQname);
-    }
-
     public static NodeIdentifierWithPredicates createNodeIdentifierWithPredicates(final QName routeQname,
             final QName pathidQname, final Object pathId,
             final QName routeKeyQname, final Object keyObject) {
