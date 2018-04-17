@@ -30,8 +30,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.MplsLabeledVpnSubsequentAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RouteDistinguisher;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RouteDistinguisherBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.destination.type.VpnDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.destination.type.VpnDestinationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.route.VpnRoute;
@@ -56,11 +54,8 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport<VpnRoute, VpnRouteKey> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractVpnRIBSupport.class);
     private final NodeIdentifier nlriRoutesListNid;
-    private final NodeIdentifier prefixTypeNid;
     private final NodeIdentifier labelStackNid;
     private final NodeIdentifier lvNid;
-    private final NodeIdentifier rdNid;
-    private final QName routeKey;
 
     /**
      * Default constructor. Requires the QName of the container augmented under the routes choice
@@ -78,34 +73,22 @@ public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport<VpnRoute,
         super(cazeClass, containerClass, listClass, afiClass,
                 MplsLabeledVpnSubsequentAddressFamily.class, vpnDstContainerClassQname);
         final QName classQname = BindingReflections.findQName(containerClass).intern();
-        this.routeKey = QName.create(routeQName(), ROUTE_KEY).intern();
         final QName vpnDstClassQname = QName.create(classQname, VpnDestination.QNAME.getLocalName());
         this.nlriRoutesListNid = NodeIdentifier.create(vpnDstClassQname);
-        this.prefixTypeNid = NodeIdentifier.create(QName.create(vpnDstClassQname, "prefix").intern());
         this.labelStackNid = NodeIdentifier.create(QName.create(vpnDstClassQname, "label-stack").intern());
         this.lvNid = NodeIdentifier.create(QName.create(vpnDstClassQname, "label-value").intern());
-        this.rdNid = NodeIdentifier.create(QName.create(vpnDstClassQname, "route-distinguisher").intern());
     }
 
     private VpnDestination extractVpnDestination(final DataContainerNode<? extends PathArgument> route) {
         final VpnDestination dst = new VpnDestinationBuilder()
-            .setPrefix(extractPrefix(route, this.prefixTypeNid))
+            .setPrefix(createPrefix(extractPrefix(route)))
             .setLabelStack(LabeledUnicastIpv4RIBSupport.extractLabel(route, this.labelStackNid, this.lvNid))
             .setRouteDistinguisher(extractRouteDistinguisher(route))
             .build();
         return dst;
     }
 
-    protected abstract IpPrefix extractPrefix(DataContainerNode<? extends PathArgument> route,
-            NodeIdentifier prefixTypeNid);
-
-    private RouteDistinguisher extractRouteDistinguisher(
-            final DataContainerNode<? extends YangInstanceIdentifier.PathArgument> route) {
-        if (route.getChild(this.rdNid).isPresent()) {
-            return RouteDistinguisherBuilder.getDefaultInstance((String) route.getChild(this.rdNid).get().getValue());
-        }
-        return null;
-    }
+    protected abstract IpPrefix createPrefix(String prefix);
 
     protected abstract DestinationType getAdvertisedDestinationType(List<VpnDestination> dests);
 
@@ -153,7 +136,7 @@ public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport<VpnRoute,
 
     private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode l3vpn) {
         final ByteBuf buffer = Unpooled.buffer();
-        final VpnDestination dests = new VpnDestinationBuilder().setPrefix(extractPrefix(l3vpn, this.prefixTypeNid))
+        final VpnDestination dests = new VpnDestinationBuilder().setPrefix(createPrefix(extractPrefix(l3vpn)))
             .setRouteDistinguisher(extractRouteDistinguisher(l3vpn)).build();
         final ByteBuf nlriByteBuf = Unpooled.buffer();
 
@@ -170,7 +153,7 @@ public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport<VpnRoute,
 
         final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf =
                 l3vpn.getChild(routePathIdNid());
-        return PathIdUtil.createNidKey(routeQName(), this.routeKey,
+        return PathIdUtil.createNidKey(routeQName(), routeKeyQName(),
                 pathIdQName(), ByteArray.encodeBase64(buffer), maybePathIdLeaf);
     }
 

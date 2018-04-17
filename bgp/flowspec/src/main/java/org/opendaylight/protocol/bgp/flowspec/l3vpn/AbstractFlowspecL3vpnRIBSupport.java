@@ -7,12 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.flowspec.l3vpn;
 
-import static org.opendaylight.bgp.concepts.RouteDistinguisherUtil.extractRouteDistinguisher;
-
 import com.google.common.collect.Iterables;
 import java.util.Collection;
-import javax.annotation.Nonnull;
-
 import org.opendaylight.protocol.bgp.flowspec.AbstractFlowspecRIBSupport;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.FlowspecL3vpnSubsequentAddressFamily;
@@ -25,49 +21,43 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.common.QName;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 
 public abstract class AbstractFlowspecL3vpnRIBSupport
         <T extends AbstractFlowspecL3vpnNlriParser, R extends Route, S extends Identifier>
         extends AbstractFlowspecRIBSupport<T, R, S> {
-    private final NodeIdentifier routeDistinguisherNID;
 
     protected AbstractFlowspecL3vpnRIBSupport(
-        final Class<? extends Routes> cazeClass,
-        final Class<? extends DataObject> containerClass,
-        final Class<? extends Route> listClass,
-        final QName dstContainerClassQName,
-        final Class<? extends AddressFamily> afiClass,
-        final T flowspecNlriParser
+            final Class<? extends Routes> cazeClass,
+            final Class<? extends DataObject> containerClass,
+            final Class<? extends Route> listClass,
+            final QName dstContainerClassQName,
+            final Class<? extends AddressFamily> afiClass,
+            final T flowspecNlriParser
     ) {
         super(cazeClass, containerClass, listClass, afiClass, FlowspecL3vpnSubsequentAddressFamily.class,
                 dstContainerClassQName, flowspecNlriParser);
-        this.routeDistinguisherNID
-                = new NodeIdentifier(QName.create(routeQName(), "route-distinguisher").intern());
     }
 
-    @Nonnull
     @Override
-    protected DestinationType buildDestination(@Nonnull final Collection<MapEntryNode> routes) {
+    protected DestinationType buildDestination(final Collection<MapEntryNode> routes) {
         final MapEntryNode routesCont = Iterables.getOnlyElement(routes);
         final PathId pathId = PathIdUtil.buildPathId(routesCont, routePathIdNid());
-        final RouteDistinguisher rd = extractRouteDistinguisher(routesCont, this.routeDistinguisherNID);
+        final RouteDistinguisher rd = extractRouteDistinguisher(routesCont);
         return this.nlriParser.createAdvertizedRoutesDestinationType(
-            new Object[] {rd, this.nlriParser.extractFlowspec(routesCont)},
-            pathId
+                new Object[]{rd, this.nlriParser.extractFlowspec(routesCont)},
+                pathId
         );
     }
 
-    @Nonnull
     @Override
-    protected DestinationType buildWithdrawnDestination(@Nonnull final Collection<MapEntryNode> routes) {
+    protected DestinationType buildWithdrawnDestination(final Collection<MapEntryNode> routes) {
         final MapEntryNode routesCont = Iterables.getOnlyElement(routes);
         final PathId pathId = PathIdUtil.buildPathId(routesCont, routePathIdNid());
-            final RouteDistinguisher rd = extractRouteDistinguisher(routesCont, this.routeDistinguisherNID);
+        final RouteDistinguisher rd = extractRouteDistinguisher(routesCont);
         return this.nlriParser.createWithdrawnDestinationType(
-            new Object[] {rd, this.nlriParser.extractFlowspec(Iterables.getOnlyElement(routes))},
-            pathId
+                new Object[]{rd, this.nlriParser.extractFlowspec(Iterables.getOnlyElement(routes))},
+                pathId
         );
     }
 }
