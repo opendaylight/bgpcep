@@ -13,7 +13,6 @@ import com.google.common.annotations.Beta;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
-import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Update;
@@ -38,6 +37,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RouteDistinguisher;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RouteDistinguisherBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.CNextHop;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -88,7 +89,8 @@ public abstract class AbstractRIBSupport<R extends Route, N extends Identifier>
     private final QName pathIdQname;
     private final NodeIdentifier pathIdNid;
     private final QName routeKeyQname;
-    private final NodeIdentifier routeKeyNodeId;
+    private final NodeIdentifier prefixTypeNid;
+    private final NodeIdentifier rdNid;
 
     /**
      * Default constructor. Requires the QName of the container augmented under the routes choice
@@ -128,7 +130,8 @@ public abstract class AbstractRIBSupport<R extends Route, N extends Identifier>
         this.pathIdQname = QName.create(routeQName(), "path-id").intern();
         this.pathIdNid = new NodeIdentifier(this.pathIdQname);
         this.routeKeyQname = QName.create(routeQName(), ROUTE_KEY).intern();
-        this.routeKeyNodeId = new NodeIdentifier(this.routeKeyQname);
+        this.prefixTypeNid = NodeIdentifier.create(QName.create(destinationQname, "prefix").intern());
+        this.rdNid = NodeIdentifier.create(QName.create(destinationQname, "route-distinguisher").intern());
     }
 
     @Override
@@ -155,17 +158,19 @@ public abstract class AbstractRIBSupport<R extends Route, N extends Identifier>
         return this.routeQname;
     }
 
+    protected final NodeIdentifier prefixNid() {
+        return this.prefixTypeNid;
+    }
+
     protected final NodeIdentifier routeNid() {
         return this.routesListIdentifier;
     }
 
-    @Nonnull
     @Override
     public final Class<? extends AddressFamily> getAfi() {
         return this.afiClass;
     }
 
-    @Nonnull
     @Override
     public final Class<? extends SubsequentAddressFamily> getSafi() {
         return this.safiClass;
@@ -202,11 +207,9 @@ public abstract class AbstractRIBSupport<R extends Route, N extends Identifier>
         return mb.build();
     }
 
-    @Nonnull
-    protected abstract DestinationType buildDestination(@Nonnull Collection<MapEntryNode> routes);
+    protected abstract DestinationType buildDestination(Collection<MapEntryNode> routes);
 
-    @Nonnull
-    protected abstract DestinationType buildWithdrawnDestination(@Nonnull Collection<MapEntryNode> routes);
+    protected abstract DestinationType buildWithdrawnDestination(Collection<MapEntryNode> routes);
 
     /**
      * Return the {@link NodeIdentifier} of the AFI/SAFI-specific container under
@@ -343,7 +346,6 @@ public abstract class AbstractRIBSupport<R extends Route, N extends Identifier>
         putRoutes(tx, tablePath, nlri, attributes, ROUTES);
     }
 
-    @Nonnull
     @Override
     public final Update buildUpdate(final Collection<MapEntryNode> advertised, final Collection<MapEntryNode> withdrawn,
             final Attributes attr) {
@@ -441,7 +443,15 @@ public abstract class AbstractRIBSupport<R extends Route, N extends Identifier>
         return this.routeKeyQname;
     }
 
-    protected final NodeIdentifier routeKeyNodeIdentifier() {
-        return this.routeKeyNodeId;
+    protected final String extractPrefix(final DataContainerNode<? extends PathArgument> route) {
+        return (String) route.getChild(prefixTypeNid).get().getValue();
+    }
+
+    protected final RouteDistinguisher extractRouteDistinguisher(
+            final DataContainerNode<? extends YangInstanceIdentifier.PathArgument> route) {
+        if (route.getChild(this.rdNid).isPresent()) {
+            return RouteDistinguisherBuilder.getDefaultInstance((String) route.getChild(this.rdNid).get().getValue());
+        }
+        return null;
     }
 }

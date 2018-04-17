@@ -36,7 +36,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
-import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -52,7 +51,6 @@ import org.slf4j.LoggerFactory;
 final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoute, EvpnRouteKey> {
     private static final EvpnRibSupport SINGLETON = new EvpnRibSupport();
     private static final Logger LOG = LoggerFactory.getLogger(EvpnRibSupport.class);
-    private static final QName ROUTE_KEY_QNAME = QName.create(EvpnRoute.QNAME, ROUTE_KEY).intern();
     private static final NodeIdentifier NLRI_ROUTES_LIST = NodeIdentifier.create(EvpnDestination.QNAME);
 
     private EvpnRibSupport() {
@@ -110,7 +108,7 @@ final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoute, EvpnRouteKey> {
         EvpnNlriParser.serializeNlri(Collections.singletonList(dest), buffer);
         final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf =
                 evpn.getChild(routePathIdNid());
-        return PathIdUtil.createNidKey(routeQName(), ROUTE_KEY_QNAME,
+        return PathIdUtil.createNidKey(routeQName(), routeKeyQName(),
                 pathIdQName(), ByteArray.encodeBase64(buffer), maybePathIdLeaf);
     }
 
