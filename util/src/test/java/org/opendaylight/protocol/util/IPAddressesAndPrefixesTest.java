@@ -19,15 +19,16 @@ import com.google.common.net.InetAddresses;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 
@@ -40,7 +41,7 @@ public class IPAddressesAndPrefixesTest {
     }
 
     @Test
-    public void test4() throws UnknownHostException {
+    public void test4() {
         assertNotNull(new IpPrefix(new Ipv4Prefix("123.123.123.123/32")).getIpv4Prefix());
         assertNotNull(new IpPrefix(new Ipv6Prefix("2001::1/120")).getIpv6Prefix());
     }
@@ -105,8 +106,8 @@ public class IPAddressesAndPrefixesTest {
     public void testAddressForByteBuf() {
         final ByteBuf bb = Unpooled.wrappedBuffer(new byte[]{123, 122, 4, 5, 0x20, (byte) 0x01, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01});
-        assertEquals(new Ipv4Address("123.122.4.5"), Ipv4Util.addressForByteBuf(bb));
-        assertEquals(new Ipv6Address("2001::1"), Ipv6Util.addressForByteBuf(bb));
+        assertEquals(new Ipv4AddressNoZone("123.122.4.5"), Ipv4Util.addressForByteBuf(bb));
+        assertEquals(new Ipv6AddressNoZone("2001::1"), Ipv6Util.addressForByteBuf(bb));
     }
 
     @Test
@@ -193,11 +194,11 @@ public class IPAddressesAndPrefixesTest {
     public void testInetAddressToIpAddress() {
         final IpAddress ipAddress = Ipv4Util.getIpAddress(InetAddresses.forString("123.42.13.8"));
         Assert.assertNotNull(ipAddress.getIpv4Address());
-        Assert.assertEquals(new Ipv4Address("123.42.13.8"), ipAddress.getIpv4Address());
+        Assert.assertEquals(new Ipv4AddressNoZone("123.42.13.8"), ipAddress.getIpv4Address());
 
         final IpAddress ipAddress2 = Ipv4Util.getIpAddress(InetAddresses.forString("2001:db8:1:2::"));
         Assert.assertNotNull(ipAddress2.getIpv6Address());
-        Assert.assertEquals(new Ipv6Address("2001:db8:1:2::"), ipAddress2.getIpv6Address());
+        Assert.assertEquals(new Ipv6AddressNoZone("2001:db8:1:2::"), ipAddress2.getIpv6Address());
     }
 
     @Test
