@@ -1,0 +1,1 @@
+restconf/config/bgp-rib:application-rib/$IP/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes
