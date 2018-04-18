@@ -1,8 +1,0 @@
-AFI state              |                 \r
-====================== |                 \r
-Family                 | IPV4UNICAST     \r
-Active                 | true            \r
-Prefixes               |                 \r
-Installed              | 0               \r
-Sent                   | $COUNT               \r
-Received               | 0

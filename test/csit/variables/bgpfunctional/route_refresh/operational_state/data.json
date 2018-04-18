@@ -2,8 +2,8 @@
     "bgp-openconfig-extensions:state": {
         "messages": {
             "received": {
-                "NOTIFICATION": 0,
-                "UPDATE": $COUNT
+                "NOTIFICATION": $NOT_COUNT,
+                "UPDATE": $UPD_COUNT
             },
             "sent": {
                 "NOTIFICATION": 0,

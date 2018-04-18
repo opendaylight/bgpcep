@@ -1,8 +1,0 @@
-Messages state         |                 \r
-====================== |                 \r
-Messages Received      |                 \r
-NOTIFICATION           | $COUNT               \r
-UPDATE                 | 4               \r
-Messages Sent          |                 \r
-NOTIFICATION           | 0               \r
-UPDATE                 | 4
