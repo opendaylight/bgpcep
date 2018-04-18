@@ -101,7 +101,8 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
             // Check if peer is configured in registry before retrieving preferences
             if (!this.registry.isPeerConfigured(remoteIp)) {
                 final BGPDocumentedException cause = new BGPDocumentedException(
-                    String.format("BGP peer with ip: %s not configured, check configured peers in : %s", remoteIp, this.registry), BGPError.CONNECTION_REJECTED);
+                    String.format("BGP peer with ip: %s not configured, check configured peers in : %s",
+                            remoteIp, this.registry), BGPError.CONNECTION_REJECTED);
                 negotiationFailed(cause);
                 return;
             }
@@ -140,7 +141,7 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
         if (remoteIp.getIpv6Address() != null) {
             return new IpAddress(Ipv6Util.getFullForm(remoteIp.getIpv6Address()));
         }
-        return remoteIp;
+        return new IpAddress(new Ipv4Address(remoteIp.getIpv4Address()));
     }
 
     protected synchronized void handleMessage(final Notification msg) {
