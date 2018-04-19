@@ -94,12 +94,6 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <!-- This bundle works with Karaf 3 and 4.0 -->
-                        <Import-Package>
-                            org.apache.karaf.shell.commands;version="[3.0.0,4.2)",
-                            org.apache.karaf.shell.console;version="[3.0.0,4.2)",
-                            *
-                        </Import-Package>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Karaf-Commands>*</Karaf-Commands>
                     </instructions>
