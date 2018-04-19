@@ -46,6 +46,30 @@
       "revId": "ebbeed59797a58dbddb28f8a8e05b76736cd497b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6bbe0f38_e9b098e3",
+        "filename": "bgp/cli/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-04-19T19:37:22Z",
+      "side": 1,
+      "message": "Yeah, because if we still need this, it is definitely not because we need to support multiple karaf versions: 4.1.5 is all we care about.",
+      "parentUuid": "6f33ae14_69e1c3d8",
+      "range": {
+        "startLine": 77,
+        "startChar": 0,
+        "endLine": 81,
+        "endChar": 29
+      },
+      "revId": "ebbeed59797a58dbddb28f8a8e05b76736cd497b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
