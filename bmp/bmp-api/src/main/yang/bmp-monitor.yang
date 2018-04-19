@@ -4,8 +4,8 @@ module bmp-monitor {
     prefix "bmp-mon";
 
     import bgp-rib { prefix rib; revision-date 2018-03-29; }
-    import bgp-multiprotocol { prefix bgp-mp; revision-date 2017-12-07; }
-    import bmp-message { prefix bmp-msg; revision-date 2017-12-07; }
+    import bgp-multiprotocol { prefix bgp-mp; revision-date 2018-03-29; }
+    import bmp-message { prefix bmp-msg; revision-date 2018-03-29; }
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import ietf-yang-types { prefix yang; revision-date 2013-07-15; }
 

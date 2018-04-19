@@ -10,7 +10,7 @@ module odl-bgp-policy {
     import openconfig-routing-policy { prefix rpol; }
     import openconfig-bgp-policy { prefix bgppol; }
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
-    import bgp-types { prefix bgp-t; revision-date 2013-09-19; }
+    import bgp-types { prefix bgp-t; revision-date 2018-03-29; }
 
     organization "AT&T Services, Inc.";
     contact "Claudio D. Gasparini <claudio.gasparini@pantheon.tech.com>";

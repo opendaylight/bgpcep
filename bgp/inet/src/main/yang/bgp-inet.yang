@@ -1,27 +1,26 @@
 module bgp-inet {
-        yang-version 1;
-        namespace "urn:opendaylight:params:xml:ns:yang:bgp-inet";
-        prefix "bgp-inet";
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:bgp-inet";
+    prefix "bgp-inet";
 
     import bgp-rib { prefix bgp-rib; revision-date 2018-03-29; }
-    import bgp-multiprotocol { prefix bgp-mp; revision-date 2017-12-07; }
+    import bgp-multiprotocol { prefix bgp-mp; revision-date 2018-03-29; }
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
-    import bgp-message { prefix bgp-msg; revision-date 2017-12-07; }
+    import bgp-message { prefix bgp-msg; revision-date 2018-03-29; }
     import bmp-monitor { prefix bmp-mon; revision-date 2018-03-29; }
 
     organization "Cisco Systems, Inc.";
     contact "Dana Kutenicsova <dkutenic@cisco.com>";
 
     description
-            "This module contains the concept of IPv4 and IPv6 routes,
-    split from bgp-rib and bgp-multiprotocol models.
+        "This module contains the concept of IPv4 and IPv6 routes,
+        split from bgp-rib and bgp-multiprotocol models.
 
-            Copyright (c)2015 Cisco Systems, Inc. All rights reserved.
-
-            This program and the accompanying materials are made available
-            under the terms of the Eclipse Public License v1.0 which
-            accompanies this distribution, and is available at
-            http://www.eclipse.org/legal/epl-v10.html";
+        Copyright (c)2015 Cisco Systems, Inc. All rights reserved.
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
 
     revision "2018-03-29" {
         description "Add support for add-path for all afi/safi.";
