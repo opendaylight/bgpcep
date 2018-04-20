@@ -33,7 +33,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.ProtocolId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.RouteDistinguisher;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.bgp.rib.rib.loc.rib.tables.routes.LinkstateRoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.bgp.rib.rib.loc.rib.tables.routes.LinkstateRoutesCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.isis.lan.identifier.IsIsRouterIdentifierBuilder;
@@ -58,6 +57,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RdTwoOctetAs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RouteDistinguisher;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -82,10 +83,10 @@ public final class LinkstateRIBSupportTest extends AbstractRIBSupportTest {
                 .setIsoSystemId(new IsoSystemIdentifier(new byte[]{0, 0, 0, 0, 0, (byte) 0x39})).build()).setPsn((short) 5).build()).build())
         .setDomainId(new DomainIdentifier(28282828L)).build()).build();
 
-    private static final RouteDistinguisher RD = new RouteDistinguisher(BigInteger.ONE);
+    private static final RouteDistinguisher RD = new RouteDistinguisher(new RdTwoOctetAs("0:5:3"));
     private static final Identifier ID = new Identifier(BigInteger.ONE);
     private static final CLinkstateDestination LINKSTATE_DESTINATION = new CLinkstateDestinationBuilder()
-        .setDistinguisher(RD)
+        .setRouteDistinguisher(RD)
         .setIdentifier(ID)
         .setObjectType(OBJECT_TYPE2)
         .setProtocolId(ProtocolId.IsisLevel1).build();
@@ -108,8 +109,9 @@ public final class LinkstateRIBSupportTest extends AbstractRIBSupportTest {
         SimpleNlriTypeRegistry.getInstance().serializeNlriType(LINKSTATE_DESTINATION, buffer);
         final byte[] arrayKey = ByteArray.readAllBytes(buffer);
         ROUTE_KEY = new LinkstateRouteKey(PATH_ID, Arrays.toString(arrayKey));
-        ROUTE = new LinkstateRouteBuilder().setKey(ROUTE_KEY).setDistinguisher(RD).setIdentifier(ID).setObjectType(OBJECT_TYPE2)
-            .setProtocolId(ProtocolId.IsisLevel1).setAttributes(new AttributesBuilder().build()).build();
+        ROUTE = new LinkstateRouteBuilder().setKey(ROUTE_KEY).setRouteDistinguisher(RD)
+                .setIdentifier(ID).setObjectType(OBJECT_TYPE2)
+                .setProtocolId(ProtocolId.IsisLevel1).setAttributes(new AttributesBuilder().build()).build();
         ROUTES = new LinkstateRoutesBuilder().setLinkstateRoute(Collections.singletonList(ROUTE)).build();
     }
 

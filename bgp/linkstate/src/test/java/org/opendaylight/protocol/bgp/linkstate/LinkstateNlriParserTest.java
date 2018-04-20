@@ -163,7 +163,7 @@ public class LinkstateNlriParserTest {
         setUp(this.nodeNlri);
 
         // test BA form
-        assertNull(this.dest.getDistinguisher());
+        assertNull(this.dest.getRouteDistinguisher());
         assertEquals(ProtocolId.IsisLevel2, this.dest.getProtocolId());
         assertEquals(BigInteger.ONE, this.dest.getIdentifier().getValue());
         final NodeCase nCase = ((NodeCase) this.dest.getObjectType());
@@ -244,7 +244,7 @@ public class LinkstateNlriParserTest {
         setUp(this.linkNlri);
 
         // test BA form
-        assertNull(this.dest.getDistinguisher());
+        assertNull(this.dest.getRouteDistinguisher());
         assertEquals(ProtocolId.IsisLevel2, this.dest.getProtocolId());
         assertEquals(BigInteger.ONE, this.dest.getIdentifier().getValue());
 
@@ -404,7 +404,7 @@ public class LinkstateNlriParserTest {
         setUp(this.prefixNlri);
 
         // test BA form
-        assertNull(this.dest.getDistinguisher());
+        assertNull(this.dest.getRouteDistinguisher());
         assertEquals(ProtocolId.IsisLevel2, this.dest.getProtocolId());
         assertEquals(BigInteger.ONE, this.dest.getIdentifier().getValue());
 
@@ -508,7 +508,7 @@ public class LinkstateNlriParserTest {
     public void testTELspNlri() throws BGPParsingException {
         setUp(this.teLspNlri);
         // test BA form
-        assertNull(this.dest.getDistinguisher());
+        assertNull(this.dest.getRouteDistinguisher());
         assertEquals(ProtocolId.RsvpTe, this.dest.getProtocolId());
         assertEquals(BigInteger.ONE, this.dest.getIdentifier().getValue());
         final TeLspCase teCase = (TeLspCase) this.dest.getObjectType();
