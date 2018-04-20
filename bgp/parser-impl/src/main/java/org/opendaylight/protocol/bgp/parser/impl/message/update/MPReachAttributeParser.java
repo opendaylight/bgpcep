@@ -15,8 +15,6 @@ import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
-import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
 import org.opendaylight.protocol.bgp.parser.spi.NlriRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
@@ -28,8 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
-
-public final class MPReachAttributeParser implements AttributeParser, AttributeSerializer {
+public final class MPReachAttributeParser extends ReachAttributeParser{
 
     public static final int TYPE = 14;
 
@@ -40,12 +37,10 @@ public final class MPReachAttributeParser implements AttributeParser, AttributeS
     }
 
     @Override
-    public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder) throws BGPDocumentedException {
-        parseAttribute(buffer, builder, null);
-    }
-
-    @Override
-    public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder, final PeerSpecificParserConstraint constraint)
+    public void parseAttribute(
+            final ByteBuf buffer,
+            final AttributesBuilder builder,
+            final PeerSpecificParserConstraint constraint)
             throws BGPDocumentedException {
         try {
             final MpReachNlri mpReachNlri = this.reg.parseMpReach(buffer, constraint);
@@ -58,7 +53,8 @@ public final class MPReachAttributeParser implements AttributeParser, AttributeS
 
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(attribute instanceof Attributes, "Attribute parameter is not a PathAttribute object.");
+        Preconditions.checkArgument(attribute instanceof Attributes,
+                "Attribute parameter is not a PathAttribute object.");
         final Attributes pathAttributes = (Attributes) attribute;
         final Attributes1 pathAttributes1 = pathAttributes.getAugmentation(Attributes1.class);
         if (pathAttributes1 == null) {

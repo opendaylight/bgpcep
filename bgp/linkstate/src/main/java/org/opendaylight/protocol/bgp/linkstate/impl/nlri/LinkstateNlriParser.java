@@ -20,6 +20,7 @@ import org.opendaylight.protocol.bgp.linkstate.spi.pojo.SimpleNlriTypeRegistry;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.Identifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.ObjectType;
@@ -105,20 +106,25 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
     }
 
     @Override
-    public void parseNlri(final ByteBuf nlri, final MpUnreachNlriBuilder builder) throws BGPParsingException {
+    public void parseNlri(final ByteBuf nlri, final MpUnreachNlriBuilder builder,
+            final PeerSpecificParserConstraint constraint) throws BGPParsingException {
         if (!nlri.isReadable()) {
             return;
         }
         final List<CLinkstateDestination> dst = parseNlri(nlri);
 
         builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
-            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCaseBuilder().setDestinationLinkstate(
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder().setCLinkstateDestination(
-                    dst).build()).build()).build());
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.update
+                        .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCaseBuilder()
+                        .setDestinationLinkstate(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+                                .bgp.linkstate.rev180329.update.attributes.mp.unreach.nlri.withdrawn.routes.destination
+                                .type.destination.linkstate._case.DestinationLinkstateBuilder()
+                                .setCLinkstateDestination(dst).build()).build()).build());
     }
 
     @Override
-    public void parseNlri(final ByteBuf nlri, final MpReachNlriBuilder builder) throws BGPParsingException {
+    public void parseNlri(final ByteBuf nlri, final MpReachNlriBuilder builder,
+            final PeerSpecificParserConstraint constraint) throws BGPParsingException {
         if (!nlri.isReadable()) {
             return;
         }

@@ -128,7 +128,7 @@ public class Ipv4NlriParserTest {
     public void parseUnreachedNlriTest() {
         final MpUnreachNlriBuilder b = new MpUnreachNlriBuilder();
         b.setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class);
-        this.parser.parseNlri(this.inputBytes, b);
+        this.parser.parseNlri(this.inputBytes, b, null);
         assertNotNull("Withdrawn routes, destination type should not be null", b.getWithdrawnRoutes()
                 .getDestinationType());
 
@@ -143,7 +143,7 @@ public class Ipv4NlriParserTest {
     public void parseReachedNlriTest() throws BGPParsingException {
         final MpReachNlriBuilder b = new MpReachNlriBuilder();
         b.setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class);
-        this.parser.parseNlri(this.inputBytes, b);
+        this.parser.parseNlri(this.inputBytes, b, null);
         assertNotNull("Advertized routes, destination type should not be null", b.getAdvertizedRoutes()
                 .getDestinationType());
 

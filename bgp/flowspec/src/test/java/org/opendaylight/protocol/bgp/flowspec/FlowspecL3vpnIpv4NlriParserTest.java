@@ -206,7 +206,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         final MpReachNlriBuilder result = new MpReachNlriBuilder();
         result.setAfi(Ipv4AddressFamily.class);
         result.setSafi(FlowspecL3vpnSubsequentAddressFamily.class);
-        parser.parseNlri(Unpooled.wrappedBuffer(REACHED_NLRI), result);
+        parser.parseNlri(Unpooled.wrappedBuffer(REACHED_NLRI), result, null);
 
         final DestinationFlowspecL3vpnIpv4 flowspecDst = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecL3vpnIpv4Case) result.getAdvertizedRoutes().getDestinationType())
             .getDestinationFlowspecL3vpnIpv4();
@@ -377,7 +377,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         final MpUnreachNlriBuilder result = new MpUnreachNlriBuilder();
         result.setAfi(Ipv4AddressFamily.class);
         result.setSafi(FlowspecL3vpnSubsequentAddressFamily.class);
-        parser.parseNlri(Unpooled.wrappedBuffer(UNREACHED_NLRI), result);
+        parser.parseNlri(Unpooled.wrappedBuffer(UNREACHED_NLRI), result, null);
 
         DestinationFlowspecL3vpnIpv4 flowspecDst = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecL3vpnIpv4Case) result.getWithdrawnRoutes().getDestinationType())
             .getDestinationFlowspecL3vpnIpv4();
