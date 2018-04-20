@@ -14,6 +14,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.protocol.bgp.linkstate.spi.AbstractTeLspNlriCodec;
 import org.opendaylight.protocol.bgp.linkstate.spi.pojo.SimpleNlriTypeRegistry;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -21,7 +22,6 @@ import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.Identifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.ProtocolId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.RouteDistinguisher;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.ObjectType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.destination.CLinkstateDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.destination.CLinkstateDestinationBuilder;
@@ -82,7 +82,7 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
     @VisibleForTesting
     public static final NodeIdentifier IDENTIFIER_NID = new NodeIdentifier(QName.create(CLinkstateDestination.QNAME, "identifier").intern());
     @VisibleForTesting
-    private static final NodeIdentifier DISTINGUISHER_NID = new NodeIdentifier(QName.create(CLinkstateDestination.QNAME, "distinguisher").intern());
+    private static final NodeIdentifier DISTINGUISHER_NID = new NodeIdentifier(QName.create(CLinkstateDestination.QNAME, "route-distinguisher").intern());
     private final SimpleNlriTypeRegistry nlriTypeReg = SimpleNlriTypeRegistry.getInstance();
 
 
@@ -212,7 +212,8 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
     private static void serializeNodeDescriptor(final CLinkstateDestinationBuilder builder, final ChoiceNode objectType) {
         final NodeCaseBuilder nodeBuilder = new NodeCaseBuilder();
         // node descriptors
-        nodeBuilder.setNodeDescriptors(NodeNlriParser.serializeNodeDescriptors((ContainerNode) objectType.getChild(NODE_DESCRIPTORS_NID).get()));
+        nodeBuilder.setNodeDescriptors(NodeNlriParser
+                .serializeNodeDescriptors((ContainerNode) objectType.getChild(NODE_DESCRIPTORS_NID).get()));
         builder.setObjectType(nodeBuilder.build());
     }
 
@@ -251,7 +252,7 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
         // serialize common parts
         final Optional<DataContainerChild<? extends PathArgument, ?>> distinguisher = linkstate.getChild(DISTINGUISHER_NID);
         if (distinguisher.isPresent()) {
-            builder.setDistinguisher(new RouteDistinguisher((BigInteger) distinguisher.get().getValue()));
+            builder.setRouteDistinguisher(RouteDistinguisherUtil.parseRouteDistinguisher(distinguisher.get().getValue()));
         }
         final Optional<DataContainerChild<? extends PathArgument, ?>> protocolId = linkstate.getChild(PROTOCOL_ID_NID);
         // DOM representation contains values as are in the model, not as are in generated enum
