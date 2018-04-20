@@ -14,7 +14,6 @@ import static org.opendaylight.protocol.bgp.l3vpn.ipv6.VpnIpv6NlriParserTest.DIS
 import static org.opendaylight.protocol.bgp.l3vpn.ipv6.VpnIpv6NlriParserTest.IPV6PREFIX;
 import static org.opendaylight.protocol.bgp.l3vpn.ipv6.VpnIpv6NlriParserTest.IPV6_VPN;
 import static org.opendaylight.protocol.bgp.l3vpn.ipv6.VpnIpv6NlriParserTest.LABEL_STACK;
-import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -23,7 +22,6 @@ import java.util.Collections;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupportTest;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
@@ -60,8 +58,8 @@ public class VpnIpv6RIBSupportTest extends AbstractRIBSupportTest {
                     .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationVpnIpv6CaseBuilder()
                     .setVpnIpv6Destination(new VpnIpv6DestinationBuilder()
                             .setVpnDestination(Collections.singletonList(IPV6_VPN)).build()).build();
-    private static final VpnRouteKey ROUTE_KEY = new VpnRouteKey(new PathId(0L), "cAABAQIDBAECIAEjRVaJ");
-    private static final VpnRoute ROUTE = new VpnRouteBuilder().setPathId(NON_PATH_ID)
+    private static final VpnRouteKey ROUTE_KEY = new VpnRouteKey(PATH_ID, "cAABAQIDBAECIAEjRVaJ");
+    private static final VpnRoute ROUTE = new VpnRouteBuilder().setPathId(PATH_ID)
             .setAttributes(ATTRIBUTES).setPrefix(IPV6PREFIX)
             .setLabelStack(LABEL_STACK).setRouteDistinguisher(DISTINGUISHER).setKey(ROUTE_KEY).build();
     private static final VpnIpv6Routes ROUTES = new VpnIpv6RoutesBuilder()
@@ -124,7 +122,7 @@ public class VpnIpv6RIBSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testRouteIdAddPath() {
-        Assert.assertEquals(ROUTE_KEY, RIB_SUPPORT.createRouteListKey(0L, ROUTE_KEY.getRouteKey()));
+        Assert.assertEquals(ROUTE_KEY, RIB_SUPPORT.createRouteListKey(PATH_ID.getValue(), ROUTE_KEY.getRouteKey()));
     }
 
     @Test

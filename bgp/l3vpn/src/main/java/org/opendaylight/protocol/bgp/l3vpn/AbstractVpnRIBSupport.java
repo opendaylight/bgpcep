@@ -80,12 +80,12 @@ public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport<VpnRoute,
     }
 
     private VpnDestination extractVpnDestination(final DataContainerNode<? extends PathArgument> route) {
-        final VpnDestination dst = new VpnDestinationBuilder()
-            .setPrefix(createPrefix(extractPrefix(route)))
-            .setLabelStack(LabeledUnicastIpv4RIBSupport.extractLabel(route, this.labelStackNid, this.lvNid))
-            .setRouteDistinguisher(extractRouteDistinguisher(route))
-            .build();
-        return dst;
+        return new VpnDestinationBuilder()
+                .setPrefix(createPrefix(extractPrefix(route)))
+                .setLabelStack(LabeledUnicastIpv4RIBSupport.extractLabel(route, this.labelStackNid, this.lvNid))
+                .setRouteDistinguisher(extractRouteDistinguisher(route))
+                .setPathId(PathIdUtil.buildPathId(route, routePathIdNid()))
+                .build();
     }
 
     protected abstract IpPrefix createPrefix(String prefix);

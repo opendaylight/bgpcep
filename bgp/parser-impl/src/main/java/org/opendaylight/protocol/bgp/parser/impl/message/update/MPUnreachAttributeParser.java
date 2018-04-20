@@ -15,8 +15,6 @@ import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
-import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
 import org.opendaylight.protocol.bgp.parser.spi.NlriRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
@@ -28,7 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlri;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
-public final class MPUnreachAttributeParser implements AttributeParser, AttributeSerializer {
+public final class MPUnreachAttributeParser extends ReachAttributeParser {
     public static final int TYPE = 15;
 
     private final NlriRegistry reg;
@@ -38,12 +36,10 @@ public final class MPUnreachAttributeParser implements AttributeParser, Attribut
     }
 
     @Override
-    public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder) throws BGPDocumentedException {
-        parseAttribute(buffer, builder, null);
-    }
-
-    @Override
-    public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder, final PeerSpecificParserConstraint constraint)
+    public void parseAttribute(
+            final ByteBuf buffer,
+            final AttributesBuilder builder,
+            final PeerSpecificParserConstraint constraint)
             throws BGPDocumentedException {
         try {
             final MpUnreachNlri mpUnreachNlri = this.reg.parseMpUnreach(buffer, constraint);
@@ -56,7 +52,8 @@ public final class MPUnreachAttributeParser implements AttributeParser, Attribut
 
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(attribute instanceof Attributes, "Attribute parameter is not a PathAttribute object.");
+        Preconditions.checkArgument(attribute instanceof Attributes,
+                "Attribute parameter is not a PathAttribute object.");
         final Attributes pathAttributes = (Attributes) attribute;
         final Attributes2 pathAttributes2 = pathAttributes.getAugmentation(Attributes2.class);
         if (pathAttributes2 == null) {

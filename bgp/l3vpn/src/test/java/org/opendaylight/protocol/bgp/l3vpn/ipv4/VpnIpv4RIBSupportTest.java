@@ -15,7 +15,6 @@ import static org.opendaylight.protocol.bgp.l3vpn.ipv4.VpnIpv4NlriParserTest.DIS
 import static org.opendaylight.protocol.bgp.l3vpn.ipv4.VpnIpv4NlriParserTest.IPV4_PREFIX;
 import static org.opendaylight.protocol.bgp.l3vpn.ipv4.VpnIpv4NlriParserTest.IPV4_VPN;
 import static org.opendaylight.protocol.bgp.l3vpn.ipv4.VpnIpv4NlriParserTest.LABEL_STACK;
-import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
@@ -23,7 +22,6 @@ import java.util.Collections;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupportTest;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
@@ -52,16 +50,16 @@ public class VpnIpv4RIBSupportTest extends AbstractRIBSupportTest {
 
     private static final DestinationVpnIpv4Case REACH_NLRI = new DestinationVpnIpv4CaseBuilder().setVpnIpv4Destination(
         new VpnIpv4DestinationBuilder().setVpnDestination(Collections.singletonList(IPV4_VPN)).build()).build();
-
     private static final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev180329.update
             .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationVpnIpv4Case UNREACH_NLRI =
             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev180329.update
                     .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationVpnIpv4CaseBuilder()
                     .setVpnIpv4Destination(new VpnIpv4DestinationBuilder()
                             .setVpnDestination(Collections.singletonList(IPV4_VPN)).build()).build();
-    private static final VpnRouteKey ROUTE_KEY = new VpnRouteKey(new PathId(0L), "WAABAQIDBAECIgEW");
+    private static final VpnRouteKey ROUTE_KEY = new VpnRouteKey(PATH_ID, "WAABAQIDBAECIgEW");
 
-    private static final VpnRoute ROUTE = new VpnRouteBuilder().setPathId(NON_PATH_ID)
+    private static final VpnRoute ROUTE = new VpnRouteBuilder()
+            .setPathId(PATH_ID)
             .setAttributes(ATTRIBUTES).setPrefix(IPV4_PREFIX)
         .setLabelStack(LABEL_STACK).setRouteDistinguisher(DISTINGUISHER).setKey(ROUTE_KEY).build();
     private static final VpnIpv4Routes ROUTES = new VpnIpv4RoutesBuilder()
@@ -126,7 +124,7 @@ public class VpnIpv4RIBSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testRouteIdAddPath() {
-        Assert.assertEquals(ROUTE_KEY, RIB_SUPPORT.createRouteListKey(0L, ROUTE_KEY.getRouteKey()));
+        assertEquals(ROUTE_KEY, RIB_SUPPORT.createRouteListKey(PATH_ID.getValue(), ROUTE_KEY.getRouteKey()));
     }
 
     @Test

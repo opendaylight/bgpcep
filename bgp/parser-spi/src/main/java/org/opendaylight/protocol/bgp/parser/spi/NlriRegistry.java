@@ -27,7 +27,9 @@ public interface NlriRegistry {
      * @return Parsed reach NLRI.
      * @throws BGPParsingException
      */
-    @Nonnull MpReachNlri parseMpReach(@Nonnull ByteBuf buffer, @Nullable PeerSpecificParserConstraint constraint) throws BGPParsingException;
+    @Nonnull MpReachNlri parseMpReach(
+            @Nonnull ByteBuf buffer,
+            @Nullable PeerSpecificParserConstraint constraint) throws BGPParsingException;
 
     /**
      * Decode MP REACH NLRI Attribute.
@@ -36,7 +38,9 @@ public interface NlriRegistry {
      * @return Parsed unreach NLRI.
      * @throws BGPParsingException
      */
-    @Nonnull MpUnreachNlri parseMpUnreach(@Nonnull ByteBuf buffer, @Nullable PeerSpecificParserConstraint constraint) throws BGPParsingException;
+    @Nonnull MpUnreachNlri parseMpUnreach(
+            @Nonnull ByteBuf buffer,
+            @Nullable PeerSpecificParserConstraint constraint) throws BGPParsingException;
 
     /**
      * Encode BGP MP REACH NLRI Attribute.

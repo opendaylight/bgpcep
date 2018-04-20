@@ -56,16 +56,6 @@ public final class Ipv4NlriParser implements NlriParser, NlriSerializer {
     }
 
     @Override
-    public void parseNlri(final ByteBuf nlri, final MpUnreachNlriBuilder builder) {
-        parseNlri(nlri, builder, null);
-    }
-
-    @Override
-    public void parseNlri(final ByteBuf nlri, final MpReachNlriBuilder builder) {
-        parseNlri(nlri, builder, null);
-    }
-
-    @Override
     public void parseNlri(final ByteBuf nlri, final MpReachNlriBuilder builder,
             final PeerSpecificParserConstraint constraint) {
         builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(

@@ -13,9 +13,9 @@ import io.netty.buffer.Unpooled;
 import java.util.List;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.protocol.bgp.labeled.unicast.LUNlriParser;
-import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.labeled.unicast.LabelStack;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
@@ -104,20 +104,24 @@ public abstract class AbstractVpnNlriParser implements NlriParser, NlriSerialize
     }
 
     @Override
-    public void parseNlri(final ByteBuf nlri, final MpUnreachNlriBuilder builder) throws BGPParsingException {
+    public void parseNlri(final ByteBuf nlri, final MpUnreachNlriBuilder builder,
+        final PeerSpecificParserConstraint constraint) {
         if (!nlri.isReadable()) {
             return;
         }
-        final List<VpnDestination> dst = VpnDestinationUtil.parseNlri(nlri, builder.getAfi());
+        final List<VpnDestination> dst = VpnDestinationUtil.parseNlri(nlri, constraint,
+                builder.getAfi(), builder.getSafi());
         builder.setWithdrawnRoutes(getWithdrawnRoutesByDestination(dst));
     }
 
     @Override
-    public void parseNlri(final ByteBuf nlri, final MpReachNlriBuilder builder) throws BGPParsingException {
+    public void parseNlri(final ByteBuf nlri, final MpReachNlriBuilder builder,
+        final PeerSpecificParserConstraint constraint) {
         if (!nlri.isReadable()) {
             return;
         }
-        final List<VpnDestination> dst = VpnDestinationUtil.parseNlri(nlri, builder.getAfi());
+        final List<VpnDestination> dst = VpnDestinationUtil.parseNlri(nlri, constraint,
+                builder.getAfi(), builder.getSafi());
         builder.setAdvertizedRoutes(getAdvertizedRoutesByDestination(dst));
     }
 }

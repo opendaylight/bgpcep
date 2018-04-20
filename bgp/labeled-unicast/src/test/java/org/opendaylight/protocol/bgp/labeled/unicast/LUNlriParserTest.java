@@ -244,7 +244,7 @@ public class LUNlriParserTest {
         final MpReachNlriBuilder testBuilder = new MpReachNlriBuilder();
         testBuilder.setAfi(Ipv4AddressFamily.class);
         testBuilder.setSafi(LabeledUnicastSubsequentAddressFamily.class);
-        parser.parseNlri(Unpooled.copiedBuffer(LU_REACH_NLRI_IPv4), testBuilder);
+        parser.parseNlri(Unpooled.copiedBuffer(LU_REACH_NLRI_IPv4), testBuilder, null);
         assertEquals(mpReachExpected, testBuilder.build());
 
         //test serializer
@@ -317,7 +317,7 @@ public class LUNlriParserTest {
         final MpUnreachNlriBuilder testBuilder = new MpUnreachNlriBuilder();
         testBuilder.setAfi(Ipv4AddressFamily.class);
         testBuilder.setSafi(LabeledUnicastSubsequentAddressFamily.class);
-        parser.parseNlri(Unpooled.copiedBuffer(LU_UNREACH_NLRI_IPv4), testBuilder);
+        parser.parseNlri(Unpooled.copiedBuffer(LU_UNREACH_NLRI_IPv4), testBuilder, null);
         assertEquals(mpUnreachExpected1, testBuilder.build());
 
         //test serializer
@@ -401,7 +401,7 @@ public class LUNlriParserTest {
         final MpReachNlriBuilder testBuilder = new MpReachNlriBuilder();
         testBuilder.setAfi(Ipv6AddressFamily.class);
         testBuilder.setSafi(LabeledUnicastSubsequentAddressFamily.class);
-        parser.parseNlri(Unpooled.copiedBuffer(LU_REACH_NLRI_IPv6), testBuilder);
+        parser.parseNlri(Unpooled.copiedBuffer(LU_REACH_NLRI_IPv6), testBuilder, null);
         assertEquals(mpReachExpected, testBuilder.build());
 
         //test serializer
@@ -472,7 +472,7 @@ public class LUNlriParserTest {
         final MpUnreachNlriBuilder testBuilder = new MpUnreachNlriBuilder();
         testBuilder.setAfi(Ipv6AddressFamily.class);
         testBuilder.setSafi(LabeledUnicastSubsequentAddressFamily.class);
-        parser.parseNlri(Unpooled.copiedBuffer(LU_UNREACH_NLRI_IPv6), testBuilder);
+        parser.parseNlri(Unpooled.copiedBuffer(LU_UNREACH_NLRI_IPv6), testBuilder, null);
         assertEquals(mpUnreachExpected1, testBuilder.build());
 
         //test serializer

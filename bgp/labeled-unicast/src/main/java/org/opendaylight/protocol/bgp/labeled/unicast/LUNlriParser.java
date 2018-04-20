@@ -158,11 +158,6 @@ public class LUNlriParser implements NlriParser, NlriSerializer {
         return ByteArray.readAllBytes(buffer);
     }
 
-    @Override
-    public void parseNlri(final ByteBuf nlri, final MpUnreachNlriBuilder builder) throws BGPParsingException {
-        parseNlri(nlri, builder, null);
-    }
-
     private static List<CLabeledUnicastDestination> parseNlri(final ByteBuf nlri, final Class<? extends AddressFamily> afi, final boolean mPathSupported) {
         if (!nlri.isReadable()) {
             return null;
@@ -211,11 +206,6 @@ public class LUNlriParser implements NlriParser, NlriSerializer {
             labels.add(new LabelStackBuilder().setLabelValue(mplsLabel).build());
         } while (!bottomBit);
         return labels;
-    }
-
-    @Override
-    public void parseNlri(final ByteBuf nlri, final MpReachNlriBuilder builder) throws BGPParsingException {
-        parseNlri(nlri, builder, null);
     }
 
     @Override

@@ -50,7 +50,8 @@ final class SimpleNlriRegistry implements NlriRegistry {
     private final ConcurrentMap<BgpTableType, NlriParser> handlers = new ConcurrentHashMap<>();
     private final ConcurrentMap<Class<? extends DataObject>, NlriSerializer> serializers = new ConcurrentHashMap<>();
     private final ConcurrentMap<BgpTableType, NextHopParserSerializer> nextHopParsers = new ConcurrentHashMap<>();
-    private final ConcurrentMap<Entry<Class<? extends CNextHop>, BgpTableType>, NextHopParserSerializer> nextHopSerializers = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Entry<Class<? extends CNextHop>, BgpTableType>,
+            NextHopParserSerializer> nextHopSerializers = new ConcurrentHashMap<>();
     private final SubsequentAddressFamilyRegistry safiReg;
     private final AddressFamilyRegistry afiReg;
 
@@ -112,10 +113,12 @@ final class SimpleNlriRegistry implements NlriRegistry {
                     SimpleNlriRegistry.this.handlers.remove(key);
                     SimpleNlriRegistry.this.nextHopParsers.remove(key);
                     if (cNextHopClass != null) {
-                        final Entry<Class<? extends CNextHop>, BgpTableType> nhKey = new SimpleEntry<>(cNextHopClass, key);
+                        final Entry<Class<? extends CNextHop>, BgpTableType> nhKey
+                                = new SimpleEntry<>(cNextHopClass, key);
                         SimpleNlriRegistry.this.nextHopSerializers.remove(nhKey);
                         for (final Class<? extends CNextHop> cNextHop : cNextHopClassList) {
-                            final Entry<Class<? extends CNextHop>, BgpTableType> nhKeys = new SimpleEntry<>(cNextHop, key);
+                            final Entry<Class<? extends CNextHop>, BgpTableType> nhKeys
+                                    = new SimpleEntry<>(cNextHop, key);
                             SimpleNlriRegistry.this.nextHopSerializers.remove(nhKeys);
                         }
                     }
