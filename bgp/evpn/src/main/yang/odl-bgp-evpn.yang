@@ -223,13 +223,6 @@ module odl-bgp-evpn {
         }
     }
 
-    grouping route-distinguisher {
-        leaf route-distinguisher {
-            type bgp-t:route-distinguisher;
-            mandatory true;
-        }
-    }
-
     grouping ethernet-a-d-route {
         container ethernet-a-d-route {
             reference "https://tools.ietf.org/html/rfc7432#section-7.1";
@@ -274,9 +267,7 @@ module odl-bgp-evpn {
             description "Inclusive Multicast Ethernet Tag route";
 
             uses ethernet-tag-id;
-            leaf orig-route-ip {
-                type inet:ip-address;
-            }
+            uses bgp-t:orig-route-ip-grouping;
         }
     }
 
@@ -286,10 +277,7 @@ module odl-bgp-evpn {
             description "Ethernet Segment route";
 
             uses esi;
-            leaf orig-route-ip {
-                type inet:ip-address;
-                mandatory true;
-            }
+            uses bgp-t:orig-route-ip-grouping;
         }
     }
 
@@ -477,7 +465,7 @@ module odl-bgp-evpn {
             mandatory true;
         }
 
-        uses route-distinguisher;
+        uses bgp-t:route-distinguisher-grouping;
     }
 
     augment "/bgp-msg:update/bgp-msg:attributes" {

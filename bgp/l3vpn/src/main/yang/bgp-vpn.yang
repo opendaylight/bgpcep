@@ -35,9 +35,7 @@ module bgp-vpn {
 
     grouping l3vpn {
         uses bgp-lu:labeled-unicast;
-        leaf route-distinguisher {
-            type bgp-t:route-distinguisher;
-        }
+        uses bgp-t:route-distinguisher-grouping;
     }
 
     grouping l3vpn-ip-destination-type {

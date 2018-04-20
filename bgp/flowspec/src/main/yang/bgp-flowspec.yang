@@ -301,16 +301,9 @@ module bgp-flowspec {
         }
     }
 
-    grouping flowspec-l3vpn-rd {
-        reference "https://tools.ietf.org/html/rfc5575#section-8";
-        leaf route-distinguisher {
-            type bgp-t:route-distinguisher;
-        }
-    }
-
     grouping flowspec-l3vpn-destination-ipv4 {
         container destination-flowspec-l3vpn-ipv4 {
-            uses flowspec-l3vpn-rd;
+            uses bgp-t:route-distinguisher-grouping;
             uses flowspec-destination-group-ipv4;
             uses bgp-msg:path-id-grouping;
         }
@@ -318,7 +311,7 @@ module bgp-flowspec {
 
     grouping flowspec-l3vpn-destination-ipv6 {
         container destination-flowspec-l3vpn-ipv6 {
-            uses flowspec-l3vpn-rd;
+            uses bgp-t:route-distinguisher-grouping;
             uses flowspec-destination-group-ipv6;
             uses bgp-msg:path-id-grouping;
         }
@@ -488,7 +481,7 @@ module bgp-flowspec {
         list flowspec-l3vpn-route {
             key "route-key path-id";
             uses flowspec-ipv4-route-list;
-            uses flowspec-l3vpn-rd;
+            uses bgp-t:route-distinguisher-grouping;
         }
     }
 
@@ -508,7 +501,7 @@ module bgp-flowspec {
         list flowspec-l3vpn-route {
             key "route-key path-id";
             uses flowspec-ipv6-route-list;
-            uses flowspec-l3vpn-rd;
+            uses bgp-t:route-distinguisher-grouping;
         }
     }
 
