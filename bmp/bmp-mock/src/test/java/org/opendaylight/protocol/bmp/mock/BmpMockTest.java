@@ -64,7 +64,6 @@ public class BmpMockTest {
         final BmpSessionListenerFactory bmpSessionListenerFactory = () -> BmpMockTest.this.sessionListener;
         final ChannelFuture futureServer = this.bmpDispatcher.createServer(serverAddr,
                 bmpSessionListenerFactory, KeyMapping.getKeyMapping());
-        waitFutureSuccess(futureServer);
         final Channel serverChannel;
         final int sessionUpWait;
         if (futureServer.isSuccess()) {
