@@ -48,9 +48,12 @@ import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communi
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.RouteOriginIpv4EcHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.RouteTargetAsTwoOctetEcHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.RouteTargetIpv4EcHandler;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.SourceASHandler;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.VrfRouteImportHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.four.octect.as.specific.Generic4OctASEcHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.four.octect.as.specific.RouteOrigin4OctectASEcHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.four.octect.as.specific.RouteTarget4OctectASEcHandler;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.four.octect.as.specific.SourceAS4OctectHandler;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
@@ -326,5 +329,22 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerExtendedCommunityParser(encapsulationECHandler.getType(true), encapsulationECHandler.getSubType(),
                 encapsulationECHandler));
         regs.add(context.registerExtendedCommunitySerializer(EncapsulationCase.class, encapsulationECHandler));
+
+
+        final SourceAS4OctectHandler source4ASHandler = new SourceAS4OctectHandler();
+        regs.add(context.registerExtendedCommunityParser(source4ASHandler.getType(true),
+                source4ASHandler.getSubType(), source4ASHandler));
+        regs.add(context.registerExtendedCommunitySerializer(SourceAs4ExtendedCommunityCase.class, source4ASHandler));
+
+        final SourceASHandler sourceASHandler = new SourceASHandler();
+        regs.add(context.registerExtendedCommunityParser(sourceASHandler.getType(true),
+                sourceASHandler.getSubType(), sourceASHandler));
+        regs.add(context.registerExtendedCommunitySerializer(SourceAsExtendedCommunityCase.class, sourceASHandler));
+
+        final VrfRouteImportHandler vrfRouteImportHandler = new VrfRouteImportHandler();
+        regs.add(context.registerExtendedCommunityParser(vrfRouteImportHandler.getType(true),
+                vrfRouteImportHandler.getSubType(), vrfRouteImportHandler));
+        regs.add(context.registerExtendedCommunitySerializer(SourceAsExtendedCommunityCase.class,
+                vrfRouteImportHandler));
     }
 }
