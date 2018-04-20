@@ -12,7 +12,6 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.List;
-import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupportUtil;
 import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
@@ -56,16 +55,6 @@ public final class Ipv6NlriParser implements NlriParser, NlriSerializer {
             prefixes.add(prefixesBuilder.build());
         }
         return new DestinationIpv6Builder().setIpv6Prefixes(prefixes).build();
-    }
-
-    @Override
-    public void parseNlri(final ByteBuf nlri, final MpUnreachNlriBuilder builder) throws BGPParsingException {
-        parseNlri(nlri, builder, null);
-    }
-
-    @Override
-    public void parseNlri(final ByteBuf nlri, final MpReachNlriBuilder builder) throws BGPParsingException {
-        parseNlri(nlri, builder, null);
     }
 
     @Override
