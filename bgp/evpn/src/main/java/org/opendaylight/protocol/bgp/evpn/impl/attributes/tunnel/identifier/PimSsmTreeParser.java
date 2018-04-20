@@ -10,9 +10,9 @@ package org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel.pmsi.tunnel.TunnelIdentifier;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.PimSsmTree;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.PimSsmTreeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.TunnelIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.PimSsmTree;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.PimSsmTreeBuilder;
 
 final class PimSsmTreeParser implements TunnelIdentifierSerializer, TunnelIdentifierParser {
     @Override
@@ -26,9 +26,9 @@ final class PimSsmTreeParser implements TunnelIdentifierSerializer, TunnelIdenti
 
     @Override
     public TunnelIdentifier parse(final ByteBuf buffer) {
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel.pmsi
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi
                 .tunnel.tunnel.identifier.pim.ssm.tree.PimSsmTreeBuilder pimSsmTree =
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel
                         .pmsi.tunnel.tunnel.identifier.pim.ssm.tree.PimSsmTreeBuilder(PAddressPMulticastGroupUtil
                         .parseSenderPMulticastGroup(buffer));
         return new PimSsmTreeBuilder().setPimSsmTree(pimSsmTree.build()).build();

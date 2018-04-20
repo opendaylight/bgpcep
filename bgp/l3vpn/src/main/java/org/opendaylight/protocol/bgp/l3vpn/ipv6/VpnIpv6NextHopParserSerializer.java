@@ -9,7 +9,7 @@ package org.opendaylight.protocol.bgp.l3vpn.ipv6;
 
 import org.opendaylight.protocol.bgp.l3vpn.AbstractVpnNextHopParserSerializer;
 import org.opendaylight.protocol.util.Ipv6Util;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv6NextHopCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv6NextHopCase;
 
 public final class VpnIpv6NextHopParserSerializer extends AbstractVpnNextHopParserSerializer {
     public VpnIpv6NextHopParserSerializer() {

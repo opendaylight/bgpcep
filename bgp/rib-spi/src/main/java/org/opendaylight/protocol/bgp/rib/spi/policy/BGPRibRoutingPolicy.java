@@ -9,7 +9,7 @@ package org.opendaylight.protocol.bgp.rib.spi.policy;
 
 import java.util.Optional;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 
 /**
  * Interface for BGP RIB Routing Policy. Apply Import/Export Routing Policy to route attributes.

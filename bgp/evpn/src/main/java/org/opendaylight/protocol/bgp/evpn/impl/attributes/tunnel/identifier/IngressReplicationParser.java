@@ -13,16 +13,16 @@ import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifi
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel.pmsi.tunnel.TunnelIdentifier;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.IngressReplication;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.IngressReplicationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.TunnelIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.IngressReplication;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.IngressReplicationBuilder;
 
 final class IngressReplicationParser implements TunnelIdentifierSerializer, TunnelIdentifierParser {
     @Override
     public int serialize(final TunnelIdentifier tunnelIdentifier, final ByteBuf buffer) {
         Preconditions.checkArgument(tunnelIdentifier instanceof IngressReplication,
                 "The tunnelIdentifier %s is not IngressReplication type.", tunnelIdentifier);
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel.pmsi
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi
                 .tunnel.tunnel.identifier.ingress.replication.IngressReplication ingressReplication =
                 ((IngressReplication) tunnelIdentifier).getIngressReplication();
         serializeIpAddress(ingressReplication.getReceivingEndpointAddress(), buffer);
@@ -31,9 +31,9 @@ final class IngressReplicationParser implements TunnelIdentifierSerializer, Tunn
 
     @Override
     public TunnelIdentifier parse(final ByteBuf buffer) {
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel.pmsi
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi
                 .tunnel.tunnel.identifier.ingress.replication.IngressReplication builder =
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev160812.pmsi.tunnel
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel
                         .pmsi.tunnel.tunnel.identifier.ingress.replication.IngressReplicationBuilder()
                         .setReceivingEndpointAddress(parseIpAddress(buffer.readableBytes(), buffer)).build();
         return new IngressReplicationBuilder().setIngressReplication(builder).build();

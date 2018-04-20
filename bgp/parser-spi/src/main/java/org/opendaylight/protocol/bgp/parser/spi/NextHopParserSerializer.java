@@ -12,7 +12,7 @@ import io.netty.buffer.ByteBuf;
 import javax.annotation.Nonnull;
 import org.opendaylight.bgp.concepts.NextHopUtil;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.CNextHop;
 
 /**
  * Handles Next Hop, by default use {@link NextHopUtil}
