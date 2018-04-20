@@ -50,7 +50,7 @@ public class EvpnNlriParserTest {
     private List<EvpnDestination> dest;
     private EvpnNlriParser parser;
 
-    static ChoiceNode createMACIpAdvChoice() {
+    private static ChoiceNode createMACIpAdvChoice() {
         final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> choice = Builders.choiceBuilder();
         choice.withNodeIdentifier(EVPN_CHOICE_NID);
         return choice.addChild(MACIpAdvRParserTest.createMacIpCont()).build();
@@ -67,7 +67,7 @@ public class EvpnNlriParserTest {
     }
 
     @Test
-    public void testSerializeNlri() throws BGPParsingException {
+    public void testSerializeNlri() {
         final ByteBuf buffer = Unpooled.buffer();
         EvpnNlriParser.serializeNlri(this.dest, buffer);
         assertArrayEquals(IncMultEthTagRParserTest.RESULT, ByteArray.getAllBytes(buffer));
@@ -77,7 +77,7 @@ public class EvpnNlriParserTest {
     @Test
     public void testMpUnreach() throws BGPParsingException {
         final MpUnreachNlriBuilder mpReach = new MpUnreachNlriBuilder();
-        this.parser.parseNlri(Unpooled.wrappedBuffer(IncMultEthTagRParserTest.RESULT), mpReach);
+        this.parser.parseNlri(Unpooled.wrappedBuffer(IncMultEthTagRParserTest.RESULT), mpReach, null);
         assertEquals(createUnreach(), mpReach.build());
     }
 
@@ -96,7 +96,7 @@ public class EvpnNlriParserTest {
     @Test
     public void testMpReach() throws BGPParsingException {
         final MpReachNlriBuilder mpReach = new MpReachNlriBuilder();
-        this.parser.parseNlri(Unpooled.wrappedBuffer(IncMultEthTagRParserTest.RESULT), mpReach);
+        this.parser.parseNlri(Unpooled.wrappedBuffer(IncMultEthTagRParserTest.RESULT), mpReach, null);
 
         final MpReachNlriBuilder mpReachExpected = new MpReachNlriBuilder();
         final AdvertizedRoutes wd = new AdvertizedRoutesBuilder().setDestinationType(new DestinationEvpnCaseBuilder()
@@ -109,19 +109,19 @@ public class EvpnNlriParserTest {
     @Test
     public void testNullMpReachNlri() throws BGPParsingException {
         final MpReachNlriBuilder mpb = new MpReachNlriBuilder();
-        this.parser.parseNlri(Unpooled.buffer(), mpb);
+        this.parser.parseNlri(Unpooled.buffer(), mpb, null);
         assertEquals(new MpReachNlriBuilder().build(), mpb.build());
     }
 
     @Test
     public void testNullMpUnReachNlri() throws BGPParsingException {
         final MpUnreachNlriBuilder mpb = new MpUnreachNlriBuilder();
-        this.parser.parseNlri(Unpooled.buffer(), mpb);
+        this.parser.parseNlri(Unpooled.buffer(), mpb, null);
         assertEquals(new MpUnreachNlriBuilder().build(), mpb.build());
     }
 
     @Test
-    public void testExtractEvpnDestination() throws BGPParsingException {
+    public void testExtractEvpnDestination() {
         final DataContainerNodeAttrBuilder<NodeIdentifier, UnkeyedListEntryNode> evpnBI =
                 ImmutableUnkeyedListEntryNodeBuilder.create();
         evpnBI.withNodeIdentifier(EVPN_NID);
@@ -135,7 +135,7 @@ public class EvpnNlriParserTest {
     }
 
     @Test
-    public void testExtractRouteKey() throws BGPParsingException {
+    public void testExtractRouteKey() {
         final DataContainerNodeAttrBuilder<NodeIdentifier, UnkeyedListEntryNode> evpnBI =
                 ImmutableUnkeyedListEntryNodeBuilder.create();
         evpnBI.withNodeIdentifier(EVPN_CHOICE_NID);

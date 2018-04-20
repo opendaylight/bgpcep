@@ -22,6 +22,7 @@ import org.opendaylight.protocol.bgp.evpn.spi.pojo.SimpleEvpnNlriRegistry;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.evpn.EvpnChoice;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.evpn.destination.EvpnDestination;
@@ -79,7 +80,8 @@ public final class EvpnNlriParser implements NlriParser, NlriSerializer {
     }
 
     @Override
-    public void parseNlri(final ByteBuf nlri, final MpUnreachNlriBuilder builder) throws BGPParsingException {
+    public void parseNlri(final ByteBuf nlri, final MpUnreachNlriBuilder builder,
+            final PeerSpecificParserConstraint constraint) throws BGPParsingException {
         if (!nlri.isReadable()) {
             return;
         }
@@ -94,7 +96,8 @@ public final class EvpnNlriParser implements NlriParser, NlriSerializer {
     }
 
     @Override
-    public void parseNlri(final ByteBuf nlri, final MpReachNlriBuilder builder) throws BGPParsingException {
+    public void parseNlri(final ByteBuf nlri, final MpReachNlriBuilder builder,
+            final PeerSpecificParserConstraint constraint) throws BGPParsingException {
         if (!nlri.isReadable()) {
             return;
         }

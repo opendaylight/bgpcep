@@ -25,7 +25,8 @@ public interface AttributeParser {
      * @param builder Path attributes builder. Guaranteed to contain all valid attributes whose type is numerically
      *        lower than this attribute's type.
      */
-    void parseAttribute(@Nonnull ByteBuf buffer, @Nonnull AttributesBuilder builder) throws BGPDocumentedException, BGPParsingException;
+    void parseAttribute(@Nonnull ByteBuf buffer, @Nonnull AttributesBuilder builder)
+            throws BGPDocumentedException, BGPParsingException;
 
     /**
      * Invokes {@link #parseAttribute(ByteBuf, AttributesBuilder)}, so the constraint is omitted. Override for specific parser behavior.
@@ -34,10 +35,13 @@ public interface AttributeParser {
      * @param builder Path attributes builder. Guaranteed to contain all valid attributes whose type is numerically
      *        lower than this attribute's type.
      * @param constraint Peer specific constraints.
-     * @throws BGPDocumentedException
-     * @throws BGPParsingException
+     * @throws BGPDocumentedException exception.
+     * @throws BGPParsingException exception.
      */
-    default void parseAttribute(@Nonnull final ByteBuf buffer, @Nonnull final AttributesBuilder builder, @Nullable final PeerSpecificParserConstraint constraint)
+    default void parseAttribute(
+            @Nonnull final ByteBuf buffer,
+            @Nonnull final AttributesBuilder builder,
+            @Nullable final PeerSpecificParserConstraint constraint)
             throws BGPDocumentedException, BGPParsingException {
         parseAttribute(buffer, builder);
     }

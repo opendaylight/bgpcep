@@ -136,9 +136,9 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     /**
      * Add this constant to length value to achieve all ones in the leftmost nibble.
      */
-    protected static final int LENGTH_MAGIC = 61440;
-    protected static final int MAX_NLRI_LENGTH = 0xFFF;
-    protected static final int MAX_NLRI_LENGTH_ONE_BYTE = 0xF0;
+    private static final int LENGTH_MAGIC = 61440;
+    private static final int MAX_NLRI_LENGTH = 0xFFF;
+    private static final int MAX_NLRI_LENGTH_ONE_BYTE = 0xF0;
 
     @VisibleForTesting
     static final String DO_NOT_VALUE = "do-not";
@@ -201,16 +201,6 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
                 serializeMpUnreachNlri(routes.getDestinationType(), byteAggregator);
             }
         }
-    }
-
-    @Override
-    public final void parseNlri(final ByteBuf nlri, final MpUnreachNlriBuilder builder) throws BGPParsingException {
-        parseNlri(nlri, builder, null);
-    }
-
-    @Override
-    public final void parseNlri(final ByteBuf nlri, final MpReachNlriBuilder builder) throws BGPParsingException {
-        parseNlri(nlri, builder, null);
     }
 
     protected void serializeNlri(@Nonnull final Object[] nlriFields, @Nonnull final ByteBuf buffer) {

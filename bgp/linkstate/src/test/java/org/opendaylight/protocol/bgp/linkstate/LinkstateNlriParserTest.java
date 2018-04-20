@@ -150,7 +150,7 @@ public class LinkstateNlriParserTest {
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         act.start(context);
 
-        parser.parseNlri(Unpooled.copiedBuffer(data), builder);
+        parser.parseNlri(Unpooled.copiedBuffer(data), builder, null);
 
         final DestinationLinkstate ls = ((DestinationLinkstateCase) builder.getAdvertizedRoutes().getDestinationType()).getDestinationLinkstate();
         assertEquals(1, ls.getCLinkstateDestination().size());

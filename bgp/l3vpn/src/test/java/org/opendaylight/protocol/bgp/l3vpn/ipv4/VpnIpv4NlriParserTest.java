@@ -103,7 +103,7 @@ public class VpnIpv4NlriParserTest {
 
         final MpReachNlriBuilder testBuilder = new MpReachNlriBuilder();
         testBuilder.setAfi(Ipv4AddressFamily.class);
-        PARSER.parseNlri(Unpooled.copiedBuffer(REACH_NLRI), testBuilder);
+        PARSER.parseNlri(Unpooled.copiedBuffer(REACH_NLRI), testBuilder, null);
         Assert.assertEquals(mpReachExpected, testBuilder.build());
 
         final ByteBuf output = Unpooled.buffer();
@@ -138,7 +138,7 @@ public class VpnIpv4NlriParserTest {
 
         final MpUnreachNlriBuilder testBuilder = new MpUnreachNlriBuilder();
         testBuilder.setAfi(Ipv4AddressFamily.class);
-        PARSER.parseNlri(Unpooled.copiedBuffer(UNREACH_NLRI), testBuilder);
+        PARSER.parseNlri(Unpooled.copiedBuffer(UNREACH_NLRI), testBuilder, null);
         Assert.assertEquals(mpUnreachExpected1, testBuilder.build());
 
         final ByteBuf output = Unpooled.buffer();
