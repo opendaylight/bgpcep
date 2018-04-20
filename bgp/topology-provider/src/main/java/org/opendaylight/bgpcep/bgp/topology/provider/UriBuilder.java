@@ -40,8 +40,16 @@ final class UriBuilder {
     UriBuilder(final LinkstateRoute route) {
         this.sb = new StringBuilder("bgpls://");
 
-        if (route.getDistinguisher() != null) {
-            this.sb.append(route.getDistinguisher().getValue().toString()).append(':');
+        if (route.getRouteDistinguisher() != null) {
+            String rd;
+            if (route.getRouteDistinguisher().getRdAs() != null) {
+                rd = route.getRouteDistinguisher().getRdAs().getValue();
+            } else if (route.getRouteDistinguisher().getRdIpv4() != null) {
+                rd = route.getRouteDistinguisher().getRdIpv4().getValue();
+            } else  {
+                rd = route.getRouteDistinguisher().getRdTwoOctetAs().getValue();
+            }
+            this.sb.append(rd).append(':');
         }
 
         this.sb.append(route.getProtocolId().toString()).append(':')

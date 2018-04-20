@@ -17,7 +17,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.Identifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.Ipv4InterfaceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.ProtocolId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.RouteDistinguisher;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.TopologyIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.isis.lan.identifier.IsIsRouterIdentifierBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.object.type.LinkCaseBuilder;
@@ -29,9 +28,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.node.identifier.c.router.identifier.OspfNodeCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.node.identifier.c.router.identifier.isis.pseudonode._case.IsisPseudonodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.node.identifier.c.router.identifier.ospf.node._case.OspfNodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RouteDistinguisher;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RouteDistinguisherBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
 
 public class UriBuilderTest {
+    private static final RouteDistinguisher DISTINGUISHER
+            = RouteDistinguisherBuilder.getDefaultInstance("1.2.3.4:258");
 
     @Test
     public void test() {
@@ -40,12 +43,12 @@ public class UriBuilderTest {
         final UriBuilder a = new UriBuilder(routeB.build());
         assertEquals("bgpls://Direct:10/", a.toString());
 
-        routeB.setDistinguisher(new RouteDistinguisher(BigInteger.ONE));
+        routeB.setRouteDistinguisher(DISTINGUISHER);
         final UriBuilder b = new UriBuilder(routeB.build());
-        assertEquals("bgpls://1:Direct:10/", b.toString());
+        assertEquals("bgpls://1.2.3.4:258:Direct:10/", b.toString());
 
         final UriBuilder c = new UriBuilder(b, "foo");
-        assertEquals("bgpls://1:Direct:10/type=foo", c.toString());
+        assertEquals("bgpls://1.2.3.4:258:Direct:10/type=foo", c.toString());
 
         a.add("foo", 25L);
         assertEquals("bgpls://Direct:10/&foo=25", a.toString());
@@ -69,8 +72,8 @@ public class UriBuilderTest {
                         .build()).setPsn((short) 2).build()).build());
         linkB.setRemoteNodeDescriptors(nodeR.build());
         c.add(linkB.build());
-        assertEquals("bgpls://1:Direct:10/type=foo&local-as=12&local-domain=15&local-area=17&local-router=22"
-                + "&remote-router=0102.0304.0506.02&ipv4-iface=127.0.0.1&ipv4-neigh=20.20.20.20&mt=55&local-id=1&"
-                + "remote-id=2", c.toString());
+        assertEquals("bgpls://1.2.3.4:258:Direct:10/type=foo&local-as=12&local-domain=15&local-area=17&"
+                + "local-router=22&remote-router=0102.0304.0506.02&ipv4-iface=127.0.0.1&ipv4-neigh=20.20.20.20&m"
+                + "t=55&local-id=1&remote-id=2", c.toString());
     }
 }

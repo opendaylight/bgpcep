@@ -156,10 +156,6 @@ module bgp-linkstate {
         }
     }
 
-    typedef route-distinguisher {
-        type uint64;
-    }
-
     typedef identifier {
         type uint64;
     }
@@ -321,8 +317,10 @@ module bgp-linkstate {
     }
 
     grouping linkstate {
-        leaf distinguisher {
-            type route-distinguisher;
+        uses bgp-t:route-distinguisher-grouping {
+            refine route-distinguisher {
+                mandatory false;
+            }
         }
         leaf protocol-id {
             type protocol-id;
