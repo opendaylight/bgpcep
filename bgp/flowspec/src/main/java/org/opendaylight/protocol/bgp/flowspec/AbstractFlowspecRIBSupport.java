@@ -10,8 +10,6 @@ package org.opendaylight.protocol.bgp.flowspec;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.Beta;
-import com.google.common.collect.ImmutableCollection;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import java.util.Collection;
 import java.util.Optional;
@@ -51,21 +49,6 @@ public abstract class AbstractFlowspecRIBSupport<T extends AbstractFlowspecNlriP
         super(cazeClass, containerClass, listClass, afiClass, safiClass, dstContainerClassQName);
 
         this.nlriParser = requireNonNull(nlriParser);
-    }
-
-    @Override
-    public final ImmutableCollection<Class<? extends DataObject>> cacheableAttributeObjects() {
-        return ImmutableSet.of();
-    }
-
-    @Override
-    public final ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects() {
-        return ImmutableSet.of();
-    }
-
-    @Override
-    public final boolean isComplexRoute() {
-        return true;
     }
 
     @Override
