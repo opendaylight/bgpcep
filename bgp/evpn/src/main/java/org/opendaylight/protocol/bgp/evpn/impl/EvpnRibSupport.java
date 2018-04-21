@@ -7,8 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.evpn.impl;
 
-import com.google.common.collect.ImmutableCollection;
-import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Collection;
@@ -38,7 +36,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -65,21 +62,6 @@ final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoute, EvpnRouteKey> {
 
     static EvpnRibSupport getInstance() {
         return SINGLETON;
-    }
-
-    @Override
-    public ImmutableCollection<Class<? extends DataObject>> cacheableAttributeObjects() {
-        return ImmutableSet.of();
-    }
-
-    @Override
-    public ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects() {
-        return ImmutableSet.of();
-    }
-
-    @Override
-    public boolean isComplexRoute() {
-        return true;
     }
 
     @Override

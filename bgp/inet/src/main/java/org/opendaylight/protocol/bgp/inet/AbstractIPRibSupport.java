@@ -59,18 +59,8 @@ abstract class AbstractIPRibSupport<R extends Route, N extends Identifier>
     }
 
     @Override
-    public final ImmutableCollection<Class<? extends DataObject>> cacheableAttributeObjects() {
-        return ImmutableSet.of();
-    }
-
-    @Override
     public final ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects() {
         return this.cacheableNlriObjects;
-    }
-
-    @Override
-    public final boolean isComplexRoute() {
-        return true;
     }
 
     @Override

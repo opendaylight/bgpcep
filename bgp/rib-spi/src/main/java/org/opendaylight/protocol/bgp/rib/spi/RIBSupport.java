@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
 import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -84,10 +85,14 @@ public interface RIBSupport<R extends Route, N extends Identifier> extends AddPa
     Class<? extends Route> routesListClass();
 
     @Nonnull
-    ImmutableCollection<Class<? extends DataObject>> cacheableAttributeObjects();
+    default ImmutableCollection<Class<? extends DataObject>> cacheableAttributeObjects() {
+        return ImmutableSet.of();
+    }
 
     @Nonnull
-    ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects();
+    default ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects() {
+        return ImmutableSet.of();
+    }
 
     /**
      * Given the NLRI as ContainerNode, this method should extract withdrawn routes
@@ -176,7 +181,9 @@ public interface RIBSupport<R extends Route, N extends Identifier> extends AddPa
      * @deprecated All routes are complex.
      */
     @Deprecated
-    boolean isComplexRoute();
+    default boolean isComplexRoute() {
+        return true;
+    }
 
     /**
      * To send routes out, we'd need to transform the DOM representation of route to

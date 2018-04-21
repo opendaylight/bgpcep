@@ -8,8 +8,6 @@
 package org.opendaylight.protocol.bgp.l3vpn;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableCollection;
-import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Collection;
@@ -125,21 +123,6 @@ public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport<VpnRoute,
 
     private List<VpnDestination> extractRoutes(final Collection<MapEntryNode> routes) {
         return routes.stream().map(this::extractVpnDestination).collect(Collectors.toList());
-    }
-
-    @Override
-    public ImmutableCollection<Class<? extends DataObject>> cacheableAttributeObjects() {
-        return ImmutableSet.of();
-    }
-
-    @Override
-    public ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects() {
-        return ImmutableSet.of();
-    }
-
-    @Override
-    public boolean isComplexRoute() {
-        return true;
     }
 
     @Override

@@ -63,21 +63,6 @@ public final class RIBSupportTestImp extends AbstractRIBSupport {
     }
 
     @Override
-    public ImmutableCollection<Class<? extends DataObject>> cacheableAttributeObjects() {
-        return null;
-    }
-
-    @Override
-    public ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects() {
-        return null;
-    }
-
-    @Override
-    public boolean isComplexRoute() {
-        return false;
-    }
-
-    @Override
     public Route createRoute(final Route route, final String routeKey, final long pathId, final Attributes attributes) {
         return null;
     }

@@ -7,8 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.linkstate.impl;
 
-import com.google.common.collect.ImmutableCollection;
-import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Arrays;
@@ -81,21 +79,6 @@ public final class LinkstateRIBSupport extends AbstractRIBSupport<LinkstateRoute
 
     private static List<CLinkstateDestination> extractRoutes(final Collection<MapEntryNode> routes) {
         return routes.stream().map(LinkstateNlriParser::extractLinkstateDestination).collect(Collectors.toList());
-    }
-
-    @Override
-    public ImmutableCollection<Class<? extends DataObject>> cacheableAttributeObjects() {
-        return ImmutableSet.of();
-    }
-
-    @Override
-    public ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects() {
-        return ImmutableSet.of();
-    }
-
-    @Override
-    public boolean isComplexRoute() {
-        return true;
     }
 
     @Override
