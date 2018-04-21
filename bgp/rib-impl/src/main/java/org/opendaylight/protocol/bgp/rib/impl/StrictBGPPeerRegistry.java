@@ -100,7 +100,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         if (ip.getIpv6Address() != null) {
             return new IpAddress(Ipv6Util.getFullForm(ip.getIpv6Address()));
         }
-        return new IpAddress(new Ipv4Address(ip.getIpv4Address()));
+        return ip;
     }
 
     @Override

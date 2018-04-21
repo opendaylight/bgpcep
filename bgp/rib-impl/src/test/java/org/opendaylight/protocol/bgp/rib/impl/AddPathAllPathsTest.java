@@ -154,7 +154,7 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
 
         final BGPTransportState transportStatePeer1 = peer1State.getBGPTransportState();
         assertEquals(new PortNumber(PORT), transportStatePeer1.getLocalPort());
-        assertEquals(PEER1.getValue(), transportStatePeer1.getRemoteAddress().getIpv4Address().getValue());
+        assertEquals(new IpAddress(PEER1), transportStatePeer1.getRemoteAddress());
 
         assertEquals(State.UP, peer1State.getBGPSessionState().getSessionState());
         checkEquals(()-> assertEquals(1L, peer1State.getBGPPeerMessagesState().getUpdateMessagesReceivedCount()));
@@ -225,7 +225,7 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
 
         final BGPTransportState transportState = peer4State.getBGPTransportState();
         assertEquals(new PortNumber(PORT), transportState.getLocalPort());
-        assertEquals(PEER4.getValue(), transportState.getRemoteAddress().getIpv4Address().getValue());
+        assertEquals(new IpAddress(PEER4), transportState.getRemoteAddress());
 
         final BGPPeerMessagesState peerMessagesState = peer4State.getBGPPeerMessagesState();
         assertEquals(0L, peerMessagesState.getNotificationMessagesReceivedCount());
