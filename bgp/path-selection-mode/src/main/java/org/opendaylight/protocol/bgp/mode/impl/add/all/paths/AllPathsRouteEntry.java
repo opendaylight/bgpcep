@@ -19,15 +19,15 @@ import org.opendaylight.protocol.bgp.mode.impl.add.AddPathAbstractRouteEntry;
 import org.opendaylight.protocol.bgp.mode.impl.add.AddPathBestPath;
 import org.opendaylight.protocol.bgp.mode.impl.add.RouteKey;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 
-abstract class AbstractAllPathsRouteEntry extends AddPathAbstractRouteEntry {
-    AbstractAllPathsRouteEntry(final BGPPeerTracker peerTracker) {
+final class AllPathsRouteEntry extends AddPathAbstractRouteEntry {
+    AllPathsRouteEntry(final BGPPeerTracker peerTracker) {
         super(peerTracker);
     }
 
     @Override
-    public final boolean selectBest(final long localAs) {
+    public boolean selectBest(final long localAs) {
         final List<AddPathBestPath> newBestPathList = new ArrayList<>();
         final List<RouteKey> keyList = this.offsets.getRouteKeysList();
 
@@ -39,10 +39,10 @@ abstract class AbstractAllPathsRouteEntry extends AddPathAbstractRouteEntry {
             /*we add the rest of path, regardless in what order they are, since this is all path case */
             for (final RouteKey key : keyList) {
                 final int offset = this.offsets.offsetOf(key);
-                final Attributes attributes = this.offsets.getValue(this.values, offset);
+                final Route route = this.offsets.getValue(this.values, offset);
                 requireNonNull(key.getRouteId(), "Router ID may not be null");
-                if (attributes != null) {
-                    final BestPathState state = new BestPathStateImpl(attributes);
+                if (route != null) {
+                    final BestPathState state = new BestPathStateImpl(route.getAttributes());
                     final AddPathBestPath bestPath = new AddPathBestPath(state, key, offset,
                             this.offsets.getValue(this.pathsId, offset));
                     newBestPathList.add(bestPath);

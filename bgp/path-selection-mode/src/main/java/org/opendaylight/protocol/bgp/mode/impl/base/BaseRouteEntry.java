@@ -35,32 +35,34 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @NotThreadSafe
-abstract class BaseAbstractRouteEntry extends AbstractRouteEntry<BaseBestPath> {
-    private static final Logger LOG = LoggerFactory.getLogger(BaseAbstractRouteEntry.class);
+final class BaseRouteEntry extends AbstractRouteEntry<BaseBestPath> {
+    private static final Logger LOG = LoggerFactory.getLogger(BaseRouteEntry.class);
     private OffsetMap offsets = OffsetMap.EMPTY;
-    private Attributes[] values = EMPTY_ATTRIBUTES;
+    private Route[] values = EMPTY_VALUES;
     private BaseBestPath bestPath;
     private BaseBestPath removedBestPath;
 
-    BaseAbstractRouteEntry(final BGPPeerTracker peerTracker) {
+    BaseRouteEntry(final BGPPeerTracker peerTracker) {
         super(peerTracker);
     }
 
-    /**
-     * Remove route.
-     *
-     * @param routerId router ID in unsigned integer
-     * @param offset   of removed route
-     * @return true if its the last route
-     */
-    protected final boolean removeRoute(final UnsignedInteger routerId, final int offset) {
-        this.values = this.offsets.removeValue(this.values, offset, EMPTY_ATTRIBUTES);
+    @Override
+    public  boolean removeRoute(final UnsignedInteger routerId, final long remotePathId) {
+        final int offset = this.offsets.offsetOf(routerId);
+        this.values = this.offsets.removeValue(this.values, offset, EMPTY_VALUES);
         this.offsets = this.offsets.without(routerId);
         return this.offsets.isEmpty();
     }
 
     @Override
-    public final boolean selectBest(final long localAs) {
+    public Route createRoute(final RIBSupport ribSup, String routeKey, final long pathId,
+            final BaseBestPath path) {
+        final Route route = this.offsets.getValue(this.values, this.offsets.offsetOf(path.getRouterId()));
+        return ribSup.createRoute(route, routeKey, pathId, path.getAttributes());
+    }
+
+    @Override
+    public boolean selectBest(final long localAs) {
         /*
          * FIXME: optimize flaps by making sure we consider stability of currently-selected route.
          */
@@ -69,7 +71,7 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry<BaseBestPath> {
         // Select the best route.
         for (int i = 0; i < this.offsets.size(); ++i) {
             final UnsignedInteger routerId = this.offsets.getRouterKey(i);
-            final Attributes attributes = this.offsets.getValue(this.values, i);
+            final Attributes attributes = this.offsets.getValue(this.values, i).getAttributes();
             LOG.trace("Processing router id {} attributes {}", routerId, attributes);
             selector.processPath(routerId, attributes);
         }
@@ -89,7 +91,6 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry<BaseBestPath> {
 
     @Override
     public int addRoute(final UnsignedInteger routerId, final long remotePathId, final Route route) {
-        final Attributes advertisedAttrs = route.getAttributes();
         int offset = this.offsets.offsetOf(routerId);
         if (offset < 0) {
             final OffsetMap newOffsets = this.offsets.with(routerId);
@@ -99,8 +100,8 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry<BaseBestPath> {
             this.offsets = newOffsets;
         }
 
-        this.offsets.setValue(this.values, offset, advertisedAttrs);
-        LOG.trace("Added route from {} attributes {}", routerId, advertisedAttrs);
+        this.offsets.setValue(this.values, offset, route);
+        LOG.trace("Added route {} from {}", route, routerId);
         return offset;
     }
 
@@ -138,9 +139,11 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry<BaseBestPath> {
                 this.peerTracker.getPeer(this.bestPath.getPeerId()), toPeer);
         final Optional<Attributes> effAttrib = entryDep.getRoutingPolicies()
                 .applyExportPolicies(routeEntry, this.bestPath.getAttributes());
-        final Route route = createRoute(ribSupport, entryInfo.getRouteKey(), this.bestPath.getPathId(), this.bestPath);
-        InstanceIdentifier ribOutIId = ribSupport.createRouteIdentifier(toPeer.getRibOutIId(localTK), routeIdentifier);
-        if (effAttrib.isPresent() && route != null) {
+        if (effAttrib.isPresent()) {
+            final Route route = createRoute(ribSupport,
+                    entryInfo.getRouteKey(), this.bestPath.getPathId(), this.bestPath);
+            InstanceIdentifier ribOutIId = ribSupport.createRouteIdentifier(toPeer.getRibOutIId(localTK),
+                    routeIdentifier);
             LOG.debug("Write route {} to peer AdjRibsOut {}", route, toPeer.getPeerId());
             tx.put(LogicalDatastoreType.OPERATIONAL, ribOutIId, route);
             tx.put(LogicalDatastoreType.OPERATIONAL, ribOutIId.child(Attributes.class), effAttrib.get());
@@ -175,10 +178,6 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry<BaseBestPath> {
         tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget, route);
         fillAdjRibsOut(this.bestPath.getAttributes(), route, routeIdentifier, this.bestPath.getPeerId(),
                 entryDep, tx);
-    }
-
-    final OffsetMap getOffsets() {
-        return this.offsets;
     }
 
     @VisibleForTesting

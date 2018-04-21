@@ -16,16 +16,16 @@ import org.opendaylight.protocol.bgp.mode.impl.add.AddPathBestPath;
 import org.opendaylight.protocol.bgp.mode.impl.add.RouteKey;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 
-abstract class AbstractNPathsRouteEntry extends AddPathAbstractRouteEntry {
+final class NPathsRouteEntry extends AddPathAbstractRouteEntry {
     private final long npaths;
 
-    AbstractNPathsRouteEntry(final long npaths, final BGPPeerTracker peerTracker) {
+    NPathsRouteEntry(final long npaths, final BGPPeerTracker peerTracker) {
         super(peerTracker);
         this.npaths = npaths;
     }
 
     @Override
-    public final boolean selectBest(final long localAs) {
+    public boolean selectBest(final long localAs) {
         final List<AddPathBestPath> newBestPathList = new ArrayList<>();
         final List<RouteKey> keyList = this.offsets.getRouteKeysList();
         final long maxSearch = this.npaths < this.offsets.size()

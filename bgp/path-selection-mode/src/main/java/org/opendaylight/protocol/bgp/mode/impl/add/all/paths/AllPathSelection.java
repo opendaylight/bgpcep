@@ -11,7 +11,6 @@ package org.opendaylight.protocol.bgp.mode.impl.add.all.paths;
 import static java.util.Objects.requireNonNull;
 
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
-import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 
 public class AllPathSelection implements PathSelectionMode {
@@ -22,8 +21,8 @@ public class AllPathSelection implements PathSelectionMode {
     }
 
     @Override
-    public RouteEntry createRouteEntry() {
-        return new ComplexRouteEntry(this.peerTracker);
+    public org.opendaylight.protocol.bgp.mode.api.RouteEntry createRouteEntry() {
+        return new AllPathsRouteEntry(this.peerTracker);
     }
 
     @Override

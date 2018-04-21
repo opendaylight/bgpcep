@@ -30,6 +30,6 @@ public final class AddPathBestNPathSelection implements PathSelectionMode {
 
     @Override
     public RouteEntry createRouteEntry() {
-        return new ComplexRouteEntry(this.npaths, this.peerTracker);
+        return new NPathsRouteEntry(this.npaths, this.peerTracker);
     }
 }

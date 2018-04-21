@@ -53,7 +53,7 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry<AddPa
     private List<AddPathBestPath> bestPath;
     private List<AddPathBestPath> bestPathRemoved;
     protected OffsetMap offsets = OffsetMap.EMPTY;
-    protected Attributes[] values = EMPTY_ATTRIBUTES;
+    protected Route[] values = EMPTY_VALUES;
     protected Long[] pathsId =  EMPTY_PATHS_ID;
     private long pathIdCounter = 0L;
     private boolean oldNonAddPathBestPathTheSame;
@@ -82,33 +82,39 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry<AddPa
         }
     }
 
-    protected int addRoute(final RouteKey key, final Attributes attributes) {
+    @Override
+    public final Route createRoute(final RIBSupport ribSup, final String routeKey, final long pathId,
+            final AddPathBestPath path) {
+        final OffsetMap map = getOffsets();
+        final Route route = map.getValue(this.values, map.offsetOf(path.getRouteKey()));
+        return ribSup.createRoute(route, routeKey, pathId, path.getAttributes());
+    }
+
+    @Override
+    public final int addRoute(final UnsignedInteger routerId, final long remotePathId, final Route route) {
+        final RouteKey key = new RouteKey(routerId, remotePathId);
         int offset = this.offsets.offsetOf(key);
         if (offset < 0) {
             final OffsetMap newOffsets = this.offsets.with(key);
             offset = newOffsets.offsetOf(key);
-            final Attributes[] newAttributes = newOffsets.expand(this.offsets, this.values, offset);
+            final Route[] newRoute = newOffsets.expand(this.offsets, this.values, offset);
             final Long[] newPathsId = newOffsets.expand(this.offsets, this.pathsId, offset);
-            this.values = newAttributes;
+            this.values = newRoute;
             this.offsets = newOffsets;
             this.pathsId = newPathsId;
             this.offsets.setValue(this.pathsId, offset, ++this.pathIdCounter);
         }
-        this.offsets.setValue(this.values, offset, attributes);
-        LOG.trace("Added route from {} attributes {}", key.getRouteId(), attributes);
+        this.offsets.setValue(this.values, offset, route);
+        LOG.trace("Added route {} from {}", route, key.getRouteId());
         return offset;
     }
 
-    /**
-     * Remove route.
-     *
-     * @param key RouteKey of removed route
-     * @param offset Offset of removed route
-     * @return true if it was the last route
-     */
-    protected final boolean removeRoute(final RouteKey key, final int offset) {
+    @Override
+    public final boolean removeRoute(final UnsignedInteger routerId, final long remotePathId) {
+        final RouteKey key = new RouteKey(routerId, remotePathId);
+        final int offset = getOffsets().offsetOf(key);
         final long pathId = this.offsets.getValue(this.pathsId, offset);
-        this.values = this.offsets.removeValue(this.values, offset, EMPTY_ATTRIBUTES);
+        this.values = this.offsets.removeValue(this.values, offset, EMPTY_VALUES);
         this.pathsId = this.offsets.removeValue(this.pathsId, offset, EMPTY_PATHS_ID);
         this.offsets = this.offsets.without(key);
         if (this.removedPaths == null) {
@@ -156,42 +162,35 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry<AddPa
     }
 
     @Override
-    public void initializeBestPaths(final RouteEntryDependenciesContainer entryDependencies,
+    public void initializeBestPaths(final RouteEntryDependenciesContainer routeEntryDep,
             final RouteEntryInfo entryInfo, final WriteTransaction tx) {
         if (this.bestPath != null) {
             final Peer toPeer = entryInfo.getToPeer();
-            final TablesKey localTk = entryDependencies.getLocalTablesKey();
+            final TablesKey localTk = routeEntryDep.getLocalTablesKey();
             final boolean destPeerSupAddPath = toPeer.supportsAddPathSupported(localTk);
             for (final AddPathBestPath path : this.bestPath) {
                 if (!filterRoutes(path.getPeerId(), toPeer, localTk)) {
                     continue;
                 }
-                writeRoutePath(entryInfo, destPeerSupAddPath, path, localTk, entryDependencies, tx);
+                final String routeKey = entryInfo.getRouteKey();
+                final RIBSupport ribSupport = routeEntryDep.getRibSupport();
+                final BGPRouteEntryExportParameters baseExp = new BGPRouteEntryExportParametersImpl(
+                        this.peerTracker.getPeer(path.getPeerId()), toPeer);
+                final Optional<Attributes> effAttrib = routeEntryDep.getRoutingPolicies()
+                        .applyExportPolicies(baseExp, path.getAttributes());
+                if (effAttrib.isPresent()) {
+                    Identifier routeIdentifier = ribSupport.createRouteListKey(destPeerSupAddPath
+                            ? path.getPathId() : NON_PATH_ID_VALUE, routeKey);
+                    final Route route = createRoute(ribSupport, routeKey, destPeerSupAddPath
+                            ? path.getPathId() : NON_PATH_ID_VALUE, path);
+                    InstanceIdentifier ribOutIId
+                            = ribSupport.createRouteIdentifier(toPeer.getRibOutIId(localTk), routeIdentifier);
+
+                    LOG.debug("Write route {} to peer AdjRibsOut {}", route, toPeer.getPeerId());
+                    tx.put(LogicalDatastoreType.OPERATIONAL, ribOutIId, route);
+                    tx.put(LogicalDatastoreType.OPERATIONAL, ribOutIId.child(Attributes.class), effAttrib.get());
+                }
             }
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private void writeRoutePath(final RouteEntryInfo entryInfo,
-            final boolean destPeerSupAddPath, final AddPathBestPath path,
-            final TablesKey localTK, final RouteEntryDependenciesContainer routeEntryDep, final WriteTransaction tx) {
-        final String routeKey = entryInfo.getRouteKey();
-        final RIBSupport ribSupport = routeEntryDep.getRibSupport();
-        final BGPRouteEntryExportParameters baseExp = new BGPRouteEntryExportParametersImpl(
-                this.peerTracker.getPeer(path.getPeerId()), entryInfo.getToPeer());
-        final Optional<Attributes> effAttrib = routeEntryDep.getRoutingPolicies()
-                .applyExportPolicies(baseExp, path.getAttributes());
-
-        Identifier routeIdentifier = ribSupport.createRouteListKey(destPeerSupAddPath
-                ? path.getPathId() : NON_PATH_ID_VALUE, routeKey);
-        final Peer toPeer = entryInfo.getToPeer();
-        final Route route = createRoute(ribSupport, routeKey, destPeerSupAddPath
-                ? path.getPathId() : NON_PATH_ID_VALUE, path);
-        InstanceIdentifier ribOutIId = ribSupport.createRouteIdentifier(toPeer.getRibOutIId(localTK), routeIdentifier);
-        if (effAttrib.isPresent() && route != null) {
-            LOG.debug("Write route {} to peer AdjRibsOut {}", route, toPeer.getPeerId());
-            tx.put(LogicalDatastoreType.OPERATIONAL, ribOutIId, route);
-            tx.put(LogicalDatastoreType.OPERATIONAL, ribOutIId.child(Attributes.class), effAttrib.get());
         }
     }
 
@@ -293,10 +292,10 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry<AddPa
 
     private void selectBest(final RouteKey key, final AddPathSelector selector) {
         final int offset = this.offsets.offsetOf(key);
-        final Attributes attributes = this.offsets.getValue(this.values, offset);
+        final Route route = this.offsets.getValue(this.values, offset);
         final long pathId = this.offsets.getValue(this.pathsId, offset);
-        LOG.trace("Processing router key {} attributes {}", key, attributes);
-        selector.processPath(attributes, key, offset, pathId);
+        LOG.trace("Processing router key {} route {}", key, route);
+        selector.processPath(route.getAttributes(), key, offset, pathId);
     }
 
     /**
