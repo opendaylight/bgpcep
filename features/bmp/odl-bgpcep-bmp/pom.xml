@@ -6,20 +6,20 @@
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>single-feature-parent</artifactId>
-        <version>1.8.4-SNAPSHOT</version>
+        <version>1.8.4-Carbon</version>
         <relativePath/>
     </parent>
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>odl-bgpcep-bmp</artifactId>
-    <version>0.7.4-SNAPSHOT</version>
+    <version>0.7.4-Carbon</version>
     <packaging>feature</packaging>
 
     <name>OpenDaylight :: BMP</name>
 
     <properties>
-        <controller.mdsal.version>1.5.4-SNAPSHOT</controller.mdsal.version>
-        <config.version>0.6.4-SNAPSHOT</config.version>
+        <controller.mdsal.version>1.5.4-Carbon</controller.mdsal.version>
+        <config.version>0.6.4-Carbon</config.version>
     </properties>
 
     <dependencyManagement>
