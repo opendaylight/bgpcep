@@ -15,14 +15,17 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import io.netty.channel.ChannelFuture;
 import java.util.Set;
-import java.util.concurrent.Future;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.PeerRPCs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.RouteRefresh;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.RouteRefreshBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.BgpPeerRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.ResetSessionInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.ResetSessionOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.ResetSessionOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.RouteRefreshRequestInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.RouteRefreshRequestOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.RouteRefreshRequestOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yangtools.yang.common.RpcError.ErrorType;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -47,28 +50,31 @@ public class BgpPeerRpc implements BgpPeerRpcService {
     }
 
     @Override
-    public Future<RpcResult<Void>> resetSession(final ResetSessionInput input) {
+    public ListenableFuture<RpcResult<ResetSessionOutput>> resetSession(final ResetSessionInput input) {
         final ListenableFuture<?> f = this.peerRPCs.releaseConnection();
-        return Futures.transform(JdkFutureAdapters.listenInPoolThread(f), input1 -> {
+        return Futures.transform(f, input1 -> {
             if (f.isDone()) {
-                return RpcResultBuilder.<Void>success().build();
+                return RpcResultBuilder.success(new ResetSessionOutputBuilder().build()).build();
             }
-            return RpcResultBuilder.<Void>failed().withError(ErrorType.RPC, FAILURE_RESET_SESSION_MSG).build();
+            return RpcResultBuilder.<ResetSessionOutput>failed().withError(ErrorType.RPC, FAILURE_RESET_SESSION_MSG)
+                    .build();
         }, MoreExecutors.directExecutor());
     }
 
     @Override
-    public Future<RpcResult<Void>> routeRefreshRequest(final RouteRefreshRequestInput input) {
+    public ListenableFuture<RpcResult<RouteRefreshRequestOutput>> routeRefreshRequest(
+            final RouteRefreshRequestInput input) {
         final ChannelFuture f = sendRRMessage(input);
         if (f != null) {
             return Futures.transform(JdkFutureAdapters.listenInPoolThread(f), input1 -> {
                 if (f.isSuccess()) {
-                    return RpcResultBuilder.<Void>success().build();
+                    return RpcResultBuilder.success(new RouteRefreshRequestOutputBuilder().build()).build();
                 }
-                return RpcResultBuilder.<Void>failed().withError(ErrorType.RPC, FAILURE_MSG).build();
+                return RpcResultBuilder.<RouteRefreshRequestOutput>failed().withError(ErrorType.RPC, FAILURE_MSG)
+                        .build();
             }, MoreExecutors.directExecutor());
         }
-        return RpcResultBuilder.<Void>failed().withError(ErrorType.RPC, FAILURE_MSG +
+        return RpcResultBuilder.<RouteRefreshRequestOutput>failed().withError(ErrorType.RPC, FAILURE_MSG +
                 " due to unsupported address families.").buildFuture();
     }
 
