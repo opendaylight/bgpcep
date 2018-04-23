@@ -16,10 +16,10 @@ import com.google.common.base.Stopwatch;
 import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -148,7 +148,7 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
     }
 
     @Override
-    public Future<RpcResult<AddPrefixOutput>> addPrefix(final AddPrefixInput input) {
+    public ListenableFuture<RpcResult<AddPrefixOutput>> addPrefix(final AddPrefixInput input) {
         final long duration = addRoute(input.getPrefix(), input.getNexthop(), input.getCount(), input.getBatchsize());
         final long rate = countRate(duration, input.getCount());
 
@@ -159,7 +159,7 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
     }
 
     @Override
-    public Future<RpcResult<DeletePrefixOutput>> deletePrefix(final DeletePrefixInput input) {
+    public ListenableFuture<RpcResult<DeletePrefixOutput>> deletePrefix(final DeletePrefixInput input) {
         final long duration = deleteRoute(input.getPrefix(), input.getCount(), input.getBatchsize());
         final long rate = countRate(duration, input.getCount());
 
