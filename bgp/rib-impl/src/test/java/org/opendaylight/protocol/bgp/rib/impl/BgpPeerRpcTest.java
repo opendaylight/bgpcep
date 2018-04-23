@@ -24,8 +24,10 @@ import org.opendaylight.protocol.bgp.rib.spi.PeerRPCs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.PeerRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.ResetSessionInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.ResetSessionInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.ResetSessionOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.RouteRefreshRequestInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.RouteRefreshRequestInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.RouteRefreshRequestOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv6AddressFamily;
@@ -64,7 +66,7 @@ public final class BgpPeerRpcTest {
                 .setAfi(Ipv4AddressFamily.class)
                 .setSafi(SubsequentAddressFamily.class)
                 .setPeerRef(this.peer).build();
-        final Future<RpcResult<Void>> result = this.rpc.routeRefreshRequest(input);
+        final Future<RpcResult<RouteRefreshRequestOutput>> result = this.rpc.routeRefreshRequest(input);
         assertTrue(result.get().getErrors().isEmpty());
     }
 
@@ -74,7 +76,7 @@ public final class BgpPeerRpcTest {
                 .setAfi(Ipv6AddressFamily.class)
                 .setSafi(SubsequentAddressFamily.class)
                 .setPeerRef(this.peer).build();
-        final Future<RpcResult<Void>> result = this.rpc.routeRefreshRequest(input);
+        final Future<RpcResult<RouteRefreshRequestOutput>> result = this.rpc.routeRefreshRequest(input);
         assertEquals(1, result.get().getErrors().size());
         assertEquals("Failed to send Route Refresh message due to unsupported address families.",
                 result.get().getErrors().iterator().next().getMessage());
@@ -85,7 +87,7 @@ public final class BgpPeerRpcTest {
         Mockito.doReturn(Futures.immediateFuture(null)).when(this.peerRpcs).releaseConnection();
         final ResetSessionInput input = new ResetSessionInputBuilder()
                 .setPeerRef(this.peer).build();
-        final Future<RpcResult<Void>> result = this.rpc.resetSession(input);
+        final Future<RpcResult<ResetSessionOutput>> result = this.rpc.resetSession(input);
         assertTrue(result.get().getErrors().isEmpty());
     }
 }
