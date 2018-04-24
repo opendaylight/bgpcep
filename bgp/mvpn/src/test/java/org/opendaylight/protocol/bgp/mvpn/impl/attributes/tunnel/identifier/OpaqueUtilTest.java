@@ -6,11 +6,11 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier;
+package org.opendaylight.protocol.bgp.mvpn.impl.attributes.tunnel.identifier;
 
-import static junit.framework.TestCase.assertNull;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -62,8 +62,9 @@ public class OpaqueUtilTest {
         (byte) 0x02
     };
 
-    static final HexString OPAQUE_TEST = new HexString("07:00:0b:00:00:01:00:00:00:01:00:00:00:00");
-    static final HexString OPAQUE_TEST2 = new HexString("07:00:0b:00:00:01:00:00:00:01:00:00:00:00:01:02");
+    private static final HexString OPAQUE_TEST = new HexString("07:00:0b:00:00:01:00:00:00:01:00:00:00:00");
+    private static final HexString OPAQUE_TEST2
+            = new HexString("07:00:0b:00:00:01:00:00:00:01:00:00:00:00:01:02");
     private static final Opaque OPAQUE = new OpaqueValueBuilder().setOpaque(OPAQUE_TEST)
             .setOpaqueType(OpaqueUtil.GENERIC_LSP_IDENTIFIER).build();
     private static final Opaque OPAQUE_EXTENDED = new OpaqueValueBuilder().setOpaque(OPAQUE_TEST2)

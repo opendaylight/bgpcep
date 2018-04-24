@@ -55,6 +55,17 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>bgp-rib-spi</artifactId>
         </dependency>
+        <!-- test scope dependencies -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-parser-impl</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <scm>

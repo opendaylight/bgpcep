@@ -6,20 +6,19 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier;
+package org.opendaylight.protocol.bgp.mvpn.impl.attributes.tunnel.identifier;
 
 import io.netty.buffer.ByteBuf;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.TunnelIdentifier;
 
-interface TunnelIdentifierParser {
+interface TunnelIdentifierSerializer {
     /**
-     * Parse Tunnel Identifier from buffer.
+     * Serialize tunnel identifier.
      *
-     * @param buffer Encoded Tunnel Identifier in ByteBuf.
-     * @return Parsed Tunnel Identifier body
+     * @param tunnelIdentifier Tunnel Identifier body
+     * @param buffer           Encoded Tunnel Identifier in ByteBuf
+     * @return Tunnel identifier Type
      */
-    @Nullable
-    TunnelIdentifier parse(@Nonnull ByteBuf buffer);
+    int serialize(@Nonnull TunnelIdentifier tunnelIdentifier, @Nonnull ByteBuf buffer);
 }
