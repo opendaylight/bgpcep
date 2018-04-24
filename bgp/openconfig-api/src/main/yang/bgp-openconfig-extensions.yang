@@ -81,6 +81,20 @@ module bgp-openconfig-extensions {
         reference "https://tools.ietf.org/html/rfc7752";
     }
 
+    identity IPV4-MCAST-VPN {
+        base bgp-types:afi-safi-type;
+        description
+            "Multicast IPv4 VPN (AFI,SAFI = 1,5)";
+        reference "RFC6514";
+    }
+
+    identity IPV6-MCAST-VPN {
+        base bgp-types:afi-safi-type;
+        description
+            "Multicast IPv6 VPN (AFI,SAFI = 2,5)";
+        reference "RFC6514";
+    }
+
     grouping transport-config {
         leaf remote-port {
             type inet:port-number;
