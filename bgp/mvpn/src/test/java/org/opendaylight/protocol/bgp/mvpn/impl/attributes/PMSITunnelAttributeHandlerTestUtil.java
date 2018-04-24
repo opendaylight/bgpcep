@@ -6,28 +6,26 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier;
+package org.opendaylight.protocol.bgp.mvpn.impl.attributes;
 
 import static java.util.Collections.singletonList;
-import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.IPV6;
-import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.MPLS_LABEL;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.OpaqueUtilTest.OPAQUE_TEST;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.OpaqueUtilTest.OPAQUE_TEST2;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.L2vpnAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.evpn.routes.evpn.routes.evpn.route.PmsiTunnelAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.evpn.routes.evpn.routes.evpn.route.PmsiTunnelAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.HexString;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv6AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.PAddressPMulticastGroup;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.bgp.rib.route.PmsiTunnelAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.bgp.rib.route.PmsiTunnelAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.PmsiTunnelBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.TunnelIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.BidirPimTreeBuilder;
@@ -42,6 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tun
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 final class PMSITunnelAttributeHandlerTestUtil {
+    private static final MplsLabel MPLS_LABEL = new MplsLabel(24001L);
     /**
      * ATT - TYPE - ATT LENGTH.
      * PMSI FLAG - PMSI TYPE 0- MPLS LABEL
@@ -112,7 +111,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
     static final byte[] M_LDP_P2MP_LSP_EXPECTED_L2VPN = {
         (byte) 0x80, (byte) 0x16, (byte) 0x35,
         (byte) 0x01, (byte) 0x02, (byte) 0x05, (byte) 0xdc, (byte) 0x10,
-        (byte) 0x06, (byte) 0x00, (byte) 0x19, (byte) 0x04,
+        (byte) 0x06, (byte) 0x00, (byte) 0x01, (byte) 0x04,
         (byte) 0x01, (byte) 0x01, (byte) 0x01, (byte) 0x01,
         (byte) 0x00, (byte) 0x26, //Opaque Values Length
         (byte) 0x01, (byte) 0x00, (byte) 0x0e, // Opaque Type - Length
@@ -253,24 +252,18 @@ final class PMSITunnelAttributeHandlerTestUtil {
         (byte) 0xfc, (byte) 0x00, (byte) 0x03, // Opaque Type - Length
         (byte) 0xb5, (byte) 0xeb, (byte) 0x2d,  //Value
     };
-
-    static final IpAddress P_MULTICAST = new IpAddress(new Ipv4Address("23.1.1.1"));
-    static final IpAddress IP_ADDRESS = new IpAddress(new Ipv4Address("1.1.1.1"));
+    private static final IpAddress P_MULTICAST = new IpAddress(new Ipv4Address("23.1.1.1"));
+    private static final IpAddress IP_ADDRESS = new IpAddress(new Ipv4Address("1.1.1.1"));
     private static final Short NO_SUPPORTED_OPAQUE = 200;
+    private static final short GENERIC_LSP_IDENTIFIER = 1;
+    private static final HexString OPAQUE_TEST = new HexString("07:00:0b:00:00:01:00:00:00:01:00:00:00:00");
+    private static final HexString OPAQUE_TEST2
+            = new HexString("07:00:0b:00:00:01:00:00:00:01:00:00:00:00:01:02");
+    private static final IpAddress IPV6 = new IpAddress(new Ipv6Address("2001::1"));
+    private static final short EXTENDED_TYPE = 255;
 
     private PMSITunnelAttributeHandlerTestUtil() {
         throw new UnsupportedOperationException();
-    }
-
-    static class MockTunnelIdentifier implements TunnelIdentifier {
-        @Override
-        public Class<? extends DataContainer> getImplementedInterface() {
-            return MockTunnelIdentifier.class;
-        }
-    }
-
-    private interface NonSupportedAddressFamily extends AddressFamily {
-
     }
 
     private static PAddressPMulticastGroup buildPAddressPMulticastGroup() {
@@ -289,7 +282,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
     private static Attributes buildAttribute(final PmsiTunnelBuilder pmsiTunnelBuilder) {
         return new AttributesBuilder().setUnrecognizedAttributes(Collections.emptyList())
                 .addAugmentation(PmsiTunnelAugmentation.class,
-            new PmsiTunnelAugmentationBuilder().setPmsiTunnel(pmsiTunnelBuilder.build()).build()).build();
+                        new PmsiTunnelAugmentationBuilder().setPmsiTunnel(pmsiTunnelBuilder.build()).build()).build();
     }
 
     static Attributes buildBidirPimTreeAttribute() {
@@ -350,15 +343,17 @@ final class PMSITunnelAttributeHandlerTestUtil {
     static Attributes buildMldpp2MPLspL2vpnAttribute() {
         final PmsiTunnelBuilder pmsiTunnelBuilder = getPmsiTunnelBuilder();
         pmsiTunnelBuilder.setTunnelIdentifier(
-                buildMldpP2mpLsp(IP_ADDRESS, L2vpnAddressFamily.class, createOpaqueList()));
+                buildMldpP2mpLsp(IP_ADDRESS, Ipv4AddressFamily.class, createOpaqueList()));
         return buildAttribute(pmsiTunnelBuilder);
     }
 
     private static TunnelIdentifier buildMldpP2mpLsp(final IpAddress ipAddress,
             final Class<? extends AddressFamily> family, final List<OpaqueValue> opaqueList) {
-        return new MldpP2mpLspBuilder().setMldpP2mpLsp(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml
-            .ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.mldp.p2mp.lsp.MldpP2mpLspBuilder()
-            .setRootNodeAddress(ipAddress).setAddressFamily(family).setOpaqueValue(opaqueList).build()).build();
+        return new MldpP2mpLspBuilder()
+                .setMldpP2mpLsp(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel
+                        .rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.mldp.p2mp.lsp.MldpP2mpLspBuilder()
+                        .setRootNodeAddress(ipAddress).setAddressFamily(family).setOpaqueValue(opaqueList).build())
+                .build();
     }
 
     static Attributes buildRsvpTep2MPLspAttribute() {
@@ -366,7 +361,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
         pmsiTunnelBuilder.setTunnelIdentifier(new RsvpTeP2mpLspBuilder()
                 .setRsvpTeP2mpLps(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel
                         .rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.rsvp.te.p2mp.lsp.RsvpTeP2mpLpsBuilder()
-            .setP2mpId(3458L).setTunnelId(15).setExtendedTunnelId(IP_ADDRESS).build()).build());
+                        .setP2mpId(3458L).setTunnelId(15).setExtendedTunnelId(IP_ADDRESS).build()).build());
         return buildAttribute(pmsiTunnelBuilder);
     }
 
@@ -393,22 +388,33 @@ final class PMSITunnelAttributeHandlerTestUtil {
         pmsiTunnelBuilder.setTunnelIdentifier(new MldpMp2mpLspBuilder().setMldpMp2mpLsp(new org.opendaylight.yang.gen
                 .v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel
                 .identifier.mldp.mp2mp.lsp.MldpMp2mpLspBuilder().setOpaque(OPAQUE_TEST)
-                .setOpaqueType(OpaqueUtil.GENERIC_LSP_IDENTIFIER).build()).build());
+                .setOpaqueType(GENERIC_LSP_IDENTIFIER).build()).build());
         return buildAttribute(pmsiTunnelBuilder);
     }
 
     private static List<OpaqueValue> createOpaqueList() {
         final List<OpaqueValue> opaqueValues = new ArrayList<>();
         opaqueValues.add(new OpaqueValueBuilder().setOpaque(OPAQUE_TEST)
-                .setOpaqueType(OpaqueUtil.GENERIC_LSP_IDENTIFIER).build());
+                .setOpaqueType(GENERIC_LSP_IDENTIFIER).build());
         opaqueValues.add(new OpaqueValueBuilder().setOpaque(OPAQUE_TEST2)
-                .setOpaqueType((short) 2).setOpaqueType(OpaqueUtil.EXTENDED_TYPE)
-            .setOpaqueExtendedType(4).build());
+                .setOpaqueType((short) 2).setOpaqueType(EXTENDED_TYPE)
+                .setOpaqueExtendedType(4).build());
         return opaqueValues;
     }
 
     static Attributes buildWOTunnelInfAttribute() {
         final PmsiTunnelBuilder pmsiTunnelBuilder = getPmsiTunnelBuilder();
         return buildAttribute(pmsiTunnelBuilder);
+    }
+
+    private interface NonSupportedAddressFamily extends AddressFamily {
+
+    }
+
+    static class MockTunnelIdentifier implements TunnelIdentifier {
+        @Override
+        public Class<? extends DataContainer> getImplementedInterface() {
+            return MockTunnelIdentifier.class;
+        }
     }
 }

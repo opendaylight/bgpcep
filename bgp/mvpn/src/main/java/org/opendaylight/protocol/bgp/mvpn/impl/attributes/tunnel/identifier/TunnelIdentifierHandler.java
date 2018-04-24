@@ -6,7 +6,7 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier;
+package org.opendaylight.protocol.bgp.mvpn.impl.attributes.tunnel.identifier;
 
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class TunnelIdentifierHandler {
-    static final int NO_TUNNEL_INFORMATION_PRESENT = 0;
+    public static final int NO_TUNNEL_INFORMATION_PRESENT = 0;
     private static final Logger LOG = LoggerFactory.getLogger(TunnelIdentifierHandler.class);
     private static final String SKIP_SERIALIZATION = "Skipping serialization of PMSI Tunnel Attribute {}";
     private static final String SKIP_PARSE = "Skipping parsing of PMSI Tunnel Attribute type {}";
