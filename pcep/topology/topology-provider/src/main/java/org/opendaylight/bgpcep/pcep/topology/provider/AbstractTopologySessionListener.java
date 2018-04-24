@@ -164,7 +164,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         final boolean isNodePresent = isLspDbRetreived() && initialNodeState != null;
         if (isNodePresent) {
             loadLspData(initialNodeState, this.lspData, this.lsps, isIncrementalSynchro());
-            pccBuilder.setReportedLsp(initialNodeState.getAugmentation(Node1.class)
+            pccBuilder.setReportedLsp(initialNodeState.augmentation(Node1.class)
                     .getPathComputationClient().getReportedLsp());
         }
         state.storeNode(topologyAugment,
@@ -407,7 +407,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
             }
             rlb.setPath(updatedPaths);
         }
-        rlb.setKey(new ReportedLspKey(name));
+        rlb.withKey(new ReportedLspKey(name));
         rlb.setName(name);
 
         // If this is an unsolicited update. We need to make sure we retain the metadata already present
@@ -418,7 +418,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         }
 
         final ReportedLsp rl = rlb.build();
-        ctx.trans.put(LogicalDatastoreType.OPERATIONAL, this.pccIdentifier.child(ReportedLsp.class, rlb.getKey()), rl);
+        ctx.trans.put(LogicalDatastoreType.OPERATIONAL, this.pccIdentifier.child(ReportedLsp.class, rlb.key()), rl);
         LOG.debug("LSP {} updated to MD-SAL", name);
 
         this.lspData.put(name, rl);
@@ -585,7 +585,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
                 .map(ReportedLsp::getPath).filter(Objects::nonNull).filter(pathList -> !pathList.isEmpty())
                 // pick the first path, as delegate status should be same in each path
                 .map(pathList -> pathList.get(0))
-                .map(path -> path.getAugmentation(Path1.class)).filter(Objects::nonNull)
+                .map(path -> path.augmentation(Path1.class)).filter(Objects::nonNull)
                 .map(LspObject::getLsp).filter(Objects::nonNull)
                 .filter(Lsp::isDelegate)
                 .count());

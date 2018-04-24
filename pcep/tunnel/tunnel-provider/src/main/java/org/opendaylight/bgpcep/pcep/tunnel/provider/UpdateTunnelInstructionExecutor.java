@@ -82,7 +82,7 @@ final class UpdateTunnelInstructionExecutor extends AbstractInstructionExecutor 
 
     private UpdateLspInput buildUpdateInput(final Link link, final Node node) {
         final UpdateLspInputBuilder ab = new UpdateLspInputBuilder();
-        ab.setName(link.getAugmentation(Link1.class).getSymbolicPathName());
+        ab.setName(link.augmentation(Link1.class).getSymbolicPathName());
         ab.setNode(requireNonNull(TunelProgrammingUtil.supportingNode(node)));
 
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.update.lsp
@@ -93,7 +93,7 @@ final class UpdateTunnelInstructionExecutor extends AbstractInstructionExecutor 
         args.setEro(TunelProgrammingUtil.buildEro(this.updateTunnelInput.getExplicitHops()));
         args.setLspa(new LspaBuilder(this.updateTunnelInput).build());
 
-        final AdministrativeStatus adminStatus = this.updateTunnelInput.getAugmentation(PcepUpdateTunnelInput1.class)
+        final AdministrativeStatus adminStatus = this.updateTunnelInput.augmentation(PcepUpdateTunnelInput1.class)
                 .getAdministrativeStatus();
         if (adminStatus != null) {
             args.addAugmentation(Arguments3.class, new Arguments3Builder().setLsp(new LspBuilder()

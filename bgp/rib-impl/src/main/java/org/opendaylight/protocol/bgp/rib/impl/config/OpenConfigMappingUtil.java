@@ -155,11 +155,11 @@ public final class OpenConfigMappingUtil {
         if (transport != null) {
             final Config config = transport.getConfig();
             if (config != null) {
-                final NeighborTransportConfig peerTc = config.getAugmentation(NeighborTransportConfig.class);
+                final NeighborTransportConfig peerTc = config.augmentation(NeighborTransportConfig.class);
                 if (peerTc != null) {
                     return peerTc.getRemotePort();
                 }
-                final PeerGroupTransportConfig peerGroupTc = config.getAugmentation(PeerGroupTransportConfig.class);
+                final PeerGroupTransportConfig peerGroupTc = config.augmentation(PeerGroupTransportConfig.class);
                 if (peerGroupTc != null) {
                     return peerGroupTc.getRemotePort();
                 }
@@ -188,7 +188,7 @@ public final class OpenConfigMappingUtil {
     public static ClusterIdentifier getGlobalClusterIdentifier(final org.opendaylight.yang.gen.v1.http.openconfig.net
             .yang.bgp.rev151009.bgp.global.base.Config globalConfig) {
         final GlobalConfigAugmentation globalConfigAugmentation
-                = globalConfig.getAugmentation(GlobalConfigAugmentation.class);
+                = globalConfig.augmentation(GlobalConfigAugmentation.class);
         if (globalConfigAugmentation != null && globalConfigAugmentation.getRouteReflectorClusterId() != null) {
             return new ClusterIdentifier(globalConfigAugmentation.getRouteReflectorClusterId().getIpv4Address());
         }
@@ -224,7 +224,7 @@ public final class OpenConfigMappingUtil {
             final BGPTableTypeRegistryConsumer tableTypeRegistry, final BGPPeerTracker peerTracker) {
         final Map<BgpTableType, PathSelectionMode> pathSelectionModes = new HashMap<>();
         for (final AfiSafi afiSafi : afiSafis) {
-            final BgpNeighborAddPathsConfig afiSafi2 = afiSafi.getAugmentation(GlobalAddPathsConfig.class);
+            final BgpNeighborAddPathsConfig afiSafi2 = afiSafi.augmentation(GlobalAddPathsConfig.class);
             if (afiSafi2 != null) {
                 final Optional<BgpTableType> bgpTableType = tableTypeRegistry.getTableType(afiSafi.getAfiSafiName());
                 if (bgpTableType.isPresent()) {
@@ -246,7 +246,7 @@ public final class OpenConfigMappingUtil {
         final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group
                 .Config config = neighbor.getConfig();
         if (config != null) {
-            final NeighborPeerGroupConfig config1 = config.getAugmentation(NeighborPeerGroupConfig.class);
+            final NeighborPeerGroupConfig config1 = config.augmentation(NeighborPeerGroupConfig.class);
             if (config1 != null) {
                 final String peerGroup = config1.getPeerGroup();
                 return peerGroup != null && peerGroup.equals(APPLICATION_PEER_GROUP_NAME);
@@ -259,7 +259,7 @@ public final class OpenConfigMappingUtil {
             final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         final List<AddressFamilies> addPathCapability = new ArrayList<>();
         for (final AfiSafi afiSafi : afiSafis) {
-            final BgpNeighborAddPathsConfig afiSafi1 = afiSafi.getAugmentation(NeighborAddPathsConfig.class);
+            final BgpNeighborAddPathsConfig afiSafi1 = afiSafi.augmentation(NeighborAddPathsConfig.class);
             final Optional<BgpTableType> bgpTableType = tableTypeRegistry.getTableType(afiSafi.getAfiSafiName());
             if (afiSafi1 != null && bgpTableType.isPresent()) {
                 final AddressFamiliesBuilder builder = new AddressFamiliesBuilder(bgpTableType.get());

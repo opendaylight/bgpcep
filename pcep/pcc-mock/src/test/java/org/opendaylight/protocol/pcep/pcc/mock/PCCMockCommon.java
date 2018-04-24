@@ -148,9 +148,9 @@ public abstract class PCCMockCommon {
         final PCEPSession session = pceSessionListener.getSession();
         checkSession(session, DEAD_TIMER, KEEP_ALIVE);
 
-        assertTrue(session.getRemoteTlvs().getAugmentation(Tlvs1.class).getStateful()
-                .getAugmentation(Stateful1.class).isInitiation());
-        assertNull(session.getLocalTlvs().getAugmentation(Tlvs3.class)
+        assertTrue(session.getRemoteTlvs().augmentation(Tlvs1.class).getStateful()
+                .augmentation(Stateful1.class).isInitiation());
+        assertNull(session.getLocalTlvs().augmentation(Tlvs3.class)
                 .getLspDbVersion().getLspDbVersionValue());
     }
 
@@ -173,9 +173,9 @@ public abstract class PCCMockCommon {
 
         checkSession(session, DEAD_TIMER, KEEP_ALIVE);
 
-        assertTrue(session.getRemoteTlvs().getAugmentation(Tlvs1.class).getStateful()
-                .getAugmentation(Stateful1.class).isInitiation());
-        final BigInteger pceDBVersion = session.getLocalTlvs().getAugmentation(Tlvs3.class)
+        assertTrue(session.getRemoteTlvs().augmentation(Tlvs1.class).getStateful()
+                .augmentation(Stateful1.class).isInitiation());
+        final BigInteger pceDBVersion = session.getLocalTlvs().augmentation(Tlvs3.class)
                 .getLspDbVersion().getLspDbVersionValue();
         assertEquals(startingDBVersion, pceDBVersion);
     }
@@ -185,8 +185,8 @@ public abstract class PCCMockCommon {
         assertNotNull(session);
         assertEquals(expectedDeadTimer, session.getPeerPref().getDeadtimer().shortValue());
         assertEquals(expectedKeepAlive, session.getPeerPref().getKeepalive().shortValue());
-        final Stateful1 stateful = session.getRemoteTlvs().getAugmentation(Tlvs1.class)
-                .getStateful().getAugmentation(Stateful1.class);
+        final Stateful1 stateful = session.getRemoteTlvs().augmentation(Tlvs1.class)
+                .getStateful().augmentation(Stateful1.class);
         assertTrue(stateful.isInitiation());
     }
 
@@ -201,7 +201,7 @@ public abstract class PCCMockCommon {
                 } else {
                     assertEquals(true, lsp.isSync());
                 }
-                final BigInteger actuaLspDBVersion = lsp.getTlvs().getAugmentation(org.opendaylight.yang.gen
+                final BigInteger actuaLspDBVersion = lsp.getTlvs().augmentation(org.opendaylight.yang.gen
                     .v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev171025.Tlvs1.class)
                     .getLspDbVersion().getLspDbVersionValue();
                 assertEquals(expectedDbVersion, actuaLspDBVersion);

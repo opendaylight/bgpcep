@@ -97,7 +97,7 @@ public class PcRptMessageCodecTest {
         final Ero ero = new EroBuilder().build();
         final List<Object> objects = Lists.newArrayList(lsp, ero, bw);
         final Reports validReports = codec.getValidReports(objects, Collections.emptyList());
-        assertNotNull(validReports.getPath().getBandwidth().getAugmentation(Bandwidth1.class));
+        assertNotNull(validReports.getPath().getBandwidth().augmentation(Bandwidth1.class));
         assertTrue(objects.isEmpty());
     }
 
@@ -136,7 +136,7 @@ public class PcRptMessageCodecTest {
         final Pcrpt msg = (Pcrpt) this.ctx.getMessageHandlerRegistry().parseMessage(10,
                 Unpooled.wrappedBuffer(parseHexBinary), Collections.emptyList());
         Assert.assertNotNull(msg.getPcrptMessage().getReports().get(0).getPath()
-                .getBandwidth().getAugmentation(Bandwidth1.class));
+                .getBandwidth().augmentation(Bandwidth1.class));
     }
 
 }

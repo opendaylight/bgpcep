@@ -139,8 +139,8 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
         Preconditions.checkArgument(attribute instanceof Attributes, "Attribute parameter is not a PathAttribute object.");
         final Attributes pathAttributes = (Attributes) attribute;
-        final Attributes1 pathAttributes1 = pathAttributes.getAugmentation(Attributes1.class);
-        final Attributes2 pathAttributes2 = pathAttributes.getAugmentation(Attributes2.class);
+        final Attributes1 pathAttributes1 = pathAttributes.augmentation(Attributes1.class);
+        final Attributes2 pathAttributes2 = pathAttributes.augmentation(Attributes2.class);
         if (pathAttributes1 != null) {
             serializeAdvertisedRoutes(pathAttributes1.getMpReachNlri().getAdvertizedRoutes(), byteAggregator);
         } else if (pathAttributes2 != null) {

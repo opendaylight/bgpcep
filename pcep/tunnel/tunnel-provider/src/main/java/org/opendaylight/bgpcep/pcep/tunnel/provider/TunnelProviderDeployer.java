@@ -108,7 +108,7 @@ public final class TunnelProviderDeployer implements ClusteredDataTreeChangeList
         if (topologyTypes == null) {
             return false;
         }
-        final TopologyTypes1 aug = topologyTypes.getAugmentation(TopologyTypes1.class);
+        final TopologyTypes1 aug = topologyTypes.augmentation(TopologyTypes1.class);
         return aug != null && aug.getTopologyTunnelPcep() != null;
     }
 
@@ -123,7 +123,7 @@ public final class TunnelProviderDeployer implements ClusteredDataTreeChangeList
         }
         LOG.debug("Create Tunnel Topology {}", topologyId);
 
-        final PcepTunnelTopologyConfig config = topology.getAugmentation(PcepTunnelTopologyConfig.class);
+        final PcepTunnelTopologyConfig config = topology.augmentation(PcepTunnelTopologyConfig.class);
         final String pcepTopoID = StringUtils
                 .substringBetween(config.getPcepTopologyReference().getValue(), "=\"", "\"");
         final InstanceIdentifier<Topology> pcepTopoRef = InstanceIdentifier.builder(NetworkTopology.class)

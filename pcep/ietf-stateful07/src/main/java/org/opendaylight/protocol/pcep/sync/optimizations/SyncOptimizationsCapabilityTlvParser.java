@@ -48,8 +48,8 @@ public class SyncOptimizationsCapabilityTlvParser extends CInitiated00StatefulCa
     @Override
     protected BitArray serializeFlags(final Stateful sct) {
         final BitArray flags = new BitArray(FLAGS_F_LENGTH);
-        final Stateful1 sfi = sct.getAugmentation(Stateful1.class);
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev171025.Stateful1 sf2 = sct.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev171025.Stateful1.class);
+        final Stateful1 sfi = sct.augmentation(Stateful1.class);
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev171025.Stateful1 sf2 = sct.augmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev171025.Stateful1.class);
         if (sf2 != null) {
             flags.set(F_FLAG_OFFSET, sf2.isTriggeredInitialSync());
             flags.set(D_FLAG_OFFSET, sf2.isDeltaLspSyncCapability());
