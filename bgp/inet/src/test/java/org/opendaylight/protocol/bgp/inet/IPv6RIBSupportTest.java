@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.inet;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -117,11 +116,6 @@ public final class IPv6RIBSupportTest extends AbstractRIBSupportTest {
         assertEquals(REACH_NLRI, update.getAttributes().getAugmentation(Attributes1.class)
                 .getMpReachNlri().getAdvertizedRoutes().getDestinationType());
         assertNull(update.getAttributes().getAugmentation(Attributes2.class));
-    }
-
-    @Test
-    public void testIsComplexRoute() {
-        assertTrue(RIB_SUPPORT.isComplexRoute());
     }
 
     @Test

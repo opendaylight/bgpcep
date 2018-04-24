@@ -113,11 +113,6 @@ public class VpnIpv6RIBSupportTest extends AbstractRIBSupportTest {
     }
 
     @Test
-    public void testIsComplexRoute() {
-        Assert.assertTrue(RIB_SUPPORT.isComplexRoute());
-    }
-
-    @Test
     public void testCacheableNlriObjects() {
         assertEquals(ImmutableSet.of(), RIB_SUPPORT.cacheableNlriObjects());
     }
