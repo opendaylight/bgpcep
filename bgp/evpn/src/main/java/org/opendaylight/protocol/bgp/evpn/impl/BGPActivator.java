@@ -11,7 +11,6 @@ package org.opendaylight.protocol.bgp.evpn.impl;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.List;
-import org.opendaylight.protocol.bgp.evpn.impl.attributes.PMSITunnelAttributeHandler;
 import org.opendaylight.protocol.bgp.evpn.impl.esi.types.ESIActivator;
 import org.opendaylight.protocol.bgp.evpn.impl.extended.communities.DefaultGatewayExtCom;
 import org.opendaylight.protocol.bgp.evpn.impl.extended.communities.ESILabelExtCom;
@@ -52,16 +51,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         registerExtendedCommunities(context, regs);
         ESIActivator.registerEsiTypeParsers(regs);
 
-        registerAttributesHandler(context, regs);
         return regs;
-    }
-
-    private static void registerAttributesHandler(final BGPExtensionProviderContext context,
-            final List<AutoCloseable> regs) {
-        final PMSITunnelAttributeHandler pmsiParser =
-                new PMSITunnelAttributeHandler(context.getAddressFamilyRegistry());
-        regs.add(context.registerAttributeParser(pmsiParser.getType(), pmsiParser));
-        regs.add(context.registerAttributeSerializer(pmsiParser.getClazz(), pmsiParser));
     }
 
     private static void registerNlriHandler(final BGPExtensionProviderContext context, final List<AutoCloseable> regs) {

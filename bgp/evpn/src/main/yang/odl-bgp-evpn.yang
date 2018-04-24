@@ -416,11 +416,7 @@ module odl-bgp-evpn {
             list evpn-route {
                 key "route-key path-id";
                 uses evpn;
-                uses bgp-rib:route {
-                    augment "attributes" {
-                        ext:augment-identifier pmsi-tunnel-augmentation;
-                        uses pmsi:pmsi-tunnel;
-                    }
+                uses pmsi:bgp-rib-route {
                     augment "attributes/extended-communities/extended-community" {
                         case esi-label-extended-community-case {
                             uses esi-label-extended-community;
@@ -466,10 +462,6 @@ module odl-bgp-evpn {
         }
 
         uses bgp-t:route-distinguisher-grouping;
-    }
-
-    augment "/bgp-msg:update/bgp-msg:attributes" {
-        uses pmsi:pmsi-tunnel;
     }
 
     augment "/bgp-msg:update/bgp-msg:attributes/bgp-mp:mp-reach-nlri/bgp-mp:advertized-routes/bgp-mp:destination-type" {
