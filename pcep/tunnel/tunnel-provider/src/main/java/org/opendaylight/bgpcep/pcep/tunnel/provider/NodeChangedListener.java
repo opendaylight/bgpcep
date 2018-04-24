@@ -112,7 +112,7 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
             LOG.trace("Skipping null node", id);
             return;
         }
-        final Node1 pccnode = node.getAugmentation(Node1.class);
+        final Node1 pccnode = node.augmentation(Node1.class);
         if (pccnode == null) {
             LOG.trace("Skipping non-PCEP-enabled node {}", id);
             return;
@@ -120,7 +120,7 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
 
         for (final ReportedLsp l : pccnode.getPathComputationClient().getReportedLsp()) {
             lsps.add(id.builder().augmentation(Node1.class).child(PathComputationClient.class)
-                    .child(ReportedLsp.class, l.getKey()).build());
+                    .child(ReportedLsp.class, l.key()).build());
         }
     }
 
@@ -141,7 +141,7 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
         final SupportingNodeKey sk = new SupportingNodeKey(sni, this.source);
         final SupportingNodeBuilder snb = new SupportingNodeBuilder();
         snb.setNodeRef(sni);
-        snb.setKey(sk);
+        snb.withKey(sk);
         snb.addAugmentation(SupportingNode1.class, new SupportingNode1Builder().setPathComputationClient(
                 new PathComputationClientBuilder().setControlling(inControl).build()).build());
 
@@ -168,8 +168,8 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
             }
             if (!have) {
                 final SupportingNode sn = createSupportingNode(k.getNodeId(), inControl);
-                trans.put(LogicalDatastoreType.OPERATIONAL, this.target.child(Node.class, node.getKey()).child(
-                        SupportingNode.class, sn.getKey()), sn);
+                trans.put(LogicalDatastoreType.OPERATIONAL, this.target.child(Node.class, node.key()).child(
+                        SupportingNode.class, sn.key()), sn);
             }
         }
     }
@@ -182,7 +182,7 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
             for (final Node n : topo.getNode()) {
                 if (n.getTerminationPoint() != null) {
                     for (final TerminationPoint tp : n.getTerminationPoint()) {
-                        final TerminationPoint1 tpa = tp.getAugmentation(TerminationPoint1.class);
+                        final TerminationPoint1 tpa = tp.augmentation(TerminationPoint1.class);
                         if (tpa != null) {
                             final TerminationPointType tpt = tpa.getIgpTerminationPointAttributes()
                                     .getTerminationPointType();
@@ -190,8 +190,8 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
                                 for (final IpAddress address : ((Ip) tpt).getIpAddress()) {
                                     if (addr.equals(address)) {
                                         handleSni(sni, n, inControl, trans);
-                                        return this.target.builder().child(Node.class, n.getKey())
-                                                .child(TerminationPoint.class, tp.getKey()).build();
+                                        return this.target.builder().child(Node.class, n.key())
+                                                .child(TerminationPoint.class, tp.key()).build();
                                     }
                                 }
                             } else {
@@ -211,29 +211,29 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
         final String url = "ip://" + addr.toString();
         final TerminationPointKey tpk = new TerminationPointKey(new TpId(url));
         final TerminationPointBuilder tpb = new TerminationPointBuilder();
-        tpb.setKey(tpk).setTpId(tpk.getTpId());
+        tpb.withKey(tpk).setTpId(tpk.getTpId());
         tpb.addAugmentation(TerminationPoint1.class, new TerminationPoint1Builder().setIgpTerminationPointAttributes(
                 new IgpTerminationPointAttributesBuilder().setTerminationPointType(
                         new IpBuilder().setIpAddress(Lists.newArrayList(addr)).build()).build()).build());
 
         final NodeKey nk = new NodeKey(new NodeId(url));
         final NodeBuilder nb = new NodeBuilder();
-        nb.setKey(nk).setNodeId(nk.getNodeId());
+        nb.withKey(nk).setNodeId(nk.getNodeId());
         nb.setTerminationPoint(Lists.newArrayList(tpb.build()));
         if (sni != null) {
             nb.setSupportingNode(Lists.newArrayList(createSupportingNode(InstanceIdentifier.keyOf(sni).getNodeId(),
                     inControl)));
         }
-        final InstanceIdentifier<Node> nid = this.target.child(Node.class, nb.getKey());
+        final InstanceIdentifier<Node> nid = this.target.child(Node.class, nb.key());
         trans.put(LogicalDatastoreType.OPERATIONAL, nid, nb.build());
-        return nid.child(TerminationPoint.class, tpb.getKey());
+        return nid.child(TerminationPoint.class, tpb.key());
     }
 
     private void create(final ReadWriteTransaction trans, final InstanceIdentifier<ReportedLsp> identifier,
             final ReportedLsp value) throws ReadFailedException {
         final InstanceIdentifier<Node> ni = identifier.firstIdentifierOf(Node.class);
 
-        final Path1 rl = value.getPath().get(0).getAugmentation(Path1.class);
+        final Path1 rl = value.getPath().get(0).augmentation(Path1.class);
 
         final AddressFamily af = rl.getLsp().getTlvs().getLspIdentifiers().getAddressFamily();
 

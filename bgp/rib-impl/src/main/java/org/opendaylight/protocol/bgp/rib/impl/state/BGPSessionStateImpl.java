@@ -84,7 +84,7 @@ public final class BGPSessionStateImpl implements BGPSessionState, BGPTimersStat
             for (final BgpParameters parameters : bgpParameters) {
                 for (final OptionalCapabilities optionalCapabilities : parameters.getOptionalCapabilities()) {
                     final CParameters cParam = optionalCapabilities.getCParameters();
-                    final CParameters1 capabilities = cParam.getAugmentation(CParameters1.class);
+                    final CParameters1 capabilities = cParam.augmentation(CParameters1.class);
                     if (capabilities != null) {
                         final MultiprotocolCapability mc = capabilities.getMultiprotocolCapability();
                         if (mc != null) {
@@ -119,7 +119,7 @@ public final class BGPSessionStateImpl implements BGPSessionState, BGPTimersStat
     }
 
     @Override
-    public synchronized void setSessionState(@Nonnull State state) {
+    public synchronized void setSessionState(@Nonnull final State state) {
         if (state == State.IDLE) {
             this.sessionStopwatch.reset();
         } else if (state == State.UP) {

@@ -54,10 +54,11 @@ public final class FlowspecIpv4RIBSupport
     static synchronized FlowspecIpv4RIBSupport getInstance(
             SimpleFlowspecExtensionProviderContext context,
             final BindingNormalizedNodeSerializer mappingService) {
-        if(SINGLETON == null){
+        if (SINGLETON == null){
             SINGLETON = new FlowspecIpv4RIBSupport(context, mappingService);
         }
-        return SINGLETON;    }
+        return SINGLETON;
+    }
 
     @Override
     public FlowspecRoute createRoute(final FlowspecRoute route, final String routeKey, final long pathId,
@@ -68,7 +69,7 @@ public final class FlowspecIpv4RIBSupport
         } else {
             builder = new FlowspecRouteBuilder();
         }
-        return builder.setKey(new FlowspecRouteKey(new PathId(pathId), routeKey)).setAttributes(attributes).build();
+        return builder.withKey(new FlowspecRouteKey(new PathId(pathId), routeKey)).setAttributes(attributes).build();
     }
 
     @Override

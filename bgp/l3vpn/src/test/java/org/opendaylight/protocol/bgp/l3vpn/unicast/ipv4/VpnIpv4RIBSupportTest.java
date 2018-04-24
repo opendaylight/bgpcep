@@ -64,7 +64,7 @@ public class VpnIpv4RIBSupportTest extends AbstractRIBSupportTest<VpnIpv4RoutesC
 
     private static final VpnRoute ROUTE = new VpnRouteBuilder().setPathId(NON_PATH_ID)
             .setAttributes(ATTRIBUTES).setPrefix(IPV4_PREFIX)
-        .setLabelStack(LABEL_STACK).setRouteDistinguisher(DISTINGUISHER).setKey(ROUTE_KEY).build();
+        .setLabelStack(LABEL_STACK).setRouteDistinguisher(DISTINGUISHER).withKey(ROUTE_KEY).build();
     private static final VpnIpv4Routes ROUTES = new VpnIpv4RoutesBuilder()
             .setVpnRoute(Collections.singletonList(ROUTE)).build();
 
@@ -101,17 +101,17 @@ public class VpnIpv4RIBSupportTest extends AbstractRIBSupportTest<VpnIpv4RoutesC
     @Test
     public void testBuildMpUnreachNlriUpdate() {
         final Update update = this.ribSupport.buildUpdate(Collections.emptyList(), createRoutes(ROUTES), ATTRIBUTES);
-        assertEquals(UNREACH_NLRI, update.getAttributes().getAugmentation(Attributes2.class)
+        assertEquals(UNREACH_NLRI, update.getAttributes().augmentation(Attributes2.class)
             .getMpUnreachNlri().getWithdrawnRoutes().getDestinationType());
-        assertNull(update.getAttributes().getAugmentation(Attributes1.class));
+        assertNull(update.getAttributes().augmentation(Attributes1.class));
     }
 
     @Test
     public void testBuildMpReachNlriUpdate() {
         final Update update = this.ribSupport.buildUpdate(createRoutes(ROUTES), Collections.emptyList(), ATTRIBUTES);
-        assertEquals(REACH_NLRI, update.getAttributes().getAugmentation(Attributes1.class).getMpReachNlri()
+        assertEquals(REACH_NLRI, update.getAttributes().augmentation(Attributes1.class).getMpReachNlri()
                 .getAdvertizedRoutes().getDestinationType());
-        assertNull(update.getAttributes().getAugmentation(Attributes2.class));
+        assertNull(update.getAttributes().augmentation(Attributes2.class));
     }
 
     @Test

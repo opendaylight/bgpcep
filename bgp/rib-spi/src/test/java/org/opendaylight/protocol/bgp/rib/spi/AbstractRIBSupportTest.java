@@ -149,7 +149,7 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
     }
 
     protected final ChoiceNode createRoutes(final Routes routes) {
-        final Tables tables = new TablesBuilder().setKey(getTablesKey()).setRoutes(routes).build();
+        final Tables tables = new TablesBuilder().withKey(getTablesKey()).setRoutes(routes).build();
         return (ChoiceNode) ((MapEntryNode) this.mappingService.toNormalizedNode(tablesIId(), tables).getValue())
             .getChild(new NodeIdentifier(BindingReflections.findQName(Routes.class))).get();
     }

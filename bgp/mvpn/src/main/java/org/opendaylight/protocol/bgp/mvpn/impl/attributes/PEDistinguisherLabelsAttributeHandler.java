@@ -78,7 +78,7 @@ public final class PEDistinguisherLabelsAttributeHandler implements AttributePar
         Preconditions.checkArgument(attribute instanceof Attributes,
                 "Attribute parameter is not a PathAttribute object.");
         final PeDistinguisherLabelsAttributeAugmentation att =
-                ((Attributes) attribute).getAugmentation(PeDistinguisherLabelsAttributeAugmentation.class);
+                ((Attributes) attribute).augmentation(PeDistinguisherLabelsAttributeAugmentation.class);
 
         if (att == null) {
             return;

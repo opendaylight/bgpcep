@@ -40,7 +40,7 @@ final class PeerGroupStateCliUtils {
         if (state == null) {
             return;
         }
-        final PeerGroupStateAugmentation aug = state.getAugmentation(PeerGroupStateAugmentation.class);
+        final PeerGroupStateAugmentation aug = state.augmentation(PeerGroupStateAugmentation.class);
         table.addRow().addContent("Total Prefixes", aug.getTotalPrefixes());
     }
 }

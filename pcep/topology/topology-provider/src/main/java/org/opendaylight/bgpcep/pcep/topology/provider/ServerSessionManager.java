@@ -104,7 +104,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
         final TopologyKey key = InstanceIdentifier.keyOf(this.topology);
         final TopologyId topologyId = key.getTopologyId();
         final WriteTransaction tx = this.dependenciesProvider.getDataBroker().newWriteOnlyTransaction();
-        tx.put(LogicalDatastoreType.OPERATIONAL, this.topology, new TopologyBuilder().setKey(key)
+        tx.put(LogicalDatastoreType.OPERATIONAL, this.topology, new TopologyBuilder().withKey(key)
                 .setTopologyId(topologyId).setTopologyTypes(new TopologyTypesBuilder()
                         .addAugmentation(TopologyTypes1.class, new TopologyTypes1Builder().setTopologyPcep(
                                 new TopologyPcepBuilder().build()).build()).build())

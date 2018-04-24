@@ -105,7 +105,7 @@ public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener
         LOG.info("Creating Topology {}", topologyId);
         LOG.trace("Topology {}.", topology);
 
-        final SessionConfig config = topology.getAugmentation(PcepTopologyTypeConfig.class).getSessionConfig();
+        final SessionConfig config = topology.augmentation(PcepTopologyTypeConfig.class).getSessionConfig();
         final InstructionScheduler instructionScheduler = this.instructionSchedulerFactory
                 .createInstructionScheduler(topologyId.getValue());
 
