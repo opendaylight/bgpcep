@@ -29,15 +29,9 @@
         <module>odl-bgpcep-bgp-dependencies</module>
         <module>odl-bgpcep-bgp-config-example</module>
         <module>odl-bgpcep-bgp-openconfig</module>
-        <module>odl-bgpcep-bgp-inet</module>
         <module>odl-bgpcep-bgp-parser</module>
         <module>odl-bgpcep-bgp-parser-api</module>
         <module>odl-bgpcep-bgp-rib-api</module>
-        <module>odl-bgpcep-bgp-linkstate</module>
-        <module>odl-bgpcep-bgp-flowspec</module>
-        <module>odl-bgpcep-bgp-labeled-unicast</module>
-        <module>odl-bgpcep-bgp-l3vpn</module>
-        <module>odl-bgpcep-bgp-evpn</module>
         <module>odl-bgpcep-bgp-path-selection-mode</module>
         <module>odl-bgpcep-bgp-rib-impl</module>
         <module>odl-bgpcep-bgp-topology</module>
@@ -47,5 +41,13 @@
         <module>odl-bgpcep-bgp-openconfig-rp-spi</module>
         <module>odl-bgpcep-bgp-openconfig-rp-impl</module>
         <module>odl-bgpcep-bgp-openconfig-rp-statement</module>
+        <!-- Family extensions -->
+        <module>odl-bgpcep-bgp-inet</module>
+        <module>odl-bgpcep-bgp-linkstate</module>
+        <module>odl-bgpcep-bgp-flowspec</module>
+        <module>odl-bgpcep-bgp-labeled-unicast</module>
+        <module>odl-bgpcep-bgp-l3vpn</module>
+        <module>odl-bgpcep-bgp-evpn</module>
+        <module>odl-bgpcep-bgp-mvpn</module>
     </modules>
 </project>
