@@ -398,9 +398,6 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         }
         this.tables = Collections.emptySet();
         this.addPathTableMaps = Collections.emptyMap();
-        if (this.ribWriter != null) {
-            this.ribWriter = null;
-        }
         return removePeer(this.chain, this.peerPath);
     }
 
