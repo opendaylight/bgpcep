@@ -56,7 +56,7 @@ public final class FlowspecL3vpnIpv4RIBSupport extends AbstractFlowspecL3vpnRIBS
         } else {
             builder = new FlowspecL3vpnRouteBuilder();
         }
-        return builder.setKey(new FlowspecL3vpnRouteKey(new PathId(pathId), routeKey))
+        return builder.withKey(new FlowspecL3vpnRouteKey(new PathId(pathId), routeKey))
                 .setAttributes(attributes).build();
     }
 

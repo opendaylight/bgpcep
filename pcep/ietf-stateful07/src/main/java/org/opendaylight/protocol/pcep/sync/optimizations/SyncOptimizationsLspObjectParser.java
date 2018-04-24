@@ -28,7 +28,7 @@ public class SyncOptimizationsLspObjectParser extends CInitiated00LspObjectParse
     public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
         if (tlvs != null) {
             super.serializeTlvs(tlvs, body);
-            serializeAugmentation(tlvs.getAugmentation(Tlvs1.class), body);
+            serializeAugmentation(tlvs.augmentation(Tlvs1.class), body);
         }
     }
 
@@ -42,8 +42,8 @@ public class SyncOptimizationsLspObjectParser extends CInitiated00LspObjectParse
     public void addTlv(final TlvsBuilder tbuilder, final Tlv tlv) {
         super.addTlv(tbuilder, tlv);
         final Tlvs1Builder syncOptTlvsBuilder = new Tlvs1Builder();
-        if (tbuilder.getAugmentation(Tlvs1.class) != null) {
-            final Tlvs1 t = tbuilder.getAugmentation(Tlvs1.class);
+        if (tbuilder.augmentation(Tlvs1.class) != null) {
+            final Tlvs1 t = tbuilder.augmentation(Tlvs1.class);
             if (t.getLspDbVersion() != null) {
                 syncOptTlvsBuilder.setLspDbVersion(t.getLspDbVersion());
             }

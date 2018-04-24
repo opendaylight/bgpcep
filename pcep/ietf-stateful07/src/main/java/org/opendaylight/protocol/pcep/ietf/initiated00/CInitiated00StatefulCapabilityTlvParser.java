@@ -34,7 +34,7 @@ public class CInitiated00StatefulCapabilityTlvParser extends Stateful07StatefulC
     @Override
     protected BitArray serializeFlags(final Stateful sct) {
         final BitArray flags = new BitArray(FLAGS_F_LENGTH);
-        final Stateful1 sfi = sct.getAugmentation(Stateful1.class);
+        final Stateful1 sfi = sct.augmentation(Stateful1.class);
         if (sfi != null) {
             flags.set(I_FLAG_OFFSET, sfi.isInitiation());
         }

@@ -72,7 +72,7 @@ public final class BGPOperationalStateUtils {
         } else {
             if (neighbor != null) {
                 globalBgp.getNeighbors().getNeighbor().stream()
-                        .filter(neig -> Ipv4Util.toStringIP(neig.getKey().getNeighborAddress()).matches(neighbor))
+                        .filter(neig -> Ipv4Util.toStringIP(neig.key().getNeighborAddress()).matches(neighbor))
                         .findFirst()
                         .ifPresent(neighbor1 -> displayNeighborOperationalState(neighbor, neighbor1, stream));
             } else {
