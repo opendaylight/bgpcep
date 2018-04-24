@@ -113,7 +113,7 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
         final InstanceIdentifier<IgpNodeAttributes> ret = nii.builder().augmentation(Node1.class)
                 .child(IgpNodeAttributes.class).build();
 
-        trans.merge(LogicalDatastoreType.OPERATIONAL, nii, new NodeBuilder().setKey(nii.getKey()).setNodeId(ni)
+        trans.merge(LogicalDatastoreType.OPERATIONAL, nii, new NodeBuilder().withKey(nii.getKey()).setNodeId(ni)
             .addAugmentation(Node1.class, new Node1Builder().setIgpNodeAttributes(
                 new IgpNodeAttributesBuilder().setPrefix(Collections.emptyList()).build()).build()).build());
 
@@ -137,7 +137,7 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
         final PrefixKey pk = new PrefixKey(prefix);
 
         trans.put(LogicalDatastoreType.OPERATIONAL,
-                nii.child(Prefix.class, pk), new PrefixBuilder().setKey(pk).setPrefix(prefix).build());
+                nii.child(Prefix.class, pk), new PrefixBuilder().withKey(pk).setPrefix(prefix).build());
     }
 
     @Override

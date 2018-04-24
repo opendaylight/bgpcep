@@ -74,7 +74,7 @@ abstract class AbstractBgpTopologyProvider implements BgpTopologyProvider, AutoC
 
     private TopologyReferenceSingletonService createInstance(final Topology topology) {
         final RibReference ribReference = new DefaultRibReference(InstanceIdentifier.create(BgpRib.class)
-                .child(Rib.class, new RibKey(topology.getAugmentation(Topology1.class).getRibId())));
+                .child(Rib.class, new RibKey(topology.augmentation(Topology1.class).getRibId())));
         final AbstractTopologyBuilder<?> topologyBuilder = createTopologyBuilder(this.dataBroker,
                 ribReference, topology.getTopologyId());
         return new TopologyReferenceSingletonServiceImpl(topologyBuilder, this.deployer, topology);
@@ -83,12 +83,12 @@ abstract class AbstractBgpTopologyProvider implements BgpTopologyProvider, AutoC
     abstract AbstractTopologyBuilder<?> createTopologyBuilder(DataBroker dataProvider, RibReference locRibReference,
             TopologyId topologyId);
 
-    final TopologyTypes1 getTopologyAug(final Topology topology) {
+    static final TopologyTypes1 getTopologyAug(final Topology topology) {
         final TopologyTypes topologyTypes = topology.getTopologyTypes();
         if (topologyTypes == null) {
             return null;
         }
 
-        return topologyTypes.getAugmentation(TopologyTypes1.class);
+        return topologyTypes.augmentation(TopologyTypes1.class);
     }
 }

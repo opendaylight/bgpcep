@@ -234,7 +234,7 @@ public class PCEPObjectParserTest {
 
         // Tlvs container does not contain toString
         final Object o = parser.parseObject(new ObjectHeaderImpl(true, true), result.slice(4, result.readableBytes() - 4));
-        assertEquals(tlv, ((Lspa) o).getTlvs().getAugmentation(Tlvs2.class).getSymbolicPathName());
+        assertEquals(tlv, ((Lspa) o).getTlvs().augmentation(Tlvs2.class).getSymbolicPathName());
         // assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), ByteArray.cutBytes(result,
         // 4)));
         final ByteBuf buf = Unpooled.buffer();

@@ -141,7 +141,7 @@ public abstract class AbstractRIBSupport<
         final TablesKey tk = new TablesKey(afiClass, safiClass);
         //FIXME Use Route Case IId instead of Tables IId.
         this.emptyRoutes = (ChoiceNode) ((MapEntryNode) this.mappingService
-                .toNormalizedNode(TABLES_II, new TablesBuilder().setKey(tk)
+                .toNormalizedNode(TABLES_II, new TablesBuilder().withKey(tk)
                         .setRoutes(emptyRoutesCase()).build()).getValue())
                 .getChild(new NodeIdentifier(BindingReflections.findQName(Routes.class))).get();
         this.afiClass = afiClass;

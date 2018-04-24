@@ -158,9 +158,9 @@ public class ParserTest {
         final Update message = ParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength);
 
         final Class<? extends AddressFamily> afi = message.getAttributes()
-            .getAugmentation(Attributes2.class).getMpUnreachNlri().getAfi();
+            .augmentation(Attributes2.class).getMpUnreachNlri().getAfi();
         final Class<? extends SubsequentAddressFamily> safi = message.getAttributes()
-            .getAugmentation(Attributes2.class).getMpUnreachNlri().getSafi();
+            .augmentation(Attributes2.class).getMpUnreachNlri().getSafi();
 
         assertEquals(LinkstateAddressFamily.class, afi);
         assertEquals(LinkstateSubsequentAddressFamily.class, safi);
@@ -397,7 +397,7 @@ public class ParserTest {
         paBuilder.setLocalPref(new LocalPrefBuilder().setPref(100L).build());
         assertEquals(paBuilder.getLocalPref(), attrs.getLocalPref());
 
-        final MpReachNlri mp = attrs.getAugmentation(Attributes1.class).getMpReachNlri();
+        final MpReachNlri mp = attrs.augmentation(Attributes1.class).getMpReachNlri();
         assertEquals(mpBuilder.getAfi(), mp.getAfi());
         assertEquals(mpBuilder.getSafi(), mp.getSafi());
         assertEquals(mpBuilder.getCNextHop(), mp.getCNextHop());
@@ -425,7 +425,7 @@ public class ParserTest {
 
         assertEquals(
             lsAttrBuilder.build(),
-            attrs.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
+            attrs.augmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
                 .linkstate.rev180329.Attributes1.class));
 
         final List<CLinkstateDestination> dests = ((DestinationLinkstateCase) mp.getAdvertizedRoutes()
@@ -600,7 +600,7 @@ public class ParserTest {
         paBuilder.addAugmentation(Attributes1.class, lsBuilder.build());
         paBuilder.setUnrecognizedAttributes(Collections.emptyList());
 
-        final MpReachNlri mp = attrs.getAugmentation(Attributes1.class).getMpReachNlri();
+        final MpReachNlri mp = attrs.augmentation(Attributes1.class).getMpReachNlri();
         assertEquals(mpBuilder.getAfi(), mp.getAfi());
         assertEquals(mpBuilder.getSafi(), mp.getSafi());
         assertEquals(mpBuilder.getCNextHop(), mp.getCNextHop());
@@ -661,10 +661,10 @@ public class ParserTest {
         for (final BgpParameters param : open.getBgpParameters()) {
             for (final OptionalCapabilities optCapa : param.getOptionalCapabilities()) {
                 final CParameters cParam = optCapa.getCParameters();
-                if(cParam != null && cParam.getAugmentation(CParameters1.class) != null && cParam.getAugmentation
-                    (CParameters1.class).getMultiprotocolCapability() != null) {
-                    final MultiprotocolCapability mp = cParam
-                        .getAugmentation(CParameters1.class).getMultiprotocolCapability();
+                if(cParam != null && cParam.augmentation(CParameters1.class) != null
+                        && cParam.augmentation(CParameters1.class).getMultiprotocolCapability() != null) {
+                    final MultiprotocolCapability mp = cParam.augmentation(CParameters1.class)
+                            .getMultiprotocolCapability();
                     final BgpTableType type = new BgpTableTypeImpl(mp.getAfi(), mp.getSafi());
                     types.add(type);
                 }

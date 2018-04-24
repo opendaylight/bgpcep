@@ -250,8 +250,8 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
 
     @Override
     public void onMessagePcInitiate(@Nonnull final Requests request, @Nonnull final PCCSession session) {
-        if ((request.getSrp().getAugmentation(Srp1.class) != null)
-                && request.getSrp().getAugmentation(Srp1.class).isRemove()) {
+        if ((request.getSrp().augmentation(Srp1.class) != null)
+                && request.getSrp().augmentation(Srp1.class).isRemove()) {
             //remove LSP
             removeTunnel(request, session);
         } else if ((request.getLsp().isDelegate() != null) && request.getLsp().isDelegate()

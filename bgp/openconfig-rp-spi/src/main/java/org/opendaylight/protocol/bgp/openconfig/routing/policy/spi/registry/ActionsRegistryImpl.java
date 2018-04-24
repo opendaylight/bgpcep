@@ -122,7 +122,7 @@ final class ActionsRegistryImpl {
             return null;
         }
         Attributes attributesUpdated = attributes;
-        final Actions1 augmentation = actions.getAugmentation(Actions1.class);
+        final Actions1 augmentation = actions.augmentation(Actions1.class);
         if (augmentation != null && augmentation.getBgpActions() != null) {
             final BgpActions bgpAction = augmentation.getBgpActions();
 
@@ -255,7 +255,7 @@ final class ActionsRegistryImpl {
             return null;
         }
         Attributes attributesUpdated = attributes;
-        final Actions1 augmentation = actions.getAugmentation(Actions1.class);
+        final Actions1 augmentation = actions.augmentation(Actions1.class);
 
         if (augmentation != null && augmentation.getBgpActions() != null) {
             final BgpActions bgpAction = augmentation.getBgpActions();
