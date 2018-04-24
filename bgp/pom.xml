@@ -64,5 +64,6 @@
         <module>l3vpn</module>
         <module>labeled-unicast</module>
         <module>evpn</module>
+        <module>mvpn</module>
     </modules>
 </project>
