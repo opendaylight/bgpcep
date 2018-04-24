@@ -90,7 +90,7 @@ public class PCEPStatefulPeerProposalTest {
         final PCEPStatefulPeerProposal peerProposal = PCEPStatefulPeerProposal
                 .createStatefulPeerProposal(this.dataBroker, TOPOLOGY_IID);
         peerProposal.setPeerProposal(NODE_ID, this.tlvsBuilder, null);
-        assertEquals(LSP_DB_VERSION, this.tlvsBuilder.getAugmentation(Tlvs3.class).getLspDbVersion());
+        assertEquals(LSP_DB_VERSION, this.tlvsBuilder.augmentation(Tlvs3.class).getLspDbVersion());
     }
 
     @Test
@@ -99,7 +99,7 @@ public class PCEPStatefulPeerProposalTest {
         final PCEPStatefulPeerProposal peerProposal = PCEPStatefulPeerProposal
                 .createStatefulPeerProposal(this.dataBroker, TOPOLOGY_IID);
         peerProposal.setPeerProposal(NODE_ID, this.tlvsBuilder, SPEAKER_ID);
-        final Tlvs3 aug = this.tlvsBuilder.getAugmentation(Tlvs3.class);
+        final Tlvs3 aug = this.tlvsBuilder.augmentation(Tlvs3.class);
         assertEquals(LSP_DB_VERSION, aug.getLspDbVersion());
         assertArrayEquals(SPEAKER_ID, aug.getSpeakerEntityId().getSpeakerEntityIdValue());
     }
@@ -110,7 +110,7 @@ public class PCEPStatefulPeerProposalTest {
         final PCEPStatefulPeerProposal peerProposal = PCEPStatefulPeerProposal
                 .createStatefulPeerProposal(this.dataBroker, TOPOLOGY_IID);
         peerProposal.setPeerProposal(NODE_ID, this.tlvsBuilder, null);
-        assertNull(this.tlvsBuilder.getAugmentation(Tlvs3.class));
+        assertNull(this.tlvsBuilder.augmentation(Tlvs3.class));
     }
 
     @Test
@@ -119,7 +119,7 @@ public class PCEPStatefulPeerProposalTest {
         final PCEPStatefulPeerProposal peerProposal = PCEPStatefulPeerProposal
                 .createStatefulPeerProposal(this.dataBroker, TOPOLOGY_IID);
         peerProposal.setPeerProposal(NODE_ID, this.tlvsBuilder, null);
-        assertNull(this.tlvsBuilder.getAugmentation(Tlvs3.class));
+        assertNull(this.tlvsBuilder.augmentation(Tlvs3.class));
     }
 
 }

@@ -67,7 +67,7 @@ final class SyncOptimization {
 
     private static LspDbVersion getLspDbVersion(final Tlvs openTlvs) {
         if (openTlvs != null) {
-            final Tlvs3 tlvs3 = openTlvs.getAugmentation(Tlvs3.class);
+            final Tlvs3 tlvs3 = openTlvs.augmentation(Tlvs3.class);
             if (tlvs3 != null && tlvs3.getLspDbVersion() != null
                     && tlvs3.getLspDbVersion().getLspDbVersionValue() != null) {
                 return tlvs3.getLspDbVersion();
@@ -85,9 +85,9 @@ final class SyncOptimization {
 
     private static Stateful1 getStateful1(final Tlvs openTlvs) {
         if (openTlvs != null) {
-            final Tlvs1 tlvs1 = openTlvs.getAugmentation(Tlvs1.class);
+            final Tlvs1 tlvs1 = openTlvs.augmentation(Tlvs1.class);
             if (tlvs1 != null && tlvs1.getStateful() != null) {
-                return tlvs1.getStateful().getAugmentation(Stateful1.class);
+                return tlvs1.getStateful().augmentation(Stateful1.class);
             }
         }
         return null;

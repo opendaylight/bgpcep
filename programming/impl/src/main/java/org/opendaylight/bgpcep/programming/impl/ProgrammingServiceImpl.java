@@ -97,7 +97,7 @@ public final class ProgrammingServiceImpl implements ClusterSingletonService, In
         InstructionPusher(final InstructionId id, final Nanotime deadline) {
             this.builder.setDeadline(deadline);
             this.builder.setId(id);
-            this.builder.setKey(new InstructionKey(id));
+            this.builder.withKey(new InstructionKey(id));
             this.builder.setStatus(InstructionStatus.Queued);
         }
 
@@ -177,7 +177,7 @@ public final class ProgrammingServiceImpl implements ClusterSingletonService, In
 
         final WriteTransaction wt = this.dataProvider.newWriteOnlyTransaction();
         wt.put(LogicalDatastoreType.OPERATIONAL, this.qid, new InstructionsQueueBuilder()
-                .setKey(new InstructionsQueueKey(this.instructionId)).setInstruction(Collections.emptyList()).build());
+                .withKey(new InstructionsQueueKey(this.instructionId)).setInstruction(Collections.emptyList()).build());
         Futures.addCallback(wt.submit(), new FutureCallback<Void>() {
             @Override
             public void onSuccess(final Void result) {

@@ -129,7 +129,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         this.channel = requireNonNull(channel);
         this.limiter = new ChannelOutputLimiter(this);
         this.channel.pipeline().addLast(this.limiter);
-        this.holdTimerValue = (remoteOpen.getHoldTimer() < localHoldTimer) ? remoteOpen.getHoldTimer() : localHoldTimer;
+        this.holdTimerValue = remoteOpen.getHoldTimer() < localHoldTimer ? remoteOpen.getHoldTimer() : localHoldTimer;
         LOG.info("BGP HoldTimer new value: {}", this.holdTimerValue);
         this.keepAlive = this.holdTimerValue / KA_TO_DEADTIMER_RATIO;
         this.asNumber = AsNumberUtil.advertizedAsNumber(remoteOpen);
@@ -143,17 +143,17 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
             for (final BgpParameters param : remoteOpen.getBgpParameters()) {
                 for (final OptionalCapabilities optCapa : param.getOptionalCapabilities()) {
                     final CParameters cParam = optCapa.getCParameters();
-                    if (cParam.getAugmentation(CParameters1.class) == null) {
+                    if (cParam.augmentation(CParameters1.class) == null) {
                         continue;
                     }
-                    if (cParam.getAugmentation(CParameters1.class).getMultiprotocolCapability() != null) {
-                        final MultiprotocolCapability multi = cParam.getAugmentation(CParameters1.class).getMultiprotocolCapability();
+                    if (cParam.augmentation(CParameters1.class).getMultiprotocolCapability() != null) {
+                        final MultiprotocolCapability multi = cParam.augmentation(CParameters1.class).getMultiprotocolCapability();
                         final TablesKey tt = new TablesKey(multi.getAfi(), multi.getSafi());
                         LOG.trace("Added table type to sync {}", tt);
                         tts.add(tt);
                         tats.add(new BgpTableTypeImpl(tt.getAfi(), tt.getSafi()));
-                    } else if (cParam.getAugmentation(CParameters1.class).getAddPathCapability() != null) {
-                        final AddPathCapability addPathCap = cParam.getAugmentation(CParameters1.class).getAddPathCapability();
+                    } else if (cParam.augmentation(CParameters1.class).getAddPathCapability() != null) {
+                        final AddPathCapability addPathCap = cParam.augmentation(CParameters1.class).getAddPathCapability();
                         addPathCapabilitiesList.addAll(addPathCap.getAddressFamilies());
                     }
                 }

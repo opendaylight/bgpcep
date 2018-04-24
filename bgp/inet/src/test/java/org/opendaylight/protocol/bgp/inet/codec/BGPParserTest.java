@@ -200,8 +200,8 @@ public class BGPParserTest {
 
         paBuilder.addAugmentation(Attributes1.class, new Attributes1Builder()
                 .setMpReachNlri(mpBuilder.build()).build());
-        assertEquals(paBuilder.getAugmentation(Attributes1.class).getMpReachNlri(),
-                attrs.getAugmentation(Attributes1.class).getMpReachNlri());
+        assertEquals(paBuilder.augmentation(Attributes1.class).getMpReachNlri(),
+                attrs.augmentation(Attributes1.class).getMpReachNlri());
         paBuilder.setUnrecognizedAttributes(Collections.emptyList());
         // check API message
 
