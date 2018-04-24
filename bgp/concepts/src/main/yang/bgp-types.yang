@@ -299,14 +299,6 @@ module bgp-types {
                     }
                 }
             }
-            case source-as-extended-community-case {
-                container source-as-extended-community {
-                    reference "https://tools.ietf.org/html/rfc6514#section-6";
-                    leaf global-administrator {
-                        type short-as-number;
-                    }
-                }
-            }
             case inet4-specific-extended-community-case {
                 container inet4-specific-extended-community {
                     uses inet4-specific-extended-community-common;
@@ -390,27 +382,9 @@ module bgp-types {
                     uses as-4-spec-common;
                 }
             }
-            case source-as-4-extended-community-case {
-                container source-as-4-extended-community {
-                    reference "https://tools.ietf.org/html/rfc6514#section-6";
-                    leaf as-number {
-                        description "Carries a 4-octet Autonomous System (AS) number";
-                        reference "https://tools.ietf.org/html/rfc5668#section-2";
-
-                        mandatory true;
-                        type inet:as-number;
-                    }
-                }
-            }
             case encapsulation-case {
                 container encapsulation-extended-community {
                     uses encapsulation-extended-community;
-                }
-            }
-            case vrf-route-import-extended-community-case {
-                reference "https://tools.ietf.org/html/rfc6514#section-7";
-                container vrf-route-import-extended-community {
-                    uses inet4-specific-extended-community-common;
                 }
             }
         }
