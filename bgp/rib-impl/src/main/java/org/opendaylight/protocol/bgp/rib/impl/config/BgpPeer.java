@@ -218,7 +218,7 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
     }
 
     private final class BgpPeerSingletonService implements BGPPeerStateConsumer {
-        private boolean activeConnection;
+        private final boolean activeConnection;
         private final BGPDispatcher dispatcher;
         private final InetSocketAddress inetAddress;
         private final int retryTimer;
@@ -238,7 +238,7 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
             String peerGroupName = null;
             final Config neighborConfig = neighbor.getConfig();
             if (neighborConfig != null) {
-                final NeighborPeerGroupConfig pgConfig = neighborConfig.getAugmentation(NeighborPeerGroupConfig.class);
+                final NeighborPeerGroupConfig pgConfig = neighborConfig.augmentation(NeighborPeerGroupConfig.class);
                 if (pgConfig != null) {
                     peerGroupName = StringUtils.substringBetween(pgConfig.getPeerGroup(), "=\"", "\"");
                     peerGroup = peerGroupLoader.getPeerGroup(bgpIid, peerGroupName);

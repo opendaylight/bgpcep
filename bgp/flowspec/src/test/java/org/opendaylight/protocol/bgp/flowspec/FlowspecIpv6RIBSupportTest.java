@@ -77,7 +77,7 @@ public class FlowspecIpv6RIBSupportTest extends AbstractRIBSupportTest {
             fsContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
 
         ROUTE_KEY = new FlowspecRouteKey(PATH_ID, parser.stringNlri(FLOW_LIST));
-        ROUTE = new FlowspecRouteBuilder().setKey(ROUTE_KEY).setPathId(PATH_ID).setFlowspec(FLOW_LIST)
+        ROUTE = new FlowspecRouteBuilder().withKey(ROUTE_KEY).setPathId(PATH_ID).setFlowspec(FLOW_LIST)
             .setAttributes(new AttributesBuilder().build()).build();
         ROUTES = new FlowspecIpv6RoutesBuilder().setFlowspecRoute(Collections.singletonList(ROUTE)).build();
     }
@@ -113,16 +113,16 @@ public class FlowspecIpv6RIBSupportTest extends AbstractRIBSupportTest {
     @Test
     public void testBuildMpUnreachNlriUpdate() {
         final Update update = RIB_SUPPORT.buildUpdate(Collections.emptyList(), createRoutes(ROUTES), ATTRIBUTES);
-        assertEquals(UNREACH_NLRI, update.getAttributes().getAugmentation(Attributes2.class)
+        assertEquals(UNREACH_NLRI, update.getAttributes().augmentation(Attributes2.class)
             .getMpUnreachNlri().getWithdrawnRoutes().getDestinationType());
-        assertNull(update.getAttributes().getAugmentation(Attributes1.class));
+        assertNull(update.getAttributes().augmentation(Attributes1.class));
     }
 
     @Test
     public void testBuildMpReachNlriUpdate() {
         final Update update = RIB_SUPPORT.buildUpdate(createRoutes(ROUTES), Collections.emptyList(), ATTRIBUTES);
-        assertEquals(REACH_NLRI, update.getAttributes().getAugmentation(Attributes1.class).getMpReachNlri().getAdvertizedRoutes().getDestinationType());
-        assertNull(update.getAttributes().getAugmentation(Attributes2.class));
+        assertEquals(REACH_NLRI, update.getAttributes().augmentation(Attributes1.class).getMpReachNlri().getAdvertizedRoutes().getDestinationType());
+        assertNull(update.getAttributes().augmentation(Attributes2.class));
     }
 
     @Test

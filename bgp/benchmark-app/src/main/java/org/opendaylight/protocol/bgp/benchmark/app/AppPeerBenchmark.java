@@ -217,7 +217,7 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
                 final Ipv4RouteBuilder ipv4RouteBuilder = new Ipv4RouteBuilder();
                 ipv4RouteBuilder.setRouteKey(routeKey.getRouteKey());
                 ipv4RouteBuilder.setPrefix(new Ipv4Prefix(routeKey.getRouteKey()));
-                ipv4RouteBuilder.setKey(routeKey);
+                ipv4RouteBuilder.withKey(routeKey);
                 ipv4RouteBuilder.setAttributes(attributes);
                 final Ipv4Route ipv4Route = ipv4RouteBuilder.build();
                 wt.put(LogicalDatastoreType.CONFIGURATION, routeIId,

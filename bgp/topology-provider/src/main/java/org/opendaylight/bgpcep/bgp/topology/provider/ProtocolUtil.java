@@ -320,7 +320,7 @@ public final class ProtocolUtil {
         for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329
                 .UnreservedBandwidth bandwidth : input) {
             ret.add(new UnreservedBandwidthBuilder().setBandwidth(bandwidthToBigDecimal(bandwidth.getBandwidth()))
-                    .setKey(new UnreservedBandwidthKey(bandwidth.getPriority())).build());
+                    .withKey(new UnreservedBandwidthKey(bandwidth.getPriority())).build());
         }
 
         return ret;

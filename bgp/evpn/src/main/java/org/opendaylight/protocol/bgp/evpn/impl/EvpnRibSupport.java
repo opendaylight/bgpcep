@@ -121,7 +121,7 @@ final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoute, EvpnRouteKey> {
         } else {
             builder = new EvpnRouteBuilder();
         }
-        return builder.setKey(new EvpnRouteKey(new PathId(pathId), routeKey)).setAttributes(attributes).build();
+        return builder.withKey(new EvpnRouteKey(new PathId(pathId), routeKey)).setAttributes(attributes).build();
     }
 
     @Override

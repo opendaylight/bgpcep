@@ -40,14 +40,14 @@ final class PCEPTopologyProviderUtil {
         final KeyMapping ret = KeyMapping.getKeyMapping();
         topology.getNode().stream()
                 .filter(Objects::nonNull)
-                .filter(node -> node.getAugmentation(PcepNodeConfig.class) != null)
-                .filter(node -> node.getAugmentation(PcepNodeConfig.class).getSessionConfig() != null)
-                .filter(node -> node.getAugmentation(PcepNodeConfig.class)
+                .filter(node -> node.augmentation(PcepNodeConfig.class) != null)
+                .filter(node -> node.augmentation(PcepNodeConfig.class).getSessionConfig() != null)
+                .filter(node -> node.augmentation(PcepNodeConfig.class)
                         .getSessionConfig().getPassword() != null)
-                .filter(node -> !node.getAugmentation(PcepNodeConfig.class)
+                .filter(node -> !node.augmentation(PcepNodeConfig.class)
                         .getSessionConfig().getPassword().getValue().isEmpty())
                 .forEach(node -> {
-                    final PcepNodeConfig config = node.getAugmentation(PcepNodeConfig.class);
+                    final PcepNodeConfig config = node.augmentation(PcepNodeConfig.class);
                     final Rfc2385Key rfc2385KeyPassword = config.getSessionConfig().getPassword();
                     final InetAddress address = InetAddresses.forString(node.getNodeId().getValue());
                     ret.put(address, rfc2385KeyPassword.getValue().getBytes(StandardCharsets.US_ASCII));
@@ -64,7 +64,7 @@ final class PCEPTopologyProviderUtil {
         if (topologyTypes == null) {
             return false;
         }
-        final TopologyTypes1 aug = topologyTypes.getAugmentation(TopologyTypes1.class);
+        final TopologyTypes1 aug = topologyTypes.augmentation(TopologyTypes1.class);
 
         return aug != null && aug.getTopologyPcep() != null;
     }
@@ -74,14 +74,14 @@ final class PCEPTopologyProviderUtil {
         final SpeakerIdMapping ret = SpeakerIdMapping.getSpeakerIdMap();
         topology.getNode().stream()
                 .filter(Objects::nonNull)
-                .filter(node -> node.getAugmentation(PcepNodeConfig.class) != null)
-                .filter(node -> node.getAugmentation(PcepNodeConfig.class).getSessionConfig() != null)
-                .filter(node -> node.getAugmentation(PcepNodeConfig.class).getSessionConfig()
-                        .getAugmentation(PcepNodeSyncConfig.class) != null)
+                .filter(node -> node.augmentation(PcepNodeConfig.class) != null)
+                .filter(node -> node.augmentation(PcepNodeConfig.class).getSessionConfig() != null)
+                .filter(node -> node.augmentation(PcepNodeConfig.class).getSessionConfig()
+                        .augmentation(PcepNodeSyncConfig.class) != null)
                 .forEach(node -> {
-                    final PcepNodeConfig config = node.getAugmentation(PcepNodeConfig.class);
+                    final PcepNodeConfig config = node.augmentation(PcepNodeConfig.class);
                     final PcepNodeSyncConfig nodeSyncConfig = config.getSessionConfig()
-                            .getAugmentation(PcepNodeSyncConfig.class);
+                            .augmentation(PcepNodeSyncConfig.class);
                     final InetAddress address = InetAddresses.forString(node.getNodeId().getValue());
                     ret.put(address, nodeSyncConfig.getSpeakerEntityIdValue());
                 });

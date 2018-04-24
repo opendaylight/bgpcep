@@ -48,11 +48,14 @@ public class AddPathCapabilityHandler implements CapabilityParser, CapabilitySer
 
     @Override
     public void serializeCapability(final CParameters capability, final ByteBuf byteAggregator) {
-        if ( (capability.getAugmentation(CParameters1.class) == null)
-            || (capability.getAugmentation(CParameters1.class).getAddPathCapability() == null) ) {
+        final CParameters1 aug = capability.augmentation(CParameters1.class);
+        if (aug == null) {
             return;
         }
-        final AddPathCapability addPathCap = capability.getAugmentation(CParameters1.class).getAddPathCapability();
+        final AddPathCapability addPathCap = aug.getAddPathCapability();
+        if (addPathCap == null) {
+            return;
+        }
 
         final List<AddressFamilies> families = addPathCap.getAddressFamilies();
         if (families != null) {

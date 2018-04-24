@@ -88,10 +88,10 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
     public void setUp() throws TransactionCommitFailedException {
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.OPERATIONAL, PCEP_TOPO_IID, new TopologyBuilder()
-                .setKey(new TopologyKey(PCEP_TOPOLOGY_ID)).setNode(Lists.newArrayList())
+                .withKey(new TopologyKey(PCEP_TOPOLOGY_ID)).setNode(Lists.newArrayList())
                 .setTopologyId(PCEP_TOPOLOGY_ID).build(), true);
         wTx.put(LogicalDatastoreType.OPERATIONAL, TUNNEL_TOPO_IID, new TopologyBuilder()
-                .setKey(new TopologyKey(TUNNEL_TOPOLOGY_ID)).setTopologyId(TUNNEL_TOPOLOGY_ID).build(), true);
+                .withKey(new TopologyKey(TUNNEL_TOPOLOGY_ID)).setTopologyId(TUNNEL_TOPOLOGY_ID).build(), true);
         wTx.submit().checkedGet();
         final NodeChangedListener nodeListener = new NodeChangedListener(getDataBroker(),
                 PCEP_TOPOLOGY_ID, TUNNEL_TOPO_IID);
@@ -138,7 +138,7 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
         Assert.assertEquals(1, src.getSupportingNode().size());
         Assert.assertNull(dst.getSupportingNode());
         final SupportingNode sNode = src.getSupportingNode().get(0);
-        Assert.assertEquals(NODE1_ID, sNode.getKey().getNodeRef());
+        Assert.assertEquals(NODE1_ID, sNode.key().getNodeRef());
 
         Assert.assertEquals(1, tunnelTopo.getLink().size());
         final Link link = tunnelTopo.getLink().get(0);
@@ -200,10 +200,10 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
     private void createNode(final NodeId nodeId, final String ipv4Address, final String lspName, final long lspId,
             final String dstIpv4Address) throws TransactionCommitFailedException {
         final NodeBuilder nodeBuilder = new NodeBuilder();
-        nodeBuilder.setKey(new NodeKey(nodeId));
+        nodeBuilder.withKey(new NodeKey(nodeId));
         nodeBuilder.setNodeId(nodeId);
         final PathBuilder pathBuilder = new PathBuilder();
-        pathBuilder.setKey(new PathKey(new LspId(lspId)));
+        pathBuilder.withKey(new PathKey(new LspId(lspId)));
         pathBuilder.setBandwidth(new BandwidthBuilder().setBandwidth(
                 new Bandwidth(new byte[]{0x00, 0x00, (byte) 0xff, (byte) 0xff})).build());
         pathBuilder.addAugmentation(Path1.class, new Path1Builder().setLsp(new LspBuilder().setTlvs(new TlvsBuilder()
@@ -213,7 +213,7 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
                                 .setIpv4TunnelEndpointAddress(new Ipv4Address(dstIpv4Address))
                                 .build()).build()).build()).build()).setAdministrative(true)
                 .setDelegate(true).build()).build());
-        final ReportedLsp reportedLps = new ReportedLspBuilder().setKey(new ReportedLspKey(lspName)).setPath(
+        final ReportedLsp reportedLps = new ReportedLspBuilder().withKey(new ReportedLspKey(lspName)).setPath(
                 Collections.singletonList(pathBuilder.build())).build();
         final Node1Builder node1Builder = new Node1Builder();
         node1Builder.setPathComputationClient(new PathComputationClientBuilder()

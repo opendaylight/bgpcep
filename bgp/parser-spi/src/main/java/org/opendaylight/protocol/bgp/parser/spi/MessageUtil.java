@@ -72,8 +72,11 @@ public final class MessageUtil {
      * @return MP-REACH-NLRI if present in the attributes, null otherwise
      */
     public static MpReachNlri getMpReachNlri(final Attributes attrs) {
-        if (attrs != null && attrs.getAugmentation(Attributes1.class) != null) {
-            return attrs.getAugmentation(Attributes1.class).getMpReachNlri();
+        if (attrs != null) {
+            final Attributes1 aug = attrs.augmentation(Attributes1.class);
+            if (aug != null) {
+                return aug.getMpReachNlri();
+            }
         }
 
         return null;
@@ -86,8 +89,11 @@ public final class MessageUtil {
      * @return MP-UNREACH-NLRI if present in the attributes, null otherwise
      */
     public static MpUnreachNlri getMpUnreachNlri(final Attributes attrs) {
-        if (attrs != null && attrs.getAugmentation(Attributes2.class) != null) {
-            return attrs.getAugmentation(Attributes2.class).getMpUnreachNlri();
+        if (attrs != null) {
+            final Attributes2 aug =  attrs.augmentation(Attributes2.class);
+            if (aug != null) {
+                return aug.getMpUnreachNlri();
+            }
         }
 
         return null;

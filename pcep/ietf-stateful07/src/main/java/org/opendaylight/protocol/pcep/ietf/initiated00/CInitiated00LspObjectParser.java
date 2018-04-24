@@ -51,8 +51,8 @@ public class CInitiated00LspObjectParser extends Stateful07LspObjectParser {
         flags.set(REMOVE, specObj.isRemove());
         flags.set(SYNC, specObj.isSync());
         flags.set(ADMINISTRATIVE, specObj.isAdministrative());
-        if (specObj.getAugmentation(Lsp1.class) != null) {
-            flags.set(CREATE_FLAG_OFFSET, specObj.getAugmentation(Lsp1.class).isCreate());
+        if (specObj.augmentation(Lsp1.class) != null) {
+            flags.set(CREATE_FLAG_OFFSET, specObj.augmentation(Lsp1.class).isCreate());
         }
         return flags;
     }
